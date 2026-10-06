@@ -1,8 +1,8 @@
 {
-  "commit": "e9f55b5534c0239c0b876dd37b1074d96f7d5e5c",
-  "summary": "Merge pull request #21385 from mozilla/agent-bde4ad",
-  "description": "chore(metrics): stop sending the legacy accounts-events Glean ping",
-  "timestamp": 1791319006000,
+  "commit": "d874e2ca7d7df84fd51e6c140a737e0e5379659d",
+  "summary": "Merge pull request #21392 from mozilla/agent-d5b4ca",
+  "description": "fix(tests): remove act() warnings in settings and react unit tests",
+  "timestamp": 1791319861000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
