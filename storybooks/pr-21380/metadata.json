@@ -1,0 +1,10 @@
+{
+  "commit": "e2a9d86a0797278aaa8618b99907dc01d0fdb120",
+  "summary": "fix(settings): stack delete account buttons on narrow screens",
+  "description": "## Because\n\n- On a 320px screen, the buttons on both delete account steps overflow the page.\n- The shared `cta-*` style sets `shrink-0`, and below 480px it sets `w-full`. Two full-width buttons that cannot shrink do not fit in a row that does not wrap. Measured at 320px: left edge -54px, right edge 374px.\n- The ticket did not name the step. Both steps were fixed.\n\n## This pull request\n\n- Adds `flex-wrap` and `gap-4` to both button rows in `PageDeleteAccount/index.tsx`.\n- Removes `mx-2` from the buttons. The `gap-4` keeps the same 16px space between buttons.\n- Changes the step 1 buttons to `px-4 tablet:px-10`, the same as step 2.\n- Adds the Playwright test \"delete account buttons fit a 320px viewport on both steps\" in `deleteAccount.spec.ts`.\n- Behavior, test ids and l10n ids do not change.\n\n## Issue that this pull request solves\n\nCloses: FXA-14631",
+  "timestamp": 1791232937000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

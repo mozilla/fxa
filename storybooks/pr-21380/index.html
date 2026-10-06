@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit e2a9d86a0797278aaa8618b99907dc01d0fdb120</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit e2a9d86a0797278aaa8618b99907dc01d0fdb120</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/5/2026, 8:42:17 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): stack delete account buttons on narrow screens</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- On a 320px screen, the buttons on both delete account steps overflow the page.
+- The shared `cta-*` style sets `shrink-0`, and below 480px it sets `w-full`. Two full-width buttons that cannot shrink do not fit in a row that does not wrap. Measured at 320px: left edge -54px, right edge 374px.
+- The ticket did not name the step. Both steps were fixed.
+
+## This pull request
+
+- Adds `flex-wrap` and `gap-4` to both button rows in `PageDeleteAccount/index.tsx`.
+- Removes `mx-2` from the buttons. The `gap-4` keeps the same 16px space between buttons.
+- Changes the step 1 buttons to `px-4 tablet:px-10`, the same as step 2.
+- Adds the Playwright test &quot;delete account buttons fit a 320px viewport on both steps&quot; in `deleteAccount.spec.ts`.
+- Behavior, test ids and l10n ids do not change.
+
+## Issue that this pull request solves
+
+Closes: FXA-14631</pre></dd>
+  </dl>
+</body>
+</html>
