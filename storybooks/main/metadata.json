@@ -1,8 +1,8 @@
 {
-  "commit": "625ab6c1cfb690474cff6ba42eecd66315da3564",
-  "summary": "Merge pull request #21389 from mozilla/FXA-13154",
-  "description": "test(functional-tests): cover passkey passwordless Sync sign-in end to end",
-  "timestamp": 1791399458000,
+  "commit": "d18e791ca579026049ca466f442ba8418b24d927",
+  "summary": "Merge pull request #21419 from mozilla/fxa-14669",
+  "description": "chore(deps): bump Node from 24.15.0 to 24.21.0",
+  "timestamp": 1791414314000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
