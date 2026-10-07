@@ -16,6 +16,7 @@ import { useNavigateWithQuery } from '../../../lib/hooks';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
 import { shouldShowPasskeyResetOption } from '../../../lib/passkeys';
+import { Constants } from '../../../lib/constants';
 
 const ConfirmResetPasswordContainer = ({
   integration,
@@ -150,7 +151,10 @@ const ConfirmResetPasswordContainer = ({
 
   const verifyCode = async (otpCode: string) => {
     clearBanners();
-    const options = { metricsContext };
+    const options = {
+      metricsContext,
+      ...(integration.isSync() && { service: Constants.SYNC_SERVICE }),
+    };
     try {
       GleanMetrics.passwordReset.emailConfirmationSubmit();
       const { code, emailToHashWith, token, uid, hasPasskey, hasPasskeyWraps } =

@@ -1667,6 +1667,24 @@ describe('passkeys routes', () => {
         expect(request.setMetricsFlowCompleteSignal).not.toHaveBeenCalled();
       });
 
+      it('stashes the account.signed signal before the session stash for a Sync sign-in with keysRequired', async () => {
+        await runTest('/passkey/authentication/finish', {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload: { ...payload, service: 'sync', keysRequired: true },
+        });
+
+        expect(request.setMetricsFlowCompleteSignal).toHaveBeenCalledTimes(1);
+        expect(request.setMetricsFlowCompleteSignal).toHaveBeenCalledWith(
+          'account.signed',
+          'login',
+          'passkey'
+        );
+        expect(
+          request.setMetricsFlowCompleteSignal.mock.invocationCallOrder[0]
+        ).toBeLessThan(request.stashMetricsContext.mock.invocationCallOrder[0]);
+      });
+
       it('does not record the account.login security event when keysRequired is true', async () => {
         await runTest('/passkey/authentication/finish', {
           auth: { credentials: {} },

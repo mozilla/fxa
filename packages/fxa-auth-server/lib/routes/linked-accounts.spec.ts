@@ -201,6 +201,7 @@ describe('/linked_account', () => {
           '/linked_account/login'
         );
         glean.registration.complete.mockClear();
+        glean.login.complete.mockClear();
         glean.thirdPartyAuth.googleLoginComplete.mockClear();
         glean.thirdPartyAuth.googleRegComplete.mockClear();
       });
@@ -405,6 +406,11 @@ describe('/linked_account', () => {
           mockRequest,
           { reason: 'linking' }
         );
+        expect(mockRequest.setMetricsFlowCompleteSignal).toHaveBeenCalledWith(
+          'account.signed',
+          'login',
+          'google'
+        );
 
         // Should emit SNS login + profileDataChange but NOT verified
         // (the account already existed).
@@ -449,6 +455,16 @@ describe('/linked_account', () => {
         expect(glean.thirdPartyAuth.googleLoginComplete).toHaveBeenCalledWith(
           mockRequest
         );
+        expect(mockRequest.setMetricsFlowCompleteSignal).toHaveBeenCalledWith(
+          'account.signed',
+          'login',
+          'google'
+        );
+        expect(mockRequest.stashMetricsContext).toHaveBeenCalledWith(
+          await mockDB.createSessionToken.mock.results[0].value
+        );
+        // The generic flow-complete emitter sends login.complete, not the route.
+        expect(glean.login.complete).not.toHaveBeenCalled();
       });
 
       it('with 2fa enabled', async () => {
@@ -690,6 +706,7 @@ describe('/linked_account', () => {
           '/linked_account/login'
         );
         glean.registration.complete.mockClear();
+        glean.login.complete.mockClear();
         glean.thirdPartyAuth.appleLoginComplete.mockClear();
         glean.thirdPartyAuth.appleRegComplete.mockClear();
       });
@@ -898,6 +915,11 @@ describe('/linked_account', () => {
           mockRequest,
           { reason: 'linking' }
         );
+        expect(mockRequest.setMetricsFlowCompleteSignal).toHaveBeenCalledWith(
+          'account.login',
+          'login',
+          'apple'
+        );
 
         // New link on existing account: login + profileDataChange, no verified.
         const notifyEvents = mockLog.notifyAttachedServices.mock.calls.map(
@@ -932,6 +954,12 @@ describe('/linked_account', () => {
         expect(glean.thirdPartyAuth.appleLoginComplete).toHaveBeenCalledWith(
           mockRequest
         );
+        expect(mockRequest.setMetricsFlowCompleteSignal).toHaveBeenCalledWith(
+          'account.login',
+          'login',
+          'apple'
+        );
+        expect(glean.login.complete).not.toHaveBeenCalled();
 
         // Re-login: login event only.
         const notifyEvents = mockLog.notifyAttachedServices.mock.calls.map(
