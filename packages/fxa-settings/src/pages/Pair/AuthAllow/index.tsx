@@ -21,6 +21,7 @@ import { useNavigateWithQuery } from '../../../lib/hooks';
 import { getBasicAccountData } from '../../../lib/account-storage';
 import { getPairingErrorMessage } from '../../../lib/utilities';
 import AuthenticationMethods from '../../../constants/authentication-methods';
+import { consumePairingTotpConfirmation } from '../../../lib/pairing-totp-confirmation';
 
 // pair/auth/allow is the authority approval page.
 // When the user clicks "Yes, approve device", it sends the PAIR_AUTHORIZE
@@ -64,7 +65,8 @@ const AuthAllow = ({
   const channelId = getUrlParam('channel_id');
 
   // Check if account has TOTP enabled; redirect to /pair/auth/totp if so.
-  // Skip the check if we're returning from a successful TOTP verification.
+  // Skip the check if we're returning from a successful TOTP verification,
+  // or if /pair asked for the code just before Firefox opened the channel.
   const totpComplete = (location.state as Record<string, unknown>)
     ?.totpComplete;
   useEffect(() => {
@@ -74,7 +76,8 @@ const AuthAllow = ({
     }
     isTotpCheckStarted.current = true;
 
-    const sessionToken = getBasicAccountData()?.sessionToken;
+    const accountData = getBasicAccountData();
+    const sessionToken = accountData?.sessionToken;
     if (!sessionToken) {
       setTotpChecked(true);
       return;
@@ -85,7 +88,10 @@ const AuthAllow = ({
         // Mirror Backbone: 'otp' is in AMR only when TOTP is verified AND enabled.
         const { authenticationMethods } =
           await authClient.accountProfile(sessionToken);
-        if (authenticationMethods?.includes(AuthenticationMethods.OTP)) {
+        if (
+          authenticationMethods?.includes(AuthenticationMethods.OTP) &&
+          !consumePairingTotpConfirmation(accountData?.uid)
+        ) {
           navigateWithQuery('/pair/auth/totp');
           return;
         }

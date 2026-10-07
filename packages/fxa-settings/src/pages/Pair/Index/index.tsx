@@ -14,7 +14,7 @@ import { Link, useLocation } from 'react-router';
 import { UseFxAStatusResult, useNavigateWithQuery } from '../../../lib/hooks';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { usePageViewEvent } from '../../../lib/metrics';
-import { useFtlMsgResolver } from '../../../models';
+import { useAuthClient, useFtlMsgResolver } from '../../../models';
 import { useCmsInfoState, useConfig } from '../../../models/hooks';
 import { RelierCmsInfo } from '../../../models/integrations';
 import AppLayout from '../../../components/AppLayout';
@@ -63,6 +63,10 @@ import {
   pickPairingAttributionFromData,
   stashPairingAttribution,
 } from '../../../lib/pairing-attribution';
+import { markPairingTotpConfirmed } from '../../../lib/pairing-totp-confirmation';
+import { getBasicAccountData } from '../../../lib/account-storage';
+import AuthenticationMethods from '../../../constants/authentication-methods';
+import AuthTotp from '../AuthTotp';
 import type { PairOrigin } from '../../Signin/utils';
 import type { SigninLocationState } from '../../Signin/interfaces';
 import type { Integration } from '../../../models';
@@ -101,7 +105,7 @@ const GLEAN_REASON_BY_CHOICE: Record<MobileChoice, string> = {
   'needs-mobile': 'does not have mobile',
 };
 
-type PairView = 'choice' | 'download';
+type PairView = 'choice' | 'download' | 'totp';
 
 type PairProps = {
   error?: string;
@@ -135,6 +139,7 @@ const Pair = ({
     'QR code'
   );
   const config = useConfig();
+  const authClient = useAuthClient();
   const navigateWithQuery = useNavigateWithQuery();
   const location = useLocation();
 
@@ -421,7 +426,7 @@ const Pair = ({
   // otherwise users redirected during bootstrap would skew the metric.
   const recordedView = useRef<string | null>(null);
   useEffect(() => {
-    if (bootstrapping) return;
+    if (bootstrapping || currentView === 'totp') return;
     const viewKey = currentView === 'choice' ? `choice:${pairReason}` : 'view';
     if (recordedView.current === viewKey) return;
     recordedView.current = viewKey;
@@ -450,6 +455,40 @@ const Pair = ({
     firefox.send(FirefoxCommand.PairPreferences, {});
   }, [pairingAttribution]);
 
+  // Asks a 2FA account for its code before Firefox opens the pairing channel.
+  const isTotpCheckPending = useRef(false);
+  const continueToPairing = useCallback(async () => {
+    if (isTotpCheckPending.current) {
+      return;
+    }
+    isTotpCheckPending.current = true;
+    try {
+      const sessionToken = getBasicAccountData()?.sessionToken;
+      if (sessionToken) {
+        // 'otp' is in AMR only when TOTP is verified and enabled.
+        const { authenticationMethods } =
+          await authClient.accountProfile(sessionToken);
+        if (authenticationMethods?.includes(AuthenticationMethods.OTP)) {
+          setCurrentView('totp');
+          return;
+        }
+      }
+    } catch {
+      // Non-blocking: /pair/auth/allow still asks for the code.
+    } finally {
+      isTotpCheckPending.current = false;
+    }
+    openPairPreferences();
+  }, [authClient, openPairPreferences]);
+
+  const handleTotpVerified = useCallback(() => {
+    const uid = getBasicAccountData()?.uid;
+    if (uid) {
+      markPairingTotpConfirmed(uid);
+    }
+    openPairPreferences();
+  }, [openPairPreferences]);
+
   const handleRadioChange = useCallback((value: MobileChoice) => {
     setSelectedRadio(value);
     GleanMetrics.cadFireFox.choiceEngage({
@@ -469,8 +508,8 @@ const Pair = ({
       setCurrentView('download');
       return;
     }
-    openPairPreferences();
-  }, [selectedRadio, openPairPreferences]);
+    continueToPairing();
+  }, [selectedRadio, continueToPairing]);
 
   const handleBackButton = useCallback(() => {
     setCurrentView('choice');
@@ -481,11 +520,15 @@ const Pair = ({
 
   const handleSyncDeviceSubmit = useCallback(() => {
     GleanMetrics.cadFireFox.syncDeviceSubmit();
-    openPairPreferences();
-  }, [openPairPreferences]);
+    continueToPairing();
+  }, [continueToPairing]);
 
   if (bootstrapping || fxaStatusResult.fxaStatusState === 'pending') {
     return <LoadingSpinner fullScreen />;
+  }
+
+  if (currentView === 'totp') {
+    return <AuthTotp onVerified={handleTotpVerified} />;
   }
 
   if (currentView === 'download') {

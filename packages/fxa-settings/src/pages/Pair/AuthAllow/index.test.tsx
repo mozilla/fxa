@@ -17,6 +17,10 @@ import { REACT_ENTRYPOINT } from '../../../constants';
 import { Integration } from '../../../models/integrations/integration';
 import { AppContext } from '../../../models/contexts/AppContext';
 import { MemoryRouter } from 'react-router';
+import {
+  consumePairingTotpConfirmation,
+  markPairingTotpConfirmed,
+} from '../../../lib/pairing-totp-confirmation';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
@@ -71,7 +75,7 @@ function renderWithAppContext(
   if (appCtx.authClient) {
     Object.assign(appCtx.authClient as object, authClientOverrides);
   }
-    return renderWithLocalizationProvider(
+  return renderWithLocalizationProvider(
     <AppContext.Provider value={appCtx}>
       <MemoryRouter initialEntries={['/pair/auth/allow']}>{ui}</MemoryRouter>
     </AppContext.Provider>
@@ -245,6 +249,45 @@ describe('Pair/AuthAllow page', () => {
     });
 
     it('redirects to /pair/auth/totp when "otp" is an available AMR', async () => {
+      const accountProfile = jest
+        .fn()
+        .mockResolvedValue({ authenticationMethods: ['pwd', 'email', 'otp'] });
+      renderWithAppContext(
+        <AuthAllow
+          email={MOCK_EMAIL}
+          suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+        />,
+        { accountProfile }
+      );
+      await waitFor(() => {
+        expect(mockNavigateWithQuery).toHaveBeenCalledWith('/pair/auth/totp');
+      });
+    });
+
+    it('skips the redirect once after /pair confirmed TOTP for this uid', async () => {
+      markPairingTotpConfirmed('uid-123');
+      const accountProfile = jest
+        .fn()
+        .mockResolvedValue({ authenticationMethods: ['pwd', 'email', 'otp'] });
+      renderWithAppContext(
+        <AuthAllow
+          email={MOCK_EMAIL}
+          suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+        />,
+        { accountProfile }
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole('button', { name: 'Yes, approve device' })
+        ).toBeInTheDocument();
+      });
+      expect(mockNavigateWithQuery).not.toHaveBeenCalledWith('/pair/auth/totp');
+      expect(consumePairingTotpConfirmation('uid-123')).toBe(false);
+    });
+
+    it('still redirects when /pair confirmed TOTP for another uid', async () => {
+      markPairingTotpConfirmed('other-uid');
       const accountProfile = jest
         .fn()
         .mockResolvedValue({ authenticationMethods: ['pwd', 'email', 'otp'] });

@@ -41,6 +41,7 @@ import {
   enableTotpOnAccount,
   enterTotpCodeViaMarionette,
   completeSupplicantApproval,
+  waitForUrlContaining,
   captureDiagnostics,
   verifyPairChoiceScreen,
 } from '../../lib/pairing-helpers';
@@ -169,6 +170,7 @@ test.describe('severity-2 #smoke', () => {
       });
     });
 
+    // Starts the channel from chrome, as about:preferences does, so /pair never asks.
     test('pairing with 2FA-enabled account requires TOTP on authority', async ({
       target,
       syncOAuthBrowserPages: { page },
@@ -237,6 +239,105 @@ test.describe('severity-2 #smoke', () => {
           channelId,
           totpSecret: secret,
         });
+      });
+
+      await test.step('Supplicant confirms and verify success', async () => {
+        await completeSupplicantApproval(page, client);
+      });
+    });
+
+    test('pairing from /pair with 2FA asks for TOTP before the channel opens', async ({
+      target,
+      syncOAuthBrowserPages: { page },
+      testAccountTracker,
+      marionetteAuthority,
+    }) => {
+      const client = marionetteAuthority.client;
+      await setPairingVersion(client, 1);
+
+      const { credentials, secret } =
+        await test.step('Create test account with TOTP', async () => {
+          const creds = await testAccountTracker.signUp();
+          const totpSecret = await enableTotpOnAccount(
+            target.authClient,
+            await testAccountTracker.getMfaJwtForScope(
+              '2fa',
+              creds.sessionToken,
+              creds.email
+            )
+          );
+          creds.secret = totpSecret;
+          return { credentials: creds, secret: totpSecret };
+        });
+
+      const signedInUser =
+        await test.step('Sign in authority via Marionette', async () => {
+          await signInAuthorityViaMarionette(
+            client,
+            target.contentServerUrl,
+            credentials.email,
+            credentials.password,
+            secret
+          );
+          const user = await getSignedInUser(client);
+          expect(user.signedIn).toBe(true);
+          return user;
+        });
+
+      await test.step('Verify /pair choice screen', async () => {
+        await verifyPairChoiceScreen(client, target.contentServerUrl);
+      });
+
+      await test.step('Confirm TOTP on /pair before Firefox opens the channel', async () => {
+        const continueBtn = await findElementBySelectors(
+          client,
+          SELECTORS.PAIR_CONTINUE_BUTTON
+        );
+        await client.clickElement(continueBtn);
+        // The code form replaces the choice screen; Firefox has not opened
+        // the pairing dialog yet.
+        await findElementBySelectors(client, SELECTORS.TOTP_INPUT);
+        expect(await client.getUrl()).toContain('/pair');
+
+        await enterTotpCodeViaMarionette(client, secret);
+        await waitForUrlContaining(client, 'about:preferences?action=pair');
+
+        // The test drives its own channel below. Close the dialog first: on
+        // close it loads about:preferences#sync into this tab, which would
+        // replace the approval page.
+        await client.navigate('about:preferences#sync');
+      });
+
+      const channelId =
+        await test.step('Start pairing flow on authority', async () => {
+          const pairUrl = await startPairingFlow(client);
+          const id = extractChannelId(pairUrl);
+
+          const suppUrl = buildSupplicantUrl(target.contentServerUrl, pairUrl);
+          await page.goto(suppUrl, { waitUntil: 'load' });
+          await expect(page.locator('#supp-approve-btn')).toBeVisible({
+            timeout: TIMEOUTS.SUPPLICANT_ALLOW,
+          });
+
+          return id;
+        });
+
+      await test.step('Authority approves without a second TOTP prompt', async () => {
+        expect(signedInUser.uid).toBeTruthy();
+        await client.setContext('content');
+        await client.navigate(
+          buildAuthorityOAuthUrl(target.contentServerUrl, {
+            email: credentials.email,
+            uid: signedInUser.uid as string,
+            channelId,
+          })
+        );
+        // Only /pair/auth/allow renders this button; /pair/auth/totp does not.
+        const approveBtn = await findElementBySelectors(client, [
+          '[data-testid="pair-auth-approve-btn"]',
+        ]);
+        expect(await client.getUrl()).not.toContain('pair/auth/totp');
+        await client.clickElement(approveBtn);
       });
 
       await test.step('Supplicant confirms and verify success', async () => {

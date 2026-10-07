@@ -4,7 +4,10 @@
 
 import React from 'react';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
-import { mockAppContext, renderWithRouter } from '../../../models/mocks';
+import {
+  mockAppContext,
+  renderWithRouter as renderWithRouterBase,
+} from '../../../models/mocks';
 import userEvent from '@testing-library/user-event';
 import { readPairingAttribution } from '../../../lib/pairing-attribution';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -15,6 +18,8 @@ import * as ReactUtils from 'fxa-react/lib/utils';
 import { MOCK_ERROR } from './mocks';
 import { MOCK_CMS_INFO } from '../../mocks';
 import Pair, { viewName } from '.';
+import { getBasicAccountData } from '../../../lib/account-storage';
+import { consumePairingTotpConfirmation } from '../../../lib/pairing-totp-confirmation';
 import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
 import type { FxAStatusState } from '../../../lib/hooks/useFxAStatus';
 import { getDefault } from '../../../lib/config';
@@ -27,8 +32,14 @@ import {
   resetPairingChannelParamsForTest,
 } from '../../../lib/pairing-channel-params';
 
+jest.mock('../../../lib/account-storage', () => {
+  const actual = jest.requireActual('../../../lib/account-storage');
+  return { ...actual, getBasicAccountData: jest.fn() };
+});
+
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
+  logViewEvent: jest.fn(),
 }));
 
 let mockLocationState: unknown = null;
@@ -98,6 +109,13 @@ jest.mock('../../../components/QRCode', () => ({
     localizedLabel: string;
   }) => <img alt={localizedLabel} data-testid="pair-qr" data-value={value} />,
 }));
+
+// Pair reads the auth client from AppContext, so every render needs one.
+const renderWithRouter: typeof renderWithRouterBase = (
+  ui,
+  opts = {},
+  appCtx = mockAppContext()
+) => renderWithRouterBase(ui, opts, appCtx);
 
 // Pair holds a spinner until the browser answers fxa_status, so every render
 // needs a settled result.
@@ -169,6 +187,8 @@ describe('Pair', () => {
       .mocked(firefox.requestSignedInUser)
       .mockResolvedValue(MOCK_SYNC_SIGNED_IN_USER);
     jest.mocked(firefox.fxaOAuthFlowBegin).mockResolvedValue(null);
+    jest.mocked(getBasicAccountData).mockReset();
+    jest.mocked(getBasicAccountData).mockReturnValue(null);
   });
 
   afterEach(() => {
@@ -396,6 +416,134 @@ describe('Pair', () => {
         expect(
           screen.getByText('Select an option to continue:')
         ).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('2FA before pairing', () => {
+    const accountData = {
+      uid: 'sync-uid',
+      email: 'sync@example.com',
+      metricsEnabled: true,
+      verified: true,
+      sessionToken: 'token',
+      sessionVerified: true,
+    };
+
+    async function renderWithAuthClient(authClient: Record<string, jest.Mock>) {
+      const appCtx = mockAppContext();
+      Object.assign(appCtx.authClient as object, authClient);
+      renderWithRouter(<Pair {...defaultProps} />, {}, appCtx);
+      await screen.findByLabelText(/I already have Firefox for mobile/);
+    }
+
+    async function clickContinueWithMobile() {
+      await userEvent.click(
+        screen.getByLabelText(/I already have Firefox for mobile/)
+      );
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    }
+
+    beforeEach(() => {
+      jest.mocked(getBasicAccountData).mockReturnValue(accountData);
+    });
+
+    it('asks for the TOTP code before it sends pair_preferences', async () => {
+      const accountProfile = jest
+        .fn()
+        .mockResolvedValue({ authenticationMethods: ['pwd', 'otp'] });
+      const verifyTotpCode = jest.fn().mockResolvedValue({ success: true });
+      await renderWithAuthClient({ accountProfile, verifyTotpCode });
+
+      await clickContinueWithMobile();
+      const input = await screen.findByLabelText('Enter 6-digit code');
+      expect(firefox.send).not.toHaveBeenCalled();
+
+      await userEvent.type(input, '123456');
+      await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => {
+        expect(firefox.send).toHaveBeenCalledWith(
+          'fxaccounts:pair_preferences',
+          {}
+        );
+      });
+      expect(accountProfile).toHaveBeenCalledWith('token');
+      expect(verifyTotpCode).toHaveBeenCalledWith('token', '123456', {
+        service: 'pair',
+      });
+      expect(consumePairingTotpConfirmation('sync-uid')).toBe(true);
+    });
+
+    it('does not send pair_preferences for an invalid code', async () => {
+      const accountProfile = jest
+        .fn()
+        .mockResolvedValue({ authenticationMethods: ['pwd', 'otp'] });
+      const verifyTotpCode = jest.fn().mockResolvedValue({ success: false });
+      await renderWithAuthClient({ accountProfile, verifyTotpCode });
+
+      await clickContinueWithMobile();
+      await userEvent.type(
+        await screen.findByLabelText('Enter 6-digit code'),
+        '000000'
+      );
+      await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      expect(
+        await screen.findByText('Invalid authentication code')
+      ).toBeInTheDocument();
+      expect(firefox.send).not.toHaveBeenCalled();
+      expect(consumePairingTotpConfirmation('sync-uid')).toBe(false);
+    });
+
+    it('asks for the TOTP code on "Continue to sync" too', async () => {
+      const accountProfile = jest
+        .fn()
+        .mockResolvedValue({ authenticationMethods: ['pwd', 'otp'] });
+      await renderWithAuthClient({ accountProfile });
+
+      await userEvent.click(
+        screen.getByLabelText(/I don’t have Firefox for mobile/)
+      );
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Continue to sync' })
+      );
+
+      expect(
+        await screen.findByLabelText('Enter 6-digit code')
+      ).toBeInTheDocument();
+      expect(firefox.send).not.toHaveBeenCalled();
+    });
+
+    it('sends pair_preferences at once for an account without 2FA', async () => {
+      const accountProfile = jest
+        .fn()
+        .mockResolvedValue({ authenticationMethods: ['pwd', 'email'] });
+      await renderWithAuthClient({ accountProfile });
+
+      await clickContinueWithMobile();
+
+      await waitFor(() => {
+        expect(firefox.send).toHaveBeenCalledWith(
+          'fxaccounts:pair_preferences',
+          {}
+        );
+      });
+      expect(screen.queryByLabelText('Enter 6-digit code')).toBeNull();
+    });
+
+    it('sends pair_preferences when the profile check fails', async () => {
+      const accountProfile = jest.fn().mockRejectedValue(new Error('boom'));
+      await renderWithAuthClient({ accountProfile });
+
+      await clickContinueWithMobile();
+
+      await waitFor(() => {
+        expect(firefox.send).toHaveBeenCalledWith(
+          'fxaccounts:pair_preferences',
+          {}
+        );
       });
     });
   });
