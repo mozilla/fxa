@@ -1,8 +1,8 @@
 {
-  "commit": "7dfcde897c43f562cb17596a7bc0a4f92b95709c",
+  "commit": "b46e52db93a898fa7baf1280389a2049529507b6",
   "summary": "fix(auth): accept stored OAuth scopes in attached_clients response",
-  "description": "Because:\n\n* The response scope regex is stricter than ScopeSet, so a stored scope\n  like `...#read` fails validation and attached_clients returns a 500\n\nThis commit:\n\n* Exports ScopeSet's VALID_SCOPE_VALUE and reuses it in validators.scope\n* Updates the Swagger validator list to match\n* Adds unit tests for accepted and rejected scope values\n\nFixes FXA-14573",
-  "timestamp": 1791387444000,
+  "description": "Because:\n\n* The response scope regex is stricter than ScopeSet, so a stored scope\n  like `...#read` fails validation and attached_clients returns a 500\n\nThis commit:\n\n* Exports ScopeSet's VALID_SCOPE_VALUE from fxa-shared/oauth/scopes\n* Adds a response-only storedScope validator for attached_clients\n* Leaves the request scope validator unchanged\n* Updates the Swagger validator list and adds storedScope unit tests\n\nFixes FXA-14573",
+  "timestamp": 1791388295000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",
