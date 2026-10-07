@@ -1,8 +1,8 @@
 {
-  "commit": "1c2234bdee00b43e9763ebb8ec6216ead5adcbab",
-  "summary": "Merge pull request #21408 from mozilla/dependabot/npm_and_yarn/joi-17.13.8",
-  "description": "chore(deps): bump joi from 17.13.7 to 17.13.8",
-  "timestamp": 1791340609000,
+  "commit": "6b47a910c47b1b3b7c278e8bc606e75e7a496d99",
+  "summary": "Merge pull request #21412 from mozilla/dependabot/npm_and_yarn/graphql-tools/executor-legacy-ws-1.1.37",
+  "description": "chore(deps): bump @graphql-tools/executor-legacy-ws from 1.1.30 to 1.1.37",
+  "timestamp": 1791343694000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
