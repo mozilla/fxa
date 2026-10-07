@@ -1,0 +1,13 @@
+{
+  "commit": "0847617244b6363a8877c1b727f4941ce4eda482",
+  "summary": "chore(deps): bump @opentelemetry/instrumentation-tedious to >=0.40.0",
+  "description": "Resolves Dependabot alert #996. The bump installs the highest\nversion satisfying the dependency range; the title uses >=<min> when the\nadvisory provides a minimum patched version — see the lockfile diff for the exact resolved version.\nCreated by BLEnder (https://github.com/mozilla/blender)",
+  "timestamp": 1791334821000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
