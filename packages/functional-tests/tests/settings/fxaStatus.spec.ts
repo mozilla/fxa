@@ -8,7 +8,7 @@ import { oauthWebchannelV1 } from '../../lib/query-params';
 import { SigninPage } from '../../pages/signin';
 import { SigninTokenCodePage } from '../../pages/signinTokenCode';
 import { Credentials } from '../../lib/targets';
-import { FirefoxCommand } from '../../lib/channels';
+import { requestBrowserSignedInUser } from '../../lib/sync-helpers';
 
 test.describe('fxa_status web channel message in Settings', () => {
   test('message is sent when loading with context = oauth_webchannel_v1', async ({
@@ -81,7 +81,8 @@ test.describe('fxa_status web channel message in Settings', () => {
     await connectAnotherDevice.clickNotNowPair();
     await page.waitForURL(/settings/);
     await expect(settings.settingsHeading).toBeVisible();
-    const browserSessionToken = await requestBrowserSessionToken(page);
+    const browserSessionToken = (await requestBrowserSignedInUser(page))
+      ?.sessionToken as string;
 
     // A forced web sign-in replaces the stored token without telling Firefox.
     const rpPage = await page.context().newPage();
@@ -120,36 +121,4 @@ async function storedSessionToken(page: Page): Promise<string> {
       JSON.parse(localStorage.getItem(`__fxa_storage.${key}`) || 'null');
     return storage('accounts')[storage('currentAccountUid')].sessionToken;
   });
-}
-
-// Asks Firefox for the token it holds, over the web channel Settings uses.
-async function requestBrowserSessionToken(page: Page): Promise<string> {
-  return page.evaluate(
-    (command) =>
-      new Promise<string>((resolve) => {
-        addEventListener('WebChannelMessageToContent', function listener(e) {
-          const detail = (e as CustomEvent).detail;
-          const { message } =
-            typeof detail === 'string' ? JSON.parse(detail) : detail;
-          if (message?.command !== command) {
-            return;
-          }
-          removeEventListener('WebChannelMessageToContent', listener);
-          resolve(message.data.signedInUser.sessionToken);
-        });
-        dispatchEvent(
-          new CustomEvent('WebChannelMessageToChrome', {
-            detail: JSON.stringify({
-              id: 'account_updates',
-              message: {
-                command,
-                data: { context: '', isPairing: false, service: 'sync' },
-                messageId: `${Date.now()}`,
-              },
-            }),
-          })
-        );
-      }),
-    FirefoxCommand.FxAStatus
-  );
 }
