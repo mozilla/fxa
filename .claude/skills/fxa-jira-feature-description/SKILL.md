@@ -16,7 +16,7 @@ Required information:
 - **What:** What is being built or changed, in one sentence
 - **Why:** Motivation — user need, requirement, bug, or tech debt
 - **Packages:** Which specific package(s) will be modified (e.g. `fxa-auth-server`, `libs/accounts/passkey`)
-- **Constraints:** Feature flag, breaking change, migration, L10n — or none
+- **Constraints:** Feature flag, breaking change, migration, L10n — or none. For a migration, settle whether it is backward compatible with the release in production or needs an expand → contract split across tickets (`.claude/rules/db-migrations.md`). Prefer a separate ticket for the migration
 
 If all four are clear from provided context, proceed directly to Step 2. Otherwise ask for only what is missing in a single message. Also invite related PRs, tickets, existing approach notes, design mockups, or flow diagrams that would add useful context.
 
