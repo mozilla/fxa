@@ -1,8 +1,8 @@
 {
-  "commit": "822ac1fcb8c5b599c187ae72c497f0545cc1ce2c",
-  "summary": "Merge pull request #21319 from mozilla/pay-3783-nextjs-16",
-  "description": "chore(payments-next): upgrade to Next.js 16 with Turbopack",
-  "timestamp": 1791388513000,
+  "commit": "aae52021ddd46867d730f9f755010789a663f78e",
+  "summary": "Merge pull request #21377 from mozilla/fxa-14613",
+  "description": "fix(settings): destroy the browser session token on sign-out",
+  "timestamp": 1791388882000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
