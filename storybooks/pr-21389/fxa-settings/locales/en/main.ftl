@@ -1576,7 +1576,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Learn more
 
 pair2-supplicant-sync-success-heading = Your device is connected
 pair2-supplicant-sync-success-description-v2 = Syncing is underway. It may take a while for your synced data to appear. Feel free to keep browsing.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Manage sync settings
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Looks like we timed out
