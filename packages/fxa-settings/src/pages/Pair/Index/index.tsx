@@ -48,6 +48,7 @@ import {
   parsePairingHash,
 } from '../../../lib/pairing/pair-url';
 import { getPairingChannelHashParams } from '../../../lib/pairing-channel-params';
+import { isChannelComplete } from '../../../models/integrations/pairing-supplicant-integration';
 import {
   isPairingV2Enabled,
   isPairingV2RolledOut,
@@ -238,6 +239,19 @@ const Pair = ({
     // Lowered again below, after the last branch that routes elsewhere, so
     // such a branch leaves an in-flight bootstrap standing down.
     abortBootstrapRef.current = true;
+
+    // A finished channel means this is a reload of the supplicant's URL, which
+    // Firefox for Android does after the OAuth login. The channel server has
+    // consumed the channel by then, so reopening it can only fail, and the
+    // marker alone settles it before fxa_status does.
+    if (pairingChannelInfo && isChannelComplete(pairingChannelInfo.channelId)) {
+      navigateWithQuery(
+        '/pair/supplicant/sync_success',
+        { replace: true },
+        false
+      );
+      return;
+    }
 
     // This is a signal that the initial fxa_status message is still pending.
     // Don't move forwards with other evaluations until we have a definitive

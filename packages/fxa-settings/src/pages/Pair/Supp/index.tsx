@@ -17,7 +17,6 @@ import {
 } from '../../../lib/pairing-channel-params';
 import { Integration } from '../../../models';
 import {
-  clearChannelComplete,
   isChannelComplete,
   PairingSupplicantIntegration,
   SupplicantState,
@@ -102,22 +101,28 @@ const Supp = ({
     }
     const isV2 = protocolRef.current === 2;
 
+    // Firefox for Android reloads this URL after the OAuth login, sometimes
+    // more than once, and the channel server has consumed the channel by then,
+    // so the marker stays put.
     if (isChannelComplete(channelId)) {
       if (isV2) {
-        clearChannelComplete(channelId);
-        navigateWithQuery('/pair/supplicant/sync_success', {}, false);
+        // Replacing the entry keeps Back from landing here only to be sent
+        // forward again.
+        navigateWithQuery(
+          '/pair/supplicant/sync_success',
+          { replace: true },
+          false
+        );
         return;
       }
       const clientId = integration.getClientId();
       if (clientId) {
-        // We can now remove the flag, since we are about to navigate to the success page
-        clearChannelComplete(channelId);
         navigateWithQuery(`/oauth/success/${clientId}`);
         return;
       }
       // Without a clientId, fall through rather than build /oauth/success/.
-      // Don't clear the marker so isPostCompletionReconnect() can still
-      // suppress the consumed-channel close/error from the WS reconnect.
+      // isPostCompletionReconnect() still suppresses the consumed-channel
+      // close/error from the WS reconnect.
     }
 
     if (isV2) {

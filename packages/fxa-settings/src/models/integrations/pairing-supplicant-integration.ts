@@ -38,14 +38,6 @@ export function isChannelComplete(channelId: string): boolean {
   }
 }
 
-export function clearChannelComplete(channelId: string): void {
-  try {
-    sessionStorage.removeItem(PAIR_COMPLETE_STORAGE_PREFIX + channelId);
-  } catch {
-    // sessionStorage may be unavailable (private mode, quota, SSR).
-  }
-}
-
 function setChannelComplete(channelId: string): void {
   try {
     sessionStorage.setItem(PAIR_COMPLETE_STORAGE_PREFIX + channelId, '1');
