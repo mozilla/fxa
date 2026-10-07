@@ -167,6 +167,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Bekreft passord
 form-password-with-inline-criteria-reset-submit-button = Lag nytt passord
+form-password-with-inline-criteria-old-password-label =
+    .label = Gammelt passord
+form-password-with-inline-criteria-change-password-submit-button = Endre passord
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Passord
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1347,6 +1350,10 @@ pair2-supplicant-connect-this-device-cancel-button = Avbryt
 
 pair2-supplicant-download-firefox-continue-button = Fortsett i { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Åpner { -brand-firefox }…
+pair2-supplicant-download-firefox-learn-more-link = Les mer
+
+
+pair2-supplicant-connect-hint-learn-more-link = Les mer
 
 
 pair2-supplicant-ready-to-scan-heading = For å koble til en enhet
@@ -1370,6 +1377,9 @@ permissions-label-email = E-postadresse
 permissions-label-display-name = Visningsnavn
 permissions-continue-button = Fortsett
 permissions-cancel-button = Avbryt
+
+
+force-password-change-heading = Endre passordet ditt
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } bekreftet

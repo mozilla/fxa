@@ -315,6 +315,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Potvrďte heslo
 form-password-with-inline-criteria-reset-submit-button = Vytvoriť nové heslo
+form-password-with-inline-criteria-old-password-label =
+    .label = Pôvodné heslo
+form-password-with-inline-criteria-change-password-submit-button = Zmeniť heslo
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Heslo
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1509,8 +1512,19 @@ pair2-supplicant-connect-this-device-connect-button = Pripojiť
 pair2-supplicant-connect-this-device-cancel-button = Zrušiť
 
 
+pair2-supplicant-download-firefox-heading-v2 = Spustite { -brand-firefox(case: "acc") } v tomto zariadení
+pair2-supplicant-download-firefox-description-v2 = Stiahnite si { -brand-firefox(case: "acc") } a synchronizujte záložky, históriu a ďalšie údaje medzi zariadeniami.
 pair2-supplicant-download-firefox-continue-button = Pokračujte vo { -brand-firefox(case: "loc") }
 pair2-supplicant-download-firefox-opening-button = Spúšťa sa { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Stiahnuť { -brand-firefox(case: "acc") }
+pair2-supplicant-download-firefox-have-firefox-button = { -brand-firefox(case: "acc") } už mám
+pair2-supplicant-download-firefox-learn-more-link = Ďalšie informácie
+
+
+pair2-supplicant-connect-hint-heading-v2 = Dokončite prepojenie v aplikácii
+pair2-supplicant-connect-hint-step-app-menu = Ťuknite na <b>ponuku aplikácie</b> na paneli s nástrojmi
+pair2-supplicant-connect-hint-step-sign-in = Ťuknite na <b>Prihlásiť sa</b> a potom naskenujte kód
+pair2-supplicant-connect-hint-learn-more-link = Ďalšie informácie
 
 
 pair2-supplicant-ready-to-scan-heading = Pripojenie zariadenia
@@ -1534,6 +1548,11 @@ permissions-label-email = E‑mailová adresa
 permissions-label-display-name = Zobrazované meno
 permissions-continue-button = Pokračovať
 permissions-cancel-button = Zrušiť
+
+
+force-password-change-heading = Zmeňte si heslo
+force-password-change-info = Vo vašom { -product-mozilla-account(capitalization: "lower", case: "loc") } sme zaznamenali podozrivú aktivitu. V záujme ochrany účtu si vytvorte nové heslo. Pomocou neho sa znova prihlásite do všetkých služieb  { -product-mozilla-account(capitalization: "lower", case: "gen") }.
+force-password-change-data-info = Synchronizovaná história, záložky, prihlásenia a ďalšie osobné údaje sa nestratia.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } potvrdený
@@ -1843,3 +1862,8 @@ signup-confirmed-sync-description-v2 = Vaše heslá, adresy, záložky, históri
 signup-confirmed-sync-add-device-link = Pridať ďalšie zariadenie
 signup-confirmed-sync-manage-sync-button = Spravovať synchronizáciu
 signup-confirmed-sync-set-password-success-banner = Synchronizačné heslo vytvorené
+
+
+update-firefox-heading = Je potrebné aktualizovať { -brand-firefox(case: "acc") }
+update-firefox-description = Váš { -product-mozilla-account(capitalization: "lower") } používa funkcie, ktoré vaša verzia prehliadača { -brand-firefox } nepodporuje. Ak chcete pokračovať, stiahnite si a nainštalujte najnovšiu verziu prehliadača { -brand-firefox }.
+update-firefox-download-button = Stiahnuť najnovšiu verziu
