@@ -113,8 +113,6 @@ module.exports = (log, config, glean) => {
         return;
       }
 
-      let isFlowCompleteSignal = false;
-
       if (ACTIVITY_EVENTS.has(event)) {
         emitActivityEvent(event, request, data);
       }
@@ -125,11 +123,10 @@ module.exports = (log, config, glean) => {
         metricsContext = await emitFlowEvent(event, request, data);
       }
 
-      if (metricsContext) {
-        isFlowCompleteSignal = event === metricsContext.flowCompleteSignal;
-      } else {
-        metricsContext = request.gatherMetricsContext({});
+      if (!metricsContext) {
+        metricsContext = await request.gatherMetricsContext({});
       }
+      const isFlowCompleteSignal = event === metricsContext.flowCompleteSignal;
 
       await amplitude(event, request, data, metricsContext);
       if (isFlowCompleteSignal) {

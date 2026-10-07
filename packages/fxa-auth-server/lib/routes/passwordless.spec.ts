@@ -713,6 +713,73 @@ describe('/account/passwordless/confirm_code', () => {
     });
   });
 
+  it('defers login.complete to /oauth/token for a Sync sign-in, labelled otp', () => {
+    const mockGlean = mocks.mockGlean();
+    mockDB.accountRecord = jest.fn(() =>
+      Promise.resolve({
+        uid,
+        email: TEST_EMAIL,
+        primaryEmail: { email: TEST_EMAIL, isVerified: true },
+        emailCode: hexString(16),
+        verifierSetAt: 0,
+      })
+    );
+    const sessionToken = {
+      data: 'sessiontoken123',
+      emailVerified: true,
+      tokenVerified: true,
+      lastAuthAt: () => 1234567890,
+    };
+    mockDB.createSessionToken = jest.fn(() => Promise.resolve(sessionToken));
+    mockRequest.payload.service = 'sync';
+    const setSignal = jest.spyOn(mockRequest, 'setMetricsFlowCompleteSignal');
+    const stash = jest
+      .spyOn(mockRequest, 'stashMetricsContext')
+      .mockResolvedValue(undefined);
+
+    routes = makeRoutes({
+      log: mockLog,
+      db: mockDB,
+      customs: mockCustoms,
+      glean: mockGlean,
+      config: {
+        passwordlessOtp: {
+          enabled: true,
+          ttl: 300,
+          digits: 6,
+          allowedClientServices: {
+            'test-client-id': { allowedServices: ['*'] },
+          },
+        },
+      },
+    });
+    route = getRoute(routes, '/account/passwordless/confirm_code', 'POST');
+
+    return runTest(route, mockRequest, () => {
+      expect(mockGlean.login.complete).not.toHaveBeenCalled();
+      expect(setSignal).toHaveBeenCalledWith('account.signed', 'login', 'otp');
+      expect(stash).toHaveBeenCalledWith(sessionToken);
+      expect(setSignal.mock.invocationCallOrder[0]).toBeLessThan(
+        stash.mock.invocationCallOrder[0]
+      );
+    });
+  });
+
+  it('stashes no login signal for a new account', () => {
+    mockDB.accountRecord = jest.fn(() =>
+      Promise.reject(error.unknownAccount())
+    );
+    const setSignal = jest.spyOn(mockRequest, 'setMetricsFlowCompleteSignal');
+    const stash = jest
+      .spyOn(mockRequest, 'stashMetricsContext')
+      .mockResolvedValue(undefined);
+
+    return runTest(route, mockRequest, () => {
+      expect(setSignal).not.toHaveBeenCalled();
+      expect(stash).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it('should reject invalid OTP code', () => {
     mockDB.accountRecord = jest.fn(() =>
       Promise.resolve({

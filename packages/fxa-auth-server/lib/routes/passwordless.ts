@@ -335,12 +335,17 @@ class PasswordlessHandler {
       isNewAccount: String(isNewAccount),
     });
 
-    if (!isNewAccount) {
+    // Sync completes the login at /oauth/token. The first stash wins, so the
+    // later /session/reauth after password creation cannot repeat or relabel it.
+    if (!isNewAccount && service === 'sync') {
+      request.setMetricsFlowCompleteSignal('account.signed', 'login', 'otp');
+    } else if (!isNewAccount) {
       this.glean.login.complete(request, {
         uid: account.uid,
         reason: 'otp',
       });
     }
+    await request.stashMetricsContext(sessionToken);
 
     await recordSecurityEvent('account.passwordless_login_otp_verified', {
       db: this.db,
