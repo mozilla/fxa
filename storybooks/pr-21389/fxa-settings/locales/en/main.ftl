@@ -1088,7 +1088,7 @@ passkey-sub-row-last-used-date = Last used: { $lastUsedDate }
 
 passkey-sub-row-delete-title = Delete passkey
 passkey-delete-modal-heading = Delete your passkey?
-passkey-delete-modal-content-v2 = This passkey will be removed from your account. You’ll need to sign in using a different method (password, another passkey, or linked account).
+passkey-delete-modal-content-v3 = This passkey will be removed from your account. You’ll need to sign in using a password, another passkey, or linked account.
 passkey-delete-modal-cancel-button = Cancel
 passkey-delete-modal-confirm-button = Delete passkey
 passkey-delete-success = Passkey deleted
@@ -1358,16 +1358,16 @@ index-email-bounced = Your confirmation email was just returned. Mistyped email?
 
 
 inline-passwordless-sync-setup-page-title = Skip the password next time?
-inline-passwordless-sync-setup-success-banner = Signed in to { -brand-firefox }
+inline-passwordless-sync-setup-success-banner-v2 = You’re signed in, and sync is on
 inline-passwordless-sync-setup-heading = Skip the password next time?
 inline-passwordless-sync-setup-description = Use this passkey to sign in faster.
 inline-passwordless-sync-setup-enable-button = Enable passkey
 inline-passwordless-sync-setup-enabling = Enabling…
 inline-passwordless-sync-setup-not-now-button = Not now
-inline-passwordless-sync-setup-success-alert = This passkey is ready for sync sign-in
+inline-passwordless-sync-setup-success-alert-v2 = This passkey is enabled for sync sign-in
 inline-passwordless-sync-setup-error-cancelled = Passkey confirmation didn’t finish
 inline-passwordless-sync-setup-error-cancelled-description = Confirm with your passkey to skip the password next time.
-inline-passwordless-sync-setup-error-generic = Something went wrong, you’ll still need to enter your password next time
+inline-passwordless-sync-setup-error-generic-v2 = We couldn’t enable this passkey for sync sign-in. You’ll need your password next time.
 
 
 inline-recovery-key-setup-create-error = Oops! We couldn’t create your account recovery key. Please try again later.
@@ -1527,7 +1527,7 @@ pair2-authority-download-firefox-cta = Download { -brand-firefox }
 pair2-authority-scan-qr-heading = Scan to connect your mobile device
 pair2-authority-scan-qr-instruction = Scan the QR code with your phone or tablet to sync your { -brand-firefox } bookmarks, tabs, and more.
 pair2-authority-scan-qr-code-aria-label = QR code to connect your mobile device
-pair2-authority-scan-qr-help-link = Get help scanning
+pair2-authority-scan-qr-other-ways-link = Other ways to sign in
 pair2-authority-scan-qr-skip-button = Skip for now
 
 
@@ -1664,12 +1664,16 @@ confirm-totp-reset-password-use-different-account = Use a different account
 
 password-reset-flow-heading = Reset your password
 
-password-reset-body-3 = Resetting your password may affect synced browser data.
+password-reset-forgot-heading = Forgot your password?
+
+password-reset-alternatives-body = <signInLink>Try signing in with { -brand-google }, { -brand-apple }, or a passkey instead.</signInLink> Or enter your email and we’ll send you a code to reset your password.
 
 password-reset-email-input =
   .label = Enter your email
 
 password-reset-submit-button-2 = Continue
+
+password-reset-data-recovery-warning = Resetting your password may affect whether you can recover synced browser data. <learnMoreLink>Learn more</learnMoreLink>
 
 
 reset-password-complete-header = Your password has been reset
@@ -1944,3 +1948,8 @@ signup-confirmed-sync-description-v2 = Your passwords, addresses, bookmarks, his
 signup-confirmed-sync-add-device-link = Add another device
 signup-confirmed-sync-manage-sync-button = Manage sync
 signup-confirmed-sync-set-password-success-banner = Sync password created
+
+
+update-firefox-heading = { -brand-firefox } update required
+update-firefox-description = Your { -product-mozilla-account } makes use of features that are not supported in your version of { -brand-firefox }. Please download and install the latest version of { -brand-firefox } to continue.
+update-firefox-download-button = Download latest

@@ -1,8 +1,8 @@
 {
-  "commit": "849356336f6e37f6baff13dbae2c2795d58b0c34",
+  "commit": "879fa231c9b2dd7cff997cfc0f2082e4cbc919f1",
   "summary": "test(functional-tests): cover passkey passwordless Sync sign-in end to end",
-  "description": "Because:\n\n* Passwordless Sync had no browser-level coverage of opting in and then\n  signing in without the password\n\nThis commit:\n\n* Adds an E2E that opts in after the password fallback, then signs in to\n  Sync passwordless in a second browser\n* Adds a sync helper that asks Firefox which account it holds\n* Lets the passkey polyfill reuse credentials minted in another browser\n* Exports newPagesForSync for tests that need a second Sync browser\n* Adds unit tests for promo order and the login-before-opt-in hand-off\n\nFixes FXA-13154",
-  "timestamp": 1791390263000,
+  "description": "Because:\n\n* Passwordless Sync had no browser-level coverage of opting in and then\n  signing in without the password\n\nThis commit:\n\n* Adds an E2E that opts in after the password fallback, then signs in to\n  Sync passwordless in a second browser\n* Adds a shared sync helper that asks Firefox which account it holds\n* Lets the passkey polyfill reuse credentials minted in another browser\n* Exports newPagesForSync for tests that need a second Sync browser\n* Adds unit tests for promo order and the login-before-opt-in hand-off\n\nFixes FXA-13154",
+  "timestamp": 1791391359000,
   "storybooks": [
     "fxa-settings"
   ],
