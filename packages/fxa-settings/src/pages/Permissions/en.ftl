@@ -8,5 +8,6 @@
 permissions-heading = { $serviceName } wants access to:
 permissions-label-email = Email address
 permissions-label-display-name = Display name
+permissions-label-avatar = Account picture
 permissions-continue-button = Continue
 permissions-cancel-button = Cancel

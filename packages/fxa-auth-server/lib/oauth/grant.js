@@ -46,6 +46,7 @@ const UNTRUSTED_CLIENT_ALLOWED_SCOPES = ScopeSet.fromArray([
   'profile:uid',
   'profile:email',
   'profile:display_name',
+  'profile:avatar',
 ]);
 
 const TRUSTED_CLIENT_ALLOWED_SCOPES = ScopeSet.fromArray([

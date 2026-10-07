@@ -78,6 +78,12 @@ it('shows the label alone when the account has no value for a scope', () => {
   expect(row.textContent).toBe('Display name');
 });
 
+it('renders the account picture row as a label', () => {
+  renderPermissions([{ scope: 'profile:avatar' }]);
+  const row = screen.getByTestId('permissions-row-profile-avatar');
+  expect(row.textContent).toBe('Account picture');
+});
+
 it('calls onContinue when the user continues', () => {
   renderPermissions();
   fireEvent.click(screen.getByTestId('permissions-continue-button'));

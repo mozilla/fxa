@@ -37,6 +37,10 @@ const PERMISSION_LABELS: Record<
     ftlId: 'permissions-label-display-name',
     label: 'Display name',
   },
+  'profile:avatar': {
+    ftlId: 'permissions-label-avatar',
+    label: 'Account picture',
+  },
 };
 
 const Permissions = ({
