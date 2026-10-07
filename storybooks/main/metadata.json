@@ -1,8 +1,8 @@
 {
-  "commit": "5d40d62007f073619e4cc15097cbce97a353fd90",
-  "summary": "Merge pull request #21309 from chelisejacobson/FXA-14627",
-  "description": "feat(settings): remove sync settings link from mobile pairing success",
-  "timestamp": 1791391598000,
+  "commit": "c915791a5f254ed048a3532f70e85b3faa35166b",
+  "summary": "Merge pull request #21415 from mozilla/fxa-14667",
+  "description": "fix(auth): send recovery key prompt reset email via FxaMailer",
+  "timestamp": 1791394303000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
