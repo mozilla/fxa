@@ -1,8 +1,8 @@
 {
-  "commit": "ac9b75fb5135438c4a6bb1447bb9d9b96fd5e2e1",
-  "summary": "Merge pull request #21379 from mozilla/fxa-14614",
-  "description": "fix(settings): destroy the replaced web session on re-sign-in",
-  "timestamp": 1791388910000,
+  "commit": "763d42801aa2b2ae299f1a18f19a96a6e3eb3d4e",
+  "summary": "Merge pull request #21394 from mozilla/fxa-13110",
+  "description": "fix(settings): handle invalid session on third-party auth callback",
+  "timestamp": 1791390915000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
