@@ -16,6 +16,7 @@ import { RemoteMetadata } from '../types';
 import UAParser from 'ua-parser-js';
 import { toGenericOSName } from '../utilities';
 import { base64urlToBytes, bytesToBase64url } from '../base64url';
+import { ResumableWebSocket } from './resumable-websocket';
 
 // Types
 
@@ -261,11 +262,25 @@ export class PairingChannelClient extends EventTarget {
         'fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js'
       );
 
-      const channel = await FxAccountsPairingChannel.PairingChannel.connect(
-        channelServerUri,
-        channelId,
-        psk
-      );
+      // fxa-pairing-channel opens its socket with the global WebSocket inside
+      // connect(), and takes no socket option, so swap it for that one call.
+      const NativeWebSocket = window.WebSocket;
+      window.WebSocket = class extends ResumableWebSocket {
+        constructor(url: string) {
+          super(url, NativeWebSocket);
+        }
+      } as unknown as typeof WebSocket;
+      let connecting;
+      try {
+        connecting = FxAccountsPairingChannel.PairingChannel.connect(
+          channelServerUri,
+          channelId,
+          psk
+        );
+      } finally {
+        window.WebSocket = NativeWebSocket;
+      }
+      const channel = await connecting;
 
       this.channel = channel;
 
