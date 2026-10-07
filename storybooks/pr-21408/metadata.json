@@ -1,8 +1,8 @@
 {
-  "commit": "ce97160ccd7ad2edf4883d4bf56a7dfadac3ca59",
-  "summary": "chore(deps): bump joi from 17.13.7 to 17.13.8",
-  "description": "Bumps [joi](https://github.com/hapijs/joi) from 17.13.7 to 17.13.8.\n- [Commits](https://github.com/hapijs/joi/compare/v17.13.7...v17.13.8)\n\n---\nupdated-dependencies:\n- dependency-name: joi\n  dependency-version: 17.13.8\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
-  "timestamp": 1791334876000,
+  "commit": "9f06e10666f7b219ef404cd5aaf08f7e53a8b45b",
+  "summary": "BLEnder fix(joi): dedupe joi to a single 17.13.8 copy in yarn.lock",
+  "description": "The bump left two joi versions in yarn.lock: workspaces got 17.13.8 while\ncelebrate, @hapi/catbox-redis and @types/hapi stayed on 17.13.7. Joi asserts\n\"Cannot mix different versions of joi schemas\" when schemas from different\ncopies are combined. Ran yarn dedupe joi so all ranges resolve to 17.13.8.",
+  "timestamp": 1791337506000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
