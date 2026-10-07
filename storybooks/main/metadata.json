@@ -1,8 +1,8 @@
 {
-  "commit": "76f7d0ead53e0ebeacb74be91b9454f34e93983d",
-  "summary": "Merge pull request #21416 from mozilla/FXA-13872",
-  "description": "fix(metrics): keep client ids out of relying_party.service in Glean",
-  "timestamp": 1791394283000,
+  "commit": "348052345c29db295e288e0556db90ad149e7217",
+  "summary": "Merge pull request #21393 from mozilla/fxa-14573",
+  "description": "fix(auth): accept stored OAuth scopes in attached_clients response",
+  "timestamp": 1791394520000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
