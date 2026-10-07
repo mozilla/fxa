@@ -1,8 +1,8 @@
 {
-  "commit": "cecb3f0102c674a6e961f9aa96ada792379b5259",
-  "summary": "Merge pull request #21409 from mozilla/dependabot/npm_and_yarn/pbkdf2-3.1.7",
-  "description": "chore(deps): bump pbkdf2 from 3.1.3 to 3.1.7",
-  "timestamp": 1791337343000,
+  "commit": "1c2234bdee00b43e9763ebb8ec6216ead5adcbab",
+  "summary": "Merge pull request #21408 from mozilla/dependabot/npm_and_yarn/joi-17.13.8",
+  "description": "chore(deps): bump joi from 17.13.7 to 17.13.8",
+  "timestamp": 1791340609000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
