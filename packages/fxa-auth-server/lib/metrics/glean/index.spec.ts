@@ -384,14 +384,40 @@ describe('Glean server side events', () => {
         expect(metrics['relying_party_service']).toBe('brass_monkey');
       });
 
-      it('uses the client id in the service name property', async () => {
+      it('reports an empty client id when the request carries none', async () => {
+        await glean.login.success(request);
+        const metrics = gleanMocks['recordLoginSuccess'].mock.calls[0][0];
+        expect(metrics['relying_party_oauth_client_id']).toBe('');
+        expect(metrics['relying_party_service']).toBe('');
+      });
+
+      it('uses the client id from the metrics context', async () => {
         const req = {
           ...request,
           app: {
             ...request.app,
             metricsContext: {
               ...request.app.metricsContext,
-              client_id: undefined,
+              clientId: '5882386c6d801776',
+              service: 'sync',
+            },
+          },
+        } as unknown as AuthRequest;
+        await glean.login.success(req);
+        const metrics = gleanMocks['recordLoginSuccess'].mock.calls[0][0];
+        expect(metrics['relying_party_oauth_client_id']).toBe(
+          '5882386c6d801776'
+        );
+        expect(metrics['relying_party_service']).toBe('sync');
+      });
+
+      it('reports a client id sent as the service only as the client id', async () => {
+        const req = {
+          ...request,
+          app: {
+            ...request.app,
+            metricsContext: {
+              ...request.app.metricsContext,
               service: '7f1a38488a0df47b',
             },
           },
@@ -401,6 +427,7 @@ describe('Glean server side events', () => {
         expect(metrics['relying_party_oauth_client_id']).toBe(
           '7f1a38488a0df47b'
         );
+        expect(metrics['relying_party_service']).toBe('');
       });
     });
 

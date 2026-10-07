@@ -190,12 +190,6 @@
     "clientManagement": {
       "enabled": true
     },
-    "clientIdToServiceNames": {
-      "dcdb5ae7add825d2": "123done",
-      "5882386c6d801776": "firefox-desktop",
-      "98e6508e88680e1a": "fxa-settings",
-      "8269bacd7bbc7f80": "thunderbird"
-    },
     "clients": [
       {
         "id": "fced6b5e3f4c66b9",

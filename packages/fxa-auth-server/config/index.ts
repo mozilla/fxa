@@ -1324,12 +1324,6 @@ const convictConf = convict({
         env: 'CLIENT_MANAGEMENT_ENABLED',
       },
     },
-    clientIdToServiceNames: {
-      doc: 'Mappings from client id to service name: { "id1": "name-1", "id2": "name-2" }',
-      default: {},
-      format: 'Object',
-      env: 'OAUTH_CLIENT_IDS',
-    },
     disabledClients: {
       doc: 'Comma-separated list of client ids for which service should be temporarily refused',
       env: 'OAUTH_CLIENTS_DISABLED',

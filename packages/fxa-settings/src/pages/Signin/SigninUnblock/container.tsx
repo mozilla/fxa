@@ -84,9 +84,7 @@ export const SigninUnblockContainer = ({
       ...(signInOptions ?? {
         verificationMethod: VerificationMethods.EMAIL_OTP,
         keys: integration.wantsKeys(),
-        // See oauth_client_info in the auth-server for details on service/clientId
-        // Sending up the clientId when the user is not signing in to the browser
-        // is used to show the correct service name in emails
+        // The auth-server expects an RP's client id in `service`; see resolveServiceOrClientId.
         ...(isFirefoxService(service) ? { service } : { service: clientId }),
         unblockCode,
         metricsContext: queryParamsToMetricsContext(flowQueryParams),
