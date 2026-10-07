@@ -13,7 +13,10 @@ class FakeSocket extends EventTarget {
   readyState = 0;
   bufferedAmount = 0;
   sent: string[] = [];
-  constructor(public url: string) {
+  constructor(
+    public url: string,
+    public protocols?: string[]
+  ) {
     super();
     FakeSocket.instances.push(this);
   }
@@ -81,9 +84,8 @@ describe('ResumableWebSocket', () => {
     socket.send('queued');
 
     const second = FakeSocket.instances[1];
-    expect(second.url).toBe(
-      `wss://channel.example.com/v1/ws/abc?resume=${'f'.repeat(32)}`
-    );
+    expect(second.url).toBe('wss://channel.example.com/v1/ws/abc');
+    expect(second.protocols).toEqual([`resume.${'f'.repeat(32)}`]);
     expect(socket.readyState).toBe(1);
 
     second.open();
@@ -93,6 +95,22 @@ describe('ResumableWebSocket', () => {
     expect(received).toEqual([GREETING, '{"message":"missed"}']);
     expect(second.sent).toEqual(['queued']);
     expect(closed).not.toHaveBeenCalled();
+  });
+
+  it('resumes the next drop with the token the server rotated to', () => {
+    const { first } = connect();
+    first.drop();
+    const second = FakeSocket.instances[1];
+    second.open();
+    second.receive(
+      JSON.stringify({ channelid: 'abc', resume: 'e'.repeat(32) })
+    );
+
+    second.drop();
+
+    expect(FakeSocket.instances[2].protocols).toEqual([
+      `resume.${'e'.repeat(32)}`,
+    ]);
   });
 
   it('keeps retrying until the resume window runs out, then closes', () => {

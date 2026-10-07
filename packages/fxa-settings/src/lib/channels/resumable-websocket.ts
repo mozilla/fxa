@@ -5,13 +5,15 @@
 /**
  * WebSocket stand-in for the pairing channel. A backgrounded mobile browser can
  * kill the socket mid-pairing. This reconnects with the resume token from the
- * channel server's greeting, so the TLS session above it carries on unaware.
+ * channel server's latest greeting, so the TLS session above it carries on
+ * unaware. The server issues a new token with each resume.
  * A server that sends no token gets plain WebSocket behaviour.
  */
 
 // Under the channel server's 60 s resume window, so a late retry is not refused.
 export const RESUME_WINDOW_MS = 50_000;
 export const RESUME_RETRY_MS = 2_000;
+export const RESUME_PROTOCOL_PREFIX = 'resume.';
 
 const OPEN = 1;
 const CLOSED = 3;
@@ -117,9 +119,12 @@ export class ResumableWebSocket extends EventTarget {
       return;
     }
     const url = new URL(`/v1/ws/${this.channelId}`, this.url);
-    url.searchParams.set('resume', this.token as string);
     const previous = this.socket;
-    this.socket = this.attach(new this.Native(url.href), true);
+    // The token goes in the subprotocol, not the URL, which proxies tend to log.
+    this.socket = this.attach(
+      new this.Native(url.href, [`${RESUME_PROTOCOL_PREFIX}${this.token}`]),
+      true
+    );
     if (previous.readyState !== CLOSED) previous.close();
   }
 
