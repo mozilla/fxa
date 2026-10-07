@@ -8,9 +8,7 @@ import { SETTINGS_PATH } from '../../../constants';
 import SettingsLayout from '.';
 
 it('renders the app with children', async () => {
-  const {
-    router,
-  } = renderWithRouter(
+  const { router } = renderWithRouter(
     <SettingsLayout>
       <p data-testid="test-child">Hello, world!</p>
     </SettingsLayout>
