@@ -1,8 +1,8 @@
 {
-  "commit": "733a815b9c044d111c60fa9c6cab78aea32e199e",
-  "summary": "Merge pull request #21397 from mozilla/dependabot/npm_and_yarn/sharp-0.35.5",
-  "description": "chore(deps): bump sharp from 0.35.4 to 0.35.5",
-  "timestamp": 1791334404000,
+  "commit": "626873f787be54c00221af2d1b37d75aaf90c401",
+  "summary": "Merge pull request #21396 from mozilla/dependabot/npm_and_yarn/nx-23.2.1",
+  "description": "chore(deps-dev): bump nx from 23.0.2 to 23.2.1",
+  "timestamp": 1791334428000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
