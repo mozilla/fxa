@@ -872,12 +872,15 @@ export const PageRelyingParties = () => {
 
   const getFilteredRps = () => {
     if (!error && !loading) {
-      if (!filter.trim()) {
+      const needle = filter.trim().toLowerCase();
+      if (!needle) {
         return relyingParties;
       }
 
       return relyingParties.filter(
-        (x) => x.name.indexOf(filter) >= 0 || x.id.indexOf(filter) >= 0
+        (x) =>
+          x.name.toLowerCase().includes(needle) ||
+          x.id.toLowerCase().includes(needle)
       );
     }
 
