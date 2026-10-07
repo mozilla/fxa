@@ -533,108 +533,172 @@ describe('/password', () => {
     });
   });
 
-  it('/forgot/verify_code', () => {
-    const mockCustoms = mocks.mockCustoms();
-    const uid = crypto.randomBytes(16).toString('hex');
-    const accountResetToken = {
-      data: crypto.randomBytes(16).toString('hex'),
-      id: crypto.randomBytes(16).toString('hex'),
-      uid,
-    };
-    const passwordForgotTokenId = crypto.randomBytes(16).toString('hex');
-    const mockDB = mocks.mockDB({
-      accountResetToken: accountResetToken,
-      email: TEST_EMAIL,
-      passCode: 'abcdef',
-      passwordForgotTokenId,
-      uid,
-    });
-    const mockMailer = mocks.mockMailer();
-    const mockMetricsContext = mocks.mockMetricsContext();
-    const mockLog = log('ERROR', 'test', {
-      stdout: {
-        on: jest.fn(),
-        write: jest.fn(),
-      },
-      stderr: {
-        on: jest.fn(),
-        write: jest.fn(),
-      },
-    });
-    mockLog.flowEvent = jest.fn(() => {
-      return Promise.resolve();
-    });
-    const passwordRoutes = makeRoutes({
-      customs: mockCustoms,
-      db: mockDB,
-      mailer: mockMailer,
-      metricsContext: mockMetricsContext,
-    });
-
-    const mockRequest = mocks.mockRequest({
-      log: mockLog,
-      credentials: {
-        email: TEST_EMAIL,
-        id: passwordForgotTokenId,
-        passCode: Buffer.from('abcdef', 'hex'),
-        ttl: function () {
-          return 17;
-        },
+  describe('/forgot/verify_code', () => {
+    function setupVerifyCode(payload: Record<string, unknown> = {}) {
+      const mockCustoms = mocks.mockCustoms();
+      const uid = crypto.randomBytes(16).toString('hex');
+      const accountResetToken = {
+        data: crypto.randomBytes(16).toString('hex'),
+        id: crypto.randomBytes(16).toString('hex'),
         uid,
-      },
-      metricsContext: mockMetricsContext,
-      payload: {
-        code: 'abcdef',
-        metricsContext: {
-          deviceId: 'wibble',
-          flowId:
-            'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
-          flowBeginTime: Date.now() - 1,
+      };
+      const passwordForgotTokenId = crypto.randomBytes(16).toString('hex');
+      const mockDB = mocks.mockDB({
+        accountResetToken: accountResetToken,
+        email: TEST_EMAIL,
+        passCode: 'abcdef',
+        passwordForgotTokenId,
+        uid,
+      });
+      const mockMailer = mocks.mockMailer();
+      const mockMetricsContext = mocks.mockMetricsContext();
+      const mockLog = log('ERROR', 'test', {
+        stdout: {
+          on: jest.fn(),
+          write: jest.fn(),
         },
-      },
-      query: {},
+        stderr: {
+          on: jest.fn(),
+          write: jest.fn(),
+        },
+      });
+      mockLog.flowEvent = jest.fn(() => {
+        return Promise.resolve();
+      });
+      const passwordRoutes = makeRoutes({
+        customs: mockCustoms,
+        db: mockDB,
+        mailer: mockMailer,
+        metricsContext: mockMetricsContext,
+      });
+
+      const mockRequest = mocks.mockRequest({
+        log: mockLog,
+        credentials: {
+          email: TEST_EMAIL,
+          id: passwordForgotTokenId,
+          passCode: Buffer.from('abcdef', 'hex'),
+          ttl: function () {
+            return 17;
+          },
+          uid,
+        },
+        metricsContext: mockMetricsContext,
+        payload: {
+          ...payload,
+          code: 'abcdef',
+          metricsContext: {
+            deviceId: 'wibble',
+            flowId:
+              'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+            flowBeginTime: Date.now() - 1,
+          },
+        },
+        query: {},
+      });
+      return {
+        uid,
+        accountResetToken,
+        passwordForgotTokenId,
+        mockCustoms,
+        mockDB,
+        mockLog,
+        mockMailer,
+        mockMetricsContext,
+        mockRequest,
+        run: () =>
+          runRoute(passwordRoutes, '/password/forgot/verify_code', mockRequest),
+      };
+    }
+
+    it('sends the password reset email by default', () => {
+      const {
+        uid,
+        accountResetToken,
+        passwordForgotTokenId,
+        mockCustoms,
+        mockDB,
+        mockLog,
+        mockMetricsContext,
+        mockRequest,
+        run,
+      } = setupVerifyCode();
+      return run().then((response: any) => {
+        expect(Object.keys(response)).toEqual(['accountResetToken']);
+        expect(response.accountResetToken).toBe(accountResetToken.data);
+
+        expect(mockCustoms.check).toHaveBeenCalledTimes(1);
+
+        expect(mockDB.forgotPasswordVerified).toHaveBeenCalledTimes(1);
+        let args = mockDB.forgotPasswordVerified.mock.calls[0];
+        expect(args.length).toBe(1);
+        expect(args[0].uid).toEqual(uid);
+
+        expect(mockRequest.validateMetricsContext).toHaveBeenCalledTimes(0);
+        expect(mockLog.flowEvent).toHaveBeenCalledTimes(2);
+        expect(mockLog.flowEvent).toHaveBeenNthCalledWith(
+          1,
+          expect.objectContaining({
+            event: 'password.forgot.verify_code.start',
+          })
+        );
+        expect(mockLog.flowEvent).toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({
+            event: 'password.forgot.verify_code.completed',
+          })
+        );
+
+        expect(mockMetricsContext.propagate).toHaveBeenCalledTimes(1);
+        args = mockMetricsContext.propagate.mock.calls[0];
+        expect(args).toHaveLength(2);
+        expect(args[0].id).toBe(passwordForgotTokenId);
+        expect(args[0].uid).toBe(uid);
+        expect(args[1].id).toBe(accountResetToken.id);
+        expect(args[1].uid).toBe(uid);
+
+        expect(mockFxaMailer.sendPasswordResetEmail).toHaveBeenCalledTimes(1);
+        const passwordResetArgs =
+          mockFxaMailer.sendPasswordResetEmail.mock.calls[0];
+        expect(passwordResetArgs[0].uid).toBe(uid);
+        expect(passwordResetArgs[0].deviceId).toBe('wibble');
+        expect(
+          mockFxaMailer.sendPasswordResetWithRecoveryKeyPromptEmail
+        ).not.toHaveBeenCalled();
+      });
     });
-    return runRoute(
-      passwordRoutes,
-      '/password/forgot/verify_code',
-      mockRequest
-    ).then((response: any) => {
-      expect(Object.keys(response)).toEqual(['accountResetToken']);
-      expect(response.accountResetToken).toBe(accountResetToken.data);
 
-      expect(mockCustoms.check).toHaveBeenCalledTimes(1);
+    it('sends the recovery key prompt email when includeRecoveryKeyPrompt is true', async () => {
+      const { uid, mockMailer, run } = setupVerifyCode({
+        includeRecoveryKeyPrompt: true,
+      });
+      await run();
 
-      expect(mockDB.forgotPasswordVerified).toHaveBeenCalledTimes(1);
-      let args = mockDB.forgotPasswordVerified.mock.calls[0];
-      expect(args.length).toBe(1);
-      expect(args[0].uid).toEqual(uid);
-
-      expect(mockRequest.validateMetricsContext).toHaveBeenCalledTimes(0);
-      expect(mockLog.flowEvent).toHaveBeenCalledTimes(2);
-      expect(mockLog.flowEvent).toHaveBeenNthCalledWith(
+      expect(
+        mockFxaMailer.sendPasswordResetWithRecoveryKeyPromptEmail
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockFxaMailer.sendPasswordResetWithRecoveryKeyPromptEmail
+      ).toHaveBeenNthCalledWith(
         1,
-        expect.objectContaining({ event: 'password.forgot.verify_code.start' })
+        expect.objectContaining({ to: TEST_EMAIL, uid, deviceId: 'wibble' })
       );
-      expect(mockLog.flowEvent).toHaveBeenNthCalledWith(
-        2,
-        expect.objectContaining({
-          event: 'password.forgot.verify_code.completed',
-        })
-      );
+      expect(mockFxaMailer.sendPasswordResetEmail).not.toHaveBeenCalled();
+      expect(
+        mockMailer.sendPasswordResetWithRecoveryKeyPromptEmail
+      ).not.toHaveBeenCalled();
+    });
 
-      expect(mockMetricsContext.propagate).toHaveBeenCalledTimes(1);
-      args = mockMetricsContext.propagate.mock.calls[0];
-      expect(args).toHaveLength(2);
-      expect(args[0].id).toBe(passwordForgotTokenId);
-      expect(args[0].uid).toBe(uid);
-      expect(args[1].id).toBe(accountResetToken.id);
-      expect(args[1].uid).toBe(uid);
+    it('sends no email when accountResetWithRecoveryKey is true', async () => {
+      await setupVerifyCode({
+        accountResetWithRecoveryKey: true,
+        includeRecoveryKeyPrompt: true,
+      }).run();
 
-      expect(mockFxaMailer.sendPasswordResetEmail).toHaveBeenCalledTimes(1);
-      const passwordResetArgs =
-        mockFxaMailer.sendPasswordResetEmail.mock.calls[0];
-      expect(passwordResetArgs[0].uid).toBe(uid);
-      expect(passwordResetArgs[0].deviceId).toBe('wibble');
+      expect(
+        mockFxaMailer.sendPasswordResetWithRecoveryKeyPromptEmail
+      ).not.toHaveBeenCalled();
+      expect(mockFxaMailer.sendPasswordResetEmail).not.toHaveBeenCalled();
     });
   });
 
