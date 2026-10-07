@@ -1,0 +1,13 @@
+{
+  "commit": "56f3ec5573e93811a94ad3ccab3f6325f5bc9f13",
+  "summary": "chore(deps): bump shell-quote from 1.8.3 to 1.12.0",
+  "description": "Bumps [shell-quote](https://github.com/ljharb/shell-quote) from 1.8.3 to 1.12.0.\n- [Changelog](https://github.com/ljharb/shell-quote/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/ljharb/shell-quote/compare/v1.8.3...v1.12.0)\n\n---\nupdated-dependencies:\n- dependency-name: shell-quote\n  dependency-version: 1.12.0\n  dependency-type: indirect\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1791331874000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
