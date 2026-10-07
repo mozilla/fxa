@@ -1,8 +1,8 @@
 {
-  "commit": "4164ed0122aa4b3ce6a7cc267db5c6f59ec6c753",
-  "summary": "Merge pull request #21405 from mozilla/blender/security-bump-@opentelemetry/instrumentation-tedious",
-  "description": "chore(deps): bump @opentelemetry/instrumentation-tedious to >=0.40.0",
-  "timestamp": 1791383042000,
+  "commit": "4527b029501a746b9e6d490382e4037a270e76e8",
+  "summary": "Merge pull request #21413 from mozilla/agent-64df2a",
+  "description": "fix(admin-panel): match relying party filter case-insensitively",
+  "timestamp": 1791386439000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

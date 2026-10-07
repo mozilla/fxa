@@ -1959,11 +1959,19 @@ pair2-supplicant-connect-this-device-cancel-button = Avbryt
 ## not Firefox. It offers to open the Firefox app to finish pairing, and to
 ## install it first when the user does not have it yet.
 
+pair2-supplicant-download-firefox-heading-v2 = Åpne { -brand-firefox } på denne enheten
+# "sync" is a verb here, referring to syncing data between the user's devices.
+pair2-supplicant-download-firefox-description-v2 = Last ned { -brand-firefox } for å synkronisere bokmerker, historikk og mer på tvers av enheter.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Fortsett i { -brand-firefox }
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = Åpner { -brand-firefox }…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = Last ned { -brand-firefox }
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = Jeg har allerede { -brand-firefox }
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = Les mer
 
@@ -1973,6 +1981,11 @@ pair2-supplicant-download-firefox-learn-more-link = Les mer
 ## Firefox installed, so it tells them how to scan the code again from inside
 ## Firefox.
 
+pair2-supplicant-connect-hint-heading-v2 = Fullfør sammenkoblingen i appen
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = Trykk på <b>appmenyen</b> i verktøylinjen
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = Trykk på <b>logg inn</b>, og skann deretter koden
 # Opens a Mozilla support article about connecting a device without a QR code
 pair2-supplicant-connect-hint-learn-more-link = Les mer
 
@@ -2030,6 +2043,8 @@ permissions-cancel-button = Avbryt
 ## Users are sent here when suspicious activity on the account requires a new password before they can continue.
 
 force-password-change-heading = Endre passordet ditt
+force-password-change-info = Vi oppdaget mistenkelig oppførsel på { -product-mozilla-account } din. Opprett et nytt passord for å beskytte kontoen din. Du bruker dette passordet for å logge deg på alle { -product-mozilla-account }tjenestene dine.
+force-password-change-data-info = Synkronisert historikk, bokmerker, innlogginger og andre personlige data vil ikke gå tapt.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2497,3 +2512,10 @@ signup-confirmed-sync-description-v2 = Passordene, adressene, bokmerkene, histor
 signup-confirmed-sync-add-device-link = Legg til en annen enhet
 signup-confirmed-sync-manage-sync-button = Behandle synkronisering
 signup-confirmed-sync-set-password-success-banner = Synkroniseringspassord opprettet
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = { -brand-firefox } må oppdateres
+update-firefox-description = Din { -product-mozilla-account } bruker funksjoner som ikke støttes i din versjon av { -brand-firefox }. Last ned og installer den nyeste versjonen av { -brand-firefox } for å fortsette.
+update-firefox-download-button = Last ned siste
