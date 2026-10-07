@@ -1,0 +1,13 @@
+{
+  "commit": "8d465832d293bb46571e117003b4ceb32e4ce3ff",
+  "summary": "chore(deps): bump joi to >=17.13.8",
+  "description": "Resolves Dependabot alert #1013. The bump installs the highest\nversion satisfying the dependency range; the title uses >=<min> when the\nadvisory provides a minimum patched version — see the lockfile diff for the exact resolved version.\nCreated by BLEnder (https://github.com/mozilla/blender)",
+  "timestamp": 1791334762000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
