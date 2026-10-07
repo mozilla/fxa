@@ -28,7 +28,7 @@
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
     "fxa-shared": "workspace:*",
-    "joi": "^17.13.3",
+    "joi": "^17.13.8",
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
     "poolee": "^1.0.1",

@@ -41,7 +41,7 @@
     "express": "^4.21.2",
     "fxa-shared": "workspace:*",
     "hot-shots": "^10.2.1",
-    "joi": "^17.13.3",
+    "joi": "^17.13.8",
     "jwks-rsa": "^3.1.0",
     "mozlog": "^3.0.2",
     "rimraf": "^6.0.1",
