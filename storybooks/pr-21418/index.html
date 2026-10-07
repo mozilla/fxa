@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit e34fef8786eb3b920bbb36d30cdd9165d3321afb</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit e34fef8786eb3b920bbb36d30cdd9165d3321afb</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/7/2026, 5:47:41 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(auth): decouple login.complete from flow events, fix Sync and reset</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>## Because
+
+- `login.complete` fired only when `emitFlowEvent` ran. If the Amplitude flow emitters are removed, it would stop.
+- A Google or Apple sign-in for an existing link sent `login.complete` twice. A new link was labelled `email`.
+- A Sync login with a Google or Apple account had no stash on the session token, so `/oauth/token` could not complete it.
+- The metrics stash keeps the first write. The `/session/reauth` after SetPassword was dropped, so a passkey Sync sign-in never completed. A passwordless Sync sign-in completed twice.
+- A password reset signs the user in, but no reset flow emitted `login.complete`. The signal in `send_otp` was never stashed.
+
+## This pull request
+
+- Sets `isFlowCompleteSignal` in `events.js` from `metricsContext.flowCompleteSignal`, and adds the missing `await` on `gatherMetricsContext`.
+- Passes `provider` as `authMethod` on the Google and Apple signals in `linked-accounts.ts`.
+- Signals `account.signed` for Sync on the new-link branch, as the existing-link branch does.
+- Removes the direct `glean.login.complete` call from `linked-accounts.ts`. It double-counted.
+- Stashes the metrics context on the new session token in `linked-accounts.ts`.
+- Sets `account.signed`/`passkey` before the stash in `passkeys.ts` for a Sync sign-in with `keysRequired`.
+- Makes a passwordless Sync sign-in in `passwordless.ts` signal `account.signed`/`otp` and stash on the session token. A non-Sync sign-in still calls `login.complete` directly.
+- Moves the reset signal in `password.ts` from `send_otp` to `verify_otp`, with reason `reset`, stashed on the `passwordForgotToken`. It is `account.signed` for Sync and `account.reset` otherwise.
+- Adds an optional `service` to `verify_otp`. The settings `ConfirmResetPassword` container sends `sync`, and the `fxa-auth-client` type has the new field.
+- Adds `reset` to the `login.complete` reason description in `fxa-backend-metrics.yaml` and `server_events.ts`.
+- Adds `lib/metrics/README.md` in the auth server. It explains how `login.complete` is emitted.
+- Adds unit tests for each route and for the settings container.
+- Leaves `flow.complete` unchanged.
+
+## Issue that this pull request solves
+
+Closes:</pre></dd>
+  </dl>
+</body>
+</html>

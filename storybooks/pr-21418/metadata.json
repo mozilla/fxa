@@ -1,0 +1,12 @@
+{
+  "commit": "e34fef8786eb3b920bbb36d30cdd9165d3321afb",
+  "summary": "fix(auth): decouple login.complete from flow events, fix Sync and reset",
+  "description": "## Because\n\n- `login.complete` fired only when `emitFlowEvent` ran. If the Amplitude flow emitters are removed, it would stop.\n- A Google or Apple sign-in for an existing link sent `login.complete` twice. A new link was labelled `email`.\n- A Sync login with a Google or Apple account had no stash on the session token, so `/oauth/token` could not complete it.\n- The metrics stash keeps the first write. The `/session/reauth` after SetPassword was dropped, so a passkey Sync sign-in never completed. A passwordless Sync sign-in completed twice.\n- A password reset signs the user in, but no reset flow emitted `login.complete`. The signal in `send_otp` was never stashed.\n\n## This pull request\n\n- Sets `isFlowCompleteSignal` in `events.js` from `metricsContext.flowCompleteSignal`, and adds the missing `await` on `gatherMetricsContext`.\n- Passes `provider` as `authMethod` on the Google and Apple signals in `linked-accounts.ts`.\n- Signals `account.signed` for Sync on the new-link branch, as the existing-link branch does.\n- Removes the direct `glean.login.complete` call from `linked-accounts.ts`. It double-counted.\n- Stashes the metrics context on the new session token in `linked-accounts.ts`.\n- Sets `account.signed`/`passkey` before the stash in `passkeys.ts` for a Sync sign-in with `keysRequired`.\n- Makes a passwordless Sync sign-in in `passwordless.ts` signal `account.signed`/`otp` and stash on the session token. A non-Sync sign-in still calls `login.complete` directly.\n- Moves the reset signal in `password.ts` from `send_otp` to `verify_otp`, with reason `reset`, stashed on the `passwordForgotToken`. It is `account.signed` for Sync and `account.reset` otherwise.\n- Adds an optional `service` to `verify_otp`. The settings `ConfirmResetPassword` container sends `sync`, and the `fxa-auth-client` type has the new field.\n- Adds `reset` to the `login.complete` reason description in `fxa-backend-metrics.yaml` and `server_events.ts`.\n- Adds `lib/metrics/README.md` in the auth server. It explains how `login.complete` is emitted.\n- Adds unit tests for each route and for the settings container.\n- Leaves `flow.complete` unchanged.\n\n## Issue that this pull request solves\n\nCloses:",
+  "timestamp": 1791395261000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
