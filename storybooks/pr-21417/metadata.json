@@ -1,0 +1,10 @@
+{
+  "commit": "c81f4473ed7f43842a023fe97ddb161909d0bed6",
+  "summary": "fix(settings): send the pairing resume token as a subprotocol",
+  "description": "Because:\n\n- The channel server now reads the resume token from the WebSocket subprotocol instead of the URL, and rotates it on each resume.\n\nThis commit:\n\n- Sends the token as the `resume.<token>` subprotocol when the pairing socket reconnects.\n- Adds a test that a later drop resumes with the rotated token.\n\nRefs: FXA-14663",
+  "timestamp": 1791392536000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
