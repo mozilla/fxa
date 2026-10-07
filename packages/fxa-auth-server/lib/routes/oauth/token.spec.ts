@@ -18,6 +18,7 @@ const { OAuthNativeClients } = require('@fxa/accounts/oauth');
 const {
   excludeDauCacheKey,
 } = require('../../oauth/desktop-sync-dau-authorization-bandaid');
+const { pairingCodeCacheKey } = require('../../oauth/pairing-code');
 
 function buf(v: any) {
   return Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex');
@@ -1841,6 +1842,132 @@ describe('exclude_dau carried on the authorization code', () => {
 
       expect(redis.get).not.toHaveBeenCalled();
     });
+  });
+});
+
+// Read side of the pairing carry: /oauth/authorization recognises a pairing
+// from the requesting browser and leaves the verdict in Redis against the
+// code's hash. Redemption is the phone's last step, so this is where a
+// completed pairing is counted.
+describe('pairing verdict carried on the authorization code', () => {
+  const FENIX_CLIENT_ID = OAuthNativeClients.Fenix;
+  const EXPECTED_KEY = pairingCodeCacheKey(
+    encrypt.hash(CODE_WITH_KEYS).toString('hex')
+  );
+
+  function codeRequest(clientId: string) {
+    return {
+      app: {},
+      // Code redemption is client-authenticated; no session token rides along.
+      auth: { credentials: undefined },
+      headers: {},
+      payload: {
+        client_id: clientId,
+        grant_type: 'authorization_code',
+        code: CODE_WITH_KEYS,
+      },
+      emitMetricsEvent: () => {},
+    };
+  }
+
+  function buildOauthDB(clientId: string) {
+    return {
+      ...tokenRoutesArgMocks.oauthDB,
+      async getCode() {
+        return {
+          userId: buf(UID),
+          clientId: buf(clientId),
+          createdAt: Date.now(),
+          scope: ScopeSet.fromArray([OAUTH_SCOPE_OLD_SYNC, 'profile']),
+          keysJwe: 'mykeys',
+          offline: true,
+        };
+      },
+    };
+  }
+
+  async function run({
+    redis,
+    clientId = FENIX_CLIENT_ID,
+  }: {
+    redis?: { get: jest.Mock };
+    clientId?: string;
+  }) {
+    resetAndMockDeps();
+    // The shared generateTokens stub passes `scope` through untouched, but the
+    // real one emits `access.scope.toString()`. These tests carry a real
+    // ScopeSet on the code, so match production or the route throws.
+    jest.doMock('../../oauth/grant', () => ({
+      ...tokenRoutesDepMocks['../../oauth/grant'],
+      generateTokens: (grant: any) => ({
+        ...grant,
+        scope: grant.scope.toString(),
+        keys_jwe: grant.keysJwe,
+        refresh_token: '00ff',
+      }),
+    }));
+    const routes = require('./token')({
+      ...tokenRoutesArgMocks,
+      oauthDB: buildOauthDB(clientId),
+      glean: { oauth: { tokenCreated: jest.fn() } },
+      authServerCacheRedis: redis,
+    });
+    await routes[1].handler(codeRequest(clientId));
+  }
+
+  it('counts a completed pairing against the client when the code was flagged', async () => {
+    const redis = { get: jest.fn().mockResolvedValue('1') };
+
+    await run({ redis });
+
+    expect(redis.get).toHaveBeenCalledWith(EXPECTED_KEY);
+    expect(mockStatsD.increment).toHaveBeenCalledWith(
+      'oauth.pairing.completed',
+      { clientId: FENIX_CLIENT_ID }
+    );
+  });
+
+  it('counts nothing when no verdict was recorded for the code', async () => {
+    const redis = { get: jest.fn().mockResolvedValue(null) };
+
+    await run({ redis });
+
+    expect(redis.get).toHaveBeenCalledWith(EXPECTED_KEY);
+    expect(mockStatsD.increment).not.toHaveBeenCalledWith(
+      'oauth.pairing.completed',
+      expect.anything()
+    );
+  });
+
+  it('issues the tokens and reports the failure when Redis is unavailable', async () => {
+    const redis = { get: jest.fn().mockRejectedValue(new Error('no redis')) };
+
+    await expect(run({ redis })).resolves.toBeUndefined();
+
+    expect(mockStatsD.increment).toHaveBeenCalledWith(
+      'oauth.pairing.read_failed'
+    );
+    expect(mockStatsD.increment).not.toHaveBeenCalledWith(
+      'oauth.pairing.completed',
+      expect.anything()
+    );
+  });
+
+  it("does not read Redis for a code that is not a mobile client's", async () => {
+    const redis = { get: jest.fn() };
+
+    await run({ redis, clientId: CLIENT_ID });
+
+    expect(redis.get).not.toHaveBeenCalled();
+  });
+
+  it('counts nothing when no cache is wired up', async () => {
+    await run({ redis: undefined });
+
+    expect(mockStatsD.increment).not.toHaveBeenCalledWith(
+      'oauth.pairing.completed',
+      expect.anything()
+    );
   });
 });
 
