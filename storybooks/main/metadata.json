@@ -1,8 +1,8 @@
 {
-  "commit": "4527b029501a746b9e6d490382e4037a270e76e8",
-  "summary": "Merge pull request #21413 from mozilla/agent-64df2a",
-  "description": "fix(admin-panel): match relying party filter case-insensitively",
-  "timestamp": 1791386439000,
+  "commit": "822ac1fcb8c5b599c187ae72c497f0545cc1ce2c",
+  "summary": "Merge pull request #21319 from mozilla/pay-3783-nextjs-16",
+  "description": "chore(payments-next): upgrade to Next.js 16 with Turbopack",
+  "timestamp": 1791388513000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
