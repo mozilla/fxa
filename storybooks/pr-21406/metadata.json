@@ -1,0 +1,13 @@
+{
+  "commit": "c3615d386d8ebc77d200ae4ea6d4cd7ce0495edb",
+  "summary": "chore(deps): bump @graphql-tools/executor-legacy-ws to >=1.1.35",
+  "description": "Resolves Dependabot alert #1004. The bump installs the highest\nversion satisfying the dependency range; the title uses >=<min> when the\nadvisory provides a minimum patched version — see the lockfile diff for the exact resolved version.\nCreated by BLEnder (https://github.com/mozilla/blender)",
+  "timestamp": 1791334867000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
