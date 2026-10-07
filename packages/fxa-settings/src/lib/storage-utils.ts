@@ -2,8 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import AuthClient from 'fxa-auth-client/browser';
 import Storage from './storage';
 import { dispatchStorageEvent } from './account-storage';
+import firefox from './channels/firefox';
+import config from './config';
+import { Constants } from './constants';
+import { isProbablyFirefox } from '../models/integrations/utils';
 
 const ORIGINAL_TAB_KEY = 'originalTab';
 
@@ -109,8 +114,37 @@ export function setCurrentAccount(uid: string) {
  * @param accountData
  */
 export function storeAccountData(accountData: StoredAccountData) {
+  const replacedToken = (localStorage().get('accounts') || {})[accountData.uid]
+    ?.sessionToken;
   persistAccount(accountData);
   setCurrentAccount(accountData.uid);
+  if (
+    replacedToken &&
+    accountData.sessionToken &&
+    replacedToken !== accountData.sessionToken
+  ) {
+    destroyReplacedSession(replacedToken);
+  }
+}
+
+// Keeps a token the browser may hold, because destroying it signs the browser out.
+async function destroyReplacedSession(sessionToken: hexstring) {
+  try {
+    if (isProbablyFirefox()) {
+      // Firefox hides signedInUser in private browsing unless service is sync.
+      const status = await firefox.fxaStatus({
+        context: Constants.OAUTH_CONTEXT,
+        isPairing: false,
+        service: Constants.SYNC_SERVICE,
+      });
+      if (!status || status.signedInUser?.sessionToken === sessionToken) {
+        return;
+      }
+    }
+    await new AuthClient(config.servers.auth.url).sessionDestroy(sessionToken);
+  } catch {
+    // Best effort: a failed destroy must not block sign-in.
+  }
 }
 
 export function getCurrentAccountData(): StoredAccountData {
