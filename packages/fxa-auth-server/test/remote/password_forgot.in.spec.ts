@@ -112,6 +112,37 @@ describe.each(testVersions)(
       expect(client.kB.length).toBe(64);
     });
 
+    it('forgot password with includeRecoveryKeyPrompt sends the recovery key prompt email', async () => {
+      const email = server.uniqueEmail();
+      const options = {
+        ...testOptions,
+        metricsContext: mocks.generateMetricsContext(),
+      };
+      const client = await Client.createAndVerify(
+        server.publicUrl,
+        email,
+        'allyourbasearebelongtous',
+        server.mailbox,
+        options
+      );
+
+      await client.forgotPassword();
+      const code = await server.mailbox.waitForEmailByHeader(
+        email,
+        'x-password-forgot-otp'
+      );
+      const result = await client.verifyPasswordForgotOtp(code, options);
+      await client.verifyPasswordResetCode(result.code, undefined, {
+        ...options,
+        includeRecoveryKeyPrompt: true,
+      });
+
+      const resetEmailData = await server.mailbox.waitForEmail(email);
+      expect(resetEmailData.headers['x-template-name']).toBe(
+        'passwordResetWithRecoveryKeyPrompt'
+      );
+    });
+
     it('verify_otp reports both passkey signals false for an account without a passkey', async () => {
       const email = server.uniqueEmail();
       const password = 'allyourbasearebelongtous';

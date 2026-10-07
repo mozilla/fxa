@@ -1195,9 +1195,6 @@ module.exports = function (
             includeRecoveryKeyPrompt?: boolean;
           };
 
-        const { deviceId, flowId, flowBeginTime } =
-          await request.app.metricsContext;
-
         await Promise.all([
           request.emitMetricsEvent('password.forgot.verify_code.start'),
           customs.check(
@@ -1222,56 +1219,32 @@ module.exports = function (
           });
         }
 
-        const [, emails, account] = await Promise.all([
+        const [, account] = await Promise.all([
           request.propagateMetricsContext(
             passwordForgotToken,
             accountResetToken
           ),
-          db.accountEmails(passwordForgotToken.uid),
           db.account(passwordForgotToken.uid),
         ]);
-
-        const {
-          browser: uaBrowser,
-          browserVersion: uaBrowserVersion,
-          os: uaOS,
-          osVersion: uaOSVersion,
-          deviceType: uaDeviceType,
-        } = request.app.ua;
-
-        const emailOptions = {
-          code,
-          acceptLanguage: request.app.acceptLanguage,
-          deviceId,
-          flowId,
-          flowBeginTime,
-          uaBrowser,
-          uaBrowserVersion,
-          uaOS,
-          uaOSVersion,
-          uaDeviceType,
-          uid: passwordForgotToken.uid,
-        };
 
         // To prevent multiple password change emails being sent to a user,
         // we check for a flag to see if this is a reset using an account recovery key.
         // If it is, then the notification email will be sent in `/account/reset`
         if (!accountResetWithRecoveryKey) {
+          const emailOptions = {
+            ...FxaMailerFormat.account(account),
+            ...(await FxaMailerFormat.metricsContext(request)),
+            ...FxaMailerFormat.localTime(request),
+            ...FxaMailerFormat.location(request),
+            ...FxaMailerFormat.device(request),
+            ...FxaMailerFormat.sync(false),
+          };
           if (includeRecoveryKeyPrompt) {
-            await mailer.sendPasswordResetWithRecoveryKeyPromptEmail(
-              emails,
-              passwordForgotToken,
+            await fxaMailer.sendPasswordResetWithRecoveryKeyPromptEmail(
               emailOptions
             );
           } else {
-            await fxaMailer.sendPasswordResetEmail({
-              ...FxaMailerFormat.account(account),
-              ...(await FxaMailerFormat.metricsContext(request)),
-              ...FxaMailerFormat.localTime(request),
-              ...FxaMailerFormat.location(request),
-              ...FxaMailerFormat.device(request),
-              ...FxaMailerFormat.sync(false),
-            });
+            await fxaMailer.sendPasswordResetEmail(emailOptions);
           }
         }
 
