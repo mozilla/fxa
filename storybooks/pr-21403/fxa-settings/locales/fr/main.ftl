@@ -1376,7 +1376,7 @@ pair2-supplicant-download-firefox-learn-more-link = En savoir plus
 
 pair2-supplicant-connect-hint-heading-v2 = Terminez l’association dans l’application
 pair2-supplicant-connect-hint-step-app-menu = Appuyez sur le <b>menu de l’application</b> dans la barre d’outils
-pair2-supplicant-connect-hint-step-sign-in = Appuyez sur <b>connectez-vous</b>, puis scannez le code
+pair2-supplicant-connect-hint-step-sign-in = Appuyez sur <b>Se connecter</b>, puis scannez le code
 pair2-supplicant-connect-hint-learn-more-link = En savoir plus
 
 
@@ -1403,9 +1403,9 @@ permissions-continue-button = Continuer
 permissions-cancel-button = Annuler
 
 
-force-password-change-heading = Merci de changer votre mot de passe
-force-password-change-info = Nous avons détecté un comportement suspect sur votre { -product-mozilla-account }. Pour protéger votre compte, veuillez créer un nouveau mot de passe. Vous utiliserez ce mot de passe pour vous reconnecter à tous vos services { -product-mozilla-account }.
-force-password-change-data-info = Les données synchronisées ne seront pas perdues : historique, marque-pages, identifiants et autres données personnelles.
+force-password-change-heading = Veuillez modifier votre mot de passe
+force-password-change-info = Nous avons détecté un comportement suspect sur votre { -product-mozilla-account }. Pour protéger votre compte, veuillez créer un nouveau mot de passe. Vous utiliserez ce mot de passe pour vous reconnecter à tous les services de votre { -product-mozilla-account }.
+force-password-change-data-info = Votre historique, vos marque-pages, vos identifiants et vos autres données personnelles synchronisés seront conservés.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(capitalization: "uppercase") } confirmé
@@ -1703,6 +1703,6 @@ signup-confirmed-sync-manage-sync-button = Gérer la synchronisation
 signup-confirmed-sync-set-password-success-banner = Mot de passe de synchronisation créé
 
 
-update-firefox-heading = { -brand-firefox } mise à jour nécessaire
+update-firefox-heading = Mise à jour de { -brand-firefox } requise
 update-firefox-description = Votre { -product-mozilla-account } utilise des fonctionnalités qui ne sont pas prises en charge par votre version de { -brand-firefox }. Veuillez télécharger et installer la dernière version de { -brand-firefox } pour continuer.
 update-firefox-download-button = Télécharger la dernière version

@@ -163,6 +163,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Bevestig wachtwoord
 form-password-with-inline-criteria-reset-submit-button = Nieuw wachtwoord aanmaken
+form-password-with-inline-criteria-old-password-label =
+    .label = Oude wachtwoord
+form-password-with-inline-criteria-change-password-submit-button = Wachtwoord wijzigen
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Wachtwoord
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1354,8 +1357,19 @@ pair2-supplicant-connect-this-device-connect-button = Verbinden
 pair2-supplicant-connect-this-device-cancel-button = Annuleren
 
 
+pair2-supplicant-download-firefox-heading-v2 = { -brand-firefox } openen op dit apparaat
+pair2-supplicant-download-firefox-description-v2 = Download { -brand-firefox } om bladwijzers, geschiedenis en meer tussen apparaten te synchroniseren.
 pair2-supplicant-download-firefox-continue-button = Doorgaan in { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } openen…
+pair2-supplicant-download-firefox-download-button = { -brand-firefox } downloaden
+pair2-supplicant-download-firefox-have-firefox-button = Ik heb { -brand-firefox } al
+pair2-supplicant-download-firefox-learn-more-link = Meer info
+
+
+pair2-supplicant-connect-hint-heading-v2 = Rond het koppelen af in de app
+pair2-supplicant-connect-hint-step-app-menu = Tik op het <b>app-menu</b> in de werkbalk
+pair2-supplicant-connect-hint-step-sign-in = Tik op <b>aanmelden</b> en scan de code
+pair2-supplicant-connect-hint-learn-more-link = Meer info
 
 
 pair2-supplicant-ready-to-scan-heading = Een apparaat verbinden
@@ -1379,6 +1393,11 @@ permissions-label-email = E-mailadres
 permissions-label-display-name = Weergavenaam
 permissions-continue-button = Doorgaan
 permissions-cancel-button = Annuleren
+
+
+force-password-change-heading = Wijzig uw wachtwoord
+force-password-change-info = We hebben verdacht gedrag op uw { -product-mozilla-account } gedetecteerd. Maak een nieuw wachtwoord aan om uw account te beschermen. Dit wachtwoord gebruikt u om u weer bij al uw { -product-mozilla-account }-services aan te melden.
+force-password-change-data-info = Gesynchroniseerde geschiedenis, bladwijzers, aanmeldingen en andere persoonlijke gegevens gaan niet verloren.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } bevestigd
@@ -1674,3 +1693,8 @@ signup-confirmed-sync-description-v2 = Uw wachtwoorden, adressen, bladwijzers, g
 signup-confirmed-sync-add-device-link = Nog een apparaat toevoegen
 signup-confirmed-sync-manage-sync-button = Synchronisatie beheren
 signup-confirmed-sync-set-password-success-banner = Synchronisatiewachtwoord aangemaakt
+
+
+update-firefox-heading = { -brand-firefox } moet worden bijgewerkt
+update-firefox-description = Uw { -product-mozilla-account } maakt gebruik van functies die niet worden ondersteund in uw versie van { -brand-firefox }. Download en installeer de nieuwste versie van { -brand-firefox } om verder te gaan.
+update-firefox-download-button = Nieuwste versie downloaden

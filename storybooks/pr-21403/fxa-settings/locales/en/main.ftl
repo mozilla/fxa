@@ -1527,7 +1527,7 @@ pair2-authority-download-firefox-cta = Download { -brand-firefox }
 pair2-authority-scan-qr-heading = Scan to connect your mobile device
 pair2-authority-scan-qr-instruction = Scan the QR code with your phone or tablet to sync your { -brand-firefox } bookmarks, tabs, and more.
 pair2-authority-scan-qr-code-aria-label = QR code to connect your mobile device
-pair2-authority-scan-qr-help-link = Get help scanning
+pair2-authority-scan-qr-other-ways-link = Other ways to sign in
 pair2-authority-scan-qr-skip-button = Skip for now
 
 
@@ -1576,7 +1576,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Learn more
 
 pair2-supplicant-sync-success-heading = Your device is connected
 pair2-supplicant-sync-success-description-v2 = Syncing is underway. It may take a while for your synced data to appear. Feel free to keep browsing.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Manage sync settings
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Looks like we timed out

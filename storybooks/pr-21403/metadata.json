@@ -1,8 +1,8 @@
 {
-  "commit": "c519c018143b6770c73cb25f6362c48427ea128d",
+  "commit": "9b321ea4dcaaa79da239a6831d09be99356eb687",
   "summary": "chore(deps): bump @opentelemetry/instrumentation-mongoose to >=0.67.0",
   "description": "Resolves Dependabot alert #997. The bump installs the highest\nversion satisfying the dependency range; the title uses >=<min> when the\nadvisory provides a minimum patched version — see the lockfile diff for the exact resolved version.\nCreated by BLEnder (https://github.com/mozilla/blender)",
-  "timestamp": 1791334798000,
+  "timestamp": 1791404039000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
