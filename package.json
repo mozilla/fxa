@@ -310,7 +310,8 @@
     "@hapi/content": "6.0.2",
     "undici": "7.29.1",
     "ip-address": "10.7.1",
-    "@opentelemetry/instrumentation-tedious": "0.40.0"
+    "@opentelemetry/instrumentation-tedious": "0.40.0",
+    "@nx/docker": "22.7.8"
   },
   "resolutionComments": {
     "multer": "^2.1.1 — remove when @nestjs/platform-express is upgraded to 11.x (ships multer 2.1.1 natively)",
