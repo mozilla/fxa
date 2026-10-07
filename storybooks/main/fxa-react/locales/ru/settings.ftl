@@ -170,6 +170,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Подтвердите пароль
 form-password-with-inline-criteria-reset-submit-button = Создать новый пароль
+form-password-with-inline-criteria-old-password-label =
+    .label = Старый пароль
+form-password-with-inline-criteria-change-password-submit-button = Сменить пароль
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Пароль
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1972,11 +1975,35 @@ pair2-supplicant-connect-this-device-cancel-button = Отменить
 ## not Firefox. It offers to open the Firefox app to finish pairing, and to
 ## install it first when the user does not have it yet.
 
+pair2-supplicant-download-firefox-heading-v2 = Открыть { -brand-firefox } на этом устройстве
+# "sync" is a verb here, referring to syncing data between the user's devices.
+pair2-supplicant-download-firefox-description-v2 = Скачайте { -brand-firefox }, чтобы синхронизировать закладки, историю и другие данные между устройствами.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Продолжить в { -brand-firefox }
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = Открытие { -brand-firefox }…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = Скачать { -brand-firefox }
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = У меня уже есть { -brand-firefox }
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = Подробнее
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = Завершите сопряжение в приложении
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = Нажмите на <b>меню приложения</b> на панели инструментов
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = Нажмите <b>войти</b>, затем отсканируйте код
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = Подробнее
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2027,6 +2054,13 @@ permissions-label-email = Адрес эл. почты
 permissions-label-display-name = Отображаемое имя
 permissions-continue-button = Продолжить
 permissions-cancel-button = Отмена
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Пожалуйста, смените пароль
+force-password-change-info = Мы обнаружили подозрительную активность в вашем аккаунте { -product-mozilla-account }.Чтобы защитить его, создайте новый пароль. Вы будете использовать этот пароль для повторного входа во все службы своего аккаунта  { -product-mozilla-account }.
+force-password-change-data-info = Синхронизированная история, закладки, логины и другие персональные данные не будут потеряны.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2500,3 +2534,13 @@ signup-confirmed-sync-description-v2 = Ваши пароли, адреса, за
 signup-confirmed-sync-add-device-link = Добавить другое устройство
 signup-confirmed-sync-manage-sync-button = Управление синхронизацией
 signup-confirmed-sync-set-password-success-banner = Пароль синхронизации создан
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = Требуется обновление { -brand-firefox }
+update-firefox-description =
+    Аккаунт { -product-mozilla-account } использует функции, которые
+    не поддерживаются в вашей версии { -brand-firefox }. Пожалуйста,
+    загрузите и установите последнюю версию { -brand-firefox } для продолжения.
+update-firefox-download-button = Скачать последнюю версию
