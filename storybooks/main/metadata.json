@@ -1,8 +1,8 @@
 {
-  "commit": "4e0fb7f27aba7faf39b6dd2d7c9a354f34f19a1c",
-  "summary": "Merge pull request #21349 from mozilla/FXA-14638",
-  "description": "fix(settings): update passkey sync opt-in and delete dialog copy",
-  "timestamp": 1791329913000,
+  "commit": "96a4e4b8fbdf1dfdefdf0b3527f01269f6f4575f",
+  "summary": "Merge pull request #21381 from mozilla/fxa-7397",
+  "description": "fix(settings): compile the bundle for Firefox 95 and newer",
+  "timestamp": 1791331071000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
