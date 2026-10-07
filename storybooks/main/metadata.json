@@ -1,8 +1,8 @@
 {
-  "commit": "348052345c29db295e288e0556db90ad149e7217",
-  "summary": "Merge pull request #21393 from mozilla/fxa-14573",
-  "description": "fix(auth): accept stored OAuth scopes in attached_clients response",
-  "timestamp": 1791394520000,
+  "commit": "625ab6c1cfb690474cff6ba42eecd66315da3564",
+  "summary": "Merge pull request #21389 from mozilla/FXA-13154",
+  "description": "test(functional-tests): cover passkey passwordless Sync sign-in end to end",
+  "timestamp": 1791399458000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
