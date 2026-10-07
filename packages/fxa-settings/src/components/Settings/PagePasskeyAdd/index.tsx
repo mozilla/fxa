@@ -16,7 +16,10 @@ import {
   useFtlMsgResolver,
 } from '../../../models';
 import { isWebAuthnSupported } from '../../../lib/passkeys/webauthn';
-import { createCredentialWithPrfFallback } from '../../../lib/passkeys/prf-fallback';
+import {
+  createCredentialWithPrfFallback,
+  stripPrfResults,
+} from '../../../lib/passkeys/prf-fallback';
 import {
   handleWebAuthnError,
   WebAuthnErrorType,
@@ -161,7 +164,7 @@ export const PagePasskeyAdd = () => {
         // Step 3: Complete registration with server
         await latest.current.authClient.completePasskeyRegistration(
           jwt,
-          credential,
+          stripPrfResults(credential),
           challenge
         );
         await latest.current.account.refresh('passkeys');

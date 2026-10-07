@@ -94,8 +94,9 @@ export function extractPrfOutput(
 }
 
 /**
- * Returns the credential with any PRF extension results removed from
- * `clientExtensionResults`, so the PRF output never reaches the server.
+ * Returns the credential with `clientExtensionResults.prf.results` removed, so
+ * the PRF output never reaches the server. Other `prf` keys stay: the server
+ * reads `prf.enabled` at registration.
  *
  * Binary PRF outputs are `ArrayBuffer`s that already drop out when the
  * credential is JSON-stringified for the wire, but this makes the guarantee
@@ -105,12 +106,18 @@ export function extractPrfOutput(
 export function stripPrfResults(
   credential: PublicKeyCredentialJSON
 ): PublicKeyCredentialJSON {
-  const results = credential.clientExtensionResults as { prf?: unknown };
-  if (!results.prf) {
+  const results = credential.clientExtensionResults as {
+    prf?: { results?: unknown };
+  };
+  if (!results.prf?.results) {
     return credential;
   }
+  const { results: _results, ...prf } = results.prf;
   const { prf: _prf, ...rest } = results;
-  return { ...credential, clientExtensionResults: rest };
+  return {
+    ...credential,
+    clientExtensionResults: Object.keys(prf).length ? { ...rest, prf } : rest,
+  };
 }
 
 /**

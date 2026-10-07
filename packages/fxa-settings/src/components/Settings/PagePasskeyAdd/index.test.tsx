@@ -201,6 +201,26 @@ describe('PagePasskeyAdd', () => {
     );
   });
 
+  it('sends prf.enabled but not the PRF results to completePasskeyRegistration', async () => {
+    mockCreateCredential.mockResolvedValue({
+      ...mockCredential,
+      clientExtensionResults: {
+        prf: { enabled: true, results: { first: new ArrayBuffer(32) } },
+      },
+    });
+    renderPage();
+    await waitFor(() => {
+      expect(mockCompletePasskeyRegistration).toHaveBeenCalledWith(
+        'mock-jwt',
+        {
+          ...mockCredential,
+          clientExtensionResults: { prf: { enabled: true } },
+        },
+        'Y2hhbGxlbmdl'
+      );
+    });
+  });
+
   it('silently retries without PRF and succeeds when the first attempt fails with an unexpected error', async () => {
     // Windows Hello rejects a PRF eval with UnknownError (FXA-13991); the
     // ceremony should transparently retry without PRF and still succeed.

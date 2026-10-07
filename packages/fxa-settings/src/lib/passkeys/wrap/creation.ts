@@ -7,6 +7,7 @@ import { ERRNO } from '@fxa/accounts/errors';
 import type AuthClient from 'fxa-auth-client/browser';
 import type { PasskeyWrapEnvelope } from 'fxa-auth-client/browser';
 import { getCredential } from '../webauthn';
+import { stripPrfResults } from '../prf-fallback';
 import {
   categorizeWebAuthnError,
   WebAuthnErrorCategory,
@@ -228,7 +229,7 @@ async function stepUp(
   const response = await getCredential(options);
   const { mfaToken } = await authClient.completePasskeyVerification(
     sessionToken,
-    response,
+    stripPrfResults(response),
     options.challenge
   );
   return mfaToken;
