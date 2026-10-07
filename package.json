@@ -310,7 +310,8 @@
     "app-store-server-api@npm:^1.0.0": "patch:app-store-server-api@npm%3A1.0.0#~/.yarn/patches/app-store-server-api-npm-1.0.0.patch",
     "@hapi/content": "6.0.2",
     "undici": "7.29.1",
-    "ip-address": "10.7.1"
+    "ip-address": "10.7.1",
+    "@opentelemetry/instrumentation-tedious": "0.40.0"
   },
   "resolutionComments": {
     "multer": "^2.1.1 — remove when @nestjs/platform-express is upgraded to 11.x (ships multer 2.1.1 natively)",
