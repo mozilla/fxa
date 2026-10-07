@@ -1,8 +1,8 @@
 {
-  "commit": "370f9d394e6680d6eff25d36ca740a8e8f611ab6",
+  "commit": "f59fe57277ea943e1307c426dd121f95e9c3f8a7",
   "summary": "chore(deps): bump @nx/docker to >=22.7.8",
   "description": "Resolves Dependabot alert #1012. The bump installs the highest\nversion satisfying the dependency range; the title uses >=<min> when the\nadvisory provides a minimum patched version — see the lockfile diff for the exact resolved version.\nCreated by BLEnder (https://github.com/mozilla/blender)",
-  "timestamp": 1791334711000,
+  "timestamp": 1791404035000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

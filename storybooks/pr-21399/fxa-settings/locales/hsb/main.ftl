@@ -1371,6 +1371,8 @@ pair2-supplicant-connect-this-device-connect-button = Zwjazać
 pair2-supplicant-connect-this-device-cancel-button = Přetorhnyć
 
 
+pair2-supplicant-download-firefox-heading-v2 = { -brand-firefox } na tutym graće wočinić
+pair2-supplicant-download-firefox-description-v2 = Sćehńće { -brand-firefox }, zo byšće zapołožki, historiju a wjace přez graty synchronizował.
 pair2-supplicant-download-firefox-continue-button = Z { -brand-firefox } pokročować
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } so wočinja …
 pair2-supplicant-download-firefox-download-button = { -brand-firefox } scahnyć
@@ -1378,6 +1380,9 @@ pair2-supplicant-download-firefox-have-firefox-button = Mam hižo { -brand-firef
 pair2-supplicant-download-firefox-learn-more-link = Dalše informacije
 
 
+pair2-supplicant-connect-hint-heading-v2 = Koplowanje w nałoženju dokónčić
+pair2-supplicant-connect-hint-step-app-menu = Podótkńće so <b>nałoženskeho menija</b> w symbolowej lajsće
+pair2-supplicant-connect-hint-step-sign-in = Podótkńće so <b>Přizjewić</b> a skenujće potom kode
 pair2-supplicant-connect-hint-learn-more-link = Dalše informacije
 
 
@@ -1717,3 +1722,8 @@ signup-confirmed-sync-description-v2 = Waše hesła, adresy, zapołožki, histor
 signup-confirmed-sync-add-device-link = Dalši grat přidać
 signup-confirmed-sync-manage-sync-button = Synchronizaciju rjadować
 signup-confirmed-sync-set-password-success-banner = Hesło za synchronizaciju wutworjene
+
+
+update-firefox-heading = Aktualizacija { -brand-firefox } trěbna
+update-firefox-description = Waše konto { -product-mozilla-account } funkcije wužiwa, kotrež waša wersija { -brand-firefox } njepodpěruje. Prošu sćehńće a instalujće najnowšu wersiju { -brand-firefox }, zo byšće pokročował.
+update-firefox-download-button = Najnowšu wersiju sćahnyć

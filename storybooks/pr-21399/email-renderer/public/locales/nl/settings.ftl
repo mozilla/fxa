@@ -167,6 +167,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Bevestig wachtwoord
 form-password-with-inline-criteria-reset-submit-button = Nieuw wachtwoord aanmaken
+form-password-with-inline-criteria-old-password-label =
+    .label = Oude wachtwoord
+form-password-with-inline-criteria-change-password-submit-button = Wachtwoord wijzigen
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Wachtwoord
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1969,11 +1972,35 @@ pair2-supplicant-connect-this-device-cancel-button = Annuleren
 ## not Firefox. It offers to open the Firefox app to finish pairing, and to
 ## install it first when the user does not have it yet.
 
+pair2-supplicant-download-firefox-heading-v2 = { -brand-firefox } openen op dit apparaat
+# "sync" is a verb here, referring to syncing data between the user's devices.
+pair2-supplicant-download-firefox-description-v2 = Download { -brand-firefox } om bladwijzers, geschiedenis en meer tussen apparaten te synchroniseren.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Doorgaan in { -brand-firefox }
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } openen…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = { -brand-firefox } downloaden
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = Ik heb { -brand-firefox } al
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = Meer info
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = Rond het koppelen af in de app
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = Tik op het <b>app-menu</b> in de werkbalk
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = Tik op <b>aanmelden</b> en scan de code
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = Meer info
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2024,6 +2051,13 @@ permissions-label-email = E-mailadres
 permissions-label-display-name = Weergavenaam
 permissions-continue-button = Doorgaan
 permissions-cancel-button = Annuleren
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Wijzig uw wachtwoord
+force-password-change-info = We hebben verdacht gedrag op uw { -product-mozilla-account } gedetecteerd. Maak een nieuw wachtwoord aan om uw account te beschermen. Dit wachtwoord gebruikt u om u weer bij al uw { -product-mozilla-account }-services aan te melden.
+force-password-change-data-info = Gesynchroniseerde geschiedenis, bladwijzers, aanmeldingen en andere persoonlijke gegevens gaan niet verloren.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2488,3 +2522,10 @@ signup-confirmed-sync-description-v2 = Uw wachtwoorden, adressen, bladwijzers, g
 signup-confirmed-sync-add-device-link = Nog een apparaat toevoegen
 signup-confirmed-sync-manage-sync-button = Synchronisatie beheren
 signup-confirmed-sync-set-password-success-banner = Synchronisatiewachtwoord aangemaakt
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = { -brand-firefox } moet worden bijgewerkt
+update-firefox-description = Uw { -product-mozilla-account } maakt gebruik van functies die niet worden ondersteund in uw versie van { -brand-firefox }. Download en installeer de nieuwste versie van { -brand-firefox } om verder te gaan.
+update-firefox-download-button = Nieuwste versie downloaden

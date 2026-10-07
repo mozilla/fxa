@@ -202,6 +202,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Подтвердите пароль
 form-password-with-inline-criteria-reset-submit-button = Создать новый пароль
+form-password-with-inline-criteria-old-password-label =
+    .label = Старый пароль
+form-password-with-inline-criteria-change-password-submit-button = Сменить пароль
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Пароль
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1393,8 +1396,19 @@ pair2-supplicant-connect-this-device-connect-button = Подключить
 pair2-supplicant-connect-this-device-cancel-button = Отменить
 
 
+pair2-supplicant-download-firefox-heading-v2 = Открыть { -brand-firefox } на этом устройстве
+pair2-supplicant-download-firefox-description-v2 = Скачайте { -brand-firefox }, чтобы синхронизировать закладки, историю и другие данные между устройствами.
 pair2-supplicant-download-firefox-continue-button = Продолжить в { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Открытие { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Скачать { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = У меня уже есть { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Подробнее
+
+
+pair2-supplicant-connect-hint-heading-v2 = Завершите сопряжение в приложении
+pair2-supplicant-connect-hint-step-app-menu = Нажмите на <b>меню приложения</b> на панели инструментов
+pair2-supplicant-connect-hint-step-sign-in = Нажмите <b>войти</b>, затем отсканируйте код
+pair2-supplicant-connect-hint-learn-more-link = Подробнее
 
 
 pair2-supplicant-ready-to-scan-heading = Чтобы подключить устройство
@@ -1418,6 +1432,11 @@ permissions-label-email = Адрес эл. почты
 permissions-label-display-name = Отображаемое имя
 permissions-continue-button = Продолжить
 permissions-cancel-button = Отмена
+
+
+force-password-change-heading = Пожалуйста, смените пароль
+force-password-change-info = Мы обнаружили подозрительную активность в вашем аккаунте { -product-mozilla-account }.Чтобы защитить его, создайте новый пароль. Вы будете использовать этот пароль для повторного входа во все службы своего аккаунта  { -product-mozilla-account }.
+force-password-change-data-info = Синхронизированная история, закладки, логины и другие персональные данные не будут потеряны.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(case: "nominative_uppercase") } подтверждён
@@ -1722,3 +1741,11 @@ signup-confirmed-sync-description-v2 = Ваши пароли, адреса, за
 signup-confirmed-sync-add-device-link = Добавить другое устройство
 signup-confirmed-sync-manage-sync-button = Управление синхронизацией
 signup-confirmed-sync-set-password-success-banner = Пароль синхронизации создан
+
+
+update-firefox-heading = Требуется обновление { -brand-firefox }
+update-firefox-description =
+    Аккаунт { -product-mozilla-account } использует функции, которые
+    не поддерживаются в вашей версии { -brand-firefox }. Пожалуйста,
+    загрузите и установите последнюю версию { -brand-firefox } для продолжения.
+update-firefox-download-button = Скачать последнюю версию
