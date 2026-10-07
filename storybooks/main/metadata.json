@@ -1,8 +1,8 @@
 {
-  "commit": "6b47a910c47b1b3b7c278e8bc606e75e7a496d99",
-  "summary": "Merge pull request #21412 from mozilla/dependabot/npm_and_yarn/graphql-tools/executor-legacy-ws-1.1.37",
-  "description": "chore(deps): bump @graphql-tools/executor-legacy-ws from 1.1.30 to 1.1.37",
-  "timestamp": 1791343694000,
+  "commit": "dcd9b22b1ee4ef7afde0219bf3c9ea138798e4ec",
+  "summary": "Merge pull request #21411 from mozilla/dependabot/npm_and_yarn/compression-1.8.2",
+  "description": "chore(deps): bump compression from 1.8.1 to 1.8.2",
+  "timestamp": 1791343708000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
