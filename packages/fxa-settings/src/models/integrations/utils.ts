@@ -12,12 +12,13 @@ export function isFirefoxService(service?: string) {
 }
 
 /**
- * Resolves the `service` value to send with a sign-in or sign-up request,
- * mainly so the server names the right service in the new-device-login email:
- * the Firefox service name when present (e.g. 'sync'), otherwise an OAuth RP's
- * client id so the server names the RP. Only for genuine OAuth integrations — a
- * Web integration's getClientId() can fall back to the first-party Settings
- * client.
+ * Resolves the `service` value to send with a sign-in or sign-up request: the
+ * Firefox service name when present (e.g. 'sync'), otherwise an OAuth RP's
+ * client id. The auth-server expects the client id there: it names the RP in
+ * emails and decides from it whether to send the sign-in confirmation. Backend
+ * Glean splits it back out into the client id field, so metrics never see a
+ * client id as the service. Only for genuine OAuth integrations — a Web
+ * integration's getClientId() can fall back to the first-party Settings client.
  */
 export function resolveServiceOrClientId(
   integration: Parameters<typeof isOAuthIntegration>[0] & {
