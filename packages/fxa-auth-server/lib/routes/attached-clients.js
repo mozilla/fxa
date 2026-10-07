@@ -69,7 +69,11 @@ module.exports = (log, db, devices, clientUtils, config) => {
                 .string()
                 .optional()
                 .allow(''),
-              scope: isA.array().items(validators.scope).required().allow(null),
+              scope: isA
+                .array()
+                .items(validators.storedScope)
+                .required()
+                .allow(null),
               location: DEVICES_SCHEMA.location,
               userAgent: isA.string().max(255).required().allow(''),
               os: isA.string().max(255).allow('').allow(null),

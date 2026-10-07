@@ -8,7 +8,7 @@ type Coerceable = ScopeSet | string[] | string;
 
 // These character ranges are from the OAuth RFC,
 // https://tools.ietf.org/html/rfc6749#section-3.3
-const VALID_SCOPE_VALUE = /^[\x21\x23-\x5B\x5D-\x7E]+$/;
+export const VALID_SCOPE_VALUE = /^[\x21\x23-\x5B\x5D-\x7E]+$/;
 
 const VALID_SHORT_NAME_VALUE = /^[a-zA-Z0-9_]+$/;
 const VALID_FRAGMENT_VALUE = /^#[a-zA-Z0-9_]+$/;

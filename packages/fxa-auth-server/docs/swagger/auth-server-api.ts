@@ -213,6 +213,7 @@ export const AUTH_SERVER_API_DESCRIPTION = {
 
     - \`HEX_STRING\`: \`/^(?:[a-fA-F0-9]{2})+$/\`
     - \`BASE_36\`: \`/^[a-zA-Z0-9]*$/\`
+    - \`VALID_SCOPE_VALUE\`: \`/^[\x21\x23-\x5B\x5D-\x7E]+$/\`
     - \`URL_SAFE_BASE_64\`: \`/^[A-Za-z0-9_-]+$/\`
     - \`PKCE_CODE_VERIFIER\`: \`/^[A-Za-z0-9-\._~]{43,128}$/\`
     - \`DISPLAY_SAFE_UNICODE\`: \`/^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFF])*$/\`
@@ -226,6 +227,7 @@ export const AUTH_SERVER_API_DESCRIPTION = {
     - \`refreshToken\`: \`module.exports.hexString.length(64)\`
     - \`authorizationCode\`: \`module.exports.hexString.length(64)\`
     - \`scope\`: \`string, max(256), regex(/^[a-zA-Z0-9 _\/.:-]*$/), allow('')\`
+    - \`storedScope\`: \`string, max(256), regex(VALID_SCOPE_VALUE), allow('')\`
     - \`assertion\`: \`string, min(50), max(10240), regex(/^[a-zA-Z0-9_\-\.~=]+$/)\`
     - \`pkceCodeChallengeMethod\`: \`string, valid('S256')\`
     - \`pkceCodeChallenge\`: \`string, length(43), regex(module, exports.URL_SAFE_BASE_64)\`
