@@ -1,8 +1,8 @@
 {
-  "commit": "96a4e4b8fbdf1dfdefdf0b3527f01269f6f4575f",
-  "summary": "Merge pull request #21381 from mozilla/fxa-7397",
-  "description": "fix(settings): compile the bundle for Firefox 95 and newer",
-  "timestamp": 1791331071000,
+  "commit": "733a815b9c044d111c60fa9c6cab78aea32e199e",
+  "summary": "Merge pull request #21397 from mozilla/dependabot/npm_and_yarn/sharp-0.35.5",
+  "description": "chore(deps): bump sharp from 0.35.4 to 0.35.5",
+  "timestamp": 1791334404000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
