@@ -32029,7 +32029,7 @@ __metadata:
     ioredis: "npm:^4.28.2"
     jest: "npm:^29.7.0"
     jest-junit: "npm:^16.0.0"
-    joi: "npm:^17.13.3"
+    joi: "npm:^17.13.8"
     jose: "npm:^5.9.6"
     jsonwebtoken: "npm:^9.0.3"
     jsxgettext-recursive-next: "npm:1.1.0"
@@ -32158,7 +32158,7 @@ __metadata:
     http-proxy-middleware: "npm:^2.0.10"
     i18n-abide: "npm:0.0.26"
     install: "npm:0.13.0"
-    joi: "npm:^17.13.3"
+    joi: "npm:^17.13.8"
     jquery: "npm:3.7.0"
     jquery-modal: "https://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503"
     jquery-simulate: "npm:1.0.2"
@@ -32255,7 +32255,7 @@ __metadata:
     fxa-shared: "workspace:*"
     hot-shots: "npm:^10.2.1"
     jest: "npm:27.5.1"
-    joi: "npm:^17.13.3"
+    joi: "npm:^17.13.8"
     jwks-rsa: "npm:^3.1.0"
     mozlog: "npm:^3.0.2"
     p-event: "npm:^6.0.0"
@@ -32327,7 +32327,7 @@ __metadata:
     eslint: "npm:^8.18.0"
     fxa-shared: "workspace:*"
     jest-junit: "npm:^16.0.0"
-    joi: "npm:^17.13.3"
+    joi: "npm:^17.13.8"
     mozlog: "npm:^3.0.2"
     mysql: "npm:^2.18.1"
     pm2: "npm:^7.0.0"
@@ -32533,7 +32533,7 @@ __metadata:
     ip: "npm:^2.0.1"
     jest: "npm:27.5.1"
     jest-junit: "npm:^16.0.0"
-    joi: "npm:^17.13.3"
+    joi: "npm:^17.13.8"
     js-md5: "npm:^0.7.3"
     jsdom-global: "npm:3.0.2"
     knex: "npm:^3.3.0"
@@ -38341,7 +38341,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"joi@npm:17.x.x, joi@npm:^17.13.3, joi@npm:^17.3.0":
+"joi@npm:17.x.x, joi@npm:^17.3.0":
   version: 17.13.7
   resolution: "joi@npm:17.13.7"
   dependencies:
@@ -38351,6 +38351,19 @@ __metadata:
     "@sideway/formula": "npm:^3.0.1"
     "@sideway/pinpoint": "npm:^2.0.0"
   checksum: 10c0/631b917001611631d4ed1007f307aabe36c0471617187f77298784c21264213b879c0f2ccd871fafbb0325c62012d4e3b77c60abbd67cc7a4f2d583f17f24568
+  languageName: node
+  linkType: hard
+
+"joi@npm:^17.13.8":
+  version: 17.13.8
+  resolution: "joi@npm:17.13.8"
+  dependencies:
+    "@hapi/hoek": "npm:^9.3.0"
+    "@hapi/topo": "npm:^5.1.0"
+    "@sideway/address": "npm:^4.1.5"
+    "@sideway/formula": "npm:^3.0.1"
+    "@sideway/pinpoint": "npm:^2.0.0"
+  checksum: 10c0/7fe2b38d26dfcbcf1836892384ba2f42f83058795f32dcb3733de4c3b97cac923a8b9053738f10701663872a994f77af351c71e1428117a20bbfc1f94768f648
   languageName: node
   linkType: hard
 
