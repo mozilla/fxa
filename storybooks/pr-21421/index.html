@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 4779dd9ad2710d3c317d7eb46b7070f56ba34acb</title>
+  <title>Storybooks for commit 66e5fc0d0815e54f4b29dde26bddd7f66356b9d1</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 4779dd9ad2710d3c317d7eb46b7070f56ba34acb</h1>
+  <h1>Storybooks for commit 66e5fc0d0815e54f4b29dde26bddd7f66356b9d1</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/7/2026, 11:22:07 PM UTC</dd>
+    <dd>10/7/2026, 11:46:30 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): strip PRF results on passkey registration and step-up</pre></dd>
     <dt>Description</dt>
@@ -42,6 +42,7 @@
 This commit:
 
 - Makes stripPrfResults remove only prf.results and keep prf.enabled.
+- Drops the prf key when no other key stays.
 - Strips the credential before completePasskeyRegistration.
 - Strips the stepUp assertion before completePasskeyVerification.
 
