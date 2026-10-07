@@ -1,8 +1,8 @@
 {
-  "commit": "aae52021ddd46867d730f9f755010789a663f78e",
-  "summary": "Merge pull request #21377 from mozilla/fxa-14613",
-  "description": "fix(settings): destroy the browser session token on sign-out",
-  "timestamp": 1791388882000,
+  "commit": "ac9b75fb5135438c4a6bb1447bb9d9b96fd5e2e1",
+  "summary": "Merge pull request #21379 from mozilla/fxa-14614",
+  "description": "fix(settings): destroy the replaced web session on re-sign-in",
+  "timestamp": 1791388910000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
