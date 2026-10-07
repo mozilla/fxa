@@ -1,8 +1,8 @@
 {
-  "commit": "358d912aa8f6cb9ce61988194f66ecfc66cbf760",
-  "summary": "Merge pull request #21407 from mozilla/blender/security-bump-source-map-js",
-  "description": "chore(deps): bump source-map-js to >=1.2.2",
-  "timestamp": 1791382999000,
+  "commit": "4164ed0122aa4b3ce6a7cc267db5c6f59ec6c753",
+  "summary": "Merge pull request #21405 from mozilla/blender/security-bump-@opentelemetry/instrumentation-tedious",
+  "description": "chore(deps): bump @opentelemetry/instrumentation-tedious to >=0.40.0",
+  "timestamp": 1791383042000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
