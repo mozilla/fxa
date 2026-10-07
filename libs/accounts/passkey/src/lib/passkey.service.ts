@@ -656,6 +656,24 @@ export class PasskeyService {
     const failed = `passkey.${type}.failed`;
     const credentialId = response.id;
 
+    // Consumed first so a failed attempt, even with an unknown credential,
+    // cannot leave the challenge live for a retry.
+    const storedChallenge =
+      type === 'verification'
+        ? await this.challengeManager.consumeVerificationChallenge(
+            challenge,
+            // verifyVerificationResponse always passes the session uid.
+            expectedUid as string
+          )
+        : await this.challengeManager.consumeAuthenticationChallenge(challenge);
+    if (!storedChallenge) {
+      this.metrics.increment(failed, {
+        reason: 'challengeNotFound',
+      });
+      this.log?.warn('passkey.challengeNotFound', { credentialId, type });
+      throw AppError.passkeyChallengeNotFound();
+    }
+
     const passkey =
       await this.passkeyManager.findPasskeyByCredentialId(credentialId);
     if (!passkey) {
@@ -671,21 +689,6 @@ export class PasskeyService {
         reason: 'uidMismatch',
       });
       throw AppError.passkeyAuthenticationFailed();
-    }
-
-    const storedChallenge =
-      type === 'verification'
-        ? await this.challengeManager.consumeVerificationChallenge(
-            challenge,
-            uid
-          )
-        : await this.challengeManager.consumeAuthenticationChallenge(challenge);
-    if (!storedChallenge) {
-      this.metrics.increment(failed, {
-        reason: 'challengeNotFound',
-      });
-      this.log?.warn('passkey.challengeNotFound', { credentialId, type });
-      throw AppError.passkeyChallengeNotFound();
     }
 
     // `allowCredentials` already narrowed the browser's prompt, but the finish

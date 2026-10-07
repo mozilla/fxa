@@ -12,7 +12,6 @@ import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
 import {
   countPasskeysByUid,
-  deleteAllPasskeysForUser as repositoryDeleteAllPasskeysForUser,
   deletePasskey as repositoryDeletePasskey,
   findPasskeyByCredentialId as repositoryFindPasskeyByCredentialId,
   findPasskeyByUidAndCredentialId as repositoryFindPasskeyByUidAndCredentialId,
@@ -28,7 +27,6 @@ import {
   updatePasskeyPrfEnabled,
 } from './passkey.repository';
 import {
-  deleteAllPasskeyWrapsForUser as repositoryDeleteAllPasskeyWrapsForUser,
   deletePasskeyWrap as repositoryDeletePasskeyWrap,
   findPasskeyWrap as repositoryFindPasskeyWrap,
   insertPasskeyWrap,
@@ -247,18 +245,6 @@ export class PasskeyManager {
   }
 
   /**
-   * Delete all passkeys for a user.
-   *
-   * Used during account deletion to remove all passkey credentials.
-   *
-   * @param uid - User ID as a hex string
-   * @returns Number of passkeys deleted
-   */
-  async deleteAllPasskeysForUser(uid: string): Promise<number> {
-    return repositoryDeleteAllPasskeysForUser(this.db, uid);
-  }
-
-  /**
    * Count the number of passkeys registered for a user.
    *
    * @returns Current passkey count for the user
@@ -322,15 +308,5 @@ export class PasskeyManager {
     staleBefore?: number
   ): Promise<boolean> {
     return repositoryDeletePasskeyWrap(this.db, uid, credentialId, staleBefore);
-  }
-
-  /**
-   * Delete every wrap for a user, leaving their passkeys registered — the
-   * password-reset path, where kB changes but the credentials stay usable.
-   *
-   * @returns Number of wraps deleted
-   */
-  async deleteAllPasskeyWrapsForUser(uid: string): Promise<number> {
-    return repositoryDeleteAllPasskeyWrapsForUser(this.db, uid);
   }
 }

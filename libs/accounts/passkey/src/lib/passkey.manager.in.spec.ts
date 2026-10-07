@@ -524,47 +524,4 @@ describe('PasskeyManager (Integration)', () => {
       expect(await manager.countPasskeys(uid)).toBe(0);
     });
   });
-
-  describe('deleteAllPasskeysForUser', () => {
-    it('removes all passkeys for the user and returns the count deleted', async () => {
-      const uid = await createTestAccount();
-      await manager.registerPasskey(
-        uid,
-        toNewPasskeyData(PasskeyFactory({ uid: uidBuffer(uid) }))
-      );
-      await manager.registerPasskey(
-        uid,
-        toNewPasskeyData(PasskeyFactory({ uid: uidBuffer(uid) }))
-      );
-
-      const deleted = await manager.deleteAllPasskeysForUser(uid);
-
-      expect(deleted).toBe(2);
-      expect(await manager.countPasskeys(uid)).toBe(0);
-    });
-
-    it('returns 0 when the user has no passkeys', async () => {
-      const uid = await createTestAccount();
-      expect(await manager.deleteAllPasskeysForUser(uid)).toBe(0);
-    });
-
-    it('does not affect passkeys belonging to other users', async () => {
-      const uid1 = await createTestAccount();
-      const uid2 = await createTestAccount();
-
-      await manager.registerPasskey(
-        uid1,
-        toNewPasskeyData(PasskeyFactory({ uid: uidBuffer(uid1) }))
-      );
-      await manager.registerPasskey(
-        uid2,
-        toNewPasskeyData(PasskeyFactory({ uid: uidBuffer(uid2) }))
-      );
-
-      await manager.deleteAllPasskeysForUser(uid1);
-
-      expect(await manager.countPasskeys(uid1)).toBe(0);
-      expect(await manager.countPasskeys(uid2)).toBe(1);
-    });
-  });
 });

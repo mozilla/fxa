@@ -390,25 +390,6 @@ export async function deletePasskey(
 }
 
 /**
- * Delete all passkeys for a user.
- *
- * @param db - Database instance
- * @param uid - User ID as a hex string
- * @returns Number of passkeys deleted
- */
-export async function deleteAllPasskeysForUser(
-  db: AccountDatabase,
-  uid: string
-): Promise<number> {
-  const result = await db
-    .deleteFrom('passkeys')
-    .where('uid', '=', uuidTransformer.to(uid))
-    .executeTakeFirst();
-
-  return Number(result.numDeletedRows);
-}
-
-/**
  * Count the number of passkeys for a user.
  *
  * @param db - Database instance

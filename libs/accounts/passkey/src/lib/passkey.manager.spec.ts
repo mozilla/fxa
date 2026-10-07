@@ -22,7 +22,6 @@ import { AppError } from '../../../errors/src';
 jest.mock('./passkey.repository', () => ({
   ...jest.requireActual('./passkey.repository'),
   countPasskeysByUid: jest.fn(),
-  deleteAllPasskeysForUser: jest.fn(),
   deletePasskey: jest.fn(),
   findPasskeyByCredentialId: jest.fn(),
   findPasskeysByUid: jest.fn(),
