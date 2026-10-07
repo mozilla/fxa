@@ -1,8 +1,8 @@
 {
-  "commit": "c81f4473ed7f43842a023fe97ddb161909d0bed6",
-  "summary": "fix(settings): send the pairing resume token as a subprotocol",
-  "description": "Because:\n\n- The channel server now reads the resume token from the WebSocket subprotocol instead of the URL, and rotates it on each resume.\n\nThis commit:\n\n- Sends the token as the `resume.<token>` subprotocol when the pairing socket reconnects.\n- Adds a test that a later drop resumes with the rotated token.\n\nRefs: FXA-14663",
-  "timestamp": 1791392536000,
+  "commit": "4efcd5885862cd92161658d4b2d8fc4f8b943adc",
+  "summary": "feat(settings): resume the pairing channel when its socket drops",
+  "description": "Because:\n\n- A backgrounded mobile browser can drop the pairing WebSocket, which fails pairing for users who leave Firefox to read a TOTP code.\n\nThis commit:\n\n- Adds ResumableWebSocket, which reconnects with the channel server's resume token and sends queued data after it resumes.\n- Uses it for both the supplicant open() and authority create() channels through withResumableWebSocket().\n- Sends the token as the `resume.<token>` subprotocol and uses the rotated token on each later drop.\n- Keeps plain WebSocket behaviour when the channel server sends no token.\n\nCloses #FXA-14663",
+  "timestamp": 1791393194000,
   "storybooks": [
     "fxa-settings"
   ],
