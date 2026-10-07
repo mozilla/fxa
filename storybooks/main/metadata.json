@@ -1,8 +1,8 @@
 {
-  "commit": "ac132cc9613e61713224d787dfa8fd95f617e20f",
-  "summary": "Merge pull request #21288 from chelisejacobson/FXA-14589",
-  "description": "feat(settings): point pairing QR help link to no-QR sign-in article",
-  "timestamp": 1791390942000,
+  "commit": "5d40d62007f073619e4cc15097cbce97a353fd90",
+  "summary": "Merge pull request #21309 from chelisejacobson/FXA-14627",
+  "description": "feat(settings): remove sync settings link from mobile pairing success",
+  "timestamp": 1791391598000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
