@@ -1,8 +1,8 @@
 {
-  "commit": "763d42801aa2b2ae299f1a18f19a96a6e3eb3d4e",
-  "summary": "Merge pull request #21394 from mozilla/fxa-13110",
-  "description": "fix(settings): handle invalid session on third-party auth callback",
-  "timestamp": 1791390915000,
+  "commit": "ac132cc9613e61713224d787dfa8fd95f617e20f",
+  "summary": "Merge pull request #21288 from chelisejacobson/FXA-14589",
+  "description": "feat(settings): point pairing QR help link to no-QR sign-in article",
+  "timestamp": 1791390942000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
