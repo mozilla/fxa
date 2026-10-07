@@ -1,8 +1,8 @@
 {
-  "commit": "c915791a5f254ed048a3532f70e85b3faa35166b",
-  "summary": "Merge pull request #21415 from mozilla/fxa-14667",
-  "description": "fix(auth): send recovery key prompt reset email via FxaMailer",
-  "timestamp": 1791394303000,
+  "commit": "76f7d0ead53e0ebeacb74be91b9454f34e93983d",
+  "summary": "Merge pull request #21416 from mozilla/FXA-13872",
+  "description": "fix(metrics): keep client ids out of relying_party.service in Glean",
+  "timestamp": 1791394283000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
