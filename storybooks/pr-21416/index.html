@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 37be243130eb9285b74cc7d270c77a744739cd21</title>
+  <title>Storybooks for commit ab799af2ed2a2a09dbd625112be1b77793795845</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,22 +23,22 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 37be243130eb9285b74cc7d270c77a744739cd21</h1>
+  <h1>Storybooks for commit ab799af2ed2a2a09dbd625112be1b77793795845</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/7/2026, 4:32:56 PM UTC</dd>
+    <dd>10/7/2026, 4:51:44 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(metrics): keep client ids out of relying_party.service in Glean</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-* fxa-settings and older VPN clients send an OAuth RP&#039;s client id in
-  `service`, and the auth-server relies on that for emails and
-  verification gating, so backend Glean reported the client id in both
-  relying_party fields
+* fxa-settings (for RPs and mobile Firefox) and older VPN clients send an
+  OAuth client id in `service`, and the auth-server relies on that for
+  emails and verification gating, so backend Glean reported the client id
+  in both relying_party fields
 * The auth-server never read the metrics-context clientId, so Firefox
   sign-in events often had an empty relying_party.oauth_client_id
 * The content-server form_view event named services from the stale
@@ -50,7 +50,7 @@ This commit:
 * Fall back to the metrics-context clientId before sniffing `service`
 * Split service and client id the same way for content-server form_view
 * Remove the unread oauthServer.clientIdToServiceNames config key
-* Reword the fxa-settings comments on why the client id is sent as `service`
+* Cover the metrics-context clientId, hex-service and no-client-id cases in the spec
 
 Closes FXA-13872</pre></dd>
   </dl>
