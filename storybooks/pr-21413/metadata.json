@@ -1,8 +1,8 @@
 {
-  "commit": "35db573a1efd0bff42973d8911ef267ee9ef6814",
-  "summary": "fix(admin-panel): match relying party filter case-insensitively",
-  "description": "## Because\n\n- The relying party filter in the admin panel compared the text with `indexOf`, so it was case-sensitive. Typing `send` did not find `Send`.\n- The filter trimmed the text only for the empty check. Input with leading or trailing spaces matched nothing.\n\n## This pull request\n\n- Updates `getFilteredRps` in `PageRelyingParties/index.tsx` to trim and lowercase the filter text once.\n- Compares that text with `includes` against the lowercased name and the lowercased ID.\n- Adds a test in `PageRelyingParties/index.test.tsx` that types `  firefox SEND ` and then an upper-cased ID.\n- Removes the \"case-sensitive includes\" wording from a comment in the existing filter test.\n\n## Issue that this pull request solves\n\nCloses:",
-  "timestamp": 1791384845000,
+  "commit": "732eb7830c091b0ec8acf8a3d8247ba85a99e6fa",
+  "summary": "fix(admin-panel): match relying party filter ignoring case and spaces",
+  "description": "## Because\n\n- The relying party filter in the admin panel compared the text with a case-sensitive `indexOf`. Typing `send` did not find `Send`.\n- The filter trimmed the input only for the empty check. Input with spaces around it matched nothing.\n\n## This pull request\n\n- Changes `getFilteredRps` in `PageRelyingParties/index.tsx` to trim and lowercase the filter text.\n- Matches the text with `includes` against the lowercased name and the lowercased ID.\n- Adds a test in `index.test.tsx`, `filters relying parties ignoring case and surrounding spaces`. It types `  firefox SEND `, clicks Filter, then clears the input and types an upper-cased ID.\n- Removes the words \"case-sensitive includes\" from a comment in the existing name and ID filter test, because they are no longer true.\n\n## Issue that this pull request solves\n\nCloses:",
+  "timestamp": 1791385308000,
   "storybooks": [
     "fxa-admin-panel"
   ],
