@@ -1986,6 +1986,9 @@ pair2-supplicant-connect-this-device-cancel-button = Přetorhnyć
 ## not Firefox. It offers to open the Firefox app to finish pairing, and to
 ## install it first when the user does not have it yet.
 
+pair2-supplicant-download-firefox-heading-v2 = { -brand-firefox } na tutym graće wočinić
+# "sync" is a verb here, referring to syncing data between the user's devices.
+pair2-supplicant-download-firefox-description-v2 = Sćehńće { -brand-firefox }, zo byšće zapołožki, historiju a wjace přez graty synchronizował.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Z { -brand-firefox } pokročować
@@ -2005,6 +2008,11 @@ pair2-supplicant-download-firefox-learn-more-link = Dalše informacije
 ## Firefox installed, so it tells them how to scan the code again from inside
 ## Firefox.
 
+pair2-supplicant-connect-hint-heading-v2 = Koplowanje w nałoženju dokónčić
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = Podótkńće so <b>nałoženskeho menija</b> w symbolowej lajsće
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = Podótkńće so <b>Přizjewić</b> a skenujće potom kode
 # Opens a Mozilla support article about connecting a device without a QR code
 pair2-supplicant-connect-hint-learn-more-link = Dalše informacije
 
@@ -2543,3 +2551,10 @@ signup-confirmed-sync-description-v2 = Waše hesła, adresy, zapołožki, histor
 signup-confirmed-sync-add-device-link = Dalši grat přidać
 signup-confirmed-sync-manage-sync-button = Synchronizaciju rjadować
 signup-confirmed-sync-set-password-success-banner = Hesło za synchronizaciju wutworjene
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = Aktualizacija { -brand-firefox } trěbna
+update-firefox-description = Waše konto { -product-mozilla-account } funkcije wužiwa, kotrež waša wersija { -brand-firefox } njepodpěruje. Prošu sćehńće a instalujće najnowšu wersiju { -brand-firefox }, zo byšće pokročował.
+update-firefox-download-button = Najnowšu wersiju sćahnyć
