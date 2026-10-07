@@ -1,8 +1,8 @@
 {
-  "commit": "30a9ad07861cc3471f22585a8528fda4e857db73",
+  "commit": "dfa2f2428f9d19d9992f58834d60e80cd4f84ee6",
   "summary": "chore(deps): bump smol-toml to >=1.9.0",
   "description": "Resolves Dependabot alert #1016. The bump installs the highest\nversion satisfying the dependency range; the title uses >=<min> when the\nadvisory provides a minimum patched version — see the lockfile diff for the exact resolved version.\nCreated by BLEnder (https://github.com/mozilla/blender)",
-  "timestamp": 1791334770000,
+  "timestamp": 1791404037000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
