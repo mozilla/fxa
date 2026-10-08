@@ -1,8 +1,8 @@
 {
-  "commit": "57179d344fb69e10920de07f4306d172abf6ab2d",
-  "summary": "Merge pull request #21425 from mozilla/fix-payments-next-semconv-dep",
-  "description": "fix(deps): add @opentelemetry/semantic-conventions as a runtime dep",
-  "timestamp": 1791477543000,
+  "commit": "c0eaf503ce30ee233c48f535b73d6e9e5664800d",
+  "summary": "Merge pull request #21414 from mozilla/agent-023183",
+  "description": "feat(oauth): allow profile:avatar for untrusted clients",
+  "timestamp": 1791481956000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
