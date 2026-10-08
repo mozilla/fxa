@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 5b1d28773c335b1348f584c9a3cd6e3d83a3fdbd</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 5b1d28773c335b1348f584c9a3cd6e3d83a3fdbd</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/8/2026, 10:43:06 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): send a signed-out desktop off the v2 pairing QR page</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- The v2 scan_qr page never read the browser&#039;s sign-in status, so after
+  a sync sign-out a reload or the timeout page&#039;s retry still minted a
+  channel and showed a QR.
+- A phone that scanned it was approved by a desktop with no account, so
+  its flow fell back to login.
+
+This commit:
+
+- Passes the already-fetched fxa_status result into the ScanQR container.
+- Waits for the status and only opens a channel for a verified signed-in
+  user, otherwise hard-navigates to /pair, which owns the signed-out desktop.
+- Adds container tests for pending, signed-out, unverified, disconnected
+  and unanswered browsers.
+
+Fixes FXA-14657</pre></dd>
+  </dl>
+</body>
+</html>
