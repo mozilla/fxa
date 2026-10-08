@@ -1,8 +1,8 @@
 {
-  "commit": "aa560b816e7059ef00162956a245b3041b7151ea",
-  "summary": "Merge pull request #21399 from mozilla/blender/security-bump-@nx/docker",
-  "description": "chore(deps): bump @nx/docker to >=22.7.8",
-  "timestamp": 1791469233000,
+  "commit": "57179d344fb69e10920de07f4306d172abf6ab2d",
+  "summary": "Merge pull request #21425 from mozilla/fix-payments-next-semconv-dep",
+  "description": "fix(deps): add @opentelemetry/semantic-conventions as a runtime dep",
+  "timestamp": 1791477543000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
