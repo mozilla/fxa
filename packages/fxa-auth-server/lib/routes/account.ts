@@ -1561,6 +1561,7 @@ export class AccountHandler {
       password: any,
       password2: any,
       hasTotpToken = false,
+      hadPasskeyWraps = false,
       tokenVerificationId: any;
 
     const checkRecoveryKey = () => {
@@ -1628,6 +1629,18 @@ export class AccountHandler {
           wrapWrapKb = await random.hex(32);
           wrapKb = await password.unwrap(wrapWrapKb);
           keysHaveChanged = true;
+        }
+      }
+      // db.resetAccount() deletes every passkey wrap, so look for them first.
+      // A failed lookup must not block the reset.
+      if (keysHaveChanged) {
+        try {
+          const passkeys = await Container.get(
+            PasskeyService
+          ).listPasskeysForUser(accountResetToken.uid);
+          hadPasskeyWraps = passkeys.some((p) => p.hasPasswordlessSync);
+        } catch (err) {
+          this.log.error('Account.reset.listPasskeys', { err });
         }
       }
       // db.resetAccount() deletes all the devices saved in the account,
@@ -1845,6 +1858,13 @@ export class AccountHandler {
     await recoveryKeyDeleteAndEmailNotification();
     await createSessionToken();
     await createKeyFetchToken();
+    if (hadPasskeyWraps) {
+      await recordSecurityEvent('account.passkey.wrap_invalidated', {
+        db: this.db,
+        account,
+        request,
+      });
+    }
     await recordSecurityEvent('account.reset', {
       db: this.db,
       account,
