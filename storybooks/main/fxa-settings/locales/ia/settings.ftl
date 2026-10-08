@@ -2041,6 +2041,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Pro connecter un appa
 permissions-heading = { $serviceName } vole acceder a:
 permissions-label-email = Adresse de e-mail
 permissions-label-display-name = Nomine a monstrar
+permissions-label-avatar = Imagine del conto
 permissions-continue-button = Continuar
 permissions-cancel-button = Cancellar
 
@@ -2149,6 +2150,7 @@ confirm-totp-reset-password-use-different-account = Usa un conto differente
 ## ResetPassword start page
 
 password-reset-flow-heading = Reinitialisa tu contrasigno
+password-reset-forgot-heading = Contrasigno oblidate?
 password-reset-email-input =
     .label = Insere tu email
 password-reset-submit-button-2 = Continuar

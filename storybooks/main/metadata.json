@@ -1,8 +1,8 @@
 {
-  "commit": "98912027a936fa7f2087c664927d0bb45cd8f96d",
-  "summary": "Merge pull request #21430 from mozilla/metering-clickhouse-migrate-env",
-  "description": "fix(ent): use payments-api ClickHouse env vars for migrations",
-  "timestamp": 1791495517000,
+  "commit": "7c8da600fabcff64ffb01a7038866d846410ffbf",
+  "summary": "Merge pull request #21431 from mozilla/FXA-14643-ui",
+  "description": "fix(settings): When enabled, ask for 2FA before approving a v2 pairing flow",
+  "timestamp": 1791502486000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
