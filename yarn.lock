@@ -11130,14 +11130,31 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nx/docker@npm:22.7.5":
-  version: 22.7.5
-  resolution: "@nx/docker@npm:22.7.5"
+"@nx/devkit@npm:22.7.8":
+  version: 22.7.8
+  resolution: "@nx/devkit@npm:22.7.8"
   dependencies:
-    "@nx/devkit": "npm:22.7.5"
+    "@zkochan/js-yaml": "npm:0.0.7"
+    ejs: "npm:5.0.1"
+    enquirer: "npm:~2.3.6"
+    minimatch: "npm:10.2.5"
+    semver: "npm:^7.6.3"
+    tslib: "npm:^2.3.0"
+    yargs-parser: "npm:21.1.1"
+  peerDependencies:
+    nx: ">= 21 <= 23 || ^22.0.0-0"
+  checksum: 10c0/ebdbad5ffb11f7a1ed642226c2e2e3e350c620c8437a1410ac8819421f6a4835d3c0785e2f54593d628b5a45e60c56722f8f56c61801afb4fe3aff731b7f4d27
+  languageName: node
+  linkType: hard
+
+"@nx/docker@npm:22.7.8":
+  version: 22.7.8
+  resolution: "@nx/docker@npm:22.7.8"
+  dependencies:
+    "@nx/devkit": "npm:22.7.8"
     enquirer: "npm:~2.3.6"
     tslib: "npm:^2.3.0"
-  checksum: 10c0/4ad7bb41fad03c80bd18bcbf637d4c464656b75f0f8eee239cd25e13faf3f7759e262856183766e00deef136e20fe4653eef85c22c0b53986833d5dd8896f569
+  checksum: 10c0/2a5fd3fa12271b0f3d94bfbaeb0fa02d87292228cdc61f8c876c6222d967a019139b0deb008ad6760dc7b02f319e19ee807fe2a51b5b9c4fe5809ed7899899ce
   languageName: node
   linkType: hard
 
