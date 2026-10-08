@@ -1,0 +1,10 @@
+{
+  "commit": "659ec767db965645f7fe3780e430e5fba4364493",
+  "summary": "fix(settings): ask 2FA accounts for their code before approving a v2 pairing",
+  "description": "Because:\n- The v2 pairing flow approved a sign-in from the desktop without asking a\n  2FA account for its TOTP code, unlike v1.\n\nThis commit:\n- Adds /pair/authority/totp, reusing the v1 AuthTotp page, and sends 2FA accounts there before the approval screen.\n- Re-prompts for the code if the approval screen has been open longer than four minutes.\n- Shares the TOTP-required check between v1 AuthAllow and the v2 container.\n- Rejects a web channel command promptly when Firefox replies with an error for it.\n- Registers the route in both content-server lists and adds a v2 functional test.\n\nFixes FXA-14643",
+  "timestamp": 1791495693000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

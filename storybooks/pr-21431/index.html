@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 659ec767db965645f7fe3780e430e5fba4364493</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 659ec767db965645f7fe3780e430e5fba4364493</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/8/2026, 9:41:33 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): ask 2FA accounts for their code before approving a v2 pairing</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- The v2 pairing flow approved a sign-in from the desktop without asking a
+  2FA account for its TOTP code, unlike v1.
+
+This commit:
+- Adds /pair/authority/totp, reusing the v1 AuthTotp page, and sends 2FA accounts there before the approval screen.
+- Re-prompts for the code if the approval screen has been open longer than four minutes.
+- Shares the TOTP-required check between v1 AuthAllow and the v2 container.
+- Rejects a web channel command promptly when Firefox replies with an error for it.
+- Registers the route in both content-server lists and adds a v2 functional test.
+
+Fixes FXA-14643</pre></dd>
+  </dl>
+</body>
+</html>
