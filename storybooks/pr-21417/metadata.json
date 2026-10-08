@@ -1,8 +1,8 @@
 {
-  "commit": "fda311d3d00c29182da4890613891630cadc5e5d",
-  "summary": "feat(settings): opt in to channel server resume on first connect",
-  "description": "Because:\n\n- The channel server now holds a dropped client only when it asks for resume.\n\nThis commit:\n\n- Adds `?resume=1` to the first ResumableWebSocket connect.",
-  "timestamp": 1791424629000,
+  "commit": "baa765927e4b84f825d625f70354ad1a33254643",
+  "summary": "feat(settings): resume the pairing channel when its socket drops",
+  "description": "Because:\n\n- A backgrounded mobile browser can drop the pairing WebSocket, which fails pairing for users who leave Firefox to read a TOTP code.\n\nThis commit:\n\n- Adds ResumableWebSocket, which reconnects with the channel server's resume token and sends queued data after it resumes.\n- Uses it for both the supplicant open() and authority create() channels through withResumableWebSocket().\n- Sends the token as the `resume.<token>` subprotocol and uses the rotated token on each later drop.\n- Stops at once on its own close() or on close code 4000, which the channel server sends when it ends the channel.\n- Asks for resume with `?resume=1` on the first connect, and keeps plain WebSocket behaviour when the server sends no token.\n\nCloses #FXA-14663",
+  "timestamp": 1791483113000,
   "storybooks": [
     "fxa-settings"
   ],

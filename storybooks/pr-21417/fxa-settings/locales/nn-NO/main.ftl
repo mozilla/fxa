@@ -167,6 +167,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Stadfest passord
 form-password-with-inline-criteria-reset-submit-button = Lag nytt passord
+form-password-with-inline-criteria-old-password-label =
+    .label = Gammalt passord
+form-password-with-inline-criteria-change-password-submit-button = Endre passord
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Passord
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1357,8 +1360,19 @@ pair2-supplicant-connect-this-device-connect-button = Kople til
 pair2-supplicant-connect-this-device-cancel-button = Avbryt
 
 
+pair2-supplicant-download-firefox-heading-v2 = Opne { -brand-firefox } på denne eininga
+pair2-supplicant-download-firefox-description-v2 = Last ned { -brand-firefox } for å synkronisere bokmerke, historikk og meir på tvers av einingar.
 pair2-supplicant-download-firefox-continue-button = Hald fram i { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Opnar { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Last ned { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = Eg har allereie { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Les meir
+
+
+pair2-supplicant-connect-hint-heading-v2 = Fullfør samankoplinga i appen
+pair2-supplicant-connect-hint-step-app-menu = Trykk på <b>appmenyen</b> i verktøylinja
+pair2-supplicant-connect-hint-step-sign-in = Trykk på <b>logg inn</b>, og skann deretter koden
+pair2-supplicant-connect-hint-learn-more-link = Les meir
 
 
 pair2-supplicant-ready-to-scan-heading = For å kople til ei eining
@@ -1382,6 +1396,11 @@ permissions-label-email = E-postadresse
 permissions-label-display-name = Visingsnamn
 permissions-continue-button = Hald fram
 permissions-cancel-button = Avbryt
+
+
+force-password-change-heading = Endre passordet ditt
+force-password-change-info = Vi oppdaga mistenkjeleg åtferd på { -product-mozilla-account } din. Opprett eit nytt passord for å verne kontoen din. Du brukar dette passordet for å logge deg på alle { -product-mozilla-account }tenestene dine.
+force-password-change-data-info = Synkronisert historikk, bokmerke, innloggingar og andre personlege data vil ikkje gå tapt.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } stadfesta
@@ -1683,4 +1702,5 @@ signup-confirmed-sync-set-password-success-banner = Synkroniseringspassord oppre
 
 
 update-firefox-heading = { -brand-firefox }-oppdatering påkravd
+update-firefox-description = { -product-mozilla-account }en din brukar funksjonar som ikkje blir støtta versjonen din av { -brand-firefox }. Last ned og installer den nyaste versjonen av { -brand-firefox } for å halde fram.
 update-firefox-download-button = Last ned den nyaste versjonen
