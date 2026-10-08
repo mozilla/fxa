@@ -666,7 +666,7 @@ export class LinkedAccountHandler {
       uid: sessionToken.uid,
       sessionToken: sessionToken.data,
       providerUid: userid,
-      email,
+      email: accountRecord.primaryEmail.email,
       ...(verificationMethod ? { verificationMethod } : {}),
     };
   }

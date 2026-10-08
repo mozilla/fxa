@@ -855,6 +855,7 @@ describe('/linked_account', () => {
         expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
         expect(result.uid).toBe(UID);
         expect(result.sessionToken).toBeTruthy();
+        expect(result.email).toBe(mockAppleUser.email);
         expect(glean.registration.complete).toHaveBeenCalledTimes(1);
         expect(glean.thirdPartyAuth.appleRegComplete).toHaveBeenCalledTimes(1);
         expect(glean.thirdPartyAuth.appleRegComplete).toHaveBeenCalledWith(
@@ -891,6 +892,7 @@ describe('/linked_account', () => {
         expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
         expect(result.uid).toBe(UID);
         expect(result.sessionToken).toBeTruthy();
+        expect(result.email).toBe(mockAppleUser.email);
         expect(glean.thirdPartyAuth.appleLoginComplete).toHaveBeenCalledTimes(
           1
         );
@@ -1041,6 +1043,40 @@ describe('/linked_account', () => {
         expect(mockDB.createLinkedAccount).not.toHaveBeenCalled();
         expect(mockDB.createSessionToken).toHaveBeenCalledTimes(1);
         expect(result.uid).toBe(UID);
+      });
+
+      describe('already-linked account whose primary email differs from the token', () => {
+        beforeEach(() => {
+          mockDB.getLinkedAccount = jest.fn(() =>
+            Promise.resolve({ id: mockAppleUser.sub, uid: UID })
+          );
+          mockDB.account = jest.fn(() =>
+            Promise.resolve({
+              uid: UID,
+              primaryEmail: { email: 'primary@example.com', isVerified: true },
+            })
+          );
+        });
+
+        it('returns the primary email when the apple id_token has no email', async () => {
+          appleValidateToken.mockResolvedValue({ sub: mockAppleUser.sub });
+
+          const result: any = await runTest(route, mockRequest);
+
+          expect(result.email).toBe('primary@example.com');
+        });
+
+        it('returns the primary email when the apple id_token email differs', async () => {
+          appleValidateToken.mockResolvedValue({
+            sub: mockAppleUser.sub,
+            email: 'user@example.com',
+            email_verified: 'true',
+          });
+
+          const result: any = await runTest(route, mockRequest);
+
+          expect(result.email).toBe('primary@example.com');
+        });
       });
     });
   });
