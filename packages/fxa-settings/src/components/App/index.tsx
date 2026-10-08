@@ -199,6 +199,9 @@ const PairAuthorityContinueOnMobile = lazy(
 const PairAuthorityDownloadFirefox = lazy(
   () => import('../../pages/Pair2/Authority/DownloadFirefox')
 );
+const PairAuthorityEnterTotp = lazy(
+  () => import('../../pages/Pair2/Authority/EnterTotp/container')
+);
 const PairAuthorityScanQR = lazy(
   () => import('../../pages/Pair2/Authority/ScanQR/container')
 );
@@ -1144,6 +1147,10 @@ const AuthAndAccountSetupRoutes = ({
         <Route
           path="/pair/authority/download_firefox/*"
           element={<PairAuthorityDownloadFirefox />}
+        />
+        <Route
+          path="/pair/authority/totp/*"
+          element={<PairAuthorityEnterTotp {...{ integration }} />}
         />
         <Route
           path="/pair/authority/scan_qr/*"

@@ -312,6 +312,7 @@ export class Firefox extends EventTarget {
           const error = {
             message: message.error || message.data.error?.message,
             stack: message.data?.error?.stack,
+            command: message.command,
           };
           this.dispatchEvent(
             new CustomEvent(FirefoxCommand.Error, { detail: error })
@@ -435,12 +436,17 @@ export class Firefox extends EventTarget {
     options: FxAStatusRequest
   ): Promise<FxAStatusResponse | undefined> {
     for (let attempt = 0; attempt < FXA_STATUS_ATTEMPTS; attempt++) {
+      // A browser error reply counts as no answer: callers settle on the
+      // default capabilities rather than wait on a rejection nobody handles.
       const status = await this._executeCommandWithResponse<FxAStatusResponse>(
         FirefoxCommand.FxAStatus,
         options,
         (event) => event.detail as FxAStatusResponse,
         FXA_STATUS_TIMEOUT_MS
-      );
+      ).catch((err) => {
+        console.warn('[Firefox WebChannel] fxa_status failed', err);
+        return undefined;
+      });
       if (status != null) {
         return status;
       }
@@ -756,9 +762,13 @@ export class Firefox extends EventTarget {
   ): Promise<undefined | TResp> {
     return new Promise<undefined | TResp>((resolve, reject) => {
       let timeoutId: number | undefined;
-      const onResp = (event: any) => {
+      const stopListening = () => {
         window.clearTimeout(timeoutId);
         this.removeEventListener(cmd, onResp);
+        this.removeEventListener(FirefoxCommand.Error, onError);
+      };
+      const onResp = (event: any) => {
+        stopListening();
 
         // Make sure the contract is fullfilled. There should be an event object returned.
         if (event == null) {
@@ -775,7 +785,21 @@ export class Firefox extends EventTarget {
           reject(err);
         }
       };
+      // A command Firefox could not handle comes back as an error reply in
+      // place of the command's response, so it has to be watched for here or
+      // the request only ends at the timeout.
+      const onError = (event: Event) => {
+        const detail = (event as CustomEvent).detail as
+          | { message?: string; command?: string }
+          | undefined;
+        if (detail?.command && detail.command !== cmd) {
+          return;
+        }
+        stopListening();
+        reject(new Error(detail?.message || `${cmd} failed in the browser`));
+      };
       this.addEventListener(cmd, onResp);
+      this.addEventListener(FirefoxCommand.Error, onError);
 
       // Firefox pauses requestAnimationFrame in a hidden tab, so a page opened
       // in the background sends nothing until the tab is shown. The clock
@@ -788,7 +812,7 @@ export class Firefox extends EventTarget {
           console.warn(
             `[Firefox WebChannel] ${cmd} timed out or unavailable in this browser`
           );
-          this.removeEventListener(cmd, onResp);
+          stopListening();
           resolve(undefined);
         }, timeout);
       });

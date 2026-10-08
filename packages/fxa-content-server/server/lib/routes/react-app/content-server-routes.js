@@ -50,6 +50,7 @@ const FRONTEND_ROUTES = [
   'pair/authority/scan_qr',
   'pair/authority/sync_success',
   'pair/authority/timeout_and_cancel',
+  'pair/authority/totp',
   'pair/supplicant/approve_signin',
   'pair/supplicant/connect_hint',
   'pair/supplicant/connect_this_device',

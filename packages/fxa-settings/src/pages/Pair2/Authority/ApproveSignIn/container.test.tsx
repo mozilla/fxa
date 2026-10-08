@@ -18,6 +18,7 @@ import {
   useAccount,
 } from '../../../../models';
 import { navigateWithQuery } from '../../../../lib/utilities';
+import { PAIRING_SECOND_FACTOR_REPROMPT_MS } from '../../../../lib/pairing/totp-gate';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router', () => ({
@@ -30,10 +31,20 @@ jest.mock('../../../../lib/utilities', () => ({
   navigateWithQuery: jest.fn(),
 }));
 
+const mockAccountProfile = jest.fn();
 jest.mock('../../../../models', () => ({
   ...jest.requireActual('../../../../models'),
   useAccount: jest.fn(),
+  useAuthClient: () => ({ accountProfile: mockAccountProfile }),
 }));
+
+const MOCK_SESSION_TOKEN = 'a'.repeat(64);
+jest.mock('../../../../lib/account-storage', () => ({
+  getBasicAccountData: jest.fn(),
+}));
+const { getBasicAccountData: mockGetBasicAccountData } = jest.requireMock(
+  '../../../../lib/account-storage'
+);
 
 type MockAuthorityIntegration = PairingAuthorityIntegration & {
   authorize: jest.Mock;
@@ -85,6 +96,13 @@ describe('Pair2/Authority/ApproveSignIn container', () => {
     jest.clearAllMocks();
     integration = mockAuthorityIntegration();
     (useAccount as jest.Mock).mockReturnValue({ email: MOCK_EMAIL });
+    // Default to an account without 2FA so the approval renders straight away.
+    mockGetBasicAccountData.mockReturnValue({
+      sessionToken: MOCK_SESSION_TOKEN,
+    });
+    mockAccountProfile.mockResolvedValue({
+      authenticationMethods: ['pwd', 'email'],
+    });
     captureException = jest
       .spyOn(Sentry, 'captureException')
       .mockImplementation(() => '');
@@ -94,37 +112,136 @@ describe('Pair2/Authority/ApproveSignIn container', () => {
     jest.restoreAllMocks();
   });
 
-  const renderContainer = (i: Integration = integration) =>
+  const renderContainer = (
+    i: Integration = integration,
+    locationState?: Record<string, unknown>
+  ) =>
     renderWithLocalizationProvider(
-      <MemoryRouter>
+      <MemoryRouter
+        initialEntries={[
+          { pathname: '/pair/authority/approve_signin', state: locationState },
+        ]}
+      >
         <ApproveSignInContainer integration={i} />
       </MemoryRouter>
     );
 
+  const findApproveHeading = () =>
+    screen.findByRole('heading', { level: 1, name: 'Approve sign-in?' });
+
   const clickApprove = async () => {
     const user = userEvent.setup();
     await user.click(
-      screen.getByRole('button', { name: 'Yes, approve sign-in' })
+      await screen.findByRole('button', { name: 'Yes, approve sign-in' })
     );
   };
 
-  it('renders the approval screen for the device that scanned the code', () => {
+  it('renders the approval screen for the device that scanned the code', async () => {
     renderContainer();
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      'Approve sign-in?'
-    );
+    await findApproveHeading();
     screen.getByText(MOCK_EMAIL);
   });
 
-  it('waits for the device details before rendering the approval', () => {
+  it('waits for the device details before rendering the approval', async () => {
     integration = mockAuthorityIntegration({ remoteMetadata: null });
 
     renderContainer();
 
+    await waitFor(() =>
+      expect(mockAccountProfile).toHaveBeenCalledWith(MOCK_SESSION_TOKEN)
+    );
     expect(
       screen.queryByRole('heading', { level: 1, name: 'Approve sign-in?' })
     ).not.toBeInTheDocument();
+  });
+
+  // Approving mints a code that carries the account's Sync keys, so the same
+  // second factor that guards sign-in guards this step too.
+  describe('two-step authentication', () => {
+    it('sends a 2FA account to the TOTP screen instead of the approval', async () => {
+      mockAccountProfile.mockResolvedValue({
+        authenticationMethods: ['pwd', 'email', 'otp'],
+      });
+
+      renderContainer();
+
+      await waitFor(() =>
+        expect(navigateWithQuery).toHaveBeenCalledWith('/pair/authority/totp', {
+          replace: true,
+        })
+      );
+      expect(
+        screen.queryByRole('heading', { level: 1, name: 'Approve sign-in?' })
+      ).not.toBeInTheDocument();
+    });
+
+    it('renders the approval for an account without 2FA', async () => {
+      renderContainer();
+
+      await findApproveHeading();
+      expect(navigateWithQuery).not.toHaveBeenCalled();
+    });
+
+    it('skips the profile check when returning from a verified TOTP code', async () => {
+      mockAccountProfile.mockResolvedValue({
+        authenticationMethods: ['pwd', 'email', 'otp'],
+      });
+
+      renderContainer(integration, { totpComplete: true });
+
+      await findApproveHeading();
+      expect(mockAccountProfile).not.toHaveBeenCalled();
+      expect(navigateWithQuery).not.toHaveBeenCalled();
+    });
+
+    it('renders the approval when no session token is stored', async () => {
+      mockGetBasicAccountData.mockReturnValue(null);
+
+      renderContainer();
+
+      await findApproveHeading();
+      expect(mockAccountProfile).not.toHaveBeenCalled();
+    });
+
+    it('renders the approval when the profile lookup fails', async () => {
+      mockAccountProfile.mockRejectedValue(
+        new Error('Backend service failure')
+      );
+
+      renderContainer();
+
+      await findApproveHeading();
+      expect(navigateWithQuery).not.toHaveBeenCalled();
+    });
+
+    // The approval screen stays up as long as the channel does, so a code
+    // entered and then left alone is not trusted indefinitely.
+    it('re-prompts for the code instead of approving when the verified code has gone stale', async () => {
+      renderContainer(integration, {
+        totpComplete: true,
+        totpVerifiedAt: Date.now() - PAIRING_SECOND_FACTOR_REPROMPT_MS - 1000,
+      });
+
+      await clickApprove();
+
+      expect(navigateWithQuery).toHaveBeenCalledWith('/pair/authority/totp', {
+        replace: true,
+      });
+      expect(integration.authorize).not.toHaveBeenCalled();
+    });
+
+    it('approves when the code was verified within the window', async () => {
+      renderContainer(integration, {
+        totpComplete: true,
+        totpVerifiedAt: Date.now(),
+      });
+
+      await clickApprove();
+
+      expect(integration.authorize).toHaveBeenCalledTimes(1);
+      expect(navigateWithQuery).not.toHaveBeenCalled();
+    });
   });
 
   it('authorizes when the user approves', async () => {
@@ -147,8 +264,9 @@ describe('Pair2/Authority/ApproveSignIn container', () => {
     expect(integration.authorize).toHaveBeenCalledTimes(1);
   });
 
-  it('navigates to the success screen once pairing completes', () => {
+  it('navigates to the success screen once pairing completes', async () => {
     renderContainer();
+    await findApproveHeading();
 
     emitState(integration, AuthorityState.Complete);
 
@@ -161,8 +279,9 @@ describe('Pair2/Authority/ApproveSignIn container', () => {
 
   // `authorize()` routes the failures it expects through `fail()`. Without a
   // Failed case the user would sit on this screen with no feedback.
-  it('blames a timeout when the flow fails on its own', () => {
+  it('blames a timeout when the flow fails on its own', async () => {
     renderContainer();
+    await findApproveHeading();
 
     emitState(integration, AuthorityState.Failed);
 
@@ -175,9 +294,10 @@ describe('Pair2/Authority/ApproveSignIn container', () => {
 
   // The mobile user cancelling is not a wait this user ever made, so the
   // dead-end screen has to name the cancel instead of a timeout.
-  it('names the cancel when the supplicant cancelled', () => {
+  it('names the cancel when the supplicant cancelled', async () => {
     integration = mockAuthorityIntegration({ canceledBySupplicant: true });
     renderContainer();
+    await findApproveHeading();
 
     emitState(integration, AuthorityState.Failed);
 
@@ -208,7 +328,7 @@ describe('Pair2/Authority/ApproveSignIn container', () => {
     renderContainer();
 
     await user.click(
-      screen.getByRole('button', { name: 'Change your password' })
+      await screen.findByRole('button', { name: 'Change your password' })
     );
 
     expect(mockNavigate).toHaveBeenCalledWith('/settings/change_password');
