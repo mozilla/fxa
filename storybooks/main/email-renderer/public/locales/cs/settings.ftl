@@ -2537,6 +2537,6 @@ signup-confirmed-sync-set-password-success-banner = Heslo pro synchronizaci vytv
 ## UpdateFirefox page
 ## Shown when the browser is too old to use a Mozilla account
 
-update-firefox-heading = Vyžadována aktualizace { -brand-firefox }
-update-firefox-description = Vaše { -product-mozilla-account } využívá funkce, které ve vaší verzi aplikace { -brand-firefox } nejsou. Před pokračováním si prosím stáhněte a nainstalujte nejnovější verzi aplikace { -brand-firefox }.
-update-firefox-download-button = Stáhnout aktualizaci
+update-firefox-heading = Je potřeba aktualizovat { -brand-firefox(case: "acc") }
+update-firefox-description = Váš { -product-mozilla-account(capitalization: "lower") } využívá funkce, které vaše verze prohlížeče { -brand-firefox } nepodporuje. Chcete-li pokračovat, stáhněte si a nainstalujte nejnovější verzi prohlížeče { -brand-firefox }.
+update-firefox-download-button = Stáhnout nejnovější verzi
