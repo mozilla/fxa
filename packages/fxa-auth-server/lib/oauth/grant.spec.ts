@@ -185,6 +185,54 @@ describe('validateRequestedGrant', () => {
     ).rejects.toThrow('Requested scopes are not allowed');
   });
 
+  describe('untrusted client scopes', () => {
+    const UNTRUSTED_CLIENT = { ...CLIENT, trusted: false };
+
+    it('grants profile:avatar alongside the other allowed scopes', async () => {
+      const scopes = [
+        'openid',
+        'profile:email',
+        'profile:display_name',
+        'profile:avatar',
+      ];
+      const grant = await validateRequestedGrant(CLAIMS, UNTRUSTED_CLIENT, {
+        scope: ScopeSet.fromArray(scopes),
+      });
+      expect(grant.scope.getScopeValues().sort()).toEqual([...scopes].sort());
+    });
+
+    it('rejects a scope outside the allow-list', async () => {
+      await expect(
+        validateRequestedGrant(CLAIMS, UNTRUSTED_CLIENT, {
+          scope: ScopeSet.fromArray([
+            'profile:avatar',
+            'profile:subscriptions',
+          ]),
+        })
+      ).rejects.toMatchObject({
+        errno: 114,
+        output: {
+          payload: { invalidScopes: ['profile:subscriptions'] },
+        },
+      });
+    });
+
+    it('rejects the write scope for the avatar', async () => {
+      await expect(
+        validateRequestedGrant(CLAIMS, UNTRUSTED_CLIENT, {
+          scope: ScopeSet.fromArray(['profile:avatar:write']),
+        })
+      ).rejects.toMatchObject({ errno: 114 });
+    });
+  });
+
+  it('grants profile:avatar to a trusted client', async () => {
+    const grant = await validateRequestedGrant(CLAIMS, CLIENT, {
+      scope: ScopeSet.fromArray(['profile:avatar']),
+    });
+    expect(grant.scope.toString()).toBe('profile:avatar');
+  });
+
   describe('max_age (RFC 9470 freshness)', () => {
     // `fxa-lastAuthAt` is seconds since epoch, compared against Date.now()/1000.
     const MOCK_NOW_SECONDS = 1_700_000_000;

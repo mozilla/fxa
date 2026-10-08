@@ -47,10 +47,14 @@ describe('displayablePermissions', () => {
     ).toEqual(['profile:email', 'profile:display_name']);
   });
 
-  it('drops profile:avatar, which an untrusted client can never hold', () => {
-    expect(displayablePermissions(['profile:email', 'profile:avatar'])).toEqual(
-      ['profile:email']
-    );
+  it('lists profile:avatar after email and display name', () => {
+    expect(
+      displayablePermissions([
+        'profile:avatar',
+        'profile:display_name',
+        'profile:email',
+      ])
+    ).toEqual(['profile:email', 'profile:display_name', 'profile:avatar']);
   });
 
   it('returns an empty list when no scope can be described', () => {

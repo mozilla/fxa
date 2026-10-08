@@ -332,6 +332,22 @@ describe('#integration - /v1', function () {
           });
       });
 
+      it('should succeed with profile:avatar', function () {
+        const client = clientByName('Untrusted');
+        return Server.api
+          .post({
+            url: '/authorization',
+            payload: authParams({
+              client_id: client.id,
+              scope: 'openid profile:email profile:display_name profile:avatar',
+            }),
+          })
+          .then(function (res) {
+            expect(res.statusCode).toBe(200);
+            assertSecurityHeaders(res);
+          });
+      });
+
       it('should succeed with https:// scopes', function () {
         const scopes =
           'profile:email profile:uid https://identity.mozilla.com/apps/notes https://identity.mozilla.com/apps/lockbox';

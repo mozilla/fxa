@@ -34,3 +34,9 @@ export const DisplayNameUnknown = story([
   { scope: 'profile:email', value: 'user@example.com' },
   { scope: 'profile:display_name' },
 ]);
+
+export const WithAccountPicture = story([
+  { scope: 'profile:email', value: 'user@example.com' },
+  { scope: 'profile:display_name', value: 'Test User' },
+  { scope: 'profile:avatar' },
+]);

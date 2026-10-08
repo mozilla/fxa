@@ -10,15 +10,11 @@ import {
   scopeStrToArray,
 } from '../../models/integrations/oauth-web-integration';
 
-/**
- * Profile scopes the consent screen can describe, in display order.
- * `profile:avatar` is absent because the screen only shows for an untrusted
- * client, and UNTRUSTED_CLIENT_ALLOWED_SCOPES in lib/oauth/grant.js never
- * permits it.
- */
+/** Profile scopes the consent screen can describe, in display order. */
 export const DISPLAYABLE_PERMISSIONS = [
   'profile:email',
   'profile:display_name',
+  'profile:avatar',
 ] as const;
 
 export type DisplayablePermission = (typeof DISPLAYABLE_PERMISSIONS)[number];

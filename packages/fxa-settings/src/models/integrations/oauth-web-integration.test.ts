@@ -181,6 +181,17 @@ describe('models/integrations/oauth-relier', function () {
           integration.getNormalizedScope();
         }).toThrow();
       });
+
+      it('keeps profile:avatar and drops scopes outside the allow-list', () => {
+        const integration = getIntegration(
+          'openid profile:email profile:avatar profile:subscriptions'
+        );
+        expect(integration.getPermissions()).toEqual([
+          'openid',
+          'profile:email',
+          'profile:avatar',
+        ]);
+      });
     });
 
     describe('Sentry error capture', () => {

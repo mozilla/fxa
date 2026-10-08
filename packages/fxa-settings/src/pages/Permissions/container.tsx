@@ -116,6 +116,8 @@ const PermissionsContainer = ({
   const values: Record<DisplayablePermission, string | undefined> = {
     'profile:email': signinState.email,
     'profile:display_name': getAccountByUid(signinState.uid)?.displayName,
+    // The picture is not text, so the row shows only its label.
+    'profile:avatar': undefined,
   };
   const rows: PermissionRow[] = scopes.map((scope) => ({
     scope,
