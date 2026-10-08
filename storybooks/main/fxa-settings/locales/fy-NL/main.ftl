@@ -941,7 +941,6 @@ passkey-sub-row-created-date = Oanmakke: { $createdDate }
 passkey-sub-row-last-used-date = Lêst brûkt: { $lastUsedDate }
 passkey-sub-row-delete-title = Wachtwurdkaai fuortsmite
 passkey-delete-modal-heading = Jo wachtwurdkaai fuortsmite?
-passkey-delete-modal-content-v2 = Dizze wachtwurdkaai sil fan jo account fuortsmiten wurde. Jo moatte jo oanmelde mei in oare metoade (wachtwurd, in oare wachtwurdkaai of keppele account).
 passkey-delete-modal-cancel-button = Annulearje
 passkey-delete-modal-confirm-button = Wachtwurdkaai fuortsmite
 passkey-delete-success = Wachtwurdkaai fuortsmiten
@@ -1186,16 +1185,13 @@ index-email-bounced = Jo befêstigings-e-mailberjocht is sakrekt weromkaam. Haww
 
 
 inline-passwordless-sync-setup-page-title = De folgjende kear it wachtwurd oerslaan?
-inline-passwordless-sync-setup-success-banner = Oanmeld by { -brand-firefox }
 inline-passwordless-sync-setup-heading = De folgjende kear it wachtwurd oerslaan?
 inline-passwordless-sync-setup-description = Brûk dizze wachtwurdkaai om jo flugger oan te melden.
 inline-passwordless-sync-setup-enable-button = Wachtwurdkaai ynskeakelje
 inline-passwordless-sync-setup-enabling = Ynskeakelje…
 inline-passwordless-sync-setup-not-now-button = No net
-inline-passwordless-sync-setup-success-alert = Dizze wachtwurdkaai is klear foar oanmelden en syngronisearjen
 inline-passwordless-sync-setup-error-cancelled = Befêstiging fan wachtwurdkaai net foltôge
 inline-passwordless-sync-setup-error-cancelled-description = Befêstigje mei jo wachtwurdkaai om it wachtwurd de folgjende kear oer te slaan.
-inline-passwordless-sync-setup-error-generic = Der is wat misgien, jo moatte de folgjende kear noch hieltyd jo wachtwurd ynfiere
 
 
 inline-recovery-key-setup-create-error = Oeps! Wy koenen jo accountwerstelkaai net oanmeitsje. Probearje it letter nochris.
@@ -1334,7 +1330,6 @@ pair2-authority-download-firefox-cta = { -brand-firefox } downloade
 pair2-authority-scan-qr-heading = Scan om jo mobile apparaat te ferbinen
 pair2-authority-scan-qr-instruction = Scan de QR-koade mei jo telefoan of tablet om jo { -brand-firefox }-blêdwizers, ljepblêden en mear te syngronisearjen.
 pair2-authority-scan-qr-code-aria-label = QR-koade om jo mobile apparaat te ferbinen
-pair2-authority-scan-qr-help-link = Help by scannen ûntfange
 pair2-authority-scan-qr-skip-button = Foarearst oerslaan
 
 
@@ -1383,7 +1378,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Mear ynfo
 
 pair2-supplicant-sync-success-heading = Jo apparaat is ferbûn
 pair2-supplicant-sync-success-description-v2 = Syngronisaasje is start. It kin in skoftke duorje eardat jo syngronisearre gegevens ferskine. Fiel jo frij om troch te sneupen.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Syngronisaasje-ynstellingen beheare
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = It liket derop dat der in time-out bard is
@@ -1461,7 +1455,6 @@ confirm-totp-reset-password-use-different-account = In oar account brûke
 
 
 password-reset-flow-heading = Jo wachtwurd opnij ynstelle
-password-reset-body-3 = It opnij ynstellen fan jo wachtwurd kin ynfloed hawwe op syngronisearre browsergegevens.
 password-reset-email-input =
     .label = Fier jo e-mailadres yn
 password-reset-submit-button-2 = Trochgean

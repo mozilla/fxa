@@ -1275,7 +1275,6 @@ passkey-sub-row-created-date = Create le: { $createdDate }
 passkey-sub-row-last-used-date = Usate le ultime vice le: { $lastUsedDate }
 passkey-sub-row-delete-title = Deler clave-contrasigno
 passkey-delete-modal-heading = Deler tu clave-contrasigno?
-passkey-delete-modal-content-v2 = Iste clave-contrasigno sera removite de tu conto. Tu debera acceder per un methodo differente (contrasigno, un altere clave-contrasigno, o conto ligate).
 passkey-delete-modal-cancel-button = Cancellar
 passkey-delete-modal-confirm-button = Deler clave-contrasigno
 passkey-delete-success = Clave-contrasigno delite
@@ -1640,21 +1639,15 @@ index-email-bounced = Tu message de confirmation ha justo ora essite retornate. 
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Saltar le contrasigno le proxime vice?
-# Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Connexe a { -brand-firefox }
 inline-passwordless-sync-setup-heading = Saltar le contrasigno le proxime vice??
 inline-passwordless-sync-setup-description = Usa iste clave-contrasigno pro acceder plus velocemente.
 inline-passwordless-sync-setup-enable-button = Activar clave-contrasigno
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Activation…
 inline-passwordless-sync-setup-not-now-button = Non ora
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Iste clave-contrasigno es preste pro acceder e synchronisar
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Confirmation de clave-contrasigno non completate
 inline-passwordless-sync-setup-error-cancelled-description = Confirma con tu clave-contrasigno pro saltar le contrasigno le proxime vice.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Alco errate eveniva, tu ancora debera inserer tu contrasigno le proxime vice
 
 ## InlineRecoveryKeySetup page component
 
@@ -1914,8 +1907,6 @@ pair2-authority-scan-qr-heading = Scande pro connecter tu apparato mobile
 pair2-authority-scan-qr-instruction = Scande le codice QR con tu telephono o tabletta pro synchronisar marcapaginas, schedas, e plus de tu { -brand-firefox }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Codice QR pro connecter tu apparato mobile
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Obtener auxilio per le scansion
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Saltar pro iste momento
 
@@ -2024,8 +2015,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Pro saper plus
 pair2-supplicant-sync-success-heading = Tu apparato es connexe
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = Le synchronisation es in curso. Il pote passar un poco pro apparer tu datos synchronisate. Senti te libere de continuar a navigar.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Gerer parametros de synchronisation
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2160,7 +2149,6 @@ confirm-totp-reset-password-use-different-account = Usa un conto differente
 ## ResetPassword start page
 
 password-reset-flow-heading = Reinitialisa tu contrasigno
-password-reset-body-3 = Remontar tu contrasigno pote interessar datos de navigator synchronisate.
 password-reset-email-input =
     .label = Insere tu email
 password-reset-submit-button-2 = Continuar

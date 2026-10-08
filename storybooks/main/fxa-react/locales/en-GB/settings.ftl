@@ -1273,7 +1273,6 @@ passkey-sub-row-created-date = Created: { $createdDate }
 passkey-sub-row-last-used-date = Last used: { $lastUsedDate }
 passkey-sub-row-delete-title = Delete passkey
 passkey-delete-modal-heading = Delete your passkey?
-passkey-delete-modal-content-v2 = This passkey will be removed from your account. You’ll need to sign in using a different method (password, another passkey or linked account).
 passkey-delete-modal-cancel-button = Cancel
 passkey-delete-modal-confirm-button = Delete passkey
 passkey-delete-success = Passkey deleted
@@ -1636,21 +1635,15 @@ index-email-bounced = Your confirmation email was just returned. Mistyped email?
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Skip the password next time?
-# Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Signed in to { -brand-firefox }
 inline-passwordless-sync-setup-heading = Skip the password next time?
 inline-passwordless-sync-setup-description = Use this passkey to sign in faster.
 inline-passwordless-sync-setup-enable-button = Enable passkey
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Enabling…
 inline-passwordless-sync-setup-not-now-button = Not now
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = This passkey is ready for synchronisation sign-in
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Passkey confirmation didn’t finish
 inline-passwordless-sync-setup-error-cancelled-description = Confirm with your passkey to skip the password next time.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Something went wrong, you’ll still need to enter your password next time
 
 ## InlineRecoveryKeySetup page component
 
@@ -1910,8 +1903,6 @@ pair2-authority-scan-qr-heading = Scan to connect your mobile device
 pair2-authority-scan-qr-instruction = Scan the QR code with your phone or tablet to synchronise your { -brand-firefox } bookmarks, tabs and more.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR code to connect your mobile device
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Get help scanning
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Skip for now
 
@@ -2020,8 +2011,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Learn more
 pair2-supplicant-sync-success-heading = Your device is connected
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = Synchronisation is under way. It may take a while for your synchronised data to appear. Feel free to keep browsing.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Manage synchronisation settings
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2156,7 +2145,6 @@ confirm-totp-reset-password-use-different-account = Use a different account
 ## ResetPassword start page
 
 password-reset-flow-heading = Reset your password
-password-reset-body-3 = Resetting your password may affect synchronised browser data.
 password-reset-email-input =
     .label = Enter your email
 password-reset-submit-button-2 = Continue

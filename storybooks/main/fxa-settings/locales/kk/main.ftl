@@ -939,7 +939,6 @@ passkey-sub-row-created-date = Жасалған: { $createdDate }
 passkey-sub-row-last-used-date = Соңғы рет қолданылған: { $lastUsedDate }
 passkey-sub-row-delete-title = Рұқсат кілтін өшіру
 passkey-delete-modal-heading = Рұқсат кілтіңізді өшіру керек пе?
-passkey-delete-modal-content-v2 = Бұл рұқсат кілті сіздің тіркелгіңізден өшіріледі. Басқа әдіспен (пароль, басқа рұқсат кілті немесе байланыстырылған тіркелгі) кіруіңіз керек.
 passkey-delete-modal-cancel-button = Бас тарту
 passkey-delete-modal-confirm-button = Рұқсат кілтін өшіру
 passkey-delete-success = Рұқсат кілті өшірілді
@@ -1183,16 +1182,13 @@ index-email-bounced = Сіздің растау хатыңыз қайтарыл�
 
 
 inline-passwordless-sync-setup-page-title = Келесі жолы парольді өткізіп жіберу керек пе?
-inline-passwordless-sync-setup-success-banner = { -brand-firefox } ішіне кірдіңіз
 inline-passwordless-sync-setup-heading = Келесі жолы парольді өткізіп жіберу керек пе?
 inline-passwordless-sync-setup-description = Жылдам кіру үшін осы рұқсат кілтін пайдаланыңыз.
 inline-passwordless-sync-setup-enable-button = Рұқсат кілтін іске қосу
 inline-passwordless-sync-setup-enabling = Іске қосылуда…
 inline-passwordless-sync-setup-not-now-button = Қазір емес
-inline-passwordless-sync-setup-success-alert = Бұл рұқсат кілті синхрондаумен кіруге дайын
 inline-passwordless-sync-setup-error-cancelled = Рұқсат кілтін растау аяқталмады
 inline-passwordless-sync-setup-error-cancelled-description = Келесі жолы парольді өткізіп жіберу үшін рұқсат кілтіңізбен растаңыз.
-inline-passwordless-sync-setup-error-generic = Бірнәрсе дұрыс болмады, келесі жолы пароліңізді енгізуіңіз қажет болады
 
 
 inline-recovery-key-setup-create-error = Тіркелгіңізді қалпына келтіру кілтін жасай алмадық. Әрекетті кейінірек қайталап көріңіз.
@@ -1331,7 +1327,6 @@ pair2-authority-download-firefox-cta = { -brand-firefox } жүктеп алу
 pair2-authority-scan-qr-heading = Мобильді құрылғыңызды байланыстыру үшін сканерлеңіз
 pair2-authority-scan-qr-instruction = { -brand-firefox } бетбелгілер, беттер және т.б. синхрондау үшін QR кодын телефоныңызбен немесе планшетіңізбен сканерлеңіз.
 pair2-authority-scan-qr-code-aria-label = Мобильді құрылғыңызды байланыстыру үшін QR коды
-pair2-authority-scan-qr-help-link = Сканерлеу бойынша көмек алыңыз
 pair2-authority-scan-qr-skip-button = Әзірше өткізіп жіберу
 
 
@@ -1380,7 +1375,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Көбірек білу
 
 pair2-supplicant-sync-success-heading = Сіздің құрылғыңыз байланысқан
 pair2-supplicant-sync-success-description-v2 = Синхрондау жүріп жатыр. Синхрондалған деректеріңіздің пайда болуы үшін біраз уақыт кетуі мүмкін. Шолуды жалғастырсаңыз болады.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Синхрондау баптауларын басқару
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Бөлінген уақыт өтіп кеткен сияқты
@@ -1458,7 +1452,6 @@ confirm-totp-reset-password-use-different-account = Басқа тіркелгі�
 
 
 password-reset-flow-heading = Парольді тастау
-password-reset-body-3 = Пароліңізді қалпына келтіру синхрондалған браузер деректеріне әсер етуі мүмкін.
 password-reset-email-input =
     .label = Эл. поштаңызды енгізіңіз
 password-reset-submit-button-2 = Жалғастыру

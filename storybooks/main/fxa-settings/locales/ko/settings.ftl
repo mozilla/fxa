@@ -1244,7 +1244,6 @@ passkey-sub-row-created-date = 생성: { $createdDate }
 passkey-sub-row-last-used-date = 최근 사용: { $lastUsedDate }
 passkey-sub-row-delete-title = 패스키 삭제
 passkey-delete-modal-heading = 패스키를 삭제 하시겠습니까?
-passkey-delete-modal-content-v2 = 이 패스키가 계정에서 제거됩니다. 다른 방법(비밀번호, 다른 패스키, 연결된 계정)을 이용해 로그인해야 합니다.
 passkey-delete-modal-cancel-button = 취소
 passkey-delete-modal-confirm-button = 패스키 삭제
 passkey-delete-success = 패스키 삭제됨
@@ -1604,21 +1603,15 @@ index-email-bounced = 확인 이메일이 반송되었습니다. 이메일을 �
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = 다음에 비밀번호를 건너뛰시겠습니까?
-# Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = { -brand-firefox }에 로그인됨
 inline-passwordless-sync-setup-heading = 다음에 비밀번호를 건너뛰시겠습니까?
 inline-passwordless-sync-setup-description = 이 패스키를 사용하여 더 빠르게 로그인하십시오.
 inline-passwordless-sync-setup-enable-button = 패스키 활성화
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = 활성화 중…
 inline-passwordless-sync-setup-not-now-button = 지금 안 함
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = 이 패스키는 동기화 로그인을 위해 준비되었습니다.
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = 패스키 확인이 완료되지 않음
 inline-passwordless-sync-setup-error-cancelled-description = 다음에 비밀번호를 건너 뛰려면 패스키로 확인하세요.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = 문제가 발생했습니다. 다음에 비밀번호를 입력해야 합니다.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1878,8 +1871,6 @@ pair2-authority-scan-qr-heading = 스캔하여 모바일 기기 연결
 pair2-authority-scan-qr-instruction = 폰이나 태블릿으로 QR 코드를 스캔하여 { -brand-firefox } 북마크, 탭 등을 동기화하세요.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = 모바일 기기와 연결하기 위한 QR 코드
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = 스캔 도움 받기
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = 지금은 건너뛰기
 
@@ -1964,8 +1955,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = 더 알아보기
 pair2-supplicant-sync-success-heading = 기기가 연결되었습니다
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = 동기화가 진행 중입니다. 동기화된 데이터가 나타날 때까지 시간이 걸릴 수 있습니다. 계속 브라우징해도 됩니다.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = 동기화 설정 관리
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2093,7 +2082,6 @@ confirm-totp-reset-password-use-different-account = 다른 계정 사용
 ## ResetPassword start page
 
 password-reset-flow-heading = 비밀번호 재설정
-password-reset-body-3 = 비밀번호를 재설정하면 동기화된 브라우저 데이터에 영향을 줄 수 있습니다.
 password-reset-email-input =
     .label = 이메일 입력
 password-reset-submit-button-2 = 계속

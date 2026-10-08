@@ -935,7 +935,7 @@ passkey-sub-row-created-date = Creada: { $createdDate }
 passkey-sub-row-last-used-date = Último uso: { $lastUsedDate }
 passkey-sub-row-delete-title = Borrar clave de acceso
 passkey-delete-modal-heading = ¿Borrar la clave de acceso?
-passkey-delete-modal-content-v2 = Esta clave de acceso será eliminada de tu cuenta. Tendrás que iniciar sesión con un método diferente (contraseña, otra clave de acceso o cuenta vinculada).
+passkey-delete-modal-content-v3 = Esta clave de acceso será eliminada de tu cuenta. Tendrás que iniciar sesión con una contraseña, otra clave de acceso o una cuenta vinculada.
 passkey-delete-modal-cancel-button = Cancelar
 passkey-delete-modal-confirm-button = Borrar clave de acceso
 passkey-delete-success = Clave de acceso eliminada
@@ -1180,16 +1180,16 @@ index-email-bounced = El correo electrónico de confirmación fue devuelto. ¿Ha
 
 
 inline-passwordless-sync-setup-page-title = ¿Omitir la contraseña la próxima vez?
-inline-passwordless-sync-setup-success-banner = Sesión iniciada en { -brand-firefox }
+inline-passwordless-sync-setup-success-banner-v2 = Iniciaste sesión y la sincronización está activada
 inline-passwordless-sync-setup-heading = ¿Omitir la contraseña la próxima vez?
 inline-passwordless-sync-setup-description = Usá esta clave de acceso para iniciar sesión más rápido.
 inline-passwordless-sync-setup-enable-button = Habilitar clave de acceso
 inline-passwordless-sync-setup-enabling = Habilitando…
 inline-passwordless-sync-setup-not-now-button = No ahora
-inline-passwordless-sync-setup-success-alert = Esta clave de acceso está lista para iniciar sesión de forma sincronizada
+inline-passwordless-sync-setup-success-alert-v2 = Esta clave de acceso está habilitada para el inicio de sesión sincronizado
 inline-passwordless-sync-setup-error-cancelled = La confirmación de la clave de acceso no terminó
 inline-passwordless-sync-setup-error-cancelled-description = Confirmá con tu clave de acceso para omitir la contraseña la próxima vez.
-inline-passwordless-sync-setup-error-generic = Algo salió mal, tendrás que ingresar tu contraseña la próxima vez
+inline-passwordless-sync-setup-error-generic-v2 = No pudimos habilitar esta clave de acceso para el inicio de sesión sincronizado. Necesitarás tu contraseña la próxima vez.
 
 
 inline-recovery-key-setup-create-error = ¡Epa! No pudimos crear tu clave de recuperación de cuenta. Probá de nuevo más tarde.
@@ -1328,7 +1328,7 @@ pair2-authority-download-firefox-cta = Descargar { -brand-firefox }
 pair2-authority-scan-qr-heading = Escanear para conectar tu dispositivo móvil
 pair2-authority-scan-qr-instruction = Escaneá el código QR con tu teléfono o tablet para sincronizar tus marcadores de{ -brand-firefox }, pestañas y más.
 pair2-authority-scan-qr-code-aria-label = Código QR para conectar tu dispositivo móvil
-pair2-authority-scan-qr-help-link = Ayuda para escanear
+pair2-authority-scan-qr-other-ways-link = Otras formas de iniciar sesión
 pair2-authority-scan-qr-skip-button = Saltar por ahora
 
 
@@ -1377,7 +1377,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Conocer más
 
 pair2-supplicant-sync-success-heading = Tu dispositivo está conectado
 pair2-supplicant-sync-success-description-v2 = La sincronización está en curso. Es posible que los datos sincronizados tarden un poco en aparecer. Mientras tanto, podés seguir navegando.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Administrar configuración de sincronización
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que se agotó el tiempo de espera
@@ -1389,6 +1388,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Para conectar un disp
 permissions-heading = { $serviceName } quiere acceso a:
 permissions-label-email = Dirección de correo electrónico
 permissions-label-display-name = Nombre para mostrar
+permissions-label-avatar = Foto de la cuenta
 permissions-continue-button = Continuar
 permissions-cancel-button = Cancelar
 
@@ -1455,10 +1455,12 @@ confirm-totp-reset-password-use-different-account = Usar una cuenta diferente
 
 
 password-reset-flow-heading = Restablecé tu contraseña
-password-reset-body-3 = Restablecer tu contraseña puede afectar los datos sincronizados del navegador.
+password-reset-forgot-heading = ¿Te olvidaste la contraseña?
+password-reset-alternatives-body = <signInLink>Probá iniciar sesión con { -brand-google }, { -brand-apple } o una clave de acceso.</signInLink> O ingresá tu correo electrónico y te enviaremos un código para restablecer tu contraseña.
 password-reset-email-input =
     .label = Ingresá tu correo electrónico
 password-reset-submit-button-2 = Continuar
+password-reset-data-recovery-warning = Restablecer la contraseña puede afectar la posibilidad de recuperar los datos sincronizados del navegador. <learnMoreLink>Conocer más</learnMoreLink>
 
 
 reset-password-complete-header = Tu contraseña fue restablecida

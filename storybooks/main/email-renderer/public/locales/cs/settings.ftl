@@ -1281,7 +1281,7 @@ passkey-sub-row-created-date = Vytvořeno: { $createdDate }
 passkey-sub-row-last-used-date = Naposledy použito: { $lastUsedDate }
 passkey-sub-row-delete-title = Smazat přístupový klíč
 passkey-delete-modal-heading = Smazat přístupový klíč?
-passkey-delete-modal-content-v2 = Tento přístupový klíč bude z vašeho účtu odstraněn. Budete se muset přihlásit jiným způsobem (heslem, jiným přístupovým klíčem nebo propojeným účtem).
+passkey-delete-modal-content-v3 = Tento přístupový kód bude odebrán z vašeho účtu. K přihlášení budete muset použít heslo, jiné přístupové heslo nebo propojený účet.
 passkey-delete-modal-cancel-button = Zrušit
 passkey-delete-modal-confirm-button = Smazat přístupový klíč
 passkey-delete-success = Přístupový klíč byl smazán
@@ -1641,20 +1641,22 @@ index-email-bounced = Odeslaná potvrzující e-mailová zpráva se právě vrá
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Chcete příště přeskočit zadávání hesla?
 # Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Přihlášeno k aplikaci { -brand-firefox }
+inline-passwordless-sync-setup-success-banner-v2 = Jste přihlášeni a synchronizace je zapnutá
 inline-passwordless-sync-setup-heading = Chcete příště přeskočit zadávání hesla?
 inline-passwordless-sync-setup-description = Tento přístupový kód vám umožní rychlejší přihlášení.
 inline-passwordless-sync-setup-enable-button = Povolit přístupový klíč
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Zapínání…
 inline-passwordless-sync-setup-not-now-button = Teď ne
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Tento přístupový kód je připraven pro přihlášení pomocí synchronizace
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = Tento přístupový kód má povoleno přihlašování pomocí služby Sync
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Potvrzení přístupového klíče nebylo dokončeno
 inline-passwordless-sync-setup-error-cancelled-description = Potvrďte svou totožnost přístupovým klíčem, abyste příště nemuseli zadávat heslo.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Něco se pokazilo. Příště budete muset zadat heslo
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = Tento přístupový klíč se nám nepodařilo povolit pro přihlašování pomocí synchronizace. Heslo budete příště potřebovat.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1914,8 +1916,8 @@ pair2-authority-scan-qr-heading = Naskenujte a připojte své mobilní zařízen
 pair2-authority-scan-qr-instruction = Naskenujte QR kód svým telefonem nebo tabletem a synchronizujte své záložky, panely a další data ve { -brand-firefox(case: "loc") }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR kód pro připojení vašeho mobilního zařízení
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Získat pomoc se skenováním
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Další způsoby přihlášení
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Nyní přeskočit
 
@@ -2024,8 +2026,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Zjistit více
 pair2-supplicant-sync-success-heading = Vaše zařízení je připojeno
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = Probíhá synchronizace. Zobrazení synchronizovaných dat může chvíli trvat. Mezitím můžete klidně pokračovat v prohlížení.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Spravovat nastavení synchronizace
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2052,6 +2052,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Pro připojení svéh
 permissions-heading = Služba { $serviceName } požaduje přístup k:
 permissions-label-email = E-mailová adresa
 permissions-label-display-name = Zobrazované jméno
+permissions-label-avatar = Obrázek účtu
 permissions-continue-button = Pokračovat
 permissions-cancel-button = Zrušit
 
@@ -2160,10 +2161,14 @@ confirm-totp-reset-password-use-different-account = Použít jiný účet
 ## ResetPassword start page
 
 password-reset-flow-heading = Obnovení hesla
-password-reset-body-3 = Obnovení hesla může ovlivnit synchronizovaná data prohlížeče.
+password-reset-forgot-heading = Zapomněli jste heslo?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Zkuste se místo toho přihlásit pomocí { -brand-google }, { -brand-apple } nebo přístupového klíče.</signInLink> Nebo zadejte svou e-mailovou adresu a my vám zašleme kód pro obnovu hesla.
 password-reset-email-input =
     .label = Zadejte svoji e-mailovou adresu
 password-reset-submit-button-2 = Pokračovat
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Obnovení vašeho hesla může ovlivnit, zda budete moci obnovit synchronizovaná data prohlížeče. <learnMoreLink>Zjistit více</learnMoreLink>
 
 ## ResetPasswordConfirmed
 

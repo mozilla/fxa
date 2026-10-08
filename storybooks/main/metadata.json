@@ -1,8 +1,8 @@
 {
-  "commit": "30259a1caa35c506ec4790fbb71ca55852132044",
-  "summary": "Merge pull request #21426 from mozilla/fxa-14719",
-  "description": "fix(auth): return primary email from /linked_account/login",
-  "timestamp": 1791489035000,
+  "commit": "a02b0cdb49bc532a83b93842d6494d1def282d11",
+  "summary": "Merge pull request #21429 from mozilla/agent-c88001",
+  "description": "feat(settings): show a default promo QR outside the Nimbus experiment",
+  "timestamp": 1791492053000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

@@ -1093,7 +1093,7 @@ passkey-sub-row-created-date = Vytvorený: { $createdDate }
 passkey-sub-row-last-used-date = Naposledy použitý: { $lastUsedDate }
 passkey-sub-row-delete-title = Odstrániť prístupový kľúč
 passkey-delete-modal-heading = Odstrániť prístupový kľúč?
-passkey-delete-modal-content-v2 = Tento prístupový kľúč bude z vášho účtu odstránený. Budete sa musieť prihlásiť inou metódou (heslo, iný prístupový kľúč alebo prepojený účet).
+passkey-delete-modal-content-v3 = Tento prístupový kľúč sa odstráni z vášho účtu. Na prihlásenie budete musieť použiť heslo, iný prístupový kľúč alebo prepojený účet.
 passkey-delete-modal-cancel-button = Zrušiť
 passkey-delete-modal-confirm-button = Odstrániť prístupový kľúč
 passkey-delete-success = Prístupový kľúč bol odstránený
@@ -1337,16 +1337,16 @@ index-email-bounced = Váš potvrdzujúci e‑mail sa práve vrátil. Nesprávne
 
 
 inline-passwordless-sync-setup-page-title = Nabudúce sa prihlásiť bez hesla?
-inline-passwordless-sync-setup-success-banner = Prihlásenie do { -brand-firefox(case: "gen") } bolo úspešné
+inline-passwordless-sync-setup-success-banner-v2 = Prihlásenie bolo úspešné a synchronizácia je zapnutá
 inline-passwordless-sync-setup-heading = Nabudúce sa prihlásiť bez hesla?
 inline-passwordless-sync-setup-description = S týmto prístupovým kľúčom sa prihlásite rýchlejšie.
 inline-passwordless-sync-setup-enable-button = Povoliť prístupový kľúč
 inline-passwordless-sync-setup-enabling = Aktivuje sa…
 inline-passwordless-sync-setup-not-now-button = Teraz nie
-inline-passwordless-sync-setup-success-alert = Tento prístupový kľúč je pripravený na prihlásenie so synchronizáciou
+inline-passwordless-sync-setup-success-alert-v2 = Tento prístupový kľúč umožňuje prihlásenie so synchronizáciou
 inline-passwordless-sync-setup-error-cancelled = Prístupový kľúč sa nepodarilo potvrdiť
 inline-passwordless-sync-setup-error-cancelled-description = Overte sa prístupovým kľúčom, aby ste nabudúce nemuseli zadávať heslo.
-inline-passwordless-sync-setup-error-generic = Niečo sa nepodarilo, pri ďalšom prihlásení budete musieť zadať heslo
+inline-passwordless-sync-setup-error-generic-v2 = Tento prístupový kľúč sa nepodarilo nastaviť na prihlásenie so synchronizáciou. Nabudúce budete musieť zadať heslo.
 
 
 inline-recovery-key-setup-create-error = Ojoj! Nepodarilo sa nám vytvoriť kľúč na obnovenie účtu. Skúste to znova neskôr.
@@ -1485,7 +1485,7 @@ pair2-authority-download-firefox-cta = Stiahnuť { -brand-firefox(case: "acc") }
 pair2-authority-scan-qr-heading = Skenovaním pripojte svoje mobilné zariadenie
 pair2-authority-scan-qr-instruction = Naskenujte QR kód telefónom alebo tabletom a synchronizujte záložky, karty a ďalšie položky vo { -brand-firefox(case: "loc") }.
 pair2-authority-scan-qr-code-aria-label = QR kód na pripojenie vášho mobilného zariadenia
-pair2-authority-scan-qr-help-link = Získajte pomoc so skenovaním
+pair2-authority-scan-qr-other-ways-link = Ďalšie možnosti prihlásenia
 pair2-authority-scan-qr-skip-button = Teraz preskočiť
 
 
@@ -1534,7 +1534,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Ďalšie informácie
 
 pair2-supplicant-sync-success-heading = Vaše zariadenie je pripojené
 pair2-supplicant-sync-success-description-v2 = Synchronizácia prebieha. Môže chvíľu trvať, kým sa zobrazia synchronizované údaje. Zatiaľ môžete pokračovať v prehliadaní.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Spravovať nastavenia synchronizácie
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zdá sa, že nám vypršal časový limit
@@ -1546,6 +1545,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Ak chcete kedykoľvek
 permissions-heading = { $serviceName } požaduje prístup k:
 permissions-label-email = E‑mailová adresa
 permissions-label-display-name = Zobrazované meno
+permissions-label-avatar = Profilový obrázok
 permissions-continue-button = Pokračovať
 permissions-cancel-button = Zrušiť
 
@@ -1612,7 +1612,7 @@ confirm-totp-reset-password-use-different-account = Použiť iný účet
 
 
 password-reset-flow-heading = Zmena hesla
-password-reset-body-3 = Obnovenie hesla môže ovplyvniť synchronizované údaje prehliadača.
+password-reset-forgot-heading = Zabudli ste heslo?
 password-reset-email-input =
     .label = Zadajte svoju e‑mailovú adresu
 password-reset-submit-button-2 = Pokračovať

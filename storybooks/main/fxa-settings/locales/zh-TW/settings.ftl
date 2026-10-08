@@ -1245,7 +1245,6 @@ passkey-sub-row-created-date = 建立於：{ $createdDate }
 passkey-sub-row-last-used-date = 最後使用於：{ $lastUsedDate }
 passkey-sub-row-delete-title = 刪除 Passkey
 passkey-delete-modal-heading = 要刪除您的 Passkey 嗎？
-passkey-delete-modal-content-v2 = 將從您的帳號中移除這把 Passkey。您必須使用其他方式（密碼、另一把 Passkey 或連結的帳號）登入。
 passkey-delete-modal-cancel-button = 取消
 passkey-delete-modal-confirm-button = 刪除 Passkey
 passkey-delete-success = 已刪除 Passkey
@@ -1595,21 +1594,15 @@ index-email-bounced = 您的確認信被退了，是不是輸錯電子郵件地�
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = 下次要略過密碼嗎？
-# Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = 已登入 { -brand-firefox }
 inline-passwordless-sync-setup-heading = 下次要略過密碼嗎？
 inline-passwordless-sync-setup-description = 使用這把 Passkey 可以更快登入。
 inline-passwordless-sync-setup-enable-button = 啟用 Passkey
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = 啟用中…
 inline-passwordless-sync-setup-not-now-button = 現在不要
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = 已可使用這組 Passkey 來登入與同步
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Passkey 確認未完成
 inline-passwordless-sync-setup-error-cancelled-description = 使用 Passkey 確認後，下次即可免輸入密碼。
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = 有些東西不對勁，下次您仍需輸入密碼
 
 ## InlineRecoveryKeySetup page component
 
@@ -1869,8 +1862,6 @@ pair2-authority-scan-qr-heading = 掃描後即可連結您的行動裝置
 pair2-authority-scan-qr-instruction = 使用您的手機或平板電腦掃描 QR Code，即可同步您的 { -brand-firefox } 書籤、分頁與更多資料。
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = 連結您行動裝置的 QR Code
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = 獲得掃描協助
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = 先略過
 
@@ -1979,8 +1970,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = 更多資訊
 pair2-supplicant-sync-success-heading = 已連結您的裝置
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = 正在同步中。可能需要一些時間才會顯示同步過來的資料，請繼續上網。
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = 管理同步設定
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2115,7 +2104,6 @@ confirm-totp-reset-password-use-different-account = 使用另一個帳號
 ## ResetPassword start page
 
 password-reset-flow-heading = 重設您的密碼
-password-reset-body-3 = 重設密碼也可能會影響同步的瀏覽器資料。
 password-reset-email-input =
     .label = 請輸入您的電子郵件地址
 password-reset-submit-button-2 = 繼續

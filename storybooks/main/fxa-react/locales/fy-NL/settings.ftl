@@ -1277,7 +1277,6 @@ passkey-sub-row-created-date = Oanmakke: { $createdDate }
 passkey-sub-row-last-used-date = Lêst brûkt: { $lastUsedDate }
 passkey-sub-row-delete-title = Wachtwurdkaai fuortsmite
 passkey-delete-modal-heading = Jo wachtwurdkaai fuortsmite?
-passkey-delete-modal-content-v2 = Dizze wachtwurdkaai sil fan jo account fuortsmiten wurde. Jo moatte jo oanmelde mei in oare metoade (wachtwurd, in oare wachtwurdkaai of keppele account).
 passkey-delete-modal-cancel-button = Annulearje
 passkey-delete-modal-confirm-button = Wachtwurdkaai fuortsmite
 passkey-delete-success = Wachtwurdkaai fuortsmiten
@@ -1641,21 +1640,15 @@ index-email-bounced = Jo befêstigings-e-mailberjocht is sakrekt weromkaam. Haww
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = De folgjende kear it wachtwurd oerslaan?
-# Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Oanmeld by { -brand-firefox }
 inline-passwordless-sync-setup-heading = De folgjende kear it wachtwurd oerslaan?
 inline-passwordless-sync-setup-description = Brûk dizze wachtwurdkaai om jo flugger oan te melden.
 inline-passwordless-sync-setup-enable-button = Wachtwurdkaai ynskeakelje
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Ynskeakelje…
 inline-passwordless-sync-setup-not-now-button = No net
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Dizze wachtwurdkaai is klear foar oanmelden en syngronisearjen
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Befêstiging fan wachtwurdkaai net foltôge
 inline-passwordless-sync-setup-error-cancelled-description = Befêstigje mei jo wachtwurdkaai om it wachtwurd de folgjende kear oer te slaan.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Der is wat misgien, jo moatte de folgjende kear noch hieltyd jo wachtwurd ynfiere
 
 ## InlineRecoveryKeySetup page component
 
@@ -1915,8 +1908,6 @@ pair2-authority-scan-qr-heading = Scan om jo mobile apparaat te ferbinen
 pair2-authority-scan-qr-instruction = Scan de QR-koade mei jo telefoan of tablet om jo { -brand-firefox }-blêdwizers, ljepblêden en mear te syngronisearjen.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR-koade om jo mobile apparaat te ferbinen
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Help by scannen ûntfange
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Foarearst oerslaan
 
@@ -2025,8 +2016,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Mear ynfo
 pair2-supplicant-sync-success-heading = Jo apparaat is ferbûn
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = Syngronisaasje is start. It kin in skoftke duorje eardat jo syngronisearre gegevens ferskine. Fiel jo frij om troch te sneupen.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Syngronisaasje-ynstellingen beheare
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2161,7 +2150,6 @@ confirm-totp-reset-password-use-different-account = In oar account brûke
 ## ResetPassword start page
 
 password-reset-flow-heading = Jo wachtwurd opnij ynstelle
-password-reset-body-3 = It opnij ynstellen fan jo wachtwurd kin ynfloed hawwe op syngronisearre browsergegevens.
 password-reset-email-input =
     .label = Fier jo e-mailadres yn
 password-reset-submit-button-2 = Trochgean

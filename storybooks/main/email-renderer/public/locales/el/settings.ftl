@@ -1275,7 +1275,6 @@ passkey-sub-row-created-date = Δημιουργία: { $createdDate }
 passkey-sub-row-last-used-date = Τελευταία χρήση: { $lastUsedDate }
 passkey-sub-row-delete-title = Διαγραφή κλειδιού πρόσβασης
 passkey-delete-modal-heading = Διαγραφή κλειδιού πρόσβασης;
-passkey-delete-modal-content-v2 = Αυτό το κλειδί πρόσβασης θα αφαιρεθεί από τον λογαριασμό σας. Θα πρέπει να συνδεθείτε με διαφορετική μέθοδο (κωδικό πρόσβασης, άλλο κλειδί πρόσβασης ή συνδεδεμένο λογαριασμό).
 passkey-delete-modal-cancel-button = Ακύρωση
 passkey-delete-modal-confirm-button = Διαγραφή κλειδιού πρόσβασης
 passkey-delete-success = Το κλειδί πρόσβασης διαγράφηκε
@@ -1638,21 +1637,15 @@ index-email-bounced = Το email επιβεβαίωσής σας μόλις επ
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Παράλειψη του κωδικού πρόσβασης την επόμενη φορά;
-# Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Συνδεθήκατε στο { -brand-firefox }
 inline-passwordless-sync-setup-heading = Παράλειψη του κωδικού πρόσβασης την επόμενη φορά;
 inline-passwordless-sync-setup-description = Χρησιμοποιήστε αυτό το κλειδί πρόσβασης για ταχύτερη σύνδεση.
 inline-passwordless-sync-setup-enable-button = Ενεργοποίηση κλειδιού πρόσβασης
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Ενεργοποίηση…
 inline-passwordless-sync-setup-not-now-button = Όχι τώρα
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Αυτό το κλειδί πρόσβασης είναι έτοιμο για σύνδεση στον συγχρονισμό
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Η επιβεβαίωση του κλειδιού πρόσβασης δεν ολοκληρώθηκε
 inline-passwordless-sync-setup-error-cancelled-description = Κάντε επιβεβαίωση με το κλειδί πρόσβασής σας για να παραλείψετε τον κωδικό πρόσβασης την επόμενη φορά.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Κάτι πήγε στραβά, θα πρέπει ακόμα να εισαγάγετε τον κωδικό πρόσβασής σας την επόμενη φορά
 
 ## InlineRecoveryKeySetup page component
 
@@ -1912,8 +1905,6 @@ pair2-authority-scan-qr-heading = Κάντε σάρωση για να συνδέ
 pair2-authority-scan-qr-instruction = Σαρώστε τον κωδικό QR με το τηλέφωνο ή το tablet σας για να συγχρονίσετε τους σελιδοδείκτες, τις καρτέλες και άλλα δεδομένα του { -brand-firefox }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Κωδικός QR για σύνδεση της κινητής σας συσκευής
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Λήψη βοήθειας με τη σάρωση
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Παράλειψη για την ώρα
 
@@ -2022,8 +2013,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Μάθετε περισσότε
 pair2-supplicant-sync-success-heading = Η συσκευή σας έχει συνδεθεί
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = Ο συγχρονισμός βρίσκεται σε εξέλιξη. Ενδέχεται να χρειαστεί λίγος χρόνος μέχρι να εμφανιστούν τα συγχρονισμένα δεδομένα σας. Στο μεταξύ, μπορείτε να συνεχίσετε την περιήγηση.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Διαχείριση ρυθμίσεων συγχρονισμού
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2158,7 +2147,6 @@ confirm-totp-reset-password-use-different-account = Χρήση διαφορετ�
 ## ResetPassword start page
 
 password-reset-flow-heading = Επαναφορά κωδικού πρόσβασης
-password-reset-body-3 = Η επαναφορά του κωδικού πρόσβασής σας ενδέχεται να επηρεάσει τα συγχρονισμένα δεδομένα του προγράμματος περιήγησης.
 password-reset-email-input =
     .label = Εισαγάγετε το email σας
 password-reset-submit-button-2 = Συνέχεια

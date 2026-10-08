@@ -1268,7 +1268,6 @@ passkey-sub-row-created-date = Heñói: { $createdDate }
 passkey-sub-row-last-used-date = Jeporu ramovéva: { $lastUsedDate }
 passkey-sub-row-delete-title = Emboguete ñe’ẽñemi
 passkey-delete-modal-heading = ¿Emboguete pe ñe’ẽñemi?
-passkey-delete-modal-content-v2 = Ko ñe’ẽñemi jeikerã reheguáva oñembogueva’erã nde mba’etégui. Eikeva’erã ambueháicha (ñe’ẽñemi, ambue mba’e jeikerã térã mba’ete heseguáva).
 passkey-delete-modal-cancel-button = Eheja
 passkey-delete-modal-confirm-button = Emboguete ñe’ẽñemi
 passkey-delete-success = Ñe’ẽñemi mboguetepyre
@@ -1631,21 +1630,15 @@ index-email-bounced = Ne ñanduti veve ñemoneĩrã ojevyjeýma. ¿Ikatu ehaivai
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = ¿Ehejarei ñe’ẽñemi eiporujeývo?
-# Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Eikéma { -brand-firefox } ndive
 inline-passwordless-sync-setup-heading = ¿Ehejarei ñe’ẽñemi eiporujeývo?
 inline-passwordless-sync-setup-description = Eiporu ko ñe’ẽ ñemi eike pya’eve hag̃ua.
 inline-passwordless-sync-setup-enable-button = Ejora ñe’ẽ ñemi jeikeha
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Emyandyhína…
 inline-passwordless-sync-setup-not-now-button = Ani ko’ág̃a
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Ko ñe’ẽ ñemi oĩma eike ha embojuehe hag̃ua
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Nahu’ãi upe ñe’ẽ ñemi ñemoneĩ
 inline-passwordless-sync-setup-error-cancelled-description = Emoneĩ ñe’ẽ ñemi emboyke hag̃ua ñe’ẽñemi eiporujeývo.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Oĩ osẽvaíva, emoingeva’erã katuete ne ñe’ẽñemi eiporujeýtavo upéi
 
 ## InlineRecoveryKeySetup page component
 
@@ -1905,8 +1898,6 @@ pair2-authority-scan-qr-heading = Emoha’ãnga eike hag̃ua ambue mba’e’ok�
 pair2-authority-scan-qr-instruction = Emoha’ãnga QR ayvu ne pumbyry térã tablétape embojuehe hag̃ua { -brand-firefox } rechaukaha ha hetave.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR ayvu eike hag̃ua ne mba’e’okápe
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Eñepytyvõta emoha’ãnga hag̃ua
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Ehasa ko’ág̃a
 
@@ -2003,8 +1994,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Eikuaave
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Ne mba’e’oka ojuajuhína
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Eñangareko mbojueherã ñembohekóre
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2130,7 +2119,6 @@ confirm-totp-reset-password-use-different-account = Eiporu ambuéva mba’ete
 ## ResetPassword start page
 
 password-reset-flow-heading = Embojevyjey ne ñe’ẽñemi
-password-reset-body-3 = Erujeyvo ñe’ẽñemi ombyaikuaa kundahára mba’ekuaarã ojuehepyre.
 password-reset-email-input =
     .label = Ehai ne ñandutiveve
 password-reset-submit-button-2 = Ku’ejey

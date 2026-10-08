@@ -1276,7 +1276,6 @@ passkey-sub-row-created-date = Creat la: { $createdDate }
 passkey-sub-row-last-used-date = Ultima utilizare: { $lastUsedDate }
 passkey-sub-row-delete-title = Șterge cheia de acces
 passkey-delete-modal-heading = Ștergi cheia de acces?
-passkey-delete-modal-content-v2 = Cheia de acces va fi eliminată din cont. Va trebui să te conectezi folosind o altă metodă (parolă, o altă cheie de acces sau un cont conectat).
 passkey-delete-modal-cancel-button = Anulează
 passkey-delete-modal-confirm-button = Șterge cheia de acces
 passkey-delete-success = Cheia de acces a fost ștearsă
@@ -1641,21 +1640,15 @@ index-email-bounced = Mesajul de confirmare pe e-mail tocmai a fost returnat. Ai
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Sari peste parolă data viitoare?
-# Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Ești autentificat(ă) în { -brand-firefox }
 inline-passwordless-sync-setup-heading = Sari peste parolă data viitoare?
 inline-passwordless-sync-setup-description = Folosește cheia de acces pentru a intra în cont mai rapid.
 inline-passwordless-sync-setup-enable-button = Activează cheia de acces
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Se activează…
 inline-passwordless-sync-setup-not-now-button = Nu acum
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Cheia de acces este gata pentru autentificarea pentru sincronizare
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Confirmarea cheii de acces nu s-a finalizat
 inline-passwordless-sync-setup-error-cancelled-description = Confirmă cu cheia de acces pentru a omite parola data viitoare.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Ceva nu a funcționat, va trebui să introduci parola data viitoare
 
 ## InlineRecoveryKeySetup page component
 
@@ -1915,8 +1908,6 @@ pair2-authority-scan-qr-heading = Scanează pentru conectarea dispozitivului mob
 pair2-authority-scan-qr-instruction = Scanează codul QR cu telefonul sau tableta pentru a-ți sincroniza marcajele, filele și multe altele din { -brand-firefox }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Cod QR pentru conectarea dispozitivului mobil
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Obține ajutor la scanare
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Treci peste deocamdată
 
@@ -2001,8 +1992,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Află mai multe
 pair2-supplicant-sync-success-heading = Dispozitivul tău este conectat
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = Sincronizarea este în curs. Poate dura puțin până când apar datele sincronizate. Între timp, poți naviga în continuare.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Gestionează setările de sincronizare
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2130,7 +2119,6 @@ confirm-totp-reset-password-use-different-account = Folosește alt cont
 ## ResetPassword start page
 
 password-reset-flow-heading = Resetează-ți parola
-password-reset-body-3 = Resetarea parolei îți poate afecta datele din browser sincronizate.
 password-reset-email-input =
     .label = Introdu adresa de e-mail
 password-reset-submit-button-2 = Continuă
