@@ -1,0 +1,10 @@
+{
+  "commit": "5e4b21b94e39d2c3eb028ed4f136e0c208b8782d",
+  "summary": "feat(settings): show a default promo QR outside the Nimbus experiment",
+  "description": "Because:\n\n* Users outside the Nimbus experiment saw the control QR, so they looked like enrolled control users.\n\nThis commit:\n\n* Adds a default promo QR (placeholder image) and DEFAULT_PROMO.\n* Shows the default when Nimbus fails, the feature is off, or the slug is unknown.\n* Reports Glean branch undefined for an unknown slug.\n* Adds tests and a NoExperiment story.",
+  "timestamp": 1791486148000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

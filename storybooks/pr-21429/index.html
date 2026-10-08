@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 5e4b21b94e39d2c3eb028ed4f136e0c208b8782d</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 5e4b21b94e39d2c3eb028ed4f136e0c208b8782d</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/8/2026, 7:02:28 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(settings): show a default promo QR outside the Nimbus experiment</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* Users outside the Nimbus experiment saw the control QR, so they looked like enrolled control users.
+
+This commit:
+
+* Adds a default promo QR (placeholder image) and DEFAULT_PROMO.
+* Shows the default when Nimbus fails, the feature is off, or the slug is unknown.
+* Reports Glean branch undefined for an unknown slug.
+* Adds tests and a NoExperiment story.</pre></dd>
+  </dl>
+</body>
+</html>
