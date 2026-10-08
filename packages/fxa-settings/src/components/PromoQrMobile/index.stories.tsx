@@ -42,6 +42,13 @@ const story = (branch: string) => () => (
   </MemoryRouter>
 );
 
+// Outside the experiment, or when Nimbus fails to load.
+export const NoExperiment = () => (
+  <MemoryRouter initialEntries={['/']}>
+    <PromoQrMobile integration={webIntegration} />
+  </MemoryRouter>
+);
+
 // One line.
 export const Control = story('control');
 
