@@ -941,7 +941,6 @@ passkey-sub-row-created-date = Oppretta: { $createdDate }
 passkey-sub-row-last-used-date = Sist brukt: { $lastUsedDate }
 passkey-sub-row-delete-title = Slett passnøkkel
 passkey-delete-modal-heading = Slette passnøkkelen?
-passkey-delete-modal-content-v2 = Denne tilgangsnøkkelen vil bli fjerna frå kontoen din. Du må logge på med ein annan metode (passord, ein annan tilgangsnøkkel eller ein tilknytt konto).
 passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Slett passnøkkel
 passkey-delete-success = Passnøkkel sletta
@@ -1185,16 +1184,13 @@ index-email-bounced = Stadfestings e-posten din kom i retur. Feil i e-postadress
 
 
 inline-passwordless-sync-setup-page-title = Hoppe over passordet neste gong?
-inline-passwordless-sync-setup-success-banner = Logga inn på { -brand-firefox }
 inline-passwordless-sync-setup-heading = Hoppe over passordet neste gong?
 inline-passwordless-sync-setup-description = Bruk denne passnøkkelen for å logge på raskare.
 inline-passwordless-sync-setup-enable-button = Slå på passnøkkel
 inline-passwordless-sync-setup-enabling = Slår på…
 inline-passwordless-sync-setup-not-now-button = Ikkje no
-inline-passwordless-sync-setup-success-alert = Denne passnøkkelen er klar for pålogging med synkronisering
 inline-passwordless-sync-setup-error-cancelled = Stadfestinga med passnøkkelen vart ikkje fullført
 inline-passwordless-sync-setup-error-cancelled-description = Stadfest med passnøkkelen din for å sleppe å skrive inn passordet neste gong.
-inline-passwordless-sync-setup-error-generic = Noko gjekk gale. Du må framleis skrive inn passordet neste gong.
 
 
 inline-recovery-key-setup-create-error = Ops! Vi klarte ikkje å opprette kontogjenopprettingsnøkkelen din. Prøv igjen seinare.
@@ -1333,7 +1329,6 @@ pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
 pair2-authority-scan-qr-heading = Skann for å kople til mobileininga di
 pair2-authority-scan-qr-instruction = Skann QR-koden med telefonen eller nettbrettet for å synkronisere bokmerka, fanene og meir i { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = QR-kode for å kople til mobileininga di
-pair2-authority-scan-qr-help-link = Få hjelp med skanning
 pair2-authority-scan-qr-skip-button = Hopp over no
 
 
@@ -1382,7 +1377,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Les meir
 
 pair2-supplicant-sync-success-heading = Eininga di er tilkopla
 pair2-supplicant-sync-success-description-v2 = Synkronisering er i gang. Det kan ta litt tid før dei synkroniserte dataa dine visest. Du kan gjerne halde fram med å surfe.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Handsam synkroniseringsinnstillingar
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Det ser ut til at det oppstod eit tidsavbrot
@@ -1460,7 +1454,6 @@ confirm-totp-reset-password-use-different-account = Bruk ein annan konto
 
 
 password-reset-flow-heading = Tilbakestill passordet ditt
-password-reset-body-3 = Tilbakestilling av passordet kan påverke synkroniserte nettlesardata.
 password-reset-email-input =
     .label = Skriv inn e-postadressa di
 password-reset-submit-button-2 = Hald fram

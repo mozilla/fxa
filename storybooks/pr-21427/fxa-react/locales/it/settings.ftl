@@ -1269,7 +1269,7 @@ passkey-sub-row-created-date = Creata: { $createdDate }
 passkey-sub-row-last-used-date = Ultimo utilizzo: { $lastUsedDate }
 passkey-sub-row-delete-title = Elimina passkey
 passkey-delete-modal-heading = Eliminare la passkey?
-passkey-delete-modal-content-v2 = Questa passkey verrà rimossa dal tuo account. Dovrai accedere utilizzando un metodo diverso (password, un’altra passkey o un account collegato).
+passkey-delete-modal-content-v3 = Questa passkey verrà rimossa dal tuo account. Dovrai accedere utilizzando una password, un’altra passkey o un account collegato.
 passkey-delete-modal-cancel-button = Annulla
 passkey-delete-modal-confirm-button = Elimina passkey
 passkey-delete-success = Passkey eliminata
@@ -1622,20 +1622,22 @@ index-email-bounced = L’email di conferma è stata respinta. C’è un errore 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Accedere senza password la prossima volta?
 # Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Accesso effettuato a { -brand-firefox }
+inline-passwordless-sync-setup-success-banner-v2 = Hai effettuato l’accesso e la sincronizzazione è attiva
 inline-passwordless-sync-setup-heading = Accedere senza password la prossima volta?
 inline-passwordless-sync-setup-description = Utilizza questa passkey per accedere più velocemente.
 inline-passwordless-sync-setup-enable-button = Attiva passkey
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Attivazione…
 inline-passwordless-sync-setup-not-now-button = Non adesso
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Questa passkey è pronta per accedere e avviare la sincronizzazione
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = Questa passkey è attiva per l’accesso sincronizzato
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = La conferma della passkey non è stata completata
 inline-passwordless-sync-setup-error-cancelled-description = Conferma con la tua passkey per non dover inserire la password la prossima volta.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Si è verificato un problema, al prossimo accesso dovrai comunque inserire la password
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = Non è stato possibile attivare questa passkey per l’accesso sincronizzato. Ti servirà la password la prossima volta.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1895,8 +1897,8 @@ pair2-authority-scan-qr-heading = Scansiona per connettere il tuo dispositivo mo
 pair2-authority-scan-qr-instruction = Scansiona il codice QR con il telefono o il tablet per sincronizzare segnalibri, schede e altri dati di { -brand-firefox }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Codice QR per connettere il tuo dispositivo mobile
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Aiuto per la scansione
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Altri modi per accedere
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Non ora
 
@@ -2005,8 +2007,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Ulteriori informazioni
 pair2-supplicant-sync-success-heading = Il dispositivo è connesso
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = La sincronizzazione è in corso. Potrebbe volerci un po’ di tempo prima che vengano visualizzati i dati sincronizzati. Nel frattempo, puoi continuare a navigare.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Gestisci impostazioni di sincronizzazione
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2033,6 +2033,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Per connettere un dis
 permissions-heading = { $serviceName } vuole accedere a:
 permissions-label-email = Indirizzo email
 permissions-label-display-name = Nome visualizzato
+permissions-label-avatar = Immagine per l’account
 permissions-continue-button = Continua
 permissions-cancel-button = Annulla
 
@@ -2141,10 +2142,14 @@ confirm-totp-reset-password-use-different-account = Utilizza un altro account
 ## ResetPassword start page
 
 password-reset-flow-heading = Reimpostazione della password
-password-reset-body-3 = La reimpostazione della password potrebbe influire sulla sincronizzazione dei dati del browser.
+password-reset-forgot-heading = Password dimenticata?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Prova ad accedere con { -brand-google }, { -brand-apple } o una passkey.</signInLink> Oppure inserisci il tuo indirizzo email e ti invieremo un codice per reimpostare la password.
 password-reset-email-input =
     .label = Inserisci la tua email
 password-reset-submit-button-2 = Continua
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = La reimpostazione della password potrebbe influire sul recupero dei dati sincronizzati del browser. <learnMoreLink>Ulteriori informazioni</learnMoreLink>
 
 ## ResetPasswordConfirmed
 

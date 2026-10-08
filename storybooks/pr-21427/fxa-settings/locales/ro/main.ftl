@@ -978,7 +978,6 @@ passkey-sub-row-created-date = Creat la: { $createdDate }
 passkey-sub-row-last-used-date = Ultima utilizare: { $lastUsedDate }
 passkey-sub-row-delete-title = Șterge cheia de acces
 passkey-delete-modal-heading = Ștergi cheia de acces?
-passkey-delete-modal-content-v2 = Cheia de acces va fi eliminată din cont. Va trebui să te conectezi folosind o altă metodă (parolă, o altă cheie de acces sau un cont conectat).
 passkey-delete-modal-cancel-button = Anulează
 passkey-delete-modal-confirm-button = Șterge cheia de acces
 passkey-delete-success = Cheia de acces a fost ștearsă
@@ -1224,16 +1223,13 @@ index-email-bounced = Mesajul de confirmare pe e-mail tocmai a fost returnat. Ai
 
 
 inline-passwordless-sync-setup-page-title = Sari peste parolă data viitoare?
-inline-passwordless-sync-setup-success-banner = Ești autentificat(ă) în { -brand-firefox }
 inline-passwordless-sync-setup-heading = Sari peste parolă data viitoare?
 inline-passwordless-sync-setup-description = Folosește cheia de acces pentru a intra în cont mai rapid.
 inline-passwordless-sync-setup-enable-button = Activează cheia de acces
 inline-passwordless-sync-setup-enabling = Se activează…
 inline-passwordless-sync-setup-not-now-button = Nu acum
-inline-passwordless-sync-setup-success-alert = Cheia de acces este gata pentru autentificarea pentru sincronizare
 inline-passwordless-sync-setup-error-cancelled = Confirmarea cheii de acces nu s-a finalizat
 inline-passwordless-sync-setup-error-cancelled-description = Confirmă cu cheia de acces pentru a omite parola data viitoare.
-inline-passwordless-sync-setup-error-generic = Ceva nu a funcționat, va trebui să introduci parola data viitoare
 
 
 inline-recovery-key-setup-create-error = Ups! Nu am putut crea cheia de recuperare a contului. Te rugăm să încerci din nou mai târziu.
@@ -1372,7 +1368,6 @@ pair2-authority-download-firefox-cta = Descarcă { -brand-firefox }
 pair2-authority-scan-qr-heading = Scanează pentru conectarea dispozitivului mobil
 pair2-authority-scan-qr-instruction = Scanează codul QR cu telefonul sau tableta pentru a-ți sincroniza marcajele, filele și multe altele din { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Cod QR pentru conectarea dispozitivului mobil
-pair2-authority-scan-qr-help-link = Obține ajutor la scanare
 pair2-authority-scan-qr-skip-button = Treci peste deocamdată
 
 
@@ -1410,7 +1405,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Află mai multe
 
 pair2-supplicant-sync-success-heading = Dispozitivul tău este conectat
 pair2-supplicant-sync-success-description-v2 = Sincronizarea este în curs. Poate dura puțin până când apar datele sincronizate. Între timp, poți naviga în continuare.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Gestionează setările de sincronizare
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Se pare că timpul de conectare a expirat
@@ -1483,7 +1477,6 @@ confirm-totp-reset-password-use-different-account = Folosește alt cont
 
 
 password-reset-flow-heading = Resetează-ți parola
-password-reset-body-3 = Resetarea parolei îți poate afecta datele din browser sincronizate.
 password-reset-email-input =
     .label = Introdu adresa de e-mail
 password-reset-submit-button-2 = Continuă

@@ -972,7 +972,6 @@ passkey-sub-row-created-date = შექმნილი: { $createdDate }
 passkey-sub-row-last-used-date = ბოლო გამოყენება: { $lastUsedDate }
 passkey-sub-row-delete-title = საშვის წაშლა
 passkey-delete-modal-heading = წაიშალოს საშვი?
-passkey-delete-modal-content-v2 = ეს საშვი ამოიშლება თქვენი ანგარიშიდან. დაგჭირდებათ ანგარიშზე სხვა გზით შესვლა (პაროლით, სხვა საშვით ან მიბმული ანგარიშით).
 passkey-delete-modal-cancel-button = გაუქმება
 passkey-delete-modal-confirm-button = საშვის წაშლა
 passkey-delete-success = საშვი წაიშალა
@@ -1215,16 +1214,13 @@ index-email-bounced = დადასტურების გამოგზა
 
 
 inline-passwordless-sync-setup-page-title = გსურთ პაროლის არიდება შემდეგ ჯერზე?
-inline-passwordless-sync-setup-success-banner = შესულია { -brand-firefox }-ში
 inline-passwordless-sync-setup-heading = გსურთ პაროლის არიდება შემდეგ ჯერზე?
 inline-passwordless-sync-setup-description = გამოიყენეთ ეს საშვი ანგარიშზე უფრო სწრაფი შესვლისთვის.
 inline-passwordless-sync-setup-enable-button = საშვის ჩართვა
 inline-passwordless-sync-setup-enabling = ირთვება…
 inline-passwordless-sync-setup-not-now-button = ახლა არა
-inline-passwordless-sync-setup-success-alert = ეს საშვი მზადაა სინქრონიზაციისთვის
 inline-passwordless-sync-setup-error-cancelled = საშვის დადასტურება არ დასრულებულა
 inline-passwordless-sync-setup-error-cancelled-description = დაამოწმეთ თქვენი საშვი შემდეგი შესვლისას პაროლის ასარიდებლად
-inline-passwordless-sync-setup-error-generic = რაღაც ხარვეზი წარმოიქმნა, შემდეგ ჯერზე ისევ პაროლის შეყვანა მოგიწევთ
 
 
 inline-recovery-key-setup-create-error = უჰ! ანგარიშის აღდგენის გასაღების შექმნა ვერ ხერხდება. მოგვიანებით სცადეთ.
@@ -1363,7 +1359,6 @@ pair2-authority-download-firefox-cta = ჩამოტვირთეთ { -bran
 pair2-authority-scan-qr-heading = წააკითხეთ მობილურ მოწყობილობასთან დასაკავშირებლად
 pair2-authority-scan-qr-instruction = წააკითხეთ QR-კოდი ტელეფონით ან პლანშეტით, რომ დაასინქრონოთ { -brand-firefox } არსებული სანიშნებით, ჩანართებითა თუ სხვ.
 pair2-authority-scan-qr-code-aria-label = QR-კოდი მობილურ მოწყობილობასთან დასაკავშირებლად
-pair2-authority-scan-qr-help-link = დახმარება წაკითხვის ხარვეზისას
 pair2-authority-scan-qr-skip-button = ამჟამად გამოტოვება
 
 
@@ -1401,7 +1396,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = ვრცლად
 
 pair2-supplicant-sync-success-heading = მოწყობილობა დაკავშირებულია
 pair2-supplicant-sync-success-description-v2 = სინქრონიზაცია მიმდინარეობს. დასინქრონებული მონაცემების გამოჩენამ შეიძლება გარკვეულ ხანს გასტანოს. ამასობაში შეგიძლიათ განაგრძოთ გვერდების მონახულება.
-pair2-supplicant-sync-success-sync-settings-button-v2 = სინქრონიზაციის პარამეტრების მართვა
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = როგორც ჩანს, დრო ამოიწურა
@@ -1474,7 +1468,6 @@ confirm-totp-reset-password-use-different-account = სხვა ანგარ
 
 
 password-reset-flow-heading = პაროლის განულება
-password-reset-body-3 = პაროლის განულებას შესაძლოა, გავლენა ჰქონდეს ბრაუზერის დასინქრონებულ მონაცემებზე.
 password-reset-email-input =
     .label = შეიყვანეთ თქვენი ელფოსტა
 password-reset-submit-button-2 = განაგრძეთ

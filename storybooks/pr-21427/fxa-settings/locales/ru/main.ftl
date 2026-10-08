@@ -977,7 +977,6 @@ passkey-sub-row-created-date = Создан: { $createdDate }
 passkey-sub-row-last-used-date = Последнее использование: { $lastUsedDate }
 passkey-sub-row-delete-title = Удалить ключ доступа
 passkey-delete-modal-heading = Удалить ваш ключ доступа?
-passkey-delete-modal-content-v2 = Этот ключ доступа будет удалён из вашего аккаунта. Вам нужно будет войти, используя другой метод (пароль, другой ключ доступа или связанный аккаунт).
 passkey-delete-modal-cancel-button = Отмена
 passkey-delete-modal-confirm-button = Удалить ключ доступа
 passkey-delete-success = Ключ доступа удалён
@@ -1221,16 +1220,13 @@ index-email-bounced = Ваше письмо для подтверждения т
 
 
 inline-passwordless-sync-setup-page-title = Пропустить пароль в следующий раз?
-inline-passwordless-sync-setup-success-banner = Произведён вход в { -brand-firefox }
 inline-passwordless-sync-setup-heading = Пропустить пароль в следующий раз?
 inline-passwordless-sync-setup-description = Используйте этот ключ доступа для более быстрого входа.
 inline-passwordless-sync-setup-enable-button = Включить ключ доступа
 inline-passwordless-sync-setup-enabling = Включаю…
 inline-passwordless-sync-setup-not-now-button = Не сейчас
-inline-passwordless-sync-setup-success-alert = Этот ключ доступа готов для входа в синхронизацию
 inline-passwordless-sync-setup-error-cancelled = Подтверждение ключа доступа не завершено
 inline-passwordless-sync-setup-error-cancelled-description = Подтвердите с помощью ключа доступа, чтобы пропустить пароль в следующий раз.
-inline-passwordless-sync-setup-error-generic = Что-то пошло не так, вам всё ещё нужно будет ввести пароль в следующий раз
 
 
 inline-recovery-key-setup-create-error = Ой! Мы не смогли создать ключ восстановления вашего аккаунта. Подождите некоторое время и попробуйте снова.
@@ -1369,7 +1365,6 @@ pair2-authority-download-firefox-cta = Скачать { -brand-firefox }
 pair2-authority-scan-qr-heading = Отсканируйте для подключения мобильного устройства
 pair2-authority-scan-qr-instruction = Отсканируйте QR-код своим телефоном или планшетом, чтобы синхронизировать ваши закладки { -brand-firefox }, вкладки и многое другое.
 pair2-authority-scan-qr-code-aria-label = QR-код для подключения мобильного устройства
-pair2-authority-scan-qr-help-link = Получите помощь по сканированию
 pair2-authority-scan-qr-skip-button = Пока пропустить
 
 
@@ -1418,7 +1413,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Подробнее
 
 pair2-supplicant-sync-success-heading = Ваше устройство подключено
 pair2-supplicant-sync-success-description-v2 = Выполняется синхронизация. Прежде чем ваши синхронизированные данные появятся, может пройти некоторое время. Вы можете продолжать веб-сёрфинг.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Управление настройками синхронизации
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Похоже, у нас истекло время ожидания
@@ -1496,7 +1490,6 @@ confirm-totp-reset-password-use-different-account = Использовать д�
 
 
 password-reset-flow-heading = Сбросить пароль
-password-reset-body-3 = Сброс вашего пароля может повлиять на синхронизируемые данные браузера.
 password-reset-email-input =
     .label = Введите ваш адрес эл. почты
 password-reset-submit-button-2 = Продолжить

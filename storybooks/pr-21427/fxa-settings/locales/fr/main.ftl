@@ -949,7 +949,7 @@ passkey-sub-row-created-date = Créée le : { $createdDate }
 passkey-sub-row-last-used-date = Dernière utilisation : { $lastUsedDate }
 passkey-sub-row-delete-title = Supprimer la clé d’accès
 passkey-delete-modal-heading = Supprimer votre clé d’accès ?
-passkey-delete-modal-content-v2 = Cette clé d’accès sera supprimée de votre compte. Vous devrez vous connecter en utilisant une méthode différente (mot de passe, autre clé d’accès ou compte lié).
+passkey-delete-modal-content-v3 = Cette clé d’accès sera supprimée de votre compte. Vous devrez vous connecter à l’aide d’un mot de passe, d’une autre clé d’accès ou d’un compte lié.
 passkey-delete-modal-cancel-button = Annuler
 passkey-delete-modal-confirm-button = Supprimer la clé d’accès
 passkey-delete-success = Clé d’accès supprimée
@@ -1190,16 +1190,16 @@ index-email-bounced = Votre message de confirmation nous a été renvoyé. Véri
 
 
 inline-passwordless-sync-setup-page-title = Ignorer le mot de passe la prochaine fois ?
-inline-passwordless-sync-setup-success-banner = Connecté·e à { -brand-firefox }
+inline-passwordless-sync-setup-success-banner-v2 = Vous êtes connecté·e et la synchronisation est activée
 inline-passwordless-sync-setup-heading = Ignorer le mot de passe la prochaine fois ?
 inline-passwordless-sync-setup-description = Utilisez cette clé d’accès pour vous connecter plus rapidement.
 inline-passwordless-sync-setup-enable-button = Activer la clé d’accès
 inline-passwordless-sync-setup-enabling = Activation…
 inline-passwordless-sync-setup-not-now-button = Plus tard
-inline-passwordless-sync-setup-success-alert = Cette clé d’accès permet désormais de se connecter et de synchroniser
+inline-passwordless-sync-setup-success-alert-v2 = Cette clé est activée pour la connexion synchronisée
 inline-passwordless-sync-setup-error-cancelled = La confirmation de la clé d’accès n’a pas abouti
 inline-passwordless-sync-setup-error-cancelled-description = Confirmez à l’aide de votre clé d’accès pour ne pas avoir à saisir votre mot de passe la prochaine fois.
-inline-passwordless-sync-setup-error-generic = Une erreur s’est produite, vous devrez encore saisir votre mot de passe la prochaine fois
+inline-passwordless-sync-setup-error-generic-v2 = Nous n’avons pas pu activer cette clé d’accès pour la connexion synchronisée. Vous aurez besoin de votre mot de passe la prochaine fois.
 
 
 inline-recovery-key-setup-create-error = Oups ! Nous n’avons pas pu créer la clé de récupération de votre compte. Veuillez réessayer plus tard.
@@ -1338,7 +1338,7 @@ pair2-authority-download-firefox-cta = Télécharger { -brand-firefox }
 pair2-authority-scan-qr-heading = Scannez le code QR pour connecter votre appareil mobile
 pair2-authority-scan-qr-instruction = Scannez le code QR avec votre téléphone ou votre tablette pour synchroniser vos marque-pages, vos onglets et d’autres données de { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Code QR pour connecter votre appareil mobile
-pair2-authority-scan-qr-help-link = Obtenir de l’aide pour scanner le code QR
+pair2-authority-scan-qr-other-ways-link = Autres façons de se connecter
 pair2-authority-scan-qr-skip-button = Ignorer pour l’instant
 
 
@@ -1387,7 +1387,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = En savoir plus
 
 pair2-supplicant-sync-success-heading = Votre appareil est connecté
 pair2-supplicant-sync-success-description-v2 = Synchronisation en cours. L’affichage des données synchronisées peut prendre un certain temps. Vous pouvez continuer à naviguer.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Gérer les paramètres de synchronisation
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Le délai de connexion a expiré
@@ -1399,6 +1398,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Pour connecter un app
 permissions-heading = { $serviceName } souhaite accéder à :
 permissions-label-email = Adresse e-mail
 permissions-label-display-name = Nom à afficher
+permissions-label-avatar = Photo de profil
 permissions-continue-button = Continuer
 permissions-cancel-button = Annuler
 
@@ -1465,10 +1465,12 @@ confirm-totp-reset-password-use-different-account = Utiliser un autre compte
 
 
 password-reset-flow-heading = Réinitialiser le mot de passe
-password-reset-body-3 = La réinitialisation de votre mot de passe peut avoir un effet sur les données de navigation synchronisées.
+password-reset-forgot-heading = Mot de passe oublié ?
+password-reset-alternatives-body = <signInLink>Essayez de vous connecter avec { -brand-google }, { -brand-apple }, ou une clé d’accès à la place.</signInLink> Ou saisissez votre adresse électronique et nous vous enverrons un code pour réinitialiser votre mot de passe.
 password-reset-email-input =
     .label = Saisissez votre adresse e-mail
 password-reset-submit-button-2 = Continuer
+password-reset-data-recovery-warning = La réinitialisation de votre mot de passe peut empêcher la récupération des données synchronisées du navigateur. <learnMoreLink>En savoir plus</learnMoreLink>
 
 
 reset-password-complete-header = Votre mot de passe a été réinitialisé

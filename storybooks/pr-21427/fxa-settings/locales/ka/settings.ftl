@@ -1272,7 +1272,6 @@ passkey-sub-row-created-date = შექმნილი: { $createdDate }
 passkey-sub-row-last-used-date = ბოლო გამოყენება: { $lastUsedDate }
 passkey-sub-row-delete-title = საშვის წაშლა
 passkey-delete-modal-heading = წაიშალოს საშვი?
-passkey-delete-modal-content-v2 = ეს საშვი ამოიშლება თქვენი ანგარიშიდან. დაგჭირდებათ ანგარიშზე სხვა გზით შესვლა (პაროლით, სხვა საშვით ან მიბმული ანგარიშით).
 passkey-delete-modal-cancel-button = გაუქმება
 passkey-delete-modal-confirm-button = საშვის წაშლა
 passkey-delete-success = საშვი წაიშალა
@@ -1634,21 +1633,15 @@ index-email-bounced = დადასტურების გამოგზა
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = გსურთ პაროლის არიდება შემდეგ ჯერზე?
-# Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = შესულია { -brand-firefox }-ში
 inline-passwordless-sync-setup-heading = გსურთ პაროლის არიდება შემდეგ ჯერზე?
 inline-passwordless-sync-setup-description = გამოიყენეთ ეს საშვი ანგარიშზე უფრო სწრაფი შესვლისთვის.
 inline-passwordless-sync-setup-enable-button = საშვის ჩართვა
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = ირთვება…
 inline-passwordless-sync-setup-not-now-button = ახლა არა
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = ეს საშვი მზადაა სინქრონიზაციისთვის
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = საშვის დადასტურება არ დასრულებულა
 inline-passwordless-sync-setup-error-cancelled-description = დაამოწმეთ თქვენი საშვი შემდეგი შესვლისას პაროლის ასარიდებლად
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = რაღაც ხარვეზი წარმოიქმნა, შემდეგ ჯერზე ისევ პაროლის შეყვანა მოგიწევთ
 
 ## InlineRecoveryKeySetup page component
 
@@ -1908,8 +1901,6 @@ pair2-authority-scan-qr-heading = წააკითხეთ მობილუ
 pair2-authority-scan-qr-instruction = წააკითხეთ QR-კოდი ტელეფონით ან პლანშეტით, რომ დაასინქრონოთ { -brand-firefox } არსებული სანიშნებით, ჩანართებითა თუ სხვ.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR-კოდი მობილურ მოწყობილობასთან დასაკავშირებლად
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = დახმარება წაკითხვის ხარვეზისას
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = ამჟამად გამოტოვება
 
@@ -1994,8 +1985,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = ვრცლად
 pair2-supplicant-sync-success-heading = მოწყობილობა დაკავშირებულია
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = სინქრონიზაცია მიმდინარეობს. დასინქრონებული მონაცემების გამოჩენამ შეიძლება გარკვეულ ხანს გასტანოს. ამასობაში შეგიძლიათ განაგრძოთ გვერდების მონახულება.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = სინქრონიზაციის პარამეტრების მართვა
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2123,7 +2112,6 @@ confirm-totp-reset-password-use-different-account = სხვა ანგარ
 ## ResetPassword start page
 
 password-reset-flow-heading = პაროლის განულება
-password-reset-body-3 = პაროლის განულებას შესაძლოა, გავლენა ჰქონდეს ბრაუზერის დასინქრონებულ მონაცემებზე.
 password-reset-email-input =
     .label = შეიყვანეთ თქვენი ელფოსტა
 password-reset-submit-button-2 = განაგრძეთ

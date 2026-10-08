@@ -1277,7 +1277,6 @@ passkey-sub-row-created-date = Создан: { $createdDate }
 passkey-sub-row-last-used-date = Последнее использование: { $lastUsedDate }
 passkey-sub-row-delete-title = Удалить ключ доступа
 passkey-delete-modal-heading = Удалить ваш ключ доступа?
-passkey-delete-modal-content-v2 = Этот ключ доступа будет удалён из вашего аккаунта. Вам нужно будет войти, используя другой метод (пароль, другой ключ доступа или связанный аккаунт).
 passkey-delete-modal-cancel-button = Отмена
 passkey-delete-modal-confirm-button = Удалить ключ доступа
 passkey-delete-success = Ключ доступа удалён
@@ -1640,21 +1639,15 @@ index-email-bounced = Ваше письмо для подтверждения т
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Пропустить пароль в следующий раз?
-# Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Произведён вход в { -brand-firefox }
 inline-passwordless-sync-setup-heading = Пропустить пароль в следующий раз?
 inline-passwordless-sync-setup-description = Используйте этот ключ доступа для более быстрого входа.
 inline-passwordless-sync-setup-enable-button = Включить ключ доступа
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Включаю…
 inline-passwordless-sync-setup-not-now-button = Не сейчас
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Этот ключ доступа готов для входа в синхронизацию
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Подтверждение ключа доступа не завершено
 inline-passwordless-sync-setup-error-cancelled-description = Подтвердите с помощью ключа доступа, чтобы пропустить пароль в следующий раз.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Что-то пошло не так, вам всё ещё нужно будет ввести пароль в следующий раз
 
 ## InlineRecoveryKeySetup page component
 
@@ -1914,8 +1907,6 @@ pair2-authority-scan-qr-heading = Отсканируйте для подключ
 pair2-authority-scan-qr-instruction = Отсканируйте QR-код своим телефоном или планшетом, чтобы синхронизировать ваши закладки { -brand-firefox }, вкладки и многое другое.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR-код для подключения мобильного устройства
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Получите помощь по сканированию
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Пока пропустить
 
@@ -2024,8 +2015,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Подробнее
 pair2-supplicant-sync-success-heading = Ваше устройство подключено
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = Выполняется синхронизация. Прежде чем ваши синхронизированные данные появятся, может пройти некоторое время. Вы можете продолжать веб-сёрфинг.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Управление настройками синхронизации
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2160,7 +2149,6 @@ confirm-totp-reset-password-use-different-account = Использовать д�
 ## ResetPassword start page
 
 password-reset-flow-heading = Сбросить пароль
-password-reset-body-3 = Сброс вашего пароля может повлиять на синхронизируемые данные браузера.
 password-reset-email-input =
     .label = Введите ваш адрес эл. почты
 password-reset-submit-button-2 = Продолжить

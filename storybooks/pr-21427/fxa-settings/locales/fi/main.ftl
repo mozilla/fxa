@@ -1126,7 +1126,6 @@ pair2-authority-download-firefox-cta = Lataa { -brand-firefox }
 pair2-authority-scan-qr-heading = Skannaa yhdistääksesi mobiililaitteesi
 pair2-authority-scan-qr-instruction = Skannaa QR-koodi puhelimellasi tai tabletillasi synkronoidaksesi { -brand-firefox }in kirjanmerkit, välilehdet ja paljon muuta.
 pair2-authority-scan-qr-code-aria-label = QR-koodi mobiililaitteen yhdistämiseksi
-pair2-authority-scan-qr-help-link = Apua skannaukseen
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Haluatko yhdistää lisää laitteita?

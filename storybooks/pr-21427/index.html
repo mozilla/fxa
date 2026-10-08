@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit c6828f195455eb0b3416377d7251b7318e4f8ab4</title>
+  <title>Storybooks for commit bc10c6df638d66db2d92823ad543e1f2795a65ae</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit c6828f195455eb0b3416377d7251b7318e4f8ab4</h1>
+  <h1>Storybooks for commit bc10c6df638d66db2d92823ad543e1f2795a65ae</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,23 +31,23 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/8/2026, 6:06:49 PM UTC</dd>
+    <dd>10/8/2026, 8:47:02 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(payments): read stripe inside transaction</pre></dd>
+    <dd><pre>fix(payments): guard subscription writes on Stripe event time</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-* Concurrent subscription webhooks could leave a stale &quot;incomplete&quot;
-  subscription in Firestore after Stripe had moved it to &quot;active&quot;
-* fetchAndInsertCustomer read Stripe outside its transaction and gated
-  writes on a per-second event timestamp that other writers erased
+* fetchAndInsertSubscription wrote without stripeEventCreatedTime, so an
+  older event&#039;s stale fetchAndInsertCustomer write could overwrite it
+* Reading Stripe inside the transaction repeated Stripe calls on every
+  contention retry
 
 This commit:
 
-* Locks customer and subscription docs before re-reading Stripe in the transaction
-* Removes the stripeEventCreatedTime check on customer and subscription docs
-* Drops the unused eventTime and ignoreErrors params of fetchAndInsertCustomer
-* Adds unit tests for fetchAndInsertCustomer
+* Reads Stripe before the transaction in fetchAndInsertSubscription
+* Skips subscription writes when a same-or-newer event is stored
+* Stores stripeEventCreatedTime on subscription writes
+* Passes event.created from processSubscriptionEventToFirestore
 
 Closes #PAY-3937</pre></dd>
   </dl>

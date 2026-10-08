@@ -1231,7 +1231,7 @@ passkey-sub-row-created-date = Vytvořeno: { $createdDate }
 passkey-sub-row-last-used-date = Naposledy použito: { $lastUsedDate }
 passkey-sub-row-delete-title = Smazat přístupový klíč
 passkey-delete-modal-heading = Smazat přístupový klíč?
-passkey-delete-modal-content-v2 = Tento přístupový klíč bude z vašeho účtu odstraněn. Budete se muset přihlásit jiným způsobem (heslem, jiným přístupovým klíčem nebo propojeným účtem).
+passkey-delete-modal-content-v3 = Tento přístupový kód bude odebrán z vašeho účtu. K přihlášení budete muset použít heslo, jiné přístupové heslo nebo propojený účet.
 passkey-delete-modal-cancel-button = Zrušit
 passkey-delete-modal-confirm-button = Smazat přístupový klíč
 passkey-delete-success = Přístupový klíč byl smazán
@@ -1471,16 +1471,16 @@ index-email-bounced = Odeslaná potvrzující e-mailová zpráva se právě vrá
 
 
 inline-passwordless-sync-setup-page-title = Chcete příště přeskočit zadávání hesla?
-inline-passwordless-sync-setup-success-banner = Přihlášeno k aplikaci { -brand-firefox }
+inline-passwordless-sync-setup-success-banner-v2 = Jste přihlášeni a synchronizace je zapnutá
 inline-passwordless-sync-setup-heading = Chcete příště přeskočit zadávání hesla?
 inline-passwordless-sync-setup-description = Tento přístupový kód vám umožní rychlejší přihlášení.
 inline-passwordless-sync-setup-enable-button = Povolit přístupový klíč
 inline-passwordless-sync-setup-enabling = Zapínání…
 inline-passwordless-sync-setup-not-now-button = Teď ne
-inline-passwordless-sync-setup-success-alert = Tento přístupový kód je připraven pro přihlášení pomocí synchronizace
+inline-passwordless-sync-setup-success-alert-v2 = Tento přístupový kód má povoleno přihlašování pomocí služby Sync
 inline-passwordless-sync-setup-error-cancelled = Potvrzení přístupového klíče nebylo dokončeno
 inline-passwordless-sync-setup-error-cancelled-description = Potvrďte svou totožnost přístupovým klíčem, abyste příště nemuseli zadávat heslo.
-inline-passwordless-sync-setup-error-generic = Něco se pokazilo. Příště budete muset zadat heslo
+inline-passwordless-sync-setup-error-generic-v2 = Tento přístupový klíč se nám nepodařilo povolit pro přihlašování pomocí synchronizace. Heslo budete příště potřebovat.
 
 
 inline-recovery-key-setup-create-error = Jejda! Obnovovací klíč se pro váš účet nepodařilo vytvořit. Zkuste to prosím znovu později.
@@ -1619,7 +1619,7 @@ pair2-authority-download-firefox-cta = Stáhnout { -brand-firefox }
 pair2-authority-scan-qr-heading = Naskenujte a připojte své mobilní zařízení
 pair2-authority-scan-qr-instruction = Naskenujte QR kód svým telefonem nebo tabletem a synchronizujte své záložky, panely a další data ve { -brand-firefox(case: "loc") }.
 pair2-authority-scan-qr-code-aria-label = QR kód pro připojení vašeho mobilního zařízení
-pair2-authority-scan-qr-help-link = Získat pomoc se skenováním
+pair2-authority-scan-qr-other-ways-link = Další způsoby přihlášení
 pair2-authority-scan-qr-skip-button = Nyní přeskočit
 
 
@@ -1668,7 +1668,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Zjistit více
 
 pair2-supplicant-sync-success-heading = Vaše zařízení je připojeno
 pair2-supplicant-sync-success-description-v2 = Probíhá synchronizace. Zobrazení synchronizovaných dat může chvíli trvat. Mezitím můžete klidně pokračovat v prohlížení.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Spravovat nastavení synchronizace
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zdá se, že vypršel časový limit
@@ -1680,6 +1679,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Pro připojení svéh
 permissions-heading = Služba { $serviceName } požaduje přístup k:
 permissions-label-email = E-mailová adresa
 permissions-label-display-name = Zobrazované jméno
+permissions-label-avatar = Obrázek účtu
 permissions-continue-button = Pokračovat
 permissions-cancel-button = Zrušit
 
@@ -1746,10 +1746,12 @@ confirm-totp-reset-password-use-different-account = Použít jiný účet
 
 
 password-reset-flow-heading = Obnovení hesla
-password-reset-body-3 = Obnovení hesla může ovlivnit synchronizovaná data prohlížeče.
+password-reset-forgot-heading = Zapomněli jste heslo?
+password-reset-alternatives-body = <signInLink>Zkuste se místo toho přihlásit pomocí { -brand-google }, { -brand-apple } nebo přístupového klíče.</signInLink> Nebo zadejte svou e-mailovou adresu a my vám zašleme kód pro obnovu hesla.
 password-reset-email-input =
     .label = Zadejte svoji e-mailovou adresu
 password-reset-submit-button-2 = Pokračovat
+password-reset-data-recovery-warning = Obnovení vašeho hesla může ovlivnit, zda budete moci obnovit synchronizovaná data prohlížeče. <learnMoreLink>Zjistit více</learnMoreLink>
 
 
 reset-password-complete-header = Vaše heslo bylo obnoveno
@@ -1992,6 +1994,6 @@ signup-confirmed-sync-manage-sync-button = Správa synchronizace
 signup-confirmed-sync-set-password-success-banner = Heslo pro synchronizaci vytvořeno
 
 
-update-firefox-heading = Vyžadována aktualizace { -brand-firefox }
-update-firefox-description = Vaše { -product-mozilla-account } využívá funkce, které ve vaší verzi aplikace { -brand-firefox } nejsou. Před pokračováním si prosím stáhněte a nainstalujte nejnovější verzi aplikace { -brand-firefox }.
-update-firefox-download-button = Stáhnout aktualizaci
+update-firefox-heading = Je potřeba aktualizovat { -brand-firefox(case: "acc") }
+update-firefox-description = Váš { -product-mozilla-account(capitalization: "lower") } využívá funkce, které vaše verze prohlížeče { -brand-firefox } nepodporuje. Chcete-li pokračovat, stáhněte si a nainstalujte nejnovější verzi prohlížeče { -brand-firefox }.
+update-firefox-download-button = Stáhnout nejnovější verzi
