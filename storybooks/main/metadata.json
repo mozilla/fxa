@@ -1,8 +1,8 @@
 {
-  "commit": "a02b0cdb49bc532a83b93842d6494d1def282d11",
-  "summary": "Merge pull request #21429 from mozilla/agent-c88001",
-  "description": "feat(settings): show a default promo QR outside the Nimbus experiment",
-  "timestamp": 1791492053000,
+  "commit": "98912027a936fa7f2087c664927d0bb45cd8f96d",
+  "summary": "Merge pull request #21430 from mozilla/metering-clickhouse-migrate-env",
+  "description": "fix(ent): use payments-api ClickHouse env vars for migrations",
+  "timestamp": 1791495517000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

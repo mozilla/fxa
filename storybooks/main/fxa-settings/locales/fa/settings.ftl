@@ -1627,9 +1627,15 @@ inline-passwordless-sync-setup-enable-button = فعال کردن کلید عبو
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = در حال فعال‌سازی…
 inline-passwordless-sync-setup-not-now-button = الان نه
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = این کلید عبور برای همگام‌سازی ورود به‌کار انداختن شد
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = تأیید کلید عبور کامل نشد
 inline-passwordless-sync-setup-error-cancelled-description = با کلید عبورتان تأیید کنید تا دفعهٔ بعد بدون گذرواژه وارد شوید.
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = ما نتوانستیم این کلید عبور را برای ورود همگام‌سازی به‌کار بندازیم. دفعه بعد به گذرواژه‌تان نیاز خواهید داشت.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1889,6 +1895,8 @@ pair2-authority-scan-qr-heading = برای اتصال دستگاه همراهت�
 pair2-authority-scan-qr-instruction = کد QR را با تلفن یا تبلتتان اسکن کنید تا نشانک‌ها، زبانه‌ها و چیزهای دیگر { -brand-firefox } همگام شوند.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = کد QR برای اتصال دستگاه همراه
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = راه‌های دیگه برای ورود
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = فعلاً رد شوید
 
@@ -2023,7 +2031,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = هر وقت خواس�
 permissions-heading = { $serviceName } می‌خواهد به این موارد دسترسی داشته باشد:
 permissions-label-email = نشانی رایانامه
 permissions-label-display-name = نام نمایشی
-permissions-label-avatar = تصویرِ حساب
+permissions-label-avatar = تصویر حساب
 permissions-continue-button = ادامه
 permissions-cancel-button = انصراف
 
@@ -2133,6 +2141,8 @@ confirm-totp-reset-password-use-different-account = استفاده از حساب
 
 password-reset-flow-heading = بازنشانی گذرواژه
 password-reset-forgot-heading = گذرواژه را فراموش کرده‌اید؟
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>به جای آن، با { -brand-google }، { -brand-apple } یا با کلید عبور وارد شوید؛</signInLink> یا رایانامه خود را وارد کنید تا کدی برای تنظیم مجدد گذرواژه برای شما ارسال کنیم.
 password-reset-email-input =
     .label = رایانامه‌تان را وارد کنید
 password-reset-submit-button-2 = ادامه

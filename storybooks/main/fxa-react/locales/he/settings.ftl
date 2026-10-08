@@ -1218,6 +1218,7 @@ passkey-sub-row-created-date = תאריך יצירה: { $createdDate }
 passkey-sub-row-last-used-date = בשימוש אחרון: { $lastUsedDate }
 passkey-sub-row-delete-title = מחיקת מפתח גישה
 passkey-delete-modal-heading = למחוק את מפתח הגישה שלך?
+passkey-delete-modal-content-v3 = מפתח גישה זה יימחק מהחשבון שלך. יהיה עליך להתחבר באמצעות ססמה, מפתח גישה נוסף או חשבון מקושר.
 passkey-delete-modal-cancel-button = ביטול
 passkey-delete-modal-confirm-button = מחיקת מפתח גישה
 passkey-delete-success = מפתח הגישה נמחק
@@ -1565,15 +1566,23 @@ index-email-bounced = הודעת האימות שלך לא הגיעה ליעדה.
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = לדלג על הססמה בפעם הבאה?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner-v2 = אתה מחובר, והסנכרון פעיל
 inline-passwordless-sync-setup-heading = לדלג על הססמה בפעם הבאה?
 inline-passwordless-sync-setup-description = ניתן להשתמש במפתח גישה זה כדי להתחבר מהר יותר.
 inline-passwordless-sync-setup-enable-button = הפעלת מפתח גישה
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = בתהליך הפעלה…
 inline-passwordless-sync-setup-not-now-button = לא כעת
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = מפתח גישה זה מופעל לכניסה לסנכרון
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = אישור מפתח הגישה לא הסתיים
 inline-passwordless-sync-setup-error-cancelled-description = ניתן לאמת באמצעות מפתח הגישה שלך כדי לדלג על הססמה בפעם הבאה.
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = לא הצלחנו להפעיל את מפתח הגישה הזה עבור כניסה לסנכרון. יהיה לך צורך בססמה שלך בפעם הבאה.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1833,6 +1842,8 @@ pair2-authority-scan-qr-heading = יש לסרוק כדי לחבר את המכש�
 pair2-authority-scan-qr-instruction = יש לסרוק את קוד ה־QR באמצעות הטלפון או מחשב הלוח שלך כדי לסנכרן את הסימניות, הלשוניות שלך ועוד ב־{ -brand-firefox }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = קוד QR לחיבור המכשיר הנייד שלך
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = דרכים נוספות להיכנס
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = דילוג לבינתיים
 
@@ -1967,6 +1978,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = כדי לחבר מכ�
 permissions-heading = ‏{ $serviceName } מבקש גישה ל:
 permissions-label-email = כתובת דוא״ל
 permissions-label-display-name = שם תצוגה
+permissions-label-avatar = תמונת חשבון
 permissions-continue-button = המשך
 permissions-cancel-button = ביטול
 
@@ -2069,9 +2081,14 @@ confirm-totp-reset-password-use-different-account = שימוש בחשבון אח
 ## ResetPassword start page
 
 password-reset-flow-heading = איפוס הססמה שלך
+password-reset-forgot-heading = שכחת את הססמה שלך?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>ניתן לנסות להיכנס במקום זאת באמצעות { -brand-google }, ‏{ -brand-apple } או מפתח גישה.</signInLink> אפשר גם להכניס את כתובת הדוא״ל שלך ונשלח לך קוד לאיפוס הססמה שלך.
 password-reset-email-input =
     .label = נא להכניס את כתובת הדוא״ל שלך
 password-reset-submit-button-2 = המשך
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = איפוס הססמה שלך עשוי להשפיע על האפשרות לשחזר נתוני דפדפן מסונכרנים. <learnMoreLink>מידע נוסף</learnMoreLink>
 
 ## ResetPasswordConfirmed
 

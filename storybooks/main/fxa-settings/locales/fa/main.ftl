@@ -1175,8 +1175,10 @@ inline-passwordless-sync-setup-description = با این کلید عبور سر�
 inline-passwordless-sync-setup-enable-button = فعال کردن کلید عبور
 inline-passwordless-sync-setup-enabling = در حال فعال‌سازی…
 inline-passwordless-sync-setup-not-now-button = الان نه
+inline-passwordless-sync-setup-success-alert-v2 = این کلید عبور برای همگام‌سازی ورود به‌کار انداختن شد
 inline-passwordless-sync-setup-error-cancelled = تأیید کلید عبور کامل نشد
 inline-passwordless-sync-setup-error-cancelled-description = با کلید عبورتان تأیید کنید تا دفعهٔ بعد بدون گذرواژه وارد شوید.
+inline-passwordless-sync-setup-error-generic-v2 = ما نتوانستیم این کلید عبور را برای ورود همگام‌سازی به‌کار بندازیم. دفعه بعد به گذرواژه‌تان نیاز خواهید داشت.
 
 
 inline-recovery-key-setup-create-error = ای وای! نتوانستیم کلید بازیابی حسابتان را بسازیم. لطفاً بعداً دوباره امتحان کنید.
@@ -1315,6 +1317,7 @@ pair2-authority-download-firefox-cta = بارگیری { -brand-firefox }
 pair2-authority-scan-qr-heading = برای اتصال دستگاه همراهتان اسکن کنید
 pair2-authority-scan-qr-instruction = کد QR را با تلفن یا تبلتتان اسکن کنید تا نشانک‌ها، زبانه‌ها و چیزهای دیگر { -brand-firefox } همگام شوند.
 pair2-authority-scan-qr-code-aria-label = کد QR برای اتصال دستگاه همراه
+pair2-authority-scan-qr-other-ways-link = راه‌های دیگه برای ورود
 pair2-authority-scan-qr-skip-button = فعلاً رد شوید
 
 
@@ -1374,7 +1377,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = هر وقت خواس�
 permissions-heading = { $serviceName } می‌خواهد به این موارد دسترسی داشته باشد:
 permissions-label-email = نشانی رایانامه
 permissions-label-display-name = نام نمایشی
-permissions-label-avatar = تصویرِ حساب
+permissions-label-avatar = تصویر حساب
 permissions-continue-button = ادامه
 permissions-cancel-button = انصراف
 
@@ -1442,6 +1445,7 @@ confirm-totp-reset-password-use-different-account = استفاده از حساب
 
 password-reset-flow-heading = بازنشانی گذرواژه
 password-reset-forgot-heading = گذرواژه را فراموش کرده‌اید؟
+password-reset-alternatives-body = <signInLink>به جای آن، با { -brand-google }، { -brand-apple } یا با کلید عبور وارد شوید؛</signInLink> یا رایانامه خود را وارد کنید تا کدی برای تنظیم مجدد گذرواژه برای شما ارسال کنیم.
 password-reset-email-input =
     .label = رایانامه‌تان را وارد کنید
 password-reset-submit-button-2 = ادامه
