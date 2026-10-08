@@ -1,8 +1,8 @@
 {
-  "commit": "d7d58b908377ff25fd88bec6af49ab7e5121c7ee",
-  "summary": "Merge pull request #21417 from mozilla/fxa-14663",
-  "description": "feat(settings): resume the pairing channel when its socket drops",
-  "timestamp": 1791487224000,
+  "commit": "30259a1caa35c506ec4790fbb71ca55852132044",
+  "summary": "Merge pull request #21426 from mozilla/fxa-14719",
+  "description": "fix(auth): return primary email from /linked_account/login",
+  "timestamp": 1791489035000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
