@@ -1,0 +1,10 @@
+{
+  "commit": "6c2002383f31c401f5469836d40da11008ae2a90",
+  "summary": "fix(payments-cart): Prevent page crash when creating subscription with single-use code",
+  "description": "- When a subscription is created, it uses up the single-use coupon code\n- Stripe rejects coupon code when getCart previews the next invoice\n\n- Adds previewUpcomingForCart to CartService to use for previews\n\nCloses: PAY-3933",
+  "timestamp": 1791484338000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
