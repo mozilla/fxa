@@ -1,0 +1,12 @@
+{
+  "commit": "c6828f195455eb0b3416377d7251b7318e4f8ab4",
+  "summary": "fix(payments): read stripe inside transaction",
+  "description": "Because:\n\n* Concurrent subscription webhooks could leave a stale \"incomplete\"\n  subscription in Firestore after Stripe had moved it to \"active\"\n* fetchAndInsertCustomer read Stripe outside its transaction and gated\n  writes on a per-second event timestamp that other writers erased\n\nThis commit:\n\n* Locks customer and subscription docs before re-reading Stripe in the transaction\n* Removes the stripeEventCreatedTime check on customer and subscription docs\n* Drops the unused eventTime and ignoreErrors params of fetchAndInsertCustomer\n* Adds unit tests for fetchAndInsertCustomer\n\nCloses #PAY-3937",
+  "timestamp": 1791482809000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
