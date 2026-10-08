@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * v2 pairing end to end, desktop to desktop: the happy path and the
- * supplicant-cancel path.
+ * v2 pairing end to end, desktop to desktop: the happy path, the 2FA
+ * re-prompt before approval, and the supplicant-cancel path.
  *
  * Both halves are real Firefox Nightly instances driven over Marionette. The
  * authority runs the real chrome fxaccounts:pair_oauth_finish and the supplicant
@@ -56,6 +56,8 @@ import {
   signInAuthorityViaMarionette,
   getSignedInUser,
   startPairingFlowV2,
+  enableTotpOnAccount,
+  enterTotpCodeViaMarionette,
   waitForUrlContaining,
   attachAuthorityDiagnostics,
   mockSupplicantOAuthLogin,
@@ -129,7 +131,11 @@ test.describe('severity-2 #smoke', () => {
 
     test.afterEach(async ({}, testInfo) => {
       if (!clients) return;
-      await attachAuthorityDiagnostics(clients.authority, testInfo, 'authority');
+      await attachAuthorityDiagnostics(
+        clients.authority,
+        testInfo,
+        'authority'
+      );
       await attachAuthorityDiagnostics(
         clients.supplicant,
         testInfo,
@@ -246,6 +252,119 @@ test.describe('severity-2 #smoke', () => {
       });
     });
 
+    // Approving mints a code carrying the account's Sync keys, so a 2FA account
+    // is asked for its second factor again right before approval, as in v1.
+    test('2FA account: authority enters a TOTP code before it can approve', async ({
+      target,
+      testAccountTracker,
+      marionetteAuthority,
+      marionetteSupplicant,
+    }) => {
+      const authority = marionetteAuthority.client;
+      const supplicant = marionetteSupplicant.client;
+      clients = { authority, supplicant };
+
+      const secret =
+        await test.step('Authority signs in with 2FA', async () => {
+          const creds = await testAccountTracker.signUp();
+          const totpSecret = await enableTotpOnAccount(
+            target.authClient,
+            await testAccountTracker.getMfaJwtForScope(
+              '2fa',
+              creds.sessionToken,
+              creds.email
+            )
+          );
+          // The tracker needs the secret to elevate the session when it deletes
+          // the account.
+          creds.secret = totpSecret;
+          await signInAuthorityViaMarionette(
+            authority,
+            target.contentServerUrl,
+            creds.email,
+            creds.password,
+            totpSecret
+          );
+          expect((await getSignedInUser(authority)).signedIn).toBe(true);
+          return totpSecret;
+        });
+
+      const pairUrl = await test.step('Authority mints the v2 QR', async () => {
+        const url = await startPairingFlowV2(
+          authority,
+          target.contentServerUrl,
+          ELIGIBLE_ENTRYPOINT_QS
+        );
+        expect(url).toContain('v=2');
+        await sleep(WATCH_MS); // authority: QR on screen
+        return url;
+      });
+
+      await test.step('Supplicant opens the scanned QR and confirms', async () => {
+        await mockSupplicantOAuthLogin(supplicant);
+        await supplicant.setContext('content');
+        await supplicant.navigate(pairUrl);
+        await waitForUrlContaining(
+          supplicant,
+          PAIR_V2_ROUTES.SUPPLICANT_CONNECT_THIS_DEVICE,
+          TIMEOUTS.PAIR_V2_HANDSHAKE
+        );
+        await waitForUrlContaining(
+          authority,
+          PAIR_V2_ROUTES.AUTHORITY_CONTINUE_ON_MOBILE,
+          TIMEOUTS.PAIR_V2_HANDSHAKE
+        );
+        await clickByTestId(supplicant, 'pair2-supp-connect-btn');
+        await waitForUrlContaining(
+          supplicant,
+          PAIR_V2_ROUTES.SUPPLICANT_APPROVE_SIGNIN,
+          TIMEOUTS.PAIR_V2_HANDSHAKE
+        );
+        await sleep(WATCH_MS); // supplicant: approve sign-in
+      });
+
+      await test.step('Authority is asked for its TOTP code', async () => {
+        await waitForUrlContaining(
+          authority,
+          PAIR_V2_ROUTES.AUTHORITY_TOTP,
+          TIMEOUTS.PAIR_V2_HANDSHAKE
+        );
+        await sleep(WATCH_MS); // authority: enter authentication code
+        await enterTotpCodeViaMarionette(authority, secret);
+      });
+
+      await test.step('Authority approves', async () => {
+        await waitForUrlContaining(
+          authority,
+          PAIR_V2_ROUTES.AUTHORITY_APPROVE_SIGNIN,
+          TIMEOUTS.PAIR_V2_HANDSHAKE
+        );
+        await sleep(WATCH_MS); // authority: approve sign-in
+        await clickByTestId(authority, 'pair2-auth-approve-btn');
+      });
+
+      await test.step('Both sides reach sync success', async () => {
+        await waitForUrlContaining(
+          supplicant,
+          PAIR_V2_ROUTES.SUPPLICANT_SYNC_SUCCESS,
+          60_000
+        );
+        await waitForUrlContaining(
+          authority,
+          PAIR_V2_ROUTES.AUTHORITY_SYNC_SUCCESS,
+          60_000
+        );
+        await sleep(WATCH_MS); // both: sync success
+      });
+
+      await test.step('Supplicant chrome receives the granted OAuth code', async () => {
+        const login = await readCapturedOAuthLogin(supplicant);
+        expect(login, 'supplicant should have sent oauth_login').toBeTruthy();
+        expect(login?.action).toBe('pairing');
+        expect(login?.code).toMatch(/^[a-fA-F0-9]{64}$/);
+      });
+    });
+
     test('supplicant cancels: both sides end on timeout_and_cancel, no code granted', async ({
       target,
       testAccountTracker,
@@ -318,7 +437,10 @@ test.describe('severity-2 #smoke', () => {
         // whether the user cancels or not. What cancelling must prevent is the
         // authority granting a code at all, and the recorder can see that.
         const login = await readCapturedOAuthLogin(supplicant, 5_000);
-        expect(login, 'a cancelled pairing must not grant a code').toBeUndefined();
+        expect(
+          login,
+          'a cancelled pairing must not grant a code'
+        ).toBeUndefined();
       });
     });
   });

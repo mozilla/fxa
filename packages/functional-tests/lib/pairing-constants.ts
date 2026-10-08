@@ -38,6 +38,7 @@ export const PAIR_V2_ROUTES = {
   AUTHORITY_CONTINUE_ON_MOBILE: '/pair/authority/continue_on_mobile',
   AUTHORITY_SYNC_SUCCESS: '/pair/authority/sync_success',
   AUTHORITY_TIMEOUT_AND_CANCEL: '/pair/authority/timeout_and_cancel',
+  AUTHORITY_TOTP: '/pair/authority/totp',
   SUPPLICANT_APPROVE_SIGNIN: '/pair/supplicant/approve_signin',
   SUPPLICANT_CONNECT_THIS_DEVICE: '/pair/supplicant/connect_this_device',
   SUPPLICANT_READY_TO_SCAN: '/pair/supplicant/ready_to_scan',

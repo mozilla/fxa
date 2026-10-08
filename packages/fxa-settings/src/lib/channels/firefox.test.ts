@@ -339,6 +339,51 @@ describe('Firefox pairing OAuth WebChannel methods', () => {
       );
     });
 
+    // Firefox answers a command it could not handle with an error reply in
+    // place of the response.
+    it('rejects with the browser error when Firefox fails the command', async () => {
+      const promise = ff.pairOauthFinish(MOCK_FINISH_REQUEST);
+      ff.dispatchEvent(
+        new CustomEvent(FirefoxCommand.Error, {
+          detail: {
+            message: 'Error: UNKNOWN_ERROR',
+            command: FirefoxCommand.PairOauthFinish,
+          },
+        })
+      );
+      await expect(promise).rejects.toThrow('Error: UNKNOWN_ERROR');
+    });
+
+    it('keeps waiting when the browser error belongs to another command', async () => {
+      const promise = ff.pairOauthFinish(MOCK_FINISH_REQUEST);
+      ff.dispatchEvent(
+        new CustomEvent(FirefoxCommand.Error, {
+          detail: {
+            message: 'Error: UNKNOWN_ERROR',
+            command: FirefoxCommand.FxAStatus,
+          },
+        })
+      );
+      ff.dispatchEvent(
+        new CustomEvent(FirefoxCommand.PairOauthFinish, {
+          detail: MOCK_FINISH_RESPONSE,
+        })
+      );
+      await expect(promise).resolves.toEqual(MOCK_FINISH_RESPONSE);
+    });
+
+    it('stops listening for browser errors once the request times out', async () => {
+      const removeSpy = jest.spyOn(ff, 'removeEventListener');
+      const promise = ff.pairOauthFinish(MOCK_FINISH_REQUEST);
+      jest.advanceTimersByTime(FINISH_TIMEOUT_MS);
+      await promise;
+
+      expect(removeSpy).toHaveBeenCalledWith(
+        FirefoxCommand.Error,
+        expect.any(Function)
+      );
+    });
+
     it('resolves undefined when the browser does not respond', async () => {
       const promise = ff.pairOauthFinish(MOCK_FINISH_REQUEST);
       jest.advanceTimersByTime(FINISH_TIMEOUT_MS);
@@ -449,6 +494,23 @@ describe('Firefox fxaStatus', () => {
   it('resolves undefined once the attempts are exhausted', async () => {
     const promise = ff.fxaStatus(MOCK_REQUEST);
     await jest.advanceTimersByTimeAsync(TIMEOUT_MS * ATTEMPTS);
+
+    await expect(promise).resolves.toBeUndefined();
+    expect(sendSpy).toHaveBeenCalledTimes(ATTEMPTS);
+  });
+
+  // useFxAStatus awaits this with no catch, so a rejection would leave the
+  // page on its spinner. An error reply is treated as a missed answer instead.
+  it('resolves undefined when the browser answers fxa_status with an error', async () => {
+    const promise = ff.fxaStatus(MOCK_REQUEST);
+    for (let i = 0; i < ATTEMPTS; i++) {
+      ff.dispatchEvent(
+        new CustomEvent(FirefoxCommand.Error, {
+          detail: { message: 'boom', command: FirefoxCommand.FxAStatus },
+        })
+      );
+      await jest.advanceTimersByTimeAsync(0);
+    }
 
     await expect(promise).resolves.toBeUndefined();
     expect(sendSpy).toHaveBeenCalledTimes(ATTEMPTS);
