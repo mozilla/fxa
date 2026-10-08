@@ -15,7 +15,9 @@ nx run entitlements-metering:migrate-clickhouse
 
 `migrate.mjs` creates the database if needed, applies every file up to the level in `target-patch.json` that isn't already in the `schema_migrations` table, and records what it applied.
 
-Connection settings come from `METERING_CLICKHOUSE_URL`, `METERING_CLICKHOUSE_USERNAME`, `METERING_CLICKHOUSE_PASSWORD` and `METERING_CLICKHOUSE_DATABASE`. The defaults point at the local container from `yarn start infrastructure` (port 8124). The integration tests use that same container and only run locally.
+Connection settings come from the same variables payments-api reads: `METERING_CONFIG__CLICKHOUSE__URL`, `METERING_CONFIG__CLICKHOUSE__USERNAME`, `METERING_CONFIG__CLICKHOUSE__PASSWORD` and `METERING_CONFIG__CLICKHOUSE__DATABASE`. The defaults point at the local container from `yarn start infrastructure` (port 8124). The integration tests use that same container and only run locally.
+
+In stage and prod, the `clickhouse-migration` Job in webservices-infra runs `migrate.mjs` from the payments-api image with the payments-api config and secrets, before each deploy.
 
 ## Schema constraints
 
