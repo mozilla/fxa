@@ -253,17 +253,32 @@ describe('StripeFirestore', () => {
   });
 
   describe('fetchAndInsertSubscription', () => {
+    const eventTime = 1790736975;
     let tx: any;
+
+    function mockStoredEventTime(stripeEventCreatedTime?: number) {
+      tx.get.mockResolvedValue({
+        data: () =>
+          stripeEventCreatedTime === undefined
+            ? undefined
+            : { stripeEventCreatedTime },
+      });
+    }
 
     beforeEach(() => {
       tx = {
-        get: jest.fn().mockResolvedValue({}),
+        get: jest.fn(),
         set: jest.fn(),
       };
+      mockStoredEventTime(undefined);
 
       firestore.runTransaction = jest
         .fn()
         .mockImplementation((fn: any) => fn(tx));
+
+      stripe.subscriptions = {
+        retrieve: jest.fn().mockResolvedValue(subscription1),
+      };
 
       stripeFirestore.customerCollectionDbRef = {
         doc: jest.fn().mockImplementation((uid: any) => ({
@@ -276,23 +291,72 @@ describe('StripeFirestore', () => {
       };
     });
 
-    it('fetches and inserts the subscription', async () => {
-      stripe.subscriptions = {
-        retrieve: jest.fn().mockResolvedValue(subscription1),
-      };
-
+    it('inserts the subscription with the event time when none is stored', async () => {
       const result = await stripeFirestore.fetchAndInsertSubscription(
         subscription1.id,
-        customer.metadata.userid
+        customer.metadata.userid,
+        eventTime
       );
 
       expect(result).toEqual(subscription1);
-      expect(stripe.subscriptions.retrieve).toHaveBeenCalledTimes(1);
       expect(stripe.subscriptions.retrieve).toHaveBeenCalledWith(
         subscription1.id
       );
-      expect(tx.get).toHaveBeenCalledTimes(1);
+      expect(tx.set).toHaveBeenCalledWith(
+        { id: subscription1.id },
+        { ...subscription1, stripeEventCreatedTime: eventTime }
+      );
+    });
+
+    it('overwrites a record stored for an older event', async () => {
+      mockStoredEventTime(eventTime - 1);
+
+      await stripeFirestore.fetchAndInsertSubscription(
+        subscription1.id,
+        customer.metadata.userid,
+        eventTime
+      );
+
       expect(tx.set).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+      ['a newer', eventTime + 1],
+      ['the same', eventTime],
+    ])(
+      'skips the write when %s event time is stored',
+      async (_, storedEventTime) => {
+        mockStoredEventTime(storedEventTime);
+
+        const result = await stripeFirestore.fetchAndInsertSubscription(
+          subscription1.id,
+          customer.metadata.userid,
+          eventTime
+        );
+
+        expect(result).toEqual(subscription1);
+        expect(tx.set).not.toHaveBeenCalled();
+      }
+    );
+
+    it('reads Stripe once, before the transaction, even when the transaction retries', async () => {
+      firestore.runTransaction = jest
+        .fn()
+        .mockImplementation(async (fn: any) => {
+          await fn(tx);
+          return fn(tx);
+        });
+
+      await stripeFirestore.fetchAndInsertSubscription(
+        subscription1.id,
+        customer.metadata.userid,
+        eventTime
+      );
+
+      expect(stripe.subscriptions.retrieve).toHaveBeenCalledTimes(1);
+      expect(
+        stripe.subscriptions.retrieve.mock.invocationCallOrder[0]
+      ).toBeLessThan(firestore.runTransaction.mock.invocationCallOrder[0]);
     });
   });
 

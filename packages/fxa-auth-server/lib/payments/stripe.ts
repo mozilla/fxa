@@ -2758,7 +2758,8 @@ export class StripeHelper extends StripeHelperBase {
 
     return this.stripeFirestore.fetchAndInsertSubscription(
       subscriptionId,
-      customerSnap.metadata.userid
+      customerSnap.metadata.userid,
+      event.created
     );
   }
 
