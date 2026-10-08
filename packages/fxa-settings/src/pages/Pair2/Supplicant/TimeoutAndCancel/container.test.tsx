@@ -12,6 +12,7 @@ import { Integration, PairingSupplicantIntegration } from '../../../../models';
 
 const TIMEOUT_HEADING = 'Looks like we timed out';
 const CANCELED_HEADING = 'Cancelled';
+const SIGNED_IN_HEADING = 'This device is already signed in';
 
 type MockSupplicantIntegration = PairingSupplicantIntegration & {
   destroy: jest.Mock;
@@ -60,6 +61,22 @@ describe('Pair2/Supplicant/TimeoutAndCancel container', () => {
 
   it('renders the timeout variant when the flow timed out', () => {
     renderWithReason('timeout', integration);
+
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      TIMEOUT_HEADING
+    );
+  });
+
+  it('renders the signed-in variant when the browser already had an account', () => {
+    renderWithReason('signed_in', integration);
+
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      SIGNED_IN_HEADING
+    );
+  });
+
+  it('falls back to the timeout variant for a reason it does not know', () => {
+    renderWithReason('not-a-reason', integration);
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
       TIMEOUT_HEADING

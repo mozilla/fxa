@@ -932,6 +932,67 @@ describe('Pair', () => {
       );
     });
 
+    // Pairing signs a device in to Sync. A browser that already holds a
+    // verified account has nothing to pair, so it is told to sign out first
+    // rather than shown a Connect card.
+    describe('when the supplicant browser is already signed in', () => {
+      it('sends it to the dead-end screen instead of opening the channel', async () => {
+        setPairingHash(V2_HASH);
+        renderWithRouter(
+          <Pair fxaStatusResult={withSignedInUser(v2Props.fxaStatusResult)} />,
+          {},
+          v2AppContext()
+        );
+
+        await waitFor(() =>
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/pair/supplicant/timeout_and_cancel',
+            { replace: true, state: { reason: 'signed_in' } }
+          )
+        );
+        expect(mockNavigate.mock.calls.map(([to]) => to)).not.toContain(
+          '/pair/supplicant/connect_this_device'
+        );
+      });
+
+      // An unverified or token-less user is an abandoned sign-in, not an
+      // account the browser is using, so pairing can still proceed.
+      it.each([
+        {
+          label: 'is unverified',
+          user: { ...MOCK_SYNC_SIGNED_IN_USER, verified: false },
+        },
+        {
+          label: 'has no session token',
+          user: { ...MOCK_SYNC_SIGNED_IN_USER, sessionToken: undefined },
+        },
+      ])('still hands off when the reported user $label', async ({ user }) => {
+        setPairingHash(V2_HASH);
+        renderWithRouter(
+          <Pair
+            fxaStatusResult={{
+              ...v2Props.fxaStatusResult,
+              fxaStatus: {
+                ...v2Props.fxaStatusResult.fxaStatus!,
+                signedInUser: user,
+              },
+            }}
+          />,
+          {},
+          v2AppContext()
+        );
+
+        await waitFor(() =>
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/pair/supplicant/connect_this_device',
+            {
+              state: { channelId: 'chan-1', channelKey: 'key-1', version: '2' },
+            }
+          )
+        );
+      });
+    });
+
     // Firefox for Android reloads the supplicant's original URL after the OAuth
     // login, by which point the channel server has consumed the channel.
     describe('on a reload after the pairing completed', () => {
