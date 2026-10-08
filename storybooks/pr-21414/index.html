@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit c0b974c21fc1027a5fea4da046c9fe3f76f99824</title>
+  <title>Storybooks for commit 3a369334f1fd9644036555a1060f5aa1bb5cbbb8</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,30 +23,24 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit c0b974c21fc1027a5fea4da046c9fe3f76f99824</h1>
+  <h1>Storybooks for commit 3a369334f1fd9644036555a1060f5aa1bb5cbbb8</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/7/2026, 3:27:07 PM UTC</dd>
+    <dd>10/8/2026, 3:02:16 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(oauth): allow profile:avatar for untrusted clients</pre></dd>
     <dt>Description</dt>
-    <dd><pre>## Because
-
-- An untrusted relying party (RP) that asked for `profile:avatar` did not get it.
+    <dd><pre>- An untrusted relying party (RP) that asked for `profile:avatar` did not get it.
 - The auth server rejected the scope with errno 114. Settings dropped it without an error.
-
-## This pull request
 
 - Adds `profile:avatar` to `UNTRUSTED_CLIENT_ALLOWED_SCOPES` in `grant.js`.
 - Adds `profile:avatar` to `OAUTH_UNTRUSTED_ALLOWED_PERMISSIONS` in the Settings `constants.ts`. This list is where Settings dropped the scope.
 - Adds `profile:avatar` to `DISPLAYABLE_PERMISSIONS`, after email and display name.
 - Adds an &quot;Account picture&quot; row to the Permissions consent screen (Fluent id `permissions-label-avatar`). The row shows the label only.
 - Adds tests for the server allow-list, the Settings scope filter, the row order, and the new row.
-
-## Issue that this pull request solves
 
 Closes: https://mozilla-hub.atlassian.net/browse/FXA-14665</pre></dd>
   </dl>

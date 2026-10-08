@@ -169,6 +169,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Gronidło wobkšuśiś
 form-password-with-inline-criteria-reset-submit-button = Nowe gronidło napóraś
+form-password-with-inline-criteria-old-password-label =
+    .label = Stare gronidło
+form-password-with-inline-criteria-change-password-submit-button = Gronidło změniś
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Gronidło
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1368,8 +1371,19 @@ pair2-supplicant-connect-this-device-connect-button = Zwězaś
 pair2-supplicant-connect-this-device-cancel-button = Pśetergnuś
 
 
+pair2-supplicant-download-firefox-heading-v2 = Na toś tom rěźe { -brand-firefox } wócyniś
+pair2-supplicant-download-firefox-description-v2 = Ześěgniśo { -brand-firefox }, aby cytańske znamjenja, historiju a wěcej pśez rědy synchronizěrował.
 pair2-supplicant-download-firefox-continue-button = Z { -brand-firefox } pókšacowaś
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } se wócynja …
+pair2-supplicant-download-firefox-download-button = { -brand-firefox } ześěgnuś
+pair2-supplicant-download-firefox-have-firefox-button = Mam južo { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Dalšne informacije
+
+
+pair2-supplicant-connect-hint-heading-v2 = Koplowanje w nałoženju dokóńcyś
+pair2-supplicant-connect-hint-step-app-menu = Pótusniśo <b>nałožeński meni</b> w symbolowej rědce
+pair2-supplicant-connect-hint-step-sign-in = Pótusniśo <b>Pśizjawiś</b> a scannujśo pón kode
+pair2-supplicant-connect-hint-learn-more-link = Dalšne informacije
 
 
 pair2-supplicant-ready-to-scan-heading = Rěd zwězaś
@@ -1393,6 +1407,11 @@ permissions-label-email = E-mailowa adresa
 permissions-label-display-name = Zwobraznjeńske mě
 permissions-continue-button = Dalej
 permissions-cancel-button = Pśetergnuś
+
+
+force-password-change-heading = Změńśo pšosym swójo gronidło
+force-password-change-info = Smy zwěsćili suspektne zaźaržanje we wašom konśe { -product-mozilla-account }. Aby swójo konto šćitał, napórajśo pšosym nowe gronidło. Wužywajśo to gronidło, aby se zasej pla słužbow swójogo konta { -product-mozilla-account } pśizjawił.
+force-password-change-data-info = Synchronizěrowana historija, cytańske znamjenja, pśizjawjenja a druge wósobinske daty se njezgubiju.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } wobkšuśone
@@ -1703,3 +1722,8 @@ signup-confirmed-sync-description-v2 = Waše gronidła, adrese, cytańske znamje
 signup-confirmed-sync-add-device-link = Drugi rěd pśidaś
 signup-confirmed-sync-manage-sync-button = Synchronizaciju zastojaś
 signup-confirmed-sync-set-password-success-banner = Gronidło za synchronizaciju napórane
+
+
+update-firefox-heading = Aktualizacija { -brand-firefox } trjebna
+update-firefox-description = Wašo konto { -product-mozilla-account } funkcije wužywa, kótarež waša wersija { -brand-firefox } njepódpěra. Pšosym ześěgniśo a instalěrujśo nejnowšu wersiju { -brand-firefox }, aby pókšacował.
+update-firefox-download-button = Nejnowšu wersiju ześěgnuś
