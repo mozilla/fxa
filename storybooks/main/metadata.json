@@ -1,8 +1,8 @@
 {
-  "commit": "d18e791ca579026049ca466f442ba8418b24d927",
-  "summary": "Merge pull request #21419 from mozilla/fxa-14669",
-  "description": "chore(deps): bump Node from 24.15.0 to 24.21.0",
-  "timestamp": 1791414314000,
+  "commit": "aa560b816e7059ef00162956a245b3041b7151ea",
+  "summary": "Merge pull request #21399 from mozilla/blender/security-bump-@nx/docker",
+  "description": "chore(deps): bump @nx/docker to >=22.7.8",
+  "timestamp": 1791469233000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
