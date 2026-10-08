@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 6d0d02f0b44c58d95aa4a595e8842c0c970d080b</title>
+  <title>Storybooks for commit fda311d3d00c29182da4890613891630cadc5e5d</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,29 +23,23 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 6d0d02f0b44c58d95aa4a595e8842c0c970d080b</h1>
+  <h1>Storybooks for commit fda311d3d00c29182da4890613891630cadc5e5d</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/7/2026, 6:11:11 PM UTC</dd>
+    <dd>10/8/2026, 1:57:09 AM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>feat(settings): resume the pairing channel when its socket drops</pre></dd>
+    <dd><pre>feat(settings): opt in to channel server resume on first connect</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- A backgrounded mobile browser can drop the pairing WebSocket, which fails pairing for users who leave Firefox to read a TOTP code.
+- The channel server now holds a dropped client only when it asks for resume.
 
 This commit:
 
-- Adds ResumableWebSocket, which reconnects with the channel server&#039;s resume token and sends queued data after it resumes.
-- Uses it for both the supplicant open() and authority create() channels through withResumableWebSocket().
-- Sends the token as the `resume.&lt;token&gt;` subprotocol and uses the rotated token on each later drop.
-- Stops at once on its own close() or on close code 4000, which the channel server sends when it ends the channel.
-- Keeps plain WebSocket behaviour when the channel server sends no token.
-
-Closes #FXA-14663</pre></dd>
+- Adds `?resume=1` to the first ResumableWebSocket connect.</pre></dd>
   </dl>
 </body>
 </html>
