@@ -16,6 +16,7 @@ import { RemoteMetadata } from '../types';
 import UAParser from 'ua-parser-js';
 import { toGenericOSName } from '../utilities';
 import { base64urlToBytes, bytesToBase64url } from '../base64url';
+import { ResumableWebSocket } from './resumable-websocket';
 
 // Types
 
@@ -108,6 +109,24 @@ export const PairingChannelErrors = {
 } as const;
 
 export type PairingChannelErrorType = keyof typeof PairingChannelErrors;
+
+/**
+ * fxa-pairing-channel opens its socket with the global WebSocket inside
+ * create() and connect(), and takes no socket option, so swap it for that call.
+ */
+function withResumableWebSocket<T>(start: () => Promise<T>): Promise<T> {
+  const NativeWebSocket = window.WebSocket;
+  window.WebSocket = class extends ResumableWebSocket {
+    constructor(url: string) {
+      super(url, NativeWebSocket);
+    }
+  } as unknown as typeof WebSocket;
+  try {
+    return start();
+  } finally {
+    window.WebSocket = NativeWebSocket;
+  }
+}
 
 export class PairingChannelError extends Error {
   readonly errno: number;
@@ -209,7 +228,9 @@ export class PairingChannelClient extends EventTarget {
         /* webpackChunkName: "fxaPairingChannel" */
         'fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js'
       );
-      const channel = await PairingChannel.create(channelServerUri);
+      const channel = await withResumableWebSocket(() =>
+        PairingChannel.create(channelServerUri)
+      );
       this.channel = channel;
 
       this.attachChannel(channel);
@@ -261,10 +282,12 @@ export class PairingChannelClient extends EventTarget {
         'fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js'
       );
 
-      const channel = await FxAccountsPairingChannel.PairingChannel.connect(
-        channelServerUri,
-        channelId,
-        psk
+      const channel = await withResumableWebSocket(() =>
+        FxAccountsPairingChannel.PairingChannel.connect(
+          channelServerUri,
+          channelId,
+          psk
+        )
       );
 
       this.channel = channel;

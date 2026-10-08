@@ -7,6 +7,7 @@ import {
   PairingChannelError,
   toRemoteMetadata,
 } from './pairing-channel';
+import { ResumableWebSocket } from './resumable-websocket';
 
 // Valid base64url key (decodes to 'testkey1')
 const VALID_KEY = 'dGVzdGtleTE';
@@ -102,6 +103,38 @@ describe('PairingChannelClient', () => {
 
   // The authority mints a channel rather than joining one, so the ids come back
   // on the client and get encoded into the QR the supplicant scans.
+  describe.each([
+    ['create', (c: PairingChannelClient) => c.create(SERVER)],
+    ['open', (c: PairingChannelClient) => c.open(SERVER, CHAN, VALID_KEY)],
+  ] as const)('%s', (method, run) => {
+    it('gives the pairing channel bundle a resumable socket', async () => {
+      const {
+        PairingChannel,
+      } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
+      let socketClass: unknown;
+      const call = method === 'create' ? 'create' : 'connect';
+      PairingChannel[call].mockImplementationOnce(() => {
+        socketClass = window.WebSocket;
+        return Promise.resolve(mockChannel);
+      });
+
+      await run(client);
+
+      expect(
+        (socketClass as { prototype: object }).prototype instanceof
+          ResumableWebSocket
+      ).toBe(true);
+    });
+
+    it('restores the global WebSocket afterwards', async () => {
+      const nativeWebSocket = window.WebSocket;
+
+      await run(client);
+
+      expect(window.WebSocket).toBe(nativeWebSocket);
+    });
+  });
+
   describe('create', () => {
     it('connects and dispatches connected event', async () => {
       const onConnected = jest.fn();
