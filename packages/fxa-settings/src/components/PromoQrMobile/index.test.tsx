@@ -231,14 +231,14 @@ describe('PromoQrMobile', () => {
       });
     });
 
-    it('reports the control when an unknown slug falls back', () => {
+    it('reports no branch for an unknown slug', () => {
       renderAtRoute(
         '/',
         webIntegration,
         nimbusValue({ enabled: true, branch: 'treatment-typo' })
       );
       expect(GleanMetrics.promoQrMobile.view).toHaveBeenCalledWith({
-        event: { nimbusUserId: NIMBUS_USER_ID, branch: 'control' },
+        event: { nimbusUserId: NIMBUS_USER_ID, branch: undefined },
       });
     });
 
@@ -270,8 +270,28 @@ describe('PromoQrMobile', () => {
       expect(screen.queryByAltText('Firefox logo')).not.toBeInTheDocument();
     });
 
-    it('renders the control QR when there is no experiment', () => {
+    it('renders the default QR when there is no experiment', () => {
       renderAtRoute('/', webIntegration);
+      expect(qrImage().src).toContain('default');
+    });
+
+    it('renders the default QR when Nimbus fails to load', () => {
+      renderAtRoute('/', webIntegration, {
+        experiments: null,
+        loading: false,
+        error: new Error('Nimbus fetch failed'),
+      });
+      expect(screen.getByText('Your phone. Your rules.')).toBeInTheDocument();
+      expect(qrImage().src).toContain('default');
+    });
+
+    it('renders the control QR only for users in the control branch', () => {
+      renderAtRoute(
+        '/',
+        webIntegration,
+        nimbusValue({ enabled: true, branch: 'control' })
+      );
+      expect(screen.getByText('Your phone. Your rules.')).toBeInTheDocument();
       expect(qrImage().src).toContain('control');
     });
 
@@ -295,16 +315,19 @@ describe('PromoQrMobile', () => {
       expect(qrImage().src).toContain(slug);
     });
 
-    it('falls back to the control for an unknown branch slug', () => {
-      renderAtRoute(
-        '/',
-        webIntegration,
-        nimbusValue({ enabled: true, branch: 'treatment-typo' })
-      );
+    it.each(['treatment-typo', 'toString', 'constructor'])(
+      'falls back to the default for the unknown branch slug %s',
+      (slug) => {
+        renderAtRoute(
+          '/',
+          webIntegration,
+          nimbusValue({ enabled: true, branch: slug })
+        );
 
-      expect(screen.getByText('Your phone. Your rules.')).toBeInTheDocument();
-      expect(qrImage().src).toContain('control');
-    });
+        expect(screen.getByText('Your phone. Your rules.')).toBeInTheDocument();
+        expect(qrImage().src).toContain('default');
+      }
+    );
 
     it('ignores the branch when the feature is disabled', () => {
       renderAtRoute(
@@ -314,7 +337,7 @@ describe('PromoQrMobile', () => {
       );
 
       expect(screen.getByText('Your phone. Your rules.')).toBeInTheDocument();
-      expect(qrImage().src).toContain('control');
+      expect(qrImage().src).toContain('default');
     });
   });
 
@@ -359,10 +382,10 @@ describe('PromoQrMobile', () => {
       'not-a-url',
       '',
     ])(
-      'ignores invalid CMS URLs (%s) and falls back to the branch QR',
+      'ignores invalid CMS URLs (%s) and falls back to the default QR',
       (url) => {
         renderAtRoute('/', webIntegration, undefined, url);
-        expect(qrImage().src).toContain('control');
+        expect(qrImage().src).toContain('default');
       }
     );
   });
