@@ -6,11 +6,14 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const url = process.env.METERING_CLICKHOUSE_URL ?? 'http://127.0.0.1:8124';
-const username = process.env.METERING_CLICKHOUSE_USERNAME ?? 'metering_rw';
+const url =
+  process.env.METERING_CONFIG__CLICKHOUSE__URL ?? 'http://127.0.0.1:8124';
+const username =
+  process.env.METERING_CONFIG__CLICKHOUSE__USERNAME ?? 'metering_rw';
 const password =
-  process.env.METERING_CLICKHOUSE_PASSWORD ?? 'local_metering_dev';
-const database = process.env.METERING_CLICKHOUSE_DATABASE ?? 'metering';
+  process.env.METERING_CONFIG__CLICKHOUSE__PASSWORD ?? 'local_metering_dev';
+const database =
+  process.env.METERING_CONFIG__CLICKHOUSE__DATABASE ?? 'metering';
 
 const migrationsDir = path.dirname(fileURLToPath(import.meta.url));
 

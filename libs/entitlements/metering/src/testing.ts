@@ -12,10 +12,14 @@ import {
 } from './lib/metering.constants';
 
 export const INTEGRATION_CLICKHOUSE_CONFIG: ClickHouseConfig = {
-  url: process.env['METERING_CLICKHOUSE_URL'] ?? 'http://127.0.0.1:8124',
-  database: process.env['METERING_CLICKHOUSE_DATABASE'] ?? 'metering',
-  username: process.env['METERING_CLICKHOUSE_USERNAME'] ?? 'metering_rw',
-  password: process.env['METERING_CLICKHOUSE_PASSWORD'] ?? 'local_metering_dev',
+  url:
+    process.env['METERING_CONFIG__CLICKHOUSE__URL'] ?? 'http://127.0.0.1:8124',
+  database: process.env['METERING_CONFIG__CLICKHOUSE__DATABASE'] ?? 'metering',
+  username:
+    process.env['METERING_CONFIG__CLICKHOUSE__USERNAME'] ?? 'metering_rw',
+  password:
+    process.env['METERING_CONFIG__CLICKHOUSE__PASSWORD'] ??
+    'local_metering_dev',
   requestTimeoutMs: 30_000,
   maxExecutionTimeSeconds: 25,
   maxThreads: 2,
