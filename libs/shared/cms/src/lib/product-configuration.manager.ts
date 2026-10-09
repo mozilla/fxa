@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getOperationName } from '@apollo/client/utilities';
+import { getOperationAST } from 'graphql';
 import { Inject, Injectable } from '@nestjs/common';
 import { StatsD } from 'hot-shots';
 
@@ -77,9 +77,9 @@ import {
   CancelInterstitialOfferUtil,
 } from './queries/cancel-interstitial-offer';
 import {
-    freeTrialQuery,
-    FreeTrialResult,
-    FreeTrialUtil,
+  freeTrialQuery,
+  FreeTrialResult,
+  FreeTrialUtil,
 } from './queries/free-trial';
 
 @Injectable()
@@ -100,7 +100,8 @@ export class ProductConfigurationManager {
       cache: `${response.cache}`,
       cacheType: `${response.cacheType}`,
     };
-    const operationName = response.query && getOperationName(response.query);
+    const operationName =
+      response.query && getOperationAST(response.query)?.name?.value;
     const tags = operationName
       ? { ...defaultTags, operationName }
       : defaultTags;
@@ -387,9 +388,10 @@ export class ProductConfigurationManager {
   async getSubplatIntervalBySubscription(
     subscriptionArg: string | StripeSubscription
   ) {
-    const subscription = typeof subscriptionArg === 'string'
-      ? await this.stripeClient.subscriptionsRetrieve(subscriptionArg)
-      : subscriptionArg;
+    const subscription =
+      typeof subscriptionArg === 'string'
+        ? await this.stripeClient.subscriptionsRetrieve(subscriptionArg)
+        : subscriptionArg;
 
     const stripeInterval =
       subscription.items.data.at(0)?.price.recurring?.interval;
@@ -431,16 +433,11 @@ export class ProductConfigurationManager {
     );
   }
 
-  async getFreeTrial(
-    apiIdentifier: string,
-  ) {
-    const queryResult = await this.strapiClient.query(
-      freeTrialQuery,
-      { apiIdentifier }
-    );
+  async getFreeTrial(apiIdentifier: string) {
+    const queryResult = await this.strapiClient.query(freeTrialQuery, {
+      apiIdentifier,
+    });
 
-    return new FreeTrialUtil(
-      queryResult as DeepNonNullable<FreeTrialResult>
-    );
+    return new FreeTrialUtil(queryResult as DeepNonNullable<FreeTrialResult>);
   }
 }
