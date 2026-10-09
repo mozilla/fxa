@@ -27,6 +27,7 @@ import { AppConfig, AuthLogger, AuthRequest } from './types';
 import { DB } from './db';
 import { reportSentryError } from './sentry';
 import { GleanMetricsType } from './metrics/glean';
+import { createServerDeletionRequestPing } from './metrics/glean/server-deletion-request';
 import {
   InactiveAccountsManager,
   InactiveStatusOAuthDb,
@@ -63,6 +64,7 @@ export class AccountDeleteManager {
   private glean: GleanMetricsType;
   private statsd: StatsD;
   private inactiveAccountsManager: InactiveAccountsManager;
+  private submitServerDeletionRequest: (uid: string) => void;
 
   constructor({
     fxaDb,
@@ -110,6 +112,9 @@ export class AccountDeleteManager {
 
     // Is this intentional? Config is passed in the constructor
     this.config = Container.get(AppConfig);
+    this.submitServerDeletionRequest = createServerDeletionRequestPing(
+      this.config
+    );
 
     this.inactiveAccountsManager = new InactiveAccountsManager({
       fxaDb,
@@ -159,7 +164,7 @@ export class AccountDeleteManager {
     // fire-and-forget with its own error handler and is not represented.
     let stage = 'fxaDb';
     try {
-      await this.deleteAccountFromDb(uid, reason);
+      const deletedFromDb = await this.deleteAccountFromDb(uid, reason);
       stage = 'oauthAccountData';
       await this.deleteOAuthAccountData(uid);
 
@@ -167,6 +172,12 @@ export class AccountDeleteManager {
       // user self-deletes are logged when the client request was handled
       if (reason !== ReasonForDeletion.UserRequested) {
         this.log.info('accountDeleted.byCloudTask', { uid });
+        // Mirrors the byCloudTask log above, which also fires when there was
+        // no account row to delete. db.deleteAccount already sent the ping if
+        // it removed a row, so only tasks without one send it here.
+        if (!deletedFromDb) {
+          this.submitServerDeletionRequest(uid);
+        }
       }
 
       // see comment in the function on why we are not awaiting
