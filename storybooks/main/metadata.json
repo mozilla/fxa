@@ -1,8 +1,8 @@
 {
-  "commit": "7c8da600fabcff64ffb01a7038866d846410ffbf",
-  "summary": "Merge pull request #21431 from mozilla/FXA-14643-ui",
-  "description": "fix(settings): When enabled, ask for 2FA before approving a v2 pairing flow",
-  "timestamp": 1791502486000,
+  "commit": "62a178411ee831152b20afa2b66ecf531440b77b",
+  "summary": "Merge pull request #21424 from mozilla/fxa-14689",
+  "description": "fix(functional-tests): fix untrusted relier WAF bypass and pair race",
+  "timestamp": 1791561520000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

@@ -909,6 +909,7 @@ passkey-sub-row-created-date = 建立於：{ $createdDate }
 passkey-sub-row-last-used-date = 最後使用於：{ $lastUsedDate }
 passkey-sub-row-delete-title = 刪除 Passkey
 passkey-delete-modal-heading = 要刪除您的 Passkey 嗎？
+passkey-delete-modal-content-v3 = 將從您的帳號中移除這把 Passkey。您未來必須改用密碼、另一把 Passkey 或連結的帳號登入。
 passkey-delete-modal-cancel-button = 取消
 passkey-delete-modal-confirm-button = 刪除 Passkey
 passkey-delete-success = 已刪除 Passkey
@@ -1139,13 +1140,16 @@ index-email-bounced = 您的確認信被退了，是不是輸錯電子郵件地�
 
 
 inline-passwordless-sync-setup-page-title = 下次要略過密碼嗎？
+inline-passwordless-sync-setup-success-banner-v2 = 您已登入，同步功能已開啟
 inline-passwordless-sync-setup-heading = 下次要略過密碼嗎？
 inline-passwordless-sync-setup-description = 使用這把 Passkey 可以更快登入。
 inline-passwordless-sync-setup-enable-button = 啟用 Passkey
 inline-passwordless-sync-setup-enabling = 啟用中…
 inline-passwordless-sync-setup-not-now-button = 現在不要
+inline-passwordless-sync-setup-success-alert-v2 = 這把 Passkey 已可用於登入 Sync
 inline-passwordless-sync-setup-error-cancelled = Passkey 確認未完成
 inline-passwordless-sync-setup-error-cancelled-description = 使用 Passkey 確認後，下次即可免輸入密碼。
+inline-passwordless-sync-setup-error-generic-v2 = 無法啟用此 Passkey 登入 Sync，下次登入 Sync 時仍須使用密碼。
 
 
 inline-recovery-key-setup-create-error = 抱歉！無法建立您的帳號救援金鑰，請稍候再試一次。
@@ -1284,6 +1288,7 @@ pair2-authority-download-firefox-cta = 下載 { -brand-firefox }
 pair2-authority-scan-qr-heading = 掃描後即可連結您的行動裝置
 pair2-authority-scan-qr-instruction = 使用您的手機或平板電腦掃描 QR Code，即可同步您的 { -brand-firefox } 書籤、分頁與更多資料。
 pair2-authority-scan-qr-code-aria-label = 連結您行動裝置的 QR Code
+pair2-authority-scan-qr-other-ways-link = 其他登入方式
 pair2-authority-scan-qr-skip-button = 先略過
 
 
@@ -1343,6 +1348,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = 歡迎隨時在您的
 permissions-heading = { $serviceName } 想要存取：
 permissions-label-email = 電子郵件地址
 permissions-label-display-name = 顯示名稱
+permissions-label-avatar = 帳號圖片
 permissions-continue-button = 繼續
 permissions-cancel-button = 取消
 
@@ -1409,9 +1415,12 @@ confirm-totp-reset-password-use-different-account = 使用另一個帳號
 
 
 password-reset-flow-heading = 重設您的密碼
+password-reset-forgot-heading = 忘記密碼了嗎？
+password-reset-alternatives-body = <signInLink>可試著改用 { -brand-google }、{ -brand-apple } 帳號或 Passkey 登入。</signInLink>或輸入您的電子郵件地址，我們會傳送重設密碼用的驗證碼。
 password-reset-email-input =
     .label = 請輸入您的電子郵件地址
 password-reset-submit-button-2 = 繼續
+password-reset-data-recovery-warning = 重設密碼可能會影響您能否復原已同步的瀏覽器資料。<learnMoreLink>更多資訊</learnMoreLink>
 
 
 reset-password-complete-header = 已重設您的密碼

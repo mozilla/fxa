@@ -1269,7 +1269,7 @@ passkey-sub-row-created-date = Creata: { $createdDate }
 passkey-sub-row-last-used-date = Ultimo utilizzo: { $lastUsedDate }
 passkey-sub-row-delete-title = Elimina passkey
 passkey-delete-modal-heading = Eliminare la passkey?
-passkey-delete-modal-content-v3 = Questa passkey verrà rimossa dal tuo account. Dovrai accedere utilizzando una password, un’altra passkey o un account collegato.
+passkey-delete-modal-content-v3 = Questa passkey verrà eliminata dal tuo account. Dovrai accedere utilizzando una password, un’altra passkey o un account collegato.
 passkey-delete-modal-cancel-button = Annulla
 passkey-delete-modal-confirm-button = Elimina passkey
 passkey-delete-success = Passkey eliminata
@@ -1622,7 +1622,7 @@ index-email-bounced = L’email di conferma è stata respinta. C’è un errore 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Accedere senza password la prossima volta?
 # Success banner after signing in.
-inline-passwordless-sync-setup-success-banner-v2 = Hai effettuato l’accesso e la sincronizzazione è attiva
+inline-passwordless-sync-setup-success-banner-v2 = Accesso effettuato e sincronizzazione attiva
 inline-passwordless-sync-setup-heading = Accedere senza password la prossima volta?
 inline-passwordless-sync-setup-description = Utilizza questa passkey per accedere più velocemente.
 inline-passwordless-sync-setup-enable-button = Attiva passkey
@@ -1631,13 +1631,13 @@ inline-passwordless-sync-setup-enabling = Attivazione…
 inline-passwordless-sync-setup-not-now-button = Non adesso
 # Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
 # "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
-inline-passwordless-sync-setup-success-alert-v2 = Questa passkey è attiva per l’accesso sincronizzato
+inline-passwordless-sync-setup-success-alert-v2 = Questa passkey è attiva per accedere e utilizzare la sincronizzazione
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = La conferma della passkey non è stata completata
 inline-passwordless-sync-setup-error-cancelled-description = Conferma con la tua passkey per non dover inserire la password la prossima volta.
 # Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
 # "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
-inline-passwordless-sync-setup-error-generic-v2 = Non è stato possibile attivare questa passkey per l’accesso sincronizzato. Ti servirà la password la prossima volta.
+inline-passwordless-sync-setup-error-generic-v2 = Non è stato possibile attivare questa passkey per l’accesso con sincronizzazione. La prossima volta dovrai inserire la password.
 
 ## InlineRecoveryKeySetup page component
 
@@ -2033,7 +2033,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Per connettere un dis
 permissions-heading = { $serviceName } vuole accedere a:
 permissions-label-email = Indirizzo email
 permissions-label-display-name = Nome visualizzato
-permissions-label-avatar = Immagine per l’account
+permissions-label-avatar = Immagine dell’account
 permissions-continue-button = Continua
 permissions-cancel-button = Annulla
 

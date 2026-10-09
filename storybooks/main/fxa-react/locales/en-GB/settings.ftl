@@ -1273,6 +1273,7 @@ passkey-sub-row-created-date = Created: { $createdDate }
 passkey-sub-row-last-used-date = Last used: { $lastUsedDate }
 passkey-sub-row-delete-title = Delete passkey
 passkey-delete-modal-heading = Delete your passkey?
+passkey-delete-modal-content-v3 = This passkey will be removed from your account. You’ll need to sign in using a password, another passkey or linked account.
 passkey-delete-modal-cancel-button = Cancel
 passkey-delete-modal-confirm-button = Delete passkey
 passkey-delete-success = Passkey deleted
@@ -1635,15 +1636,23 @@ index-email-bounced = Your confirmation email was just returned. Mistyped email?
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Skip the password next time?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner-v2 = You’re signed in, and synchronisation is on
 inline-passwordless-sync-setup-heading = Skip the password next time?
 inline-passwordless-sync-setup-description = Use this passkey to sign in faster.
 inline-passwordless-sync-setup-enable-button = Enable passkey
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Enabling…
 inline-passwordless-sync-setup-not-now-button = Not now
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = This passkey is enabled for synchronisation sign-in
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Passkey confirmation didn’t finish
 inline-passwordless-sync-setup-error-cancelled-description = Confirm with your passkey to skip the password next time.
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = We couldn’t enable this passkey for synchronisation sign-in. You’ll need your password next time.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1903,6 +1912,8 @@ pair2-authority-scan-qr-heading = Scan to connect your mobile device
 pair2-authority-scan-qr-instruction = Scan the QR code with your phone or tablet to synchronise your { -brand-firefox } bookmarks, tabs and more.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR code to connect your mobile device
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Other ways to sign in
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Skip for now
 
@@ -2037,6 +2048,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = To connect a device a
 permissions-heading = { $serviceName } wants access to:
 permissions-label-email = Email address
 permissions-label-display-name = Display name
+permissions-label-avatar = Account picture
 permissions-continue-button = Continue
 permissions-cancel-button = Cancel
 
@@ -2145,9 +2157,14 @@ confirm-totp-reset-password-use-different-account = Use a different account
 ## ResetPassword start page
 
 password-reset-flow-heading = Reset your password
+password-reset-forgot-heading = Forgot your password?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Try signing in with { -brand-google }, { -brand-apple } or a passkey instead.</signInLink> Or enter your email and we’ll send you a code to reset your password.
 password-reset-email-input =
     .label = Enter your email
 password-reset-submit-button-2 = Continue
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Resetting your password may affect whether you can recover synchronised browser data. <learnMoreLink>Learn more</learnMoreLink>
 
 ## ResetPasswordConfirmed
 

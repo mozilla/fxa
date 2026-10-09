@@ -1250,11 +1250,13 @@ index-email-bounced = Το email επιβεβαίωσής σας μόλις επ
 
 
 inline-passwordless-sync-setup-page-title = Παράλειψη του κωδικού πρόσβασης την επόμενη φορά;
+inline-passwordless-sync-setup-success-banner-v2 = Έχετε συνδεθεί και ο συγχρονισμός είναι ενεργός
 inline-passwordless-sync-setup-heading = Παράλειψη του κωδικού πρόσβασης την επόμενη φορά;
 inline-passwordless-sync-setup-description = Χρησιμοποιήστε αυτό το κλειδί πρόσβασης για ταχύτερη σύνδεση.
 inline-passwordless-sync-setup-enable-button = Ενεργοποίηση κλειδιού πρόσβασης
 inline-passwordless-sync-setup-enabling = Ενεργοποίηση…
 inline-passwordless-sync-setup-not-now-button = Όχι τώρα
+inline-passwordless-sync-setup-success-alert-v2 = Αυτό το κλειδί πρόσβασης έχει ενεργοποιηθεί για σύνδεση στον συγχρονισμό
 inline-passwordless-sync-setup-error-cancelled = Η επιβεβαίωση του κλειδιού πρόσβασης δεν ολοκληρώθηκε
 inline-passwordless-sync-setup-error-cancelled-description = Κάντε επιβεβαίωση με το κλειδί πρόσβασής σας για να παραλείψετε τον κωδικό πρόσβασης την επόμενη φορά.
 
@@ -1395,6 +1397,7 @@ pair2-authority-download-firefox-cta = Λήψη του { -brand-firefox }
 pair2-authority-scan-qr-heading = Κάντε σάρωση για να συνδέσετε άλλη συσκευή
 pair2-authority-scan-qr-instruction = Σαρώστε τον κωδικό QR με το τηλέφωνο ή το tablet σας για να συγχρονίσετε τους σελιδοδείκτες, τις καρτέλες και άλλα δεδομένα του { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Κωδικός QR για σύνδεση της κινητής σας συσκευής
+pair2-authority-scan-qr-other-ways-link = Άλλοι τρόποι σύνδεσης
 pair2-authority-scan-qr-skip-button = Παράλειψη για την ώρα
 
 
@@ -1454,6 +1457,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Για να συνδ�
 permissions-heading = Το { $serviceName } ζητά πρόσβαση σε:
 permissions-label-email = Διεύθυνση email
 permissions-label-display-name = Εμφανιζόμενο όνομα
+permissions-label-avatar = Εικόνα λογαριασμού
 permissions-continue-button = Συνέχεια
 permissions-cancel-button = Ακύρωση
 
@@ -1520,6 +1524,7 @@ confirm-totp-reset-password-use-different-account = Χρήση διαφορετ�
 
 
 password-reset-flow-heading = Επαναφορά κωδικού πρόσβασης
+password-reset-forgot-heading = Ξεχάσατε τον κωδικό πρόσβασής σας;
 password-reset-email-input =
     .label = Εισαγάγετε το email σας
 password-reset-submit-button-2 = Συνέχεια
