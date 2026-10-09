@@ -1,0 +1,10 @@
+{
+  "commit": "67c06f8e862fc23dfaab58a4ac344c0866d474c5",
+  "summary": "fix(admin-panel): update the Authorized Browser Services note",
+  "description": "Because:\n\n- The note said Firefox Desktop \"currently mints\" a Sync-scoped token on every flow.\n- The Firefox Desktop fix (FXA-14263) is now in production.\n\nThis commit:\n\n- Keeps the first two sentences of the note in Account/index.tsx.\n- Says Sync rows are accurate for sign-ins on or after Aug 19, 2026.\n- Says earlier Sync rows can come from a non-Sync browser-service sign-in.\n- Adds one test to index.test.tsx for the date text.\n- Includes a Prettier rewrap of one existing test line.\n\nCloses FXA-14580",
+  "timestamp": 1791561992000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
