@@ -200,6 +200,15 @@ describe('#integration - remote passkey wrap storage', () => {
     return storeWrap({ credentialId, ...envelope(), ...overrides });
   }
 
+  /** Moves the account's `keysChangedAt` past every stored wrap. */
+  async function rotateKeys() {
+    await db
+      ?.updateTable('accounts')
+      .set({ keysChangedAt: Date.now() + 60_000 })
+      .where('uid', '=', uuidTransformer.to(client.uid))
+      .execute();
+  }
+
   beforeEach(async () => {
     client = await Client.createAndVerify(
       server.publicUrl,
@@ -259,6 +268,36 @@ describe('#integration - remote passkey wrap storage', () => {
     );
   });
 
+  it('replaces a wrap that predates the current kB, recording it as invalidated', async () => {
+    await storeCurrentWrap();
+    await rotateKeys();
+
+    const result = await storeCurrentWrap(envelope(0x99));
+
+    expect(result).toEqual({ created: true });
+    const names = (await client.securityEvents()).map((e: any) => e.name);
+    expect(
+      names.filter((n: string) => n === 'account.passkey.wrap_invalidated')
+    ).toHaveLength(1);
+    expect(
+      names.filter((n: string) => n === 'account.passkey.wrap_created')
+    ).toHaveLength(2);
+  });
+
+  it('records wrap_invalidated when a password reset replaces kB', async () => {
+    await storeCurrentWrap();
+
+    await client.forgotPassword();
+    const otp = await server.mailbox.waitForCode(client.email);
+    const { code } = await client.verifyPasswordForgotOtp(otp);
+    await client.verifyPasswordResetCode(code);
+    await client.resetPassword('new password');
+
+    const names = (await client.securityEvents()).map((e: any) => e.name);
+    expect(names).toContain('account.passkey.wrap_invalidated');
+    expect(names).toContain('account.reset');
+  });
+
   it('rejects a malformed envelope at the route boundary', async () => {
     await expect(
       storeCurrentWrap({
@@ -302,15 +341,6 @@ describe('#integration - remote passkey wrap storage', () => {
         `${client.api.baseURL}/passkey/wraps/${id}`,
         token ?? (await mintWrapToken())
       );
-    }
-
-    /** Moves the account's `keysChangedAt` past every stored wrap. */
-    async function rotateKeys() {
-      await db
-        ?.updateTable('accounts')
-        .set({ keysChangedAt: Date.now() + 60_000 })
-        .where('uid', '=', uuidTransformer.to(client.uid))
-        .execute();
     }
 
     it('returns the stored envelope and records a security event', async () => {

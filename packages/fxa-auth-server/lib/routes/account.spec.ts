@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { createMock } from '@golevelup/ts-jest';
-import { PasskeyService } from '@fxa/accounts/passkey';
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
+import { PasskeyService, PasskeyWithWrapState } from '@fxa/accounts/passkey';
 import type { Schema } from 'joi';
 import { StatsD } from 'hot-shots';
 import { AuthLogger as AuthLoggerType } from '../types';
@@ -444,6 +444,69 @@ describe('/account/reset', () => {
 
       // Token is not verified with TOTP-2FA method (AAL2) if account does not have TOTP
       expect(mockDB.verifyTokensWithMethod).toHaveBeenCalledTimes(0);
+    });
+  });
+
+  describe('passkey wraps', () => {
+    let mockPasskeyService: DeepMocked<PasskeyService>;
+
+    const securityEventNames = () =>
+      mockDB.securityEvent.mock.calls.map(([event]: any) => event.name);
+
+    beforeEach(() => {
+      mockPasskeyService = createMock<PasskeyService>();
+      mockPasskeyService.listPasskeysForUser.mockResolvedValue([
+        { hasPasswordlessSync: true } as PasskeyWithWrapState,
+      ]);
+      Container.set(PasskeyService, mockPasskeyService);
+    });
+
+    afterEach(() => {
+      Container.remove(PasskeyService);
+    });
+
+    it('records no wrap_invalidated when a recovery key keeps kB', async () => {
+      mockRequest.payload.wrapKb = hexString(32);
+      mockRequest.payload.recoveryKeyId = hexString(16);
+
+      await runTest(route, mockRequest);
+
+      expect(mockPasskeyService.listPasskeysForUser).not.toHaveBeenCalled();
+      expect(securityEventNames()).toEqual(['account.reset']);
+    });
+
+    it('records no wrap_invalidated when no passkey has a wrap', async () => {
+      mockPasskeyService.listPasskeysForUser.mockResolvedValue([
+        { hasPasswordlessSync: false } as PasskeyWithWrapState,
+      ]);
+
+      await runTest(route, mockRequest);
+
+      expect(securityEventNames()).toEqual(['account.reset']);
+    });
+
+    it('records wrap_invalidated when kB changes and a passkey had a wrap', async () => {
+      await runTest(route, mockRequest);
+
+      expect(mockPasskeyService.listPasskeysForUser).toHaveBeenCalledWith(uid);
+      expect(securityEventNames()).toEqual([
+        'account.passkey.wrap_invalidated',
+        'account.reset',
+      ]);
+    });
+
+    it('still resets, logging the error, when the passkey lookup fails', async () => {
+      const err = new Error('db is down');
+      mockPasskeyService.listPasskeysForUser.mockRejectedValue(err);
+
+      const res: any = await runTest(route, mockRequest);
+
+      expect(res.sessionToken).toBeTruthy();
+      expect(mockDB.resetAccount).toHaveBeenCalledTimes(1);
+      expect(mockLog.error).toHaveBeenCalledWith('Account.reset.listPasskeys', {
+        err,
+      });
+      expect(securityEventNames()).toEqual(['account.reset']);
     });
   });
 

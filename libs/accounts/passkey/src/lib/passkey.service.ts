@@ -808,8 +808,8 @@ export class PasskeyService {
    *
    * @param keysChangedAt - When the account's `kB` last changed; a stored wrap
    *   older than this is replaced rather than defended
-   * @returns `created` when a row was inserted, `unchanged` when one already
-   *   matched
+   * @returns `created` when a row was inserted, `replaced` when it took the
+   *   place of a stale wrap, `unchanged` when one already matched
    */
   async storePasskeyWrap(
     uid: string,
@@ -817,7 +817,7 @@ export class PasskeyService {
     envelope: PasskeyWrapEnvelope,
     now: number,
     keysChangedAt: number
-  ): Promise<'created' | 'unchanged'> {
+  ): Promise<'created' | 'replaced' | 'unchanged'> {
     await this.requireOwnedPasskey(uid, credentialId, 'store');
 
     const existing = await this.passkeyManager.findPasskeyWrap(
@@ -862,12 +862,16 @@ export class PasskeyService {
 
       // Two requests can both read no wrap before either commits, and the loser
       // lands here. Re-read so an identical payload still reports `unchanged`,
-      // the same answer it would have got a moment earlier.
+      // or `replaced` if our delete removed a stale wrap.
       const winner = await this.passkeyManager.findPasskeyWrap(
         uid,
         credentialId
       );
       if (winner && isSameEnvelope(winner, envelope)) {
+        if (replacedStale) {
+          this.metrics.increment('passkey.wrap.store.replaced_stale');
+          return 'replaced';
+        }
         this.metrics.increment('passkey.wrap.store.unchanged');
         return 'unchanged';
       }
@@ -885,7 +889,7 @@ export class PasskeyService {
     this.metrics.increment('passkey.wrap.store.success');
     this.log?.log('passkey.wrap.stored', { uid });
 
-    return 'created';
+    return replacedStale ? 'replaced' : 'created';
   }
 
   /**

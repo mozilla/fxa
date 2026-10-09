@@ -1567,7 +1567,7 @@ describe('PasskeyService', () => {
         KEYS_CHANGED_AT
       );
 
-      expect(result).toBe('created');
+      expect(result).toBe('replaced');
       // The staleness test travels with the delete rather than being decided here.
       expect(mockManager.deletePasskeyWrap).toHaveBeenCalledWith(
         MOCK_UID,
@@ -1643,6 +1643,32 @@ describe('PasskeyService', () => {
       ).resolves.toBe('created');
       expect(mockMetrics.increment).not.toHaveBeenCalledWith(
         'passkey.wrap.store.replaced_stale'
+      );
+    });
+
+    it('reports replaced when its delete removed the stale wrap but a concurrent identical insert won', async () => {
+      mockManager.deletePasskeyWrap.mockResolvedValue(true);
+      mockManager.createPasskeyWrap.mockRejectedValue({ code: 'ER_DUP_ENTRY' });
+      mockManager.findPasskeyWrap
+        .mockResolvedValueOnce(
+          storedWrap({ hpkeSealedKb: Buffer.alloc(48, 0xff) })
+        )
+        .mockResolvedValueOnce(storedWrap());
+
+      await expect(
+        service.storePasskeyWrap(
+          MOCK_UID,
+          MOCK_CREDENTIAL_ID,
+          MOCK_ENVELOPE,
+          MOCK_NOW,
+          MOCK_NOW + 1
+        )
+      ).resolves.toBe('replaced');
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.wrap.store.replaced_stale'
+      );
+      expect(mockMetrics.increment).not.toHaveBeenCalledWith(
+        'passkey.wrap.store.unchanged'
       );
     });
 
