@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import http from 'http';
+import createClient from 'openapi-fetch';
 import * as lib from './lib';
 import { SearchResultIdentity } from './lib';
 import { AppError, ERRNO } from '@fxa/accounts/errors';
@@ -253,7 +255,10 @@ describe('Recorded Future credentials search and reset script lib', () => {
               credentials: [
                 kept,
                 // details present but no clear_text_value
-                { subject: 'c@d.com', exposed_secret: { type: 'clear', details: {} } },
+                {
+                  subject: 'c@d.com',
+                  exposed_secret: { type: 'clear', details: {} },
+                },
                 // no details at all
                 { subject: 'e@f.com', exposed_secret: { type: 'clear' } },
               ],
@@ -272,6 +277,80 @@ describe('Recorded Future credentials search and reset script lib', () => {
       );
 
       expect(res).toEqual([kept]);
+    });
+
+    it('drops credentials with an unusable clear_text_value or subject', async () => {
+      const kept = {
+        subject: 'a@b.com',
+        exposed_secret: { type: 'clear', details: { clear_text_value: 'abc' } },
+      };
+      const clear = (
+        clear_text_value: unknown,
+        subject: unknown = 'c@d.com'
+      ) => ({
+        subject,
+        exposed_secret: { type: 'clear', details: { clear_text_value } },
+      });
+      client.POST.mockResolvedValue({
+        data: {
+          identities: [
+            {
+              credentials: [
+                kept,
+                clear(''),
+                clear(null),
+                clear(123),
+                clear({ value: 'abc' }),
+                { exposed_secret: clear('abc').exposed_secret },
+                clear('abc', ''),
+                clear('abc', 42),
+                null,
+              ],
+            },
+          ],
+        },
+      });
+      const lookupFn = lib.createCredentialsLookupFn(client as any);
+      const res = await lookupFn([{ login: 'a@b.com', domain: 'quux.io' }], {
+        first_downloaded_gte: '2025-04-15',
+      });
+
+      expect(res).toEqual([kept]);
+    });
+
+    it.each([
+      ['undefined data', undefined],
+      ['identities is not an array', { identities: { credentials: [] } }],
+      ['credentials is not an array', { identities: [{ credentials: 'x' }] }],
+      ['an identity is null', { identities: [null] }],
+    ])('returns no credentials when %s', async (_, data) => {
+      client.POST.mockResolvedValue({ data });
+      const lookupFn = lib.createCredentialsLookupFn(client as any);
+      const res = await lookupFn([{ login: 'a@b.com', domain: 'quux.io' }], {
+        first_downloaded_gte: '2025-04-15',
+      });
+
+      expect(res).toEqual([]);
+    });
+
+    it('does not dedupe different login and password pairs with the same concatenation', async () => {
+      const first = {
+        subject: 'a@b.co',
+        exposed_secret: { type: 'clear', details: { clear_text_value: 'mx' } },
+      };
+      const second = {
+        subject: 'a@b.com',
+        exposed_secret: { type: 'clear', details: { clear_text_value: 'x' } },
+      };
+      client.POST.mockResolvedValue({
+        data: { identities: [{ credentials: [first, second] }] },
+      });
+      const lookupFn = lib.createCredentialsLookupFn(client as any);
+      const res = await lookupFn([{ login: 'a@b.com', domain: 'quux.io' }], {
+        first_downloaded_gte: '2025-04-15',
+      });
+
+      expect(res).toEqual([first, second]);
     });
 
     it('limits the subjects login in API call', async () => {
@@ -321,6 +400,99 @@ describe('Recorded Future credentials search and reset script lib', () => {
       expect(checkPassword).toHaveBeenCalledTimes(1);
       expect(checkPassword).toHaveBeenCalledWith('9001', 'quux');
       expect(res).toBe(false);
+    });
+  });
+
+  describe('Retry-After', () => {
+    const resp = (status: number, retryAfter?: string) =>
+      new Response('{}', {
+        status,
+        headers: retryAfter ? { 'retry-after': retryAfter } : {},
+      });
+    const req = () =>
+      new Request('http://localhost/x', { method: 'POST', body: '{"a":1}' });
+
+    it('parses delay-seconds and HTTP-date values', () => {
+      const now = Date.parse('2026-10-06T00:00:00Z');
+      expect(lib.parseRetryAfterMs('7', now)).toBe(7000);
+      expect(lib.parseRetryAfterMs('Tue, 06 Oct 2026 00:00:30 GMT', now)).toBe(
+        30000
+      );
+      expect(lib.parseRetryAfterMs('Mon, 05 Oct 2026 00:00:00 GMT', now)).toBe(
+        0
+      );
+      expect(lib.parseRetryAfterMs('soon', now)).toBeUndefined();
+      expect(lib.parseRetryAfterMs(null, now)).toBeUndefined();
+    });
+
+    it('waits for Retry-After on 429 and 503, then retries', async () => {
+      const fetchFn = jest
+        .fn()
+        .mockResolvedValueOnce(resp(429, '2'))
+        .mockResolvedValueOnce(resp(503, '1'))
+        .mockResolvedValueOnce(resp(200));
+      const sleep = jest.fn().mockResolvedValue(undefined);
+      const res = await lib.createRetryAfterFetch({ fetchFn, sleep })(req());
+      expect(res.status).toBe(200);
+      expect(fetchFn).toHaveBeenCalledTimes(3);
+      expect(sleep.mock.calls).toEqual([[2000], [1000]]);
+    });
+
+    it.each([
+      ['429 without Retry-After', 429, undefined, 1],
+      ['500 with Retry-After', 500, '1', 1],
+      ['Retry-After past the cap', 429, '600', 1],
+      ['429 after maxRetries', 429, '1', 3],
+      ['503 after maxRetries', 503, '1', 3],
+    ])(
+      'returns the error response: %s',
+      async (_, status, retryAfter, calls) => {
+        const sleep = jest.fn().mockResolvedValue(undefined);
+        const fetchFn = jest
+          .fn()
+          .mockImplementation(async () => resp(status, retryAfter));
+        const res = await lib.createRetryAfterFetch({
+          fetchFn,
+          sleep,
+          maxRetries: 2,
+        })(req());
+        expect(res.status).toBe(status);
+        expect(fetchFn).toHaveBeenCalledTimes(calls);
+      }
+    );
+
+    it('resends the POST body through a real openapi-fetch client', async () => {
+      const bodies: string[] = [];
+      const server = http.createServer((rq, rs) => {
+        let b = '';
+        rq.on('data', (c) => (b += c));
+        rq.on('end', () => {
+          bodies.push(b);
+          if (bodies.length === 1) {
+            rs.writeHead(429, { 'retry-after': '0' }).end('{"message":"slow"}');
+          } else {
+            rs.writeHead(200, { 'content-type': 'application/json' }).end(
+              '{"identities":[],"count":0}'
+            );
+          }
+        });
+      });
+      await new Promise<void>((r) => server.listen(0, r));
+      try {
+        const { port } = server.address() as { port: number };
+        const client = createClient<any>({
+          baseUrl: `http://127.0.0.1:${port}`,
+          fetch: lib.createRetryAfterFetch(),
+        });
+        const data = await lib.createCredentialsSearchFn(client)(payload);
+        expect(data).toEqual({ identities: [], count: 0 });
+        expect(bodies).toEqual([
+          JSON.stringify(payload),
+          JSON.stringify(payload),
+        ]);
+      } finally {
+        await new Promise((r) => server.close(r));
+      }
     });
   });
 });
