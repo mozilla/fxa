@@ -1,8 +1,8 @@
 {
-  "commit": "395a33e75d43a25f1e7d9f5e53fd58343bcba26e",
-  "summary": "Merge remote-tracking branch 'origin/main' into ddb-merge-21401",
-  "description": "# Conflicts:\n#\tpackage.json",
-  "timestamp": 1791562595000,
+  "commit": "013c1cb37df51bae55805bf05cdf95a5a3ec7965",
+  "summary": "chore(deps): restore generated .blender/agents.md from main",
+  "description": "",
+  "timestamp": 1791562621000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
