@@ -1275,7 +1275,7 @@ passkey-sub-row-created-date = Create le: { $createdDate }
 passkey-sub-row-last-used-date = Usate le ultime vice le: { $lastUsedDate }
 passkey-sub-row-delete-title = Deler clave-contrasigno
 passkey-delete-modal-heading = Deler tu clave-contrasigno?
-passkey-delete-modal-content-v2 = Iste clave-contrasigno sera removite de tu conto. Tu debera acceder per un methodo differente (contrasigno, un altere clave-contrasigno, o conto ligate).
+passkey-delete-modal-content-v3 = Iste clave-contrasigno sera removite de tu conto. Tu debera acceder usante un contrasigno, un altere clave-contrasigno, o un conto ligate.
 passkey-delete-modal-cancel-button = Cancellar
 passkey-delete-modal-confirm-button = Deler clave-contrasigno
 passkey-delete-success = Clave-contrasigno delite
@@ -1641,20 +1641,22 @@ index-email-bounced = Tu message de confirmation ha justo ora essite retornate. 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Saltar le contrasigno le proxime vice?
 # Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Connexe a { -brand-firefox }
+inline-passwordless-sync-setup-success-banner-v2 = Tu ha accedite, e le synchronisation es activate
 inline-passwordless-sync-setup-heading = Saltar le contrasigno le proxime vice??
 inline-passwordless-sync-setup-description = Usa iste clave-contrasigno pro acceder plus velocemente.
 inline-passwordless-sync-setup-enable-button = Activar clave-contrasigno
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Activation…
 inline-passwordless-sync-setup-not-now-button = Non ora
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Iste clave-contrasigno es preste pro acceder e synchronisar
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = Iste clave-contrasigno es activate pro acceder e synchronisar
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Confirmation de clave-contrasigno non completate
 inline-passwordless-sync-setup-error-cancelled-description = Confirma con tu clave-contrasigno pro saltar le contrasigno le proxime vice.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Alco errate eveniva, tu ancora debera inserer tu contrasigno le proxime vice
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = Impossibile activar iste clave-contrasigno pro acceder e synchronisar. Tu besoniara tu contrasigno le proxime vice.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1914,8 +1916,8 @@ pair2-authority-scan-qr-heading = Scande pro connecter tu apparato mobile
 pair2-authority-scan-qr-instruction = Scande le codice QR con tu telephono o tabletta pro synchronisar marcapaginas, schedas, e plus de tu { -brand-firefox }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Codice QR pro connecter tu apparato mobile
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Obtener auxilio per le scansion
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Altere manieras pro acceder
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Saltar pro iste momento
 
@@ -2024,8 +2026,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Pro saper plus
 pair2-supplicant-sync-success-heading = Tu apparato es connexe
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = Le synchronisation es in curso. Il pote passar un poco pro apparer tu datos synchronisate. Senti te libere de continuar a navigar.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Gerer parametros de synchronisation
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2052,6 +2052,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Pro connecter un appa
 permissions-heading = { $serviceName } vole acceder a:
 permissions-label-email = Adresse de e-mail
 permissions-label-display-name = Nomine a monstrar
+permissions-label-avatar = Imagine del conto
 permissions-continue-button = Continuar
 permissions-cancel-button = Cancellar
 
@@ -2160,10 +2161,14 @@ confirm-totp-reset-password-use-different-account = Usa un conto differente
 ## ResetPassword start page
 
 password-reset-flow-heading = Reinitialisa tu contrasigno
-password-reset-body-3 = Remontar tu contrasigno pote interessar datos de navigator synchronisate.
+password-reset-forgot-heading = Contrasigno oblidate?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Tenta acceder con { -brand-google }, { -brand-apple }, o un clave-contrasigno in vice.</signInLink> O insere tu e-mail e nos te inviara un codice pro reinitialisar tu contrasigno.
 password-reset-email-input =
     .label = Insere tu email
 password-reset-submit-button-2 = Continuar
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Remontar tu contrasigno pote interessar si tu pote recuperar datos de navigator synchronisate. <learnMoreLink>Pro saper plus</learnMoreLink>
 
 ## ResetPasswordConfirmed
 
@@ -2529,4 +2534,6 @@ signup-confirmed-sync-set-password-success-banner = Contrasigno de synchronisati
 ## UpdateFirefox page
 ## Shown when the browser is too old to use a Mozilla account
 
+update-firefox-heading = Actualisation de { -brand-firefox } necessari
+update-firefox-description = Tu { -product-mozilla-account } usa le functionalitates que non es supportate in tu version de { -brand-firefox }. Discarga e installa le ultime version de { -brand-firefox } pro continuar.
 update-firefox-download-button = Discargar ultime version

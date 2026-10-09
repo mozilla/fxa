@@ -939,7 +939,7 @@ passkey-sub-row-created-date = Create le: { $createdDate }
 passkey-sub-row-last-used-date = Usate le ultime vice le: { $lastUsedDate }
 passkey-sub-row-delete-title = Deler clave-contrasigno
 passkey-delete-modal-heading = Deler tu clave-contrasigno?
-passkey-delete-modal-content-v2 = Iste clave-contrasigno sera removite de tu conto. Tu debera acceder per un methodo differente (contrasigno, un altere clave-contrasigno, o conto ligate).
+passkey-delete-modal-content-v3 = Iste clave-contrasigno sera removite de tu conto. Tu debera acceder usante un contrasigno, un altere clave-contrasigno, o un conto ligate.
 passkey-delete-modal-cancel-button = Cancellar
 passkey-delete-modal-confirm-button = Deler clave-contrasigno
 passkey-delete-success = Clave-contrasigno delite
@@ -1185,16 +1185,16 @@ index-email-bounced = Tu message de confirmation ha justo ora essite retornate. 
 
 
 inline-passwordless-sync-setup-page-title = Saltar le contrasigno le proxime vice?
-inline-passwordless-sync-setup-success-banner = Connexe a { -brand-firefox }
+inline-passwordless-sync-setup-success-banner-v2 = Tu ha accedite, e le synchronisation es activate
 inline-passwordless-sync-setup-heading = Saltar le contrasigno le proxime vice??
 inline-passwordless-sync-setup-description = Usa iste clave-contrasigno pro acceder plus velocemente.
 inline-passwordless-sync-setup-enable-button = Activar clave-contrasigno
 inline-passwordless-sync-setup-enabling = Activation…
 inline-passwordless-sync-setup-not-now-button = Non ora
-inline-passwordless-sync-setup-success-alert = Iste clave-contrasigno es preste pro acceder e synchronisar
+inline-passwordless-sync-setup-success-alert-v2 = Iste clave-contrasigno es activate pro acceder e synchronisar
 inline-passwordless-sync-setup-error-cancelled = Confirmation de clave-contrasigno non completate
 inline-passwordless-sync-setup-error-cancelled-description = Confirma con tu clave-contrasigno pro saltar le contrasigno le proxime vice.
-inline-passwordless-sync-setup-error-generic = Alco errate eveniva, tu ancora debera inserer tu contrasigno le proxime vice
+inline-passwordless-sync-setup-error-generic-v2 = Impossibile activar iste clave-contrasigno pro acceder e synchronisar. Tu besoniara tu contrasigno le proxime vice.
 
 
 inline-recovery-key-setup-create-error = Oops! Impossibile crear le clave de recuperation del conto. Retenta plus tarde.
@@ -1333,7 +1333,7 @@ pair2-authority-download-firefox-cta = Discarga { -brand-firefox }
 pair2-authority-scan-qr-heading = Scande pro connecter tu apparato mobile
 pair2-authority-scan-qr-instruction = Scande le codice QR con tu telephono o tabletta pro synchronisar marcapaginas, schedas, e plus de tu { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Codice QR pro connecter tu apparato mobile
-pair2-authority-scan-qr-help-link = Obtener auxilio per le scansion
+pair2-authority-scan-qr-other-ways-link = Altere manieras pro acceder
 pair2-authority-scan-qr-skip-button = Saltar pro iste momento
 
 
@@ -1382,7 +1382,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Pro saper plus
 
 pair2-supplicant-sync-success-heading = Tu apparato es connexe
 pair2-supplicant-sync-success-description-v2 = Le synchronisation es in curso. Il pote passar un poco pro apparer tu datos synchronisate. Senti te libere de continuar a navigar.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Gerer parametros de synchronisation
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Il pare que nos exiva foras tempore limite.
@@ -1394,6 +1393,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Pro connecter un appa
 permissions-heading = { $serviceName } vole acceder a:
 permissions-label-email = Adresse de e-mail
 permissions-label-display-name = Nomine a monstrar
+permissions-label-avatar = Imagine del conto
 permissions-continue-button = Continuar
 permissions-cancel-button = Cancellar
 
@@ -1460,10 +1460,12 @@ confirm-totp-reset-password-use-different-account = Usa un conto differente
 
 
 password-reset-flow-heading = Reinitialisa tu contrasigno
-password-reset-body-3 = Remontar tu contrasigno pote interessar datos de navigator synchronisate.
+password-reset-forgot-heading = Contrasigno oblidate?
+password-reset-alternatives-body = <signInLink>Tenta acceder con { -brand-google }, { -brand-apple }, o un clave-contrasigno in vice.</signInLink> O insere tu e-mail e nos te inviara un codice pro reinitialisar tu contrasigno.
 password-reset-email-input =
     .label = Insere tu email
 password-reset-submit-button-2 = Continuar
+password-reset-data-recovery-warning = Remontar tu contrasigno pote interessar si tu pote recuperar datos de navigator synchronisate. <learnMoreLink>Pro saper plus</learnMoreLink>
 
 
 reset-password-complete-header = Tu contrasigno ha essite remontate
@@ -1698,4 +1700,6 @@ signup-confirmed-sync-manage-sync-button = Gerer synchronisation
 signup-confirmed-sync-set-password-success-banner = Contrasigno de synchronisation create
 
 
+update-firefox-heading = Actualisation de { -brand-firefox } necessari
+update-firefox-description = Tu { -product-mozilla-account } usa le functionalitates que non es supportate in tu version de { -brand-firefox }. Discarga e installa le ultime version de { -brand-firefox } pro continuar.
 update-firefox-download-button = Discargar ultime version

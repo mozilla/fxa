@@ -1270,7 +1270,6 @@ passkey-sub-row-created-date = Oprettet: { $createdDate }
 passkey-sub-row-last-used-date = Senest anvendt: { $lastUsedDate }
 passkey-sub-row-delete-title = Slet adgangsnøgle
 passkey-delete-modal-heading = Slet din adgangsnøgle?
-passkey-delete-modal-content-v2 = Denne adgangsnøgle vil blive fjernet fra din konto. Du skal logge ind med en anden metode (adgangskode, en anden adgangsnøgle eller en tilknyttet konto).
 passkey-delete-modal-cancel-button = Annuller
 passkey-delete-modal-confirm-button = Slet adgangsnøgle
 passkey-delete-success = Adgangsnøgle slettet
@@ -1632,8 +1631,6 @@ index-email-bounced = Din bekræftelsesmail kom retur. Forkert indtastet mailadr
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Spring adgangskoden over næste gang?
-# Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Logget ind på { -brand-firefox }
 inline-passwordless-sync-setup-heading = Spring adgangskoden over næste gang?
 inline-passwordless-sync-setup-description = Brug denne adgangsnøgle til at logge ind hurtigere.
 inline-passwordless-sync-setup-enable-button = Aktiver adgangsnøgle
@@ -1899,8 +1896,6 @@ pair2-authority-scan-qr-heading = Skan for at forbinde din mobile enhed
 pair2-authority-scan-qr-instruction = Skan QR-koden med din telefon eller tablet for at synkronisere bogmærker, faneblade med mere i { -brand-firefox }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR-kode til at forbinde din mobile enhed
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Få hjælp til at skanne
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Hop over indtil videre
 
@@ -1985,8 +1980,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Læs mere
 pair2-supplicant-sync-success-heading = Din enhed er forbundet
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = Synkronisering er i gang. Det kan tage et stykke tid, før dine synkroniserede data vises. Du er velkommen til at fortsætte med at browse.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Håndter indstillinger for synkronisering
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2101,7 +2094,6 @@ confirm-totp-reset-password-use-different-account = Brug en anden konto
 ## ResetPassword start page
 
 password-reset-flow-heading = Nulstil din adgangskode
-password-reset-body-3 = Nulstilling af din adgangskode kan påvirke synkroniserede browserdata.
 password-reset-email-input =
     .label = Indtast din mailadresse
 password-reset-submit-button-2 = Fortsæt

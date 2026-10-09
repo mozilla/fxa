@@ -1271,7 +1271,7 @@ passkey-sub-row-created-date = Erstellt: { $createdDate }
 passkey-sub-row-last-used-date = Zuletzt verwendet: { $lastUsedDate }
 passkey-sub-row-delete-title = Zugangsschlüssel löschen
 passkey-delete-modal-heading = Ihren Zugangsschlüssel löschen?
-passkey-delete-modal-content-v2 = Dieser Zugangsschlüssel wird von Ihrem Konto entfernt. Sie müssen sich mit einer anderen Methode anmelden (Passwort, anderer Zugangsschlüssel oder verknüpftes Konto).
+passkey-delete-modal-content-v3 = Dieser Zugangsschlüssel wird von Ihrem Konto entfernt. Sie müssen sich mit einem Passwort, einem anderen Zugangsschlüssel oder einem verknüpften Konto anmelden.
 passkey-delete-modal-cancel-button = Abbrechen
 passkey-delete-modal-confirm-button = Zugangsschlüssel löschen
 passkey-delete-success = Zugangsschlüssel gelöscht
@@ -1636,20 +1636,22 @@ index-email-bounced = Ihre Bestätigungs-E-Mail kam gerade zurück. Stimmt Ihre 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Passwort beim nächsten Mal überspringen?
 # Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Bei { -brand-firefox } angemeldet
+inline-passwordless-sync-setup-success-banner-v2 = Sie sind angemeldet und die Synchronisierung ist aktiviert
 inline-passwordless-sync-setup-heading = Passwort beim nächsten Mal überspringen?
 inline-passwordless-sync-setup-description = Verwenden Sie diesen Zugangsschlüssel, um sich schneller anzumelden.
 inline-passwordless-sync-setup-enable-button = Zugangsschlüssel aktivieren
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Wird aktiviert…
 inline-passwordless-sync-setup-not-now-button = Nicht jetzt
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Dieser Zugangsschlüssel kann jetzt für die Anmeldung zur Synchronisierung verwendet werden
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = Dieser Zugangsschlüssel ist für die Sync-Anmeldung aktiviert
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Bestätigung des Zugangsschlüssels nicht abgeschlossen
 inline-passwordless-sync-setup-error-cancelled-description = Bestätigen Sie Ihre Identität mit Ihrem Zugangsschlüssel, damit Sie beim nächsten Mal kein Passwort eingeben müssen.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Ein Fehler ist aufgetreten, beim nächsten Mal müssen Sie Ihr Passwort weiterhin eingeben
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = Wir konnten diesen Zugangsschlüssel nicht für die Sync-Anmeldung aktivieren. Sie benötigen Ihr Passwort beim nächsten Mal.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1909,8 +1911,8 @@ pair2-authority-scan-qr-heading = Zum Verbinden mit Ihrem Mobilgerät scannen
 pair2-authority-scan-qr-instruction = Scannen Sie den QR-Code mit Ihrem Handy oder Tablet, um Ihre Lesezeichen, Tabs und mehr von { -brand-firefox } zu synchronisieren.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR-Code zum Verbinden Ihres Mobilgeräts
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Hilfe beim Scannen
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Andere Anmeldemöglichkeiten
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Vorerst überspringen
 
@@ -2019,8 +2021,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Weitere Informationen
 pair2-supplicant-sync-success-heading = Ihr Gerät ist verbunden
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = Die Synchronisierung wird durchgeführt. Es kann eine Weile dauern, bis Ihre synchronisierten Daten angezeigt werden. Surfen Sie weiter.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Synchronisations-Einstellungen verwalten
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2047,6 +2047,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Um jederzeit ein Ger�
 permissions-heading = { $serviceName } möchte Zugriff auf:
 permissions-label-email = E-Mail-Adresse
 permissions-label-display-name = Anzeigename
+permissions-label-avatar = Kontobild
 permissions-continue-button = Weiter
 permissions-cancel-button = Abbrechen
 
@@ -2155,10 +2156,14 @@ confirm-totp-reset-password-use-different-account = Ein anderes Konto verwenden
 ## ResetPassword start page
 
 password-reset-flow-heading = Setzen Sie Ihr Passwort zurück
-password-reset-body-3 = Das Zurücksetzen Ihres Passworts kann sich auf synchronisierte Browser-Daten auswirken.
+password-reset-forgot-heading = Passwort vergessen?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Versuchen Sie, sich mit { -brand-google }, { -brand-apple } oder einem Zugangsschlüssel anzumelden.</signInLink> Oder geben Sie Ihre E-Mail-Adresse ein und wir schicken Ihnen einen Code, um Ihr Passwort zurückzusetzen.
 password-reset-email-input =
     .label = E-Mail-Adresse eingeben
 password-reset-submit-button-2 = Weiter
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Das Zurücksetzen Ihres Passworts kann sich darauf auswirken, ob Sie synchronisierte Browser-Daten wiederherstellen können. <learnMoreLink>Weitere Informationen</learnMoreLink>
 
 ## ResetPasswordConfirmed
 

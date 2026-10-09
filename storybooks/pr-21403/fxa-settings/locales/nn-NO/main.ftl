@@ -167,6 +167,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Stadfest passord
 form-password-with-inline-criteria-reset-submit-button = Lag nytt passord
+form-password-with-inline-criteria-old-password-label =
+    .label = Gammalt passord
+form-password-with-inline-criteria-change-password-submit-button = Endre passord
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Passord
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -938,7 +941,6 @@ passkey-sub-row-created-date = Oppretta: { $createdDate }
 passkey-sub-row-last-used-date = Sist brukt: { $lastUsedDate }
 passkey-sub-row-delete-title = Slett passnøkkel
 passkey-delete-modal-heading = Slette passnøkkelen?
-passkey-delete-modal-content-v2 = Denne tilgangsnøkkelen vil bli fjerna frå kontoen din. Du må logge på med ein annan metode (passord, ein annan tilgangsnøkkel eller ein tilknytt konto).
 passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Slett passnøkkel
 passkey-delete-success = Passnøkkel sletta
@@ -1182,16 +1184,13 @@ index-email-bounced = Stadfestings e-posten din kom i retur. Feil i e-postadress
 
 
 inline-passwordless-sync-setup-page-title = Hoppe over passordet neste gong?
-inline-passwordless-sync-setup-success-banner = Logga inn på { -brand-firefox }
 inline-passwordless-sync-setup-heading = Hoppe over passordet neste gong?
 inline-passwordless-sync-setup-description = Bruk denne passnøkkelen for å logge på raskare.
 inline-passwordless-sync-setup-enable-button = Slå på passnøkkel
 inline-passwordless-sync-setup-enabling = Slår på…
 inline-passwordless-sync-setup-not-now-button = Ikkje no
-inline-passwordless-sync-setup-success-alert = Denne passnøkkelen er klar for pålogging med synkronisering
 inline-passwordless-sync-setup-error-cancelled = Stadfestinga med passnøkkelen vart ikkje fullført
 inline-passwordless-sync-setup-error-cancelled-description = Stadfest med passnøkkelen din for å sleppe å skrive inn passordet neste gong.
-inline-passwordless-sync-setup-error-generic = Noko gjekk gale. Du må framleis skrive inn passordet neste gong.
 
 
 inline-recovery-key-setup-create-error = Ops! Vi klarte ikkje å opprette kontogjenopprettingsnøkkelen din. Prøv igjen seinare.
@@ -1330,7 +1329,6 @@ pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
 pair2-authority-scan-qr-heading = Skann for å kople til mobileininga di
 pair2-authority-scan-qr-instruction = Skann QR-koden med telefonen eller nettbrettet for å synkronisere bokmerka, fanene og meir i { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = QR-kode for å kople til mobileininga di
-pair2-authority-scan-qr-help-link = Få hjelp med skanning
 pair2-authority-scan-qr-skip-button = Hopp over no
 
 
@@ -1357,8 +1355,19 @@ pair2-supplicant-connect-this-device-connect-button = Kople til
 pair2-supplicant-connect-this-device-cancel-button = Avbryt
 
 
+pair2-supplicant-download-firefox-heading-v2 = Opne { -brand-firefox } på denne eininga
+pair2-supplicant-download-firefox-description-v2 = Last ned { -brand-firefox } for å synkronisere bokmerke, historikk og meir på tvers av einingar.
 pair2-supplicant-download-firefox-continue-button = Hald fram i { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Opnar { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Last ned { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = Eg har allereie { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Les meir
+
+
+pair2-supplicant-connect-hint-heading-v2 = Fullfør samankoplinga i appen
+pair2-supplicant-connect-hint-step-app-menu = Trykk på <b>appmenyen</b> i verktøylinja
+pair2-supplicant-connect-hint-step-sign-in = Trykk på <b>logg inn</b>, og skann deretter koden
+pair2-supplicant-connect-hint-learn-more-link = Les meir
 
 
 pair2-supplicant-ready-to-scan-heading = For å kople til ei eining
@@ -1368,7 +1377,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Les meir
 
 pair2-supplicant-sync-success-heading = Eininga di er tilkopla
 pair2-supplicant-sync-success-description-v2 = Synkronisering er i gang. Det kan ta litt tid før dei synkroniserte dataa dine visest. Du kan gjerne halde fram med å surfe.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Handsam synkroniseringsinnstillingar
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Det ser ut til at det oppstod eit tidsavbrot
@@ -1382,6 +1390,11 @@ permissions-label-email = E-postadresse
 permissions-label-display-name = Visingsnamn
 permissions-continue-button = Hald fram
 permissions-cancel-button = Avbryt
+
+
+force-password-change-heading = Endre passordet ditt
+force-password-change-info = Vi oppdaga mistenkjeleg åtferd på { -product-mozilla-account } din. Opprett eit nytt passord for å verne kontoen din. Du brukar dette passordet for å logge deg på alle { -product-mozilla-account }tenestene dine.
+force-password-change-data-info = Synkronisert historikk, bokmerke, innloggingar og andre personlege data vil ikkje gå tapt.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } stadfesta
@@ -1441,7 +1454,6 @@ confirm-totp-reset-password-use-different-account = Bruk ein annan konto
 
 
 password-reset-flow-heading = Tilbakestill passordet ditt
-password-reset-body-3 = Tilbakestilling av passordet kan påverke synkroniserte nettlesardata.
 password-reset-email-input =
     .label = Skriv inn e-postadressa di
 password-reset-submit-button-2 = Hald fram
@@ -1683,4 +1695,5 @@ signup-confirmed-sync-set-password-success-banner = Synkroniseringspassord oppre
 
 
 update-firefox-heading = { -brand-firefox }-oppdatering påkravd
+update-firefox-description = { -product-mozilla-account }en din brukar funksjonar som ikkje blir støtta versjonen din av { -brand-firefox }. Last ned og installer den nyaste versjonen av { -brand-firefox } for å halde fram.
 update-firefox-download-button = Last ned den nyaste versjonen

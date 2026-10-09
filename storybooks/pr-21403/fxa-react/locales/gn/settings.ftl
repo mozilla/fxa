@@ -167,6 +167,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Emoneĩ ñe'ẽñemi
 form-password-with-inline-criteria-reset-submit-button = Emoheñói ñe’ẽñemi pyahu
+form-password-with-inline-criteria-old-password-label =
+    .label = Ñe’ẽñemi itujáva
+form-password-with-inline-criteria-change-password-submit-button = Emoambue ñe’ẽñemi
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Ñe’ẽñemi
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1087,6 +1090,10 @@ recent-activity-account-recovery-codes-set = Ayvu guerujeyrãva mboajepyre
 recent-activity-account-passkey-wrap-created = Ñe’ẽ ñemi oikóva embojuehe hag̃ua
 # A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
 recent-activity-account-passkey-wrap-creation-failure = Ndoikói Sync ñemboheko ñe’ẽ ñemi ndive
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = Oñembogue Sync-pe jeike ñe’ẽ ñemi ndive
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = Ojavy emboguévo ñembojuehépe jeike ñe’ẽ ñemi ndive
 # A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
 recent-activity-account-passkey-wrap-invalidated = Ojepe’a ñembojuehe ñe’ẽ ñemi ndive ñe’ẽñemi oikojey rire
 # Security event was recorded, but the activity details are unknown or not shown to user
@@ -1261,7 +1268,6 @@ passkey-sub-row-created-date = Heñói: { $createdDate }
 passkey-sub-row-last-used-date = Jeporu ramovéva: { $lastUsedDate }
 passkey-sub-row-delete-title = Emboguete ñe’ẽñemi
 passkey-delete-modal-heading = ¿Emboguete pe ñe’ẽñemi?
-passkey-delete-modal-content-v2 = Ko ñe’ẽñemi jeikerã reheguáva oñembogueva’erã nde mba’etégui. Eikeva’erã ambueháicha (ñe’ẽñemi, ambue mba’e jeikerã térã mba’ete heseguáva).
 passkey-delete-modal-cancel-button = Eheja
 passkey-delete-modal-confirm-button = Emboguete ñe’ẽñemi
 passkey-delete-success = Ñe’ẽñemi mboguetepyre
@@ -1471,6 +1477,7 @@ auth-error-228 = Ndoikói pe ñe’ẽ ñemi ñembokuatia
 auth-error-233 = Ejapo hag̃ua ñe’ẽ ñemi jeikaha, emboheko mba’erechaha jokoha, PIN, kuãhũ térã tova jeikuaaha ne mba’e’okápe térã ñe’ẽ ñemi rekorosãrã. Ejapo rire, ehaʼã jey.
 auth-error-238 = Ndoikói ñe’ẽ ñemi raperã
 auth-error-239 = Rombyasy, ndaikatúikuri rombogue ne mba’ete. Eha’ã jey térã eñe’ẽ pytyvõhára ndive ndopáirõ apañuái.
+auth-error-240 = Ko mba’ete oñemboguéma
 auth-error-999 = Jejavy eha’ãrõ’ỹva
 auth-error-1001 = Ojejokóma tembiapo ñepyrũ
 auth-error-1002 = Hu’ãma tembiapo. Eñepyrũjey emba’apo hag̃ua.
@@ -1621,10 +1628,17 @@ index-email-bounced = Ne ñanduti veve ñemoneĩrã ojevyjeýma. ¿Ikatu ehaivai
 
 ## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
 
+# Browser tab title.
+inline-passwordless-sync-setup-page-title = ¿Ehejarei ñe’ẽñemi eiporujeývo?
+inline-passwordless-sync-setup-heading = ¿Ehejarei ñe’ẽñemi eiporujeývo?
+inline-passwordless-sync-setup-description = Eiporu ko ñe’ẽ ñemi eike pya’eve hag̃ua.
 inline-passwordless-sync-setup-enable-button = Ejora ñe’ẽ ñemi jeikeha
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Emyandyhína…
 inline-passwordless-sync-setup-not-now-button = Ani ko’ág̃a
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Nahu’ãi upe ñe’ẽ ñemi ñemoneĩ
+inline-passwordless-sync-setup-error-cancelled-description = Emoneĩ ñe’ẽ ñemi emboyke hag̃ua ñe’ẽñemi eiporujeývo.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1884,8 +1898,6 @@ pair2-authority-scan-qr-heading = Emoha’ãnga eike hag̃ua ambue mba’e’ok�
 pair2-authority-scan-qr-instruction = Emoha’ãnga QR ayvu ne pumbyry térã tablétape embojuehe hag̃ua { -brand-firefox } rechaukaha ha hetave.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR ayvu eike hag̃ua ne mba’e’okápe
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Eñepytyvõta emoha’ãnga hag̃ua
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Ehasa ko’ág̃a
 
@@ -1893,6 +1905,7 @@ pair2-authority-scan-qr-skip-button = Ehasa ko’ág̃a
 ## Users see this on their computer once the mobile device has been paired.
 ## It confirms that sync is on and links to sync settings.
 
+pair2-authority-sync-success-heading-v2 = Ne mba’e’oka ojuajuhína
 # Opens the browser settings that control what is synced
 pair2-authority-sync-success-sync-settings-button-v2 = Eñangareko mbojueherã ñembohekóre
 
@@ -1946,6 +1959,23 @@ pair2-supplicant-connect-this-device-cancel-button = Eheja
 pair2-supplicant-download-firefox-continue-button = Eku’ejey { -brand-firefox } ndive
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = Ijurujahína { -brand-firefox }…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = Emboguejy { -brand-firefox }
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = Aguerekóma { -brand-firefox }
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = Eikuaave
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = Emohu’ã tembiporu’i mbojuehe
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = Eikuaave
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -1964,8 +1994,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Eikuaave
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Ne mba’e’oka ojuajuhína
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Eñangareko mbojueherã ñembohekóre
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2091,7 +2119,6 @@ confirm-totp-reset-password-use-different-account = Eiporu ambuéva mba’ete
 ## ResetPassword start page
 
 password-reset-flow-heading = Embojevyjey ne ñe’ẽñemi
-password-reset-body-3 = Erujeyvo ñe’ẽñemi ombyaikuaa kundahára mba’ekuaarã ojuehepyre.
 password-reset-email-input =
     .label = Ehai ne ñandutiveve
 password-reset-submit-button-2 = Ku’ejey
@@ -2459,3 +2486,8 @@ signup-confirmed-sync-description-v2 = Ñe’ẽñemi, kundaharape, techaukaha, 
 signup-confirmed-sync-add-device-link = Embojuaju ambue mba’e’oka
 signup-confirmed-sync-manage-sync-button = Eñangareko ñembojuehére
 signup-confirmed-sync-set-password-success-banner = Ñe’ẽñemi ñembojuehe moheñoipyre
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-download-button = Emboguejy mbohekopyahu ramovegua

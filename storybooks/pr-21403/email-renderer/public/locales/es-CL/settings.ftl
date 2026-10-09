@@ -1271,7 +1271,6 @@ passkey-sub-row-created-date = Creada: { $createdDate }
 passkey-sub-row-last-used-date = Último uso: { $lastUsedDate }
 passkey-sub-row-delete-title = Eliminar llave de acceso
 passkey-delete-modal-heading = ¿Eliminar tu llave de acceso?
-passkey-delete-modal-content-v2 = Esta llave de acceso se eliminará de tu cuenta. Deberás conectarte con otro método (contraseña, otra llave de acceso o cuenta vinculada).
 passkey-delete-modal-cancel-button = Cancelar
 passkey-delete-modal-confirm-button = Eliminar llave de acceso
 passkey-delete-success = Llave de acceso eliminada
@@ -1633,21 +1632,15 @@ index-email-bounced = Tu correo de confirmación rebotó. ¿Escribiste bien tu d
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = ¿Omitir contraseña la próxima vez?
-# Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Conectado a { -brand-firefox }
 inline-passwordless-sync-setup-heading = ¿Omitir contraseña la próxima vez?
 inline-passwordless-sync-setup-description = Utilizar esta llave de acceso para conectarse más rápido.
 inline-passwordless-sync-setup-enable-button = Habilitar llave de acceso
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Habilitando…
 inline-passwordless-sync-setup-not-now-button = Ahora no
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Esta llave de acceso está lista para conectarse y sincronizar
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = La confirmación de la llave de acceso no finalizó
 inline-passwordless-sync-setup-error-cancelled-description = Confirma con tu llave de acceso para omitir la contraseña la próxima vez.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Algo se fue a las pailas, todavía deberás usar tu contraseña la próxima vez.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1907,8 +1900,6 @@ pair2-authority-scan-qr-heading = Escanea para conectar tu dispositivo móvil
 pair2-authority-scan-qr-instruction = Escanea el código QR con tu teléfono o tablet para sincronizar tus marcadores, pestañas y más de { -brand-firefox }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Código QR para conectar tu dispositivo móvil
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Obtén ayuda para escanear
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Saltar por ahora
 
@@ -2017,8 +2008,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Aprender más
 pair2-supplicant-sync-success-heading = Tu dispositivo está conectado
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = La sincronización está en curso. Puede que tarde un poco en aparecer la información sincronizada. Puedes seguir navegando sin problemas.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Administrar ajustes de sincronización
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2153,7 +2142,6 @@ confirm-totp-reset-password-use-different-account = Usar una cuenta diferente
 ## ResetPassword start page
 
 password-reset-flow-heading = Restablecer tu contraseña
-password-reset-body-3 = Restablecer tu contraseña puede afectar a los datos sincronizados del navegador.
 password-reset-email-input =
     .label = Ingresa tu correo
 password-reset-submit-button-2 = Continuar

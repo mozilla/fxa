@@ -937,7 +937,7 @@ passkey-sub-row-created-date = Skapad: { $createdDate }
 passkey-sub-row-last-used-date = Senast använd: { $lastUsedDate }
 passkey-sub-row-delete-title = Ta bort lösenordsnyckel
 passkey-delete-modal-heading = Ta bort din lösenordsnyckel?
-passkey-delete-modal-content-v2 = Denna lösenordsnyckel tas bort från ditt konto. Du måste logga in med en annan metod (lösenord, en annan lösenordsnyckel eller länkat konto).
+passkey-delete-modal-content-v3 = Denna lösenordsnyckel tas bort från ditt konto. Du måste logga in med ett lösenord, en annan lösenordsnyckel eller länkat konto.
 passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Ta bort lösenordsnyckel
 passkey-delete-success = Lösenordsnyckel borttagen
@@ -1181,16 +1181,16 @@ index-email-bounced = Ditt bekräftelsemejl har just returnerats. Har du skrivit
 
 
 inline-passwordless-sync-setup-page-title = Slipp lösenordet nästa gång?
-inline-passwordless-sync-setup-success-banner = Inloggad på { -brand-firefox }
+inline-passwordless-sync-setup-success-banner-v2 = Du är inloggad och synkronisering är på
 inline-passwordless-sync-setup-heading = Slippa lösenordet nästa gång?
 inline-passwordless-sync-setup-description = Använd denna nyckel för att logga in snabbare.
 inline-passwordless-sync-setup-enable-button = Aktivera lösenordsnyckel
 inline-passwordless-sync-setup-enabling = Aktiverar…
 inline-passwordless-sync-setup-not-now-button = Inte nu
-inline-passwordless-sync-setup-success-alert = Denna lösenordsnyckel är redo för synkroniserad inloggning
+inline-passwordless-sync-setup-success-alert-v2 = Den här lösenordsnyckeln är aktiverad för inloggning med synkronisering
 inline-passwordless-sync-setup-error-cancelled = Bekräftelse av lösenordsnyckel slutfördes inte
 inline-passwordless-sync-setup-error-cancelled-description = Bekräfta med din lösenordsnyckel för att hoppa över lösenordet nästa gång.
-inline-passwordless-sync-setup-error-generic = Något gick fel, du behöver fortfarande ange ditt lösenord nästa gång
+inline-passwordless-sync-setup-error-generic-v2 = Det gick inte att aktivera den här lösenordsnyckeln för inloggning med synkronisering. Nästa gång behöver du ange ditt lösenord.
 
 
 inline-recovery-key-setup-create-error = Hoppsan! Vi kunde inte skapa din kontoåterställningsnyckel. Försök igen senare.
@@ -1329,7 +1329,7 @@ pair2-authority-download-firefox-cta = Hämta { -brand-firefox }
 pair2-authority-scan-qr-heading = Skanna för att ansluta din mobila enhet
 pair2-authority-scan-qr-instruction = Skanna QR-koden med din telefon eller surfplatta för att synkronisera dina { -brand-firefox }-bokmärken, flikar och mer.
 pair2-authority-scan-qr-code-aria-label = QR-kod för att ansluta din mobila enhet
-pair2-authority-scan-qr-help-link = Få hjälp med att skanna
+pair2-authority-scan-qr-other-ways-link = Andra sätt att logga in
 pair2-authority-scan-qr-skip-button = Hoppa över nu
 
 
@@ -1378,7 +1378,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Läs mer
 
 pair2-supplicant-sync-success-heading = Din enhet är ansluten
 pair2-supplicant-sync-success-description-v2 = Synkronisering pågår. Det kan ta en stund innan din synkroniserade data visas. Fortsätt gärna surfa.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Hantera synkroniseringsinställningar
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Vi gjorde timeout
@@ -1390,6 +1389,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = När du vill ansluta 
 permissions-heading = { $serviceName } vill ha tillgång till:
 permissions-label-email = E-postadress
 permissions-label-display-name = Visningsnamn
+permissions-label-avatar = Kontobild
 permissions-continue-button = Fortsätt
 permissions-cancel-button = Avbryt
 
@@ -1456,10 +1456,12 @@ confirm-totp-reset-password-use-different-account = Använd ett annat konto
 
 
 password-reset-flow-heading = Återställ ditt lösenord
-password-reset-body-3 = Återställning av lösenordet kan påverka synkroniserad webbläsardata.
+password-reset-forgot-heading = Har du glömt lösenordet?
+password-reset-alternatives-body = <signInLink>Försök i stället att logga in med { -brand-google }, { -brand-apple } eller en lösenordsnyckel.</signInLink> Du kan också ange din e-postadress, så skickar vi en kod som du kan använda för att återställa lösenordet.
 password-reset-email-input =
     .label = Ange din e-postadress
 password-reset-submit-button-2 = Fortsätt
+password-reset-data-recovery-warning = Om du återställer lösenordet kan det påverka möjligheten att återfå synkroniserade webbläsardata. <learnMoreLink>Läs mer</learnMoreLink>
 
 
 reset-password-complete-header = Ditt lösenord har återställts

@@ -934,7 +934,6 @@ passkey-sub-row-created-date = Oprettet: { $createdDate }
 passkey-sub-row-last-used-date = Senest anvendt: { $lastUsedDate }
 passkey-sub-row-delete-title = Slet adgangsnøgle
 passkey-delete-modal-heading = Slet din adgangsnøgle?
-passkey-delete-modal-content-v2 = Denne adgangsnøgle vil blive fjernet fra din konto. Du skal logge ind med en anden metode (adgangskode, en anden adgangsnøgle eller en tilknyttet konto).
 passkey-delete-modal-cancel-button = Annuller
 passkey-delete-modal-confirm-button = Slet adgangsnøgle
 passkey-delete-success = Adgangsnøgle slettet
@@ -1177,7 +1176,6 @@ index-email-bounced = Din bekræftelsesmail kom retur. Forkert indtastet mailadr
 
 
 inline-passwordless-sync-setup-page-title = Spring adgangskoden over næste gang?
-inline-passwordless-sync-setup-success-banner = Logget ind på { -brand-firefox }
 inline-passwordless-sync-setup-heading = Spring adgangskoden over næste gang?
 inline-passwordless-sync-setup-description = Brug denne adgangsnøgle til at logge ind hurtigere.
 inline-passwordless-sync-setup-enable-button = Aktiver adgangsnøgle
@@ -1321,7 +1319,6 @@ pair2-authority-download-firefox-cta = Hent { -brand-firefox }
 pair2-authority-scan-qr-heading = Skan for at forbinde din mobile enhed
 pair2-authority-scan-qr-instruction = Skan QR-koden med din telefon eller tablet for at synkronisere bogmærker, faneblade med mere i { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = QR-kode til at forbinde din mobile enhed
-pair2-authority-scan-qr-help-link = Få hjælp til at skanne
 pair2-authority-scan-qr-skip-button = Hop over indtil videre
 
 
@@ -1359,7 +1356,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Læs mere
 
 pair2-supplicant-sync-success-heading = Din enhed er forbundet
 pair2-supplicant-sync-success-description-v2 = Synkronisering er i gang. Det kan tage et stykke tid, før dine synkroniserede data vises. Du er velkommen til at fortsætte med at browse.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Håndter indstillinger for synkronisering
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Det ser ud til, at tidsfristen udløb
@@ -1425,7 +1421,6 @@ confirm-totp-reset-password-use-different-account = Brug en anden konto
 
 
 password-reset-flow-heading = Nulstil din adgangskode
-password-reset-body-3 = Nulstilling af din adgangskode kan påvirke synkroniserede browserdata.
 password-reset-email-input =
     .label = Indtast din mailadresse
 password-reset-submit-button-2 = Fortsæt

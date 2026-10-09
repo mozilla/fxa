@@ -1277,7 +1277,7 @@ passkey-sub-row-created-date = Létrehozva: { $createdDate }
 passkey-sub-row-last-used-date = Utoljára használva: { $lastUsedDate }
 passkey-sub-row-delete-title = Jelkulcs törlése
 passkey-delete-modal-heading = Törli a jelkulcsot?
-passkey-delete-modal-content-v2 = Ez a jelkulcs eltávolításra kerül a fiókjából. Másik módszerrel kell bejelentkeznie (jelszó, másik jelkulcs vagy összekapcsolt fiók használatával).
+passkey-delete-modal-content-v3 = Ez a jelkulcs eltávolításra kerül a fiókjából. Be kell jelentkeznie egy jelszóval, másik jelkulccsal vagy összekapcsolt fiókkal.
 passkey-delete-modal-cancel-button = Mégse
 passkey-delete-modal-confirm-button = Jelkulcs törlése
 passkey-delete-success = Jelkulcs törölve
@@ -1642,20 +1642,22 @@ index-email-bounced = A megerősítő e-mail visszapattant. Talán elgépelte az
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Legközelebb kihagyja a jelszót?
 # Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Bejelentkezve a { -brand-firefox }ba
+inline-passwordless-sync-setup-success-banner-v2 = Bejelentkezett, és a szinkronizálás be van kapcsolva
 inline-passwordless-sync-setup-heading = Legközelebb kihagyja a jelszót?
 inline-passwordless-sync-setup-description = Használja ezt a jelkulcsot a gyorsabb bejelentkezéshez.
 inline-passwordless-sync-setup-enable-button = Jelkulcs engedélyezése
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Engedélyezés…
 inline-passwordless-sync-setup-not-now-button = Most nem
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Ez a jelkulcs készen áll a szinkronizálásba való bejelentkezéshez
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = Ez a jelkulcs engedélyezve van a szinkronizálási bejelentkezéshez
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = A jelszó megerősítése nem fejeződött be
 inline-passwordless-sync-setup-error-cancelled-description = Erősítse meg a jelkulcsával, hogy legközelebb kihagyja a jelszót.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Hiba történt, legközelebb is meg kell adnia a jelszavát
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = Nem tudtuk engedélyezni ezt a jelkulcsot a szinkronizált bejelentkezésnél. Legközelebb szüksége lesz a jelszavára.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1915,8 +1917,8 @@ pair2-authority-scan-qr-heading = Olvassa le a mobileszköze csatlakoztatásáho
 pair2-authority-scan-qr-instruction = Olvassa le a QR-kódot telefonjával vagy táblagépével, és szinkronizálja a { -brand-firefox } könyvjelzőit, lapjait és egyebeit.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR-kód a mobileszköz csatlakoztatásához
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Segítség a leolvasáshoz
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = A bejelentkezés egyéb módjai
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Kihagyás
 
@@ -2025,8 +2027,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = További tudnivalók
 pair2-supplicant-sync-success-heading = Az eszköze csatlakoztatva van
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = A szinkronizálás folyamatban. Eltarthat egy ideig, amíg megjelennek a szinkronizált adatok. Nyugodtan böngésszen.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Szinkronizálási beállítások kezelése
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2053,6 +2053,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Eszköz csatlakoztat�
 permissions-heading = A(z) { $serviceName } hozzáférést kér a következőhöz:
 permissions-label-email = E-mail-cím
 permissions-label-display-name = Megjelenítendő név
+permissions-label-avatar = Fiók képe
 permissions-continue-button = Folytatás
 permissions-cancel-button = Mégse
 
@@ -2161,10 +2162,14 @@ confirm-totp-reset-password-use-different-account = Másik fiók használata
 ## ResetPassword start page
 
 password-reset-flow-heading = Jelszó visszaállítása
-password-reset-body-3 = A jelszó visszaállítása hatással lehet a szinkronizált böngészési adatokra.
+password-reset-forgot-heading = Elfelejtette a jelszavát?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Próbáljon meg bejelentkezni a(z) { -brand-google }, { -brand-apple } használatával, vagy inkább egy jelkulcsot.</signInLink> Vagy adja meg az e-mail címét, és küldünk egy kódot, amellyel helyreállíthatja a jelszavát.
 password-reset-email-input =
     .label = Adja meg az e-mail-címét
 password-reset-submit-button-2 = Folytatás
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = A jelszó visszaállítása befolyásolhatja, hogy visszaállíthatja-e a szinkronizált böngészőadatokat. <learnMoreLink>Tudjon meg többet</learnMoreLink>
 
 ## ResetPasswordConfirmed
 
