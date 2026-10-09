@@ -495,6 +495,20 @@ describe('/account/reset', () => {
     });
   });
 
+  describe('reset account with an already-consumed account reset token', () => {
+    beforeEach(() => {
+      mockDB.consumeAccountResetToken = jest.fn(() =>
+        Promise.reject(error.invalidToken())
+      );
+    });
+
+    it('rejects with invalidToken', async () => {
+      await expect(runTest(route, mockRequest)).rejects.toMatchObject({
+        errno: error.invalidToken().errno,
+      });
+    });
+  });
+
   describe('reset account with account recovery key, isFirefoxMobileClient=true', () => {
     beforeEach(() => {
       mockRequest.payload.wrapKb = hexString(32);
