@@ -1,8 +1,8 @@
 {
-  "commit": "ea63b98b55c18660e35677bff127b018e287192f",
-  "summary": "Merge pull request #21303 from mozilla/fxa-14379",
-  "description": "refactor(content-server): retire Backbone email-verification link routes",
-  "timestamp": 1791565352000,
+  "commit": "462a1a129cd3f0ba9eec1acbd29dfb1cbfc4bd71",
+  "summary": "Merge pull request #21435 from mozilla/fxa-14580",
+  "description": "fix(admin-panel): update the Authorized Browser Services note",
+  "timestamp": 1791568868000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
