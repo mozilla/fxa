@@ -30,6 +30,7 @@ export async function addWafBypassHeader(page: Page, target: BaseTarget) {
     new URL(target.authServerUrl).host,
     new URL(target.paymentsNextUrl).host,
     new URL(target.relierUrl).host,
+    new URL(target.untrustedRelierUrl).host,
   ];
   const pattern = new RegExp(
     fxaDomains.map((d) => d.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')
