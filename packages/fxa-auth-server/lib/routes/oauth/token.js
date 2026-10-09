@@ -1096,7 +1096,7 @@ module.exports = ({
 
         if (updateLastAccessTime && sessionToken) {
           sessionToken.lastAccessTime = Date.now();
-          await db.touchSessionToken(sessionToken, {}, true);
+          await db.touchSessionToken(sessionToken, req.app.geo, true);
         }
 
         // Strip internal properties before returning to client

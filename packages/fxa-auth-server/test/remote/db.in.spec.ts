@@ -298,6 +298,29 @@ describe('#integration - remote db', () => {
     expect(sessions[0].uaFormFactor).toBeNull();
     expect(sessions[0].location.country).toBe('United Kingdom');
 
+    // A last-access-only touch updates location but keeps the cached UA
+    await db.touchSessionToken(
+      Object.assign({}, await db.sessionToken(tokenId), {
+        lastAccessTime: Date.now(),
+      }),
+      {
+        location: {
+          city: 'Mountain View',
+          country: 'United States',
+          countryCode: 'US',
+          state: 'California',
+          stateCode: 'CA',
+        },
+      },
+      true
+    );
+
+    sessions = await db.sessions(account.uid);
+    expect(sessions[0].location.city).toBe('Mountain View');
+    expect(sessions[0].location.stateCode).toBe('CA');
+    expect(sessions[0].uaBrowser).toBe('Firefox Mobile');
+    expect(sessions[0].uaOS).toBe('Android');
+
     // Fetch the session token
     fetchedToken = await db.sessionToken(tokenId);
     // this returns previously stored data since sessionToken doesn't read from cache
