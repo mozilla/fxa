@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { MemoryRouter } from 'react-router';
 import * as Sentry from '@sentry/react';
-import ScanQRContainer from './container';
+import ScanQRContainer, { SIGNED_IN_POLL_MS } from './container';
+import firefox from '../../../../lib/channels/firefox';
 import {
   MOCK_NON_PAIRING_INTEGRATION,
   MOCK_PAIR_URL,
@@ -16,6 +17,25 @@ import {
   mockAuthorityIntegration,
 } from './mocks';
 import { AuthorityState, Integration } from '../../../../models';
+import * as ReactUtils from 'fxa-react/lib/utils';
+import { mockUseFxAStatus } from '../../../../lib/hooks/useFxAStatus/mocks';
+import type { UseFxAStatusResult } from '../../../../lib/hooks';
+import type { SignedInUser } from '../../../../lib/channels/firefox';
+
+const MOCK_SIGNED_IN_USER: SignedInUser = {
+  uid: 'sync-uid',
+  email: 'sync@example.com',
+  sessionToken: 'token',
+  verified: true,
+};
+
+/** What Firefox answers on fxa_status for the given account, if any. */
+const signedInStatus = (
+  signedInUser: SignedInUser | undefined
+): UseFxAStatusResult => {
+  const result = mockUseFxAStatus({ pairingVersion: 2 });
+  return { ...result, fxaStatus: { ...result.fxaStatus, signedInUser } };
+};
 
 const mockNavigate = jest.fn();
 jest.mock('react-router', () => ({
@@ -75,12 +95,122 @@ describe('Pair2/Authority/ScanQR container', () => {
     jest.restoreAllMocks();
   });
 
-  const renderContainer = (i: Integration = integration) =>
+  const renderContainer = (
+    i: Integration = integration,
+    fxaStatusResult: UseFxAStatusResult = signedInStatus(MOCK_SIGNED_IN_USER)
+  ) =>
     renderWithLocalizationProvider(
       <MemoryRouter>
-        <ScanQRContainer integration={i} />
+        <ScanQRContainer integration={i} {...{ fxaStatusResult }} />
       </MemoryRouter>
     );
+
+  // The QR is only useful while the browser can approve the sign-in it leads
+  // to, so the channel is gated on fxa_status.
+  describe('browser sign-in status', () => {
+    let hardNavigate: jest.SpyInstance;
+
+    beforeEach(() => {
+      hardNavigate = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+    });
+
+    it('waits for fxa_status before opening a channel', () => {
+      renderContainer(
+        integration,
+        mockUseFxAStatus({ fxaStatusState: 'pending' })
+      );
+
+      expect(integration.createChannel).not.toHaveBeenCalled();
+      expect(hardNavigate).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['no signed-in user', undefined],
+      ['an unverified user', { ...MOCK_SIGNED_IN_USER, verified: false }],
+      [
+        'a disconnected user',
+        { ...MOCK_SIGNED_IN_USER, sessionToken: undefined },
+      ],
+    ])(
+      'sends the browser back to /pair without a channel when it reports %s',
+      (_, signedInUser) => {
+        renderContainer(integration, signedInStatus(signedInUser));
+
+        expect(hardNavigate).toHaveBeenCalledWith('/pair', {}, true);
+        expect(integration.createChannel).not.toHaveBeenCalled();
+      }
+    );
+
+    it('sends a browser that did not answer back to /pair', () => {
+      renderContainer(
+        integration,
+        mockUseFxAStatus({ fxaStatusState: 'unanswered' })
+      );
+
+      expect(hardNavigate).toHaveBeenCalledWith('/pair', {}, true);
+      expect(integration.createChannel).not.toHaveBeenCalled();
+    });
+
+    describe('while the QR is on screen', () => {
+      let fxaStatus: jest.SpyInstance;
+
+      beforeEach(() => {
+        jest.useFakeTimers();
+        fxaStatus = jest.spyOn(firefox, 'fxaStatus');
+      });
+
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      const poll = () =>
+        act(() => jest.advanceTimersByTimeAsync(SIGNED_IN_POLL_MS));
+
+      it('asks the browser again and stays while it is signed in', async () => {
+        fxaStatus.mockResolvedValue({ signedInUser: MOCK_SIGNED_IN_USER });
+        renderContainer();
+
+        await poll();
+        await poll();
+
+        expect(fxaStatus).toHaveBeenCalledTimes(2);
+        expect(hardNavigate).not.toHaveBeenCalled();
+        expect(integration.destroy).not.toHaveBeenCalled();
+      });
+
+      it('closes the channel and sends a browser that signed out back to /signin', async () => {
+        fxaStatus.mockResolvedValue({ signedInUser: undefined });
+        renderContainer();
+
+        await poll();
+
+        expect(integration.destroy).toHaveBeenCalled();
+        expect(hardNavigate).toHaveBeenCalledWith('/pair', {}, true);
+      });
+
+      it('sends a browser that stopped answering back to /pair', async () => {
+        fxaStatus.mockResolvedValue(undefined);
+        renderContainer();
+
+        await poll();
+
+        expect(integration.destroy).toHaveBeenCalled();
+        expect(hardNavigate).toHaveBeenCalledWith('/pair', {}, true);
+      });
+
+      it('stops asking once the page unmounts', async () => {
+        fxaStatus.mockResolvedValue({ signedInUser: MOCK_SIGNED_IN_USER });
+        const { unmount } = renderContainer();
+        unmount();
+
+        await poll();
+
+        expect(fxaStatus).not.toHaveBeenCalled();
+      });
+    });
+  });
 
   it('renders the ScanQR page', () => {
     renderContainer();
