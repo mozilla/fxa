@@ -103,6 +103,8 @@ const vpnInDesktopDauBandaid = require('../../oauth/vpn-in-desktop-dau-bandaid')
 const {
   excludeDauCacheKey,
 } = require('../../oauth/desktop-sync-dau-authorization-bandaid');
+const { pairingCodeCacheKey } = require('../../oauth/pairing-code');
+const { MOBILE_OAUTH_NATIVE_CLIENT_IDS } = require('@fxa/accounts/oauth');
 // The client and scope the bandaid targets are fixed product facts, not
 // operational knobs, so they're constants rather than config: Firefox Desktop
 // is the only client that mints a VPN token for every signed-in user, and the
@@ -389,6 +391,23 @@ module.exports = ({
       } catch (err) {
         statsd?.increment('oauth.excludeDau.readFailed');
         log.warn('oauth.excludeDau.readFailed', { err: err?.message });
+      }
+    }
+    // Pick up the pairing verdict left by /oauth/authorization. Only a mobile
+    // client's code can carry one, so everything else skips Redis. Absent key
+    // or a Redis failure means "not a pairing", which only under-counts.
+    if (
+      authServerCacheRedis &&
+      MOBILE_OAUTH_NATIVE_CLIENT_IDS.has(hex(codeObj.clientId))
+    ) {
+      try {
+        const cached = await authServerCacheRedis.get(
+          pairingCodeCacheKey(encrypt.hash(code).toString('hex'))
+        );
+        codeObj.pairing = cached === '1';
+      } catch (err) {
+        statsd?.increment('oauth.pairing.read_failed');
+        log.warn('oauth.pairing.read_failed', { err: err?.message });
       }
     }
     return codeObj;
@@ -734,6 +753,11 @@ module.exports = ({
         clientId: oauthClientId,
         ...(serviceTags.service && { service: serviceTags.service }),
       });
+    }
+
+    // The phone redeeming its code is the last step of a device pairing.
+    if (grant.pairing) {
+      statsd.increment('oauth.pairing.completed', { clientId: oauthClientId });
     }
 
     // Per-(userId, clientId, scope) liveness signal. Sample-gated by

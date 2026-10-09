@@ -957,6 +957,169 @@ describe('/authorization POST consent write', () => {
     });
   });
 
+  // /oauth/token never sees the user agent that identifies a pairing, so the
+  // verdict is stashed against the code's hash here. Read side: ./token.spec.ts.
+  describe('carrying the pairing verdict to /oauth/token', () => {
+    const CODE_HEX = 'b2'.repeat(32);
+    const FENIX = OAuthNativeClients.Fenix;
+    const encrypt = require('fxa-shared/auth/encrypt');
+    const { pairingCodeCacheKey } = require('../../oauth/pairing-code');
+    const EXPECTED_KEY = pairingCodeCacheKey(
+      encrypt.hash(CODE_HEX).toString('hex')
+    );
+    // Only `browser` and `deviceType` feed isPairingAuthorization; the parser
+    // itself is covered in its own describe below.
+    const DESKTOP_UA = { browser: 'Firefox', deviceType: null };
+    const PHONE_UA = { browser: 'Firefox', deviceType: 'mobile' };
+
+    async function runOauthAuthorization(opts: {
+      ua: Record<string, unknown>;
+      clientId?: string;
+      statsd?: { increment: jest.Mock };
+      authServerCacheRedis?: { set: jest.Mock };
+      oauthDB?: Record<string, any>;
+    }) {
+      const clientId = opts.clientId ?? FENIX;
+      const oauthDB =
+        opts.oauthDB ??
+        buildOauthDB({ generateCode: jest.fn(async () => CODE_HEX) });
+      let result: any;
+      await jest.isolateModulesAsync(async () => {
+        jest.doMock('../../oauth/assertion', () =>
+          jest.fn(async () => ({ uid: UID_HEX }))
+        );
+        jest.doMock('../../oauth/util', () => ({
+          makeAssertionJWT: jest.fn(async () => 'assertion.jwt'),
+        }));
+        jest.doMock('../../oauth/grant', () => ({
+          validateRequestedGrant: jest.fn(
+            async (_claims, _client, payload) => ({
+              clientId: Buffer.from(clientId, 'hex'),
+              userId: Buffer.from(UID_HEX, 'hex'),
+              scope: ScopeSet.fromString(payload.scope as string),
+              offline: true,
+              keysJwe: payload.keys_jwe,
+            })
+          ),
+          generateTokens: jest.fn(async () => ({})),
+        }));
+        const routes = require('./authorization')({
+          glean: mockGlean,
+          log: mockLog,
+          oauthDB,
+          config: baseConfig,
+          statsd: opts.statsd,
+          authServerCacheRedis: opts.authServerCacheRedis,
+        });
+        result = await routes[2].handler({
+          headers: {},
+          app: { ua: opts.ua, geo: {}, devices: Promise.resolve([]) },
+          auth: {
+            credentials: {
+              tokenVerified: true,
+              uid: UID_HEX,
+              email: 'test@example.com',
+              id: 'sessionTokenId',
+            },
+          },
+          payload: buildPayload({
+            client_id: clientId,
+            scope: 'profile https://identity.mozilla.com/apps/oldsync',
+            keys_jwe: 'mock.jwe.payload',
+          }),
+        });
+      });
+      return { result, oauthDB };
+    }
+
+    it('stashes the verdict against the code hash, expiring with the code', async () => {
+      const authServerCacheRedis = { set: jest.fn().mockResolvedValue('OK') };
+
+      await runOauthAuthorization({ ua: DESKTOP_UA, authServerCacheRedis });
+
+      expect(authServerCacheRedis.set).toHaveBeenCalledWith(
+        EXPECTED_KEY,
+        '1',
+        'EX',
+        900
+      );
+    });
+
+    it('counts the issued code against the mobile client', async () => {
+      const statsd = { increment: jest.fn() };
+
+      await runOauthAuthorization({
+        ua: DESKTOP_UA,
+        statsd,
+        authServerCacheRedis: { set: jest.fn().mockResolvedValue('OK') },
+      });
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'oauth.pairing.code_issued',
+        { clientId: FENIX }
+      );
+    });
+
+    it('lowercases the client id tag', async () => {
+      const statsd = { increment: jest.fn() };
+
+      await runOauthAuthorization({
+        ua: DESKTOP_UA,
+        clientId: FENIX.toUpperCase(),
+        statsd,
+      });
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'oauth.pairing.code_issued',
+        { clientId: FENIX }
+      );
+    });
+
+    it('still counts the code when no cache is wired up', async () => {
+      const statsd = { increment: jest.fn() };
+
+      await runOauthAuthorization({ ua: DESKTOP_UA, statsd });
+
+      expect(emittedMetrics(statsd)).toContain('oauth.pairing.code_issued');
+      expect(emittedMetrics(statsd)).not.toContain(
+        'oauth.pairing.write_failed'
+      );
+    });
+
+    it('leaves the code alone and reports the failure when the Redis write fails', async () => {
+      const statsd = { increment: jest.fn() };
+      const authServerCacheRedis = {
+        set: jest.fn().mockRejectedValue(new Error('no redis')),
+      };
+
+      const { result, oauthDB } = await runOauthAuthorization({
+        ua: DESKTOP_UA,
+        statsd,
+        authServerCacheRedis,
+      });
+
+      expect(oauthDB.generateCode).toHaveBeenCalledTimes(1);
+      expect(result.code).toBe(CODE_HEX);
+      expect(emittedMetrics(statsd)).toContain('oauth.pairing.write_failed');
+    });
+
+    // The app signing in for itself reaches this route with the same
+    // client_id and the same keys_jwe; only the user agent differs.
+    it('writes and counts nothing when the phone signs in for itself', async () => {
+      const statsd = { increment: jest.fn() };
+      const authServerCacheRedis = { set: jest.fn().mockResolvedValue('OK') };
+
+      await runOauthAuthorization({
+        ua: PHONE_UA,
+        statsd,
+        authServerCacheRedis,
+      });
+
+      expect(authServerCacheRedis.set).not.toHaveBeenCalled();
+      expect(emittedMetrics(statsd)).not.toContain('oauth.pairing.code_issued');
+    });
+  });
+
   // The scope-keeping branch itself is covered by the pure spec; what is
   // route-unique here is that the counter stays silent.
   it('does not emit sync_scope_dropped when Desktop signs into Sync', async () => {
@@ -1269,9 +1432,7 @@ describe('isLocalHost', () => {
 
 describe('isPairingAuthorization', () => {
   const { isPairingAuthorization } = require('./authorization');
-  const {
-    parseToScalars,
-  } = require('fxa-shared/lib/user-agent');
+  const { parseToScalars } = require('fxa-shared/lib/user-agent');
 
   // Real user agents, captured from physical devices in FXA-10427. Driven
   // through the actual parser rather than hand-built scalars, because the bug
@@ -1331,7 +1492,10 @@ describe('isPairingAuthorization', () => {
       ['MacBook Safari', UA.macSafari],
     ])('ignores %s, which reads as a desktop UA', (_name, userAgent) => {
       expect(
-        isPairingAuthorization(request(userAgent), OAuthNativeClients.FirefoxIOS)
+        isPairingAuthorization(
+          request(userAgent),
+          OAuthNativeClients.FirefoxIOS
+        )
       ).toBe(false);
     });
 
