@@ -1154,7 +1154,11 @@ const AuthAndAccountSetupRoutes = ({
         />
         <Route
           path="/pair/authority/scan_qr/*"
-          element={<PairAuthorityScanQR integration={integration} />}
+          element={
+            <PairAuthorityScanQR
+              {...{ integration, fxaStatusResult: useFxAStatusResult }}
+            />
+          }
         />
         <Route
           path="/pair/authority/sync_success/*"

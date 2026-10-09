@@ -658,6 +658,48 @@ describe('Pair', () => {
         screen.getByLabelText(/I already have Firefox for mobile/)
       ).toBeInTheDocument();
     });
+
+    // A Firefox that never answered fxa_status has no WebChannel to this page,
+    // so the choice screen's pair_preferences could not reach it either.
+    it('sends a Firefox that never answered fxa_status to sign in', async () => {
+      requestSignedInUserMock.mockResolvedValue(undefined);
+      fxaOAuthFlowBeginMock.mockResolvedValue(null);
+      renderWithRouter(
+        <Pair
+          fxaStatusResult={mockUseFxAStatus({ fxaStatusState: 'unanswered' })}
+        />
+      );
+
+      await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/'));
+      expect(
+        screen.queryByLabelText(/I already have Firefox for mobile/)
+      ).not.toBeInTheDocument();
+    });
+
+    it('reveals the choice screen when fxa_status is answered late, after the OAuth request failed', async () => {
+      requestSignedInUserMock.mockResolvedValue(undefined);
+      let answerLate: () => void = () => {};
+      fxaOAuthFlowBeginMock.mockImplementation(async () => {
+        // Flushed through act so the answer is rendered before the bootstrap
+        // reads it, as a real reply is long before the OAuth timeout.
+        await act(async () => answerLate());
+        return null;
+      });
+      const PairAnsweredLate = () => {
+        const [fxaStatusState, setFxaStatusState] =
+          React.useState<FxAStatusState>('unanswered');
+        React.useEffect(() => {
+          answerLate = () => setFxaStatusState('answered');
+        }, []);
+        return <Pair fxaStatusResult={mockUseFxAStatus({ fxaStatusState })} />;
+      };
+      renderWithRouter(<PairAnsweredLate />);
+
+      expect(
+        await screen.findByLabelText(/I already have Firefox for mobile/)
+      ).toBeInTheDocument();
+      expect(mockNavigate).not.toHaveBeenCalledWith('/');
+    });
   });
 
   describe('success banner from location state', () => {

@@ -229,6 +229,8 @@ const Pair = ({
   const abortBootstrapRef = useRef(false);
   // Read when the bootstrap settles; a late fxa_status answer can change it.
   const pairingV2Ref = useRef(false);
+  const fxaStatusStateRef = useRef(fxaStatusResult.fxaStatusState);
+  fxaStatusStateRef.current = fxaStatusResult.fxaStatusState;
   useEffect(() => {
     return () => {
       abortBootstrapRef.current = true;
@@ -396,7 +398,15 @@ const Pair = ({
         hardNavigate(`/?${search}`);
         return;
       }
-      // WebChannel didn't reply; reveal the page so the user isn't stuck.
+      if (fxaStatusStateRef.current === 'unanswered') {
+        // Nothing has reached Firefox, so there is no WebChannel to carry a
+        // Sync sign-in or the choice screen's pair_preferences. Sign-in is the
+        // one page left that can still do something for the user.
+        navigateWithQuery('/');
+        return;
+      }
+      // Firefox answered fxa_status but not oauth_flow_begin, so pair_preferences
+      // still reaches it: reveal the page rather than strand the user.
       setBootstrapping(false);
     })();
     // `pairingAttribution` is captured at mount on purpose; re-running on a new
