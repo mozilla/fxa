@@ -4,7 +4,7 @@
 
 import { Inject, Injectable } from '@nestjs/common';
 import { StatsD } from 'hot-shots';
-import { getOperationName } from '@apollo/client/utilities';
+import { getOperationAST } from 'graphql';
 
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { StrapiClient, StrapiClientEventResponse } from './strapi.client';
@@ -29,7 +29,8 @@ export class LegalTermsConfigurationManager {
       cache: `${response.cache}`,
       cacheType: `${response.cacheType}`,
     };
-    const operationName = response.query && getOperationName(response.query);
+    const operationName =
+      response.query && getOperationAST(response.query)?.name?.value;
     const tags = operationName
       ? { ...defaultTags, operationName }
       : defaultTags;
