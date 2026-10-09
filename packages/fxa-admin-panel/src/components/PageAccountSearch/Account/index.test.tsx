@@ -624,6 +624,11 @@ it('collapses authorized browser services until the summary is clicked', async (
   expect(sync).toBeVisible();
 });
 
+it('notes the date from which Sync authorization rows are accurate', () => {
+  render(<Account {...accountResponse} />);
+  expect(screen.getByText(/on or after Aug 19, 2026/)).toBeInTheDocument();
+});
+
 it('displays key-stretch-version', async () => {
   const lockedAccount = {
     ...accountResponse,
@@ -747,7 +752,9 @@ describe('account history', () => {
     const { getByText } = render(
       <Account {...accountResponse} securityEvents={buildSecurityEvents(1)} />
     );
-    const explanation = getByText(/already deleted when the event was recorded/);
+    const explanation = getByText(
+      /already deleted when the event was recorded/
+    );
 
     expect(explanation).not.toBeVisible();
 

@@ -575,10 +575,10 @@ export const Account = ({
             <p className="mb-2">
               OAuth consent records, not a record of active usage. A row means
               the account has authorized the service through a Firefox flow at
-              some point. Note: a Sync row can appear for any browser-service
-              sign-in (Smart Window, Relay, VPN), because Firefox Desktop
-              currently mints a Sync-scoped refresh token on every flow even
-              when the user did not sign in to Sync.
+              some point. Note: Sync rows are accurate for sign-ins on or after
+              Aug 19, 2026, when the Firefox Desktop fix reached production. A
+              Sync row from before that date can come from a non-Sync
+              browser-service sign-in (Smart Window, Relay, VPN).
             </p>
             <AccountAuthorizations authorizations={accountAuthorizations} />
           </details>
