@@ -62,8 +62,7 @@ describe('Pair2/Supplicant/ConnectThisDevice page', () => {
         .getAllByRole('img')
         .map((img) => img.getAttribute('alt') ?? img.getAttribute('aria-label'))
     ).toEqual([
-      // AppLayout's page header, then the two images this card renders.
-      'Mozilla logo',
+      // The two images this card renders. The page has no header.
       'Firefox logo',
       'A desktop browser window and a mobile phone, both syncing, with the Firefox mascot alongside them',
     ]);

@@ -35,6 +35,11 @@ type AppLayoutProps = {
    * transparent, so the page colour is the screen colour.
    */
   whiteBackground?: boolean;
+  /** Whether to leave out the header with the Mozilla logo.
+   * Below `mobileLandscape` the card's own top padding then sets the gap above
+   * the content, which is what the mobile pairing screens use.
+   */
+  hideHeader?: boolean;
   /** Whether to show the locale toggle in the footer */
   showLocaleToggle?: boolean;
   /** Whether to show a loading spinner instead of children.
@@ -54,6 +59,7 @@ export const AppLayout = ({
   cmsInfo,
   splitLayout = false,
   whiteBackground = false,
+  hideHeader = false,
   wrapInCard = true,
   loading = false,
   setCurrentSplitLayout,
@@ -104,46 +110,48 @@ export const AppLayout = ({
         data-testid="app"
       >
         <div id="body-top" className="w-full hidden mobileLandscape:block" />
-        <header
-          className={classNames(
-            'w-full px-6 py-4 mobileLandscape:py-6',
-            cmsBackgrounds?.header &&
-              'mobileLandscape:[background:var(--cms-header-bg)]',
-            // Absolute position so the background-image can optionally show through.
-            splitLayout && !cmsBackgrounds?.header && 'desktop:absolute'
-          )}
-          style={
-            cmsBackgrounds?.header
-              ? ({
-                  '--cms-header-bg': cmsBackgrounds.header,
-                } as React.CSSProperties)
-              : undefined
-          }
-        >
-          <LinkExternal
-            rel="author"
-            href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
-            className="mobileLandscape:inline-block"
-          >
-            {cmsHeaderLogoUrl ? (
-              <img
-                src={cmsHeaderLogoUrl}
-                alt={cmsHeaderLogoAltText || 'logo'}
-                className="h-auto w-[140px] mx-0"
-              />
-            ) : (
-              <img
-                src={mozLogo}
-                alt={l10n.getString(
-                  'app-footer-mozilla-logo-label',
-                  null,
-                  'Mozilla logo'
-                )}
-                className="h-auto w-[140px] mx-0 dark:invert"
-              />
+        {!hideHeader && (
+          <header
+            className={classNames(
+              'w-full px-6 py-4 mobileLandscape:py-6',
+              cmsBackgrounds?.header &&
+                'mobileLandscape:[background:var(--cms-header-bg)]',
+              // Absolute position so the background-image can optionally show through.
+              splitLayout && !cmsBackgrounds?.header && 'desktop:absolute'
             )}
-          </LinkExternal>
-        </header>
+            style={
+              cmsBackgrounds?.header
+                ? ({
+                    '--cms-header-bg': cmsBackgrounds.header,
+                  } as React.CSSProperties)
+                : undefined
+            }
+          >
+            <LinkExternal
+              rel="author"
+              href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
+              className="mobileLandscape:inline-block"
+            >
+              {cmsHeaderLogoUrl ? (
+                <img
+                  src={cmsHeaderLogoUrl}
+                  alt={cmsHeaderLogoAltText || 'logo'}
+                  className="h-auto w-[140px] mx-0"
+                />
+              ) : (
+                <img
+                  src={mozLogo}
+                  alt={l10n.getString(
+                    'app-footer-mozilla-logo-label',
+                    null,
+                    'Mozilla logo'
+                  )}
+                  className="h-auto w-[140px] mx-0 dark:invert"
+                />
+              )}
+            </LinkExternal>
+          </header>
+        )}
 
         {!splitLayout ? (
           <>

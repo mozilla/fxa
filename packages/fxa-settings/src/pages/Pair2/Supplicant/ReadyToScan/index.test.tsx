@@ -84,9 +84,8 @@ describe('Pair2/Supplicant/ReadyToScan page', () => {
         .getAllByRole('img')
         .map((img) => img.getAttribute('alt') ?? img.getAttribute('aria-label'))
     ).toEqual([
-      // AppLayout's page header, then this card's Firefox lockup. The laptop
+      // This card's Firefox lockup; the page has no header. The laptop
       // illustration is decorative — the instruction beside it says the same.
-      'Mozilla logo',
       'Firefox logo',
     ]);
   });
