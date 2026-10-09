@@ -124,6 +124,16 @@ describe('generateWebauthnRegistrationOptions', () => {
     expect(options.user.name).toBe('bob@example.com');
   });
 
+  it('sets the ceremony timeout to the configured challenge timeout', async () => {
+    const options = await generateWebauthnRegistrationOptions(testConfig(), {
+      uid: Buffer.alloc(16, 0xbb).toString('hex'),
+      email: 'bob@example.com',
+      challenge: randomBytes(32).toString('base64url'),
+    });
+
+    expect(options.timeout).toBe(30_000);
+  });
+
   it('omits excludeCredentials when input is not provided', async () => {
     const options = await generateWebauthnRegistrationOptions(testConfig(), {
       uid: Buffer.alloc(16, 0xbb).toString('hex'),
@@ -504,6 +514,15 @@ describe('generateWebauthnAuthenticationOptions', () => {
     });
 
     expect(options.userVerification).toBe('required');
+  });
+
+  it('keeps the simplewebauthn default timeout rather than the challenge timeout', async () => {
+    const options = await generateWebauthnAuthenticationOptions(testConfig(), {
+      challenge: randomBytes(32).toString('base64url'),
+      allowCredentials: [],
+    });
+
+    expect(options.timeout).toBe(60_000);
   });
 
   it('omits allowCredentials for discoverable flow (empty input)', async () => {

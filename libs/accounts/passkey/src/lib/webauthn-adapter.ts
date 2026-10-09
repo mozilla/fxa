@@ -99,6 +99,8 @@ export async function generateWebauthnRegistrationOptions(
     // UTF-8-encode the text first, producing a different base64url value than
     // what was stored in Redis — breaking challenge lookup on finish.
     challenge: Buffer.from(input.challenge, 'base64url'),
+    // Match the challenge expiry rather than the 60s simplewebauthn default.
+    timeout: config.challengeTimeout,
     authenticatorSelection: {
       residentKey: config.residentKey,
       // AAL2 invariant — UV always required, not configurable.
