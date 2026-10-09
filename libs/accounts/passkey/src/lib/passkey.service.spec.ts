@@ -913,6 +913,17 @@ describe('PasskeyService', () => {
       ).rejects.toMatchObject({ errno: 224 });
     });
 
+    it('consumes the challenge when the credential is not registered', async () => {
+      mockManager.findPasskeyByCredentialId.mockResolvedValue(undefined);
+
+      await expect(
+        service.verifyAuthenticationResponse(mockResponse, MOCK_CHALLENGE)
+      ).rejects.toMatchObject({ errno: 224 });
+      expect(
+        mockChallengeManager.consumeAuthenticationChallenge
+      ).toHaveBeenCalledWith(MOCK_CHALLENGE);
+    });
+
     it('throws a passkeyChallengeNotFound AppError when the challenge is not found or expired', async () => {
       mockChallengeManager.consumeAuthenticationChallenge.mockResolvedValue(
         null
@@ -953,11 +964,9 @@ describe('PasskeyService', () => {
           wrongUid
         )
       ).rejects.toMatchObject({ errno: 227 });
-
-      // do not consumeAuthenticationChallenge when uid does not match, so the challenge is not burned.
       expect(
         mockChallengeManager.consumeAuthenticationChallenge
-      ).not.toHaveBeenCalled();
+      ).toHaveBeenCalledWith(MOCK_CHALLENGE);
     });
 
     it('logs a signCount rollback warning when simplewebauthn throws a counter error', async () => {
@@ -1996,6 +2005,9 @@ describe('PasskeyService', () => {
           MOCK_UID
         )
       ).rejects.toThrow(AppError.passkeyNotFound());
+      expect(
+        mockChallengeManager.consumeVerificationChallenge
+      ).toHaveBeenCalledWith(MOCK_CHALLENGE, MOCK_UID);
     });
 
     it('throws passkeyChallengeNotFound when the challenge is unknown or expired', async () => {

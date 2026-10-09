@@ -183,24 +183,3 @@ export async function deletePasskeyWrap(
 
   return result.numDeletedRows === BigInt(1);
 }
-
-/**
- * Delete every wrap for a user, leaving their passkeys in place.
- *
- * For the password-reset path: a reset invalidates `kB`, so every sealed envelope
- * becomes undecryptable while the credentials stay usable for re-enrolment.
- * Deleting a passkey needs no counterpart — the foreign key cascades.
- *
- * @returns Number of wraps deleted
- */
-export async function deleteAllPasskeyWrapsForUser(
-  db: AccountDatabase,
-  uid: string
-): Promise<number> {
-  const result = await db
-    .deleteFrom('passkeyWraps')
-    .where('uid', '=', uuidTransformer.to(uid))
-    .executeTakeFirst();
-
-  return Number(result.numDeletedRows);
-}
