@@ -412,9 +412,21 @@ describe('extractPrfSupport', () => {
 });
 
 describe('stripPrfResults', () => {
-  it('removes the prf results from clientExtensionResults', () => {
+  it('removes prf when results is its only key', () => {
     const stripped = stripPrfResults(assertionWithPrfOutput);
-    expect(stripped.clientExtensionResults).not.toHaveProperty('prf');
+    expect(stripped.clientExtensionResults).toEqual({});
+  });
+
+  it('keeps prf.enabled', () => {
+    const stripped = stripPrfResults({
+      ...assertionResult,
+      clientExtensionResults: {
+        prf: { enabled: true, results: { first: new ArrayBuffer(32) } },
+      },
+    });
+    expect(stripped.clientExtensionResults).toEqual({
+      prf: { enabled: true },
+    });
   });
 
   it('preserves other clientExtensionResults entries', () => {
@@ -432,6 +444,14 @@ describe('stripPrfResults', () => {
 
   it('returns the same reference when there is no prf result', () => {
     expect(stripPrfResults(assertionResult)).toBe(assertionResult);
+  });
+
+  it('returns the same reference when prf has no results', () => {
+    const registration = {
+      ...assertionResult,
+      clientExtensionResults: { prf: { enabled: true } },
+    };
+    expect(stripPrfResults(registration)).toBe(registration);
   });
 });
 

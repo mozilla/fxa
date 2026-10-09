@@ -96,7 +96,10 @@ beforeEach(() => {
   mockCreateWrapEnvelope.mockImplementation(realCrypto().createWrapEnvelope);
   mockOpenWrapEnvelope.mockImplementation(realCrypto().openWrapEnvelope);
   beginVerificationMock.mockResolvedValue({ challenge: 'chal' });
-  mockGetCredential.mockResolvedValue({ id: MOCK_CREDENTIAL_ID });
+  mockGetCredential.mockResolvedValue({
+    id: MOCK_CREDENTIAL_ID,
+    clientExtensionResults: {},
+  });
   completeVerificationMock.mockResolvedValue({ mfaToken: FRESH_JWT });
 });
 
@@ -200,13 +203,33 @@ describe('createPasskeyWrap', () => {
       });
       expect(completeVerificationMock).toHaveBeenCalledWith(
         MOCK_SESSION_TOKEN,
-        { id: MOCK_CREDENTIAL_ID },
+        { id: MOCK_CREDENTIAL_ID, clientExtensionResults: {} },
         'chal'
       );
       const [first, second] = createPasskeyWrapApiMock.mock.calls;
       expect(first[0]).toBe(MOCK_JWT);
       expect(second[0]).toBe(FRESH_JWT);
       expect(second[2]).toBe(first[2]);
+    });
+
+    it('sends the step-up assertion without its PRF results', async () => {
+      createPasskeyWrapApiMock
+        .mockRejectedValueOnce(expired())
+        .mockResolvedValueOnce({ created: true });
+      mockGetCredential.mockResolvedValue({
+        id: MOCK_CREDENTIAL_ID,
+        clientExtensionResults: {
+          prf: { results: { first: new ArrayBuffer(32) } },
+        },
+      });
+
+      await createPasskeyWrap(authClient(), args());
+
+      expect(completeVerificationMock).toHaveBeenCalledWith(
+        MOCK_SESSION_TOKEN,
+        { id: MOCK_CREDENTIAL_ID, clientExtensionResults: {} },
+        'chal'
+      );
     });
 
     it('retries once only', async () => {
