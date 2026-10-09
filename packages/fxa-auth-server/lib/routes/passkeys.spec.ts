@@ -5,6 +5,8 @@
 import type { Schema } from 'joi';
 import jwt from 'jsonwebtoken';
 import { Container } from 'typedi';
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
+import type { StatsD } from '@fxa/shared/metrics/statsd';
 import { PasskeyService } from '@fxa/accounts/passkey';
 import { AppError } from '@fxa/accounts/errors';
 import { recordSecurityEvent } from './utils/security-event';
@@ -17,6 +19,9 @@ import {
   passkeyResponseSchema,
   PasskeyHandler,
 } from './passkeys';
+import type { Customs, DB } from './passkeys';
+import { AuthClientInfoService, AuthLogger, AuthRequest } from '../types';
+import { GleanMetricsType } from '../metrics/glean';
 import { ConfigType } from '../../config';
 import { FxaMailer } from '../senders/fxa-mailer';
 import { OAuthClientInfoServiceName } from '../senders/oauth_client_info';
@@ -41,18 +46,24 @@ jest.mock('../senders/fxa-mailer-format', () => ({
 }));
 
 describe('passkeys routes', () => {
-  let log: any,
-    db: any,
-    customs: any,
-    statsd: any,
-    glean: any,
-    routes: any,
-    route: any,
-    request: any,
-    mockPasskeyService: any,
-    mockFxaMailer: any,
-    mailer: any,
-    mockOauthClientInfoService: any;
+  let log: DeepMocked<AuthLogger>,
+    db: DeepMocked<DB>,
+    customs: DeepMocked<Customs>,
+    statsd: DeepMocked<StatsD>,
+    glean: DeepMocked<GleanMetricsType>,
+    routes: ReturnType<typeof passkeyRoutes>,
+    route: ReturnType<typeof passkeyRoutes>[number] | undefined,
+    request: AuthRequest &
+      Record<
+        | 'emitMetricsEvent'
+        | 'setMetricsFlowCompleteSignal'
+        | 'stashMetricsContext',
+        jest.Mock
+      >,
+    mockPasskeyService: DeepMocked<PasskeyService>,
+    mockFxaMailer: DeepMocked<FxaMailer>,
+    mailer: Record<string, jest.Mock>,
+    mockOauthClientInfoService: DeepMocked<AuthClientInfoService>;
 
   const UID = 'f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6';
   const SESSION_TOKEN_ID = 'session-token-456';
@@ -119,13 +130,16 @@ describe('passkeys routes', () => {
     hasPasswordlessSync: true,
   };
 
-  async function runTest(
+  async function runTest<T = Record<string, unknown>>(
     routePath: string,
-    requestOptions: any,
+    requestOptions: { app?: object; [key: string]: unknown },
     method = 'POST'
-  ) {
+  ): Promise<T> {
     routes = passkeyRoutes(customs, db, config, statsd, glean, log, mailer);
     route = routes.find((r) => r.path === routePath && r.method === method);
+    if (!route) {
+      throw new Error(`Route not found: ${method} ${routePath}`);
+    }
     request = {
       headers: { 'user-agent': 'test-agent' },
       ...requestOptions,
@@ -135,28 +149,28 @@ describe('passkeys routes', () => {
         geo: { location: { country: 'United States', countryCode: 'US' } },
         ...requestOptions.app,
       },
-    };
+    } as unknown as typeof request;
     request.emitMetricsEvent = jest.fn(() => Promise.resolve({}));
     request.setMetricsFlowCompleteSignal = jest.fn();
     request.stashMetricsContext = jest.fn(() => Promise.resolve());
-    return await route.handler(request);
+    return (await route.handler(request)) as T;
   }
 
   beforeEach(() => {
-    log = {
+    log = createMock<AuthLogger>({
       begin: jest.fn(),
       error: jest.fn(),
       trace: jest.fn(),
       notifyAttachedServices: jest.fn().mockResolvedValue(undefined),
-    };
-    customs = {
+    });
+    customs = createMock<Customs>({
       checkAuthenticated: jest.fn(),
       checkIpOnly: jest.fn(),
-    };
-    statsd = {
+    });
+    statsd = createMock<StatsD>({
       increment: jest.fn(),
-    };
-    glean = {
+    });
+    glean = createMock<GleanMetricsType>({
       passkey: {
         authenticationStarted: jest.fn(),
         authenticationVerificationSuccess: jest.fn(),
@@ -169,8 +183,8 @@ describe('passkeys routes', () => {
       login: {
         complete: jest.fn(),
       },
-    };
-    db = {
+    });
+    db = createMock<DB>({
       account: jest.fn().mockResolvedValue({
         uid: UID,
         email: TEST_EMAIL,
@@ -190,9 +204,9 @@ describe('passkeys routes', () => {
       }),
       securityEvent: jest.fn().mockResolvedValue(undefined),
       sessions: jest.fn().mockResolvedValue([{ id: 'session-1' }]),
-    };
+    });
 
-    mockPasskeyService = {
+    mockPasskeyService = createMock<PasskeyService>({
       get enabled() {
         return config.passkeys.enabled;
       },
@@ -217,21 +231,21 @@ describe('passkeys routes', () => {
         credentialId: CREDENTIAL_ID_B64,
         scope: 'recovery_key',
       }),
-    };
+    });
 
-    mockFxaMailer = {
+    mockFxaMailer = createMock<FxaMailer>({
       sendPostAddPasskeyEmail: jest.fn().mockResolvedValue(undefined),
       sendPostRemovePasskeyEmail: jest.fn().mockResolvedValue(undefined),
       sendNewDeviceLoginEmail: jest.fn().mockResolvedValue(undefined),
-    };
+    });
 
     mailer = {
       sendNewDeviceLoginEmail: jest.fn().mockResolvedValue(undefined),
     };
 
-    mockOauthClientInfoService = {
+    mockOauthClientInfoService = createMock<AuthClientInfoService>({
       fetch: jest.fn().mockResolvedValue({ name: 'Mozilla' }),
-    };
+    });
 
     Container.set(PasskeyService, mockPasskeyService);
     Container.set(FxaMailer, mockFxaMailer);
@@ -330,7 +344,10 @@ describe('passkeys routes', () => {
     });
 
     it('accepts an unknown transport in excludeCredentials', async () => {
-      mockPasskeyService.generateRegistrationChallenge.mockResolvedValue({
+      // 'unknown' is outside SimpleWebAuthn's transport union on purpose.
+      (
+        mockPasskeyService.generateRegistrationChallenge as jest.Mock
+      ).mockResolvedValue({
         ...mockRegistrationOptions,
         excludeCredentials: [
           {
@@ -348,7 +365,9 @@ describe('passkeys routes', () => {
       });
 
       await expect(
-        route.options.response.schema.validateAsync(result)
+        (
+          route?.options as { response: { schema: Schema } }
+        ).response.schema.validateAsync(result)
       ).resolves.toMatchObject({
         excludeCredentials: [{ transports: ['internal', 'unknown'] }],
       });
@@ -593,7 +612,7 @@ describe('passkeys routes', () => {
     });
 
     it('sets showSyncPasswordNote to false for passwordless accounts', async () => {
-      db.account.mockResolvedValueOnce({
+      (db.account as jest.Mock).mockResolvedValueOnce({
         email: TEST_EMAIL,
         primaryEmail: {
           email: TEST_EMAIL,
@@ -1206,11 +1225,14 @@ describe('passkeys routes', () => {
         credentialId: CREDENTIAL_ID_B64,
       });
 
-      const result = await runTest('/passkey/authentication/finish', {
-        auth: { credentials: {} },
-        app: { ua: {} },
-        payload,
-      });
+      const result = await runTest<{ mfaToken: string }>(
+        '/passkey/authentication/finish',
+        {
+          auth: { credentials: {} },
+          app: { ua: {} },
+          payload,
+        }
+      );
 
       // @types/jsonwebtoken 8 types `verify` as `object | string`, so the
       // claims this route signs are named here rather than inferred.
@@ -1242,7 +1264,7 @@ describe('passkeys routes', () => {
     });
 
     it('sets hasPassword false for passwordless accounts', async () => {
-      db.account.mockResolvedValueOnce({
+      (db.account as jest.Mock).mockResolvedValueOnce({
         uid: UID,
         email: TEST_EMAIL,
         emailCode: 'emailcode123',
@@ -1773,12 +1795,16 @@ describe('passkeys routes', () => {
         statsd,
         glean,
         mailer,
-        mockOauthClientInfoService
+        mockOauthClientInfoService,
+        config
       );
     });
 
     it('creates a verified session token with correct options', async () => {
-      await handler.createPasskeySessionToken(mockAccount, mockRequest as any);
+      await handler.createPasskeySessionToken(
+        mockAccount,
+        mockRequest as unknown as AuthRequest
+      );
 
       expect(db.createPasskeyVerifiedSessionToken).toHaveBeenCalledWith({
         uid: UID,
@@ -1798,7 +1824,7 @@ describe('passkeys routes', () => {
     it('returns the created session token and emits success metric', async () => {
       const result = await handler.createPasskeySessionToken(
         mockAccount,
-        mockRequest as any
+        mockRequest as unknown as AuthRequest
       );
 
       expect(result).toEqual({
@@ -1815,7 +1841,10 @@ describe('passkeys routes', () => {
       db.createPasskeyVerifiedSessionToken.mockRejectedValue(dbError);
 
       await expect(
-        handler.createPasskeySessionToken(mockAccount, mockRequest as any)
+        handler.createPasskeySessionToken(
+          mockAccount,
+          mockRequest as unknown as AuthRequest
+        )
       ).rejects.toThrow('DB unavailable');
     });
   });
@@ -1913,18 +1942,18 @@ describe('passkeys routes', () => {
 
     it('requires a verified session token', () => {
       routes = passkeyRoutes(customs, db, config, statsd, glean, log, mailer);
-      route = routes.find((r: any) => r.path === '/passkey/verification/start');
+      route = routes.find((r) => r.path === '/passkey/verification/start');
 
-      expect(route.options.auth.strategies).toEqual([
-        'verifiedSessionTokenBearer',
-        'verifiedSessionToken',
-      ]);
+      expect(
+        (route?.options as { auth: { strategies: string[] } }).auth.strategies
+      ).toEqual(['verifiedSessionTokenBearer', 'verifiedSessionToken']);
     });
 
     it('rejects a scope outside config.mfa.actions', () => {
       routes = passkeyRoutes(customs, db, config, statsd, glean, log, mailer);
-      route = routes.find((r: any) => r.path === '/passkey/verification/start');
-      const schema = route.options.validate.payload as Schema;
+      route = routes.find((r) => r.path === '/passkey/verification/start');
+      const schema = (route?.options as { validate: { payload: Schema } })
+        .validate.payload;
 
       expect(schema.validate({ scope: 'not_an_action' }).error).toBeDefined();
       expect(schema.validate({ scope: 'passkey' }).error).toBeUndefined();
@@ -1932,8 +1961,9 @@ describe('passkeys routes', () => {
 
     it('rejects a missing scope', () => {
       routes = passkeyRoutes(customs, db, config, statsd, glean, log, mailer);
-      route = routes.find((r: any) => r.path === '/passkey/verification/start');
-      const schema = route.options.validate.payload as Schema;
+      route = routes.find((r) => r.path === '/passkey/verification/start');
+      const schema = (route?.options as { validate: { payload: Schema } })
+        .validate.payload;
 
       expect(schema.validate({}).error).toBeDefined();
     });
@@ -1952,10 +1982,13 @@ describe('passkeys routes', () => {
     };
 
     it('returns an mfaToken carrying the challenge scope, session, and credential', async () => {
-      const result = await runTest('/passkey/verification/finish', {
-        ...finishAuth,
-        payload: finishPayload,
-      });
+      const result = await runTest<{ mfaToken: string }>(
+        '/passkey/verification/finish',
+        {
+          ...finishAuth,
+          payload: finishPayload,
+        }
+      );
 
       const claims = jwt.verify(result.mfaToken, config.mfa.jwt.secretKey, {
         audience: config.mfa.jwt.audience,
@@ -2075,22 +2108,18 @@ describe('passkeys routes', () => {
 
     it('requires a verified session token', () => {
       routes = passkeyRoutes(customs, db, config, statsd, glean, log, mailer);
-      route = routes.find(
-        (r: any) => r.path === '/passkey/verification/finish'
-      );
+      route = routes.find((r) => r.path === '/passkey/verification/finish');
 
-      expect(route.options.auth.strategies).toEqual([
-        'verifiedSessionTokenBearer',
-        'verifiedSessionToken',
-      ]);
+      expect(
+        (route?.options as { auth: { strategies: string[] } }).auth.strategies
+      ).toEqual(['verifiedSessionTokenBearer', 'verifiedSessionToken']);
     });
 
     it('rejects a scope in the payload, so the caller cannot pick its own', () => {
       routes = passkeyRoutes(customs, db, config, statsd, glean, log, mailer);
-      route = routes.find(
-        (r: any) => r.path === '/passkey/verification/finish'
-      );
-      const schema = route.options.validate.payload as Schema;
+      route = routes.find((r) => r.path === '/passkey/verification/finish');
+      const schema = (route?.options as { validate: { payload: Schema } })
+        .validate.payload;
 
       const valid = {
         response: {
@@ -2140,9 +2169,7 @@ describe('passkeys routes', () => {
         log,
         mailer
       );
-      const route = all.find(
-        (r: any) => r.path === path && r.method === method
-      );
+      const route = all.find((r) => r.path === path && r.method === method);
       if (!route) {
         throw new Error(`Route not found: ${method} ${path}`);
       }
@@ -2570,9 +2597,7 @@ describe('passkeys routes', () => {
         log,
         mailer
       );
-      const route = all.find(
-        (r: any) => r.path === path && r.method === method
-      );
+      const route = all.find((r) => r.path === path && r.method === method);
       const schema = (route?.options as { response?: { schema?: Schema } })
         ?.response?.schema;
       if (!schema) {
