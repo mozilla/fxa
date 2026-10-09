@@ -1,0 +1,12 @@
+{
+  "commit": "4c98e3bc67bb0add5f9c6e9725da5c758815be25",
+  "summary": "fix(settings): stop pairing when the mobile browser is signed in",
+  "description": "Because:\n- Pairing signs a device in to Sync, so a browser that already holds a verified account has nothing to pair.\n- The v2 supplicant flow completed anyway, with no warning to the user.\n\nThis commit:\n- Routes a signed-in supplicant to the pairing dead-end screen before the channel opens.\n- Adds a signed_in reason and copy to the TimeoutAndCancel page.\n- Lists the new reason in the Glean timeout_view extra description.\n\nCloses FXA-14479",
+  "timestamp": 1791502718000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
