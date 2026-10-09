@@ -1,8 +1,8 @@
 {
-  "commit": "7a4cbc132365c2e5fff6a02b6fa39caddb933d7f",
-  "summary": "Merge remote-tracking branch 'origin/main' into ddb-merge-21402",
-  "description": "# Conflicts:\n#\tpackage.json",
-  "timestamp": 1791562639000,
+  "commit": "7bb16ef4386e0131491bcb3bdf8415ece9029ac0",
+  "summary": "chore(deps): bump @opentelemetry/instrumentation-pg to >=0.73.0",
+  "description": "Resolves Dependabot alert #1001. The bump installs the highest\nversion satisfying the dependency range; the title uses >=<min> when the\nadvisory provides a minimum patched version — see the lockfile diff for the exact resolved version.\nCreated by BLEnder (https://github.com/mozilla/blender)",
+  "timestamp": 1791565074000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
