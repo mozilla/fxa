@@ -36,6 +36,7 @@ import {
 import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
+  type StripeCustomer,
 } from '@fxa/payments/stripe';
 import {
   FreeTrial,
@@ -124,6 +125,10 @@ import { AsyncLocalStorageCart } from './cart-als.provider';
 import type { CartStore } from './cart-als.types';
 
 type Constructor<T> = new (...args: any[]) => T;
+type ResultCartWithTaxAddressAndCurrency = ResultCart & {
+  taxAddress: TaxAddress;
+  currency: string;
+};
 interface WrapWithCartCatchOptions {
   errorAllowList?: Constructor<Error>[];
   // Invoked after the cart is finalized to FAIL. Only the submit-attempt call
@@ -644,7 +649,9 @@ export class CartService {
         isFreeTrial: oldCart.isFreeTrial,
       };
 
-      if (eligibility.subscriptionEligibilityResult === EligibilityStatus.SAME) {
+      if (
+        eligibility.subscriptionEligibilityResult === EligibilityStatus.SAME
+      ) {
         return this.cartManager.createErrorCart(
           createCartParams,
           CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME
@@ -1004,6 +1011,49 @@ export class CartService {
     };
   }
 
+  private async previewUpcomingForCart(
+    cart: ResultCartWithTaxAddressAndCurrency,
+    priceId: string,
+    customer?: StripeCustomer
+  ): Promise<InvoicePreview> {
+    const previewArgs = {
+      priceId,
+      currency: cart.currency,
+      customer,
+      taxAddress: cart.taxAddress,
+    };
+
+    try {
+      return await this.invoiceManager.previewUpcoming({
+        ...previewArgs,
+        couponCode: cart.couponCode || undefined,
+      });
+    } catch (error) {
+      // Redeeming a code (e.g. single-use, first-time customer only) can make
+      // Stripe reject it in later previews, while it still lists as active.
+      if (
+        cart.state === CartState.START ||
+        !cart.couponCode ||
+        error?.type !== 'StripeInvalidRequestError' ||
+        error?.param !== 'promotion_code'
+      ) {
+        throw error;
+      }
+
+      this.statsd.increment('invoice_preview_promotion_code_rejected');
+      this.log.warn(
+        'cartService.previewUpcomingForCart.promotionCodeRejected',
+        {
+          cartId: cart.id,
+          cartState: cart.state,
+          error: error.message,
+        }
+      );
+
+      return this.invoiceManager.previewUpcoming(previewArgs);
+    }
+  }
+
   /**
    * Fetch a cart from the database by ID
    */
@@ -1011,7 +1061,7 @@ export class CartService {
   async getCart(cartId: string): Promise<CartDTO> {
     const cart = (await this.cartManager.fetchCartById(
       cartId
-    )) as ResultCart & { taxAddress: TaxAddress; currency: string };
+    )) as ResultCartWithTaxAddressAndCurrency;
 
     assert(cart.taxAddress !== null, new GetCartMissingTaxAddressError(cartId));
     const [
@@ -1116,13 +1166,11 @@ export class CartService {
       const hasPaymentMethod =
         !!customer.invoice_settings.default_payment_method;
       if (isUpgradeFromTrial && !hasPaymentMethod) {
-        upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
-          priceId: price.id,
-          currency: cart.currency,
-          customer,
-          taxAddress: cart.taxAddress,
-          couponCode: cart.couponCode || undefined,
-        });
+        upcomingInvoicePreview = await this.previewUpcomingForCart(
+          cart,
+          price.id,
+          customer
+        );
       } else {
         upcomingInvoicePreview =
           await this.invoiceManager.previewUpcomingForUpgrade({
@@ -1135,13 +1183,11 @@ export class CartService {
           });
       }
     } else {
-      upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
-        priceId: price.id,
-        currency: cart.currency,
-        customer,
-        taxAddress: cart.taxAddress,
-        couponCode: cart.couponCode || undefined,
-      });
+      upcomingInvoicePreview = await this.previewUpcomingForCart(
+        cart,
+        price.id,
+        customer
+      );
     }
 
     let paymentInfo: PaymentInfo | undefined;

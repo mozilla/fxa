@@ -80,7 +80,7 @@ import {
   MockGeoDBNestFactory,
 } from '@fxa/shared/geodb';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
-import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
+import { MockStatsDProvider, StatsDService } from '@fxa/shared/metrics/statsd';
 import { AccountManager } from '@fxa/shared/account/account';
 import {
   MockNotifierSnsConfigProvider,
@@ -133,6 +133,8 @@ import {
   MockGoogleIapClientConfigProvider,
 } from '@fxa/payments/iap';
 import { Logger } from '@nestjs/common';
+import type { LoggerService } from '@nestjs/common';
+import type { StatsD } from 'hot-shots';
 import type { AsyncLocalStorage } from 'async_hooks';
 import type { CartStore } from './cart-als.types';
 import {
@@ -191,6 +193,8 @@ describe('CartService', () => {
   let subscriptionManager: SubscriptionManager;
   let paymentMethodManager: PaymentMethodManager;
   let priceManager: PriceManager;
+  let log: LoggerService;
+  let statsd: StatsD;
 
   const mockLogger = {
     error: jest.fn(),
@@ -294,6 +298,8 @@ describe('CartService', () => {
     subscriptionManager = moduleRef.get(SubscriptionManager);
     paymentMethodManager = moduleRef.get(PaymentMethodManager);
     priceManager = moduleRef.get(PriceManager);
+    log = moduleRef.get(Logger);
+    statsd = moduleRef.get(StatsDService);
   });
 
   describe('wrapCartWithCatch', () => {
@@ -1330,18 +1336,14 @@ describe('CartService', () => {
       jest
         .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
         .mockResolvedValue(undefined);
-      jest
-        .spyOn(cartManager, 'createErrorCart')
-        .mockResolvedValue(mockNewCart);
+      jest.spyOn(cartManager, 'createErrorCart').mockResolvedValue(mockNewCart);
       jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockNewCart);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
-      jest
-        .spyOn(eligibilityService, 'checkEligibility')
-        .mockResolvedValue({
-          subscriptionEligibilityResult: EligibilityStatus.BLOCKED_IAP,
-        });
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.BLOCKED_IAP,
+      });
 
       const result = await cartService.restartCart(mockOldCart.id);
 
@@ -2552,6 +2554,141 @@ describe('CartService', () => {
       expect(invoiceManager.preview).toHaveBeenCalledWith(
         mockSubscription.latest_invoice
       );
+    });
+
+    describe('when Stripe rejects the cart promotion code', () => {
+      const promotionCodeError = new Stripe.errors.StripeInvalidRequestError({
+        type: 'invalid_request_error',
+        message: 'This promotion code has been used up.',
+        param: 'promotion_code',
+      });
+
+      const mockSuccessCart = () =>
+        ResultCartFactory({
+          state: CartState.SUCCESS,
+          stripeSubscriptionId: mockSubscription.id,
+          couponCode: 'SINGLEUSE',
+        });
+
+      describe('after checkout, when the retry succeeds', () => {
+        beforeEach(() => {
+          jest
+            .spyOn(invoiceManager, 'previewUpcoming')
+            .mockRejectedValueOnce(promotionCodeError)
+            .mockResolvedValueOnce(mockUpcomingInvoicePreview);
+        });
+
+        it('returns the upcoming invoice preview without the discount', async () => {
+          const mockCart = mockSuccessCart();
+          jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+
+          const result = await cartService.getCart(mockCart.id);
+
+          expect(result.upcomingInvoicePreview).toEqual(
+            mockUpcomingInvoicePreview
+          );
+        });
+
+        it('retries the preview with the promotion code removed', async () => {
+          const mockCart = mockSuccessCart();
+          jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+
+          await cartService.getCart(mockCart.id);
+
+          const previewArgs = {
+            priceId: mockPrice.id,
+            currency: mockCart.currency,
+            customer: mockCustomer,
+            taxAddress: mockCart.taxAddress,
+          };
+          expect(invoiceManager.previewUpcoming).toHaveBeenNthCalledWith(1, {
+            ...previewArgs,
+            couponCode: 'SINGLEUSE',
+          });
+          expect(invoiceManager.previewUpcoming).toHaveBeenNthCalledWith(
+            2,
+            previewArgs
+          );
+        });
+
+        it('increments the rejected promotion code metric', async () => {
+          const mockCart = mockSuccessCart();
+          jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+          const incrementSpy = jest.spyOn(statsd, 'increment');
+
+          await cartService.getCart(mockCart.id);
+
+          expect(incrementSpy).toHaveBeenCalledWith(
+            'invoice_preview_promotion_code_rejected'
+          );
+        });
+
+        it('logs a warning for the rejected promotion code', async () => {
+          const mockCart = mockSuccessCart();
+          jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+          const warnSpy = jest.spyOn(log, 'warn');
+
+          await cartService.getCart(mockCart.id);
+
+          expect(warnSpy).toHaveBeenCalledWith(
+            'cartService.previewUpcomingForCart.promotionCodeRejected',
+            {
+              cartId: mockCart.id,
+              cartState: CartState.SUCCESS,
+              error: 'This promotion code has been used up.',
+            }
+          );
+        });
+      });
+
+      it('throws when the retry also fails', async () => {
+        const mockCart = mockSuccessCart();
+        const retryError = new Stripe.errors.StripeAPIError({
+          type: 'api_error',
+          message: 'Stripe is unavailable',
+        });
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+        jest
+          .spyOn(invoiceManager, 'previewUpcoming')
+          .mockRejectedValueOnce(promotionCodeError)
+          .mockRejectedValueOnce(retryError);
+
+        await expect(cartService.getCart(mockCart.id)).rejects.toBe(retryError);
+      });
+
+      it('throws without retrying while the cart is in START', async () => {
+        const mockCart = ResultCartFactory({
+          state: CartState.START,
+          couponCode: 'SINGLEUSE',
+        });
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+        jest
+          .spyOn(invoiceManager, 'previewUpcoming')
+          .mockRejectedValue(promotionCodeError);
+
+        await expect(cartService.getCart(mockCart.id)).rejects.toBe(
+          promotionCodeError
+        );
+        expect(invoiceManager.previewUpcoming).toHaveBeenCalledTimes(1);
+      });
+
+      it('throws without retrying for errors unrelated to the promotion code', async () => {
+        const mockCart = mockSuccessCart();
+        const currencyError = new Stripe.errors.StripeInvalidRequestError({
+          type: 'invalid_request_error',
+          message: 'Invalid currency',
+          param: 'currency',
+        });
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+        jest
+          .spyOn(invoiceManager, 'previewUpcoming')
+          .mockRejectedValue(currencyError);
+
+        await expect(cartService.getCart(mockCart.id)).rejects.toBe(
+          currencyError
+        );
+        expect(invoiceManager.previewUpcoming).toHaveBeenCalledTimes(1);
+      });
     });
 
     it('returns cart and upcomingInvoicePreview if customer is undefined', async () => {
