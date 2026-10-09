@@ -959,7 +959,7 @@ passkey-sub-row-created-date = Wedi'i greu: { $createdDate }
 passkey-sub-row-last-used-date = Defnyddiwyd ddiwethaf: { $lastUsedDate }
 passkey-sub-row-delete-title = Dileu cyfrinallwedd
 passkey-delete-modal-heading = Dileu eich cyfrinallwedd?
-passkey-delete-modal-content-v2 = Bydd y cyfrinallwedd hwn yn cael ei dynnu o'ch cyfrif. Bydd angen i chi fewngofnodi gan ddefnyddio dull gwahanol (cyfrinair, cyfrinallwedd arall, neu gyfrif cysylltiedig).
+passkey-delete-modal-content-v3 = Bydd y cyfrinallwedd hwn yn cael ei dynnu o'ch cyfrif. Bydd angen i chi fewngofnodi gan ddefnyddio cyfrinair, cyfrinallwedd arall, neu gyfrif cysylltiedig.
 passkey-delete-modal-cancel-button = Diddymu
 passkey-delete-modal-confirm-button = Dileu cyfrinallwedd
 passkey-delete-success = Cyfrinallwedd wedi'i ddileu
@@ -1204,16 +1204,16 @@ index-email-bounced = Dychwelwyd eich e-bost cadarnhau. E-bost wedi'i gamdeipio?
 
 
 inline-passwordless-sync-setup-page-title = Hepgor y cyfrinair tro nesaf?
-inline-passwordless-sync-setup-success-banner = Wedi mewngofnodi i { -brand-firefox }
+inline-passwordless-sync-setup-success-banner-v2 = Rydych chi wedi mewngofnodi, ac mae cydweddu ymlaen
 inline-passwordless-sync-setup-heading = Hepgor y cyfrinair tro nesaf?
 inline-passwordless-sync-setup-description = Defnyddiwch y cyfrinallwedd hwn i fewngofnodi'n gyflymach.
 inline-passwordless-sync-setup-enable-button = Galluogi cyfrinallwedd
 inline-passwordless-sync-setup-enabling = Wrthi'n galluogi…
 inline-passwordless-sync-setup-not-now-button = Nid nawr
-inline-passwordless-sync-setup-success-alert = Mae'r cyfrinallwedd hwn yn barod ar gyfer mewngofnodi cydweddu
+inline-passwordless-sync-setup-success-alert-v2 = Mae'r cyfrinallwedd hwn wedi'i alluogi ar gyfer mewngofnodi cydweddu
 inline-passwordless-sync-setup-error-cancelled = Wnaeth cadarnhau'r cyfrinallwedd ddim gorffen
 inline-passwordless-sync-setup-error-cancelled-description = Cadarnhewch gyda'ch cyfrinallwedd i hepgor y cyfrinair tro nesaf.
-inline-passwordless-sync-setup-error-generic = Aeth rhywbeth o'i le, bydd dal angen i chi roi'ch cyfrinair y tro nesaf
+inline-passwordless-sync-setup-error-generic-v2 = Doedd dim modd i ni alluogi'r cyfrinallwedd hwn ar gyfer mewngofnodi cydweddu. Bydd angen eich cyfrinair y tro nesaf.
 
 
 inline-recovery-key-setup-create-error = Wps! Nid oedd modd i ni greu allwedd adfer eich cyfrif. Ceisiwch eto yn nes ymlaen.
@@ -1352,7 +1352,7 @@ pair2-authority-download-firefox-cta = Llwytho { -brand-firefox } i lawr
 pair2-authority-scan-qr-heading = Sganiwch i gysylltu eich dyfais symudol
 pair2-authority-scan-qr-instruction = Sganiwch y cod QR gyda'ch ffôn neu dabled i gydweddu nodau tudalen, tabiau a nodweddion eraill eich { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Cod QR i gysylltu eich dyfais symudol
-pair2-authority-scan-qr-help-link = Cael help i sganio
+pair2-authority-scan-qr-other-ways-link = Ffyrdd eraill o fewngofnodi
 pair2-authority-scan-qr-skip-button = Hepgor am nawr
 
 
@@ -1401,7 +1401,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Dysgu rhagor
 
 pair2-supplicant-sync-success-heading = Mae eich dyfais wedi'i gysylltu
 pair2-supplicant-sync-success-description-v2 = Wrthi'n cydweddu. Gall gymryd peth amser i'ch data wedi'i gydweddu ymddangos. Mae croeso i chi barhau i bori.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Rheoli gosodiadau cydweddu
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Mae'n edrych fel bod ein amser wedi dod i ben
@@ -1413,6 +1412,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = I gysylltu dyfais unr
 permissions-heading = Mae { $serviceName } eisiau mynediad i:
 permissions-label-email = Cyfeiriad e-bost
 permissions-label-display-name = Enw dangos
+permissions-label-avatar = Disgrifiad o'r cyfrif
 permissions-continue-button = Parhau
 permissions-cancel-button = Diddymu
 
@@ -1479,10 +1479,12 @@ confirm-totp-reset-password-use-different-account = Defnyddiwch gyfrif gwahanol
 
 
 password-reset-flow-heading = Ailosod eich cyfrinair
-password-reset-body-3 = Gall ailosod eich cyfrinair effeithio ar ddata porwr sydd wedi'i gydweddu.
+password-reset-forgot-heading = Wedi anghofio eich cyfrinair?
+password-reset-alternatives-body = <signInLink>Ceisiwch fewngofnodi gyda { -brand-google }, { -brand-apple }, neu gyfrinallwedd yn lle hynny.</signInLink> Neu rhowch eich e-bost a byddwn yn anfon cod atoch chi i ailosod eich cyfrinair.
 password-reset-email-input =
     .label = Rhowch eich e-bost
 password-reset-submit-button-2 = Parhau
+password-reset-data-recovery-warning = Gall ailosod eich cyfrinair effeithio ar p'un eich bod yn gallu adennill data porwr wedi'i gydweddu. <learnMoreLink>Dysgu rhagor</learnMoreLink>
 
 
 reset-password-complete-header = Mae eich cyfrinair wedi ei ailosod

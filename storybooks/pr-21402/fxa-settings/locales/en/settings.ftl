@@ -2266,6 +2266,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = To connect a device a
 permissions-heading = { $serviceName } wants access to:
 permissions-label-email = Email address
 permissions-label-display-name = Display name
+permissions-label-avatar = Account picture
 permissions-continue-button = Continue
 permissions-cancel-button = Cancel
 

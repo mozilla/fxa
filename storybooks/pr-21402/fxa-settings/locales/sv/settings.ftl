@@ -2529,5 +2529,5 @@ signup-confirmed-sync-set-password-success-banner = Synkroniseringslösenord ska
 ## Shown when the browser is too old to use a Mozilla account
 
 update-firefox-heading = { -brand-firefox } uppdatering krävs
-update-firefox-description = Din { -product-mozilla-account } använder funktioner som inte stöds i din version av { -brand-firefox }. Ladda ner och installera den senaste versionen av { -brand-firefox } för att fortsätta.
+update-firefox-description = Ditt { -product-mozilla-account } använder funktioner som inte stöds av din version av { -brand-firefox }. Ladda ned och installera den senaste versionen av { -brand-firefox } för att fortsätta.
 update-firefox-download-button = Ladda ner senaste

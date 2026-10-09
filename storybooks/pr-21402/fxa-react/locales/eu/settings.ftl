@@ -1331,13 +1331,9 @@ inline-passwordless-sync-setup-enable-button = Gaitu sarbide-gakoa
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Gaitzen…
 inline-passwordless-sync-setup-not-now-button = Une honetan ez
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Sarbide-gakoa prest dago sinkronizazioaren saio-hasierarako
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Sarbide-gakoaren berrespena ez da amaitu
 inline-passwordless-sync-setup-error-cancelled-description = Berretsi zure sarbide-gakoarekin pasahitza saltatzeko hurrengo aldian.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Zerbait gaizki joan da, oraindik ere zure pasahitza idatzi beharko duzu hurrengo aldian
 
 ## InlineRecoveryKeySetup page component
 
@@ -1616,8 +1612,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Argibide gehiago
 pair2-supplicant-sync-success-heading = Zure gailua konektatuta dago
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = Sinkronizazioa lanean ari da. Denbora pixka bat har lezake sinkronizatutako datuak agertu arte. Jarraitu nabigatzen lasai.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Kudeatu sinkronizazio-ezarpenak
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,

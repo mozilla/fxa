@@ -1007,7 +1007,6 @@ passkey-sub-row-created-date = Δημιουργία: { $createdDate }
 passkey-sub-row-last-used-date = Τελευταία χρήση: { $lastUsedDate }
 passkey-sub-row-delete-title = Διαγραφή κλειδιού πρόσβασης
 passkey-delete-modal-heading = Διαγραφή κλειδιού πρόσβασης;
-passkey-delete-modal-content-v2 = Αυτό το κλειδί πρόσβασης θα αφαιρεθεί από τον λογαριασμό σας. Θα πρέπει να συνδεθείτε με διαφορετική μέθοδο (κωδικό πρόσβασης, άλλο κλειδί πρόσβασης ή συνδεδεμένο λογαριασμό).
 passkey-delete-modal-cancel-button = Ακύρωση
 passkey-delete-modal-confirm-button = Διαγραφή κλειδιού πρόσβασης
 passkey-delete-success = Το κλειδί πρόσβασης διαγράφηκε
@@ -1251,16 +1250,15 @@ index-email-bounced = Το email επιβεβαίωσής σας μόλις επ
 
 
 inline-passwordless-sync-setup-page-title = Παράλειψη του κωδικού πρόσβασης την επόμενη φορά;
-inline-passwordless-sync-setup-success-banner = Συνδεθήκατε στο { -brand-firefox }
+inline-passwordless-sync-setup-success-banner-v2 = Έχετε συνδεθεί και ο συγχρονισμός είναι ενεργός
 inline-passwordless-sync-setup-heading = Παράλειψη του κωδικού πρόσβασης την επόμενη φορά;
 inline-passwordless-sync-setup-description = Χρησιμοποιήστε αυτό το κλειδί πρόσβασης για ταχύτερη σύνδεση.
 inline-passwordless-sync-setup-enable-button = Ενεργοποίηση κλειδιού πρόσβασης
 inline-passwordless-sync-setup-enabling = Ενεργοποίηση…
 inline-passwordless-sync-setup-not-now-button = Όχι τώρα
-inline-passwordless-sync-setup-success-alert = Αυτό το κλειδί πρόσβασης είναι έτοιμο για σύνδεση στον συγχρονισμό
+inline-passwordless-sync-setup-success-alert-v2 = Αυτό το κλειδί πρόσβασης έχει ενεργοποιηθεί για σύνδεση στον συγχρονισμό
 inline-passwordless-sync-setup-error-cancelled = Η επιβεβαίωση του κλειδιού πρόσβασης δεν ολοκληρώθηκε
 inline-passwordless-sync-setup-error-cancelled-description = Κάντε επιβεβαίωση με το κλειδί πρόσβασής σας για να παραλείψετε τον κωδικό πρόσβασης την επόμενη φορά.
-inline-passwordless-sync-setup-error-generic = Κάτι πήγε στραβά, θα πρέπει ακόμα να εισαγάγετε τον κωδικό πρόσβασής σας την επόμενη φορά
 
 
 inline-recovery-key-setup-create-error = Ωχ! Δεν ήταν δυνατή η δημιουργία του κλειδιού ανάκτησης του λογαριασμού σας. Δοκιμάστε ξανά αργότερα.
@@ -1399,7 +1397,7 @@ pair2-authority-download-firefox-cta = Λήψη του { -brand-firefox }
 pair2-authority-scan-qr-heading = Κάντε σάρωση για να συνδέσετε άλλη συσκευή
 pair2-authority-scan-qr-instruction = Σαρώστε τον κωδικό QR με το τηλέφωνο ή το tablet σας για να συγχρονίσετε τους σελιδοδείκτες, τις καρτέλες και άλλα δεδομένα του { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Κωδικός QR για σύνδεση της κινητής σας συσκευής
-pair2-authority-scan-qr-help-link = Λήψη βοήθειας με τη σάρωση
+pair2-authority-scan-qr-other-ways-link = Άλλοι τρόποι σύνδεσης
 pair2-authority-scan-qr-skip-button = Παράλειψη για την ώρα
 
 
@@ -1448,7 +1446,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Μάθετε περισσότε
 
 pair2-supplicant-sync-success-heading = Η συσκευή σας έχει συνδεθεί
 pair2-supplicant-sync-success-description-v2 = Ο συγχρονισμός βρίσκεται σε εξέλιξη. Ενδέχεται να χρειαστεί λίγος χρόνος μέχρι να εμφανιστούν τα συγχρονισμένα δεδομένα σας. Στο μεταξύ, μπορείτε να συνεχίσετε την περιήγηση.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Διαχείριση ρυθμίσεων συγχρονισμού
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Φαίνεται ότι το χρονικό όριο έληξε
@@ -1460,6 +1457,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Για να συνδ�
 permissions-heading = Το { $serviceName } ζητά πρόσβαση σε:
 permissions-label-email = Διεύθυνση email
 permissions-label-display-name = Εμφανιζόμενο όνομα
+permissions-label-avatar = Εικόνα λογαριασμού
 permissions-continue-button = Συνέχεια
 permissions-cancel-button = Ακύρωση
 
@@ -1526,7 +1524,7 @@ confirm-totp-reset-password-use-different-account = Χρήση διαφορετ�
 
 
 password-reset-flow-heading = Επαναφορά κωδικού πρόσβασης
-password-reset-body-3 = Η επαναφορά του κωδικού πρόσβασής σας ενδέχεται να επηρεάσει τα συγχρονισμένα δεδομένα του προγράμματος περιήγησης.
+password-reset-forgot-heading = Ξεχάσατε τον κωδικό πρόσβασής σας;
 password-reset-email-input =
     .label = Εισαγάγετε το email σας
 password-reset-submit-button-2 = Συνέχεια

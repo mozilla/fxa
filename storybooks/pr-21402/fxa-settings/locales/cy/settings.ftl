@@ -1295,7 +1295,7 @@ passkey-sub-row-created-date = Wedi'i greu: { $createdDate }
 passkey-sub-row-last-used-date = Defnyddiwyd ddiwethaf: { $lastUsedDate }
 passkey-sub-row-delete-title = Dileu cyfrinallwedd
 passkey-delete-modal-heading = Dileu eich cyfrinallwedd?
-passkey-delete-modal-content-v2 = Bydd y cyfrinallwedd hwn yn cael ei dynnu o'ch cyfrif. Bydd angen i chi fewngofnodi gan ddefnyddio dull gwahanol (cyfrinair, cyfrinallwedd arall, neu gyfrif cysylltiedig).
+passkey-delete-modal-content-v3 = Bydd y cyfrinallwedd hwn yn cael ei dynnu o'ch cyfrif. Bydd angen i chi fewngofnodi gan ddefnyddio cyfrinair, cyfrinallwedd arall, neu gyfrif cysylltiedig.
 passkey-delete-modal-cancel-button = Diddymu
 passkey-delete-modal-confirm-button = Dileu cyfrinallwedd
 passkey-delete-success = Cyfrinallwedd wedi'i ddileu
@@ -1660,20 +1660,22 @@ index-email-bounced = Dychwelwyd eich e-bost cadarnhau. E-bost wedi'i gamdeipio?
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Hepgor y cyfrinair tro nesaf?
 # Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Wedi mewngofnodi i { -brand-firefox }
+inline-passwordless-sync-setup-success-banner-v2 = Rydych chi wedi mewngofnodi, ac mae cydweddu ymlaen
 inline-passwordless-sync-setup-heading = Hepgor y cyfrinair tro nesaf?
 inline-passwordless-sync-setup-description = Defnyddiwch y cyfrinallwedd hwn i fewngofnodi'n gyflymach.
 inline-passwordless-sync-setup-enable-button = Galluogi cyfrinallwedd
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Wrthi'n galluogi…
 inline-passwordless-sync-setup-not-now-button = Nid nawr
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Mae'r cyfrinallwedd hwn yn barod ar gyfer mewngofnodi cydweddu
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = Mae'r cyfrinallwedd hwn wedi'i alluogi ar gyfer mewngofnodi cydweddu
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Wnaeth cadarnhau'r cyfrinallwedd ddim gorffen
 inline-passwordless-sync-setup-error-cancelled-description = Cadarnhewch gyda'ch cyfrinallwedd i hepgor y cyfrinair tro nesaf.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Aeth rhywbeth o'i le, bydd dal angen i chi roi'ch cyfrinair y tro nesaf
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = Doedd dim modd i ni alluogi'r cyfrinallwedd hwn ar gyfer mewngofnodi cydweddu. Bydd angen eich cyfrinair y tro nesaf.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1933,8 +1935,8 @@ pair2-authority-scan-qr-heading = Sganiwch i gysylltu eich dyfais symudol
 pair2-authority-scan-qr-instruction = Sganiwch y cod QR gyda'ch ffôn neu dabled i gydweddu nodau tudalen, tabiau a nodweddion eraill eich { -brand-firefox }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Cod QR i gysylltu eich dyfais symudol
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Cael help i sganio
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Ffyrdd eraill o fewngofnodi
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Hepgor am nawr
 
@@ -2043,8 +2045,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Dysgu rhagor
 pair2-supplicant-sync-success-heading = Mae eich dyfais wedi'i gysylltu
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = Wrthi'n cydweddu. Gall gymryd peth amser i'ch data wedi'i gydweddu ymddangos. Mae croeso i chi barhau i bori.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Rheoli gosodiadau cydweddu
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2071,6 +2071,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = I gysylltu dyfais unr
 permissions-heading = Mae { $serviceName } eisiau mynediad i:
 permissions-label-email = Cyfeiriad e-bost
 permissions-label-display-name = Enw dangos
+permissions-label-avatar = Disgrifiad o'r cyfrif
 permissions-continue-button = Parhau
 permissions-cancel-button = Diddymu
 
@@ -2179,10 +2180,14 @@ confirm-totp-reset-password-use-different-account = Defnyddiwch gyfrif gwahanol
 ## ResetPassword start page
 
 password-reset-flow-heading = Ailosod eich cyfrinair
-password-reset-body-3 = Gall ailosod eich cyfrinair effeithio ar ddata porwr sydd wedi'i gydweddu.
+password-reset-forgot-heading = Wedi anghofio eich cyfrinair?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Ceisiwch fewngofnodi gyda { -brand-google }, { -brand-apple }, neu gyfrinallwedd yn lle hynny.</signInLink> Neu rhowch eich e-bost a byddwn yn anfon cod atoch chi i ailosod eich cyfrinair.
 password-reset-email-input =
     .label = Rhowch eich e-bost
 password-reset-submit-button-2 = Parhau
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Gall ailosod eich cyfrinair effeithio ar p'un eich bod yn gallu adennill data porwr wedi'i gydweddu. <learnMoreLink>Dysgu rhagor</learnMoreLink>
 
 ## ResetPasswordConfirmed
 

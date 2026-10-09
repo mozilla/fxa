@@ -1285,7 +1285,6 @@ passkey-sub-row-created-date = Napórany: { $createdDate }
 passkey-sub-row-last-used-date = Slědny raz wužyty: { $lastUsedDate }
 passkey-sub-row-delete-title = Gronidłowy kluc lašowaś
 passkey-delete-modal-heading = Gronidłowy kluc lašowaś?
-passkey-delete-modal-content-v2 = Toś ten gronidłowy kluc se z wašogo konta wótwónoźijo. Musyśo se z pomocu drugeje metody (gronidło, drugi gronidłowy kluc abo zwězane konto) pśizjawiś.
 passkey-delete-modal-cancel-button = Pśetergnuś
 passkey-delete-modal-confirm-button = Gronidłowy kluc lašowaś
 passkey-delete-success = Gronidłowy kluc jo se wulašował
@@ -1651,21 +1650,15 @@ index-email-bounced = Waša wobkšuśeńska mejlka jo se rowno wrośiła. Jo e-m
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Gronidło pśiducy raz pśeskócyś?
-# Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Pla { -brand-firefox } pśizjawjony
 inline-passwordless-sync-setup-heading = Gronidło pśiducy raz pśeskócyś?
 inline-passwordless-sync-setup-description = Wužywajśo toś ten gronidłowy kluc, aby se malsnjej pśizjawił.
 inline-passwordless-sync-setup-enable-button = Gronidłowy kluc zmóžniś
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Zmóžnja se…
 inline-passwordless-sync-setup-not-now-button = Nic něnto
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Gronidłowy kluc jo gótowy za pśizjawjenje synchronizacije
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Wobkšuśenje gronidłowego kluca se njekóńcy
 inline-passwordless-sync-setup-error-cancelled-description = Wobkšuśćo ze swójim gronidłowym klucom, aby gronidło pśiducy raz pśeskócył.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Něco njejo se raźiło, musyśo hyšći swójo gronidło pśiducy raz zapódaś
 
 ## InlineRecoveryKeySetup page component
 
@@ -1925,8 +1918,6 @@ pair2-authority-scan-qr-heading = Za zwězowanje ze swójom rědom scannowaś
 pair2-authority-scan-qr-instruction = Scannujśo QR-kod ze swójom telefonom abo tabletom, aby swóje cytańske znamjenja, rejtariki { -brand-firefox } a wěcej synchronizěrował.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR-kod za zwězowanje z wašym mobilnym rědom
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Pomoc za scannowanje dostaś
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Tuchylu pśeskócyś
 
@@ -2035,8 +2026,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Dalšne informacije
 pair2-supplicant-sync-success-heading = Waš rěd jo zwězany
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = Synchronizacija jo pó droze. Móžo chylku traś, daniž se waše synchronizěrowane daty njezjawiju. Móžośo ga dalej pśeglědowaś.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije zastojaś
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2171,7 +2160,6 @@ confirm-totp-reset-password-use-different-account = Druge konto wužywaś
 ## ResetPassword start page
 
 password-reset-flow-heading = Stajśo swójo gronidło slědk
-password-reset-body-3 = Gaž swójo gronidło slědk stajaśo, móžo to synchronizěrowane daty wobglědowaka wobwliwowaś.
 password-reset-email-input =
     .label = Zapódajśo swóju e-mailowu adresu
 password-reset-submit-button-2 = Dalej

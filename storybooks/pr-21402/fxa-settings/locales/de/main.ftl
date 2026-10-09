@@ -935,7 +935,7 @@ passkey-sub-row-created-date = Erstellt: { $createdDate }
 passkey-sub-row-last-used-date = Zuletzt verwendet: { $lastUsedDate }
 passkey-sub-row-delete-title = Zugangsschlüssel löschen
 passkey-delete-modal-heading = Ihren Zugangsschlüssel löschen?
-passkey-delete-modal-content-v2 = Dieser Zugangsschlüssel wird von Ihrem Konto entfernt. Sie müssen sich mit einer anderen Methode anmelden (Passwort, anderer Zugangsschlüssel oder verknüpftes Konto).
+passkey-delete-modal-content-v3 = Dieser Zugangsschlüssel wird von Ihrem Konto entfernt. Sie müssen sich mit einem Passwort, einem anderen Zugangsschlüssel oder einem verknüpften Konto anmelden.
 passkey-delete-modal-cancel-button = Abbrechen
 passkey-delete-modal-confirm-button = Zugangsschlüssel löschen
 passkey-delete-success = Zugangsschlüssel gelöscht
@@ -1180,16 +1180,16 @@ index-email-bounced = Ihre Bestätigungs-E-Mail kam gerade zurück. Stimmt Ihre 
 
 
 inline-passwordless-sync-setup-page-title = Passwort beim nächsten Mal überspringen?
-inline-passwordless-sync-setup-success-banner = Bei { -brand-firefox } angemeldet
+inline-passwordless-sync-setup-success-banner-v2 = Sie sind angemeldet und die Synchronisierung ist aktiviert
 inline-passwordless-sync-setup-heading = Passwort beim nächsten Mal überspringen?
 inline-passwordless-sync-setup-description = Verwenden Sie diesen Zugangsschlüssel, um sich schneller anzumelden.
 inline-passwordless-sync-setup-enable-button = Zugangsschlüssel aktivieren
 inline-passwordless-sync-setup-enabling = Wird aktiviert…
 inline-passwordless-sync-setup-not-now-button = Nicht jetzt
-inline-passwordless-sync-setup-success-alert = Dieser Zugangsschlüssel kann jetzt für die Anmeldung zur Synchronisierung verwendet werden
+inline-passwordless-sync-setup-success-alert-v2 = Dieser Zugangsschlüssel ist für die Sync-Anmeldung aktiviert
 inline-passwordless-sync-setup-error-cancelled = Bestätigung des Zugangsschlüssels nicht abgeschlossen
 inline-passwordless-sync-setup-error-cancelled-description = Bestätigen Sie Ihre Identität mit Ihrem Zugangsschlüssel, damit Sie beim nächsten Mal kein Passwort eingeben müssen.
-inline-passwordless-sync-setup-error-generic = Ein Fehler ist aufgetreten, beim nächsten Mal müssen Sie Ihr Passwort weiterhin eingeben
+inline-passwordless-sync-setup-error-generic-v2 = Wir konnten diesen Zugangsschlüssel nicht für die Sync-Anmeldung aktivieren. Sie benötigen Ihr Passwort beim nächsten Mal.
 
 
 inline-recovery-key-setup-create-error = Hoppla! Wir konnten Ihren Kontowiederherstellungsschlüssel nicht erstellen. Bitte versuchen Sie es später erneut.
@@ -1328,7 +1328,7 @@ pair2-authority-download-firefox-cta = { -brand-firefox } herunterladen
 pair2-authority-scan-qr-heading = Zum Verbinden mit Ihrem Mobilgerät scannen
 pair2-authority-scan-qr-instruction = Scannen Sie den QR-Code mit Ihrem Handy oder Tablet, um Ihre Lesezeichen, Tabs und mehr von { -brand-firefox } zu synchronisieren.
 pair2-authority-scan-qr-code-aria-label = QR-Code zum Verbinden Ihres Mobilgeräts
-pair2-authority-scan-qr-help-link = Hilfe beim Scannen
+pair2-authority-scan-qr-other-ways-link = Andere Anmeldemöglichkeiten
 pair2-authority-scan-qr-skip-button = Vorerst überspringen
 
 
@@ -1377,7 +1377,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Weitere Informationen
 
 pair2-supplicant-sync-success-heading = Ihr Gerät ist verbunden
 pair2-supplicant-sync-success-description-v2 = Die Synchronisierung wird durchgeführt. Es kann eine Weile dauern, bis Ihre synchronisierten Daten angezeigt werden. Surfen Sie weiter.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Synchronisations-Einstellungen verwalten
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zeitüberschreitung
@@ -1389,6 +1388,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Um jederzeit ein Ger�
 permissions-heading = { $serviceName } möchte Zugriff auf:
 permissions-label-email = E-Mail-Adresse
 permissions-label-display-name = Anzeigename
+permissions-label-avatar = Kontobild
 permissions-continue-button = Weiter
 permissions-cancel-button = Abbrechen
 
@@ -1455,10 +1455,12 @@ confirm-totp-reset-password-use-different-account = Ein anderes Konto verwenden
 
 
 password-reset-flow-heading = Setzen Sie Ihr Passwort zurück
-password-reset-body-3 = Das Zurücksetzen Ihres Passworts kann sich auf synchronisierte Browser-Daten auswirken.
+password-reset-forgot-heading = Passwort vergessen?
+password-reset-alternatives-body = <signInLink>Versuchen Sie, sich mit { -brand-google }, { -brand-apple } oder einem Zugangsschlüssel anzumelden.</signInLink> Oder geben Sie Ihre E-Mail-Adresse ein und wir schicken Ihnen einen Code, um Ihr Passwort zurückzusetzen.
 password-reset-email-input =
     .label = E-Mail-Adresse eingeben
 password-reset-submit-button-2 = Weiter
+password-reset-data-recovery-warning = Das Zurücksetzen Ihres Passworts kann sich darauf auswirken, ob Sie synchronisierte Browser-Daten wiederherstellen können. <learnMoreLink>Weitere Informationen</learnMoreLink>
 
 
 reset-password-complete-header = Ihr Passwort wurde zurückgesetzt.

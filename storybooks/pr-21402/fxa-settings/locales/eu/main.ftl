@@ -987,10 +987,8 @@ index-email-bounced = Zure berrespen-mezu elektronikoa itzuli berri da. Helbide 
 inline-passwordless-sync-setup-enable-button = Gaitu sarbide-gakoa
 inline-passwordless-sync-setup-enabling = Gaitzen…
 inline-passwordless-sync-setup-not-now-button = Une honetan ez
-inline-passwordless-sync-setup-success-alert = Sarbide-gakoa prest dago sinkronizazioaren saio-hasierarako
 inline-passwordless-sync-setup-error-cancelled = Sarbide-gakoaren berrespena ez da amaitu
 inline-passwordless-sync-setup-error-cancelled-description = Berretsi zure sarbide-gakoarekin pasahitza saltatzeko hurrengo aldian.
-inline-passwordless-sync-setup-error-generic = Zerbait gaizki joan da, oraindik ere zure pasahitza idatzi beharko duzu hurrengo aldian
 
 
 inline-recovery-key-setup-create-error = Oops! Ezin izan dugu sortu zure kontua berreskuratzeko gakoa. Saiatu berriro geroago.
@@ -1134,7 +1132,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Argibide gehiago
 
 pair2-supplicant-sync-success-heading = Zure gailua konektatuta dago
 pair2-supplicant-sync-success-description-v2 = Sinkronizazioa lanean ari da. Denbora pixka bat har lezake sinkronizatutako datuak agertu arte. Jarraitu nabigatzen lasai.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Kudeatu sinkronizazio-ezarpenak
 
 
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Bertan behera utzita

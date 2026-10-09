@@ -163,6 +163,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Befêstigje wachtwurd
 form-password-with-inline-criteria-reset-submit-button = Nij wachtwurd oanmeitsje
+form-password-with-inline-criteria-old-password-label =
+    .label = Alde wachtwurd
+form-password-with-inline-criteria-change-password-submit-button = Wachtwurd wizigje
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Wachtwurd
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -938,7 +941,6 @@ passkey-sub-row-created-date = Oanmakke: { $createdDate }
 passkey-sub-row-last-used-date = Lêst brûkt: { $lastUsedDate }
 passkey-sub-row-delete-title = Wachtwurdkaai fuortsmite
 passkey-delete-modal-heading = Jo wachtwurdkaai fuortsmite?
-passkey-delete-modal-content-v2 = Dizze wachtwurdkaai sil fan jo account fuortsmiten wurde. Jo moatte jo oanmelde mei in oare metoade (wachtwurd, in oare wachtwurdkaai of keppele account).
 passkey-delete-modal-cancel-button = Annulearje
 passkey-delete-modal-confirm-button = Wachtwurdkaai fuortsmite
 passkey-delete-success = Wachtwurdkaai fuortsmiten
@@ -1183,16 +1185,13 @@ index-email-bounced = Jo befêstigings-e-mailberjocht is sakrekt weromkaam. Haww
 
 
 inline-passwordless-sync-setup-page-title = De folgjende kear it wachtwurd oerslaan?
-inline-passwordless-sync-setup-success-banner = Oanmeld by { -brand-firefox }
 inline-passwordless-sync-setup-heading = De folgjende kear it wachtwurd oerslaan?
 inline-passwordless-sync-setup-description = Brûk dizze wachtwurdkaai om jo flugger oan te melden.
 inline-passwordless-sync-setup-enable-button = Wachtwurdkaai ynskeakelje
 inline-passwordless-sync-setup-enabling = Ynskeakelje…
 inline-passwordless-sync-setup-not-now-button = No net
-inline-passwordless-sync-setup-success-alert = Dizze wachtwurdkaai is klear foar oanmelden en syngronisearjen
 inline-passwordless-sync-setup-error-cancelled = Befêstiging fan wachtwurdkaai net foltôge
 inline-passwordless-sync-setup-error-cancelled-description = Befêstigje mei jo wachtwurdkaai om it wachtwurd de folgjende kear oer te slaan.
-inline-passwordless-sync-setup-error-generic = Der is wat misgien, jo moatte de folgjende kear noch hieltyd jo wachtwurd ynfiere
 
 
 inline-recovery-key-setup-create-error = Oeps! Wy koenen jo accountwerstelkaai net oanmeitsje. Probearje it letter nochris.
@@ -1331,7 +1330,6 @@ pair2-authority-download-firefox-cta = { -brand-firefox } downloade
 pair2-authority-scan-qr-heading = Scan om jo mobile apparaat te ferbinen
 pair2-authority-scan-qr-instruction = Scan de QR-koade mei jo telefoan of tablet om jo { -brand-firefox }-blêdwizers, ljepblêden en mear te syngronisearjen.
 pair2-authority-scan-qr-code-aria-label = QR-koade om jo mobile apparaat te ferbinen
-pair2-authority-scan-qr-help-link = Help by scannen ûntfange
 pair2-authority-scan-qr-skip-button = Foarearst oerslaan
 
 
@@ -1358,8 +1356,19 @@ pair2-supplicant-connect-this-device-connect-button = Ferbine
 pair2-supplicant-connect-this-device-cancel-button = Annulearje
 
 
+pair2-supplicant-download-firefox-heading-v2 = { -brand-firefox } op dit apparaat iepenje
+pair2-supplicant-download-firefox-description-v2 = Download { -brand-firefox } om blêdwizers, skiednis en mear tusken ferskate apparaten te syngronisearjen.
 pair2-supplicant-download-firefox-continue-button = Trochgean yn { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } iepenje…
+pair2-supplicant-download-firefox-download-button = { -brand-firefox } downloade
+pair2-supplicant-download-firefox-have-firefox-button = Ik haw { -brand-firefox } al
+pair2-supplicant-download-firefox-learn-more-link = Mear ynfo
+
+
+pair2-supplicant-connect-hint-heading-v2 = Foltôgje it keppeljen yn de app
+pair2-supplicant-connect-hint-step-app-menu = Tik op it <b>app-menu</b> yn de arkbalke
+pair2-supplicant-connect-hint-step-sign-in = Tik op <b>oanmelde</b> en scan de koade
+pair2-supplicant-connect-hint-learn-more-link = Mear ynfo
 
 
 pair2-supplicant-ready-to-scan-heading = In apparaat ferbine
@@ -1369,7 +1378,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Mear ynfo
 
 pair2-supplicant-sync-success-heading = Jo apparaat is ferbûn
 pair2-supplicant-sync-success-description-v2 = Syngronisaasje is start. It kin in skoftke duorje eardat jo syngronisearre gegevens ferskine. Fiel jo frij om troch te sneupen.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Syngronisaasje-ynstellingen beheare
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = It liket derop dat der in time-out bard is
@@ -1383,6 +1391,11 @@ permissions-label-email = E-mailadres
 permissions-label-display-name = Werjeftenamme
 permissions-continue-button = Trochgean
 permissions-cancel-button = Annulearje
+
+
+force-password-change-heading = Wizigje jo wachtwurd
+force-password-change-info = Wy hawwe fertocht gedrach op jo { -product-mozilla-account } detektearre. Meitsje in nij wachtwurd oan om jo account te beskermjen. Dit wachtwurd brûke jo om jo wer by al jo { -product-mozilla-account }-tsjinsten oan te melden.
+force-password-change-data-info = Syngronisearre skiednis, blêdwizers, oanmeldingen en oare persoanlike gegevens sille net ferlern gean.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } befêstige
@@ -1442,7 +1455,6 @@ confirm-totp-reset-password-use-different-account = In oar account brûke
 
 
 password-reset-flow-heading = Jo wachtwurd opnij ynstelle
-password-reset-body-3 = It opnij ynstellen fan jo wachtwurd kin ynfloed hawwe op syngronisearre browsergegevens.
 password-reset-email-input =
     .label = Fier jo e-mailadres yn
 password-reset-submit-button-2 = Trochgean
@@ -1678,3 +1690,8 @@ signup-confirmed-sync-description-v2 = Jo wachtwurden, adressen, blêdwizers, sk
 signup-confirmed-sync-add-device-link = Noch in apparaat tafoegje
 signup-confirmed-sync-manage-sync-button = Syngronisaasje beheare
 signup-confirmed-sync-set-password-success-banner = Syngronisaasjewachtwurd oanmakke
+
+
+update-firefox-heading = { -brand-firefox } moat bywurke wurde
+update-firefox-description = Jo { -product-mozilla-account } makket gebrûk fan funksjes dy't net stipe wurde yn jo ferzje fan { -brand-firefox }. Download en ynstallearje de lêste ferzje fan { -brand-firefox } om troch te gean.
+update-firefox-download-button = Nijste ferzje downloade

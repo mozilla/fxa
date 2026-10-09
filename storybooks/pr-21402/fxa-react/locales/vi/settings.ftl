@@ -1246,7 +1246,6 @@ passkey-sub-row-created-date = Đã tạo: { $createdDate }
 passkey-sub-row-last-used-date = Sử dụng lần cuối: { $lastUsedDate }
 passkey-sub-row-delete-title = Xoá passkey
 passkey-delete-modal-heading = Xoá passkey của bạn?
-passkey-delete-modal-content-v2 = Passkey này sẽ bị xóa khỏi tài khoản của bạn. Bạn cần đăng nhập bằng phương thức khác (mật khẩu, passkey khác hoặc tài khoản được liên kết).
 passkey-delete-modal-cancel-button = Hủy bỏ
 passkey-delete-modal-confirm-button = Xoá passkey
 passkey-delete-success = Đã xoá passkey
@@ -1860,8 +1859,6 @@ pair2-authority-scan-qr-heading = Quét để kết nối thiết bị di độn
 pair2-authority-scan-qr-instruction = Quét mã QR bằng điện thoại hoặc máy tính bảng của bạn để đồng bộ hoá dấu trang, thẻ và nhiều nội dung khác của { -brand-firefox }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Mã QR để kết nối thiết bị di động của bạn
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Nhận trợ giúp về quét
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -2042,7 +2039,6 @@ confirm-totp-reset-password-use-different-account = Sử dụng một tài kho�
 ## ResetPassword start page
 
 password-reset-flow-heading = Đặt lại mật khẩu của bạn
-password-reset-body-3 = Việc đặt lại mật khẩu có thể ảnh hưởng đến dữ liệu trình duyệt đã được đồng bộ hóa.
 password-reset-email-input =
     .label = Nhập email của bạn
 password-reset-submit-button-2 = Tiếp tục

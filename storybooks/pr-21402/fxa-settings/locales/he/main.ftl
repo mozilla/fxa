@@ -905,7 +905,7 @@ passkey-sub-row-created-date = תאריך יצירה: { $createdDate }
 passkey-sub-row-last-used-date = בשימוש אחרון: { $lastUsedDate }
 passkey-sub-row-delete-title = מחיקת מפתח גישה
 passkey-delete-modal-heading = למחוק את מפתח הגישה שלך?
-passkey-delete-modal-content-v2 = מפתח גישה זה יימחק מהחשבון שלך. יהיה עליך להתחבר באמצעות שיטה אחרת (ססמה, מפתח גישה נוסף או חשבון מקושר).
+passkey-delete-modal-content-v3 = מפתח גישה זה יימחק מהחשבון שלך. יהיה עליך להתחבר באמצעות ססמה, מפתח גישה נוסף או חשבון מקושר.
 passkey-delete-modal-cancel-button = ביטול
 passkey-delete-modal-confirm-button = מחיקת מפתח גישה
 passkey-delete-success = מפתח הגישה נמחק
@@ -1135,16 +1135,16 @@ index-email-bounced = הודעת האימות שלך לא הגיעה ליעדה.
 
 
 inline-passwordless-sync-setup-page-title = לדלג על הססמה בפעם הבאה?
-inline-passwordless-sync-setup-success-banner = התחברת ל־{ -brand-firefox }
+inline-passwordless-sync-setup-success-banner-v2 = אתה מחובר, והסנכרון פעיל
 inline-passwordless-sync-setup-heading = לדלג על הססמה בפעם הבאה?
 inline-passwordless-sync-setup-description = ניתן להשתמש במפתח גישה זה כדי להתחבר מהר יותר.
 inline-passwordless-sync-setup-enable-button = הפעלת מפתח גישה
 inline-passwordless-sync-setup-enabling = בתהליך הפעלה…
 inline-passwordless-sync-setup-not-now-button = לא כעת
-inline-passwordless-sync-setup-success-alert = מפתח גישה זה מוכן לכניסה לסנכרון
+inline-passwordless-sync-setup-success-alert-v2 = מפתח גישה זה מופעל לכניסה לסנכרון
 inline-passwordless-sync-setup-error-cancelled = אישור מפתח הגישה לא הסתיים
 inline-passwordless-sync-setup-error-cancelled-description = ניתן לאמת באמצעות מפתח הגישה שלך כדי לדלג על הססמה בפעם הבאה.
-inline-passwordless-sync-setup-error-generic = משהו השתבש, עדיין יהיה עליך להזין את הססמה שלך בפעם הבאה
+inline-passwordless-sync-setup-error-generic-v2 = לא הצלחנו להפעיל את מפתח הגישה הזה עבור כניסה לסנכרון. יהיה לך צורך בססמה שלך בפעם הבאה.
 
 
 inline-recovery-key-setup-create-error = אופס! לא הצלחנו ליצור מפתח לשחזור החשבון שלך. נא לנסות שוב מאוחר יותר.
@@ -1283,7 +1283,7 @@ pair2-authority-download-firefox-cta = הורדת { -brand-firefox }
 pair2-authority-scan-qr-heading = יש לסרוק כדי לחבר את המכשיר הנייד שלך
 pair2-authority-scan-qr-instruction = יש לסרוק את קוד ה־QR באמצעות הטלפון או מחשב הלוח שלך כדי לסנכרן את הסימניות, הלשוניות שלך ועוד ב־{ -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = קוד QR לחיבור המכשיר הנייד שלך
-pair2-authority-scan-qr-help-link = קבלת עזרה בסריקה
+pair2-authority-scan-qr-other-ways-link = דרכים נוספות להיכנס
 pair2-authority-scan-qr-skip-button = דילוג לבינתיים
 
 
@@ -1332,7 +1332,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = מידע נוסף
 
 pair2-supplicant-sync-success-heading = המכשיר שלך מחובר
 pair2-supplicant-sync-success-description-v2 = הסנכרון בתהליך. ייתכן שייקח זמן מה עד שהנתונים המסונכרנים שלך יופיעו. לבינתיים אפשר להרגיש חופשי להמשיך לגלוש.
-pair2-supplicant-sync-success-sync-settings-button-v2 = ניהול הגדרות סנכרון
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = נראה שזמן הפעולה פג
@@ -1344,6 +1343,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = כדי לחבר מכ�
 permissions-heading = ‏{ $serviceName } מבקש גישה ל:
 permissions-label-email = כתובת דוא״ל
 permissions-label-display-name = שם תצוגה
+permissions-label-avatar = תמונת חשבון
 permissions-continue-button = המשך
 permissions-cancel-button = ביטול
 
@@ -1406,10 +1406,12 @@ confirm-totp-reset-password-use-different-account = שימוש בחשבון אח
 
 
 password-reset-flow-heading = איפוס הססמה שלך
-password-reset-body-3 = איפוס הססמה שלך עשויה להשפיע על נתוני הדפדפן המסונכרנים.
+password-reset-forgot-heading = שכחת את הססמה שלך?
+password-reset-alternatives-body = <signInLink>ניתן לנסות להיכנס במקום זאת באמצעות { -brand-google }, ‏{ -brand-apple } או מפתח גישה.</signInLink> אפשר גם להכניס את כתובת הדוא״ל שלך ונשלח לך קוד לאיפוס הססמה שלך.
 password-reset-email-input =
     .label = נא להכניס את כתובת הדוא״ל שלך
 password-reset-submit-button-2 = המשך
+password-reset-data-recovery-warning = איפוס הססמה שלך עשוי להשפיע על האפשרות לשחזר נתוני דפדפן מסונכרנים. <learnMoreLink>מידע נוסף</learnMoreLink>
 
 
 reset-password-complete-header = הססמה שלך אופסה
