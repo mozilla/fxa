@@ -5,9 +5,7 @@
 import _ from 'underscore';
 import Backbone from 'backbone';
 import Cocktail from 'cocktail';
-import IndexView from '../views/index';
 import PermissionsView from '../views/permissions';
-import RedirectAuthView from '../views/authorization';
 import Storage from './storage';
 import SubscriptionsProductRedirectView from '../views/subscriptions_product_redirect';
 import SubscriptionsManagementRedirectView from '../views/subscriptions_management_redirect';
@@ -96,14 +94,14 @@ Cocktail.mixin(Router, ReactExperimentMixin);
 Router = Router.extend({
   routes: {
     '(/)': function () {
-      this.createReactOrBackboneViewHandler('/', IndexView, {
+      this.createReactViewHandler('/', {
         ...(this.relier.get('redirectTo') && {
           redirect_to: this.relier.get('redirectTo'),
         }),
       });
     },
     'authorization(/)': function () {
-      this.createReactOrBackboneViewHandler('authorization', RedirectAuthView);
+      this.createReactViewHandler('authorization');
     },
     'clear(/)': function () {
       this.createReactViewHandler('clear');
@@ -161,7 +159,9 @@ Router = Router.extend({
       this.createReactViewHandler('inline_totp_setup');
     },
     'oauth(/)': function () {
-      this.createReactOrBackboneViewHandler('oauth', IndexView);
+      this.createReactViewHandler('oauth', {
+        ...Url.searchParams(this.window.location.search),
+      });
     },
     'oauth/force_auth(/)': function () {
       this.createReactViewHandler('oauth/force_auth', {
