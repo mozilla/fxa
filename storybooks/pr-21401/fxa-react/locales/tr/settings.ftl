@@ -1526,8 +1526,6 @@ index-email-bounced = Onay e-postanız geri döndü. E-posta adresinizi yanlış
 
 ## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
 
-# Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = { -brand-firefox }’a giriş yapıldı
 inline-passwordless-sync-setup-heading = Bir dahaki sefere parolayı atlamak ister misiniz?
 inline-passwordless-sync-setup-description = Daha hızlı giriş yapmak için bu geçiş anahtarını kullanın.
 inline-passwordless-sync-setup-enable-button = Geçiş anahtarını etkinleştir
@@ -1793,8 +1791,6 @@ pair2-authority-scan-qr-heading = Mobil cihazınızı bağlamak için okutun
 pair2-authority-scan-qr-instruction = { -brand-firefox } yer imlerinizi, sekmelerinizi ve daha fazlasını eşitlemek için telefonunuz veya tabletinizle QR kodunu okutun.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Mobil cihazınızı bağlamak için QR kodu
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Okutma konusunda yardım alın
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Şimdilik geç
 
@@ -1873,8 +1869,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Daha fazla bilgi al
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Cihazınız bağlandı
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Eşitleme ayarlarını yönet
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -1995,7 +1989,6 @@ confirm-totp-reset-password-use-different-account = Farklı bir hesap kullan
 ## ResetPassword start page
 
 password-reset-flow-heading = Parolanızı sıfırlayın
-password-reset-body-3 = Parolanızı sıfırlamanız eşitlenmiş tarayıcı verilerini etkileyebilir.
 password-reset-email-input =
     .label = E-posta adresinizi yazın
 password-reset-submit-button-2 = Devam et

@@ -1069,7 +1069,7 @@ passkey-sub-row-created-date = Ustvarjen: { $createdDate }
 passkey-sub-row-last-used-date = Nazadnje uporabljen: { $lastUsedDate }
 passkey-sub-row-delete-title = Izbriši ključ za dostop
 passkey-delete-modal-heading = Želite izbrisati svoj ključ za dostop?
-passkey-delete-modal-content-v2 = To geslo bo odstranjeno iz vašega računa. Prijaviti se boste morali na drug način (geslo, drugo geslo ali povezan račun).
+passkey-delete-modal-content-v3 = To geslo bo odstranjeno iz vašega računa. Prijaviti se boste morali z geslom, drugim ključem ali povezanim računom.
 passkey-delete-modal-cancel-button = Prekliči
 passkey-delete-modal-confirm-button = Izbriši ključ za dostop
 passkey-delete-success = Ključ za dostop izbrisan
@@ -1316,16 +1316,16 @@ index-email-bounced = Vaša potrditvena e-pošta se je pravkar vrnila. Ste se za
 
 
 inline-passwordless-sync-setup-page-title = Želite naslednjič preskočiti geslo?
-inline-passwordless-sync-setup-success-banner = Prijavljen v { -brand-firefox }
+inline-passwordless-sync-setup-success-banner-v2 = Prijavljeni ste in je sinhronizacija vklopljena
 inline-passwordless-sync-setup-heading = Želite naslednjič preskočiti geslo?
 inline-passwordless-sync-setup-description = Uporabite to geslo za hitrejšo prijavo.
 inline-passwordless-sync-setup-enable-button = Omogoči geslo
 inline-passwordless-sync-setup-enabling = Omogočanje …
 inline-passwordless-sync-setup-not-now-button = Ne zdaj
-inline-passwordless-sync-setup-success-alert = To geslo je pripravljeno za sinhronizacijo prijavo
+inline-passwordless-sync-setup-success-alert-v2 = To geslo je omogočeno za sinhronizacijo prijave
 inline-passwordless-sync-setup-error-cancelled = Potrjevanje gesla se ni končalo
 inline-passwordless-sync-setup-error-cancelled-description = Potrdite s svojim ključem, da naslednjič gesla izpustite.
-inline-passwordless-sync-setup-error-generic = Nekaj je šlo narobe. Geslo boste naslednjič vseeno morali vnesti
+inline-passwordless-sync-setup-error-generic-v2 = Tega gesla za prijavo nismo mogli omogočiti. Naslednjič boste potrebovali geslo.
 
 
 inline-recovery-key-setup-create-error = Opla! Ključa za obnovitev računa ni bilo mogoče ustvariti. Poskusite znova pozneje.
@@ -1464,7 +1464,7 @@ pair2-authority-download-firefox-cta = Prenesi { -brand-firefox(sklon: "tozilnik
 pair2-authority-scan-qr-heading = Skenirajte za povezavo mobilne naprave
 pair2-authority-scan-qr-instruction = Skenirajte kodo QR s telefonom ali tablico za sinhronizacijo zaznamkov, zavihkov in drugih podatkov v storitvi { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Koda QR za povezavo mobilne naprave
-pair2-authority-scan-qr-help-link = Pridobite pomoč pri branju
+pair2-authority-scan-qr-other-ways-link = Drugi načini prijave
 pair2-authority-scan-qr-skip-button = Preskoči za zdaj
 
 
@@ -1513,7 +1513,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Več o tem
 
 pair2-supplicant-sync-success-heading = Vaša naprava je povezana
 pair2-supplicant-sync-success-description-v2 = Sinhronizacija je v teku. Lahko traja nekaj časa, preden se vaši sinhronizirani podatki pojavijo. Lahko nadaljujte z brskanjem.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Nastavitve sinhronizacije
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Kaže, da nam je potekla časovna omejitev
@@ -1525,6 +1524,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Napravo lahko kadarko
 permissions-heading = { $serviceName } želi dostop do:
 permissions-label-email = E-poštni naslov
 permissions-label-display-name = Prikazno ime
+permissions-label-avatar = Slika računa
 permissions-continue-button = Nadaljuj
 permissions-cancel-button = Prekliči
 
@@ -1591,10 +1591,12 @@ confirm-totp-reset-password-use-different-account = Uporabi drug račun
 
 
 password-reset-flow-heading = Ponastavite geslo
-password-reset-body-3 = Ponastavitev gesla lahko vpliva na sinhronizirane podatke brskalnika.
+password-reset-forgot-heading = Ali ste pozabili geslo?
+password-reset-alternatives-body = <signInLink>Raje poskusite se prijaviti z { -brand-google }, { -brand-apple } ali geslom.</signInLink> Ali vnesite svoj e-poštni naslov, mi pa vam bomo poslali kodo za ponastavitev gesla.
 password-reset-email-input =
     .label = Vnesite e-poštni naslov
 password-reset-submit-button-2 = Nadaljuj
+password-reset-data-recovery-warning = Ponastavitev gesla lahko vpliva na to, ali je mogoče obnoviti sinhronizirane podatke brskalnika. <learnMoreLink>Več o tem</learnMoreLink>
 
 
 reset-password-complete-header = Vaše geslo je bilo ponastavljeno

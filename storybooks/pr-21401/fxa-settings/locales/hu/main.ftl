@@ -978,7 +978,7 @@ passkey-sub-row-created-date = Létrehozva: { $createdDate }
 passkey-sub-row-last-used-date = Utoljára használva: { $lastUsedDate }
 passkey-sub-row-delete-title = Jelkulcs törlése
 passkey-delete-modal-heading = Törli a jelkulcsot?
-passkey-delete-modal-content-v2 = Ez a jelkulcs eltávolításra kerül a fiókjából. Másik módszerrel kell bejelentkeznie (jelszó, másik jelkulcs vagy összekapcsolt fiók használatával).
+passkey-delete-modal-content-v3 = Ez a jelkulcs eltávolításra kerül a fiókjából. Be kell jelentkeznie egy jelszóval, másik jelkulccsal vagy összekapcsolt fiókkal.
 passkey-delete-modal-cancel-button = Mégse
 passkey-delete-modal-confirm-button = Jelkulcs törlése
 passkey-delete-success = Jelkulcs törölve
@@ -1223,16 +1223,16 @@ index-email-bounced = A megerősítő e-mail visszapattant. Talán elgépelte az
 
 
 inline-passwordless-sync-setup-page-title = Legközelebb kihagyja a jelszót?
-inline-passwordless-sync-setup-success-banner = Bejelentkezve a { -brand-firefox }ba
+inline-passwordless-sync-setup-success-banner-v2 = Bejelentkezett, és a szinkronizálás be van kapcsolva
 inline-passwordless-sync-setup-heading = Legközelebb kihagyja a jelszót?
 inline-passwordless-sync-setup-description = Használja ezt a jelkulcsot a gyorsabb bejelentkezéshez.
 inline-passwordless-sync-setup-enable-button = Jelkulcs engedélyezése
 inline-passwordless-sync-setup-enabling = Engedélyezés…
 inline-passwordless-sync-setup-not-now-button = Most nem
-inline-passwordless-sync-setup-success-alert = Ez a jelkulcs készen áll a szinkronizálásba való bejelentkezéshez
+inline-passwordless-sync-setup-success-alert-v2 = Ez a jelkulcs engedélyezve van a szinkronizálási bejelentkezéshez
 inline-passwordless-sync-setup-error-cancelled = A jelszó megerősítése nem fejeződött be
 inline-passwordless-sync-setup-error-cancelled-description = Erősítse meg a jelkulcsával, hogy legközelebb kihagyja a jelszót.
-inline-passwordless-sync-setup-error-generic = Hiba történt, legközelebb is meg kell adnia a jelszavát
+inline-passwordless-sync-setup-error-generic-v2 = Nem tudtuk engedélyezni ezt a jelkulcsot a szinkronizált bejelentkezésnél. Legközelebb szüksége lesz a jelszavára.
 
 
 inline-recovery-key-setup-create-error = Hoppá! Nem tudtuk létrehozni a fiók-helyreállítási kulcsát. Próbálja újra később.
@@ -1371,7 +1371,7 @@ pair2-authority-download-firefox-cta = A { -brand-firefox } letöltése
 pair2-authority-scan-qr-heading = Olvassa le a mobileszköze csatlakoztatásához
 pair2-authority-scan-qr-instruction = Olvassa le a QR-kódot telefonjával vagy táblagépével, és szinkronizálja a { -brand-firefox } könyvjelzőit, lapjait és egyebeit.
 pair2-authority-scan-qr-code-aria-label = QR-kód a mobileszköz csatlakoztatásához
-pair2-authority-scan-qr-help-link = Segítség a leolvasáshoz
+pair2-authority-scan-qr-other-ways-link = A bejelentkezés egyéb módjai
 pair2-authority-scan-qr-skip-button = Kihagyás
 
 
@@ -1420,7 +1420,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = További tudnivalók
 
 pair2-supplicant-sync-success-heading = Az eszköze csatlakoztatva van
 pair2-supplicant-sync-success-description-v2 = A szinkronizálás folyamatban. Eltarthat egy ideig, amíg megjelennek a szinkronizált adatok. Nyugodtan böngésszen.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Szinkronizálási beállítások kezelése
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Úgy tűnik, túlléptük az időkorlátot
@@ -1432,6 +1431,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Eszköz csatlakoztat�
 permissions-heading = A(z) { $serviceName } hozzáférést kér a következőhöz:
 permissions-label-email = E-mail-cím
 permissions-label-display-name = Megjelenítendő név
+permissions-label-avatar = Fiók képe
 permissions-continue-button = Folytatás
 permissions-cancel-button = Mégse
 
@@ -1498,10 +1498,12 @@ confirm-totp-reset-password-use-different-account = Másik fiók használata
 
 
 password-reset-flow-heading = Jelszó visszaállítása
-password-reset-body-3 = A jelszó visszaállítása hatással lehet a szinkronizált böngészési adatokra.
+password-reset-forgot-heading = Elfelejtette a jelszavát?
+password-reset-alternatives-body = <signInLink>Próbáljon meg bejelentkezni a(z) { -brand-google }, { -brand-apple } használatával, vagy inkább egy jelkulcsot.</signInLink> Vagy adja meg az e-mail címét, és küldünk egy kódot, amellyel helyreállíthatja a jelszavát.
 password-reset-email-input =
     .label = Adja meg az e-mail-címét
 password-reset-submit-button-2 = Folytatás
+password-reset-data-recovery-warning = A jelszó visszaállítása befolyásolhatja, hogy visszaállíthatja-e a szinkronizált böngészőadatokat. <learnMoreLink>Tudjon meg többet</learnMoreLink>
 
 
 reset-password-complete-header = A jelszó vissza lett állítva

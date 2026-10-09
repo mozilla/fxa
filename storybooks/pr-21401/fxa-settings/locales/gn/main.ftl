@@ -163,6 +163,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Emoneĩ ñe'ẽñemi
 form-password-with-inline-criteria-reset-submit-button = Emoheñói ñe’ẽñemi pyahu
+form-password-with-inline-criteria-old-password-label =
+    .label = Ñe’ẽñemi itujáva
+form-password-with-inline-criteria-change-password-submit-button = Emoambue ñe’ẽñemi
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Ñe’ẽñemi
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -824,6 +827,8 @@ recent-activity-account-passwordless-registration-complete = Oĩmbáma mba’ete
 recent-activity-account-recovery-codes-set = Ayvu guerujeyrãva mboajepyre
 recent-activity-account-passkey-wrap-created = Ñe’ẽ ñemi oikóva embojuehe hag̃ua
 recent-activity-account-passkey-wrap-creation-failure = Ndoikói Sync ñemboheko ñe’ẽ ñemi ndive
+recent-activity-account-passkey-wrap-deleted = Oñembogue Sync-pe jeike ñe’ẽ ñemi ndive
+recent-activity-account-passkey-wrap-deletion-failure = Ojavy emboguévo ñembojuehépe jeike ñe’ẽ ñemi ndive
 recent-activity-account-passkey-wrap-invalidated = Ojepe’a ñembojuehe ñe’ẽ ñemi ndive ñe’ẽñemi oikojey rire
 recent-activity-unknown = Mba’ete rembiapo ambuéva
 
@@ -931,7 +936,6 @@ passkey-sub-row-created-date = Heñói: { $createdDate }
 passkey-sub-row-last-used-date = Jeporu ramovéva: { $lastUsedDate }
 passkey-sub-row-delete-title = Emboguete ñe’ẽñemi
 passkey-delete-modal-heading = ¿Emboguete pe ñe’ẽñemi?
-passkey-delete-modal-content-v2 = Ko ñe’ẽñemi jeikerã reheguáva oñembogueva’erã nde mba’etégui. Eikeva’erã ambueháicha (ñe’ẽñemi, ambue mba’e jeikerã térã mba’ete heseguáva).
 passkey-delete-modal-cancel-button = Eheja
 passkey-delete-modal-confirm-button = Emboguete ñe’ẽñemi
 passkey-delete-success = Ñe’ẽñemi mboguetepyre
@@ -1088,6 +1092,7 @@ auth-error-228 = Ndoikói pe ñe’ẽ ñemi ñembokuatia
 auth-error-233 = Ejapo hag̃ua ñe’ẽ ñemi jeikaha, emboheko mba’erechaha jokoha, PIN, kuãhũ térã tova jeikuaaha ne mba’e’okápe térã ñe’ẽ ñemi rekorosãrã. Ejapo rire, ehaʼã jey.
 auth-error-238 = Ndoikói ñe’ẽ ñemi raperã
 auth-error-239 = Rombyasy, ndaikatúikuri rombogue ne mba’ete. Eha’ã jey térã eñe’ẽ pytyvõhára ndive ndopáirõ apañuái.
+auth-error-240 = Ko mba’ete oñemboguéma
 auth-error-999 = Jejavy eha’ãrõ’ỹva
 auth-error-1001 = Ojejokóma tembiapo ñepyrũ
 auth-error-1002 = Hu’ãma tembiapo. Eñepyrũjey emba’apo hag̃ua.
@@ -1173,9 +1178,14 @@ index-account-delete-success = Mba’ete oñembogue apañuai’ỹre
 index-email-bounced = Ne ñanduti veve ñemoneĩrã ojevyjeýma. ¿Ikatu ehaivai kundaharape?
 
 
+inline-passwordless-sync-setup-page-title = ¿Ehejarei ñe’ẽñemi eiporujeývo?
+inline-passwordless-sync-setup-heading = ¿Ehejarei ñe’ẽñemi eiporujeývo?
+inline-passwordless-sync-setup-description = Eiporu ko ñe’ẽ ñemi eike pya’eve hag̃ua.
 inline-passwordless-sync-setup-enable-button = Ejora ñe’ẽ ñemi jeikeha
 inline-passwordless-sync-setup-enabling = Emyandyhína…
 inline-passwordless-sync-setup-not-now-button = Ani ko’ág̃a
+inline-passwordless-sync-setup-error-cancelled = Nahu’ãi upe ñe’ẽ ñemi ñemoneĩ
+inline-passwordless-sync-setup-error-cancelled-description = Emoneĩ ñe’ẽ ñemi emboyke hag̃ua ñe’ẽñemi eiporujeývo.
 
 
 inline-recovery-key-setup-create-error = ¡Ajépa! Ndaikatúi romoheñói ne mba’ete jeguerujeyrã. Eha’ã jey ag̃amieve.
@@ -1314,10 +1324,10 @@ pair2-authority-download-firefox-cta = Emboguejy { -brand-firefox }
 pair2-authority-scan-qr-heading = Emoha’ãnga eike hag̃ua ambue mba’e’okápe
 pair2-authority-scan-qr-instruction = Emoha’ãnga QR ayvu ne pumbyry térã tablétape embojuehe hag̃ua { -brand-firefox } rechaukaha ha hetave.
 pair2-authority-scan-qr-code-aria-label = QR ayvu eike hag̃ua ne mba’e’okápe
-pair2-authority-scan-qr-help-link = Eñepytyvõta emoha’ãnga hag̃ua
 pair2-authority-scan-qr-skip-button = Ehasa ko’ág̃a
 
 
+pair2-authority-sync-success-heading-v2 = Ne mba’e’oka ojuajuhína
 pair2-authority-sync-success-sync-settings-button-v2 = Eñangareko mbojueherã ñembohekóre
 
 
@@ -1340,6 +1350,13 @@ pair2-supplicant-connect-this-device-cancel-button = Eheja
 
 pair2-supplicant-download-firefox-continue-button = Eku’ejey { -brand-firefox } ndive
 pair2-supplicant-download-firefox-opening-button = Ijurujahína { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Emboguejy { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = Aguerekóma { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Eikuaave
+
+
+pair2-supplicant-connect-hint-heading-v2 = Emohu’ã tembiporu’i mbojuehe
+pair2-supplicant-connect-hint-learn-more-link = Eikuaave
 
 
 pair2-supplicant-ready-to-scan-heading = Embojuaju hag̃ua mba’e’oka
@@ -1348,7 +1365,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Eikuaave
 
 
 pair2-supplicant-sync-success-heading = Ne mba’e’oka ojuajuhína
-pair2-supplicant-sync-success-sync-settings-button-v2 = Eñangareko mbojueherã ñembohekóre
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Ha’ete opámava ñeha’ãrõ
@@ -1420,7 +1436,6 @@ confirm-totp-reset-password-use-different-account = Eiporu ambuéva mba’ete
 
 
 password-reset-flow-heading = Embojevyjey ne ñe’ẽñemi
-password-reset-body-3 = Erujeyvo ñe’ẽñemi ombyaikuaa kundahára mba’ekuaarã ojuehepyre.
 password-reset-email-input =
     .label = Ehai ne ñandutiveve
 password-reset-submit-button-2 = Ku’ejey
@@ -1659,3 +1674,6 @@ signup-confirmed-sync-description-v2 = Ñe’ẽñemi, kundaharape, techaukaha, 
 signup-confirmed-sync-add-device-link = Embojuaju ambue mba’e’oka
 signup-confirmed-sync-manage-sync-button = Eñangareko ñembojuehére
 signup-confirmed-sync-set-password-success-banner = Ñe’ẽñemi ñembojuehe moheñoipyre
+
+
+update-firefox-download-button = Emboguejy mbohekopyahu ramovegua

@@ -1,8 +1,8 @@
 {
-  "commit": "dfa2f2428f9d19d9992f58834d60e80cd4f84ee6",
-  "summary": "chore(deps): bump smol-toml to >=1.9.0",
-  "description": "Resolves Dependabot alert #1016. The bump installs the highest\nversion satisfying the dependency range; the title uses >=<min> when the\nadvisory provides a minimum patched version — see the lockfile diff for the exact resolved version.\nCreated by BLEnder (https://github.com/mozilla/blender)",
-  "timestamp": 1791404037000,
+  "commit": "395a33e75d43a25f1e7d9f5e53fd58343bcba26e",
+  "summary": "Merge remote-tracking branch 'origin/main' into ddb-merge-21401",
+  "description": "# Conflicts:\n#\tpackage.json",
+  "timestamp": 1791562595000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

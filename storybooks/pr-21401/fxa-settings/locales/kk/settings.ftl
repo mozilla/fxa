@@ -1275,7 +1275,7 @@ passkey-sub-row-created-date = Жасалған: { $createdDate }
 passkey-sub-row-last-used-date = Соңғы рет қолданылған: { $lastUsedDate }
 passkey-sub-row-delete-title = Рұқсат кілтін өшіру
 passkey-delete-modal-heading = Рұқсат кілтіңізді өшіру керек пе?
-passkey-delete-modal-content-v2 = Бұл рұқсат кілті сіздің тіркелгіңізден өшіріледі. Басқа әдіспен (пароль, басқа рұқсат кілті немесе байланыстырылған тіркелгі) кіруіңіз керек.
+passkey-delete-modal-content-v3 = Бұл рұқсат кілті сіздің тіркелгіңізден өшіріледі. Пароль, басқа рұқсат кілті немесе байланыстырылған тіркелгі арқылы кіруіңіз керек.
 passkey-delete-modal-cancel-button = Бас тарту
 passkey-delete-modal-confirm-button = Рұқсат кілтін өшіру
 passkey-delete-success = Рұқсат кілті өшірілді
@@ -1639,20 +1639,22 @@ index-email-bounced = Сіздің растау хатыңыз қайтарыл�
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Келесі жолы парольді өткізіп жіберу керек пе?
 # Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = { -brand-firefox } ішіне кірдіңіз
+inline-passwordless-sync-setup-success-banner-v2 = Сіз жүйеге кірдіңіз және синхрондау іске қосулы
 inline-passwordless-sync-setup-heading = Келесі жолы парольді өткізіп жіберу керек пе?
 inline-passwordless-sync-setup-description = Жылдам кіру үшін осы рұқсат кілтін пайдаланыңыз.
 inline-passwordless-sync-setup-enable-button = Рұқсат кілтін іске қосу
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Іске қосылуда…
 inline-passwordless-sync-setup-not-now-button = Қазір емес
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Бұл рұқсат кілті синхрондаумен кіруге дайын
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = Бұл рұқсат кілті синхрондаумен кіру үшін іске қосылған
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Рұқсат кілтін растау аяқталмады
 inline-passwordless-sync-setup-error-cancelled-description = Келесі жолы парольді өткізіп жіберу үшін рұқсат кілтіңізбен растаңыз.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Бірнәрсе дұрыс болмады, келесі жолы пароліңізді енгізуіңіз қажет болады
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = Синхрондаумен кіру үшін бұл рұқсат кілтін іске қосу мүмкін болмады. Келесі жолы пароліңіз қажет болады.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1912,8 +1914,8 @@ pair2-authority-scan-qr-heading = Мобильді құрылғыңызды ба
 pair2-authority-scan-qr-instruction = { -brand-firefox } бетбелгілер, беттер және т.б. синхрондау үшін QR кодын телефоныңызбен немесе планшетіңізбен сканерлеңіз.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Мобильді құрылғыңызды байланыстыру үшін QR коды
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Сканерлеу бойынша көмек алыңыз
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Кірудің басқа жолдары
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Әзірше өткізіп жіберу
 
@@ -2022,8 +2024,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Көбірек білу
 pair2-supplicant-sync-success-heading = Сіздің құрылғыңыз байланысқан
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = Синхрондау жүріп жатыр. Синхрондалған деректеріңіздің пайда болуы үшін біраз уақыт кетуі мүмкін. Шолуды жалғастырсаңыз болады.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Синхрондау баптауларын басқару
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2050,6 +2050,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Құрылғыны к
 permissions-heading = { $serviceName } келесіге қол жеткізуді қалайды:
 permissions-label-email = Эл. пошта адресі
 permissions-label-display-name = Көрсетілетін аты
+permissions-label-avatar = Тіркелгі суреті
 permissions-continue-button = Жалғастыру
 permissions-cancel-button = Бас тарту
 
@@ -2158,10 +2159,14 @@ confirm-totp-reset-password-use-different-account = Басқа тіркелгі�
 ## ResetPassword start page
 
 password-reset-flow-heading = Парольді тастау
-password-reset-body-3 = Пароліңізді қалпына келтіру синхрондалған браузер деректеріне әсер етуі мүмкін.
+password-reset-forgot-heading = Пароліңізді ұмыттыңыз ба?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Оның орнына { -brand-google }, { -brand-apple } немесе рұқсат кілтімен кіріп көріңіз.</signInLink> Немесе электрондық поштаңызды енгізіңіз, сонда біз сізге пароліңізді қалпына келтіру үшін код жібереміз.
 password-reset-email-input =
     .label = Эл. поштаңызды енгізіңіз
 password-reset-submit-button-2 = Жалғастыру
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Паролңізді қалпына келтіру синхрондалған браузер деректерін қалпына келтіру мүмкіндігіңізге әсер етуі мүмкін. <learnMoreLink>Көбірек білу</learnMoreLink>
 
 ## ResetPasswordConfirmed
 

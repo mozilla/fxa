@@ -1277,7 +1277,7 @@ passkey-sub-row-created-date = Создан: { $createdDate }
 passkey-sub-row-last-used-date = Последнее использование: { $lastUsedDate }
 passkey-sub-row-delete-title = Удалить ключ доступа
 passkey-delete-modal-heading = Удалить ваш ключ доступа?
-passkey-delete-modal-content-v2 = Этот ключ доступа будет удалён из вашего аккаунта. Вам нужно будет войти, используя другой метод (пароль, другой ключ доступа или связанный аккаунт).
+passkey-delete-modal-content-v3 = Этот ключ доступа будет удалён из вашего аккаунта. Вам нужно войти, используя пароль, другой ключ доступа или связанный аккаунт.
 passkey-delete-modal-cancel-button = Отмена
 passkey-delete-modal-confirm-button = Удалить ключ доступа
 passkey-delete-success = Ключ доступа удалён
@@ -1641,20 +1641,22 @@ index-email-bounced = Ваше письмо для подтверждения т
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Пропустить пароль в следующий раз?
 # Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Произведён вход в { -brand-firefox }
+inline-passwordless-sync-setup-success-banner-v2 = Вы вошли, и синхронизация включена
 inline-passwordless-sync-setup-heading = Пропустить пароль в следующий раз?
 inline-passwordless-sync-setup-description = Используйте этот ключ доступа для более быстрого входа.
 inline-passwordless-sync-setup-enable-button = Включить ключ доступа
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Включаю…
 inline-passwordless-sync-setup-not-now-button = Не сейчас
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Этот ключ доступа готов для входа в синхронизацию
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = Этот ключ доступа включён для входа в синхронизацию
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Подтверждение ключа доступа не завершено
 inline-passwordless-sync-setup-error-cancelled-description = Подтвердите с помощью ключа доступа, чтобы пропустить пароль в следующий раз.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Что-то пошло не так, вам всё ещё нужно будет ввести пароль в следующий раз
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = Мы не смогли включить этот ключ доступа для входа в синхронизацию. В следующий раз вам понадобится пароль.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1914,8 +1916,8 @@ pair2-authority-scan-qr-heading = Отсканируйте для подключ
 pair2-authority-scan-qr-instruction = Отсканируйте QR-код своим телефоном или планшетом, чтобы синхронизировать ваши закладки { -brand-firefox }, вкладки и многое другое.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR-код для подключения мобильного устройства
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Получите помощь по сканированию
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Другие способы входа
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Пока пропустить
 
@@ -2024,8 +2026,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Подробнее
 pair2-supplicant-sync-success-heading = Ваше устройство подключено
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = Выполняется синхронизация. Прежде чем ваши синхронизированные данные появятся, может пройти некоторое время. Вы можете продолжать веб-сёрфинг.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Управление настройками синхронизации
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2052,6 +2052,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Чтобы подкл
 permissions-heading = { $serviceName } хочет получить доступ к:
 permissions-label-email = Адрес эл. почты
 permissions-label-display-name = Отображаемое имя
+permissions-label-avatar = Фото аккаунта
 permissions-continue-button = Продолжить
 permissions-cancel-button = Отмена
 
@@ -2160,10 +2161,14 @@ confirm-totp-reset-password-use-different-account = Использовать д�
 ## ResetPassword start page
 
 password-reset-flow-heading = Сбросить пароль
-password-reset-body-3 = Сброс вашего пароля может повлиять на синхронизируемые данные браузера.
+password-reset-forgot-heading = Забыли ваш пароль?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Попробуйте войти с помощью { -brand-google }, { -brand-apple } или с помощью ключа доступа.</signInLink> Или введите свой адрес электронной почты, и мы вышлем вам код для сброса пароля.
 password-reset-email-input =
     .label = Введите ваш адрес эл. почты
 password-reset-submit-button-2 = Продолжить
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Сброс вашего пароля может повлиять на возможность восстановления синхронизированных данных браузера. <learnMoreLink>Подробнее</learnMoreLink>
 
 ## ResetPasswordConfirmed
 
