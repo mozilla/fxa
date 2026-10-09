@@ -12,9 +12,9 @@
  * approval page restores them.
  *
  * Playwright only — no Marionette needed. `syncOAuthBrowserPages` is a real
- * Firefox, so it does act on `fxaccounts:pair_preferences` and starts a
- * navigation of its own; the Continue click therefore opts out of Playwright's
- * post-click navigation wait. The existing two-device flow lives in
+ * Firefox, so it would act on `fxaccounts:pair_preferences` and start a
+ * navigation of its own; the test drops that message before the Continue
+ * click. The existing two-device flow lives in
  * `pairingFlow.spec.ts` and is deliberately left alone.
  */
 
@@ -61,10 +61,25 @@ test.describe('severity-2 #smoke', () => {
       // `pairChoice.spec.ts`).
       await page.locator('label[for="has-mobile"]').click();
       await expect(page.getByTestId('pair-continue-btn')).toBeEnabled();
-      // Firefox schedules a navigation in response to the hand-off, and click's
-      // default wait for it never returns. Same opt-out as `totp.ts`'s AAL2
-      // Continue.
-      await page.getByTestId('pair-continue-btn').click({ noWaitAfter: true });
+      // Firefox answers pair_preferences by loading about:preferences in this
+      // tab, which races the goto below. Drop the message and record it instead.
+      await page.evaluate(() => {
+        const dispatch = window.dispatchEvent.bind(window);
+        window.dispatchEvent = (event: Event) => {
+          if (event.type === 'WebChannelMessageToChrome') {
+            const detail = (event as CustomEvent).detail;
+            const { message } =
+              typeof detail === 'string' ? JSON.parse(detail) : detail;
+            if (message?.command === 'fxaccounts:pair_preferences') {
+              (window as any).pairPreferencesSent = true;
+              return true;
+            }
+          }
+          return dispatch(event);
+        };
+      });
+      await page.getByTestId('pair-continue-btn').click();
+      await page.waitForFunction(() => (window as any).pairPreferencesSent);
 
       // Stand in for the navigation real Firefox makes once the supplicant
       // connects.
