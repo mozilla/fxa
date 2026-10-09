@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 6b3ec6354fd2962ba74678b06a14eed3df519e90</title>
+  <title>Storybooks for commit 909e9defc5758551cfb75cff0b4396232f91f2c8</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 6b3ec6354fd2962ba74678b06a14eed3df519e90</h1>
+  <h1>Storybooks for commit 909e9defc5758551cfb75cff0b4396232f91f2c8</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,16 +31,27 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/9/2026, 4:15:31 PM UTC</dd>
+    <dd>10/9/2026, 4:57:51 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(shared-cms): replace getOperationName removed in Apollo Client 4</pre></dd>
+    <dd><pre>chore(deps): bump @apollo/client from 3.13.8 to 4.2.10</pre></dd>
     <dt>Description</dt>
-    <dd><pre>Because:
-- Apollo Client 4 no longer exports getOperationName from @apollo/client/utilities.
+    <dd><pre>Bumps [@apollo/client](https://github.com/apollographql/apollo-client) from 3.13.8 to 4.2.10.
+- [Release notes](https://github.com/apollographql/apollo-client/releases)
+- [Changelog](https://github.com/apollographql/apollo-client/blob/main/CHANGELOG.md)
+- [Commits](https://github.com/apollographql/apollo-client/compare/v3.13.8...@apollo/client@4.2.10)
 
-This commit:
-- Reads the operation name with getOperationAST from graphql.
-- Uses a parsed query in the metering and relying-party specs, not an Apollo mock.</pre></dd>
+---
+updated-dependencies:
+- dependency-name: &quot;@apollo/client&quot;
+  dependency-version: 4.2.10
+  dependency-type: direct:production
+  update-type: version-update:semver-major
+...
+
+Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
+
+Also replaces getOperationName, which Apollo Client 4 removed, with
+getOperationAST from graphql in libs/shared/cms.</pre></dd>
   </dl>
 </body>
 </html>

@@ -1,8 +1,8 @@
 {
-  "commit": "6b3ec6354fd2962ba74678b06a14eed3df519e90",
-  "summary": "fix(shared-cms): replace getOperationName removed in Apollo Client 4",
-  "description": "Because:\n- Apollo Client 4 no longer exports getOperationName from @apollo/client/utilities.\n\nThis commit:\n- Reads the operation name with getOperationAST from graphql.\n- Uses a parsed query in the metering and relying-party specs, not an Apollo mock.",
-  "timestamp": 1791562531000,
+  "commit": "909e9defc5758551cfb75cff0b4396232f91f2c8",
+  "summary": "chore(deps): bump @apollo/client from 3.13.8 to 4.2.10",
+  "description": "Bumps [@apollo/client](https://github.com/apollographql/apollo-client) from 3.13.8 to 4.2.10.\n- [Release notes](https://github.com/apollographql/apollo-client/releases)\n- [Changelog](https://github.com/apollographql/apollo-client/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/apollographql/apollo-client/compare/v3.13.8...@apollo/client@4.2.10)\n\n---\nupdated-dependencies:\n- dependency-name: \"@apollo/client\"\n  dependency-version: 4.2.10\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\n\nAlso replaces getOperationName, which Apollo Client 4 removed, with\ngetOperationAST from graphql in libs/shared/cms.",
+  "timestamp": 1791565071000,
   "storybooks": [
     "email-renderer",
     "fxa-react",
