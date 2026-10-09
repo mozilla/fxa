@@ -944,6 +944,21 @@ export const createDB = (
       return RawAccountResetToken.delete(id);
     }
 
+    /** Delete the token; throw if it was already gone. */
+    async consumeAccountResetToken(accountResetToken: {
+      id: string;
+      uid: string;
+    }) {
+      const { id, uid } = accountResetToken;
+      log.trace('DB.consumeAccountResetToken', { uid });
+      const deleted = await RawAccountResetToken.query()
+        .delete()
+        .where('tokenId', uuidTransformer.to(id));
+      if (!deleted) {
+        throw error.invalidToken('The authentication token could not be found');
+      }
+    }
+
     async deletePasswordForgotToken(passwordForgotToken: {
       id: string;
       uid: string;
@@ -1071,6 +1086,11 @@ export const createDB = (
         verificationMethod,
       });
       await RawPasswordForgotToken.verify(id, accountResetToken);
+      // Discard the new token if the forgot token is gone.
+      if (!(await RawPasswordForgotToken.findByTokenId(id))) {
+        await RawAccountResetToken.delete(accountResetToken.id);
+        throw error.invalidToken('The authentication token could not be found');
+      }
       this.metrics?.increment('db.forgotPasswordVerified');
       return accountResetToken;
     }

@@ -710,17 +710,46 @@ describe('#integration - remote db', () => {
     await db.deleteAccountResetToken(accountResetToken);
   });
 
+  it('db.forgotPasswordVerified rejects when the forgot token is gone', async () => {
+    const emailRecord = await db.emailRecord(account.email);
+    const passwordForgotToken = await db.createPasswordForgotToken(emailRecord);
+    await db.deletePasswordForgotToken(passwordForgotToken);
+
+    await expect(
+      db.forgotPasswordVerified(passwordForgotToken)
+    ).rejects.toMatchObject({ errno: 110 });
+  });
+
+  it('db.consumeAccountResetToken deletes the token', async () => {
+    const emailRecord = await db.emailRecord(account.email);
+    const passwordForgotToken = await db.createPasswordForgotToken(emailRecord);
+    const accountResetToken =
+      await db.forgotPasswordVerified(passwordForgotToken);
+
+    await db.consumeAccountResetToken(accountResetToken);
+
+    await expect(
+      db.accountResetToken(accountResetToken.id)
+    ).rejects.toMatchObject({ errno: 110 });
+  });
+
+  it('db.consumeAccountResetToken rejects a second consume', async () => {
+    const emailRecord = await db.emailRecord(account.email);
+    const passwordForgotToken = await db.createPasswordForgotToken(emailRecord);
+    const accountResetToken =
+      await db.forgotPasswordVerified(passwordForgotToken);
+    await db.consumeAccountResetToken(accountResetToken);
+
+    await expect(
+      db.consumeAccountResetToken(accountResetToken)
+    ).rejects.toMatchObject({ errno: 110 });
+  });
+
   it('db.resetAccount', async () => {
     const emailRecord = await db.emailRecord(account.email);
-    emailRecord.tokenVerificationId = account.tokenVerificationId;
-    emailRecord.uaBrowser = 'Firefox';
-    emailRecord.uaBrowserVersion = '41';
-    emailRecord.uaOS = 'Mac OS X';
-    emailRecord.uaOSVersion = '10.10';
-    emailRecord.uaDeviceType = emailRecord.uaFormFactor = null;
-
-    const sessionToken = await db.createSessionToken(emailRecord);
-    const accountResetToken = await db.forgotPasswordVerified(sessionToken);
+    const passwordForgotToken = await db.createPasswordForgotToken(emailRecord);
+    const accountResetToken =
+      await db.forgotPasswordVerified(passwordForgotToken);
     await db.resetAccount(accountResetToken, account);
 
     const redisResult = await redis.get(account.uid);

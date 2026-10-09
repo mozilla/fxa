@@ -58,6 +58,7 @@ const DB_METHOD_NAMES = [
   'consumeUnblockCode',
   'consumeSigninCode',
   'consumeRecoveryCode',
+  'consumeAccountResetToken',
   'createAccount',
   'createDevice',
   'createEmailBounce',
