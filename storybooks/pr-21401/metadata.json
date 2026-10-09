@@ -1,8 +1,8 @@
 {
-  "commit": "013c1cb37df51bae55805bf05cdf95a5a3ec7965",
-  "summary": "chore(deps): restore generated .blender/agents.md from main",
-  "description": "",
-  "timestamp": 1791562621000,
+  "commit": "11c934305823c4c7e0e4ebbbaeca82a65b53be1d",
+  "summary": "chore(deps): bump smol-toml to >=1.9.0",
+  "description": "Resolves Dependabot alert #1016. The bump installs the highest\nversion satisfying the dependency range; the title uses >=<min> when the\nadvisory provides a minimum patched version — see the lockfile diff for the exact resolved version.\nCreated by BLEnder (https://github.com/mozilla/blender)",
+  "timestamp": 1791565072000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
