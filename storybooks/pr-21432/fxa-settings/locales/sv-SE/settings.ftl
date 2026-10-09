@@ -1646,13 +1646,13 @@ inline-passwordless-sync-setup-enabling = Aktiverar…
 inline-passwordless-sync-setup-not-now-button = Inte nu
 # Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
 # "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
-inline-passwordless-sync-setup-success-alert-v2 = Det här lösenordet är aktiverat för synkroniserad inloggning
+inline-passwordless-sync-setup-success-alert-v2 = Den här lösenordsnyckeln är aktiverad för inloggning med synkronisering
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Bekräftelse av lösenordsnyckel slutfördes inte
 inline-passwordless-sync-setup-error-cancelled-description = Bekräfta med din lösenordsnyckel för att hoppa över lösenordet nästa gång.
 # Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
 # "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
-inline-passwordless-sync-setup-error-generic-v2 = Vi kunde inte aktivera det här lösenordet för synkroniseringsinloggning. Du behöver ditt lösenord nästa gång.
+inline-passwordless-sync-setup-error-generic-v2 = Det gick inte att aktivera den här lösenordsnyckeln för inloggning med synkronisering. Nästa gång behöver du ange ditt lösenord.
 
 ## InlineRecoveryKeySetup page component
 
@@ -2157,14 +2157,14 @@ confirm-totp-reset-password-use-different-account = Använd ett annat konto
 ## ResetPassword start page
 
 password-reset-flow-heading = Återställ ditt lösenord
-password-reset-forgot-heading = Glömt ditt lösenord?
+password-reset-forgot-heading = Har du glömt lösenordet?
 # The text inside <signInLink> links to the email-first sign-in page.
-password-reset-alternatives-body = <signInLink>Prova att logga in med { -brand-google }, { -brand-apple } eller en lösenord istället.</signInLink> Eller ange din e-postadress så skickar vi en kod för att återställa ditt lösenord.
+password-reset-alternatives-body = <signInLink>Försök i stället att logga in med { -brand-google }, { -brand-apple } eller en lösenordsnyckel.</signInLink> Du kan också ange din e-postadress, så skickar vi en kod som du kan använda för att återställa lösenordet.
 password-reset-email-input =
     .label = Ange din e-postadress
 password-reset-submit-button-2 = Fortsätt
 # Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
-password-reset-data-recovery-warning = Återställning av lösenordet kan påverka om du kan återställa synkroniserad webbläsardata. <learnMoreLink>Läs mer</learnMoreLink>
+password-reset-data-recovery-warning = Om du återställer lösenordet kan det påverka möjligheten att återfå synkroniserade webbläsardata. <learnMoreLink>Läs mer</learnMoreLink>
 
 ## ResetPasswordConfirmed
 

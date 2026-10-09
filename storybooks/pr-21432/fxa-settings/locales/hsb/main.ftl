@@ -949,6 +949,7 @@ passkey-sub-row-created-date = Wutworjeny: { $createdDate }
 passkey-sub-row-last-used-date = Posledni raz wužity: { $lastUsedDate }
 passkey-sub-row-delete-title = Hesłowy kluč zhašeć
 passkey-delete-modal-heading = Waš hesłowy kluč zhašeć?
+passkey-delete-modal-content-v3 = Tutón hesłowy kluč so z wašeho konta wotstroni. Dyrbiće so z pomocu hesła, druheho hesłoweho kluča abo zwjazaneho konta přizjewić.
 passkey-delete-modal-cancel-button = Přetorhnyć
 passkey-delete-modal-confirm-button = Hesłowy kluč zhašeć
 passkey-delete-success = Hesłowy kluč je so zhašał
@@ -1195,11 +1196,13 @@ index-email-bounced = Waša wobkrućenska e-mejl je so runje wróćiła. Je e-me
 
 
 inline-passwordless-sync-setup-page-title = Hesło přichodny raz přeskočić?
+inline-passwordless-sync-setup-success-banner-v2 = Sće přizjewjeny a synchronizacija je zmóžnjena
 inline-passwordless-sync-setup-heading = Hesło přichodny raz přeskočić?
 inline-passwordless-sync-setup-description = Wužiwajće tutón hesłowy kluč, zo byšće so spěšnišo přizjewił.
 inline-passwordless-sync-setup-enable-button = Hesłowy kluč zmóžnić
 inline-passwordless-sync-setup-enabling = Zmóžnja so…
 inline-passwordless-sync-setup-not-now-button = Nic nětko
+inline-passwordless-sync-setup-success-alert-v2 = Hesłowy kluč je za synchronizaciske přizjewjenje zmóžnjeny
 inline-passwordless-sync-setup-error-cancelled = Wobkrućenje hesłoweho kluča so njekónči
 inline-passwordless-sync-setup-error-cancelled-description = Wobkrućće ze swojim hesłowym klučom, zo byšće hesło přichodny raz přeskočił.
 
@@ -1340,6 +1343,7 @@ pair2-authority-download-firefox-cta = { -brand-firefox } scahnyć
 pair2-authority-scan-qr-heading = Skenujće, zo byšće ze swojim mobilnym gratom zwjazał
 pair2-authority-scan-qr-instruction = Skenujće QR-kod ze swojim telefonom abo tabletom, zo byšće swoje zapołožki, rajtarki { -brand-firefox } a wjace synchronizował.
 pair2-authority-scan-qr-code-aria-label = QR-kod za zwjazowanje z wašim mobilnym gratom
+pair2-authority-scan-qr-other-ways-link = Druhe móžnosće přizjewjenja
 pair2-authority-scan-qr-skip-button = Mjeztym přeskočić
 
 
@@ -1399,6 +1403,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Zo byšće grat kóž
 permissions-heading = { $serviceName } chce přistup k:
 permissions-label-email = E-mejlowa adresa
 permissions-label-display-name = Pokazowane mjeno
+permissions-label-avatar = Kontowy wobraz
 permissions-continue-button = Dale
 permissions-cancel-button = Přetorhnyć
 
@@ -1465,6 +1470,7 @@ confirm-totp-reset-password-use-different-account = Druhe konto wužiwać
 
 
 password-reset-flow-heading = Stajće swoje hesło wróćo
+password-reset-forgot-heading = Sće swoje hesło zabył?
 password-reset-email-input =
     .label = Zapodajće swoju e-mejlowu adresu
 password-reset-submit-button-2 = Dale

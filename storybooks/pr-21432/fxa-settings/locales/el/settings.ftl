@@ -1275,6 +1275,7 @@ passkey-sub-row-created-date = Δημιουργία: { $createdDate }
 passkey-sub-row-last-used-date = Τελευταία χρήση: { $lastUsedDate }
 passkey-sub-row-delete-title = Διαγραφή κλειδιού πρόσβασης
 passkey-delete-modal-heading = Διαγραφή κλειδιού πρόσβασης;
+passkey-delete-modal-content-v3 = Αυτό το κλειδί πρόσβασης θα αφαιρεθεί από τον λογαριασμό σας. Θα πρέπει να συνδεθείτε με κωδικό πρόσβασης, άλλο κλειδί πρόσβασης ή συνδεδεμένο λογαριασμό.
 passkey-delete-modal-cancel-button = Ακύρωση
 passkey-delete-modal-confirm-button = Διαγραφή κλειδιού πρόσβασης
 passkey-delete-success = Το κλειδί πρόσβασης διαγράφηκε
@@ -1637,15 +1638,23 @@ index-email-bounced = Το email επιβεβαίωσής σας μόλις επ
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Παράλειψη του κωδικού πρόσβασης την επόμενη φορά;
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner-v2 = Έχετε συνδεθεί και ο συγχρονισμός είναι ενεργός
 inline-passwordless-sync-setup-heading = Παράλειψη του κωδικού πρόσβασης την επόμενη φορά;
 inline-passwordless-sync-setup-description = Χρησιμοποιήστε αυτό το κλειδί πρόσβασης για ταχύτερη σύνδεση.
 inline-passwordless-sync-setup-enable-button = Ενεργοποίηση κλειδιού πρόσβασης
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Ενεργοποίηση…
 inline-passwordless-sync-setup-not-now-button = Όχι τώρα
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = Αυτό το κλειδί πρόσβασης έχει ενεργοποιηθεί για σύνδεση στον συγχρονισμό
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Η επιβεβαίωση του κλειδιού πρόσβασης δεν ολοκληρώθηκε
 inline-passwordless-sync-setup-error-cancelled-description = Κάντε επιβεβαίωση με το κλειδί πρόσβασής σας για να παραλείψετε τον κωδικό πρόσβασης την επόμενη φορά.
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = Δεν ήταν δυνατή η ενεργοποίηση αυτού του κλειδιού πρόσβασης για τη σύνδεση στον συγχρονισμό. Θα χρειαστείτε τον κωδικό πρόσβασής σας την επόμενη φορά.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1905,6 +1914,8 @@ pair2-authority-scan-qr-heading = Κάντε σάρωση για να συνδέ
 pair2-authority-scan-qr-instruction = Σαρώστε τον κωδικό QR με το τηλέφωνο ή το tablet σας για να συγχρονίσετε τους σελιδοδείκτες, τις καρτέλες και άλλα δεδομένα του { -brand-firefox }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Κωδικός QR για σύνδεση της κινητής σας συσκευής
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Άλλοι τρόποι σύνδεσης
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Παράλειψη για την ώρα
 
@@ -2039,6 +2050,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Για να συνδ�
 permissions-heading = Το { $serviceName } ζητά πρόσβαση σε:
 permissions-label-email = Διεύθυνση email
 permissions-label-display-name = Εμφανιζόμενο όνομα
+permissions-label-avatar = Εικόνα λογαριασμού
 permissions-continue-button = Συνέχεια
 permissions-cancel-button = Ακύρωση
 
@@ -2147,9 +2159,14 @@ confirm-totp-reset-password-use-different-account = Χρήση διαφορετ�
 ## ResetPassword start page
 
 password-reset-flow-heading = Επαναφορά κωδικού πρόσβασης
+password-reset-forgot-heading = Ξεχάσατε τον κωδικό πρόσβασής σας;
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Δοκιμάστε να συνδεθείτε μέσω { -brand-google }, μέσω { -brand-apple } ή με κλειδί πρόσβασης.</signInLink> Εναλλακτικά, εισαγάγετε το email σας και θα σας στείλουμε έναν κωδικό για την επαναφορά του κωδικού πρόσβασής σας.
 password-reset-email-input =
     .label = Εισαγάγετε το email σας
 password-reset-submit-button-2 = Συνέχεια
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Η επαναφορά του κωδικού πρόσβασής σας ενδέχεται να επηρεάσει την ανάκτηση των συγχρονισμένων δεδομένων του προγράμματος περιήγησης. <learnMoreLink>Μάθετε περισσότερα</learnMoreLink>
 
 ## ResetPasswordConfirmed
 

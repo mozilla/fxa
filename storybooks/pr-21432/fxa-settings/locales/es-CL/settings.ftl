@@ -1271,6 +1271,7 @@ passkey-sub-row-created-date = Creada: { $createdDate }
 passkey-sub-row-last-used-date = Último uso: { $lastUsedDate }
 passkey-sub-row-delete-title = Eliminar llave de acceso
 passkey-delete-modal-heading = ¿Eliminar tu llave de acceso?
+passkey-delete-modal-content-v3 = Esta llave de acceso se eliminará de tu cuenta. Deberás conectarte usando una contraseña, otra llave de acceso o cuenta vinculada.
 passkey-delete-modal-cancel-button = Cancelar
 passkey-delete-modal-confirm-button = Eliminar llave de acceso
 passkey-delete-success = Llave de acceso eliminada
@@ -1632,15 +1633,23 @@ index-email-bounced = Tu correo de confirmación rebotó. ¿Escribiste bien tu d
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = ¿Omitir contraseña la próxima vez?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner-v2 = Estás conectado y la sincronización está activa
 inline-passwordless-sync-setup-heading = ¿Omitir contraseña la próxima vez?
 inline-passwordless-sync-setup-description = Utilizar esta llave de acceso para conectarse más rápido.
 inline-passwordless-sync-setup-enable-button = Habilitar llave de acceso
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Habilitando…
 inline-passwordless-sync-setup-not-now-button = Ahora no
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = Esta llave de acceso está habilitada para conectarse y sincronizar
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = La confirmación de la llave de acceso no finalizó
 inline-passwordless-sync-setup-error-cancelled-description = Confirma con tu llave de acceso para omitir la contraseña la próxima vez.
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = No pudimos habilitar esta llave de acceso para conectarse para sincronizar. Necesitarás tu contraseña la próxima vez.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1900,6 +1909,8 @@ pair2-authority-scan-qr-heading = Escanea para conectar tu dispositivo móvil
 pair2-authority-scan-qr-instruction = Escanea el código QR con tu teléfono o tablet para sincronizar tus marcadores, pestañas y más de { -brand-firefox }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Código QR para conectar tu dispositivo móvil
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Otras formas de conectarse
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Saltar por ahora
 
@@ -2034,6 +2045,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Para conectar un disp
 permissions-heading = { $serviceName } quiere acceso a:
 permissions-label-email = Correo electrónico
 permissions-label-display-name = Nombre para mostrar
+permissions-label-avatar = Imagen de la cuenta
 permissions-continue-button = Continuar
 permissions-cancel-button = Cancelar
 
@@ -2142,9 +2154,14 @@ confirm-totp-reset-password-use-different-account = Usar una cuenta diferente
 ## ResetPassword start page
 
 password-reset-flow-heading = Restablecer tu contraseña
+password-reset-forgot-heading = ¿Olvidaste tu contraseña?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Intenta conectarte con { -brand-google }, { -brand-apple } o una llave de acceso.</signInLink> O ingresa tu correo electrónico y te enviaremos un código para restablecer tu contraseña.
 password-reset-email-input =
     .label = Ingresa tu correo
 password-reset-submit-button-2 = Continuar
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Restablecer tu contraseña puede afectar la posibilidad de recuperar los datos sincronizados del navegador. <learnMoreLink>Más información</learnMoreLink>
 
 ## ResetPasswordConfirmed
 
@@ -2509,3 +2526,10 @@ signup-confirmed-sync-description-v2 = Tus contraseñas, direcciones, marcadores
 signup-confirmed-sync-add-device-link = Añadir otro dispositivo
 signup-confirmed-sync-manage-sync-button = Gestionar sincronización
 signup-confirmed-sync-set-password-success-banner = Contraseña de sincronización creada
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = Actualización requerida de { -brand-firefox }
+update-firefox-description = Tu { -product-mozilla-account } usa funcionalidades que no están disponibles en tu versión de { -brand-firefox }. Por favor, descarga e instala la última versión de { -brand-firefox } para continuar.
+update-firefox-download-button = Bajar la última versión
