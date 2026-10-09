@@ -1,0 +1,10 @@
+{
+  "commit": "133fcaf9c6766804a9ed75009bd4bbb60de8be25",
+  "summary": "chore(content-server): remove Backbone email-first and index views",
+  "description": "Because:\n\n* React serves /, /oauth and /authorization in stage and prod, so the\n  Backbone email-first views and their mixins are dead code.\n\nThis commit:\n\n* Switches the (/), authorization and oauth routes to createReactViewHandler.\n* Deletes the index, authorization and ready views, 11 mixins and their specs.\n* Removes the emailFirstRoutes and simpleRoutes flags and showReactApp config.\n* Removes the FXA-14379 leftovers in app-start.js and verification reasons.\n\nCloses FXA-14378",
+  "timestamp": 1791569932000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
