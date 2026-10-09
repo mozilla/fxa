@@ -41,6 +41,11 @@ jest.mock('fxa-shared/db/models/auth', () => ({
   },
 }));
 
+const mockSubmitServerDeletionRequest = jest.fn();
+jest.mock('./metrics/glean/server-deletion-request', () => ({
+  createServerDeletionRequestPing: () => mockSubmitServerDeletionRequest,
+}));
+
 // Configurable redis mock - default returns undefined (disabled)
 let redisMockFactory: any = () => undefined;
 jest.mock('./redis', () => {
@@ -237,6 +242,23 @@ describe('db with redis disabled:', () => {
     it('returns null when the account does not exist', async () => {
       givenAccountRow(undefined);
       expect(await db.accountDisabledAt(MOCK_UID)).toBeNull();
+    });
+  });
+
+  describe('db.deleteAccount', () => {
+    it('submits a server-deletion-request ping for the uid', async () => {
+      await db.deleteAccount({ uid: 'wibble' });
+
+      expect(mockSubmitServerDeletionRequest).toHaveBeenCalledTimes(1);
+      expect(mockSubmitServerDeletionRequest).toHaveBeenCalledWith('wibble');
+    });
+
+    it('still submits the ping when the delete fails', async () => {
+      models.Account.delete.mockRejectedValueOnce(new Error('boom'));
+
+      await expect(db.deleteAccount({ uid: 'wibble' })).rejects.toThrow('boom');
+
+      expect(mockSubmitServerDeletionRequest).toHaveBeenCalledWith('wibble');
     });
   });
 

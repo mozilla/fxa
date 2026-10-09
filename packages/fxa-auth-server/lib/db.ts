@@ -39,6 +39,7 @@ import {
 } from 'fxa-shared/db/models/auth/session-token';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
+import { createServerDeletionRequestPing } from './metrics/glean/server-deletion-request';
 
 function resolveMetrics(): StatsD | undefined {
   return Container.has(StatsD) ? Container.get(StatsD) : undefined;
@@ -82,6 +83,7 @@ export const createDB = (
     config.tokenLifetimes.sessionTokenWithoutDevice;
   const { enabled: TOKEN_PRUNING_ENABLED, maxAge: TOKEN_PRUNING_MAX_AGE } =
     config.tokenPruning;
+  const submitServerDeletionRequest = createServerDeletionRequestPing(config);
 
   // Configure the shared model's expiry from the server's config
   if (MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE) {
@@ -931,6 +933,9 @@ export const createDB = (
       const { uid } = authToken;
 
       log.info('DB.deleteAccount', { uid });
+      // Every path that removes an account row calls this method, so
+      // telemetry deletion request ping needs to be sent here.
+      submitServerDeletionRequest(uid);
       if (this.redis) {
         await this.redis.del(uid);
       }
