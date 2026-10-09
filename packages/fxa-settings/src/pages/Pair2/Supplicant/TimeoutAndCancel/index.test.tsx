@@ -44,6 +44,14 @@ const VARIANTS: Array<{
     description:
       'To connect a device anytime, visit firefox.com/pair on your computer.',
   },
+  {
+    reason: 'signed_in',
+    heading: 'This device is already signed in',
+    descriptionFtlId:
+      'pair2-supplicant-timeout-and-cancel-signed-in-description',
+    description:
+      'To connect it to a different account, sign out of Firefox on this device, then visit firefox.com/pair on your computer to try again.',
+  },
 ];
 
 const getDescription = (ftlId: string) =>
@@ -120,7 +128,7 @@ describe('Pair2/Supplicant/TimeoutAndCancel page', () => {
         ]);
       });
 
-      // Both states are dead ends by design — the user restarts from their
+      // Every state is a dead end by design — the user restarts from their
       // computer. Fail loudly if an unwired action is ever added here.
       it('renders no action', () => {
         renderWithLocalizationProvider(<Subject {...{ reason }} />);
@@ -133,19 +141,16 @@ describe('Pair2/Supplicant/TimeoutAndCancel page', () => {
   );
 
   it('shows different copy for each state', () => {
-    const { unmount } = renderWithLocalizationProvider(
-      <Subject reason="timeout" />
-    );
-    const timedOutHeading = screen.getByRole('heading', {
-      level: 1,
-    }).textContent;
-    unmount();
+    const headings = VARIANTS.map(({ reason }) => {
+      const { unmount } = renderWithLocalizationProvider(
+        <Subject {...{ reason }} />
+      );
+      const heading = screen.getByRole('heading', { level: 1 }).textContent;
+      unmount();
+      return heading;
+    });
 
-    renderWithLocalizationProvider(<Subject reason="canceled" />);
-
-    expect(screen.getByRole('heading', { level: 1 }).textContent).not.toEqual(
-      timedOutHeading
-    );
+    expect(new Set(headings).size).toEqual(VARIANTS.length);
   });
 
   it('renders the card on a white page background', () => {
@@ -157,9 +162,9 @@ describe('Pair2/Supplicant/TimeoutAndCancel page', () => {
     expect(screen.getByTestId('app')).toHaveClass('bg-white');
   });
 
-  // The automatic view event cannot tell the two states apart — they share a
+  // The automatic view event cannot tell the states apart — they share a
   // route — so the reason has to come from the component.
-  it.each(['timeout', 'canceled'] as PairingInterruptionReason[])(
+  it.each(VARIANTS.map(({ reason }) => reason))(
     'emits a view event carrying the reason (%s)',
     (reason) => {
       renderWithLocalizationProvider(<Subject {...{ reason }} />);

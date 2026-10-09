@@ -14,12 +14,13 @@ import GleanMetrics from '../../../../lib/glean';
 /**
  * Why the pairing attempt ended without connecting. Named for the cause rather
  * than the screen, because that is what the caller knows at the point it routes
- * here — the two states are otherwise the same card.
+ * here — the states are otherwise the same card. `signed_in` is the mobile
+ * browser already holding an account, which pairing cannot replace.
  */
-export type PairingInterruptionReason = 'timeout' | 'canceled';
+export type PairingInterruptionReason = 'timeout' | 'canceled' | 'signed_in';
 
 /**
- * The only thing that varies between the two states. Keyed by reason so the
+ * The only thing that varies between the states. Keyed by reason so the
  * component stays a single card, and each state keeps its own Fluent messages —
  * the sentences differ in structure, not just in a word, so they cannot share
  * one parameterised message.
@@ -61,24 +62,37 @@ const COPY: Record<
       </>
     ),
   },
+  signed_in: {
+    headingFtlId: 'pair2-supplicant-timeout-and-cancel-signed-in-heading',
+    heading: 'This device is already signed in',
+    descriptionFtlId:
+      'pair2-supplicant-timeout-and-cancel-signed-in-description',
+    description: (
+      <>
+        To connect it to a different account, sign out of Firefox on this
+        device, then visit <b className="whitespace-nowrap">firefox.com/pair</b>{' '}
+        on your computer to try again.
+      </>
+    ),
+  },
 };
 
 export type TimeoutAndCancelProps = {
-  /** Which of the two dead-end states to show. */
+  /** Which dead-end state to show. */
   reason?: PairingInterruptionReason;
 };
 
 /**
- * The mobile dead-end screen shown when pairing ends without connecting, either
- * because it timed out or because it was canceled. Both states are purely
- * informational — the designs give them no button and no link, so the user
- * restarts from `firefox.com/pair` on their computer.
+ * The mobile dead-end screen shown when pairing ends without connecting: it
+ * timed out, it was canceled, or this browser is already signed in. All states
+ * are purely informational — the designs give them no button and no link, so
+ * the user restarts from `firefox.com/pair` on their computer.
  */
 const TimeoutAndCancel = ({ reason }: TimeoutAndCancelProps) => {
   reason = reason ?? 'timeout';
   const { headingFtlId, heading, descriptionFtlId, description } = COPY[reason];
 
-  // Custom view event rather than the automatic one: both states share a route,
+  // Custom view event rather than the automatic one: the states share a route,
   // so `reason` is the only thing that tells them apart.
   useEffect(() => {
     GleanMetrics.dtmMobile.timeoutView({ event: { reason } });
