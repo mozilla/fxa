@@ -1,0 +1,10 @@
+{
+  "commit": "6e5a8df18ee06c5137e395f824b3b8db5fce128f",
+  "summary": "perf(admin-panel): cache the Nx build sub-targets",
+  "description": "Because:\n\n- The Nx upgrade moved the four fxa-admin-panel build steps into\n  dependsOn targets with no cache settings, so Nx reran them on\n  every build in CI and in start-services.sh.\n\nThis commit:\n\n- Adds cache, inputs and outputs to build-css, build-react,\n  build-ts-client and build-ts-server in the nx.targets block.\n\nCloses FXA-14727",
+  "timestamp": 1791564728000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
