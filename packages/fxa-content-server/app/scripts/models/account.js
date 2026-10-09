@@ -741,19 +741,6 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * Request to verify current session.
-     *
-     * @param {Object} [options]
-     * @param {String} [options.redirectTo] redirectTo url
-     * @returns {Promise} - resolves when complete
-     */
-    requestVerifySession(options = {}) {
-      return this._fxaClient.sessionVerifyResend(this.get('sessionToken'), {
-        redirectTo: options.redirectTo,
-      });
-    },
-
-    /**
      * Verify the account using the verification code
      *
      * @param {String} code - the verification code

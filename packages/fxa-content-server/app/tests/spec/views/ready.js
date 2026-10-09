@@ -135,22 +135,6 @@ describe('views/ready', function () {
       });
     });
 
-    it('renders `escapedEmailReadyText` as expected with `secondary_email_verified` view type and param', () => {
-      windowMock.location.search = '?secondary_email_verified=some@email.com';
-      sinon.stub(relier, 'isSync').returns(false);
-      createView(VerificationReasons.SECONDARY_EMAIL_VERIFIED);
-
-      return view.render().then(() => {
-        assert.ok(view.$(SIGNUP_COMPLETE.HEADER).length);
-        assert.equal(
-          view.$(SIGNIN_COMPLETE.SERVICE_NAME).text(),
-          'Account notifications will now also be sent to some@email.com.'
-        );
-        assert.lengthOf(view.$('.btn-goto-account'), 1);
-        relier.isSync.restore();
-      });
-    });
-
     // regression test for #1216
     it('does not show service name if service is defined but serviceName is not', function () {
       createView(VerificationReasons.SIGN_UP);

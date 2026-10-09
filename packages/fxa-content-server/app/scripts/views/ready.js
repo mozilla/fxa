@@ -56,13 +56,6 @@ const TEMPLATE_INFO = {
     headerId: 'fxa-sign-up-complete-header',
     headerTitle: t('Primary email confirmed'),
   },
-  SECONDARY_EMAIL_VERIFIED: {
-    emailReadyText: t(
-      'Account notifications will now also be sent to %(secondaryEmailVerified)s.'
-    ),
-    headerId: 'fxa-sign-up-complete-header',
-    headerTitle: t('Secondary email confirmed'),
-  },
   // signin_confirmed and signin_verified are only shown to Sync for now.
   SIGN_IN: {
     headerId: 'fxa-sign-in-complete-header',
@@ -103,9 +96,7 @@ const View = FormView.extend({
 
   setInitialContext(context) {
     context.set({
-      emailVerified:
-        this.getSearchParam('secondary_email_verified') ||
-        this.getSearchParam('primary_email_verified'),
+      emailVerified: this.getSearchParam('primary_email_verified'),
       escapedEmailReadyText: this._getEscapedEmailReadyText(),
       isFromRelyingParty:
         this.relier.pick('serviceName').serviceName !==
@@ -115,8 +106,6 @@ const View = FormView.extend({
       headerId: this._getHeaderId(),
       isPasswordReset: this.isPasswordReset(),
       isSync: this.relier.isSync(),
-      secondaryEmailVerified:
-        this.getSearchParam('secondary_email_verified') || null,
       showContinueButton: !!this.model.get('continueBrokerMethod'),
       isSignedIn: this.user.isSignedInAccount(this.getSignedInAccount()),
     });
