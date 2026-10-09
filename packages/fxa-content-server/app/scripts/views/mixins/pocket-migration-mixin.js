@@ -7,8 +7,6 @@ export const POCKET_CLIENTIDS = [
   '7377719276ad44ee', // pocket-mobile
   '749818d3f2e7857f', // pocket-web
   // enable for testing on 123Done locally
-  // only enable for either pocket-migration-mixin or monitor-client-mixin
-  // but not both at the same time
   // 'dcdb5ae7add825d2',
 ];
 

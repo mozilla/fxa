@@ -89,9 +89,6 @@ export interface Config {
     debugViewTag: string;
   };
   redirectAllowlist: string[];
-  showReactApp: {
-    emailFirstRoutes: boolean;
-  };
   pairing: {
     browserBuild: 'firefox' | 'fenix';
     /** iOS URL scheme the pairing hand-off opens. See `pairing.ios_url_scheme`. */
@@ -226,9 +223,6 @@ export function getDefault() {
       debugViewTag: '',
     },
     redirectAllowlist: ['localhost'],
-    showReactApp: {
-      emailFirstRoutes: false,
-    },
     pairing: {
       browserBuild: 'firefox',
       iosUrlScheme: 'firefox',

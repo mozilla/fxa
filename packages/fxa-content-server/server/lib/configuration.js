@@ -304,18 +304,6 @@ const conf = (module.exports = convict({
     },
   },
   showReactApp: {
-    emailFirstRoutes: {
-      default: false,
-      doc: 'Enable users to visit the React version of "email first" routes',
-      format: Boolean,
-      env: 'REACT_CONVERSION_EMAIL_FIRST_ROUTES',
-    },
-    simpleRoutes: {
-      default: false,
-      doc: 'Enable users to visit the React version of "simple" routes',
-      format: Boolean,
-      env: 'REACT_CONVERSION_SIMPLE_ROUTES',
-    },
     postVerifyOtherRoutes: {
       default: false,
       doc: 'Enable users to visit the React version of any other "post verify" routes',
