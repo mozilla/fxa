@@ -2168,9 +2168,13 @@ confirm-totp-reset-password-use-different-account = Použiť iný účet
 
 password-reset-flow-heading = Zmena hesla
 password-reset-forgot-heading = Zabudli ste heslo?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Namiesto toho sa skúste prihlásiť cez { -brand-google }, { -brand-apple } alebo pomocou prístupového kľúča.</signInLink> Prípadne zadajte svoj e‑mail a pošleme vám kód na obnovenie hesla.
 password-reset-email-input =
     .label = Zadajte svoju e‑mailovú adresu
 password-reset-submit-button-2 = Pokračovať
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Obnovenie hesla môže ovplyvniť možnosť obnoviť synchronizované údaje prehliadača. <learnMoreLink>Ďalšie informácie</learnMoreLink>
 
 ## ResetPasswordConfirmed
 
