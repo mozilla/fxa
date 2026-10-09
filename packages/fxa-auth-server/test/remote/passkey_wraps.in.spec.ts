@@ -3,6 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Container } from 'typedi';
+import { createMock } from '@golevelup/ts-jest';
+import type { LoggerService } from '@nestjs/common';
+import type { StatsD } from '@fxa/shared/metrics/statsd';
 import Redis from 'ioredis';
 import { setupAccountDatabase } from '@fxa/shared/db/mysql/account';
 import {
@@ -52,13 +55,8 @@ const envelope = (fill = 0x11) => ({
 
 beforeAll(async () => {
   redis = new Redis({ host: 'localhost' });
-  const mockStatsD = { increment: jest.fn() };
-  const mockLog = {
-    error: jest.fn(),
-    warn: jest.fn(),
-    debug: jest.fn(),
-    log: jest.fn(),
-  };
+  const mockStatsD = createMock<StatsD>();
+  const mockLog = createMock<LoggerService>();
   const config = Config.getProperties();
   db = await setupAccountDatabase(config.database.mysql.auth);
 
@@ -66,17 +64,12 @@ beforeAll(async () => {
   passkeyRpId = passkeyConfig.rpId;
   passkeyOrigin = passkeyConfig.allowedOrigins[0];
 
-  passkeyManager = new PasskeyManager(
-    db,
-    passkeyConfig,
-    mockStatsD as any,
-    mockLog as any
-  );
+  passkeyManager = new PasskeyManager(db, passkeyConfig, mockStatsD, mockLog);
   const challengeManager = new PasskeyChallengeManager(
     redis,
     passkeyConfig,
-    mockLog as any,
-    mockStatsD as any
+    mockLog,
+    mockStatsD
   );
   Container.set(
     PasskeyService,
@@ -84,8 +77,8 @@ beforeAll(async () => {
       passkeyManager,
       challengeManager,
       passkeyConfig,
-      mockStatsD as any,
-      mockLog as any
+      mockStatsD,
+      mockLog
     )
   );
 
@@ -225,7 +218,7 @@ describe('#integration - remote passkey wrap storage', () => {
     );
 
     const events = await client.securityEvents();
-    expect(events.map((e: any) => e.name)).toContain(
+    expect(events.map((e: { name: string }) => e.name)).toContain(
       'account.passkey.wrap_created'
     );
   });
@@ -238,7 +231,9 @@ describe('#integration - remote passkey wrap storage', () => {
     expect(repeat).toEqual({ created: false });
     const events = await client.securityEvents();
     expect(
-      events.filter((e: any) => e.name === 'account.passkey.wrap_created')
+      events.filter(
+        (e: { name: string }) => e.name === 'account.passkey.wrap_created'
+      )
     ).toHaveLength(1);
   });
 
@@ -322,7 +317,7 @@ describe('#integration - remote passkey wrap storage', () => {
       expect(result.createdAt).toEqual(expect.any(Number));
 
       const events = await client.securityEvents();
-      expect(events.map((e: any) => e.name)).toContain(
+      expect(events.map((e: { name: string }) => e.name)).toContain(
         'account.passkey.wrap_retrieved'
       );
     });
@@ -334,7 +329,7 @@ describe('#integration - remote passkey wrap storage', () => {
       });
 
       const events = await client.securityEvents();
-      expect(events.map((e: any) => e.name)).toContain(
+      expect(events.map((e: { name: string }) => e.name)).toContain(
         'account.passkey.wrap_retrieval_failure'
       );
     });
@@ -396,7 +391,7 @@ describe('#integration - remote passkey wrap storage', () => {
       expect(result).toEqual({ deleted: true });
 
       const events = await client.securityEvents();
-      expect(events.map((e: any) => e.name)).toContain(
+      expect(events.map((e: { name: string }) => e.name)).toContain(
         'account.passkey.wrap_deleted'
       );
     });
@@ -426,7 +421,7 @@ describe('#integration - remote passkey wrap storage', () => {
       });
 
       const events = await client.securityEvents();
-      expect(events.map((e: any) => e.name)).toContain(
+      expect(events.map((e: { name: string }) => e.name)).toContain(
         'account.passkey.wrap_deletion_failure'
       );
     });

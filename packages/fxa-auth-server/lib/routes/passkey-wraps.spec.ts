@@ -7,7 +7,7 @@ import { Container } from 'typedi';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { PasskeyService, V1_WIDTHS } from '@fxa/accounts/passkey';
 import type { Customs, DB } from './passkeys';
-import { AuthLogger } from '../types';
+import { AuthLogger, AuthRequest } from '../types';
 import { AppError, ERRNO } from '@fxa/accounts/errors';
 import { recordSecurityEvent } from './utils/security-event';
 import { passkeyWrapsRoutes } from './passkey-wraps';
@@ -61,6 +61,8 @@ const storedWrap = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
+type Route = ReturnType<typeof passkeyWrapsRoutes>[number];
+
 const config = {
   passkeys: { enabled: true, passwordlessSyncEnabled: true },
 } as unknown as ConfigType;
@@ -78,7 +80,7 @@ describe('passkey wraps routes', () => {
   const buildRoute = (cfg: ConfigType = config) =>
     passkeyWrapsRoutes(customs, db, cfg, log).find(
       (r) => r.path === '/passkey/wraps' && r.method === 'POST'
-    ) as any;
+    ) as Route;
 
   async function run(
     payload: Record<string, unknown> = validPayload(),
@@ -96,7 +98,7 @@ describe('passkey wraps routes', () => {
         geo: { location: { country: 'United States', countryCode: 'US' } },
       },
     };
-    return route.handler(request);
+    return route.handler(request as unknown as AuthRequest);
   }
 
   beforeEach(() => {
@@ -276,7 +278,7 @@ describe('passkey wraps routes', () => {
     const buildGetRoute = (cfg: ConfigType = config) =>
       passkeyWrapsRoutes(customs, db, cfg, log).find(
         (r) => r.path === '/passkey/wraps/{credentialId}' && r.method === 'GET'
-      ) as any;
+      ) as Route;
 
     const runGet = (
       params = { credentialId: CREDENTIAL_ID },
@@ -287,7 +289,7 @@ describe('passkey wraps routes', () => {
         auth: { credentials: { uid: UID, id: 'session-token-id', cid } },
         params,
         app: { clientAddress: '127.0.0.1' },
-      });
+      } as unknown as AuthRequest);
 
     it('returns the envelope base64url-encoded, with its createdAt', async () => {
       await expect(runGet()).resolves.toEqual({
@@ -475,7 +477,7 @@ describe('passkey wraps routes', () => {
       let schema: Schema;
 
       beforeEach(() => {
-        schema = buildGetRoute().options.validate.params;
+        schema = buildGetRoute().options.validate.params as Schema;
       });
 
       it('accepts a base64url credential id', () => {
@@ -501,7 +503,7 @@ describe('passkey wraps routes', () => {
       passkeyWrapsRoutes(customs, db, cfg, log).find(
         (r) =>
           r.path === '/passkey/wraps/{credentialId}' && r.method === 'DELETE'
-      ) as any;
+      ) as Route;
 
     const runDelete = (
       params = { credentialId: CREDENTIAL_ID },
@@ -515,7 +517,7 @@ describe('passkey wraps routes', () => {
           clientAddress: '127.0.0.1',
           geo: { location: { country: 'United States', countryCode: 'US' } },
         },
-      });
+      } as unknown as AuthRequest);
 
     it('removes the wrap and reports it as deleted', async () => {
       await expect(runDelete()).resolves.toEqual({ deleted: true });
@@ -655,15 +657,10 @@ describe('passkey wraps routes', () => {
     });
 
     it('refuses to serve when the passwordless sync flag is off', () => {
-      const routes = passkeyWrapsRoutes(
-        customs,
-        db as any,
-        disabledConfig,
-        log
-      );
+      const routes = passkeyWrapsRoutes(customs, db, disabledConfig, log);
       const route = routes.find(
         (r) => r.path === '/passkey/wraps' && r.method === 'POST'
-      ) as any;
+      ) as Route;
 
       expect(() => route.options.pre[0].method()).toThrow();
     });
@@ -673,7 +670,7 @@ describe('passkey wraps routes', () => {
     let schema: Schema;
 
     beforeEach(() => {
-      schema = buildRoute().options.validate.payload;
+      schema = buildRoute().options.validate.payload as Schema;
     });
 
     it('accepts a well-formed payload', () => {
