@@ -235,14 +235,10 @@ test.describe('recovery key promo', () => {
 
       await settings.signOut();
 
-      // Attempting to navigate back to the inline recovery key page,
-      // it should redirect to the connect another device page since they user
-      // clicked "do it later"
-      // The browser session persists, so returning to the sync flow lands
-      // directly on connect-another-device without re-prompting for sign-in.
+      // Signed out, so /pair has no account to pair and sends the browser to
+      // sign in.
       await gotoSyncSession(page, target);
-      await page.waitForURL(/pair/);
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(signin.emailTextbox).toBeVisible();
     });
   });
 });
