@@ -476,7 +476,11 @@ export class LinkedAccountHandler {
           ...FxaMailerFormat.sync(service),
           providerName: PROVIDER_NAME[provider],
         });
-        request.setMetricsFlowCompleteSignal('account.login', 'login');
+        request.setMetricsFlowCompleteSignal(
+          service === 'sync' ? 'account.signed' : 'account.login',
+          'login',
+          provider
+        );
         switch (provider) {
           case 'google':
             await this.glean.thirdPartyAuth.googleLoginComplete(request, {
@@ -576,9 +580,17 @@ export class LinkedAccountHandler {
       // This is an existing user and existing FxA user
       accountRecord = await this.db.account(linkedAccountRecord.uid);
       if (service === 'sync') {
-        request.setMetricsFlowCompleteSignal('account.signed', 'login');
+        request.setMetricsFlowCompleteSignal(
+          'account.signed',
+          'login',
+          provider
+        );
       } else {
-        request.setMetricsFlowCompleteSignal('account.login', 'login');
+        request.setMetricsFlowCompleteSignal(
+          'account.login',
+          'login',
+          provider
+        );
       }
       await request.emitMetricsEvent('account.login', {
         uid: accountRecord.uid,
@@ -595,10 +607,6 @@ export class LinkedAccountHandler {
           await this.glean.thirdPartyAuth.appleLoginComplete(request);
           break;
       }
-      this.glean.login.complete(request, {
-        uid: accountRecord.uid,
-        reason: provider === 'google' ? 'google' : 'apple',
-      });
       linkedAccountFlow = 'existing-linked-account';
     }
 
@@ -630,6 +638,8 @@ export class LinkedAccountHandler {
     };
 
     const sessionToken = await this.db.createSessionToken(sessionTokenOptions);
+    // A Sync login completes later, at /oauth/token, which reads the stash.
+    await request.stashMetricsContext(sessionToken);
 
     await recordSecurityEvent('account.login', {
       db: this.db,

@@ -622,6 +622,15 @@ export class PasskeyHandler {
     // Later steps of a keys-required sign-in (password creation, key fetch) send
     // no metrics context of their own, so stash it against the new session token
     // to keep them on the same flow.
+    if (keysRequired && service === 'sync') {
+      // The first stash wins, so the signal must be set before it: the later
+      // /session/reauth stash is dropped, and /oauth/token completes the login.
+      request.setMetricsFlowCompleteSignal(
+        'account.signed',
+        'login',
+        'passkey'
+      );
+    }
     await request.stashMetricsContext(sessionToken);
 
     await recordSecurityEvent('account.passkey.authentication_success', {

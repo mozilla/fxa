@@ -715,6 +715,31 @@ describe('metrics/events', () => {
     expect(log.error).not.toHaveBeenCalled();
   });
 
+  it('.emit fires login.complete when the flow event is not logged', async () => {
+    const metricsContext = mocks.mockMetricsContext({
+      gather: jest.fn(async () => ({
+        flowCompleteSignal: 'account.signed',
+        flowType: 'login',
+      })),
+    });
+    const request = mocks.mockRequest({
+      metricsContext,
+      query: {
+        service: 'content-server',
+      },
+    });
+    await events.emit.call(request, 'account.signed', { uid: 'baz' });
+
+    expect(log.flowEvent).toHaveBeenCalledTimes(1);
+    expect(log.flowEvent.mock.calls[0][0].event).toBe('flow.complete');
+    expect(glean.login.complete).toHaveBeenCalledTimes(1);
+    expect(glean.login.complete).toHaveBeenCalledWith(request, {
+      uid: 'baz',
+      reason: 'email',
+    });
+    expect(metricsContext.clear).toHaveBeenCalledTimes(1);
+  });
+
   it('.emit with sync account.signed event', async () => {
     const metricsContext = mocks.mockMetricsContext();
     const request = mocks.mockRequest({
