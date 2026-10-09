@@ -149,30 +149,32 @@ export class StripeFirestore {
   async fetchAndInsertSubscription(
     subscriptionId: string,
     uid: string,
+    eventTime: number
   ) {
-    return this.firestore.runTransaction(async (tx) => {
-      // We read the subscription we plan to write to lock them via a Firestore transaction.
-      // If any other transaction runs that reads the subscription overlapping with our read+write operation,
-      // the transaction will fail and be retried. This ensures serialization of our updates, and no race condition
-      // based on the speed at which the Stripe API responds.
-      await tx.get(
-        this.customerCollectionDbRef.doc(uid)
-          .collection(this.subscriptionCollection)
-          .doc(subscriptionId),
-      );
+    const subscription =
+      await this.stripe.subscriptions.retrieve(subscriptionId);
+    const subscriptionRef = this.customerCollectionDbRef
+      .doc(uid)
+      .collection(this.subscriptionCollection)
+      .doc(subscription.id);
 
-      const subscription = await this.stripe.subscriptions.retrieve(subscriptionId);
-
+    await this.firestore.runTransaction(async (tx) => {
+      const storedSubscription = await tx.get(subscriptionRef);
+      const storedEventTime: number | undefined =
+        storedSubscription.data()?.stripeEventCreatedTime;
+      if (storedEventTime && storedEventTime >= eventTime) {
+        return;
+      }
       tx.set(
-        this.customerCollectionDbRef
-          .doc(uid)
-          .collection(this.subscriptionCollection)
-          .doc(subscription.id),
-        toFirestoreObject(subscription)
+        subscriptionRef,
+        toFirestoreObject({
+          ...subscription,
+          stripeEventCreatedTime: eventTime,
+        })
       );
-
-      return subscription;
     });
+
+    return subscription;
   }
 
   /**

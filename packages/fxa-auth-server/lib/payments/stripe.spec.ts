@@ -3916,7 +3916,8 @@ describe('StripeHelper', () => {
               stripeHelper.stripeFirestore.fetchAndInsertSubscription
             ).toHaveBeenCalledWith(
               event.data.object.id,
-              customer.metadata.userid
+              customer.metadata.userid,
+              event.created
             );
           }
         });
