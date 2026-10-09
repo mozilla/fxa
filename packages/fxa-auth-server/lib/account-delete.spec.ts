@@ -19,11 +19,16 @@ const mockReportSentryError = reportSentryError as jest.MockedFunction<
 >;
 
 const isActiveStub = jest.fn();
+const mockSubmitServerDeletionRequest = jest.fn();
 
 jest.mock('fxa-shared/db/models/auth', () => ({}));
 jest.mock('./sentry', () => ({
   ...jest.requireActual('./sentry'),
   reportSentryError: jest.fn(),
+}));
+jest.mock('./metrics/glean/server-deletion-request', () => ({
+  ...jest.requireActual('./metrics/glean/server-deletion-request'),
+  createServerDeletionRequestPing: () => mockSubmitServerDeletionRequest,
 }));
 jest.mock('./inactive-accounts', () => {
   const actual = jest.requireActual('./inactive-accounts');
@@ -269,6 +274,45 @@ describe('AccountDeleteManager', () => {
       expect(mockFxaDb.deleteAccount).toHaveBeenCalledTimes(0);
       expect(mockLog.activityEvent).toHaveBeenCalledTimes(0);
       expect(mockLog.notifyAttachedServices).not.toHaveBeenCalled();
+    });
+
+    describe('server-deletion-request ping', () => {
+      it('is submitted for a cloud task whose account row is already gone', async () => {
+        mockFxaDb.account = jest
+          .fn()
+          .mockRejectedValue(AppError.unknownAccount('test@email.com'));
+
+        await accountDeleteManager.deleteAccount(
+          uid,
+          ReasonForDeletion.Cleanup
+        );
+
+        expect(mockSubmitServerDeletionRequest).toHaveBeenCalledTimes(1);
+        expect(mockSubmitServerDeletionRequest).toHaveBeenCalledWith(uid);
+      });
+
+      it('is left to db.deleteAccount when the cloud task deletes the account row', async () => {
+        await accountDeleteManager.deleteAccount(
+          uid,
+          ReasonForDeletion.AdminRequested
+        );
+
+        expect(mockFxaDb.deleteAccount).toHaveBeenCalledTimes(1);
+        expect(mockSubmitServerDeletionRequest).not.toHaveBeenCalled();
+      });
+
+      it('is not submitted for a user requested task whose account row is already gone', async () => {
+        mockFxaDb.account = jest
+          .fn()
+          .mockRejectedValue(AppError.unknownAccount('test@email.com'));
+
+        await accountDeleteManager.deleteAccount(
+          uid,
+          ReasonForDeletion.UserRequested
+        );
+
+        expect(mockSubmitServerDeletionRequest).not.toHaveBeenCalled();
+      });
     });
 
     it('does not fail if pushbox fails to delete', async () => {
