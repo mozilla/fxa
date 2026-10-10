@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import base64url from 'base64url';
 import { StatsD } from 'hot-shots';
 
 import PushboxDB from '../../lib/pushbox/db';
+import { pushboxApi } from '../../lib/pushbox';
 
 const config = require('../../config').default.getProperties();
 const statsd = {
@@ -26,7 +26,9 @@ const pushboxDb = new PushboxDB({
   statsd,
 });
 
-const data = base64url.encode(JSON.stringify({ wibble: 'quux' }));
+const data = Buffer.from(JSON.stringify({ wibble: 'quux' })).toString(
+  'base64url'
+);
 const r = {
   uid: 'xyz',
   deviceId: 'ff9000',
@@ -103,6 +105,20 @@ describe('#integration - pushbox db', () => {
 
       expect(result.last).toBe(false);
       expect(result.index).toBe(insertIdx - 2);
+    });
+  });
+
+  describe('pushboxApi', () => {
+    it('retrieves what it stored', async () => {
+      const pushbox = pushboxApi(
+        log as any,
+        { ...config, pushbox: { ...config.pushbox, enabled: true } },
+        statsd
+      );
+      const payload = { command: 'open-uri', args: { url: 'https://a.b' } };
+      const { index } = await pushbox.store(r.uid, r.deviceId, payload, r.ttl);
+      const result = await pushbox.retrieve(r.uid, r.deviceId, 1, index);
+      expect(result.messages).toEqual([{ index, data: payload }]);
     });
   });
 

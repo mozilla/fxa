@@ -4,7 +4,7 @@
 
 'use strict';
 
-const HKDF = require('hkdf');
+const { hkdfSync } = require('crypto');
 const { NAMESPACE } = require('../routes/utils/client-key-stretch');
 
 function KWE(name, email) {
@@ -15,13 +15,10 @@ function KW(name) {
   return Buffer.from(NAMESPACE + name);
 }
 
-function hkdf(km, info, salt, len) {
-  return new Promise((resolve) => {
-    const df = new HKDF('sha256', salt, km);
-    df.derive(KW(info), len, (key) => {
-      resolve(key);
-    });
-  });
+async function hkdf(km, info, salt, len) {
+  // RFC 5869 uses HashLen zero bytes when the caller has no salt.
+  const saltBuf = salt || Buffer.alloc(32);
+  return Buffer.from(hkdfSync('sha256', km, saltBuf, KW(info), len));
 }
 
 hkdf.KW = KW;

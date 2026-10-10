@@ -3,10 +3,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { SecurityEventNames } from 'fxa-shared/db/models/auth/security-event';
-import { AccountEventsManager } from '../../account-events';
+import {
+  AccountEventsManager,
+  SecurityEventLoginMethod,
+} from '../../account-events';
 import { Container } from 'typedi';
 
-export async function recordSecurityEvent(name: SecurityEventNames, opts: any) {
+type RecordSecurityEventOpts = {
+  method?: SecurityEventLoginMethod;
+  // Routes that create a session while unauthenticated must pass the new
+  // session token id. Without it the stored proc cannot find the pending
+  // tokenVerificationId and marks the row verified.
+  tokenId?: string;
+  [key: string]: any;
+};
+
+export async function recordSecurityEvent(
+  name: SecurityEventNames,
+  opts: RecordSecurityEventOpts
+) {
   const mgr = Container.get(AccountEventsManager);
   if (mgr == null || typeof mgr.recordSecurityEvent !== 'function') {
     return;
@@ -28,12 +43,13 @@ export async function recordSecurityEvent(name: SecurityEventNames, opts: any) {
     name,
     uid: opts?.account?.uid || opts?.request?.auth?.credentials?.uid,
     ipAddr: opts?.request?.app?.clientAddress,
-    tokenId: opts?.request?.auth?.credentials?.id,
+    tokenId: opts?.tokenId ?? opts?.request?.auth?.credentials?.id,
     additionalInfo: {
       userAgent: opts?.request.headers['user-agent'],
       location: opts?.request.app.geo.location,
       ...(clientId && { client_id: clientId }),
       ...(service && { service }),
+      ...(opts?.method && { method: opts.method }),
       waf: Object.values(waf).some(Boolean) ? waf : undefined,
     },
   });

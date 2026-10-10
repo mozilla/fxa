@@ -3,11 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Link, useLocation } from 'react-router';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Control, useForm, useWatch } from 'react-hook-form';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import { isBase32Crockford } from '../../../lib/utilities';
 import { useFtlMsgResolver } from '../../../models/hooks';
 
@@ -19,6 +20,7 @@ import {
   AccountRecoveryConfirmKeyFormData,
   AccountRecoveryConfirmKeyProps,
 } from './interfaces';
+import { PasskeyResetSignals } from '../interfaces';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { RecoveryKeyImage } from '../../../components/images';
 import { Constants } from '../../../lib/constants';
@@ -47,8 +49,10 @@ const AccountRecoveryConfirmKey = ({
   uid,
   totpExists,
   hasPasskey,
+  hasPasskeyWraps,
   showPasskeyOption,
 }: AccountRecoveryConfirmKeyProps) => {
+  const passkeySignals: PasskeyResetSignals = { hasPasskey, hasPasskeyWraps };
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
 
@@ -61,9 +65,7 @@ const AccountRecoveryConfirmKey = ({
       },
     });
 
-  useEffect(() => {
-    GleanMetrics.passwordReset.recoveryKeyView();
-  }, []);
+  useGleanView(() => GleanMetrics.passwordReset.recoveryKeyView());
 
   const removeSpaces = (key: string) => key.replace(/\s/g, '');
 
@@ -224,7 +226,7 @@ const AccountRecoveryConfirmKey = ({
               recoveryKeyHint,
               token,
               uid,
-              hasPasskey,
+              ...passkeySignals,
             }}
             onClick={() => GleanMetrics.passwordReset.recoveryKeyCannotFind()}
           >
@@ -245,7 +247,7 @@ const AccountRecoveryConfirmKey = ({
               recoveryKeyHint,
               token,
               uid,
-              hasPasskey,
+              ...passkeySignals,
             }}
             onClick={() => GleanMetrics.passwordReset.recoveryKeyCannotFind()}
           >

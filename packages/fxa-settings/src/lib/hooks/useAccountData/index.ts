@@ -118,10 +118,13 @@ function transformAccountResponse(
     })
   );
 
-  const subscriptions = (response.subscriptions || []).map((s) => ({
-    created: s.created ?? s.createdAt ?? 0,
-    productName: s.productName || s.product_name || '',
-  }));
+  // The server omits `subscriptions` when it can't read them; null keeps that
+  // distinct from "none".
+  const subscriptions =
+    response.subscriptions?.map((s) => ({
+      created: s.created ?? s.createdAt ?? 0,
+      productName: s.productName || s.product_name || '',
+    })) ?? null;
 
   const totp: AccountTotp = {
     exists: response.totp?.exists ?? false,
@@ -263,18 +266,13 @@ export function useAccountData({
         throw new InvalidTokenError();
       }
 
-      let accountData: Partial<AccountState> = {};
-
-      if (accountResult.status === 'fulfilled') {
-        accountData = {
-          ...accountData,
-          ...transformAccountResponse(accountResult.value),
-        };
-      } else {
-        Sentry.captureMessage(
-          `Failed to fetch account: ${accountResult.reason}`
-        );
+      // Without account data, Settings would render defaults that look like lost account state.
+      // SettingsError reports the thrown error to Sentry.
+      if (accountResult.status === 'rejected') {
+        throw accountResult.reason;
       }
+
+      const accountData = transformAccountResponse(accountResult.value);
 
       if (profileResult.status === 'fulfilled') {
         const { displayName, avatar } = profileResult.value;

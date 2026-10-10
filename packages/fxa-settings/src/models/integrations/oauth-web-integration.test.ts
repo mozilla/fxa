@@ -181,6 +181,17 @@ describe('models/integrations/oauth-relier', function () {
           integration.getNormalizedScope();
         }).toThrow();
       });
+
+      it('keeps profile:avatar and drops scopes outside the allow-list', () => {
+        const integration = getIntegration(
+          'openid profile:email profile:avatar profile:subscriptions'
+        );
+        expect(integration.getPermissions()).toEqual([
+          'openid',
+          'profile:email',
+          'profile:avatar',
+        ]);
+      });
     });
 
     describe('Sentry error capture', () => {
@@ -253,6 +264,15 @@ describe('models/integrations/oauth-relier', function () {
           .calls[0][0];
         expect(capturedError).toBeInstanceOf(OAuthError);
         expect(capturedError.errno).toBe(OAUTH_ERRORS.INVALID_PARAMETER.errno);
+      });
+    });
+
+    describe('oauth success flow', () => {
+      it('returns no permissions instead of throwing on an empty scope', () => {
+        const integration = getIntegrationWithScope('');
+        integration.isOAuthSuccessFlow = true;
+
+        expect(integration.getPermissions()).toEqual([]);
       });
     });
 
@@ -354,6 +374,33 @@ describe('models/integrations/oauth-relier', function () {
 
         expect(integration.getServiceName()).toBe('Firefox Sync');
         expect(Sentry.captureException).not.toHaveBeenCalled();
+      });
+
+      it('is not untrusted when clientInfo is the empty husk', () => {
+        // isTrusted() is false here too, so the consent screen must gate on
+        // isUntrusted() instead, or a trusted client is described as untrusted
+        // whenever the client lookup has not resolved.
+        const integration = getIntegration(huskClientInfo);
+
+        expect(integration.isTrusted()).toBe(false);
+        expect(integration.isUntrusted()).toBe(false);
+      });
+
+      it('is not untrusted once clientInfo is loaded and trusted', () => {
+        const integration = getIntegration(loadedClientInfo);
+
+        expect(integration.isTrusted()).toBe(true);
+        expect(integration.isUntrusted()).toBe(false);
+      });
+
+      it('is untrusted when clientInfo says the client is not trusted', () => {
+        const integration = getIntegration({
+          ...loadedClientInfo,
+          trusted: false,
+        });
+
+        expect(integration.isTrusted()).toBe(false);
+        expect(integration.isUntrusted()).toBe(true);
       });
 
       it('throws "Invalid redirect parameter" for a keys request when clientInfo is the empty husk', () => {

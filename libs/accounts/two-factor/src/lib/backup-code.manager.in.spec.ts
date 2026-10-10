@@ -3,6 +3,7 @@ import {
   AccountDatabase,
   AccountDbProvider,
   testAccountDatabaseSetup,
+  testAccountDatabaseTeardown,
 } from '@fxa/shared/db/mysql/account';
 import { RecoveryCodeFactory } from './backup-code.factories';
 import { faker } from '@faker-js/faker';
@@ -46,8 +47,8 @@ describe('BackupCodeManager', () => {
     backupCodeManager = moduleRef.get(BackupCodeManager);
   });
 
-  afterAll(async () => {
-    await db.destroy();
+  afterEach(async () => {
+    await testAccountDatabaseTeardown(db);
   });
 
   it('should return that the user has backup codes and count them', async () => {

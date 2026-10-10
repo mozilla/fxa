@@ -103,7 +103,11 @@ describe('Sign in with TOTP code page', () => {
 
     const headingEl = screen.getByRole('heading', { level: 2 });
     expect(headingEl).toHaveTextContent('Enter two-step authentication code');
-    screen.getByLabelText('Enter 6-digit code');
+    // testid needed for functional tests to identify the TOTP input field vs other code inputs
+    expect(screen.getByLabelText('Enter 6-digit code')).toHaveAttribute(
+      'data-testid',
+      'totp-input-field'
+    );
 
     // submit button is disabled by default until code entered in input
     expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled();
@@ -252,12 +256,13 @@ describe('Sign in with TOTP code page', () => {
           renderAndSubmitTotpCode({}, undefined, integration)
         );
         expect(fxaLoginSpy).toHaveBeenCalled();
-        expect(hardNavigateSpy).toHaveBeenCalledWith(
-          '/pair?showSuccessMessage=true&pairReason=password_login',
-          undefined,
-          undefined,
-          true
-        );
+        expect(mockNavigate).toHaveBeenCalledWith('/pair', {
+          state: expect.objectContaining({
+            origin: 'signin',
+            pairReason: 'password_login',
+          }),
+          replace: true,
+        });
       });
       it('is not sent otherwise', async () => {
         await renderAndSubmitTotpCode({});

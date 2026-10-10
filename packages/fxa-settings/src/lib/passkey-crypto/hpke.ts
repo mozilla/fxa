@@ -11,7 +11,7 @@
  * `hpke` dependency is pinned exactly.
  *
  * Everything crosses the module boundary as `Uint8Array`. `info` and `aad` are
- * opaque here; `context.ts` owns their construction and is the only thing that
+ * opaque here; `envelope.ts` owns their construction and is the only thing that
  * should be producing them.
  */
 

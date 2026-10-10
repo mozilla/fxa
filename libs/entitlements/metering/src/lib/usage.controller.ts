@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
@@ -26,12 +25,13 @@ import {
   ValidateResponse,
   zodToOpenApi,
 } from '@fxa/payments/api-server/server-utils';
-import { MeteringExceptionFilter } from './metering-exception.filter';
+
 import {
   CurrentMeteringClient,
   MeteringAuthGuard,
   type AuthenticatedMeteringClient,
 } from './metering-auth.guard';
+import { MeteringExceptionFilter } from './metering-exception.filter';
 import {
   ingestUsageRequestSchema,
   usageQueryParamsSchema,
@@ -39,6 +39,7 @@ import {
   type UsageQueryResponse,
 } from './metering.schema';
 import { UsageService } from './usage.service';
+import { parseRequest } from './utils/parseRequest';
 
 @ApiTags('Metering')
 @ApiBearerAuth()
@@ -64,32 +65,49 @@ export class UsageController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid request body — one or more fields failed validation',
+    description:
+      'Invalid request body — one or more fields failed validation, or the ' +
+      'timestamp is outside the accepted range',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing, malformed, or unrecognized bearer token',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'The meter slug is not configured',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Unexpected error',
+  })
+  @ApiResponse({
+    status: 503,
+    description:
+      'The event could not be published — retry with the same id, which is safe',
   })
   async ingest(
     @Body() body: unknown,
     @CurrentMeteringClient()
     authenticatedMeteringClient: AuthenticatedMeteringClient
   ): Promise<void> {
-    const parsed = ingestUsageRequestSchema.safeParse(body);
-    if (!parsed.success) {
-      throw new BadRequestException(
-        parsed.error.issues.map(({ code, path }) => ({ code, path }))
-      );
-    }
-    await this.usageService.ingestUsage(parsed.data);
+    await this.usageService.ingestUsage(
+      authenticatedMeteringClient.clientId,
+      parseRequest(ingestUsageRequestSchema, body)
+    );
   }
 
-  @Get(':userIdentifier/:slug')
+  @Get(':subject/:slug')
   @ApiOperation({
-    summary: 'Query usage data for a user and meter',
+    summary: 'Query usage data for a subject and meter',
     description:
-      'Returns the current usage, limit, and metering window for a specific user and meter slug. ' +
+      'Returns the current usage, limit, and metering window for a specific subject and meter slug. ' +
       'Requires a valid metering service credential.',
   })
   @ApiParam({
-    name: 'userIdentifier',
-    description: 'Unique identifier for the user being queried',
+    name: 'subject',
+    description:
+      'Subject to query usage for: a user id, device id, or any other key the relying party meters by',
   })
   @ApiParam({
     name: 'slug',
@@ -97,27 +115,39 @@ export class UsageController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Current usage data for the requested meter and user',
+    description: 'Current usage data for the requested meter and subject',
     schema: zodToOpenApi(usageQueryResponseSchema),
   })
   @ApiResponse({
     status: 400,
-    description:
-      'Invalid parameters — userIdentifier or slug failed validation',
+    description: 'Invalid parameters — subject or slug failed validation',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing, malformed, or unrecognized bearer token',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'The meter slug is not configured',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Unexpected error',
+  })
+  @ApiResponse({
+    status: 503,
+    description: 'Usage data is temporarily unavailable — retry with backoff',
   })
   @ValidateResponse(usageQueryResponseSchema)
   async query(
-    @Param('userIdentifier') userIdentifier: string,
+    @Param('subject') subject: string,
     @Param('slug') slug: string,
     @CurrentMeteringClient()
     authenticatedMeteringClient: AuthenticatedMeteringClient
   ): Promise<UsageQueryResponse> {
-    const parsed = usageQueryParamsSchema.safeParse({ userIdentifier, slug });
-    if (!parsed.success) {
-      throw new BadRequestException(
-        parsed.error.issues.map(({ code, path }) => ({ code, path }))
-      );
-    }
-    return this.usageService.queryUsage(parsed.data);
+    return this.usageService.queryUsage(
+      authenticatedMeteringClient.clientId,
+      parseRequest(usageQueryParamsSchema, { subject, slug })
+    );
   }
 }

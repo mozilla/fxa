@@ -23,7 +23,7 @@ import { REACT_ENTRYPOINT } from '../../../constants';
 import AlternativeAuthOptions from '../../../components/AlternativeAuthOptions';
 import CardHeader from '../../../components/CardHeader';
 import AppLayout from '../../../components/AppLayout';
-import { usePasskeySignIn } from '../../../lib/passkeys/signin-flow';
+import { usePasskeySignIn } from '../../../lib/hooks/usePasskeySignIn';
 import { shouldShowPasskeySignin } from '../../../lib/passkeys';
 import { isWebAuthnSupported } from '../../../lib/passkeys/webauthn';
 import { SigninPasswordlessCodeProps } from './interfaces';
@@ -200,9 +200,7 @@ const SigninPasswordlessCode = ({
         clientId: integration.getClientId(),
         service: integration.getService(),
         metricsContext: {
-          ...queryParamsToMetricsContext(
-            flowQueryParams as unknown as Record<string, string>
-          ),
+          ...queryParamsToMetricsContext(flowQueryParams),
           clientId: integration.getClientId(),
         },
       });
@@ -253,9 +251,7 @@ const SigninPasswordlessCode = ({
         clientId: integration.getClientId(),
         service: integration.getService(),
         metricsContext: {
-          ...queryParamsToMetricsContext(
-            flowQueryParams as unknown as Record<string, string>
-          ),
+          ...queryParamsToMetricsContext(flowQueryParams),
           clientId: integration.getClientId(),
         },
       });
@@ -675,7 +671,9 @@ const SigninPasswordlessCode = ({
             isLoading: passkey.isLoading,
             onClick: passkey.onClick,
           }}
-          errorBanner={passkey.errorBanner}
+          errorBanner={
+            passkey.banner ? <Banner {...passkey.banner} /> : undefined
+          }
           disabled={authInProgress}
           {...{ viewName, flowQueryParams }}
         />

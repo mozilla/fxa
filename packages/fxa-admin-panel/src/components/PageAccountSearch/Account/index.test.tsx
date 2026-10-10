@@ -5,7 +5,12 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { Account, AccountProps } from './index';
-import { GuardEnv, AdminPanelGroup, AdminPanelGuard } from '@fxa/shared/guards';
+import {
+  GuardEnv,
+  AdminPanelFeature,
+  AdminPanelGroup,
+  AdminPanelGuard,
+} from '@fxa/shared/guards';
 import { IClientConfig } from '../../../../interfaces';
 import { mockConfigBuilder } from '../../../lib/config';
 import { adminApi } from '../../../lib/api';
@@ -37,6 +42,7 @@ jest.mock('../../../lib/api', () => ({
     unlinkAccount: jest.fn(),
     clearEmailBounce: jest.fn(),
     removePasskey: jest.fn(),
+    removePasskeyWrap: jest.fn(),
     recordSecurityEvent: jest.fn().mockResolvedValue(true),
   },
 }));
@@ -242,6 +248,8 @@ it('displays passkeys with authenticator name', () => {
         authenticatorName: undefined,
         backupState: true,
         prfEnabled: false,
+        hasPasswordlessSync: false,
+        passwordlessSyncStale: false,
       },
       {
         name: 'YubiKey 5',
@@ -252,6 +260,8 @@ it('displays passkeys with authenticator name', () => {
         authenticatorName: 'YubiKey 5 Series with NFC',
         backupState: false,
         prfEnabled: true,
+        hasPasswordlessSync: true,
+        passwordlessSyncStale: false,
       },
     ],
   };
@@ -275,6 +285,8 @@ it('displays passkeys with never-used date', () => {
         authenticatorName: undefined,
         backupState: true,
         prfEnabled: false,
+        hasPasswordlessSync: false,
+        passwordlessSyncStale: false,
       },
     ],
   };
@@ -296,6 +308,8 @@ it('displays passkeys with last-used date', () => {
         authenticatorName: 'YubiKey 5 Series with NFC',
         backupState: false,
         prfEnabled: true,
+        hasPasswordlessSync: true,
+        passwordlessSyncStale: false,
       },
     ],
   };
@@ -313,7 +327,106 @@ const passkeyFixture = {
   authenticatorName: undefined,
   backupState: true,
   prfEnabled: false,
+  hasPasswordlessSync: false,
+  passwordlessSyncStale: false,
 };
+
+it('shows the passwordless sync column for passkeys with and without a wrap', () => {
+  render(
+    <Account
+      {...{
+        ...accountResponse,
+        passkeys: [
+          passkeyFixture,
+          {
+            ...passkeyFixture,
+            credentialId: 'awrappedcredentialid',
+            prfEnabled: true,
+            hasPasswordlessSync: true,
+            passwordlessSyncStale: false,
+          },
+        ],
+      }}
+    />
+  );
+
+  const cells = screen.getAllByTestId('passkey-passwordless-sync');
+  expect(cells[0]).toHaveTextContent('No');
+  expect(cells[1]).toHaveTextContent('Yes');
+});
+
+it('shows a stale indicator with an explanation when the wrap predates a key change', () => {
+  render(
+    <Account
+      {...{
+        ...accountResponse,
+        passkeys: [
+          {
+            ...passkeyFixture,
+            hasPasswordlessSync: true,
+            passwordlessSyncStale: true,
+          },
+        ],
+      }}
+    />
+  );
+
+  const cell = screen.getByTestId('passkey-passwordless-sync');
+  expect(cell).toHaveTextContent('Stale');
+  expect(cell.querySelector('[title]')).toHaveAttribute(
+    'title',
+    expect.stringContaining('keys changed')
+  );
+});
+
+it('still offers Remove sync for a stale wrap', () => {
+  const allowSpy = jest
+    .spyOn(AdminPanelGuard.prototype, 'allow')
+    .mockReturnValue(true);
+  try {
+    render(
+      <Account
+        {...{
+          ...accountResponse,
+          passkeys: [
+            {
+              ...passkeyFixture,
+              hasPasswordlessSync: true,
+              passwordlessSyncStale: true,
+            },
+          ],
+        }}
+      />
+    );
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Remove passwordless sync for passkey iPhone Face ID',
+      })
+    ).toBeInTheDocument();
+  } finally {
+    allowSpy.mockRestore();
+  }
+});
+
+it('hides the passkey action explanations from a support agent', () => {
+  render(<Account {...{ ...accountResponse, passkeys: [passkeyFixture] }} />);
+
+  expect(screen.queryByTestId('passkeys-note')).not.toBeInTheDocument();
+});
+
+it('shows the passkey action explanations to an admin', () => {
+  const allowSpy = jest
+    .spyOn(AdminPanelGuard.prototype, 'allow')
+    .mockReturnValue(true);
+  try {
+    render(<Account {...{ ...accountResponse, passkeys: [passkeyFixture] }} />);
+
+    expect(screen.getByTestId('passkeys-note')).toBeInTheDocument();
+  } finally {
+    allowSpy.mockRestore();
+  }
+});
 
 it('does not render a per-passkey remove button for a support agent', () => {
   // The default mocked user is a support agent; RemovePasskeys is Admin-only.
@@ -348,7 +461,7 @@ it('removes a single passkey by credentialId when an admin confirms', async () =
     );
 
     expect(confirmSpy).toHaveBeenCalledWith(
-      'Remove the passkey "iPhone Face ID" for "hey@happy.com"? This cannot be undone.'
+      'Remove the passkey "iPhone Face ID" for "hey@happy.com"? This also removes its passwordless sync access. This cannot be undone.'
     );
 
     await waitFor(() => {
@@ -475,7 +588,7 @@ it('shows "no authorizations" message when authorizations list is empty', () => 
   expect(getByTestId('account-authorizations-none')).toBeInTheDocument();
 });
 
-it('displays authorized browser services', () => {
+it('collapses authorized browser services until the summary is clicked', async () => {
   const withAuthorizations = {
     ...accountResponse,
     accountAuthorizations: [
@@ -485,6 +598,7 @@ it('displays authorized browser services', () => {
         clientId: '5882386c6d801776',
         firstAuthorizedTosAt: 1589467100316,
         lastAuthorizedTosAt: 1589467100316,
+        deauthorizedAt: null,
       },
       {
         service: 'relay',
@@ -492,17 +606,27 @@ it('displays authorized browser services', () => {
         clientId: '9ebfe2c2f9ea3c58',
         firstAuthorizedTosAt: 1589467200000,
         lastAuthorizedTosAt: 1589467200000,
+        deauthorizedAt: null,
       },
     ],
   };
-  const { getAllByTestId, getByRole } = render(
-    <Account {...withAuthorizations} />
+  const user = userEvent.setup();
+  const { getByRole } = render(<Account {...withAuthorizations} />);
+
+  const sync = getByRole('cell', { name: 'sync' });
+  expect(getByRole('cell', { name: 'relay' })).toBeInTheDocument();
+  expect(sync).not.toBeVisible();
+
+  await user.click(
+    getByRole('heading', { name: /authorized browser services/i })
   );
 
-  expect(
-    getByRole('heading', { name: /authorized browser services/i })
-  ).toBeInTheDocument();
-  expect(getAllByTestId('account-authorization-service')).toHaveLength(2);
+  expect(sync).toBeVisible();
+});
+
+it('notes the date from which Sync authorization rows are accurate', () => {
+  render(<Account {...accountResponse} />);
+  expect(screen.getByText(/on or after Aug 19, 2026/)).toBeInTheDocument();
 });
 
 it('displays key-stretch-version', async () => {
@@ -604,6 +728,338 @@ describe('account history', () => {
     // The empty cell must stay, or the row loses a column.
     expect(
       getByText('event-0').closest('tr')?.querySelectorAll('td')
-    ).toHaveLength(4);
+    ).toHaveLength(5);
   });
+
+  // The column sits between IP and Additional Info.
+  const VERIFIED_CELL_INDEX = 3;
+
+  const renderVerifiedCell = (verified?: boolean | null) => {
+    const [securityEvent] = buildSecurityEvents(1);
+    const { getByText } = render(
+      <Account
+        {...accountResponse}
+        securityEvents={[{ ...securityEvent, verified }]}
+      />
+    );
+    return getByText('event-0').closest('tr')?.querySelectorAll('td')[
+      VERIFIED_CELL_INDEX
+    ];
+  };
+
+  it('explains the verified column once the help is opened', async () => {
+    const user = userEvent.setup();
+    const { getByText } = render(
+      <Account {...accountResponse} securityEvents={buildSecurityEvents(1)} />
+    );
+    const explanation = getByText(
+      /already deleted when the event was recorded/
+    );
+
+    expect(explanation).not.toBeVisible();
+
+    await user.click(getByText('What does Verified mean?'));
+
+    expect(explanation).toBeVisible();
+    expect(getByText(/still needs verification/)).toBeVisible();
+    expect(getByText(/legacy row/)).toBeVisible();
+  });
+
+  it('labels the verified column', () => {
+    const { getByRole } = render(
+      <Account {...accountResponse} securityEvents={buildSecurityEvents(1)} />
+    );
+
+    expect(getByRole('columnheader', { name: 'Verified' })).toBeInTheDocument();
+  });
+
+  it.each([
+    { verified: true, expected: 'Yes' },
+    { verified: false, expected: 'No' },
+    { verified: undefined, expected: '\u2014' },
+    { verified: null, expected: '\u2014' },
+  ])('shows $expected when verified is $verified', ({ verified, expected }) => {
+    expect(renderVerifiedCell(verified)).toHaveTextContent(expected);
+  });
+});
+
+const wrappedPasskeyFixture = {
+  ...passkeyFixture,
+  credentialId: 'awrappedcredentialid',
+  prfEnabled: true,
+  hasPasswordlessSync: true,
+  passwordlessSyncStale: false,
+};
+
+it('does not render a remove passwordless sync button for a support agent', () => {
+  render(
+    <Account {...{ ...accountResponse, passkeys: [wrappedPasskeyFixture] }} />
+  );
+
+  expect(
+    screen.queryByRole('button', { name: /remove passwordless sync/i })
+  ).not.toBeInTheDocument();
+});
+
+it('does not render a remove passwordless sync button when the passkey has no wrap', () => {
+  const allowSpy = jest
+    .spyOn(AdminPanelGuard.prototype, 'allow')
+    .mockReturnValue(true);
+  try {
+    render(<Account {...{ ...accountResponse, passkeys: [passkeyFixture] }} />);
+
+    expect(
+      screen.queryByRole('button', { name: /remove passwordless sync/i })
+    ).not.toBeInTheDocument();
+  } finally {
+    allowSpy.mockRestore();
+  }
+});
+
+it('removes the wrap but not the passkey when an admin confirms', async () => {
+  const allowSpy = jest
+    .spyOn(AdminPanelGuard.prototype, 'allow')
+    .mockReturnValue(true);
+  const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+  const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+  (adminApi.removePasskeyWrap as jest.Mock).mockResolvedValue(true);
+  const onCleared = jest.fn();
+
+  try {
+    const user = userEvent.setup();
+    render(
+      <Account
+        {...{
+          ...accountResponse,
+          onCleared,
+          passkeys: [wrappedPasskeyFixture],
+        }}
+      />
+    );
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Remove passwordless sync for passkey iPhone Face ID',
+      })
+    );
+
+    expect(confirmSpy).toHaveBeenCalledWith(
+      'Remove passwordless sync for the passkey "iPhone Face ID" on "hey@happy.com"? The passkey stays and still signs in; the user will need their password to unlock sync.'
+    );
+
+    await waitFor(() => {
+      expect(adminApi.removePasskeyWrap).toHaveBeenCalledWith(
+        accountResponse.uid,
+        'awrappedcredentialid'
+      );
+      expect(alertSpy).toHaveBeenCalledWith(
+        'Passwordless sync has been removed for this passkey.'
+      );
+      expect(onCleared).toHaveBeenCalled();
+    });
+    expect(adminApi.removePasskey).not.toHaveBeenCalled();
+  } finally {
+    allowSpy.mockRestore();
+    confirmSpy.mockRestore();
+    alertSpy.mockRestore();
+  }
+});
+
+it('does nothing when the admin cancels the passwordless sync removal', async () => {
+  const allowSpy = jest
+    .spyOn(AdminPanelGuard.prototype, 'allow')
+    .mockReturnValue(true);
+  const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(false);
+
+  try {
+    const user = userEvent.setup();
+    render(
+      <Account {...{ ...accountResponse, passkeys: [wrappedPasskeyFixture] }} />
+    );
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Remove passwordless sync for passkey iPhone Face ID',
+      })
+    );
+
+    expect(adminApi.removePasskeyWrap).not.toHaveBeenCalled();
+  } finally {
+    allowSpy.mockRestore();
+    confirmSpy.mockRestore();
+  }
+});
+
+it('does not clear when no wrap was removed', async () => {
+  const allowSpy = jest
+    .spyOn(AdminPanelGuard.prototype, 'allow')
+    .mockReturnValue(true);
+  const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+  const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+  (adminApi.removePasskeyWrap as jest.Mock).mockResolvedValue(false);
+  const onCleared = jest.fn();
+
+  try {
+    const user = userEvent.setup();
+    render(
+      <Account
+        {...{
+          ...accountResponse,
+          onCleared,
+          passkeys: [wrappedPasskeyFixture],
+        }}
+      />
+    );
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Remove passwordless sync for passkey iPhone Face ID',
+      })
+    );
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith(
+        'This passkey has no passwordless sync to remove.'
+      );
+    });
+    expect(onCleared).not.toHaveBeenCalled();
+  } finally {
+    allowSpy.mockRestore();
+    confirmSpy.mockRestore();
+    alertSpy.mockRestore();
+  }
+});
+
+it('targets the clicked passkey wrap by its own credentialId with multiple passkeys', async () => {
+  const allowSpy = jest
+    .spyOn(AdminPanelGuard.prototype, 'allow')
+    .mockReturnValue(true);
+  const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+  const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+  (adminApi.removePasskeyWrap as jest.Mock).mockResolvedValue(true);
+
+  try {
+    const user = userEvent.setup();
+    render(
+      <Account
+        {...{
+          ...accountResponse,
+          passkeys: [
+            wrappedPasskeyFixture,
+            {
+              ...wrappedPasskeyFixture,
+              name: 'YubiKey 5',
+              credentialId: 'ayubikeycredentialid',
+            },
+          ],
+        }}
+      />
+    );
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Remove passwordless sync for passkey YubiKey 5',
+      })
+    );
+
+    await waitFor(() => {
+      expect(adminApi.removePasskeyWrap).toHaveBeenCalledWith(
+        accountResponse.uid,
+        'ayubikeycredentialid'
+      );
+    });
+    expect(adminApi.removePasskeyWrap).toHaveBeenCalledTimes(1);
+  } finally {
+    allowSpy.mockRestore();
+    confirmSpy.mockRestore();
+    alertSpy.mockRestore();
+  }
+});
+
+it('alerts and does not clear when the passwordless sync removal fails', async () => {
+  const allowSpy = jest
+    .spyOn(AdminPanelGuard.prototype, 'allow')
+    .mockReturnValue(true);
+  const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+  const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+  (adminApi.removePasskeyWrap as jest.Mock).mockRejectedValue(
+    new Error('boom')
+  );
+  const onCleared = jest.fn();
+
+  try {
+    const user = userEvent.setup();
+    render(
+      <Account
+        {...{
+          ...accountResponse,
+          onCleared,
+          passkeys: [wrappedPasskeyFixture],
+        }}
+      />
+    );
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Remove passwordless sync for passkey iPhone Face ID',
+      })
+    );
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith(
+        'Error removing passwordless sync.'
+      );
+    });
+    expect(onCleared).not.toHaveBeenCalled();
+  } finally {
+    allowSpy.mockRestore();
+    confirmSpy.mockRestore();
+    alertSpy.mockRestore();
+  }
+});
+
+it('hides Remove sync for an admin without the RemovePasskeyWrap feature', () => {
+  const allowSpy = jest
+    .spyOn(AdminPanelGuard.prototype, 'allow')
+    .mockImplementation(
+      (feature) => feature !== AdminPanelFeature.RemovePasskeyWrap
+    );
+  try {
+    render(
+      <Account {...{ ...accountResponse, passkeys: [wrappedPasskeyFixture] }} />
+    );
+
+    expect(
+      screen.getByRole('button', { name: 'Remove passkey iPhone Face ID' })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /remove passwordless sync/i })
+    ).not.toBeInTheDocument();
+  } finally {
+    allowSpy.mockRestore();
+  }
+});
+
+it('hides Remove passkey for an admin without the RemovePasskeys feature', () => {
+  const allowSpy = jest
+    .spyOn(AdminPanelGuard.prototype, 'allow')
+    .mockImplementation(
+      (feature) => feature !== AdminPanelFeature.RemovePasskeys
+    );
+  try {
+    render(
+      <Account {...{ ...accountResponse, passkeys: [wrappedPasskeyFixture] }} />
+    );
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Remove passwordless sync for passkey iPhone Face ID',
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /remove passkey/i })
+    ).not.toBeInTheDocument();
+  } finally {
+    allowSpy.mockRestore();
+  }
 });

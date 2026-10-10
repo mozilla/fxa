@@ -15,6 +15,8 @@ const MOCK_TARGET =
   'https://accounts.firefox.com/pair#channel_id=chan-1&channel_key=key-1&v=2';
 const MOCK_OTHER_TARGET =
   'https://accounts.firefox.com/pair#channel_id=chan-2&channel_key=key-2&v=2';
+const MOCK_HINT_URL =
+  'https://accounts.firefox.com/pair/supplicant/connect_hint';
 const MOCK_KEY = `${HANDOFF_ATTEMPT_KEY_PREFIX}${MOCK_TARGET}`;
 const MOCK_STORE_LINKS: StoreLinks = {
   ios: 'https://apps.apple.com/app/firefox/id989804926',
@@ -33,13 +35,17 @@ function createStorage(seed: Record<string, string> = {}) {
   };
 }
 
+/** iOS rolled out, so the pair URL is the target; the hint has its own tests. */
 const plan = (device: Devices, storage = createStorage()) =>
   planPairingHandoff({
     device,
     targetUrl: MOCK_TARGET,
+    hintUrl: MOCK_HINT_URL,
     storeLinks: MOCK_STORE_LINKS,
     storage,
     build: 'firefox',
+    iosHandoff: true,
+    iosScheme: 'firefox',
   });
 
 describe('planPairingHandoff', () => {
@@ -59,18 +65,33 @@ describe('planPairingHandoff', () => {
       planPairingHandoff({
         device: Devices.OTHER_IOS,
         targetUrl: '',
+        hintUrl: MOCK_HINT_URL,
         storeLinks: MOCK_STORE_LINKS,
         build: 'firefox',
+        iosScheme: 'firefox',
       })
     ).toEqual({ kind: 'none' });
   });
 
   describe('on a non-Firefox iOS browser', () => {
+    const iosPlan = (overrides: { iosHandoff?: boolean; isSafari?: boolean }) =>
+      planPairingHandoff({
+        device: Devices.OTHER_IOS,
+        targetUrl: MOCK_TARGET,
+        hintUrl: MOCK_HINT_URL,
+        storeLinks: MOCK_STORE_LINKS,
+        storage: createStorage(),
+        build: 'firefox',
+        iosScheme: 'firefox',
+        ...overrides,
+      });
+
     it('opens the target through the Firefox custom scheme', () => {
       expect(plan(Devices.OTHER_IOS)).toEqual({
         kind: 'ios',
         deepLink: `firefox://open-url?url=${encodeURIComponent(MOCK_TARGET)}`,
         storeUrl: MOCK_STORE_LINKS.ios,
+        browser: 'other',
       });
     });
 
@@ -80,6 +101,35 @@ describe('planPairingHandoff', () => {
       const { deepLink } = plan(Devices.OTHER_IOS) as { deepLink: string };
       const url = new URL(deepLink.replace('firefox://', 'https://'));
       expect(url.searchParams.get('url')).toBe(MOCK_TARGET);
+    });
+
+    // Firefox iOS cannot finish a pairing it did not start until the rollout
+    // reaches it, so the link opens the page that says to rescan in the app.
+    it('opens the connect hint while the Firefox app cannot act on the target', () => {
+      expect(iosPlan({ iosHandoff: false })).toEqual({
+        kind: 'ios',
+        deepLink: `firefox://open-url?url=${encodeURIComponent(MOCK_HINT_URL)}`,
+        storeUrl: MOCK_STORE_LINKS.ios,
+        browser: 'other',
+      });
+    });
+
+    it('opens the connect hint by default', () => {
+      const { deepLink } = iosPlan({}) as { deepLink: string };
+      expect(deepLink).toContain(encodeURIComponent(MOCK_HINT_URL));
+      expect(deepLink).not.toContain('channel_key');
+    });
+
+    it('marks the plan as Safari when the caller says so', () => {
+      expect(iosPlan({ isSafari: true })).toEqual(
+        expect.objectContaining({ kind: 'ios', browser: 'safari' })
+      );
+    });
+
+    it('marks the plan as another browser by default', () => {
+      expect(iosPlan({})).toEqual(
+        expect.objectContaining({ kind: 'ios', browser: 'other' })
+      );
     });
   });
 
@@ -99,24 +149,16 @@ describe('planPairingHandoff', () => {
       });
     });
 
-    // Every Firefox iOS flavour registers `firefox`, so a release install and a
-    // local build both answer it. The scheme is the only way to pin which one.
-    it('defaults the iOS deep link to the release scheme', () => {
-      const { deepLink } = plan(Devices.OTHER_IOS) as { deepLink: string };
-
-      expect(deepLink).toBe(
-        `firefox://open-url?url=${encodeURIComponent(MOCK_TARGET)}`
-      );
-    });
-
     it('opens a build-specific iOS scheme when one is configured', () => {
       const { deepLink } = planPairingHandoff({
         device: Devices.OTHER_IOS,
         targetUrl: MOCK_TARGET,
+        hintUrl: MOCK_HINT_URL,
         storeLinks: MOCK_STORE_LINKS,
         storage: createStorage(),
         build: 'firefox',
         iosScheme: 'fennec',
+        iosHandoff: true,
       }) as { deepLink: string };
 
       expect(deepLink).toBe(
@@ -134,9 +176,11 @@ describe('planPairingHandoff', () => {
       const { deepLink } = planPairingHandoff({
         device: Devices.OTHER_ANDROID,
         targetUrl: MOCK_TARGET,
+        hintUrl: MOCK_HINT_URL,
         storeLinks,
         storage: createStorage(),
         build: 'firefox',
+        iosScheme: 'firefox',
       }) as { deepLink: string };
 
       expect(deepLink).toContain(
@@ -144,6 +188,25 @@ describe('planPairingHandoff', () => {
       );
       // The encoded fallback plus the trailing terminator, and nothing more.
       expect(deepLink.split(';end').length - 1).toBe(1);
+    });
+
+    // Firefox Android takes the pair URL itself, so the iOS rollout state and
+    // the hint page play no part here.
+    it('carries the pair URL even while the iOS hand-off is disabled', () => {
+      expect(
+        planPairingHandoff({
+          device: Devices.OTHER_ANDROID,
+          targetUrl: MOCK_TARGET,
+          hintUrl: MOCK_HINT_URL,
+          storeLinks: MOCK_STORE_LINKS,
+          storage: createStorage(),
+          build: 'firefox',
+          iosHandoff: false,
+          iosScheme: 'firefox',
+        })
+      ).toEqual(
+        expect.objectContaining({ kind: 'android', target: MOCK_TARGET })
+      );
     });
 
     it('does not auto-attempt once the token for this target is spent', () => {

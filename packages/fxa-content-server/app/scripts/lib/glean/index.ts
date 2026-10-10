@@ -14,18 +14,14 @@ import * as cadMobilePairUseApp from './cadMobilePairUseApp';
 import * as cad from './cad';
 import * as cadRedirectDesktop from './cadRedirectDesktop';
 import * as email from './email';
-import * as event from './event';
 import * as login from './login';
 import * as passwordReset from './passwordReset';
-import { accountsEvents } from './pings';
 import * as reg from './reg';
 import { oauthClientId, service } from './relyingParty';
 import { deviceType, entrypoint, flowId } from './session';
 import * as thirdPartyAuth from './thirdPartyAuth';
-import * as thirdPartyAuthSetPassword from './thirdPartyAuthSetPassword';
 import * as utm from './utm';
 import * as entrypointQuery from './entrypoint';
-import { appFramework } from './event';
 
 export type GleanMetricsConfig = {
   enabled: boolean;
@@ -121,15 +117,6 @@ const initMetrics = async () => {
 
   entrypointQuery.experiment.set(flowEventMetadata.entrypointExperiment || '');
   entrypointQuery.variation.set(flowEventMetadata.entrypointVariation || '');
-
-  appFramework.set('backbone');
-};
-
-const populateMetrics = async (properties: EventProperties = {}) => {
-  await initMetrics();
-  for (const n of eventPropertyNames) {
-    event[n].set(properties[n] || '');
-  }
 };
 
 const recordEventMetric = (eventName: string, properties: EventProperties) => {
@@ -309,18 +296,6 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
     case 'cad_startbrowsing_submit':
       cad.startbrowsingSubmit.record();
       break;
-    case 'third_party_auth_set_password_view':
-      thirdPartyAuthSetPassword.view.record();
-      break;
-    case 'third_party_auth_set_password_engage':
-      thirdPartyAuthSetPassword.engage.record();
-      break;
-    case 'third_party_auth_set_password_submit':
-      thirdPartyAuthSetPassword.submit.record();
-      break;
-    case 'third_party_auth_set_password_success':
-      thirdPartyAuthSetPassword.success.record();
-      break;
     case 'third_party_auth_google_deeplink':
       thirdPartyAuth.googleDeeplink.record();
       break;
@@ -338,13 +313,10 @@ const createEventFn =
     }
 
     const fn = async () => {
-      event.name.set(eventName);
-      await populateMetrics(properties);
+      await initMetrics();
 
       // recording the event metric triggers the event ping because Glean is initialized with `maxEvents: 1`
       recordEventMetric(eventName, properties);
-
-      accountsEvents.submit();
     };
 
     submitPing(fn);
@@ -488,12 +460,6 @@ export const GleanMetrics = {
   },
   cadRedirectMobile: {
     view: createEventFn('cad_redirect_mobile_view'),
-  },
-  setPasswordThirdPartyAuth: {
-    view: createEventFn('third_party_auth_set_password_view'),
-    engage: createEventFn('third_party_auth_set_password_engage'),
-    submit: createEventFn('third_party_auth_set_password_submit'),
-    success: createEventFn('third_party_auth_set_password_success'),
   },
   thirdPartyAuth: {
     googleDeeplink: createEventFn('third_party_auth_google_deeplink'),

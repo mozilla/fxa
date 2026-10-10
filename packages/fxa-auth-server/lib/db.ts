@@ -83,6 +83,11 @@ export const createDB = (
   const { enabled: TOKEN_PRUNING_ENABLED, maxAge: TOKEN_PRUNING_MAX_AGE } =
     config.tokenPruning;
 
+  // Configure the shared model's expiry from the server's config
+  if (MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE) {
+    RawSessionToken.sessionExpiryMs = MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE;
+  }
+
   class DB {
     redis: any;
     knex: Knex | null;
@@ -156,21 +161,27 @@ export const createDB = (
       }
     }
 
+    // Every sign-in and reset path ends by creating one of the tokens below,
+    // so refusing here blocks a disabled account whichever route it came
+    // through. Existing sessions are rejected at lookup instead (server.js).
+    private async assertAccountEnabled(uid: string) {
+      if (await this.accountDisabledAt(uid)) {
+        throw error.accountDisabled();
+      }
+    }
+
     async createSessionToken(authToken: any) {
       const { uid } = authToken;
 
       log.trace('DB.createSessionToken', { uid });
+      await this.assertAccountEnabled(uid);
 
       const sessionToken = await SessionToken.create(authToken);
 
       const { id } = sessionToken;
 
       // Ensure there are no clashes with zombie tokens left behind in Redis
-      try {
-        await this.deleteSessionTokenFromRedis(uid, id);
-      } catch (unusedErr) {
-        // Ignore errors deleting the token.
-      }
+      await this.deleteSessionTokenFromRedis(uid, id);
       await RawSessionToken.create(sessionToken);
 
       this.metrics?.increment('db.sessionToken.created');
@@ -181,6 +192,7 @@ export const createDB = (
       const { uid } = authToken;
 
       log.trace('DB.createPasskeyVerifiedSessionToken', { uid });
+      await this.assertAccountEnabled(uid);
 
       const verifiedAt = Date.now();
       const sessionToken = await SessionToken.create({
@@ -194,11 +206,7 @@ export const createDB = (
       const { id } = sessionToken;
 
       // Ensure there are no clashes with zombie tokens left behind in Redis
-      try {
-        await this.deleteSessionTokenFromRedis(uid, id);
-      } catch (unusedErr) {
-        // Ignore errors deleting the token.
-      }
+      await this.deleteSessionTokenFromRedis(uid, id);
       await RawSessionToken.createVerified(sessionToken);
 
       this.metrics?.increment('db.sessionToken.created', { method: 'passkey' });
@@ -207,6 +215,7 @@ export const createDB = (
 
     async createKeyFetchToken(authToken: any) {
       log.trace('DB.createKeyFetchToken', { uid: authToken && authToken.uid });
+      await this.assertAccountEnabled(authToken.uid);
       const keyFetchToken = await KeyFetchToken.create(authToken);
       await RawKeyFetchToken.create(keyFetchToken);
       this.metrics?.increment('db.keyFetchToken.created');
@@ -217,6 +226,7 @@ export const createDB = (
       log.trace('DB.createPasswordForgotToken', {
         uid: emailRecord && emailRecord.uid,
       });
+      await this.assertAccountEnabled(emailRecord.uid);
       const passwordForgotToken = await PasswordForgotToken.create(emailRecord);
       await RawPasswordForgotToken.create(passwordForgotToken);
       this.metrics?.increment('db.passwordForgotToken.created');
@@ -225,6 +235,7 @@ export const createDB = (
 
     async createPasswordChangeToken(data: any) {
       log.trace('DB.createPasswordChangeToken', { uid: data.uid });
+      await this.assertAccountEnabled(data.uid);
       const passwordChangeToken = await PasswordChangeToken.create(data);
       await RawPasswordChangeToken.create(passwordChangeToken);
       this.metrics?.increment('db.passwordChangeToken.created');
@@ -425,6 +436,19 @@ export const createDB = (
       }
       this.metrics?.increment('db.account.retrieve', { result: 'success' });
       return account;
+    }
+
+    /**
+     * Single-column read for hot paths that only need to know whether the
+     * account is disabled.
+     */
+    async accountDisabledAt(uid: string): Promise<number | null> {
+      log.trace('DB.accountDisabledAt', { uid });
+      const row = await Account.query()
+        .select('disabledAt')
+        .where('uid', uuidTransformer.to(uid))
+        .first();
+      return row?.disabledAt ?? null;
     }
 
     async deletedAccount(uid: string): Promise<DeletedAccount> {
@@ -1066,6 +1090,7 @@ export const createDB = (
     }) {
       const { id, uid, verificationMethod } = passwordForgotToken;
       log.trace('DB.forgotPasswordVerified', { uid });
+      await this.assertAccountEnabled(uid);
       const accountResetToken = await AccountResetToken.create({
         uid,
         verificationMethod,
@@ -1175,6 +1200,7 @@ export const createDB = (
         throw new Error('Unblock has not been configured');
       }
       log.trace('DB.createUnblockCode', { uid });
+      await this.assertAccountEnabled(uid);
       const code = await UnblockCode();
       try {
         await Account.createUnblockCode(uid, code);
@@ -1548,7 +1574,13 @@ export const createDB = (
         return;
       }
 
-      return this.redis.pruneSessionTokens(uid, [id]);
+      try {
+        await this.redis.pruneSessionTokens(uid, [id]);
+      } catch (err) {
+        // Redis cleanup is best-effort; sessions() ignores Redis entries without a MySQL token.
+        log.error('DB.deleteSessionTokenFromRedis', { uid, err });
+        this.metrics?.increment('db.sessionToken.redisPruneFailed');
+      }
     }
   }
 

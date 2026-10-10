@@ -32,9 +32,7 @@ jest.mock('../../models', () => ({
 
 const JWT = 'test-jwt';
 const SESSION_TOKEN = MOCK_SIGNIN_LOCATION_STATE.sessionToken;
-const metricsContext = queryParamsToMetricsContext(
-  MOCK_QUERY_PARAMS as unknown as Record<string, string>
-);
+const metricsContext = queryParamsToMetricsContext(MOCK_QUERY_PARAMS);
 
 const navTo = jest.fn();
 const onBackButtonClick = jest.fn();

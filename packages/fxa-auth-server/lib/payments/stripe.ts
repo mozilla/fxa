@@ -46,9 +46,6 @@ import {
   AbbrevPlan,
   AbbrevProduct,
   MozillaSubscriptionTypes,
-  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
-  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
-  PaypalPaymentError,
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
 import { StatsD } from 'hot-shots';
@@ -146,13 +143,6 @@ export type BillingAddressOptions = {
   line2: string;
   postalCode: string;
   state: string;
-};
-
-export type PaymentBillingDetails = Awaited<
-  ReturnType<StripeHelper['extractBillingDetails']> // eslint-disable-line no-use-before-define
-> & {
-  paypal_payment_error?: PaypalPaymentError;
-  billing_agreement_id?: string;
 };
 
 // The countries we need region data for
@@ -1046,7 +1036,7 @@ export class StripeHelper extends StripeHelperBase {
 
   async getPaymentProvider(
     customer: Stripe.Customer,
-    paymentIntentId?: string
+    paymentIntentRef?: string | Stripe.PaymentIntent
   ): Promise<SubPlatPaymentMethodType | 'paypal' | 'not_chosen'> {
     const subscription = customer.subscriptions?.data.find((sub) =>
       ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)
@@ -1060,9 +1050,13 @@ export class StripeHelper extends StripeHelperBase {
 
     let paymentMethod: Stripe.PaymentMethod | null = null;
 
-    if (paymentIntentId) {
+    if (paymentIntentRef) {
+      // Callers that already resolved the payment intent pass the object, so
+      // only a bare id costs a lookup.
       const paymentIntent =
-        await this.stripe.paymentIntents.retrieve(paymentIntentId);
+        typeof paymentIntentRef === 'string'
+          ? await this.stripe.paymentIntents.retrieve(paymentIntentRef)
+          : paymentIntentRef;
       paymentMethod = await this.getPaymentMethod(
         paymentIntent.payment_method as string
       );
@@ -1072,15 +1066,11 @@ export class StripeHelper extends StripeHelperBase {
         { expand: ['payments'] }
       );
 
-      const invoicePaymentIntent = invoice.payments?.data[0]?.payment
-        .payment_intent;
-      if (
-        invoicePaymentIntent &&
-        typeof invoicePaymentIntent === 'string'
-      ) {
-        const paymentIntent = await this.stripe.paymentIntents.retrieve(
-          invoicePaymentIntent
-        );
+      const invoicePaymentIntent =
+        invoice.payments?.data[0]?.payment.payment_intent;
+      if (invoicePaymentIntent && typeof invoicePaymentIntent === 'string') {
+        const paymentIntent =
+          await this.stripe.paymentIntents.retrieve(invoicePaymentIntent);
         if (paymentIntent.payment_method) {
           paymentMethod = await this.getPaymentMethod(
             paymentIntent.payment_method as string
@@ -1109,19 +1099,6 @@ export class StripeHelper extends StripeHelperBase {
   }
 
   /**
-   * Returns whether or not the customer has any active subscriptions that
-   * are require a payment method on file (not marked to be cancelled).
-   */
-  hasSubscriptionRequiringPaymentMethod(customer: Stripe.Customer) {
-    const subscription = customer.subscriptions?.data.find(
-      (sub) =>
-        ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status) &&
-        !sub.cancel_at_period_end
-    );
-    return !!subscription;
-  }
-
-  /**
    * Returns true if the FxA account with uid has an active subscription.
    */
   async hasActiveSubscription(uid: string): Promise<boolean> {
@@ -1137,44 +1114,6 @@ export class StripeHelper extends StripeHelperBase {
       ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)
     );
     return !!subscription;
-  }
-
-  /**
-   * Fetches all latest invoices for all active subscriptions.
-   */
-  async getLatestInvoicesForActiveSubscriptions(
-    customer: Stripe.Customer
-  ): Promise<Stripe.Invoice[]> {
-    const invoices = customer.subscriptions?.data
-      .filter((sub) => ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status))
-      .map((sub) => sub.latest_invoice)
-      .filter(
-        (invoice): invoice is Stripe.Invoice | 'string' => invoice !== null
-      );
-    if (!invoices?.length) {
-      return [];
-    }
-    return Promise.all(
-      invoices.map((invoice) =>
-        this.expandResource<Stripe.Invoice>(invoice, INVOICES_RESOURCE)
-      )
-    );
-  }
-
-  /**
-   * Returns whether or not any of the invoices for the customer are open (payment
-   * has not been processed) and have any payment attempts.
-   */
-  async hasOpenInvoiceWithPaymentAttempts(customer: Stripe.Customer) {
-    const invoices =
-      await this.getLatestInvoicesForActiveSubscriptions(customer);
-    if (!invoices?.length) {
-      return false;
-    }
-    return invoices.some(
-      (invoice) =>
-        invoice.status === 'open' && this.getPaymentAttempts(invoice) > 0
-    );
   }
 
   /**
@@ -1619,110 +1558,6 @@ export class StripeHelper extends StripeHelperBase {
     return null;
   }
 
-  async getBillingDetailsAndSubscriptions(uid: string) {
-    const customer = await this.fetchCustomer(uid, [
-      'invoice_settings.default_payment_method',
-    ]);
-
-    if (!customer) {
-      return null;
-    }
-
-    const billingDetails = await this.extractBillingDetails(customer);
-    const detailsAndSubs: {
-      customerId: string;
-      customerCurrency: string | null | undefined;
-      subscriptions: WebSubscription[];
-    } & PaymentBillingDetails = {
-      customerId: customer.id,
-      customerCurrency: customer.currency,
-      subscriptions: [],
-      ...billingDetails,
-    };
-
-    if (detailsAndSubs.payment_provider === 'paypal') {
-      detailsAndSubs.billing_agreement_id =
-        this.getCustomerPaypalAgreement(customer);
-    }
-
-    if (
-      detailsAndSubs.payment_provider === 'paypal' &&
-      this.hasSubscriptionRequiringPaymentMethod(customer)
-    ) {
-      if (!this.getCustomerPaypalAgreement(customer)) {
-        detailsAndSubs.paypal_payment_error =
-          PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT;
-      } else if (await this.hasOpenInvoiceWithPaymentAttempts(customer)) {
-        detailsAndSubs.paypal_payment_error =
-          PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE;
-      }
-    }
-
-    if (customer.subscriptions) {
-      const activeSubscriptions = customer.subscriptions.data.filter((sub) =>
-        ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)
-      );
-
-      detailsAndSubs.subscriptions = await this.subscriptionsToResponse({
-        ...customer.subscriptions,
-        data: activeSubscriptions,
-      });
-    }
-
-    return detailsAndSubs;
-  }
-
-  /**
-   * Extracts billing details if a customer has a source on file.
-   */
-  async extractBillingDetails(customer: Stripe.Customer) {
-    const defaultPayment = customer.invoice_settings.default_payment_method;
-    const paymentProvider = await this.getPaymentProvider(customer);
-
-    if (defaultPayment) {
-      if (typeof defaultPayment === 'string') {
-        // This should always be expanded here.
-        throw error.backendServiceFailure('stripe', 'paymentExpansion');
-      }
-
-      if (defaultPayment.card) {
-        return {
-          billing_name: defaultPayment.billing_details.name,
-          payment_provider: paymentProvider,
-          payment_type: defaultPayment.card.funding,
-          last4: defaultPayment.card.last4,
-          exp_month: defaultPayment.card.exp_month,
-          exp_year: defaultPayment.card.exp_year,
-          brand: defaultPayment.card.brand,
-        };
-      }
-    }
-    if (customer.default_source) {
-      const paymentMethod = await this.expandResource<Stripe.PaymentMethod>(
-        // CustomerSource doesn't quite overlap with PaymentMethod, but in our
-        // situation, the missing type isn't one we let our customers use.
-        customer.default_source as unknown as Stripe.PaymentMethod,
-        PAYMENT_METHOD_RESOURCE
-      );
-      if (!paymentMethod.card)
-        throw new Error('Card must be present on payment method');
-      const { brand, exp_month, exp_year, funding, last4 } = paymentMethod.card;
-      return {
-        billing_name: customer.name,
-        payment_provider: paymentProvider,
-        payment_type: funding,
-        last4,
-        exp_month,
-        exp_year,
-        brand,
-      };
-    }
-
-    return {
-      payment_provider: paymentProvider,
-    };
-  }
-
   /**
    * Check if a subscription is past due
    */
@@ -1922,6 +1757,75 @@ export class StripeHelper extends StripeHelperBase {
   }
 
   /**
+   * Resolve an invoice's charge and payment intent.
+   *
+   * `Invoice.payments` is expansion-only, so it is absent from webhook payloads
+   * and from invoices read back out of the Firestore mirror. Stripe also only
+   * surfaces `payment.charge` when the charge has no payment intent, so for
+   * card payments the charge has to be reached through the payment intent's
+   * `latest_charge`. The top-level `charge` fallback covers acacia-era invoices
+   * that predate `payments`; remove it once none remain.
+   *
+   * Returns the payment intent expanded where it was already fetched, so the
+   * caller does not retrieve it a second time.
+   *
+   * These are one line of a billing email, so a Stripe failure here is reported
+   * and degraded rather than thrown.
+   */
+  async extractInvoicePaymentDetails(invoice: Stripe.Invoice): Promise<{
+    charge: Stripe.Charge | null;
+    paymentIntent?: string | Stripe.PaymentIntent;
+  }> {
+    const legacyCharge = (
+      invoice as Stripe.Invoice & {
+        charge?: string | Stripe.Charge | null;
+      }
+    ).charge;
+
+    let paymentIntentRef: string | Stripe.PaymentIntent | undefined;
+
+    try {
+      let payments = invoice.payments;
+      if (!payments && !legacyCharge && invoice.id) {
+        const invoiceWithPayments = await this.stripe.invoices.retrieve(
+          invoice.id,
+          { expand: ['payments.data.payment.payment_intent'] }
+        );
+        payments = invoiceWithPayments.payments;
+      }
+
+      const payment = payments?.data[0]?.payment;
+      paymentIntentRef = payment?.payment_intent ?? undefined;
+
+      let chargeRef: string | Stripe.Charge | null | undefined =
+        payment?.charge ?? legacyCharge;
+      if (!chargeRef && paymentIntentRef) {
+        if (typeof paymentIntentRef === 'string') {
+          paymentIntentRef =
+            await this.stripe.paymentIntents.retrieve(paymentIntentRef);
+        }
+        chargeRef = paymentIntentRef.latest_charge as
+          | string
+          | Stripe.Charge
+          | null
+          | undefined;
+      }
+
+      const charge = chargeRef
+        ? await this.expandResource<Stripe.Charge>(chargeRef, CHARGES_RESOURCE)
+        : null;
+
+      return { charge, paymentIntent: paymentIntentRef };
+    } catch (error) {
+      Sentry.withScope((scope) => {
+        scope.setContext('stripeInvoice', { invoice: { id: invoice.id } });
+        reportSentryError(error);
+      });
+      return { charge: null, paymentIntent: paymentIntentRef };
+    }
+  }
+
+  /**
    * Extract invoice details for billing emails.
    *
    * Note that this function throws an error in the following cases:
@@ -1983,22 +1887,20 @@ export class StripeHelper extends StripeHelperBase {
         new Error(`Unexpected line item: ${invoice.lines.data[0].id}`)
       );
     }
-    const plan = await this.expandResource<Stripe.Plan>(
-      priceId,
-      PLAN_RESOURCE
-    );
-    const [abbrevProduct, charge] = await Promise.all([
+    const plan = await this.expandResource<Stripe.Plan>(priceId, PLAN_RESOURCE);
+    const [abbrevProduct, invoicePayment] = await Promise.all([
       this.expandAbbrevProductForPlan(plan),
-      this.expandResource(
-        invoice.payments?.data[0]?.payment.charge,
-        CHARGES_RESOURCE
-      ),
+      this.extractInvoicePaymentDetails(invoice),
     ]);
 
     let discountType: Stripe.Coupon.Duration | null = null;
     let discountDuration: number | null = null;
 
-    if (invoice.id && !!invoice.discounts?.length && invoice.discounts.length === 1) {
+    if (
+      invoice.id &&
+      !!invoice.discounts?.length &&
+      invoice.discounts.length === 1
+    ) {
       // The discount, or its coupon, may arrive as an id, in which case expand it.
       let discount = invoice.discounts[0];
       if (discountsNeedExpansion(invoice.discounts)) {
@@ -2129,17 +2031,12 @@ export class StripeHelper extends StripeHelperBase {
     const planSuccessActionButtonURL = successActionButtonURL || '';
 
     const { lastFour, cardType } = this.extractCardDetails({
-      charge: charge ?? null,
+      charge: invoicePayment.charge,
     });
 
-    const paymentIntentRef = invoice.payments?.data[0]?.payment.payment_intent;
-    const paymentIntent =
-      typeof paymentIntentRef === 'string'
-        ? paymentIntentRef
-        : paymentIntentRef?.id;
     const payment_provider = await this.getPaymentProvider(
       customer,
-      paymentIntent
+      invoicePayment.paymentIntent
     );
 
     const subscription = getInvoiceSubscription(invoice);

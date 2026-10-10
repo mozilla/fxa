@@ -16,6 +16,7 @@ import { RemoteMetadata } from '../types';
 import UAParser from 'ua-parser-js';
 import { toGenericOSName } from '../utilities';
 import { base64urlToBytes, bytesToBase64url } from '../base64url';
+import { ResumableWebSocket } from './resumable-websocket';
 
 // Types
 
@@ -70,10 +71,9 @@ export type PairingChannelV2SupplicantRequestMessage = {
   code_challenge: string;
   code_challenge_method: string;
   keys_jwk: string;
-  scope:string;
-  state:string;
-}
-
+  scope: string;
+  state: string;
+};
 
 // Error definitions matching Backbone's pairing-channel-client-errors
 export const PairingChannelErrors = {
@@ -110,6 +110,24 @@ export const PairingChannelErrors = {
 
 export type PairingChannelErrorType = keyof typeof PairingChannelErrors;
 
+/**
+ * fxa-pairing-channel opens its socket with the global WebSocket inside
+ * create() and connect(), and takes no socket option, so swap it for that call.
+ */
+function withResumableWebSocket<T>(start: () => Promise<T>): Promise<T> {
+  const NativeWebSocket = window.WebSocket;
+  window.WebSocket = class extends ResumableWebSocket {
+    constructor(url: string) {
+      super(url, NativeWebSocket);
+    }
+  } as unknown as typeof WebSocket;
+  try {
+    return start();
+  } finally {
+    window.WebSocket = NativeWebSocket;
+  }
+}
+
 export class PairingChannelError extends Error {
   readonly errno: number;
   constructor(type: PairingChannelErrorType) {
@@ -118,6 +136,20 @@ export class PairingChannelError extends Error {
     this.name = 'PairingChannelError';
     this.errno = def.errno;
   }
+}
+
+/**
+ * The channel server drops the socket rather than answering when the channel is
+ * gone — expired, already consumed by a completed pairing, or at its two-client
+ * limit. The same rejection covers a socket lost mid-handshake, which the
+ * supplicant's mobile webview hits on any network change or backgrounding.
+ * fxa-pairing-channel raises a bare Error for all of it, so the message is the
+ * only signal to match on.
+ */
+const CHANNEL_CLOSED_MESSAGE = 'WebSocket unexpectedly closed';
+
+function isChannelClosedError(err: unknown): boolean {
+  return err instanceof Error && err.message === CHANNEL_CLOSED_MESSAGE;
 }
 
 /**
@@ -138,11 +170,27 @@ type PairingChannelSocket = {
   removeEventListener(type: string, listener: EventListener): void;
   _channelId?: string;
   _channelKey?: Uint8Array;
+  /**
+   * fxa-pairing-channel's own handle on the socket. It is nulled out when the
+   * socket goes away, and the package's `close()` dereferences it unguarded.
+   */
+  _connection?: unknown;
+  /** True once fxa-pairing-channel has torn the WebSocket down. */
+  readonly closed?: boolean;
 };
 
 export class PairingChannelClient extends EventTarget {
   private channel: PairingChannelSocket | null = null;
   private _opening = false;
+  private unloading = false;
+
+  /**
+   * Flag for if the page is in a 'unloading' state. This is based on the
+   * page's lifecycle events.
+   */
+  get isUnloading(): boolean {
+    return this.unloading;
+  }
 
   get channelKey() {
     if (this.channel?._channelKey) {
@@ -174,24 +222,25 @@ export class PairingChannelClient extends EventTarget {
     }
 
     this._opening = true;
+    this.watchPageLifecycle();
     try {
       const { PairingChannel } = await import(
         /* webpackChunkName: "fxaPairingChannel" */
         'fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js'
       );
-      const channel = await PairingChannel.create(channelServerUri);
+      const channel = await withResumableWebSocket(() =>
+        PairingChannel.create(channelServerUri)
+      );
       this.channel = channel;
 
-      // Listeners go on before `connected` so a message that arrives in the
-      // same tick as the handshake completing is not dropped.
-      channel.addEventListener('message', this.handleMessage);
-      channel.addEventListener('error', this.handleError);
-      channel.addEventListener('close', this.handleClose);
+      this.attachChannel(channel);
 
       this.dispatchEvent(new CustomEvent('connected'));
     } catch (err) {
-      sentryMetrics.captureException(err);
-      this.dispatchEvent(new CustomEvent('error', { detail: err }));
+      if (!this.unloading) {
+        sentryMetrics.captureException(err);
+        this.dispatchEvent(new CustomEvent('error', { detail: err }));
+      }
       // Rethrow so the caller can tell a failed create from a successful one.
       // Without this the authority resolves as if it had a channel and encodes
       // `channel_id=null` into a QR code the supplicant cannot join.
@@ -221,6 +270,7 @@ export class PairingChannelClient extends EventTarget {
     }
 
     this._opening = true;
+    this.watchPageLifecycle();
     try {
       const psk = base64urlToBytes(channelKey);
 
@@ -232,21 +282,45 @@ export class PairingChannelClient extends EventTarget {
         'fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js'
       );
 
-      const channel = await FxAccountsPairingChannel.PairingChannel.connect(
-        channelServerUri,
-        channelId,
-        psk
+      const channel = await withResumableWebSocket(() =>
+        FxAccountsPairingChannel.PairingChannel.connect(
+          channelServerUri,
+          channelId,
+          psk
+        )
       );
 
       this.channel = channel;
-      this.dispatchEvent(new CustomEvent('connected'));
 
-      channel.addEventListener('message', this.handleMessage);
-      channel.addEventListener('error', this.handleError);
-      channel.addEventListener('close', this.handleClose);
+      this.attachChannel(channel);
+
+      this.dispatchEvent(new CustomEvent('connected'));
     } catch (err) {
-      sentryMetrics.captureException(err);
-      this.dispatchEvent(new CustomEvent('error', { detail: err }));
+      // A dropped socket is the channel server's normal answer for a channel it
+      // will not serve, so it carries no signal worth an exception report. The
+      // console breadcrumb keeps it visible in the trail of any real error
+      // that follows.
+      const closed = isChannelClosedError(err);
+      if (this.unloading) {
+        // The browser dropped it on the page's way out; nothing to report.
+      } else if (closed) {
+        console.warn('Pairing channel closed before it opened', channelId);
+      } else {
+        sentryMetrics.captureException(err);
+      }
+
+      // Report the closed socket under its own errno so a caller reading the
+      // error sees the same 1006 a mid-flow close produces.
+      const detail = closed
+        ? new PairingChannelError('CONNECTION_CLOSED')
+        : err;
+      if (!this.unloading) {
+        this.dispatchEvent(new CustomEvent('error', { detail }));
+      }
+
+      // Rejecting is what lets the caller drop this instance; resolving leaves
+      // a client that looks live and blocks every later reopen.
+      throw detail;
     } finally {
       this._opening = false;
     }
@@ -257,11 +331,15 @@ export class PairingChannelClient extends EventTarget {
     data: Record<string, unknown> = {}
   ): Promise<void> {
     if (!this.channel) {
-      console.warn('No pairing channel!')
+      console.warn('No pairing channel!');
       throw new PairingChannelError('NOT_CONNECTED');
     }
+    if (this.channel.closed) {
+      console.warn('Pairing channel is closed!');
+      throw new PairingChannelError('CONNECTION_CLOSED');
+    }
     if (!message) {
-      console.warn('No message!')
+      console.warn('No message!');
       throw new PairingChannelError('INVALID_OUTBOUND_MESSAGE');
     }
     console.info('Sending pairing message', message);
@@ -269,17 +347,25 @@ export class PairingChannelClient extends EventTarget {
   }
 
   async close(): Promise<void> {
+    this.unwatchPageLifecycle();
     if (!this.channel) {
       return; // Already closed or never opened
     }
     const ch = this.channel;
     this.channel = null;
     this.removeChannelListeners(ch);
+
+    // An absent `_connection` is not the same signal as a null one.
+    // Only null means the channel tore down the socket.
+    if (ch._connection === null) {
+      return;
+    }
+
     try {
-      console.info('Closing channel ', ch._channelId)
+      console.info('Closing channel ', ch._channelId);
       await ch.close();
     } catch (err) {
-      console.error("Error closing channel", err);
+      console.error('Error closing channel', err);
       sentryMetrics.captureException(err);
     }
   }
@@ -307,7 +393,7 @@ export class PairingChannelClient extends EventTarget {
 
       const { data = {}, message } = payload;
 
-      console.info(`Receiving pairing message`, message)
+      console.info(`Receiving pairing message`, message);
 
       // Enrich with sender metadata (same shape as Backbone)
       data.remoteMetaData = {
@@ -328,6 +414,9 @@ export class PairingChannelClient extends EventTarget {
   };
 
   private handleError = (event: Event) => {
+    if (this.unloading) {
+      return;
+    }
     sentryMetrics.captureException((event as CustomEvent).detail);
     this.dispatchEvent(
       new CustomEvent('error', {
@@ -342,12 +431,43 @@ export class PairingChannelClient extends EventTarget {
       this.channel = null;
       this.removeChannelListeners(ch);
     }
+    if (this.unloading) {
+      return;
+    }
     this.dispatchEvent(new CustomEvent('close'));
   };
+
+  private attachChannel(channel: PairingChannelSocket): void {
+    channel.addEventListener('message', this.handleMessage);
+    channel.addEventListener('error', this.handleError);
+    channel.addEventListener('close', this.handleClose);
+  }
 
   private removeChannelListeners(ch: PairingChannelSocket): void {
     ch.removeEventListener('message', this.handleMessage);
     ch.removeEventListener('error', this.handleError);
     ch.removeEventListener('close', this.handleClose);
+  }
+
+  private handleUnload = () => {
+    this.unloading = true;
+  };
+
+  private handlePageShow = () => {
+    this.unloading = false;
+  };
+
+  private watchPageLifecycle(): void {
+    this.unloading = false;
+    window.addEventListener('beforeunload', this.handleUnload);
+    window.addEventListener('pagehide', this.handleUnload);
+    window.addEventListener('pageshow', this.handlePageShow);
+  }
+
+  private unwatchPageLifecycle(): void {
+    window.removeEventListener('beforeunload', this.handleUnload);
+    window.removeEventListener('pagehide', this.handleUnload);
+    window.removeEventListener('pageshow', this.handlePageShow);
+    this.unloading = false;
   }
 }

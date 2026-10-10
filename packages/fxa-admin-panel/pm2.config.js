@@ -35,15 +35,12 @@ module.exports = {
     {
       name: 'admin-react',
       cwd: __dirname,
-      script: 'yarn rescripts start',
+      script: 'yarn start-react',
       max_restarts: '1',
       min_uptime: '2m',
       env: {
-        SKIP_PREFLIGHT_CHECK: 'true',
         NODE_ENV: 'development',
-        NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --openssl-legacy-provider`.trim(),
         PUBLIC_URL: 'http://localhost:8091',
-        BROWSER: 'NONE',
         PORT: '8092',
         PATH,
       },

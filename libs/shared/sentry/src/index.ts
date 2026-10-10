@@ -7,3 +7,4 @@ export * from './lib/reporting';
 export * from './lib/node';
 export * from './lib/browser';
 export * from './lib/next/server';
+export * from './lib/utils/tags';

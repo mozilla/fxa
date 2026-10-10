@@ -380,49 +380,9 @@ The reporter also tracks:
 - **Flaky tests**: Tests that failed initially but passed on retry
 - **Duration**: Total test suite run time
 
-Sync signin tests start a new browser instance and this causes problems with the recorded trace being blank; the second browsers trace is overwritten.
+#### Sync tests
 
-Here's what's happening with tracing order of operations
-
-```
-Playwright instance start
-          |
-          |
-    Browser Start(a)      <-- first browser starts
-          |
-          |
-    Trace start(a)        <-- first browser starts tracing
-          |
-          |
-    Browser start(b)      <-- second browser starts
-          |
-          |
-    Trace start(b)        <-- second browser starts it's own tracing
-          |
-          |
-        Test
-          |
-          |
-    Tracing stop(b)       <-- second browser stops trace and saves to a pre-defined path like `/artifacts/functional/{testname}/trace.zip
-          |
-          |
-    Browser Stop(b)       <-- second browser shuts down
-          |
-          |
-    Tracing stop(a)       <-- first browser stops trace and writes to same path, overwriting the trace that's there
-          |
-          |
-    Browser Stop(a)       <-- first browser shuts down and test finishes
-          |
-          |
-          v
-```
-
-Because we have to start the second browser, and the traces are overwritten, we explicitly save the second browsers trace to a unique location if a test has `failed`, `retried` **and** `failed` again. These traces are currently saved to a similar path as default: `/artifacts/functional/{testName}/syncTrace.zip`. One limitation of this setup is that it does _not_ stop the original trace from being saved as well, so we end with two traces. The next limitation is that the unique trace do not include `setup`, `teardown` and other steps that happen outside their scope, so viewing both traces to troubleshoot failures may be necessary.
-
-Note that `testName` in the path is similar but not exactly the same to how Playwright handles it, and the file is always `syncTrace.zip` instead of just `trace.zip`.
-
-Unique traces are also saved to `Artifacts` in CircleCI.
+Sync tests start a second browser. Its trace goes into the same `trace.zip` as the rest of the test. Playwright saves a context's trace only when you call `context.close()`, because `browser.close()` skips the capture. Close the context before you close a browser that a test starts.
 
 ## Avoiding Race condition while writing tests
 

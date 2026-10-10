@@ -122,7 +122,8 @@ will be sent to the account holder.`
     );
 
   program.parse(process.argv);
-  const resetWithEmailArgs = program.email.length > 0;
+  const options = program.opts();
+  const resetWithEmailArgs = options.email.length > 0;
 
   if (resetWithEmailArgs) {
     console.log(
@@ -130,10 +131,10 @@ will be sent to the account holder.`
     );
   }
 
-  const domains = [...new Set(program.searchDomain as unknown as string[])];
+  const domains = [...new Set(options.searchDomain as unknown as string[])];
   const firstDownloadedDatetime =
-    program.firstDownloadedDate && !Number.isNaN(program.firstDownloadedDate)
-      ? new Date(program.firstDownloadedDate)
+    options.firstDownloadedDate && !Number.isNaN(options.firstDownloadedDate)
+      ? new Date(options.firstDownloadedDate)
       : new Date(Date.now() - 24 * 60 * 60 * 1000);
   const firstDownloadedDateIsoString = firstDownloadedDatetime
     .toISOString()
@@ -144,14 +145,14 @@ will be sent to the account holder.`
       return await findLeakedAccounts(firstDownloadedDateIsoString, domains);
     }
 
-    const loginsFromEmailArgs = program.email.map((x) => ({
+    const loginsFromEmailArgs = options.email.map((x) => ({
       login: x,
     }));
     const { accounts } = await getAccountsByLogin(loginsFromEmailArgs);
     return Array.from(accounts.values());
   })();
 
-  if (program.dryRun) {
+  if (options.dryRun) {
     console.log(`
 Dry run mode is on.  It is the default; use '--dry-run false' when you are ready.
 

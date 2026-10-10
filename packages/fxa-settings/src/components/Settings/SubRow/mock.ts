@@ -3,10 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import AuthClient from 'fxa-auth-client';
+import { MOCK_UID } from '../../../pages/mocks';
 
 /// mock localStorage state to allow MfaGuard to work in stories
 export function initLocalAccount() {
-  const uid = 'abc123';
+  const uid = MOCK_UID;
   const accounts = {
     [uid]: {
       uid,

@@ -26,3 +26,21 @@ export enum OAuthNativeServices {
 export const OAUTH_NATIVE_CLIENT_IDS: ReadonlySet<string> = new Set(
   Object.values(OAuthNativeClients)
 );
+
+/**
+ * The native clients that only ever run on a phone or tablet.
+ *
+ * Device pairing is the one flow where a desktop browser mints an authorization
+ * code for one of these, so the pair of "client_id is in here" and "the request
+ * did not come from a mobile UA" identifies a pairing authorization without the
+ * browser having to say so.
+ *
+ * Thunderbird is deliberately absent: it is neither of these, and it does not
+ * pair.
+ */
+export const MOBILE_OAUTH_NATIVE_CLIENT_IDS: ReadonlySet<string> = new Set([
+  OAuthNativeClients.FirefoxIOS,
+  OAuthNativeClients.Fenix,
+  OAuthNativeClients.Fennec,
+  OAuthNativeClients.ReferenceBrowser,
+]);

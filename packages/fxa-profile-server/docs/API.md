@@ -87,6 +87,7 @@ curl -v \
 {
   "uid": "6d940dd41e636cc156074109b8092f96",
   "email": "user@example.domain",
+  "additionalEmails": ["backup@example.domain"],
   "locale": "en-US",
   "amrValues": ["pwd", "otp"],
   "twoFactorAuthentication": true,
@@ -96,6 +97,10 @@ curl -v \
   "subscriptions": ["foo", "bar", "baz"]
 }
 ```
+
+`additionalEmails` lists the account's verified secondary email addresses and
+requires the `profile:additionalEmails` scope (also granted by `profile`). It
+defaults to an empty array when there are no verified secondary addresses.
 
 #### OpenID Connect UserInfo Endpoint
 

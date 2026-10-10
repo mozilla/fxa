@@ -23,9 +23,6 @@ import DESCRIPTION from '../../docs/swagger/shared/descriptions';
 import authMethods from '../authMethods';
 import random from '../crypto/random';
 import { AppError as error } from '@fxa/accounts/errors';
-import { getClientById } from '../oauth/client';
-import { generateAccessToken } from '../oauth/grant';
-import jwt from '../oauth/jwt';
 import { CapabilityService } from '../payments/capability';
 import { AppStoreSubscriptions } from '../payments/iap/apple-app-store/subscriptions';
 import { PlaySubscriptions } from '../payments/iap/google-play/subscriptions';
@@ -36,6 +33,7 @@ import {
 import { StripeHelper } from '../payments/stripe';
 import { AuthClientInfoService, AuthLogger, AuthRequest } from '../types';
 import {
+  assertAccountEnabled,
   checkBlocklists,
   deleteAccountIfUnverified,
   fetchRpCmsData,
@@ -50,7 +48,6 @@ import validators from './validators';
 import { AccountEventsManager } from '../account-events';
 import { gleanMetrics } from '../metrics/glean';
 import { AccountDeleteManager } from '../account-delete';
-import { uuidTransformer } from 'fxa-shared/db/transformers';
 import { normalizeEmail } from 'fxa-shared/email/helpers';
 import { EmailNormalization } from 'fxa-shared/email/email-normalization';
 import { DeleteAccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
@@ -71,12 +68,13 @@ import { FxaMailerFormat } from '../senders/fxa-mailer-format';
 import { OAuthClientInfoServiceName } from '../senders/oauth_client_info';
 import { BackupCodeManager } from '@fxa/accounts/two-factor';
 import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
-import { PasskeyService, PasskeyRecord } from '@fxa/accounts/passkey';
+import { PasskeyService, PasskeyWithWrapState } from '@fxa/accounts/passkey';
 import {
   BOUNCE_TYPE_HARD,
   escapeLikePattern,
 } from '@fxa/accounts/email-sender';
 import { getClientServiceTags } from '../metrics/client-tags';
+import { reportSentryError } from '../sentry';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -167,7 +165,6 @@ export class AccountHandler {
     authSalt: string;
     email: string;
     emailCode: string;
-    preVerified: boolean;
     request: AuthRequest;
     service?: string;
     userAgentString: string;
@@ -181,7 +178,6 @@ export class AccountHandler {
       authSalt,
       email,
       emailCode,
-      preVerified,
       request,
       service,
       userAgentString,
@@ -229,7 +225,7 @@ export class AccountHandler {
       createdAt: Date.now(),
       email: email,
       emailCode: emailCode,
-      emailVerified: preVerified,
+      emailVerified: false,
       kA,
       wrapWrapKb,
       wrapWrapKbVersion2,
@@ -255,19 +251,6 @@ export class AccountHandler {
     const geoData = request.app.geo;
     const country = geoData.location && geoData.location.country;
     const countryCode = geoData.location && geoData.location.countryCode;
-    if (account.emailVerified) {
-      const { clientId } = getClientServiceTags(request);
-      await this.log.notifyAttachedServices('verified', request, {
-        email: account.email,
-        locale: account.locale,
-        service,
-        uid: account.uid,
-        userAgent: userAgentString,
-        country,
-        countryCode,
-        ...(clientId && { clientId }),
-      });
-    }
 
     await this.log.notifyAttachedServices('login', request, {
       deviceCount: 1,
@@ -351,10 +334,6 @@ export class AccountHandler {
     const form = request.payload as any;
     const query = request.query;
 
-    if (account.emailVerified) {
-      return;
-    }
-
     try {
       switch (verificationMethod) {
         case 'email-otp': {
@@ -411,16 +390,14 @@ export class AccountHandler {
         }
       }
 
-      if (tokenVerificationId) {
-        // Log server-side metrics for confirming verification rates
-        this.log.info('account.create.confirm.start', {
-          uid: account.uid,
-          tokenVerificationId,
-        });
-        this.glean.registration.confirmationEmailSent(request, {
-          uid: account.uid,
-        });
-      }
+      // Log server-side metrics for confirming verification rates
+      this.log.info('account.create.confirm.start', {
+        uid: account.uid,
+        tokenVerificationId,
+      });
+      this.glean.registration.confirmationEmailSent(request, {
+        uid: account.uid,
+      });
 
       await this.verificationReminders.create(
         account.uid,
@@ -429,14 +406,12 @@ export class AccountHandler {
       );
     } catch (err) {
       this.log.error('mailer.sendVerifyCode.1', { err });
-      if (tokenVerificationId) {
-        // Log possible email bounce, used for confirming verification rates
-        this.log.error('account.create.confirm.error', {
-          uid: account.uid,
-          err,
-          tokenVerificationId,
-        });
-      }
+      // Log possible email bounce, used for confirming verification rates
+      this.log.error('account.create.confirm.error', {
+        uid: account.uid,
+        err,
+        tokenVerificationId,
+      });
 
       // show an error to the user, the account is already created.
       // the user can come back later and try again.
@@ -548,7 +523,6 @@ export class AccountHandler {
     const clientSalt = form.clientSalt;
     const userAgentString = request.headers['user-agent'];
     const service = form.service || query.service;
-    const preVerified = !!form.preVerified;
     const verificationMethod = form.verificationMethod;
 
     request.validateMetricsContext();
@@ -589,8 +563,8 @@ export class AccountHandler {
     const { hex16: emailCode, hex32: authSalt } =
       await this.generateRandomValues();
 
-    // Verified sessions should only be created for preverified accounts.
-    const tokenVerificationId = preVerified ? undefined : emailCode;
+    // The session stays unverified until the account is confirmed with this code.
+    const tokenVerificationId = emailCode;
 
     this.setMetricsFlowCompleteSignal(request, service);
 
@@ -603,7 +577,6 @@ export class AccountHandler {
       authSalt,
       email,
       emailCode,
-      preVerified,
       request,
       service,
       userAgentString,
@@ -656,205 +629,6 @@ export class AccountHandler {
     });
   }
 
-  async accountStub(request: AuthRequest) {
-    this.log.begin('Account.stub', request);
-    const { email, clientId } = request.payload as any;
-    await this.customs.check(request, email, 'accountCreate');
-
-    if (this.OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS.has(clientId)) {
-      throw error.disabledClientId(clientId);
-    }
-
-    const invalidDomain = await this.checkEmailDomainValidity(email);
-    if (invalidDomain) {
-      throw error.accountCreationRejected();
-    }
-
-    if (this.config.accountDestroy.onCreateIfUnverified) {
-      await deleteAccountIfUnverified(
-        this.db,
-        this.stripeHelper,
-        this.log,
-        request,
-        email
-      );
-    } else if (await this.db.accountExists(email)) {
-      throw error.accountExists(email);
-    }
-
-    await this.checkBlocklists(normalizeEmail(email));
-
-    const client = await getClientById(clientId);
-
-    const { hex16: emailCode, hex32: authSalt } =
-      await this.generateRandomValues();
-    const [kA, wrapWrapKb] = await random.hex(32, 32);
-
-    const account = await this.db.createAccount({
-      uid: await random.hex(16),
-      createdAt: Date.now(),
-      email,
-      emailCode,
-      emailVerified: false,
-      kA,
-      wrapWrapKb,
-      wrapWrapKbVersion2: null,
-      authSalt,
-      verifierVersion: this.config.verifierVersion,
-      verifyHash: Buffer.alloc(32).toString('hex'),
-      verifyHashVersion2: null,
-      verifierSetAt: 0,
-      locale: request.app.acceptLanguage,
-      clientSalt: null,
-    });
-
-    const access = await generateAccessToken({
-      clientId: client.id,
-      name: client.name,
-      canGrant: client.canGrant,
-      publicClient: client.publicClient,
-      userId: uuidTransformer.to(account.uid),
-      scope: ScopeSet.fromString(`profile ${client.allowedScopes}`),
-      ttl: 1800,
-    });
-
-    this.setMetricsFlowCompleteSignal(request, clientId);
-    await request.stashMetricsContext({
-      uid: account.uid,
-      id: account.uid,
-    });
-
-    return {
-      uid: account.uid,
-      access_token: access.token.toString('hex'),
-    };
-  }
-
-  async setPasswordOnStubAccount({
-    account,
-    authPW,
-    authPWVersion2,
-    wrapKb,
-    wrapKbVersion2,
-    clientSalt,
-  }: {
-    account: Account;
-    authPW: string;
-    authPWVersion2: string;
-    wrapKb: string;
-    wrapKbVersion2: string;
-    clientSalt: string;
-  }) {
-    // Only set a password on an unverified stub account.
-    if (account.verifierSetAt !== 0) {
-      throw error.unauthorized('token already used');
-    }
-    const { authSalt, uid, wrapWrapKb } = account;
-    const { password, verifyHash } = await this.createPassword(
-      authPW,
-      authSalt
-    );
-
-    const v2Data = await (async () => {
-      if (authPWVersion2) {
-        const password2 = new this.Password(
-          authPWVersion2,
-          authSalt,
-          this.config.verifierVersion,
-          2
-        );
-        const verifyHashVersion2 = await password2.verifyHash();
-
-        // Important! In the case of V2, the client will determine the
-        // the kB value and provide wrapKb & wrapKbVersion2 to us. We
-        // do this to ensure that wrapWrapKb and wrapWrapKbVersion2 result
-        // in the same kB value. Something only the client would be able
-        // to do since kB is private.
-        const wrapWrapKb = await password.wrap(wrapKb);
-        const wrapWrapKbVersion2 = await password2.wrap(wrapKbVersion2);
-
-        return {
-          clientSalt,
-          wrapWrapKb,
-          verifyHashVersion2,
-          wrapWrapKbVersion2,
-        };
-      }
-      return {};
-    })();
-
-    const data = {
-      authSalt,
-      verifyHash,
-      wrapWrapKb,
-      verifierVersion: password.version,
-      keysHaveChanged: true,
-      ...v2Data,
-    };
-
-    await this.db.resetAccount({ uid }, data);
-  }
-
-  async finishSetup(request: AuthRequest) {
-    this.log.begin('Account.finishSetup', request);
-    const form = request.payload as any;
-    const {
-      authPW,
-      authPWVersion2,
-      wrapKb,
-      wrapKbVersion2,
-      clientSalt,
-      token,
-    } = form;
-    let uid;
-    try {
-      const payload = (await jwt.verify(token, {
-        typ: 'fin+JWT',
-        ignoreExpiration: true,
-      })) as any;
-      uid = payload.uid;
-      form.uid = payload.uid;
-      const account = await this.db.account(uid);
-      await this.setPasswordOnStubAccount({
-        account,
-        authPW,
-        authPWVersion2,
-        wrapKb,
-        wrapKbVersion2,
-        clientSalt,
-      });
-      await this.signupUtils.verifyAccount(request, account, {});
-      const sessionToken = await this.createSessionToken({
-        account,
-        request,
-        // this route counts as verification
-        tokenVerificationId: undefined,
-      });
-
-      await this.subscriptionAccountReminders.delete(uid);
-      return {
-        uid,
-        sessionToken: sessionToken.data,
-        verified: sessionToken.emailVerified,
-      };
-    } catch (err) {
-      this.log.error('Account.finish_setup.error', {
-        err,
-      });
-
-      // if it errored out after verifiying the account
-      // remove the uid from the list of accounts to send reminders to.
-      if (uid) {
-        const account = await this.db.account(uid);
-        if (account.verifierSetAt > 0) {
-          await this.subscriptionAccountReminders.delete(uid);
-        }
-      }
-
-      throw err;
-    }
-  }
-
   async login(request: AuthRequest) {
     this.log.begin('Account.login', request);
 
@@ -887,9 +661,6 @@ export class AccountHandler {
         email
       );
       accountRecord = res.accountRecord;
-      if (accountRecord.disabledAt) {
-        throw error.cannotLoginWithEmail();
-      }
       // Remember whether they did a signin-unblock,
       // because we can use it to bypass token verification.
       didSigninUnblock = res.didSigninUnblock;
@@ -1007,11 +778,22 @@ export class AccountHandler {
       // If it's an email address used for testing etc,
       // we should force token verification.
       if (
-        this.config.signinConfirmation?.forcedEmailAddresses?.test(
+        this.config.signinConfirmation?.forcedSyncEmailAddresses?.test(
           account.primaryEmail.email
         )
       ) {
-        return 'email';
+        return 'syncEmail';
+      }
+      // Same forced confirmation, but the session is not `mustVerify`, so RP
+      // redirect flows outside `servicesWithEmailVerification` pass through
+      // without a code. This is the heuristic (non-Sync non-2FA) state that
+      // `skipTokenVerification` would otherwise pre-verify for new accounts.
+      if (
+        this.config.signinConfirmation?.forcedHeuristicEmailAddresses?.test(
+          account.primaryEmail.email
+        )
+      ) {
+        return 'heuristicEmail';
       }
 
       return false;
@@ -1202,7 +984,7 @@ export class AccountHandler {
         needsVerificationId &&
         (verificationForced === 'suspect' ||
           verificationForced === 'global' ||
-          verificationForced === 'email' ||
+          verificationForced === 'syncEmail' ||
           requestHelper.wantsKeys(request));
 
       // For accounts with TOTP, we always force verifying a session.
@@ -1672,6 +1454,11 @@ export class AccountHandler {
     if (scope.contains('profile:email')) {
       res.email = account.primaryEmail?.email;
     }
+    if (scope.contains('profile:additionalEmails')) {
+      res.additionalEmails = (account.emails ?? [])
+        .filter((email) => !email.isPrimary && email.isVerified)
+        .map((email) => email.email);
+    }
     if (scope.contains('profile:locale') && account.locale) {
       res.locale = account.locale;
     }
@@ -2074,9 +1861,7 @@ export class AccountHandler {
 
     const accountRecord = await this.db.accountRecord(email);
 
-    if (accountRecord.disabledAt) {
-      throw error.cannotLoginWithEmail();
-    }
+    assertAccountEnabled(accountRecord);
 
     if (accountRecord.verifierSetAt <= 0) {
       throw error.cannotLoginWithEmail();
@@ -2392,7 +2177,7 @@ export class AccountHandler {
 
     const passkeys =
       passkeysResult.status === 'fulfilled'
-        ? (passkeysResult.value as PasskeyRecord[]).map(
+        ? (passkeysResult.value as PasskeyWithWrapState[]).map(
             ({
               credentialId,
               name,
@@ -2403,6 +2188,7 @@ export class AccountHandler {
               backupEligible,
               backupState,
               prfEnabled,
+              hasPasswordlessSync,
             }) => ({
               credentialId,
               name,
@@ -2413,6 +2199,7 @@ export class AccountHandler {
               backupEligible,
               backupState,
               prfEnabled,
+              hasPasswordlessSync,
             })
           )
         : [];
@@ -2421,37 +2208,65 @@ export class AccountHandler {
     let webSubscriptions: Awaited<WebSubscription[]> = [];
     let iapGooglePlaySubscriptions: Awaited<PlayStoreSubscription[]> = [];
     let iapAppStoreSubscriptions: Awaited<AppStoreSubscription[]> = [];
+    let subscriptionsReadFailed = false;
+    const onSubscriptionsError = (err: any) => {
+      if (err.errno === error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER) return;
+      subscriptionsReadFailed = true;
+      this.log.error('Account.get.subscriptions.error', { err });
+      reportSentryError(err, request);
+    };
 
     if (this.config.subscriptions?.enabled && this.stripeHelper) {
-      try {
-        const customer = await this.stripeHelper.fetchCustomer(uid as string, [
-          'subscriptions',
-        ]);
-        if (customer && customer.subscriptions) {
-          webSubscriptions = await this.stripeHelper.subscriptionsToResponse(
-            customer.subscriptions
-          );
-        }
-
-        if (this.config.subscriptions?.playApiServiceAccount?.enabled) {
-          const playSubscriptions = Container.get(PlaySubscriptions);
-          iapGooglePlaySubscriptions = (
-            await playSubscriptions.getSubscriptions(uid as string)
-          ).map(playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO);
-        }
-
-        if (this.config.subscriptions?.appStore?.enabled) {
-          const appStoreSubscriptions = Container.get(AppStoreSubscriptions);
-          iapAppStoreSubscriptions = (
-            await appStoreSubscriptions.getSubscriptions(uid as string)
-          ).map(appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO);
-        }
-      } catch (err) {
-        if (err.errno !== error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER) {
-          throw err;
-        }
-      }
+      const stripeHelper = this.stripeHelper;
+      await Promise.all([
+        (async () => {
+          try {
+            const customer = await stripeHelper.fetchCustomer(uid as string, [
+              'subscriptions',
+            ]);
+            if (customer && customer.subscriptions) {
+              webSubscriptions = await stripeHelper.subscriptionsToResponse(
+                customer.subscriptions
+              );
+            }
+          } catch (err) {
+            onSubscriptionsError(err);
+          }
+        })(),
+        (async () => {
+          if (!this.config.subscriptions?.playApiServiceAccount?.enabled) {
+            return;
+          }
+          try {
+            const playSubscriptions = Container.get(PlaySubscriptions);
+            iapGooglePlaySubscriptions = (
+              await playSubscriptions.getSubscriptions(uid as string)
+            ).map(playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO);
+          } catch (err) {
+            onSubscriptionsError(err);
+          }
+        })(),
+        (async () => {
+          if (!this.config.subscriptions?.appStore?.enabled) {
+            return;
+          }
+          try {
+            const appStoreSubscriptions = Container.get(AppStoreSubscriptions);
+            iapAppStoreSubscriptions = (
+              await appStoreSubscriptions.getSubscriptions(uid as string)
+            ).map(appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO);
+          } catch (err) {
+            onSubscriptionsError(err);
+          }
+        })(),
+      ]);
     }
+
+    const subscriptions = [
+      ...iapGooglePlaySubscriptions,
+      ...iapAppStoreSubscriptions,
+      ...webSubscriptions,
+    ];
 
     return {
       createdAt: account.createdAt,
@@ -2466,11 +2281,11 @@ export class AccountHandler {
       recoveryPhone,
       securityEvents,
       passkeys,
-      subscriptions: [
-        ...iapGooglePlaySubscriptions,
-        ...iapAppStoreSubscriptions,
-        ...webSubscriptions,
-      ],
+      // An empty list after a failed read would mean "none", so it's omitted
+      // and clients treat subscriptions as unknown.
+      ...((subscriptions.length > 0 || !subscriptionsReadFailed) && {
+        subscriptions,
+      }),
     };
   }
 }
@@ -2566,10 +2381,6 @@ export const accountRoutes = (
               verificationMethod: validators.verificationMethod
                 .optional()
                 .description(DESCRIPTION.verificationMethod),
-              // preVerified is not available in production mode.
-              ...(!(config as any).isProduction && {
-                preVerified: isA.boolean(),
-              }),
             })
             .and('authPWVersion2', 'wrapKb', 'wrapKbVersion2', 'clientSalt'),
         },
@@ -2590,49 +2401,6 @@ export const accountRoutes = (
     },
     {
       method: 'POST',
-      path: '/account/stub',
-      options: {
-        ...ACCOUNT_DOCS.ACCOUNT_STUB_POST,
-        validate: {
-          payload: isA.object({
-            email: validators.email().required(),
-            clientId: validators.clientId.required(),
-            metricsContext: METRICS_CONTEXT_SCHEMA,
-          }),
-        },
-      },
-      handler: (request: AuthRequest) => accountHandler.accountStub(request),
-    },
-    {
-      method: 'POST',
-      path: '/account/finish_setup',
-      options: {
-        ...ACCOUNT_DOCS.ACCOUNT_FINISH_SETUP_POST,
-        validate: {
-          payload: isA
-            .object({
-              token: validators.jwt,
-              authPW: validators.authPW.description(DESCRIPTION.authPW),
-              wrapKb: validators.wrapKb
-                .optional()
-                .description(DESCRIPTION.wrapKb),
-              authPWVersion2: validators.authPWVersion2
-                .optional()
-                .description(DESCRIPTION.authPWVersion2),
-              wrapKbVersion2: validators.wrapKb
-                .optional()
-                .description(DESCRIPTION.wrapKbVersion2),
-              clientSalt: validators.clientSalt
-                .optional()
-                .description(DESCRIPTION.clientSalt),
-            })
-            .and('authPWVersion2', 'wrapKbVersion2', 'clientSalt'),
-        },
-      },
-      handler: (request: AuthRequest) => accountHandler.finishSetup(request),
-    },
-    {
-      method: 'POST',
       path: '/account/login',
       apidoc: {
         errors: [
@@ -2642,6 +2410,7 @@ export const accountRoutes = (
           error.cannotLoginWithSecondaryEmail,
           error.invalidUnblockCode,
           error.cannotLoginWithEmail,
+          error.accountDisabled,
           error.cannotSendEmail,
         ],
       },
@@ -2789,6 +2558,7 @@ export const accountRoutes = (
         response: {
           schema: isA.object({
             email: isA.string().optional(),
+            additionalEmails: isA.array().items(isA.string()).optional(),
             locale: isA.string().optional().allow(null),
             authenticationMethods: isA
               .array()
@@ -2827,34 +2597,6 @@ export const accountRoutes = (
         },
       },
       handler: (request: AuthRequest) => accountHandler.keys(request),
-    },
-    {
-      method: 'POST',
-      path: '/account/unlock/resend_code',
-      options: {
-        ...ACCOUNT_DOCS.ACCOUNT_UNLOCK_RESEND_CODE_POST,
-        validate: {
-          payload: true,
-        },
-      },
-      handler: async function (request: AuthRequest) {
-        log.error('Account.UnlockCodeResend', { request: request });
-        throw error.gone();
-      },
-    },
-    {
-      method: 'POST',
-      path: '/account/unlock/verify_code',
-      options: {
-        ...ACCOUNT_DOCS.ACCOUNT_UNLOCK_VERIFY_CODE_POST,
-        validate: {
-          payload: true,
-        },
-      },
-      handler: async function (request: AuthRequest) {
-        log.error('Account.UnlockCodeVerify', { request: request });
-        throw error.gone();
-      },
     },
     {
       method: 'POST',
@@ -3092,25 +2834,6 @@ export const accountRoutes = (
       handler: (request: AuthRequest) => accountHandler.getAccount(request),
     },
   ];
-
-  if (!(config as any).isProduction) {
-    // programmatic account lockout was only available in
-    // non-production mode.
-    routes.push({
-      method: 'POST',
-      path: '/account/lock',
-      options: {
-        ...MISC_DOCS.ACCOUNT_LOCK_POST,
-        validate: {
-          payload: true,
-        },
-      } as any,
-      handler: async function (request) {
-        log.error('Account.lock', { request: request });
-        throw error.gone();
-      },
-    });
-  }
 
   return routes;
 };

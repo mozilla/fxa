@@ -8,7 +8,10 @@ process.env.USE_REDIS = 'false';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import P from '../lib/promise';
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function randomHex(bytes: number): string {
   return crypto.randomBytes(bytes).toString('hex');
@@ -94,14 +97,14 @@ describe('#integration - profile cache', () => {
     expect(res1.headers['last-modified']).toBeTruthy();
     const lastModified = res1.headers['last-modified'];
 
-    await P.delay(1000);
+    await delay(1000);
 
     // second request verify cached result was returned
     const res2 = await makeProfileReq(userid);
     expect(res2.headers['last-modified']).toBeTruthy();
     expect(res2.headers['last-modified']).toBe(lastModified);
 
-    await P.delay(1000);
+    await delay(1000);
 
     // verify cache was invalidated due to expiration
     mock.email(MOZILLA_EMAIL);
@@ -119,7 +122,7 @@ describe('#integration - profile cache', () => {
     expect(res1.headers['last-modified']).toBeTruthy();
     const lastModified = res1.headers['last-modified'];
 
-    await P.delay(1000);
+    await delay(1000);
 
     // second request verify cached result was returned
     const res2 = await makeProfileReq(userid);
@@ -158,7 +161,7 @@ describe('#integration - profile cache', () => {
     expect(res1.headers['last-modified']).toBeTruthy();
     const lastModified = res1.headers['last-modified'];
 
-    await P.delay(1000);
+    await delay(1000);
 
     // second request verify cached result was returned
     const res2 = await makeProfileReq(userid);
@@ -198,14 +201,14 @@ describe('#integration - profile cache', () => {
     expect(res1.headers['last-modified']).toBeTruthy();
     const lastModified = res1.headers['last-modified'];
 
-    await P.delay(500);
+    await delay(500);
 
     // second request verify cached result was returned
     const res2 = await makeProfileReq(userid);
     expect(res2.headers['last-modified']).toBeTruthy();
     expect(res2.headers['last-modified']).toBe(lastModified);
 
-    await P.delay(500);
+    await delay(500);
 
     // verify cache was invalidated due to profileChangedAt update
     mock.profileChangedAt(MOZILLA_EMAIL, PROFILE_CHANGED_AT);
@@ -226,7 +229,7 @@ describe('#integration - profile cache', () => {
     expect(res1.headers['last-modified']).toBeTruthy();
     const lastModified = res1.headers['last-modified'];
 
-    await P.delay(1000);
+    await delay(1000);
 
     const res2 = await makeProfileReq(userid, PARTIAL_SCOPES);
     expect(res2.headers['last-modified']).toBeTruthy();
@@ -267,7 +270,7 @@ describe('#integration - profile cache', () => {
     expect(res1.headers['last-modified']).toBeTruthy();
     const lastModifiedPartial = res1.headers['last-modified'];
 
-    await P.delay(1000);
+    await delay(1000);
 
     mock.email(MOZILLA_EMAIL);
     const res2 = await makeProfileReq(userid);
@@ -284,7 +287,7 @@ describe('#integration - profile cache', () => {
     expect(body3.avatar).toBeUndefined();
     expect(lastModifiedPartial).toBe(res3.headers['last-modified']);
 
-    await P.delay(1000);
+    await delay(1000);
 
     const res4 = await makeProfileReq(userid);
     const body4 = JSON.parse(res4.payload);
@@ -307,7 +310,7 @@ describe('#integration - profile cache', () => {
     expect(body1.email).toBe(MOZILLA_EMAIL);
     expect(body1.amrValues).toEqual(['pwd', 'otp']);
 
-    await P.delay(1000);
+    await delay(1000);
 
     mock.email(MOZILLA_EMAIL);
     const res2 = await makeProfileReq(userid, ['profile:email']);

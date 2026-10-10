@@ -4,7 +4,6 @@
 
 const Joi = require('joi');
 const crypto = require('crypto');
-const checksum = require('checksum');
 const {
   determineClientVisibleSubscriptionCapabilities,
 } = require('../subscriptions');
@@ -18,7 +17,7 @@ const ALPHANUMERIC = /^[a-zA-Z0-9]/;
 
 function computeEtag(profile) {
   if (profile) {
-    return checksum(JSON.stringify(profile));
+    return crypto.hash('sha1', JSON.stringify(profile), 'hex');
   }
   return false;
 }
@@ -75,6 +74,7 @@ module.exports = {
   response: {
     schema: Joi.object({
       email: Joi.string().allow(null),
+      additionalEmails: Joi.array().items(Joi.string()).optional(),
       uid: Joi.string().allow(null),
       avatar: Joi.string().allow(null),
       avatarDefault: Joi.boolean().allow(null),

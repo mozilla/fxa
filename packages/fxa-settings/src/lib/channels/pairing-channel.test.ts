@@ -7,6 +7,7 @@ import {
   PairingChannelError,
   toRemoteMetadata,
 } from './pairing-channel';
+import { ResumableWebSocket } from './resumable-websocket';
 
 // Valid base64url key (decodes to 'testkey1')
 const VALID_KEY = 'dGVzdGtleTE';
@@ -21,6 +22,8 @@ let mockChannel: {
   removeEventListener: jest.Mock;
   _channelId?: string;
   _channelKey?: Uint8Array;
+  _connection?: unknown;
+  closed?: boolean;
 };
 
 jest.mock(
@@ -55,6 +58,7 @@ describe('PairingChannelClient', () => {
       // 'testkey1' — the same bytes VALID_KEY decodes to.
       _channelId: CHAN,
       _channelKey: new TextEncoder().encode('testkey1'),
+      closed: false,
     };
     jest.clearAllMocks();
     client = new PairingChannelClient();
@@ -68,6 +72,19 @@ describe('PairingChannelClient', () => {
 
       expect(client.isConnected).toBe(true);
       expect(onConnected).toHaveBeenCalled();
+    });
+
+    // A message can land in the same tick the handshake completes, so the
+    // listeners have to be attached by the time `connected` observers run.
+    it('registers channel listeners before dispatching connected', async () => {
+      let listenersAtConnected = 0;
+      client.addEventListener('connected', () => {
+        listenersAtConnected = mockChannel.addEventListener.mock.calls.length;
+      });
+
+      await client.open(SERVER, CHAN, VALID_KEY);
+
+      expect(listenersAtConnected).toBe(3);
     });
 
     it('throws for missing params', async () => {
@@ -86,6 +103,38 @@ describe('PairingChannelClient', () => {
 
   // The authority mints a channel rather than joining one, so the ids come back
   // on the client and get encoded into the QR the supplicant scans.
+  describe.each([
+    ['create', (c: PairingChannelClient) => c.create(SERVER)],
+    ['open', (c: PairingChannelClient) => c.open(SERVER, CHAN, VALID_KEY)],
+  ] as const)('%s', (method, run) => {
+    it('gives the pairing channel bundle a resumable socket', async () => {
+      const {
+        PairingChannel,
+      } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
+      let socketClass: unknown;
+      const call = method === 'create' ? 'create' : 'connect';
+      PairingChannel[call].mockImplementationOnce(() => {
+        socketClass = window.WebSocket;
+        return Promise.resolve(mockChannel);
+      });
+
+      await run(client);
+
+      expect(
+        (socketClass as { prototype: object }).prototype instanceof
+          ResumableWebSocket
+      ).toBe(true);
+    });
+
+    it('restores the global WebSocket afterwards', async () => {
+      const nativeWebSocket = window.WebSocket;
+
+      await run(client);
+
+      expect(window.WebSocket).toBe(nativeWebSocket);
+    });
+  });
+
   describe('create', () => {
     it('connects and dispatches connected event', async () => {
       const onConnected = jest.fn();
@@ -157,6 +206,31 @@ describe('PairingChannelClient', () => {
       expect(onError).toHaveBeenCalled();
     });
 
+    // Firefox stops network activity before unloading the page, which rejects
+    // a create still in flight. The page is leaving, so there is nothing to
+    // report and no failure for the caller to act on.
+    it('does not report a create the page unload cut short', async () => {
+      const {
+        PairingChannel,
+      } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
+      const sentryMetrics = require('fxa-shared/sentry/browser');
+      PairingChannel.create.mockRejectedValueOnce(
+        new Error('Error while creating the pairing channel')
+      );
+      const onError = jest.fn();
+      client.addEventListener('error', onError);
+
+      const pending = client.create(SERVER);
+      window.dispatchEvent(new Event('beforeunload'));
+
+      await expect(pending).rejects.toThrow(
+        'Error while creating the pairing channel'
+      );
+      expect(client.isUnloading).toBe(true);
+      expect(onError).not.toHaveBeenCalled();
+      expect(sentryMetrics.captureException).not.toHaveBeenCalled();
+    });
+
     it('allows a retry after a failed create', async () => {
       const {
         PairingChannel,
@@ -185,6 +259,16 @@ describe('PairingChannelClient', () => {
       await expect(client.send('msg')).rejects.toThrow('Not connected');
     });
 
+    it('throws CONNECTION_CLOSED when the channel is torn down', async () => {
+      await client.open(SERVER, CHAN, VALID_KEY);
+      mockChannel.closed = true;
+
+      await expect(client.send('pair:supp:authorize')).rejects.toMatchObject({
+        errno: 1006,
+      });
+      expect(mockChannel.send).not.toHaveBeenCalled();
+    });
+
     it('throws for empty message', async () => {
       await client.open(SERVER, CHAN, VALID_KEY);
       await expect(client.send('')).rejects.toThrow('malformed message');
@@ -202,10 +286,104 @@ describe('PairingChannelClient', () => {
 
       const onError = jest.fn();
       client.addEventListener('error', onError);
-      await client.open(SERVER, CHAN, VALID_KEY);
+      await expect(client.open(SERVER, CHAN, VALID_KEY)).rejects.toThrow(
+        'connection refused'
+      );
 
       expect(client.isConnected).toBe(false);
       expect(onError).toHaveBeenCalled();
+    });
+
+    it('reports an unexpected connect rejection to Sentry', async () => {
+      const {
+        PairingChannel,
+      } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
+      const sentryMetrics = require('fxa-shared/sentry/browser');
+      const err = new Error('connection refused');
+      PairingChannel.connect.mockRejectedValueOnce(err);
+
+      await expect(client.open(SERVER, CHAN, VALID_KEY)).rejects.toThrow(err);
+
+      expect(sentryMetrics.captureException).toHaveBeenCalledWith(err);
+    });
+
+    // The channel server drops the socket for any channel it will not serve,
+    // which the supplicant hits routinely on its post-pairing reload.
+    it('dispatches a CONNECTION_CLOSED error when the socket closes during connect', async () => {
+      const {
+        PairingChannel,
+      } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
+      PairingChannel.connect.mockRejectedValueOnce(
+        new Error('WebSocket unexpectedly closed')
+      );
+      const onError = jest.fn();
+      client.addEventListener('error', onError);
+
+      await expect(client.open(SERVER, CHAN, VALID_KEY)).rejects.toThrow(
+        'Connection to remote device closed, please try again'
+      );
+
+      expect(client.isConnected).toBe(false);
+      const detail = onError.mock.calls[0][0].detail;
+      expect(detail).toBeInstanceOf(PairingChannelError);
+      expect(detail.errno).toBe(1006);
+      expect(detail.message).toBe(
+        'Connection to remote device closed, please try again'
+      );
+    });
+
+    it('does not report a closed socket during connect to Sentry', async () => {
+      const {
+        PairingChannel,
+      } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
+      const sentryMetrics = require('fxa-shared/sentry/browser');
+      PairingChannel.connect.mockRejectedValueOnce(
+        new Error('WebSocket unexpectedly closed')
+      );
+
+      await expect(client.open(SERVER, CHAN, VALID_KEY)).rejects.toThrow(
+        PairingChannelError
+      );
+
+      expect(sentryMetrics.captureException).not.toHaveBeenCalled();
+    });
+
+    it('does not report an open the page unload cut short', async () => {
+      const {
+        PairingChannel,
+      } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
+      const sentryMetrics = require('fxa-shared/sentry/browser');
+      PairingChannel.connect.mockRejectedValueOnce(
+        new Error('Error while creating the pairing channel')
+      );
+      const onError = jest.fn();
+      client.addEventListener('error', onError);
+
+      const pending = client.open(SERVER, CHAN, VALID_KEY);
+      window.dispatchEvent(new Event('beforeunload'));
+
+      await expect(pending).rejects.toThrow(
+        'Error while creating the pairing channel'
+      );
+      expect(client.isUnloading).toBe(true);
+      expect(onError).not.toHaveBeenCalled();
+      expect(sentryMetrics.captureException).not.toHaveBeenCalled();
+    });
+
+    it('allows a retry after a failed open', async () => {
+      const {
+        PairingChannel,
+      } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
+      PairingChannel.connect.mockRejectedValueOnce(
+        new Error('WebSocket unexpectedly closed')
+      );
+      await expect(client.open(SERVER, CHAN, VALID_KEY)).rejects.toThrow(
+        PairingChannelError
+      );
+
+      await client.open(SERVER, CHAN, VALID_KEY);
+
+      expect(client.isConnected).toBe(true);
     });
 
     it('rejects concurrent open during in-flight connect', async () => {
@@ -248,6 +426,23 @@ describe('PairingChannelClient', () => {
       mockChannel.close.mockRejectedValueOnce(new Error('close failed'));
       await client.open(SERVER, CHAN, VALID_KEY);
       await expect(client.close()).resolves.toBeUndefined();
+      expect(client.isConnected).toBe(false);
+    });
+
+    // A socket error disconnects the channel without a matching `close` event,
+    // and the integrations tear down in response — so close() runs against a
+    // channel the package has already unwired.
+    it('skips the underlying close once the socket is gone', async () => {
+      await client.open(SERVER, CHAN, VALID_KEY);
+      getMockHandler('error')(
+        new CustomEvent('error', { detail: new Error('ws fail') })
+      );
+      mockChannel._connection = null;
+
+      await expect(client.close()).resolves.toBeUndefined();
+
+      expect(mockChannel.close).not.toHaveBeenCalled();
+      expect(mockChannel.removeEventListener).toHaveBeenCalled();
       expect(client.isConnected).toBe(false);
     });
   });
@@ -323,6 +518,74 @@ describe('PairingChannelClient', () => {
 
       expect(client.isConnected).toBe(false);
       expect(onClose).toHaveBeenCalled();
+    });
+  });
+
+  // On a reload, Firefox stops the document's network activity before
+  // unloading it, so the socket closes while page script still runs. Reporting
+  // that as a failure pushes the timeout route in the page's last moments, and
+  // the reload can commit that route instead of the one the user reloaded
+  // (FXA-14485).
+  describe('page unload', () => {
+    let onError: jest.Mock;
+    let onClose: jest.Mock;
+
+    beforeEach(async () => {
+      onError = jest.fn();
+      onClose = jest.fn();
+      client.addEventListener('error', onError);
+      client.addEventListener('close', onClose);
+      await client.create(SERVER);
+    });
+
+    afterEach(async () => {
+      await client.close();
+    });
+
+    it('ignores a socket close that follows beforeunload', () => {
+      const sentryMetrics = require('fxa-shared/sentry/browser');
+      window.dispatchEvent(new Event('beforeunload'));
+
+      getMockHandler('error')(
+        new CustomEvent('error', {
+          detail: new Error('WebSocket unexpectedly closed'),
+        })
+      );
+      getMockHandler('close')(new Event('close'));
+
+      expect(onError).not.toHaveBeenCalled();
+      expect(onClose).not.toHaveBeenCalled();
+      expect(sentryMetrics.captureException).not.toHaveBeenCalled();
+      // The channel itself is gone either way.
+      expect(client.isConnected).toBe(false);
+    });
+
+    it('treats pagehide as unloading too', () => {
+      window.dispatchEvent(new Event('pagehide'));
+
+      getMockHandler('close')(new Event('close'));
+
+      expect(onClose).not.toHaveBeenCalled();
+    });
+
+    // Restored from the back-forward cache, the page is live again.
+    it('reports a close as usual after pageshow', () => {
+      window.dispatchEvent(new Event('beforeunload'));
+      window.dispatchEvent(new Event('pageshow'));
+
+      getMockHandler('close')(new Event('close'));
+
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('stops watching the page once closed', async () => {
+      await client.close();
+      window.dispatchEvent(new Event('beforeunload'));
+
+      // Reported straight away: a closed client no longer tracks the unload.
+      getMockHandler('close')(new Event('close'));
+
+      expect(onClose).toHaveBeenCalledTimes(1);
     });
   });
 });

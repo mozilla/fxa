@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -29,13 +28,13 @@ import {
   ValidateResponse,
   zodToOpenApi,
 } from '@fxa/payments/api-server/server-utils';
-import { MeteringExceptionFilter } from './metering-exception.filter';
+
 import {
   CurrentMeteringClient,
   MeteringAuthGuard,
   type AuthenticatedMeteringClient,
 } from './metering-auth.guard';
-import { UsageGrantsService } from './usage-grants.service';
+import { MeteringExceptionFilter } from './metering-exception.filter';
 import {
   createUsageGrantRequestSchema,
   deleteUsageGrantParamsSchema,
@@ -45,6 +44,8 @@ import {
   type ListUsageGrantsResponse,
   type UsageGrant,
 } from './usage-grants.schema';
+import { UsageGrantsService } from './usage-grants.service';
+import { parseRequest } from './utils/parseRequest';
 
 @ApiTags('Metering')
 @ApiBearerAuth()
@@ -57,9 +58,9 @@ export class UsageGrantsController {
   @Post()
   @HttpCode(201)
   @ApiOperation({
-    summary: 'Grant additional usage to a user',
+    summary: 'Grant additional usage to a subject',
     description:
-      'Grants additional usage against a meter for a user, raising the effective limit ' +
+      'Grants additional usage against a meter for a subject, raising the effective limit ' +
       'reported by usage queries. Requires a valid metering service credential.',
   })
   @ApiBody({ schema: zodToOpenApi(createUsageGrantRequestSchema) })
@@ -70,11 +71,22 @@ export class UsageGrantsController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid request body — one or more fields failed validation',
+    description:
+      'Invalid request body — one or more fields failed validation, or a ' +
+      'currentWindow lifetime was requested on a non-calendar (sliding or ' +
+      'session) meter',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing, malformed, or unrecognized bearer token',
   })
   @ApiResponse({
     status: 404,
     description: 'The meter slug is not configured',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Unexpected error',
   })
   @ValidateResponse(usageGrantSchema)
   async create(
@@ -82,30 +94,25 @@ export class UsageGrantsController {
     @CurrentMeteringClient()
     authenticatedMeteringClient: AuthenticatedMeteringClient
   ): Promise<UsageGrant> {
-    const parsed = createUsageGrantRequestSchema.safeParse(body);
-    if (!parsed.success) {
-      throw new BadRequestException(
-        parsed.error.issues.map(({ code, path }) => ({ code, path }))
-      );
-    }
     return this.usageGrantsService.createGrant({
-      request: parsed.data,
+      request: parseRequest(createUsageGrantRequestSchema, body),
       grantedBy: authenticatedMeteringClient.clientId,
     });
   }
 
-  @Get(':userIdentifier')
+  @Get(':subject')
   @ApiOperation({
-    summary: 'List a user’s usage grants',
+    summary: 'List a subject’s usage grants',
     description:
-      'Returns all usage grants for a user, optionally filtered by meter slug. ' +
+      'Returns all usage grants for a subject, optionally filtered by meter slug. ' +
       'Each grant includes an active flag reflecting whether it currently applies. ' +
       'Requires a valid metering service credential. Metering clients are mutually ' +
       'trusted: any authenticated client may read grants created by any other client.',
   })
   @ApiParam({
-    name: 'userIdentifier',
-    description: 'Unique identifier for the user whose grants are listed',
+    name: 'subject',
+    description:
+      'Subject whose grants are listed: a user id, device id, or any other key the relying party meters by',
   })
   @ApiQuery({
     name: 'slug',
@@ -114,33 +121,35 @@ export class UsageGrantsController {
   })
   @ApiResponse({
     status: 200,
-    description: 'The user’s usage grants',
+    description: 'The subject’s usage grants',
     schema: zodToOpenApi(listUsageGrantsResponseSchema),
   })
   @ApiResponse({
     status: 400,
-    description:
-      'Invalid parameters — userIdentifier or slug failed validation',
+    description: 'Invalid parameters — subject or slug failed validation',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing, malformed, or unrecognized bearer token',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Unexpected error',
   })
   @ValidateResponse(listUsageGrantsResponseSchema)
   async list(
-    @Param('userIdentifier') userIdentifier: string,
+    @Param('subject') subject: string,
     @Query('slug') slug: string | undefined,
     @CurrentMeteringClient()
     authenticatedMeteringClient: AuthenticatedMeteringClient
   ): Promise<ListUsageGrantsResponse> {
-    const parsed = listUsageGrantsParamsSchema.safeParse({
-      userIdentifier,
+    const params = parseRequest(listUsageGrantsParamsSchema, {
+      subject,
       slug,
     });
-    if (!parsed.success) {
-      throw new BadRequestException(
-        parsed.error.issues.map(({ code, path }) => ({ code, path }))
-      );
-    }
     const grants = await this.usageGrantsService.listGrants(
-      parsed.data.userIdentifier,
-      parsed.data.slug
+      params.subject,
+      params.slug
     );
     return { grants };
   }
@@ -163,18 +172,21 @@ export class UsageGrantsController {
     status: 400,
     description: 'Invalid parameters — grantId failed validation',
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Missing, malformed, or unrecognized bearer token',
+  })
   @ApiResponse({ status: 404, description: 'No grant exists with that id' })
+  @ApiResponse({
+    status: 500,
+    description: 'Unexpected error',
+  })
   async delete(
     @Param('grantId') grantId: string,
     @CurrentMeteringClient()
     authenticatedMeteringClient: AuthenticatedMeteringClient
   ): Promise<void> {
-    const parsed = deleteUsageGrantParamsSchema.safeParse({ grantId });
-    if (!parsed.success) {
-      throw new BadRequestException(
-        parsed.error.issues.map(({ code, path }) => ({ code, path }))
-      );
-    }
-    await this.usageGrantsService.deleteGrant(parsed.data.grantId);
+    const params = parseRequest(deleteUsageGrantParamsSchema, { grantId });
+    await this.usageGrantsService.deleteGrant(params.grantId);
   }
 }

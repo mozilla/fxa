@@ -22,7 +22,6 @@ import {
   startPairingFlow,
   buildSupplicantUrl,
   extractChannelId,
-  isPairRoutesReact,
 } from '../../lib/pairing-helpers';
 
 // Extend the window type so TS accepts the init-script hook.
@@ -36,15 +35,6 @@ test.setTimeout(120_000);
 
 test.describe('severity-2 #smoke', () => {
   test.describe.serial('Firefox pairing flow — negative paths', () => {
-    // Runs once per worker. Pair-route rollout is env-stable.
-    test.beforeAll(async ({ browser, target }) => {
-      const isReact = await isPairRoutesReact(browser, target);
-      test.skip(
-        !isReact,
-        'React pair specs require showReactApp.pairRoutes=true'
-      );
-    });
-
     test('supplicant cancels on /pair/supp/allow and lands on /pair/failure', async ({
       target,
       syncOAuthBrowserPages: { page },
@@ -79,11 +69,11 @@ test.describe('severity-2 #smoke', () => {
       await test.step('Supplicant opens QR URL', async () => {
         const suppUrl = buildSupplicantUrl(target.contentServerUrl, pairUrl);
         await page.goto(suppUrl, { waitUntil: 'load' });
-        // #supp-approve-btn is the supplicant "Confirm pairing" button rendered
-        // by both React and Backbone /pair/supp/allow templates with the same
-        // id. It only exists after the channel handshake completes and the
-        // form renders, so this single check proves both that the page is on
-        // /pair/supp/allow and that the supplicant integration is interactive.
+        // #supp-approve-btn is the supplicant "Confirm pairing" button on
+        // /pair/supp/allow. It only exists after the channel handshake
+        // completes and the form renders, so this single check proves both
+        // that the page is on /pair/supp/allow and that the supplicant
+        // integration is interactive.
         await expect(page.locator('#supp-approve-btn')).toBeVisible({
           timeout: TIMEOUTS.SUPPLICANT_ALLOW,
         });

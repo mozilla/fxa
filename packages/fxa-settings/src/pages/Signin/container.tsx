@@ -47,18 +47,14 @@ import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { KeyStretchExperiment } from '../../models/experiments';
 import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
-import { searchParams } from '../../lib/utilities';
 import { QueryParams } from '../..';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
-import { MetricsContext } from '@fxa/shared/glean';
+import { MetricsContext } from '@fxa/shared/metrics/glean';
 import {
   getHandledError,
   getLocalizedErrorMessage,
 } from '../../lib/error-utils';
-import {
-  SensitiveData,
-  SensitiveDataClient,
-} from '../../lib/sensitive-data-client';
+import { SensitiveDataClient } from '../../lib/sensitive-data-client';
 import { Constants } from '../../lib/constants';
 import {
   resolveServiceOrClientId,
@@ -446,9 +442,7 @@ const SigninContainer = ({
         keys: wantsKeys,
         // See oauth_client_info in the auth-server for details on service/clientId.
         ...(service ? { service } : {}),
-        metricsContext: queryParamsToMetricsContext(
-          flowQueryParams as ReturnType<typeof searchParams>
-        ),
+        metricsContext: queryParamsToMetricsContext(flowQueryParams),
       };
       let result = await trySignIn(
         email,
@@ -493,8 +487,7 @@ const SigninContainer = ({
           try {
             // Check recovery key status to determine if we should show inline setup
             const { exists } = await authClient.recoveryKeyExists(
-              result.data.signIn.sessionToken,
-              email
+              result.data.signIn.sessionToken
             );
             result.data.showInlineRecoveryKeySetup = !exists;
           } catch (e) {
@@ -597,9 +590,7 @@ const SigninContainer = ({
     async (email: string) => {
       try {
         await authClient.sendUnblockCode(email, {
-          metricsContext: queryParamsToMetricsContext(
-            flowQueryParams as unknown as ReturnType<typeof searchParams>
-          ),
+          metricsContext: queryParamsToMetricsContext(flowQueryParams),
         });
         return { success: true };
       } catch (error) {
@@ -785,14 +776,14 @@ export async function trySignIn(
         ? v2Credentials.unwrapBKey
         : v1Credentials.unwrapBKey;
 
-      sensitiveDataClient.setDataType(SensitiveData.Key.Auth, {
+      sensitiveDataClient.AuthData = {
         // Store for inline recovery key flow
         authPW,
         // Store this in case the email was corrected
         emailForAuth: email,
         unwrapBKey,
         keyFetchToken: response.keyFetchToken,
-      });
+      };
 
       // Transform response to match expected BeginSigninResponse format
       const data: BeginSigninResponse = {

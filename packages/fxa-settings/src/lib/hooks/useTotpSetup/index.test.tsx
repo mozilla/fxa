@@ -46,9 +46,7 @@ describe('useTotpSetup', () => {
   // createTotpWithJwt is a server-side mutation: a second call mints a new
   // token and silently invalidates the first, leaving the user scanning a QR
   // code the server no longer accepts. Both effect deps come from context, so
-  // a re-run on changed identity is the reachable form of that double-fire —
-  // StrictMode's dev double-invoke is the other, but React suppresses it
-  // inside Jest's act environment so it cannot be asserted here.
+  // a re-run on changed identity is the reachable form of that double-fire.
   it('mints only one token when the effect re-runs', async () => {
     (useMfaErrorHandler as jest.Mock).mockImplementation(() =>
       jest.fn().mockReturnValue(false)

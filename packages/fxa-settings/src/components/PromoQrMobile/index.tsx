@@ -12,7 +12,7 @@ import GleanMetrics from '../../lib/glean';
 import { isValidCmsUrl } from '../../lib/utilities';
 import { useExperiments, useFtlMsgResolver } from '../../models/hooks';
 import { useNimbusContext } from '../../models/contexts/NimbusContext';
-import { CONTROL_BRANCH, resolveBranch } from './branches';
+import { DEFAULT_PROMO, resolveBranch } from './branches';
 
 export type PromoQrMobileIntegration = Pick<
   Integration,
@@ -71,9 +71,11 @@ export const PromoQrMobile = ({
     promoQrImageUrl && isValidCmsUrl(promoQrImageUrl) ? promoQrImageUrl : null;
 
   const feature = experiments?.features?.['promo-qr-mobile'];
-  const enrolled = !cmsQr && feature?.['enabled'] === true;
-  const branchSlug = enrolled ? feature?.['branch'] : CONTROL_BRANCH;
-  const branch = resolveBranch(branchSlug);
+  const branch =
+    !cmsQr && feature?.['enabled'] === true
+      ? resolveBranch(feature?.['branch'])
+      : null;
+  const promo = branch ?? DEFAULT_PROMO;
 
   useEffect(() => {
     if (
@@ -86,16 +88,16 @@ export const PromoQrMobile = ({
       GleanMetrics.promoQrMobile.view({
         event: {
           nimbusUserId: experiments?.nimbusUserId,
-          branch: enrolled ? branch.slug : undefined,
+          branch: branch?.slug,
         },
       });
     }
-  }, [visible, loading, experiments, enrolled, branch.slug]);
+  }, [visible, loading, experiments, branch?.slug]);
 
   // Wait for Nimbus and the CMS so the control does not paint and then swap.
   if (!visible || loading) return <></>;
 
-  const heading = ftlMsgResolver.getMsg(branch.ftlId, branch.heading);
+  const heading = ftlMsgResolver.getMsg(promo.ftlId, promo.heading);
 
   return (
     <aside className="hidden desktop:fixed desktop:flex desktop:flex-col desktop:items-center desktop:bottom-8 desktop:end-12 w-60 gap-3">
@@ -118,7 +120,7 @@ export const PromoQrMobile = ({
           <div className="w-[104px] h-[104px] overflow-hidden">
             <FtlMsg id="promo-qr-mobile-qr-alt" attrs={{ alt: true }}>
               <img
-                src={cmsQr ?? branch.qr}
+                src={cmsQr ?? promo.qr}
                 alt="QR code to download the Firefox mobile app. Position your phone’s camera on the lower-right corner of your screen to scan it."
                 className={`w-full h-full ${QR_QUIET_ZONE_CROP}`}
               />

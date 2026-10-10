@@ -30,6 +30,11 @@ type AppLayoutProps = {
    */
   wrapInCard?: boolean;
   splitLayout?: boolean;
+  /** Whether the page behind the card is white rather than the default grey.
+   * The mobile pairing screens need this: below `mobileLandscape` the card is
+   * transparent, so the page colour is the screen colour.
+   */
+  whiteBackground?: boolean;
   /** Whether to show the locale toggle in the footer */
   showLocaleToggle?: boolean;
   /** Whether to show a loading spinner instead of children.
@@ -48,6 +53,7 @@ export const AppLayout = ({
   widthClass,
   cmsInfo,
   splitLayout = false,
+  whiteBackground = false,
   wrapInCard = true,
   loading = false,
   setCurrentSplitLayout,
@@ -83,6 +89,7 @@ export const AppLayout = ({
       <div
         className={classNames(
           'flex min-h-screen flex-col items-center dark:bg-grey-900',
+          whiteBackground && 'bg-white',
           cmsBackgrounds?.defaultLayout &&
             'mobileLandscape:[background:var(--cms-bg)]',
           splitLayout && 'mobileLandscape:relative'
@@ -140,8 +147,12 @@ export const AppLayout = ({
 
         {!splitLayout ? (
           <>
-            <main className="flex mobileLandscape:items-center flex-1">
-              <section>
+            {/* The mobile card is full-bleed, so these span the viewport below
+                `mobileLandscape` — left to shrink-to-fit, a card with narrow
+                content ends up narrower than the screen. Above that breakpoint
+                shrink-to-fit is what centers the fixed-width card. */}
+            <main className="flex w-full mobileLandscape:w-auto mobileLandscape:items-center flex-1">
+              <section className="w-full mobileLandscape:w-auto">
                 {loading ? (
                   <>
                     <CardLoadingSpinner />

@@ -6,14 +6,13 @@ import { graphql } from '../../../__generated__/gql';
 
 export const meterBySlugQuery = graphql(`
   query MeterBySlug($slug: String!) {
-    meters(
-      filters: { slug: { eq: $slug } }
-      pagination: { limit: 1 }
-    ) {
+    meters(filters: { slug: { eq: $slug } }, pagination: { limit: 1 }) {
       slug
       unit
       limit
-      window
+      windowKind
+      windowPeriod
+      windowDurationMinutes
       notificationThresholds
       webhooks {
         url

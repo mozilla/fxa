@@ -34,7 +34,8 @@ describe('#integration - PruneTokens', () => {
   const age = 1e9;
   const uid = uuidTransformer.to('0123456789abcdef0000000000000000');
 
-  before(async () => {
+  before(async function () {
+    this.timeout(20000);
     knex = await testDatabaseSetup({
       ...defaultOpts,
       auth: true,
@@ -56,7 +57,7 @@ describe('#integration - PruneTokens', () => {
   });
 
   after(async () => {
-    await knex.destroy();
+    await knex?.destroy();
   });
 
   beforeEach(async () => {

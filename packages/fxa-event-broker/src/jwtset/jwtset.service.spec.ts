@@ -6,13 +6,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JWTool, PublicJWK } from '@fxa/vendored/jwtool';
 
 import { JwtsetService } from './jwtset.service';
+import { DELETE_USER_EVENT_REASONS } from '../delete-reason/delete-reason';
 import {
   PASSWORD_CHANGE_EVENT,
   PROFILE_CHANGE_EVENT,
   SUBSCRIPTION_UPDATE_EVENT,
   DELETE_EVENT,
 } from '../queueworker/sqs.dto';
-import { PROFILE_EVENT_ID } from './set.interface';
+import { DELETE_EVENT_ID, PROFILE_EVENT_ID } from './set.interface';
 
 const TEST_KEY = {
   d: 'nvfTzcMqVr8fa-b3IIFBk0J69sZQsyhKc3jYN5pPG7FdJyA-D5aPNv5zsF64JxNJetAS44cAsGAKN3Kh7LfjvLCtV56Ckg2tkBMn3GrbhE1BX6ObYvMuOBz5FJ9GmTOqSCxotAFRbR6AOBd5PCw--Rls4MylX393TFg6jJTGLkuYGuGHf8ILWyb17hbN0iyT9hME-cgLW1uc_u7oZ0vK9IxGPTblQhr82RBPQDTvZTM4s1wYiXzbJNrI_RGTAhdbwXuoXKiBN4XL0YRDKT0ENVqQLMiBwfdT3sW-M0L6kIv-L8qX3RIhbM3WA_a_LjTOM3WwRcNanSGiAeJLHwE5cQ',
@@ -113,6 +114,30 @@ describe('JwtsetService', () => {
       expect(payload.aud).toBe(TEST_CLIENT_ID);
       expect(payload.sub).toBe('uid1234');
       expect(payload.iss).toBe('test');
+    });
+
+    it.each(DELETE_USER_EVENT_REASONS)(
+      'includes the %s reason in a delete SET',
+      async (reason) => {
+        const token = await service.generateDeleteSET({
+          clientId: TEST_CLIENT_ID,
+          reason,
+          uid: 'uid1234',
+        });
+        const payload = await PUBLIC_JWT.verify(token);
+
+        expect(payload.events[DELETE_EVENT_ID]).toEqual({ reason });
+      }
+    );
+
+    it('keeps the delete event empty when the reason is omitted', async () => {
+      const token = await service.generateDeleteSET({
+        clientId: TEST_CLIENT_ID,
+        uid: 'uid1234',
+      });
+      const payload = await PUBLIC_JWT.verify(token);
+
+      expect(payload.events[DELETE_EVENT_ID]).toEqual({});
     });
   });
 });

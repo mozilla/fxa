@@ -17,16 +17,19 @@ import {
   findPasskeyByCredentialId as repositoryFindPasskeyByCredentialId,
   findPasskeyByUidAndCredentialId as repositoryFindPasskeyByUidAndCredentialId,
   findPasskeysByUid,
+  findPasskeysWithWrapStateByUid,
   insertPasskey,
   isMysqlDupEntry,
   NewPasskeyData,
   PasskeyRecord,
+  PasskeyWithWrapState,
   updatePasskeyCounterAndLastUsed,
   updatePasskeyName,
   updatePasskeyPrfEnabled,
 } from './passkey.repository';
 import {
   deleteAllPasskeyWrapsForUser as repositoryDeleteAllPasskeyWrapsForUser,
+  deletePasskeyWrap as repositoryDeletePasskeyWrap,
   findPasskeyWrap as repositoryFindPasskeyWrap,
   insertPasskeyWrap,
   NewPasskeyWrapData,
@@ -173,6 +176,18 @@ export class PasskeyManager {
   }
 
   /**
+   * List all passkeys for a user, each flagged with whether it holds a wrap.
+   *
+   * @param uid - User ID as a hex string
+   * @returns Array of passkeys ordered by createdAt descending
+   */
+  async listPasskeysWithWrapStateForUser(
+    uid: string
+  ): Promise<PasskeyWithWrapState[]> {
+    return findPasskeysWithWrapStateByUid(this.db, uid);
+  }
+
+  /**
    * Rename a passkey.
    *
    * Both uid and credentialId must match to prevent one user from renaming
@@ -289,6 +304,24 @@ export class PasskeyManager {
     createdAt: number
   ): Promise<void> {
     await insertPasskeyWrap(this.db, uid, data, createdAt);
+  }
+
+  /**
+   * Delete the wrap for one credential, leaving the passkey registered.
+   *
+   * Both uid and credentialId must match to prevent one user from deleting
+   * another user's wrap.
+   *
+   * @param staleBefore - When given, only a wrap stored before this timestamp
+   *   is deleted; pass the account's `keysChangedAt` to spare a fresh wrap
+   * @returns true if a wrap was found and deleted, false otherwise
+   */
+  async deletePasskeyWrap(
+    uid: string,
+    credentialId: string,
+    staleBefore?: number
+  ): Promise<boolean> {
+    return repositoryDeletePasskeyWrap(this.db, uid, credentialId, staleBefore);
   }
 
   /**

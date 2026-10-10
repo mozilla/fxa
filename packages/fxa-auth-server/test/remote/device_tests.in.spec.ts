@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import crypto from 'crypto';
-import base64url from 'base64url';
 import { getSharedTestServer, TestServerInstance } from '../support/helpers/test-server';
 
 const Client = require('../client')();
@@ -173,7 +172,7 @@ describe.each(testVersions)(
         availableCommands: {},
         pushCallback: badPushCallback,
         pushPublicKey: mocks.MOCK_PUSH_KEY,
-        pushAuthKey: base64url(crypto.randomBytes(16)),
+        pushAuthKey: crypto.randomBytes(16).toString('base64url'),
       };
 
       const client = await Client.create(server.publicUrl, email, password, testOptions);
@@ -199,7 +198,7 @@ describe.each(testVersions)(
         availableCommands: {},
         pushCallback: badPushCallback,
         pushPublicKey: mocks.MOCK_PUSH_KEY,
-        pushAuthKey: base64url(crypto.randomBytes(16)),
+        pushAuthKey: crypto.randomBytes(16).toString('base64url'),
       };
 
       const client = await Client.create(server.publicUrl, email, password, testOptions);
@@ -225,7 +224,7 @@ describe.each(testVersions)(
         availableCommands: {},
         pushCallback: goodPushCallback,
         pushPublicKey: mocks.MOCK_PUSH_KEY,
-        pushAuthKey: base64url(crypto.randomBytes(16)),
+        pushAuthKey: crypto.randomBytes(16).toString('base64url'),
       };
 
       const devices = await client.devices();
@@ -247,7 +246,7 @@ describe.each(testVersions)(
         type: 'mobile',
         pushCallback: goodPushCallback,
         pushPublicKey: mocks.MOCK_PUSH_KEY,
-        pushAuthKey: base64url(crypto.randomBytes(16)),
+        pushAuthKey: crypto.randomBytes(16).toString('base64url'),
       };
 
       const devices = await client.devices();
@@ -270,7 +269,7 @@ describe.each(testVersions)(
         type: 'mobile',
         pushCallback: goodPushCallback,
         pushPublicKey: mocks.MOCK_PUSH_KEY,
-        pushAuthKey: base64url(crypto.randomBytes(16)),
+        pushAuthKey: crypto.randomBytes(16).toString('base64url'),
       };
 
       const devices = await client.devices();
@@ -292,7 +291,7 @@ describe.each(testVersions)(
         type: 'mobile',
         pushCallback: goodPushCallback,
         pushPublicKey: mocks.MOCK_PUSH_KEY,
-        pushAuthKey: base64url(crypto.randomBytes(16)),
+        pushAuthKey: crypto.randomBytes(16).toString('base64url'),
       };
 
       const devices = await client.devices();
@@ -315,7 +314,7 @@ describe.each(testVersions)(
         type: 'mobile',
         pushCallback: goodPushCallback,
         pushPublicKey: mocks.MOCK_PUSH_KEY,
-        pushAuthKey: base64url(crypto.randomBytes(16)),
+        pushAuthKey: crypto.randomBytes(16).toString('base64url'),
       };
 
       const devices = await client.devices();
@@ -336,7 +335,7 @@ describe.each(testVersions)(
         type: 'desktop',
         pushCallback: badPushCallback,
         pushPublicKey: mocks.MOCK_PUSH_KEY,
-        pushAuthKey: base64url(crypto.randomBytes(16)),
+        pushAuthKey: crypto.randomBytes(16).toString('base64url'),
       };
 
       const client = await Client.create(server.publicUrl, email, password, testOptions);
@@ -423,7 +422,7 @@ describe.each(testVersions)(
         type: 'desktop',
         pushCallback: 'https://updates.push.services.mozilla.com/qux',
         pushPublicKey: mocks.MOCK_PUSH_KEY,
-        pushAuthKey: base64url(crypto.randomBytes(16)),
+        pushAuthKey: crypto.randomBytes(16).toString('base64url'),
       };
 
       const client = await Client.create(server.publicUrl, email, password, testOptions);
@@ -456,8 +455,8 @@ describe.each(testVersions)(
         name: 'test device',
         type: 'desktop',
         pushCallback: 'https://updates.push.services.mozilla.com/qux',
-        pushPublicKey: base64url(invalidPublicKey),
-        pushAuthKey: base64url(crypto.randomBytes(16)),
+        pushPublicKey: invalidPublicKey.toString('base64url'),
+        pushAuthKey: crypto.randomBytes(16).toString('base64url'),
       };
 
       const client = await Client.createAndVerify(

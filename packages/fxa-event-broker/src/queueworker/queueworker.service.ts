@@ -23,6 +23,10 @@ import * as Sentry from '@sentry/node';
 import { ClientCapabilityService } from '../client-capability/client-capability.service';
 import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';
 import { AppConfig } from '../config';
+import {
+  DeleteUserEventReason,
+  narrowDeleteUserEventReason,
+} from '../delete-reason/delete-reason';
 import { FirestoreService } from '../firestore/firestore.service';
 import { ServiceNotification } from './service-notification.interface';
 import * as dto from './sqs.dto';
@@ -35,6 +39,14 @@ function extractRegionFromUrl(url: string) {
     return matchResult[1];
   }
 }
+
+type MessageFanoutEventType = 'delete' | 'password' | 'profile';
+
+type MessageFanoutAdditionalEventProperties = {
+  delete?: { reason: DeleteUserEventReason };
+  password?: never;
+  profile?: never;
+};
 
 @Injectable()
 export class QueueworkerService
@@ -182,11 +194,13 @@ export class QueueworkerService
    * Generic fan-out of the message to the pubsub clientId queues.
    *
    * @param message Incoming SQS message type supported for generic fanout.
-   * @param eventType Event type to use for metrics
+   * @param eventType Event type to use for metrics.
+   * @param additionalEventProperties Optional properties based on event type.
    */
   private async handleMessageFanout(
     message: dto.deleteSchema | dto.profileSchema | dto.passwordSchema,
-    eventType: string
+    eventType: MessageFanoutEventType,
+    additionalEventProperties?: MessageFanoutAdditionalEventProperties
   ) {
     this.metrics.increment('message.type', { eventType });
     const clientIds = await this.clientIdsForUserAndResourceServers(
@@ -207,6 +221,7 @@ export class QueueworkerService
         uid: message.uid,
         //@ts-ignore
         email: message.email,
+        ...(additionalEventProperties?.[eventType] ?? {}),
       });
       this.log.debug('publishedMessage', { clientId, messageId });
     }
@@ -219,7 +234,18 @@ export class QueueworkerService
    * @private
    */
   private async handleDeleteEvent(message: dto.deleteSchema) {
-    await this.handleMessageFanout(message, 'delete');
+    const result = narrowDeleteUserEventReason(message.reason);
+    if ('fallback' in result) {
+      this.metrics.increment('message.delete.reasonFallback', {
+        category: result.fallback,
+      });
+    }
+
+    await this.handleMessageFanout(
+      message,
+      'delete',
+      'reason' in result ? { delete: { reason: result.reason } } : undefined
+    );
 
     await this.firestore.deleteUser(message.uid);
   }

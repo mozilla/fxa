@@ -2,7 +2,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "paths": {
+      "@fxa/shared/log": ["libs/shared/log/src/index"],
+      "@fxa/shared/otel": ["libs/shared/otel/src/index"],
       "@fxa/shared/pem-jwk": ["libs/shared/pem-jwk/src/index"],
+      "@fxa/shared/sentry-utils": ["libs/shared/sentry-utils/src/index"],
       "@fxa/vendored/jwtool": ["libs/vendored/jwtool/src/index"],
       "@fxa/vendored/typesafe-node-firestore": ["libs/vendored/typesafe-node-firestore/src/index"]
     }

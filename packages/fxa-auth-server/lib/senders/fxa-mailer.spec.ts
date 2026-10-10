@@ -226,6 +226,18 @@ describe('lib/senders/fxa-mailer', () => {
       });
     });
 
+    it('does not record an emailSent event when the send is blocked', async () => {
+      stubRender();
+      mockEmailSender.send.mockResolvedValueOnce({
+        sent: false,
+        message: 'Has bounce errors!',
+      });
+
+      await fxaMailer.sendNewDeviceLoginEmail(baseOpts);
+
+      expect(mockAccountEventsManager.recordEmailEvent).not.toHaveBeenCalled();
+    });
+
     it('does not record an event when uid is missing', async () => {
       stubRender();
       const optsWithoutUid = { ...baseOpts, uid: undefined };

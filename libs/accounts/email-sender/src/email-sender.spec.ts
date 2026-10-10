@@ -14,6 +14,7 @@ jest.mock('@sentry/node');
 // additional imports after Jest has mocked modules
 import * as Sentry from '@sentry/node';
 import nodemailer from 'nodemailer';
+import type { SendMailOptions, SentMessageInfo, Transporter } from 'nodemailer';
 
 const defaultMockEmail: Email = {
   to: 'recipient@example.com',
@@ -31,9 +32,17 @@ const defaultMockEmail: Email = {
  * Creates a partial mock of nodemailer.Transporter with only the methods we need for testing.
  * Maintains strong typing and avoids using 'any', or double casting `as unknown as <type>`.
  */
+// nodemailer declares the callback overload of sendMail last, and jest.Mocked
+// types a mock from the last overload, so pin the promise form.
+type MockTransporter = Omit<jest.Mocked<Transporter>, 'sendMail'> & {
+  sendMail: jest.MockedFunction<
+    (data: SendMailOptions) => Promise<SentMessageInfo>
+  >;
+};
+
 function createMockTransporter(
-  overrides: Partial<Pick<nodemailer.Transporter, 'sendMail'>> = {}
-): jest.Mocked<nodemailer.Transporter> {
+  overrides: Partial<Pick<MockTransporter, 'sendMail'>> = {}
+): MockTransporter {
   return {
     sendMail: jest.fn().mockResolvedValue({
       messageId: 'test-message-id',
@@ -41,7 +50,7 @@ function createMockTransporter(
       response: '250 OK',
     }),
     ...overrides,
-  } as jest.Mocked<nodemailer.Transporter>;
+  } as MockTransporter;
 }
 
 describe('EmailSender', () => {
@@ -49,7 +58,7 @@ describe('EmailSender', () => {
   let mockBounces: jest.Mocked<Bounces>;
   let mockStatsd: jest.Mocked<StatsD>;
   let mockLogger: jest.Mocked<ILogger>;
-  let mockTransport: jest.Mocked<nodemailer.Transporter>;
+  let mockTransport: MockTransporter;
   let mockNodemailer: jest.Mocked<typeof nodemailer>;
   let config: MailerConfig;
   let mockSentryCaptureException: jest.SpyInstance;
@@ -529,7 +538,11 @@ describe('EmailSender', () => {
     });
 
     it('retries twice before succeeding', async () => {
-      const mockTransportResponse = {
+      const mockTransportResponse: SentMessageInfo = {
+        envelope: {
+          from: defaultMockEmail.from,
+          to: [defaultMockEmail.to],
+        },
         messageId: 'test-message-id',
         message: 'It worked!',
         response: '250 OK',
@@ -559,7 +572,11 @@ describe('EmailSender', () => {
     });
     it('retries with exponential backoff', async () => {
       const sleepDurations: number[] = [];
-      const mockTransportResponse = {
+      const mockTransportResponse: SentMessageInfo = {
+        envelope: {
+          from: defaultMockEmail.from,
+          to: [defaultMockEmail.to],
+        },
         messageId: 'test-message-id',
         message: 'It worked!',
         response: '250 OK',

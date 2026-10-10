@@ -602,13 +602,6 @@ var User = Backbone.Model.extend({
       });
   },
 
-  finishSetup(account, relier, token, email, password) {
-    return account.finishSetup(relier, token, email, password).then(() => {
-      this._notifyOfAccountSignIn(account);
-      return this.setSignedInAccount(account);
-    });
-  },
-
   verifyAccountThirdParty(account, relier, code, provider) {
     return account.verifyAccountThirdParty(relier, code, provider).then(() => {
       this._notifyOfAccountSignIn(account);

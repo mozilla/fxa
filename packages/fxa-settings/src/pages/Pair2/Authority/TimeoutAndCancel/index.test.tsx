@@ -9,8 +9,22 @@ import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { TimeoutAndCancelReason } from '.';
 import { Subject } from './mocks';
+import GleanMetrics from '../../../../lib/glean';
+
+jest.mock('../../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    dtmDesktop: {
+      timeoutView: jest.fn(),
+    },
+  },
+}));
 
 const REASONS: TimeoutAndCancelReason[] = ['timeout', 'canceled'];
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('Pair2/Authority/TimeoutAndCancel page', () => {
   // Guards against drift between the fallback text in the component and the
@@ -34,27 +48,23 @@ describe('Pair2/Authority/TimeoutAndCancel page', () => {
     }
   );
 
-  it.each(REASONS)(
-    'exposes the illustration to assistive technology (%s)',
-    (reason) => {
-      renderWithLocalizationProvider(<Subject {...{ reason }} />);
+  it.each(REASONS)('keeps the illustration decorative (%s)', (reason) => {
+    renderWithLocalizationProvider(<Subject {...{ reason }} />);
 
-      expect(
-        screen
-          .getAllByRole('img')
-          .map(
-            (img) => img.getAttribute('alt') ?? img.getAttribute('aria-label')
-          )
-      ).toEqual([
-        // AppLayout's page header, then the single image this card renders.
-        // Desktop cards have no Firefox lockup.
-        'Mozilla logo',
-      ]);
-    }
-  );
+    expect(
+      screen
+        .getAllByRole('img')
+        .map((img) => img.getAttribute('alt') ?? img.getAttribute('aria-label'))
+    ).toEqual([
+      // AppLayout's page header alone. The illustration is decorative —
+      // the copy above it says the same — and desktop cards have no Firefox
+      // lockup.
+      'Mozilla logo',
+    ]);
+  });
 
   describe('timeout', () => {
-    it('renders the heading, description, and actions', () => {
+    it('renders the heading and description', () => {
       renderWithLocalizationProvider(<Subject reason="timeout" />);
 
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
@@ -63,25 +73,15 @@ describe('Pair2/Authority/TimeoutAndCancel page', () => {
       screen.getByText(
         'Looks like we timed out. Try again if you still want to connect your mobile device and sync your Firefox data.'
       );
-      screen.getByRole('button', { name: 'Try again' });
-      screen.getByRole('button', { name: 'Cancel' });
-      expect(
-        screen.queryByRole('button', { name: 'Sync settings' })
-      ).not.toBeInTheDocument();
     });
 
-    it('calls onCancel from the secondary action', async () => {
-      const user = userEvent.setup();
-      const onCancel = jest.fn();
-      const onSyncSettings = jest.fn();
-      renderWithLocalizationProvider(
-        <Subject reason="timeout" {...{ onCancel, onSyncSettings }} />
-      );
+    // The user is already signed in on this computer, so there is nothing to
+    // abandon. Fail loudly if a second action is ever added back here.
+    it('offers only the primary action', () => {
+      renderWithLocalizationProvider(<Subject reason="timeout" />);
 
-      await user.click(screen.getByRole('button', { name: 'Cancel' }));
-
-      expect(onCancel).toHaveBeenCalledTimes(1);
-      expect(onSyncSettings).not.toHaveBeenCalled();
+      expect(screen.getAllByRole('button')).toHaveLength(1);
+      screen.getByRole('button', { name: 'Try again' });
     });
   });
 
@@ -90,30 +90,27 @@ describe('Pair2/Authority/TimeoutAndCancel page', () => {
       renderWithLocalizationProvider(<Subject reason="canceled" />);
 
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-        'Canceled'
+        'Cancelled'
       );
       screen.getByText(
         'If you change your mind or want to connect a different device, try again.'
       );
       screen.getByRole('button', { name: 'Try again' });
       screen.getByRole('button', { name: 'Sync settings' });
-      expect(
-        screen.queryByRole('button', { name: 'Cancel' })
-      ).not.toBeInTheDocument();
     });
 
     it('calls onSyncSettings from the secondary action', async () => {
       const user = userEvent.setup();
-      const onCancel = jest.fn();
+      const onTryAgain = jest.fn();
       const onSyncSettings = jest.fn();
       renderWithLocalizationProvider(
-        <Subject reason="canceled" {...{ onCancel, onSyncSettings }} />
+        <Subject reason="canceled" {...{ onTryAgain, onSyncSettings }} />
       );
 
       await user.click(screen.getByRole('button', { name: 'Sync settings' }));
 
       expect(onSyncSettings).toHaveBeenCalledTimes(1);
-      expect(onCancel).not.toHaveBeenCalled();
+      expect(onTryAgain).not.toHaveBeenCalled();
     });
   });
 
@@ -129,4 +126,14 @@ describe('Pair2/Authority/TimeoutAndCancel page', () => {
       expect(onTryAgain).toHaveBeenCalledTimes(1);
     }
   );
+
+  // The automatic view event cannot tell the two states apart — they share a
+  // route — so the reason has to come from the component.
+  it.each(REASONS)('emits a view event carrying the reason (%s)', (reason) => {
+    renderWithLocalizationProvider(<Subject {...{ reason }} />);
+
+    expect(GleanMetrics.dtmDesktop.timeoutView).toHaveBeenCalledWith({
+      event: { reason },
+    });
+  });
 });

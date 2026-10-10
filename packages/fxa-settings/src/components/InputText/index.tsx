@@ -35,6 +35,7 @@ export type InputTextProps = {
   onBlurCb?: () => void;
   onPaste?: (event: React.ClipboardEvent<HTMLInputElement>) => void;
   type?: 'text' | 'email' | 'tel' | 'number' | 'url' | 'password';
+  id?: string;
   name?: string;
   prefixDataTestId?: string;
   autoFocus?: boolean;
@@ -51,6 +52,8 @@ export type InputTextProps = {
     | 'one-time-code'
     | 'email';
   inputMode?: 'text' | 'numeric' | 'tel' | 'email';
+  enterKeyHint?: React.InputHTMLAttributes<HTMLInputElement>['enterKeyHint'];
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
   required?: boolean;
   tooltipPosition?: 'top' | 'bottom';
   isPasswordInput?: boolean;
@@ -77,6 +80,7 @@ export const InputText = ({
   inputRefDOM,
   registration,
   type = 'text',
+  id,
   name,
   prefixDataTestId = '',
   autoFocus,
@@ -86,6 +90,8 @@ export const InputText = ({
   spellCheck,
   autoComplete,
   inputMode,
+  enterKeyHint,
+  onKeyDown,
   required,
   tooltipPosition,
   isPasswordInput = false,
@@ -214,6 +220,7 @@ export const InputText = ({
             onBlur(e);
           }}
           {...{
+            id,
             name: effectiveName,
             disabled,
             onFocus,
@@ -226,6 +233,8 @@ export const InputText = ({
             spellCheck,
             autoComplete,
             inputMode,
+            enterKeyHint,
+            onKeyDown,
             required,
             autoCapitalize,
           }}

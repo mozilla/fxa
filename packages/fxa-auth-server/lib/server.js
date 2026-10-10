@@ -177,6 +177,16 @@ async function create(
       return (async () => {
         const token = await dbGetFn(id);
 
+        // Only the session-token lookup returns accounts.disabledAt. The
+        // other token kinds are refused at creation instead (db.ts).
+        if (token.disabledAt) {
+          log.info('auth.token.account_disabled', { uid: token.uid });
+          statsd.increment('auth.token.account_disabled', [
+            `kind:${token.constructor.tokenTypeID}`,
+          ]);
+          return null;
+        }
+
         if (!token.expired(Date.now())) {
           return token;
         }
@@ -213,6 +223,8 @@ async function create(
           maxAge: 31536000,
           includeSubdomains: true,
         },
+        // Hapi defaults this to 'disabled'. Keep the header on.
+        xss: 'enabled',
       },
       state: {
         parse: false,

@@ -378,7 +378,7 @@ describe('PasskeySubRow', () => {
     expect(await screen.findByText('Delete your passkey?')).toBeInTheDocument();
     expect(
       screen.getByText(
-        'This passkey will be removed from your account. You’ll need to sign in using a different method (password, another passkey, or linked account).'
+        'This passkey will be removed from your account. You’ll need to sign in using a password, another passkey, or linked account.'
       )
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();

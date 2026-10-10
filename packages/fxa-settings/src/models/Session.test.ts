@@ -75,6 +75,43 @@ describe('Session', () => {
       expect(mockedDispatchStorageEvent).not.toHaveBeenCalled();
     });
 
+    it('destroys the browser session token after the stored one', async () => {
+      mockedSessionToken.mockReturnValue('valid-token');
+      mockAuthClient.sessionDestroy.mockResolvedValue({});
+
+      await session.destroy('browser-token');
+
+      expect(mockAuthClient.sessionDestroy.mock.calls).toEqual([
+        ['valid-token'],
+        ['browser-token'],
+      ]);
+    });
+
+    it('clears local state when destroying the browser session token fails', async () => {
+      mockedSessionToken.mockReturnValue('valid-token');
+      mockAuthClient.sessionDestroy
+        .mockResolvedValueOnce({})
+        .mockRejectedValueOnce(new Error('Network request failed'));
+
+      await expect(session.destroy('browser-token')).resolves.toBeUndefined();
+
+      expect(mockedClearSignedInAccountUid).toHaveBeenCalled();
+      expect(mockedDispatchStorageEvent).toHaveBeenCalledWith('isSignedIn');
+    });
+
+    it('keeps the browser session token when destroying the stored one fails', async () => {
+      mockedSessionToken.mockReturnValue('valid-token');
+      mockAuthClient.sessionDestroy.mockRejectedValue(
+        new Error('Network request failed')
+      );
+
+      await expect(session.destroy('browser-token')).rejects.toThrow(
+        'Network request failed'
+      );
+
+      expect(mockAuthClient.sessionDestroy).toHaveBeenCalledTimes(1);
+    });
+
     it('skips the server call when there is no session token', async () => {
       mockedSessionToken.mockReturnValue(undefined);
 

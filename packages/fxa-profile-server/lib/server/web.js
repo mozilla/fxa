@@ -74,7 +74,7 @@ exports.create = async function createServer() {
           includeSubdomains: true,
         },
         xframe: true,
-        xss: true,
+        xss: 'enabled',
         noOpen: false,
         noSniff: true,
       },

@@ -37,7 +37,17 @@ const ContinueOnMobileContainer = ({
         case AuthorityState.Failed:
           // The pairing request is dead — cancelled or timed out — so the
           // authority must not be shown a sign-in to approve for it.
-          navigateWithQuery('/pair/authority/timeout_and_cancel', {}, true);
+          navigateWithQuery(
+            '/pair/authority/timeout_and_cancel',
+            {
+              state: {
+                reason: integration.canceledBySupplicant
+                  ? 'canceled'
+                  : 'timeout',
+              },
+            },
+            true
+          );
           break;
         default:
           console.warn('Unexpected state change: ' + state);
@@ -54,7 +64,7 @@ const ContinueOnMobileContainer = ({
   // Leave even if the channel will not close; the user asked to stop.
   const onCancel = async () => {
     try {
-      await integration.destroy();
+      await integration.cancel();
     } catch (err) {
       Sentry.captureException(err);
     }

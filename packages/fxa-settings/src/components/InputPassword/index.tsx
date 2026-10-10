@@ -24,10 +24,13 @@ export const InputPassword = ({
   registration,
   hasErrors,
   errorText,
+  id,
   name,
   prefixDataTestId = '',
   tooltipPosition,
   anchorPosition,
+  enterKeyHint,
+  onKeyDown,
 }: InputPasswordProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
 
@@ -84,10 +87,13 @@ export const InputPassword = ({
           registration,
           hasErrors,
           errorText,
+          id,
           name,
           prefixDataTestId,
           tooltipPosition,
           anchorPosition,
+          enterKeyHint,
+          onKeyDown,
         }}
       ></InputText>
       <button

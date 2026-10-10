@@ -6,8 +6,6 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import sinon from 'sinon';
-import checksum from 'checksum';
-import P from '../lib/promise';
 import config from '../lib/config';
 import { assertSecurityHeaders } from './lib/util';
 const db = require('../lib/db');
@@ -90,7 +88,7 @@ describe('#integration - api', () => {
       config.set('secretBearerToken', EXPECTED_TOKEN);
       mockProfileCacheDrop = sinon
         .stub(Server.server.methods.profileCache, 'drop')
-        .callsFake((_uid: string) => P.resolve([]));
+        .callsFake((_uid: string) => Promise.resolve([]));
     });
 
     afterEach(() => {
@@ -153,6 +151,23 @@ describe('#integration - api', () => {
       expect(res.result.email).toBe('user@example.domain');
       expect(res.result.avatar).toBe(`${PUBLIC_URL}/v1/avatar/u`);
       expect(res.result.avatarDefault).toBe(false);
+      assertSecurityHeaders(res);
+    });
+
+    it('should return additionalEmails when the auth-server provides them', async () => {
+      mock.tokenGood();
+      mock.coreProfile({
+        email: 'user@example.domain',
+        additionalEmails: ['second@example.domain'],
+      });
+      const res = await Server.api.get({
+        url: '/profile',
+        headers: {
+          authorization: 'Bearer ' + tok,
+        },
+      });
+      expect(res.statusCode).toBe(200);
+      expect(res.result.additionalEmails).toEqual(['second@example.domain']);
       assertSecurityHeaders(res);
     });
 
@@ -425,7 +440,7 @@ describe('#integration - api', () => {
       });
       expect(res.statusCode).toBe(200);
       var etag = res.headers.etag.substr(1, 40);
-      var expectedEtag = checksum(JSON.stringify(res.result));
+      var expectedEtag = crypto.hash('sha1', JSON.stringify(res.result), 'hex');
       expect(etag).toBe(expectedEtag);
       assertSecurityHeaders(res);
     });
@@ -596,6 +611,77 @@ describe('#integration - api', () => {
         },
       });
       expect(res.statusCode).toBe(403);
+      assertSecurityHeaders(res);
+    });
+
+    it('should NOT return additionalEmails', async () => {
+      // `/email` authorizes only the primary address; do not leak secondaries.
+      mock.tokenGood();
+      mock.coreProfile({
+        email: 'user@example.domain',
+        additionalEmails: ['second@example.domain'],
+      });
+      const res = await Server.api.get({
+        url: '/email',
+        headers: {
+          authorization: 'Bearer ' + tok,
+        },
+      });
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.payload);
+      expect(body.email).toBe('user@example.domain');
+      expect(body.additionalEmails).toBeUndefined();
+      assertSecurityHeaders(res);
+    });
+  });
+
+  describe('/profile additionalEmails', () => {
+    var tok = token();
+
+    it('should omit additionalEmails when the auth-server does not return it', async () => {
+      // Preserve omission when the auth server withholds the field.
+      mock.token({
+        user: USERID,
+        scope: ['profile:email'],
+      });
+      mock.coreProfile({ email: 'user@example.domain' });
+      const res = await Server.api.get({
+        url: '/profile',
+        headers: {
+          authorization: 'Bearer ' + tok,
+        },
+      });
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.payload);
+      expect(body.email).toBe('user@example.domain');
+      expect(body.additionalEmails).toBeUndefined();
+      assertSecurityHeaders(res);
+    });
+
+    it('should return additionalEmails for a token scoped to only profile:additionalEmails', async () => {
+      // Only `_core_profile` accepts this scope; `/profile` must still succeed
+      // when its other batched requests are unauthorized.
+      mock.token({
+        user: USERID,
+        scope: ['profile:additionalEmails'],
+      });
+      // This scope does not authorize the primary address.
+      mock.coreProfile({
+        additionalEmails: ['second@example.domain', 'third@example.domain'],
+      });
+      const res = await Server.api.get({
+        url: '/profile',
+        headers: {
+          authorization: 'Bearer ' + tok,
+        },
+      });
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.payload);
+      expect(body.additionalEmails).toEqual([
+        'second@example.domain',
+        'third@example.domain',
+      ]);
+      expect(body.email).toBeUndefined();
       assertSecurityHeaders(res);
     });
   });
@@ -942,11 +1028,11 @@ describe('#integration - api', () => {
         assertSecurityHeaders(res);
 
         const s3url = res.result.url;
-        const responses = await P.all(SIZE_SUFFIXES).map(function (
-          suffix: string
-        ) {
-          return Static.get(s3url + suffix);
-        });
+        const responses = await Promise.all(
+          SIZE_SUFFIXES.map(function (suffix: string) {
+            return Static.get(s3url + suffix);
+          })
+        );
         expect(responses).toHaveLength(SIZE_SUFFIXES.length);
         responses.forEach(function (res: any) {
           expect(res.statusCode).toBe(200);
@@ -1074,11 +1160,11 @@ describe('#integration - api', () => {
         assertSecurityHeaders(res);
 
         const s3url = res.result.url;
-        const responses = await P.all(SIZE_SUFFIXES).map(function (
-          suffix: string
-        ) {
-          return Static.get(s3url + suffix);
-        });
+        const responses = await Promise.all(
+          SIZE_SUFFIXES.map(function (suffix: string) {
+            return Static.get(s3url + suffix);
+          })
+        );
         expect(responses).toHaveLength(SIZE_SUFFIXES.length);
         responses.forEach(function (res: any) {
           expect(res.statusCode).toBe(200);
@@ -1131,11 +1217,11 @@ describe('#integration - api', () => {
         assertSecurityHeaders(res);
 
         const s3url = res.result.url;
-        const responses = await P.all(SIZE_SUFFIXES).map(function (
-          suffix: string
-        ) {
-          return Static.get(s3url + suffix);
-        });
+        const responses = await Promise.all(
+          SIZE_SUFFIXES.map(function (suffix: string) {
+            return Static.get(s3url + suffix);
+          })
+        );
         expect(responses).toHaveLength(SIZE_SUFFIXES.length);
         responses.forEach(function (res: any) {
           expect(res.statusCode).toBe(200);
@@ -1241,11 +1327,11 @@ describe('#integration - api', () => {
           assertSecurityHeaders(res);
           const avatar = await db.getAvatar(id);
           expect(avatar).toBeUndefined();
-          const responses = await P.all(SIZE_SUFFIXES).map(function (
-            suffix: string
-          ) {
-            return Static.get(s3url + suffix);
-          });
+          const responses = await Promise.all(
+            SIZE_SUFFIXES.map(function (suffix: string) {
+              return Static.get(s3url + suffix);
+            })
+          );
           responses.forEach(function (res: any) {
             expect(res.statusCode).toBe(404);
           });
@@ -1267,11 +1353,11 @@ describe('#integration - api', () => {
           assertSecurityHeaders(res);
           const avatar = await db.getAvatar(id);
           expect(avatar).toBeUndefined();
-          const responses = await P.all(SIZE_SUFFIXES).map(function (
-            suffix: string
-          ) {
-            return Static.get(s3url + suffix);
-          });
+          const responses = await Promise.all(
+            SIZE_SUFFIXES.map(function (suffix: string) {
+              return Static.get(s3url + suffix);
+            })
+          );
           responses.forEach(function (res: any) {
             expect(res.statusCode).toBe(404);
           });
@@ -1312,6 +1398,10 @@ describe('#integration - api', () => {
         });
         expect(res.statusCode).toBe(200);
         expect(JSON.parse(res.payload).displayName).toBe('Spock');
+        // sha1 hex of 'Spock'. A different digest invalidates every ETag clients hold.
+        expect(res.headers.etag).toBe(
+          '"bed7a551108b230b31cd4f92a60d5434c6cf3a00"'
+        );
         assertSecurityHeaders(res);
       });
 

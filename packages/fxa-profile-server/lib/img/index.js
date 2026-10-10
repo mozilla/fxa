@@ -4,7 +4,6 @@
 
 const crypto = require('crypto');
 
-const P = require('../promise');
 const config = require('../config');
 const logger = require('../logging')('img');
 
@@ -24,7 +23,7 @@ function unique() {
 var driver;
 function withDriver() {
   if (driver) {
-    return P.resolve(driver);
+    return Promise.resolve(driver);
   }
   var p;
   if (config.get('img.driver') === 'aws') {

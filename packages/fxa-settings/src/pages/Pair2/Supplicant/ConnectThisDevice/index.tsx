@@ -49,7 +49,7 @@ export const ConnectThisDevice = ({
   const awaitingRemoteMetadata = remoteMetadata == null;
   email = email ?? 'foo@mozilla.com';
 
-  return <AppLayout>
+  return <AppLayout whiteBackground>
     <div className="flex flex-col items-center text-center">
       <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
 
@@ -75,6 +75,7 @@ export const ConnectThisDevice = ({
           data-testid="pair2-supp-connect-btn"
           onClick={onConnect}
           disabled={awaitingRemoteMetadata}
+          data-glean-id="dtm_mobile_connect_submit"
           className="cta-primary cta-xl mt-6 w-full"
         >
           Connect
@@ -86,6 +87,7 @@ export const ConnectThisDevice = ({
           data-testid="pair2-supp-cancel-btn"
           onClick={onCancel}
           disabled={awaitingRemoteMetadata}
+          data-glean-id="dtm_mobile_connect_cancel"
           className="link-dark-grey"
         >
           Cancel

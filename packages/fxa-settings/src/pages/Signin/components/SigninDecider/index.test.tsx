@@ -16,6 +16,9 @@ import {
   createMockSigninOAuthNativeSyncIntegration,
 } from '../../mocks';
 import { MOCK_EMAIL, MOCK_SESSION_TOKEN } from '../../../mocks';
+import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../../models/mocks';
+
+const mockSensitiveDataClient = createMockSensitiveDataClient();
 
 jest.mock('../../../../lib/storage-utils', () => ({
   storeAccountData: jest.fn(),
@@ -23,7 +26,7 @@ jest.mock('../../../../lib/storage-utils', () => ({
 
 jest.mock('../../../../models', () => ({
   ...jest.requireActual('../../../../models'),
-  useSensitiveDataClient: () => ({ setDataType: jest.fn() }),
+  useSensitiveDataClient: () => mockSensitiveDataClient,
   useSession: () => ({ sendVerificationCode: jest.fn() }),
   useConfig: () => ({ servicesWithEmailVerification: ['123456'] }),
 }));

@@ -14,9 +14,9 @@ if (swcJestConfig.swcrc === undefined) {
   swcJestConfig.swcrc = false;
 }
 
-// @openmeter/client ships JS with sourceMappingURL comments but no .map files,
+// Some dependencies ship JS with sourceMappingURL comments but no .map files,
 // which makes SWC log noisy "failed to read input source map" errors when it
-// transforms that package for jest. We do not need input source maps in tests.
+// transforms those packages for jest. We do not need input source maps in tests.
 swcJestConfig.inputSourceMap = false;
 
 // Uncomment if using global setup/teardown files being transformed via swc
@@ -30,7 +30,6 @@ const config: Config = {
   transform: {
     '^.+\\.[tj]s$': ['@swc/jest', swcJestConfig],
   },
-  transformIgnorePatterns: ['node_modules/(?!(@openmeter/client|ky)/)'],
   moduleFileExtensions: ['ts', 'js', 'html'],
   testEnvironment: 'node',
   coverageDirectory: '../../../coverage/libs/entitlements/metering',

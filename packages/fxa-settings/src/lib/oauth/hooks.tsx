@@ -11,11 +11,13 @@ import {
   isOAuthIntegration,
   isSyncDesktopV3Integration,
   Integration,
+  useSensitiveDataClient,
 } from '../../models';
 import { createEncryptedBundle } from '../crypto/scoped-keys';
 import { Constants } from '../constants';
 import { AuthError, OAUTH_ERRORS, OAuthError } from './oauth-errors';
 import { AuthUiErrors } from '../auth-errors/auth-errors';
+import { integrationNeedsPermissions } from './permissions';
 
 export type OAuthData = {
   code: string;
@@ -61,7 +63,7 @@ const checkOAuthData = (integration: OAuthIntegration): AuthError | null => {
       errno: OAUTH_ERRORS.INVALID_PARAMETER.errno,
       message: new OAuthError(OAUTH_ERRORS.INVALID_PARAMETER.errno, {
         param: 'state',
-      }).error as string,
+      }).message,
     };
   }
   return null;
@@ -71,7 +73,6 @@ const checkOAuthData = (integration: OAuthIntegration): AuthError | null => {
  * Constructs JSON web encrypted keys
  * @param accountUid - Current account UID
  * @param sessionToken - Current Session Token
- * @param keyFetchToken - Current Key Fetch Token
  * @param kB -The encryption key for class-b data. See eco system docs for more info.
  * @returns JSON Web Ecrypted Kyes
  */
@@ -80,7 +81,6 @@ async function constructKeysJwe(
   integration: OAuthIntegration,
   accountUid: string,
   sessionToken: string,
-  keyFetchToken: string,
   kB: string
 ) {
   // The URL may omit scope= for OAuthNative flows. When that happens,
@@ -98,8 +98,7 @@ async function constructKeysJwe(
     integration.data.keysJwk &&
     integration.data.clientId &&
     sessionToken &&
-    kB &&
-    keyFetchToken
+    kB
   ) {
     const clientKeyData = await authClient.getOAuthScopedKeyData(
       sessionToken,
@@ -196,7 +195,9 @@ export type FinishOAuthFlowHandler = (
   accountUid: string,
   sessionToken: string,
   keyFetchToken?: string,
-  unwrapKB?: string
+  unwrapKB?: string,
+  /** Hex `kB` already known to the client; skips the keyFetchToken derivation. */
+  kB?: hexstring
 ) => Promise<FinishOAuthFlowHandlerResult>;
 
 type UseFinishOAuthFlowHandlerResult = {
@@ -214,38 +215,62 @@ export function tryAgainError() {
  * @param sessionToken - Current session token
  * @param keyFetchToken - Current key fetch token
  * @param unwrapBKey - Used to unwrap the account keys
+ * @param kB - Hex `kB` already recovered client-side; skips the key fetch.
  * @returns An object containing the redirect URL, that can relay the new OAuthCode.
  */
 export function useFinishOAuthFlowHandler(
   authClient: AuthClient,
-  integration: Pick<Integration, 'type' | 'data'>
+  integration: Pick<Integration, 'type' | 'data'>,
+  // Only the permissions screen sets this, as it is what the gate diverts to.
+  { skipPermissions = false }: { skipPermissions?: boolean } = {}
 ): UseFinishOAuthFlowHandlerResult {
   const isSyncOAuth = isOAuthNativeIntegrationSync(integration);
   const oAuthIntegration = isOAuthIntegration(integration) ? integration : null;
+  const sensitiveDataClient = useSensitiveDataClient();
 
   const finishOAuthFlowHandler: FinishOAuthFlowHandler = useCallback(
-    async (accountUid, sessionToken, keyFetchToken, unwrapBKey) => {
+    async (accountUid, sessionToken, keyFetchToken, unwrapBKey, knownKb) => {
       // We cannot finish the flow if we don't have an oauth integration. This indicates something
       // Went very sideways.
       if (oAuthIntegration == null) {
         throw new OAuthError('UNEXPECTED_ERROR');
       }
 
+      // Web OAuth callers hard navigate to `redirect`; the screen resumes from
+      // the stored account. Untrusted RPs get no key-bearing scope, so losing
+      // the in-memory key material is safe.
+      if (
+        !skipPermissions &&
+        integrationNeedsPermissions(oAuthIntegration, accountUid)
+      ) {
+        return {
+          redirect: `/signin_permissions${window.location.search}`,
+          code: '',
+          state: '',
+          scope: '',
+          error: undefined,
+        };
+      }
+
       let keys;
-      if (oAuthIntegration.wantsKeys() && keyFetchToken && unwrapBKey) {
+      if (oAuthIntegration.wantsKeys()) {
         try {
-          const { kB } = await authClient.accountKeys(
-            keyFetchToken,
-            unwrapBKey
-          );
-          keys = await constructKeysJwe(
-            authClient,
-            oAuthIntegration,
-            accountUid,
-            sessionToken,
-            keyFetchToken,
-            kB
-          );
+          let kB = knownKb;
+          if (!kB && keyFetchToken && unwrapBKey) {
+            ({ kB } = await authClient.accountKeys(keyFetchToken, unwrapBKey));
+            // The only point in a keys-bearing password sign-in where `kB`
+            // exists client-side.
+            sensitiveDataClient.captureKbForPendingWrap(accountUid, kB);
+          }
+          if (kB) {
+            keys = await constructKeysJwe(
+              authClient,
+              oAuthIntegration,
+              accountUid,
+              sessionToken,
+              kB
+            );
+          }
         } catch (e) {
           return tryAgainError();
         }
@@ -304,7 +329,13 @@ export function useFinishOAuthFlowHandler(
         scope: oAuthData.scope,
       };
     },
-    [authClient, oAuthIntegration, isSyncOAuth]
+    [
+      authClient,
+      oAuthIntegration,
+      isSyncOAuth,
+      sensitiveDataClient,
+      skipPermissions,
+    ]
   );
 
   /* TODO: Probably remove 'isOAuthVerificationDifferentBrowser' and
@@ -353,9 +384,9 @@ export function useOAuthKeysCheck(
     (isOAuthIntegration(integration) ||
       isSyncDesktopV3Integration(integration)) &&
     integration.requiresKeys() &&
-    // If the user has 2FA enabled but chose to login to the browser via third party
-    // auth, keys are not fetched because the user didn't enter a password.
-    // For this case, skip the keys check, the browser expects them to be undefined.
+    // Third-party auth and passwordless OTP sign-ins reach the 2FA and recovery
+    // pages without a password, so there is no unwrapBKey to derive. Those pages
+    // pass either flag here; keys come once the user sets a password afterwards.
     !isSignInWithThirdPartyAuth &&
     (!keyFetchToken || !unwrapBKey)
   ) {

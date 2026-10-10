@@ -23,6 +23,7 @@ const FormVerifyTotp = ({
   errorBannerId,
   errorMessage,
   setErrorDescription,
+  inputPrefixDataTestId,
   localizedInputLabel,
   localizedSubmitButtonText,
   setErrorMessage,
@@ -117,6 +118,7 @@ const FormVerifyTotp = ({
         maxLength={codeLength}
         className="text-start"
         anchorPosition="start"
+        prefixDataTestId={inputPrefixDataTestId}
         autoComplete="one-time-code"
         spellCheck={false}
         registration={register('code', { required: true })}

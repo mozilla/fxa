@@ -37,7 +37,6 @@ test.describe('severity-2 #smoke', () => {
       const credentials = await testAccountTracker.signUpSync({
         lang: 'en',
         service: 'sync',
-        preVerified: 'true',
       });
 
       await gotoSyncSession(page, target);
@@ -66,7 +65,6 @@ test.describe('severity-2 #smoke', () => {
       const credentials = await testAccountTracker.signUpSync({
         lang: 'en',
         service: 'sync',
-        preVerified: 'true',
       });
 
       await gotoSyncSession(page, target);
@@ -91,7 +89,6 @@ test.describe('severity-2 #smoke', () => {
       const credentials = await testAccountTracker.signUpSync({
         lang: 'en',
         service: 'sync',
-        preVerified: 'true',
       });
 
       await gotoSyncSession(page, target);
@@ -125,7 +122,7 @@ test.describe('severity-2 #smoke', () => {
       const credentials = await testAccountTracker.signUpSync({
         lang: 'en',
         service: 'sync',
-        preVerified: 'false',
+        verified: false,
       });
 
       await page.goto(
@@ -197,7 +194,6 @@ test.describe('severity-2 #smoke', () => {
       const credentials = await testAccountTracker.signUpBlocked({
         lang: 'en',
         service: 'sync',
-        preVerified: 'true',
       });
 
       await page.goto(

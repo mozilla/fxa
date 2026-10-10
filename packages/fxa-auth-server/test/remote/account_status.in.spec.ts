@@ -114,6 +114,9 @@ describe.each(testVersions)(
       });
       expect(response.exists).toBe(true);
       expect(response.hasPasskey).toBe(false);
+      // Key-wrap presence stays on the OTP-verified reset route; this one is
+      // unauthenticated.
+      expect(response.hasPasskeyWraps).toBeUndefined();
     });
 
     it('account status by email omits hasPasskey without thirdPartyAuthStatus', async () => {

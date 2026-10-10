@@ -5,6 +5,7 @@
 const { OauthError } = require('@fxa/accounts/errors');
 const oauthDB = require('./db');
 const ScopeSet = require('fxa-shared').oauth.scopes;
+const { deauthorizeOnDisconnect } = require('./deauthorize-on-disconnect');
 
 // Helper function to render each returned record in the expected form.
 function serialize(clientIdHex, token) {
@@ -117,14 +118,29 @@ function processRefreshTokens(refreshTokens) {
 module.exports = {
   async destroy(clientId, uid, refreshTokenId) {
     await oauthDB.ready();
-    if (refreshTokenId) {
-      if (
-        !(await oauthDB.deleteClientRefreshToken(refreshTokenId, clientId, uid))
-      ) {
-        throw OauthError.unknownToken();
+    try {
+      if (refreshTokenId) {
+        if (
+          !(await oauthDB.deleteClientRefreshToken(
+            refreshTokenId,
+            clientId,
+            uid
+          ))
+        ) {
+          // Either the token is not this user's, or an earlier delete already
+          // removed it. The route swallows this errno and returns {}.
+          throw OauthError.unknownToken();
+        }
+      } else {
+        await oauthDB.deleteClientAuthorization(clientId, uid);
       }
-    } else {
-      await oauthDB.deleteClientAuthorization(clientId, uid);
+    } finally {
+      // After the deletes, so the policy sees the new state. In finally
+      // because a throw can still leave it changed: the token delete commits
+      // in MySQL before its Redis cleanup, and an already-gone token means an
+      // earlier delete may never have been reconciled. Nothing else revisits
+      // these rows, and the pass swallows its own errors.
+      await deauthorizeOnDisconnect({ oauthDB }, { uid, clientId });
     }
   },
   /**

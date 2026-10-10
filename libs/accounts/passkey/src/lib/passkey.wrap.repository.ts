@@ -61,6 +61,33 @@ export type PasskeyWrapEnvelope = {
 };
 
 /**
+ * The envelope as it travels over HTTP: the same fields, base64url-encoded.
+ * Keyed off the widths, so the two shapes cannot drift apart.
+ */
+export type PasskeyWrapEnvelopeJSON = Record<keyof typeof V1_WIDTHS, string>;
+
+/**
+ * Encodes an envelope for the wire.
+ *
+ * Iterates the widths rather than naming fields, so a new field cannot be
+ * dropped by a mapping someone forgot to update. Takes the stored row but
+ * returns only envelope fields, keeping `uid` on this side of the boundary.
+ *
+ * @param wrap - The stored envelope
+ * @returns The same fields, base64url-encoded
+ */
+export function encodePasskeyWrapEnvelope(
+  wrap: PasskeyWrapEnvelope
+): PasskeyWrapEnvelopeJSON {
+  return Object.fromEntries(
+    (Object.keys(V1_WIDTHS) as Array<keyof typeof V1_WIDTHS>).map((name) => [
+      name,
+      wrap[name].toString('base64url'),
+    ])
+  ) as PasskeyWrapEnvelopeJSON;
+}
+
+/**
  * The envelope as it crosses the API boundary, before any encoding.
  */
 export type NewPasskeyWrapData = PasskeyWrapEnvelope & {
@@ -122,6 +149,39 @@ export async function insertPasskeyWrap(
   };
 
   await db.insertInto('passkeyWraps').values(newWrap).execute();
+}
+
+/**
+ * Delete the wrap for one credential.
+ *
+ * Scoped by uid, so another account's wrap is a no-op rather than a delete.
+ * The passkey stays registered.
+ *
+ * @param db - Database instance
+ * @param uid - User ID as a hex string
+ * @param credentialId - Credential ID, base64url-encoded
+ * @param staleBefore - When given, only a wrap stored before this timestamp is
+ *   deleted. Pass the account's `keysChangedAt` to delete a wrap only while it
+ *   seals a `kB` the account has since replaced; a fresh wrap is left alone.
+ * @returns true when a wrap was deleted, false when the credential had none
+ *   or, with `staleBefore`, when its wrap is not stale
+ */
+export async function deletePasskeyWrap(
+  db: AccountDatabase,
+  uid: string,
+  credentialId: string,
+  staleBefore?: number
+): Promise<boolean> {
+  let query = db
+    .deleteFrom('passkeyWraps')
+    .where('uid', '=', uuidTransformer.to(uid))
+    .where('credentialId', '=', base64urlToBuffer(credentialId));
+  if (staleBefore !== undefined) {
+    query = query.where('createdAt', '<', staleBefore);
+  }
+  const result = await query.executeTakeFirst();
+
+  return result.numDeletedRows === BigInt(1);
 }
 
 /**

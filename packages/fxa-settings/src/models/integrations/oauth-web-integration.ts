@@ -43,6 +43,9 @@ export class OAuthWebIntegration extends GenericIntegration<
   IntegrationFeatures,
   OAuthIntegrationData
 > {
+  /** `/oauth/success/:clientId` carries a client id but no OAuth request, so it has no scope. */
+  isOAuthSuccessFlow: boolean = false;
+
   constructor(
     data: ModelDataStore,
     protected readonly storageData: ModelDataStore,
@@ -172,6 +175,16 @@ export class OAuthWebIntegration extends GenericIntegration<
     return this.clientInfo?.trusted === true;
   }
 
+  /**
+   * Whether the client is known to be untrusted. Not the inverse of
+   * `isTrusted()`: an absent `clientInfo` is neither. Gating the consent
+   * screen on this keeps a trusted client from being described as untrusted
+   * when the client lookup has not resolved.
+   */
+  isUntrusted() {
+    return this.clientInfo?.trusted === false;
+  }
+
   returnOnError() {
     return this.data.returnOnError !== false;
   }
@@ -202,6 +215,10 @@ export class OAuthWebIntegration extends GenericIntegration<
   }
 
   getPermissions() {
+    if (this.isOAuthSuccessFlow) {
+      return [];
+    }
+
     // If the /v1/oauth/client/:id fetch failed during factory initialisation,
     // `isTrusted()` returns false and scope sanitisation would strip every
     // scope a real RP typically asks for, throwing an errno-109 that looks
@@ -380,21 +397,21 @@ export class OAuthWebIntegration extends GenericIntegration<
 }
 
 export function normalizeError(
-    err: unknown
-  ): Error | { errno: number; message: string } {
-    if (err instanceof Error) {
-      return err;
-    }
-    if (
-      typeof err === 'object' &&
-      err !== null &&
-      'errno' in err &&
-      'message' in err
-    ) {
-      return err as { errno: number; message: string };
-    }
-    return new Error(String(err));
+  err: unknown
+): Error | { errno: number; message: string } {
+  if (err instanceof Error) {
+    return err;
   }
+  if (
+    typeof err === 'object' &&
+    err !== null &&
+    'errno' in err &&
+    'message' in err
+  ) {
+    return err as { errno: number; message: string };
+  }
+  return new Error(String(err));
+}
 
 export function scopeStrToArray(scopes: string) {
   const arrScopes = scopes

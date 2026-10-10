@@ -6,6 +6,7 @@ import { faker } from '@faker-js/faker';
 import {
   AccountDatabase,
   testAccountDatabaseSetup,
+  testAccountDatabaseTeardown,
   PasskeyFactory,
 } from '@fxa/shared/db/mysql/account';
 import { AccountManager } from '@fxa/shared/account/account';
@@ -51,9 +52,7 @@ describe('PasskeyRepository (Integration)', () => {
   }
 
   afterAll(async () => {
-    if (db) {
-      await db.destroy();
-    }
+    await testAccountDatabaseTeardown(db);
   });
 
   describe('insert and find operations', () => {

@@ -270,6 +270,9 @@ describe('NimbusContext', () => {
         language: 'en',
         region: undefined,
       });
+      await waitFor(() =>
+        expect(screen.getByTestId('loading')).toHaveTextContent('false')
+      );
     });
 
     it('handles API response with lowercase features', async () => {

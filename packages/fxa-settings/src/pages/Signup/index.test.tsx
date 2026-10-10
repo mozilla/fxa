@@ -28,7 +28,6 @@ import * as utils from 'fxa-react/lib/utils';
 import { MONITOR_CLIENTIDS } from '../../models/integrations/client-matching';
 import { getSyncEngineIds } from '../../lib/sync-engines';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { SensitiveData } from '../../lib/sensitive-data-client';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
 import { OAuthNativeServices } from '@fxa/accounts/oauth';
 import { useSensitiveDataClient } from '../../models';
@@ -74,7 +73,6 @@ jest.mock('../../models', () => {
 });
 
 const mockSensitiveDataClient = createMockSensitiveDataClient();
-mockSensitiveDataClient.setDataType = jest.fn();
 
 const oauthCommonFxaLoginOptions = {
   email: MOCK_EMAIL,
@@ -119,6 +117,7 @@ describe('Signup page', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     cleanup();
+    mockSensitiveDataClient.AuthData = undefined;
 
     (useSensitiveDataClient as jest.Mock).mockImplementation(
       () => mockSensitiveDataClient
@@ -449,14 +448,10 @@ describe('Signup page', () => {
     await fillOutForm(false);
     await submit();
     await waitFor(() => {
-      expect(mockSensitiveDataClient.setDataType).toHaveBeenCalledWith(
-        SensitiveData.Key.Auth,
-        {
-          keyFetchToken:
-            BEGIN_SIGNUP_HANDLER_RESPONSE.data.signUp.keyFetchToken,
-          unwrapBKey: BEGIN_SIGNUP_HANDLER_RESPONSE.data.unwrapBKey,
-        }
-      );
+      expect(mockSensitiveDataClient.AuthData).toEqual({
+        keyFetchToken: BEGIN_SIGNUP_HANDLER_RESPONSE.data.signUp.keyFetchToken,
+        unwrapBKey: BEGIN_SIGNUP_HANDLER_RESPONSE.data.unwrapBKey,
+      });
     });
   });
 

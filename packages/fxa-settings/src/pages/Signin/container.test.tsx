@@ -48,7 +48,6 @@ import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 
 import { ensureCanLinkAcountOrRedirect } from './utils';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
-import { SensitiveData } from '../../lib/sensitive-data-client';
 import { Constants } from '../../lib/constants';
 import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import {
@@ -203,6 +202,7 @@ function mockFetchModule() {
 function applyDefaultMocks() {
   jest.resetAllMocks();
   jest.restoreAllMocks();
+  mockSensitiveDataClient.AuthData = undefined;
 
   mockReactUtilsModule();
   mockWebIntegration();
@@ -230,7 +230,6 @@ const mockAuthClient = new AuthClient('http://localhost:9000', {
   keyStretchVersion: 1,
 });
 const mockSensitiveDataClient = createMockSensitiveDataClient();
-mockSensitiveDataClient.setDataType = jest.fn();
 
 const mockSession = {
   isSessionVerified: jest.fn().mockResolvedValue(true),
@@ -729,18 +728,14 @@ describe('signin container', () => {
           );
         });
 
-        expect(mockSensitiveDataClient.setDataType).toHaveBeenCalledWith(
-          SensitiveData.Key.Auth,
-          {
-            authPW: MOCK_AUTH_PW,
-            emailForAuth: MOCK_EMAIL,
-            unwrapBKey: MOCK_UNWRAP_BKEY,
-            keyFetchToken: MOCK_KEY_FETCH_TOKEN,
-          }
-        );
+        expect(mockSensitiveDataClient.AuthData).toEqual({
+          authPW: MOCK_AUTH_PW,
+          emailForAuth: MOCK_EMAIL,
+          unwrapBKey: MOCK_UNWRAP_BKEY,
+          keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+        });
         expect(mockAuthClient.recoveryKeyExists).toHaveBeenCalledWith(
-          handlerResult?.data?.signIn.sessionToken,
-          MOCK_EMAIL
+          handlerResult?.data?.signIn.sessionToken
         );
 
         expect(handlerResult?.data?.showInlineRecoveryKeySetup).toEqual(true);
@@ -777,8 +772,7 @@ describe('signin container', () => {
           );
         });
         expect(mockAuthClient.recoveryKeyExists).toHaveBeenCalledWith(
-          handlerResult?.data?.signIn.sessionToken,
-          MOCK_EMAIL
+          handlerResult?.data?.signIn.sessionToken
         );
         expect(handlerResult?.data?.showInlineRecoveryKeySetup).toEqual(false);
       });

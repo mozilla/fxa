@@ -15,7 +15,6 @@ import { AuthLogger } from '../../types';
 import { appleIapRoutes } from './apple';
 import { freeAccessProgramWebhookRoutes } from './free-access-program-webhook';
 import { googleIapRoutes } from './google';
-import { mozillaSubscriptionRoutes } from './mozilla';
 import { paypalNotificationRoutes } from './paypal-notifications';
 import { playPubsubRoutes } from './play-pubsub';
 import { sanitizePlans, StripeHandler, stripeRoutes } from './stripe';
@@ -78,9 +77,6 @@ export const createRoutes = (
       )
     );
     routes.push(...supportRoutes(log, db, config, customs, zendeskClient));
-    routes.push(
-      ...mozillaSubscriptionRoutes({ log, db, config, customs, stripeHelper })
-    );
   }
   if (stripeHelper && config.subscriptions.paypalNvpSigCredentials.enabled) {
     routes.push(

@@ -5,45 +5,6 @@
 import { Logger } from '@nestjs/common';
 import type { OpenAPIObject } from '@nestjs/swagger';
 
-const INTERNAL_TAGS = ['Metering Internal'];
-
-const HTTP_METHODS = new Set([
-  'get',
-  'put',
-  'post',
-  'delete',
-  'options',
-  'head',
-  'patch',
-  'trace',
-]);
-
-/**
- * Returns a copy of the OpenAPI document with routes tagged as internal
- * removed. The production /swagger.json serves this filtered version so
- * internal-only endpoints (e.g. Cloud Tasks callbacks) are not advertised.
- */
-export function stripInternalRoutes(doc: OpenAPIObject): OpenAPIObject {
-  const paths: OpenAPIObject['paths'] = {};
-  for (const [path, pathItem] of Object.entries(doc.paths ?? {})) {
-    const filtered: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(pathItem)) {
-      if (!HTTP_METHODS.has(key)) {
-        filtered[key] = value;
-        continue;
-      }
-      const op = value as { tags?: string[] };
-      if (!(op.tags ?? []).some((t) => INTERNAL_TAGS.includes(t))) {
-        filtered[key] = value;
-      }
-    }
-    if (Object.keys(filtered).length > 0) {
-      paths[path] = filtered;
-    }
-  }
-  return { ...doc, paths };
-}
-
 /**
  * Adds tags, summaries, and header docs to webhook routes.
  * These decorators can't live on the shared webhook controllers

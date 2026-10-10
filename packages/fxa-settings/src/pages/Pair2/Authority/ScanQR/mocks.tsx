@@ -19,7 +19,8 @@ export const MOCK_LONG_QR_CODE_VALUE = MOCK_QR_CODE_VALUE.repeat(12);
 
 export const Subject = ({
   qrCodeValue = MOCK_QR_CODE_VALUE,
-}: Partial<ScanQRProps> = {}) => <ScanQR {...{ qrCodeValue }} />;
+  onSkip = () => {},
+}: Partial<ScanQRProps> = {}) => <ScanQR {...{ qrCodeValue, onSkip }} />;
 
 /** The channel URL a successfully created channel resolves to. */
 export const MOCK_PAIR_URL = `${window.location.origin}/pair#channel_id=chan-1&channel_key=key-1&v=2`;

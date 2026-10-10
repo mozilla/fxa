@@ -6,6 +6,7 @@ import { GenericData } from '../../lib/model-data';
 import {
   AuthorityState,
   PairingAuthorityIntegration,
+  PairingVersion,
 } from './pairing-authority-integration';
 import { OAUTH_ERRORS } from '../../lib/oauth';
 
@@ -16,6 +17,7 @@ const mockChannelClose = jest.fn().mockResolvedValue(undefined);
 const mockChannelSend = jest.fn().mockResolvedValue(undefined);
 const mockRemoveEventListener = jest.fn();
 let mockListeners: Record<string, Function[]> = {};
+let mockIsUnloading = false;
 
 jest.mock('../../lib/channels/pairing-channel', () => {
   const actual = jest.requireActual('../../lib/channels/pairing-channel');
@@ -27,6 +29,9 @@ jest.mock('../../lib/channels/pairing-channel', () => {
       send: mockChannelSend,
       channelId: 'chan-1',
       channelKey: 'key-1',
+      get isUnloading() {
+        return mockIsUnloading;
+      },
       addEventListener: jest.fn((type: string, handler: Function) => {
         (mockListeners[type] ||= []).push(handler);
       }),
@@ -128,7 +133,8 @@ jest.mock('../../lib/config', () => ({
 
 function createIntegration(
   dataOverrides: Record<string, string> = {},
-  channelDataOverrides: Record<string, string> = {}
+  channelDataOverrides: Record<string, string> = {},
+  pairingVersion: PairingVersion = 1
 ) {
   const data = new GenericData({
     client_id: '3c49430b43dfba77',
@@ -143,17 +149,24 @@ function createIntegration(
     ...channelDataOverrides,
   });
   const storageData = new GenericData({});
-  return new PairingAuthorityIntegration(data, channelData, storageData, {
-    scopedKeysEnabled: true,
-    scopedKeysValidation: {},
-    isPromptNoneEnabled: true,
-    isPromptNoneEnabledClientIds: [],
-  });
+  return new PairingAuthorityIntegration(
+    data,
+    channelData,
+    storageData,
+    {
+      scopedKeysEnabled: true,
+      scopedKeysValidation: {},
+      isPromptNoneEnabled: true,
+      isPromptNoneEnabledClientIds: [],
+    },
+    pairingVersion
+  );
 }
 
 describe('PairingAuthorityIntegration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockIsUnloading = false;
     jest.useFakeTimers();
     mockListeners = {};
     mockCreate.mockResolvedValue(undefined);
@@ -391,6 +404,13 @@ describe('PairingAuthorityIntegration', () => {
     });
   });
 
+  describe('pairingVersion', () => {
+    it('reports the version it was created for', () => {
+      expect(createIntegration({}, {}, 1).pairingVersion).toBe(1);
+      expect(createIntegration({}, {}, 2).pairingVersion).toBe(2);
+    });
+  });
+
   describe('pairing channel', () => {
     let integration: PairingAuthorityIntegration;
     let onStateChange: jest.Mock;
@@ -419,6 +439,45 @@ describe('PairingAuthorityIntegration', () => {
         expect(mockCreate).toHaveBeenCalledTimes(1);
       });
 
+      // StrictMode mounts the ScanQR effect twice in development, so the second
+      // createChannel() arrives while the first is still opening the socket.
+      it('shares an in-flight create with a concurrent caller', async () => {
+        let resolveCreate!: () => void;
+        mockCreate.mockReturnValueOnce(
+          new Promise<void>((resolve) => {
+            resolveCreate = resolve;
+          })
+        );
+
+        const first = integration.createChannel();
+        const second = integration.createChannel();
+        expect(mockCreate).toHaveBeenCalledTimes(1);
+
+        resolveCreate();
+        await Promise.all([first, second]);
+
+        expect(integration.hasChannel()).toBe(true);
+        expect(integration.state).not.toBe(AuthorityState.Failed);
+      });
+
+      it('rejects every concurrent caller when the create fails', async () => {
+        let rejectCreate!: (err: Error) => void;
+        mockCreate.mockReturnValueOnce(
+          new Promise<void>((_, reject) => {
+            rejectCreate = reject;
+          })
+        );
+
+        const first = integration.createChannel();
+        const second = integration.createChannel();
+        rejectCreate(new Error('nope'));
+
+        await expect(first).rejects.toThrow('nope');
+        await expect(second).rejects.toThrow('nope');
+        expect(integration.hasChannel()).toBe(false);
+        expect(onError).toHaveBeenCalledTimes(1);
+      });
+
       it('rethrows and fails when the channel cannot be created', async () => {
         const err = new Error('channel server unreachable');
         mockCreate.mockRejectedValueOnce(err);
@@ -435,9 +494,28 @@ describe('PairingAuthorityIntegration', () => {
         await expect(integration.createChannel()).rejects.toThrow('nope');
 
         expect(integration.hasChannel()).toBe(false);
+        expect(mockChannelClose).toHaveBeenCalledTimes(1);
 
         await integration.createChannel();
         expect(mockCreate).toHaveBeenCalledTimes(2);
+      });
+
+      // A reload closes the connecting socket before the page unloads. That is
+      // not a pairing failure, and failing would navigate the page on its way
+      // out (FXA-14485).
+      it('does not fail when the page unloads while the channel is being created', async () => {
+        mockIsUnloading = true;
+        mockCreate.mockRejectedValueOnce(
+          new Error('Error while creating the pairing channel')
+        );
+
+        await expect(integration.createChannel()).rejects.toThrow(
+          'Error while creating the pairing channel'
+        );
+
+        expect(integration.state).not.toBe(AuthorityState.Failed);
+        expect(onError).not.toHaveBeenCalled();
+        expect(integration.hasChannel()).toBe(false);
       });
     });
 
@@ -598,7 +676,9 @@ describe('PairingAuthorityIntegration', () => {
 
         expect(integration.state).toBe(AuthorityState.Failed);
         expect(onError).toHaveBeenCalledWith(
-          expect.objectContaining({ errno: OAUTH_ERRORS.INVALID_PARAMETER.errno })
+          expect.objectContaining({
+            errno: OAUTH_ERRORS.INVALID_PARAMETER.errno,
+          })
         );
       });
 
@@ -606,10 +686,21 @@ describe('PairingAuthorityIntegration', () => {
       // two only prove the authority is wired to the validator rather than to
       // its own truthiness checks.
       it.each([
-        { label: 'a client that cannot pair', field: 'client_id', value: '0123456789abcdef' },
-        { label: 'a PKCE method other than S256', field: 'code_challenge_method', value: 'plain' },
+        {
+          label: 'a client that cannot pair',
+          field: 'client_id',
+          value: '0123456789abcdef',
+        },
+        {
+          label: 'a PKCE method other than S256',
+          field: 'code_challenge_method',
+          value: 'plain',
+        },
       ])('fails on $label', ({ field, value }) => {
-        emit('remote:pair:supp:request', { ...MOCK_SUPP_REQUEST, [field]: value });
+        emit('remote:pair:supp:request', {
+          ...MOCK_SUPP_REQUEST,
+          [field]: value,
+        });
 
         expect(integration.state).toBe(AuthorityState.Failed);
       });
@@ -756,6 +847,86 @@ describe('PairingAuthorityIntegration', () => {
         expect(onError).toHaveBeenCalledTimes(1);
       });
     });
+
+    describe('supplicant cancel', () => {
+      beforeEach(async () => {
+        await integration.createChannel();
+        emit('connected');
+      });
+
+      it('ends the flow when the supplicant cancels', () => {
+        emit('remote:pair:supp:cancel');
+
+        expect(integration.state).toBe(AuthorityState.Failed);
+      });
+
+      // The container reads the flag from inside the Failed handler, so it has
+      // to be set before the state change goes out.
+      it('records the cancel before emitting Failed', () => {
+        let canceledWhenFailed: boolean | undefined;
+        onStateChange.mockImplementation((state: AuthorityState) => {
+          if (state === AuthorityState.Failed) {
+            canceledWhenFailed = integration.canceledBySupplicant;
+          }
+        });
+
+        emit('remote:pair:supp:cancel');
+
+        expect(canceledWhenFailed).toBe(true);
+      });
+
+      // Without a notice the close is indistinguishable from the channel running
+      // out of time, which is what the dead-end screen then has to say.
+      it('does not treat a bare channel close as a cancel', () => {
+        emit('close');
+
+        expect(integration.state).toBe(AuthorityState.Failed);
+        expect(integration.canceledBySupplicant).toBe(false);
+      });
+
+      // The supplicant closes its channel right after the notice; that close
+      // must not report a second failure on top of the cancel.
+      it('ignores the close that follows the cancel', () => {
+        emit('remote:pair:supp:cancel');
+        emit('close');
+
+        expect(onError).toHaveBeenCalledTimes(1);
+      });
+    });
+  });
+
+  describe('cancel', () => {
+    // The supplicant cannot tell a closed channel from an expired one, so the
+    // notice has to get out while the channel is still up.
+    it('tells the supplicant before closing the channel', async () => {
+      const integration = createIntegration();
+      await integration.createChannel();
+
+      await integration.cancel();
+
+      expect(mockChannelSend).toHaveBeenCalledWith('pair:auth:cancel', {});
+      expect(mockChannelSend.mock.invocationCallOrder[0]).toBeLessThan(
+        mockChannelClose.mock.invocationCallOrder[0]
+      );
+    });
+
+    it('closes the channel when the notice cannot be sent', async () => {
+      const integration = createIntegration();
+      await integration.createChannel();
+      mockChannelSend.mockRejectedValue(new Error('channel server gone'));
+
+      await integration.cancel();
+
+      expect(mockChannelClose).toHaveBeenCalled();
+      expect(integration.hasChannel()).toBe(false);
+    });
+
+    it('resolves when there is no channel to cancel', async () => {
+      const integration = createIntegration();
+
+      await expect(integration.cancel()).resolves.toBeUndefined();
+      expect(mockChannelSend).not.toHaveBeenCalled();
+    });
   });
 
   describe('destroy', () => {
@@ -808,6 +979,7 @@ describe('PairingAuthorityIntegration', () => {
         'error',
         'remote:pair:supp:request',
         'remote:pair:supp:authorize',
+        'remote:pair:supp:cancel',
       ]);
     });
 

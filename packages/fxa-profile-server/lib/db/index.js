@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const P = require('../promise');
-
 const config = require('../config');
 const logger = require('../logging')('db');
 
@@ -19,7 +17,7 @@ const klass =
 function initializeProvidersFromConfig(store) {
   var providers = Object.keys(config.get('img.providers'));
   logger.debug('providers.from-config', { providers: providers });
-  return P.all(
+  return Promise.all(
     providers.map((name) => {
       return store.getProviderByName(name).then((provider) => {
         if (provider) {
@@ -42,7 +40,7 @@ let driver;
  */
 function withDriver() {
   if (driver) {
-    return P.resolve(driver);
+    return Promise.resolve(driver);
   }
   if (driverPromise) {
     return driverPromise;
@@ -82,7 +80,7 @@ exports.finalize = function finalize() {
       return d.disconnect();
     });
   }
-  return P.resolve();
+  return Promise.resolve();
 };
 
 /**

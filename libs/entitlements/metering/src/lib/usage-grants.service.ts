@@ -9,6 +9,7 @@ import {
   type StrapiMeter,
 } from '@fxa/shared/cms';
 
+import { UsageGrantLifetimeNotSupportedError } from './metering.error';
 import { UsageGrantsManager } from './usage-grants.manager';
 import type { UsageGrantRecord } from './usage-grants.repository';
 import {
@@ -16,9 +17,9 @@ import {
   type UsageGrant,
   type UsageGrantLifetime,
 } from './usage-grants.schema';
-import { computeWindow } from './utils/computeWindow';
 import { isUsageGrantActive } from './utils/isUsageGrantActive';
 import { requireMeterBySlug } from './utils/requireMeterBySlug';
+import { resolveWindow } from './utils/resolveWindow';
 
 export interface CreateUsageGrantParams {
   request: CreateUsageGrantRequest;
@@ -44,7 +45,7 @@ export class UsageGrantsService {
     const expiresAt = this.resolveExpiry(request.lifetime, meter, now);
 
     const record = await this.usageGrantsManager.createGrant({
-      userIdentifier: request.userIdentifier,
+      subject: request.subject,
       slug: request.slug,
       amount: request.amount,
       grantedBy,
@@ -56,14 +57,11 @@ export class UsageGrantsService {
   }
 
   async listGrants(
-    userIdentifier: string,
+    subject: string,
     slug?: string,
     now: Date = new Date()
   ): Promise<UsageGrant[]> {
-    const records = await this.usageGrantsManager.listGrants(
-      userIdentifier,
-      slug
-    );
+    const records = await this.usageGrantsManager.listGrants(subject, slug);
     return records.map((record) => this.toUsageGrant(record, now));
   }
 
@@ -80,7 +78,14 @@ export class UsageGrantsService {
       case 'unending':
         return null;
       case 'currentWindow':
-        return computeWindow(meter.window, now).windowEnd;
+        if (meter.window.kind !== 'calendar') {
+          throw new UsageGrantLifetimeNotSupportedError(
+            meter.slug,
+            lifetime.type,
+            meter.window.kind
+          );
+        }
+        return resolveWindow(meter.window, now).windowEnd;
       case 'expires':
         return new Date(lifetime.expiresAt);
     }
@@ -89,7 +94,7 @@ export class UsageGrantsService {
   private toUsageGrant(record: UsageGrantRecord, now: Date): UsageGrant {
     return {
       id: record.id,
-      userIdentifier: record.userIdentifier,
+      subject: record.subject,
       slug: record.slug,
       amount: record.amount,
       grantedBy: record.grantedBy,

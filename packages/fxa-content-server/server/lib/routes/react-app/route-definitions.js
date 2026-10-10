@@ -20,18 +20,6 @@ function getFrontEndRouteDefinition(routes) {
 }
 
 /** @type {import("./types").GetRouteDefinition} */
-function getFrontEndPairingRouteDefinition(routes) {
-  const path = routes.join('|'); // prepare for use in a RegExp
-  return {
-    method: 'get',
-    path: new RegExp('^/(' + path + ')/?$'),
-    process: function (req, res) {
-      res.redirect(302, '/pair/failure');
-    },
-  };
-}
-
-/** @type {import("./types").GetRouteDefinition} */
 function getOAuthSuccessRouteDefinition(routes) {
   const path = routes.join('|'); // prepare for use in a RegExp
   return {
@@ -46,6 +34,5 @@ function getOAuthSuccessRouteDefinition(routes) {
 
 module.exports = {
   getFrontEndRouteDefinition,
-  getFrontEndPairingRouteDefinition,
   getOAuthSuccessRouteDefinition,
 };

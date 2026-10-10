@@ -413,122 +413,6 @@ describe('lib/routes/validators:', () => {
     });
   });
 
-  describe('subscriptionsMozillaSubscriptionsValidator', () => {
-    const stripeSub = {
-      _subscription_type: MozillaSubscriptionTypes.WEB,
-      cancel_at_period_end: false,
-      created: 1573695337,
-      current_period_end: 1576287337,
-      current_period_start: 1573695337,
-      end_at: null,
-      latest_invoice: 'in_1FeXFGJNcmPzuWtR3EUd2zw7',
-      latest_invoice_items: {
-        line_items: [
-          {
-            amount: 599,
-            currency: 'usd',
-            id: 'plan_G93lTs8hfK7NNG',
-            name: 'testo',
-            period: {
-              end: 1576287337,
-              start: 1576287337,
-            },
-          },
-        ],
-        subtotal: 599,
-        subtotal_excluding_tax: null,
-        total: 599,
-        total_excluding_tax: null,
-      },
-      plan_id: 'plan_G93lTs8hfK7NNG',
-      product_id: 'prod_G93l8Yn7XJHYUs',
-      product_name: 'testo',
-      promotion_code: 'testo',
-      status: 'active',
-      subscription_id: 'sub_xyz',
-    };
-    const playSub = {
-      _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-      price_id: 'abc',
-      product_id: 'xyz',
-      product_name: 'Awesome product',
-      auto_renewing: true,
-      expiry_time_millis: Date.now(),
-      package_name: 'org.mozilla.cooking.with.foxkeh',
-      sku: 'org.mozilla.foxkeh.yearly',
-    };
-    const appSub = {
-      _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
-      app_store_product_id: 'wow',
-      auto_renewing: true,
-      bundle_id: 'hmm',
-      expiry_time_millis: 1591650790000,
-      price_id: 'price_123',
-      product_id: 'prod_123',
-      product_name: 'Cooking with Foxkeh',
-    };
-
-    it('accepts a list with Stripe, Google Play and App Store subscriptions', () => {
-      const res =
-        validators.subscriptionsMozillaSubscriptionsValidator.validate({
-          subscriptions: [stripeSub, playSub, appSub],
-        });
-      expect(res.error).toBeFalsy();
-    });
-
-    it('accepts a list with only Stripe subscriptions', () => {
-      const res =
-        validators.subscriptionsMozillaSubscriptionsValidator.validate({
-          subscriptions: [stripeSub, stripeSub],
-        });
-      expect(res.error).toBeFalsy();
-    });
-
-    it('accepts a Stripe subscription with missing or undefined optional parameters', () => {
-      const stripeSubMissing = deepCopy(stripeSub);
-      const stripeSubUndefined = deepCopy(stripeSub);
-      delete stripeSubMissing.latest_invoice_items.subtotal_excluding_tax;
-      stripeSubUndefined.latest_invoice_items.subtotal_excluding_tax =
-        undefined;
-
-      const res =
-        validators.subscriptionsMozillaSubscriptionsValidator.validate({
-          subscriptions: [stripeSubMissing, stripeSubUndefined],
-        });
-      expect(res.error).toBeFalsy();
-    });
-
-    it('accepts a list with only Google Play subscriptions', () => {
-      const res =
-        validators.subscriptionsMozillaSubscriptionsValidator.validate({
-          subscriptions: [playSub, playSub],
-        });
-      expect(res.error).toBeFalsy();
-    });
-
-    it('accepts a list with only App Store subscriptions', () => {
-      const res =
-        validators.subscriptionsMozillaSubscriptionsValidator.validate({
-          subscriptions: [appSub, appSub],
-        });
-      expect(res.error).toBeFalsy();
-    });
-
-    it('allows an empty subscriptions list', () => {
-      const res =
-        validators.subscriptionsMozillaSubscriptionsValidator.validate({
-          subscriptions: [],
-        });
-      expect(res.error).toBeFalsy();
-    });
-
-    it('rejects when the subscriptions property is missing', () => {
-      const res =
-        validators.subscriptionsMozillaSubscriptionsValidator.validate({});
-      expect(res.error).toBeTruthy();
-    });
-  });
-
   describe('support-panel subscriptions', () => {
     const webSub = {
       created: 1636489882,
@@ -901,6 +785,49 @@ describe('lib/routes/validators:', () => {
       expect(
         validators.idToken.validate(jwtOfLength(1500)).error
       ).toBeUndefined();
+    });
+  });
+
+  describe('storedScope:', () => {
+    it.each([
+      '',
+      'profile:email',
+      'https://identity.mozilla.com/apps/oldsync',
+      'https://identity.mozilla.com/apps/oldsync/bookmarks#read',
+      "https://example.com/a~b!$&'()*+,;=@%",
+    ])('accepts %j', (value) => {
+      expect(validators.storedScope.validate(value).error).toBeUndefined();
+    });
+
+    it.each(['a b', 'a"b', 'a\\b', 'a\nb', 'é'])('rejects %j', (value) => {
+      expect(validators.storedScope.validate(value).error).toBeInstanceOf(
+        isA.ValidationError
+      );
+    });
+  });
+
+  describe('DEVICE_COMMAND_NAME:', () => {
+    it('accepts a URI style command name', () => {
+      expect(
+        validators.DEVICE_COMMAND_NAME.test(
+          'https://identity.mozilla.com/cmd/open-uri'
+        )
+      ).toBe(true);
+    });
+
+    it('rejects names that reach Object.prototype', () => {
+      expect(validators.DEVICE_COMMAND_NAME.test('__proto__')).toBe(false);
+      expect(validators.DEVICE_COMMAND_NAME.test('constructor')).toBe(false);
+      expect(validators.DEVICE_COMMAND_NAME.test('prototype')).toBe(false);
+    });
+
+    it('accepts names that only contain a blocked name', () => {
+      expect(validators.DEVICE_COMMAND_NAME.test('constructor2')).toBe(true);
+      expect(
+        validators.DEVICE_COMMAND_NAME.test(
+          'https://identity.mozilla.com/cmd/prototype'
+        )
+      ).toBe(true);
     });
   });
 });

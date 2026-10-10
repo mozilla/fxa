@@ -25,7 +25,9 @@ const Head = ({ title, favicon }: { title?: string; favicon?: string }) => {
   return (
     <Helmet>
       <title>{customTitle}</title>
-      <link rel="icon" href={favicon} type="image/x-icon" key="favicon" />
+      {favicon && (
+        <link rel="icon" href={favicon} type="image/x-icon" key="favicon" />
+      )}
     </Helmet>
   );
 };

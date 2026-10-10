@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Joi = require('joi');
-const P = require('../../promise');
 
 const AppError = require('../../error');
 const config = require('../../config');
@@ -46,12 +45,12 @@ module.exports = {
       return lookup
         .then((av) => {
           avatar = av;
-          return P.all([
+          return Promise.all([
             db.deleteAvatar(avatar.id),
             db.getProviderById(avatar.providerId),
           ]);
         })
-        .spread((_, provider) => {
+        .then(([, provider]) => {
           logger.debug('provider', provider);
           if (provider.name === FXA_PROVIDER) {
             return workers.delete(avatar.id);

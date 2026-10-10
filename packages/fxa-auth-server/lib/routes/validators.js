@@ -8,6 +8,7 @@
 const { URL } = require('url');
 const punycode = require('punycode.js');
 const isA = require('joi');
+const { VALID_SCOPE_VALUE } = require('fxa-shared/oauth/scopes');
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 const {
   minimalConfigSchema,
@@ -58,7 +59,9 @@ exports.E164_NUMBER = /^\+[1-9]\d{1,14}$/;
 
 exports.DIGITS = /^[0-9]+$/;
 
-exports.DEVICE_COMMAND_NAME = /^[a-zA-Z0-9._\/\-:]{1,100}$/;
+// The lookahead rejects names that reach Object.prototype when used as a key.
+exports.DEVICE_COMMAND_NAME =
+  /^(?!(?:__proto__|constructor|prototype)$)[a-zA-Z0-9._\/\-:]{1,100}$/;
 
 exports.IP_ADDRESS = isA.string().ip();
 
@@ -138,6 +141,13 @@ const scope = isA
   .regex(/^[a-zA-Z0-9 _\/.:-]*$/)
   .allow('');
 module.exports.scope = scope;
+// For responses only: stored scopes already passed ScopeSet when loaded, and
+// this checks characters alone, so it must not validate request input.
+module.exports.storedScope = isA
+  .string()
+  .max(256)
+  .regex(VALID_SCOPE_VALUE)
+  .allow('');
 module.exports.assertion = isA
   .string()
   .min(50)
@@ -575,51 +585,11 @@ module.exports.subscriptionsPlanWithProductConfigValidator = isA.object({
     .required(),
 });
 
-module.exports.customerId = isA
-  .string()
-  .optional()
-  .description(DESCRIPTIONS.customerId);
 module.exports.subscriptionsGooglePlaySubscriptionValidator =
   playStoreSubscriptionSchema;
 
 module.exports.subscriptionsAppStoreSubscriptionValidator =
   appStoreSubscriptionSchema;
-
-module.exports.subscriptionsMozillaSubscriptionsValidator = isA
-  .object({
-    customerId: module.exports.customerId,
-    billing_name: isA
-      .alternatives(isA.string(), isA.any().allow(null))
-      .optional()
-      .description(DESCRIPTIONS.billingName),
-    exp_month: isA.number().optional().description(DESCRIPTIONS.expMonth),
-    exp_year: isA.number().optional().description(DESCRIPTIONS.expYear),
-    last4: isA.string().optional().description(DESCRIPTIONS.last4),
-    payment_provider: isA
-      .string()
-      .optional()
-      .description(DESCRIPTIONS.paymentProvider),
-    payment_type: isA.string().optional().description(DESCRIPTIONS.paymentType),
-    paypal_payment_error: isA
-      .string()
-      .optional()
-      .description(DESCRIPTIONS.paypalPaymentError),
-    brand: isA.string().optional().description(DESCRIPTIONS.brand),
-    billing_agreement_id: isA
-      .alternatives(isA.string(), isA.any().allow(null))
-      .optional()
-      .description(DESCRIPTIONS.billingAgreementId),
-    subscriptions: isA
-      .array()
-      .items(
-        module.exports.subscriptionsSubscriptionValidator,
-        module.exports.subscriptionsGooglePlaySubscriptionValidator,
-        module.exports.subscriptionsAppStoreSubscriptionValidator
-      )
-      .required()
-      .description(DESCRIPTIONS.subscriptions),
-  })
-  .unknown(true);
 
 // Caps a phone number in a response at 4 digits, so one that would leak the
 // full value fails validation instead of shipping.

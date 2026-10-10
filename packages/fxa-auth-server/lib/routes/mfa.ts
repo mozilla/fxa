@@ -304,62 +304,6 @@ export const mfaRoutes = (
         return otpHandler.verifyOtpCode(request);
       },
     },
-    {
-      method: 'GET',
-      path: '/mfa/test',
-      options: {
-        auth: {
-          strategy: 'mfa',
-          scope: ['mfa:test'],
-          payload: false,
-        },
-      },
-      handler: function (request: AuthRequest) {
-        log.begin('mfa.test', request);
-        return { status: 'success' };
-      },
-    },
-    {
-      method: 'POST',
-      path: '/mfa/test',
-      options: {
-        auth: {
-          strategy: 'mfa',
-          scope: ['mfa:test'],
-          payload: false,
-        },
-        validate: {
-          payload: isA.object({
-            message: isA.string(),
-          }),
-        },
-      },
-      handler: function (request: AuthRequest) {
-        log.begin('mfa.test', request);
-        const { message } = request.payload as unknown as { message: string };
-        const { uid } = request.auth.credentials;
-        return {
-          status: 'success',
-          uid,
-          echo: message,
-        };
-      },
-    },
-    {
-      method: 'POST',
-      path: '/mfa/test2',
-      options: {
-        auth: {
-          strategy: 'mfa',
-          scope: ['mfa:test2'],
-          payload: false,
-        },
-      },
-      handler: function (request: AuthRequest) {
-        log.begin('mfa.test2', request);
-        return { status: 'success' };
-      },
-    },
   ];
 
   return routes;

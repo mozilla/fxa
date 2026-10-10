@@ -11,6 +11,7 @@ import { REACT_ENTRYPOINT } from '../../../constants';
 import DeviceInfoBlock from '../../../components/DeviceInfoBlock';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import Banner from '../../../components/Banner';
 import {
   PairingSupplicantIntegration,
@@ -35,9 +36,7 @@ const SuppAllow = ({
   error,
 }: SuppAllowProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
-  useEffect(() => {
-    GleanMetrics.cadMobilePair.view();
-  }, []);
+  useGleanView(() => GleanMetrics.cadMobilePair.view());
   const navigateWithQuery = useNavigateWithQuery();
   const [authDeviceInfo, setAuthDeviceInfo] = useState<
     RemoteMetadata | undefined

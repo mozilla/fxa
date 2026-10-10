@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const config = require('../config');
-const P = require('../promise');
 
 /*
  * MemoryStore structure:
@@ -46,12 +45,12 @@ function MemoryStore() {
 }
 
 MemoryStore.connect = function memoryConnect() {
-  return P.resolve(new MemoryStore());
+  return Promise.resolve(new MemoryStore());
 };
 
 MemoryStore.prototype = {
   ping: function ping() {
-    return P.resolve();
+    return Promise.resolve();
   },
 
   addAvatar: function addAvatar(id, uid, url, provider) {
@@ -66,25 +65,25 @@ MemoryStore.prototype = {
       userId: uid,
       avatarId: id,
     };
-    return P.fulfilled();
+    return Promise.resolve();
   },
 
   getAvatar: function getAvatar(id) {
-    return P.resolve(this.avatars[id.toString('hex')]);
+    return Promise.resolve(this.avatars[id.toString('hex')]);
   },
 
   getSelectedAvatar: function getSelectedAvatar(uid) {
     var selected = this.selected[uid.toString('hex')];
     if (selected) {
       var avatar = this.avatars[selected.avatarId.toString('hex')];
-      return P.resolve(avatar);
+      return Promise.resolve(avatar);
     }
-    return P.resolve();
+    return Promise.resolve();
   },
 
   deleteAvatar: function deleteAvatar(id) {
     delete this.avatars[id.toString('hex')];
-    return P.resolve();
+    return Promise.resolve();
   },
 
   // The selection goes too, the way the mysql `avatar_selected` foreign key
@@ -97,31 +96,31 @@ MemoryStore.prototype = {
       }
     });
     delete this.selected[userId];
-    return P.resolve();
+    return Promise.resolve();
   },
 
   addProvider: function addProvider(name) {
     this.providers[name] = name;
-    return P.resolve(name);
+    return Promise.resolve(name);
   },
 
   getProviderByName: function getProviderByName(name) {
-    return P.resolve({ id: name, name: name });
+    return Promise.resolve({ id: name, name: name });
   },
 
   getProviderById: function getProviderById(id) {
-    return P.resolve({ id: id, name: id });
+    return Promise.resolve({ id: id, name: id });
   },
 
   removeProfile: function removeProfile(uid) {
     delete this.profile[uid.toString('hex')];
-    return P.resolve();
+    return Promise.resolve();
   },
 
   getDisplayName: function (uid) {
     var id = uid.toString('hex');
     var name = this.profile[id] ? this.profile[id].displayName : undefined;
-    return P.resolve({ displayName: name });
+    return Promise.resolve({ displayName: name });
   },
 
   setDisplayName: function (uid, displayName) {
@@ -131,11 +130,11 @@ MemoryStore.prototype = {
     } else {
       this.profile[id] = { displayName: displayName };
     }
-    return P.resolve();
+    return Promise.resolve();
   },
 
   disconnect: function disconnect() {
-    return P.resolve();
+    return Promise.resolve();
   },
 };
 
@@ -144,7 +143,7 @@ if (config.get('env') === 'test') {
     this.avatars = {};
     this.providers = {};
     this.selected = {};
-    return P.resolve();
+    return Promise.resolve();
   };
 }
 

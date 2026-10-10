@@ -13,10 +13,12 @@ import { AccountManager } from '@fxa/shared/account/account';
 import {
   bufferToAaguid,
   findPasskeyByCredentialId,
+  findPasskeysWithWrapStateByUid,
   insertPasskey,
 } from './passkey.repository';
 import {
   deleteAllPasskeyWrapsForUser,
+  deletePasskeyWrap,
   findPasskeyWrap,
   insertPasskeyWrap,
   type NewPasskeyWrapData,
@@ -179,6 +181,110 @@ describe('PasskeyWrapRepository (Integration)', () => {
     });
   });
 
+  describe('deletePasskeyWrap', () => {
+    it('deletes the wrap and leaves the passkey registered', async () => {
+      const { uid, credentialId } = await createAccountWithPasskey();
+      await insertPasskeyWrap(db, uid, envelope(credentialId), NOW);
+
+      await expect(deletePasskeyWrap(db, uid, credentialId)).resolves.toBe(
+        true
+      );
+
+      await expect(
+        findPasskeyWrap(db, uid, credentialId)
+      ).resolves.toBeUndefined();
+      await expect(
+        findPasskeyByCredentialId(db, credentialId)
+      ).resolves.toBeDefined();
+    });
+
+    it('deletes a wrap stored before the given staleBefore', async () => {
+      const { uid, credentialId } = await createAccountWithPasskey();
+      await insertPasskeyWrap(db, uid, envelope(credentialId), NOW);
+
+      await expect(
+        deletePasskeyWrap(db, uid, credentialId, NOW + 1)
+      ).resolves.toBe(true);
+      await expect(
+        findPasskeyWrap(db, uid, credentialId)
+      ).resolves.toBeUndefined();
+    });
+
+    // The boundary `isWrapStale` draws: a wrap stored at the instant the keys
+    // changed still seals the current kB, so it is not stale.
+    it('leaves a wrap stored exactly at staleBefore in place', async () => {
+      const { uid, credentialId } = await createAccountWithPasskey();
+      await insertPasskeyWrap(db, uid, envelope(credentialId), NOW);
+
+      await expect(deletePasskeyWrap(db, uid, credentialId, NOW)).resolves.toBe(
+        false
+      );
+      await expect(
+        findPasskeyWrap(db, uid, credentialId)
+      ).resolves.toBeDefined();
+    });
+
+    it('leaves a wrap stored after staleBefore in place', async () => {
+      const { uid, credentialId } = await createAccountWithPasskey();
+      await insertPasskeyWrap(db, uid, envelope(credentialId), NOW);
+
+      await expect(
+        deletePasskeyWrap(db, uid, credentialId, NOW - 1)
+      ).resolves.toBe(false);
+      await expect(
+        findPasskeyWrap(db, uid, credentialId)
+      ).resolves.toBeDefined();
+    });
+
+    it('reports false for a credential that has no wrap', async () => {
+      const { uid, credentialId } = await createAccountWithPasskey();
+
+      await expect(deletePasskeyWrap(db, uid, credentialId)).resolves.toBe(
+        false
+      );
+    });
+
+    it('reports false for a credential that does not exist', async () => {
+      const { uid } = await createAccountWithPasskey();
+      const orphan = Buffer.alloc(32, 0x99).toString('base64url');
+
+      await expect(deletePasskeyWrap(db, uid, orphan)).resolves.toBe(false);
+    });
+
+    it('does not delete another user’s wrap', async () => {
+      const owner = await createAccountWithPasskey();
+      const other = await createAccountWithPasskey();
+      await insertPasskeyWrap(db, owner.uid, envelope(owner.credentialId), NOW);
+
+      await expect(
+        deletePasskeyWrap(db, other.uid, owner.credentialId)
+      ).resolves.toBe(false);
+
+      await expect(
+        findPasskeyWrap(db, owner.uid, owner.credentialId)
+      ).resolves.toBeDefined();
+    });
+
+    it('leaves the user’s other wraps alone', async () => {
+      const { uid, credentialId } = await createAccountWithPasskey();
+      const second = PasskeyFactory({ prfEnabled: true });
+      const secondCredentialId = second.credentialId.toString('base64url');
+      await insertPasskey(db, uid, {
+        ...second,
+        credentialId: secondCredentialId,
+        aaguid: bufferToAaguid(second.aaguid),
+      });
+      await insertPasskeyWrap(db, uid, envelope(credentialId), NOW);
+      await insertPasskeyWrap(db, uid, envelope(secondCredentialId), NOW);
+
+      await deletePasskeyWrap(db, uid, credentialId);
+
+      await expect(
+        findPasskeyWrap(db, uid, secondCredentialId)
+      ).resolves.toBeDefined();
+    });
+  });
+
   describe('deleteAllPasskeyWrapsForUser', () => {
     it('deletes every wrap for the user and leaves the passkeys registered', async () => {
       // The password-reset path: kB changed, so the envelopes are useless, but
@@ -240,6 +346,83 @@ describe('PasskeyWrapRepository (Integration)', () => {
       await expect(
         findPasskeyWrap(db, uid, credentialId)
       ).resolves.toBeUndefined();
+    });
+  });
+
+  describe('findPasskeysWithWrapStateByUid', () => {
+    /** Adds a second passkey to an existing account. */
+    async function addPasskey(uid: string) {
+      const passkey = PasskeyFactory({ prfEnabled: true });
+      const credentialId = passkey.credentialId.toString('base64url');
+      await insertPasskey(db, uid, {
+        ...passkey,
+        credentialId,
+        aaguid: bufferToAaguid(passkey.aaguid),
+      });
+      return credentialId;
+    }
+
+    it('flags only the passkeys that hold a wrap', async () => {
+      const { uid, credentialId: wrapped } = await createAccountWithPasskey();
+      const bare = await addPasskey(uid);
+      await insertPasskeyWrap(db, uid, envelope(wrapped), NOW);
+
+      const rows = await findPasskeysWithWrapStateByUid(db, uid);
+
+      expect(
+        Object.fromEntries(
+          rows.map((r) => [r.credentialId, r.hasPasswordlessSync])
+        )
+      ).toEqual({ [wrapped]: true, [bare]: false });
+    });
+
+    it('resolves wrap state in a single query', async () => {
+      const { uid, credentialId } = await createAccountWithPasskey();
+      await addPasskey(uid);
+      await addPasskey(uid);
+      await insertPasskeyWrap(db, uid, envelope(credentialId), NOW);
+
+      // `transformQuery` runs once per compiled query, so it counts round
+      // trips without reaching into the driver.
+      let queries = 0;
+      const counted = db.withPlugin({
+        transformQuery(args) {
+          queries++;
+          return args.node;
+        },
+        async transformResult(args) {
+          return args.result;
+        },
+      });
+
+      const rows = await findPasskeysWithWrapStateByUid(counted, uid);
+
+      // Three passkeys, one round trip: a per-row lookup would make this an
+      // N+1 on a route that runs on every Settings page load.
+      expect(rows).toHaveLength(3);
+      expect(queries).toBe(1);
+    });
+
+    it("does not see another account's wrap", async () => {
+      const { uid, credentialId } = await createAccountWithPasskey();
+      const other = await createAccountWithPasskey();
+      await insertPasskeyWrap(db, other.uid, envelope(other.credentialId), NOW);
+
+      const rows = await findPasskeysWithWrapStateByUid(db, uid);
+
+      expect(rows).toEqual([
+        expect.objectContaining({ credentialId, hasPasswordlessSync: false }),
+      ]);
+    });
+
+    it('returns nothing for an account with no passkeys', async () => {
+      const uid = await accountManager.createAccountStub(
+        faker.internet.email(),
+        1,
+        'en-US'
+      );
+
+      expect(await findPasskeysWithWrapStateByUid(db, uid)).toEqual([]);
     });
   });
 });

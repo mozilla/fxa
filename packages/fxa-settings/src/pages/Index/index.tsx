@@ -21,11 +21,12 @@ import {
   useFtlMsgResolver,
 } from '../../models';
 import GleanMetrics from '../../lib/glean';
+import { useGleanView } from '../../lib/glean/useGleanView';
 import Banner from '../../components/Banner';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
 import CmsLogo from '../../components/CmsLogo';
 import { useNavigateWithQuery } from '../../lib/hooks';
-import { usePasskeySignIn } from '../../lib/passkeys/signin-flow';
+import { usePasskeySignIn } from '../../lib/hooks/usePasskeySignIn';
 import { passkeySigninFeatureEnabled } from '../../lib/passkeys';
 
 export const Index = ({
@@ -69,7 +70,16 @@ export const Index = ({
     isButtonVisible: showPasskeySignin,
     supportsKeysOptionalLogin: useFxAStatusResult.supportsKeysOptionalLogin,
   });
+  // Only one error belongs on the card at a time: starting a sign-in method
+  // dismisses the error left by the previous one.
+  const clearErrors = () => {
+    setErrorBannerMessage('');
+    setTooltipErrorMessage('');
+    passkey.clearError();
+  };
+
   const handlePasskeyClick = () => {
+    clearErrors();
     // Cancel any pending suggested-email auto-submit so it can't override
     // our /settings navigation after the ceremony writes localStorage.
     disableAutoSubmit();
@@ -83,9 +93,7 @@ export const Index = ({
   const emailEngageEventEmitted = useRef(false);
   const emailInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    GleanMetrics.emailFirst.view();
-  }, []);
+  useGleanView(() => GleanMetrics.emailFirst.view());
 
   // Defer auto-focus once. If the container redirects an already-signed-in user
   // away, intermittently the browser's email autocomplete dropdown can be shown on
@@ -98,6 +106,7 @@ export const Index = ({
   }, []);
 
   const onSubmit = async ({ email }: IndexFormData) => {
+    passkey.clearError();
     setIsSubmitting(true);
     try {
       await processEmailSubmission(email.trim());
@@ -256,7 +265,13 @@ export const Index = ({
             ? { isLoading: passkey.isLoading, onClick: handlePasskeyClick }
             : undefined
         }
-        errorBanner={showPasskeySignin ? passkey.errorBanner : undefined}
+        errorBanner={
+          showPasskeySignin && passkey.banner ? (
+            <Banner {...passkey.banner} />
+          ) : undefined
+        }
+        onContinueWithGoogle={clearErrors}
+        onContinueWithApple={clearErrors}
         disabled={authInProgress}
         viewName="index"
         flowQueryParams={flowQueryParams}

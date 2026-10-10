@@ -16,6 +16,7 @@ export const Subject = ({
 );
 
 export type MockAuthorityIntegration = PairingAuthorityIntegration & {
+  cancel: jest.Mock;
   destroy: jest.Mock;
 };
 
@@ -25,13 +26,20 @@ export type MockAuthorityIntegration = PairingAuthorityIntegration & {
  * it touches any of it.
  */
 export function mockAuthorityIntegration(
-  overrides: Partial<Record<keyof MockAuthorityIntegration, unknown>> = {}
+  overrides: Partial<Record<keyof MockAuthorityIntegration, unknown>> = {},
+  { canceledBySupplicant = false } = {}
 ): MockAuthorityIntegration {
   const integration = Object.create(
     PairingAuthorityIntegration.prototype
   ) as MockAuthorityIntegration;
 
+  // A getter on the prototype, so it cannot be assigned.
+  Object.defineProperty(integration, 'canceledBySupplicant', {
+    get: () => canceledBySupplicant,
+  });
+
   return Object.assign(integration, {
+    cancel: jest.fn().mockResolvedValue(undefined),
     destroy: jest.fn().mockResolvedValue(undefined),
     onStateChange: null,
     ...overrides,

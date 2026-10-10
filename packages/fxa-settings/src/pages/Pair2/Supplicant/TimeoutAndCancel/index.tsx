@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../../../components/AppLayout';
 import {
   FirefoxWordmarkImage,
   PairingInterruptedImage,
 } from '../../../../components/images';
+import GleanMetrics from '../../../../lib/glean';
 
 /**
  * Why the pairing attempt ended without connecting. Named for the cause rather
@@ -49,8 +50,8 @@ const COPY: Record<
     ),
   },
   canceled: {
-    headingFtlId: 'pair2-supplicant-timeout-and-cancel-canceled-heading',
-    heading: 'Canceled',
+    headingFtlId: 'pair2-supplicant-timeout-and-cancel-cancelled-heading',
+    heading: 'Cancelled',
     descriptionFtlId:
       'pair2-supplicant-timeout-and-cancel-canceled-description',
     description: (
@@ -77,8 +78,14 @@ const TimeoutAndCancel = ({ reason }: TimeoutAndCancelProps) => {
   reason = reason ?? 'timeout';
   const { headingFtlId, heading, descriptionFtlId, description } = COPY[reason];
 
+  // Custom view event rather than the automatic one: both states share a route,
+  // so `reason` is the only thing that tells them apart.
+  useEffect(() => {
+    GleanMetrics.dtmMobile.timeoutView({ event: { reason } });
+  }, [reason]);
+
   return (
-    <AppLayout>
+    <AppLayout whiteBackground>
       <div className="flex flex-col items-center text-center">
         <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
 

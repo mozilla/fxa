@@ -46,6 +46,14 @@ export const STORE_FALLBACK_TIMEOUT_MS = 2000;
  */
 export const STORE_FALLBACK_GRACE_MS = 1000;
 
+/**
+ * Which inference decided the launch failed: 'timeout' when the scheme raised
+ * no dialog at all, 'focus_grace' when a dialog was dismissed and the app never
+ * took the foreground. These are the `reason` values of the
+ * `dtm_mobile_deeplink_store_redirect` event.
+ */
+export type StoreFallbackReason = 'timeout' | 'focus_grace';
+
 type TimerWindow = Pick<
   Window,
   'addEventListener' | 'removeEventListener' | 'setTimeout' | 'clearTimeout'
@@ -81,7 +89,7 @@ export function armStoreFallback({
   win = window,
   doc = document,
 }: {
-  onFallback: () => void;
+  onFallback: (reason: StoreFallbackReason) => void;
   timeoutMs?: number;
   graceMs?: number;
   win?: TimerWindow;
@@ -93,12 +101,12 @@ export function armStoreFallback({
   let graceTimer = 0;
   let torndown = false;
 
-  const fallback = () => {
+  const fallback = (reason: StoreFallbackReason) => {
     if (appOpened || doc.visibilityState !== 'visible') {
       return;
     }
     teardown();
-    onFallback();
+    onFallback(reason);
   };
 
   // Definitive "the app opened" signals — a real background or teardown.
@@ -131,7 +139,7 @@ export function armStoreFallback({
     }
     sawFocus = true;
     win.clearTimeout(graceTimer);
-    graceTimer = win.setTimeout(fallback, graceMs);
+    graceTimer = win.setTimeout(() => fallback('focus_grace'), graceMs);
   };
 
   doc.addEventListener('visibilitychange', onHidden);
@@ -146,7 +154,7 @@ export function armStoreFallback({
   // what a bare timer does to anyone slow to tap "Open".
   const timer = win.setTimeout(() => {
     if (!sawBlur) {
-      fallback();
+      fallback('timeout');
     }
   }, timeoutMs);
 

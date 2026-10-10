@@ -201,6 +201,26 @@ describe('PagePasskeyAdd', () => {
     );
   });
 
+  it('sends prf.enabled but not the PRF results to completePasskeyRegistration', async () => {
+    mockCreateCredential.mockResolvedValue({
+      ...mockCredential,
+      clientExtensionResults: {
+        prf: { enabled: true, results: { first: new ArrayBuffer(32) } },
+      },
+    });
+    renderPage();
+    await waitFor(() => {
+      expect(mockCompletePasskeyRegistration).toHaveBeenCalledWith(
+        'mock-jwt',
+        {
+          ...mockCredential,
+          clientExtensionResults: { prf: { enabled: true } },
+        },
+        'Y2hhbGxlbmdl'
+      );
+    });
+  });
+
   it('silently retries without PRF and succeeds when the first attempt fails with an unexpected error', async () => {
     // Windows Hello rejects a PRF eval with UnknownError (FXA-13991); the
     // ceremony should transparently retry without PRF and still succeed.
@@ -563,8 +583,6 @@ describe('PagePasskeyAdd', () => {
   });
 
   it('cancel between createCredential and completePasskeyRegistration skips the server completion call', async () => {
-    // Hold createCredential resolution so we can click cancel after it resolves
-    // but before the success path proceeds.
     let resolveCreate: (value: typeof mockCredential) => void = () => {};
     mockCreateCredential.mockImplementation(
       () =>
@@ -575,10 +593,7 @@ describe('PagePasskeyAdd', () => {
     renderPage();
     await waitFor(() => expect(mockCreateCredential).toHaveBeenCalled());
     fireEvent.click(screen.getByTestId('passkey-add-cancel'));
-    resolveCreate(mockCredential);
-    // Yield twice so the awaited continuation runs and observes wasCanceled.
-    await Promise.resolve();
-    await Promise.resolve();
+    await waitFor(() => resolveCreate(mockCredential));
     expect(mockCompletePasskeyRegistration).not.toHaveBeenCalled();
     expect(mockAlertSuccess).not.toHaveBeenCalled();
     expect(mockAlertError).toHaveBeenCalledWith(

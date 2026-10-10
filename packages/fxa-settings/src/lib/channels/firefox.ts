@@ -312,6 +312,7 @@ export class Firefox extends EventTarget {
           const error = {
             message: message.error || message.data.error?.message,
             stack: message.data?.error?.stack,
+            command: message.command,
           };
           this.dispatchEvent(
             new CustomEvent(FirefoxCommand.Error, { detail: error })
@@ -435,12 +436,17 @@ export class Firefox extends EventTarget {
     options: FxAStatusRequest
   ): Promise<FxAStatusResponse | undefined> {
     for (let attempt = 0; attempt < FXA_STATUS_ATTEMPTS; attempt++) {
+      // A browser error reply counts as no answer: callers settle on the
+      // default capabilities rather than wait on a rejection nobody handles.
       const status = await this._executeCommandWithResponse<FxAStatusResponse>(
         FirefoxCommand.FxAStatus,
         options,
         (event) => event.detail as FxAStatusResponse,
         FXA_STATUS_TIMEOUT_MS
-      );
+      ).catch((err) => {
+        console.warn('[Firefox WebChannel] fxa_status failed', err);
+        return undefined;
+      });
       if (status != null) {
         return status;
       }
@@ -748,107 +754,120 @@ export class Firefox extends EventTarget {
    * @param handleResp - A callback to handle a message returned in response by Firefox
    * @param timeout - Optional override, in milliseconds, to wait for a response. Defaults to 500 ms
    **/
-  private async _executeCommandWithResponse<TResp>(
+  private _executeCommandWithResponse<TResp>(
     cmd: FirefoxCommand,
     msg: any,
     handleResp: (event: any) => TResp,
     timeout = DEFAULT_SEND_TIMEOUT_LENGTH_MS
-  ) {
-    let timeoutId: number;
-    let onResp: EventListenerOrEventListenerObject;
-    return Promise.race<undefined | TResp>([
-      new Promise<undefined | TResp>((resolve, reject) => {
-        onResp = (event: any) => {
-          if (timeoutId) {
-            clearTimeout(timeoutId);
-          }
-          this.removeEventListener(cmd, onResp);
+  ): Promise<undefined | TResp> {
+    return new Promise<undefined | TResp>((resolve, reject) => {
+      let timeoutId: number | undefined;
+      const stopListening = () => {
+        window.clearTimeout(timeoutId);
+        this.removeEventListener(cmd, onResp);
+        this.removeEventListener(FirefoxCommand.Error, onError);
+      };
+      const onResp = (event: any) => {
+        stopListening();
 
-          // Make sure the contract is fullfilled. There should be an event object returned.
-          if (event == null) {
-            throw new Error('event missing in response');
-          }
+        // Make sure the contract is fullfilled. There should be an event object returned.
+        if (event == null) {
+          throw new Error('event missing in response');
+        }
 
-          // The handler might throw an error and fail fast if the data looks wrong. Handle error
-          // and reject if this happens.
-          try {
-            const resp = handleResp(event);
+        // The handler might throw an error and fail fast if the data looks wrong. Handle error
+        // and reject if this happens.
+        try {
+          const resp = handleResp(event);
 
-            resolve(resp);
-          } catch (err) {
-            reject(err);
-          }
-        };
-        this.addEventListener(cmd, onResp);
-        requestAnimationFrame(() => {
-          console.log(`[[Firefox WebChannel] ${cmd} sent msg`, msg);
-          this.send(cmd, msg);
-        });
-      }),
+          resolve(resp);
+        } catch (err) {
+          reject(err);
+        }
+      };
+      // A command Firefox could not handle comes back as an error reply in
+      // place of the command's response, so it has to be watched for here or
+      // the request only ends at the timeout.
+      const onError = (event: Event) => {
+        const detail = (event as CustomEvent).detail as
+          | { message?: string; command?: string }
+          | undefined;
+        if (detail?.command && detail.command !== cmd) {
+          return;
+        }
+        stopListening();
+        reject(new Error(detail?.message || `${cmd} failed in the browser`));
+      };
+      this.addEventListener(cmd, onResp);
+      this.addEventListener(FirefoxCommand.Error, onError);
 
-      new Promise((resolve) => {
+      // Firefox pauses requestAnimationFrame in a hidden tab, so a page opened
+      // in the background sends nothing until the tab is shown. The clock
+      // starts with the send so that wait cannot count as a browser that never
+      // answers.
+      requestAnimationFrame(() => {
+        console.log(`[[Firefox WebChannel] ${cmd} sent msg`, msg);
+        this.send(cmd, msg);
         timeoutId = window.setTimeout(() => {
           console.warn(
             `[Firefox WebChannel] ${cmd} timed out or unavailable in this browser`
           );
-          if (onResp) {
-            this.removeEventListener(cmd, onResp);
-          }
+          stopListening();
           resolve(undefined);
         }, timeout);
-      }),
-    ]);
+      });
+    });
   }
 
   /*
    * Sends an fxa_status and returns the signed in user if available.
    */
-  async requestSignedInUser(
+  requestSignedInUser(
     context: string,
     isPairing: boolean,
     service: string
   ): Promise<undefined | SignedInUser> {
-    let timeoutId: number;
-    return Promise.race<undefined | SignedInUser>([
-      new Promise<undefined | SignedInUser>((resolve) => {
-        const handleFxAStatusEvent = (event: any) => {
-          clearTimeout(timeoutId);
-          this.removeEventListener(
-            FirefoxCommand.FxAStatus,
-            handleFxAStatusEvent
-          );
+    return new Promise<undefined | SignedInUser>((resolve) => {
+      let timeoutId: number | undefined;
+      const handleFxAStatusEvent = (event: any) => {
+        window.clearTimeout(timeoutId);
+        this.removeEventListener(
+          FirefoxCommand.FxAStatus,
+          handleFxAStatusEvent
+        );
 
-          const status = event.detail as FxAStatusResponse;
-          resolve(status.signedInUser);
-        };
+        const status = event.detail as FxAStatusResponse;
+        resolve(status.signedInUser);
+      };
 
-        this.addEventListener(FirefoxCommand.FxAStatus, handleFxAStatusEvent);
-        // requestAnimationFrame ensures the event listener is added first
-        // otherwise, there is a race condition
-        requestAnimationFrame(() => {
-          this.send(FirefoxCommand.FxAStatus, {
-            context,
-            isPairing,
-            service,
-          });
+      this.addEventListener(FirefoxCommand.FxAStatus, handleFxAStatusEvent);
+      // Firefox pauses requestAnimationFrame in a hidden tab, so the send, and
+      // the clock below, wait until the tab is shown.
+      requestAnimationFrame(() => {
+        this.send(FirefoxCommand.FxAStatus, {
+          context,
+          isPairing,
+          service,
         });
-      }),
-      // Ideally, we would detect WebChannel support instead of relying on a timeout.
-      // However, it's difficult to reliably detect all compatible environments —
-      // including Firefox Desktop, Android (Fenix), and iOS (FxA iOS) — especially
-      // when considering misconfigurations. For example, when using `localhost`
-      // with a browser configured to talk to production or stage servers,
-      // the WebChannel may be present but not able to communicate correctly.
-      // Because of this, we fall back to a short timeout to detect unresponsiveness.
-      new Promise((resolve) => {
+        // Ideally, we would detect WebChannel support instead of relying on a timeout.
+        // However, it's difficult to reliably detect all compatible environments —
+        // including Firefox Desktop, Android (Fenix), and iOS (FxA iOS) — especially
+        // when considering misconfigurations. For example, when using `localhost`
+        // with a browser configured to talk to production or stage servers,
+        // the WebChannel may be present but not able to communicate correctly.
+        // Because of this, we fall back to a short timeout to detect unresponsiveness.
         timeoutId = window.setTimeout(() => {
           console.warn(
             '[Firefox WebChannel] fxa_status timed out or unavailable in this browser'
           );
+          this.removeEventListener(
+            FirefoxCommand.FxAStatus,
+            handleFxAStatusEvent
+          );
           resolve(undefined);
         }, DEFAULT_SEND_TIMEOUT_LENGTH_MS);
-      }),
-    ]);
+      });
+    });
   }
 }
 

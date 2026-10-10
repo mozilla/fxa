@@ -135,9 +135,6 @@ packages/fxa-content-server/public/locales
 # serving Settings static files
 packages/fxa-content-server/app/settings
 
-# fxa-customs-server
-packages/fxa-customs-server/test/mocks/temp.netset
-
 # fxa-profile-server
 packages/fxa-profile-server/var/public/*
 !packages/fxa-profile-server/var/public/.keep

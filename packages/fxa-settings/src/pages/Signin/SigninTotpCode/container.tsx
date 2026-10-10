@@ -29,7 +29,6 @@ import {
 } from '../../../lib/oauth/hooks';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { getHandledError, HandledError } from '../../../lib/error-utils';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { tryFinalizeUpgrade } from '../../../lib/auth-key-stretch-upgrade';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import AppLayout from '../../../components/AppLayout';
@@ -61,8 +60,7 @@ export const SigninTotpCodeContainer = ({
   const signinState = getSigninState(location.state);
 
   const sensitiveDataClient = useSensitiveDataClient();
-  const { keyFetchToken, unwrapBKey } =
-    sensitiveDataClient.getDataType(SensitiveData.Key.Auth) || {};
+  const { keyFetchToken, unwrapBKey } = sensitiveDataClient.AuthData || {};
 
   const { queryParamModel } = useValidatedQueryParams(SigninQueryParams);
   const { service } = queryParamModel;

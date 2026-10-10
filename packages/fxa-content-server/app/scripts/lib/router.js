@@ -4,42 +4,27 @@
 
 import _ from 'underscore';
 import Backbone from 'backbone';
-import ChooseWhatToSyncView from '../views/choose_what_to_sync';
 import Cocktail from 'cocktail';
-import CompleteSignUpView from '../views/complete_sign_up';
-import ConfirmView from '../views/confirm';
-import ConfirmSignupCodeView from '../views/confirm_signup_code';
-import ConnectAnotherDeviceView from '../views/connect_another_device';
-import ForceAuthView from '../views/force_auth';
 import IndexView from '../views/index';
-import InlineTotpSetupView from '../views/inline_totp_setup';
-import InlineRecoverySetupView from '../views/inline_recovery_setup';
 import PermissionsView from '../views/permissions';
-import ReadyView from '../views/ready';
 import RedirectAuthView from '../views/authorization';
-import ReportSignInView from '../views/report_sign_in';
-import SignInBouncedView from '../views/sign_in_bounced';
-import SignInPasswordView from '../views/sign_in_password';
-import SignInRecoveryCodeView from '../views/sign_in_recovery_code';
-import SignInReportedView from '../views/sign_in_reported';
-import SignInTokenCodeView from '../views/sign_in_token_code';
-import SignInTotpCodeView from '../views/sign_in_totp_code';
-import SignInUnblockView from '../views/sign_in_unblock';
-import SignUpPasswordView from '../views/sign_up_password';
-import ThirdPartyAuthSetPasswordView from '../views/post_verify/third_party_auth/set_password';
-import ThirdPartyAuthCallbackView from '../views/post_verify/third_party_auth/callback';
 import Storage from './storage';
 import SubscriptionsProductRedirectView from '../views/subscriptions_product_redirect';
 import SubscriptionsManagementRedirectView from '../views/subscriptions_management_redirect';
 import Url from './url';
 import UserAgent from './user-agent';
 import VerificationReasons from './verification-reasons';
-import WouldYouLikeToSync from '../views/would_you_like_to_sync';
 import { isAllowed } from 'fxa-shared/configuration/convict-format-allow-list';
 import ReactExperimentMixin from './generalized-react-app-experiment-mixin';
 import { getClientReactRouteGroups } from '../../../server/lib/routes/react-app/route-groups-client';
 
 const NAVIGATE_AWAY_IN_MOBILE_DELAY_MS = 75;
+
+// React's connect_another_device page names verification types differently.
+const CAD_TYPE_BY_REASON = {
+  [VerificationReasons.SIGN_UP]: 'sign_up',
+  [VerificationReasons.SIGN_IN]: 'sign_in',
+};
 
 function getView(ViewOrPath) {
   if (typeof ViewOrPath === 'string') {
@@ -120,80 +105,28 @@ Router = Router.extend({
     'authorization(/)': function () {
       this.createReactOrBackboneViewHandler('authorization', RedirectAuthView);
     },
-    'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),
     'clear(/)': function () {
       this.createReactViewHandler('clear');
     },
-    // NOTE - complete_signin must be maintained for backwards compatibility with FF <122
-    // With the react conversion, we should only land on the /complete_signin view
-    // from signin to sync from version of Firefox <122, when clicking on "resend verification"
-    // from Sync Settings.
-    // When Extended Service Release is updated to a version >=122, we could consider an alternate experience,
-    // such as prompting to update the browser or redirecting to the start of the signin flow so the user can use a code instead.
-    'complete_signin(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'complete_signin',
-        CompleteSignUpView,
-        {
-          ...Url.searchParams(this.window.location.search),
-        },
-        {
-          type: VerificationReasons.SIGN_IN,
-        }
-      );
-    },
-    // We will not be porting the Confirm view to React, see FXA-9054
-    'confirm(/)': createViewHandler(ConfirmView, {
-      type: VerificationReasons.SIGN_UP,
-    }),
-    // We will not be porting the Confirm view to React, see FXA-9054
-    'confirm_signin(/)': createViewHandler(ConfirmView, {
-      type: VerificationReasons.SIGN_IN,
-    }),
     'confirm_signup_code(/)': function () {
-      /* If a user initiates the OAuth Signup flow in React (e.g. they create an account
-      * through an RP), they will be navigated to the React version of `confirm_signup_code`
-      * and can be redirected to that RP after signup completion as expected.
-      *
-      * *However*, `keyFetchToken` and `unwrapBKey`, which are used on `confirm_signup_code`
-      * in the OAuth flow, are provided to us when a user creates an unverified account.
-      * We do not want to pass these params back and forth between Backbone and React.
-      * We can also retrieve these when a user signs in.
-
-      * This means users that have previously created an account but did not verify it
-      * and are in the OAuth flow will be in a problematic state when going from Backbone's
-      * `signin` to React's `confirm_signup_code`. For this case, we want to use the
-      * Backbone `confirm_signup_code` until `signin` is Reactified. See:
-      * https://github.com/mozilla/fxa/pull/15839/files#r1344333026
-      *
-      * Later comment: additionally, we need `keyFetchToken` and `unwrapBKey` to send a
-      * webchannel message to the browser for Sync. For this case, we will also show
-      * Backbone's `confirm_signup_code` until `signin` is Reactified.
-      * */
-
-      const routeName = 'confirm_signup_code';
-      // Users that have already reached React Signup will be navigated in-app to this
-      // page next (in React). This check handles the OAuth flow and Sync flow when the
-      // previous page was Backbone `/signin` - always show Backbone `confirm_signup_code`.
-      if (this.relier.isOAuth() || this.relier.isSync()) {
-        return getView(routeName).then((View) => {
-          return this.showView(View);
-        });
-      } else {
-        this.createReactOrBackboneViewHandler(
-          routeName,
-          ConfirmSignupCodeView,
-          {
-            ...Url.searchParams(this.window.location.search),
-            // for subplat redirect only
-            ...(this.relier.get('redirectTo') && {
-              redirect_to: this.relier.get('redirectTo'),
-            }),
-          }
-        );
-      }
+      this.createReactViewHandler('confirm_signup_code', {
+        ...Url.searchParams(this.window.location.search),
+        // for subplat redirect only
+        ...(this.relier.get('redirectTo') && {
+          redirect_to: this.relier.get('redirectTo'),
+        }),
+      });
     },
-    'connect_another_device(/)': createViewHandler(ConnectAnotherDeviceView),
+    // The Backbone view is gone, but Backbone views still navigate here.
+    'connect_another_device(/)': function () {
+      // A hard nav loses router state, so pass the view data as query params.
+      const viewModel = this.getCurrentViewModel();
+      this.createReactViewHandler('connect_another_device', {
+        ...Url.searchParams(this.window.location.search),
+        showSuccessMessage: viewModel?.get('showSuccessMessage'),
+        type: CAD_TYPE_BY_REASON[viewModel?.get('type')],
+      });
+    },
     'cookies_disabled(/)': function () {
       this.createReactViewHandler('cookies_disabled', {
         // HACK: this page uses the history API to navigate back and must go back one page
@@ -213,7 +146,7 @@ Router = Router.extend({
       });
     },
     'force_auth(/)': function () {
-      this.createReactOrBackboneViewHandler('force_auth', ForceAuthView, {
+      this.createReactViewHandler('force_auth', {
         ...Url.searchParams(this.window.location.search),
         email: this.user.get('emailFromIndex'),
         hasLinkedAccount: this.user.get('hasLinkedAccount'),
@@ -225,22 +158,13 @@ Router = Router.extend({
       });
     },
     'inline_totp_setup(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'inline_totp_setup',
-        InlineTotpSetupView
-      );
-    },
-    'inline_recovery_setup(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'inline_recovery_setup',
-        InlineRecoverySetupView
-      );
+      this.createReactViewHandler('inline_totp_setup');
     },
     'oauth(/)': function () {
       this.createReactOrBackboneViewHandler('oauth', IndexView);
     },
     'oauth/force_auth(/)': function () {
-      this.createReactOrBackboneViewHandler('oauth/force_auth', ForceAuthView, {
+      this.createReactViewHandler('oauth/force_auth', {
         ...Url.searchParams(this.window.location.search),
         email: this.user.get('emailFromIndex'),
         hasLinkedAccount: this.user.get('hasLinkedAccount'),
@@ -252,110 +176,60 @@ Router = Router.extend({
       });
     },
     'oauth/signin(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'oauth/signin',
-        SignInPasswordView,
-        {
-          // see comment in fxa-settings/src/pages/Signin/container.tsx for param explanation
-          ...Url.searchParams(this.window.location.search),
-          email: this.user.get('emailFromIndex'),
-          hasLinkedAccount: this.user.get('hasLinkedAccount'),
-          hasPassword: this.user.get('hasPassword'),
-          // for subplat redirect only
-          ...(this.relier.get('redirectTo') && {
-            redirect_to: this.relier.get('redirectTo'),
-          }),
-        }
-      );
+      this.createReactViewHandler('oauth/signin', {
+        // see comment in fxa-settings/src/pages/Signin/container.tsx for param explanation
+        ...Url.searchParams(this.window.location.search),
+        email: this.user.get('emailFromIndex'),
+        hasLinkedAccount: this.user.get('hasLinkedAccount'),
+        hasPassword: this.user.get('hasPassword'),
+        // for subplat redirect only
+        ...(this.relier.get('redirectTo') && {
+          redirect_to: this.relier.get('redirectTo'),
+        }),
+      });
     },
     'oauth/signup(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'oauth/signup',
-        SignUpPasswordView,
-        {
-          // see comment in fxa-settings/src/pages/Signup/container.tsx for param explanation
-          email: this.user.get('emailFromIndex'),
-          ...(this.user.get('emailFromIndex') && {
-            emailStatusChecked: 'true',
-          }),
-          ...Url.searchParams(this.window.location.search),
-        }
+      this.createReactViewHandler('oauth/signup', {
+        // see comment in fxa-settings/src/pages/Signup/container.tsx for param explanation
+        email: this.user.get('emailFromIndex'),
+        ...(this.user.get('emailFromIndex') && {
+          emailStatusChecked: 'true',
+        }),
+        ...Url.searchParams(this.window.location.search),
+      });
+    },
+    // The Backbone view is gone, but Backbone views still navigate here.
+    'pair(/)': function () {
+      this.createReactViewHandler(
+        'pair',
+        Url.searchParams(this.window.location.search)
       );
     },
-    'oauth/success/:client_id(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.SUCCESSFUL_OAUTH,
-    }),
-    'pair(/)': createViewHandler('pair/index'),
-    'pair/auth/allow(/)': createViewHandler('pair/auth_allow'),
-    'pair/auth/complete(/)': createViewHandler('pair/auth_complete'),
-    'pair/auth/totp(/)': createViewHandler('pair/auth_totp'),
-    'pair/auth/wait_for_supp(/)': createViewHandler('pair/auth_wait_for_supp'),
-    'pair/failure(/)': createViewHandler('pair/failure'),
-    'pair/success(/)': createViewHandler('pair/success'),
-    'pair/supp(/)': createViewHandler('pair/supp', { force: true }),
-    'pair/supp/allow(/)': createViewHandler('pair/supp_allow'),
-    'pair/supp/wait_for_auth(/)': createViewHandler('pair/supp_wait_for_auth'),
-    'pair/unsupported(/)': createViewHandler('pair/unsupported'),
-    'post_verify/finish_account_setup/set_password': createViewHandler(
-      'post_verify/finish_account_setup/set_password'
-    ),
-    'post_verify/cad_qr/get_started': createViewHandler(
-      'post_verify/cad_qr/get_started'
-    ),
-    'post_verify/cad_qr/ready_to_scan': createViewHandler(
-      'post_verify/cad_qr/ready_to_scan'
-    ),
-    'post_verify/cad_qr/scan_code': createViewHandler(
-      'post_verify/cad_qr/scan_code'
-    ),
-    'post_verify/cad_qr/connected': createViewHandler(
-      'post_verify/cad_qr/connected'
-    ),
     'post_verify/newsletters/add_newsletters': createViewHandler(
       'post_verify/newsletters/add_newsletters'
     ),
-    'post_verify/password/force_password_change': createViewHandler(
-      'post_verify/password/force_password_change'
-    ),
-    'post_verify/secondary_email/add_secondary_email': createViewHandler(
-      'post_verify/secondary_email/add_secondary_email'
-    ),
-    'post_verify/secondary_email/confirm_secondary_email': createViewHandler(
-      'post_verify/secondary_email/confirm_secondary_email'
-    ),
-    'post_verify/secondary_email/verified_secondary_email': createViewHandler(
-      'post_verify/verified',
-      {
-        type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
-      }
-    ),
-    'post_verify/third_party_auth/callback(/)': function () {
+    // Forward the OAuth and Sync params; the React page completes sign-in.
+    'post_verify/password/force_password_change': function () {
       this.createReactOrBackboneViewHandler(
-        'post_verify/third_party_auth/callback',
-        ThirdPartyAuthCallbackView
+        'post_verify/password/force_password_change',
+        'post_verify/password/force_password_change',
+        Url.searchParams(this.window.location.search)
       );
     },
+    // Forward the OAuth and Sync params; the React pages need them.
+    'post_verify/third_party_auth/callback(/)': function () {
+      this.createReactViewHandler('post_verify/third_party_auth/callback', {
+        ...Url.searchParams(this.window.location.search),
+      });
+    },
     'post_verify/third_party_auth/set_password(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'post_verify/third_party_auth/set_password',
-        ThirdPartyAuthSetPasswordView
-      );
+      this.createReactViewHandler('post_verify/third_party_auth/set_password', {
+        ...Url.searchParams(this.window.location.search),
+      });
     },
 
     'primary_email_verified(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'primary_email_verified',
-        ReadyView,
-        null,
-        {
-          type: VerificationReasons.PRIMARY_EMAIL_VERIFIED,
-        }
-      );
-    },
-    'report_signin(/)': function () {
-      this.createReactOrBackboneViewHandler('report_signin', ReportSignInView, {
-        ...Url.searchParams(this.window.location.search),
-      });
+      this.createReactViewHandler('primary_email_verified');
     },
 
     // The Backbone view is gone, but Backbone views still link here.
@@ -365,9 +239,6 @@ Router = Router.extend({
       });
     },
 
-    'secondary_email_verified(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
-    }),
     'settings(/)': function () {
       // Because settings is a separate js app, we need to ensure navigating
       // from the content-server app passes along flow parameters.
@@ -409,7 +280,7 @@ Router = Router.extend({
       this.navigateAway(settingsLink);
     },
     'signin(/)': function () {
-      this.createReactOrBackboneViewHandler('signin', SignInPasswordView, {
+      this.createReactViewHandler('signin', {
         // see comment in fxa-settings/src/pages/Signin/container.tsx for param explanation
         ...Url.searchParams(this.window.location.search),
         email: this.user.get('emailFromIndex'),
@@ -422,96 +293,46 @@ Router = Router.extend({
       });
     },
     'signin_bounced(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'signin_bounced',
-        SignInBouncedView
-      );
+      this.createReactViewHandler('signin_bounced');
     },
     'signin_confirmed(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'signin_confirmed',
-        ReadyView,
-        null,
-        {
-          type: VerificationReasons.SIGN_IN,
-        }
-      );
+      this.createReactViewHandler('signin_confirmed');
     },
     'signin_permissions(/)': createViewHandler(PermissionsView, {
       type: VerificationReasons.SIGN_IN,
     }),
-    'signin_recovery_choice(/)': function () {
-      this.createReactViewHandler('signin_recovery_choice');
-    },
-    'signin_recovery_code(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'signin_recovery_code',
-        SignInRecoveryCodeView
-      );
-    },
-    'signin_recovery_phone(/)': function () {
-      this.createReactViewHandler('signin_recovery_phone');
-    },
-    'signin_reported(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'signin_reported',
-        SignInReportedView
-      );
-    },
     'signin_token_code(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'signin_token_code',
-        SignInTokenCodeView,
-        {
-          ...Url.searchParams(this.window.location.search),
-          // for subplat redirect only
-          ...(this.relier.get('redirectTo') && {
-            redirect_to: this.relier.get('redirectTo'),
-          }),
-        },
-        {
-          type: VerificationReasons.SIGN_IN,
-        }
-      );
+      this.createReactViewHandler('signin_token_code', {
+        ...Url.searchParams(this.window.location.search),
+        // for subplat redirect only
+        ...(this.relier.get('redirectTo') && {
+          redirect_to: this.relier.get('redirectTo'),
+        }),
+      });
     },
     'signin_totp_code(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'signin_totp_code',
-        SignInTotpCodeView,
-        {
-          ...Url.searchParams(this.window.location.search),
-          // for subplat redirect only
-          ...(this.relier.get('redirectTo') && {
-            redirect_to: this.relier.get('redirectTo'),
-          }),
-        }
-      );
+      this.createReactViewHandler('signin_totp_code', {
+        ...Url.searchParams(this.window.location.search),
+        // for subplat redirect only
+        ...(this.relier.get('redirectTo') && {
+          redirect_to: this.relier.get('redirectTo'),
+        }),
+      });
     },
     'signin_unblock(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'signin_unblock',
-        SignInUnblockView,
-        {
-          ...Url.searchParams(this.window.location.search),
-          // for subplat redirect only
-          ...(this.relier.get('redirectTo') && {
-            redirect_to: this.relier.get('redirectTo'),
-          }),
-        }
-      );
+      this.createReactViewHandler('signin_unblock', {
+        ...Url.searchParams(this.window.location.search),
+        // for subplat redirect only
+        ...(this.relier.get('redirectTo') && {
+          redirect_to: this.relier.get('redirectTo'),
+        }),
+      });
     },
     'signin_verified(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'signin_verified',
-        ReadyView,
-        null,
-        {
-          type: VerificationReasons.SIGN_IN,
-        }
-      );
+      this.createReactViewHandler('signin_verified');
     },
     'signup(/)': function () {
-      this.createReactOrBackboneViewHandler('signup', SignUpPasswordView, {
+      this.createReactViewHandler('signup', {
         ...Url.searchParams(this.window.location.search),
         // see comment in fxa-settings/src/pages/Signup/container.tsx for param explanation
         email: this.user.get('emailFromIndex'),
@@ -525,42 +346,20 @@ Router = Router.extend({
       });
     },
     'signup_confirmed(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'signup_confirmed',
-        ReadyView,
-        null,
-        {
-          type: VerificationReasons.SIGN_UP,
-        }
-      );
+      this.createReactViewHandler('signup_confirmed');
     },
-    'signup_permissions(/)': createViewHandler(PermissionsView, {
-      type: VerificationReasons.SIGN_UP,
-    }),
     'signup_verified(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'signup_verified',
-        ReadyView,
-        null,
-        {
-          type: VerificationReasons.SIGN_UP,
-        }
-      );
+      this.createReactViewHandler('signup_verified');
     },
     'subscriptions/products/:productId': createViewHandler(
       SubscriptionsProductRedirectView
     ),
-    'subscriptions(/)': createViewHandler(SubscriptionsManagementRedirectView),
-    'verify_email(/)': createViewHandler(CompleteSignUpView, {
-      type: VerificationReasons.SIGN_UP,
-    }),
-    'verify_primary_email(/)': createViewHandler(CompleteSignUpView, {
-      type: VerificationReasons.PRIMARY_EMAIL_VERIFIED,
-    }),
-    'verify_secondary_email(/)': createViewHandler(CompleteSignUpView, {
-      type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
-    }),
-    'would_you_like_to_sync(/)': createViewHandler(WouldYouLikeToSync),
+    'subscriptions(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'subscriptions',
+        SubscriptionsManagementRedirectView
+      );
+    },
   },
 
   /**

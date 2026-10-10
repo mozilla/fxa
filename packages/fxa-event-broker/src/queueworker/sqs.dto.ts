@@ -100,6 +100,7 @@ export const PROFILE_CHANGE_SCHEMA = joi
 
 export type deleteSchema = {
   event: typeof DELETE_EVENT;
+  reason?: unknown;
   timestamp?: number;
   ts: number;
   uid: string;

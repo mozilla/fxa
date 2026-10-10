@@ -21,8 +21,6 @@ export const stringEventPropertyNames = [
   'outcome',
 ] as const;
 
-// String event extras passed to specific events but not backed by a global
-// `event`-module metric, so they are not set globally in populateMetrics.
 export const stringEventExtraPropertyNames = [
   'mobile_device_count',
   'supported',
@@ -232,6 +230,7 @@ export const eventsMap = {
     choiceNotnowSubmit: 'cad_firefox_choice_notnow_submit',
     syncDeviceSubmit: 'cad_firefox_sync_device_submit',
     notnowSubmit: 'cad_firefox_notnow_submit',
+    downloadFirefoxView: 'cad_firefox_download_firefox_view',
   },
 
   accountPref: {
@@ -359,5 +358,18 @@ export const eventsMap = {
 
   promoQrMobile: {
     view: 'promo_qr_mobile_view',
+  },
+
+  dtmDesktop: {
+    qrSkip: 'dtm_desktop_qr_skip',
+    timeoutView: 'dtm_desktop_timeout_view',
+  },
+
+  dtmMobile: {
+    timeoutView: 'dtm_mobile_timeout_view',
+    deeplinkAttempt: 'dtm_mobile_deeplink_attempt',
+    deeplinkFirefoxDetected: 'dtm_mobile_deeplink_firefox_detected',
+    deeplinkStoreRedirect: 'dtm_mobile_deeplink_store_redirect',
+    deeplinkWebviewFallback: 'dtm_mobile_deeplink_webview_fallback',
   },
 } as const;

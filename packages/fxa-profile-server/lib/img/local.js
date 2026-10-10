@@ -5,8 +5,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const P = require('../promise');
-
 const config = require('../config');
 const logger = require('../logging')('img.local');
 
@@ -24,12 +22,12 @@ function LocalDriver() {
 }
 
 LocalDriver.connect = function localConnect(options) {
-  return P.resolve(new LocalDriver(options));
+  return Promise.resolve(new LocalDriver(options));
 };
 
 LocalDriver.prototype = {
   upload: function localUpload(name, buf) {
-    return new P(function uploadPromise(resolve, reject) {
+    return new Promise(function uploadPromise(resolve, reject) {
       var dir = PUBLIC_DIR;
       logger.debug('upload.start', name);
       fs.writeFile(path.join(dir, name), buf, function (err) {
@@ -45,7 +43,7 @@ LocalDriver.prototype = {
   },
 
   delete: function localDelete(key) {
-    return new P(function deletePromise(resolve, reject) {
+    return new Promise(function deletePromise(resolve, reject) {
       var dir = PUBLIC_DIR;
       logger.debug('delete.start', key);
       // eslint-disable-next-line no-useless-escape

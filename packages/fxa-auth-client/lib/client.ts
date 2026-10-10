@@ -7,6 +7,7 @@ import { Credentials } from './crypto';
 import { deriveTokenCredentials } from './hawk';
 import { bearerHeader, BearerTokenKind } from './bearer';
 import { SaltVersion, createSaltV2 } from './salt';
+import { base64UrlToUint8, uint8ToBase64Url } from './utils';
 import * as Sentry from '@sentry/browser';
 import { MetricsContext } from '@fxa/shared/metrics/glean';
 
@@ -73,7 +74,7 @@ export interface AttachedClient {
     stateCode?: string | null;
   };
   os: string | null;
-  sessionTokenId: string | null;
+  sessionTokenHandle: string | null;
   refreshTokenId: string | null;
   scope: string[] | null;
 }
@@ -86,7 +87,6 @@ export type SignUpOptions = {
   keys?: boolean;
   service?: string;
   redirectTo?: string;
-  preVerified?: BoolString;
   resume?: string;
   lang?: string;
   style?: string;
@@ -262,12 +262,72 @@ export interface PublicKeyCredentialRequestOptionsJSON {
   extensions?: AuthenticationExtensionsJSON;
 }
 
+/**
+ * What a passkey MFA step-up returns: a scoped token for the caller's existing
+ * session. No session token, since the caller already has one.
+ */
+export type PasskeyVerificationResult = {
+  mfaToken: string;
+};
+
 export type PasskeyAuthenticationResult = {
   uid: hexstring;
   sessionToken: hexstring;
   verified: boolean;
   hasPassword: boolean;
+  /**
+   * Scoped MFA token, present only when `beginPasskeyAuthentication` asked for
+   * a scope.
+   */
+  mfaToken?: string;
 };
+
+/**
+ * Field list for the wrap envelope, shared by the encode and decode paths so
+ * they cannot drift.
+ */
+const WRAP_ENVELOPE_FIELDS = [
+  'pkR',
+  'prfWrappedSkR',
+  'keyWrapIv',
+  'hpkeEncapsulatedSecret',
+  'hpkeSealedKb',
+] as const;
+
+/**
+ * Envelope bytes, as the `passkey-crypto` module produces and consumes them.
+ * Base64url encoding is a transport concern and does not leave this client.
+ */
+export type PasskeyWrapEnvelope = Record<
+  (typeof WRAP_ENVELOPE_FIELDS)[number],
+  Uint8Array
+>;
+
+/**
+ * A stored envelope, with the time the server recorded it.
+ */
+export type StoredPasskeyWrap = PasskeyWrapEnvelope & { createdAt: number };
+
+type PasskeyWrapEnvelopeJSON = Record<
+  (typeof WRAP_ENVELOPE_FIELDS)[number],
+  string
+>;
+
+function encodeWrapEnvelope(
+  envelope: PasskeyWrapEnvelope
+): PasskeyWrapEnvelopeJSON {
+  return Object.fromEntries(
+    WRAP_ENVELOPE_FIELDS.map((name) => [name, uint8ToBase64Url(envelope[name])])
+  ) as PasskeyWrapEnvelopeJSON;
+}
+
+function decodeWrapEnvelope(
+  envelope: PasskeyWrapEnvelopeJSON
+): PasskeyWrapEnvelope {
+  return Object.fromEntries(
+    WRAP_ENVELOPE_FIELDS.map((name) => [name, base64UrlToUint8(envelope[name])])
+  ) as PasskeyWrapEnvelope;
+}
 
 export interface PublicKeyCredentialJSON {
   id: Base64URLString;
@@ -1044,6 +1104,7 @@ export default class AuthClient {
     token: string;
     uid: string;
     hasPasskey?: boolean;
+    hasPasskeyWraps?: boolean;
   }> {
     const payload = {
       email,
@@ -1231,65 +1292,6 @@ export default class AuthClient {
       pathWithKeys('/account/reset', options.keys),
       accountResetToken,
       tokenType.accountResetToken,
-      payload,
-      headers
-    );
-  }
-
-  async finishSetup(
-    token: string,
-    emailInput: EmailInput,
-    newPassword: string,
-    headers?: Headers
-  ): Promise<{
-    uid: hexstring;
-    sessionToken: hexstring;
-    verified: boolean;
-  }> {
-    const email = normalizeEmails(emailInput);
-    const credentials = await this.getCredentialSet(
-      {
-        email,
-        password: newPassword,
-      },
-      headers
-    );
-    const v2Payload = await this.getPayloadV2(credentials);
-    return this.finishSetupWithAuthPW(
-      token,
-      credentials.v1.authPW,
-      v2Payload,
-      headers
-    );
-  }
-
-  /**
-   * This function is intended for a service that will proxy the finish setup
-   * (setting a password of a stub account) request.  When setting a password
-   * from a client with access to the plaintext password, use `finishSetup`
-   * above.
-   */
-  async finishSetupWithAuthPW(
-    token: string,
-    authPW: string,
-    v2Payload:
-      | {
-          wrapKb: string;
-          authPWVersion2: string;
-          wrapKbVersion2: string;
-          clientSalt: string;
-        }
-      | {},
-    headers?: Headers
-  ) {
-    const payload = {
-      token,
-      authPW,
-      ...v2Payload,
-    };
-    return await this.request(
-      'POST',
-      '/account/finish_setup',
       payload,
       headers
     );
@@ -1586,7 +1588,7 @@ export default class AuthClient {
   async sessionDestroy(
     sessionToken: hexstring,
     options: {
-      customSessionToken?: string;
+      customSessionTokenHandle?: string;
     } = {},
     headers?: Headers
   ) {
@@ -2262,25 +2264,6 @@ export default class AuthClient {
     );
   }
 
-  async mfaTestGet(
-    jwt: string,
-    headers?: Headers
-  ): Promise<{ status: string }> {
-    return this.jwtGet('/mfa/test', jwt, headers);
-  }
-
-  async mfaTestPost(
-    jwt: string,
-    payload: { message: string },
-    headers?: Headers
-  ) {
-    return this.jwtPost('/mfa/test', jwt, payload, headers);
-  }
-
-  async mfaTestPost2(jwt: string, headers?: Headers) {
-    return this.jwtPost('/mfa/test2', jwt, {}, headers);
-  }
-
   async deviceList(sessionToken: hexstring, headers?: Headers) {
     return this.sessionGet('/account/devices', sessionToken, headers);
   }
@@ -2323,7 +2306,7 @@ export default class AuthClient {
         clientId: clientInfo.clientId,
         deviceId: clientInfo.deviceId,
         refreshTokenId: clientInfo.refreshTokenId,
-        sessionTokenId: clientInfo.sessionTokenId,
+        sessionTokenHandle: clientInfo.sessionTokenHandle,
       },
       headers
     );
@@ -2510,37 +2493,6 @@ export default class AuthClient {
   }
 
   /**
-   * @deprecated Use createTotpTokenWithJwt instead
-   *
-   * Create a TOTP secret for the account (session-token variant).
-   *
-   * Requires a verified session token. Returns the QR code URL and shared
-   * secret used to enroll an authenticator app, and optionally a set of
-   * recovery codes.
-   *
-   * Note: Maintained for legacy/inline setup flows. For new integrations,
-   * prefer the MFA JWT variant.
-   *
-   * @param sessionToken - Verified session token for the signed-in user
-   * @param options - Optional request options
-   * @param options.metricsContext - Optional metrics context for telemetry
-   * @param headers - Optional additional request headers
-   * @returns Promise resolving to `{ qrCodeUrl, secret }`
-   */
-  async createTotpToken(
-    sessionToken: hexstring,
-    options: {
-      metricsContext?: MetricsContext;
-    },
-    headers?: Headers
-  ): Promise<{
-    qrCodeUrl: string;
-    secret: string;
-  }> {
-    return this.sessionPost('/totp/create', sessionToken, options, headers);
-  }
-
-  /**
    * Create a new TOTP secret (JWT variant).
    *
    * Requires an MFA JWT with scope `mfa:2fa`. Returns the QR code URL,
@@ -2566,38 +2518,6 @@ export default class AuthClient {
   }
 
   /**
-   * @deprecated Use verifyTotpSetupCodeWithJwt instead
-   * Verify the authenticator code for the in-progress TOTP setup.
-   *
-   * Validates a 6-digit code generated by the app using the secret returned by
-   * `createTotpToken`. This does not finalize setup; call `completeTotpSetup`
-   * to activate TOTP.
-   *
-   * Note: Maintained for legacy/inline setup flows. For new integrations,
-   * prefer the MFA JWT variant.
-   *
-   * @param sessionToken - Verified session token for the signed-in user
-   * @param code - 6-digit code from the authenticator app
-   * @param options - Optional request options
-   * @param options.metricsContext - Optional metrics context for telemetry
-   * @param headers - Optional additional request headers
-   * @returns Promise resolving to `{ success: boolean }`
-   */
-  async verifyTotpSetupCode(
-    sessionToken: hexstring,
-    code: string,
-    options: { metricsContext?: MetricsContext } = {},
-    headers?: Headers
-  ): Promise<{ success: boolean }> {
-    return this.sessionPost(
-      '/totp/setup/verify',
-      sessionToken,
-      { code, ...options },
-      headers
-    );
-  }
-
-  /**
    * Verify a TOTP setup code against the in-progress secret (JWT variant).
    *
    * Requires an MFA JWT with scope `mfa:2fa`. On success, marks the setup
@@ -2620,35 +2540,6 @@ export default class AuthClient {
       '/mfa/totp/setup/verify',
       jwt,
       { code, ...options },
-      headers
-    );
-  }
-
-  /**
-   * @deprecated Use completeTotpSetupWithJwt instead
-   * Finalize TOTP setup for the account.
-   *
-   * Marks the verified in-progress secret as the active second factor.
-   *
-   * Note: Maintained for legacy/inline setup flows. For new integrations,
-   * prefer the MFA JWT variant.
-   *
-   * @param sessionToken - Verified session token for the signed-in user
-   * @param options - Optional request options
-   * @param options.service - Optional service name
-   * @param options.metricsContext - Optional metrics context for telemetry
-   * @param headers - Optional additional request headers
-   * @returns Promise resolving to `{ success: boolean }`
-   */
-  async completeTotpSetup(
-    sessionToken: hexstring,
-    options: { service?: string; metricsContext?: MetricsContext } = {},
-    headers?: Headers
-  ): Promise<{ success: boolean }> {
-    return this.sessionPost(
-      '/totp/setup/complete',
-      sessionToken,
-      { ...options },
       headers
     );
   }
@@ -3140,20 +3031,8 @@ export default class AuthClient {
     return this.jwtDelete('/mfa/recoveryKey', jwt, {}, headers);
   }
 
-  async recoveryKeyExists(
-    sessionToken: hexstring | undefined,
-    email: string | undefined,
-    headers?: Headers
-  ) {
-    if (sessionToken) {
-      return this.sessionPost(
-        '/recoveryKey/exists',
-        sessionToken,
-        { email }, // not needed?
-        headers
-      );
-    }
-    return this.request('POST', '/recoveryKey/exists', { email }, headers);
+  async recoveryKeyExists(sessionToken: hexstring, headers?: Headers) {
+    return this.sessionPost('/recoveryKey/exists', sessionToken, {}, headers);
   }
 
   async verifyRecoveryKey(
@@ -3713,6 +3592,77 @@ export default class AuthClient {
   }
 
   /**
+   * Stores the wrap envelope that lets one passkey unlock `kB`. An identical
+   * repeat reports `created: false` rather than failing.
+   *
+   * @param jwt MFA JWT with scope `mfa:passkey`, minted for this credential
+   * @param credentialId The base64url-encoded credential ID to store against
+   * @param envelope The envelope bytes from `passkey-crypto`
+   * @param headers Optional additional headers
+   */
+  async createPasskeyWrap(
+    jwt: string,
+    credentialId: string,
+    envelope: PasskeyWrapEnvelope,
+    headers?: Headers
+  ): Promise<{ created: boolean }> {
+    return this.jwtPost(
+      '/passkey/wraps',
+      jwt,
+      { credentialId, ...encodeWrapEnvelope(envelope) },
+      headers
+    );
+  }
+
+  /**
+   * Fetches the wrap envelope for one passkey, so the client can unseal `kB`
+   * without a password.
+   *
+   * 404 covers three conditions, so callers branch on errno: 224 no such
+   * passkey, 234 no wrap stored, 236 the wrap predates the current `kB`.
+   *
+   * @param jwt MFA JWT with scope `mfa:passkey`
+   * @param credentialId The base64url-encoded credential ID to fetch
+   * @param headers Optional additional headers
+   */
+  async getPasskeyWrap(
+    jwt: string,
+    credentialId: string,
+    headers?: Headers
+  ): Promise<StoredPasskeyWrap> {
+    const { createdAt, ...envelope } = await this.jwtGet(
+      `/passkey/wraps/${encodeURIComponent(credentialId)}`,
+      jwt,
+      headers
+    );
+    return { ...decodeWrapEnvelope(envelope), createdAt };
+  }
+
+  /**
+   * Deletes the wrap envelope for one passkey, turning off passwordless
+   * sign-in with it. The passkey itself stays registered.
+   *
+   * Idempotent: a passkey with no wrap reports `deleted: false` rather than
+   * failing. Throws errno 224 when the account has no such passkey.
+   *
+   * @param jwt MFA JWT with scope `mfa:passkey`; no credential binding needed
+   * @param credentialId The base64url-encoded credential ID to clear
+   * @param headers Optional additional headers
+   */
+  async deletePasskeyWrap(
+    jwt: string,
+    credentialId: string,
+    headers?: Headers
+  ): Promise<{ deleted: boolean }> {
+    return this.jwtDelete(
+      `/passkey/wraps/${encodeURIComponent(credentialId)}`,
+      jwt,
+      {},
+      headers
+    );
+  }
+
+  /**
    * Starts a passkey authentication (assertion) flow.
    *
    * No email is sent — the server returns options with an empty
@@ -3721,16 +3671,20 @@ export default class AuthClient {
    *
    * @param options.keysRequired Hints that this is a keys-required (Sync)
    *   sign-in, so the server may request PRF under the keys-required scope.
+   * @param options.scope Bare action name (e.g. `passkey`) this sign-in should
+   *   also authorize; makes `/finish` return an `mfaToken`.
    * @param headers Optional additional headers
    */
   async beginPasskeyAuthentication(
-    options: { keysRequired?: boolean } = {},
+    options: { keysRequired?: boolean; scope?: string } = {},
     headers?: Headers
   ): Promise<PublicKeyCredentialRequestOptionsJSON> {
-    const payload =
-      options.keysRequired === undefined
+    const payload = {
+      ...(options.keysRequired === undefined
         ? {}
-        : { keysRequired: options.keysRequired };
+        : { keysRequired: options.keysRequired }),
+      ...(options.scope === undefined ? {} : { scope: options.scope }),
+    };
     return this.request(
       'POST',
       '/passkey/authentication/start',
@@ -3792,6 +3746,60 @@ export default class AuthClient {
       'POST',
       '/passkey/authentication/finish',
       payload,
+      headers
+    );
+  }
+
+  /**
+   * Starts a passkey MFA step-up for a session that is already signed in.
+   *
+   * Use this to obtain a fresh scoped token without a new sign-in — for
+   * example when the token minted at sign-in has expired.
+   *
+   * @param sessionToken A verified session token
+   * @param options.scope Bare action name (e.g. `passkey`) the token minted at
+   *   `/finish` will authorize
+   * @param options.credentialId Pins the ceremony to one of the account's
+   *   passkeys. Omit to let any of them answer.
+   * @param headers Optional additional headers
+   */
+  async beginPasskeyVerification(
+    sessionToken: hexstring,
+    options: { scope: string; credentialId?: string },
+    headers?: Headers
+  ): Promise<PublicKeyCredentialRequestOptionsJSON> {
+    return this.sessionPost(
+      '/passkey/verification/start',
+      sessionToken,
+      {
+        scope: options.scope,
+        ...(options.credentialId === undefined
+          ? {}
+          : { credentialId: options.credentialId }),
+      },
+      headers
+    );
+  }
+
+  /**
+   * Completes a passkey MFA step-up by submitting the browser's assertion
+   * response together with the original challenge.
+   *
+   * @param sessionToken The same session token `beginPasskeyVerification` used
+   * @param response `PublicKeyCredentialJSON` returned by the browser
+   * @param challenge The challenge string returned by `beginPasskeyVerification`
+   * @param headers Optional additional headers
+   */
+  async completePasskeyVerification(
+    sessionToken: hexstring,
+    response: PublicKeyCredentialJSON,
+    challenge: string,
+    headers?: Headers
+  ): Promise<PasskeyVerificationResult> {
+    return this.sessionPost(
+      '/passkey/verification/finish',
+      sessionToken,
+      { response, challenge },
       headers
     );
   }

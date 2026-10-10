@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import program from 'commander';
+import { program } from 'commander';
 
 import { AppStoreHelper } from '../lib/payments/iap/apple-app-store/app-store-helper';
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
@@ -24,20 +24,21 @@ async function init() {
     .option(
       '-b, --batch-size [number]',
       'Number of subscriptions to query from firestore at a time.  Defaults to 100.',
-      100
+      '100'
     )
     // https://developer.apple.com/documentation/appstoreserverapi/identifying_rate_limits
     // We use the "Get All Subscription Statuses" endpoint
     .option(
       '-r, --rate-limit [number]',
       'Rate limit for Apple. Defaults to 50 rps',
-      50
+      '50'
     )
     .option(
       '--dry-run',
       'List the originalTransactionIds that would be updated without actually updating'
     )
     .parse(process.argv);
+  const options = program.opts();
 
   const { log } = await setupProcessingTaskObjects(
     'set-subscription-purchases-apple-iap'
@@ -45,10 +46,10 @@ async function init() {
 
   const appStoreHelper = new AppStoreHelper();
 
-  const batchSize = parseBatchSize(program.batchSize);
-  const rateLimit = parseRateLimit(program.rateLimit);
+  const batchSize = parseBatchSize(options.batchSize);
+  const rateLimit = parseRateLimit(options.rateLimit);
 
-  const dryRun = !!program.dryRun;
+  const dryRun = !!options.dryRun;
 
   const subscriptionPurchaseUpdater = new SubscriptionPurchaseUpdater(
     batchSize,

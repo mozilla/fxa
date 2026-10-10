@@ -9,6 +9,7 @@ import {
   isRetriableWithoutPrf,
   stripPrfExtension,
   stripPrfResults,
+  extractPrfOutput,
 } from './prf-fallback';
 import { createCredential, getCredential } from './webauthn';
 import type {
@@ -411,9 +412,21 @@ describe('extractPrfSupport', () => {
 });
 
 describe('stripPrfResults', () => {
-  it('removes the prf results from clientExtensionResults', () => {
+  it('removes prf when results is its only key', () => {
     const stripped = stripPrfResults(assertionWithPrfOutput);
-    expect(stripped.clientExtensionResults).not.toHaveProperty('prf');
+    expect(stripped.clientExtensionResults).toEqual({});
+  });
+
+  it('keeps prf.enabled', () => {
+    const stripped = stripPrfResults({
+      ...assertionResult,
+      clientExtensionResults: {
+        prf: { enabled: true, results: { first: new ArrayBuffer(32) } },
+      },
+    });
+    expect(stripped.clientExtensionResults).toEqual({
+      prf: { enabled: true },
+    });
   });
 
   it('preserves other clientExtensionResults entries', () => {
@@ -431,5 +444,41 @@ describe('stripPrfResults', () => {
 
   it('returns the same reference when there is no prf result', () => {
     expect(stripPrfResults(assertionResult)).toBe(assertionResult);
+  });
+
+  it('returns the same reference when prf has no results', () => {
+    const registration = {
+      ...assertionResult,
+      clientExtensionResults: { prf: { enabled: true } },
+    };
+    expect(stripPrfResults(registration)).toBe(registration);
+  });
+});
+
+describe('extractPrfOutput', () => {
+  it('returns the bytes of an ArrayBuffer output', () => {
+    const first = new Uint8Array([1, 2, 3]).buffer;
+    expect(
+      extractPrfOutput({
+        clientExtensionResults: { prf: { results: { first } } },
+      })
+    ).toEqual(new Uint8Array([1, 2, 3]));
+  });
+
+  it('returns the viewed bytes of a typed-array output', () => {
+    const first = new Uint8Array([9, 1, 2, 3, 9]).subarray(1, 4);
+    expect(
+      extractPrfOutput({
+        clientExtensionResults: { prf: { results: { first } } },
+      })
+    ).toEqual(new Uint8Array([1, 2, 3]));
+  });
+
+  it.each([
+    ['no prf extension', {}],
+    ['no results', { prf: { enabled: true } }],
+    ['a non-binary first', { prf: { results: { first: 'abc' } } }],
+  ])('returns undefined for %s', (_label, clientExtensionResults) => {
+    expect(extractPrfOutput({ clientExtensionResults })).toBeUndefined();
   });
 });

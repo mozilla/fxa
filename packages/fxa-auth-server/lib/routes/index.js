@@ -5,7 +5,7 @@
 'use strict';
 
 const url = require('url');
-const tracing = require('fxa-shared/tracing/node-tracing');
+const tracing = require('@fxa/shared/otel');
 
 module.exports = function (
   log,
@@ -111,7 +111,8 @@ module.exports = function (
     log,
     db,
     devicesImpl,
-    clientUtils
+    clientUtils,
+    config
   );
   const emails = require('./emails')(
     log,
@@ -126,7 +127,8 @@ module.exports = function (
     zendeskClient,
     stripeHelper,
     authServerCacheRedis,
-    statsd
+    statsd,
+    profile
   );
   const password = require('./password')(
     log,
@@ -239,6 +241,8 @@ module.exports = function (
 
   const { geoRoutes } = require('./geo-location');
   const geo = geoRoutes(config, log);
+  const { riskSignalRoutes } = require('./risk-signal');
+  const riskSignal = riskSignalRoutes(log);
 
   const { mfaRoutes } = require('./mfa');
   const mfa = mfaRoutes(customs, db, log, mailer, statsd, config);
@@ -298,7 +302,8 @@ module.exports = function (
     geo,
     mfa,
     passkeys,
-    passkeyWraps
+    passkeyWraps,
+    riskSignal
   );
 
   function optionallyIgnoreTrace(fn) {

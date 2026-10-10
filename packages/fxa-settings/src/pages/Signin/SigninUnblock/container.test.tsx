@@ -164,9 +164,7 @@ function mockModelsModule() {
     () => mockAuthClient
   );
   mockSensitiveDataClient.KeyStretchUpgradeData = undefined;
-  mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
-    plainTextPassword: MOCK_PASSWORD,
-  });
+  mockSensitiveDataClient.Password = { plainTextPassword: MOCK_PASSWORD };
 
   // Default auth client mock responses
   mockAuthClient.getCredentialStatusV2.mockResolvedValue({

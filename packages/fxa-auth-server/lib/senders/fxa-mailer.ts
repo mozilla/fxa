@@ -1842,7 +1842,7 @@ export class FxaMailer extends FxaEmailRenderer {
       throwErrorOnSendFailure
     );
 
-    if (opts.uid) {
+    if (opts.uid && result.sent) {
       this.accountEventsManager?.recordEmailEvent(
         opts.uid,
         {

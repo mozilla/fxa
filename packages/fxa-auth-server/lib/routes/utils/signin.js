@@ -13,7 +13,7 @@ const { Container } = require('typedi');
 const { AccountEventsManager } = require('../../account-events');
 const { emailsMatch } = require('fxa-shared').email.helpers;
 const otp = require('../utils/otp');
-const { fetchRpCmsData } = require('../utils/account');
+const { assertAccountEnabled, fetchRpCmsData } = require('../utils/account');
 const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
 const requestHelper = require('./request_helper');
 const { FxaMailer } = require('../../senders/fxa-mailer');
@@ -211,6 +211,7 @@ module.exports = (
 
           // This requires that we load the accountRecord to learn the uid.
           accountRecord = await db.accountRecord(email);
+          assertAccountEnabled(accountRecord);
           try {
             const code = await db.consumeUnblockCode(
               accountRecord.uid,
@@ -260,6 +261,7 @@ module.exports = (
             accountRecord = await db.accountRecord(email);
           }
         }
+        assertAccountEnabled(accountRecord);
         return { accountRecord, didSigninUnblock };
       } catch (e) {
         // Some errors need to be flagged with customs.
@@ -587,6 +589,7 @@ module.exports = (
             location: request.app.geo.location,
             ...(clientId && { client_id: clientId }),
             ...(service && { service }),
+            method: 'password',
           },
         });
       }

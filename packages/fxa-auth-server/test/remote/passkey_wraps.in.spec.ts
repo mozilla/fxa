@@ -17,6 +17,7 @@ import {
   VirtualCredential,
 } from '@fxa/accounts/passkey/testing';
 import { ERRNO } from '@fxa/accounts/errors';
+import { uuidTransformer } from 'fxa-shared/db/transformers';
 import Config from '../../config';
 
 import {
@@ -291,5 +292,163 @@ describe('#integration - remote passkey wrap storage', () => {
     await expect(
       storeWrap({ credentialId, ...envelope() }, token)
     ).rejects.toMatchObject({ code: 401 });
+  });
+
+  describe('GET /passkey/wraps/{credentialId}', () => {
+    /** GETs a wrap with a freshly minted token. */
+    async function fetchWrap(id = credentialId, token?: string) {
+      return client.api.doRequestWithBearerToken(
+        'GET',
+        `${client.api.baseURL}/passkey/wraps/${id}`,
+        token ?? (await mintWrapToken())
+      );
+    }
+
+    /** Moves the account's `keysChangedAt` past every stored wrap. */
+    async function rotateKeys() {
+      await db
+        ?.updateTable('accounts')
+        .set({ keysChangedAt: Date.now() + 60_000 })
+        .where('uid', '=', uuidTransformer.to(client.uid))
+        .execute();
+    }
+
+    it('returns the stored envelope and records a security event', async () => {
+      await storeCurrentWrap();
+
+      const result = await fetchWrap();
+
+      expect(result).toMatchObject(envelope());
+      expect(result.createdAt).toEqual(expect.any(Number));
+
+      const events = await client.securityEvents();
+      expect(events.map((e: any) => e.name)).toContain(
+        'account.passkey.wrap_retrieved'
+      );
+    });
+
+    it('404s when the passkey has no wrap', async () => {
+      await expect(fetchWrap()).rejects.toMatchObject({
+        code: 404,
+        errno: ERRNO.PASSKEY_WRAP_NOT_FOUND,
+      });
+
+      const events = await client.securityEvents();
+      expect(events.map((e: any) => e.name)).toContain(
+        'account.passkey.wrap_retrieval_failure'
+      );
+    });
+
+    it('withholds a wrap that predates the current kB', async () => {
+      await storeCurrentWrap();
+      await rotateKeys();
+
+      await expect(fetchWrap()).rejects.toMatchObject({
+        code: 404,
+        errno: ERRNO.PASSKEY_WRAP_STALE,
+      });
+    });
+
+    it('requires an mfa token', async () => {
+      await storeCurrentWrap();
+
+      await expect(
+        fetchWrap(credentialId, 'invalid-token')
+      ).rejects.toMatchObject({ code: 401 });
+    });
+
+    it('refuses a token earned on a different credential', async () => {
+      await storeCurrentWrap();
+      const other = await registerPasskey();
+      const token = await mintWrapToken(other.credential);
+
+      await expect(fetchWrap(credentialId, token)).rejects.toMatchObject({
+        code: 401,
+      });
+    });
+  });
+
+  describe('DELETE /passkey/wraps/{credentialId}', () => {
+    /** DELETEs a wrap with a freshly minted token. */
+    async function deleteWrap(id = credentialId, token?: string) {
+      return client.api.doRequestWithBearerToken(
+        'DELETE',
+        `${client.api.baseURL}/passkey/wraps/${id}`,
+        token ?? (await mintWrapToken()),
+        {}
+      );
+    }
+
+    /** GETs a wrap, to observe a delete the way a client would. */
+    async function fetchWrap(id = credentialId) {
+      return client.api.doRequestWithBearerToken(
+        'GET',
+        `${client.api.baseURL}/passkey/wraps/${id}`,
+        await mintWrapToken()
+      );
+    }
+
+    it('removes the wrap and records a security event', async () => {
+      await storeCurrentWrap();
+
+      const result = await deleteWrap();
+
+      expect(result).toEqual({ deleted: true });
+
+      const events = await client.securityEvents();
+      expect(events.map((e: any) => e.name)).toContain(
+        'account.passkey.wrap_deleted'
+      );
+    });
+
+    // What a client observes after a delete: the wrap is gone, but errno 234
+    // rather than 224 shows the passkey itself survived.
+    it('leaves the credential fetchable with no wrap', async () => {
+      await storeCurrentWrap();
+      await deleteWrap();
+
+      await expect(fetchWrap()).rejects.toMatchObject({
+        code: 404,
+        errno: ERRNO.PASSKEY_WRAP_NOT_FOUND,
+      });
+    });
+
+    it('reports a credential with no wrap as not deleted', async () => {
+      await expect(deleteWrap()).resolves.toEqual({ deleted: false });
+    });
+
+    it('404s for a credential the account does not own, recording the failure', async () => {
+      const orphan = Buffer.alloc(32, 0x99).toString('base64url');
+
+      await expect(deleteWrap(orphan)).rejects.toMatchObject({
+        code: 404,
+        errno: ERRNO.PASSKEY_NOT_FOUND,
+      });
+
+      const events = await client.securityEvents();
+      expect(events.map((e: any) => e.name)).toContain(
+        'account.passkey.wrap_deletion_failure'
+      );
+    });
+
+    it('requires an mfa token', async () => {
+      await storeCurrentWrap();
+
+      await expect(
+        deleteWrap(credentialId, 'invalid-token')
+      ).rejects.toMatchObject({ code: 401 });
+    });
+
+    // Unlike the read and the write, a delete is a management action, so a
+    // token earned on any credential can clear any of the account's wraps.
+    it('accepts a token earned on a different credential', async () => {
+      await storeCurrentWrap();
+      const other = await registerPasskey();
+      const token = await mintWrapToken(other.credential);
+
+      await expect(deleteWrap(credentialId, token)).resolves.toEqual({
+        deleted: true,
+      });
+    });
   });
 });

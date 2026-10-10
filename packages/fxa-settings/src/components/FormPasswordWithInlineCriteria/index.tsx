@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import InputPassword from '../InputPassword';
 import PasswordValidator from '../../lib/password-validator';
@@ -11,7 +11,11 @@ import { useFtlMsgResolver } from '../../models';
 import PasswordStrengthInline from '../PasswordStrengthInline';
 import CmsButtonWithFallback, { CmsButtonType } from '../CmsButtonWithFallback';
 
-export type PasswordFormType = 'signup' | 'reset' | 'post-verify-set-password';
+export type PasswordFormType =
+  | 'signup'
+  | 'reset'
+  | 'post-verify-set-password'
+  | 'force-password-change';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyFormReturn = UseFormReturn<any>;
@@ -76,6 +80,14 @@ const getTemplateValues = (passwordFormType: PasswordFormType) => {
         'form-password-with-inline-criteria-set-password-submit-button';
       templateValues.buttonText = 'Start syncing';
       break;
+    case 'force-password-change':
+      templateValues = {
+        ...getTemplateValues('reset'),
+        buttonFtlId:
+          'form-password-with-inline-criteria-change-password-submit-button',
+        buttonText: 'Change password',
+      };
+      break;
   }
   return templateValues;
 };
@@ -108,6 +120,7 @@ export const FormPasswordWithInlineCriteria = ({
     useState<string>();
   const [srOnlyConfirmPwdFeedbackMessage, setSROnlyConfirmPwdFeedbackMessage] =
     useState<string>();
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
 
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedPasswordMatchError = ftlMsgResolver.getMsg(
@@ -116,8 +129,11 @@ export const FormPasswordWithInlineCriteria = ({
   );
 
   const templateValues = getTemplateValues(passwordFormType);
+  const isForcePasswordChange = passwordFormType === 'force-password-change';
+  const isNewPasswordForm =
+    passwordFormType === 'reset' || isForcePasswordChange;
   const showConfirmPasswordInput =
-    passwordFormType === 'reset' || !!requirePasswordConfirmation;
+    isNewPasswordForm || !!requirePasswordConfirmation;
 
   const onNewPwdFocus = () => {
     setSROnlyPwdFeedbackMessage('');
@@ -175,6 +191,17 @@ export const FormPasswordWithInlineCriteria = ({
 
     if (!isValid && showConfirmPasswordInput) {
       trigger('confirmPassword');
+    }
+  };
+
+  // enterKeyHint only labels the key; Enter must advance to the confirm field.
+  const onNewPwdKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.nativeEvent.isComposing) {
+      return;
+    }
+    if (event.key === 'Enter' && showConfirmPasswordInput) {
+      event.preventDefault();
+      confirmPasswordRef.current?.focus();
     }
   };
 
@@ -246,10 +273,25 @@ export const FormPasswordWithInlineCriteria = ({
           autoComplete="username"
           readOnly
         />
+        {isForcePasswordChange && (
+          <div className="relative mb-4">
+            <FtlMsg
+              id="form-password-with-inline-criteria-old-password-label"
+              attrs={{ label: true }}
+            >
+              <InputPassword
+                label="Old password"
+                id="opassword"
+                registration={register('oldPassword', { required: true })}
+                prefixDataTestId="old-password"
+              />
+            </FtlMsg>
+          </div>
+        )}
         {/* PasswordStrengthInline duplicated here because there are two
-            possible placements (above the input for reset, below the input for
-            other cases) */}
-        {passwordFormType === 'reset' && (
+            possible placements (above the input for reset and force password
+            change, below the input for other cases) */}
+        {isNewPasswordForm && (
           <div>
             <PasswordStrengthInline
               {...{
@@ -278,9 +320,12 @@ export const FormPasswordWithInlineCriteria = ({
           <FtlMsg id={templateValues.passwordFtlId} attrs={{ label: true }}>
             <InputPassword
               label={templateValues.passwordLabel}
+              id={isForcePasswordChange ? 'password' : undefined}
               onFocusCb={onNewPwdFocus}
               onBlurCb={onNewPwdBlur}
               onChange={() => onChangePassword('newPassword')}
+              onKeyDown={onNewPwdKeyDown}
+              enterKeyHint={showConfirmPasswordInput ? 'next' : 'done'}
               hasErrors={dirtyFields.newPassword ? errors.newPassword : false}
               registration={register('newPassword', {
                 required: true,
@@ -317,10 +362,13 @@ export const FormPasswordWithInlineCriteria = ({
             >
               <InputPassword
                 label={templateValues.confirmPasswordLabel}
+                id={isForcePasswordChange ? 'vpassword' : undefined}
                 className="text-start"
                 onFocusCb={onFocusConfirmPassword}
                 onBlurCb={onBlurConfirmPassword}
                 onChange={() => onChangePassword('confirmPassword')}
+                enterKeyHint="done"
+                inputRefDOM={confirmPasswordRef}
                 hasErrors={errors.confirmPassword && passwordMatchErrorText}
                 registration={register('confirmPassword', {
                   required: true,
@@ -375,6 +423,7 @@ export const FormPasswordWithInlineCriteria = ({
         <FtlMsg id={templateValues.buttonFtlId}>
           <CmsButtonWithFallback
             type="submit"
+            id={isForcePasswordChange ? 'submit-btn' : undefined}
             className="cta-primary cta-xl"
             disabled={loading || (disableButtonUntilValid && !isValid)}
             data-glean-id={submitButtonGleanId && submitButtonGleanId}

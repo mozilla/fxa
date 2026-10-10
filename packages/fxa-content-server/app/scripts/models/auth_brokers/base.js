@@ -17,12 +17,9 @@ import NavigateOrRedirectBehavior from '../../views/behaviors/navigate-or-redire
 import NullBehavior from '../../views/behaviors/null';
 import SameBrowserVerificationModel from '../verification/same-browser';
 import UrlMixin from '../mixins/url';
-import SettingsIfSignedInBehavior from '../../views/behaviors/settings';
 import Vat from '../../lib/vat';
 import VerificationMethods from '../../lib/verification-methods';
 import VerificationReasons from '../../lib/verification-reasons';
-
-const t = (msg) => msg;
 
 const QUERY_PARAMETER_SCHEMA = {
   automatedBrowser: Vat.boolean(),
@@ -84,19 +81,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    */
   defaultBehaviors: {
     afterChangePassword: new NullBehavior(),
-    afterCompletePrimaryEmail: new SettingsIfSignedInBehavior(
-      new NavigateBehavior('primary_email_verified'),
-      {
-        success: t('Primary email verified successfully'),
-      }
-    ),
     afterCompleteResetPassword: new NullBehavior(),
-    afterCompleteSecondaryEmail: new SettingsIfSignedInBehavior(
-      new NavigateBehavior('secondary_email_verified'),
-      {
-        success: t('Secondary email verified successfully'),
-      }
-    ),
     afterCompleteSignIn: new NavigateBehavior('signin_verified'),
     afterCompleteSignInWithCode: new NavigateOrRedirectBehavior('settings'),
     afterCompleteSignUp: new NavigateOrRedirectBehavior('signup_verified'),
@@ -309,30 +294,6 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
 
   afterCompleteSignInWithCode() {
     return Promise.resolve(this.getBehavior('afterCompleteSignInWithCode'));
-  },
-
-  /**
-   * Called after primary email verification, in the verification tab.
-   *
-   * @param {Object} account
-   * @return {Promise}
-   */
-  afterCompletePrimaryEmail(account) {
-    return this.unpersistVerificationData(account).then(() =>
-      this.getBehavior('afterCompletePrimaryEmail')
-    );
-  },
-
-  /**
-   * Called after secondary email verification, in the verification tab.
-   *
-   * @param {Object} account
-   * @return {Promise}
-   */
-  afterCompleteSecondaryEmail(account) {
-    return this.unpersistVerificationData(account).then(() =>
-      this.getBehavior('afterCompleteSecondaryEmail')
-    );
   },
 
   /**

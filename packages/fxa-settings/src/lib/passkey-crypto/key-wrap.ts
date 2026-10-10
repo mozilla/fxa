@@ -12,7 +12,7 @@
  * scalar. It does not pad to `Nsk`, so this module left-pads the result.
  *
  * Everything crosses the module boundary as `Uint8Array`, so no `CryptoKey`
- * escapes a function. `aad` is opaque here; `context.ts` owns its construction
+ * escapes a function. `aad` is opaque here; `envelope.ts` owns its construction
  * and is the only thing that should be producing it.
  */
 
@@ -65,27 +65,32 @@ export async function generateRecipientKeyPair(): Promise<RecipientKeyPair> {
     ['deriveBits']
   );
 
-  const [publicKeyRaw, scalar] = await Promise.all([
-    crypto.subtle.exportKey('raw', pair.publicKey),
-    suite.SerializePrivateKey(pair.privateKey),
-  ]);
+  // Serialised inside the try: if the public export rejects while this one
+  // resolves, the scalar still reaches the `finally`.
+  let scalar: Uint8Array | undefined;
+  try {
+    const publicKeyRaw = await crypto.subtle.exportKey('raw', pair.publicKey);
+    scalar = await suite.SerializePrivateKey(pair.privateKey);
 
-  const publicKey = new Uint8Array(publicKeyRaw);
-  assertByteLength('pkR', publicKey, V1_SIZES.pkR);
-  if (scalar.length > V1_SIZES.skRRaw) {
-    throw new Error(
-      `skRRaw must be at most ${V1_SIZES.skRRaw} bytes, got ${scalar.length}`
-    );
+    const publicKey = new Uint8Array(publicKeyRaw);
+    assertByteLength('pkR', publicKey, V1_SIZES.pkR);
+    if (scalar.length > V1_SIZES.skRRaw) {
+      throw new Error(
+        `skRRaw must be at most ${V1_SIZES.skRRaw} bytes, got ${scalar.length}`
+      );
+    }
+
+    // Left-pad rather than trust the length. SerializePrivateKey decodes the JWK
+    // `d` as-is, so a platform whose EC export strips leading zeros yields a short
+    // scalar — roughly 1 P-521 key in 512. Stored short, the fixed-width column
+    // right-pads it and the wrap can never be opened.
+    const privateKeyRaw = new Uint8Array(V1_SIZES.skRRaw);
+    privateKeyRaw.set(scalar, V1_SIZES.skRRaw - scalar.length);
+
+    return { publicKey, privateKeyRaw };
+  } finally {
+    scalar?.fill(0);
   }
-
-  // Left-pad rather than trust the length. SerializePrivateKey decodes the JWK
-  // `d` as-is, so a platform whose EC export strips leading zeros yields a short
-  // scalar — roughly 1 P-521 key in 512. Stored short, the fixed-width column
-  // right-pads it and the wrap can never be opened.
-  const privateKeyRaw = new Uint8Array(V1_SIZES.skRRaw);
-  privateKeyRaw.set(scalar, V1_SIZES.skRRaw - scalar.length);
-
-  return { publicKey, privateKeyRaw };
 }
 
 /**
@@ -184,6 +189,12 @@ export async function unwrapRecipientPrivateKey(
   );
 
   const scalar = new Uint8Array(privateKeyRaw);
-  assertByteLength('skRRaw', scalar, V1_SIZES.skRRaw);
+  try {
+    assertByteLength('skRRaw', scalar, V1_SIZES.skRRaw);
+  } catch (err) {
+    // The caller never receives this scalar, so nothing else can zero it.
+    scalar.fill(0);
+    throw err;
+  }
   return scalar;
 }

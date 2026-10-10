@@ -6,12 +6,14 @@ import React from 'react';
 import { MemoryRouter } from 'react-router';
 import { MozServices } from '../../lib/types';
 import {
+  AppContext,
   IntegrationData,
   IntegrationType,
   OAuthIntegrationData,
   OAuthWebIntegration,
   RelierCmsInfo,
 } from '../../models';
+import { mockAppContext } from '../../models/mocks';
 import type AuthClient from 'fxa-auth-client/browser';
 import { IndexIntegration } from './interfaces';
 import Index from '.';
@@ -137,6 +139,7 @@ export const Subject = ({
   initialTooltipMessage = '',
   isMobile = false,
   supportsKeysOptionalLogin = false,
+  passkeyEnabled = false,
 }: {
   integration?: IndexIntegration;
   serviceName?: MozServices;
@@ -146,6 +149,8 @@ export const Subject = ({
   initialTooltipMessage?: string;
   isMobile?: boolean;
   supportsKeysOptionalLogin?: boolean;
+  /** Turns the passkey signin feature flags on, so the CTA renders. */
+  passkeyEnabled?: boolean;
 }) => {
   const [errorBannerMessage, setErrorBannerMessage] =
     React.useState(initialErrorBanner);
@@ -157,39 +162,52 @@ export const Subject = ({
   const mockUseFxAStatusResult = mockUseFxAStatus({
     supportsKeysOptionalLogin,
   });
+  const contextValue = mockAppContext();
+  if (passkeyEnabled && contextValue.config) {
+    contextValue.config = {
+      ...contextValue.config,
+      featureFlags: {
+        ...contextValue.config.featureFlags,
+        passkeysEnabled: true,
+        passkeyAuthenticationEnabled: true,
+      },
+    };
+  }
   return (
     <MemoryRouter>
-      <Index
-        processEmailSubmission={async () => {}}
-        disableAutoSubmit={() => {}}
-        authClient={
-          {
-            beginPasskeyAuthentication: async () => {},
-            completePasskeyAuthentication: async () => {},
-            accountProfile: async () => {},
-          } as unknown as AuthClient
-        }
-        finishOAuthFlowHandler={async () => ({
-          redirect: 'http://example.com',
-          code: 'mock-code',
-          state: 'mock-state',
-          scope: 'profile',
-          error: undefined,
-        })}
-        {...{
-          prefillEmail,
-          integration,
-          serviceName,
-          errorBannerMessage,
-          successBannerMessage,
-          tooltipErrorMessage,
-          setErrorBannerMessage,
-          setSuccessBannerMessage,
-          setTooltipErrorMessage,
-          isMobile,
-          useFxAStatusResult: mockUseFxAStatusResult,
-        }}
-      />
+      <AppContext.Provider value={contextValue}>
+        <Index
+          processEmailSubmission={async () => {}}
+          disableAutoSubmit={() => {}}
+          authClient={
+            {
+              beginPasskeyAuthentication: async () => {},
+              completePasskeyAuthentication: async () => {},
+              accountProfile: async () => {},
+            } as unknown as AuthClient
+          }
+          finishOAuthFlowHandler={async () => ({
+            redirect: 'http://example.com',
+            code: 'mock-code',
+            state: 'mock-state',
+            scope: 'profile',
+            error: undefined,
+          })}
+          {...{
+            prefillEmail,
+            integration,
+            serviceName,
+            errorBannerMessage,
+            successBannerMessage,
+            tooltipErrorMessage,
+            setErrorBannerMessage,
+            setSuccessBannerMessage,
+            setTooltipErrorMessage,
+            isMobile,
+            useFxAStatusResult: mockUseFxAStatusResult,
+          }}
+        />
+      </AppContext.Provider>
     </MemoryRouter>
   );
 };

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAccount } from '../../../models';
 import { TotpInfo } from '../../types';
 import { useMfaErrorHandler } from '../useMfaErrorHandler';
@@ -15,6 +15,10 @@ export const useTotpReplace = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
+  // Ensure effect re-run cannot issue a second request
+  // and silently invalidate the first secret.
+  const inflightRef = useRef<Promise<TotpInfo> | null>(null);
+
   useEffect(() => {
     // User must have existing TOTP to replace it
     if (!account.totp.verified) {
@@ -26,9 +30,13 @@ export const useTotpReplace = () => {
     const fetchTotp = async () => {
       setError(null);
       try {
-        const result = await account.startReplaceTotpWithJwt();
+        if (!inflightRef.current) {
+          inflightRef.current = account.startReplaceTotpWithJwt();
+        }
+        const result = await inflightRef.current;
         if (!cancelled) setTotpInfo(result);
       } catch (err) {
+        inflightRef.current = null; // allow retry on remount
         const errorHandled = handleMfaError(err);
         if (errorHandled) {
           return;

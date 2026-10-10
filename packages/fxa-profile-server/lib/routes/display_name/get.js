@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Joi = require('joi');
-const checksum = require('checksum');
+const crypto = require('crypto');
 
 const db = require('../../db');
 
@@ -22,7 +22,7 @@ module.exports = {
       if (result && result.displayName) {
         return h
           .response({ displayName: result.displayName })
-          .etag(checksum(result.displayName));
+          .etag(crypto.hash('sha1', result.displayName, 'hex'));
       } else {
         return h.response({}).code(204);
       }

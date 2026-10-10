@@ -80,6 +80,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { usePageViewEvent } from '../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { useConfig } from '../../models';
+import GleanMetrics from '../../lib/glean';
 
 export const viewName = 'poc_pair_init';
 
@@ -321,7 +322,10 @@ const PocPairInit = () => {
     // straight to the target. A firefox:// scheme navigation from inside Firefox
     // does nothing, and no app hand-off is needed — we're already in Firefox.
     if (isFirefox) {
-      window.location.assign(target);
+      GleanMetrics.dtmMobile.deeplinkFirefoxDetected();
+      // Glean queues pings asynchronously, so navigating in the same tick can
+      // drop this one. Waiting is free here — the user is leaving regardless.
+      GleanMetrics.isDone().then(() => window.location.assign(target));
       return;
     }
 
@@ -330,6 +334,11 @@ const PocPairInit = () => {
     if (!willAutoAttempt || !claimAutoAttempt(target, storage)) {
       return;
     }
+    // Deliberately not awaiting GleanMetrics.isDone() here, unlike the other two
+    // navigations on this page: this is the happy path, and delaying the app
+    // hand-off to flush a ping is a cost the user pays on every successful
+    // pairing. Some of these attempts will be lost to the navigation.
+    GleanMetrics.dtmMobile.deeplinkAttempt({ event: { reason: 'android' } });
     window.location.assign(deepLink);
 
     // WebView backstop: if the intent silently no-ops, reveal the manual CTA
@@ -337,7 +346,10 @@ const PocPairInit = () => {
     // race S.browser_fallback_url (a successful fallback unloads us first). We
     // don't gate on visibilityState: if the hand-off did work, this fires while
     // backgrounded and the user simply returns to a usable retry card.
-    const revealTimer = window.setTimeout(() => setStatus('prompt'), timeout);
+    const revealTimer = window.setTimeout(() => {
+      GleanMetrics.dtmMobile.deeplinkWebviewFallback();
+      setStatus('prompt');
+    }, timeout);
     return () => window.clearTimeout(revealTimer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -367,14 +379,17 @@ const PocPairInit = () => {
     let sawFocus = false;
     let graceTimer = 0;
 
-    const goToStore = () => {
+    const goToStore = (reason: 'timeout' | 'focus_grace') => {
       if (appOpenedRef.current || document.visibilityState !== 'visible') {
         return;
       }
+      GleanMetrics.dtmMobile.deeplinkStoreRedirect({ event: { reason } });
       cleanupRef.current?.();
       // assign(), not replace(): Back returns to this interstitial, so a user who
       // cancelled an "Open in Firefox?" confirmation can retry (finding 3).
-      window.location.assign(storeUrl);
+      // Flush first — this is the event the store-fallback data rests on, and
+      // navigating in the same tick would drop it.
+      GleanMetrics.isDone().then(() => window.location.assign(storeUrl));
     };
 
     // Definitive "the app opened" signals — a real background/teardown.
@@ -407,7 +422,7 @@ const PocPairInit = () => {
       }
       sawFocus = true;
       window.clearTimeout(graceTimer);
-      graceTimer = window.setTimeout(goToStore, grace);
+      graceTimer = window.setTimeout(() => goToStore('focus_grace'), grace);
     };
 
     document.addEventListener('visibilitychange', onHidden);
@@ -422,7 +437,7 @@ const PocPairInit = () => {
     // what a bare timer does to anyone slow to tap "Open").
     const timer = window.setTimeout(() => {
       if (!sawBlur) {
-        goToStore();
+        goToStore('timeout');
       }
     }, timeout);
 
@@ -443,6 +458,12 @@ const PocPairInit = () => {
   // JS only risks losing the user activation. This just arms the fallback.
   const onAttempt = () => {
     setStatus('attempting');
+    // Named for the hand-off mechanism, not the device: 'other' is a mobile
+    // browser that handles neither intent:// nor the iOS scheme reliably, which
+    // is why its outcome is worth telling apart from iOS's.
+    GleanMetrics.dtmMobile.deeplinkAttempt({
+      event: { reason: isIos ? 'ios' : isAndroid ? 'android' : 'other' },
+    });
     // Android's intent:// carries its own store fallback via
     // S.browser_fallback_url, so it needs no JS watchdog.
     if (!isAndroid) {
@@ -480,7 +501,12 @@ const PocPairInit = () => {
           </p>
           {/* The deep link lives in `href` so the tap is a top-level,
               user-initiated navigation — the only form iOS honours. */}
-          <a className="cta-primary cta-xl" href={deepLink} onClick={onAttempt}>
+          <a
+            className="cta-primary cta-xl"
+            href={deepLink}
+            onClick={onAttempt}
+            data-glean-id="dtm_mobile_deeplink_continue_submit"
+          >
             Continue with Firefox
           </a>
           {status === 'attempting' && (
@@ -500,7 +526,11 @@ const PocPairInit = () => {
             {status === 'attempting'
               ? 'Firefox didn’t open? '
               : 'Don’t have Firefox? '}
-            <a className="link-blue" href={storeUrl}>
+            <a
+              className="link-blue"
+              href={storeUrl}
+              data-glean-id="dtm_mobile_deeplink_store_link"
+            >
               Get Firefox on the {storeName}
             </a>
           </p>

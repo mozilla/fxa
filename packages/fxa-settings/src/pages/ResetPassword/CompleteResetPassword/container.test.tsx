@@ -16,6 +16,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 import firefox from '../../../lib/channels/firefox';
 
 const mockNavigateWithQuery = jest.fn();
@@ -33,10 +34,7 @@ const mockAccount = {
 
 const mockAuthClient = {};
 
-const mockSensitiveDataClient = {
-  getDataType: jest.fn(),
-  setDataType: jest.fn(),
-};
+const mockSensitiveDataClient = createMockSensitiveDataClient();
 
 jest.mock('../../../lib/oauth/hooks', () => ({
   useFinishOAuthFlowHandler: jest.fn(),

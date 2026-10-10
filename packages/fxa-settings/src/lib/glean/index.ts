@@ -12,14 +12,12 @@ import {
   EventMapKeys,
   EventsMap,
   GleanPingMetrics,
-  booleanEventPropertyNames,
-  stringEventPropertyNames,
 } from 'fxa-shared/metrics/glean/web/index';
-import { accountsEvents } from 'fxa-shared/metrics/glean/web/pings';
-import * as event from 'fxa-shared/metrics/glean/web/event';
 import * as email from 'fxa-shared/metrics/glean/web/email';
 import * as error from 'fxa-shared/metrics/glean/web/error';
 import * as promoQrMobile from 'fxa-shared/metrics/glean/web/promoQrMobile';
+import * as dtmDesktop from 'fxa-shared/metrics/glean/web/dtmDesktop';
+import * as dtmMobile from 'fxa-shared/metrics/glean/web/dtmMobile';
 import * as reg from 'fxa-shared/metrics/glean/web/reg';
 import * as login from 'fxa-shared/metrics/glean/web/login';
 import * as cachedLogin from 'fxa-shared/metrics/glean/web/cachedLogin';
@@ -41,10 +39,6 @@ import * as passkeyEnterPassword from 'fxa-shared/metrics/glean/web/passkeyEnter
 import * as passkey from 'fxa-shared/metrics/glean/web/passkey';
 import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
 import {
-  appFramework,
-  cmsCustomizationEnrollment,
-} from 'fxa-shared/metrics/glean/web/event';
-import {
   oauthClientId,
   service,
 } from 'fxa-shared/metrics/glean/web/relyingParty';
@@ -52,12 +46,14 @@ import {
   deviceType,
   entrypoint,
   flowId,
+  pairingChannelHash,
 } from 'fxa-shared/metrics/glean/web/session';
 import * as utm from 'fxa-shared/metrics/glean/web/utm';
 import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
 import { Integration } from '../../models';
 import { MetricsFlow } from '../metrics-flow';
 import { currentAccount } from '../../lib/cache';
+import { getPairingChannelId } from '../pairing-channel-params';
 
 type DeviceTypes = 'mobile' | 'tablet' | 'desktop';
 export type GleanMetricsContext = {
@@ -106,8 +102,8 @@ let metricsContext: GleanMetricsContext;
 let ua: UAParser | null;
 
 const encoder = new TextEncoder();
-const hashUid = async (uid: string) => {
-  const data = encoder.encode(uid);
+const sha256Hex = async (value: string) => {
+  const data = encoder.encode(value);
   const hash = await crypto.subtle.digest('SHA-256', data);
   const uint8View = new Uint8Array(hash);
   const hex = uint8View.reduce(
@@ -147,7 +143,7 @@ const initMetrics = async () => {
   try {
     if (account?.uid) {
       userId.set(account.uid);
-      userIdSha256.set(await hashUid(account.uid));
+      userIdSha256.set(await sha256Hex(account.uid));
     }
   } catch (e) {
     // noop
@@ -159,6 +155,14 @@ const initMetrics = async () => {
   deviceType.set(getDeviceType() || '');
   entrypoint.set(metricsContext.integration.data.entrypoint || '');
   flowId.set(metricsContext.metricsFlow?.flowId || '');
+
+  // The join key across the two devices in a pairing. Re-derived on every event
+  // rather than set once, so an event fired before the channel existed does not
+  // leave the rest of the flow unjoinable.
+  const pairingChannelId = getPairingChannelId();
+  pairingChannelHash.set(
+    pairingChannelId ? await sha256Hex(pairingChannelId) : ''
+  );
 
   utm.campaign.set(metricsContext.integration.data.utmCampaign || '');
   utm.content.set(metricsContext.integration.data.utmContent || '');
@@ -172,31 +176,6 @@ const initMetrics = async () => {
   entrypointQuery.experiment.set(
     metricsContext.integration.data.entrypointExperiment || ''
   );
-
-  appFramework.set('react');
-
-  // If the user has any cms info, they are considered enrolled in CMS customization.
-  const cmsInfo = !!metricsContext.integration?.getCmsInfo();
-  cmsCustomizationEnrollment.set(cmsInfo);
-};
-
-const populateMetrics = async (gleanPingMetrics: GleanPingMetrics) => {
-  await initMetrics();
-
-  if (gleanPingMetrics?.event) {
-    // The event here is the Glean `event` metric type, not an "metrics event" in
-    // a more general sense
-
-    for (const name of booleanEventPropertyNames) {
-      const eventValue = gleanPingMetrics.event[name];
-      if (eventValue) {
-        event[name].set(eventValue);
-      }
-    }
-    for (const name of stringEventPropertyNames) {
-      event[name].set(gleanPingMetrics.event[name] || '');
-    }
-  }
 };
 
 const recordEventMetric = (
@@ -319,7 +298,9 @@ const recordEventMetric = (
       login.backupChoiceView.record();
       break;
     case 'login_backup_choice_submit':
-      login.backupChoiceSubmit.record();
+      login.backupChoiceSubmit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'login_engage':
       login.engage.record();
@@ -533,6 +514,9 @@ const recordEventMetric = (
     case 'cad_firefox_notnow_submit':
       cadFirefox.notnowSubmit.record();
       break;
+    case 'cad_firefox_download_firefox_view':
+      cadFirefox.downloadFirefoxView.record();
+      break;
     case 'cad_approve_device_view':
       cadApproveDevice.view.record();
       break;
@@ -573,7 +557,9 @@ const recordEventMetric = (
       accountPref.twoStepAuthScanCodeLink.record();
       break;
     case 'account_pref_two_step_auth_qr_view':
-      accountPref.twoStepAuthQrView.record();
+      accountPref.twoStepAuthQrView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'account_pref_two_step_auth_qr_code_success':
       accountPref.twoStepAuthQrCodeSuccess.record();
@@ -959,6 +945,35 @@ const recordEventMetric = (
         nimbus_user_id: gleanPingMetrics?.event?.['nimbusUserId'] || '',
       });
       break;
+    case 'dtm_desktop_qr_skip':
+      dtmDesktop.qrSkip.record();
+      break;
+    case 'dtm_desktop_timeout_view':
+      dtmDesktop.timeoutView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'dtm_mobile_timeout_view':
+      dtmMobile.timeoutView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'dtm_mobile_deeplink_attempt':
+      dtmMobile.deeplinkAttempt.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'dtm_mobile_deeplink_firefox_detected':
+      dtmMobile.deeplinkFirefoxDetected.record();
+      break;
+    case 'dtm_mobile_deeplink_store_redirect':
+      dtmMobile.deeplinkStoreRedirect.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'dtm_mobile_deeplink_webview_fallback':
+      dtmMobile.deeplinkWebviewFallback.record();
+      break;
   }
 };
 
@@ -970,13 +985,10 @@ const createEventFn =
     }
 
     const fn = async () => {
-      event.name.set(eventName);
-      await populateMetrics(gleanPingMetrics);
+      await initMetrics();
 
       // recording the event metric triggers the event ping because Glean is initialized with `maxEvents: 1`
       recordEventMetric(eventName, gleanPingMetrics);
-
-      accountsEvents.submit();
     };
 
     submitPing(fn);

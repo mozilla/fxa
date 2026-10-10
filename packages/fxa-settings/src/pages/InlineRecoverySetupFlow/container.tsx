@@ -26,7 +26,6 @@ import InlineRecoverySetup from './index';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { SigninRecoveryLocationState } from './interfaces';
 import OAuthDataError from '../../components/OAuthDataError';
-import { SensitiveData } from '../../lib/sensitive-data-client';
 import { Choice } from '../../components/FormChoice';
 import { totpUtils } from '../../lib/totp-utils';
 import { getErrorFtlId, getHandledError } from '../../lib/error-utils';
@@ -94,8 +93,7 @@ export const InlineRecoverySetupContainer = ({
   const signinRecoveryLocationState = location.state;
   const { totp, ...signinLocationState } = signinRecoveryLocationState || {};
   const sensitiveDataClient = useSensitiveDataClient();
-  const { keyFetchToken, unwrapBKey } =
-    sensitiveDataClient.getDataType(SensitiveData.Key.Auth) || {};
+  const { keyFetchToken, unwrapBKey } = sensitiveDataClient.AuthData || {};
 
   const { oAuthKeysCheckError } = useOAuthKeysCheck(
     integration,

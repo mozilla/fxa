@@ -5,7 +5,7 @@
 import { useNavigate, Link, useLocation } from 'react-router';
 import { useNavigateWithQuery, useWebRedirect } from '../../lib/hooks';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppLayout from '../../components/AppLayout';
 import CardHeader from '../../components/CardHeader';
@@ -14,6 +14,7 @@ import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 import AlternativeAuthOptions from '../../components/AlternativeAuthOptions';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../lib/glean';
+import { useGleanView } from '../../lib/glean/useGleanView';
 import {
   useSensitiveDataClient,
   useFtlMsgResolver,
@@ -22,14 +23,13 @@ import {
   useAuthClient,
   useConfig,
 } from '../../models';
-import { usePasskeySignIn } from '../../lib/passkeys/signin-flow';
+import { usePasskeySignIn } from '../../lib/hooks/usePasskeySignIn';
 import { shouldShowPasskeySignin } from '../../lib/passkeys';
 import { isWebAuthnSupported } from '../../lib/passkeys/webauthn';
 import { SigninFormData, SigninProps } from './interfaces';
 import { handleNavigation } from './utils';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import Banner from '../../components/Banner';
-import { SensitiveData } from '../../lib/sensitive-data-client';
 import { BannerLinkProps } from '../../components/Banner/interfaces';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
 import SigninUserLockup from './components/SigninUserLockup';
@@ -53,7 +53,7 @@ const Signin = ({
   localizedSuccessBannerHeading,
   localizedSuccessBannerDescription,
   flowQueryParams,
-  useFxAStatusResult: { supportsKeysOptionalLogin },
+  useFxAStatusResult: { supportsKeysOptionalLogin, fxaStatusState },
   isSignedIntoFirefox = false,
   setCurrentSplitLayout,
 }: SigninProps) => {
@@ -85,6 +85,8 @@ const Signin = ({
     isButtonVisible: showPasskeySignin,
     supportsKeysOptionalLogin,
   });
+
+  const { clearError: clearPasskeyError } = passkey;
 
   const [localizedBannerError, setLocalizedBannerError] = useState(
     localizedErrorFromLocationState || ''
@@ -144,11 +146,16 @@ const Signin = ({
     ? hasPassword
     : isOAuthNative && !supportsKeysOptionalLogin;
 
-  useEffect(() => {
-    GleanMetrics.login.view({
-      event: { thirdPartyLinks: !hideThirdPartyAuth },
-    });
-  }, [hideThirdPartyAuth]);
+  // `supportsKeysOptionalLogin` is false until the browser answers fxa_status,
+  // so recording any earlier reports third-party links as hidden on a page that
+  // goes on to show them.
+  useGleanView(
+    () =>
+      GleanMetrics.login.view({
+        event: { thirdPartyLinks: !hideThirdPartyAuth },
+      }),
+    fxaStatusState !== 'pending'
+  );
 
   const signInWithPassword = useCallback(
     async (password: string) => {
@@ -225,9 +232,7 @@ const Signin = ({
                 }
 
                 // Store password to be used in another component
-                sensitiveDataClient.setDataType(SensitiveData.Key.Password, {
-                  plainTextPassword: password,
-                });
+                sensitiveDataClient.Password = { plainTextPassword: password };
                 // navigate only if sending the unblock code email is successful
                 navigateWithQuery('/signin_unblock', {
                   state: {
@@ -307,14 +312,30 @@ const Signin = ({
 
   const onSubmit = useCallback(
     async ({ password }: { password: string }) => {
+      clearPasskeyError();
       if (password === '') {
         setPasswordTooltipErrorText(localizedValidPasswordError);
         return;
       }
       signInWithPassword(password);
     },
-    [signInWithPassword, localizedValidPasswordError]
+    [signInWithPassword, localizedValidPasswordError, clearPasskeyError]
   );
+
+  // Only one error belongs on the card at a time: starting a sign-in method
+  // dismisses the error left by the previous one.
+  const clearErrors = () => {
+    setLocalizedBannerError('');
+    setLocalizedBannerErrorDescription('');
+    setLocalizedBannerErrorLink(undefined);
+    setPasswordTooltipErrorText('');
+    clearPasskeyError();
+  };
+
+  const handlePasskeyClick = () => {
+    clearErrors();
+    passkey.onClick();
+  };
 
   const cmsInfo = integration.getCmsInfo();
   const signinPageCms = cmsInfo?.SigninPage;
@@ -418,10 +439,16 @@ const Signin = ({
         showPasskeySignin={showPasskeySignin}
         passkeySignIn={
           showPasskeySignin
-            ? { isLoading: passkey.isLoading, onClick: passkey.onClick }
+            ? { isLoading: passkey.isLoading, onClick: handlePasskeyClick }
             : undefined
         }
-        errorBanner={showPasskeySignin ? passkey.errorBanner : undefined}
+        errorBanner={
+          showPasskeySignin && passkey.banner ? (
+            <Banner {...passkey.banner} />
+          ) : undefined
+        }
+        onContinueWithGoogle={clearErrors}
+        onContinueWithApple={clearErrors}
         disabled={alternativesLocked}
         {...{ viewName, flowQueryParams }}
       />

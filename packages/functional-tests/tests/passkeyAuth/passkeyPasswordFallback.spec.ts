@@ -59,7 +59,7 @@ async function reachPasskeyFallback(
   await page.waitForURL(/action=email/, { timeout: 15000 });
   await signin.fillOutEmailFirstForm(email);
   await settingsPasskeyAdd.passkeyAuth.assertion(async () => {
-    await signin.passkeySigninButton.click();
+    await signin.clickPasskeySigninAfterEmailFirst();
     await page.waitForURL(/signin_passkey_fallback/);
   });
   await expect(page.getByTestId('passkey-fallback-email')).toHaveText(email);
@@ -182,7 +182,11 @@ test.describe('severity-1 #smoke', () => {
       const { email, password } = credentials;
       credentials.secret = await enableTotpOnAccount(
         target.authClient,
-        credentials.sessionToken
+        await testAccountTracker.getMfaJwtForScope(
+          '2fa',
+          credentials.sessionToken,
+          email
+        )
       );
 
       await settings.signOut();

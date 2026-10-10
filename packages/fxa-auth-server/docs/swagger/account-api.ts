@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import dedent from 'dedent';
+import swaggerText from './shared/swagger-text';
 import TAGS from './swagger-tags';
 
 const TAGS_ACCOUNT = {
@@ -13,7 +13,7 @@ const ACCOUNT_CREATE_POST = {
   ...TAGS_ACCOUNT,
   description: '/account/create',
   notes: [
-    dedent`
+    swaggerText`
       Creates a user account. The client provides the email address with which this account will be associated and a stretched password. Stretching is detailed on the [onepw](https://mozilla.github.io/ecosystem-platform/explanation/onepw-protocol#client-side-key-stretching) wiki page.
 
       This endpoint may send a verification email to the user. Callers may optionally provide the \`service\` parameter to indicate which service they are acting on behalf of. This is an opaque alphanumeric token that will be embedded in the verification link as a query parameter.
@@ -25,7 +25,7 @@ const ACCOUNT_CREATE_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 101\` - Account already exists
             - \`errno: 144\` - Email already exists
@@ -40,7 +40,7 @@ const ACCOUNT_LOGIN_POST = {
   ...TAGS_ACCOUNT,
   description: '/account/login',
   notes: [
-    dedent`
+    swaggerText`
       Obtain a \`sessionToken\` and, optionally, a \`keyFetchToken\` if \`keys=true\`.
 
       The response includes:
@@ -55,7 +55,7 @@ const ACCOUNT_LOGIN_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 102\` - Unknown account
             - \`errno: 103\` - Incorrect password
@@ -67,7 +67,7 @@ const ACCOUNT_LOGIN_POST = {
           `,
         },
         422: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 151\` - Failed to send email
           `,
@@ -81,7 +81,7 @@ const ACCOUNT_STATUS_GET = {
   ...TAGS_ACCOUNT,
   description: '/account/status',
   notes: [
-    dedent`
+    swaggerText`
       🔒🔓 Optionally authenticated with session token
 
       Gets the status of an account.
@@ -91,7 +91,7 @@ const ACCOUNT_STATUS_GET = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 108\` - Missing parameter in request body
           `,
@@ -105,7 +105,7 @@ const ACCOUNT_STATUS_POST = {
   ...TAGS_ACCOUNT,
   description: '/account/status',
   notes: [
-    'Gets the status of an account without exposing user data through query params. This endpoint is rate limited by [fxa-customs-server](https://github.com/mozilla/fxa/tree/main/packages/fxa-customs-server).',
+    'Gets the status of an account without exposing user data through query params. This endpoint is rate limited.',
   ],
 };
 
@@ -121,21 +121,22 @@ const ACCOUNT_EMAILS_GET = {
   ...TAGS_ACCOUNT,
   description: '/account/emails',
   notes: [
-    'Returns the current primary email, secondary email, and original email that was used during sign up.'
-  ]
-}
+    'Returns the current primary email, secondary email, and original email that was used during sign up.',
+  ],
+};
 
 const ACCOUNT_PROFILE_GET = {
   ...TAGS_ACCOUNT,
   description: '/account/profile',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with OAuth bearer token or authenticated with session token
 
       Get the email and locale of a user.
 
       If an OAuth bearer token is used, the values returned depend on the scopes that the token is authorized for:
         - \`email\` requires \`profile:email\` scope.
+        - \`additionalEmails\` requires \`profile:additionalEmails\` scope. It lists the account's verified secondary email addresses.
         - \`locale\` requires \`profile:locale\` scope.
         - \`authenticationMethods\` and \`authenticatorAssuranceLevel\` require \`profile:amr\` scope.
         - \`accountDisabledAt\` requires \`profile:account_disabled_at\` scope.
@@ -150,7 +151,7 @@ const ACCOUNT_KEYS_GET = {
   ...TAGS_ACCOUNT,
   description: '/account/keys',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with key fetch token
 
       Get the base-16 bundle of encrypted \`kA|wrapKb\`. The return value must be decrypted with a key derived from \`keyFetchToken\`, then \`wrapKb\` must be further decrypted with a key derived from the user's password.
@@ -164,47 +165,9 @@ const ACCOUNT_KEYS_GET = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 104\` - Unverified account
-          `,
-        },
-      },
-    },
-  },
-};
-
-const ACCOUNT_UNLOCK_RESEND_CODE_POST = {
-  ...TAGS_ACCOUNT,
-  description: '/account/unlock/resend_code',
-  notes: ['This endpoint is deprecated.'],
-  plugins: {
-    'hapi-swagger': {
-      deprecated: true,
-      responses: {
-        410: {
-          description: dedent`
-            Failing requests may be caused by the following errors (this is not an exhaustive list):
-            - \`errno: 116\` - This endpoint is no longer supported
-          `,
-        },
-      },
-    },
-  },
-};
-
-const ACCOUNT_UNLOCK_VERIFY_CODE_POST = {
-  ...TAGS_ACCOUNT,
-  description: '/account/unlock/verify_code',
-  notes: ['This endpoint is deprecated.'],
-  plugins: {
-    'hapi-swagger': {
-      deprecated: true,
-      responses: {
-        410: {
-          description: dedent`
-            Failing requests may be caused by the following errors (this is not an exhaustive list):
-            - \`errno: 116\` - This endpoint is no longer supported
           `,
         },
       },
@@ -216,7 +179,7 @@ const ACCOUNT_RESET_POST = {
   ...TAGS_ACCOUNT,
   description: '/account/reset',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with account reset token
 
       This sets the account password and resets \`wrapKb\` to a new random value.
@@ -230,7 +193,7 @@ const ACCOUNT_RESET_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 108\` - Missing parameter in request body
           `,
@@ -244,7 +207,7 @@ const ACCOUNT_CREDENTIALS_STATUS = {
   ...TAGS_ACCOUNT,
   description: '/account/credentials/status',
   notes: [
-    dedent`
+    swaggerText`
       This provides access to the accounts some info about the format of the account credentials. If the version 2 credential
       format is in use, the client's unique salt will also be provided.
       `,
@@ -253,7 +216,7 @@ const ACCOUNT_CREDENTIALS_STATUS = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 108\` - Missing parameter in request body
           `,
@@ -267,7 +230,7 @@ const ACCOUNT_DESTROY_POST = {
   ...TAGS_ACCOUNT,
   description: '/account/destroy',
   notes: [
-    dedent`
+    swaggerText`
       🔒🔓 Optionally authenticated with session token
 
       Deletes an account. All stored data is erased. The client should seek user confirmation first. The client should erase data stored on any attached services before deleting the user's account data.
@@ -277,7 +240,7 @@ const ACCOUNT_DESTROY_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 103\` - Incorrect password
             - \`errno: 138\` - Unverified session
@@ -288,21 +251,11 @@ const ACCOUNT_DESTROY_POST = {
   },
 };
 
-const ACCOUNT_FINISH_SETUP_POST = {
-  ...TAGS_ACCOUNT,
-  description: '/account/finish_setup',
-};
-
-const ACCOUNT_STUB_POST = {
-  ...TAGS_ACCOUNT,
-  description: '/account/stub',
-};
-
 const ACCOUNT_METRICS_OPT_POST = {
   ...TAGS_ACCOUNT,
   description: '/account/metrics_opt',
   notes: [
-    dedent`
+    swaggerText`
       Set the metrics opt-in or opt-out state for the account. Notifies relying parties of the profile data change.
     `,
   ],
@@ -313,7 +266,6 @@ const API_DOCS = {
   ACCOUNT_DESTROY_POST,
   ACCOUNT_EMAIL_BOUNCE_STATUS_POST,
   ACCOUNT_EMAILS_GET,
-  ACCOUNT_FINISH_SETUP_POST,
   ACCOUNT_KEYS_GET,
   ACCOUNT_LOGIN_POST,
   ACCOUNT_METRICS_OPT_POST,
@@ -322,9 +274,6 @@ const API_DOCS = {
   ACCOUNT_CREDENTIALS_STATUS,
   ACCOUNT_STATUS_GET,
   ACCOUNT_STATUS_POST,
-  ACCOUNT_STUB_POST,
-  ACCOUNT_UNLOCK_RESEND_CODE_POST,
-  ACCOUNT_UNLOCK_VERIFY_CODE_POST,
 };
 
 export default API_DOCS;

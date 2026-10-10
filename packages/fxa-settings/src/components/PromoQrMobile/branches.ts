@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import controlQr from './qr/control.svg';
+import defaultQr from './qr/default.png';
 import treatmentAQr from './qr/treatment-a.svg';
 import treatmentBQr from './qr/treatment-b.svg';
 import treatmentCQr from './qr/treatment-c.svg';
@@ -73,12 +74,20 @@ export const BRANCHES: Record<string, PromoQrBranch> = {
 
 export type ResolvedBranch = PromoQrBranch & { slug: string };
 
+/** Shown outside the experiment, so only enrolled control users scan the control QR. */
+export const DEFAULT_PROMO: PromoQrBranch = {
+  ftlId: 'promo-qr-mobile-heading',
+  heading: 'Your phone. Your rules.',
+  qr: defaultQr,
+};
+
 /**
- * Resolve a branch slug to its copy and QR code. An unknown slug falls back to
- * the control, so a typo in Experimenter cannot break the promo. The returned
- * slug is what the user actually saw, which is what telemetry reports.
+ * Resolve a branch slug to its copy and QR code. An unknown slug returns null,
+ * so a typo in Experimenter shows the default promo and reports no branch.
  */
-export function resolveBranch(slug?: string | null): ResolvedBranch {
-  const key = slug && BRANCHES[slug] ? slug : CONTROL_BRANCH;
-  return { ...BRANCHES[key], slug: key };
+export function resolveBranch(slug?: string | null): ResolvedBranch | null {
+  // Own keys only, so a slug like `toString` cannot resolve to a prototype member.
+  return slug && Object.prototype.hasOwnProperty.call(BRANCHES, slug)
+    ? { ...BRANCHES[slug], slug }
+    : null;
 }

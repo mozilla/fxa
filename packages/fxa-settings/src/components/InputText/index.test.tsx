@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen, cleanup } from '@testing-library/react';
+import { screen, cleanup, fireEvent } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import InputText from '.';
 
@@ -56,6 +56,23 @@ describe('InputText', () => {
       </InputText>
     );
     expect(screen.getByTestId('input-children')).toBeInTheDocument();
+  });
+
+  it('can set the enterKeyHint attribute', () => {
+    renderWithLocalizationProvider(
+      <InputText {...{ label, enterKeyHint: 'next' }} />
+    );
+    expect(screen.getByTestId('input-field')).toHaveAttribute(
+      'enterkeyhint',
+      'next'
+    );
+  });
+
+  it('calls onKeyDown when a key is pressed', () => {
+    const onKeyDown = jest.fn();
+    renderWithLocalizationProvider(<InputText {...{ label, onKeyDown }} />);
+    fireEvent.keyDown(screen.getByTestId('input-field'), { key: 'Enter' });
+    expect(onKeyDown).toHaveBeenCalled();
   });
 
   it('can set autoCapitalize attribute', () => {

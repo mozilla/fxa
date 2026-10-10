@@ -67,7 +67,7 @@ describe('PasskeyChallengeManager', () => {
       expect(result).toBe(MOCK_CHALLENGE);
     });
 
-    it('calls redis.set with the correct key and TTL', async () => {
+    it('calls redis.set with the correct key and TTL and increments statsd', async () => {
       mockRedis.set.mockResolvedValue('OK');
       await manager.generateRegistrationChallenge('deadbeef');
 
@@ -77,12 +77,6 @@ describe('PasskeyChallengeManager', () => {
         'EX',
         CHALLENGE_TIMEOUT_MS / 1000
       );
-    });
-
-    it('increments statsd counter for generated challenges', async () => {
-      mockRedis.set.mockResolvedValue('OK');
-      await manager.generateRegistrationChallenge('deadbeef');
-
       expect(mockStatsd.increment).toHaveBeenCalledWith(
         'passkey.challenge.generated',
         { type: 'registration' }
@@ -130,17 +124,38 @@ describe('PasskeyChallengeManager', () => {
     });
   });
 
-  describe('generateUpgradeChallenge', () => {
-    it('stores the challenge with type=upgrade and uid', async () => {
+  describe('generateVerificationChallenge', () => {
+    it('stores the challenge with type=verification, uid, and scope', async () => {
       mockRedis.set.mockResolvedValue('OK');
-      await manager.generateUpgradeChallenge('cafebabe');
+      await manager.generateVerificationChallenge({
+        uid: 'cafebabe',
+        scope: 'passkey',
+      });
 
       const [key, rawJson] = mockRedis.set.mock.calls[0];
       const stored: StoredChallenge = JSON.parse(rawJson);
 
-      expect(key).toBe(`passkey:challenge:upgrade:${MOCK_CHALLENGE}:cafebabe`);
-      expect(stored.type).toBe('upgrade');
+      expect(key).toBe(
+        `passkey:challenge:verification:${MOCK_CHALLENGE}:cafebabe`
+      );
+      expect(stored.type).toBe('verification');
       expect(stored.uid).toBe('cafebabe');
+      expect(stored.scope).toBe('passkey');
+      expect(stored.credentialId).toBeUndefined();
+    });
+
+    it('stores the pinned credentialId when given one', async () => {
+      mockRedis.set.mockResolvedValue('OK');
+      await manager.generateVerificationChallenge({
+        uid: 'cafebabe',
+        scope: 'passkey',
+        credentialId: 'Y3JlZC0x',
+      });
+
+      const [, rawJson] = mockRedis.set.mock.calls[0];
+      const stored: StoredChallenge = JSON.parse(rawJson);
+
+      expect(stored.credentialId).toBe('Y3JlZC0x');
     });
   });
 
@@ -224,6 +239,21 @@ describe('PasskeyChallengeManager', () => {
       expect(mockRedis.getdel).toHaveBeenCalledWith(
         `passkey:challenge:authentication:${MOCK_CHALLENGE}`
       );
+    });
+
+    it('calls GETDEL with the uid-scoped key for a verification challenge', async () => {
+      const stored = makeStored({ type: 'verification', scope: 'passkey' });
+      mockRedis.getdel.mockResolvedValue(JSON.stringify(stored));
+
+      const result = await manager.consumeVerificationChallenge(
+        MOCK_CHALLENGE,
+        'deadbeef'
+      );
+
+      expect(mockRedis.getdel).toHaveBeenCalledWith(
+        `passkey:challenge:verification:${MOCK_CHALLENGE}:deadbeef`
+      );
+      expect(result).toEqual(stored);
     });
   });
 

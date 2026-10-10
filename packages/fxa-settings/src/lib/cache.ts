@@ -23,34 +23,17 @@ export function isSigningOut(): boolean {
   return _isSigningOut;
 }
 
-// TODO in FXA-8454
-// Add checks to ensure this function cannot produce an object that would violate type safety.
-// Currently, there are no checks to ensure that the values are defined and non-null,
-// which could result in errors at runtime.
-export function getStoredAccountData(input: {
-  uid: hexstring;
-  sessionToken?: hexstring;
-  alertText?: string;
-  displayName?: string;
-  metricsEnabled?: boolean;
-  lastLogin?: number;
-  email?: string;
-  emailVerified?: boolean;
-  sessionVerified?: boolean;
-}): StoredAccountData {
-  return {
-    uid: input.uid,
-    sessionToken: input.sessionToken,
-    alertText: input.alertText,
-    displayName: input.displayName,
-    metricsEnabled: input.metricsEnabled,
-    lastLogin: input.lastLogin,
-    email: input.email,
-    verified: !!(input.emailVerified && input.sessionVerified),
-  };
-}
-
 type LocalAccounts = Record<hexstring, StoredAccountData>;
+
+const UID_REGEX = /^[0-9a-f]{32}$/;
+
+/**
+ * `hexstring` is a type assertion, not a runtime check. Only a validated uid
+ * may key the accounts map, or `__proto__` reaches `Object.prototype`.
+ */
+function isValidUid(uid: unknown): uid is hexstring {
+  return typeof uid === 'string' && UID_REGEX.test(uid);
+}
 
 export function accounts(accounts?: LocalAccounts) {
   if (accounts) {
@@ -75,20 +58,28 @@ export function currentAccount(
   // Current user can be specified in url params (ex. when clicking
   // `Manage account` from sync prefs.
   const forceUid = searchParam('uid', window.location.search);
-  if (forceUid && all[forceUid]) {
+  if (isValidUid(forceUid) && all[forceUid]) {
     storage.set('currentAccountUid', forceUid);
   }
 
-  const uid = storage.get('currentAccountUid') as hexstring;
   if (account) {
+    if (!isValidUid(account.uid)) {
+      return undefined;
+    }
     all[account.uid] = account;
     accounts(all);
     return account;
   }
-  return all[uid];
+
+  // Guarded rather than cleared: this runs during render, so it must not write.
+  const uid = storage.get('currentAccountUid');
+  return isValidUid(uid) ? all[uid] : undefined;
 }
 
 export function getAccountByUid(uid: string) {
+  if (!isValidUid(uid)) {
+    return undefined;
+  }
   const all = accounts() || {};
   return all[uid];
 }
@@ -150,8 +141,10 @@ export function discardSessionToken() {
 
 export function clearSignedInAccountUid() {
   const all = accounts() || {};
-  const uid = storage.get('currentAccountUid') as hexstring;
-  delete all[uid];
+  const uid = storage.get('currentAccountUid');
+  if (isValidUid(uid)) {
+    delete all[uid];
+  }
   accounts(all);
   storage.remove('currentAccountUid');
   dispatchStorageEvent('accounts');

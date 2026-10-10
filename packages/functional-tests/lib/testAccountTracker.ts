@@ -7,15 +7,12 @@
 /* eslint-disable no-console */
 
 import crypto from 'crypto';
-import { Page, TestInfo } from '@playwright/test';
+import { BrowserContext, Page, TestInfo } from '@playwright/test';
 import { Credentials } from './targets';
 import { BaseTarget } from './targets/base';
 import { MfaScope } from 'fxa-settings/src/lib/types';
 import { getTotpCode } from './totp';
-import {
-  SessionStatus,
-  SignedInAccountData,
-} from 'fxa-auth-client/lib/client';
+import { SessionStatus, SignedInAccountData } from 'fxa-auth-client/lib/client';
 
 enum EmailPrefix {
   BLOCKED = 'blocked',
@@ -26,6 +23,12 @@ enum EmailPrefix {
   SIGNIN = 'signin',
   SIGNUP = 'signup',
   SYNC = 'sync',
+  /**
+   * Matches the auth-server's forcedHeuristicEmailAddresses default: the
+   * session is created unverified but not `mustVerify`, the non-Sync, non-2FA
+   * heuristic state that RP redirect flows can pass through without a code.
+   */
+  UNVERIFIED_SESSION = 'unverifiedsession',
 }
 
 const SUPPORTED_SERVICE = 'smoketests';
@@ -60,13 +63,33 @@ export class TestAccountTracker {
   accounts: (AccountDetails | Credentials)[];
   private target: BaseTarget;
   private testInfo: TestInfo;
-  private page: Page;
+  private context?: BrowserContext;
 
-  constructor(target: BaseTarget, testInfo: TestInfo, page: Page) {
+  /**
+   * `context` is optional so API-level specs can track and destroy accounts
+   * without opening a browser. The JWT-cache helpers are the only members that
+   * need a page, and they throw when the context has none.
+   */
+  constructor(
+    target: BaseTarget,
+    testInfo: TestInfo,
+    context?: BrowserContext
+  ) {
     this.target = target;
     this.testInfo = testInfo;
     this.accounts = [];
-    this.page = page;
+    this.context = context;
+  }
+
+  // The test's `page` fixture, read lazily so Sync tests do not open a blank tab.
+  private get page(): Page {
+    const page = this.context?.pages()[0];
+    if (!page) {
+      throw new Error(
+        'TestAccountTracker has no page; this helper drives localStorage and needs one.'
+      );
+    }
+    return page;
   }
 
   /**
@@ -247,6 +270,16 @@ export class TestAccountTracker {
    */
   async signUpSync(options?: any): Promise<Credentials> {
     return await this.signUp(options, EmailPrefix.SYNC);
+  }
+
+  /**
+   * Signs up an account whose sign-ins land in the heuristic unverified session
+   * state (unverified, not `mustVerify`). See EmailPrefix.UNVERIFIED_SESSION.
+   * @param options AuthClient signup options
+   * @returns Credentials
+   */
+  async signUpUnverifiedSession(options?: any): Promise<Credentials> {
+    return await this.signUp(options, EmailPrefix.UNVERIFIED_SESSION);
   }
 
   /**
@@ -441,7 +474,7 @@ export class TestAccountTracker {
     const { sessionToken } = await this.target.authClient.signIn(
       {
         primary: account.email,
-        original: account.originalEmail || account.email
+        original: account.originalEmail || account.email,
       },
       account.password,
       {},
@@ -493,7 +526,7 @@ export class TestAccountTracker {
     await this.target.authClient.accountDestroy(
       {
         primary: account.email,
-        original: account.originalEmail || account.email
+        original: account.originalEmail || account.email,
       },
       account.password,
       {},
@@ -623,7 +656,7 @@ export class TestAccountTracker {
    * Gets an MFA JWT for a specific scope by requesting and verifying an OTP.
    * This is used for operations that require MFA authentication.
    */
-  private async getMfaJwtForScope(
+  async getMfaJwtForScope(
     scope: MfaScope,
     sessionToken: string,
     email: string
@@ -752,8 +785,9 @@ export class TestAccountTracker {
   private registerMfaJwtOnLoadHook(
     scopeTokenKvp: { scope: MfaScope; token: string }[]
   ) {
-    this.page.on('load', async () => {
-      await this.page.evaluate(
+    const page = this.page;
+    page.on('load', async () => {
+      await page.evaluate(
         ({ scopeTokenKvp }) => {
           try {
             const fxaStorageKey = '__fxa_storage';

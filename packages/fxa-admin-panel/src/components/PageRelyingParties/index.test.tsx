@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { act, fireEvent, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import PageRelyingParties from '.';
 import { MOCK_RP_ALL_FIELDS, MOCK_RP_FALSY_FIELDS } from './mocks';
@@ -221,7 +222,7 @@ it('filters relying parties by name and id', async () => {
   await screen.findByText(rp1.name);
   await screen.findByText(rp2.name);
 
-  // Filter by name substring (case-sensitive includes)
+  // Filter by name substring
   fireEvent.change(
     screen.getByPlaceholderText('Filter by relying party name or ID.'),
     { target: { value: 'Send' } }
@@ -239,6 +240,30 @@ it('filters relying parties by name and id', async () => {
   );
   fireEvent.click(screen.getByTestId('rp-filter'));
 
+  await screen.findByText(rp2.name);
+  expect(screen.queryByText(rp1.name)).toBeNull();
+});
+
+it('filters relying parties ignoring case and surrounding spaces', async () => {
+  const user = userEvent.setup();
+  const rp1 = { ...MOCK_RP_ALL_FIELDS };
+  const rp2 = { ...MOCK_RP_FALSY_FIELDS };
+  (adminApi.getRelyingParties as jest.Mock).mockResolvedValue([rp1, rp2]);
+  renderPage();
+  await screen.findByText(rp1.name);
+  const input = screen.getByPlaceholderText(
+    'Filter by relying party name or ID.'
+  );
+  const filterButton = screen.getByRole('button', { name: 'Filter' });
+
+  await user.type(input, '  firefox SEND ');
+  await user.click(filterButton);
+  await screen.findByText(rp1.name);
+  expect(screen.queryByText(rp2.name)).toBeNull();
+
+  await user.clear(input);
+  await user.type(input, rp2.id.toUpperCase());
+  await user.click(filterButton);
   await screen.findByText(rp2.name);
   expect(screen.queryByText(rp1.name)).toBeNull();
 });

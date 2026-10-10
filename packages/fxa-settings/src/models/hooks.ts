@@ -15,6 +15,7 @@ import {
   DefaultIntegrationFlags,
   IntegrationFactory,
 } from '../lib/integrations';
+import { getOAuthSuccessClientId } from '../lib/oauth/success-route';
 import { ReachRouterWindow } from '../lib/window';
 import { StorageData, UrlHashData, UrlQueryData } from '../lib/model-data';
 import {
@@ -213,7 +214,7 @@ export function useInitialMetricsQueryState() {
           await Promise.allSettled([
             authClient.account(token),
             authClient.checkTotpTokenExists(token),
-            authClient.recoveryKeyExists(token, undefined),
+            authClient.recoveryKeyExists(token),
           ]);
 
         const accountData =
@@ -280,8 +281,11 @@ export function useClientInfoState() {
   }>({ loading: true });
 
   const urlQueryData = new UrlQueryData(new ReachRouterWindow());
+  // A hard load of `/oauth/success/:clientId` carries no query params.
   const clientId =
-    urlQueryData.get('client_id') || urlQueryData.get('service') || '';
+    urlQueryData.get('client_id') ||
+    urlQueryData.get('service') ||
+    getOAuthSuccessClientId(urlQueryData.pathName);
 
   const isValidClientId = isHexadecimal(clientId) && length(clientId, 16);
 
@@ -292,7 +296,11 @@ export function useClientInfoState() {
         message: `OAuth Client - Missing config`,
         category: 'useClientInfoState.fetch',
       });
-      setState((prev) => ({ ...prev, loading: false, error: new Error('Missing config') }));
+      setState((prev) => ({
+        ...prev,
+        loading: false,
+        error: new Error('Missing config'),
+      }));
       return;
     }
     if (!isValidClientId) {
@@ -300,7 +308,11 @@ export function useClientInfoState() {
         message: `OAuth Client - Invalid clientId`,
         category: 'useClientInfoState.fetch',
       });
-      setState((prev) => ({ ...prev, loading: false, error: new Error('Invalid clientId') }));
+      setState((prev) => ({
+        ...prev,
+        loading: false,
+        error: new Error('Invalid clientId'),
+      }));
       return;
     }
 
@@ -316,13 +328,16 @@ export function useClientInfoState() {
       // Retry with linear back off before giving up; both bounds are configurable.
       const MAX_RETRIES = config.oauth.clientInfoRetries;
       const REQUEST_TIMEOUT_MS = config.oauth.clientInfoTimeout;
-      for (let i=0; i < MAX_RETRIES; i++) {
+      for (let i = 0; i < MAX_RETRIES; i++) {
         // Fresh controller per attempt: a timeout aborts only this attempt, and
         // the cleanup can abort whichever request is currently in flight.
         const controller = new AbortController();
         activeController = controller;
         const timeoutId = setTimeout(
-          () => controller.abort(new DOMException('Request timed out', 'TimeoutError')),
+          () =>
+            controller.abort(
+              new DOMException('Request timed out', 'TimeoutError')
+            ),
           REQUEST_TIMEOUT_MS
         );
         try {
@@ -338,13 +353,13 @@ export function useClientInfoState() {
             return Sentry.addBreadcrumb({
               message: `OAuth Client - Unmounted after fetch`,
               category: 'useClientInfoState.fetch',
-              data: { attempt:i }
+              data: { attempt: i },
             });
           }
           Sentry.addBreadcrumb({
             message: `OAuth Client - Got response`,
             category: 'useClientInfoState.fetch',
-            data: { clientId, ok:response?.ok, status:response?.status }
+            data: { clientId, ok: response?.ok, status: response?.status },
           });
 
           if (!response.ok) {
@@ -356,16 +371,16 @@ export function useClientInfoState() {
             return Sentry.addBreadcrumb({
               message: `OAuth Client - Unmounted after response.json()`,
               category: 'useClientInfoState.fetch',
-              data: { attempt:i }
+              data: { attempt: i },
             });
           }
           Sentry.addBreadcrumb({
             message: `OAuth Client - Got response data`,
             category: 'useClientInfoState.fetch',
             data: {
-              attempt:i,
-              ...data
-            }
+              attempt: i,
+              ...data,
+            },
           });
 
           // Success! Set state and return to exit loop...
@@ -388,7 +403,7 @@ export function useClientInfoState() {
             return Sentry.addBreadcrumb({
               message: `OAuth Client - Unmounted after expected error`,
               category: 'useClientInfoState.fetch',
-              data: { attempt:i }
+              data: { attempt: i },
             });
           }
 
@@ -406,9 +421,8 @@ export function useClientInfoState() {
               errno: error.errno,
               code: error.code,
               statusCode: error.statusCode,
-            }
-          })
-
+            },
+          });
 
           // On last attempt, give up and record failure to sentry
           if (i === MAX_RETRIES - 1) {
@@ -421,7 +435,7 @@ export function useClientInfoState() {
             Sentry.captureException(err, {
               tags: {
                 area: 'useClientInfoState.fetch',
-                clientId
+                clientId,
               },
               extra: {
                 mounted,
@@ -434,12 +448,12 @@ export function useClientInfoState() {
             });
           } else {
             // Back off and try again
-            await new Promise(r => setTimeout(r, i * 250));
+            await new Promise((r) => setTimeout(r, i * 250));
             if (!mounted) {
               return Sentry.addBreadcrumb({
                 message: `OAuth Client - Unmounted after backoff`,
                 category: 'useClientInfoState.fetch',
-                data: { attempt:i }
+                data: { attempt: i },
               });
             }
           }

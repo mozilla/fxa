@@ -25,7 +25,6 @@ import ConfirmSignupCode from '.';
 import { LocationState } from './interfaces';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { QueryParams } from '../../..';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
 import GleanMetrics from '../../../lib/glean';
 import AppLayout from '../../../components/AppLayout';
 
@@ -59,8 +58,7 @@ const SignupConfirmCodeContainer = ({
   const authClient = useAuthClient();
   const sensitiveDataClient = useSensitiveDataClient();
   const ftlMsg = useFtlMsgResolver();
-  const { keyFetchToken, unwrapBKey } =
-    sensitiveDataClient.getDataType(SensitiveData.Key.Auth) || {};
+  const { keyFetchToken, unwrapBKey } = sensitiveDataClient.AuthData || {};
 
   const { oAuthKeysCheckError } = useOAuthKeysCheck(
     integration,
@@ -212,14 +210,6 @@ const SignupConfirmCodeContainer = ({
 
   const cmsInfo = integration?.getCmsInfo();
   const splitLayout = cmsInfo?.SignupConfirmCodePage?.splitLayout;
-
-  // TODO: This check and related test can be moved up the tree to the App component,
-  // where a missing integration should be caught and handled.
-  if (!integration) {
-    return (
-      <AppLayout {...{ loading: true, splitLayout, setCurrentSplitLayout }} />
-    );
-  }
 
   // Show loading while attempting OAuth flow recovery
   if (isRecovering) {

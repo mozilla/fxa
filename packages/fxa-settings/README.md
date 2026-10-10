@@ -232,12 +232,12 @@ Example: Guarding a page at render time with a scoped JWT
 
 ```tsx
 import { MfaGuard } from './MfaGuard';
-import PageMfaGuardTestWithAuthClient from './components/Settings/PageMfaGuardTest';
 import { MfaReason } from '../../../lib/types';
+import { PagePasskeyAdd } from './PagePasskeyAdd';
 
-export const Page = () => (
-  <MfaGuard requiredScope="test" reason={MfaReason.test}>
-    <PageMfaGuardTestWithAuthClient path="/mfa_guard/test/auth_client" />
+export const MfaGuardPagePasskeyAdd = () => (
+  <MfaGuard requiredScope="passkey" reason={MfaReason.createPasskey}>
+    <PagePasskeyAdd />
   </MfaGuard>
 );
 ```
@@ -246,7 +246,7 @@ Notes:
 
 - Downstream calls to protected endpoints must use the JWT (Authorization: Bearer ...) and not the session token.
 
-For a simple example and integration pattern, see the test page `TestPageMfaGuardWithAuthClient` under `src/components/Settings/`. For a real-world usage in a PR, see "Add MFA guard to Change 2FA action" ([github.com/mozilla/fxa/pull/19403](https://github.com/mozilla/fxa/pull/19403)).
+For a real-world usage in a PR, see "Add MFA guard to Change 2FA action" ([github.com/mozilla/fxa/pull/19403](https://github.com/mozilla/fxa/pull/19403)).
 
 #### Best practices
 
@@ -258,8 +258,8 @@ For a simple example and integration pattern, see the test page `TestPageMfaGuar
 describe('guarded routes render MFA guard', () => {
   const guardedRoutes = [
     {
-      pageName: 'TestPageMfaGuardWithAuthClient',
-      route: '/mfa_guard/test/auth_client',
+      pageName: 'Page2faChange',
+      route: '/two_step_authentication/change',
       addtlContext: {},
     },
   ];
@@ -302,7 +302,7 @@ describe('guarded routes render MFA guard', () => {
 
 #### Tailwind
 
-The `fxa-settings`, `fxa-admin-panel`,  and `fxa-content-server` packages are setup to share a [Tailwind CSS](https://tailwindcss.com/) configuration file found in the `fxa-react` package. If you're not familiar with Tailwind, look through [their documentation](https://tailwindcss.com/docs) to get an idea of what [utility-first](https://tailwindcss.com/docs/utility-first) (Atomic CSS) is and what you can expect while using it. The general idea is simple: use single-purpose classes on elements to layer styles until the design is achieved. **You can accomplish almost all of your styling needs with classes provided by Tailwind's default configuration or through adding them in the configuration file.**
+The `fxa-settings`, `fxa-admin-panel`, and `fxa-content-server` packages are setup to share a [Tailwind CSS](https://tailwindcss.com/) configuration file found in the `fxa-react` package. If you're not familiar with Tailwind, look through [their documentation](https://tailwindcss.com/docs) to get an idea of what [utility-first](https://tailwindcss.com/docs/utility-first) (Atomic CSS) is and what you can expect while using it. The general idea is simple: use single-purpose classes on elements to layer styles until the design is achieved. **You can accomplish almost all of your styling needs with classes provided by Tailwind's default configuration or through adding them in the configuration file.**
 
 Each package has its own `tailwind.css` file. This file, any CSS files this file imports, and the Tailwind configuration file are compiled to produce `tailwind.out.css`. Rebuilding this `.out` file should happen automatically on any change.
 

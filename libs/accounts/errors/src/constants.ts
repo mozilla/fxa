@@ -141,9 +141,11 @@ export const ERRNO = {
   PASSKEY_USER_VERIFICATION_REQUIRED: 233,
   PASSKEY_WRAP_NOT_FOUND: 234,
   PASSKEY_WRAP_CONFLICT: 235,
+  PASSKEY_WRAP_STALE: 236,
   // Jump to 238 to leave room for future passkey errors
   PASSKEY_CHALLENGE_EXPIRED: 238,
   ACCOUNT_DELETION_FAILED: 239,
+  ACCOUNT_DISABLED: 240,
   INTERNAL_VALIDATION_ERROR: 998,
   UNEXPECTED_ERROR: 999,
 };
@@ -275,7 +277,6 @@ export const DEBUGGABLE_PAYLOAD_KEYS = new Set([
   'messageId',
   'metricsContext',
   'name',
-  'preVerified',
   'publicKey',
   'reason',
   'redirectTo',

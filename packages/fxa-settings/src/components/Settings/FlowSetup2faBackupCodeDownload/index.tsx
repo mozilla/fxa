@@ -9,6 +9,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { FtlMsg } from 'fxa-react/lib/utils';
 
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import { GleanClickEventType2FA } from '../../../lib/types';
 
 import Banner from '../../Banner';
@@ -52,11 +53,11 @@ export const FlowSetup2faBackupCodeDownload = ({
     setIsMobile(new UAParser().getDevice().type !== undefined);
   }, []);
 
-  useEffect(() => {
+  useGleanView(() =>
     GleanMetrics.accountPref.twoStepAuthCodesView({
       event: { reason },
-    });
-  }, [reason]);
+    })
+  );
 
   return (
     <FlowContainer

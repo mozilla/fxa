@@ -84,7 +84,7 @@ const init = async () => {
       '--start-date [date]',
       'Start of date range of account creation date, inclusive.  Optional.  Defaults to 2012-03-12.',
       Date.parse,
-      '2012-03-12'
+      Date.parse('2012-03-12')
     )
     .option(
       '--end-date [date]',
@@ -108,17 +108,18 @@ const init = async () => {
     .option('--perf-stats [true|false]', 'Print out performance stats.', false);
 
   program.parse(process.argv);
+  const options = program.opts();
 
-  const isDryRun = parseBooleanArg(program.dryRun);
-  const startDate = setDateToUTC(program.startDate);
-  const endDate = setDateToUTC(program.endDate);
+  const isDryRun = parseBooleanArg(options.dryRun);
+  const startDate = setDateToUTC(options.startDate);
+  const endDate = setDateToUTC(options.endDate);
   const startDateTimestamp = startDate.valueOf();
   const endDateTimestamp = endDate.valueOf() + 86400000; // next day for < comparisons
   const activeByDateTimestamp = setDateToUTC(
-    program.activeByDate || endDate
+    options.activeByDate || endDate
   ).valueOf();
-  const filepath = program.outputPath || createFilepath(endDate);
-  const perfStats = program.perfStats ? new Map() : null;
+  const filepath = options.outputPath || createFilepath(endDate);
+  const perfStats = options.perfStats ? new Map() : null;
   const collectPerfStatsOn = perfStats
     ? _collectPerfStatsOn(perfStats)
     : <T extends (...args) => ReturnType<T>>(_, fn: T) => fn;
@@ -152,7 +153,7 @@ const init = async () => {
   const accountQueryBuilder = () =>
     accountWhereAndOrderBy()
       .select('accounts.uid')
-      .limit(program.resultsLimit || 100000);
+      .limit(options.resultsLimit || 100000);
 
   const sessionTokensFn = fxaDb.sessions.bind(fxaDb);
   const refreshTokensFn = oauthDb.getRefreshTokensByUid.bind(oauthDb);
@@ -191,7 +192,7 @@ const init = async () => {
   }
 
   const fd = fs.openSync(filepath, 'a');
-  const concurrency = program.concurrency || 6;
+  const concurrency = options.concurrency || 6;
   const queue = new PQueue({
     concurrency,
   });
@@ -229,7 +230,7 @@ const init = async () => {
       fs.writeSync(fd, inactiveUids.join(os.EOL));
     }
 
-    hasMaxResultsCount = accounts.length === program.resultsLimit;
+    hasMaxResultsCount = accounts.length === options.resultsLimit;
     totalRowsReturned += accounts.length;
   }
 

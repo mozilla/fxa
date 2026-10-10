@@ -34,7 +34,6 @@ import {
 import { getCredentials, getCredentialsV2 } from 'fxa-auth-client/lib/crypto';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { SignInOptions } from 'fxa-auth-client/browser';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { isFirefoxService } from '../../../models/integrations/utils';
 import { tryFinalizeUpgrade } from '../../../lib/auth-key-stretch-upgrade';
 import AppLayout from '../../../components/AppLayout';
@@ -62,8 +61,7 @@ export const SigninUnblockContainer = ({
   const sensitiveDataClient = useSensitiveDataClient();
   // We keep the previous non-null assertion on 'password' here because the
   // flow dictates we definitely have it.
-  const { plainTextPassword: password } =
-    sensitiveDataClient.getDataType(SensitiveData.Key.Password)! || {};
+  const { plainTextPassword: password } = sensitiveDataClient.Password! || {};
 
   const { email, hasLinkedAccount, hasPassword } = location.state || {};
 
@@ -86,14 +84,10 @@ export const SigninUnblockContainer = ({
       ...(signInOptions ?? {
         verificationMethod: VerificationMethods.EMAIL_OTP,
         keys: integration.wantsKeys(),
-        // See oauth_client_info in the auth-server for details on service/clientId
-        // Sending up the clientId when the user is not signing in to the browser
-        // is used to show the correct service name in emails
+        // The auth-server expects an RP's client id in `service`; see resolveServiceOrClientId.
         ...(isFirefoxService(service) ? { service } : { service: clientId }),
         unblockCode,
-        metricsContext: queryParamsToMetricsContext(
-          flowQueryParams as unknown as Record<string, string>
-        ),
+        metricsContext: queryParamsToMetricsContext(flowQueryParams),
       }),
       // We own the verification email in this flow: `handleNavigation` sends it
       // as it routes to the code screen, so the server must not send its own
@@ -132,14 +126,14 @@ export const SigninUnblockContainer = ({
       );
 
       if (response) {
-        sensitiveDataClient.setDataType(SensitiveData.Key.Auth, {
+        sensitiveDataClient.AuthData = {
           // Store for inline recovery key flow
           authPW: credentials.authPW,
           // Store this in case the email was corrected
           emailForAuth: email,
           unwrapBKey: credentials.unwrapBKey,
           keyFetchToken: response.keyFetchToken,
-        });
+        };
 
         const emailVerified = response.emailVerified ?? false;
         const sessionVerified = response.sessionVerified ?? false;
@@ -217,9 +211,7 @@ export const SigninUnblockContainer = ({
   const resendUnblockCodeHandler: ResendUnblockCodeHandler = async () => {
     try {
       await authClient.sendUnblockCode(email, {
-        metricsContext: queryParamsToMetricsContext(
-          flowQueryParams as unknown as Record<string, string>
-        ),
+        metricsContext: queryParamsToMetricsContext(flowQueryParams),
       });
       return { success: true };
     } catch (error) {

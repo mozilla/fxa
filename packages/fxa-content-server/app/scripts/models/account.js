@@ -741,19 +741,6 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * Request to verify current session.
-     *
-     * @param {Object} [options]
-     * @param {String} [options.redirectTo] redirectTo url
-     * @returns {Promise} - resolves when complete
-     */
-    requestVerifySession(options = {}) {
-      return this._fxaClient.sessionVerifyResend(this.get('sessionToken'), {
-        redirectTo: options.redirectTo,
-      });
-    },
-
-    /**
      * Verify the account using the verification code
      *
      * @param {String} code - the verification code
@@ -1096,12 +1083,6 @@ const Account = Backbone.Model.extend(
             accountResetToken: this.get('accountResetToken'),
           }
         )
-        .then(this.set.bind(this));
-    },
-
-    finishSetup(relier, token, email, password) {
-      return this._fxaClient
-        .finishSetup(relier, token, email, password)
         .then(this.set.bind(this));
     },
 
@@ -1452,17 +1433,6 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * Creates a new TOTP token for a user.
-     *
-     * @returns {Promise}
-     */
-    createTotpToken() {
-      return this._fxaClient.createTotpToken(this.get('sessionToken'), {
-        metricsContext: this._metrics.getFlowEventMetadata(),
-      });
-    },
-
-    /**
      * Deletes the current TOTP token for a user.
      *
      * @returns {Promise}
@@ -1581,19 +1551,6 @@ const Account = Backbone.Model.extend(
      */
     checkRecoveryKeyExists() {
       return this._fxaClient.recoveryKeyExists(this.get('sessionToken'));
-    },
-
-    /**
-     * This checks to see if an account recovery key exists for a given
-     * email.
-     *
-     * Response: {
-     *   exists: <boolean>
-     * }
-     * @returns {Promise} resolves with response when complete.
-     */
-    checkRecoveryKeyExistsByEmail() {
-      return this._fxaClient.recoveryKeyExists(undefined, this.get('email'));
     },
 
     /**

@@ -6,12 +6,11 @@ const serverGleanEvents = require('./server_events');
 const ua = require('fxa-shared/lib/user-agent').default;
 const remoteAddress =
   require('fxa-shared/express/remote-address').remoteAddress;
+const { CLIENT_ID } = require('../validation').PATTERNS;
 
 let appConfig;
-let gleanEventLogger;
 let gleanServerEventLogger;
 let getRemoteAddress;
-let oauthIdToServiceMap;
 
 const getMetricMethod = (eventName) => {
   const uppercaseWords = eventName
@@ -44,13 +43,18 @@ const createEventFn = (eventName, options) => {
       req.headers && req.headers['user-agent']
     );
     const maybeMetrics = { ...(req.query || {}) };
+    // `/metrics-flow` callers may pass an OAuth client id as `service` (the RP
+    // engage ping does). Report it only as the client id so the two Glean fields
+    // stay distinct; see FXA-13872.
+    const service = maybeMetrics.service || '';
+    const serviceIsClientId = CLIENT_ID.test(service);
     const commonMetrics = {
       user_agent: req.headers['user-agent'],
       ip_address: getRemoteAddress(req).clientAddress,
       account_user_id: '',
       account_user_id_sha256: '',
-      relying_party_oauth_client_id: maybeMetrics.service || '',
-      relying_party_service: oauthIdToServiceMap[maybeMetrics.service] || '',
+      relying_party_oauth_client_id: serviceIsClientId ? service : '',
+      relying_party_service: serviceIsClientId ? '' : service,
       session_device_type: userAgent.deviceType || '',
       session_entrypoint: maybeMetrics.entrypoint || '',
       session_entrypoint_experiment: maybeMetrics.entrypoint_experiment || '',
@@ -62,7 +66,6 @@ const createEventFn = (eventName, options) => {
       utm_source: maybeMetrics.utm_source || '',
       utm_term: maybeMetrics.utm_term || '',
     };
-    const eventReason = metricsData.reason || '';
 
     // Glean events with event metric type
     const moreMetrics = eventOptions.additionalMetrics
@@ -72,26 +75,13 @@ const createEventFn = (eventName, options) => {
         })
       : {};
     method.call(gleanServerEventLogger, { ...commonMetrics, ...moreMetrics });
-
-    gleanEventLogger.record({
-      ...commonMetrics,
-      event_name: eventName,
-      event_reason: eventReason,
-    });
   };
 };
 
 module.exports = function (config) {
   appConfig = config;
   getRemoteAddress = remoteAddress(config.clientAddressDepth);
-  oauthIdToServiceMap = config.oauth_client_id_map;
 
-  gleanEventLogger = serverGleanEvents.createAccountsEventsEvent({
-    applicationId: config.serverGleanMetrics.applicationId,
-    appDisplayVersion: config.version,
-    channel: config.serverGleanMetrics.channel,
-    logger_options: { app: config.serverGleanMetrics.loggerAppName },
-  });
   gleanServerEventLogger = serverGleanEvents.createEventsServerEventLogger({
     applicationId: config.serverGleanMetrics.applicationId,
     appDisplayVersion: config.version,

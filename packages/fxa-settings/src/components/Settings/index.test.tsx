@@ -476,11 +476,6 @@ describe('Settings App', () => {
     // hasPassword is used to pass needed context to `mockAppContext`
     const guardedRoutes = [
       {
-        pageName: 'PageMfaGuardTestWithAuthClient',
-        route: '/mfa_guard/test/auth_client',
-        hasPassword: false,
-      },
-      {
         pageName: 'Page2faChange',
         route: '/two_step_authentication/change',
         hasPassword: false,

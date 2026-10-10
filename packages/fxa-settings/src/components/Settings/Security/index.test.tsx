@@ -92,6 +92,27 @@ describe('Security', () => {
       );
     });
 
+    it('does not render a created date when passwordCreated is missing', async () => {
+      const account = {
+        recoveryKey: { exists: false },
+        totp: { exists: false },
+        backupCodes: { hasBackupCodes: false, count: 0 },
+        primaryEmail: {
+          email: MOCK_EMAIL,
+        },
+        passwordCreated: 0,
+        hasPassword: true,
+      } as unknown as Account;
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <Security />
+        </AppContext.Provider>
+      );
+
+      await screen.findByText('••••••••••••••••••');
+      expect(screen.queryByText(/Created/)).not.toBeInTheDocument();
+    });
+
     it('renders as expected when account does not have a password', async () => {
       const account = {
         recoveryKey: { exists: false },

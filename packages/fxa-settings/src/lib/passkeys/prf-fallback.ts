@@ -69,17 +69,34 @@ export function stripPrfExtension<
 export function extractPrfSupport(
   credential: Pick<PublicKeyCredentialJSON, 'clientExtensionResults'>
 ): boolean {
-  const prf = (
-    credential.clientExtensionResults as {
-      prf?: { results?: { first?: unknown } };
-    }
-  ).prf;
-  return prf?.results?.first != null;
+  return prfFirst(credential) != null;
 }
 
 /**
- * Returns the credential with any PRF extension results removed from
- * `clientExtensionResults`, so the PRF output never reaches the server.
+ * The PRF output (`prf.results.first`) as bytes, or undefined when the
+ * authenticator returned none. The browser hands it back as an ArrayBuffer.
+ */
+export function extractPrfOutput(
+  credential: Pick<PublicKeyCredentialJSON, 'clientExtensionResults'>
+): Uint8Array | undefined {
+  const first = prfFirst(credential);
+  if (first instanceof ArrayBuffer) {
+    return new Uint8Array(first);
+  }
+  if (ArrayBuffer.isView(first)) {
+    return new Uint8Array(
+      first.buffer,
+      first.byteOffset,
+      first.byteLength
+    ).slice();
+  }
+  return undefined;
+}
+
+/**
+ * Returns the credential with `clientExtensionResults.prf.results` removed, so
+ * the PRF output never reaches the server. Other `prf` keys stay: the server
+ * reads `prf.enabled` at registration.
  *
  * Binary PRF outputs are `ArrayBuffer`s that already drop out when the
  * credential is JSON-stringified for the wire, but this makes the guarantee
@@ -89,12 +106,18 @@ export function extractPrfSupport(
 export function stripPrfResults(
   credential: PublicKeyCredentialJSON
 ): PublicKeyCredentialJSON {
-  const results = credential.clientExtensionResults as { prf?: unknown };
-  if (!results.prf) {
+  const results = credential.clientExtensionResults as {
+    prf?: { results?: unknown };
+  };
+  if (!results.prf?.results) {
     return credential;
   }
+  const { results: _results, ...prf } = results.prf;
   const { prf: _prf, ...rest } = results;
-  return { ...credential, clientExtensionResults: rest };
+  return {
+    ...credential,
+    clientExtensionResults: Object.keys(prf).length ? { ...rest, prf } : rest,
+  };
 }
 
 /**
@@ -221,4 +244,13 @@ export async function getCredentialWithPrfFallback(
     }
     throw error;
   }
+}
+
+function prfFirst(
+  credential: Pick<PublicKeyCredentialJSON, 'clientExtensionResults'>
+): unknown {
+  const { prf } = credential.clientExtensionResults as {
+    prf?: { results?: { first?: unknown } };
+  };
+  return prf?.results?.first;
 }

@@ -6,13 +6,14 @@ import InlineRecoveryKeySetupCreate from '../../components/InlineRecoveryKeySetu
 import RecoveryKeySetupDownload from '../../components/RecoveryKeySetupDownload';
 import AppLayout from '../../components/AppLayout';
 import { RecoveryKeyImage } from '../../components/images';
-import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
+import { FtlMsg } from 'fxa-react/lib/utils';
 import { Constants } from '../../lib/constants';
 import { InlineRecoveryKeySetupProps } from './interfaces';
 import RecoveryKeySetupHint from '../../components/RecoveryKeySetupHint';
 import Banner from '../../components/Banner';
 import { useFtlMsgResolver } from '../../models';
 import { HeadingPrimary } from '../../components/HeadingPrimary';
+import { useNavigateWithQuery } from '../../lib/hooks';
 
 const viewName = 'inline-recovery-key-setup';
 
@@ -26,15 +27,14 @@ export const InlineRecoveryKeySetup = ({
   cmsInfo,
 }: InlineRecoveryKeySetupProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
+  const navigateWithQuery = useNavigateWithQuery();
   const doLaterHandler = () => {
     localStorage.setItem(
       Constants.DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_DO_IT_LATER,
       'true'
     );
-    // We do a hard navigate because this page is still in the content server, this
-    // also keeps all query params so that correct metrics are emitted
-    // but does not show the signed into FF success message
-    hardNavigate('/pair', {}, true);
+    // Keeps all query params so that correct metrics are emitted
+    navigateWithQuery('/pair');
     return <></>;
   };
 
@@ -49,7 +49,7 @@ export const InlineRecoveryKeySetup = ({
             <RecoveryKeySetupHint
               {...{ viewName, cmsInfo }}
               navigateForward={() => {
-                hardNavigate('/pair', {}, true);
+                navigateWithQuery('/pair');
               }}
               updateRecoveryKeyHint={updateRecoveryHintHandler}
             />

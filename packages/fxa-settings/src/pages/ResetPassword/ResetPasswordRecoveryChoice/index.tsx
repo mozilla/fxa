@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../../components/AppLayout';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
@@ -26,6 +26,7 @@ import { useNavigateWithQuery } from '../../../lib/hooks';
 import { CompleteResetPasswordLocationState } from '../CompleteResetPassword/interfaces';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 
 export type ResetPasswordRecoveryChoiceProps = {
   handlePhoneChoice: () => Promise<AuthUiError | void>;
@@ -60,9 +61,7 @@ const ResetPasswordRecoveryChoice = ({
     'Please try again later or use your backup authentication codes.'
   );
 
-  useEffect(() => {
-    GleanMetrics.passwordReset.backupChoiceView();
-  }, []);
+  useGleanView(() => GleanMetrics.passwordReset.backupChoiceView());
 
   const handlePhoneChoiceError = (error: AuthUiError) => {
     if (

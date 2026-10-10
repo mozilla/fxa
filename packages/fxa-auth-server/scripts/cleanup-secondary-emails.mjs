@@ -4,15 +4,16 @@ import fs from 'fs';
 import path from 'path';
 import { finished } from 'stream/promises';
 import mysql from 'mysql2/promise';
-import program from 'commander';
+import { program } from 'commander';
 
 program
   .option('--execute', 'Perform deletions (default is dry-run)')
   .option('--limit <number>', 'Number of records to process', '100')
   .parse(process.argv);
+const options = program.opts();
 
-const dryRun = !program.execute;
-const limit = parseInt(program.limit, 10);
+const dryRun = !options.execute;
+const limit = parseInt(options.limit, 10);
 
 if (isNaN(limit) || limit <= 0) {
   console.error('Error: --limit must be a positive number');
