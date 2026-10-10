@@ -117,7 +117,9 @@ export class JwtsetService {
     return this.generateSET({
       clientId: delEvent.clientId,
       events: {
-        [set.DELETE_EVENT_ID]: {},
+        [set.DELETE_EVENT_ID]: delEvent.reason
+          ? { reason: delEvent.reason }
+          : {},
       },
       uid: delEvent.uid,
     });

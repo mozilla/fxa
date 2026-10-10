@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { FluentBundle } from '@fluent/bundle';
 import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
@@ -33,11 +32,11 @@ describe('Pair2/Supplicant/SyncSuccess page', () => {
       'Your device is connected'
     );
     screen.getByText(
-      'Your bookmarks, tabs, and more will stay synced in Firefox.'
+      'Syncing is underway. It may take a while for your synced data to appear. Feel free to keep browsing.'
     );
   });
 
-  it('exposes the brand lockup and illustration to assistive technology', () => {
+  it('exposes the brand lockups, keeping the illustration decorative', () => {
     renderWithLocalizationProvider(<Subject />);
 
     expect(
@@ -45,29 +44,25 @@ describe('Pair2/Supplicant/SyncSuccess page', () => {
         .getAllByRole('img')
         .map((img) => img.getAttribute('alt') ?? img.getAttribute('aria-label'))
     ).toEqual([
-      // AppLayout's page header, then the two images this card renders.
+      // AppLayout's page header, then this card's Firefox lockup. The success
+      // illustration is decorative — the heading beside it says the same.
       'Mozilla logo',
       'Firefox logo',
-     ]);
+    ]);
   });
 
-  it('calls onViewSyncedTabs when the primary button is clicked', async () => {
-    const user = userEvent.setup();
-    const onViewSyncedTabs = jest.fn();
-    renderWithLocalizationProvider(<Subject {...{ onViewSyncedTabs }} />);
+  it('offers no actions', () => {
+    renderWithLocalizationProvider(<Subject />);
 
-    await user.click(screen.getByRole('button', { name: 'View synced tabs' }));
-
-    expect(onViewSyncedTabs).toHaveBeenCalledTimes(1);
+    expect(screen.queryAllByRole('button')).toHaveLength(0);
   });
 
-  it('calls onSyncSettings when the sync settings button is clicked', async () => {
-    const user = userEvent.setup();
-    const onSyncSettings = jest.fn();
-    renderWithLocalizationProvider(<Subject {...{ onSyncSettings }} />);
+  it('renders the card on a white page background', () => {
+    renderWithLocalizationProvider(<Subject />);
 
-    await user.click(screen.getByRole('button', { name: 'Sync settings' }));
-
-    expect(onSyncSettings).toHaveBeenCalledTimes(1);
+    // Below `mobileLandscape` the card is transparent, so the page colour is
+    // the colour the phone shows. The designs call for white, not the default
+    // grey the desktop cards sit on.
+    expect(screen.getByTestId('app')).toHaveClass('bg-white');
   });
 });

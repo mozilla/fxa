@@ -7,9 +7,14 @@
 const {
   getServerReactRouteGroups,
 } = require('./routes/react-app/route-groups-server');
+const { getRoutesExcludingAllReact } = require('./routes/get-frontend');
+const {
+  UPDATE_FIREFOX_ROUTES,
+} = require('./routes/react-app/content-server-routes');
 
 module.exports = function (config, i18n, statsd, glean) {
   const redirectVersionedToUnversioned = require('./routes/redirect-versioned-to-unversioned');
+  const redirectWithQuery = require('./routes/redirect-with-query');
   const reactRouteGroups = getServerReactRouteGroups(
     config.get('showReactApp'),
     i18n,
@@ -20,12 +25,16 @@ module.exports = function (config, i18n, statsd, glean) {
     redirectVersionedToUnversioned('complete_reset_password'),
     redirectVersionedToUnversioned('reset_password'),
     redirectVersionedToUnversioned('verify_email'),
+    redirectWithQuery('verify_email', 'confirm_signup_code'),
+    redirectWithQuery('verify_primary_email', 'settings'),
     require('./routes/get-apple-app-site-association')(),
     require('./routes/get-assetlinks-json')(),
-    require('./routes/get-frontend-pairing').default(reactRouteGroups),
     require('./routes/get-frontend').default(reactRouteGroups),
     require('./routes/get-oauth-success').default(reactRouteGroups),
-    require('./routes/get-update-firefox')(config),
+    // With the React flag on, add-routes.js registers it after the React handler
+    getRoutesExcludingAllReact(reactRouteGroups, UPDATE_FIREFOX_ROUTES).length
+      ? require('./routes/get-update-firefox')(config)
+      : null,
     require('./routes/get-index').default(reactRouteGroups, config),
     require('./routes/get-ver.json'),
     require('./routes/get-client.json')(i18n),

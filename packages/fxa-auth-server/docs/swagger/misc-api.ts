@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import dedent from 'dedent';
+import swaggerText from './shared/swagger-text';
 import TAGS from './swagger-tags';
 
 const TAGS_MISC = {
@@ -12,17 +12,12 @@ const ACCOUNT_GET = {
   ...TAGS_MISC,
   description: '/account',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       Returns account data including subscriptions.
     `,
   ],
-};
-
-const ACCOUNT_LOCK_POST = {
-  ...TAGS_MISC,
-  description: '/account/lock',
 };
 
 const ACCOUNT_SESSIONS_LOCATIONS_GET = {
@@ -43,7 +38,7 @@ const SUPPORT_TICKET_POST = {
   ...TAGS_MISC,
   description: '/support/ticket',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with support secret or authenticated with OAuth bearer token
 
       Creates a support ticket using the Zendesk client.
@@ -71,7 +66,7 @@ const GEO_ELIGIBILITY_GET = {
   ...TAGS_MISC,
   description: 'geo/eligibility/{feature}',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       Returns eligibility for a given feature based on user's country.
@@ -81,7 +76,6 @@ const GEO_ELIGIBILITY_GET = {
 
 const API_DOCS = {
   ACCOUNT_GET,
-  ACCOUNT_LOCK_POST,
   ACCOUNT_SESSIONS_LOCATIONS_GET,
   GEO_ELIGIBILITY_GET,
   NEWSLETTERS_POST,

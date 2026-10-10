@@ -163,6 +163,12 @@ describe('support agents', () => {
           AdminPanelGroup.AdminStage
         )
       ).true;
+      expect(
+        prodGuard.allow(
+          AdminPanelFeature.RemovePasskeyWrap,
+          AdminPanelGroup.AdminProd
+        )
+      ).true;
     });
 
     it('looks up group', () => {
@@ -264,6 +270,12 @@ describe('support agents', () => {
       expect(
         guard.allow(
           AdminPanelFeature.RemovePasskeys,
+          AdminPanelGroup.SupportAgentStage
+        )
+      ).false;
+      expect(
+        guard.allow(
+          AdminPanelFeature.RemovePasskeyWrap,
           AdminPanelGroup.SupportAgentStage
         )
       ).false;

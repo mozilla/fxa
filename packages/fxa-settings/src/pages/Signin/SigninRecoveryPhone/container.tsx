@@ -20,7 +20,6 @@ import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../../lib/oauth/hooks';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { storeAccountData } from '../../../lib/storage-utils';
 import {
@@ -64,8 +63,7 @@ const SigninRecoveryPhoneContainer = ({
   );
 
   const sensitiveDataClient = useSensitiveDataClient();
-  const { keyFetchToken, unwrapBKey } =
-    sensitiveDataClient.getDataType(SensitiveData.Key.Auth) || {};
+  const { keyFetchToken, unwrapBKey } = sensitiveDataClient.AuthData || {};
 
   const { oAuthKeysCheckError } = useOAuthKeysCheck(
     integration,

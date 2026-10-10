@@ -521,14 +521,50 @@ describe('PurchaseManager', () => {
     it('returns a subscription for other valid subscription notifications', async () => {
       mockNotification.subscriptionNotification = mockSubscription;
       mockSubscription.notificationType = NotificationType.SUBSCRIPTION_RENEWED;
+      mockSubscription.subscriptionId = 'notificationSku';
+      mockSubscription.purchaseToken = 'testToken';
       const result = await purchaseManager.processDeveloperNotification(
         'testPackage',
-        mockNotification
+        mockNotification,
+        'storedSku'
       );
       expect(result).toEqual(mockSubscription);
-      expect(purchaseManager.querySubscriptionPurchase).toHaveBeenCalledTimes(
-        1
+      expect(purchaseManager.querySubscriptionPurchase).toHaveBeenCalledWith(
+        'testPackage',
+        'notificationSku',
+        'testToken',
+        NotificationType.SUBSCRIPTION_RENEWED
       );
+    });
+
+    it('queries with the fallback sku when the notification has no subscriptionId', async () => {
+      mockNotification.subscriptionNotification = mockSubscription;
+      mockSubscription.notificationType = NotificationType.SUBSCRIPTION_RENEWED;
+      mockSubscription.purchaseToken = 'testToken';
+      const result = await purchaseManager.processDeveloperNotification(
+        'testPackage',
+        mockNotification,
+        'storedSku'
+      );
+      expect(result).toEqual(mockSubscription);
+      expect(purchaseManager.querySubscriptionPurchase).toHaveBeenCalledWith(
+        'testPackage',
+        'storedSku',
+        'testToken',
+        NotificationType.SUBSCRIPTION_RENEWED
+      );
+    });
+
+    it('throws MISSING_SKU when no subscriptionId or fallback sku is available', async () => {
+      mockNotification.subscriptionNotification = mockSubscription;
+      mockSubscription.notificationType = NotificationType.SUBSCRIPTION_RENEWED;
+      await expect(
+        purchaseManager.processDeveloperNotification(
+          'testPackage',
+          mockNotification
+        )
+      ).rejects.toMatchObject({ name: PurchaseQueryError.MISSING_SKU });
+      expect(purchaseManager.querySubscriptionPurchase).not.toHaveBeenCalled();
     });
   });
 });

@@ -128,6 +128,35 @@ describe('SubPlat Email Renderer — Invoice emails', () => {
     expect(email.html).toContain('$2.00');
     expect(email.html).toContain('subscription-charges-taxes');
   });
+
+  it('renders the card ending line when the last four digits are known', async () => {
+    const email = await renderer.renderSubscriptionFirstInvoice(
+      { ...baseInvoiceTemplateValues, cardName: undefined },
+      defaultSubscriptionLayoutValues
+    );
+
+    expect(email.html).toContain(
+      'data-l10n-id="payment-provider-card-ending-in"'
+    );
+    expect(email.html).toContain('4242');
+  });
+
+  it('omits the payment method line when the last four digits are unknown', async () => {
+    // Both card strings interpolate $lastFour. Emitting either without the
+    // digits leaves Fluent no argument to substitute, and it renders the
+    // placeable source — a literal {$lastFour} — into the sent email.
+    const email = await renderer.renderSubscriptionFirstInvoice(
+      {
+        ...baseInvoiceTemplateValues,
+        cardName: undefined,
+        lastFour: undefined,
+      },
+      defaultSubscriptionLayoutValues
+    );
+
+    expect(email.html).not.toContain('payment-provider-card-ending-in');
+    expect(email.text).not.toContain('payment-provider-card-ending-in');
+  });
 });
 
 describe('SubPlat Email Renderer — Lifecycle emails', () => {
@@ -196,6 +225,30 @@ describe('SubPlat Email Renderer — Lifecycle emails', () => {
     expect(email.html).toContain('Mozilla VPN');
     expect(email.html).toContain('$9.99');
     expect(email.html).toContain('11/13/2024');
+  });
+
+  it('renderSubscriptionReactivation uses free trial copy when isFreeTrialReactivation is true', async () => {
+    const email = await renderer.renderSubscriptionReactivation(
+      {
+        productName: 'Mozilla VPN',
+        icon: 'https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-email.png',
+        invoiceTotal: '$9.99',
+        nextInvoiceDateOnly: '11/13/2024',
+        subscriptionSupportUrl: mockLinkSupport,
+        isFreeTrialReactivation: true,
+      },
+      defaultSubscriptionLayoutValues
+    );
+
+    expect(email.subject).toBe(
+      'Your Mozilla VPN free trial has been reactivated'
+    );
+    expect(email.html).toContain(
+      'Thank you for reactivating your Mozilla VPN free trial!'
+    );
+    expect(email.text).toContain(
+      'Thank you for reactivating your Mozilla VPN free trial!'
+    );
   });
 
   it('renderSubscriptionPaymentFailed renders failed payment email', async () => {

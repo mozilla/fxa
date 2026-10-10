@@ -16,11 +16,11 @@ import {
  * FROZEN FORMAT CONTRACT. Mode is `mode_base` (0) implicitly: no `psk`/`pskId`
  * is ever passed, and the sender key is ephemeral.
  *
- * Its own module because `index.ts` re-exports `constants.ts` wholesale, and
- * the suite must stay internal — it deals in `CryptoKey`s. Both `hpke.ts` and
- * `key-wrap.ts` consume it, so defining it in either would leave one importing
- * the other for a value neither owns. Deliberately not injectable: substituting
- * a suite would mean testing a format we do not ship.
+ * Its own module because the suite must stay internal — it deals in
+ * `CryptoKey`s. Both `hpke.ts` and `key-wrap.ts` consume it, so defining it in
+ * either would leave one importing the other for a value neither owns.
+ * Deliberately not injectable: substituting a suite would mean testing a format
+ * we do not ship.
  */
 export const suite = new CipherSuite(
   KEM_DHKEM_P521_HKDF_SHA512,

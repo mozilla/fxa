@@ -26,7 +26,10 @@ export const fxaSubscriptionStateChangeEventSchema = z.object({
   changeTime: z.number(),
 });
 
-export const fxaDeleteUserEventSchema = z.object({});
+export const fxaDeleteUserEventSchema = z.object({
+  reason: z.string().optional(),
+});
+
 export const fxaMetricsOptOutEventSchema = z.object({});
 export const fxaMetricsOptInEventSchema = z.object({});
 

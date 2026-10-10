@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import program from 'commander';
+import { program } from 'commander';
 import Stripe from 'stripe';
 import Container from 'typedi';
 import { STRIPE_API_VERSION } from '@fxa/payments/stripe';
@@ -358,12 +358,13 @@ async function init() {
       ''
     )
     .parse(process.argv);
+  const options = program.opts();
   await setupProcessingTaskObjects('audit-orphaned-customers');
 
-  const startDate = parseStartDate(program.startDate);
-  const endDate = parseEndDate(program.endDate);
-  const logCadence = parseLogCadence(program.logCadence);
-  const filterStatus = parseSubscriptionStatus(program.subscriptionStatus);
+  const startDate = parseStartDate(options.startDate);
+  const endDate = parseEndDate(options.endDate);
+  const logCadence = parseLogCadence(options.logCadence);
+  const filterStatus = parseSubscriptionStatus(options.subscriptionStatus);
 
   await auditStripeExistsInAccounts({
     startDate,

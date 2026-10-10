@@ -17,9 +17,14 @@ module.exports = {
   },
   roots: ['<rootDir>'],
   modulePaths: [compilerOptions.baseUrl],
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
-    prefix: '<rootDir>/../../../',
-  }),
+  moduleNameMapper: {
+    // jest 27 ignores the package "exports" field, so it cannot resolve this subpath on its own.
+    '^@opentelemetry/otlp-exporter-base/node-http$':
+      '<rootDir>/../../../node_modules/@opentelemetry/otlp-exporter-base/build/src/index-node-http.js',
+    ...pathsToModuleNameMapper(compilerOptions.paths, {
+      prefix: '<rootDir>/../../../',
+    }),
+  },
   coveragePathIgnorePatterns: ['<rootDir>'],
   coverageThreshold: {
     global: {

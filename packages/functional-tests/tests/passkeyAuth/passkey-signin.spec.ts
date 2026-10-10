@@ -86,7 +86,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(signin.passwordTextbox).toBeVisible();
 
       await settingsPasskeyAdd.passkeyAuth.assertion(async () => {
-        await signin.passkeySigninButton.click();
+        await signin.clickPasskeySigninAfterEmailFirst();
         await page.waitForURL(/settings/);
       });
 
@@ -172,7 +172,11 @@ test.describe('severity-1 #smoke', () => {
       });
       credentials.secret = await enableTotpOnAccount(
         target.authClient,
-        credentials.sessionToken
+        await testAccountTracker.getMfaJwtForScope(
+          '2fa',
+          credentials.sessionToken,
+          credentials.email
+        )
       );
       await settings.signOut();
 
@@ -202,7 +206,11 @@ test.describe('severity-1 #smoke', () => {
       });
       credentials.secret = await enableTotpOnAccount(
         target.authClient,
-        credentials.sessionToken
+        await testAccountTracker.getMfaJwtForScope(
+          '2fa',
+          credentials.sessionToken,
+          credentials.email
+        )
       );
       await settings.signOut();
 
@@ -406,7 +414,11 @@ test.describe('severity-1 #smoke', () => {
       });
       credentials.secret = await enableTotpOnAccount(
         target.authClient,
-        credentials.sessionToken
+        await testAccountTracker.getMfaJwtForScope(
+          '2fa',
+          credentials.sessionToken,
+          credentials.email
+        )
       );
       await settings.signOut();
 
@@ -473,7 +485,7 @@ test.describe('severity-1 #smoke', () => {
       await signin.fillOutEmailFirstForm(email);
       await page.waitForURL(/signin_passwordless_code/);
       await settingsPasskeyAdd.passkeyAuth.assertion(async () => {
-        await signin.passkeySigninButton.click();
+        await signin.clickPasskeySigninAfterEmailFirst();
         await page.waitForURL(/inline_totp_setup/);
       });
 
@@ -543,7 +555,11 @@ test.describe('severity-1 #smoke', () => {
       });
       credentials.secret = await enableTotpOnAccount(
         target.authClient,
-        credentials.sessionToken
+        await testAccountTracker.getMfaJwtForScope(
+          '2fa',
+          credentials.sessionToken,
+          credentials.email
+        )
       );
       await settings.signOut();
       await signInWithRegisteredPasskey({
@@ -677,7 +693,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(signin.passwordTextbox).toBeVisible();
       await expect(signin.passkeySigninButton).toBeVisible();
       await settingsPasskeyAdd.passkeyAuth.assertion(async () => {
-        await signin.passkeySigninButton.click();
+        await signin.clickPasskeySigninAfterEmailFirst();
         await page.waitForURL((url) => url.href.startsWith(target.relierUrl));
       });
       expect(await relier.isLoggedIn()).toBe(true);
@@ -740,7 +756,7 @@ async function signInWithRegisteredPasskey({
   await page.goto(target.contentServerUrl);
   await signin.fillOutEmailFirstForm(email);
   await settingsPasskeyAdd.passkeyAuth.assertion(async () => {
-    await signin.passkeySigninButton.click();
+    await signin.clickPasskeySigninAfterEmailFirst();
     await page.waitForURL(/settings/);
   });
   await expect(settings.settingsHeading).toBeVisible();

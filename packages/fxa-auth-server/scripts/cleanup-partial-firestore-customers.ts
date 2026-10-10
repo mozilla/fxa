@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import program from 'commander';
+import { program } from 'commander';
 
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { parseBooleanArg } from './lib/args';
@@ -141,7 +141,7 @@ export async function init() {
     .option(
       '-b, --batch-size [number]',
       'Number of customers to query from firestore at a time.  Defaults to 100.',
-      100
+      '100'
     )
     .option(
       '--dry-run [true|false]',

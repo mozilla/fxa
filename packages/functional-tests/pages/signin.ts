@@ -75,18 +75,6 @@ export class SigninPage extends PasskeyPage {
     );
   }
 
-  // for backwards compatibility with Backbone
-  // not currently implemented in React, see FXA-8827
-  get permissionsHeading() {
-    return this.page.getByRole('heading', { name: /^Request for permission/ });
-  }
-
-  // for backwards compatibility with Backbone
-  // not currently implemented in React, see FXA-8827
-  get permissionsAcceptButton() {
-    return this.page.getByRole('button', { name: 'Accept' });
-  }
-
   get signinBouncedCreateAccountButton() {
     const name = 'No longer own that email? Create a new account';
     return this.page
@@ -119,6 +107,12 @@ export class SigninPage extends PasskeyPage {
       await expect(this.emailFirstSubmitButton).toBeEnabled();
     }).toPass({ timeout: 15000 });
     await this.emailFirstSubmitButton.click();
+  }
+
+  // Both the email-first page and /signin render this button; wait for the swap first.
+  async clickPasskeySigninAfterEmailFirst(): Promise<void> {
+    await expect(this.emailTextbox).toBeHidden();
+    await this.passkeySigninButton.click();
   }
 
   async fillOutPasswordForm(password: string): Promise<void> {

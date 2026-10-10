@@ -67,6 +67,7 @@ import {
   AccountDeleteTaskStatus,
   AccountResetResponse,
   AccountResetStatus,
+  Passkey,
 } from '../../types';
 import { CartManager } from '@fxa/payments/cart';
 import { randomBytes } from 'node:crypto';
@@ -461,6 +462,47 @@ export class AccountController {
     return deleted;
   }
 
+  /**
+   * Deletes the passwordless Sync wrap for one passkey. The passkey itself
+   * stays registered and usable for sign-in; the user is asked for a
+   * password again to unlock Sync. No profileDataChange is sent because
+   * the passkey record is unchanged.
+   */
+  @Features(AdminPanelFeature.RemovePasskeyWrap)
+  @AuditLog()
+  @Post('remove-passkey-wrap')
+  public async removePasskeyWrap(
+    @Body('uid') uid: string,
+    @Body('credentialId') credentialId: string,
+    @Req() req: Request
+  ): Promise<boolean> {
+    this.eventLogging.onEvent(EventNames.RemovePasskeyWrap);
+
+    const rowsDeleted = await this.db
+      .knex('passkeyWraps')
+      .delete()
+      .where('uid', uuidTransformer.to(uid))
+      .andWhere('credentialId', Buffer.from(credentialId, 'base64url'));
+
+    const deleted = rowsDeleted > 0;
+
+    if (deleted) {
+      try {
+        await this.recordAdminSecurityEvent(
+          uid,
+          'account.passkey.wrap_deleted',
+          req
+        );
+      } catch (err) {
+        // The row is already gone; a failed audit write must not report
+        // the delete as failed.
+        Sentry.captureException(err);
+      }
+    }
+
+    return deleted;
+  }
+
   @Features(AdminPanelFeature.UnverifyEmail)
   @AuditLog()
   @Post('unverify-email')
@@ -479,44 +521,65 @@ export class AccountController {
   @Features(AdminPanelFeature.DisableAccount)
   @AuditLog()
   @Post('disable')
-  public async disableAccount(@Body('uid') uid: string) {
+  public async disableAccount(@Body('uid') uid: string, @Req() req: Request) {
     this.eventLogging.onEvent(EventNames.DisableLogin);
-    await this.profileClient.deleteCache(uid);
-    await this.notifier.send({
-      event: 'profileDataChange',
-      data: {
-        ts: Date.now() / 1000,
-        uid,
-      },
-    });
     const uidBuffer = uuidTransformer.to(uid);
+    // Revoke before flagging: a revocation failure then leaves the account
+    // enabled and retryable, rather than disabled with live credentials
+    // that a later enable would reactivate.
+    await this.db.revokeAccountTokens(uid);
     const result = await this.db.account
       .query()
       .update({ disabledAt: Date.now() })
       .where('uid', uidBuffer);
-    return !!result;
+    if (!result) {
+      return false;
+    }
+
+    await this.recordAccountStateChange(uid, 'account.disable', req);
+    return true;
+  }
+
+  // Best effort: the account state is already written, so a failed audit
+  // event, cache clear or notification must not fail the completed action.
+  private async recordAccountStateChange(
+    uid: string,
+    event: SecurityEventNames,
+    req: Request
+  ) {
+    const results = await Promise.allSettled([
+      this.recordAdminSecurityEvent(uid, event, req),
+      this.profileClient.deleteCache(uid),
+      this.notifier.send({
+        event: 'profileDataChange',
+        data: {
+          ts: Date.now() / 1000,
+          uid,
+        },
+      }),
+    ]);
+    for (const result of results) {
+      if (result.status === 'rejected') {
+        Sentry.captureException(result.reason, { extra: { uid, event } });
+      }
+    }
   }
 
   @Features(AdminPanelFeature.EnableAccount)
   @AuditLog()
   @Post('enable')
-  public async enableAccount(@Body('uid') uid: string) {
+  public async enableAccount(@Body('uid') uid: string, @Req() req: Request) {
     const uidBuffer = uuidTransformer.to(uid);
     const result = await this.db.account
       .query()
       .update({ disabledAt: null } as any)
       .where('uid', uidBuffer);
+    if (!result) {
+      return false;
+    }
 
-    await this.profileClient.deleteCache(uid);
-    await this.notifier.send({
-      event: 'profileDataChange',
-      data: {
-        ts: Date.now() / 1000,
-        uid,
-      },
-    });
-
-    return !!result;
+    await this.recordAccountStateChange(uid, 'account.enable', req);
+    return true;
   }
 
   @Features(AdminPanelFeature.EditLocale)
@@ -954,23 +1017,52 @@ export class AccountController {
   }
 
   @Features(AdminPanelFeature.AccountSearch)
-  public async passkeys(account: Account) {
+  public async passkeys(account: Account): Promise<Passkey[]> {
     const uidBuffer = uuidTransformer.to(account.uid);
-    const rows = await this.db
+    // One query: passkeys left-joined to their wrap and to the account's
+    // key-change timestamps. Only the wrap's createdAt is read; key
+    // material never leaves the database. prfEnabled is not consulted
+    // because it is written best-effort and can lag. A wrap sealed before
+    // the keys last changed is rejected by the auth-server (isWrapStale in
+    // fxa-auth-server/lib/routes/passkey-wraps.ts) and reported as stale.
+    const rows: {
+      name: string;
+      credentialId: Buffer;
+      createdAt: number;
+      lastUsedAt: number | null;
+      aaguid: Buffer;
+      backupState: boolean;
+      prfEnabled: boolean;
+      wrapCreatedAt: number | null;
+      keysChangedAt: number | null;
+      verifierSetAt: number;
+      accountCreatedAt: number;
+    }[] = await this.db
       .knex('passkeys')
-      .select(PASSKEY_COLUMNS)
-      .where('uid', uidBuffer)
-      .orderBy('createdAt', 'desc');
+      .leftJoin('passkeyWraps', function () {
+        this.on('passkeyWraps.uid', 'passkeys.uid').andOn(
+          'passkeyWraps.credentialId',
+          'passkeys.credentialId'
+        );
+      })
+      .join('accounts', 'accounts.uid', 'passkeys.uid')
+      .select(
+        ...PASSKEY_COLUMNS.map((column) => `passkeys.${column}`),
+        'passkeyWraps.createdAt as wrapCreatedAt',
+        'accounts.keysChangedAt',
+        'accounts.verifierSetAt',
+        'accounts.createdAt as accountCreatedAt'
+      )
+      .where('passkeys.uid', uidBuffer)
+      .orderBy('passkeys.createdAt', 'desc');
     return Promise.all(
       rows.map(
-        async (row: {
-          name: string;
-          credentialId: Buffer;
-          createdAt: number;
-          lastUsedAt: number | null;
-          aaguid: Buffer;
-          backupState: boolean;
-          prfEnabled: boolean;
+        async ({
+          wrapCreatedAt,
+          keysChangedAt,
+          verifierSetAt,
+          accountCreatedAt,
+          ...row
         }) => {
           const aaguid = bufferToUuidString(row.aaguid);
           const isZeroOrInvalidAaguid =
@@ -985,6 +1077,11 @@ export class AccountController {
             credentialId: row.credentialId.toString('base64url'),
             aaguid,
             authenticatorName,
+            hasPasswordlessSync: wrapCreatedAt !== null,
+            passwordlessSyncStale:
+              wrapCreatedAt !== null &&
+              wrapCreatedAt <
+                (keysChangedAt ?? verifierSetAt ?? accountCreatedAt),
           };
         }
       )
@@ -1029,12 +1126,14 @@ export class AccountController {
           }
         );
       },
+      // The admin panel never needs the raw sessionTokenId; redact it at the
+      // source so it cannot leak into the response.
+      serializeSessionTokenId: () => '[REDACTED]',
     });
 
     return (await factory.build('', 'en'))
       .sort((a, b) => (b.lastAccessTime || 0) - (a.lastAccessTime || 0))
       .map((x) => {
-        if (x.sessionTokenId) x.sessionTokenId = '[REDACTED]';
         if (x.refreshTokenId) x.refreshTokenId = '[REDACTED]';
         return x;
       });

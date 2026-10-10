@@ -6,7 +6,7 @@ import {
   SubscriptionStatus,
   OfferType,
   Environment,
-} from 'app-store-server-api/dist/cjs';
+} from 'app-store-server-api';
 
 import {
   APPLE_APP_STORE_FORM_OF_PAYMENT,

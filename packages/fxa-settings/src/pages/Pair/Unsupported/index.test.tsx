@@ -8,6 +8,10 @@ import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { MOCK_ERROR } from './mock';
 import PairUnsupported, { viewName } from '.';
+import {
+  capturePairingChannelParams,
+  resetPairingChannelParamsForTest,
+} from '../../../lib/pairing-channel-params';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -45,6 +49,11 @@ function spoofUserAgent(ua: string, hash = '') {
   });
   const originalHash = window.location.hash;
   window.history.replaceState(null, '', window.location.pathname + hash);
+  // Startup lifts the pairing fragment out of the URL, and the component reads
+  // that capture rather than the live hash, so a spoofed hash only reaches it
+  // through the same path production uses.
+  resetPairingChannelParamsForTest();
+  capturePairingChannelParams();
   return () => {
     if (originalUa) {
       Object.defineProperty(window.navigator, 'userAgent', originalUa);
@@ -54,6 +63,7 @@ function spoofUserAgent(ua: string, hash = '') {
       '',
       window.location.pathname + originalHash
     );
+    resetPairingChannelParamsForTest();
   };
 }
 
@@ -206,6 +216,24 @@ describe('PairUnsupported', () => {
             'Connecting your mobile device with your Mozilla account'
           )
         ).not.toBeInTheDocument();
+      } finally {
+        restore();
+      }
+    });
+
+    // Every branch of this page, in both stacks, anchors its heading here, and
+    // the pairing functional tests key off it.
+    it('gives the heading the shared pair-unsupported-header id', () => {
+      const restore = spoofUserAgent(
+        UA_CHROME_ANDROID,
+        '#channel_id=abc&channel_key=def'
+      );
+      try {
+        renderWithLocalizationProvider(<PairUnsupported />);
+
+        expect(
+          screen.getByRole('heading', { name: 'Pair using an app' })
+        ).toHaveAttribute('id', 'pair-unsupported-header');
       } finally {
         restore();
       }

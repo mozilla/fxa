@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import program from 'commander';
+import { program } from 'commander';
 import { setupDatabase } from 'fxa-shared/db';
 import { BaseAuthModel } from 'fxa-shared/db/models/auth';
 import { StatsD } from 'hot-shots';
@@ -44,7 +44,7 @@ export async function init() {
     .option(
       '--maxTokenAgeWindowSize <number>',
       'The number of tokens to consider when pruning. This applies specifically to session tokens and has a limiting effect on the query. Increasing value will pull in more tokens for deletion.',
-      100000
+      '100000'
     )
     .option(
       '--maxCodeAge <duration>',
@@ -59,22 +59,22 @@ export async function init() {
     .option(
       '--maxSessionsMaxAccounts <number>',
       'When maxSessions is greater than 0 this is the upper limit of accounts processed per run.',
-      100
+      '100'
     )
     .option(
       '--maxSessionsMaxDeletions <number>',
       'When maxSessions is greater than 0, this is the upper limit of tokens deleted per account before moving to the next account.',
-      100e3
+      '100000'
     )
     .option(
       '--maxSessionsBatchSize <number>',
       'When maxSessions is greater than 0, this value controls the number of deletions that are batched together at one time. e.g. A batch size of 1 would delete one token at a time.',
-      1e3
+      '1000'
     )
     .option(
       '--wait <number>',
       'Amount of time to sleep in milliseconds between batches (i.e. between deletions).',
-      5e3
+      '5000'
     )
     .on('--help', function () {
       console.log(`
@@ -89,25 +89,26 @@ Exit Codes:
   3 - error during pruning operation`);
     })
     .parse(process.argv);
+  const options = program.opts();
 
   if (shouldPrintHelp) {
     return;
   }
 
-  const tokenMaxAge = parseDuration(program.maxTokenAge);
-  const maxTokenAgeWindowSize = program.maxTokenAgeWindowSize;
-  const codeMaxAge = parseDuration(program.maxCodeAge);
-  const maxSessions = program.maxSessions;
-  const maxSessionsMaxAccounts = program.maxSessionsMaxAccounts;
-  const maxSessionsBatchSize = program.maxSessionsBatchSize;
-  const maxSessionsMaxDeletions = program.maxSessionsMaxDeletions;
-  const wait = program.wait;
+  const tokenMaxAge = parseDuration(options.maxTokenAge);
+  const maxTokenAgeWindowSize = options.maxTokenAgeWindowSize;
+  const codeMaxAge = parseDuration(options.maxCodeAge);
+  const maxSessions = options.maxSessions;
+  const maxSessionsMaxAccounts = options.maxSessionsMaxAccounts;
+  const maxSessionsBatchSize = options.maxSessionsBatchSize;
+  const maxSessionsMaxDeletions = options.maxSessionsMaxDeletions;
+  const wait = options.wait;
   const sleep = async () => new Promise((r) => setTimeout(r, wait));
 
   log.info('token pruning args', {
-    maxTokenAge: program.maxTokenAge,
+    maxTokenAge: options.maxTokenAge,
     maxTokenAgeWindowSize: maxTokenAgeWindowSize,
-    maxCodeAge: program.maxCodeAge,
+    maxCodeAge: options.maxCodeAge,
     maxSessions,
     maxSessionsMaxAccounts,
     maxSessionsBatchSize,

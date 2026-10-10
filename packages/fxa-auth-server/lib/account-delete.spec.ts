@@ -42,7 +42,7 @@ const expectedSubscriptions = [
   { uid, subscriptionId: '456' },
   { uid, subscriptionId: '789' },
 ];
-const deleteReason = 'fxa_user_requested_account_delete';
+const deleteReason = ReasonForDeletion.UserRequested;
 
 describe('AccountDeleteManager', () => {
   let mockFxaDb: any;
@@ -233,6 +233,28 @@ describe('AccountDeleteManager', () => {
       });
     });
 
+    it('notifies attached services with the reason', async () => {
+      await accountDeleteManager.deleteAccount(
+        uid,
+        ReasonForDeletion.AdminRequested
+      );
+
+      expect(mockLog.notifyAttachedServices).toHaveBeenCalledWith(
+        'delete',
+        {},
+        { uid, reason: 'admin' }
+      );
+    });
+
+    it('omits reason from the notification when the internal reason has no mapping', async () => {
+      await accountDeleteManager.deleteAccount(uid, ReasonForDeletion.Cleanup);
+
+      expect(mockLog.notifyAttachedServices).toHaveBeenCalledTimes(1);
+      const [, , payload] = mockLog.notifyAttachedServices.mock.calls[0];
+      expect(payload).toEqual({ uid });
+      expect(payload).not.toHaveProperty('reason');
+    });
+
     it('should delete even if already deleted from fxa db', async () => {
       const unknownError = AppError.unknownAccount('test@email.com');
       mockFxaDb.account = jest.fn().mockRejectedValue(unknownError);
@@ -246,6 +268,7 @@ describe('AccountDeleteManager', () => {
       expect(mockPush.notifyAccountDestroyed).toHaveBeenCalledTimes(0);
       expect(mockFxaDb.deleteAccount).toHaveBeenCalledTimes(0);
       expect(mockLog.activityEvent).toHaveBeenCalledTimes(0);
+      expect(mockLog.notifyAttachedServices).not.toHaveBeenCalled();
     });
 
     it('does not fail if pushbox fails to delete', async () => {
@@ -375,6 +398,11 @@ describe('AccountDeleteManager', () => {
       expect(mockOAuthDb.deleteAllConsentsForUser).toHaveBeenCalledWith(uid);
       expect(mockStatsd.increment).toHaveBeenCalledWith(
         'account.destroy.quick-delete'
+      );
+      expect(mockLog.notifyAttachedServices).toHaveBeenCalledWith(
+        'delete',
+        {},
+        { uid, reason: 'user' }
       );
     });
 

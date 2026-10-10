@@ -57,12 +57,13 @@ export class EmailRenderer extends Localizer {
       l10n = (await super.setupLocalizer(context.acceptLanguage || '')).l10n;
     }
 
-    const localizedString =
-      (await l10n.formatValue(string.id, this.flattenNestedObjects(context))) ||
-      string.message;
-    return localizedString.includes('<%')
-      ? this.bindings.renderEjs(localizedString, context)
-      : localizedString;
+    // Only the hardcoded fallback is EJS. Fluent output is returned as-is so
+    // translated strings are never evaluated as templates.
+    const localizedString = await l10n.formatValue(
+      string.id,
+      this.flattenNestedObjects(context)
+    );
+    return localizedString || this.bindings.renderEjs(string.message, context);
   }
 
   /**

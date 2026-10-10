@@ -57,11 +57,13 @@ describe.each(testVersions)(
       it('deletes a different custom token', async () => {
         const email = server.uniqueEmail();
         const password = 'foobar';
-        const client = await Client.create(server.publicUrl, email, password, testOptions);
+        const client = await Client.createAndVerify(
+          server.publicUrl, email, password, server.mailbox, testOptions
+        );
 
         const sessionTokenCreate = client.sessionToken;
         const sessions = await client.api.sessions(sessionTokenCreate);
-        const tokenId = sessions[0].id;
+        const handle = sessions[0].sessionTokenHandle;
 
         const c = await client.login();
         const sessionTokenLogin = c.sessionToken;
@@ -70,7 +72,7 @@ describe.each(testVersions)(
         expect(status.uid).toBeTruthy();
 
         await client.api.sessionDestroy(sessionTokenLogin, {
-          customSessionToken: tokenId,
+          customSessionTokenHandle: handle,
         });
 
         try {
@@ -98,7 +100,7 @@ describe.each(testVersions)(
         // With async/await we must catch errors from either call.
         try {
           await client.api.sessionDestroy(sessionTokenLogin, {
-            customSessionToken:
+            customSessionTokenHandle:
               'eff779f59ab974f800625264145306ce53185bb22ee01fe80280964ff2766504',
           });
           await client.api.sessionStatus(sessionTokenCreate);
@@ -107,7 +109,7 @@ describe.each(testVersions)(
           expect(err.code).toBe(401);
           expect(err.errno).toBe(110);
           expect(err.error).toBe('Unauthorized');
-          expect(err.message).toBe('The authentication token could not be found');
+          expect(err.message).toBe('Invalid session token');
         }
       });
     });

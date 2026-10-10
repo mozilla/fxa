@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import dedent from 'dedent';
+import swaggerText from './shared/swagger-text';
 import TAGS from './swagger-tags';
 
 const TAGS_SESSION = {
@@ -13,7 +13,7 @@ const SESSION_DESTROY_POST = {
   ...TAGS_SESSION,
   description: '/session/destroy',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       Destroys the current session and invalidates \`sessionToken\`, to be called when a user signs out. To sign back in, a call must be made to \`POST /account/login\` to obtain a new \`sessionToken\`.
@@ -23,7 +23,7 @@ const SESSION_DESTROY_POST = {
     'hapi-swagger': {
       responses: {
         401: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 110\` - Invalid authentication token in request signature
           `,
@@ -37,7 +37,7 @@ const SESSION_REAUTH_POST = {
   ...TAGS_SESSION,
   description: '/session/reauth',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       Re-authenticate an existing session token. This is equivalent to calling \`/account/login\`, but it re-uses an existing session token rather than generating a new one, allowing the caller to maintain session state such as verification and device registration.
@@ -58,7 +58,7 @@ const SESSION_REAUTH_POST = {
     'hapi-swagger': {
       responses: {
         400: {
-          description: dedent`
+          description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 102\` - Unknown account
             - \`errno: 103\` - Incorrect password
@@ -78,7 +78,7 @@ const SESSION_STATUS_GET = {
   ...TAGS_SESSION,
   description: '/session/status',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       Returns a success response if the session token is valid. The response includes detailed information about the session and account state.
@@ -100,7 +100,7 @@ const SESSION_DUPLICATE_POST = {
   ...TAGS_SESSION,
   description: '/session/duplicate',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       Create a new \`sessionToken\` that duplicates the current session. It will have the same verification status as the current session, but will have a distinct verification code.

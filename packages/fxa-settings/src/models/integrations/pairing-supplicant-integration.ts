@@ -18,6 +18,7 @@ import { RemoteMetadata } from '../../lib/types';
 import config from '../../lib/config';
 import { detectDevice, Devices } from '../../lib/utilities';
 import { OAuthNativeClients } from '@fxa/accounts/oauth';
+import * as Sentry from '@sentry/browser';
 
 /** Redirect URI used by OAuth WebChannel reliers (matches Backbone Constants.OAUTH_WEBCHANNEL_REDIRECT) */
 const OAUTH_WEBCHANNEL_REDIRECT =
@@ -34,14 +35,6 @@ export function isChannelComplete(channelId: string): boolean {
     );
   } catch {
     return false;
-  }
-}
-
-export function clearChannelComplete(channelId: string): void {
-  try {
-    sessionStorage.removeItem(PAIR_COMPLETE_STORAGE_PREFIX + channelId);
-  } catch {
-    // sessionStorage may be unavailable (private mode, quota, SSR).
   }
 }
 
@@ -103,6 +96,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
   private _remoteMetadata: RemoteMetadata | null = null;
   private _oauthCode: string | null = null;
   private _error: Error | { errno: number; message: string } | null = null;
+  private _canceledByAuthority = false;
   private _email = '';
   private _deviceName = '';
   private _channelId: string | null = null;
@@ -171,6 +165,15 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     return this._error;
   }
 
+  /**
+   * True once the authority has said it cancelled. The channel closing is the
+   * same event either way, so this is the only thing that separates a cancel
+   * from a pairing that ran out of time.
+   */
+  get canceledByAuthority(): boolean {
+    return this._canceledByAuthority;
+  }
+
   /** Email address sent by the authority in pair:auth:metadata. */
   get email(): string {
     return this._email;
@@ -189,7 +192,10 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
 
   private setState(state: SupplicantState): void {
     this._state = state;
-    console.info(`Emitting pairing supplicant state change event.`, {id: this._iid, state: this.state});
+    console.info(`Emitting pairing supplicant state change event.`, {
+      id: this._iid,
+      state: this.state,
+    });
     this.onStateChange?.(state);
   }
 
@@ -220,7 +226,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     this.onError?.(this._error);
   }
 
-  hasChannel(channelId:string) {
+  hasChannel(channelId: string) {
     return !!this._channel && this._channel.channelId === channelId;
   }
 
@@ -232,9 +238,8 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     channelServerUri: string,
     channelId: string,
     channelKey: string,
-    version:number = 1
+    version: number = 1
   ): Promise<void> {
-
     if (version === 2 && this._channel) {
       if (channelId === this._channel.channelId) {
         console.warn('Pairing channel already open!');
@@ -252,29 +257,39 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
 
     this._channelId = channelId;
     this._version = version;
-    this._channel = new PairingChannelClient();
+    this._canceledByAuthority = false;
+    const channel = new PairingChannelClient();
+    this._channel = channel;
 
     // Listen for channel events
-    this._channel.addEventListener('connected', this.handleConnected);
-    this._channel.addEventListener('close', this.handleClose);
-    this._channel.addEventListener('error', this.handleChannelError);
+    channel.addEventListener('connected', this.handleConnected);
+    channel.addEventListener('close', this.handleClose);
+    channel.addEventListener('error', this.handleChannelError);
 
     // Listen for authority messages (prefixed with 'remote:')
-    this._channel.addEventListener(
+    channel.addEventListener(
       'remote:pair:auth:metadata',
       this.handleAuthMetadata
     );
-    this._channel.addEventListener(
+    channel.addEventListener(
       'remote:pair:auth:authorize',
       this.handleAuthAuthorize
     );
+    channel.addEventListener('remote:pair:auth:cancel', this.handleAuthCancel);
 
     try {
-      await this._channel.open(channelServerUri, channelId, channelKey);
+      await channel.open(channelServerUri, channelId, channelKey);
     } catch (err: unknown) {
       // Reset _channel so a subsequent openChannel() call can retry
       this._channel = null;
-      this.fail(err);
+      channel.close().catch(() => {});
+      // A consumed channel refusing the socket is the post-OAuth reload, not a
+      // failure, and neither is an open the browser cut short on the page's
+      // way out. fail() still has to run for the config and already-connected
+      // errors, which reject before open() dispatches any `error` event.
+      if (!channel.isUnloading && !this.isPostCompletionReconnect()) {
+        this.fail(err);
+      }
     }
   }
 
@@ -294,8 +309,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     // In V2, the the UI flow forces the supplicant to approve first.
     if (this._version === 2) {
       this.setState(SupplicantState.WaitingForAuthority);
-    }
-    else {
+    } else {
       if (this._state === SupplicantState.WaitingForAuthorizations) {
         this.setState(SupplicantState.WaitingForAuthority);
       } else if (this._state === SupplicantState.WaitingForSupplicant) {
@@ -313,11 +327,9 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
 
       // Send OAuth request to authority
       if (!this._channel) {
-        throw new Error('Channel no longe exists!')
+        throw new Error('Channel no longer exists!');
       }
-      await this._channel
-        .send('pair:supp:request', oauthParams);
-
+      await this._channel.send('pair:supp:request', oauthParams);
     })().catch((err: unknown) => {
       this.fail(err);
     });
@@ -392,6 +404,16 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     }
   };
 
+  /**
+   * The authority user cancelled. Failing here rather than waiting for the
+   * channel to close keeps the reason and the failure in the same turn, so the
+   * dead-end screen cannot be routed to before it is known.
+   */
+  private handleAuthCancel = () => {
+    this._canceledByAuthority = true;
+    this.fail(new Error('Pairing was canceled on the other device'));
+  };
+
   /** True when a close/error during connect is the FXA-13616 reload, not a real failure. */
   private isPostCompletionReconnect(): boolean {
     return (
@@ -401,7 +423,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     );
   }
 
-  checkClientInfo () {
+  checkClientInfo() {
     // no-op. The supplicant doesn't have client info.
   }
 
@@ -425,7 +447,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     }
 
     if (!clientId) {
-      console.warn("Could not resolve a valid clientId!")
+      console.warn('Could not resolve a valid clientId!');
     }
 
     return clientId;
@@ -443,8 +465,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
   };
 
   private handleChannelError = (event: Event) => {
-
-    console.warn('Channel error event', event)
+    console.warn('Channel error event', event);
 
     if (this.isPostCompletionReconnect()) {
       return;
@@ -476,8 +497,20 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     this.setState(SupplicantState.Complete);
   }
 
+  private hasUrlOAuthParams(): boolean {
+    return !!(
+      this.data.clientId &&
+      this.data.codeChallenge &&
+      this.data.codeChallengeMethod &&
+      this.data.keysJwk &&
+      this.data.state &&
+      this.data.scope
+    );
+  }
+
   /**
-   * Build the OAuth params to send to the authority.
+   * Build the OAuth params to send to the authority, either from the URL or,
+   * in v2, from the browser.
    * Matches Backbone's SupplicantRelier.getOAuthParams() with Vat validation.
    *
    * Required fields (client_id, code_challenge, code_challenge_method,
@@ -485,10 +518,14 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
    * Vat.*.required() validators.
    */
   private async getOAuthParams(): Promise<OAuthStartParams> {
-    if (this._version === 2) {
+    // A supplicant whose own app scanned the QR is opened by app-services,
+    // which has already run OAuth start and put the params in the URL. Asking
+    // the browser again there would begin a second flow and strand the PKCE
+    // verifier the app is holding for the code it expects back.
+    if (this._version === 2 && !this.hasUrlOAuthParams()) {
       const data = await firefox.pairOauthStart({});
       if (!data) {
-        throw new Error('Firefox could not provide oauth params.')
+        throw new Error('Firefox could not provide oauth params.');
       }
 
       // This following client id check is a bandaide for now, so we at least
@@ -496,8 +533,8 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
       // out, since there's not point in proceeding.
       const client_id = this.data.clientId || this.getClientId();
       if (!client_id) {
-        console.warn('Could not determine clientId!')
-        throw new Error("Could not determine clientId! Cannot proceed.")
+        console.warn('Could not determine clientId!');
+        throw new Error('Could not determine clientId! Cannot proceed.');
       }
 
       const scope = [
@@ -515,7 +552,9 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
       };
 
       // Fail fast if something wasn't provided.
-      const missing = Object.entries(result).filter(([k,v]) => !v && k !== 'client_id').map(([k]) => k);
+      const missing = Object.entries(result)
+        .filter(([k, v]) => !v && k !== 'client_id')
+        .map(([k]) => k);
       if (missing.length) {
         throw new Error(`Missing required OAuth params: ${missing.join(', ')}`);
       }
@@ -524,7 +563,6 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
       return result;
     }
 
-    // Legacy v1 approach
     const clientId = this.data.clientId;
     const codeChallenge = this.data.codeChallenge;
     const codeChallengeMethod = this.data.codeChallengeMethod;
@@ -571,8 +609,27 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     };
   }
 
+  /**
+   * Ends the flow at the supplicant user's request.
+   *
+   * A channel the user closed and one that expired look identical from the
+   * other end, so the authority is told before the channel goes away —
+   * otherwise its dead-end screen blames a timeout for a pairing this user
+   * deliberately stopped.
+   */
+  async cancel(): Promise<void> {
+    try {
+      await this._channel?.send('pair:supp:cancel', {});
+    } catch (err) {
+      // The notice is a courtesy to the other device. A channel that will not
+      // carry it still has to be torn down.
+      Sentry.captureException(err);
+    }
+    await this.destroy();
+  }
+
   async destroy(): Promise<void> {
-    console.info('Channel destroy')
+    console.info('Channel destroy');
     this.onStateChange = null;
     this.onError = null;
 
@@ -587,6 +644,10 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
       this._channel.removeEventListener(
         'remote:pair:auth:authorize',
         this.handleAuthAuthorize
+      );
+      this._channel.removeEventListener(
+        'remote:pair:auth:cancel',
+        this.handleAuthCancel
       );
       try {
         await this._channel.close();

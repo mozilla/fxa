@@ -13,7 +13,7 @@ import {
   SigninPasswordlessCodeContainerProps,
 } from './interfaces';
 import OAuthDataError from '../../../components/OAuthDataError';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
 import { getHandledError, type HandledError } from '../../../lib/error-utils';
 
@@ -47,6 +47,8 @@ const SigninPasswordlessCodeContainer = ({
   );
   const [sendError, setSendError] = useState<HandledError | null>(null);
 
+  const codeSendStarted = useRef(codeSent);
+
   const cmsInfo = integration.getCmsInfo();
   const splitLayout = cmsInfo?.SigninPasswordlessCodePage?.splitLayout;
 
@@ -62,16 +64,15 @@ const SigninPasswordlessCodeContainer = ({
   // entry with codeSent: true so the browser-persisted location state
   // prevents re-sending on refresh.
   useEffect(() => {
-    if (email && !codeSent) {
+    if (email && !codeSendStarted.current) {
+      codeSendStarted.current = true;
       const sendCode = async () => {
         try {
           await authClient.passwordlessSendCode(email, {
             clientId: integration.getClientId(),
             service: service || integration.getService(),
             metricsContext: {
-              ...queryParamsToMetricsContext(
-                flowQueryParams as unknown as Record<string, string>
-              ),
+              ...queryParamsToMetricsContext(flowQueryParams),
               clientId: integration.getClientId(),
             },
           });
@@ -82,6 +83,7 @@ const SigninPasswordlessCodeContainer = ({
             state: { ...location.state, codeSent: true },
           });
         } catch (error: any) {
+          codeSendStarted.current = false; // allow a retry on remount
           const { error: handledError } = getHandledError(error);
           setSendError(handledError);
         }

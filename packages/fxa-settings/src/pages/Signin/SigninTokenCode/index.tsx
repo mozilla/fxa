@@ -19,6 +19,7 @@ import FormVerifyCode, {
 import { REACT_ENTRYPOINT } from '../../../constants';
 import CardHeader from '../../../components/CardHeader';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import AppLayout from '../../../components/AppLayout';
 import { SigninTokenCodeProps } from './interfaces';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
@@ -90,9 +91,7 @@ const SigninTokenCode = ({
     submitButtonText: 'Confirm',
   };
 
-  useEffect(() => {
-    GleanMetrics.loginConfirmation.view();
-  }, []);
+  useGleanView(() => GleanMetrics.loginConfirmation.view());
 
   // Countdown timer for resend code
   useEffect(() => {
@@ -283,11 +282,11 @@ const SigninTokenCode = ({
       <FtlMsg
         id="signin-token-code-instruction-v2"
         vars={{ email }}
-        elems={{ email: <span className="break-all" /> }}
+        elems={{ email: <span className="font-bold break-all" /> }}
       >
         <p id="verification-email-message" className="my-4 text-sm">
           Enter the code that was sent to{' '}
-          <span className="break-all">{email}</span> within 5 minutes.
+          <span className="font-bold break-all">{email}</span> within 5 minutes.
         </p>
       </FtlMsg>
 

@@ -43,6 +43,16 @@ export const ConnectedServices = ({
   return <p className="result-none">This account has no connected services.</p>;
 };
 
+const serviceKind = ({
+  deviceId,
+  clientId,
+}: Pick<AttachedClient, 'deviceId' | 'clientId'>) => {
+  if (deviceId) return { label: 'Device', color: 'bg-green-50 text-green-900' };
+  if (clientId)
+    return { label: 'OAuth client', color: 'bg-blue-50 text-blue-900' };
+  return { label: 'Web session', color: 'bg-grey-100 text-grey-900' };
+};
+
 const ConnectedService = ({
   clientId,
   createdTime,
@@ -59,11 +69,21 @@ const ConnectedService = ({
   refreshTokenId,
 }: AttachedClient) => {
   const testId = (id: string) => `connected-service-${id}`;
+  const kind = serviceKind({ deviceId, clientId });
   return (
     <TableYHeaders>
       <TableRowYHeader
         header="Client"
-        children={format.client(name, clientId)}
+        children={
+          <>
+            {format.client(name, clientId)}{' '}
+            <span
+              className={`inline-block px-2 py-0.5 rounded text-xs ${kind.color}`}
+            >
+              {kind.label}
+            </span>
+          </>
+        }
         testId={testId('client')}
       />
       <TableRowYHeader

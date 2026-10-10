@@ -46,3 +46,20 @@ it('can be toggled', () => {
     'true'
   );
 });
+
+it('forwards the enterKeyHint attribute', () => {
+  renderWithLocalizationProvider(
+    <InputPassword {...{ label, enterKeyHint: 'done' }} />
+  );
+  expect(screen.getByTestId('input-field')).toHaveAttribute(
+    'enterkeyhint',
+    'done'
+  );
+});
+
+it('forwards onKeyDown', () => {
+  const onKeyDown = jest.fn();
+  renderWithLocalizationProvider(<InputPassword {...{ label, onKeyDown }} />);
+  fireEvent.keyDown(screen.getByTestId('input-field'), { key: 'Enter' });
+  expect(onKeyDown).toHaveBeenCalled();
+});

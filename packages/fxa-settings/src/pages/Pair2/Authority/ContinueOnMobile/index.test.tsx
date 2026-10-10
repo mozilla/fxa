@@ -36,7 +36,7 @@ describe('Pair2/Authority/ContinueOnMobile page', () => {
     screen.getByText('Follow the steps on your phone or tablet.');
   });
 
-  it('exposes the illustration to assistive technology', () => {
+  it('keeps the illustration decorative', () => {
     renderWithLocalizationProvider(<Subject />);
 
     expect(
@@ -44,8 +44,9 @@ describe('Pair2/Authority/ContinueOnMobile page', () => {
         .getAllByRole('img')
         .map((img) => img.getAttribute('alt') ?? img.getAttribute('aria-label'))
     ).toEqual([
-      // AppLayout's page header, then the single image this card renders.
-      'Mozilla logo'
+      // AppLayout's page header alone. The illustration is decorative — the
+      // heading and description above it say the same.
+      'Mozilla logo',
     ]);
   });
 

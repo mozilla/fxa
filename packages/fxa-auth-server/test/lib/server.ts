@@ -10,6 +10,8 @@ const version = config.get('apiVersion');
 config.set('log.level', 'critical');
 config.set('cloudTasks.oidc.aud', 'cloud-tasks');
 config.set('cloudTasks.oidc.serviceAccountEmail', 'testo@iam.gcp.g.co');
+// Session-token routes sign assertions that the in-process oauth server must verify.
+config.set('oauth.secretKey', config.get('oauthServer.authServerSecrets')[0]);
 const testConfig = config.getProperties();
 const createServer = require('../../bin/key_server');
 const { CapabilityService } = require('../../lib/payments/capability');

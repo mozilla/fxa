@@ -14,6 +14,7 @@ jest.mock('../../lib/api', () => ({
     addDomainBlocklistEntries: jest.fn(),
     removeDomainBlocklistEntry: jest.fn(),
     deleteAllDomainBlocklistEntries: jest.fn(),
+    syncDomainBlocklist: jest.fn(),
   },
 }));
 
@@ -21,6 +22,8 @@ const mockEntries = [
   { domain: 'evil.com', createdAt: 2000 },
   { domain: 'spam.net', createdAt: 1000 },
 ];
+
+const SYNC_URL = 'https://example.com/domains.txt';
 
 describe('PageDomainBlocklist', () => {
   let user: UserEvent;
@@ -55,6 +58,22 @@ describe('PageDomainBlocklist', () => {
     expect(await screen.findByText('evil.com')).toBeInTheDocument();
     expect(screen.getByText('spam.net')).toBeInTheDocument();
     expect(screen.queryByText('Loading…')).not.toBeInTheDocument();
+  });
+
+  it('renders at most 1,000 rows and names the total', async () => {
+    const many = Array.from({ length: 1005 }, (_, i) => ({
+      domain: `spam${i}.example`,
+      createdAt: 1000,
+    }));
+    (adminApi.getDomainBlocklist as jest.Mock).mockResolvedValue(many);
+
+    render(<PageDomainBlocklist />);
+
+    expect(
+      await screen.findByTestId('domain-blocklist-truncated')
+    ).toHaveTextContent('Showing the first 1,000 of 1,005 entries.');
+    // 1000 entry rows plus the header row.
+    expect(screen.getAllByRole('row')).toHaveLength(1001);
   });
 
   it('shows error state when load fails', async () => {
@@ -119,6 +138,57 @@ describe('PageDomainBlocklist', () => {
         expect.stringContaining('API error 400: bad domain')
       );
     });
+  });
+
+  it('syncs from the typed URL and reports the submitted count', async () => {
+    (adminApi.getDomainBlocklist as jest.Mock)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce(mockEntries);
+    (adminApi.syncDomainBlocklist as jest.Mock).mockResolvedValue({
+      ok: true,
+      total: 40000,
+      submitted: 39990,
+    });
+
+    render(<PageDomainBlocklist />);
+    await screen.findByText('No entries yet.');
+
+    await user.type(screen.getByTestId('domain-blocklist-sync-url'), SYNC_URL);
+    await user.click(screen.getByTestId('domain-blocklist-sync-btn'));
+
+    expect(adminApi.syncDomainBlocklist).toHaveBeenCalledWith(SYNC_URL);
+    expect(
+      await screen.findByTestId('domain-blocklist-sync-result')
+    ).toHaveTextContent(
+      'Read 40000 entries and sent 39990 unique domains to the blocklist. Entries already on the list were ignored.'
+    );
+    expect(screen.getByText('evil.com')).toBeInTheDocument();
+  });
+
+  // jsdom does not run constraint validation, so assert the attribute instead.
+  it('starts with an empty, required URL field', async () => {
+    render(<PageDomainBlocklist />);
+    await screen.findByText('No entries yet.');
+
+    const input = screen.getByTestId('domain-blocklist-sync-url');
+    expect(input).toHaveValue('');
+    expect(input).toBeRequired();
+  });
+
+  it('shows the error message when the sync fails', async () => {
+    (adminApi.syncDomainBlocklist as jest.Mock).mockRejectedValue(
+      new Error('API error 502: could not fetch the list')
+    );
+
+    render(<PageDomainBlocklist />);
+    await screen.findByText('No entries yet.');
+
+    await user.type(screen.getByTestId('domain-blocklist-sync-url'), SYNC_URL);
+    await user.click(screen.getByTestId('domain-blocklist-sync-btn'));
+
+    expect(
+      await screen.findByTestId('domain-blocklist-sync-result')
+    ).toHaveTextContent('Error: API error 502: could not fetch the list');
   });
 
   it('deletes a single entry after successful API call', async () => {

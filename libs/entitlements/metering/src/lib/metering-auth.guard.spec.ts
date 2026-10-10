@@ -29,7 +29,7 @@ async function buildGuard(
       MeteringAuthGuard,
       {
         provide: MeteringConfig,
-        useValue: { openmeterBaseUrl: 'http://example.com', clients },
+        useValue: { clients },
       },
     ],
   }).compile();

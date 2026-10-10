@@ -9,8 +9,8 @@ export const getIncludes = (
 ): GlobalTemplateValues => ({
   subject: isFreeTrialReactivation
     ? {
-        id: 'subscriptionReactivation-freeTrial-subject',
-        message: 'Your <%- productName %> trial has been reactivated',
+        id: 'subscriptionReactivation-free-trial-subject',
+        message: 'Your <%- productName %> free trial has been reactivated',
       }
     : {
         id: 'subscriptionReactivation-subject-2',

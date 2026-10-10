@@ -10,7 +10,6 @@ const toArray = require('stream-to-array');
 const AppError = require('../error');
 const config = require('../config');
 const logger = require('../logging')('compute');
-const P = require('../promise');
 
 const FILE_SIGS = (function () {
   var types = config.get('img.uploads.types');
@@ -56,7 +55,7 @@ if (MAX_PROCESSES > 0) {
 }
 
 function enqueue(msg) {
-  return new P(function enqueuePromise(resolve, reject) {
+  return new Promise(function enqueuePromise(resolve, reject) {
     imageCc.enqueue(msg, function (err, res) {
       if (err) {
         logger.error('process.error', err);
@@ -69,7 +68,7 @@ function enqueue(msg) {
 }
 
 exports.image = function image(id, payload) {
-  return new P(function (resolve, reject) {
+  return new Promise(function (resolve, reject) {
     toArray(payload, function (err, arr) {
       if (err) {
         return reject(err);
@@ -99,7 +98,7 @@ exports.image = function image(id, payload) {
       }
 
       resolve(
-        P.all(
+        Promise.all(
           Object.keys(SIZES).map(function (variant) {
             var size = SIZES[variant];
             return enqueue({

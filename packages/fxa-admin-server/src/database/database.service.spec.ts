@@ -9,7 +9,7 @@ import { Path } from 'convict';
 import { testDatabaseSetup } from 'fxa-shared/test/db/helpers';
 import { Knex } from 'knex';
 import config, { AppConfig } from '../config';
-import { DatabaseService } from './database.service';
+import { DatabaseService, typeCasting } from './database.service';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 
 describe('#integration - DatabaseService', () => {
@@ -27,6 +27,7 @@ describe('#integration - DatabaseService', () => {
         '`clientId` BINARY(8) NOT NULL,' +
         '`firstAuthorizedTosAt` BIGINT UNSIGNED NOT NULL,' +
         '`lastAuthorizedTosAt` BIGINT UNSIGNED NOT NULL,' +
+        '`deauthorizedAt` BIGINT UNSIGNED DEFAULT NULL,' +
         'PRIMARY KEY (`uid`, `scope`, `service`, `clientId`)' +
         ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'
     );
@@ -124,6 +125,7 @@ describe('#integration - DatabaseService', () => {
         clientId: Buffer.from(relayClientId, 'hex'),
         firstAuthorizedTosAt: now - 2000,
         lastAuthorizedTosAt: now,
+        deauthorizedAt: now - 500,
       },
     ]);
 
@@ -136,6 +138,7 @@ describe('#integration - DatabaseService', () => {
         clientId: relayClientId,
         firstAuthorizedTosAt: now - 2000,
         lastAuthorizedTosAt: now,
+        deauthorizedAt: now - 500,
       },
       {
         scope: 'https://identity.mozilla.com/apps/oldsync',
@@ -143,6 +146,7 @@ describe('#integration - DatabaseService', () => {
         clientId: syncClientId,
         firstAuthorizedTosAt: now - 5000,
         lastAuthorizedTosAt: now - 1000,
+        deauthorizedAt: null,
       },
     ]);
   });
@@ -152,5 +156,21 @@ describe('#integration - DatabaseService', () => {
       '00000000000000000000000000000001'
     );
     expect(rows).toEqual([]);
+  });
+});
+
+describe('typeCasting', () => {
+  const tinyField = (value: string | null) => ({
+    type: 'TINY',
+    length: 1,
+    string: () => value,
+  });
+
+  it.each([
+    { value: '1', expected: true },
+    { value: '0', expected: false },
+    { value: null, expected: null },
+  ])('casts a TINY(1) field of $value to $expected', ({ value, expected }) => {
+    expect(typeCasting(tinyField(value), jest.fn())).toBe(expected);
   });
 });

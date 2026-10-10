@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import program from 'commander';
+import { program } from 'commander';
 import { StripeHelper } from '../lib/payments/stripe';
 import Stripe from 'stripe';
 import Container from 'typedi';
@@ -415,16 +415,17 @@ async function init() {
       ''
     )
     .parse(process.argv);
+  const options = program.opts();
 
   const { database } = await setupProcessingTaskObjects(
     'refund-unverified-accounts'
   );
 
-  const isDryRun = parseBooleanArg(program.dryRun);
-  const startDate = parseStartDate(program.startDate);
-  const endDate = parseEndDate(program.endDate);
-  const skipFile = program.skipFile || '';
-  const filterStatus = parseSubscriptionStatus(program.subscriptionStatus);
+  const isDryRun = parseBooleanArg(options.dryRun);
+  const startDate = parseStartDate(options.startDate);
+  const endDate = parseEndDate(options.endDate);
+  const skipFile = options.skipFile || '';
+  const filterStatus = parseSubscriptionStatus(options.subscriptionStatus);
 
   await refundUnverifiedAccounts({
     database,

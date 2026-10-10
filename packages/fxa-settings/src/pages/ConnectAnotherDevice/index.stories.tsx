@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import ConnectAnotherDevice, { Devices } from '.';
-import AppLayout from '../../components/AppLayout';
+import ConnectAnotherDevice from '.';
+import { Devices } from '../../lib/utilities';
 import { MemoryRouter } from 'react-router';
 import { ENTRYPOINTS } from '../../constants';
 import { Meta } from '@storybook/react';
@@ -30,101 +30,81 @@ export default {
 } as Meta;
 
 export const CanSignInNoSuccessMessage = () => (
-  <AppLayout>
-    <ConnectAnotherDevice
-      email={MOCK_ACCOUNT.primaryEmail.email}
-      entrypoint={ENTRYPOINTS.FIREFOX_FX_VIEW_ENTRYPOINT}
-      device={Devices.FIREFOX_DESKTOP}
-      showSuccessMessage={false}
-      isSignIn={false}
-      isSignUp={false}
-      isSignedIn={false}
-      canSignIn
-      fxaStatus={mockFxAStatus()}
-    />
-  </AppLayout>
+  <ConnectAnotherDevice
+    email={MOCK_ACCOUNT.primaryEmail.email}
+    entrypoint={ENTRYPOINTS.FIREFOX_FX_VIEW_ENTRYPOINT}
+    device={Devices.FIREFOX_DESKTOP}
+    showSuccessMessage={false}
+    isSignIn={false}
+    isSignUp={false}
+    isSignedIn={false}
+    canSignIn
+    fxaStatus={mockFxAStatus()}
+  />
 );
 
 export const CannotSignIn = () => (
-  <AppLayout>
-    <ConnectAnotherDevice isSignIn={false} isSignUp {...MOCK_BASIC_PROPS} />
-  </AppLayout>
+  <ConnectAnotherDevice isSignIn={false} isSignUp {...MOCK_BASIC_PROPS} />
 );
 export const WithSignupSuccessMessage = () => (
-  <AppLayout>
-    <ConnectAnotherDevice
-      isSignIn={false}
-      isSignUp
-      showSuccessMessage
-      isSignedIn={false}
-      canSignIn
-      {...MOCK_DEFAULTS}
-      fxaStatus={mockFxAStatus()}
-    />
-  </AppLayout>
+  <ConnectAnotherDevice
+    isSignIn={false}
+    isSignUp
+    showSuccessMessage
+    isSignedIn={false}
+    canSignIn
+    {...MOCK_DEFAULTS}
+    fxaStatus={mockFxAStatus()}
+  />
 );
 
 export const WithSignInSuccessMessage = () => (
-  <AppLayout>
-    <ConnectAnotherDevice
-      isSignIn
-      isSignUp={false}
-      showSuccessMessage
-      isSignedIn={false}
-      canSignIn
-      {...MOCK_DEFAULTS}
-      fxaStatus={mockFxAStatus()}
-    />
-  </AppLayout>
+  <ConnectAnotherDevice
+    isSignIn
+    isSignUp={false}
+    showSuccessMessage
+    isSignedIn={false}
+    canSignIn
+    {...MOCK_DEFAULTS}
+    fxaStatus={mockFxAStatus()}
+  />
 );
 
 export const WithFirefoxDesktop = () => (
-  <AppLayout>
-    <ConnectAnotherDevice
-      device={Devices.FIREFOX_DESKTOP}
-      {...MOCK_DEVICE_BASIC_PROPS}
-    />
-  </AppLayout>
+  <ConnectAnotherDevice
+    device={Devices.FIREFOX_DESKTOP}
+    {...MOCK_DEVICE_BASIC_PROPS}
+  />
 );
 
 export const WithFirefoxAndroid = () => (
-  <AppLayout>
-    <ConnectAnotherDevice
-      device={Devices.FIREFOX_ANDROID}
-      {...MOCK_DEVICE_BASIC_PROPS}
-    />
-  </AppLayout>
+  <ConnectAnotherDevice
+    device={Devices.FIREFOX_ANDROID}
+    {...MOCK_DEVICE_BASIC_PROPS}
+  />
 );
 
 export const WithFirefoxIos = () => (
-  <AppLayout>
-    <ConnectAnotherDevice
-      device={Devices.FIREFOX_IOS}
-      {...MOCK_DEVICE_BASIC_PROPS}
-    />
-  </AppLayout>
+  <ConnectAnotherDevice
+    device={Devices.FIREFOX_IOS}
+    {...MOCK_DEVICE_BASIC_PROPS}
+  />
 );
 
 export const WithOtherAndroid = () => (
-  <AppLayout>
-    <ConnectAnotherDevice
-      device={Devices.OTHER_ANDROID}
-      {...MOCK_DEVICE_BASIC_PROPS}
-    />
-  </AppLayout>
+  <ConnectAnotherDevice
+    device={Devices.OTHER_ANDROID}
+    {...MOCK_DEVICE_BASIC_PROPS}
+  />
 );
 
 export const WithOtherIos = () => (
-  <AppLayout>
-    <ConnectAnotherDevice
-      device={Devices.OTHER_IOS}
-      {...MOCK_DEVICE_BASIC_PROPS}
-    />
-  </AppLayout>
+  <ConnectAnotherDevice
+    device={Devices.OTHER_IOS}
+    {...MOCK_DEVICE_BASIC_PROPS}
+  />
 );
 
 export const WithOther = () => (
-  <AppLayout>
-    <ConnectAnotherDevice device={Devices.OTHER} {...MOCK_DEVICE_BASIC_PROPS} />
-  </AppLayout>
+  <ConnectAnotherDevice device={Devices.OTHER} {...MOCK_DEVICE_BASIC_PROPS} />
 );

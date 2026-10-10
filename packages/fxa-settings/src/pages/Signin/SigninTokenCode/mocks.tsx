@@ -48,6 +48,7 @@ export function createOAuthNativeIntegration(
     getClientId: () => 'sync',
     isSync: () => isSync,
     wantsKeys: () => false,
+    requiresKeys: () => false,
     isDesktopSync: () => false,
     isFirefoxClientServiceRelay: () => !isSync,
     data: new OAuthIntegrationData(new GenericData({})),

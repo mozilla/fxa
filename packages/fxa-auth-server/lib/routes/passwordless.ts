@@ -348,6 +348,14 @@ class PasswordlessHandler {
       account: { uid: account.uid },
     });
 
+    await recordSecurityEvent('account.login', {
+      db: this.db,
+      request,
+      account: { uid: account.uid },
+      tokenId: sessionToken.id,
+      method: 'passwordless.otp',
+    });
+
     // Mirror the SNS notifications that AccountHandler.createAccount
     // fires, since passwordless bypasses that path. This runs after
     // createSessionToken so db.sessions already includes the new session.

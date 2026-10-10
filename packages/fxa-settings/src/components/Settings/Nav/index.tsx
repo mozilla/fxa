@@ -41,7 +41,9 @@ export const Nav = ({
   const dataCollectionLinkRef = useRef<HTMLAnchorElement>(null);
 
   const primaryEmail = account.primaryEmail.email;
-  const hasSubscription = account.subscriptions.length > 0;
+  // Unknown (null) shows the link; the subscriptions page loads its own data.
+  const hasSubscription =
+    account.subscriptions === null || account.subscriptions.length > 0;
   const hasLinkedAccounts = account.linkedAccounts.length > 0;
   const marketingCommPrefLink =
     config.marketingEmailPreferencesUrl &&

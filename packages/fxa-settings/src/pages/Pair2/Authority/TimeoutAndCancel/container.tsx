@@ -15,9 +15,8 @@ export type TimeoutAndCancelContainerProps = {
 
 /**
  * The desktop screen shown once pairing stops without succeeding — either it
- * timed out or someone canceled it. Both reasons offer "Try again"; the
- * secondary action differs, because a timeout leaves the user mid-flow with
- * something to abandon while a cancel has already ended it.
+ * timed out or someone canceled it. Both reasons offer "Try again"; a cancel
+ * also links to Sync settings, while a timeout has nothing else to offer.
  */
 const TimeoutAndCancelContainer = ({
   integration,
@@ -39,16 +38,12 @@ const TimeoutAndCancelContainer = ({
     navigate('/pair/authority/scan_qr');
   }
 
-  const onCancel = () => {
-    navigate('/')
-  }
-
   const onSyncSettings = () => {
     firefox.fxaOpenSyncPreferences()
   }
 
   return (
-    <TimeoutAndCancel {...{reason:location.state?.reason || 'timeout', onTryAgain, onCancel, onSyncSettings}} />
+    <TimeoutAndCancel {...{reason:location.state?.reason || 'timeout', onTryAgain, onSyncSettings}} />
   );
 };
 

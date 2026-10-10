@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
-import CardHeader from '../../../components/CardHeader';
 import { usePageViewEvent } from '../../../lib/metrics';
 import {
   HeartsBrokenImage,
@@ -16,6 +15,8 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import AppLayout from '../../../components/AppLayout';
 import Banner from '../../../components/Banner';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
+import { hasPairingChannelParams } from '../../../lib/pairing-channel-params';
 
 type PairUnsupportedProps = { error?: string };
 export const viewName = 'pair-unsupported';
@@ -32,10 +33,10 @@ function useDeviceContext() {
     const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
     const isIos = /iPhone|iPad|iPod/i.test(ua);
 
-    // System camera URL: mobile with channel_id/channel_key in the URL hash.
-    const hash = window.location.hash;
-    const isSystemCameraUrl =
-      isMobile && hash.includes('channel_id') && hash.includes('channel_key');
+    // System camera URL: mobile, with a pairing channel in the URL. The
+    // fragment is lifted out of the URL at startup to keep the channel key out
+    // of telemetry, so this asks the capture rather than the live hash.
+    const isSystemCameraUrl = isMobile && hasPairingChannelParams();
 
     // Four mutually exclusive Backbone template branches:
     //   1. Desktop non-Firefox            → "Oops! not using Firefox" + Download CTA
@@ -64,9 +65,7 @@ function useDeviceContext() {
   }, []);
 }
 
-const PairUnsupported = ({
-  error,
-}: PairUnsupportedProps) => {
+const PairUnsupported = ({ error }: PairUnsupportedProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const {
     isDesktopNonFirefox,
@@ -78,7 +77,7 @@ const PairUnsupported = ({
   } = useDeviceContext();
 
   // Emit Glean view events per device context (matches Backbone unsupported.js logView).
-  useEffect(() => {
+  useGleanView(() => {
     if (isDesktopNonFirefox) {
       GleanMetrics.cadRedirectDesktop.view();
     } else if (isMobileWithSystemCamera) {
@@ -88,7 +87,7 @@ const PairUnsupported = ({
     } else {
       GleanMetrics.cadRedirectDesktop.defaultView();
     }
-  }, [isDesktopNonFirefox, isMobileWithSystemCamera, isMobileNoSystemCamera]);
+  });
 
   return (
     <AppLayout>
@@ -133,10 +132,15 @@ const PairUnsupported = ({
       {isMobileWithSystemCamera && (
         <>
           <HeartsBrokenImage className="w-3/5 mx-auto" />
-          <CardHeader
-            headingTextFtlId="pair-unsupported-header"
-            headingText="Pair using an app"
-          />
+          <FtlMsg id="pair-unsupported-header">
+            <h1
+              id="pair-unsupported-header"
+              className="card-header mb-2 focus:outline-none"
+              tabIndex={-1}
+            >
+              Pair using an app
+            </h1>
+          </FtlMsg>
           <FtlMsg id="pair-unsupported-message">
             <p className="text-sm">
               Did you use the system camera? You must pair from within a Firefox

@@ -2,154 +2,6 @@
 # Schema
 $schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
 
-event:
-  name:
-    type: string
-    description: |
-      The name of the event
-    lifetime: ping
-    send_in_pings:
-      - accounts-events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-7265
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-
-  reason:
-    description: additional context-dependent (on event.name) info, e.g. the cause of an error
-    type: string
-    lifetime: ping
-    send_in_pings:
-      - accounts-events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-7265
-      - https://mozilla-hub.atlassian.net/browse/FXA-7271
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-
-  outcome:
-    description: |
-      Context-dependent (on event.name) result of an operation, e.g. "success"
-      or "failure" for the passkey PRF-less registration retry.
-    type: string
-    lifetime: ping
-    send_in_pings:
-      - accounts-events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-13991
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-
-  choice:
-    description: the choice made by the user in a given event
-    type: string
-    lifetime: ping
-    send_in_pings:
-      - accounts-events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-10235
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-
-  third_party_links:
-    description: boolean, additional context-dependent (on event.name) info related to third party auth links
-    type: boolean
-    lifetime: ping
-    send_in_pings:
-      - accounts-events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-10119
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-
-  nimbus_user_id:
-    type: string
-    description: |
-      The name of the client ID for Nimbus experiments.
-    lifetime: ping
-    send_in_pings:
-      - accounts-events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-11216
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-
-  app_framework:
-    type: string
-    description: |
-      The name of the framework used by the app (ie React or Backbone).
-    lifetime: ping
-    send_in_pings:
-      - accounts-events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-11870
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-
-  cms_customization_enrollment:
-    type: boolean
-    description: |
-      Whether the user has been enrolled in a CMS customization.
-    lifetime: ping
-    send_in_pings:
-      - accounts-events
-    notification_emails:
-      - vzare@mozilla.com
-      - fxa-staff@mozilla.com
-    bugs:
-      - https://mozilla-hub.atlassian.net/browse/FXA-12242
-    data_reviews:
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
-      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
-    expires: never
-    data_sensitivity:
-      - interaction
-
 account:
   user_id:
     type: string
@@ -157,7 +9,6 @@ account:
       The firefox/mozilla account id
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -177,7 +28,6 @@ account:
       A hex string of a sha256 hash of the account's uid
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -197,7 +47,6 @@ relying_party:
       The service name of the relying party
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -216,7 +65,6 @@ relying_party:
       The client id of the relying party
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -235,7 +83,6 @@ session:
     description: an ID generated by FxA for its flow metrics
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -254,7 +101,6 @@ session:
     description: one of 'mobile', 'tablet', or 'desktop'
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -272,7 +118,6 @@ session:
     description: entrypoint to the service
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -286,6 +131,30 @@ session:
     data_sensitivity:
       - interaction
 
+  pairing_channel_hash:
+    type: string
+    description: |
+      A SHA-256 hash of the device pairing channel id, hex encoded. The two
+      devices in a pairing are separate sessions with separate flow ids, so this
+      is what joins the desktop and mobile halves of one pairing into a single
+      funnel. Empty outside a pairing flow. Hashed because the raw channel id
+      addresses a live channel; the hash is one-way and the id is a random
+      32-character value, so it cannot be reversed by search.
+    lifetime: application
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14315
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - technical
+
 utm:
   campaign:
     description: |
@@ -298,7 +167,6 @@ utm:
     type: string
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -323,7 +191,6 @@ utm:
     type: string
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -347,7 +214,6 @@ utm:
     type: string
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -371,7 +237,6 @@ utm:
     type: string
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -396,7 +261,6 @@ utm:
     type: string
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -418,7 +282,6 @@ entrypoint:
     type: string
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -438,7 +301,6 @@ entrypoint:
     type: string
     lifetime: application
     send_in_pings:
-      - accounts-events
       - events
     notification_emails:
       - vzare@mozilla.com
@@ -2399,6 +2261,25 @@ cad_firefox:
     expires: never
     data_sensitivity:
       - interaction
+  download_firefox_view:
+    type: event
+    description: |
+      User viewed the "Get Firefox on this device" screen, shown on a mobile
+      device that scanned a pairing QR code in a browser that is not Firefox
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9593
+      - https://mozilla-hub.atlassian.net/browse/FXA-14459
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
 
 cad_approve_device:
   view:
@@ -3010,8 +2891,10 @@ passkey:
         description: |
           `<surface>_<outcome>`. Surface: 'emailfirst', 'signin',
           'otplogin', or 'alternative_auth'. Outcome: 'nopassword' (no Sync
-          password step), 'withpassword' (existing password entered), or
-          'createdpassword' (new password set). E.g. 'signin_withpassword'.
+          password step), 'withpassword' (existing password entered),
+          'createdpassword' (new password set), or 'passkeywrap' (a stored
+          passkey wrap supplied the Sync keys, so no password was asked for).
+          E.g. 'signin_withpassword'.
           'otplogin' and 'alternative_auth' are no-password surfaces, so they
           pair only with 'nopassword'/'createdpassword' (never 'withpassword').
         type: string
@@ -4420,3 +4303,171 @@ promo_qr_mobile:
       branch:
         description: The value proposition experiment branch shown to the user
         type: string
+
+dtm_desktop:
+  qr_skip:
+    type: event
+    description: |
+      User clicked "Skip for now" on the desktop (authority) QR code screen,
+      leaving the pairing flow for account settings.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14523
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+
+  timeout_view:
+    type: event
+    description: |
+      User viewed the pairing interrupted screen on the desktop (authority)
+      device. One route serves both the timed-out and the canceled state, so the
+      state is in 'reason' rather than being inferable from the URL.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14315
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Why pairing stopped: 'timeout' when the pairing channel expired, or
+          'canceled' when either device abandoned the attempt.
+        type: string
+
+dtm_mobile:
+  timeout_view:
+    type: event
+    description: |
+      User viewed the pairing interrupted screen on the mobile (supplicant)
+      device. One route serves both the timed-out and the canceled state, so the
+      state is in 'reason' rather than being inferable from the URL.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14315
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Why pairing stopped: 'timeout' when the pairing channel expired, or
+          'canceled' when either device abandoned the attempt.
+        type: string
+
+  deeplink_attempt:
+    type: event
+    description: |
+      Pairing tried to hand off from a browser to the Firefox app after a QR
+      scan. Recorded where the hand-off starts, which differs per platform:
+      Android navigates on mount, iOS requires the user to tap first.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14315
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          The hand-off mechanism used, which follows the platform: 'ios' for a
+          custom scheme, 'android' for an intent, 'other' for a mobile browser
+          that supports neither.
+        type: string
+
+  deeplink_firefox_detected:
+    type: event
+    description: |
+      Pairing was already running inside Firefox, so no app hand-off was needed
+      and the page navigated straight to the pairing target.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14315
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+
+  deeplink_store_redirect:
+    type: event
+    description: |
+      Pairing sent the user to the app store because Firefox appeared not to be
+      installed. This is inferred from the page never being backgrounded, not
+      detected: on iOS a cancelled "Open in Firefox?" prompt is
+      indistinguishable from the not-installed alert, so this over-counts
+      missing installs by however often users cancel that prompt.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14315
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Which inference fired: 'timeout' when the scheme raised no dialog at
+          all, or 'focus_grace' when a dialog was dismissed and the app never
+          took the foreground.
+        type: string
+
+  deeplink_webview_fallback:
+    type: event
+    description: |
+      The Android intent was silently swallowed, which happens in an embedded
+      WebView that does not implement shouldOverrideUrlLoading, so the page
+      revealed a manual retry button instead of continuing to wait.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14315
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction

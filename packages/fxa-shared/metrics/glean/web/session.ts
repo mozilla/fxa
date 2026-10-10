@@ -14,7 +14,7 @@ import StringMetricType from '@mozilla/glean/private/metrics/string';
 export const deviceType = new StringMetricType({
   category: 'session',
   name: 'device_type',
-  sendInPings: ['accounts-events', 'events'],
+  sendInPings: ['events'],
   lifetime: 'application',
   disabled: false,
 });
@@ -27,7 +27,7 @@ export const deviceType = new StringMetricType({
 export const entrypoint = new StringMetricType({
   category: 'session',
   name: 'entrypoint',
-  sendInPings: ['accounts-events', 'events'],
+  sendInPings: ['events'],
   lifetime: 'application',
   disabled: false,
 });
@@ -40,7 +40,25 @@ export const entrypoint = new StringMetricType({
 export const flowId = new StringMetricType({
   category: 'session',
   name: 'flow_id',
-  sendInPings: ['accounts-events', 'events'],
+  sendInPings: ['events'],
+  lifetime: 'application',
+  disabled: false,
+});
+
+/**
+ * A SHA-256 hash of the device pairing channel id, hex encoded. The two
+ * devices in a pairing are separate sessions with separate flow ids, so this
+ * is what joins the desktop and mobile halves of one pairing into a single
+ * funnel. Empty outside a pairing flow. Hashed because the raw channel id
+ * addresses a live channel; the hash is one-way and the id is a random
+ * 32-character value, so it cannot be reversed by search.
+ *
+ * Generated from `session.pairing_channel_hash`.
+ */
+export const pairingChannelHash = new StringMetricType({
+  category: 'session',
+  name: 'pairing_channel_hash',
+  sendInPings: ['events'],
   lifetime: 'application',
   disabled: false,
 });

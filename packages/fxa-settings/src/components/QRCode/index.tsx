@@ -80,9 +80,12 @@ const QRCode = ({
       }
     : undefined;
   return (
+    // The padding is the QR's quiet zone: the SVG has no margin of its own.
+    // Under forced colors (Windows HCM) the browser would repaint it with the
+    // system canvas colour, and scanners then fail to find the code's edges.
     <div
       className={classNames(
-        'relative w-fit rounded-xl bg-white p-4',
+        'relative w-fit rounded-xl bg-white p-4 forced-color-adjust-none',
         !isLoading && 'border border-black',
         className
       )}

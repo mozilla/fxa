@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import dedent from 'dedent';
+import swaggerText from './shared/swagger-text';
 
 export const AUTH_SERVER_API_DESCRIPTION = {
-  description: dedent`
+  description: swaggerText`
     This document provides protocol-level details of the Firefox Accounts auth server API. For a prose description of the client/server protocol and details on how each parameter is derived, see the [API design document](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol). For a reference client implementation, see [fxa-auth-client](https://github.com/mozilla/fxa/tree/main/packages/fxa-auth-client).
 
     ## URL Structure for Auth Server
@@ -213,6 +213,7 @@ export const AUTH_SERVER_API_DESCRIPTION = {
 
     - \`HEX_STRING\`: \`/^(?:[a-fA-F0-9]{2})+$/\`
     - \`BASE_36\`: \`/^[a-zA-Z0-9]*$/\`
+    - \`VALID_SCOPE_VALUE\`: \`/^[\x21\x23-\x5B\x5D-\x7E]+$/\`
     - \`URL_SAFE_BASE_64\`: \`/^[A-Za-z0-9_-]+$/\`
     - \`PKCE_CODE_VERIFIER\`: \`/^[A-Za-z0-9-\._~]{43,128}$/\`
     - \`DISPLAY_SAFE_UNICODE\`: \`/^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFF])*$/\`
@@ -226,6 +227,7 @@ export const AUTH_SERVER_API_DESCRIPTION = {
     - \`refreshToken\`: \`module.exports.hexString.length(64)\`
     - \`authorizationCode\`: \`module.exports.hexString.length(64)\`
     - \`scope\`: \`string, max(256), regex(/^[a-zA-Z0-9 _\/.:-]*$/), allow('')\`
+    - \`storedScope\`: \`string, max(256), regex(VALID_SCOPE_VALUE), allow('')\`
     - \`assertion\`: \`string, min(50), max(10240), regex(/^[a-zA-Z0-9_\-\.~=]+$/)\`
     - \`pkceCodeChallengeMethod\`: \`string, valid('S256')\`
     - \`pkceCodeChallenge\`: \`string, length(43), regex(module, exports.URL_SAFE_BASE_64)\`
@@ -238,7 +240,7 @@ export const AUTH_SERVER_API_DESCRIPTION = {
     - \`recoveryData\`: \`string, regex(/[a-zA-Z0-9.]/), max(1024), required\`
     - \`E164_NUMBER\`: \`/^\+[1-9]\d{1,14}$/\`
     - \`DIGITS\`: \`/^[0-9]+$/\`
-    - \`DEVICE_COMMAND_NAME\`: \`/^[a-zA-Z0-9._\/\-:]{1,100}$/\`
+    - \`DEVICE_COMMAND_NAME\`: \`/^(?!(?:__proto__|constructor|prototype)$)[a-zA-Z0-9._\/\-:]{1,100}$/\`
     - \`IP_ADDRESS\`: \`string, ip\`
 
 

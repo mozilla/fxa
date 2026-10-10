@@ -14,12 +14,11 @@ import {
 } from '../../../models/hooks';
 
 import { AccountRecoveryConfirmKeyLocationState } from './interfaces';
-import { ResetPasswordIntegration } from '../interfaces';
+import { PasskeyResetSignals, ResetPasswordIntegration } from '../interfaces';
 
 import AccountRecoveryConfirmKey from '.';
 import { useNavigateWithQuery } from '../../../lib/hooks';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { shouldShowPasskeyResetOption } from '../../../lib/passkeys';
 
 const AccountRecoveryConfirmKeyContainer = ({
@@ -48,10 +47,15 @@ const AccountRecoveryConfirmKeyContainer = ({
     uid,
     totpExists,
     hasPasskey,
+    hasPasskeyWraps,
   } = (location.state as AccountRecoveryConfirmKeyLocationState) || {};
 
+  // Built once and spread, so a new signal is one edit rather than one per
+  // navigate target — an omission arrives undefined and fails closed silently.
+  const passkeySignals: PasskeyResetSignals = { hasPasskey, hasPasskeyWraps };
+
   const showPasskeyOption = shouldShowPasskeyResetOption(config, {
-    hasPasskey,
+    ...passkeySignals,
     serviceRequiresKeys: integration.isSync(),
     requireHasPasskey: true,
   });
@@ -82,9 +86,7 @@ const AccountRecoveryConfirmKeyContainer = ({
       uid
     );
 
-    sensitiveDataClient.setDataType(SensitiveData.Key.DecryptedRecoveryKey, {
-      kB,
-    });
+    sensitiveDataClient.DecryptedRecoveryKeyData = { kB };
 
     navigateWithQuery('/account_recovery_reset_password', {
       state: {
@@ -94,7 +96,7 @@ const AccountRecoveryConfirmKeyContainer = ({
         estimatedSyncDeviceCount,
         kB,
         recoveryKeyId,
-        hasPasskey,
+        ...passkeySignals,
       },
       replace: true,
     });
@@ -140,7 +142,7 @@ const AccountRecoveryConfirmKeyContainer = ({
         verifyRecoveryKey,
         uid,
         totpExists,
-        hasPasskey,
+        ...passkeySignals,
         showPasskeyOption,
       }}
     />

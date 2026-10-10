@@ -11,7 +11,8 @@ export class Record extends Model {
   idx!: number;
   user_id!: string;
   device_id!: string;
-  data!: string;
+  // BLOB column: written as a string, read back by mysql as a Buffer.
+  data!: string | Buffer;
   ttl!: number;
 }
 

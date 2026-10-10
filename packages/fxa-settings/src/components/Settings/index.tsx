@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as Sentry from '@sentry/browser';
 import SettingsLayout from './SettingsLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -36,7 +36,25 @@ import { PageMfaGuardRecoveryPhoneRemove } from './PageRecoveryPhoneRemove';
 import { MfaGuardPagePasskeyAdd } from './PagePasskeyAdd';
 import { SettingsIntegration } from './interfaces';
 
-import PageMfaGuardTestWithAuthClient from './PageMfaGuardTest';
+// Reporting happens in an effect rather than during render so that a repeated
+// render of the error branch cannot report the same failure twice.
+const SettingsError = ({ error }: { error: Error }) => {
+  const reported = useRef(false);
+  const [sentryEventId, setSentryEventId] = useState<string>();
+
+  useEffect(() => {
+    if (reported.current) {
+      return;
+    }
+    reported.current = true;
+    setSentryEventId(
+      Sentry.captureException(error, { tags: { source: 'settings' } })
+    );
+    GleanMetrics.error.view({ event: { reason: error.message } });
+  }, [error]);
+
+  return <AppErrorDialog {...{ error, sentryEventId }} />;
+};
 
 export const Settings = ({
   integration,
@@ -200,9 +218,7 @@ export const Settings = ({
     if (error instanceof InvalidTokenError) {
       return <LoadingSpinner fullScreen />;
     }
-    Sentry.captureException(error, { tags: { source: 'settings' } });
-    GleanMetrics.error.view({ event: { reason: error.message } });
-    return <AppErrorDialog data-testid="error-dialog" />;
+    return <SettingsError {...{ error }} />;
   }
 
   if (redirect) {
@@ -288,11 +304,6 @@ export const Settings = ({
           config.featureFlags?.passkeyRegistrationEnabled && (
             <Route path="passkeys/add" element={<MfaGuardPagePasskeyAdd />} />
           )}
-
-        <Route
-          path="mfa_guard/test/auth_client"
-          element={<PageMfaGuardTestWithAuthClient />}
-        />
       </Routes>
     </SettingsLayout>
   );

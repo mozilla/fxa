@@ -41,7 +41,7 @@
 
 import { promisify } from 'util';
 import * as mysql from 'mysql';
-import program from 'commander';
+import { program } from 'commander';
 import { StatsD } from 'hot-shots';
 import pckg from '../../package.json';
 
@@ -421,12 +421,13 @@ export async function init(): Promise<number> {
       '100'
     )
     .parse(process.argv);
+  const options = program.opts();
 
-  const dryRun: boolean = program.dryRun;
+  const dryRun: boolean = options.dryRun;
   // Clamp to sane bounds: batchSize < 1 would be a LIMIT error or a silent
   // no-op logged as success; a negative delay is meaningless.
-  const batchSize = Math.max(1, parseInt(program.batchSize, 10) || 1000);
-  const batchDelayMs = Math.max(0, parseInt(program.batchDelayMs, 10) || 100);
+  const batchSize = Math.max(1, parseInt(options.batchSize, 10) || 1000);
+  const batchDelayMs = Math.max(0, parseInt(options.batchDelayMs, 10) || 100);
 
   const dbConfig = config.oauthServer.mysql;
 

@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { Dispatch, SetStateAction, useEffect } from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import FlowContainer from '../FlowContainer';
 import ProgressBar from '../ProgressBar';
 import { GleanClickEventType2FA } from '../../../lib/types';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import { BackupCodesImage } from '../../images';
 import FormVerifyTotp from '../../FormVerifyTotp';
 import { useFtlMsgResolver } from '../../../models';
@@ -40,11 +41,11 @@ export const FlowSetup2faBackupCodeConfirm = ({
   reason = GleanClickEventType2FA.setup,
   customDescription,
 }: FlowSetup2faBackupCodeConfirmProps) => {
-  useEffect(() => {
+  useGleanView(() =>
     GleanMetrics.accountPref.twoStepAuthEnterCodeView({
       event: { reason },
-    });
-  }, [reason]);
+    })
+  );
 
   const ftlMsgResolver = useFtlMsgResolver();
 

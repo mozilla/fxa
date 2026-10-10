@@ -34,7 +34,6 @@ import { SETTINGS_PATH } from '../../../constants';
 import { LocationState } from '../../Signin/interfaces';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import OAuthDataError from '../../../components/OAuthDataError';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { shouldShowPasskeyResetOption } from '../../../lib/passkeys';
 
 // This component is used for both /complete_reset_password and /account_recovery_reset_password routes
@@ -70,8 +69,7 @@ const CompleteResetPasswordContainer = ({
   const hasConfirmedRecoveryKeyEarly = !!(
     stateFields?.accountResetToken &&
     stateFields?.email &&
-    sensitiveDataClient.getDataType(SensitiveData.Key.DecryptedRecoveryKey)
-      ?.kB &&
+    sensitiveDataClient.DecryptedRecoveryKeyData?.kB &&
     stateFields?.recoveryKeyId
   );
   const isResetWithoutRecoveryKeyEarly = !!(
@@ -100,11 +98,10 @@ const CompleteResetPasswordContainer = ({
     recoveryKeyExists,
     estimatedSyncDeviceCount,
     hasPasskey,
+    hasPasskeyWraps,
   } = location.state as CompleteResetPasswordLocationState;
 
-  const kB = sensitiveDataClient.getDataType(
-    SensitiveData.Key.DecryptedRecoveryKey
-  )?.kB;
+  const kB = sensitiveDataClient.DecryptedRecoveryKeyData?.kB;
 
   const hasConfirmedRecoveryKey = !!(
     accountResetToken &&
@@ -124,6 +121,7 @@ const CompleteResetPasswordContainer = ({
   // non-Sync reset even when the account has Sync data on other devices.
   const showPasskeyOption = shouldShowPasskeyResetOption(config, {
     hasPasskey,
+    hasPasskeyWraps,
     serviceRequiresKeys: integration.isSync(),
     requireHasPasskey: true,
   });
@@ -165,10 +163,10 @@ const CompleteResetPasswordContainer = ({
         isOAuth &&
         !(integration.isSync() || integration.isFirefoxNonSync())
       ) {
-        sensitiveDataClient.setDataType(SensitiveData.Key.AccountReset, {
+        sensitiveDataClient.AccountResetData = {
           keyFetchToken: accountResetData.keyFetchToken,
           unwrapBKey: accountResetData.unwrapBKey,
-        });
+        };
         return navigateWithQuery('/reset_password_verified', {
           replace: true,
         });
@@ -338,10 +336,7 @@ const CompleteResetPasswordContainer = ({
         // is called. We don't want to automatically generate a recovery key for these
         // users because they won't be able to see it.
         if (!integration.isFirefoxMobileClient()) {
-          sensitiveDataClient.setDataType(
-            SensitiveData.Key.AccountReset,
-            accountResetData
-          );
+          sensitiveDataClient.AccountResetData = accountResetData;
 
           // we cannot create a new recovery key if the session is not verified
           if (accountResetData.sessionVerified) {
@@ -351,9 +346,7 @@ const CompleteResetPasswordContainer = ({
               false,
               false
             );
-            sensitiveDataClient.setDataType(SensitiveData.Key.NewRecoveryKey, {
-              recoveryKey,
-            });
+            sensitiveDataClient.NewRecoveryKeyData = { recoveryKey };
           }
 
           handleNavigationWithRecoveryKey(

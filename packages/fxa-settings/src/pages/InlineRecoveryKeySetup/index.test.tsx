@@ -8,6 +8,11 @@ import { Subject } from './mocks';
 import { Constants } from '../../lib/constants';
 import * as ReactUtils from '../../../../fxa-react/lib/utils';
 
+const mockNavigateWithQuery = jest.fn();
+jest.mock('../../lib/hooks/useNavigateWithQuery', () => ({
+  useNavigateWithQuery: () => mockNavigateWithQuery,
+}));
+
 function mockReactUtilsModule() {
   jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
@@ -15,6 +20,7 @@ function mockReactUtilsModule() {
 describe('InlineRecoveryKeySetup', () => {
   beforeEach(() => {
     localStorage.clear();
+    mockNavigateWithQuery.mockClear();
     mockReactUtilsModule();
   });
 
@@ -71,7 +77,8 @@ describe('InlineRecoveryKeySetup', () => {
     await act(async () => {
       fireEvent.click(await screen.findByText('Do it later'));
     });
-    expect(ReactUtils.hardNavigate).toHaveBeenCalledWith('/pair', {}, true);
+    expect(mockNavigateWithQuery).toHaveBeenCalledWith('/pair');
+    expect(ReactUtils.hardNavigate).not.toHaveBeenCalled();
     expect(
       localStorage.getItem(
         Constants.DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_DO_IT_LATER

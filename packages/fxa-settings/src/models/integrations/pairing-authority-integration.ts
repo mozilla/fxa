@@ -59,6 +59,13 @@ export enum AuthorityState {
 }
 
 /**
+ * Which pairing protocol an authority is running. Decided by the URL Firefox
+ * opened: version 2 lands on `/pair/authority/*`, version 1 on the legacy
+ * `/pair/auth/*` screens.
+ */
+export type PairingVersion = 1 | 2;
+
+/**
  * Authority integration for the device-pairing flow.
  *
  * The "authority" is the already-signed-in Firefox browser that is
@@ -75,7 +82,8 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
   ]);
 
   private _channel: PairingChannelClient | null = null;
-  private _version: number | null = null;
+  private _createChannelPromise: Promise<void> | null = null;
+  private _version: PairingVersion;
   public _iid: string | null = null;
   private _state: AuthorityState | null = null;
 
@@ -86,6 +94,7 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
   private _authAuthorized = false;
   private _cachedChannelId: string | null = null;
   private _supRequest: ValidatedSupplicantRequest | null = null;
+  private _canceledBySupplicant = false;
 
   public onSuppAuthorized: (() => void) | null = null;
   public onHeartbeatError: ((err: unknown) => void) | null = null;
@@ -96,9 +105,11 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
     data: ModelDataStore,
     private readonly channelData: ModelDataStore,
     protected readonly storageData: ModelDataStore,
-    public readonly opts: OAuthIntegrationOptions
+    public readonly opts: OAuthIntegrationOptions,
+    pairingVersion: PairingVersion
   ) {
     super(data, storageData, opts, IntegrationType.PairingAuthority);
+    this._version = pairingVersion;
     this._iid = crypto.randomUUID();
     console.info('Created new PairingAuthorityIntegration', this._iid);
   }
@@ -114,8 +125,21 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
     return this._state;
   }
 
+  get pairingVersion(): PairingVersion {
+    return this._version;
+  }
+
   hasChannel() {
     return this._channel !== null;
+  }
+
+  /**
+   * True once the supplicant has said it cancelled. The channel closing is the
+   * same event either way, so this is the only thing that separates a cancel
+   * from a pairing that ran out of time.
+   */
+  get canceledBySupplicant(): boolean {
+    return this._canceledBySupplicant;
   }
 
   /**
@@ -136,14 +160,21 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
   }
 
   async createChannel(): Promise<void> {
+    // React StrictMode runs mount effects twice in development, so a second
+    // call can land while the first is still opening the socket. It has to
+    // share that create: a client with no channel id yet cannot build a QR.
+    if (this._createChannelPromise) {
+      return this._createChannelPromise;
+    }
     if (this._channel) {
-      console.warn('Pairing channel already exists!')
+      console.warn('Pairing channel already exists!');
       return;
     }
 
     const channel = new PairingChannelClient();
     this._channel = channel;
     this._version = 2; // Only pairing v2 creates the authority channel
+    this._canceledBySupplicant = false;
 
     channel.addEventListener('connected', this.handleConnected);
     channel.addEventListener('close', this.handleClose);
@@ -156,15 +187,25 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
       'remote:pair:supp:authorize',
       this.handleSuppAuthorize
     );
+    channel.addEventListener('remote:pair:supp:cancel', this.handleSuppCancel);
 
-    try {
-      await channel.create(config.pairing.serverBaseUri);
-    } catch (err) {
-      // Reset _channel so a subsequent createChannel() call can retry.
-      this._channel = null;
-      this.fail(err);
-      throw err;
-    }
+    this._createChannelPromise = channel
+      .create(config.pairing.serverBaseUri)
+      .catch((err) => {
+        // A create the browser cut short on the page's way out is no failure.
+        if (!channel.isUnloading) {
+          this.fail(err);
+        }
+        // Reset _channel so a subsequent createChannel() call can retry.
+        this._channel = null;
+        channel.close().catch(() => {});
+        throw err;
+      })
+      .finally(() => {
+        this._createChannelPromise = null;
+      });
+
+    return this._createChannelPromise;
   }
 
   /**
@@ -185,7 +226,10 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
 
   private setState(state: AuthorityState): void {
     this._state = state;
-    console.info('Emitting pairing authority state change event.', {id: this._iid, state: this.state});
+    console.info('Emitting pairing authority state change event.', {
+      id: this._iid,
+      state: this.state,
+    });
     this.onStateChange?.(state);
   }
 
@@ -261,9 +305,10 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
 
       this._supRequest = validation.request;
 
-      this._channel.send('pair:auth:metadata', {})
-        .then(()=>{
-           this.setState(AuthorityState.WaitingForAuthorizations);
+      this._channel
+        .send('pair:auth:metadata', {})
+        .then(() => {
+          this.setState(AuthorityState.WaitingForAuthorizations);
         })
         .catch((err) => {
           console.warn('Error sending pair:auth:metadata');
@@ -304,6 +349,16 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
         this.setState(AuthorityState.Complete);
       }
     }
+  };
+
+  /**
+   * The supplicant user cancelled. Failing here rather than waiting for the
+   * channel to close keeps the reason and the failure in the same turn, so the
+   * dead-end screen cannot be routed to before it is known.
+   */
+  private handleSuppCancel = () => {
+    this._canceledBySupplicant = true;
+    this.fail(new Error('Pairing was canceled on the other device'));
   };
 
   /**
@@ -485,18 +540,18 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
           code_challenge_method: supRequest.code_challenge_method,
           keys_jwk: supRequest.keys_jwk,
           scope: supRequest.scope,
-          state: supRequest.state
+          state: supRequest.state,
         });
 
         if (!result?.code || !result.state) {
           throw new Error('Failed to finalize oauth pair!');
         }
-        console.info('OAuth pair finish success!')
+        console.info('OAuth pair finish success!');
 
         await this._channel.send('pair:auth:authorize', {
           code: result.code,
-          state: result.state
-        })
+          state: result.state,
+        });
       } catch (err) {
         // pairOauthFinish rejects on its own timeout, on a missing code/state and
         // on an echoed-state mismatch, and the send can reject too. The approve
@@ -506,8 +561,7 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
         this.fail(err);
         return;
       }
-    }
-    else {
+    } else {
       await firefox.pairAuthorize(this.channelId);
     }
 
@@ -529,6 +583,25 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
   async complete(): Promise<void> {
     this.stopHeartbeat();
     await firefox.pairComplete(this.channelId);
+  }
+
+  /**
+   * Ends the flow at the authority user's request.
+   *
+   * A channel the user closed and one that expired look identical from the
+   * other end, so the supplicant is told before the channel goes away —
+   * otherwise its dead-end screen blames a timeout for a pairing this user
+   * deliberately stopped.
+   */
+  async cancel(): Promise<void> {
+    try {
+      await this._channel?.send('pair:auth:cancel', {});
+    } catch (err) {
+      // The notice is a courtesy to the other device. A channel that will not
+      // carry it still has to be torn down.
+      Sentry.captureException(err);
+    }
+    await this.destroy();
   }
 
   /** Clean up timers on unmount. */
@@ -553,11 +626,15 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
         'remote:pair:supp:authorize',
         this.handleSuppAuthorize
       );
+      this._channel.removeEventListener(
+        'remote:pair:supp:cancel',
+        this.handleSuppCancel
+      );
 
       try {
         await this._channel.close();
       } catch (err) {
-        Sentry.captureException(err)
+        Sentry.captureException(err);
       } finally {
         this._channel = null;
       }

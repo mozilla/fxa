@@ -3,10 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ConfigType } from '../../../config';
-import {
-  createAccountsEventsEvent,
-  createEventsServerEventLogger,
-} from './server_events';
+import { createEventsServerEventLogger } from './server_events';
 import { version } from '../../../package.json';
 import { createHash } from 'crypto';
 import { AuthRequest } from '../../types';
@@ -52,7 +49,6 @@ type ErrorLoggerFnParams = {
 };
 
 let appConfig: ConfigType;
-let gleanEventLogger: ReturnType<typeof createAccountsEventsEvent>;
 let gleanServerEventLogger: ReturnType<typeof createEventsServerEventLogger>;
 
 const isEnabled = async (request: MetricsRequest) =>
@@ -67,35 +63,31 @@ const findUid = (request: MetricsRequest, metricsData?: MetricsData): string =>
 const sha256HashUid = (uid: string) =>
   createHash('sha256').update(uid).digest('hex');
 
+const isClientIdShaped = (value?: string): value is string =>
+  !!value && !clientIdValidator.validate(value).error;
+
+// `service` often carries an OAuth client id rather than a service name:
+// fxa-settings sends it that way for RPs and for mobile Firefox, as do older
+// VPN clients with their own sign-in UI, and the server depends on it for
+// emails and verification gating. Glean keeps the two fields distinct, so a
+// client id never lands in `service`.
 const findServiceName = async (request: MetricsRequest) => {
-  const metricsContext = await request.app.metricsContext;
-  return metricsContext.service || '';
+  const { service } = await request.app.metricsContext;
+  return service && !isClientIdShaped(service) ? service : '';
 };
 
 const findOauthClientId = async (
   request: MetricsRequest,
   metricsData?: MetricsData
 ): Promise<string> => {
-  const clientId =
+  const metricsContext = await request.app.metricsContext;
+  return (
     metricsData?.oauthClientId ||
     request.auth.credentials?.client_id ||
-    request.payload?.client_id;
-
-  // for OAuth the content-server places the client id into the service
-  // property for metrics, so we'll check that value for something shaped like
-  // an oauth id
-  const clientIdInService = async () => {
-    const service = await findServiceName(request);
-    const { error } = clientIdValidator.validate(service);
-
-    if (!error) {
-      return service;
-    }
-
-    return null;
-  };
-
-  return clientId || (await clientIdInService()) || '';
+    request.payload?.client_id ||
+    metricsContext.clientId ||
+    (isClientIdShaped(metricsContext.service) ? metricsContext.service : '')
+  );
 };
 
 const getMetricMethod = (eventName: string) => {
@@ -169,9 +161,6 @@ const createEventFn =
         scopes: metricsData?.scopes || '',
       };
 
-      // reason is sent in access_token_created, login_submit_backend_error, and reg_submit_error
-      const eventReason = metricsData?.reason || '';
-
       // uid needs extra handling because we need to hash the value
       const uid = findUid(request, metricsData);
       if (uid !== '') {
@@ -187,12 +176,6 @@ const createEventFn =
           })
         : {};
       method.call(gleanServerEventLogger, { ...commonMetrics, ...moreMetrics });
-
-      gleanEventLogger.record({
-        ...commonMetrics,
-        event_name: eventName,
-        event_reason: eventReason,
-      });
     };
   };
 
@@ -229,12 +212,6 @@ const extraKeySignoutCb = (metrics: Record<string, any>) => ({
 
 export function gleanMetrics(config: ConfigType) {
   appConfig = config;
-  gleanEventLogger = createAccountsEventsEvent({
-    applicationId: config.gleanMetrics.applicationId,
-    appDisplayVersion: version,
-    channel: config.gleanMetrics.channel,
-    logger_options: { app: config.gleanMetrics.loggerAppName },
-  });
   gleanServerEventLogger = createEventsServerEventLogger({
     applicationId: config.gleanMetrics.applicationId,
     appDisplayVersion: version,
@@ -350,6 +327,13 @@ export function gleanMetrics(config: ConfigType) {
       }),
       sessionDestroyed: createEventFn('account_session_destroyed', {
         additionalMetrics: extraKeySignoutCb,
+      }),
+    },
+    stepUpAuth: {
+      requested: createEventFn('step_up_auth_requested'),
+      satisfied: createEventFn('step_up_auth_satisfied'),
+      rejected: createEventFn('step_up_auth_rejected', {
+        additionalMetrics: extraKeyReasonCb,
       }),
     },
     twoFactorAuth: {
@@ -471,6 +455,11 @@ export function gleanMetrics(config: ConfigType) {
       createComplete: createEventFn('passkey_create_complete'),
       deleteSuccess: createEventFn('passkey_delete_success'),
       renameSuccess: createEventFn('passkey_rename_success'),
+      verificationStarted: createEventFn('passkey_verification_started'),
+      verificationSuccess: createEventFn('passkey_verification_success'),
+    },
+    pairing: {
+      success: createEventFn('dtm_backend_pair_success'),
     },
   };
 }
@@ -503,6 +492,7 @@ export const logErrorWithGlean = ({
           | 'oauth'
           | 'thirdPartyAuth'
           | 'account'
+          | 'stepUpAuth'
           | 'twoFactorAuth'
           | 'twoFactorAuthSetup'
           | 'inactiveAccountDeletion'
@@ -512,6 +502,7 @@ export const logErrorWithGlean = ({
           | 'emailDelivery'
           | 'loginConfirmSkipFor'
           | 'passkey'
+          | 'pairing'
         >
       ];
     funnelFns[event as keyof typeof funnelFns](request, {

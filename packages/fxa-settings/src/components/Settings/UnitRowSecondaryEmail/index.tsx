@@ -119,8 +119,16 @@ export const UnitRowSecondaryEmail = () => {
     const alertBar = useAlertBar();
     const { l10n } = useLocalization();
     const handleMfaError = useMfaErrorHandler();
+    const deleteStarted = useRef(false);
 
     useEffect(() => {
+      // A second setup would submit the deletion again and report a failure for
+      // an email that was already removed.
+      if (deleteStarted.current) {
+        return;
+      }
+      deleteStarted.current = true;
+
       const deleteEmail = async () => {
         try {
           await account.deleteSecondaryEmailWithJwt(email);

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { EmailHeader, EmailType } from '../lib/email';
 import { expect, test } from '../lib/fixtures/payments';
 import { StripeTestCards } from '../lib/stripe-test-cards';
 
@@ -67,6 +68,61 @@ test.describe('severity-1 #smoke', () => {
       await expect(checkout.successHeading).toContainText('check your email');
       await expect(checkout.invoiceNumber).toBeVisible();
       await expect(checkout.successActionButton).toBeVisible();
+    });
+
+    // Payments Next is in servicesWithEmailVerification, so a heuristic
+    // unverified session has to be challenged here rather than passed through
+    // to the grant the way an unlisted RP is.
+    //
+    // Paired with the hardcoded-client test in tests/signin/unverifiedSession
+    // .spec.ts. This one runs the real embedded sign-in, and is the only one
+    // that reaches stage; that one is the only one that runs on PRs. Neither
+    // reaches production — the describe above skips checkout there.
+    test('checkout challenges a heuristic unverified session and sends one code', async ({
+      target,
+      page,
+      pages: { relier, signin, signinTokenCode },
+      paymentPages: { checkout },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUpUnverifiedSession();
+      await target.emailClient.clear(credentials.email);
+
+      await relier.goto();
+      await relier.clickSubscribeMonthly();
+      await checkout.handleLocationIfNeeded();
+
+      await checkout.emailInput.fill(credentials.email);
+      await checkout.signInContinueButton.click();
+
+      await expect(page).toHaveURL(new RegExp(target.contentServerUrl), {
+        timeout: 30_000,
+      });
+      await signin.fillOutPasswordForm(credentials.password);
+
+      await expect(page).toHaveURL(/signin_token_code/);
+      // Read from the header rather than `getVerifyLoginCode`, which clears
+      // the inbox this test counts.
+      const code = await target.emailClient.waitForEmail(
+        credentials.email,
+        EmailType.verifyLoginCode,
+        EmailHeader.signinCode
+      );
+      await signinTokenCode.fillOutCodeForm(code);
+
+      // Back to checkout, now with a verified session.
+      await checkout.waitForPaymentReady();
+
+      await target.emailClient.waitForEmail(
+        credentials.email,
+        EmailType.newDeviceLogin
+      );
+      expect(
+        await target.emailClient.countEmailsByType(
+          credentials.email,
+          EmailType.verifyLoginCode
+        )
+      ).toBe(1);
     });
   });
 

@@ -1,0 +1,6 @@
+-- SET NAMES utf8mb4 COLLATE utf8mb4_bin;
+--
+-- DROP PROCEDURE `revokeAccountTokens_1`;
+-- DROP PROCEDURE `sessionWithDevice_20`;
+--
+-- UPDATE dbMetadata SET value = '200' WHERE name = 'schema-patch-level';

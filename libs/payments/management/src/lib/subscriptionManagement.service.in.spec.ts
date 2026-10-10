@@ -46,9 +46,7 @@ import {
   MockAppleIapClientConfigProvider,
   MockGoogleIapClientConfigProvider,
 } from '@fxa/payments/iap';
-import {
-  SubscriptionManagementService,
-} from '@fxa/payments/management';
+import { SubscriptionManagementService } from '@fxa/payments/management';
 import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 import {
   MockPaypalClientConfigProvider,
@@ -215,6 +213,9 @@ describe('SubscriptionManagementService integration', () => {
 
     jest.spyOn(profileClient, 'deleteCache').mockResolvedValue(undefined);
     jest.spyOn(notifierService, 'send').mockReturnValue(undefined);
+    jest
+      .spyOn(invoiceManager, 'retryPaymentForOpenInvoices')
+      .mockResolvedValue();
   });
 
   describe('cancelSubscriptionAtPeriodEnd', () => {
@@ -789,12 +790,8 @@ describe('SubscriptionManagementService integration', () => {
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
-      jest
-        .spyOn(appleIapPurchaseManager, 'getForUser')
-        .mockResolvedValue([]);
-      jest
-        .spyOn(googleIapPurchaseManager, 'getForUser')
-        .mockResolvedValue([]);
+      jest.spyOn(appleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
+      jest.spyOn(googleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
 
       const result =
         await subscriptionManagementService.getPageContent(mockUid);
@@ -816,12 +813,8 @@ describe('SubscriptionManagementService integration', () => {
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
-      jest
-        .spyOn(appleIapPurchaseManager, 'getForUser')
-        .mockResolvedValue([]);
-      jest
-        .spyOn(googleIapPurchaseManager, 'getForUser')
-        .mockResolvedValue([]);
+      jest.spyOn(appleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
+      jest.spyOn(googleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
 
       const result =
         await subscriptionManagementService.getPageContent(mockUid);
@@ -869,9 +862,7 @@ describe('SubscriptionManagementService integration', () => {
       jest
         .spyOn(customerManager, 'retrieve')
         .mockResolvedValue(mockStripeCustomer);
-      jest
-        .spyOn(subscriptionManager, 'listForCustomer')
-        .mockResolvedValue([]);
+      jest.spyOn(subscriptionManager, 'listForCustomer').mockResolvedValue([]);
       jest
         .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
         .mockResolvedValue(mockPaymentMethodInfo);
@@ -880,12 +871,8 @@ describe('SubscriptionManagementService integration', () => {
         .mockResolvedValue(
           mockProductMap as unknown as PageContentByPriceIdsResultUtil
         );
-      jest
-        .spyOn(appleIapPurchaseManager, 'getForUser')
-        .mockResolvedValue([]);
-      jest
-        .spyOn(googleIapPurchaseManager, 'getForUser')
-        .mockResolvedValue([]);
+      jest.spyOn(appleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
+      jest.spyOn(googleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
 
       const result =
         await subscriptionManagementService.getPageContent(mockUid);
@@ -975,12 +962,8 @@ describe('SubscriptionManagementService integration', () => {
           reason: 'feature_disabled',
           cmsOfferContent: null,
         });
-      jest
-        .spyOn(appleIapPurchaseManager, 'getForUser')
-        .mockResolvedValue([]);
-      jest
-        .spyOn(googleIapPurchaseManager, 'getForUser')
-        .mockResolvedValue([]);
+      jest.spyOn(appleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
+      jest.spyOn(googleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
 
       const result =
         await subscriptionManagementService.getPageContent(mockUid);

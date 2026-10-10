@@ -9,9 +9,8 @@ import {
   type Firestore,
 } from '@google-cloud/firestore';
 
-import { FirestoreService } from '@fxa/shared/db/firestore';
-
 import { MeteringConfig } from './metering.config';
+import { MeteringFirestore } from './metering-firestore.provider';
 import {
   deleteUsageGrant,
   getUsageGrants,
@@ -22,7 +21,7 @@ import {
 import { isUsageGrantActive } from './utils/isUsageGrantActive';
 
 export interface CreateUsageGrantData {
-  userIdentifier: string;
+  subject: string;
   slug: string;
   amount: number;
   grantedBy: string;
@@ -34,7 +33,7 @@ export interface CreateUsageGrantData {
 export class UsageGrantsManager {
   constructor(
     private readonly meteringConfig: MeteringConfig,
-    @Inject(FirestoreService) private readonly firestore: Firestore
+    @Inject(MeteringFirestore) private readonly firestore: Firestore
   ) {}
 
   get collectionRef(): CollectionReference {
@@ -45,7 +44,7 @@ export class UsageGrantsManager {
 
   async createGrant(data: CreateUsageGrantData): Promise<UsageGrantRecord> {
     const record: NewUsageGrant = {
-      userIdentifier: data.userIdentifier,
+      subject: data.subject,
       slug: data.slug,
       amount: data.amount,
       grantedBy: data.grantedBy,
@@ -57,10 +56,10 @@ export class UsageGrantsManager {
   }
 
   async listGrants(
-    userIdentifier: string,
+    subject: string,
     slug?: string
   ): Promise<UsageGrantRecord[]> {
-    const grants = await getUsageGrants(this.collectionRef, userIdentifier);
+    const grants = await getUsageGrants(this.collectionRef, subject);
     return slug === undefined
       ? grants
       : grants.filter((grant) => grant.slug === slug);
@@ -71,11 +70,11 @@ export class UsageGrantsManager {
   }
 
   async getActiveGrantedAmount(
-    userIdentifier: string,
+    subject: string,
     slug: string,
     date: Date
   ): Promise<number> {
-    const grants = await getUsageGrants(this.collectionRef, userIdentifier);
+    const grants = await getUsageGrants(this.collectionRef, subject);
     return grants
       .filter(
         (grant) =>

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import dedent from 'dedent';
+import swaggerText from './shared/swagger-text';
 import TAGS from './swagger-tags';
 
 /** Shared tag configuration applied to every passkey endpoint. */
@@ -19,7 +19,7 @@ const PASSKEY_REGISTRATION_START_POST = {
   ...TAGS_PASSKEYS,
   description: '/passkey/registration/start',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with MFA JWT (scope: mfa:passkey)
 
       Initiates the WebAuthn registration ceremony by generating a challenge and
@@ -43,7 +43,7 @@ const PASSKEY_REGISTRATION_FINISH_POST = {
   ...TAGS_PASSKEYS,
   description: '/passkey/registration/finish',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with MFA JWT (scope: mfa:passkey)
 
       Completes the WebAuthn registration ceremony by verifying the attestation
@@ -54,8 +54,7 @@ const PASSKEY_REGISTRATION_FINISH_POST = {
       - \`response\` (object, required) — RegistrationResponseJSON from the browser
       - \`challenge\` (string, required) — The challenge returned by the start endpoint
 
-      **Response:** passkey metadata including \`credentialId\`, \`name\`,
-      \`createdAt\`, \`lastUsedAt\`, and \`transports\`.
+      **Response:** passkey metadata, the same shape \`GET /passkeys\` returns.
     `,
   ],
 };
@@ -69,7 +68,7 @@ const PASSKEY_AUTHENTICATION_START_POST = {
   ...TAGS_PASSKEYS,
   description: '/passkey/authentication/start',
   notes: [
-    dedent`
+    swaggerText`
       🔓 Unauthenticated
 
       Initiates the WebAuthn authentication ceremony. Returns
@@ -94,7 +93,7 @@ const PASSKEY_AUTHENTICATION_FINISH_POST = {
   ...TAGS_PASSKEYS,
   description: '/passkey/authentication/finish',
   notes: [
-    dedent`
+    swaggerText`
       🔓 Unauthenticated
 
       Completes the WebAuthn authentication ceremony. On success, returns an
@@ -117,16 +116,64 @@ const PASSKEY_AUTHENTICATION_FINISH_POST = {
   ],
 };
 
+const PASSKEY_VERIFICATION_START_POST = {
+  ...TAGS_PASSKEYS,
+  description: '/passkey/verification/start',
+  notes: [
+    swaggerText`
+      🔒 Authenticated with session token (verified)
+
+      Initiates an MFA step-up for the caller's session. Returns
+      \`PublicKeyCredentialRequestOptionsJSON\` to pass to
+      \`navigator.credentials.get\`. \`allowCredentials\` lists the account's
+      passkeys, or just the pinned one. PRF is never requested: this ceremony
+      only proves the user is present with a registered passkey.
+
+      **Request body:**
+      - \`scope\` (string, required) - an MFA action from \`config.mfa.actions\`.
+        Stored on the challenge, so \`/finish\` mints an \`mfa:<scope>\` token for it.
+      - \`credentialId\` (string, optional) - pins the ceremony to one of the
+        account's passkeys.
+    `,
+  ],
+};
+
+const PASSKEY_VERIFICATION_FINISH_POST = {
+  ...TAGS_PASSKEYS,
+  description: '/passkey/verification/finish',
+  notes: [
+    swaggerText`
+      🔒 Authenticated with session token (verified)
+
+      Completes the MFA step-up ceremony. No session token is created: the
+      caller already has one.
+
+      **Request body:**
+      - \`response\` (object, required) - AuthenticationResponseJSON from the browser
+      - \`challenge\` (string, required) - challenge from the start endpoint
+
+      **Response:** \`mfaToken\`, whose claims carry the scope the challenge
+      was created with (\`mfa:<scope>\`), the caller's session (\`stid\`), and
+      the credential that signed the assertion (\`cid\`).
+
+      **Security events:** \`account.passkey.verification_success\` or
+      \`account.passkey.verification_failure\`.
+    `,
+  ],
+};
+
 const PASSKEYS_API_DOCS = {
   PASSKEY_REGISTRATION_START_POST,
   PASSKEY_REGISTRATION_FINISH_POST,
   PASSKEY_AUTHENTICATION_START_POST,
   PASSKEY_AUTHENTICATION_FINISH_POST,
+  PASSKEY_VERIFICATION_START_POST,
+  PASSKEY_VERIFICATION_FINISH_POST,
   PASSKEYS_GET: {
     ...TAGS_PASSKEYS,
     description: '/passkeys',
     notes: [
-      dedent`
+      swaggerText`
         🔒 Authenticated with session token (verified)
 
         Returns the list of passkeys registered for the authenticated user.
@@ -134,7 +181,10 @@ const PASSKEYS_API_DOCS = {
         from the response as they are internal implementation details.
 
         **Response:** Array of passkey metadata objects, each containing
-        \`credentialId\`, \`name\`, \`createdAt\`, \`lastUsedAt\`, \`transports\`, and \`prfEnabled\`.
+        \`credentialId\`, \`name\`, \`createdAt\`, \`lastUsedAt\`, \`transports\`, \`prfEnabled\`,
+        and \`hasPasswordlessSync\` — whether the passkey holds a wrap and can
+        therefore unlock \`kB\` without a password. Only the routes that list
+        passkeys resolve that last field.
       `,
     ],
   },
@@ -142,7 +192,7 @@ const PASSKEYS_API_DOCS = {
     ...TAGS_PASSKEYS,
     description: '/passkey/{credentialId}',
     notes: [
-      dedent`
+      swaggerText`
         🔒 Authenticated with MFA JWT (scope: mfa:passkey)
 
         Deletes the passkey identified by \`credentialId\` (base64url-encoded).
@@ -161,7 +211,7 @@ const PASSKEYS_API_DOCS = {
     ...TAGS_PASSKEYS,
     description: '/passkey/{credentialId}',
     notes: [
-      dedent`
+      swaggerText`
         🔒 Authenticated with MFA JWT (scope: mfa:passkey)
 
         Renames the passkey identified by \`credentialId\` (base64url-encoded).
@@ -176,8 +226,7 @@ const PASSKEYS_API_DOCS = {
         **Request body:**
         - \`name\` (string, required) — new display name (1–255 chars)
 
-        **Response:** Updated passkey metadata including \`credentialId\`, \`name\`,
-        \`createdAt\`, \`lastUsedAt\`, \`transports\`, and \`prfEnabled\`.
+        **Response:** the updated passkey, the same shape \`GET /passkeys\` returns.
       `,
     ],
   },
@@ -191,7 +240,7 @@ const PASSKEYS_API_DOCS = {
     ...TAGS_PASSKEYS,
     description: '/passkey/wraps',
     notes: [
-      dedent`
+      swaggerText`
         🔒 Authenticated with MFA JWT (scope: mfa:passkey)
 
         Stores the wrap envelope for one passkey. The envelope is produced entirely
@@ -213,15 +262,97 @@ const PASSKEYS_API_DOCS = {
         - \`hpkeSealedKb\` (string, required) — base64url, 48 bytes
 
         **Response:** \`{ created: boolean }\` — false when an identical wrap was
-        already stored.
+        already stored. A different wrap that predates the account's
+        \`keysChangedAt\` seals a \`kB\` the account no longer has and is replaced.
 
         **Errors:**
         - \`401\` errno 223 — the token is invalid, or is not bound to \`credentialId\`
         - \`404\` errno 224 — the passkey was deleted after the assertion
-        - \`409\` errno 235 — a different wrap already exists for this credential
+        - \`409\` errno 235 — a different wrap from the current key epoch already exists for this credential
 
         **Security events:** \`account.passkey.wrap_created\` on a new wrap;
         \`account.passkey.wrap_creation_failure\` on any failure to store one.
+      `,
+    ],
+  },
+
+  PASSKEY_WRAPS_GET: {
+    ...TAGS_PASSKEYS,
+    description: '/passkey/wraps/{credentialId}',
+    notes: [
+      swaggerText`
+        🔒 Authenticated with MFA JWT (scope: mfa:passkey)
+
+        Returns the wrap envelope for one passkey, as stored. Unsealing happens
+        entirely on the client and needs the credential's WebAuthn PRF output, so
+        the envelope is inert to anyone who cannot complete an assertion with that
+        credential. The server never sees \`kB\`, the recipient private key, or the
+        PRF output.
+
+        The token must be bound to \`credentialId\`, as it is for the write. A wrap
+        is only ever fetched to complete a sign-in with that same credential.
+
+        A wrap stored before the account's \`keysChangedAt\` seals a \`kB\` the
+        account no longer uses, and is withheld rather than returned — the client
+        falls back to a password sign-in and re-enrols.
+
+        **Path parameters:**
+        - \`credentialId\` (string, required) — base64url credential ID
+
+        **Response:** the five base64url envelope fields (\`pkR\`,
+        \`prfWrappedSkR\`, \`keyWrapIv\`, \`hpkeEncapsulatedSecret\`,
+        \`hpkeSealedKb\`) plus \`createdAt\`.
+
+        **Errors:**
+        - \`401\` errno 223 — the token is invalid, or is not bound to \`credentialId\`
+        - \`404\` errno 224 — no such passkey for this account
+        - \`404\` errno 234 — the passkey has no wrap
+        - \`404\` errno 236 — the wrap predates the account's \`keysChangedAt\`
+
+        **Security events:** \`account.passkey.wrap_retrieved\` on a returned
+        envelope; \`account.passkey.wrap_retrieval_failure\` on an unbound token,
+        a stale wrap, or a lookup that finds none. Rejections before the handler
+        — authentication and rate limiting — are not recorded. Both are recorded
+        for the audit trail and hidden from the account settings activity list.
+      `,
+    ],
+  },
+
+  PASSKEY_WRAPS_DELETE: {
+    ...TAGS_PASSKEYS,
+    description: '/passkey/wraps/{credentialId}',
+    notes: [
+      swaggerText`
+        🔒 Authenticated with MFA JWT (scope: mfa:passkey)
+
+        Deletes the wrap envelope for one passkey. The passkey itself stays
+        registered and usable. \`POST /passkey/wraps\` has no update path, so
+        deleting is how a client replaces an envelope it can no longer unseal:
+        delete, then post a fresh one built from a new assertion.
+
+        The token need not be bound to \`credentialId\`, unlike the read and the
+        write — a delete is a management action, so settings can turn off
+        passwordless sign-in for one passkey from any \`mfa:passkey\` token. Only
+        the authenticated account's own wraps are reachable.
+
+        Idempotent: a credential that has no wrap answers \`{ deleted: false }\`
+        rather than \`404\`. An unknown credential still \`404\`s — that is a
+        different account state, not a delete that already happened.
+
+        **Path parameters:**
+        - \`credentialId\` (string, required) — base64url credential ID
+
+        **Response:** \`{ deleted: boolean }\` — false when the credential had
+        no wrap to remove.
+
+        **Errors:**
+        - \`401\` errno 223 — the token is invalid
+        - \`404\` errno 224 — no such passkey for this account
+
+        **Security events:** \`account.passkey.wrap_deleted\` when a wrap was
+        removed, \`account.passkey.wrap_deletion_failure\` when the delete
+        threw. A credential that had no wrap is neither, having asked for a
+        state it is already in.
       `,
     ],
   },

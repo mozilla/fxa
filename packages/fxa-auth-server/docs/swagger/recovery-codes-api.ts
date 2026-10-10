@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import dedent from 'dedent';
+import swaggerText from './shared/swagger-text';
 import TAGS from './swagger-tags';
 
 const TAGS_RECOVERY_CODE = {
@@ -13,7 +13,7 @@ const RECOVERYCODES_GET = {
   ...TAGS_RECOVERY_CODE,
   description: '/recoveryCodes',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       Return new backup authentication codes while removing old ones.
@@ -25,7 +25,7 @@ const RECOVERY_CODES_POST = {
   ...TAGS_RECOVERY_CODE,
   description: '/recoveryCodes',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       Set backup authentication codes (intended for initial set up)
@@ -37,7 +37,7 @@ const MFA_RECOVERY_CODES_POST = {
   ...TAGS_RECOVERY_CODE,
   description: '/mfa/recoveryCodes',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with MFA jwt (scope: mfa:2fa)
 
       Set backup authentication codes (intended for initial set up)
@@ -49,7 +49,7 @@ const RECOVERY_CODES_PUT = {
   ...TAGS_RECOVERY_CODE,
   description: '/recoveryCodes',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       Return new backup authentication codes while removing old ones.
@@ -61,7 +61,7 @@ const MFA_RECOVERY_CODES_PUT = {
   ...TAGS_RECOVERY_CODE,
   description: '/mfa/recoveryCodes',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with MFA jwt (scope: mfa:2fa)
 
       Return new backup authentication codes while removing old ones.
@@ -72,7 +72,7 @@ const MFA_RECOVERY_CODES_PUT = {
 const SESSION_VERIFY_RECOVERYCODE_POST = {
   description: '/session/verify/recoveryCode',
   notes: [
-    dedent`
+    swaggerText`
       🔒 Authenticated with session token
 
       Verify a session using a backup authentication code.

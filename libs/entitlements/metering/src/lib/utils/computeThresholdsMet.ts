@@ -11,6 +11,6 @@ export function computeThresholdsMet(
     return [];
   }
   return thresholds.filter(
-    (threshold) => currentUsage >= (threshold / 100) * limit
+    (threshold) => currentUsage * 100 >= threshold * limit
   );
 }

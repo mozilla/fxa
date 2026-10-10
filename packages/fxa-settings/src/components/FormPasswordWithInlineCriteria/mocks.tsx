@@ -9,22 +9,22 @@ import { MOCK_ACCOUNT } from '../../models/mocks';
 type SubjectProps = {
   passwordFormType: PasswordFormType;
   requirePasswordConfirmation?: boolean;
+  onFormSubmit?: () => void;
 };
 
 export const Subject = ({
   passwordFormType,
   requirePasswordConfirmation,
+  onFormSubmit = () => {
+    // this alert is for Storybook
+    alert('Form submitted! (onFormSubmit called)');
+  },
 }: SubjectProps) => {
   type FormData = {
     oldPassword?: string;
     newPassword: string;
     confirmPassword: string;
   };
-  const onFormSubmit = () => {
-    // this alert is for Storybook
-    alert('Form submitted! (onFormSubmit called)');
-  };
-
   const { handleSubmit, register, getValues, formState, trigger } =
     useForm<FormData>({
       mode: 'onTouched',

@@ -6,6 +6,7 @@ import {
   OAuthWebIntegration,
   OAuthNativeIntegration,
   PairingAuthorityIntegration,
+  PairingVersion,
   PairingSupplicantIntegration,
   Integration,
   SyncBasicIntegration,
@@ -121,7 +122,8 @@ export class IntegrationFactory {
       return this.createPairingAuthorityIntegration(
         data,
         channelData,
-        storageData
+        storageData,
+        flags.isDevicePairingAsV2Authority() ? 2 : 1
       );
     } else if (flags.isDevicePairingAsSupplicant()) {
       return this.createPairingSupplicationIntegration(data, storageData);
@@ -150,13 +152,15 @@ export class IntegrationFactory {
   private createPairingAuthorityIntegration(
     data: ModelDataStore,
     channelData: ModelDataStore,
-    storageData: ModelDataStore
+    storageData: ModelDataStore,
+    pairingVersion: PairingVersion
   ) {
     const integration = new PairingAuthorityIntegration(
       data,
       channelData,
       storageData,
-      config.oauth
+      config.oauth,
+      pairingVersion
     );
     this.initIntegration(integration);
     return integration;
@@ -260,6 +264,7 @@ export class IntegrationFactory {
         throw new OAuthError('INVALID_PARAMETER');
       }
       integration.data.clientId = clientId;
+      integration.isOAuthSuccessFlow = true;
     } else if (flags.isOAuthVerificationFlow()) {
       // The presence of the 'resume' query parameter indicates we are resuming a previous flow,
       // which usually means the user is opening a link from an email. We aren't relying on this
@@ -311,8 +316,8 @@ export class IntegrationFactory {
     // Without this flag, a failed `/v1/oauth/client/:id` fetch leaves every
     // `clientInfo` field undefined, which reads as `trusted=false` and silently
     // strips every requested scope. `useClientInfoState` is the source of truth
-    // — we don't infer from `integration.data.clientId` because some flows
-    // (e.g. `/oauth/success/:clientId`) populate it without a fetch.
+    // — we don't infer from `integration.data.clientId` because later init
+    // steps populate it from non-query sources.
     integration.clientInfoLoadFailed = this.clientInfoLoadFailed;
 
     const redirectUris = this.clientInfo?.redirectUri?.split(',');

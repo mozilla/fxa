@@ -921,6 +921,53 @@ describe('lib/server', () => {
       });
     });
 
+    describe('authenticated request, account disabled:', () => {
+      let db: any, instance: any, statsd: any, result: any;
+
+      beforeEach(async () => {
+        response = 'ok';
+        db = mocks.mockDB({
+          sessionTokenId: 'wibble',
+          uid: 'blee',
+          disabledAt: 1_700_000_000_000,
+        });
+        statsd = { increment: jest.fn(), timing: jest.fn() };
+
+        instance = await server.create(
+          log,
+          error,
+          config,
+          routes,
+          db,
+          statsd,
+          glean,
+          customs
+        );
+        await instance.start();
+        result = await instance.inject({
+          headers: {
+            authorization: `Hawk id="deadbeef"`,
+          },
+          method: 'GET',
+          url: '/account/status',
+        });
+      });
+
+      afterEach(() => instance.stop());
+
+      it('rejects the request as an unknown token', () => {
+        expect(result.statusCode).toBe(401);
+        expect(result.result.errno).toBe(error.ERRNO.INVALID_TOKEN);
+      });
+
+      it('records the rejection with the token kind', () => {
+        expect(statsd.increment).toHaveBeenCalledWith(
+          'auth.token.account_disabled',
+          ['kind:sessionToken']
+        );
+      });
+    });
+
     function getRoutes() {
       return [
         {

@@ -5,7 +5,6 @@
 const AppError = require('./error');
 const Boom = require('@hapi/boom');
 const logger = require('./logging')('batch');
-const P = require('./promise');
 
 // Make multiple internal requests to routes, and merge their responses
 // into a single object.
@@ -47,7 +46,7 @@ function batch(request, routeFieldsMap) {
   delete injectHeaders.range;
   delete injectHeaders['if-range'];
 
-  return P.all(
+  return Promise.all(
     routeFieldsKeys.map((url) => {
       return request.server
         .inject({

@@ -66,7 +66,8 @@ export class PlayPubsubHandler {
     const updatedPurchase =
       await this.playBilling.purchaseManager.processDeveloperNotification(
         developerNotification.packageName,
-        developerNotification
+        developerNotification,
+        purchase.sku
       );
     if (!updatedPurchase) {
       // This was an initial purchase, the token endpoint handles capability broadcasts.

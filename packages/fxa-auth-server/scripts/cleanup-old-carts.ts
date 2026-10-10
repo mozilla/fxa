@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import program from 'commander';
+import { program } from 'commander';
 import * as Sentry from '@sentry/node';
 import { initSentry } from 'fxa-shared/sentry/node';
 
@@ -110,6 +110,7 @@ async function init() {
       ].join(', ')}`
     )
     .parse(process.argv);
+  const options = program.opts();
 
   const { config, log } = await setupProcessingTaskObjects('cleanup-old-carts');
 
@@ -125,12 +126,12 @@ async function init() {
   const database = await setupAccountDatabase(config.database.mysql.auth);
 
   const deleteBefore =
-    parseDeleteBefore(program.deleteBefore) ||
-    parseDeleteBeforeDays(program.deleteBeforeDays);
+    parseDeleteBefore(options.deleteBefore) ||
+    parseDeleteBeforeDays(options.deleteBeforeDays);
   const anonymizeBefore =
-    parseAnonymizeBefore(program.anonymizeBefore) ||
-    parseAnonymizeBeforeDays(program.anonymizeBeforeDays);
-  const anonymizeFields = parseAnonymizeFields(program.anonymizeFields);
+    parseAnonymizeBefore(options.anonymizeBefore) ||
+    parseAnonymizeBeforeDays(options.anonymizeBeforeDays);
+  const anonymizeFields = parseAnonymizeFields(options.anonymizeFields);
 
   if (!deleteBefore) {
     throw new Error('--delete-before or --delete-before-days is required');

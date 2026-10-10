@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import {
   useNavigateWithQuery,
@@ -38,6 +38,7 @@ import {
 import { ConfirmSignupCodeProps } from './interfaces';
 import firefox from '../../../lib/channels/firefox';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import { storeAccountData } from '../../../lib/storage-utils';
 import {
   getErrorFtlId,
@@ -90,14 +91,10 @@ const ConfirmSignupCode = ({
   integration.data.validate();
 
   const reason = origin === 'signup' ? 'signup' : 'signin';
-  const hasEmittedView = useRef(false);
 
-  useEffect(() => {
-    if (!hasEmittedView.current) {
-      GleanMetrics.signupConfirmation.view({ event: { reason } });
-      hasEmittedView.current = true;
-    }
-  }, [reason]);
+  useGleanView(() =>
+    GleanMetrics.signupConfirmation.view({ event: { reason } })
+  );
 
   // Countdown timer for resend code
   useEffect(() => {
@@ -180,9 +177,7 @@ const ConfirmSignupCode = ({
         ...(isOAuthIntegration(integration) && {
           scopes: integration.getPermissions(),
         }),
-        // See oauth_client_info in the auth-server for details on service/clientId
-        // Sending up the clientId when the user is not signing in to the browser
-        // is used to show the correct service name in emails
+        // The auth-server expects an RP's client id in `service`; see resolveServiceOrClientId.
         ...(isFirefoxService(service) ? { service } : { service: clientId }),
       };
 
@@ -435,11 +430,11 @@ const ConfirmSignupCode = ({
       <FtlMsg
         id="confirm-signup-code-instruction-v2"
         vars={{ email: email! }}
-        elems={{ email: <span className="break-all" /> }}
+        elems={{ email: <span className="font-bold break-all" /> }}
       >
         <p className="mt-2 text-sm">
           Enter the code that was sent to{' '}
-          <span className="break-all">{email}</span> within 5 minutes.
+          <span className="font-bold break-all">{email}</span> within 5 minutes.
         </p>
       </FtlMsg>
 

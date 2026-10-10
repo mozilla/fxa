@@ -59,6 +59,7 @@ const DESCRIPTION =
 const { getClientServiceTags } = require('../../metrics/client-tags');
 const { EXCHANGE_DECISION, EXCHANGE_DENY_REASON } = require('../../oauth/db');
 const accountActivity = require('../../oauth/account-activity');
+const { assertAccountEnabledByUid } = require('../utils/account');
 const updateLastAccessTime = config.get(
   'lastAccessTimeUpdates.onOAuthTokenCreation'
 );
@@ -655,6 +656,8 @@ module.exports = ({
       }
     }
     const grant = await validateGrantParameters(client, params);
+
+    await assertAccountEnabledByUid(db, hex(grant.userId));
 
     const tokens = await generateTokens(grant);
 

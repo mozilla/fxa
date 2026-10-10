@@ -2,7 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Link, useLocation } from 'react-router';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../constants';
@@ -17,7 +23,8 @@ import firefox, { buildSyncOAuthSearch } from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
 import AppLayout from '../../components/AppLayout';
 import { detectDevice, Devices } from '../../lib/utilities';
-import { UseFxAStatusResult } from '../../lib/hooks';
+import { isPairingV2Enabled } from '../../lib/pairing/v2-gate';
+import { UseFxAStatusResult, useNavigateWithQuery } from '../../lib/hooks';
 
 export type ConnectAnotherDeviceProps = {
   email?: string;
@@ -30,7 +37,6 @@ export type ConnectAnotherDeviceProps = {
   device?: Devices;
   fxaStatus: UseFxAStatusResult;
 };
-
 
 // Validate entrypoint against known values, defaulting to FIREFOX_MENU_ENTRYPOINT.
 const VALID_ENTRYPOINTS = new Set(Object.values(ENTRYPOINTS));
@@ -73,13 +79,14 @@ const ConnectAnotherDevice = ({
   isSignIn: isSignInProp,
   canSignIn: canSignInProp,
   device: deviceProp,
-  fxaStatus
+  fxaStatus,
 }: ConnectAnotherDeviceProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
+  const navigateWithQuery = useNavigateWithQuery();
   const searchParams = useMemo(
     () => new URLSearchParams(location.search),
     [location.search]
@@ -96,8 +103,9 @@ const ConnectAnotherDevice = ({
     !!(
       locationState.showSuccessMessage || searchParams.get('showSuccessMessage')
     );
-  const isSignUp = isSignUpProp ?? locationState.type === 'sign_up';
-  const isSignIn = isSignInProp ?? locationState.type === 'sign_in';
+  const type = locationState.type ?? searchParams.get('type');
+  const isSignUp = isSignUpProp ?? type === 'sign_up';
+  const isSignIn = isSignInProp ?? type === 'sign_in';
   // Set when the WebChannel sign-in attempt fails so the button stops
   // rendering instead of leaving the user with a silent no-op click.
   const [oauthFlowUnavailable, setOauthFlowUnavailable] = useState(false);
@@ -160,6 +168,13 @@ const ConnectAnotherDevice = ({
     );
   }, [entrypoint, searchParams]);
 
+  const cadViewRecorded = useRef(false);
+  const recordCadView = () => {
+    if (cadViewRecorded.current) return;
+    cadViewRecorded.current = true;
+    GleanMetrics.cad.view();
+  };
+
   // The browser's pairing capabilities arrive asynchronously over the web
   // channel, so they start out undefined.
   const capabilitiesResolved = !!fxaStatus.fxaStatus?.capabilities;
@@ -173,7 +188,7 @@ const ConnectAnotherDevice = ({
     }
 
     if (propsDriveRender) {
-      GleanMetrics.cad.view();
+      recordCadView();
       return;
     }
 
@@ -201,12 +216,17 @@ const ConnectAnotherDevice = ({
         signedInUser?.sessionToken && signedInUser.verified
       );
       if (browserSignedIn && isEligibleForPairing()) {
-
-        // Both FxA and Firefox have to signal that pairing v2 is enabled!
+        // The browser has to support pairing at all; which version it gets is
+        // the same gate as /pair, see isPairingV2Enabled.
         if (
-          config.pairing.version === 2 &&
           fxaStatus.fxaStatus?.capabilities?.pairing === true &&
-          fxaStatus.fxaStatus?.capabilities?.pairingVersion === 2
+          isPairingV2Enabled({
+            pairing: config.pairing,
+            device,
+            userAgent: navigator.userAgent,
+            browserPairingVersion:
+              fxaStatus.fxaStatus.capabilities.pairingVersion,
+          })
         ) {
           hardNavigate('/pair/authority/scan_qr', {}, true);
           return;
@@ -219,19 +239,19 @@ const ConnectAnotherDevice = ({
           return;
         }
 
-        hardNavigate('/pair');
+        navigateWithQuery('/pair');
         return;
       }
       if (browserSignedIn) {
         setBootstrapping(false);
-        GleanMetrics.cad.view();
+        recordCadView();
         return;
       }
       const redirected = await startSyncOAuthFlow();
       if (cancelled || redirected) return;
       // WebChannel didn't reply; reveal the page so the user isn't stuck.
       setBootstrapping(false);
-      GleanMetrics.cad.view();
+      recordCadView();
     })();
 
     return () => {

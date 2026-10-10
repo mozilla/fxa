@@ -45,15 +45,6 @@ function addAllReactRoutesConditionally(
               } else {
                 return next('route');
               }
-              // '/oauth?channel_id=...' is Fx Desktop initiating the pairing authority flow.
-              // Bypass to Backbone ONLY if pairRoutes is not enabled. When pairRoutes is
-              // enabled, React handles the full pairing flow including this entry point.
-            } else if (
-              req.path === '/oauth' &&
-              req.query.channel_id &&
-              !showReactApp.pairRoutes
-            ) {
-              return next('route');
             }
             return middleware(req, res, next);
           }

@@ -101,10 +101,10 @@ function mockModelsModule() {
   (ModelsModule.useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient
   );
-  mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
+  mockSensitiveDataClient.AuthData = {
     keyFetchToken: MOCK_KEY_FETCH_TOKEN,
     unwrapBKey: MOCK_UNWRAP_BKEY,
-  });
+  };
 }
 
 // Apply default mocks
@@ -184,7 +184,6 @@ describe('confirm-signup-container', () => {
       );
       expect(currentProps?.email).toEqual(MOCK_EMAIL);
       expect(currentProps?.sessionToken).toEqual(MOCK_SESSION_TOKEN);
-      expect(currentProps?.integration).toBeDefined();
       expect(currentProps?.finishOAuthFlowHandler).toBeDefined();
       expect(currentProps?.newsletterSlugs).toEqual('slugs');
       expect(currentProps?.keyFetchToken).toEqual(MOCK_KEY_FETCH_TOKEN);
@@ -207,7 +206,6 @@ describe('confirm-signup-container', () => {
       );
       expect(currentProps?.email).toEqual(MOCK_EMAIL);
       expect(currentProps?.sessionToken).toEqual(MOCK_SESSION_TOKEN);
-      expect(currentProps?.integration).toBeDefined();
       expect(currentProps?.finishOAuthFlowHandler).toBeDefined();
       expect(currentProps?.newsletterSlugs).toEqual('slugs');
       expect(currentProps?.keyFetchToken).toEqual(MOCK_KEY_FETCH_TOKEN);
@@ -308,10 +306,10 @@ describe('confirm-signup-container', () => {
         wantsKeys: () => true,
         getCmsInfo: () => undefined,
       } as Integration;
-      mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
+      mockSensitiveDataClient.AuthData = {
         keyFetchToken: undefined,
         unwrapBKey: undefined,
-      });
+      };
       render();
       expect(mockNavigate).toHaveBeenCalledWith('/signin', {
         state: { localizedErrorMessage: 'Code expired. Please sign in again.' },
@@ -327,10 +325,10 @@ describe('confirm-signup-container', () => {
         wantsKeys: () => true,
         getCmsInfo: () => undefined,
       } as Integration;
-      mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
+      mockSensitiveDataClient.AuthData = {
         keyFetchToken: undefined,
         unwrapBKey: undefined,
-      });
+      };
       jest
         .spyOn(OAuthFlowRecoveryModule, 'useOAuthFlowRecovery')
         .mockReturnValue({

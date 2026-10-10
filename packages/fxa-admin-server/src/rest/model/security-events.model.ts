@@ -7,7 +7,7 @@ export class SecurityEvents {
 
   public nameId!: number;
 
-  public verified!: boolean;
+  public verified!: boolean | null;
 
   public ipAddrHmac!: string;
 

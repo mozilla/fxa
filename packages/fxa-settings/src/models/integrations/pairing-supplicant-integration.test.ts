@@ -16,6 +16,7 @@ const mockOpen = jest.fn().mockResolvedValue(undefined);
 const mockSend = jest.fn().mockResolvedValue(undefined);
 const mockClose = jest.fn().mockResolvedValue(undefined);
 const listeners: Record<string, Function[]> = {};
+let mockIsUnloading = false;
 
 // Only the client is stubbed; `toRemoteMetadata` is a pure helper the
 // integration relies on for the device details it shows the user.
@@ -25,6 +26,9 @@ jest.mock('../../lib/channels/pairing-channel', () => ({
     open: mockOpen,
     send: mockSend,
     close: mockClose,
+    get isUnloading() {
+      return mockIsUnloading;
+    },
     addEventListener: jest.fn((type: string, handler: Function) => {
       if (!listeners[type]) listeners[type] = [];
       listeners[type].push(handler);
@@ -45,7 +49,9 @@ const VALID_CODE_CHALLENGE = 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM';
 const VALID_OAUTH_CODE =
   'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2';
 
-function createIntegration(dataOverrides: Record<string, string> = {}) {
+function createIntegration(
+  dataOverrides: Record<string, string | undefined> = {}
+) {
   // Keys must be snake_case to match @bind(T.snakeCase) decorators
   const data = new GenericData({
     client_id: '3c49430b43dfba77',
@@ -77,6 +83,7 @@ describe('PairingSupplicantIntegration', () => {
     jest.clearAllMocks();
     Object.keys(listeners).forEach((k) => delete listeners[k]);
     sessionStorage.clear();
+    mockIsUnloading = false;
   });
 
   describe('openChannel', () => {
@@ -200,9 +207,9 @@ describe('PairingSupplicantIntegration', () => {
     });
   });
 
-  // v2 asks the browser for its OAuth params instead of reading them from the
-  // URL, so the state to check `pair:auth:authorize` against is the one
-  // `pairOauthStart` handed back — not `this.data.state`, which v2 never sets.
+  // A v2 supplicant reached by a scanned QR has no OAuth params in its URL and
+  // asks the browser for them, so the state to check `pair:auth:authorize`
+  // against is the one `pairOauthStart` handed back, not `this.data.state`.
   describe('v2 approval state machine', () => {
     const BROWSER_STATE = 'browser-generated-state';
 
@@ -278,6 +285,77 @@ describe('PairingSupplicantIntegration', () => {
 
       expect(integration.state).toBe(SupplicantState.Failed);
       expect(integration.error?.message).toContain('no request state recorded');
+    });
+  });
+
+  // The mobile app's own QR scanner runs OAuth start itself and opens the page
+  // with the params in the URL. Asking the browser for a second set there would
+  // strand the verifier the app is holding for the code it expects back.
+  describe('v2 with OAuth params in the URL', () => {
+    beforeEach(() => {
+      jest.spyOn(firefox, 'pairOauthStart').mockResolvedValue({
+        state: 'browser-generated-state',
+        scope: 'profile',
+        code_challenge: VALID_CODE_CHALLENGE,
+        code_challenge_method: 'S256',
+        keys_jwk: 'dGVzdGtleXM',
+      });
+    });
+
+    it('requests with the URL params rather than asking the browser', async () => {
+      const integration = createIntegration();
+      await integration.openChannel('wss://ch.example.com', 'c', 'k', 2);
+      emit('connected');
+
+      await waitFor(() =>
+        expect(mockSend).toHaveBeenCalledWith('pair:supp:request', {
+          access_type: 'offline',
+          client_id: '3c49430b43dfba77',
+          code_challenge: VALID_CODE_CHALLENGE,
+          code_challenge_method: 'S256',
+          keys_jwk: 'dGVzdGtleXM',
+          scope: 'profile https://identity.mozilla.com/apps/oldsync',
+          state: 'abc123',
+        })
+      );
+      expect(firefox.pairOauthStart).not.toHaveBeenCalled();
+    });
+
+    it('checks the authorize against the URL state', async () => {
+      jest.spyOn(firefox, 'fxaOAuthLogin').mockImplementation(() => {});
+      const integration = createIntegration();
+      await integration.openChannel('wss://ch.example.com', 'c', 'k', 2);
+      emit('connected');
+      await waitFor(() => expect(mockSend).toHaveBeenCalled());
+
+      emit('remote:pair:auth:authorize', {
+        code: VALID_OAUTH_CODE,
+        state: 'abc123',
+      });
+
+      expect(integration.state).toBe(SupplicantState.Complete);
+    });
+
+    // What a scanned QR produces: the bare URL from the code, carrying no OAuth
+    // request. `client_id` stays because a real supplicant falls back to
+    // deriving it from its user agent, which jsdom cannot stand in for.
+    it('asks the browser when the URL carries no OAuth request', async () => {
+      const integration = createIntegration({
+        scope: undefined,
+        state: undefined,
+        code_challenge: undefined,
+        code_challenge_method: undefined,
+        keys_jwk: undefined,
+      });
+      await integration.openChannel('wss://ch.example.com', 'c', 'k', 2);
+      emit('connected');
+
+      await waitFor(() =>
+        expect(mockSend).toHaveBeenCalledWith(
+          'pair:supp:request',
+          expect.objectContaining({ state: 'browser-generated-state' })
+        )
+      );
     });
   });
 
@@ -428,6 +506,124 @@ describe('PairingSupplicantIntegration', () => {
       await integration.openChannel('wss://ch.example.com', 'c', 'k');
       expect(integration.state).toBe(SupplicantState.Failed);
       expect(onError).toHaveBeenCalled();
+    });
+
+    // The channel server refuses the socket outright for a channel already
+    // consumed, so the Android post-OAuth reload sees the rejection rather
+    // than a close event on a live channel.
+    it('open failure while still Connecting is ignored when completion marker is set', async () => {
+      sessionStorage.setItem(PAIR_COMPLETE_STORAGE_PREFIX + 'c', '1');
+      mockOpen.mockRejectedValueOnce(
+        new Error('Connection to remote device closed, please try again')
+      );
+      const integration = createIntegration();
+      const onError = jest.fn();
+      const onStateChange = jest.fn();
+      integration.onError = onError;
+      integration.onStateChange = onStateChange;
+
+      await integration.openChannel('wss://ch.example.com', 'c', 'k');
+
+      expect(integration.state).toBe(SupplicantState.Connecting);
+      expect(onError).not.toHaveBeenCalled();
+      expect(onStateChange).not.toHaveBeenCalled();
+    });
+
+    // A reload closes the connecting socket before the page unloads; failing
+    // would navigate the page on its way out (FXA-14485).
+    it('open failure while the page unloads is ignored', async () => {
+      mockIsUnloading = true;
+      mockOpen.mockRejectedValueOnce(
+        new Error('Error while creating the pairing channel')
+      );
+      const integration = createIntegration();
+      const onError = jest.fn();
+      integration.onError = onError;
+
+      await integration.openChannel('wss://ch.example.com', 'c', 'k');
+
+      expect(integration.state).toBe(SupplicantState.Connecting);
+      expect(onError).not.toHaveBeenCalled();
+    });
+
+    it('allows a retry on the same channel after a failed open', async () => {
+      mockOpen.mockRejectedValueOnce(new Error('ws connect failed'));
+      const integration = createIntegration();
+
+      await integration.openChannel('wss://ch.example.com', 'c', 'k');
+      await integration.openChannel('wss://ch.example.com', 'c', 'k');
+
+      expect(mockOpen).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('authority cancel', () => {
+    async function connectedIntegration() {
+      const integration = createIntegration();
+      await integration.openChannel('wss://ch.example.com', 'c', 'k');
+      emit('connected');
+      return integration;
+    }
+
+    it('ends the flow when the authority cancels', async () => {
+      const integration = await connectedIntegration();
+
+      emit('remote:pair:auth:cancel');
+
+      expect(integration.state).toBe(SupplicantState.Failed);
+    });
+
+    it('records that the authority cancelled', async () => {
+      const integration = await connectedIntegration();
+
+      emit('remote:pair:auth:cancel');
+
+      expect(integration.canceledByAuthority).toBe(true);
+    });
+
+    // Without a notice the close is indistinguishable from the channel running
+    // out of time, which is what the dead-end screen then has to say.
+    it('does not treat a bare channel close as a cancel', async () => {
+      const integration = await connectedIntegration();
+
+      emit('close');
+
+      expect(integration.state).toBe(SupplicantState.Failed);
+      expect(integration.canceledByAuthority).toBe(false);
+    });
+  });
+
+  describe('cancel', () => {
+    // The authority cannot tell a closed channel from an expired one, so the
+    // notice has to get out while the channel is still up.
+    it('tells the authority before closing the channel', async () => {
+      const integration = createIntegration();
+      await integration.openChannel('wss://ch.example.com', 'c', 'k');
+
+      await integration.cancel();
+
+      expect(mockSend).toHaveBeenCalledWith('pair:supp:cancel', {});
+      expect(mockSend.mock.invocationCallOrder[0]).toBeLessThan(
+        mockClose.mock.invocationCallOrder[0]
+      );
+    });
+
+    it('closes the channel when the notice cannot be sent', async () => {
+      const integration = createIntegration();
+      await integration.openChannel('wss://ch.example.com', 'c', 'k');
+      mockSend.mockRejectedValueOnce(new Error('channel server gone'));
+
+      await integration.cancel();
+
+      expect(mockClose).toHaveBeenCalled();
+      expect(integration.hasChannel('c')).toBe(false);
+    });
+
+    it('resolves when there is no channel to cancel', async () => {
+      const integration = createIntegration();
+
+      await expect(integration.cancel()).resolves.toBeUndefined();
+      expect(mockSend).not.toHaveBeenCalled();
     });
   });
 

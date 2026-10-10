@@ -37,9 +37,11 @@ import { AppConfig } from '../config';
 import { AccountAuthorization } from '../types';
 import { uuidTransformer } from './transformers';
 
-function typeCasting(field: any, next: any) {
+// A nullable TINY(1) column must stay null, or callers cannot tell "not set" from false.
+export function typeCasting(field: any, next: any) {
   if (field.type === 'TINY' && field.length === 1) {
-    return field.string() === '1';
+    const value = field.string();
+    return value === null ? null : value === '1';
   }
   return next();
 }
@@ -141,6 +143,19 @@ export class DatabaseService implements OnModuleDestroy {
     );
   }
 
+  /**
+   * Deletes the account's sessions, devices, auth tokens, OAuth refresh
+   * tokens and authorization codes. The account row is untouched. OAuth
+   * access tokens live only in the auth server's Redis and are left to
+   * expire, as is the Redis metadata for the deleted rows.
+   */
+  public async revokeAccountTokens(uid: string) {
+    const uidBuffer = uuidTransformer.to(uid);
+    await this.account.revokeTokens(uid);
+    await this.knexOauth('refreshTokens').where('userId', uidBuffer).del();
+    await this.knexOauth('codes').where('userId', uidBuffer).del();
+  }
+
   public async authorizedClients(uid: string) {
     const factory = new AuthorizedClientsFactory(this.connectedServicesDb);
     return await factory.build(uid);
@@ -163,7 +178,8 @@ export class DatabaseService implements OnModuleDestroy {
         'service',
         'clientId',
         'firstAuthorizedTosAt',
-        'lastAuthorizedTosAt'
+        'lastAuthorizedTosAt',
+        'deauthorizedAt'
       )
       .where('uid', uidBuffer)
       .orderBy([
@@ -179,12 +195,15 @@ export class DatabaseService implements OnModuleDestroy {
         clientId: Buffer;
         firstAuthorizedTosAt: number | string;
         lastAuthorizedTosAt: number | string;
+        deauthorizedAt: number | string | null;
       }) => ({
         scope: row.scope,
         service: row.service,
         clientId: row.clientId.toString('hex'),
         firstAuthorizedTosAt: Number(row.firstAuthorizedTosAt),
         lastAuthorizedTosAt: Number(row.lastAuthorizedTosAt),
+        deauthorizedAt:
+          row.deauthorizedAt === null ? null : Number(row.deauthorizedAt),
       })
     );
   }

@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import program from 'commander';
+import { program } from 'commander';
 
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { StripeCustomerEmailSyncer } from './sync-stripe-customer-emails/sync-stripe-customer-emails';
@@ -45,6 +45,7 @@ async function init() {
       'sync-stripe-customer-emails-output.csv'
     )
     .parse(process.argv);
+  const options = program.opts();
 
   const { stripeHelper, database, log } = await setupProcessingTaskObjects(
     'sync-stripe-customer-emails'
@@ -55,11 +56,11 @@ async function init() {
     database,
     log,
     {
-      dryRun: !!program.dryRun,
-      limit: program.limit,
-      startingAfter: program.startingAfter,
-      rateLimit: program.rateLimit,
-      outputFile: program.outputFile,
+      dryRun: !!options.dryRun,
+      limit: options.limit,
+      startingAfter: options.startingAfter,
+      rateLimit: options.rateLimit,
+      outputFile: options.outputFile,
     }
   );
 

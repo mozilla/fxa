@@ -30,7 +30,7 @@ const {
   ProductConfigurationManager,
   StrapiClient,
 } = require('@fxa/shared/cms');
-const TracingProvider = require('fxa-shared/tracing/node-tracing');
+const TracingProvider = require('@fxa/shared/otel');
 
 const { createNoopStatsd } = require('../lib/noop-statsd');
 const { AppError: error } = require('@fxa/accounts/errors');
@@ -495,7 +495,7 @@ async function run(config) {
     config.domain
   );
   const Password = require('../lib/crypto/password')(log, config);
-  const customs = new Customs(config.customsUrl, log, error, statsd, rateLimit);
+  const customs = new Customs(log, error, statsd, rateLimit);
   const zendeskClient = require('../lib/zendesk-client').createZendeskClient(
     config
   );

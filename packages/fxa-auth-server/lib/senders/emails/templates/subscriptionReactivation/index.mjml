@@ -8,7 +8,7 @@
   <mj-column>
     <mj-text css-class="text-header">
       <% if (isFreeTrialReactivation) { %>
-        <span data-l10n-id="subscriptionReactivation-freeTrial-title" data-l10n-args="<%= JSON.stringify({productName}) %>">Thank you for reactivating your <%- productName %> trial!</span>
+        <span data-l10n-id="subscriptionReactivation-free-trial-title" data-l10n-args="<%= JSON.stringify({productName}) %>">Thank you for reactivating your <%- productName %> free trial!</span>
       <% } else { %>
         <span data-l10n-id="subscriptionReactivation-title" data-l10n-args="<%= JSON.stringify({productName}) %>">Thank you for reactivating your <%- productName %> subscription!</span>
       <% } %>

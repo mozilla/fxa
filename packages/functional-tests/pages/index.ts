@@ -20,6 +20,8 @@ import { PostVerifyPage } from './postVerify';
 import { RecoveryKeyPage } from './settings/recoveryKey';
 import { RecoveryPhoneSetupPage } from './settings/recoveryPhone';
 import { RelierPage } from './relier';
+import { UntrustedRelierPage } from './untrustedRelier';
+import { PermissionsPage } from './permissions';
 import { ResetPasswordPage } from './resetPassword';
 import { SecondaryEmailPage } from './settings/secondaryEmail';
 import { SettingsPage } from './settings';
@@ -62,6 +64,8 @@ export function create(page: Page, target: BaseTarget) {
     recoveryKey: new RecoveryKeyPage(page, target),
     recoveryPhone: new RecoveryPhoneSetupPage(page, target),
     relier: new RelierPage(page, target),
+    untrustedRelier: new UntrustedRelierPage(page, target),
+    permissions: new PermissionsPage(page, target),
     resetPassword: new ResetPasswordPage(page, target),
     secondaryEmail: new SecondaryEmailPage(page, target),
     settings: new SettingsPage(page, target),

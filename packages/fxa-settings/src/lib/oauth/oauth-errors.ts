@@ -145,6 +145,11 @@ export const OAUTH_ERRORS: Record<string, AuthError> = {
     message: 'Requested authentication level could not be satisfied',
     response_error_code: 'unmet_authentication_requirements',
   },
+  PROMPT_NONE_CONSENT_REQUIRED: {
+    errno: 1101,
+    message: 'The user has not seen what this client can read',
+    response_error_code: 'consent_required',
+  },
 };
 
 export class OAuthError extends Error {

@@ -254,6 +254,14 @@ export class GenericIntegration<
     return true;
   }
 
+  /**
+   * Only an OAuth client can be untrusted. Every other integration is a
+   * first-party Firefox surface.
+   */
+  isUntrusted() {
+    return false;
+  }
+
   thirdPartyAuthParams() {
     return {};
   }

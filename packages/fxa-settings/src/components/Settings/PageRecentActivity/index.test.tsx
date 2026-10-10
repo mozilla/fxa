@@ -86,7 +86,9 @@ const expectedLabels = [
   'Recovery codes set',
   'Passkey enabled for syncing',
   'Sync setup with passkey failed',
+  'Passkey sync access removed',
   'Passkey sync access removed after password reset',
+  'Passkey sync access removal failed',
 ];
 
 describe('Recent Account Activity', () => {

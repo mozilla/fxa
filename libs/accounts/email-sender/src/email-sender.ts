@@ -336,7 +336,7 @@ export class EmailSender {
         response: info?.response,
       };
 
-      if (info?.message) {
+      if (typeof info?.message === 'string' && info.message) {
         result.message = info.message;
       }
 

@@ -55,7 +55,7 @@ test.describe('severity-1 #smoke', () => {
       await page.waitForURL(/action=email/, { timeout: 15000 });
       await signin.fillOutEmailFirstForm(email);
       await settingsPasskeyAdd.passkeyAuth.assertion(async () => {
-        await signin.passkeySigninButton.click();
+        await signin.clickPasskeySigninAfterEmailFirst();
         await page.waitForURL(/post_verify\/set_password/);
       });
 
@@ -89,7 +89,10 @@ test.describe('severity-1 #smoke', () => {
         await testAccountTracker.signUpPasswordless();
 
       // Enrol TOTP and mirror onto the tracker so cleanup can elevate AAL.
-      const secret = await enableTotpOnAccount(target.authClient, sessionToken);
+      const secret = await enableTotpOnAccount(
+        target.authClient,
+        await testAccountTracker.getMfaJwtForScope('2fa', sessionToken, email)
+      );
       const account = findPasswordlessAccount(testAccountTracker, email);
       account.secret = secret;
       account.sessionToken = sessionToken;
@@ -114,7 +117,7 @@ test.describe('severity-1 #smoke', () => {
       await page.waitForURL(/action=email/, { timeout: 15000 });
       await signin.fillOutEmailFirstForm(email);
       await settingsPasskeyAdd.passkeyAuth.assertion(async () => {
-        await signin.passkeySigninButton.click();
+        await signin.clickPasskeySigninAfterEmailFirst();
         await page.waitForURL(/post_verify\/set_password/);
       });
 

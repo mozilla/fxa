@@ -7,8 +7,8 @@ Nx targets, DB migrations, and L10N are documented there — don't duplicate).
 
 ## Toolchain versions
 
-- **Node:** `24.15.0` (pinned in `.nvmrc`; `engines.node` is `^24.15.0`). CI
-  runs on `cimg/node:24.15.0`.
+- **Node:** `24.21.0` (pinned in `.nvmrc`; `engines.node` is `^24.21.0`). CI
+  runs on `cimg/node:24.21.0`.
 - **Package manager:** Yarn `4.9.2` (Berry), pinned via `packageManager` in
   `package.json`. Do **not** use npm. Yarn workspaces live under `packages/*`;
   `libs/*` and `apps/*` are Nx projects.

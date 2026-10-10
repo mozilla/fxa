@@ -16,7 +16,6 @@ import {
   MOCK_AUTH_PW,
   MOCK_STORED_ACCOUNT,
 } from '../../pages/mocks';
-import { SensitiveData } from '../../lib/sensitive-data-client';
 import { InlineRecoveryKeySetupProps } from './interfaces';
 import { MOCK_EMAIL } from '../InlineTotpSetup/mocks';
 import { MemoryRouter } from 'react-router';
@@ -30,13 +29,18 @@ const mockAuthClient = new AuthClient('http://localhost:9000', {
   keyStretchVersion: 1,
 });
 
+const mockNavigate = jest.fn();
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useNavigate: () => mockNavigate,
+}));
+
 jest.mock('fxa-react/lib/utils', () => ({
   ...jest.requireActual('fxa-react/lib/utils'),
   hardNavigate: jest.fn(),
 }));
 
 const mockSensitiveDataClient = createMockSensitiveDataClient();
-mockSensitiveDataClient.getDataType = jest.fn();
 
 function mockModelsModule() {
   mockAuthClient.sessionReauthWithAuthPW = jest
@@ -53,11 +57,11 @@ function mockModelsModule() {
   (ModelsModule.useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient
   );
-  mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
+  mockSensitiveDataClient.AuthData = {
     emailForAuth: 'bloop@gmail.com',
     authPW: MOCK_AUTH_PW,
     unwrapBKey: MOCK_UNWRAP_BKEY,
-  });
+  };
 }
 
 // Call this when testing local storage
@@ -113,20 +117,16 @@ describe('InlineRecoveryKeySetupContainer', () => {
       </MemoryRouter>
     );
 
-    expect(hardNavigateSpy).toHaveBeenCalledWith(
-      '/pair?showSuccessMessage=true&pairReason=password_login'
-    );
+    expect(mockNavigate).toHaveBeenCalledWith('/pair');
+    expect(hardNavigateSpy).not.toHaveBeenCalled();
     expect(InlineRecoveryKeySetupModule.default).not.toHaveBeenCalled();
   });
 
-  it('gets data from sensitive data client, renders component', async () => {
+  it('renders component', async () => {
     render(
       <MemoryRouter>
         <InlineRecoveryKeySetupContainer />
       </MemoryRouter>
-    );
-    expect(mockSensitiveDataClient.getDataType).toHaveBeenCalledWith(
-      SensitiveData.Key.Auth
     );
     expect(InlineRecoveryKeySetupModule.default).toHaveBeenCalled();
   });

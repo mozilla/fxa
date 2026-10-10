@@ -4,7 +4,7 @@
 
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { isEmailMask } from 'fxa-shared/email/helpers';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppLayout from '../../components/AppLayout';
 import CardHeader, {
@@ -18,6 +18,7 @@ import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import firefox from '../../lib/channels/firefox';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import GleanMetrics from '../../lib/glean';
+import { useGleanView } from '../../lib/glean/useGleanView';
 import { useNavigateWithQuery } from '../../lib/hooks';
 import {
   logViewEvent,
@@ -34,7 +35,6 @@ import {
 } from '../../models';
 import { SignupFormData, SignupProps } from './interfaces';
 import Banner from '../../components/Banner';
-import { SensitiveData } from '../../lib/sensitive-data-client';
 import { checkPaymentMethodsWillSync } from '../../lib/sync-engines';
 import FormPasswordWithInlineCriteria from '../../components/FormPasswordWithInlineCriteria';
 import CmsLogo from '../../components/CmsLogo';
@@ -60,9 +60,7 @@ export const Signup = ({
 
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
-  useEffect(() => {
-    GleanMetrics.registration.view();
-  }, []);
+  useGleanView(() => GleanMetrics.registration.view());
 
   const isOAuth = isOAuthIntegration(integration);
   const isOAuthNative = isOAuthNativeIntegration(integration);
@@ -153,10 +151,10 @@ export const Signup = ({
         storeAccountData(accountData);
 
         // Set these for use in ConfirmSignupCode
-        sensitiveDataClient.setDataType(SensitiveData.Key.Auth, {
+        sensitiveDataClient.AuthData = {
           keyFetchToken: data.signUp.keyFetchToken,
           unwrapBKey: data.unwrapBKey,
-        });
+        };
 
         if (isSync) {
           const syncEngines = {

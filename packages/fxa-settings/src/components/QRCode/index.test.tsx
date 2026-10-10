@@ -44,6 +44,13 @@ describe('QRCode', () => {
     expect(container.firstChild).toHaveClass('my-10', 'mx-auto');
   });
 
+  it('opts the quiet zone out of forced-colors mode', () => {
+    const { container } = renderWithLocalizationProvider(
+      <QRCode value={VALUE} localizedLabel={LABEL} />
+    );
+    expect(container.firstChild).toHaveClass('forced-color-adjust-none');
+  });
+
   it('overlays the logo when logoSrc is provided', () => {
     const { container } = renderWithLocalizationProvider(
       <QRCode value={VALUE} localizedLabel={LABEL} logoSrc="logo.svg" />

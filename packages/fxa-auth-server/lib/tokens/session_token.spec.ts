@@ -44,6 +44,7 @@ interface SessionTokenLike {
   copyTokenState(): Promise<SessionTokenLike>;
   ttl(asOf?: number): number;
   expired(asOf?: number): boolean;
+  disabledAt: number | null;
 }
 
 const TOKEN = {
@@ -67,6 +68,19 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
   };
   const tokens = require('./index')(log, config);
   const SessionToken = tokens.SessionToken;
+
+  it('carries disabledAt from the account record', async () => {
+    const token: SessionTokenLike = await SessionToken.create({
+      ...TOKEN,
+      disabledAt: 1_700_000_000_000,
+    });
+    expect(token.disabledAt).toBe(1_700_000_000_000);
+  });
+
+  it('defaults disabledAt to null', async () => {
+    const token: SessionTokenLike = await SessionToken.create(TOKEN);
+    expect(token.disabledAt).toBeNull();
+  });
 
   it('interface is correct', async () => {
     const token: SessionTokenLike = await SessionToken.create(TOKEN);

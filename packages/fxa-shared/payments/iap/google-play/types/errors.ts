@@ -17,6 +17,7 @@
 // Possile errors when attempt to query a purchase using Play Developer API and purchase records stored in Firestore
 export enum PurchaseQueryError {
   INVALID_TOKEN = 'InvalidToken',
+  MISSING_SKU = 'MissingSku',
   OTHER_ERROR = 'OtherError',
 }
 

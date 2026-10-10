@@ -828,4 +828,23 @@ describe('FxA Email Renderer', () => {
     expect(email).toBeDefined();
     expect(email.html).toMatchSnapshot('matches full email snapshot');
   });
+
+  it('does not render EJS in a Fluent value', async () => {
+    const subject = {
+      id: 'newDeviceLogin-subject',
+      message: 'New sign-in to <%- clientName %>',
+    };
+    const result = await renderer.localizeAndRender(undefined, subject, {
+      acceptLanguage: 'it',
+      template: 'newDeviceLogin',
+      version: 1,
+      layout: 'fxa',
+      includes: { subject },
+      cssPath: mockCssPath,
+      subject: '',
+      clientName: '<%= 6 * 7 %>',
+    });
+    expect(result).toContain('<%= 6 * 7 %>');
+    expect(result).not.toContain('42');
+  });
 });

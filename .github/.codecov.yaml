@@ -38,7 +38,6 @@ flags:
   many:
     paths:
       - packages/fxa-admin-panel
-      - packages/fxa-customs-server
       - packages/fxa-profile-server
       - packages/fxa-shared
     carryforward: true

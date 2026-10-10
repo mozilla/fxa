@@ -29,7 +29,11 @@ const DownloadFirefox = () => (
       <SyncDevicesImage className="mt-10 h-[160px] w-auto" />
 
       <div className="mt-10 flex w-full">
-        <LinkExternal href={LINK.FX_DESKTOP} className="cta-primary cta-xl">
+        <LinkExternal
+          href={LINK.FX_DESKTOP}
+          gleanDataAttrs={{ id: 'dtm_desktop_download_submit' }}
+          className="cta-primary cta-xl"
+        >
           <FtlMsg id="pair2-authority-download-firefox-cta">
             Download Firefox
           </FtlMsg>

@@ -5,6 +5,7 @@
 // @ts-ignore
 import './styles/tailwind.out.css';
 
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import sentryMetrics from 'fxa-shared/sentry/browser';
 import { AppErrorBoundary } from './components/ErrorBoundaries';
@@ -12,12 +13,15 @@ import App from './components/App';
 import { NimbusProvider } from './models/contexts/NimbusContext';
 import config, { readConfigMeta } from './lib/config';
 import { searchParams } from './lib/utilities';
+import { capturePairingChannelParams } from './lib/pairing-channel-params';
 import { AppContext, initializeAppContext } from './models';
 import { ThemeProvider } from './models/contexts/ThemeContext';
 import Storage from './lib/storage';
+import { restorePairingAttribution } from './lib/pairing-attribution';
 import CookiesDisabled from './pages/CookiesDisabled';
 import { BrowserRouter } from 'react-router';
 import { DynamicLocalizationProvider } from './contexts/DynamicLocalizationContext';
+import { reportL10nError } from './lib/l10n-error-reporter';
 
 export interface FlowQueryParams {
   broker?: string;
@@ -45,6 +49,16 @@ export interface QueryParams extends FlowQueryParams {
 }
 
 try {
+  // Fx Desktop opens the pairing-authority page with none of the
+  // attribution params it gave /pair. Restore them from the hand-off stash before
+  // the router — and every UrlQueryData — reads the URL. Mirrors
+  // public/query-fix.js. No-op on every other route.
+  restorePairingAttribution();
+
+  // First, before anything can read the URL: the pairing channel key lives in
+  // the fragment, and Glean's automatic events report window.location.href.
+  capturePairingChannelParams();
+
   const flowQueryParams = searchParams(window.location.search) as QueryParams;
 
   // Populate config
@@ -83,7 +97,10 @@ try {
     !localStorageEnabled &&
     window.location.pathname !== '/cookies_disabled'
   ) {
-    window.location.replace('/cookies_disabled');
+    // The query must survive the redirect: the functional tests simulate
+    // disabled storage with a `disable_local_storage` param that
+    // Storage.testStorage reads from location.search on every check.
+    window.location.replace('/cookies_disabled' + window.location.search);
   }
 
   const View = localStorageEnabled
@@ -91,21 +108,25 @@ try {
     : () => <CookiesDisabled />;
 
   const root = createRoot(document.getElementById('root') as HTMLElement);
-  // TODO: re-enable strict mode in FXA-14313
   root.render(
-    <BrowserRouter>
-      <DynamicLocalizationProvider baseDir={config.l10n.baseUrl}>
-        <AppErrorBoundary>
-          <AppContext.Provider value={appContext}>
-            <NimbusProvider>
-              <ThemeProvider enabled={config.darkMode?.enabled}>
-                <View />
-              </ThemeProvider>
-            </NimbusProvider>
-          </AppContext.Provider>
-        </AppErrorBoundary>
-      </DynamicLocalizationProvider>
-    </BrowserRouter>
+    <StrictMode>
+      <BrowserRouter>
+        <DynamicLocalizationProvider
+          baseDir={config.l10n.baseUrl}
+          reportBundleError={reportL10nError}
+        >
+          <AppErrorBoundary>
+            <AppContext.Provider value={appContext}>
+              <NimbusProvider>
+                <ThemeProvider enabled={config.darkMode?.enabled}>
+                  <View />
+                </ThemeProvider>
+              </NimbusProvider>
+            </AppContext.Provider>
+          </AppErrorBoundary>
+        </DynamicLocalizationProvider>
+      </BrowserRouter>
+    </StrictMode>
   );
 } catch (error) {
   console.error('Error initializing FXA Settings', error);

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import * as Sentry from '@sentry/browser';
@@ -16,8 +16,6 @@ import {
 } from '../../../../models';
 import { navigateWithQuery } from '../../../../lib/utilities';
 
-const mockNavigate = jest.fn();
-
 // The channel credentials reach this page in router state rather than the URL,
 // so the location is mocked instead of driving a real router entry.
 let mockLocationState: unknown = {
@@ -27,7 +25,6 @@ let mockLocationState: unknown = {
 };
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
-  useNavigate: () => mockNavigate,
   useLocation: () => ({ state: mockLocationState }),
 }));
 
@@ -39,7 +36,9 @@ jest.mock('../../../../lib/utilities', () => ({
 type MockSupplicantIntegration = PairingSupplicantIntegration & {
   openChannel: jest.Mock;
   supplicantApprove: jest.Mock;
-  destroy: jest.Mock;
+  cancel: jest.Mock;
+  /** Mirrors the real fail(): moves to Failed, then emits the state change. */
+  mockFail: () => void;
 };
 
 /**
@@ -47,29 +46,44 @@ type MockSupplicantIntegration = PairingSupplicantIntegration & {
  * the real prototype because the container narrows on `instanceof` before it
  * touches any of it.
  */
-function mockSupplicantIntegration(): MockSupplicantIntegration {
+function mockSupplicantIntegration({
+  canceledByAuthority = false,
+} = {}): MockSupplicantIntegration {
   const integration = Object.create(
     PairingSupplicantIntegration.prototype
   ) as MockSupplicantIntegration;
 
-  // Both are getters on the prototype, so they cannot be assigned.
+  let state = SupplicantState.WaitingForAuthorizations;
+
+  // All four are getters on the prototype, so they cannot be assigned.
+  Object.defineProperty(integration, 'state', { get: () => state });
   Object.defineProperty(integration, 'remoteMetadata', {
     get: () => MOCK_METADATA_WITH_DEVICE_NAME,
   });
   Object.defineProperty(integration, 'email', { get: () => MOCK_EMAIL });
+  Object.defineProperty(integration, 'canceledByAuthority', {
+    get: () => canceledByAuthority,
+  });
 
   return Object.assign(integration, {
     openChannel: jest.fn().mockResolvedValue(undefined),
     supplicantApprove: jest.fn().mockResolvedValue(undefined),
-    destroy: jest.fn().mockResolvedValue(undefined),
+    cancel: jest.fn().mockResolvedValue(undefined),
     onStateChange: null,
+    mockFail: () => {
+      state = SupplicantState.Failed;
+      integration.onStateChange?.(SupplicantState.Failed);
+    },
   });
 }
 
 const emitState = (
   integration: MockSupplicantIntegration,
   state: SupplicantState
-) => (integration as PairingSupplicantIntegration).onStateChange?.(state);
+) =>
+  act(() => {
+    (integration as PairingSupplicantIntegration).onStateChange?.(state);
+  });
 
 // This container owns the supplicant's end of the channel: it opens one from
 // the credentials the QR carried, then waits for the authority's metadata
@@ -148,12 +162,11 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
 
     expect(navigateWithQuery).toHaveBeenCalledWith(
       '/pair/supplicant/approve_signin',
-      {},
-      true
+      { replace: true }
     );
   });
 
-  it('navigates to the cancel screen when pairing fails', async () => {
+  it('blames a timeout when pairing fails on its own', async () => {
     renderContainer();
     await waitFor(() => expect(integration.onStateChange).toBeTruthy());
 
@@ -161,23 +174,47 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
 
     expect(navigateWithQuery).toHaveBeenCalledWith(
       '/pair/supplicant/timeout_and_cancel',
-      {},
+      { state: { reason: 'timeout' } },
+      true
+    );
+  });
+
+  // The desktop user cancelling is not a wait this user ever made, so the
+  // dead-end screen has to name the cancel instead of a timeout.
+  it('names the cancel when the authority cancelled', async () => {
+    integration = mockSupplicantIntegration({ canceledByAuthority: true });
+    renderContainer();
+    await waitFor(() => expect(integration.onStateChange).toBeTruthy());
+
+    emitState(integration, SupplicantState.Failed);
+
+    expect(navigateWithQuery).toHaveBeenCalledWith(
+      '/pair/supplicant/timeout_and_cancel',
+      { state: { reason: 'canceled' } },
       true
     );
   });
 
   // A channel that never opens leaves the user on a spinner forever, so the
   // failure has to route rather than disappear into an unhandled rejection.
-  it('reports and leaves the screen when the channel cannot be opened', async () => {
+  // The integration fails itself before rejecting, and that state change is
+  // the one navigation; the rejection handler must not add a second.
+  it('reports and leaves the screen once when the channel cannot be opened', async () => {
     const err = new Error('channel server unreachable');
-    integration.openChannel.mockRejectedValue(err);
+    integration.openChannel.mockImplementation(async () => {
+      integration.mockFail();
+      throw err;
+    });
 
     renderContainer();
 
     await waitFor(() => expect(captureException).toHaveBeenCalledWith(err));
-    expect(mockNavigate).toHaveBeenCalledWith(
-      '/pair/supplicant/timeout_and_cancel'
+    expect(navigateWithQuery).toHaveBeenCalledWith(
+      '/pair/supplicant/timeout_and_cancel',
+      { state: { reason: 'timeout' } },
+      true
     );
+    expect(navigateWithQuery).toHaveBeenCalledTimes(1);
   });
 
   describe('once the user can act', () => {
@@ -189,31 +226,79 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
       return result;
     };
 
-    it('approves on the pairing channel when the user connects', async () => {
+    // The integration emits WaitingForAuthority once the approval is sent, so
+    // that state change is the one navigation. A second one from the connect
+    // handler pushed a duplicate history entry without the query string.
+    it('navigates to approve_signin exactly once when the user connects', async () => {
       const user = userEvent.setup();
+      integration.supplicantApprove.mockImplementation(async () => {
+        emitState(integration, SupplicantState.WaitingForAuthority);
+      });
       await renderReady();
 
-      await user.click(
-        screen.getByRole('button', { name: 'Connect' })
-      );
+      await user.click(screen.getByRole('button', { name: 'Connect' }));
 
       expect(integration.supplicantApprove).toHaveBeenCalledTimes(1);
       await waitFor(() =>
-        expect(mockNavigate).toHaveBeenCalledWith(
-          '/pair/supplicant/approve_signin'
+        expect(navigateWithQuery).toHaveBeenCalledWith(
+          '/pair/supplicant/approve_signin',
+          { replace: true }
         )
       );
+      expect(navigateWithQuery).toHaveBeenCalledTimes(1);
     });
 
-    // The reason has to travel with the navigation: without it the dead-end
-    // screen blames a timeout for a pairing the user deliberately stopped.
-    it('closes the channel before leaving for the cancel screen', async () => {
+    // Sending the approval fails the integration before it rejects, so the
+    // Failed state change already routed; the handler must not route again.
+    it('leaves for the timeout screen once when the approval cannot be sent', async () => {
+      const user = userEvent.setup();
+      const err = new Error('channel server unreachable');
+      integration.supplicantApprove.mockImplementation(async () => {
+        integration.mockFail();
+        throw err;
+      });
+      await renderReady();
+
+      await user.click(screen.getByRole('button', { name: 'Connect' }));
+
+      await waitFor(() => expect(captureException).toHaveBeenCalledWith(err));
+      expect(navigateWithQuery).toHaveBeenCalledWith(
+        '/pair/supplicant/timeout_and_cancel',
+        { state: { reason: 'timeout' } },
+        true
+      );
+      expect(navigateWithQuery).toHaveBeenCalledTimes(1);
+    });
+
+    // A rejection that bypasses fail(), such as the channel having been torn
+    // down, emits no state change, so the handler is the only way off the page.
+    it('leaves for the timeout screen when the approval rejects without failing the channel', async () => {
+      const user = userEvent.setup();
+      const err = new Error('Missing channel!');
+      integration.supplicantApprove.mockRejectedValue(err);
+      await renderReady();
+
+      await user.click(screen.getByRole('button', { name: 'Connect' }));
+
+      await waitFor(() => expect(captureException).toHaveBeenCalledWith(err));
+      expect(navigateWithQuery).toHaveBeenCalledWith(
+        '/pair/supplicant/timeout_and_cancel',
+        { replace: true, state: { reason: 'timeout' } }
+      );
+      expect(navigateWithQuery).toHaveBeenCalledTimes(1);
+    });
+
+    // The authority is left waiting on this channel, so it has to be told the
+    // pairing is over rather than left to infer it from the channel closing.
+    // The reason travels with the navigation for the same reason: without it
+    // this dead-end screen blames a timeout for a pairing the user stopped.
+    it('cancels the pairing before leaving for the cancel screen', async () => {
       const user = userEvent.setup();
       await renderReady();
 
       await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
-      await waitFor(() => expect(integration.destroy).toHaveBeenCalled());
+      await waitFor(() => expect(integration.cancel).toHaveBeenCalled());
       expect(navigateWithQuery).toHaveBeenCalledWith(
         '/pair/supplicant/timeout_and_cancel',
         { state: { reason: 'canceled' } },
@@ -226,7 +311,7 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
     it('still leaves for the cancel screen when the channel cannot be closed', async () => {
       const user = userEvent.setup();
       const err = new Error('channel server unreachable');
-      integration.destroy.mockRejectedValue(err);
+      integration.cancel.mockRejectedValue(err);
       await renderReady();
 
       await user.click(screen.getByRole('button', { name: 'Cancel' }));
@@ -249,7 +334,7 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
 
     unmount();
 
-    expect(integration.destroy).not.toHaveBeenCalled();
+    expect(integration.cancel).not.toHaveBeenCalled();
   });
 
   // The flip side: the handler must not outlive the page. The integration lasts

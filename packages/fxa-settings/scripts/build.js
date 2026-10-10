@@ -81,6 +81,11 @@ const hashFile = (name) =>
 process.env.REACT_APP_QUERY_FIX_HASH = hashFile('query-fix.js');
 process.env.REACT_APP_LANG_FIX_HASH = hashFile('lang-fix.js');
 
+// Embed the hashed l10n file map into index.html so the client does not have to
+// fetch the manifest.
+const { encodeL10nAssetMap } = require('./l10n-asset-map');
+process.env.REACT_APP_L10N_ASSET_MAP = encodeL10nAssetMap();
+
 // These sizes are pretty large. We'll warn for bundles exceeding them.
 const WARN_AFTER_BUNDLE_GZIP_SIZE = 512 * 1024;
 const WARN_AFTER_CHUNK_GZIP_SIZE = 1024 * 1024;

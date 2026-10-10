@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import base64url from 'base64url';
 import crypto from 'crypto';
 import { normalizeEmail } from 'fxa-shared/email/helpers';
 import IORedis from 'ioredis';
@@ -395,10 +394,11 @@ describe('#integration - remote db', () => {
       type: 'mobile',
       availableCommands: { foo: 'bar', wibble: 'wobble' },
       pushCallback: 'https://foo/bar',
-      pushPublicKey: base64url(
-        Buffer.concat([Buffer.from('\x04'), crypto.randomBytes(64)])
-      ),
-      pushAuthKey: base64url(crypto.randomBytes(16)),
+      pushPublicKey: Buffer.concat([
+        Buffer.from('\x04'),
+        crypto.randomBytes(64),
+      ]).toString('base64url'),
+      pushAuthKey: crypto.randomBytes(16).toString('base64url'),
     };
     const conflictingDeviceInfo: any = {
       id: crypto.randomBytes(16).toString('hex'),

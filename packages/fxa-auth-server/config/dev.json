@@ -8,7 +8,16 @@
   "contentServer": {
     "url": "http://localhost:3030"
   },
-  "customsUrl": "none",
+  "googleAuthConfig": {
+    "tokenEndpoint": "http://localhost:9300/token",
+    "issuer": "http://localhost:9300",
+    "jwksUri": "http://localhost:9300/jwks"
+  },
+  "appleAuthConfig": {
+    "tokenEndpoint": "http://localhost:9300/token",
+    "issuer": "http://localhost:9300",
+    "jwksUri": "http://localhost:9300/jwks"
+  },
   "lockoutEnabled": true,
   "log": {
     "fmt": "pretty",
@@ -180,12 +189,6 @@
     "contentUrl": "http://localhost:3030/oauth/",
     "clientManagement": {
       "enabled": true
-    },
-    "clientIdToServiceNames": {
-      "dcdb5ae7add825d2": "123done",
-      "5882386c6d801776": "firefox-desktop",
-      "98e6508e88680e1a": "fxa-settings",
-      "8269bacd7bbc7f80": "thunderbird"
     },
     "clients": [
       {

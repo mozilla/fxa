@@ -41,6 +41,26 @@ const validPayload = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
+/**
+ * A `keysChangedAt` older than the stored wrap, so staleness never fires and a
+ * test about some other condition can say so.
+ */
+const KEYS_CHANGED_AT = 1_700_000_000_000;
+const WRAP_CREATED_AT = KEYS_CHANGED_AT + 10_000;
+
+/** The stored row, binary as the repository returns it. */
+const storedWrap = (overrides: Record<string, unknown> = {}) => ({
+  uid: Buffer.from(UID, 'hex'),
+  credentialId: Buffer.from(CREDENTIAL_ID, 'base64url'),
+  pkR: Buffer.alloc(V1_WIDTHS.pkR, 0x04),
+  prfWrappedSkR: Buffer.alloc(V1_WIDTHS.prfWrappedSkR, 0x11),
+  keyWrapIv: Buffer.alloc(V1_WIDTHS.keyWrapIv, 0x22),
+  hpkeEncapsulatedSecret: Buffer.alloc(V1_WIDTHS.hpkeEncapsulatedSecret, 0x33),
+  hpkeSealedKb: Buffer.alloc(V1_WIDTHS.hpkeSealedKb, 0x44),
+  createdAt: WRAP_CREATED_AT,
+  ...overrides,
+});
+
 const config = {
   passkeys: { enabled: true, passwordlessSyncEnabled: true },
 } as unknown as ConfigType;
@@ -85,10 +105,15 @@ describe('passkey wraps routes', () => {
     db = createMock<DB>();
     db.account.mockResolvedValue({
       primaryEmail: { email: TEST_EMAIL },
+      keysChangedAt: KEYS_CHANGED_AT,
     } as Awaited<ReturnType<DB['account']>>);
     customs = createMock<Customs>();
     service = createMock<PasskeyService>();
     service.storePasskeyWrap.mockResolvedValue('created');
+    service.getPasskeyWrap.mockResolvedValue(
+      storedWrap() as Awaited<ReturnType<PasskeyService['getPasskeyWrap']>>
+    );
+    service.deletePasskeyWrap.mockResolvedValue(true);
     Container.set(PasskeyService, service);
   });
 
@@ -114,7 +139,8 @@ describe('passkey wraps routes', () => {
           ),
           hpkeSealedKb: Buffer.alloc(V1_WIDTHS.hpkeSealedKb, 0x44),
         },
-        expect.any(Number)
+        expect.any(Number),
+        KEYS_CHANGED_AT
       );
     });
 
@@ -161,6 +187,31 @@ describe('passkey wraps routes', () => {
     it('refuses a token with no credential binding', async () => {
       await expect(run(validPayload(), {})).rejects.toThrow();
       expect(service.storePasskeyWrap).not.toHaveBeenCalled();
+    });
+
+    // One token can be replayed until it expires, so the binding has to be
+    // refused behind the rate limit rather than ahead of it.
+    it('rate-limits a refused binding', async () => {
+      await expect(
+        run(validPayload(), { cid: 'some-other-cred' })
+      ).rejects.toThrow();
+
+      expect(customs.checkAuthenticated).toHaveBeenCalledWith(
+        expect.any(Object),
+        UID,
+        TEST_EMAIL,
+        'passkeyWrapsCreate'
+      );
+    });
+
+    it('records no wrap_creation_failure when customs refuses first', async () => {
+      customs.checkAuthenticated.mockRejectedValue(AppError.tooManyRequests(1));
+
+      await expect(
+        run(validPayload(), { cid: 'some-other-cred' })
+      ).rejects.toThrow();
+
+      expect(recordSecurityEvent).not.toHaveBeenCalled();
     });
 
     it('rate-limits against the current primary email', async () => {
@@ -218,6 +269,375 @@ describe('passkey wraps routes', () => {
 
       await expect(run()).rejects.toThrow();
       expect(service.storePasskeyWrap).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('GET /passkey/wraps/{credentialId}', () => {
+    const buildGetRoute = (cfg: ConfigType = config) =>
+      passkeyWrapsRoutes(customs, db, cfg, log).find(
+        (r) => r.path === '/passkey/wraps/{credentialId}' && r.method === 'GET'
+      ) as any;
+
+    const runGet = (
+      params = { credentialId: CREDENTIAL_ID },
+      { cid }: { cid?: string } = { cid: CREDENTIAL_ID }
+    ) =>
+      buildGetRoute().handler({
+        headers: { 'user-agent': 'test-agent' },
+        auth: { credentials: { uid: UID, id: 'session-token-id', cid } },
+        params,
+        app: { clientAddress: '127.0.0.1' },
+      });
+
+    it('returns the envelope base64url-encoded, with its createdAt', async () => {
+      await expect(runGet()).resolves.toEqual({
+        pkR: Buffer.alloc(V1_WIDTHS.pkR, 0x04).toString('base64url'),
+        prfWrappedSkR: Buffer.alloc(V1_WIDTHS.prfWrappedSkR, 0x11).toString(
+          'base64url'
+        ),
+        keyWrapIv: Buffer.alloc(V1_WIDTHS.keyWrapIv, 0x22).toString(
+          'base64url'
+        ),
+        hpkeEncapsulatedSecret: Buffer.alloc(
+          V1_WIDTHS.hpkeEncapsulatedSecret,
+          0x33
+        ).toString('base64url'),
+        hpkeSealedKb: Buffer.alloc(V1_WIDTHS.hpkeSealedKb, 0x44).toString(
+          'base64url'
+        ),
+        createdAt: WRAP_CREATED_AT,
+      });
+    });
+
+    it('never returns uid or credentialId from the stored row', async () => {
+      const result = await runGet();
+
+      expect(result).not.toHaveProperty('uid');
+      expect(result).not.toHaveProperty('credentialId');
+    });
+
+    it('withholds a wrap stored before keysChangedAt', async () => {
+      db.account.mockResolvedValue({
+        primaryEmail: { email: TEST_EMAIL },
+        keysChangedAt: WRAP_CREATED_AT + 1,
+      } as Awaited<ReturnType<DB['account']>>);
+
+      await expect(runGet()).rejects.toMatchObject({
+        code: 404,
+        errno: ERRNO.PASSKEY_WRAP_STALE,
+      });
+    });
+
+    it('serves a wrap stored in the same millisecond as keysChangedAt', async () => {
+      db.account.mockResolvedValue({
+        primaryEmail: { email: TEST_EMAIL },
+        keysChangedAt: WRAP_CREATED_AT,
+      } as Awaited<ReturnType<DB['account']>>);
+
+      await expect(runGet()).resolves.toHaveProperty(
+        'createdAt',
+        WRAP_CREATED_AT
+      );
+    });
+
+    it('records a wrap_retrieved event on a returned envelope', async () => {
+      await runGet();
+
+      expect(recordSecurityEvent).toHaveBeenCalledWith(
+        'account.passkey.wrap_retrieved',
+        expect.objectContaining({ db, request: expect.any(Object) })
+      );
+    });
+
+    it('records a wrap_retrieval_failure event when the fetch throws', async () => {
+      service.getPasskeyWrap.mockRejectedValue(AppError.passkeyWrapNotFound());
+
+      await expect(runGet()).rejects.toMatchObject({
+        errno: ERRNO.PASSKEY_WRAP_NOT_FOUND,
+      });
+      expect(recordSecurityEvent).toHaveBeenCalledWith(
+        'account.passkey.wrap_retrieval_failure',
+        expect.objectContaining({ db, request: expect.any(Object) })
+      );
+    });
+
+    it('records a wrap_retrieval_failure event on a stale wrap', async () => {
+      db.account.mockResolvedValue({
+        primaryEmail: { email: TEST_EMAIL },
+        keysChangedAt: WRAP_CREATED_AT + 1,
+      } as Awaited<ReturnType<DB['account']>>);
+
+      await expect(runGet()).rejects.toMatchObject({
+        errno: ERRNO.PASSKEY_WRAP_STALE,
+      });
+      expect(recordSecurityEvent).toHaveBeenCalledWith(
+        'account.passkey.wrap_retrieval_failure',
+        expect.objectContaining({ db, request: expect.any(Object) })
+      );
+    });
+
+    it('records a wrap_retrieval_failure event for an unbound token', async () => {
+      await expect(
+        runGet({ credentialId: CREDENTIAL_ID }, { cid: 'some-other-cred' })
+      ).rejects.toThrow();
+
+      expect(recordSecurityEvent).toHaveBeenCalledWith(
+        'account.passkey.wrap_retrieval_failure',
+        expect.objectContaining({ db, request: expect.any(Object) })
+      );
+    });
+
+    it('surfaces the fetch error even when the audit write fails', async () => {
+      service.getPasskeyWrap.mockRejectedValue(AppError.passkeyWrapNotFound());
+      (recordSecurityEvent as jest.Mock).mockRejectedValueOnce(
+        new Error('audit write failed')
+      );
+
+      await expect(runGet()).rejects.toMatchObject({
+        errno: ERRNO.PASSKEY_WRAP_NOT_FOUND,
+      });
+    });
+
+    it('returns the envelope even when the audit write fails', async () => {
+      (recordSecurityEvent as jest.Mock).mockRejectedValueOnce(
+        new Error('audit write failed')
+      );
+
+      await expect(runGet()).resolves.toHaveProperty(
+        'createdAt',
+        WRAP_CREATED_AT
+      );
+    });
+
+    it('rate-limits against the current primary email', async () => {
+      await runGet();
+
+      expect(customs.checkAuthenticated).toHaveBeenCalledWith(
+        expect.any(Object),
+        UID,
+        TEST_EMAIL,
+        'passkeyWrapsGet'
+      );
+    });
+
+    it('refuses a token minted for a different credential', async () => {
+      await expect(
+        runGet({ credentialId: CREDENTIAL_ID }, { cid: 'some-other-cred' })
+      ).rejects.toMatchObject({ errno: ERRNO.INVALID_MFA_TOKEN });
+      expect(service.getPasskeyWrap).not.toHaveBeenCalled();
+    });
+
+    it('refuses a token with no credential binding', async () => {
+      await expect(
+        runGet({ credentialId: CREDENTIAL_ID }, {})
+      ).rejects.toMatchObject({ errno: ERRNO.INVALID_MFA_TOKEN });
+      expect(service.getPasskeyWrap).not.toHaveBeenCalled();
+    });
+
+    it('rate-limits a refused binding', async () => {
+      await expect(
+        runGet({ credentialId: CREDENTIAL_ID }, { cid: 'some-other-cred' })
+      ).rejects.toThrow();
+
+      expect(customs.checkAuthenticated).toHaveBeenCalledWith(
+        expect.any(Object),
+        UID,
+        TEST_EMAIL,
+        'passkeyWrapsGet'
+      );
+    });
+
+    it('accepts a binding that differs only in base64url encoding', async () => {
+      const padded = `${CREDENTIAL_ID}=`;
+
+      await expect(
+        runGet({ credentialId: CREDENTIAL_ID }, { cid: padded })
+      ).resolves.toHaveProperty('createdAt', WRAP_CREATED_AT);
+    });
+
+    // `payload: false` is load-bearing: the mfa scheme implements no payload
+    // method, and Hapi refuses to register the route without the opt-out.
+    it('requires an mfa:passkey token', () => {
+      expect(buildGetRoute().options.auth).toEqual({
+        strategy: 'mfa',
+        scope: ['mfa:passkey'],
+        payload: false,
+      });
+    });
+
+    it('gates on the passwordless sync flag', () => {
+      expect(() =>
+        buildGetRoute(disabledConfig).options.pre[0].method()
+      ).toThrow();
+    });
+
+    describe('params validation', () => {
+      let schema: Schema;
+
+      beforeEach(() => {
+        schema = buildGetRoute().options.validate.params;
+      });
+
+      it('accepts a base64url credential id', () => {
+        expect(
+          schema.validate({ credentialId: CREDENTIAL_ID }).error
+        ).toBeUndefined();
+      });
+
+      it('rejects standard base64 in place of base64url', () => {
+        expect(
+          schema.validate({ credentialId: 'AAAA/AAAAAAAAAA+' }).error
+        ).toBeDefined();
+      });
+
+      it('requires a credential id', () => {
+        expect(schema.validate({}).error).toBeDefined();
+      });
+    });
+  });
+
+  describe('DELETE /passkey/wraps/{credentialId}', () => {
+    const buildDeleteRoute = (cfg: ConfigType = config) =>
+      passkeyWrapsRoutes(customs, db, cfg, log).find(
+        (r) =>
+          r.path === '/passkey/wraps/{credentialId}' && r.method === 'DELETE'
+      ) as any;
+
+    const runDelete = (
+      params = { credentialId: CREDENTIAL_ID },
+      { cid }: { cid?: string } = { cid: CREDENTIAL_ID }
+    ) =>
+      buildDeleteRoute().handler({
+        headers: { 'user-agent': 'test-agent' },
+        auth: { credentials: { uid: UID, id: 'session-token-id', cid } },
+        params,
+        app: {
+          clientAddress: '127.0.0.1',
+          geo: { location: { country: 'United States', countryCode: 'US' } },
+        },
+      });
+
+    it('removes the wrap and reports it as deleted', async () => {
+      await expect(runDelete()).resolves.toEqual({ deleted: true });
+      expect(service.deletePasskeyWrap).toHaveBeenCalledWith(
+        UID,
+        CREDENTIAL_ID
+      );
+    });
+
+    it('records a wrap_deleted event when a wrap was removed', async () => {
+      await runDelete();
+
+      expect(recordSecurityEvent).toHaveBeenCalledWith(
+        'account.passkey.wrap_deleted',
+        expect.objectContaining({ db, request: expect.any(Object) })
+      );
+    });
+
+    it('reports a credential with no wrap as not deleted', async () => {
+      service.deletePasskeyWrap.mockResolvedValue(false);
+
+      await expect(runDelete()).resolves.toEqual({ deleted: false });
+    });
+
+    it('records no event when there was no wrap to remove', async () => {
+      service.deletePasskeyWrap.mockResolvedValue(false);
+
+      await runDelete();
+
+      expect(recordSecurityEvent).not.toHaveBeenCalled();
+    });
+
+    it('reports the delete even when the audit write fails', async () => {
+      (recordSecurityEvent as jest.Mock).mockRejectedValueOnce(
+        new Error('audit write failed')
+      );
+
+      await expect(runDelete()).resolves.toEqual({ deleted: true });
+    });
+
+    it('rate-limits against the current primary email', async () => {
+      await runDelete();
+
+      expect(customs.checkAuthenticated).toHaveBeenCalledWith(
+        expect.any(Object),
+        UID,
+        TEST_EMAIL,
+        'passkeyWrapsDelete'
+      );
+    });
+
+    it('propagates a customs rejection without deleting', async () => {
+      customs.checkAuthenticated.mockRejectedValue(AppError.tooManyRequests(1));
+
+      await expect(runDelete()).rejects.toThrow();
+      expect(service.deletePasskeyWrap).not.toHaveBeenCalled();
+    });
+
+    // Unlike the read and the write, a delete is a management action: settings
+    // must be able to turn off passwordless sign-in for one passkey from a
+    // token minted by any MFA method.
+    it('accepts a token with no credential binding', async () => {
+      await expect(
+        runDelete({ credentialId: CREDENTIAL_ID }, {})
+      ).resolves.toEqual({ deleted: true });
+    });
+
+    it('accepts a token minted for a different credential', async () => {
+      await expect(
+        runDelete({ credentialId: CREDENTIAL_ID }, { cid: 'some-other-cred' })
+      ).resolves.toEqual({ deleted: true });
+      expect(service.deletePasskeyWrap).toHaveBeenCalledWith(
+        UID,
+        CREDENTIAL_ID
+      );
+    });
+
+    // The service separates an unknown credential (errno 224) from a wrap that
+    // is already gone; only the former is an error.
+    it('propagates an unknown credential with its errno intact', async () => {
+      service.deletePasskeyWrap.mockRejectedValue(AppError.passkeyNotFound());
+
+      await expect(runDelete()).rejects.toMatchObject({
+        code: 404,
+        errno: ERRNO.PASSKEY_NOT_FOUND,
+      });
+    });
+
+    it('records a wrap_deletion_failure event when the delete throws', async () => {
+      service.deletePasskeyWrap.mockRejectedValue(new Error('db is down'));
+
+      await expect(runDelete()).rejects.toThrow('db is down');
+
+      expect(recordSecurityEvent).toHaveBeenCalledWith(
+        'account.passkey.wrap_deletion_failure',
+        expect.objectContaining({ db, request: expect.any(Object) })
+      );
+    });
+
+    it('surfaces the delete error even when the audit write fails', async () => {
+      service.deletePasskeyWrap.mockRejectedValue(AppError.passkeyNotFound());
+      (recordSecurityEvent as jest.Mock).mockRejectedValueOnce(
+        new Error('audit write failed')
+      );
+
+      await expect(runDelete()).rejects.toMatchObject({
+        errno: ERRNO.PASSKEY_NOT_FOUND,
+      });
+    });
+
+    it('requires an mfa:passkey token', () => {
+      expect(buildDeleteRoute().options.auth).toEqual({
+        strategy: 'mfa',
+        scope: ['mfa:passkey'],
+        payload: false,
+      });
+    });
+
+    it('gates on the passwordless sync flag', () => {
+      expect(() =>
+        buildDeleteRoute(disabledConfig).options.pre[0].method()
+      ).toThrow();
     });
   });
 

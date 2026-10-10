@@ -11,8 +11,8 @@
  * the `passkeyWraps` schema, so all three must move together.
  *
  * The ciphersuite lives in `suite.ts`, and each layer's domain-separation label
- * is module-local to the layer that applies it — both internal, since this file
- * is re-exported wholesale. `hpke.test.ts` pins the suite's registry ids.
+ * sits with the layer that applies it. `hpke.test.ts` pins the suite's registry
+ * ids.
  */
 
 /**
@@ -59,6 +59,13 @@ export const UID_BYTES = 16;
  * Length of `kB`. Any other length seals to the wrong width.
  */
 export const KB_BYTES = 32;
+
+/**
+ * Largest decoded `credentialId` the wrap can be stored against. The WebAuthn
+ * L2 ceiling, matching `passkeys.credentialId VARBINARY(1023)` and the route
+ * validator. Anything longer seals an envelope the server will not accept.
+ */
+export const CREDENTIAL_ID_MAX_BYTES = 1023;
 
 /**
  * Byte lengths for the v1 ciphersuite. Tests assert these, so a library or

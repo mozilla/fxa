@@ -19,6 +19,7 @@ import { ExtendedError } from 'fxa-shared/nestjs/error';
 
 import { GoogleJwtAuthGuard } from '../auth/google-jwt-auth.guard';
 import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';
+import { isDeleteUserEventReason } from '../delete-reason/delete-reason';
 import { JwtsetService } from '../jwtset/jwtset.service';
 import * as dto from '../queueworker/sqs.dto';
 
@@ -187,6 +188,9 @@ export class PubsubProxyController {
         return await this.jwtset.generateDeleteSET({
           clientId,
           uid: message.uid,
+          ...(isDeleteUserEventReason(message.reason) && {
+            reason: message.reason,
+          }),
         });
       }
       case dto.PASSWORD_RESET_EVENT:

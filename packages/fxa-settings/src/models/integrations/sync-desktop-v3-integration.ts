@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ModelDataStore } from '../../lib/model-data';
+import { SyncEngines } from '../../lib/channels/firefox';
 import { IntegrationType } from './integration';
 import { SyncBasicIntegration } from './sync-basic-integration';
 
@@ -35,5 +36,11 @@ export class SyncDesktopV3Integration extends SyncBasicIntegration {
 
   isFirefoxDesktopClient() {
     return true;
+  }
+
+  // Firefox only configures Sync from the login message when `services.sync`
+  // is present; an empty object turns it on with default engines.
+  getWebChannelServices(syncEngines?: SyncEngines) {
+    return { sync: syncEngines || {} };
   }
 }

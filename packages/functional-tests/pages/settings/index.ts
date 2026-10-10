@@ -48,6 +48,10 @@ export class SettingsPage extends SettingsLayout {
     return this.lazyRow('primary-email', PrimaryEmailRow);
   }
 
+  get errorLoadingApp() {
+    return this.page.getByTestId('error-loading-app');
+  }
+
   get secondaryEmail() {
     return this.lazyRow('secondary-email', SecondaryEmailRow);
   }

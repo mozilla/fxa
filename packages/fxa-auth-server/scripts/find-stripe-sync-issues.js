@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const program = require('commander');
+const { program } = require('commander');
 const pckg = require('../package.json');
 const config = require('../config').default.getProperties();
 const StatsD = require('hot-shots');
@@ -41,11 +41,12 @@ async function init() {
       'Only request [num] customer records to process'
     )
     .parse(process.argv);
+  const options = program.opts();
 
-  process.env.NODE_ENV = program.config || 'dev';
+  process.env.NODE_ENV = options.config || 'dev';
 
-  if (program.stripeKey) {
-    process.env.SUBHUB_STRIPE_APIKEY = program.stripeKey;
+  if (options.stripeKey) {
+    process.env.SUBHUB_STRIPE_APIKEY = options.stripeKey;
   }
 
   const db = await DB.connect(config);
@@ -54,7 +55,7 @@ async function init() {
   const stripeHelper = createStripeHelper(log, config);
   const stripe = stripeHelper.stripe;
 
-  const limit = program.limit ? parseInt(program.limit) : Infinity;
+  const limit = options.limit ? parseInt(options.limit) : Infinity;
   let count = 0;
 
   for await (const customer of stripe.customers.list()) {

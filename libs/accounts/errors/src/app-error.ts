@@ -379,6 +379,15 @@ export class AppError extends Error {
     });
   }
 
+  static accountDisabled() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.ACCOUNT_DISABLED,
+      message: 'Account disabled',
+    });
+  }
+
   static insufficientAal() {
     return new AppError({
       code: 400,
@@ -1749,6 +1758,15 @@ export class AppError extends Error {
       error: 'Not Found',
       errno: ERRNO.PASSKEY_WRAP_NOT_FOUND,
       message: 'Passkey wrap not found',
+    });
+  }
+
+  static passkeyWrapStale() {
+    return new AppError({
+      code: 404,
+      error: 'Not Found',
+      errno: ERRNO.PASSKEY_WRAP_STALE,
+      message: 'Passkey wrap is stale',
     });
   }
 

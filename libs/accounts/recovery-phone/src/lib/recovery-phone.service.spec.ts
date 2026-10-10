@@ -107,6 +107,7 @@ describe('RecoveryPhoneService', () => {
   let service: RecoveryPhoneService;
 
   beforeEach(async () => {
+    mockTwilioConfig.credentialMode = 'default';
     mockSmsManager.sendSMS.mockReturnValue({ status: 'success' });
     mockSmsManager.phoneNumberLookup.mockReturnValue({ countryCode: 'US' });
     mockSmsManager.checkMessageSegments.mockImplementation((msg: string) => {
@@ -220,6 +221,24 @@ describe('RecoveryPhoneService', () => {
 
     expect(mockSmsManager.phoneNumberLookup).toHaveBeenCalledTimes(1);
     expect(mockSmsManager.phoneNumberLookup).toHaveBeenCalledWith(to, '');
+  });
+
+  it('Will skip the country code lookup in test credential mode', async () => {
+    mockTwilioConfig.credentialMode = 'test';
+    mockOtpManager.generateCode.mockReturnValue(code);
+    mockSmsManager.phoneNumberLookup.mockRejectedValue(
+      new Error('Twilio 20429: Too many requests')
+    );
+
+    const result = await service.setupPhoneNumber(
+      uid,
+      phoneNumber,
+      mockGetFormattedMessage
+    );
+
+    expect(result).toBe(true);
+    expect(mockSmsManager.phoneNumberLookup).not.toHaveBeenCalled();
+    expect(mockSmsManager.sendSMS).toHaveBeenCalledTimes(1);
   });
 
   it('Will reject a phone number if it has been used for too many accounts', async () => {

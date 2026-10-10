@@ -14,6 +14,7 @@ import {
   PAIR_OAUTH_TIMEOUT_MS,
   PairOAuthFinishState,
   PairOAuthStartState,
+  SignedInUser,
 } from './firefox';
 
 describe('Firefox pairing WebChannel methods', () => {
@@ -338,6 +339,51 @@ describe('Firefox pairing OAuth WebChannel methods', () => {
       );
     });
 
+    // Firefox answers a command it could not handle with an error reply in
+    // place of the response.
+    it('rejects with the browser error when Firefox fails the command', async () => {
+      const promise = ff.pairOauthFinish(MOCK_FINISH_REQUEST);
+      ff.dispatchEvent(
+        new CustomEvent(FirefoxCommand.Error, {
+          detail: {
+            message: 'Error: UNKNOWN_ERROR',
+            command: FirefoxCommand.PairOauthFinish,
+          },
+        })
+      );
+      await expect(promise).rejects.toThrow('Error: UNKNOWN_ERROR');
+    });
+
+    it('keeps waiting when the browser error belongs to another command', async () => {
+      const promise = ff.pairOauthFinish(MOCK_FINISH_REQUEST);
+      ff.dispatchEvent(
+        new CustomEvent(FirefoxCommand.Error, {
+          detail: {
+            message: 'Error: UNKNOWN_ERROR',
+            command: FirefoxCommand.FxAStatus,
+          },
+        })
+      );
+      ff.dispatchEvent(
+        new CustomEvent(FirefoxCommand.PairOauthFinish, {
+          detail: MOCK_FINISH_RESPONSE,
+        })
+      );
+      await expect(promise).resolves.toEqual(MOCK_FINISH_RESPONSE);
+    });
+
+    it('stops listening for browser errors once the request times out', async () => {
+      const removeSpy = jest.spyOn(ff, 'removeEventListener');
+      const promise = ff.pairOauthFinish(MOCK_FINISH_REQUEST);
+      jest.advanceTimersByTime(FINISH_TIMEOUT_MS);
+      await promise;
+
+      expect(removeSpy).toHaveBeenCalledWith(
+        FirefoxCommand.Error,
+        expect.any(Function)
+      );
+    });
+
     it('resolves undefined when the browser does not respond', async () => {
       const promise = ff.pairOauthFinish(MOCK_FINISH_REQUEST);
       jest.advanceTimersByTime(FINISH_TIMEOUT_MS);
@@ -453,6 +499,23 @@ describe('Firefox fxaStatus', () => {
     expect(sendSpy).toHaveBeenCalledTimes(ATTEMPTS);
   });
 
+  // useFxAStatus awaits this with no catch, so a rejection would leave the
+  // page on its spinner. An error reply is treated as a missed answer instead.
+  it('resolves undefined when the browser answers fxa_status with an error', async () => {
+    const promise = ff.fxaStatus(MOCK_REQUEST);
+    for (let i = 0; i < ATTEMPTS; i++) {
+      ff.dispatchEvent(
+        new CustomEvent(FirefoxCommand.Error, {
+          detail: { message: 'boom', command: FirefoxCommand.FxAStatus },
+        })
+      );
+      await jest.advanceTimersByTimeAsync(0);
+    }
+
+    await expect(promise).resolves.toBeUndefined();
+    expect(sendSpy).toHaveBeenCalledTimes(ATTEMPTS);
+  });
+
   it('stops resending once the browser has answered', async () => {
     const promise = ff.fxaStatus(MOCK_REQUEST);
     ff.dispatchEvent(
@@ -462,5 +525,122 @@ describe('Firefox fxaStatus', () => {
 
     await jest.advanceTimersByTimeAsync(TIMEOUT_MS * ATTEMPTS);
     expect(sendSpy).toHaveBeenCalledTimes(1);
+  });
+
+  // Firefox pauses animation frames in a hidden tab, so a /pair opened in the
+  // background sends nothing until it is shown. Counting that time against the
+  // attempts would read the hidden tab as a browser that never answers.
+  it('does not start the clock before the frame that sends the message', async () => {
+    let sendFrame: FrameRequestCallback | undefined;
+    window.requestAnimationFrame = (cb: FrameRequestCallback) => {
+      sendFrame = cb;
+      return 0;
+    };
+    const onSettled = jest.fn();
+    ff.fxaStatus(MOCK_REQUEST).then(onSettled);
+
+    await jest.advanceTimersByTimeAsync(TIMEOUT_MS * ATTEMPTS);
+    expect(sendSpy).not.toHaveBeenCalled();
+    expect(onSettled).not.toHaveBeenCalled();
+
+    sendFrame!(0);
+    expect(sendSpy).toHaveBeenCalledTimes(1);
+    ff.dispatchEvent(
+      new CustomEvent(FirefoxCommand.FxAStatus, { detail: MOCK_RESPONSE })
+    );
+    await jest.advanceTimersByTimeAsync(0);
+
+    expect(onSettled).toHaveBeenCalledWith(MOCK_RESPONSE);
+  });
+});
+
+describe('Firefox requestSignedInUser', () => {
+  const MOCK_SIGNED_IN_USER: SignedInUser = {
+    email: 'user@example.com',
+    sessionToken: 'a'.repeat(64),
+    uid: 'f9416ce3703e4916a4cd6b1e665a3f1a',
+    verified: true,
+  };
+
+  let ff: Firefox;
+  let sendSpy: jest.SpyInstance;
+  const originalRAF = window.requestAnimationFrame;
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    ff = new Firefox();
+    sendSpy = jest.spyOn(ff, 'send').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    window.requestAnimationFrame = (cb: FrameRequestCallback) => {
+      cb(0);
+      return 0;
+    };
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    window.requestAnimationFrame = originalRAF;
+    jest.useRealTimers();
+  });
+
+  const request = () =>
+    ff.requestSignedInUser(
+      Constants.OAUTH_CONTEXT,
+      true,
+      Constants.SYNC_SERVICE
+    );
+
+  it('resolves with the signed in user from the fxa_status response', async () => {
+    const promise = request();
+    expect(sendSpy).toHaveBeenCalledWith(FirefoxCommand.FxAStatus, {
+      context: Constants.OAUTH_CONTEXT,
+      isPairing: true,
+      service: Constants.SYNC_SERVICE,
+    });
+
+    ff.dispatchEvent(
+      new CustomEvent(FirefoxCommand.FxAStatus, {
+        detail: { signedInUser: MOCK_SIGNED_IN_USER },
+      })
+    );
+
+    await expect(promise).resolves.toEqual(MOCK_SIGNED_IN_USER);
+  });
+
+  it('resolves undefined and stops listening once the timeout passes', async () => {
+    const removeSpy = jest.spyOn(ff, 'removeEventListener');
+    const promise = request();
+
+    await jest.advanceTimersByTimeAsync(DEFAULT_SEND_TIMEOUT_LENGTH_MS);
+
+    await expect(promise).resolves.toBeUndefined();
+    expect(removeSpy).toHaveBeenCalledWith(
+      FirefoxCommand.FxAStatus,
+      expect.any(Function)
+    );
+  });
+
+  it('does not start the clock before the frame that sends the message', async () => {
+    let sendFrame: FrameRequestCallback | undefined;
+    window.requestAnimationFrame = (cb: FrameRequestCallback) => {
+      sendFrame = cb;
+      return 0;
+    };
+    const onSettled = jest.fn();
+    request().then(onSettled);
+
+    await jest.advanceTimersByTimeAsync(DEFAULT_SEND_TIMEOUT_LENGTH_MS * 2);
+    expect(sendSpy).not.toHaveBeenCalled();
+    expect(onSettled).not.toHaveBeenCalled();
+
+    sendFrame!(0);
+    ff.dispatchEvent(
+      new CustomEvent(FirefoxCommand.FxAStatus, {
+        detail: { signedInUser: MOCK_SIGNED_IN_USER },
+      })
+    );
+    await jest.advanceTimersByTimeAsync(0);
+
+    expect(onSettled).toHaveBeenCalledWith(MOCK_SIGNED_IN_USER);
   });
 });

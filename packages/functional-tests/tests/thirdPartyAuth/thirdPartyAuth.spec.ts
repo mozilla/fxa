@@ -10,6 +10,9 @@ test.describe('severity-1 #smoke', () => {
       target,
       pages: { page, signin },
     }) => {
+      // The local stack points the button at the mock IdP; mockIdp.spec.ts
+      // covers that path end to end.
+      test.skip(target.name === 'local', 'covered by mockIdp.spec.ts');
       await page.goto(target.contentServerUrl);
       await signin.continueWithGoogleButton.click();
       await expect(page).toHaveURL(/accounts\.google\.com/);
@@ -19,6 +22,7 @@ test.describe('severity-1 #smoke', () => {
       target,
       pages: { page, signin },
     }) => {
+      test.skip(target.name === 'local', 'covered by mockIdp.spec.ts');
       await page.goto(target.contentServerUrl);
       await signin.continueWithAppleButton.click();
       await expect(page).toHaveURL(/appleid\.apple\.com/);

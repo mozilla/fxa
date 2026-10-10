@@ -14,7 +14,7 @@ import AuthClient, {
   AttachedClient as RawAttachedClient,
 } from 'fxa-auth-client/browser';
 import type { Passkey } from 'fxa-auth-client/browser';
-import { MetricsContext } from '@fxa/shared/glean';
+import { MetricsContext } from '@fxa/shared/metrics/glean';
 import {
   currentAccount,
   sessionToken,
@@ -126,7 +126,7 @@ export function mapAttachedClient(c: RawAttachedClient): AttachedClient {
       stateCode: c.location?.stateCode ?? null,
     },
     os: c.os,
-    sessionTokenId: c.sessionTokenId,
+    sessionTokenHandle: c.sessionTokenHandle,
     refreshTokenId: c.refreshTokenId,
     scope: c.scope,
   };
@@ -145,7 +145,7 @@ export interface AttachedClient {
   approximateLastAccessTimeFormatted: string | null;
   location: DeviceLocation;
   os: string | null;
-  sessionTokenId: string | null;
+  sessionTokenHandle: string | null;
   refreshTokenId: string | null;
   scope: string[] | null;
 }
@@ -181,7 +181,7 @@ export interface AccountData {
     nationalFormat: string | null;
     available: boolean;
   };
-  subscriptions: Subscription[];
+  subscriptions: Subscription[] | null;
   securityEvents: SecurityEvent[];
   passkeys: Passkey[];
 }
@@ -484,10 +484,7 @@ export class Account implements AccountData {
             });
             break;
           case 'recovery':
-            const recoveryKey = await this.authClient.recoveryKeyExists(
-              token,
-              undefined
-            );
+            const recoveryKey = await this.authClient.recoveryKeyExists(token);
             updateExtendedAccountState({
               recoveryKey: {
                 exists: recoveryKey.exists ?? false,
@@ -1038,7 +1035,7 @@ export class Account implements AccountData {
       this.authClient.attachedClientDestroy(token, {
         clientId: client.clientId,
         deviceId: client.deviceId,
-        sessionTokenId: client.sessionTokenId,
+        sessionTokenHandle: client.sessionTokenHandle,
         refreshTokenId: client.refreshTokenId,
       })
     );

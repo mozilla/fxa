@@ -17,6 +17,15 @@ module.exports = {
   transformIgnorePatterns: [
     "/node_modules/",
   ],
+  collectCoverageFrom: [
+    '**/*.ts',
+    '!**/*.spec.ts',
+    '!test/**',
+    '!scripts/**',
+    '!**/*.module.ts',
+    '!main.ts',
+    '!monitoring.ts',
+  ],
   coverageDirectory: './coverage',
   testEnvironment: 'node',
 };

@@ -3,21 +3,29 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { mockAppContext, renderWithRouter } from '../../../models/mocks';
+import userEvent from '@testing-library/user-event';
+import { readPairingAttribution } from '../../../lib/pairing-attribution';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
-import firefox from '../../../lib/channels/firefox';
+import firefox, { type SignedInUser } from '../../../lib/channels/firefox';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import { MOCK_ERROR } from './mocks';
 import { MOCK_CMS_INFO } from '../../mocks';
 import Pair, { viewName } from '.';
 import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
+import type { FxAStatusState } from '../../../lib/hooks/useFxAStatus';
 import { getDefault } from '../../../lib/config';
 import { PAIR_GLEAN_REASONS } from 'fxa-shared/metrics/glean/pair-reasons';
 import { Integration } from '../../../models';
 import { parsePairingHash } from '../../../lib/pairing/pair-url';
+import { Devices } from '../../../lib/utilities';
+import {
+  capturePairingChannelParams,
+  resetPairingChannelParamsForTest,
+} from '../../../lib/pairing-channel-params';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -25,30 +33,37 @@ jest.mock('../../../lib/metrics', () => ({
 
 let mockLocationState: unknown = null;
 let mockLocationSearch = '';
-let mockLocationHash = '';
 const mockNavigate = jest.fn();
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
   useLocation: () => ({
     pathname: '/pair',
     search: mockLocationSearch,
-    hash: mockLocationHash,
+    // Startup strips the pairing fragment before the router ever sees it.
+    hash: '',
     state: mockLocationState,
   }),
   useNavigate: () => mockNavigate,
 }));
 
+/**
+ * Startup lifts the pairing fragment out of the URL so its channel key cannot
+ * reach telemetry, and the page reads that capture rather than the live hash.
+ * Tests therefore set the hash and then run the same capture production runs.
+ */
+function setPairingHash(hash: string) {
+  window.location.hash = hash;
+  resetPairingChannelParamsForTest();
+  capturePairingChannelParams();
+}
+
 jest.mock('../../../lib/channels/firefox', () => ({
   __esModule: true,
   default: {
     send: jest.fn(),
-    requestSignedInUser: jest.fn().mockResolvedValue({
-      uid: 'sync-uid',
-      email: 'sync@example.com',
-      sessionToken: 'token',
-      verified: true,
-    }),
-    fxaOAuthFlowBegin: jest.fn().mockResolvedValue(null),
+    // No defaults here on purpose — `beforeEach` owns them; see the note there.
+    requestSignedInUser: jest.fn(),
+    fxaOAuthFlowBegin: jest.fn(),
   },
   buildSyncOAuthSearch: jest.requireActual('../../../lib/channels/firefox')
     .buildSyncOAuthSearch,
@@ -90,12 +105,37 @@ const defaultProps: React.ComponentProps<typeof Pair> = {
   fxaStatusResult: mockUseFxAStatus(),
 };
 
+/** The signed-in browser every test starts from; see the `beforeEach` below. */
+const MOCK_SYNC_SIGNED_IN_USER: SignedInUser = {
+  uid: 'sync-uid',
+  email: 'sync@example.com',
+  sessionToken: 'token',
+  verified: true,
+};
+
+/** The OAuth params Firefox hands back from fxaOAuthFlowBegin. */
+const MOCK_OAUTH_PARAMS = {
+  action: 'signin',
+  response_type: 'code',
+  access_type: 'offline',
+  scope: 'profile https://identity.mozilla.com/apps/oldsync',
+  client_id: 'cid-abc',
+  state: 'state-xyz',
+  code_challenge: 'cc',
+  code_challenge_method: 'S256',
+};
+
 const sendTabIntegration = {
   data: { entrypoint: 'send-tab-toolbar-icon' },
 } as unknown as React.ComponentProps<typeof Pair>['integration'];
 
 const webIntegration = {
   data: { entrypoint: 'fxa_app_menu' },
+} as unknown as React.ComponentProps<typeof Pair>['integration'];
+
+/** What firefox.com/pair sends: a service and a client, no attribution. */
+const noEntrypointIntegration = {
+  data: { service: 'sync' },
 } as unknown as React.ComponentProps<typeof Pair>['integration'];
 
 describe('Pair', () => {
@@ -116,11 +156,26 @@ describe('Pair', () => {
     });
   });
 
+  beforeEach(() => {
+    localStorage.clear();
+    // `jest.clearAllMocks()` clears calls but neither implementations nor queued
+    // `mockResolvedValueOnce` values, and this package sets neither `clearMocks`
+    // nor `resetMocks` — so WebChannel overrides would otherwise leak into later
+    // tests. Reset fully, then re-establish the defaults here; this hook is the
+    // single source of truth for them, so the module factory declares none.
+    jest.mocked(firefox.requestSignedInUser).mockReset();
+    jest.mocked(firefox.fxaOAuthFlowBegin).mockReset();
+    jest
+      .mocked(firefox.requestSignedInUser)
+      .mockResolvedValue(MOCK_SYNC_SIGNED_IN_USER);
+    jest.mocked(firefox.fxaOAuthFlowBegin).mockResolvedValue(null);
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
     mockLocationState = null;
     mockLocationSearch = '';
-    mockLocationHash = '';
+    setPairingHash('');
   });
 
   // Render Pair and wait for the bootstrap spinner to clear before asserting.
@@ -458,15 +513,137 @@ describe('Pair', () => {
           action: 'signin',
           code_challenge: 'cc',
           code_challenge_method: 'S256',
+          entrypoint: 'fxa_pairflow',
         });
       } finally {
         hardNavigateSpy.mockRestore();
       }
     });
 
+    it.each([
+      {
+        source: 'the URL',
+        search: '?entrypoint=fxa_app_menu',
+        integration: undefined,
+        expected: 'fxa_app_menu',
+      },
+      {
+        source: 'the integration',
+        search: '',
+        integration: webIntegration,
+        expected: 'fxa_app_menu',
+      },
+      {
+        source: 'a capital-P URL param',
+        search: '?entryPoint=fx-view',
+        integration: noEntrypointIntegration,
+        expected: 'fx-view',
+      },
+    ])(
+      'keeps the entrypoint $source carries',
+      async ({ search, integration, expected }) => {
+        const hardNavigateSpy = jest
+          .spyOn(ReactUtils, 'hardNavigate')
+          .mockImplementation(() => {});
+        try {
+          mockLocationSearch = search;
+          requestSignedInUserMock.mockResolvedValue(undefined);
+          fxaOAuthFlowBeginMock.mockResolvedValueOnce({
+            action: 'signin',
+            response_type: 'code',
+            access_type: 'offline',
+            scope: 'profile https://identity.mozilla.com/apps/oldsync',
+            client_id: 'cid-abc',
+            state: 'state-xyz',
+          });
+          renderWithRouter(
+            <Pair {...defaultProps} integration={integration} />
+          );
+          await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalled());
+          const url = new URL(
+            hardNavigateSpy.mock.calls[0][0],
+            'http://localhost'
+          );
+          expect(url.searchParams.get('entrypoint')).toBe(expected);
+        } finally {
+          hardNavigateSpy.mockRestore();
+        }
+      }
+    );
+
+    it('starts the OAuth flow once when the parent re-renders', async () => {
+      const hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      try {
+        requestSignedInUserMock.mockResolvedValue(undefined);
+        fxaOAuthFlowBeginMock.mockResolvedValue(MOCK_OAUTH_PARAMS);
+
+        // App hands Pair a fresh fxaStatusResult object on every render, so the
+        // parent here does the same. The app context keeps `config` stable, so
+        // the object identity is the only thing that changes.
+        let rerenderParent = () => {};
+        const PairParent = () => {
+          const [, setTick] = React.useState(0);
+          React.useEffect(() => {
+            rerenderParent = () => setTick((tick) => tick + 1);
+          }, []);
+          return <Pair fxaStatusResult={mockUseFxAStatus()} />;
+        };
+
+        renderWithRouter(<PairParent />, {}, mockAppContext());
+        await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalled());
+        await act(async () => {
+          rerenderParent();
+        });
+
+        expect(fxaOAuthFlowBeginMock).toHaveBeenCalledTimes(1);
+        expect(hardNavigateSpy).toHaveBeenCalledTimes(1);
+      } finally {
+        hardNavigateSpy.mockRestore();
+      }
+    });
+
+    it('starts the OAuth flow once when fxa_status answers late', async () => {
+      const hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      try {
+        requestSignedInUserMock.mockResolvedValue(undefined);
+        fxaOAuthFlowBeginMock.mockResolvedValue(MOCK_OAUTH_PARAMS);
+
+        // A reply that lands after the pairing timeout takes fxaStatusState
+        // from 'unanswered' to 'answered' once the bootstrap has navigated.
+        let answerLate = () => {};
+        const PairAwaitingReply = () => {
+          const [fxaStatusState, setFxaStatusState] =
+            React.useState<FxAStatusState>('unanswered');
+          React.useEffect(() => {
+            answerLate = () => setFxaStatusState('answered');
+          }, []);
+          return (
+            <Pair fxaStatusResult={mockUseFxAStatus({ fxaStatusState })} />
+          );
+        };
+
+        renderWithRouter(<PairAwaitingReply />);
+        await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalled());
+        await act(async () => {
+          answerLate();
+        });
+
+        expect(fxaOAuthFlowBeginMock).toHaveBeenCalledTimes(1);
+        expect(hardNavigateSpy).toHaveBeenCalledTimes(1);
+      } finally {
+        hardNavigateSpy.mockRestore();
+      }
+    });
+
     it('reveals the choice screen when WebChannel never replies', async () => {
-      requestSignedInUserMock.mockResolvedValueOnce(undefined);
-      fxaOAuthFlowBeginMock.mockResolvedValueOnce(null);
+      // The bootstrap asks twice (initial + one retry), so both replies must be
+      // empty to reach the OAuth branch this test is about.
+      requestSignedInUserMock.mockResolvedValue(undefined);
+      fxaOAuthFlowBeginMock.mockResolvedValue(null);
       await renderPair();
       expect(
         screen.getByLabelText(/I already have Firefox for mobile/)
@@ -474,8 +651,8 @@ describe('Pair', () => {
     });
 
     it('reveals the choice screen when fxa_status throws and OAuth never replies', async () => {
-      requestSignedInUserMock.mockRejectedValueOnce(new Error('boom'));
-      fxaOAuthFlowBeginMock.mockResolvedValueOnce(null);
+      requestSignedInUserMock.mockRejectedValue(new Error('boom'));
+      fxaOAuthFlowBeginMock.mockResolvedValue(null);
       await renderPair();
       expect(
         screen.getByLabelText(/I already have Firefox for mobile/)
@@ -554,6 +731,126 @@ describe('Pair', () => {
     });
   });
 
+  // FXA-14132: Firefox opens the pairing-authority approval page as a fresh
+  // navigation carrying none of this page's attribution params, so they are
+  // stashed here at the moment control passes to the browser.
+  describe('pairing attribution hand-off', () => {
+    const attributionIntegration = {
+      data: {
+        entrypoint: 'send-tab-toolbar-icon',
+        utmSource: 'firefox-browser',
+      },
+    } as unknown as React.ComponentProps<typeof Pair>['integration'];
+
+    it('stashes the integration attribution when Continue is clicked with "has mobile"', async () => {
+      const user = userEvent.setup();
+      await renderPair({ integration: attributionIntegration });
+
+      await user.click(
+        screen.getByLabelText(/I already have Firefox for mobile/)
+      );
+      await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(readPairingAttribution()).toEqual({
+        entrypoint: 'send-tab-toolbar-icon',
+        utm_source: 'firefox-browser',
+      });
+    });
+
+    it('stashes the integration attribution when "Continue to sync" is clicked', async () => {
+      const user = userEvent.setup();
+      await renderPair({ integration: attributionIntegration });
+
+      await user.click(
+        screen.getByLabelText(/I don’t have Firefox for mobile/)
+      );
+      await user.click(screen.getByRole('button', { name: 'Continue' }));
+      await user.click(
+        screen.getByRole('button', { name: 'Continue to sync' })
+      );
+
+      expect(readPairingAttribution()).toEqual({
+        entrypoint: 'send-tab-toolbar-icon',
+        utm_source: 'firefox-browser',
+      });
+    });
+
+    it('falls back to the URL when no integration is supplied', async () => {
+      const user = userEvent.setup();
+      mockLocationSearch = '?entrypoint=fxa_app_menu';
+      await renderPair();
+
+      await user.click(
+        screen.getByLabelText(/I already have Firefox for mobile/)
+      );
+      await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(readPairingAttribution()).toEqual({
+        entrypoint: 'fxa_app_menu',
+      });
+    });
+
+    it('stashes the fxa_pairflow entrypoint for a signed-in direct visit', async () => {
+      const user = userEvent.setup();
+      await renderPair();
+
+      await user.click(
+        screen.getByLabelText(/I already have Firefox for mobile/)
+      );
+      await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(readPairingAttribution()).toEqual({
+        entrypoint: 'fxa_pairflow',
+      });
+    });
+
+    it('stashes nothing when the user only advances to the download screen', async () => {
+      const user = userEvent.setup();
+      await renderPair({ integration: attributionIntegration });
+
+      await user.click(
+        screen.getByLabelText(/I don’t have Firefox for mobile/)
+      );
+      await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(readPairingAttribution()).toEqual({});
+    });
+
+    it('carries the attribution into the sync OAuth handoff URL', async () => {
+      const hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      try {
+        jest.mocked(firefox.requestSignedInUser).mockResolvedValue(undefined);
+        jest.mocked(firefox.fxaOAuthFlowBegin).mockResolvedValueOnce({
+          action: 'signin',
+          response_type: 'code',
+          access_type: 'offline',
+          scope: 'profile https://identity.mozilla.com/apps/oldsync',
+          client_id: 'cid-abc',
+          state: 'state-xyz',
+          code_challenge: 'cc',
+          code_challenge_method: 'S256',
+        });
+        renderWithRouter(
+          <Pair {...defaultProps} integration={attributionIntegration} />
+        );
+
+        await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalled());
+        const url = new URL(
+          hardNavigateSpy.mock.calls[0][0],
+          'http://localhost'
+        );
+        expect(url.searchParams.get('entrypoint')).toBe(
+          'send-tab-toolbar-icon'
+        );
+        expect(url.searchParams.get('utm_source')).toBe('firefox-browser');
+      } finally {
+        hardNavigateSpy.mockRestore();
+      }
+    });
+  });
+
   describe('CMS theming', () => {
     it('renders the choice screen Continue button with CMS button color', async () => {
       await renderPair({ cmsInfo: MOCK_CMS_INFO });
@@ -605,6 +902,14 @@ describe('Pair', () => {
         pairingVersion: 2,
       }),
     };
+    // What Firefox answers for a signed-in account: fxa_status carries the user.
+    const withSignedInUser = (result: ReturnType<typeof mockUseFxAStatus>) => ({
+      ...result,
+      fxaStatus: {
+        ...result.fxaStatus,
+        signedInUser: MOCK_SYNC_SIGNED_IN_USER,
+      },
+    });
     // v2 routing is gated on the deployment config as well as the browser, so
     // the suite has to opt in on both sides.
     const v2AppContext = () => {
@@ -614,7 +919,7 @@ describe('Pair', () => {
     };
 
     it('hands the channel to the supplicant flow, dropping the hash', async () => {
-      mockLocationHash = V2_HASH;
+      setPairingHash(V2_HASH);
       renderWithRouter(<Pair {...v2Props} />, {}, v2AppContext());
 
       await waitFor(() =>
@@ -627,8 +932,58 @@ describe('Pair', () => {
       );
     });
 
+    // Firefox for Android reloads the supplicant's original URL after the OAuth
+    // login, by which point the channel server has consumed the channel.
+    describe('on a reload after the pairing completed', () => {
+      beforeEach(() => {
+        setPairingHash(V2_HASH);
+        sessionStorage.setItem('fxa.pair.complete.chan-1', '1');
+      });
+
+      afterEach(() => {
+        sessionStorage.removeItem('fxa.pair.complete.chan-1');
+      });
+
+      it('goes to the success screen instead of reopening the channel', async () => {
+        renderWithRouter(<Pair {...v2Props} />, {}, v2AppContext());
+
+        await waitFor(() =>
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/pair/supplicant/sync_success',
+            { replace: true }
+          )
+        );
+        expect(mockNavigate.mock.calls.map(([to]) => to)).not.toContain(
+          '/pair/supplicant/connect_this_device'
+        );
+      });
+
+      // The marker alone proves the flow finished here, so a browser that never
+      // answers fxa_status is not handed off to the Firefox app again.
+      it('does not wait for fxa_status', async () => {
+        renderWithRouter(
+          <Pair
+            {...v2Props}
+            fxaStatusResult={mockUseFxAStatus({ fxaStatusState: 'unanswered' })}
+          />,
+          {},
+          v2AppContext()
+        );
+
+        await waitFor(() =>
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/pair/supplicant/sync_success',
+            { replace: true }
+          )
+        );
+        expect(mockNavigate.mock.calls.map(([to]) => to)).not.toContain(
+          '/pair/supplicant/download_firefox'
+        );
+      });
+    });
+
     it('does not send the browser to /pair/unsupported while handing off', async () => {
-      mockLocationHash = V2_HASH;
+      setPairingHash(V2_HASH);
       renderWithRouter(<Pair {...v2Props} />, {}, v2AppContext());
 
       await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
@@ -663,9 +1018,170 @@ describe('Pair', () => {
       hardNavigateSpy.mockRestore();
     });
 
+    it('reloads into the QR scanner without a second ask when fxa_status carries the user', async () => {
+      const hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      try {
+        renderWithRouter(
+          <Pair fxaStatusResult={withSignedInUser(v2Props.fxaStatusResult)} />,
+          {},
+          v2AppContext()
+        );
+
+        await waitFor(() =>
+          expect(hardNavigateSpy).toHaveBeenCalledWith(
+            '/pair/authority/scan_qr',
+            {},
+            true
+          )
+        );
+        expect(firefox.requestSignedInUser).not.toHaveBeenCalled();
+      } finally {
+        hardNavigateSpy.mockRestore();
+      }
+    });
+
+    it('sends a signed-out desktop to sign-in instead of the QR scanner', async () => {
+      const hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      try {
+        jest.mocked(firefox.requestSignedInUser).mockResolvedValue(undefined);
+        jest
+          .mocked(firefox.fxaOAuthFlowBegin)
+          .mockResolvedValue(MOCK_OAUTH_PARAMS);
+        renderWithRouter(<Pair {...v2Props} />, {}, v2AppContext());
+
+        await waitFor(() =>
+          expect(hardNavigateSpy).toHaveBeenCalledWith(
+            expect.stringMatching(/^\/\?.*client_id=cid-abc/)
+          )
+        );
+        expect(hardNavigateSpy).not.toHaveBeenCalledWith(
+          '/pair/authority/scan_qr',
+          {},
+          true
+        );
+      } finally {
+        hardNavigateSpy.mockRestore();
+      }
+    });
+
+    it('stands the bootstrap down when a late v2 answer reaches the scanner', async () => {
+      const hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      try {
+        // Hold the WebChannel reply open so the late answer lands while the
+        // bootstrap is still in flight.
+        let releaseSignedInUser = () => {};
+        jest.mocked(firefox.requestSignedInUser).mockReturnValue(
+          new Promise((resolve) => {
+            releaseSignedInUser = () => resolve(undefined);
+          })
+        );
+        jest
+          .mocked(firefox.fxaOAuthFlowBegin)
+          .mockResolvedValue(MOCK_OAUTH_PARAMS);
+
+        let answerV2 = () => {};
+        const PairAwaitingV2 = () => {
+          const [answered, setAnswered] = React.useState(false);
+          React.useEffect(() => {
+            answerV2 = () => setAnswered(true);
+          }, []);
+          return (
+            <Pair
+              fxaStatusResult={
+                answered
+                  ? withSignedInUser(mockUseFxAStatus({ pairingVersion: 2 }))
+                  : mockUseFxAStatus({
+                      pairingVersion: 1,
+                      fxaStatusState: 'unanswered',
+                    })
+              }
+            />
+          );
+        };
+
+        renderWithRouter(<PairAwaitingV2 />, {}, v2AppContext());
+        await waitFor(() =>
+          expect(firefox.requestSignedInUser).toHaveBeenCalled()
+        );
+        await act(async () => {
+          answerV2();
+        });
+        await act(async () => {
+          releaseSignedInUser();
+        });
+
+        expect(hardNavigateSpy).toHaveBeenCalledTimes(1);
+        expect(hardNavigateSpy).toHaveBeenCalledWith(
+          '/pair/authority/scan_qr',
+          {},
+          true
+        );
+        expect(firefox.fxaOAuthFlowBegin).not.toHaveBeenCalled();
+      } finally {
+        hardNavigateSpy.mockRestore();
+      }
+    });
+
+    it('reloads into the QR scanner when the bootstrap settles signed in after a late v2 answer', async () => {
+      const hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      try {
+        let releaseSignedInUser = () => {};
+        jest.mocked(firefox.requestSignedInUser).mockReturnValue(
+          new Promise((resolve) => {
+            releaseSignedInUser = () => resolve(MOCK_SYNC_SIGNED_IN_USER);
+          })
+        );
+
+        let answerV2 = () => {};
+        const PairAwaitingV2 = () => {
+          const [answered, setAnswered] = React.useState(false);
+          React.useEffect(() => {
+            answerV2 = () => setAnswered(true);
+          }, []);
+          return (
+            <Pair
+              fxaStatusResult={mockUseFxAStatus(
+                answered
+                  ? { pairingVersion: 2 }
+                  : { pairingVersion: 1, fxaStatusState: 'unanswered' }
+              )}
+            />
+          );
+        };
+
+        renderWithRouter(<PairAwaitingV2 />, {}, v2AppContext());
+        await waitFor(() =>
+          expect(firefox.requestSignedInUser).toHaveBeenCalled()
+        );
+        await act(async () => {
+          answerV2();
+        });
+        await act(async () => {
+          releaseSignedInUser();
+        });
+
+        expect(hardNavigateSpy).toHaveBeenCalledWith(
+          '/pair/authority/scan_qr',
+          {},
+          true
+        );
+        expect(firefox.fxaOAuthFlowBegin).not.toHaveBeenCalled();
+      } finally {
+        hardNavigateSpy.mockRestore();
+      }
+    });
+
     it('falls through to the normal flow when the browser reports v1', async () => {
       const status = { pairingEnabled: true, pairingVersion: 1 };
-      mockLocationHash = V2_HASH;
+      setPairingHash(V2_HASH);
       renderWithRouter(
         <Pair fxaStatusResult={mockUseFxAStatus(status)} />,
         {},
@@ -675,16 +1191,94 @@ describe('Pair', () => {
       // The desktop UA is stubbed for this suite, so the bootstrap reaching the
       // choice screen is what proves the hold expired. Waits past the grace
       // period, which is longer than the default findBy timeout.
-      await screen.findByLabelText(/I already have Firefox for mobile/, undefined, {
-        timeout: 4000,
-      });
+      await screen.findByLabelText(
+        /I already have Firefox for mobile/,
+        undefined,
+        {
+          timeout: 4000,
+        }
+      );
       expect(mockNavigate).not.toHaveBeenCalledWith(
         '/pair/supplicant/connect_this_device',
         expect.anything()
       );
     });
 
+    // With a desktop minimum configured, the browser has to report v2 in
+    // fxa_status and its own version has to meet the minimum. The suite's UA is
+    // Firefox 124.
+    describe('with a v2 minimum version for desktop', () => {
+      const minVersionAppContext = (desktop: number) => {
+        const config = getDefault();
+        config.pairing.version = 2;
+        config.pairing.v2MinVersion = { desktop };
+        return mockAppContext({ config } as Parameters<
+          typeof mockAppContext
+        >[0]);
+      };
 
+      it('reloads into the QR scanner when the browser meets the minimum and reports v2', async () => {
+        const hardNavigateSpy = jest
+          .spyOn(ReactUtils, 'hardNavigate')
+          .mockImplementation(() => {});
+        renderWithRouter(
+          <Pair fxaStatusResult={withSignedInUser(v2Props.fxaStatusResult)} />,
+          {},
+          minVersionAppContext(124)
+        );
+
+        await waitFor(() =>
+          expect(hardNavigateSpy).toHaveBeenCalledWith(
+            '/pair/authority/scan_qr',
+            {},
+            true
+          )
+        );
+        hardNavigateSpy.mockRestore();
+      });
+
+      it('stays on the v1 choice screen when the browser meets the minimum but reports v1', async () => {
+        const hardNavigateSpy = jest
+          .spyOn(ReactUtils, 'hardNavigate')
+          .mockImplementation(() => {});
+        renderWithRouter(
+          <Pair fxaStatusResult={mockUseFxAStatus({ pairingVersion: 1 })} />,
+          {},
+          minVersionAppContext(124)
+        );
+
+        await screen.findByLabelText(
+          /I already have Firefox for mobile/,
+          undefined,
+          { timeout: 4000 }
+        );
+        expect(hardNavigateSpy).not.toHaveBeenCalledWith(
+          '/pair/authority/scan_qr',
+          {},
+          true
+        );
+        hardNavigateSpy.mockRestore();
+      });
+
+      it('stays on the v1 choice screen when the browser is below the minimum but reports v2', async () => {
+        const hardNavigateSpy = jest
+          .spyOn(ReactUtils, 'hardNavigate')
+          .mockImplementation(() => {});
+        renderWithRouter(<Pair {...v2Props} />, {}, minVersionAppContext(125));
+
+        await screen.findByLabelText(
+          /I already have Firefox for mobile/,
+          undefined,
+          { timeout: 4000 }
+        );
+        expect(hardNavigateSpy).not.toHaveBeenCalledWith(
+          '/pair/authority/scan_qr',
+          {},
+          true
+        );
+        hardNavigateSpy.mockRestore();
+      });
+    });
   });
 });
 
@@ -743,45 +1337,89 @@ describe('parseV2PairingHash', () => {
       fxaStatusResult: mockUseFxAStatus({ fxaStatusState: 'unanswered' }),
     };
 
-    const v2AppContext = () => {
+    // The iOS hand-off follows the iOS v2 rollout: any configured minimum
+    // turns it on.
+    const v2AppContext = ({ iosRolledOut = false } = {}) => {
       const config = getDefault();
       config.pairing.version = 2;
+      config.pairing.v2MinVersion = iosRolledOut ? { ios: 0 } : {};
       return mockAppContext({ config } as Parameters<typeof mockAppContext>[0]);
     };
 
     beforeEach(() => {
-      mockLocationHash = V2_HASH;
+      // This describe sits outside the `Pair` block that owns the shared
+      // reset, so navigation calls would otherwise accumulate across cases.
+      jest.clearAllMocks();
+      setPairingHash(V2_HASH);
     });
 
+    // This describe sits outside the one that clears between tests, so a
+    // navigation recorded here would otherwise be seen by the next test.
+    afterEach(() => {
+      setPairingHash('');
+      jest.clearAllMocks();
+    });
+
+    // iOS only reaches the download screen once the deployment has rolled v2
+    // out to Firefox iOS; the case where it has not is covered below.
     it.each([
-      ['iOS Safari', IOS_SAFARI],
-      ['Android Chrome', ANDROID_CHROME],
-    ])('offers to continue in Firefox on %s', async (_label, ua) => {
-      setUserAgent(ua);
-      renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
+      ['iOS Safari', IOS_SAFARI, true],
+      ['Android Chrome', ANDROID_CHROME, false],
+    ])(
+      'routes to the download screen on %s',
+      async (_label, ua, iosRolledOut) => {
+        setUserAgent(ua);
+        renderWithRouter(
+          <Pair {...unansweredProps} />,
+          {},
+          v2AppContext({ iosRolledOut })
+        );
 
-      expect(
-        await screen.findByRole('heading', { name: 'Continue in Firefox' })
-      ).toBeInTheDocument();
-      expect(mockNavigate).not.toHaveBeenCalled();
-    });
+        await waitFor(() =>
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/pair/supplicant/download_firefox',
+            {
+              state: { channelId: 'chan-1', channelKey: 'key-1', version: '2' },
+            }
+          )
+        );
+      }
+    );
 
-    // The channel key is what the deep link exists to carry; without it Firefox
-    // opens on a /pair page with nothing to pair.
-    it('hands Firefox the pairing URL the QR encoded', async () => {
+    // Before the rollout Firefox iOS cannot finish a pairing that started in
+    // another browser, but the download screen can still open Firefox on the
+    // page that says to scan again from inside it — so the hand-off stands.
+    it('routes an iOS browser to the download screen while iOS is not in the rollout', async () => {
       setUserAgent(IOS_SAFARI);
       renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
 
-      const cta = await screen.findByRole('link', {
-        name: 'Continue in Firefox',
-      });
-      const target = new URL(
-        decodeURIComponent(
-          cta.getAttribute('href')!.replace('firefox://open-url?url=', '')
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/pair/supplicant/download_firefox',
+          {
+            state: { channelId: 'chan-1', channelKey: 'key-1', version: '2' },
+          }
         )
       );
-      expect(target.pathname).toBe('/pair');
-      expect(target.hash).toBe(V2_HASH);
+      expect(mockNavigate).not.toHaveBeenCalledWith('/pair/unsupported');
+    });
+
+    // The channel key is the pairing PSK, and the download screen is handed it
+    // as router state — so unlike /pair/unsupported below, the hash it arrived
+    // in must not follow it into the next URL. The deep link the destination
+    // builds from that state is covered in its own container test.
+    it('does not carry the channel key into the destination URL', async () => {
+      setUserAgent(IOS_SAFARI);
+      renderWithRouter(
+        <Pair {...unansweredProps} />,
+        {},
+        v2AppContext({ iosRolledOut: true })
+      );
+
+      await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
+      const [path] = mockNavigate.mock.calls[0];
+      expect(path).toBe('/pair/supplicant/download_firefox');
+      expect(path).not.toContain('channel_key');
     });
 
     // There is no Firefox app to hand off to on desktop.
@@ -789,37 +1427,97 @@ describe('parseV2PairingHash', () => {
       setUserAgent(DESKTOP_CHROME);
       renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
 
-      // The hash rides along, which is what lets /pair/unsupported recognise a
-      // system-camera scan.
+      // No hash: /pair/unsupported recognises a system-camera scan from the
+      // captured channel, and the key must stay out of the URL.
       await waitFor(() =>
-        expect(mockNavigate).toHaveBeenCalledWith(`/pair/unsupported${V2_HASH}`)
+        expect(mockNavigate).toHaveBeenCalledWith('/pair/unsupported')
       );
-      expect(
-        screen.queryByRole('heading', { name: 'Continue in Firefox' })
-      ).not.toBeInTheDocument();
+      expect(mockNavigate).not.toHaveBeenCalledWith(
+        '/pair/supplicant/download_firefox',
+        expect.anything()
+      );
     });
 
     // firefox:// inside Firefox is a no-op, so a hand-off here would strand the
-    // user rather than help them.
-    it('does not offer the hand-off inside Firefox for Android', async () => {
+    // user rather than help them. A Firefox that did not take the v2 flow can
+    // still pair by scanning from inside the app, which is what the hint says.
+    it('sends Firefox for Android to the connect hint instead of the hand-off', async () => {
+      setUserAgent(FIREFOX_ANDROID);
+      renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
+
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/pair/supplicant/connect_hint'
+        )
+      );
+      expect(mockNavigate).not.toHaveBeenCalledWith(
+        '/pair/supplicant/download_firefox',
+        expect.anything()
+      );
+      expect(mockNavigate).not.toHaveBeenCalledWith('/pair/unsupported');
+    });
+
+    // The hint page needs no channel, and the key must stay out of the URL.
+    it('does not carry the channel into the connect hint URL', async () => {
       setUserAgent(FIREFOX_ANDROID);
       renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
 
       await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
-      expect(
-        screen.queryByRole('heading', { name: 'Continue in Firefox' })
-      ).not.toBeInTheDocument();
+      const [path, options] = mockNavigate.mock.calls[0];
+      expect(path).toBe('/pair/supplicant/connect_hint');
+      expect(options).toBeUndefined();
+    });
+
+    it('sends a Firefox iOS below the rollout minimum to the connect hint', async () => {
+      setUserAgent(
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 ' +
+          '(KHTML, like Gecko) FxiOS/124.0 Mobile/15E148 Safari/605.1.15'
+      );
+      const config = getDefault();
+      config.pairing.version = 2;
+      config.pairing.v2MinVersion = { ios: 125 };
+      renderWithRouter(
+        <Pair {...unansweredProps} />,
+        {},
+        mockAppContext({ config } as Parameters<typeof mockAppContext>[0])
+      );
+
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/pair/supplicant/connect_hint'
+        )
+      );
+      expect(mockNavigate).not.toHaveBeenCalledWith(
+        '/pair/supplicant/connect_this_device',
+        expect.anything()
+      );
+    });
+
+    // Without a scanned channel there is nothing to rescan, so the hint would
+    // be wrong; the unsupported page explains pairing from the computer.
+    it('sends Firefox for Android with no pairing channel to /pair/unsupported', async () => {
+      setPairingHash('');
+      setUserAgent(FIREFOX_ANDROID);
+      renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
+
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('/pair/unsupported')
+      );
+      expect(mockNavigate).not.toHaveBeenCalledWith(
+        '/pair/supplicant/connect_hint'
+      );
     });
 
     it('does not offer the hand-off when the URL carries no pairing channel', async () => {
-      mockLocationHash = '';
+      setPairingHash('');
       setUserAgent(IOS_SAFARI);
       renderWithRouter(<Pair {...unansweredProps} />, {}, v2AppContext());
 
       await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
-      expect(
-        screen.queryByRole('heading', { name: 'Continue in Firefox' })
-      ).not.toBeInTheDocument();
+      expect(mockNavigate).not.toHaveBeenCalledWith(
+        '/pair/supplicant/download_firefox',
+        expect.anything()
+      );
     });
 
     // A browser that answered is telling us something; only silence means the
@@ -833,9 +1531,67 @@ describe('parseV2PairingHash', () => {
       );
 
       await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
-      expect(
-        screen.queryByRole('heading', { name: 'Continue in Firefox' })
-      ).not.toBeInTheDocument();
+      expect(mockNavigate).not.toHaveBeenCalledWith(
+        '/pair/supplicant/download_firefox',
+        expect.anything()
+      );
     });
+  });
+});
+
+// The `device` prop is how a caller reaches the pairing screens without a
+// Firefox desktop user agent. This describe sits outside the `Pair` block so
+// that block's Firefox override does not apply.
+describe('device prop', () => {
+  const DESKTOP_CHROME =
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 ' +
+    '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+  const realUserAgent = navigator.userAgent;
+
+  // This describe sits outside the `Pair` block that owns the shared reset, so
+  // a pairing hash or search left by an earlier test would otherwise route
+  // these renders away from the choice screen.
+  beforeEach(() => {
+    jest.clearAllMocks();
+    localStorage.clear();
+    mockLocationState = null;
+    mockLocationSearch = '';
+    setPairingHash('');
+    Object.defineProperty(navigator, 'userAgent', {
+      value: DESKTOP_CHROME,
+      configurable: true,
+    });
+    jest.mocked(firefox.requestSignedInUser).mockReset();
+    jest
+      .mocked(firefox.requestSignedInUser)
+      .mockResolvedValue(MOCK_SYNC_SIGNED_IN_USER);
+    jest.mocked(firefox.fxaOAuthFlowBegin).mockReset();
+    jest.mocked(firefox.fxaOAuthFlowBegin).mockResolvedValue(null);
+  });
+
+  afterEach(() => {
+    Object.defineProperty(navigator, 'userAgent', {
+      value: realUserAgent,
+      configurable: true,
+    });
+  });
+
+  it('reaches the choice screen when a supported device is supplied', async () => {
+    renderWithRouter(
+      <Pair {...defaultProps} device={Devices.FIREFOX_DESKTOP} />
+    );
+
+    expect(
+      await screen.findByLabelText(/I already have Firefox for mobile/)
+    ).toBeInTheDocument();
+    expect(mockNavigate).not.toHaveBeenCalledWith('/pair/unsupported');
+  });
+
+  it('falls back to the user agent when no device is supplied', async () => {
+    renderWithRouter(<Pair {...defaultProps} />);
+
+    await waitFor(() =>
+      expect(mockNavigate).toHaveBeenCalledWith('/pair/unsupported')
+    );
   });
 });

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import classNames from 'classnames';
 import { Passkey } from 'fxa-auth-client/browser';
@@ -38,6 +38,7 @@ import LinkExternal, {
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import Modal from '../Modal';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 
 type SubRowProps = {
   ctaMessage?: string;
@@ -425,9 +426,7 @@ const PasskeyDeleteModal = ({
   const handleMfaError = useMfaErrorHandler();
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
-  useEffect(() => {
-    GleanMetrics.accountPref.passkeyDeleteView();
-  }, []);
+  useGleanView(() => GleanMetrics.accountPref.passkeyDeleteView());
 
   const handleConfirmDelete = useCallback(async () => {
     setIsDeleting(true);
@@ -487,14 +486,13 @@ const PasskeyDeleteModal = ({
           Delete your passkey?
         </h2>
       </FtlMsg>
-      <FtlMsg id="passkey-delete-modal-content-v2">
+      <FtlMsg id="passkey-delete-modal-content-v3">
         <p className="mb-10 mx-4">
           This passkey will be removed from your account. You’ll need to sign in
-          using a different method (password, another passkey, or linked
-          account).
+          using a password, another passkey, or linked account.
         </p>
       </FtlMsg>
-      <div className="flex justify-center mx-2 mt-6">
+      <div className="flex flex-wrap justify-center mx-2 mt-6">
         <FtlMsg id="passkey-delete-modal-cancel-button">
           <button
             className="cta-neutral mx-2 flex-1 cta-xl"
@@ -547,9 +545,7 @@ const PasskeyRenameModal = ({
       defaultValues: { name: passkey.name },
     });
 
-  useEffect(() => {
-    GleanMetrics.accountPref.passkeyRenameView();
-  }, []);
+  useGleanView(() => GleanMetrics.accountPref.passkeyRenameView());
 
   // Names of the account's other passkeys, used to block obvious duplicates.
   const otherPasskeyNames = (account.passkeys ?? [])

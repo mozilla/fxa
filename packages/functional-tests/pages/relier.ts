@@ -11,20 +11,27 @@ export class RelierPage extends BaseLayout {
     return '';
   }
 
+  /**
+   * Origin of the relying party this page drives. UntrustedRelierPage overrides
+   * it; both apps serve the same static assets, so every locator below is
+   * shared, including the '123done' heading.
+   */
+  protected get relierUrl() {
+    return this.target.relierUrl;
+  }
+
   get relierHeading() {
     return this.page.getByRole('heading', { name: '123done' });
   }
 
   async goto(query?: string) {
-    const url = query
-      ? `${this.target.relierUrl}?${query}`
-      : this.target.relierUrl;
+    const url = query ? `${this.relierUrl}?${query}` : this.relierUrl;
     return this.page.goto(url);
   }
 
   async isLoggedIn() {
     // Ensure we've navigated back to the relier before checking login status
-    await this.page.waitForURL(`${this.target.relierUrl}/**`);
+    await this.page.waitForURL(`${this.relierUrl}/**`);
     const loggedInStatus = this.page.locator('#loggedin');
     await loggedInStatus.waitFor();
     return loggedInStatus.isVisible();
@@ -98,23 +105,17 @@ export class RelierPage extends BaseLayout {
     await this.page
       .getByRole('link', { name: 'SP3 - Sub to Pro 1m', exact: true })
       .click();
-    await this.page.waitForURL(
-      (url) => !url.href.includes(this.target.relierUrl)
-    );
+    await this.page.waitForURL((url) => !url.href.includes(this.relierUrl));
   }
 
   async clickSubscribe6Month() {
     await this.page.getByRole('link', { name: 'SP3 - Sub to Pro 6m' }).click();
-    await this.page.waitForURL(
-      (url) => !url.href.includes(this.target.relierUrl)
-    );
+    await this.page.waitForURL((url) => !url.href.includes(this.relierUrl));
   }
 
   async clickSubscribe12Month() {
     await this.page.getByRole('link', { name: 'SP3 - Sub to Pro 12m' }).click();
-    await this.page.waitForURL(
-      (url) => !url.href.includes(this.target.relierUrl)
-    );
+    await this.page.waitForURL((url) => !url.href.includes(this.relierUrl));
   }
 
   async clickRequire2FA() {
@@ -157,7 +158,7 @@ export class RelierPage extends BaseLayout {
     step_up_max_age: number;
   }> {
     const response = await this.page.request.get(
-      `${this.target.relierUrl}/api/auth_status`
+      `${this.relierUrl}/api/auth_status`
     );
     expect(response.ok()).toBe(true);
     return response.json();
@@ -180,7 +181,7 @@ export class RelierPage extends BaseLayout {
     auth_time: number | null;
   }> {
     const response = await this.page.request.get(
-      `${this.target.relierUrl}/api/token_claims`
+      `${this.relierUrl}/api/token_claims`
     );
     expect(response.ok()).toBe(true);
     return response.json();
@@ -195,7 +196,7 @@ export class RelierPage extends BaseLayout {
    */
   async refreshAccessToken() {
     const response = await this.page.request.post(
-      `${this.target.relierUrl}/api/refresh_token`
+      `${this.relierUrl}/api/refresh_token`
     );
     // Body in the message: the route answers 409 when the session holds no refresh
     // token and mirrors the authorization server's status otherwise, so a bare

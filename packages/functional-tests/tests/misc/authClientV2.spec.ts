@@ -23,12 +23,14 @@ test.describe('auth-client-tests', () => {
       {
         keys: true,
         lang: 'en',
-        preVerified: 'true',
       },
       target.ciHeader
     );
 
     expect(credentials.sessionToken).toBeDefined();
+
+    const code = await target.emailClient.getVerifyCode(email);
+    await client.verifyCode(credentials.uid, code, {}, target.ciHeader);
 
     await client.deviceRegister(
       credentials.sessionToken as string,

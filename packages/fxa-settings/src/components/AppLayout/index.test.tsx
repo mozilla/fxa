@@ -74,6 +74,26 @@ describe('<AppLayout />', () => {
     screen.getByText('Hello, world!');
   });
 
+  it('renders the page background white with the whiteBackground prop', async () => {
+    renderWithLocalizationProvider(
+      <AppLayout whiteBackground>
+        <p>Hello, world!</p>
+      </AppLayout>
+    );
+
+    expect(screen.getByTestId('app')).toHaveClass('bg-white');
+  });
+
+  it('leaves the page background at the default without the whiteBackground prop', async () => {
+    renderWithLocalizationProvider(
+      <AppLayout>
+        <p>Hello, world!</p>
+      </AppLayout>
+    );
+
+    expect(screen.getByTestId('app')).not.toHaveClass('bg-white');
+  });
+
   it('renders with integration prop and valid background image', async () => {
     renderWithLocalizationProvider(
       <AppLayout cmsInfo={MOCK_CMS_INFO_VALID_LINEAR_BG}>

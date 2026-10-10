@@ -2,10 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import FlowContainer from '../FlowContainer';
 import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import { useFtlMsgResolver } from '../../../models';
 import Banner from '../../Banner';
 import {
@@ -94,11 +95,11 @@ export const FlowSetup2faComplete = (props: FlowSetup2faCompleteProps) => {
     reason = GleanClickEventType2FA.inline,
   } = props;
 
-  useEffect(() => {
+  useGleanView(() =>
     GleanMetrics.accountPref.twoStepAuthCompleteView({
       event: { reason },
-    });
-  }, [reason]);
+    })
+  );
 
   return (
     <FlowContainer hideBackButton={true}>

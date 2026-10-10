@@ -119,6 +119,7 @@ export function createMockSigninWebIntegration({
     isFirefoxMobileClient: () => false,
     isFirefoxDesktopClient: () => false,
     getLegalTerms: () => undefined,
+    isUntrusted: () => false,
   };
 }
 
@@ -159,6 +160,7 @@ export function createMockSigninOAuthNativeSyncIntegration({
     isFirefoxMobileClient: () => isMobile,
     isFirefoxDesktopClient: () => isSync && !isMobile,
     getLegalTerms: () => undefined,
+    isUntrusted: () => false,
   };
 }
 
@@ -201,6 +203,7 @@ export function createMockSigninOAuthIntegration({
     isFirefoxMobileClient: () => false,
     isFirefoxDesktopClient: () => false,
     getLegalTerms: () => undefined,
+    isUntrusted: () => false,
   };
 }
 
@@ -251,6 +254,7 @@ export function createMockSigninOAuthNativeIntegration({
     isFirefoxMobileClient: () => isMobile,
     isFirefoxDesktopClient: () => !isMobile,
     getLegalTerms: () => undefined,
+    isUntrusted: () => false,
   };
 }
 

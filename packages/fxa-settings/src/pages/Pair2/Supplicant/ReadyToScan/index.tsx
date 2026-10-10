@@ -22,7 +22,7 @@ import { SYNC_SUPPORT_URL } from '../../../../constants';
  * metrics that sibling pairing pages emit land with the flow wiring.
  */
 const ReadyToScan = () => (
-  <AppLayout>
+  <AppLayout whiteBackground>
     <div className="flex flex-col items-center text-center">
       <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
 
@@ -44,6 +44,7 @@ const ReadyToScan = () => (
 
       <LinkExternal
         href={SYNC_SUPPORT_URL}
+        gleanDataAttrs={{ id: 'dtm_mobile_ready_to_scan_learn_more' }}
         className="link-dark-grey"
       >
         <FtlMsg id="pair2-supplicant-ready-to-scan-learn-more-link">

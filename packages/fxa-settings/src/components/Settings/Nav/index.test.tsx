@@ -76,6 +76,23 @@ describe('Nav', () => {
     );
   });
 
+  it('shows the subscriptions link when subscriptions are unknown', () => {
+    const account = {
+      primaryEmail: { email: 'stomlinson@mozilla.com' },
+      subscriptions: null,
+      linkedAccounts: [],
+    } as unknown as Account;
+    renderWithLocalizationProvider(
+      <AppContext.Provider value={{ account }}>
+        <Nav />
+      </AppContext.Provider>
+    );
+
+    expect(
+      screen.getByRole('link', { name: /^Paid Subscriptions/ })
+    ).toBeInTheDocument();
+  });
+
   it('renders as expected with subscriptions link', () => {
     const account = {
       primaryEmail: {

@@ -2,11 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import SyncSuccess, { SyncSuccessProps } from '.';
+import SyncSuccess from '.';
 
-export const Subject = ({
-  onViewSyncedTabs = () => {},
-  onSyncSettings = () => {},
-}: Partial<SyncSuccessProps> = {}) => (
-  <SyncSuccess {...{ onViewSyncedTabs, onSyncSettings }} />
-);
+export const Subject = () => <SyncSuccess />;

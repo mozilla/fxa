@@ -51,6 +51,11 @@ export type PasskeyPolyfillOpts = {
    * a PRF, so the relying party's password-required fallback can be exercised.
    */
   prfSupported?: boolean;
+  /**
+   * Credentials minted by another polyfill, so a second browser can sign in
+   * with the same passkey.
+   */
+  credentials?: VirtualCredential[];
 };
 
 type Mode = 'pending' | 'success' | 'cancel' | 'corrupt';
@@ -102,6 +107,7 @@ export class PasskeyPolyfill {
    */
   constructor(opts: PasskeyPolyfillOpts = {}) {
     this.prfSupported = opts.prfSupported !== false;
+    this.credentials = opts.credentials?.slice() ?? [];
   }
 
   /**

@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import program from 'commander';
+import { program } from 'commander';
 
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { PlanCanceller } from './cancel-subscriptions-to-plan/cancel-subscriptions-to-plan';
@@ -50,7 +50,7 @@ async function init() {
     .option(
       '-r, --rate-limit [number]',
       'Rate limit for Stripe',
-      70
+      '70'
     )
     .option(
       '--price [string]',
@@ -75,6 +75,7 @@ async function init() {
       'List the customers that would be cancelled without actually cancelling them'
     )
     .parse(process.argv);
+  const options = program.opts();
 
   const { stripeHelper, log } = await setupProcessingTaskObjects(
     'cancel-subscriptions-to-plan'
@@ -95,24 +96,24 @@ async function init() {
     log,
   });
 
-  const rateLimit = parseRateLimit(program.rateLimit);
-  const excludePlanIds = parseExcludePlanIds(program.exclude);
-  const remainingValueMode = parseRemainingValueMode(program.mode);
-  const proratedRefundRate = parseProratedRefundRate(program.proratedRefundRate);
+  const rateLimit = parseRateLimit(options.rateLimit);
+  const excludePlanIds = parseExcludePlanIds(options.exclude);
+  const remainingValueMode = parseRemainingValueMode(options.mode);
+  const proratedRefundRate = parseProratedRefundRate(options.proratedRefundRate);
 
-  const dryRun = !!program.dryRun;
-  if (!program.price) throw new Error('--price must be provided');
+  const dryRun = !!options.dryRun;
+  if (!options.price) throw new Error('--price must be provided');
 
   if (remainingValueMode === 'proratedRefund' && proratedRefundRate === null) {
     throw new Error('--prorated-refund-rate must be provided when using proratedRefund mode');
   }
 
   const planCanceller = new PlanCanceller(
-    program.price,
+    options.price,
     remainingValueMode,
     proratedRefundRate,
     excludePlanIds,
-    program.outputFile,
+    options.outputFile,
     stripeHelper,
     paypalHelper,
     dryRun,
