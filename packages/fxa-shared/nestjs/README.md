@@ -3,7 +3,6 @@
 These modules are intended to be used to avoid repeat implementations of core FxA server application features such as:
 
 - Health routes
-- Error reporting (via Sentry)
 - Logging (via mozlog)
 - Metrics (via hot-shots)
 
@@ -52,12 +51,6 @@ export class AppModule {}
 ```
 
 **Note**: Only one `HealthModule` import from above should be used.
-
-## Sentry Module
-
-As of Sentry v10, the integration with nestjs has been streamed lined. As such we should not need a custom SentryModule.
-
-See https://docs.sentry.io/platforms/javascript/guides/nestjs/ for setup guidelines.
 
 ## Logging Module
 
