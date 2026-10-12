@@ -1,0 +1,12 @@
+{
+  "commit": "ddeee71ad399170076f4f1a6f0551e751951964d",
+  "summary": "refactor(shared): move fxa-shared/auth hash helpers to @fxa/shared/crypto",
+  "description": "Because:\n- The hex and hash helpers sit in fxa-shared, which is moving to Nx libs.\n- libs/shared/crypto already serves fxa-auth-server.\n\nThis commit:\n- Adds hex and hash to libs/shared/crypto and exports them.\n- Ports the four mocha cases to jest and adds a known-answer SHA-256 check.\n- Changes 16 auth-server files and access-token.ts to import @fxa/shared/crypto.\n- Deletes packages/fxa-shared/auth and test/auth.\n- Removes the ./auth and ./auth/* package exports.\n\nCloses FXA-10650",
+  "timestamp": 1791831555000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
