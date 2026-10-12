@@ -1,8 +1,8 @@
 {
-  "commit": "6b44812f2005a0fcc988425a3e55a30cab66f05c",
-  "summary": "Merge pull request #21445 from mozilla/fxa-10651",
-  "description": "chore(shared): remove empty fxa-shared/cache",
-  "timestamp": 1791830035000,
+  "commit": "a2d347d6811f2835aad2e4a846981ea4a50983d2",
+  "summary": "Merge pull request #21447 from mozilla/fxa-14693",
+  "description": "chore(shared): remove dead nestjs/sentry reporting module",
+  "timestamp": 1791830228000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
