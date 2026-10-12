@@ -1,0 +1,13 @@
+{
+  "commit": "a9130e2a262bb13c24179105f0c04acbc9568af6",
+  "summary": "feat(profile,content): resolve @fxa libs at runtime",
+  "description": "Because:\n- Legacy Node services cannot require @fxa/* libs.\n\nThis commit:\n- Registers tsconfig-paths in both config modules to map @fxa/* to dist/libs.\n- Adds a @fxa/shared/l10n canary require to each service.\n- Adds tsconfig-paths to both services' dependencies.",
+  "timestamp": 1791818164000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
