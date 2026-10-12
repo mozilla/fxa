@@ -33,7 +33,17 @@ const convict_format_with_moment = require('convict-format-with-moment');
 convict.addFormats(convict_format_with_validator);
 convict.addFormats(convict_format_with_moment);
 
-const tracingConfig = tracing.tracingConfig;
+// Profile-server uses a concurrencyLimit default of 10; the otel lib default is 100.
+const tracingConfig = {
+  ...tracing.tracingConfig,
+  otel: {
+    ...tracing.tracingConfig.otel,
+    concurrencyLimit: {
+      ...tracing.tracingConfig.otel.concurrencyLimit,
+      default: 10,
+    },
+  },
+};
 
 const conf = convict({
   api: {
