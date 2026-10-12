@@ -1,8 +1,8 @@
 {
-  "commit": "39320ccb8f60ac2718cf6fcc253f2db49a2617e5",
-  "summary": "Merge pull request #21433 from mozilla/FXA-14479",
-  "description": "fix(settings): Prevent pairing when the mobile browser is signed in",
-  "timestamp": 1791835162000,
+  "commit": "89dd14b487ddfa075eecf0367ba391a2d572d790",
+  "summary": "Merge pull request #21455 from mozilla/fxa-10663",
+  "description": "refactor(shared): move fxa-shared/log importers to @fxa/shared/log",
+  "timestamp": 1791835721000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
