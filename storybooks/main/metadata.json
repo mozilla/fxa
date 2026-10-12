@@ -1,8 +1,8 @@
 {
-  "commit": "2999c5f72ba2d1c4614420ca92ae8aaa7e6850d7",
-  "summary": "Merge pull request #21398 from mozilla/dependabot/npm_and_yarn/shell-quote-1.12.0",
-  "description": "chore(deps): bump shell-quote from 1.8.3 to 1.12.0",
-  "timestamp": 1791814578000,
+  "commit": "5be41362d2c3b4091bd614a0ad463027e5e1b264",
+  "summary": "Merge pull request #21441 from mozilla/dependabot/npm_and_yarn/handlebars-4.7.10",
+  "description": "chore(deps): bump handlebars from 4.7.9 to 4.7.10",
+  "timestamp": 1791819138000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
