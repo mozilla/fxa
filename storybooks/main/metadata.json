@@ -1,8 +1,8 @@
 {
-  "commit": "f42f663f476fd5e4e784402876871888d438f218",
-  "summary": "Merge pull request #21438 from mozilla/fxa-13338",
-  "description": "test(auth): replace any types in passkey specs",
-  "timestamp": 1791829143000,
+  "commit": "6b44812f2005a0fcc988425a3e55a30cab66f05c",
+  "summary": "Merge pull request #21445 from mozilla/fxa-10651",
+  "description": "chore(shared): remove empty fxa-shared/cache",
+  "timestamp": 1791830035000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
