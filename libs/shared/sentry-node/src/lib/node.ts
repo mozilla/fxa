@@ -9,6 +9,7 @@ import {
   buildSentryConfig,
   InitSentryOpts,
   Logger,
+  tagCriticalEvent,
 } from '@fxa/shared/sentry-utils';
 
 /**
@@ -40,7 +41,7 @@ export function initSentry(config: InitSentryOpts, log: Logger) {
       // Custom Options
       integrations,
       beforeSend: (event: ErrorEvent, hint: any) => {
-        return beforeSendServer(config, event, hint);
+        return beforeSendServer(config, tagCriticalEvent(event), hint);
       },
       ...opts,
     });

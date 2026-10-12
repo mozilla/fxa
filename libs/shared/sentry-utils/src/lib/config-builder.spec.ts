@@ -59,6 +59,16 @@ describe('config-builder', () => {
     expect(config.fxaName).toEqual(testConfig.sentry?.serverName);
   });
 
+  it('passes through tracesSampler', () => {
+    const tracesSampler = () => 0.5;
+    const config = buildSentryConfig(
+      { ...testConfig, sentry: { ...testConfig.sentry, tracesSampler } },
+      mockLogger
+    );
+
+    expect(config.tracesSampler).toBe(tracesSampler);
+  });
+
   it('warns about missing config', () => {
     const clone = cloneConfig(testConfig);
     clone.sentry.dsn = '';
