@@ -16,7 +16,7 @@ import AuthClient from 'fxa-auth-client/browser';
 it('renders the content when verified', async () => {
   const account = {
     primaryEmail: {
-      email: 'smcarthur@mozilla.com',
+      email: 'user@example.com',
     },
   } as unknown as Account;
   const onDismiss = jest.fn();
@@ -54,7 +54,7 @@ it('renders the content when verified', async () => {
 it('calls onError when session status check is rate limited', async () => {
   const account = {
     primaryEmail: {
-      email: 'smcarthur@mozilla.com',
+      email: 'user@example.com',
     },
   } as unknown as Account;
   const onDismiss = jest.fn();
@@ -95,7 +95,7 @@ it('renders the guard when unverified', async () => {
   const onError = jest.fn();
   const account = {
     primaryEmail: {
-      email: 'smcarthur@mozilla.com',
+      email: 'user@example.com',
     },
   } as unknown as Account;
 
