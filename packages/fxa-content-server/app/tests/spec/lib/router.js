@@ -9,7 +9,7 @@ import BaseView from 'views/base';
 import Constants from 'lib/constants';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
-import ReadyView from 'views/ready';
+import PermissionsView from 'views/permissions';
 import Relier from 'models/reliers/relier';
 import Router from 'lib/router';
 import sinon from 'sinon';
@@ -467,7 +467,7 @@ describe('lib/router', () => {
 
     it('handles module names for the view', () => {
       var routeHandler = router.createViewHandler(
-        'ready',
+        'permissions',
         viewConstructorOptions
       );
       assert.isFunction(routeHandler);
@@ -475,7 +475,7 @@ describe('lib/router', () => {
 
       return routeHandler.call(router).then(() => {
         assert.isTrue(
-          router.showView.calledWith(ReadyView, viewConstructorOptions)
+          router.showView.calledWith(PermissionsView, viewConstructorOptions)
         );
       });
     });
@@ -514,7 +514,7 @@ describe('lib/router', () => {
 
     it('handles module names for the view', () => {
       var routeHandler = router.createChildViewHandler(
-        'ready',
+        'permissions',
         ParentView,
         viewConstructorOptions
       );
@@ -524,7 +524,7 @@ describe('lib/router', () => {
       return routeHandler.call(router).then(() => {
         assert.isTrue(
           router.showChildView.calledWith(
-            ReadyView,
+            PermissionsView,
             ParentView,
             viewConstructorOptions
           )
@@ -639,6 +639,21 @@ describe('lib/router', () => {
             router.showView.calledWith(View, viewConstructorOptions)
           );
         });
+      });
+    });
+
+    describe('oauth route', () => {
+      it('navigates away with the original query params', () => {
+        windowMock.location.search = '?channel_id=test123&client_id=abc';
+        sinon.spy(router, 'navigateAway');
+
+        router.routes['oauth(/)'].call(router);
+
+        assert.equal(router.navigateAway.callCount, 1);
+        const link = router.navigateAway.args[0][0];
+        assert.match(link, /^\/oauth\?/);
+        assert.include(link, 'channel_id=test123');
+        assert.include(link, 'client_id=abc');
       });
     });
   });

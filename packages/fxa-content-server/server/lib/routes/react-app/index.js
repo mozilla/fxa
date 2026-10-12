@@ -24,14 +24,14 @@ const { OAUTH_SUCCESS_ROUTES } = require('./content-server-routes');
 const getReactRouteGroups = (showReactApp, reactRoute) => {
   return {
     emailFirstRoutes: {
-      featureFlagOn: showReactApp.emailFirstRoutes,
+      featureFlagOn: true,
       // the order of the routes in the array is important.  do not put '/'
       // first.
       routes: reactRoute.getRoutes(['authorization', 'oauth', '/']),
       fullProdRollout: true,
     },
     simpleRoutes: {
-      featureFlagOn: showReactApp.simpleRoutes,
+      featureFlagOn: true,
       routes: reactRoute.getRoutes(['clear', 'cookies_disabled']),
       fullProdRollout: true,
     },

@@ -105,9 +105,6 @@ const settingsConfig = {
   brandMessagingMode: config.get('brandMessagingMode'),
   glean: { ...config.get('glean'), appDisplayVersion: config.get('version') },
   redirectAllowlist: config.get('redirect_check.allow_list'),
-  showReactApp: {
-    emailFirstRoutes: config.get('showReactApp.emailFirstRoutes'),
-  },
   pairing: {
     browserBuild: config.get('pairing.browser_build'),
     iosUrlScheme: config.get('pairing.ios_url_scheme'),
