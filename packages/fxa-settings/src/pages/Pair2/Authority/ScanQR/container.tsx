@@ -122,12 +122,16 @@ const ScanQRContainer = ({
     }
     // Firefox sends nothing to the page on a sync sign-out, so a QR already on
     // screen only learns of one by asking again.
+    let active = true;
     const timer = window.setInterval(async () => {
       const status = await firefox.fxaStatus({
         context: Constants.OAUTH_CONTEXT,
         isPairing: true,
         service: Constants.SYNC_SERVICE,
       });
+      if (!active) {
+        return;
+      }
       // Silence counts as signed out: a sign-out resets Firefox's FxA root
       // pref, so a page on a non-production FxA loses its channel entirely.
       const user = status?.signedInUser;
@@ -139,7 +143,10 @@ const ScanQRContainer = ({
       integration.destroy().catch((err) => Sentry.captureException(err));
       hardNavigate('/pair', {}, true);
     }, SIGNED_IN_POLL_MS);
-    return () => window.clearInterval(timer);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
   }, [integration, isSignedIn]);
 
   const onSkip = () => {
