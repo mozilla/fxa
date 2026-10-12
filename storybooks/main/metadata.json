@@ -1,8 +1,8 @@
 {
-  "commit": "8a537054f5ec4b1a0dd2cbd02ceff455616b60cd",
-  "summary": "Merge pull request #21451 from mozilla/fxa-14692",
-  "description": "chore(shared): remove dead navigation-timing code from fxa-shared",
-  "timestamp": 1791833839000,
+  "commit": "39320ccb8f60ac2718cf6fcc253f2db49a2617e5",
+  "summary": "Merge pull request #21433 from mozilla/FXA-14479",
+  "description": "fix(settings): Prevent pairing when the mobile browser is signed in",
+  "timestamp": 1791835162000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
