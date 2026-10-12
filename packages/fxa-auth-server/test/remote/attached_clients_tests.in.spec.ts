@@ -6,7 +6,7 @@ import { getSharedTestServer, TestServerInstance } from '../support/helpers/test
 
 const Client = require('../client')();
 const ScopeSet = require('fxa-shared').oauth.scopes;
-const hashRefreshToken = require('fxa-shared/auth/encrypt').hash;
+const hashRefreshToken = require('@fxa/shared/crypto').hash;
 const unique = require('../../lib/oauth/unique');
 
 const buf = (v: any) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));

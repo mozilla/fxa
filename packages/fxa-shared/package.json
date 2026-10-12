@@ -13,14 +13,6 @@
       "import": "./dist/esm/packages/fxa-shared/*",
       "require": "./dist/cjs/packages/fxa-shared/*"
     },
-    "./auth": {
-      "import": "./dist/esm/packages/fxa-shared/auth/index.js",
-      "require": "./dist/cjs/packages/fxa-shared/auth/index.js"
-    },
-    "./auth/*": {
-      "import": "./dist/esm/packages/fxa-shared/auth/*.js",
-      "require": "./dist/cjs/packages/fxa-shared/auth/*.js"
-    },
     "./configuration/*": {
       "import": "./dist/esm/packages/fxa-shared/configuration/*.js",
       "require": "./dist/cjs/packages/fxa-shared/configuration/*.js"

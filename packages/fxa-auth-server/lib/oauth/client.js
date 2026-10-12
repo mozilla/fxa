@@ -9,7 +9,7 @@ const Joi = require('joi');
 const { OauthError } = require('@fxa/accounts/errors');
 const validators = require('./validators');
 const db = require('./db');
-const encrypt = require('fxa-shared/auth/encrypt');
+const encrypt = require('@fxa/shared/crypto');
 
 // Client credentials can be provided in either the Authorization header
 // or the request body, but not both.

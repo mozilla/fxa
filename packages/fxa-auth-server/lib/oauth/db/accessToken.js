@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const unique = require('../unique');
-const encrypt = require('fxa-shared/auth/encrypt');
+const encrypt = require('@fxa/shared/crypto');
 const { config } = require('../../../config');
 const MAX_TTL = config.get('oauthServer.expiration.accessToken');
 

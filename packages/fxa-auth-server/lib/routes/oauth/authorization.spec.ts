@@ -885,7 +885,7 @@ describe('/authorization POST consent write', () => {
   // ./token.spec.ts.
   describe('carrying the decision to /oauth/token', () => {
     const CODE_HEX = 'a1'.repeat(32);
-    const encrypt = require('fxa-shared/auth/encrypt');
+    const encrypt = require('@fxa/shared/crypto');
     const {
       excludeDauCacheKey,
     } = require('../../oauth/desktop-sync-dau-authorization-bandaid');
