@@ -1007,6 +1007,7 @@ passkey-sub-row-created-date = Δημιουργία: { $createdDate }
 passkey-sub-row-last-used-date = Τελευταία χρήση: { $lastUsedDate }
 passkey-sub-row-delete-title = Διαγραφή κλειδιού πρόσβασης
 passkey-delete-modal-heading = Διαγραφή κλειδιού πρόσβασης;
+passkey-delete-modal-content-v3 = Αυτό το κλειδί πρόσβασης θα αφαιρεθεί από τον λογαριασμό σας. Θα πρέπει να συνδεθείτε με κωδικό πρόσβασης, άλλο κλειδί πρόσβασης ή συνδεδεμένο λογαριασμό.
 passkey-delete-modal-cancel-button = Ακύρωση
 passkey-delete-modal-confirm-button = Διαγραφή κλειδιού πρόσβασης
 passkey-delete-success = Το κλειδί πρόσβασης διαγράφηκε
@@ -1259,6 +1260,7 @@ inline-passwordless-sync-setup-not-now-button = Όχι τώρα
 inline-passwordless-sync-setup-success-alert-v2 = Αυτό το κλειδί πρόσβασης έχει ενεργοποιηθεί για σύνδεση στον συγχρονισμό
 inline-passwordless-sync-setup-error-cancelled = Η επιβεβαίωση του κλειδιού πρόσβασης δεν ολοκληρώθηκε
 inline-passwordless-sync-setup-error-cancelled-description = Κάντε επιβεβαίωση με το κλειδί πρόσβασής σας για να παραλείψετε τον κωδικό πρόσβασης την επόμενη φορά.
+inline-passwordless-sync-setup-error-generic-v2 = Δεν ήταν δυνατή η ενεργοποίηση αυτού του κλειδιού πρόσβασης για τη σύνδεση στον συγχρονισμό. Θα χρειαστείτε τον κωδικό πρόσβασής σας την επόμενη φορά.
 
 
 inline-recovery-key-setup-create-error = Ωχ! Δεν ήταν δυνατή η δημιουργία του κλειδιού ανάκτησης του λογαριασμού σας. Δοκιμάστε ξανά αργότερα.
@@ -1525,9 +1527,11 @@ confirm-totp-reset-password-use-different-account = Χρήση διαφορετ�
 
 password-reset-flow-heading = Επαναφορά κωδικού πρόσβασης
 password-reset-forgot-heading = Ξεχάσατε τον κωδικό πρόσβασής σας;
+password-reset-alternatives-body = <signInLink>Δοκιμάστε να συνδεθείτε μέσω { -brand-google }, μέσω { -brand-apple } ή με κλειδί πρόσβασης.</signInLink> Εναλλακτικά, εισαγάγετε το email σας και θα σας στείλουμε έναν κωδικό για την επαναφορά του κωδικού πρόσβασής σας.
 password-reset-email-input =
     .label = Εισαγάγετε το email σας
 password-reset-submit-button-2 = Συνέχεια
+password-reset-data-recovery-warning = Η επαναφορά του κωδικού πρόσβασής σας ενδέχεται να επηρεάσει την ανάκτηση των συγχρονισμένων δεδομένων του προγράμματος περιήγησης. <learnMoreLink>Μάθετε περισσότερα</learnMoreLink>
 
 
 reset-password-complete-header = Έγινε επαναφορά του κωδικού πρόσβασής σας

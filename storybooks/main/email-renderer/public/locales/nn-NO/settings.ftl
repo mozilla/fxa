@@ -1635,6 +1635,8 @@ index-email-bounced = Stadfestings e-posten din kom i retur. Feil i e-postadress
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Hoppe over passordet neste gong?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner-v2 = Du er innlogga, og synkronisering er på
 inline-passwordless-sync-setup-heading = Hoppe over passordet neste gong?
 inline-passwordless-sync-setup-description = Bruk denne passnøkkelen for å logge på raskare.
 inline-passwordless-sync-setup-enable-button = Slå på passnøkkel
@@ -1903,6 +1905,8 @@ pair2-authority-scan-qr-heading = Skann for å kople til mobileininga di
 pair2-authority-scan-qr-instruction = Skann QR-koden med telefonen eller nettbrettet for å synkronisere bokmerka, fanene og meir i { -brand-firefox }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR-kode for å kople til mobileininga di
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Andre måtar å logge inn på
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Hopp over no
 
@@ -2037,6 +2041,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = For å kople til ei e
 permissions-heading = { $serviceName } ønskjer tilgang til:
 permissions-label-email = E-postadresse
 permissions-label-display-name = Visingsnamn
+permissions-label-avatar = Kontobilde
 permissions-continue-button = Hald fram
 permissions-cancel-button = Avbryt
 
@@ -2145,6 +2150,7 @@ confirm-totp-reset-password-use-different-account = Bruk ein annan konto
 ## ResetPassword start page
 
 password-reset-flow-heading = Tilbakestill passordet ditt
+password-reset-forgot-heading = Gløymt passordet ditt?
 password-reset-email-input =
     .label = Skriv inn e-postadressa di
 password-reset-submit-button-2 = Hald fram

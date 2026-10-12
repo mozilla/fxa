@@ -949,6 +949,7 @@ passkey-sub-row-created-date = Napórany: { $createdDate }
 passkey-sub-row-last-used-date = Slědny raz wužyty: { $lastUsedDate }
 passkey-sub-row-delete-title = Gronidłowy kluc lašowaś
 passkey-delete-modal-heading = Gronidłowy kluc lašowaś?
+passkey-delete-modal-content-v3 = Toś ten gronidłowy kluc se z wašogo konta wótwónoźijo. Musyśo se z pomocu gronidła, drugego gronidłowego kluca abo zwězanego konta pśizjawiś.
 passkey-delete-modal-cancel-button = Pśetergnuś
 passkey-delete-modal-confirm-button = Gronidłowy kluc lašowaś
 passkey-delete-success = Gronidłowy kluc jo se wulašował
@@ -1195,13 +1196,16 @@ index-email-bounced = Waša wobkšuśeńska mejlka jo se rowno wrośiła. Jo e-m
 
 
 inline-passwordless-sync-setup-page-title = Gronidło pśiducy raz pśeskócyś?
+inline-passwordless-sync-setup-success-banner-v2 = Sćo pśizjawjony a synchronizacija jo zmóžnjona
 inline-passwordless-sync-setup-heading = Gronidło pśiducy raz pśeskócyś?
 inline-passwordless-sync-setup-description = Wužywajśo toś ten gronidłowy kluc, aby se malsnjej pśizjawił.
 inline-passwordless-sync-setup-enable-button = Gronidłowy kluc zmóžniś
 inline-passwordless-sync-setup-enabling = Zmóžnja se…
 inline-passwordless-sync-setup-not-now-button = Nic něnto
+inline-passwordless-sync-setup-success-alert-v2 = Toś ten gronidłowy kluc jo za pśizjawjenje synchronizacije zmóžnjony
 inline-passwordless-sync-setup-error-cancelled = Wobkšuśenje gronidłowego kluca se njekóńcy
 inline-passwordless-sync-setup-error-cancelled-description = Wobkšuśćo ze swójim gronidłowym klucom, aby gronidło pśiducy raz pśeskócył.
+inline-passwordless-sync-setup-error-generic-v2 = Njejsmy mógli toś ten gronidłowy kluc za pśizjawjenje synchronizacije zmóžniś. Buźośo pśiducy raz wašo gronidło trjebaś.
 
 
 inline-recovery-key-setup-create-error = Hopla! Njejsmy mógli waš kontowy wótnowjeński kluc napóraś. Pšosym wopytajśo pózdźej hyšći raz.
@@ -1340,6 +1344,7 @@ pair2-authority-download-firefox-cta = { -brand-firefox } ześěgnuś
 pair2-authority-scan-qr-heading = Za zwězowanje ze swójom rědom scannowaś
 pair2-authority-scan-qr-instruction = Scannujśo QR-kod ze swójom telefonom abo tabletom, aby swóje cytańske znamjenja, rejtariki { -brand-firefox } a wěcej synchronizěrował.
 pair2-authority-scan-qr-code-aria-label = QR-kod za zwězowanje z wašym mobilnym rědom
+pair2-authority-scan-qr-other-ways-link = Druge móžnosći pśizjawjenja
 pair2-authority-scan-qr-skip-button = Tuchylu pśeskócyś
 
 
@@ -1399,6 +1404,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Aby rěd kuždy cas z
 permissions-heading = { $serviceName } co pśistup k:
 permissions-label-email = E-mailowa adresa
 permissions-label-display-name = Zwobraznjeńske mě
+permissions-label-avatar = Kontowy wobraz
 permissions-continue-button = Dalej
 permissions-cancel-button = Pśetergnuś
 
@@ -1465,9 +1471,12 @@ confirm-totp-reset-password-use-different-account = Druge konto wužywaś
 
 
 password-reset-flow-heading = Stajśo swójo gronidło slědk
+password-reset-forgot-heading = Sćo swójo gronidło zabył?
+password-reset-alternatives-body = <signInLink>Wopytajśo se z { -brand-google }, { -brand-apple } abo gronidłowym klucom město togo pśizjawiś.</signInLink> Abo zapódajśo swóju e-mailowu adresu a buźomy wam kode słaś, aby swójo gronidło slědk stajił.
 password-reset-email-input =
     .label = Zapódajśo swóju e-mailowu adresu
 password-reset-submit-button-2 = Dalej
+password-reset-data-recovery-warning = Slědkstajenje wašogo gronidła móžo se na to wustatkowaś, lěc móžośo synchronizěrowane daty wobglědowaka wótnowiś. <learnMoreLink>Dalšne informacije</learnMoreLink>
 
 
 reset-password-complete-header = Wašo gronidło jo se slědk stajiło

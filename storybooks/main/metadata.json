@@ -1,8 +1,8 @@
 {
-  "commit": "462a1a129cd3f0ba9eec1acbd29dfb1cbfc4bd71",
-  "summary": "Merge pull request #21435 from mozilla/fxa-14580",
-  "description": "fix(admin-panel): update the Authorized Browser Services note",
-  "timestamp": 1791568868000,
+  "commit": "2999c5f72ba2d1c4614420ca92ae8aaa7e6850d7",
+  "summary": "Merge pull request #21398 from mozilla/dependabot/npm_and_yarn/shell-quote-1.12.0",
+  "description": "chore(deps): bump shell-quote from 1.8.3 to 1.12.0",
+  "timestamp": 1791814578000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
