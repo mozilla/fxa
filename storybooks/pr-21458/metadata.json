@@ -1,8 +1,8 @@
 {
-  "commit": "a129545c03649716f4895de955e124d856427186",
+  "commit": "293c125ef4cf58b381b9fece0638cc76f2a49e6d",
   "summary": "refactor(shared): point fxa-shared/tracing at @fxa/shared/otel",
-  "description": "Because:\n- fxa-shared/tracing duplicates @fxa/shared/otel.\n- The fxa-shared copy imports ../sentry, which blocks the sentry move.\n\nThis commit:\n- Replaces tracing/config.ts and node-tracing.ts with re-exports of @fxa/shared/otel.\n- Deletes tracing/pii-filters.ts, tracing/exporters/ and test/tracing/.\n- Ports the config and exporters tests to jest in libs/shared/otel.\n- Keeps profile-server otel.concurrencyLimit at 10 in lib/config.js.\n- Adds lib/config.spec.ts in profile-server for the default and the env override.\n\nCloses FXA-10674",
-  "timestamp": 1791835657000,
+  "description": "Because:\n\n* fxa-shared/tracing duplicates @fxa/shared/otel.\n* The fxa-shared copy imports ../sentry, which blocks the sentry move.\n\nThis commit:\n\n* Replaces fxa-shared/tracing with re-exports of @fxa/shared/otel.\n* Deletes the old exporters, PII filters and mocha tracing tests.\n* Ports the config and exporters tests to jest in libs/shared/otel.\n* Keeps the profile-server otel.concurrencyLimit default at 10.\n* Isolates the env var in the profile-server config spec.\n\nCloses FXA-10674",
+  "timestamp": 1791837310000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",
