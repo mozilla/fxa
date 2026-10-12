@@ -1,8 +1,8 @@
 {
-  "commit": "cbd6d52b03ccc77ca03f6868b3db7f12b9f2978a",
-  "summary": "Merge pull request #21448 from mozilla/fxa-10657",
-  "description": "chore(shared): remove dead fxa-shared experiments module",
-  "timestamp": 1791831865000,
+  "commit": "3d9304f82f5fe6c347b5ed28b9043aed0a153209",
+  "summary": "Merge pull request #21450 from mozilla/fxa-10671",
+  "description": "refactor(content-server): move speed-trap from fxa-shared",
+  "timestamp": 1791833019000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
