@@ -1,0 +1,10 @@
+{
+  "commit": "8858f1e3b86c6a1475a876226c09908f1c79a3c6",
+  "summary": "fix(payments): fix Link payments being logged as Card in metrics",
+  "description": "Because:\n- Prod reports Link as type 'card' with wallet type 'link', which mapped to Card\n\nThis pull request:\n- Maps the 'link' wallet type to Link in stripeWalletToSubPlatPaymentType\n\nCloses\nPAY-3908",
+  "timestamp": 1791819031000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
