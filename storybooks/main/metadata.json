@@ -1,8 +1,8 @@
 {
-  "commit": "5be41362d2c3b4091bd614a0ad463027e5e1b264",
-  "summary": "Merge pull request #21441 from mozilla/dependabot/npm_and_yarn/handlebars-4.7.10",
-  "description": "chore(deps): bump handlebars from 4.7.9 to 4.7.10",
-  "timestamp": 1791819138000,
+  "commit": "d3c3677bc2c3870b220245f3391524141cd216e7",
+  "summary": "Merge pull request #21437 from mozilla/fxa-14727",
+  "description": "perf(admin-panel): cache the Nx build sub-targets",
+  "timestamp": 1791819270000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
