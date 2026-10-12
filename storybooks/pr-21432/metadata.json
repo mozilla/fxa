@@ -1,8 +1,8 @@
 {
-  "commit": "d1246945a137c2792dd600f49a1b84181d37f607",
-  "summary": "Update test description for sign-out behavior",
+  "commit": "10aecf4a842f8c123cf6617d19b11e8d66a9d6a6",
+  "summary": "Update QR scan interval cleanup to manage active state",
   "description": "Co-authored-by: Copilot Autofix powered by AI <175728472+Copilot@users.noreply.github.com>",
-  "timestamp": 1791842156000,
+  "timestamp": 1791842142000,
   "storybooks": [
     "fxa-settings"
   ],
