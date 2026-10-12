@@ -5,7 +5,7 @@ import { CreateQueueCommand, ListQueuesCommand } from '@aws-sdk/client-sqs';
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 import * as Sentry from '@sentry/node';
 
 import { ClientCapabilityService } from '../client-capability/client-capability.service';
@@ -137,6 +137,7 @@ describe('QueueworkerService', () => {
       debug: jest.fn(),
       info: jest.fn(),
       warn: jest.fn(),
+      setContext: jest.fn(),
     };
     topic = {
       publishMessage: jest.fn().mockResolvedValue('mockid'),
@@ -214,6 +215,10 @@ describe('QueueworkerService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('keeps the default logger name', () => {
+    expect(logger.setContext).toHaveBeenCalledWith('default');
   });
 
   describe('lifecycle', () => {

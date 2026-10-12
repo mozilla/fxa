@@ -7,7 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
 import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
-import { LoggerModule } from 'fxa-shared/nestjs/logger/logger.module';
+import { MozLoggerModule } from '@fxa/shared/mozlog';
 import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
 import { getVersionInfo } from 'fxa-shared/nestjs/version';
 
@@ -35,7 +35,7 @@ const version = getVersionInfo(__dirname);
     FirestoreModule,
     HealthModule.register({ version }),
     JwtsetModule,
-    LoggerModule,
+    MozLoggerModule,
     ScheduleModule.forRoot(),
     QueueworkerModule,
     PubsubProxyModule,

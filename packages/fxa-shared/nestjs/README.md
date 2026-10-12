@@ -59,12 +59,12 @@ The logging module only requires an import in `app.module.ts` for dependency inj
 Update `app.module.ts` to include the Logging module:
 
 ```typescript
-import { LoggerModule } from 'fxa-shared/nestjs/logger/logger.module';
+import { MozLoggerModule } from '@fxa/shared/mozlog';
 
 @Module({
   imports: [
     // .. app imports ..
-    LoggerModule,
+    MozLoggerModule,
     // .. remaining imports, etc.
   ],
   controllers: [],
@@ -79,7 +79,7 @@ By default the logger is global, so any Nest injectable object can use it, for e
 
 ```typescript
 import { Injectable } from '@nestjs/common';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 @Injectable()
 export class MyExampleService {
@@ -151,7 +151,7 @@ Use the metrics instance:
 ```typescript
 import { Injectable, Inject } from '@nestjs/common';
 import { StatsD } from 'hot-shots';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 @Injectable()
 export class MyExampleService {

@@ -12,10 +12,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 import { StatsD } from 'hot-shots';
 import * as Sentry from '@sentry/node';
-import { ExtendedError } from 'fxa-shared/nestjs/error';
+import { ExtendedError } from '../extended-error';
 
 import { GoogleJwtAuthGuard } from '../auth/google-jwt-auth.guard';
 import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';
@@ -43,7 +43,10 @@ export class PubsubProxyController {
     @Inject('METRICS') private metrics: StatsD,
     private webhookService: ClientWebhooksService,
     private jwtset: JwtsetService
-  ) {}
+  ) {
+    // Keeps the existing mozlog type prefix.
+    this.log.setContext('default');
+  }
 
   @UseGuards(GoogleJwtAuthGuard)
   @Post(':clientId')
