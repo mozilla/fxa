@@ -1,8 +1,8 @@
 {
-  "commit": "d2bdb755a71672407284caf98613bd746678d336",
-  "summary": "Merge pull request #21443 from mozilla/fxa-14690",
-  "description": "feat(profile,content): resolve @fxa libs at runtime",
-  "timestamp": 1791827212000,
+  "commit": "d091f92191a90ca58dcb8ab78b2387ceecfb9741",
+  "summary": "Merge pull request #21444 from mozilla/fxa-14749",
+  "description": "chore(content-server): remove Backbone add_newsletters and signin_permissions views",
+  "timestamp": 1791828720000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
