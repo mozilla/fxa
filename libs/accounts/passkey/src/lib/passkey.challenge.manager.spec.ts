@@ -6,6 +6,8 @@ import {
   PasskeyChallengeManager,
   StoredChallenge,
 } from './passkey.challenge.manager';
+import { Redis } from 'ioredis';
+import { StatsD } from '@fxa/shared/metrics/statsd';
 import { PasskeyConfig } from './passkey.config';
 
 const mockRedis = {
@@ -52,10 +54,10 @@ describe('PasskeyChallengeManager', () => {
     jest.clearAllMocks();
     config = makeConfig();
     manager = new PasskeyChallengeManager(
-      mockRedis as any,
+      mockRedis as unknown as Redis,
       config,
       undefined,
-      mockStatsd as any
+      mockStatsd as unknown as StatsD
     );
   });
 
