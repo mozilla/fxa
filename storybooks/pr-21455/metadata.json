@@ -1,0 +1,12 @@
+{
+  "commit": "3827594c0eebb4aa1d22940eb4d4da5fbd641a8e",
+  "summary": "refactor(shared): move fxa-shared/log importers to @fxa/shared/log",
+  "description": "Because:\n- Four files outside fxa-shared import ILogger from fxa-shared/log.\n- The lib ILogger was not assignable to the fxa-shared ILogger because of `trace`.\n\nThis commit:\n- Imports ILogger from @fxa/shared/log in pushbox, stripe-firestore and audit-tokens.\n- Moves `trace` from the fxa-shared ILogger to the Logger interface in lib/logger.ts.\n- Removes the unused `trace` line from three object literals that failed tsc.\n- Removes the ./log and ./log/* exports from the fxa-shared package.json.\n- Uses a relative log import in user-manager.ts.\n\nCloses FXA-10663",
+  "timestamp": 1791834578000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
