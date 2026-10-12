@@ -1,8 +1,8 @@
 {
-  "commit": "4f157e253c5e032d52e219f125b4875a0cb84915",
-  "summary": "Merge pull request #21439 from mozilla/fxa-14378",
-  "description": "chore(content-server): remove Backbone email-first and index views",
-  "timestamp": 1791824082000,
+  "commit": "d2bdb755a71672407284caf98613bd746678d336",
+  "summary": "Merge pull request #21443 from mozilla/fxa-14690",
+  "description": "feat(profile,content): resolve @fxa libs at runtime",
+  "timestamp": 1791827212000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
