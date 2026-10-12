@@ -1269,6 +1269,7 @@ passkey-sub-row-created-date = ساخته‌شده در: { $createdDate }
 passkey-sub-row-last-used-date = آخرین استفاده: { $lastUsedDate }
 passkey-sub-row-delete-title = حذف کلید عبور
 passkey-delete-modal-heading = کلید عبورتان حذف شود؟
+passkey-delete-modal-content-v3 = این کلید عبور از حساب شما برداشته می‌شود. باید با گذرواژه، کلید عبوری دیگر یا حساب پیوندشده وارد شوید.
 passkey-delete-modal-cancel-button = انصراف
 passkey-delete-modal-confirm-button = حذف کلید عبور
 passkey-delete-success = کلید عبور حذف شد
@@ -1621,6 +1622,8 @@ index-email-bounced = رایانامهٔ تأییدتان همین الان بر
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = دفعهٔ بعد بدون گذرواژه وارد شوید؟
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner-v2 = وارد شدید و همگام‌سازی روشن است
 inline-passwordless-sync-setup-heading = دفعهٔ بعد بدون گذرواژه وارد شوید؟
 inline-passwordless-sync-setup-description = با این کلید عبور سریع‌تر وارد شوید.
 inline-passwordless-sync-setup-enable-button = فعال کردن کلید عبور
@@ -2146,6 +2149,8 @@ password-reset-alternatives-body = <signInLink>به جای آن، با { -brand-
 password-reset-email-input =
     .label = رایانامه‌تان را وارد کنید
 password-reset-submit-button-2 = ادامه
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = بازنشانی گذرواژه ممکن است و روی امکان بازیابی داده‌های همگام‌شدهٔ مرورگرتان اثر می‌گذارد. <learnMoreLink>بیشتر بدانید</learnMoreLink>
 
 ## ResetPasswordConfirmed
 

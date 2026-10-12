@@ -1205,6 +1205,7 @@ inline-passwordless-sync-setup-not-now-button = Nic nětko
 inline-passwordless-sync-setup-success-alert-v2 = Hesłowy kluč je za synchronizaciske přizjewjenje zmóžnjeny
 inline-passwordless-sync-setup-error-cancelled = Wobkrućenje hesłoweho kluča so njekónči
 inline-passwordless-sync-setup-error-cancelled-description = Wobkrućće ze swojim hesłowym klučom, zo byšće hesło přichodny raz přeskočił.
+inline-passwordless-sync-setup-error-generic-v2 = Njemóžachmy tutón hesłowy kluč za synchronizaciske přizjewjenje zmóžnić. Budźeće přichodny raz waše hesło trjebać.
 
 
 inline-recovery-key-setup-create-error = Hopla! Njemóžachmy waš kontowy wobnowjenski kluč wutworić. Prošu spytajće pozdźišo hišće raz.
@@ -1471,9 +1472,11 @@ confirm-totp-reset-password-use-different-account = Druhe konto wužiwać
 
 password-reset-flow-heading = Stajće swoje hesło wróćo
 password-reset-forgot-heading = Sće swoje hesło zabył?
+password-reset-alternatives-body = <signInLink>Spytajće sej z { -brand-google }, { -brand-apple } abo hesłowym klučom město toho přizjewić.</signInLink> Abo zapodajće swoju e-mejlowu adresu a budźemy wam kode słać, zo byšće swoje hesło wróćo stajił.
 password-reset-email-input =
     .label = Zapodajće swoju e-mejlowu adresu
 password-reset-submit-button-2 = Dale
+password-reset-data-recovery-warning = Wróćostajenje wašeho hesła móže so na to wuskutkować, hač móžeće synchronizowane daty wobhladowaka wobnowić. <learnMoreLink>Dalše informacije</learnMoreLink>
 
 
 reset-password-complete-header = Waše hesło je so wróćo stajiło

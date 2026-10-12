@@ -395,7 +395,7 @@ flow-setup-2fa-manual-key-heading = Settu kóðann inn handvirkt
 flow-setup-2fa-scan-qr-instead-button = Skanna frekar QR-kóða?
 flow-setup-2fa-more-info-link = Frekari upplýsingar um auðkenningarforrit
 flow-setup-2fa-button = Halda áfram
-flow-setup-2fa-step-2-instruction = <strong>Skref 2:</strong> Sláðu inn kóðann úr auðkenningarforritinu þínu.
+flow-setup-2fa-step-2-instruction = <strong>Skref 2:</strong> Settu inn kóðann úr auðkenningarforritinu þínu.
 flow-setup-2fa-input-label = Settu inn 6-stafa kóða
 
 

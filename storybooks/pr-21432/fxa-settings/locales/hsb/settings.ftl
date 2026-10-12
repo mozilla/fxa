@@ -1665,6 +1665,9 @@ inline-passwordless-sync-setup-success-alert-v2 = Hesłowy kluč je za synchroni
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Wobkrućenje hesłoweho kluča so njekónči
 inline-passwordless-sync-setup-error-cancelled-description = Wobkrućće ze swojim hesłowym klučom, zo byšće hesło přichodny raz přeskočił.
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = Njemóžachmy tutón hesłowy kluč za synchronizaciske přizjewjenje zmóžnić. Budźeće přichodny raz waše hesło trjebać.
 
 ## InlineRecoveryKeySetup page component
 
@@ -2170,9 +2173,13 @@ confirm-totp-reset-password-use-different-account = Druhe konto wužiwać
 
 password-reset-flow-heading = Stajće swoje hesło wróćo
 password-reset-forgot-heading = Sće swoje hesło zabył?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Spytajće sej z { -brand-google }, { -brand-apple } abo hesłowym klučom město toho přizjewić.</signInLink> Abo zapodajće swoju e-mejlowu adresu a budźemy wam kode słać, zo byšće swoje hesło wróćo stajił.
 password-reset-email-input =
     .label = Zapodajće swoju e-mejlowu adresu
 password-reset-submit-button-2 = Dale
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Wróćostajenje wašeho hesła móže so na to wuskutkować, hač móžeće synchronizowane daty wobhladowaka wobnowić. <learnMoreLink>Dalše informacije</learnMoreLink>
 
 ## ResetPasswordConfirmed
 
