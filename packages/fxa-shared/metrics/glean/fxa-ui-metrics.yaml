@@ -4355,8 +4355,8 @@ dtm_mobile:
     type: event
     description: |
       User viewed the pairing interrupted screen on the mobile (supplicant)
-      device. One route serves both the timed-out and the canceled state, so the
-      state is in 'reason' rather than being inferable from the URL.
+      device. One route serves every dead-end state, so the state is in
+      'reason' rather than being inferable from the URL.
     send_in_pings:
       - events
     notification_emails:
@@ -4373,8 +4373,9 @@ dtm_mobile:
     extra_keys:
       reason:
         description: |
-          Why pairing stopped: 'timeout' when the pairing channel expired, or
-          'canceled' when either device abandoned the attempt.
+          Why pairing stopped: 'timeout' when the pairing channel expired,
+          'canceled' when either device abandoned the attempt, or 'signed_in'
+          when the mobile browser already held a verified account.
         type: string
 
   deeplink_attempt:
