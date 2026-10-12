@@ -1,0 +1,12 @@
+{
+  "commit": "6aee5199df8a555928cbd4a824d02bf89bbdfd34",
+  "summary": "chore(shared): remove dead navigation-timing code from fxa-shared",
+  "description": "Because:\n- The navigation-timing modules in fxa-shared have no importer.\n- Nothing reads metrics.navigationTimingSchema.\n\nThis commit:\n- Deletes metrics/navigation-timing.ts and navigation-timing-validation.ts.\n- Deletes test/metrics/navigation-timing.ts, the test for the removed code.\n- Removes the import and the metrics key from index.ts.\n- Keeps the amplitude and flowPerformance keys.\n\nCloses FXA-14692",
+  "timestamp": 1791832404000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
