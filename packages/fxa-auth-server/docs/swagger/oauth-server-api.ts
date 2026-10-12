@@ -339,8 +339,28 @@ const TOKEN_POST = {
       - \`authorization_code\`: a single-use code as produced by the [authorization][] endpoint, obtained through a redirect-based authorization flow.
       - \`refresh_token\`: a token previously obtained from this endpoint when using access_type=offline.
       - \`fxa-credentials\`: an FxA identity assertion, obtained by directly authenticating the user's account.
+      - \`urn:ietf:params:oauth:grant-type:token-exchange\`: an existing refresh token, exchanged for a new refresh token with additional scopes. See "Refresh token exchange" below.
 
-      **WARNING**: Do not include \`scope\` unless you want to downgrade it.
+      **WARNING**: For \`refresh_token\`, do not include \`scope\` unless you want to downgrade it. Trusted clients can
+      also request scopes from their \`allowedScopes\`.
+
+      **Refresh token exchange.** [RFC 8693](https://www.rfc-editor.org/rfc/rfc8693.html) token exchange lets a Firefox
+      client add a Mozilla service's scope to the refresh token it holds. The \`refresh_token\` grant can't, because it
+      never issues a new refresh token.
+
+      - **Request:** \`subject_token\` (the current refresh token),
+        \`subject_token_type=urn:ietf:params:oauth:token-type:refresh_token\`, and \`scope\` with **only the additional
+        scopes**. No \`client_secret\`. \`client_id\` is required by this endpoint's schema but isn't used to
+        authenticate; send the subject token's client ID. Only Firefox clients can use this grant.
+      - **Response:** a new \`refresh_token\` with the combined scopes, plus the usual access token fields. The subject
+        token is revoked, so persist the new one.
+      - **Errors:** \`403\` (\`errno: 112\`) if the user hasn't authorized the service. Send them to FxA with
+        \`service=<name>\` instead. Relay is currently granted without this check.
+
+      See [Integrating a Service with Firefox](https://mozilla.github.io/ecosystem-platform/relying-parties/how-tos/firefox-browser-services) for when to use it, and
+      [ADR 0048](https://github.com/mozilla/fxa/blob/main/docs/adr/0048-refresh-tokens-and-account-level-authorization.md)
+      and [ADR 0052](https://github.com/mozilla/fxa/blob/main/docs/adr/0052-token-exchange-requires-canonical-scope.md)
+      for the design.
 
       **Step-up authentication.** An access token minted from an \`authorization_code\` grant carries
       the \`acr\` and \`auth_time\` of the authentication behind that code. A \`refresh_token\`
@@ -369,6 +389,18 @@ const TOKEN_POST = {
                   "auth_at": 1422336613
                 }
             \`\`\`
+
+            **Example (refresh token exchange):**
+            \`\`\` js
+                {
+                  "access_token": "a1c3cb3bd3cfa0ca3f8a5e3ea0f3c9b1a5ae5d9ab2b4c6d8e0f2a4b6c8d0e2f4",
+                  "refresh_token": "7f2e5c9a1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a",
+                  "scope": "profile https://identity.mozilla.com/apps/oldsync https://identity.mozilla.com/apps/relay",
+                  "token_type": "bearer",
+                  "expires_in": 3600,
+                  "auth_at": 1422336613
+                }
+            \`\`\`
           `,
         },
       },
@@ -377,6 +409,12 @@ const TOKEN_POST = {
           lang: 'JavaScript',
           source:
             'curl -v \\\n -X POST \\\n -H "Content-Type: application/json" \\\n "https://oauth.accounts.firefox.com/v1/token" \\\n -d \'{\n  "client_id": "5901bd09376fadaa",\n  "client_secret": "20c6882ef864d75ad1587c38f9d733c80751d2cbc8614e30202dc3d1d25301ff",\n  "ttl": 3600,\n  "grant_type": "authorization_code",\n  "code": "4ab433e31ef3a7cf7c20590f047987922b5c9ceb1faff56f0f8164df053dd94c"\n}\'',
+        },
+        {
+          lang: 'JavaScript',
+          label: 'Refresh token exchange',
+          source:
+            'curl -v \\\n -X POST \\\n -H "Content-Type: application/json" \\\n "https://oauth.accounts.firefox.com/v1/token" \\\n -d \'{\n  "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",\n  "subject_token": "58d59cc97c3ca183b3a87a65eec6f93d5be051415b53afbf8491cc4c45dbb0c6",\n  "subject_token_type": "urn:ietf:params:oauth:token-type:refresh_token",\n  "scope": "https://identity.mozilla.com/apps/relay"\n}\'',
         },
       ],
     },
