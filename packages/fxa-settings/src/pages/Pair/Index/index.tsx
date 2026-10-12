@@ -286,6 +286,17 @@ const Pair = ({
     });
 
     if (pairingV2 && pairingChannelInfo?.version === '2') {
+      // Pairing signs a device in to Sync, so a browser that already holds a
+      // verified account has nothing to pair. Decided here, before the channel
+      // opens, so the user is never shown a Connect card they cannot use.
+      if (isVerifiedUser(fxaStatusResult.fxaStatus?.signedInUser)) {
+        navigateWithQuery(
+          '/pair/supplicant/timeout_and_cancel',
+          { replace: true, state: { reason: 'signed_in' } },
+          false
+        );
+        return;
+      }
       navigateWithQuery(
         '/pair/supplicant/connect_this_device',
         { state: pairingChannelInfo },
