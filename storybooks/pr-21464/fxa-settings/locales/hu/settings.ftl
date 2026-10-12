@@ -2042,6 +2042,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = A mobileszköz csatlak
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Megszakítva
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Eszköz csatlakoztatásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Ez az eszköz már be van jelentkezve
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Az asztali fiókjához való csatlakozáshoz jelentkezzen ki a(z) { -brand-firefox } böngészőből ezen az eszközön, majd keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén a bejelentkezés befejezéséhez.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a

@@ -1407,6 +1407,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Mae'n edrych fel bod ein a
 pair2-supplicant-timeout-and-cancel-timeout-description = I gysylltu eich dyfais symudol a chydweddu eich data { -brand-firefox }, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Wedi'i Ddiddymu
 pair2-supplicant-timeout-and-cancel-canceled-description = I gysylltu dyfais unrhyw bryd, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Mae'r ddyfais hon eisoes wedi mewngofnodi
+pair2-supplicant-timeout-and-cancel-signed-in-description = I gysylltu â'ch cyfrif bwrdd gwaith, allgofnodwch o { -brand-firefox } ar y ddyfais hon, yna ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur i gwblhau mewngofnodi.
 
 
 permissions-heading = Mae { $serviceName } eisiau mynediad i:

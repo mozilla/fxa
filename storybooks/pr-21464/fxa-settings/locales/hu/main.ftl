@@ -1426,6 +1426,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Úgy tűnik, túlléptük 
 pair2-supplicant-timeout-and-cancel-timeout-description = A mobileszköz csatlakoztatásához és a { -brand-firefox } adatainak szinkronizálásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Megszakítva
 pair2-supplicant-timeout-and-cancel-canceled-description = Eszköz csatlakoztatásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Ez az eszköz már be van jelentkezve
+pair2-supplicant-timeout-and-cancel-signed-in-description = Az asztali fiókjához való csatlakozáshoz jelentkezzen ki a(z) { -brand-firefox } böngészőből ezen az eszközön, majd keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén a bejelentkezés befejezéséhez.
 
 
 permissions-heading = A(z) { $serviceName } hozzáférést kér a következőhöz:

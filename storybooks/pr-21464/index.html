@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 977839ea8fe8484128e0bd3268a1793d2e84eab3</title>
+  <title>Storybooks for commit 16ab11324d5487bac2611eb6128020d264a1a319</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 977839ea8fe8484128e0bd3268a1793d2e84eab3</h1>
+  <h1>Storybooks for commit 16ab11324d5487bac2611eb6128020d264a1a319</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,16 +31,23 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/12/2026, 10:05:49 PM UTC</dd>
+    <dd>10/12/2026, 10:13:54 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(admin-server): resolve @fxa/accounts/oauth in the build paths</pre></dd>
+    <dd><pre>refactor(oauth): move ScopeSet and constants to @fxa/accounts/oauth</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- admin-server compiles fxa-shared source, and fxa-shared/oauth/scopes.ts is now a re-export of @fxa/accounts/oauth.
-- tsconfig.build.json lists its @fxa paths explicitly, so the build failed with TS2307.
+
+- fxa-shared is moving to Nx libs, and ScopeSet and the OAuth constants belong in @fxa/accounts/oauth.
 
 This commit:
-- Adds the @fxa/accounts/oauth path to packages/fxa-admin-server/tsconfig.build.json.</pre></dd>
+
+- Moves scopes.ts and constants.ts to libs/accounts/oauth with a ScopeSet brand that coerce() checks.
+- Ports the scopes mocha spec to Jest, with a two-copy case.
+- Leaves fxa-shared re-export shims, including both default exports.
+- Points all fxa-auth-server importers at @fxa/accounts/oauth.
+- Adds the @fxa/accounts/oauth alias to the fxa-admin-server build tsconfig.
+
+Closes FXA-10667</pre></dd>
   </dl>
 </body>
 </html>
