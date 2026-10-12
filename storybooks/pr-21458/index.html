@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit a129545c03649716f4895de955e124d856427186</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit a129545c03649716f4895de955e124d856427186</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/12/2026, 8:07:37 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>refactor(shared): point fxa-shared/tracing at @fxa/shared/otel</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- fxa-shared/tracing duplicates @fxa/shared/otel.
+- The fxa-shared copy imports ../sentry, which blocks the sentry move.
+
+This commit:
+- Replaces tracing/config.ts and node-tracing.ts with re-exports of @fxa/shared/otel.
+- Deletes tracing/pii-filters.ts, tracing/exporters/ and test/tracing/.
+- Ports the config and exporters tests to jest in libs/shared/otel.
+- Keeps profile-server otel.concurrencyLimit at 10 in lib/config.js.
+- Adds lib/config.spec.ts in profile-server for the default and the env override.
+
+Closes FXA-10674</pre></dd>
+  </dl>
+</body>
+</html>
