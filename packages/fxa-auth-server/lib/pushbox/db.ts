@@ -4,7 +4,7 @@
 
 import { setupDatabase } from 'fxa-shared/db';
 import { MySQLConfig } from 'fxa-shared/db/config';
-import { ILogger } from 'fxa-shared/log';
+import type { ILogger } from '@fxa/shared/log';
 import { StatsD } from 'hot-shots';
 
 import Record from './record';

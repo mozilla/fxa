@@ -4,7 +4,7 @@
 import { BaseError, BaseMultiError } from '@fxa/shared/error';
 import { CollectionReference, Firestore } from '@google-cloud/firestore';
 import { StatsD } from 'hot-shots';
-import { ILogger } from 'fxa-shared/log';
+import type { ILogger } from '@fxa/shared/log';
 import { StripeFirestore as StripeFirestoreBase } from 'fxa-shared/payments/stripe-firestore';
 import { Stripe } from 'stripe';
 
@@ -167,7 +167,9 @@ export class StripeFirestore extends StripeFirestoreBase {
       await this.insertSubscriptionRecord(subscription);
     } catch (err) {
       if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
-        await this.legacyFetchAndInsertCustomer(subscription.customer as string);
+        await this.legacyFetchAndInsertCustomer(
+          subscription.customer as string
+        );
       } else {
         throw err;
       }
@@ -188,7 +190,9 @@ export class StripeFirestore extends StripeFirestoreBase {
       await this.insertPaymentMethodRecord(paymentMethod);
     } catch (err) {
       if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
-        await this.legacyFetchAndInsertCustomer(paymentMethod.customer as string);
+        await this.legacyFetchAndInsertCustomer(
+          paymentMethod.customer as string
+        );
         return this.insertPaymentMethodRecord(paymentMethod);
       } else {
         throw err;
