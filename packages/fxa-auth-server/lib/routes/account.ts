@@ -9,8 +9,10 @@ import {
 import { WrappedErrorCodes } from 'fxa-shared/email/emailValidatorErrors';
 import TopEmailDomains from 'fxa-shared/email/topEmailDomains';
 import { tryResolveIpv4, tryResolveMx } from 'fxa-shared/email/validateEmail';
-import ScopeSet from 'fxa-shared/oauth/scopes';
-import { OAUTH_SCOPE_OLD_SYNC } from 'fxa-shared/oauth/constants';
+import {
+  OAUTH_SCOPE_OLD_SYNC,
+  scopeSetHelpers as ScopeSet,
+} from '@fxa/accounts/oauth';
 import { list as listAuthorizedClients } from '../oauth/authorized_clients';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
 import isA from 'joi';

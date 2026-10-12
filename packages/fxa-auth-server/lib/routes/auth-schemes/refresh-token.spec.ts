@@ -23,7 +23,7 @@ jest.mock('../../oauth/client', () => ({
 }));
 
 const oauthDB = require('../../oauth/db');
-const ScopeSet = require('fxa-shared/oauth/scopes').scopeSetHelpers;
+const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
 const schemeRefreshToken = require('./refresh-token');
 
 const USER_ID = Buffer.from('620203b5773b4c1d968e1fd4505a6885', 'hex');

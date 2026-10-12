@@ -7,7 +7,7 @@ import { OAuthNativeClients } from '@fxa/accounts/oauth';
 import { AuthLogger } from '../../types';
 
 const Joi = require('joi');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
 
 const CLIENT_ID = '98e6508e88680e1b';
 const BASE64URL_STRING =
@@ -1269,9 +1269,7 @@ describe('isLocalHost', () => {
 
 describe('isPairingAuthorization', () => {
   const { isPairingAuthorization } = require('./authorization');
-  const {
-    parseToScalars,
-  } = require('fxa-shared/lib/user-agent');
+  const { parseToScalars } = require('fxa-shared/lib/user-agent');
 
   // Real user agents, captured from physical devices in FXA-10427. Driven
   // through the actual parser rather than hand-built scalars, because the bug
@@ -1331,7 +1329,10 @@ describe('isPairingAuthorization', () => {
       ['MacBook Safari', UA.macSafari],
     ])('ignores %s, which reads as a desktop UA', (_name, userAgent) => {
       expect(
-        isPairingAuthorization(request(userAgent), OAuthNativeClients.FirefoxIOS)
+        isPairingAuthorization(
+          request(userAgent),
+          OAuthNativeClients.FirefoxIOS
+        )
       ).toBe(false);
     });
 

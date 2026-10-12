@@ -1,8 +1,10 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { OAUTH_SCOPE_SUBSCRIPTIONS } from 'fxa-shared/oauth/constants';
-import ScopeSet from 'fxa-shared/oauth/scopes';
+import {
+  OAUTH_SCOPE_SUBSCRIPTIONS,
+  scopeSetHelpers as ScopeSet,
+} from '@fxa/accounts/oauth';
 import { Logger } from 'mozlog';
 
 import { AppError as error } from '@fxa/accounts/errors';

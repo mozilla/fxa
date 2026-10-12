@@ -4,7 +4,7 @@
 
 const { OauthError } = require('@fxa/accounts/errors');
 const oauthDB = require('./db');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
 const { deauthorizeOnDisconnect } = require('./deauthorize-on-disconnect');
 
 // Helper function to render each returned record in the expected form.

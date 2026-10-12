@@ -97,7 +97,7 @@ function findFreePort(startPort: number, host = '127.0.0.1'): Promise<number> {
 // ---------------------------------------------------------------------------
 describe('#integration - remote subscriptions (enabled)', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
+  const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('@fxa/accounts/oauth');
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { AppError: error } = require('@fxa/accounts/errors');
   // eslint-disable-next-line @typescript-eslint/no-require-imports

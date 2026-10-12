@@ -6,13 +6,13 @@ const crypto = require('crypto');
 const Joi = require('joi');
 const { Container } = require('typedi');
 const { AppError: AuthError, OAUTH_ERRNO } = require('@fxa/accounts/errors');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
 
 const {
   OAUTH_SCOPE_OLD_SYNC,
   OAUTH_SCOPE_RELAY,
   OAUTH_SCOPE_SESSION_TOKEN,
-} = require('fxa-shared/oauth/constants');
+} = require('@fxa/accounts/oauth');
 const encrypt = require('@fxa/shared/crypto');
 const { OAuthNativeClients } = require('@fxa/accounts/oauth');
 const {
@@ -1010,7 +1010,7 @@ describe('/oauth/token POST', () => {
   });
 
   describe('token exchange via /oauth/token', () => {
-    const ScopeSet = require('fxa-shared').oauth.scopes;
+    const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
     const MOCK_DEVICE_ID = 'device1234567890abcdef';
 
     it('handles token exchange and passes existingDeviceId to newTokenNotification', async () => {

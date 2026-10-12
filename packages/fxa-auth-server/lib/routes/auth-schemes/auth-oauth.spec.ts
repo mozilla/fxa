@@ -7,7 +7,7 @@ jest.mock('../../oauth/token', () => mockTokenModule);
 
 import { AppError, OauthError as OauthAppError } from '@fxa/accounts/errors';
 
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
 const authOauth = require('./auth-oauth');
 
 const mockRequest = {

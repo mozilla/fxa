@@ -8,7 +8,7 @@
 const { URL } = require('url');
 const punycode = require('punycode.js');
 const isA = require('joi');
-const { VALID_SCOPE_VALUE } = require('fxa-shared/oauth/scopes');
+const { VALID_SCOPE_VALUE } = require('@fxa/accounts/oauth');
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 const {
   minimalConfigSchema,

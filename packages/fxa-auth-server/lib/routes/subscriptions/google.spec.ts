@@ -15,7 +15,7 @@ const {
 const { AppError: error } = require('@fxa/accounts/errors');
 const { PlayBilling } = require('../../payments/iap/google-play');
 const { IAPConfig } = require('../../payments/iap/iap-config');
-const { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } = require('fxa-shared/oauth/constants');
+const { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } = require('@fxa/accounts/oauth');
 const { CapabilityService } = require('../../payments/capability');
 
 const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS_IAP];

@@ -19,7 +19,7 @@ const { getRoute } = require('../../../test/routes_helpers');
 const { AppError: error } = require('@fxa/accounts/errors');
 const JWTIdToken = require('../../oauth/jwt_id_token');
 
-const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
+const { OAUTH_SCOPE_OLD_SYNC } = require('@fxa/accounts/oauth');
 const MOCK_CLIENT_ID = '0123456789abcdef';
 const MOCK_USER_ID = '0123456789abcdef0123456789abcdef';
 const MOCK_SCOPES = `profile https://identity.mozilla.com/apps/scoped-example ${OAUTH_SCOPE_OLD_SYNC}`;

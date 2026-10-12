@@ -36,7 +36,7 @@ describe('validateRequestedGrant (integration)', () => {
       require('../../lib/oauth/grant').validateRequestedGrant;
     // Load ScopeSet AFTER resetModules so it shares the same class identity
     // as the one used inside the grant module (avoids instanceof failures).
-    ScopeSet = require('fxa-shared').oauth.scopes;
+    ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
   });
 
   it('should return validated grant data', async () => {

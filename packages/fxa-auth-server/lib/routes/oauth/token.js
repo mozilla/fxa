@@ -36,7 +36,7 @@ const Joi = require('joi');
 const {
   OAUTH_SCOPE_OLD_SYNC,
   OAUTH_SCOPE_SESSION_TOKEN,
-} = require('fxa-shared/oauth/constants');
+} = require('@fxa/accounts/oauth');
 const { config } = require('../../../config');
 const encrypt = require('@fxa/shared/crypto');
 const util = require('../../oauth/util');
@@ -50,7 +50,7 @@ const {
   authenticateClient,
   clientAuthValidators,
 } = require('../../oauth/client');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
 const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
 const OAUTH_SERVER_DOCS =
   require('../../../docs/swagger/oauth-server-api').default;

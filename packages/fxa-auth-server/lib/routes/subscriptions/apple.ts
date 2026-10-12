@@ -4,7 +4,7 @@
 import { ServerRoute } from '@hapi/hapi';
 import isA from 'joi';
 import { DecodedNotificationPayload } from 'app-store-server-api';
-import { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } from 'fxa-shared/oauth/constants';
+import { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } from '@fxa/accounts/oauth';
 import { Container } from 'typedi';
 
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';

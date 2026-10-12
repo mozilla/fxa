@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import fxaShared from 'fxa-shared';
+import { scopeSetHelpers as ScopeSet } from '@fxa/accounts/oauth';
 
 import * as Sentry from '@sentry/node';
 
@@ -15,8 +15,6 @@ jest.mock('@sentry/node', () => ({
 const mockCaptureException = Sentry.captureException as jest.MockedFunction<
   typeof Sentry.captureException
 >;
-
-const ScopeSet = (fxaShared as any).oauth.scopes;
 
 const SCOPE_OLDSYNC = 'https://identity.mozilla.com/apps/oldsync';
 const SCOPE_RELAY = 'https://identity.mozilla.com/apps/relay';

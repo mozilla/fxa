@@ -58,7 +58,7 @@ let config: any,
   mailer: any,
   profile: any;
 
-const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
+const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('@fxa/accounts/oauth');
 const {
   SubscriptionEligibilityResult,
 } = require('fxa-shared/subscriptions/types');
