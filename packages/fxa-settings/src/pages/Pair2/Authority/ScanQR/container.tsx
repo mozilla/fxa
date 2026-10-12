@@ -20,7 +20,7 @@ import firefox from '../../../../lib/channels/firefox';
 import { Constants } from '../../../../lib/constants';
 import { hardNavigate } from 'fxa-react/lib/utils';
 
-export const SIGNED_IN_POLL_MS = 1_000;
+export const SIGNED_IN_POLL_MS = 5_000;
 
 /**
  * Owns the pairing channel for the authority. Mints a channel on mount so the
