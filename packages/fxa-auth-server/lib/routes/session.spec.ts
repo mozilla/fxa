@@ -14,9 +14,7 @@ const crypto = require('crypto');
 const { getRoute } = require('../../test/routes_helpers');
 const knownIpLocation = require('../../test/known-ip-location');
 const mocks = require('../../test/mocks');
-const {
-  computeSessionTokenHandle,
-} = require('./utils/session-token-handle');
+const { computeSessionTokenHandle } = require('./utils/session-token-handle');
 const { AppError: error } = require('@fxa/accounts/errors');
 const otplib = require('otplib');
 const gleanMock = mocks.mockGlean();
@@ -727,6 +725,43 @@ describe('/session/reauth', () => {
       output: { statusCode: 503 },
       errno: error.ERRNO.DISABLED_CLIENT_ID,
     });
+  });
+
+  it('rejects a verified AAL1 session when the account requires TOTP', async () => {
+    db.totpToken = jest.fn().mockResolvedValue({
+      verified: true,
+      enabled: true,
+    });
+    signinUtils.checkPassword = jest.fn(() => Promise.resolve(true));
+    signinUtils.createKeyFetchToken = jest.fn(() => {
+      throw new Error('should not be called');
+    });
+
+    await expect(runTest(route, request)).rejects.toMatchObject({
+      errno: error.ERRNO.INSUFFICIENT_AAL,
+    });
+    expect(signinUtils.checkPassword).toHaveBeenCalledTimes(0);
+    expect(signinUtils.createKeyFetchToken).toHaveBeenCalledTimes(0);
+  });
+
+  it('rejects an unverified AAL1 session when the account requires TOTP', async () => {
+    db.totpToken = jest.fn().mockResolvedValue({
+      verified: true,
+      enabled: true,
+    });
+    signinUtils.checkPassword = jest.fn(() => Promise.resolve(true));
+    request.auth.credentials = await SessionToken.fromHex(hexString(16), {
+      email: TEST_EMAIL,
+      uid: TEST_UID,
+      createdAt: 12345678,
+      emailVerified: true,
+      tokenVerificationId: hexString(16),
+    });
+
+    await expect(runTest(route, request)).rejects.toMatchObject({
+      errno: error.ERRNO.INSUFFICIENT_AAL,
+    });
+    expect(signinUtils.checkPassword).toHaveBeenCalledTimes(0);
   });
 });
 
