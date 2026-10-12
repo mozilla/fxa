@@ -1,0 +1,12 @@
+{
+  "commit": "91d6ca59e5c8c4e73ffe483acb65dfd7db5ea897",
+  "summary": "refactor(content-server): move speed-trap from fxa-shared",
+  "description": "Because:\n- Only the content server uses speed-trap, but the code lives in fxa-shared.\n- The epic FXA-12722 moves the fxa-shared folders to the apps that use them.\n\nThis commit:\n- Moves five speed-trap files to content-server lib/speed-trap, unchanged.\n- Deletes timing-fields.js, which no file imports.\n- Changes the metrics.js import to './speed-trap'.\n- Removes the './speed-trap/*' exports entry from fxa-shared package.json.\n\nCloses FXA-10671",
+  "timestamp": 1791831780000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
