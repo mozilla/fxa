@@ -1,0 +1,12 @@
+{
+  "commit": "a899b7a898bec4f0f064fe52b7a16eef77da3220",
+  "summary": "test(auth): cover SES bounce shapes and the EmailBounce model",
+  "description": "Because:\n- Bounce handler tests missed most SES bounce, subType and complaint shapes.\n- No test covered the EmailBounce model id mapping.\n\nThis commit:\n- Adds SES notification shape tables to the auth-server bounces spec.\n- Adds edge cases: unknown type, diagnosticCode limits, no headers, many recipients.\n- Adds a Mocha spec for EmailBounce.create in fxa-shared.\n- Pins the literal type ids, the unmapped fallback, and ER_DUP_ENTRY handling.\n\nCloses FXA-12838",
+  "timestamp": 1791839178000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
