@@ -1,8 +1,8 @@
 {
-  "commit": "89dd14b487ddfa075eecf0367ba391a2d572d790",
-  "summary": "Merge pull request #21455 from mozilla/fxa-10663",
-  "description": "refactor(shared): move fxa-shared/log importers to @fxa/shared/log",
-  "timestamp": 1791835721000,
+  "commit": "7fd1cc32c2a77f516306885b47f7f296734e5212",
+  "summary": "Merge pull request #21456 from mozilla/fxa-10662",
+  "description": "chore(shared): remove dead errors code from fxa-shared/lib",
+  "timestamp": 1791842430000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
