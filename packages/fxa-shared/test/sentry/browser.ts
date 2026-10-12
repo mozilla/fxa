@@ -21,7 +21,6 @@ const config: SentryConfigOpts = {
 };
 const logger: ILogger = {
   info(...args: any) {},
-  trace(...args: any) {},
   warn(...args: any) {},
   error(...args: any) {},
   debug(...args: any) {},

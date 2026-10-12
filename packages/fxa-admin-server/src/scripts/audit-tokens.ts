@@ -14,7 +14,7 @@ import {
 import packageJson from '../../package.json';
 import Config from '../config';
 import mozlog from 'mozlog';
-import { ILogger } from 'fxa-shared/log';
+import type { ILogger } from '@fxa/shared/log';
 
 const config = Config.getProperties();
 
@@ -454,7 +454,6 @@ export async function run() {
       log = {
         debug: console.debug,
         warn: console.warn,
-        trace: console.trace,
         info: console.info,
         error: console.error,
       };

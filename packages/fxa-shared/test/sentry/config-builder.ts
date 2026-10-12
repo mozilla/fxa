@@ -13,7 +13,6 @@ describe('config-builder', () => {
 
   const emptyLogger: ILogger = {
     info: function (...args: any): void {},
-    trace: function (...args: any): void {},
     warn: function (...args: any): void {
       console.log('WARNING', ...args);
     },

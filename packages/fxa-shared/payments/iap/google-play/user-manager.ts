@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { CollectionReference } from '@google-cloud/firestore';
-import { ILogger } from 'fxa-shared/log';
+import { ILogger } from '../../../log';
 import { PurchaseManager } from './purchase-manager';
 import {
   GOOGLE_PLAY_FORM_OF_PAYMENT,
@@ -70,7 +70,7 @@ export class UserManager {
             purchase.sku,
             purchase.purchaseToken
           );
-        } catch(e) {
+        } catch (e) {
           if (e.name === PurchaseQueryError.INVALID_TOKEN) {
             this.log.error('queryCurrentSubscriptions.invalidPurchaseToken', {
               purchaseToken: purchase.purchaseToken,

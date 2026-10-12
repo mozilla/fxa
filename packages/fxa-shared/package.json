@@ -97,14 +97,6 @@
       "import": "./dist/esm/packages/fxa-shared/lib/*.js",
       "require": "./dist/cjs/packages/fxa-shared/lib/*.js"
     },
-    "./log": {
-      "import": "./dist/esm/packages/fxa-shared/log/index.js",
-      "require": "./dist/cjs/packages/fxa-shared/log/index.js"
-    },
-    "./log/*": {
-      "import": "./dist/esm/packages/fxa-shared/log/*.js",
-      "require": "./dist/cjs/packages/fxa-shared/log/*.js"
-    },
     "./metrics/*": {
       "import": "./dist/esm/packages/fxa-shared/metrics/*.js",
       "require": "./dist/cjs/packages/fxa-shared/metrics/*.js"

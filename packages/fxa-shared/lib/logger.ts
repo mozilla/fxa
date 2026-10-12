@@ -10,6 +10,7 @@ import { ILogger } from '../log';
  */
 interface Logger extends ILogger {
   _window: Window;
+  trace: (...args: any) => void;
 }
 
 interface ModuleError {
