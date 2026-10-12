@@ -7,7 +7,7 @@ const Joi = require('joi');
 
 const { OauthError } = require('@fxa/accounts/errors');
 const { AppError: AuthError } = require('@fxa/accounts/errors');
-const encrypt = require('fxa-shared/auth/encrypt');
+const encrypt = require('@fxa/shared/crypto');
 const validators = require('../../oauth/validators');
 const { getTokenId } = require('../../oauth/token');
 const {

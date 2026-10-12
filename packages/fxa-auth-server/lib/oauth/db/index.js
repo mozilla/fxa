@@ -5,7 +5,7 @@
 const hex = (v) => (Buffer.isBuffer(v) ? v.toString('hex') : v);
 
 const { config } = require('../../../config');
-const encrypt = require('fxa-shared/auth/encrypt');
+const encrypt = require('@fxa/shared/crypto');
 const mysql = require('./mysql');
 const redis = require('./redis');
 const AccessToken = require('./accessToken');

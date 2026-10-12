@@ -13,7 +13,7 @@ const {
   OAUTH_SCOPE_RELAY,
   OAUTH_SCOPE_SESSION_TOKEN,
 } = require('fxa-shared/oauth/constants');
-const encrypt = require('fxa-shared/auth/encrypt');
+const encrypt = require('@fxa/shared/crypto');
 const { OAuthNativeClients } = require('@fxa/accounts/oauth');
 const {
   excludeDauCacheKey,

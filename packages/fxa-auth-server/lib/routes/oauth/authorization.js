@@ -19,7 +19,7 @@ const { recordStepUpMetrics } = require('../../metrics/step-up');
 const { makeAssertionJWT } = require('../../oauth/util');
 const verifyAssertion = require('../../oauth/assertion');
 const { isFirstAuthorization } = require('../../oauth/first-authorization');
-const encrypt = require('fxa-shared/auth/encrypt');
+const encrypt = require('@fxa/shared/crypto');
 const {
   dropUnconsentedSyncScope,
   excludeDauCacheKey,
