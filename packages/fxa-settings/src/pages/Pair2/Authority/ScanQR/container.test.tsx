@@ -180,7 +180,7 @@ describe('Pair2/Authority/ScanQR container', () => {
         expect(integration.destroy).not.toHaveBeenCalled();
       });
 
-      it('closes the channel and sends a browser that signed out back to /signin', async () => {
+      it('closes the channel and sends a browser that signed out back to /pair', async () => {
         fxaStatus.mockResolvedValue({ signedInUser: undefined });
         renderContainer();
 
