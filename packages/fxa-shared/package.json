@@ -85,10 +85,6 @@
       "import": "./dist/esm/packages/fxa-shared/email/popularDomains.json",
       "require": "./dist/cjs/packages/fxa-shared/email/popularDomains.json"
     },
-    "./experiments/*": {
-      "import": "./dist/esm/packages/fxa-shared/experiments/*.js",
-      "require": "./dist/cjs/packages/fxa-shared/experiments/*.js"
-    },
     "./express": {
       "import": "./dist/esm/packages/fxa-shared/express/index.js",
       "require": "./dist/cjs/packages/fxa-shared/express/index.js"
@@ -235,7 +231,6 @@
     "@types/ioredis": "^4.26.4",
     "@types/ip": "^1",
     "@types/jest": "26.0.23",
-    "@types/js-md5": "^0.4.2",
     "@types/mocha": "^10.0.6",
     "@types/mysql": "^2",
     "@types/node": "^22.13.5",
@@ -274,7 +269,6 @@
     "ioredis": "^4.28.2",
     "ip": "^2.0.1",
     "joi": "^17.13.8",
-    "js-md5": "^0.7.3",
     "knex": "^3.3.0",
     "moment": "^2.31.0",
     "mozlog": "^3.0.2",

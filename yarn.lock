@@ -19804,13 +19804,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/js-md5@npm:^0.4.2":
-  version: 0.4.3
-  resolution: "@types/js-md5@npm:0.4.3"
-  checksum: 10c0/b4b7a319763d57910efb966ba3ee1be31cf6d8ff14037e8b6b40626bc58ec7316eb56a9b9d7e7098b0ced882497824fa665b364aa4e8fe49dc9bc6b3c63487c8
-  languageName: node
-  linkType: hard
-
 "@types/jsdom@npm:^20.0.0":
   version: 20.0.1
   resolution: "@types/jsdom@npm:20.0.1"
@@ -32544,7 +32537,6 @@ __metadata:
     "@types/ioredis": "npm:^4.26.4"
     "@types/ip": "npm:^1"
     "@types/jest": "npm:26.0.23"
-    "@types/js-md5": "npm:^0.4.2"
     "@types/mocha": "npm:^10.0.6"
     "@types/mysql": "npm:^2"
     "@types/node": "npm:^22.13.5"
@@ -32567,7 +32559,6 @@ __metadata:
     jest: "npm:27.5.1"
     jest-junit: "npm:^16.0.0"
     joi: "npm:^17.13.8"
-    js-md5: "npm:^0.7.3"
     jsdom-global: "npm:3.0.2"
     knex: "npm:^3.3.0"
     mocha: "npm:^10.4.0"
@@ -38503,7 +38494,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-md5@npm:0.7.3, js-md5@npm:^0.7.3":
+"js-md5@npm:0.7.3":
   version: 0.7.3
   resolution: "js-md5@npm:0.7.3"
   checksum: 10c0/3e7048590c40edb0b8fb290e13a81d6eebbd682c70c520c4853820ae8fe3a3c5e375cfa0ca9a731aa8d8e0ba82cd8f922fea34c737caf72a7f9ab819bb8382a7
