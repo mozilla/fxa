@@ -1,0 +1,10 @@
+{
+  "commit": "1b12a2e36eb54dfbce98ebc9368ec56846eddc3d",
+  "summary": "refactor(settings): call auth-client directly in reset password containers",
+  "description": "Because:\n- The reset password containers used useAccount(), the Settings account model, for a few auth-client calls.\n\nThis commit:\n- Calls useAuthClient() directly in the three ResetPassword containers.\n- Deletes the four Account methods that lost their last caller.\n- Drops refresh('account'); uid comes from the reset response.\n- Mocks useAuthClient in the container tests and adds two container specs.\n\nCloses FXA-9672",
+  "timestamp": 1791836852000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
