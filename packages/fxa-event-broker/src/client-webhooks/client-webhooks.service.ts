@@ -7,7 +7,7 @@ import {
   OnApplicationShutdown,
 } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 import { FirestoreService } from '../firestore/firestore.service';
 import { ClientWebhooks } from './client-webhooks.interface';
