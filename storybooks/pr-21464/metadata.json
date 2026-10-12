@@ -1,8 +1,8 @@
 {
-  "commit": "cbceaf7df93caa86d75db775384d9ba19b34acb9",
-  "summary": "refactor(oauth): move ScopeSet and constants to @fxa/accounts/oauth",
-  "description": "Because:\n\n- fxa-shared is moving to nx libs, and ScopeSet and the OAuth constants belong in @fxa/accounts/oauth.\n- The fxa-shared dist still builds its own ScopeSet copy, which the auth server mixes with the lib copy.\n\nThis commit:\n\n- Moves scopes.ts and constants.ts to libs/accounts/oauth and drops the url import.\n- Brands ScopeSet.prototype with a Symbol.for key that only coerce() checks.\n- Makes the fxa-shared oauth files re-export shims for the remaining legacy users.\n- Moves the 47 auth-server importers to @fxa/accounts/oauth.\n- Ports the mocha spec to jest with a cross-copy case.\n\nCloses FXA-10667",
-  "timestamp": 1791840869000,
+  "commit": "977839ea8fe8484128e0bd3268a1793d2e84eab3",
+  "summary": "fix(admin-server): resolve @fxa/accounts/oauth in the build paths",
+  "description": "Because:\n- admin-server compiles fxa-shared source, and fxa-shared/oauth/scopes.ts is now a re-export of @fxa/accounts/oauth.\n- tsconfig.build.json lists its @fxa paths explicitly, so the build failed with TS2307.\n\nThis commit:\n- Adds the @fxa/accounts/oauth path to packages/fxa-admin-server/tsconfig.build.json.",
+  "timestamp": 1791842749000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",

@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit cbceaf7df93caa86d75db775384d9ba19b34acb9</title>
+  <title>Storybooks for commit 977839ea8fe8484128e0bd3268a1793d2e84eab3</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit cbceaf7df93caa86d75db775384d9ba19b34acb9</h1>
+  <h1>Storybooks for commit 977839ea8fe8484128e0bd3268a1793d2e84eab3</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,24 +31,16 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/12/2026, 9:34:29 PM UTC</dd>
+    <dd>10/12/2026, 10:05:49 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>refactor(oauth): move ScopeSet and constants to @fxa/accounts/oauth</pre></dd>
+    <dd><pre>fix(admin-server): resolve @fxa/accounts/oauth in the build paths</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-
-- fxa-shared is moving to nx libs, and ScopeSet and the OAuth constants belong in @fxa/accounts/oauth.
-- The fxa-shared dist still builds its own ScopeSet copy, which the auth server mixes with the lib copy.
+- admin-server compiles fxa-shared source, and fxa-shared/oauth/scopes.ts is now a re-export of @fxa/accounts/oauth.
+- tsconfig.build.json lists its @fxa paths explicitly, so the build failed with TS2307.
 
 This commit:
-
-- Moves scopes.ts and constants.ts to libs/accounts/oauth and drops the url import.
-- Brands ScopeSet.prototype with a Symbol.for key that only coerce() checks.
-- Makes the fxa-shared oauth files re-export shims for the remaining legacy users.
-- Moves the 47 auth-server importers to @fxa/accounts/oauth.
-- Ports the mocha spec to jest with a cross-copy case.
-
-Closes FXA-10667</pre></dd>
+- Adds the @fxa/accounts/oauth path to packages/fxa-admin-server/tsconfig.build.json.</pre></dd>
   </dl>
 </body>
 </html>
