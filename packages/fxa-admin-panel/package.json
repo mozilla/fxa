@@ -124,10 +124,36 @@
           "build-ts-server"
         ]
       },
+      "build-css": {
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production",
+          {
+            "env": "NODE_ENV"
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/src/styles/tailwind.out.css"
+        ]
+      },
       "build-react": {
         "dependsOn": [
           "^build",
           "build-css"
+        ],
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production",
+          {
+            "env": "NODE_ENV"
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/build/index.html",
+          "{projectRoot}/build/favicon.ico",
+          "{projectRoot}/build/static"
         ]
       },
       "build-storybook": {
@@ -136,11 +162,26 @@
       "build-ts-client": {
         "dependsOn": [
           "^build"
-        ]
+        ],
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": []
       },
       "build-ts-server": {
         "dependsOn": [
           "^build"
+        ],
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/build/libs",
+          "{projectRoot}/build/packages"
         ]
       }
     }
