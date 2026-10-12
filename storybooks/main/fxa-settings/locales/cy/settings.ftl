@@ -2060,6 +2060,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = I gysylltu eich dyfais
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Wedi'i Ddiddymu
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = I gysylltu dyfais unrhyw bryd, ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Mae'r ddyfais hon eisoes wedi mewngofnodi
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = I gysylltu â'ch cyfrif bwrdd gwaith, allgofnodwch o { -brand-firefox } ar y ddyfais hon, yna ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur i gwblhau mewngofnodi.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a

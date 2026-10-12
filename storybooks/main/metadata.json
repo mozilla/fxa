@@ -1,8 +1,8 @@
 {
-  "commit": "f353dcdf2e8ce1c2f7d4ef6e2ef33db9440580dc",
-  "summary": "Merge pull request #21459 from mozilla/fxa-10666",
-  "description": "refactor(event-broker): use @fxa/shared/mozlog for logging",
-  "timestamp": 1791842525000,
+  "commit": "3e20e77f38826e9d09ced4a69271193aaac9e283",
+  "summary": "Merge pull request #21410 from mozilla/pairing-statsd-metrics",
+  "description": "feat(auth): count device pairings with StatsD",
+  "timestamp": 1791845328000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

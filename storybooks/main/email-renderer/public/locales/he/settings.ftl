@@ -1967,6 +1967,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = כדי לחבר את �
 pair2-supplicant-timeout-and-cancel-cancelled-heading = בוטל
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = כדי לחבר מכשיר בכל עת, יש לבקר באתר <b>firefox.com/pair</b> במחשב שלך.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = מכשיר זה כבר מחובר לחשבון
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = כדי להתחבר לחשבון שלך במחשב, יש להתנתק מ־{ -brand-firefox } במכשיר זה, ולאחר מכן לבקר באתר <b>firefox.com/pair</b> במחשב שלך כדי להשלים את ההתחברות.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a

@@ -2052,6 +2052,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Aby swój mobilny rěd
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Anulěrowany
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Aby rěd kuždy cas zwězał, woglědujśo se k <b>firefox.com/pair</b> na swójom licadle.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Rěd jo južo pśizjawjony
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Aby se ze swójim desktopowym kontom zwězał, wótzjawśo se wót { -brand-firefox } na toś tom rěźe a woglědajśo se pón k <b>firefox.com/pair</b> na swójom licadle, aby pśizjawjenje dokóńcył.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
