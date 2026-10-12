@@ -8,10 +8,34 @@ const convict = require('convict');
 const fs = require('fs');
 const path = require('path');
 
+// Every content-server process (server, grunt, webpack) loads this file
+// first, so register the @fxa/* aliases here. They resolve to the compiled
+// libs in the repo root dist/.
+{
+  const root = path.resolve(__dirname, '../../../..');
+  const { paths } = require(
+    path.join(root, 'tsconfig.base.json')
+  ).compilerOptions;
+  require('tsconfig-paths').register({
+    baseUrl: root,
+    addMatchAll: false,
+    paths: Object.fromEntries(
+      Object.entries(paths).map(([alias, targets]) => [
+        alias,
+        targets.map((t) =>
+          t.replace(/^\.\/libs\//, './dist/libs/').replace(/\.tsx?$/, '.js')
+        ),
+      ])
+    ),
+  });
+}
+
 const versionInfo = require('./version');
 
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
-const DEFAULT_SUPPORTED_LANGUAGES = require('../../../../libs/shared/l10n/src/lib/supported-languages.json');
+const {
+  supportedLanguages: DEFAULT_SUPPORTED_LANGUAGES,
+} = require('@fxa/shared/l10n');
 
 convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
