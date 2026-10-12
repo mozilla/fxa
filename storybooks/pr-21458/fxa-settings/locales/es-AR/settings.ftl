@@ -2024,9 +2024,9 @@ pair2-supplicant-sync-success-description-v2 = La sincronización está en curso
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
-## either because the attempt timed out or because it was canceled. Both states
-## are informational and offer no on-screen action, so the copy points the user
-## back to their computer to start again.
+## because the attempt timed out, was canceled, or the device is already signed
+## in to an account. All states are informational and offer no on-screen action,
+## so the copy points the user back to their computer to start again.
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que se agotó el tiempo de espera
@@ -2036,6 +2036,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Para conectar tu dispo
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Para conectar un dispositivo en cualquier momento, visitá <b>firefox.com/pair</b> en tu computadora.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Este dispositivo ya inició sesión
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Para conectarte a tu cuenta de escritorio, cerré la sesión de { -brand-firefox } en este dispositivo, luego visitá <b>firefox.com/pair</b> en tu computadora para completar el inicio de sesión.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
