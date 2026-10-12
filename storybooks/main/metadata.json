@@ -1,8 +1,8 @@
 {
-  "commit": "3d9304f82f5fe6c347b5ed28b9043aed0a153209",
-  "summary": "Merge pull request #21450 from mozilla/fxa-10671",
-  "description": "refactor(content-server): move speed-trap from fxa-shared",
-  "timestamp": 1791833019000,
+  "commit": "6082a215364ac37e7b0789cf9b6baf93924f75c8",
+  "summary": "Merge pull request #21449 from mozilla/fxa-10650",
+  "description": "refactor(shared): move fxa-shared/auth hash helpers to @fxa/shared/crypto",
+  "timestamp": 1791833045000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
