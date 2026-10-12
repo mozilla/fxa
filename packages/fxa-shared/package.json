@@ -21,10 +21,6 @@
       "import": "./dist/esm/packages/fxa-shared/auth/*.js",
       "require": "./dist/cjs/packages/fxa-shared/auth/*.js"
     },
-    "./cache/*": {
-      "import": "./dist/esm/packages/fxa-shared/cache/*.js",
-      "require": "./dist/cjs/packages/fxa-shared/cache/*.js"
-    },
     "./configuration/*": {
       "import": "./dist/esm/packages/fxa-shared/configuration/*.js",
       "require": "./dist/cjs/packages/fxa-shared/configuration/*.js"
