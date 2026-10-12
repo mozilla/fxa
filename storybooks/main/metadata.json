@@ -1,8 +1,8 @@
 {
-  "commit": "ec19cf99bdcfb15aa36f42516486035b7209998d",
-  "summary": "Merge pull request #21446 from mozilla/fxa-14691",
-  "description": "chore(shared): remove dead coupon.ts dto",
-  "timestamp": 1791830253000,
+  "commit": "cbd6d52b03ccc77ca03f6868b3db7f12b9f2978a",
+  "summary": "Merge pull request #21448 from mozilla/fxa-10657",
+  "description": "chore(shared): remove dead fxa-shared experiments module",
+  "timestamp": 1791831865000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
