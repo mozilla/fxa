@@ -1,0 +1,12 @@
+{
+  "commit": "bd053f61ce70f3e59d1af042a485367558a7e5d8",
+  "summary": "chore(shared): remove dead errors code from fxa-shared/lib",
+  "description": "Because:\n\n- fxa-shared/lib/errors.ts and swapObjectKeysAndValues have no user.\n- No file reads the fxa-shared barrel lib key.\n\nThis commit:\n\n- Deletes lib/errors.ts and swapObjectKeysAndValues from lib/utils.ts.\n- Removes the barrel lib key and its three lib imports.\n- Adds a spec for the kept commaSeparatedListToArray.\n\nCloses FXA-10662",
+  "timestamp": 1791835414000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
