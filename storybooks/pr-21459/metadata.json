@@ -1,0 +1,12 @@
+{
+  "commit": "121517dc23cdba350738448f48f8174423003a1e",
+  "summary": "refactor(event-broker): use @fxa/shared/mozlog for logging",
+  "description": "Because:\n- fxa-event-broker used a logger and ExtendedError copy in fxa-shared/nestjs.\n- @fxa/shared/mozlog already has the logger.\n\nThis commit:\n- Imports MozLoggerService and MozLoggerModule from @fxa/shared/mozlog.\n- Calls setContext('default') in PubsubProxyController and QueueworkerService.\n- Moves ExtendedError to fxa-event-broker/src/extended-error.ts.\n- Adds the mozlog path to tsconfig.build.json and updates the README.\n- Deletes fxa-shared/nestjs/logger and fxa-shared/nestjs/error.ts.\n\nCloses FXA-10666",
+  "timestamp": 1791836368000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
