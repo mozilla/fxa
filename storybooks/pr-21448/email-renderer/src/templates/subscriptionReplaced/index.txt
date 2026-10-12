@@ -1,0 +1,9 @@
+subscriptionReplaced-subject = "Your subscription has been updated as part of your upgrade"
+
+subscriptionReplaced-title = "Your subscription has been updated"
+
+subscriptionReplaced-content-replaced = "Your individual <%- productName %> subscription has been replaced and is now included in your new bundle."
+
+subscriptionReplaced-content-credit = "You’ll receive a credit for any unused time from your previous subscription. This credit will be automatically applied to your account and used toward future charges."
+
+subscriptionReplaced-content-no-action = "No action is required on your part."
