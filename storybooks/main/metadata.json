@@ -1,8 +1,8 @@
 {
-  "commit": "a2d347d6811f2835aad2e4a846981ea4a50983d2",
-  "summary": "Merge pull request #21447 from mozilla/fxa-14693",
-  "description": "chore(shared): remove dead nestjs/sentry reporting module",
-  "timestamp": 1791830228000,
+  "commit": "ec19cf99bdcfb15aa36f42516486035b7209998d",
+  "summary": "Merge pull request #21446 from mozilla/fxa-14691",
+  "description": "chore(shared): remove dead coupon.ts dto",
+  "timestamp": 1791830253000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
