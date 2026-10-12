@@ -5,7 +5,6 @@ import * as iapSubscription from './dto/auth/payments/iap-subscription';
 import * as invoice from './dto/auth/payments/invoice';
 import * as emailHelpers from './email/helpers';
 import popularDomains from './email/popularDomains.json';
-import BaseGroupingRule from './experiments/base';
 import express from './express';
 import featureFlags from './feature-flags';
 import amplitude from './metrics/amplitude';
@@ -26,9 +25,6 @@ module.exports = {
   email: {
     helpers: emailHelpers,
     popularDomains,
-  },
-  experiments: {
-    BaseGroupingRule,
   },
   express,
   featureFlags,
