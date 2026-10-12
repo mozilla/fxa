@@ -169,10 +169,6 @@
       "import": "./dist/esm/packages/fxa-shared/sentry/*.js",
       "require": "./dist/cjs/packages/fxa-shared/sentry/*.js"
     },
-    "./speed-trap/*": {
-      "import": "./dist/esm/packages/fxa-shared/speed-trap/*.js",
-      "require": "./dist/cjs/packages/fxa-shared/speed-trap/*.js"
-    },
     "./subscriptions/*": {
       "import": "./dist/esm/packages/fxa-shared/subscriptions/*.js",
       "require": "./dist/cjs/packages/fxa-shared/subscriptions/*.js"
