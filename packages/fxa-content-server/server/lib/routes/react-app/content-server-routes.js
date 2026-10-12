@@ -58,7 +58,6 @@ const FRONTEND_ROUTES = [
   'pair/supplicant/ready_to_scan',
   'pair/supplicant/sync_success',
   'pair/supplicant/timeout_and_cancel',
-  'post_verify/newsletters/add_newsletters',
   'post_verify/password/force_password_change',
   'post_verify/service_welcome',
   'post_verify/set_password',
