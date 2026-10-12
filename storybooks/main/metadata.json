@@ -1,8 +1,8 @@
 {
-  "commit": "d3c3677bc2c3870b220245f3391524141cd216e7",
-  "summary": "Merge pull request #21437 from mozilla/fxa-14727",
-  "description": "perf(admin-panel): cache the Nx build sub-targets",
-  "timestamp": 1791819270000,
+  "commit": "1fc4cfa76c81c0912a211ebebb84e6ac2fea0e93",
+  "summary": "Merge pull request #21375 from mozilla/dependabot/npm_and_yarn/fastify/busboy-3.2.2",
+  "description": "chore(deps): bump @fastify/busboy from 3.1.1 to 3.2.2",
+  "timestamp": 1791819314000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
