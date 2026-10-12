@@ -9,8 +9,6 @@ import express from './express';
 import featureFlags from './feature-flags';
 import amplitude from './metrics/amplitude';
 import flowPerformance from './metrics/flow-performance';
-import userAgent from './lib/user-agent';
-import geoData from './lib/geo-data';
 import scopes from './oauth/scopes';
 import {
   metadataFromPlan,
@@ -18,7 +16,6 @@ import {
 } from './subscriptions/metadata';
 import * as stripe from './subscriptions/stripe';
 import * as subscriptions from './subscriptions/type-guards';
-import * as errors from './lib/errors';
 
 module.exports = {
   email: {
@@ -33,11 +30,6 @@ module.exports = {
   },
   oauth: {
     scopes,
-  },
-  lib: {
-    errors,
-    userAgent,
-    geoData,
   },
   subscriptions: {
     metadata: {
