@@ -1295,7 +1295,7 @@ passkey-sub-row-created-date = Wedi'i greu: { $createdDate }
 passkey-sub-row-last-used-date = Defnyddiwyd ddiwethaf: { $lastUsedDate }
 passkey-sub-row-delete-title = Dileu cyfrinallwedd
 passkey-delete-modal-heading = Dileu eich cyfrinallwedd?
-passkey-delete-modal-content-v3 = Bydd y cyfrinair hwn yn cael ei dynnu o'ch cyfrif. Bydd angen i chi fewngofnodi gan ddefnyddio cyfrinair, cyfrinair arall, neu gyfrif cysylltiedig.
+passkey-delete-modal-content-v3 = Bydd y cyfrinallwedd hwn yn cael ei dynnu o'ch cyfrif. Bydd angen i chi fewngofnodi gan ddefnyddio cyfrinair, cyfrinallwedd arall, neu gyfrif cysylltiedig.
 passkey-delete-modal-cancel-button = Diddymu
 passkey-delete-modal-confirm-button = Dileu cyfrinallwedd
 passkey-delete-success = Cyfrinallwedd wedi'i ddileu
@@ -1660,7 +1660,7 @@ index-email-bounced = Dychwelwyd eich e-bost cadarnhau. E-bost wedi'i gamdeipio?
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Hepgor y cyfrinair tro nesaf?
 # Success banner after signing in.
-inline-passwordless-sync-setup-success-banner-v2 = Rydych chi wedi mewngofnodi, ac mae cysoni ymlaen
+inline-passwordless-sync-setup-success-banner-v2 = Rydych chi wedi mewngofnodi, ac mae cydweddu ymlaen
 inline-passwordless-sync-setup-heading = Hepgor y cyfrinair tro nesaf?
 inline-passwordless-sync-setup-description = Defnyddiwch y cyfrinallwedd hwn i fewngofnodi'n gyflymach.
 inline-passwordless-sync-setup-enable-button = Galluogi cyfrinallwedd
@@ -1669,13 +1669,13 @@ inline-passwordless-sync-setup-enabling = Wrthi'n galluogi…
 inline-passwordless-sync-setup-not-now-button = Nid nawr
 # Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
 # "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
-inline-passwordless-sync-setup-success-alert-v2 = Mae'r cyfrinair hwn wedi'i alluogi ar gyfer mewngofnodi cysoni
+inline-passwordless-sync-setup-success-alert-v2 = Mae'r cyfrinallwedd hwn wedi'i alluogi ar gyfer mewngofnodi cydweddu
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Wnaeth cadarnhau'r cyfrinallwedd ddim gorffen
 inline-passwordless-sync-setup-error-cancelled-description = Cadarnhewch gyda'ch cyfrinallwedd i hepgor y cyfrinair tro nesaf.
 # Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
 # "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
-inline-passwordless-sync-setup-error-generic-v2 = Ni allem alluogi'r allweddair hon ar gyfer mewngofnodi wrth gysoni. Bydd angen eich cyfrinair y tro nesaf.
+inline-passwordless-sync-setup-error-generic-v2 = Doedd dim modd i ni alluogi'r cyfrinallwedd hwn ar gyfer mewngofnodi cydweddu. Bydd angen eich cyfrinair y tro nesaf.
 
 ## InlineRecoveryKeySetup page component
 
@@ -2071,7 +2071,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = I gysylltu dyfais unr
 permissions-heading = Mae { $serviceName } eisiau mynediad i:
 permissions-label-email = Cyfeiriad e-bost
 permissions-label-display-name = Enw dangos
-permissions-label-avatar = Llun cyfrif
+permissions-label-avatar = Disgrifiad o'r cyfrif
 permissions-continue-button = Parhau
 permissions-cancel-button = Diddymu
 
@@ -2182,12 +2182,12 @@ confirm-totp-reset-password-use-different-account = Defnyddiwch gyfrif gwahanol
 password-reset-flow-heading = Ailosod eich cyfrinair
 password-reset-forgot-heading = Wedi anghofio eich cyfrinair?
 # The text inside <signInLink> links to the email-first sign-in page.
-password-reset-alternatives-body = <signInLink>Ceisiwch fewngofnodi gyda { -brand-google }, { -brand-apple }, neu gyfrinair yn lle hynny.</signInLink> Neu rhowch eich e-bost a byddwn yn anfon cod atoch i ailosod eich cyfrinair.
+password-reset-alternatives-body = <signInLink>Ceisiwch fewngofnodi gyda { -brand-google }, { -brand-apple }, neu gyfrinallwedd yn lle hynny.</signInLink> Neu rhowch eich e-bost a byddwn yn anfon cod atoch chi i ailosod eich cyfrinair.
 password-reset-email-input =
     .label = Rhowch eich e-bost
 password-reset-submit-button-2 = Parhau
 # Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
-password-reset-data-recovery-warning = Gall ailosod eich cyfrinair effeithio ar p'un a allwch adennill data porwr wedi'i gysoni. <learnMoreLink>Dysgu rhagor</learnMoreLink>
+password-reset-data-recovery-warning = Gall ailosod eich cyfrinair effeithio ar p'un eich bod yn gallu adennill data porwr wedi'i gydweddu. <learnMoreLink>Dysgu rhagor</learnMoreLink>
 
 ## ResetPasswordConfirmed
 

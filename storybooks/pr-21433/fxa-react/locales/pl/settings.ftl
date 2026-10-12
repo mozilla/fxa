@@ -1718,6 +1718,7 @@ pair2-supplicant-connect-hint-learn-more-link = Dowiedz się więcej
 permissions-heading = { $serviceName } prosi o dostęp do:
 permissions-label-email = Adres e-mail
 permissions-label-display-name = Wyświetlana nazwa
+permissions-label-avatar = Obraz konta
 permissions-continue-button = Kontynuuj
 permissions-cancel-button = Anuluj
 
@@ -1826,9 +1827,12 @@ confirm-totp-reset-password-use-different-account = Użyj innego konta
 ## ResetPassword start page
 
 password-reset-flow-heading = Zmień hasło
+password-reset-forgot-heading = Nie pamiętasz hasła?
 password-reset-email-input =
     .label = Wpisz adres e-mail
 password-reset-submit-button-2 = Kontynuuj
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Resetowanie hasła może wpłynąć na możliwość odzyskania zsynchronizowanych danych przeglądarki. <learnMoreLink>Więcej informacji</learnMoreLink>
 
 ## ResetPasswordConfirmed
 

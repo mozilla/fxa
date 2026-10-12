@@ -34,6 +34,7 @@ location-banner-currency-change = Para birimi değişikliği desteklenmiyor. Dev
 upgrade-page-payment-information = Ödeme bilgileri
 # $nextInvoiceDate (number) - The date of the next invoice
 upgrade-page-acknowledgment = Planınız hemen değişecek ve bu fatura döneminin kalan süresi için hesaplanan ek ücret tahsil edilecektir. { $nextInvoiceDate } tarihinden itibaren tam ücret tahsil edilecektir.
+upgrade-page-acknowledgment-from-trial = Yükseltme yaptığınıza aktif ücretsiz denemeniz hemen sona erer ve yeni planınızın ücreti bugün tahsil edilir.
 
 ## Authentication Error page
 
@@ -158,6 +159,7 @@ subscription-management-nav-active-subscriptions = Aktif abonelikler
 subscription-management-payment-details-heading = Ödeme ayrıntıları
 subscription-management-email-label = E-posta
 subscription-management-credit-balance-label = Kredi bakiyesi
+subscription-management-credit-balance-message = Kredi bakiyesi gelecek faturalardan otomatik olarak düşülecektir
 subscription-management-payment-method-label = Ödeme yöntemi
 subscription-management-button-add-payment-method-aria = Ödeme yöntemi ekle
 subscription-management-button-add-payment-method = Ekle
@@ -239,6 +241,7 @@ cancel-subscription-heading = { $productName } aboneliğini iptal et
 ## $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 
 subscription-content-no-longer-use-message = Fatura döneminizin son günü olan { $currentPeriodEnd } tarihinden sonra { $productName } ürününü kullanamayacaksınız.
+subscription-content-cancel-access-message = { $currentPeriodEnd } tarihinde { $productName } erişimimi ve kayıtlı bilgilerimi iptal et
 
 ## $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 

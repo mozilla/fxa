@@ -204,6 +204,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Confirmă parola
 form-password-with-inline-criteria-reset-submit-button = Creează o parolă nouă
+form-password-with-inline-criteria-old-password-label =
+    .label = Parola veche
+form-password-with-inline-criteria-change-password-submit-button = Schimbă parola
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Parolă
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -978,6 +981,7 @@ passkey-sub-row-created-date = Creat la: { $createdDate }
 passkey-sub-row-last-used-date = Ultima utilizare: { $lastUsedDate }
 passkey-sub-row-delete-title = Șterge cheia de acces
 passkey-delete-modal-heading = Ștergi cheia de acces?
+passkey-delete-modal-content-v3 = Cheia de acces va fi eliminată din cont. Va trebui să te conectezi folosind o parolă, o altă cheie de acces sau un cont asociat.
 passkey-delete-modal-cancel-button = Anulează
 passkey-delete-modal-confirm-button = Șterge cheia de acces
 passkey-delete-success = Cheia de acces a fost ștearsă
@@ -1223,13 +1227,16 @@ index-email-bounced = Mesajul de confirmare pe e-mail tocmai a fost returnat. Ai
 
 
 inline-passwordless-sync-setup-page-title = Sari peste parolă data viitoare?
+inline-passwordless-sync-setup-success-banner-v2 = Te-ai autentificat și sincronizarea este activată
 inline-passwordless-sync-setup-heading = Sari peste parolă data viitoare?
 inline-passwordless-sync-setup-description = Folosește cheia de acces pentru a intra în cont mai rapid.
 inline-passwordless-sync-setup-enable-button = Activează cheia de acces
 inline-passwordless-sync-setup-enabling = Se activează…
 inline-passwordless-sync-setup-not-now-button = Nu acum
+inline-passwordless-sync-setup-success-alert-v2 = Cheia de acces este activată pentru autentificarea pentru sincronizare
 inline-passwordless-sync-setup-error-cancelled = Confirmarea cheii de acces nu s-a finalizat
 inline-passwordless-sync-setup-error-cancelled-description = Confirmă cu cheia de acces pentru a omite parola data viitoare.
+inline-passwordless-sync-setup-error-generic-v2 = Nu am putut activa cheia de acces pentru autentificarea pentru sincronizare. Data viitoare vei avea nevoie de parolă.
 
 
 inline-recovery-key-setup-create-error = Ups! Nu am putut crea cheia de recuperare a contului. Te rugăm să încerci din nou mai târziu.
@@ -1368,6 +1375,7 @@ pair2-authority-download-firefox-cta = Descarcă { -brand-firefox }
 pair2-authority-scan-qr-heading = Scanează pentru conectarea dispozitivului mobil
 pair2-authority-scan-qr-instruction = Scanează codul QR cu telefonul sau tableta pentru a-ți sincroniza marcajele, filele și multe altele din { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Cod QR pentru conectarea dispozitivului mobil
+pair2-authority-scan-qr-other-ways-link = Alte modalități de autentificare
 pair2-authority-scan-qr-skip-button = Treci peste deocamdată
 
 
@@ -1394,8 +1402,19 @@ pair2-supplicant-connect-this-device-connect-button = Conectează
 pair2-supplicant-connect-this-device-cancel-button = Anulează
 
 
+pair2-supplicant-download-firefox-heading-v2 = Deschide { -brand-firefox } pe acest dispozitiv
+pair2-supplicant-download-firefox-description-v2 = Descarcă { -brand-firefox } pentru a-ți sincroniza marcajele, istoricul și multe altele pe toate dispozitivele.
 pair2-supplicant-download-firefox-continue-button = Continuă în { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Se deschide { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Descarcă { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = Am deja { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Află mai multe
+
+
+pair2-supplicant-connect-hint-heading-v2 = Finalizează asocierea în aplicație
+pair2-supplicant-connect-hint-step-app-menu = Atinge <b>meniul de aplicații</b> în bara de instrumente
+pair2-supplicant-connect-hint-step-sign-in = Atinge <b>Intră în cont</b> și apoi scanează codul
+pair2-supplicant-connect-hint-learn-more-link = Află mai multe
 
 
 pair2-supplicant-ready-to-scan-heading = Pentru a conecta un dispozitiv
@@ -1416,8 +1435,14 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Pentru a conecta un d
 permissions-heading = { $serviceName } vrea acces la:
 permissions-label-email = Adresa de e-mail
 permissions-label-display-name = Nume afișat
+permissions-label-avatar = Imaginea contului
 permissions-continue-button = Continuă
 permissions-cancel-button = Anulează
+
+
+force-password-change-heading = Te rugăm să îți schimbi parola
+force-password-change-info = Am detectat un comportament suspect în { -product-mozilla-account }. Pentru a-ți proteja contul, te rugăm să creezi o parolă nouă. O vei folosi pentru a te conecta din nou la toate serviciile { -product-mozilla-account }.
+force-password-change-data-info = Istoricul, marcajele, datele de autentificare și alte date personale sincronizate nu se vor pierde.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmat
@@ -1477,9 +1502,12 @@ confirm-totp-reset-password-use-different-account = Folosește alt cont
 
 
 password-reset-flow-heading = Resetează-ți parola
+password-reset-forgot-heading = Ți-ai uitat parola?
+password-reset-alternatives-body = <signInLink>Încearcă să intri în cont cu { -brand-google }, { -brand-apple } sau o cheie de acces.</signInLink> Sau introdu adresa de e-mail și îți vom trimite un cod ca să îți resetezi parola.
 password-reset-email-input =
     .label = Introdu adresa de e-mail
 password-reset-submit-button-2 = Continuă
+password-reset-data-recovery-warning = Resetarea parolei poate afecta recuperarea datelor sincronizate din browser. <learnMoreLink>Află mai multe</learnMoreLink>
 
 
 reset-password-complete-header = Parola a fost resetată
@@ -1721,3 +1749,8 @@ signup-confirmed-sync-description-v2 = Parolele, adresele, marcajele, istoricul 
 signup-confirmed-sync-add-device-link = Adaugă alt dispozitiv
 signup-confirmed-sync-manage-sync-button = Gestionează sincronizarea
 signup-confirmed-sync-set-password-success-banner = Parola de sincronizare a fost creată
+
+
+update-firefox-heading = { -brand-firefox } trebuie actualizat
+update-firefox-description = { -product-mozilla-account } utilizează funcționalități care nu au suport în versiunea ta de { -brand-firefox }. Te rugăm să descarci și să instalezi cea mai recentă versiune de { -brand-firefox } pentru a continua.
+update-firefox-download-button = Descarcă cea mai recentă versiune
