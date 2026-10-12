@@ -1,0 +1,10 @@
+{
+  "commit": "ff599c0fc18da379a936c849628fbc2d4859744b",
+  "summary": "feat(shared): add tagCriticalEvent and browser compat API to sentry libs",
+  "description": "Because:\n- FXA-14700 and FXA-14701 need tagCriticalEvent and a browser compat API in the shared Sentry libs.\n- The API must land first so those changes only update imports.\n\nThis commit:\n- Adds tagCriticalEvent and CRITICAL_ENDPOINTS to sentry-utils, copied unchanged from fxa-shared.\n- Adds tracesSampler and skipOpenTelemetrySetup (type-only) to SentryConfigOpts.\n- Adds browserTracingIntegration to sentry-browser when a trace sample option is set.\n- Adds a default export to sentry-browser: configure, captureException, enable, disable.\n- Runs tagCriticalEvent before beforeSendServer in sentry-node.\n\nCloses FXA-10670",
+  "timestamp": 1791835447000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
