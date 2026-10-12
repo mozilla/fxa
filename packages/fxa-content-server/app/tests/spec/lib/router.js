@@ -7,9 +7,9 @@ import AuthBroker from 'models/auth_brokers/base';
 import Backbone from 'backbone';
 import BaseView from 'views/base';
 import Constants from 'lib/constants';
+import ForcePasswordChangeView from 'views/post_verify/password/force_password_change';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
-import PermissionsView from 'views/permissions';
 import Relier from 'models/reliers/relier';
 import Router from 'lib/router';
 import sinon from 'sinon';
@@ -467,7 +467,7 @@ describe('lib/router', () => {
 
     it('handles module names for the view', () => {
       var routeHandler = router.createViewHandler(
-        'permissions',
+        'post_verify/password/force_password_change',
         viewConstructorOptions
       );
       assert.isFunction(routeHandler);
@@ -475,7 +475,10 @@ describe('lib/router', () => {
 
       return routeHandler.call(router).then(() => {
         assert.isTrue(
-          router.showView.calledWith(PermissionsView, viewConstructorOptions)
+          router.showView.calledWith(
+            ForcePasswordChangeView,
+            viewConstructorOptions
+          )
         );
       });
     });
@@ -514,7 +517,7 @@ describe('lib/router', () => {
 
     it('handles module names for the view', () => {
       var routeHandler = router.createChildViewHandler(
-        'permissions',
+        'post_verify/password/force_password_change',
         ParentView,
         viewConstructorOptions
       );
@@ -524,7 +527,7 @@ describe('lib/router', () => {
       return routeHandler.call(router).then(() => {
         assert.isTrue(
           router.showChildView.calledWith(
-            PermissionsView,
+            ForcePasswordChangeView,
             ParentView,
             viewConstructorOptions
           )
