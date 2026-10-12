@@ -1,8 +1,8 @@
 {
-  "commit": "d091f92191a90ca58dcb8ab78b2387ceecfb9741",
-  "summary": "Merge pull request #21444 from mozilla/fxa-14749",
-  "description": "chore(content-server): remove Backbone add_newsletters and signin_permissions views",
-  "timestamp": 1791828720000,
+  "commit": "f42f663f476fd5e4e784402876871888d438f218",
+  "summary": "Merge pull request #21438 from mozilla/fxa-13338",
+  "description": "test(auth): replace any types in passkey specs",
+  "timestamp": 1791829143000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
