@@ -141,6 +141,7 @@ module.exports = function (
           error.invalidUnblockCode,
           error.cannotLoginWithEmail,
           error.accountDisabled,
+          error.insufficientAal,
         ],
       },
       options: {
@@ -234,6 +235,14 @@ module.exports = function (
           );
         }
         // End temporary metrics section
+
+        // A session verified before the account enabled 2FA stays AAL1. The
+        // keyFetchToken minted below inherits its verified state, so without
+        // this gate the password alone would release kB. Unverified sessions
+        // pass through: their keyFetchToken is unverified until TOTP succeeds.
+        if (requiresAal2 && sessionAal < 2 && sessionToken.tokenVerified) {
+          throw error.insufficientAal();
+        }
 
         await signinUtils.checkEmailAddress(
           accountRecord,

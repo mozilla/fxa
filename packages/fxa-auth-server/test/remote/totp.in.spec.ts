@@ -272,6 +272,35 @@ describe.each(testVersions)(
       expect(reauthResponse.verificationReason).toBe('login');
     });
 
+    it('should not release keys to a session verified before totp was enabled', async () => {
+      const newEmail = server.uniqueEmail();
+      const preTotpClient = await Client.createAndVerify(
+        server.publicUrl,
+        newEmail,
+        password,
+        server.mailbox,
+        { ...testOptions, keys: true }
+      );
+
+      // Enable TOTP from a second session.
+      const client2 = await Client.loginAndVerify(
+        server.publicUrl,
+        newEmail,
+        password,
+        server.mailbox,
+        { ...testOptions, keys: true }
+      );
+      email = newEmail;
+      await verifyTOTP(client2);
+
+      try {
+        await preTotpClient.reauth({ keys: true });
+        fail('should have thrown');
+      } catch (err: any) {
+        expect(err.errno).toBe(222);
+      }
+    });
+
     it('should fail reset password without verifying totp', async () => {
       const newPassword = 'anotherPassword';
 
