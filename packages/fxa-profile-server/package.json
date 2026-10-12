@@ -33,7 +33,8 @@
     "mysql": "^2.18.1",
     "poolee": "^1.0.1",
     "sharp": "^0.35.5",
-    "stream-to-array": "2.3.0"
+    "stream-to-array": "2.3.0",
+    "tsconfig-paths": "^4.2.0"
   },
   "devDependencies": {
     "@types/sharp": "^0",
