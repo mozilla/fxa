@@ -149,6 +149,7 @@ module.exports = function (
           error.invalidUnblockCode,
           error.cannotLoginWithEmail,
           error.accountDisabled,
+          error.insufficientAal,
         ],
       },
       options: {
@@ -240,6 +241,9 @@ module.exports = function (
             'session_reauth.all_not_met',
             getClientServiceTags(request)
           );
+          // A session verified before the account enabled 2FA stays AAL1, and
+          // the keyFetchToken minted below would inherit its verified state.
+          throw error.insufficientAal();
         }
         // End temporary metrics section
 

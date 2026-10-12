@@ -748,6 +748,43 @@ describe('/session/reauth', () => {
       errno: error.ERRNO.DISABLED_CLIENT_ID,
     });
   });
+
+  it('rejects a verified AAL1 session when the account requires TOTP', async () => {
+    db.totpToken = jest.fn().mockResolvedValue({
+      verified: true,
+      enabled: true,
+    });
+    signinUtils.checkPassword = jest.fn(() => Promise.resolve(true));
+    signinUtils.createKeyFetchToken = jest.fn(() => {
+      throw new Error('should not be called');
+    });
+
+    await expect(runTest(route, request)).rejects.toMatchObject({
+      errno: error.ERRNO.INSUFFICIENT_AAL,
+    });
+    expect(signinUtils.checkPassword).toHaveBeenCalledTimes(0);
+    expect(signinUtils.createKeyFetchToken).toHaveBeenCalledTimes(0);
+  });
+
+  it('rejects an unverified AAL1 session when the account requires TOTP', async () => {
+    db.totpToken = jest.fn().mockResolvedValue({
+      verified: true,
+      enabled: true,
+    });
+    signinUtils.checkPassword = jest.fn(() => Promise.resolve(true));
+    request.auth.credentials = await SessionToken.fromHex(hexString(16), {
+      email: TEST_EMAIL,
+      uid: TEST_UID,
+      createdAt: 12345678,
+      emailVerified: true,
+      tokenVerificationId: hexString(16),
+    });
+
+    await expect(runTest(route, request)).rejects.toMatchObject({
+      errno: error.ERRNO.INSUFFICIENT_AAL,
+    });
+    expect(signinUtils.checkPassword).toHaveBeenCalledTimes(0);
+  });
 });
 
 describe('/session/destroy', () => {
