@@ -9,7 +9,6 @@ import express from './express';
 import featureFlags from './feature-flags';
 import amplitude from './metrics/amplitude';
 import flowPerformance from './metrics/flow-performance';
-import navigationTimingSchema from './metrics/navigation-timing-validation';
 import userAgent from './lib/user-agent';
 import geoData from './lib/geo-data';
 import scopes from './oauth/scopes';
@@ -31,7 +30,6 @@ module.exports = {
   metrics: {
     amplitude,
     flowPerformance,
-    navigationTimingSchema,
   },
   oauth: {
     scopes,
