@@ -6,6 +6,9 @@ import { createMock } from '@golevelup/ts-jest';
 import { OAuthNativeClients } from '@fxa/accounts/oauth';
 import { AuthLogger } from '../../types';
 
+import { AppError } from '@fxa/accounts/errors';
+import { parseToScalars } from 'fxa-shared/lib/user-agent';
+
 const Joi = require('joi');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
@@ -338,6 +341,174 @@ describe('/oauth/authorization POST', () => {
       const rejection = expect(sessionTokenRoute.handler(request)).rejects;
       await rejection.toBeDefined();
       await rejection.not.toMatchObject({ errno: 138 });
+    });
+  });
+
+  // Approving a pairing mints a code carrying the account's Sync keys from a
+  // desktop that may have been left signed in. The FxA page re-prompts a 2FA
+  // account for its TOTP code first; these tests pin the server-side check
+  // that makes a client which skips the prompt fail anyway.
+  describe('pairing second-factor enforcement', () => {
+    const DESKTOP_FIREFOX_UA =
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:132.0) Gecko/20100101 Firefox/132.0';
+    const ANDROID_FIREFOX_UA =
+      'Mozilla/5.0 (Android 13; Mobile; rv:133.0) Gecko/133.0 Firefox/133.0';
+    const MAX_AGE_MS = 5 * 60 * 1000;
+    const INSUFFICIENT_ACR_VALUES = 170;
+
+    const totpToken = jest.fn();
+    const pairingRoute = require('./authorization')({
+      glean: mockGlean,
+      log: mockLog,
+      oauthDB: {},
+      db: { totpToken },
+      statsd: { histogram: jest.fn() },
+      config: {
+        ...baseConfig,
+        oauth: { ...baseConfig.oauth, pairingSecondFactorMaxAge: MAX_AGE_MS },
+      },
+    })[2];
+
+    // A TOTP session whose second factor was just verified: the shape the
+    // honest pairing flow produces.
+    const freshTotpSession = () => ({
+      tokenVerified: true,
+      uid: 'abc123',
+      email: 'test@example.com',
+      emailVerified: true,
+      verifierSetAt: Date.now(),
+      lastAuthAt: () => Date.now(),
+      authenticationMethods: new Set(['pwd', 'otp']),
+      authenticatorAssuranceLevel: 2,
+      verifiedAt: Date.now(),
+      profileChangedAt: Date.now(),
+      keysChangedAt: Date.now(),
+      id: 'sessionTokenId',
+    });
+
+    const request = ({
+      credentials = freshTotpSession(),
+      clientId = OAuthNativeClients.Fenix,
+      userAgent = DESKTOP_FIREFOX_UA,
+    } = {}) => ({
+      headers: {},
+      app: { ua: parseToScalars(userAgent) },
+      auth: { credentials },
+      // The Joi validator has already turned the wire scope into a ScopeSet by
+      // the time the handler runs, and the handler relies on that.
+      payload: {
+        client_id: clientId,
+        state: 'foo',
+        scope: ScopeSet.fromString('profile'),
+      },
+    });
+
+    beforeEach(() => {
+      totpToken.mockReset();
+      totpToken.mockResolvedValue({ verified: true, enabled: true });
+    });
+
+    it('lets a fresh second factor through to the grant', async () => {
+      const rejection = expect(pairingRoute.handler(request())).rejects;
+      await rejection.toBeDefined();
+      await rejection.not.toMatchObject({ errno: INSUFFICIENT_ACR_VALUES });
+    });
+
+    it('rejects a second factor older than the configured window', async () => {
+      const credentials = {
+        ...freshTotpSession(),
+        verifiedAt: Date.now() - MAX_AGE_MS - 1000,
+      };
+
+      await expect(
+        pairingRoute.handler(request({ credentials }))
+      ).rejects.toMatchObject({ errno: INSUFFICIENT_ACR_VALUES });
+    });
+
+    // TOTP was enabled after this session signed in, so the session itself
+    // never saw a second factor even though `verifiedAt` is recent.
+    it('rejects a session that never passed a second factor', async () => {
+      const credentials = {
+        ...freshTotpSession(),
+        authenticationMethods: new Set(['pwd', 'email']),
+        authenticatorAssuranceLevel: 1,
+      };
+
+      await expect(
+        pairingRoute.handler(request({ credentials }))
+      ).rejects.toMatchObject({ errno: INSUFFICIENT_ACR_VALUES });
+    });
+
+    it('rejects a session with no verification time at all', async () => {
+      const credentials = { ...freshTotpSession(), verifiedAt: null };
+
+      await expect(
+        pairingRoute.handler(request({ credentials }))
+      ).rejects.toMatchObject({ errno: INSUFFICIENT_ACR_VALUES });
+    });
+
+    it('does not apply to an account without TOTP', async () => {
+      totpToken.mockRejectedValue(AppError.totpTokenNotFound());
+      const credentials = {
+        ...freshTotpSession(),
+        authenticationMethods: new Set(['pwd', 'email']),
+        authenticatorAssuranceLevel: 1,
+        verifiedAt: null,
+      };
+
+      const rejection = expect(
+        pairingRoute.handler(request({ credentials }))
+      ).rejects;
+      await rejection.toBeDefined();
+      await rejection.not.toMatchObject({ errno: INSUFFICIENT_ACR_VALUES });
+    });
+
+    it('does not apply while TOTP setup is still unconfirmed', async () => {
+      totpToken.mockResolvedValue({ verified: false, enabled: false });
+      const credentials = {
+        ...freshTotpSession(),
+        authenticationMethods: new Set(['pwd', 'email']),
+        authenticatorAssuranceLevel: 1,
+        verifiedAt: null,
+      };
+
+      const rejection = expect(
+        pairingRoute.handler(request({ credentials }))
+      ).rejects;
+      await rejection.toBeDefined();
+      await rejection.not.toMatchObject({ errno: INSUFFICIENT_ACR_VALUES });
+    });
+
+    it('does not apply to a code minted for a web client', async () => {
+      const credentials = { ...freshTotpSession(), verifiedAt: null };
+
+      const rejection = expect(
+        pairingRoute.handler(request({ credentials, clientId: CLIENT_ID }))
+      ).rejects;
+      await rejection.toBeDefined();
+      await rejection.not.toMatchObject({ errno: INSUFFICIENT_ACR_VALUES });
+      expect(totpToken).not.toHaveBeenCalled();
+    });
+
+    it('does not apply to a mobile client signing in on the phone itself', async () => {
+      const credentials = { ...freshTotpSession(), verifiedAt: null };
+
+      const rejection = expect(
+        pairingRoute.handler(
+          request({ credentials, userAgent: ANDROID_FIREFOX_UA })
+        )
+      ).rejects;
+      await rejection.toBeDefined();
+      await rejection.not.toMatchObject({ errno: INSUFFICIENT_ACR_VALUES });
+      expect(totpToken).not.toHaveBeenCalled();
+    });
+
+    it('surfaces a TOTP lookup failure', async () => {
+      totpToken.mockRejectedValue(new Error('db unavailable'));
+
+      await expect(pairingRoute.handler(request())).rejects.toThrow(
+        'db unavailable'
+      );
     });
   });
 });

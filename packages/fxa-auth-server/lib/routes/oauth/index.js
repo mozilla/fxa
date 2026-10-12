@@ -15,6 +15,7 @@ module.exports = (
     require('./authorization')({
       log,
       oauthDB,
+      db,
       config,
       statsd,
       glean,

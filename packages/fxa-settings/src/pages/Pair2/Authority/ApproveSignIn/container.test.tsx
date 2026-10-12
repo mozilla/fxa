@@ -279,7 +279,7 @@ describe('Pair2/Authority/ApproveSignIn container', () => {
 
   // `authorize()` routes the failures it expects through `fail()`. Without a
   // Failed case the user would sit on this screen with no feedback.
-  it('blames a timeout when the flow fails on its own', async () => {
+  it('navigates to the cancel screen when the flow fails', async () => {
     renderContainer();
     await findApproveHeading();
 

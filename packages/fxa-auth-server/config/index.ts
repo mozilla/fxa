@@ -1230,6 +1230,12 @@ const convictConf = convict({
       format: Array,
       default: [],
     },
+    pairingSecondFactorMaxAge: {
+      doc: 'How recently a 2FA account must have passed its second factor on the session before it may authorize a device pairing',
+      format: 'duration',
+      default: '5 minutes',
+      env: 'OAUTH_PAIRING_SECOND_FACTOR_MAX_AGE',
+    },
     // Some safety switches to disable oauth-based device API operations,
     // in case problems with the client logic cause server overload.
     deviceAccessEnabled: {

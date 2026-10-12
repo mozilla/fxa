@@ -71,7 +71,7 @@ function isPairingAuthorization(request, clientId) {
   if (!MOBILE_OAUTH_NATIVE_CLIENT_IDS.has(clientId.toLowerCase())) {
     return false;
   }
-  const ua = request.app.ua;
+  const ua = request.app?.ua;
   // deviceType is null only for a desktop; Firefox on an Android tablet would
   // otherwise slip through on `browser` alone.
   return ua?.browser === 'Firefox' && !ua?.deviceType;
@@ -80,6 +80,7 @@ function isPairingAuthorization(request, clientId) {
 module.exports = ({
   log,
   oauthDB,
+  db,
   config,
   statsd,
   glean,
@@ -88,6 +89,9 @@ module.exports = ({
   if (!config) {
     config = require('../../../config').default.getProperties();
   }
+  const otpUtils = require('../utils/otp').default(db, statsd);
+  const PAIRING_SECOND_FACTOR_MAX_AGE_MS =
+    config.oauth.pairingSecondFactorMaxAge;
   const MAX_TTL_S = config.oauthServer.expiration.accessToken / 1000;
   const CODE_EXPIRATION_S = Math.ceil(
     config.oauthServer.expiration.code / 1000
@@ -106,6 +110,36 @@ module.exports = ({
     // TODO: dedupe config param with `oauthServer.disabledClients`
     config.oauth.disableNewConnectionsForClients || []
   );
+
+  /**
+   * A pairing authorization hands the account's Sync keys to another device,
+   * approved from a desktop that may have been left signed in. So for a 2FA
+   * account the session must have passed its second factor recently, not just
+   * once at sign-in. The FxA page re-prompts for the TOTP code before it lets
+   * the user approve; this is what makes that prompt mandatory.
+   */
+  async function assertRecentSecondFactorForPairing(sessionToken) {
+    if (!(await otpUtils.hasTotpToken(sessionToken))) {
+      return;
+    }
+    // `verifiedAt` is refreshed by every AAL2 verification, so it is the time
+    // of the most recent second-factor challenge on this session.
+    const secondFactorAgeMs = Date.now() - (sessionToken.verifiedAt || 0);
+    if (
+      sessionToken.authenticatorAssuranceLevel >= 2 &&
+      secondFactorAgeMs <= PAIRING_SECOND_FACTOR_MAX_AGE_MS
+    ) {
+      return;
+    }
+    log.info('oauth.authorization.pairingSecondFactorStale', {
+      uid: sessionToken.uid,
+      aal: sessionToken.authenticatorAssuranceLevel,
+      secondFactorAgeMs,
+    });
+    throw AuthError.insufficientACRValues(
+      String(sessionToken.authenticatorAssuranceLevel)
+    );
+  }
 
   function checkDisabledClientId(payload) {
     const clientId = payload.client_id;
@@ -735,6 +769,11 @@ module.exports = ({
           throw OauthError.invalidRequestParameter({ keys: ['scope'] });
         }
 
+        const isPairing = isPairingAuthorization(req, clientId);
+        if (isPairing) {
+          await assertRecentSecondFactorForPairing(sessionToken);
+        }
+
         req.payload.assertion = await makeAssertionJWT(config, sessionToken);
         const result = await authorizationHandler(req, payloadOverride);
 
@@ -742,7 +781,7 @@ module.exports = ({
         // have confirmed, so a successful code here is a completed pairing.
         // Not awaited, matching the access_token.created call in token.js: a
         // metrics failure must not fail the authorization.
-        if (isPairingAuthorization(req, clientId)) {
+        if (isPairing) {
           glean.pairing.success(req);
         }
 
