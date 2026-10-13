@@ -1,8 +1,8 @@
 {
-  "commit": "19d2919540096e392a43467d76561bf41259541d",
-  "summary": "Merge pull request #21465 from mozilla/fxa-14659",
-  "description": "test(shared): replace real-looking email addresses in test files",
-  "timestamp": 1791853308000,
+  "commit": "3e3ec496e31233536f02a10df00dfbf1b7babbd9",
+  "summary": "Merge pull request #21434 from mozilla/fxa-14637",
+  "description": "fix(functional-tests): skip v2 pairing specs when the stack serves v1",
+  "timestamp": 1791853406000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
