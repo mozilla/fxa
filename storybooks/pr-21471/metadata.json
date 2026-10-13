@@ -1,0 +1,11 @@
+{
+  "commit": "ef903629e58bd736489b803c5ceb3663286ddb01",
+  "summary": "refactor(settings): move browser Sentry callers to @fxa/shared/sentry-browser",
+  "description": "Because:\n\n- The browser Sentry code lives in @fxa/shared/sentry-browser, and\n  fxa-shared/sentry/browser is a shim.\n\nThis commit:\n\n- Imports @fxa/shared/sentry-browser in fxa-settings and fxa-admin-panel.\n- Points the jest mocks and requires in the settings tests at the lib.\n- Maps @fxa/shared/sentry-browser and sentry-utils in the settings jest config.\n\nCloses FXA-14701",
+  "timestamp": 1791903708000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
