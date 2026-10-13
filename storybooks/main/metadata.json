@@ -1,8 +1,8 @@
 {
-  "commit": "937480874af663a577be7a33e18e8fe5fd11e43c",
-  "summary": "Merge pull request #21467 from mozilla/fxa-14419",
-  "description": "feat(settings): show the Firefox logo in the pairing v2 QR code",
-  "timestamp": 1791923988000,
+  "commit": "7ce1b0c3dae15d64f91155cc838fc6bc1cc0553f",
+  "summary": "Merge pull request #21478 from mozilla/fxa-14704",
+  "description": "refactor(shared): inject account-customer lookups into StripeHelper",
+  "timestamp": 1791924627000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
