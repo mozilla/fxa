@@ -1,8 +1,8 @@
 {
-  "commit": "9e791f8d1b765a8b3628296496f3095d194620d9",
+  "commit": "95cd922ccb75239cbf129bd274172428d49b9f5a",
   "summary": "refactor(settings): use auth-client in reset password containers",
-  "description": "Because:\n\n- The ResetPassword pages loaded the Settings Account model through useAccount, which authentication pages should not do.\n\nThis commit:\n\n- Calls auth-client directly in the three reset password containers.\n- Moves the reset logic from Account into the containers and removes the four unused Account methods.\n- Adds container tests, including the v2 key-stretch reset branch.\n\nCloses FXA-9672",
-  "timestamp": 1791927472000,
+  "description": "Because:\n\n- The reset password pages used the Account model through useAccount.\n- The recovery key reset cached a verified field that /account/reset never returns.\n\nThis commit:\n\n- Calls useAuthClient directly in the three ResetPassword containers.\n- Deletes the Account methods that have no caller left.\n- Caches sessionVerified from the reset response and types the helper return.\n- Mocks useAuthClient in the container tests and asserts the cache write.\n\nCloses FXA-9672",
+  "timestamp": 1791929083000,
   "storybooks": [
     "fxa-settings"
   ],
