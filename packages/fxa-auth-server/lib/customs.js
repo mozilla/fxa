@@ -6,7 +6,7 @@
 
 const Sentry = require('@sentry/node');
 const { config } = require('../config');
-const { EmailNormalization } = require('fxa-shared/email/email-normalization');
+const { EmailNormalization } = require('@fxa/accounts/email-sender');
 
 const localizeTimestamp =
   require('../../../libs/shared/l10n/src').localizeTimestamp({

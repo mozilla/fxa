@@ -51,7 +51,6 @@ import { AccountEventsManager } from '../account-events';
 import { gleanMetrics } from '../metrics/glean';
 import { AccountDeleteManager } from '../account-delete';
 import { normalizeEmail } from 'fxa-shared/email/helpers';
-import { EmailNormalization } from 'fxa-shared/email/email-normalization';
 import { DeleteAccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { ProfileClient } from '@fxa/profile/client';
 import { DB } from '../db';
@@ -73,6 +72,7 @@ import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
 import { PasskeyService, PasskeyWithWrapState } from '@fxa/accounts/passkey';
 import {
   BOUNCE_TYPE_HARD,
+  EmailNormalization,
   escapeLikePattern,
 } from '@fxa/accounts/email-sender';
 import { getClientServiceTags } from '../metrics/client-tags';
