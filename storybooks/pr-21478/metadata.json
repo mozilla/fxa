@@ -1,0 +1,12 @@
+{
+  "commit": "f15a0f94d5a39e53e05ddea46f772198e32a9408",
+  "summary": "refactor(shared): inject account-customer lookups into StripeHelper",
+  "description": "Because:\n\n* FXA-14705 moves the fxa-shared db models, and the fxa-shared dist would\n  then query an AccountCustomers class with no Knex bound.\n\nThis commit:\n\n* Removes the db models import from the fxa-shared StripeHelper.\n* Adds abstract getAccountCustomerByUid and deleteAccountCustomer methods,\n  which fetchCustomer calls through this.\n* Implements both methods in the auth-server StripeHelper and the\n  admin-server StripeService.\n\nCloses FXA-14704",
+  "timestamp": 1791914159000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
