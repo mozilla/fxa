@@ -1,8 +1,8 @@
 {
-  "commit": "6e828df5dfa1874925ab7bbc977c9a93c36654b5",
+  "commit": "7fd99fb9411a2389bfe1938a33061f5f57cb1fc1",
   "summary": "fix(settings): report readable Glean reasons for passkey errors",
-  "description": "Because:\n\n- Most passkey WebAuthn errors reported unreadable or shared Glean reasons.\n- The add-passkey page used its own reason map and auth_error_<n> values.\n\nThis commit:\n\n- Gives each WebAuthn error name its own Glean reason, and the duplicate case already_registered.\n- Uses the shared gleanReason and named errno reasons on the add-passkey page.\n- Picks the sign-in banner from errorType, so banners do not change.\n- Documents every reason value in fxa-ui-metrics.yaml.\n\nCloses FXA-14005",
-  "timestamp": 1791917127000,
+  "description": "Because:\n- Passkey errors sent coarse Glean reasons that dashboards could not split.\n\nThis commit:\n- Reports one Glean reason value for each WebAuthn error name.\n- Keeps the errno reasons from main in the Glean metric descriptions.\n\nCloses FXA-14005",
+  "timestamp": 1791927820000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",

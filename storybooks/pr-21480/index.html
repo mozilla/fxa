@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 6e828df5dfa1874925ab7bbc977c9a93c36654b5</title>
+  <title>Storybooks for commit 7fd99fb9411a2389bfe1938a33061f5f57cb1fc1</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 6e828df5dfa1874925ab7bbc977c9a93c36654b5</h1>
+  <h1>Storybooks for commit 7fd99fb9411a2389bfe1938a33061f5f57cb1fc1</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,21 +31,16 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/13/2026, 6:45:27 PM UTC</dd>
+    <dd>10/13/2026, 9:43:40 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): report readable Glean reasons for passkey errors</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-
-- Most passkey WebAuthn errors reported unreadable or shared Glean reasons.
-- The add-passkey page used its own reason map and auth_error_&lt;n&gt; values.
+- Passkey errors sent coarse Glean reasons that dashboards could not split.
 
 This commit:
-
-- Gives each WebAuthn error name its own Glean reason, and the duplicate case already_registered.
-- Uses the shared gleanReason and named errno reasons on the add-passkey page.
-- Picks the sign-in banner from errorType, so banners do not change.
-- Documents every reason value in fxa-ui-metrics.yaml.
+- Reports one Glean reason value for each WebAuthn error name.
+- Keeps the errno reasons from main in the Glean metric descriptions.
 
 Closes FXA-14005</pre></dd>
   </dl>

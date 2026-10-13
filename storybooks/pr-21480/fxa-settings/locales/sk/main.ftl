@@ -1540,6 +1540,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Zdá sa, že nám vypršal
 pair2-supplicant-timeout-and-cancel-timeout-description = Ak chcete pripojiť svoje mobilné zariadenie a synchronizovať údaje z prehliadača { -brand-firefox }, navštívte stránku <b>firefox.com/pair</b> na svojom počítači.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Zrušené
 pair2-supplicant-timeout-and-cancel-canceled-description = Ak chcete kedykoľvek pripojiť zariadenie, navštívte na svojom počítači stránku <b>firefox.com/pair</b>.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Toto zariadenie je už prihlásené
+pair2-supplicant-timeout-and-cancel-signed-in-description = Ak chcete prepojiť účet v počítači, odhláste sa z aplikácie { -brand-firefox } na tomto zariadení a potom v počítači prejdite na <b>firefox.com/pair</b> a dokončite prihlásenie.
 
 
 permissions-heading = { $serviceName } požaduje prístup k:
