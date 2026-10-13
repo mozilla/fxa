@@ -1,0 +1,10 @@
+{
+  "commit": "0a63f89a6fb739f75fce8ce6770673187a0372b5",
+  "summary": "fix(settings): link PairConnectHint to the plain SUMO article",
+  "description": "Because:\n\n- The PairConnectHint \"Learn more\" link used an in-product SUMO URL with\n  placeholders that only Firefox substitutes, so mobile browsers followed\n  a broken redirect chain.\n\nThis commit:\n\n- Links \"Learn more\" to the existing plain /kb/ PAIR_WITHOUT_QR_SUMO_URL.\n- Deletes the unused PAIR_WITHOUT_QR_SUPPORT_URL constant.\n- Updates the unit test to expect the /kb/ URL.\n\nCloses FXA-14706",
+  "timestamp": 1791890128000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
