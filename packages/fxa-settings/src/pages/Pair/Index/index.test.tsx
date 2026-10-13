@@ -18,7 +18,7 @@ import Pair, { viewName } from '.';
 import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
 import type { FxAStatusState } from '../../../lib/hooks/useFxAStatus';
 import { getDefault } from '../../../lib/config';
-import { PAIR_GLEAN_REASONS } from 'fxa-shared/metrics/glean/pair-reasons';
+import { PAIR_GLEAN_REASONS } from '../../../lib/glean/pair-reasons';
 import { Integration } from '../../../models';
 import { parsePairingHash } from '../../../lib/pairing/pair-url';
 import { Devices } from '../../../lib/utilities';
