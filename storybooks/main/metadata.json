@@ -1,8 +1,8 @@
 {
-  "commit": "6dfe685ef05b41ef253954916b8e286f4914b614",
-  "summary": "Merge pull request #21466 from mozilla/fxa-14706",
-  "description": "fix(settings): link PairConnectHint to the plain SUMO article",
-  "timestamp": 1791923595000,
+  "commit": "937480874af663a577be7a33e18e8fe5fd11e43c",
+  "summary": "Merge pull request #21467 from mozilla/fxa-14419",
+  "description": "feat(settings): show the Firefox logo in the pairing v2 QR code",
+  "timestamp": 1791923988000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
