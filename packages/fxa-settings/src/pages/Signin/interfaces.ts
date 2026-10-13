@@ -16,7 +16,7 @@ import { Integration } from '../../models';
 import { QueryParams } from '../..';
 import { UseFxAStatusResult } from '../../lib/hooks';
 import AuthClient from 'fxa-auth-client/browser';
-import type { PairGleanReason } from 'fxa-shared/metrics/glean/pair-reasons';
+import type { PairGleanReason } from '../../lib/glean/pair-reasons';
 import type { PasswordCreationReason } from '../PostVerify/SetPassword/interfaces';
 
 export interface AvatarResponse {
