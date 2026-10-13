@@ -962,7 +962,7 @@ describe('/authorization POST consent write', () => {
   describe('carrying the pairing verdict to /oauth/token', () => {
     const CODE_HEX = 'b2'.repeat(32);
     const FENIX = OAuthNativeClients.Fenix;
-    const encrypt = require('fxa-shared/auth/encrypt');
+    const encrypt = require('@fxa/shared/crypto');
     const { pairingCodeCacheKey } = require('../../oauth/pairing-code');
     const EXPECTED_KEY = pairingCodeCacheKey(
       encrypt.hash(CODE_HEX).toString('hex')
