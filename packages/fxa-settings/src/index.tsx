@@ -7,7 +7,7 @@ import './styles/tailwind.out.css';
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import sentryMetrics from '@fxa/shared/sentry-browser';
 import { AppErrorBoundary } from './components/ErrorBoundaries';
 import App from './components/App';
 import { NimbusProvider } from './models/contexts/NimbusContext';

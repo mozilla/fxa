@@ -36,7 +36,7 @@ jest.mock(
   })
 );
 
-jest.mock('fxa-shared/sentry/browser', () => ({
+jest.mock('@fxa/shared/sentry-browser', () => ({
   captureException: jest.fn(),
 }));
 
@@ -213,7 +213,7 @@ describe('PairingChannelClient', () => {
       const {
         PairingChannel,
       } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
-      const sentryMetrics = require('fxa-shared/sentry/browser');
+      const sentryMetrics = require('@fxa/shared/sentry-browser');
       PairingChannel.create.mockRejectedValueOnce(
         new Error('Error while creating the pairing channel')
       );
@@ -298,7 +298,7 @@ describe('PairingChannelClient', () => {
       const {
         PairingChannel,
       } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
-      const sentryMetrics = require('fxa-shared/sentry/browser');
+      const sentryMetrics = require('@fxa/shared/sentry-browser');
       const err = new Error('connection refused');
       PairingChannel.connect.mockRejectedValueOnce(err);
 
@@ -336,7 +336,7 @@ describe('PairingChannelClient', () => {
       const {
         PairingChannel,
       } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
-      const sentryMetrics = require('fxa-shared/sentry/browser');
+      const sentryMetrics = require('@fxa/shared/sentry-browser');
       PairingChannel.connect.mockRejectedValueOnce(
         new Error('WebSocket unexpectedly closed')
       );
@@ -352,7 +352,7 @@ describe('PairingChannelClient', () => {
       const {
         PairingChannel,
       } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
-      const sentryMetrics = require('fxa-shared/sentry/browser');
+      const sentryMetrics = require('@fxa/shared/sentry-browser');
       PairingChannel.connect.mockRejectedValueOnce(
         new Error('Error while creating the pairing channel')
       );
@@ -543,7 +543,7 @@ describe('PairingChannelClient', () => {
     });
 
     it('ignores a socket close that follows beforeunload', () => {
-      const sentryMetrics = require('fxa-shared/sentry/browser');
+      const sentryMetrics = require('@fxa/shared/sentry-browser');
       window.dispatchEvent(new Event('beforeunload'));
 
       getMockHandler('error')(
