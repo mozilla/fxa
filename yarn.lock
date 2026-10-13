@@ -32757,6 +32757,7 @@ __metadata:
     next: "npm:16.4.0"
     next-auth: "npm:5.0.0-beta.32"
     node-jose: "npm:^2.2.0"
+    node-uap: "https://github.com/mozilla-fxa/node-uap.git#494714db3e65a4dbfae772f536c8697269174574"
     nodemailer: "npm:^10.0.9"
     nps: "npm:^5.10.0"
     nx: "npm:^23.2.1"
