@@ -1,8 +1,8 @@
 {
-  "commit": "3044da663c86b736ce6d62fc9a36dbc3858de5a7",
-  "summary": "Merge pull request #21472 from mozilla/fxa-14694",
-  "description": "",
-  "timestamp": 1791912178000,
+  "commit": "fc712a74d1e2e3a6d7293bfaa3522b10fe33f0fa",
+  "summary": "Merge pull request #21440 from mozilla/fxa-13677",
+  "description": "fix(passkey): use the challenge timeout for the registration ceremony",
+  "timestamp": 1791914390000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
