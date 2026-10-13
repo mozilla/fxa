@@ -38,12 +38,14 @@ export enum WebAuthnErrorType {
 
 /**
  * Reason value reported in Glean `*_submit_frontend_error` events. The
- * taxonomy in FXA-13475 collapses the larger DOMException set to five
+ * taxonomy in FXA-13475 collapses the larger DOMException set to a few
  * buckets, so error-shape changes inside the same bucket don't fragment
- * the metric.
+ * the metric. Every entry reporting 'unexpected' logs to Sentry, where the
+ * error name is visible.
  */
 export type WebAuthnGleanReason =
   | 'not_allowed'
+  | 'not_readable'
   | 'not_supported'
   | 'security'
   | 'timeout'
@@ -187,7 +189,9 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
     category: WebAuthnErrorCategory.DevicePlatform,
     errorType: WebAuthnErrorType.InvalidState,
     logToSentry: false,
-    gleanReason: 'unexpected',
+    // Chromium's duplicate-passkey error; reported like a cancel, as
+    // AuthenticatorAlreadyRegistered is.
+    gleanReason: 'not_allowed',
     ftlId: {
       registration: 'passkey-registration-error-invalid-state',
       authentication: 'passkey-authentication-error-invalid-state',
@@ -203,7 +207,7 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
     category: WebAuthnErrorCategory.DevicePlatform,
     errorType: WebAuthnErrorType.NotReadable,
     logToSentry: false,
-    gleanReason: 'unexpected',
+    gleanReason: 'not_readable',
     ftlId: {
       registration: 'passkey-registration-error-not-readable',
       authentication: 'passkey-authentication-error-not-readable',
@@ -271,8 +275,8 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
   AuthenticatorAlreadyRegistered: {
     category: WebAuthnErrorCategory.UserAction,
     errorType: WebAuthnErrorType.NotSupported,
-    logToSentry: true,
-    gleanReason: 'not_supported',
+    logToSentry: false,
+    gleanReason: 'not_allowed',
     ftlId: AUTHENTICATOR_ALREADY_REGISTERED_FTL_ID,
     fallbackText: AUTHENTICATOR_ALREADY_REGISTERED_FALLBACK,
   },

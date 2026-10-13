@@ -7,7 +7,7 @@ import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import GleanMetrics from '../glean';
 import type { queryParamsToMetricsContext } from '../metrics';
 import type { PublicKeyCredentialJSON } from './webauthn';
-import { handleWebAuthnError } from './webauthn-errors';
+import { handleWebAuthnError, WebAuthnErrorType } from './webauthn-errors';
 import {
   extractPrfOutput,
   extractPrfSupport,
@@ -106,13 +106,16 @@ export async function authenticateWithPasskey({
       );
       glean.submitFrontendError(categorized.gleanReason);
       // Cancelled and timed-out ceremonies are benign — warn, don't error.
-      if (categorized.gleanReason === 'not_allowed') {
+      if (
+        categorized.errorType === WebAuthnErrorType.NotAllowed ||
+        categorized.errorType === WebAuthnErrorType.Abort
+      ) {
         return {
           ok: false,
           banner: passkeyTroubleBanner(ftlMsgResolver, surface),
         };
       }
-      if (categorized.gleanReason === 'timeout') {
+      if (categorized.errorType === WebAuthnErrorType.Timeout) {
         return { ok: false, banner: passkeyTimeoutBanner(ftlMsgResolver) };
       }
       return {
