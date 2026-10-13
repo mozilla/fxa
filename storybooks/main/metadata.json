@@ -1,8 +1,8 @@
 {
-  "commit": "54a8fc927f9f57749066fda530771b469acdb26d",
-  "summary": "Merge pull request #21476 from mozilla/fxa-10664",
-  "description": "refactor(settings): move pair-reasons from fxa-shared to fxa-settings",
-  "timestamp": 1791920431000,
+  "commit": "3c4409c02050650f9b076826b33aaa303f2646f0",
+  "summary": "Merge pull request #21422 from mozilla/fxa-14686",
+  "description": "fix(passkey): consume challenge before credential lookup",
+  "timestamp": 1791920888000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
