@@ -2029,9 +2029,9 @@ pair2-supplicant-sync-success-description-v2 = Probíhá synchronizace. Zobrazen
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
-## either because the attempt timed out or because it was canceled. Both states
-## are informational and offer no on-screen action, so the copy points the user
-## back to their computer to start again.
+## because the attempt timed out, was canceled, or the device is already signed
+## in to an account. All states are informational and offer no on-screen action,
+## so the copy points the user back to their computer to start again.
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zdá se, že vypršel časový limit
@@ -2041,6 +2041,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Chcete-li připojit sv
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Zrušeno
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Pro připojení svého zařízení prosím navštivte <b>firefox.com/pair</b> na svém počítači.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Toto zařízení je již přihlášeno
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Pro připojení ke svému účtu pro počítač se odhlaste od { -brand-firefox } na tomto zařízení a poté na svém počítači navštívíte <b>firefox.com/pair</b>, kde se dokončí přihlášení.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a

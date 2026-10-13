@@ -169,6 +169,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = დაადასტურეთ პაროლი
 form-password-with-inline-criteria-reset-submit-button = შეიყვანეთ ახალი პაროლი
+form-password-with-inline-criteria-old-password-label =
+    .label = ძველი პაროლი
+form-password-with-inline-criteria-change-password-submit-button = პაროლის შეცვლა
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = პაროლი
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1272,6 +1275,7 @@ passkey-sub-row-created-date = შექმნილი: { $createdDate }
 passkey-sub-row-last-used-date = ბოლო გამოყენება: { $lastUsedDate }
 passkey-sub-row-delete-title = საშვის წაშლა
 passkey-delete-modal-heading = წაიშალოს საშვი?
+passkey-delete-modal-content-v3 = ეს საშვი ამოიშლება თქვენი ანგარიშიდან. დაგჭირდებათ ანგარიშზე შესვლა სხვა პაროლით, სხვა საშვით ან მიბმული ანგარიშით.
 passkey-delete-modal-cancel-button = გაუქმება
 passkey-delete-modal-confirm-button = საშვის წაშლა
 passkey-delete-success = საშვი წაიშალა
@@ -1633,15 +1637,23 @@ index-email-bounced = დადასტურების გამოგზა
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = გსურთ პაროლის არიდება შემდეგ ჯერზე?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner-v2 = შესული ხართ და დასინქრონება ჩართულია
 inline-passwordless-sync-setup-heading = გსურთ პაროლის არიდება შემდეგ ჯერზე?
 inline-passwordless-sync-setup-description = გამოიყენეთ ეს საშვი ანგარიშზე უფრო სწრაფი შესვლისთვის.
 inline-passwordless-sync-setup-enable-button = საშვის ჩართვა
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = ირთვება…
 inline-passwordless-sync-setup-not-now-button = ახლა არა
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = ეს საშვი ამოქმედებულია სინქრონიზაციაში შესვლისთვის
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = საშვის დადასტურება არ დასრულებულა
 inline-passwordless-sync-setup-error-cancelled-description = დაამოწმეთ თქვენი საშვი შემდეგი შესვლისას პაროლის ასარიდებლად
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = ამ საშვის ამოქმედება სინქრონიზაციისთვის ვერ ხერხდება. შემდეგ ჯერზე პაროლით მოგიწევთ შესვლა.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1901,6 +1913,8 @@ pair2-authority-scan-qr-heading = წააკითხეთ მობილუ
 pair2-authority-scan-qr-instruction = წააკითხეთ QR-კოდი ტელეფონით ან პლანშეტით, რომ დაასინქრონოთ { -brand-firefox } არსებული სანიშნებით, ჩანართებითა თუ სხვ.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR-კოდი მობილურ მოწყობილობასთან დასაკავშირებლად
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = სხვა გზები შესვლისთვის
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = ამჟამად გამოტოვება
 
@@ -1960,11 +1974,35 @@ pair2-supplicant-connect-this-device-cancel-button = გაუქმება
 ## not Firefox. It offers to open the Firefox app to finish pairing, and to
 ## install it first when the user does not have it yet.
 
+pair2-supplicant-download-firefox-heading-v2 = გახსენით { -brand-firefox } ამ მოწყობილობაზე
+# "sync" is a verb here, referring to syncing data between the user's devices.
+pair2-supplicant-download-firefox-description-v2 = ჩამოტვირთეთ { -brand-firefox } სანიშნების, ისტორიისა და ა. შ. დასინქრონებისთვის სხვადასხვა მოწყობილობაზე.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = გასაგრძელებლად გამოიყენეთ { -brand-firefox }
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = იხსნება { -brand-firefox }…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = ჩამოტვირთეთ { -brand-firefox }
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = უკვე მაქვს { -brand-firefox }
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = ვრცლად
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = მიერთების დასრულება პროგრამაში
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = შეეხეთ <b>პროგრამის მენიუს</b> ხელსაწყოთა ზოლზე
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = შეეხეთ <b>შესვლას</b> და წააკითხეთ კოდი
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = ვრცლად
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -1988,9 +2026,9 @@ pair2-supplicant-sync-success-description-v2 = სინქრონიზაც
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
-## either because the attempt timed out or because it was canceled. Both states
-## are informational and offer no on-screen action, so the copy points the user
-## back to their computer to start again.
+## because the attempt timed out, was canceled, or the device is already signed
+## in to an account. All states are informational and offer no on-screen action,
+## so the copy points the user back to their computer to start again.
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = როგორც ჩანს, დრო ამოიწურა
@@ -2011,8 +2049,15 @@ pair2-supplicant-timeout-and-cancel-canceled-description = მოწყობი
 permissions-heading = { $serviceName } ითხოვს წვდომას:
 permissions-label-email = ელფოსტის მისამართი
 permissions-label-display-name = გამოსაჩენი სახელი
+permissions-label-avatar = ანგარიშის სურათი
 permissions-continue-button = განაგრძეთ
 permissions-cancel-button = გაუქმება
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = გთხოვთ, შეცვალოთ თქვენი პაროლი
+force-password-change-data-info = დასინქრონებული ისტორია, სანიშნები, ანგარიშები და სხვა პირადი მონაცემები არ დაიკარგება.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2112,9 +2157,14 @@ confirm-totp-reset-password-use-different-account = სხვა ანგარ
 ## ResetPassword start page
 
 password-reset-flow-heading = პაროლის განულება
+password-reset-forgot-heading = დაგავიწყდათ პაროლი?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>ანგარიშზე სხვა გზით შესასვლელად მოსინჯეთ { -brand-google }, { -brand-apple } ან საშვი.</signInLink> ანდაც შეიყვანეთ თქვენი ელფოსტა და გამოგიგზავნით კოდს პაროლის აღსადგენად.
 password-reset-email-input =
     .label = შეიყვანეთ თქვენი ელფოსტა
 password-reset-submit-button-2 = განაგრძეთ
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = პაროლის განულებამ შესაძლოა იმოქმედოს დასინქრონებული მონაცემების აღდგენის შესაძლებლობაზე. <learnMoreLink>ვრცლად</learnMoreLink>
 
 ## ResetPasswordConfirmed
 
@@ -2479,3 +2529,9 @@ signup-confirmed-sync-description-v2 = თქვენი პაროლებ�
 signup-confirmed-sync-add-device-link = სხვა მოწყობილობის დამატება
 signup-confirmed-sync-manage-sync-button = სინქრონიზაციის მართვა
 signup-confirmed-sync-set-password-success-banner = დასინქრონების პაროლი შეიქმნა
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = { -brand-firefox } საჭიროებს განახლებას
+update-firefox-download-button = უახლესის ჩამოტვირთვა

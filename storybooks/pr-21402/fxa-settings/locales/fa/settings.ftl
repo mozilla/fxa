@@ -1269,6 +1269,7 @@ passkey-sub-row-created-date = ساخته‌شده در: { $createdDate }
 passkey-sub-row-last-used-date = آخرین استفاده: { $lastUsedDate }
 passkey-sub-row-delete-title = حذف کلید عبور
 passkey-delete-modal-heading = کلید عبورتان حذف شود؟
+passkey-delete-modal-content-v3 = این کلید عبور از حساب شما برداشته می‌شود. باید با گذرواژه، کلید عبوری دیگر یا حساب پیوندشده وارد شوید.
 passkey-delete-modal-cancel-button = انصراف
 passkey-delete-modal-confirm-button = حذف کلید عبور
 passkey-delete-success = کلید عبور حذف شد
@@ -1621,6 +1622,8 @@ index-email-bounced = رایانامهٔ تأییدتان همین الان بر
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = دفعهٔ بعد بدون گذرواژه وارد شوید؟
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner-v2 = وارد شدید و همگام‌سازی روشن است
 inline-passwordless-sync-setup-heading = دفعهٔ بعد بدون گذرواژه وارد شوید؟
 inline-passwordless-sync-setup-description = با این کلید عبور سریع‌تر وارد شوید.
 inline-passwordless-sync-setup-enable-button = فعال کردن کلید عبور
@@ -2008,9 +2011,9 @@ pair2-supplicant-sync-success-description-v2 = همگام‌سازی در جری
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
-## either because the attempt timed out or because it was canceled. Both states
-## are informational and offer no on-screen action, so the copy points the user
-## back to their computer to start again.
+## because the attempt timed out, was canceled, or the device is already signed
+## in to an account. All states are informational and offer no on-screen action,
+## so the copy points the user back to their computer to start again.
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = به نظر می‌رسد زمان به پایان رسید
@@ -2020,6 +2023,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = برای اتصال د
 pair2-supplicant-timeout-and-cancel-cancelled-heading = لغو شد
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = هر وقت خواستید دستگاهی را متصل کنید، روی رایانه‌تان به <b>firefox.com/pair</b> بروید.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = این دستگاه از قبل وارد حساب شده است
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = برای اتصال به حساب رایانه‌تان، روی این دستگاه از { -brand-firefox } خارج شوید، سپس در رایانه به <b>firefox.com/pair</b> بروید تا ورود را کامل کنید.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2146,6 +2153,8 @@ password-reset-alternatives-body = <signInLink>به جای آن، با { -brand-
 password-reset-email-input =
     .label = رایانامه‌تان را وارد کنید
 password-reset-submit-button-2 = ادامه
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = بازنشانی گذرواژه ممکن است و روی امکان بازیابی داده‌های همگام‌شدهٔ مرورگرتان اثر می‌گذارد. <learnMoreLink>بیشتر بدانید</learnMoreLink>
 
 ## ResetPasswordConfirmed
 

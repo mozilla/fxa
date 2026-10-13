@@ -786,6 +786,7 @@ passkey-sub-row-created-date = Sortuta: { $createdDate }
 passkey-sub-row-last-used-date = Azkenekoz erabilia: { $lastUsedDate }
 passkey-sub-row-delete-title = Ezabatu sarbide-gakoa
 passkey-delete-modal-heading = Ezabatu zure sarbide-gakoa?
+passkey-delete-modal-content-v3 = Sarbide-gako hau zure kontutik kendu egingo da. Pasahitza, beste sarbide-gako bat edo lotutako kontu bat erabiliz hasi beharko duzu saioa.
 passkey-delete-modal-cancel-button = Utzi
 passkey-delete-modal-confirm-button = Ezabatu sarbide-gakoa
 passkey-delete-success = Sarbide-gakoa ezabatuta
@@ -984,11 +985,14 @@ index-account-delete-success = Kontua ondo ezabatu da
 index-email-bounced = Zure berrespen-mezu elektronikoa itzuli berri da. Helbide elektronikoa gaizki idatzita zegoen?
 
 
+inline-passwordless-sync-setup-success-banner-v2 = Saioa hasita duzu eta sinkronizazioa aktibo dago
 inline-passwordless-sync-setup-enable-button = Gaitu sarbide-gakoa
 inline-passwordless-sync-setup-enabling = Gaitzen…
 inline-passwordless-sync-setup-not-now-button = Une honetan ez
+inline-passwordless-sync-setup-success-alert-v2 = Sarbide-gakoa gaituta dago sinkronizazioaren saio-hasierarako
 inline-passwordless-sync-setup-error-cancelled = Sarbide-gakoaren berrespena ez da amaitu
 inline-passwordless-sync-setup-error-cancelled-description = Berretsi zure sarbide-gakoarekin pasahitza saltatzeko hurrengo aldian.
+inline-passwordless-sync-setup-error-generic-v2 = Ezin izan dugu sarbide-gako hau gaitu sinkronizazioaren saio-hasierarako. Zure pasahitza beharko duzu hurrengo aldian.
 
 
 inline-recovery-key-setup-create-error = Oops! Ezin izan dugu sortu zure kontua berreskuratzeko gakoa. Saiatu berriro geroago.
@@ -1092,6 +1096,7 @@ pair2-authority-download-firefox-cta = Deskargatu { -brand-firefox }
 
 
 pair2-authority-scan-qr-heading = Eskaneatu zure gailu mugikorra konektatzeko
+pair2-authority-scan-qr-other-ways-link = Saioa hasteko beste modu batzuk
 pair2-authority-scan-qr-skip-button = Saltatu oraingoz
 
 
@@ -1135,11 +1140,14 @@ pair2-supplicant-sync-success-description-v2 = Sinkronizazioa lanean ari da. Den
 
 
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Bertan behera utzita
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Gailuak saioa hasita du jada
+pair2-supplicant-timeout-and-cancel-signed-in-description = Mahaigaineko zure kontua lotzeko, amaitu saioa gailu honetako { -brand-firefox }(e)n, gero joan <b>firefox.com/pair</b> helbidera eta hasi saioa zure ordenagailuan.
 
 
 permissions-heading = { $serviceName } zerbitzuak ondorengorako sarbidea nahi du:
 permissions-label-email = Helbide elektronikoa
 permissions-label-display-name = Bistaratzeko izena
+permissions-label-avatar = Kontuaren argazkia
 permissions-continue-button = Jarraitu
 permissions-cancel-button = Utzi
 
@@ -1192,9 +1200,12 @@ confirm-totp-reset-password-use-different-account = Erabili beste kontu bat
 
 
 password-reset-flow-heading = Berrezarri pasahitza
+password-reset-forgot-heading = Pasahitza ahaztu duzu?
+password-reset-alternatives-body = <signInLink>Horren ordez, saiatu saioa hasten { -brand-google }, { -brand-apple } edo sarbide-gakoa erabiliz</signInLink>. Edo idatzi zure helbide elektronikoa eta zure pasahitza berrezartzeko kodea bidaliko dizugu.
 password-reset-email-input =
     .label = Idatzi zure helbide elektronikoa
 password-reset-submit-button-2 = Jarraitu
+password-reset-data-recovery-warning = Pasahitza berrezartzeak eragina izan lezake sinkronizatutako nabigatzaile-datuak berreskuratzeko aukeran. <learnMoreLink>Argibide gehiago</learnMoreLink>
 
 
 reset-password-complete-header = Zure pasahitza berrezarri egin da

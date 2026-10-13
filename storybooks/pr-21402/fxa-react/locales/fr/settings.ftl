@@ -1639,13 +1639,13 @@ inline-passwordless-sync-setup-enabling = Activation…
 inline-passwordless-sync-setup-not-now-button = Plus tard
 # Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
 # "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
-inline-passwordless-sync-setup-success-alert-v2 = Cette clé est activée pour la connexion synchronisée
+inline-passwordless-sync-setup-success-alert-v2 = Cette clé d’accès permet de se connecter et de synchroniser
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = La confirmation de la clé d’accès n’a pas abouti
 inline-passwordless-sync-setup-error-cancelled-description = Confirmez à l’aide de votre clé d’accès pour ne pas avoir à saisir votre mot de passe la prochaine fois.
 # Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
 # "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
-inline-passwordless-sync-setup-error-generic-v2 = Nous n’avons pas pu activer cette clé d’accès pour la connexion synchronisée. Vous aurez besoin de votre mot de passe la prochaine fois.
+inline-passwordless-sync-setup-error-generic-v2 = Nous n’avons pas pu activer cette clé d’accès pour la connexion et la synchronisation. Vous aurez besoin de votre mot de passe la prochaine fois.
 
 ## InlineRecoveryKeySetup page component
 
@@ -2018,9 +2018,9 @@ pair2-supplicant-sync-success-description-v2 = Synchronisation en cours. L’aff
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
-## either because the attempt timed out or because it was canceled. Both states
-## are informational and offer no on-screen action, so the copy points the user
-## back to their computer to start again.
+## because the attempt timed out, was canceled, or the device is already signed
+## in to an account. All states are informational and offer no on-screen action,
+## so the copy points the user back to their computer to start again.
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Le délai de connexion a expiré
@@ -2030,6 +2030,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Pour connecter votre a
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulé
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Pour connecter un appareil à tout moment, consultez <b>firefox.com/pair</b> sur votre ordinateur.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Cet appareil est déjà connecté
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Pour vous connecter à votre compte sur ordinateur, déconnectez-vous de { -brand-firefox } sur cet appareil, puis accédez à <b>firefox.com/pair</b> depuis votre ordinateur pour finaliser la connexion.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2152,12 +2156,12 @@ confirm-totp-reset-password-use-different-account = Utiliser un autre compte
 password-reset-flow-heading = Réinitialiser le mot de passe
 password-reset-forgot-heading = Mot de passe oublié ?
 # The text inside <signInLink> links to the email-first sign-in page.
-password-reset-alternatives-body = <signInLink>Essayez de vous connecter avec { -brand-google }, { -brand-apple }, ou une clé d’accès à la place.</signInLink> Ou saisissez votre adresse électronique et nous vous enverrons un code pour réinitialiser votre mot de passe.
+password-reset-alternatives-body = <signInLink>Essayez de vous connecter avec { -brand-google }, { -brand-apple } ou une clé d’accès.</signInLink> Sinon, saisissez votre adresse e-mail pour recevoir un code permettant de réinitialiser votre mot de passe.
 password-reset-email-input =
     .label = Saisissez votre adresse e-mail
 password-reset-submit-button-2 = Continuer
 # Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
-password-reset-data-recovery-warning = La réinitialisation de votre mot de passe peut empêcher la récupération des données synchronisées du navigateur. <learnMoreLink>En savoir plus</learnMoreLink>
+password-reset-data-recovery-warning = La réinitialisation de votre mot de passe peut empêcher la récupération des données synchronisées de votre navigateur. <learnMoreLink>En savoir plus</learnMoreLink>
 
 ## ResetPasswordConfirmed
 

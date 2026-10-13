@@ -1,8 +1,8 @@
 {
-  "commit": "7bb16ef4386e0131491bcb3bdf8415ece9029ac0",
+  "commit": "43d222339a674fd0910962ed4ebbd2fac550f1a7",
   "summary": "chore(deps): bump @opentelemetry/instrumentation-pg to >=0.73.0",
   "description": "Resolves Dependabot alert #1001. The bump installs the highest\nversion satisfying the dependency range; the title uses >=<min> when the\nadvisory provides a minimum patched version — see the lockfile diff for the exact resolved version.\nCreated by BLEnder (https://github.com/mozilla/blender)",
-  "timestamp": 1791565074000,
+  "timestamp": 1791921945000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
