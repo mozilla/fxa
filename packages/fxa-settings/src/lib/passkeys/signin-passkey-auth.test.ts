@@ -65,6 +65,7 @@ const COMPLETION = {
   sessionToken: 'session-token',
   verified: true,
   hasPassword: true,
+  mfaToken: 'mfa-token',
 };
 const OPTIONS_WITH_PRF = {
   challenge: CHALLENGE,
@@ -347,7 +348,7 @@ describe('authenticateWithPasskey', () => {
   });
 
   describe('PRF', () => {
-    it('asks for the passkey scope and returns the PRF output when wrap material is wanted', async () => {
+    it('returns the PRF output when wrap material is wanted', async () => {
       const { args, spies } = build({
         keysRequired: true,
         withWrapMaterial: true,
@@ -357,10 +358,6 @@ describe('authenticateWithPasskey', () => {
 
       const result = await authenticateWithPasskey(args);
 
-      expect(spies.beginPasskeyAuthentication).toHaveBeenCalledWith({
-        keysRequired: true,
-        scope: 'passkey',
-      });
       expect(result.ok && result.prfOut).toEqual(PRF_OUT);
     });
 

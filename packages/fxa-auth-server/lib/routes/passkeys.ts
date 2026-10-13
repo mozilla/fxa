@@ -135,6 +135,13 @@ export interface DB {
 }
 
 /**
+ * The one MFA action a passkey ceremony may mint. Signed as
+ * `mfa:passkey:wraps`, it opens only the wrap routes; the email OTP cannot
+ * mint it because it is not in `config.mfa.actions`.
+ */
+export const PASSKEY_WRAPS_SCOPE = 'passkey:wraps';
+
+/**
  * Route handler class that encapsulates the WebAuthn registration flow
  * and passkey management operations.
  *
@@ -422,11 +429,11 @@ export class PasskeyHandler {
    * Handles `POST /passkey/verification/start`.
    *
    * Begins an MFA step-up on the caller's session: generates an assertion
-   * challenge for one scope, optionally pinned to one of the caller's
+   * challenge for the wraps scope, optionally pinned to one of the caller's
    * passkeys. No PRF is requested — this ceremony only proves presence.
    *
-   * @param request - Session-authenticated Hapi request carrying `scope` and
-   *   an optional `credentialId` in the payload.
+   * @param request - Session-authenticated Hapi request carrying an optional
+   *   `credentialId` in the payload.
    * @returns WebAuthn authentication options to pass to `navigator.credentials.get`.
    */
   async verificationStart(request: AuthRequest) {
@@ -440,14 +447,13 @@ export class PasskeyHandler {
       'passkeyVerificationStart'
     );
 
-    const { scope, credentialId } = request.payload as {
-      scope: string;
+    const { credentialId } = (request.payload ?? {}) as {
       credentialId?: string;
     };
 
     const options = await this.service.generateVerificationChallenge({
       uid,
-      scope,
+      scope: PASSKEY_WRAPS_SCOPE,
       credentialId,
     });
 
@@ -459,9 +465,9 @@ export class PasskeyHandler {
   /**
    * Handles `POST /passkey/verification/finish`.
    *
-   * Completes the step-up by verifying the assertion and minting an MFA token
-   * for the scope the challenge was created with, bound to the caller's
-   * session and to the credential that signed.
+   * Completes the step-up by verifying the assertion and minting an
+   * `mfa:passkey:wraps` token bound to the caller's session and to the
+   * credential that signed.
    *
    * @param request - Session-authenticated Hapi request carrying `response`
    *   and `challenge` in the payload.
@@ -486,10 +492,9 @@ export class PasskeyHandler {
       challenge: string;
     };
 
-    let scope: string;
     let assertedCredentialId: string;
     try {
-      ({ scope, credentialId: assertedCredentialId } =
+      ({ credentialId: assertedCredentialId } =
         await this.service.verifyVerificationResponse(
           response,
           challenge,
@@ -522,7 +527,7 @@ export class PasskeyHandler {
     return {
       mfaToken: signMfaToken(this.config, {
         uid,
-        scope,
+        scope: PASSKEY_WRAPS_SCOPE,
         sessionTokenId,
         credentialId: assertedCredentialId,
       }),
@@ -545,14 +550,13 @@ export class PasskeyHandler {
   async authenticationStart(request: AuthRequest) {
     await this.customs.checkIpOnly(request, 'passkeyAuthStart');
 
-    const { keysRequired, scope } = (request.payload ?? {}) as {
+    const { keysRequired } = (request.payload ?? {}) as {
       keysRequired?: boolean;
-      scope?: string;
     };
 
     const options = await this.service.generateAuthenticationChallenge({
       keysRequired,
-      scope,
+      scope: PASSKEY_WRAPS_SCOPE,
     });
 
     this.glean.passkey.authenticationStarted(request);
@@ -585,19 +589,15 @@ export class PasskeyHandler {
       };
 
     let uid: string;
-    let scope: string | undefined;
     let assertedCredentialId: string;
     try {
-      ({
-        uid,
-        scope,
-        credentialId: assertedCredentialId,
-      } = await this.service.verifyAuthenticationResponse(
-        response,
-        challenge,
-        undefined,
-        prfSupported
-      ));
+      ({ uid, credentialId: assertedCredentialId } =
+        await this.service.verifyAuthenticationResponse(
+          response,
+          challenge,
+          undefined,
+          prfSupported
+        ));
     } catch (err) {
       await recordSecurityEvent('account.passkey.authentication_failure', {
         db: this.db,
@@ -647,22 +647,20 @@ export class PasskeyHandler {
     const hasPassword = account.verifierSetAt > 0;
 
     // Minted here rather than at /start, where there is no session yet to bind
-    // the claims to. `scope` is the one the challenge was created with.
-    const mfaToken = scope
-      ? signMfaToken(this.config, {
-          uid,
-          scope,
-          sessionTokenId: sessionToken.id,
-          credentialId: assertedCredentialId,
-        })
-      : undefined;
+    // the claims to.
+    const mfaToken = signMfaToken(this.config, {
+      uid,
+      scope: PASSKEY_WRAPS_SCOPE,
+      sessionTokenId: sessionToken.id,
+      credentialId: assertedCredentialId,
+    });
 
     return {
       uid,
       sessionToken: sessionToken.data,
       verified: true,
       hasPassword,
-      ...(mfaToken && { mfaToken }),
+      mfaToken,
     };
   }
 
@@ -1066,12 +1064,6 @@ export const passkeyRoutes = (
           payload: isA.object({
             // Hint for the keys-required PRF scope; omitted = not keys-required.
             keysRequired: isA.boolean().optional(),
-            // The action this sign-in should also authorize. Committed to the
-            // challenge here, so /finish cannot be asked for a different one.
-            scope: isA
-              .string()
-              .valid(...config.mfa.actions)
-              .optional(),
           }),
         },
         response: {
@@ -1123,8 +1115,8 @@ export const passkeyRoutes = (
             sessionToken: isA.string().required(),
             verified: isA.boolean().required(),
             hasPassword: isA.boolean().required(),
-            // Present only when /start requested a scope.
-            mfaToken: isA.string().optional(),
+            // Opens the wrap routes for the credential that signed.
+            mfaToken: isA.string().required(),
           }),
         },
       },
@@ -1145,12 +1137,6 @@ export const passkeyRoutes = (
         },
         validate: {
           payload: isA.object({
-            // The action this step-up authorizes. Committed to the challenge
-            // here, so /finish cannot be asked for a different one.
-            scope: isA
-              .string()
-              .valid(...config.mfa.actions)
-              .required(),
             // Pins the ceremony to one passkey. Omitted, any of the account's
             // passkeys may answer.
             credentialId: base64urlCredentialId().optional(),

@@ -38,8 +38,8 @@ type PasskeyAuthenticationArgs = {
   /** Sent to both server calls; the server defers login metrics until keys exist. */
   keysRequired: boolean;
   /**
-   * Asks `/finish` for the `mfa:passkey` proof and keeps the PRF output, for
-   * a sign-in that may go on to store a passkey wrap.
+   * Keeps the PRF output, for a sign-in that may go on to store or open a
+   * passkey wrap.
    */
   withWrapMaterial: boolean;
   metricsContext: ReturnType<typeof queryParamsToMetricsContext>;
@@ -74,11 +74,9 @@ export async function authenticateWithPasskey({
   // Discoverable credentials only — the Signin page's email field is
   // intentionally ignored. The browser surfaces all credentials for the
   // RP and the user picks one. The keysRequired hint lets the server decide
-  // whether to attach the PRF extension to the returned options. The scope
-  // makes /finish mint the `mfa:passkey` proof that storing a wrap needs.
+  // whether to attach the PRF extension to the returned options.
   const challengeOptions = await authClient.beginPasskeyAuthentication({
     keysRequired,
-    ...(withWrapMaterial ? { scope: 'passkey' } : {}),
   });
 
   // Isolated try/catch so a network-layer TypeError (e.g. fetch failure)

@@ -153,9 +153,10 @@ describe('#integration - remote passkey wrap storage', () => {
   }
 
   /**
-   * Signs in with the passkey, asking for the passkey scope, and returns the
-   * token that mints. The session verifies the password first unless
-   * `reauth` is false, since a wrap write refuses a session that has not.
+   * Signs in with the passkey and returns the `mfa:passkey:wraps` token that
+   * mints. The `scope` sent here is hostile on purpose: the server must
+   * ignore it. The session verifies the password first unless `reauth` is
+   * false, since a wrap write refuses a session that has not.
    */
   async function mintWrapToken(
     assertWith: VirtualCredential = credential,
@@ -165,7 +166,7 @@ describe('#integration - remote passkey wrap storage', () => {
       'POST',
       `${client.api.baseURL}/passkey/authentication/start`,
       null,
-      { keysRequired: true, scope: 'passkey' }
+      { keysRequired: true, scope: 'email' }
     );
     const response = VirtualAuthenticator.createAssertionResponse(assertWith, {
       challenge,

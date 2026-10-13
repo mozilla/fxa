@@ -535,10 +535,10 @@ describe('passkey wraps routes', () => {
 
     // `payload: false` is load-bearing: the mfa scheme implements no payload
     // method, and Hapi refuses to register the route without the opt-out.
-    it('requires an mfa:passkey token', () => {
+    it('requires an mfa:passkey:wraps token', () => {
       expect(buildGetRoute().options.auth).toEqual({
         strategy: 'mfa',
-        scope: ['mfa:passkey'],
+        scope: ['mfa:passkey:wraps'],
         payload: false,
       });
     });
@@ -706,10 +706,10 @@ describe('passkey wraps routes', () => {
       });
     });
 
-    it('requires an mfa:passkey token', () => {
+    it('requires an mfa:passkey:wraps token', () => {
       expect(buildDeleteRoute().options.auth).toEqual({
         strategy: 'mfa',
-        scope: ['mfa:passkey'],
+        scope: ['mfa:passkey:wraps'],
         payload: false,
       });
     });
@@ -722,10 +722,10 @@ describe('passkey wraps routes', () => {
   });
 
   describe('route configuration', () => {
-    it('requires an mfa:passkey token', () => {
+    it('requires an mfa:passkey:wraps token', () => {
       expect(buildRoute().options.auth).toEqual({
         strategy: 'mfa',
-        scope: ['mfa:passkey'],
+        scope: ['mfa:passkey:wraps'],
         payload: false,
       });
     });

@@ -1094,21 +1094,17 @@ const renderSyncHook = ({
 describe('usePasskeySignIn passwordless Sync', () => {
   const RECOVERED = new Uint8Array(32).fill(0xab);
 
-  it('asks for the passkey scope and hands the proof and live PRF to the unwrap step', async () => {
+  it('hands the proof and live PRF to the unwrap step', async () => {
     // The hook zeroes the array it passed in, so read it at call time.
     let prfOutAtCall: Uint8Array | undefined;
     unwrapMock.mockImplementation(async (_client, { prfOut }) => {
       prfOutAtCall = prfOut && new Uint8Array(prfOut);
       return { ok: true, kB: new Uint8Array(RECOVERED) };
     });
-    const { args, result, spies } = renderSyncHook();
+    const { args, result } = renderSyncHook();
 
     await act(() => result.current.onClick());
 
-    expect(spies.beginPasskeyAuthentication).toHaveBeenCalledWith({
-      keysRequired: true,
-      scope: 'passkey',
-    });
     expect(unwrapMock).toHaveBeenCalledWith(args.authClient, {
       mfaToken: MFA_TOKEN,
       uid: UID,
@@ -1135,20 +1131,16 @@ describe('usePasskeySignIn passwordless Sync', () => {
 
   // The gate's own branches are covered in signin-flow.test.tsx; this only
   // proves the hook consults it and honours a false answer.
-  it('asks for no scope and skips the wrap path when the gate declines', async () => {
-    const { result, spies } = renderSyncHook({ flagOn: false });
+  it('skips the wrap path when the gate declines', async () => {
+    const { result } = renderSyncHook({ flagOn: false });
 
     await act(() => result.current.onClick());
 
-    expect(spies.beginPasskeyAuthentication).toHaveBeenCalledWith({
-      keysRequired: true,
-    });
     expect(unwrapMock).not.toHaveBeenCalled();
     expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
   });
 
   it.each([
-    ['the server minted no proof', { mfaToken: undefined }],
     ['the account has no password yet', { hasPassword: false }],
     ['the session is unverified', { verified: false }],
   ])('never reaches the wrap step when %s', async (_label, overrides) => {

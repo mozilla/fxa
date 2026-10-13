@@ -52,7 +52,7 @@ type PasskeyAccount = {
 type PasskeySignIn = {
   uid: string;
   sessionToken: string;
-  mfaToken?: string;
+  mfaToken: string;
   /** The eval salt the server issued, absent when it requested no PRF. */
   prfSalt?: string;
   /** The authenticator's PRF output, absent when it cannot evaluate one. */
@@ -133,7 +133,6 @@ async function signInWithPasskey(
 ): Promise<PasskeySignIn> {
   const options = await target.authClient.beginPasskeyAuthentication({
     keysRequired: true,
-    scope: PASSKEY_SCOPE,
   });
 
   const response = VirtualAuthenticator.createAssertionResponse(credential, {
@@ -244,14 +243,14 @@ test.describe('passkey wrap round-trip', () => {
     });
 
     const { created } = await target.authClient.createPasskeyWrap(
-      required(mfaToken, 'mfaToken'),
+      mfaToken,
       account.credentialId,
       envelope
     );
     expect(created).toBe(true);
 
     const stored = await target.authClient.getPasskeyWrap(
-      required(mfaToken, 'mfaToken'),
+      mfaToken,
       account.credentialId
     );
     const recovered = await openWrapEnvelope({
@@ -272,7 +271,7 @@ test.describe('passkey wrap round-trip', () => {
     const enrollment = await signInWithPasskey(target, account.credential);
     await reauthWithPassword(target, enrollment.sessionToken, account);
     await target.authClient.createPasskeyWrap(
-      required(enrollment.mfaToken, 'mfaToken'),
+      enrollment.mfaToken,
       account.credentialId,
       await createWrapEnvelope({
         kB: Uint8Array.from(Buffer.from(account.passwordKb, 'hex')),
@@ -284,7 +283,7 @@ test.describe('passkey wrap round-trip', () => {
 
     const signin = await signInWithPasskey(target, account.credential);
     const stored = await target.authClient.getPasskeyWrap(
-      required(signin.mfaToken, 'mfaToken'),
+      signin.mfaToken,
       account.credentialId
     );
     const recovered = await openWrapEnvelope({

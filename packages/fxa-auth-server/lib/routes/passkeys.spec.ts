@@ -236,7 +236,8 @@ describe('passkeys routes', () => {
       verifyVerificationResponse: jest.fn().mockResolvedValue({
         uid: UID,
         credentialId: CREDENTIAL_ID_B64,
-        scope: 'recovery_key',
+        // Hostile on purpose: the route must sign its own scope, not this one.
+        scope: 'email',
       }),
     });
 
@@ -1132,7 +1133,25 @@ describe('passkeys routes', () => {
       ).toHaveBeenCalledTimes(1);
       expect(
         mockPasskeyService.generateAuthenticationChallenge
-      ).toHaveBeenCalledWith({ keysRequired: undefined });
+      ).toHaveBeenCalledWith({
+        keysRequired: undefined,
+        scope: 'passkey:wraps',
+      });
+    });
+
+    it('ignores a client-supplied scope and commits the challenge to passkey:wraps', async () => {
+      await runTest('/passkey/authentication/start', {
+        auth: { credentials: {} },
+        payload: { scope: 'email' },
+        app: { ua: {} },
+      });
+
+      expect(
+        mockPasskeyService.generateAuthenticationChallenge
+      ).toHaveBeenCalledWith({
+        keysRequired: undefined,
+        scope: 'passkey:wraps',
+      });
     });
 
     it('forwards the keysRequired hint from the payload to the service', async () => {
@@ -1144,7 +1163,7 @@ describe('passkeys routes', () => {
 
       expect(
         mockPasskeyService.generateAuthenticationChallenge
-      ).toHaveBeenCalledWith({ keysRequired: true });
+      ).toHaveBeenCalledWith({ keysRequired: true, scope: 'passkey:wraps' });
     });
 
     it('records glean.passkey.authenticationStarted with the request', async () => {
@@ -1220,13 +1239,14 @@ describe('passkeys routes', () => {
         sessionToken: 'new-session-token-data',
         verified: true,
         hasPassword: true,
+        mfaToken: expect.any(String),
       });
     });
 
-    it('mints an mfaToken bound to the session and the asserted credential', async () => {
+    it('mints an mfa:passkey:wraps token bound to the session and the asserted credential, ignoring the stored scope', async () => {
       mockPasskeyService.verifyAuthenticationResponse.mockResolvedValueOnce({
         uid: UID,
-        scope: 'passkey',
+        scope: 'email',
         credentialId: CREDENTIAL_ID_B64,
       });
 
@@ -1246,7 +1266,7 @@ describe('passkeys routes', () => {
         issuer: config.mfa.jwt.issuer,
       }) as { sub: string; scope: string[]; cid: string; stid: string };
       expect(claims.sub).toBe(UID);
-      expect(claims.scope).toEqual(['mfa:passkey']);
+      expect(claims.scope).toEqual(['mfa:passkey:wraps']);
       expect(claims.cid).toBe(CREDENTIAL_ID_B64);
       expect(claims.stid).toBe('new-session-token-id');
     });
@@ -1864,7 +1884,7 @@ describe('passkeys routes', () => {
     it('returns the options PasskeyService generated', async () => {
       const result = await runTest('/passkey/verification/start', {
         ...startAuth,
-        payload: { scope: 'passkey' },
+        payload: {},
       });
 
       expect(result).toBe(mockAuthenticationOptions);
@@ -1872,7 +1892,7 @@ describe('passkeys routes', () => {
         mockPasskeyService.generateVerificationChallenge
       ).toHaveBeenCalledWith({
         uid: UID,
-        scope: 'passkey',
+        scope: 'passkey:wraps',
         credentialId: undefined,
       });
     });
@@ -1880,14 +1900,14 @@ describe('passkeys routes', () => {
     it('passes a pinned credentialId through to the service', async () => {
       await runTest('/passkey/verification/start', {
         ...startAuth,
-        payload: { scope: 'passkey', credentialId: CREDENTIAL_ID_B64 },
+        payload: { credentialId: CREDENTIAL_ID_B64 },
       });
 
       expect(
         mockPasskeyService.generateVerificationChallenge
       ).toHaveBeenCalledWith({
         uid: UID,
-        scope: 'passkey',
+        scope: 'passkey:wraps',
         credentialId: CREDENTIAL_ID_B64,
       });
     });
@@ -1895,7 +1915,7 @@ describe('passkeys routes', () => {
     it('enforces rate limiting via customs.checkAuthenticated', async () => {
       await runTest('/passkey/verification/start', {
         ...startAuth,
-        payload: { scope: 'passkey' },
+        payload: {},
       });
 
       expect(customs.checkAuthenticated).toHaveBeenCalledWith(
@@ -1914,7 +1934,7 @@ describe('passkeys routes', () => {
       await expect(
         runTest('/passkey/verification/start', {
           ...startAuth,
-          payload: { scope: 'passkey' },
+          payload: {},
         })
       ).rejects.toThrow('Client has sent too many requests');
       expect(
@@ -1925,7 +1945,7 @@ describe('passkeys routes', () => {
     it('emits glean.passkey.verificationStarted', async () => {
       await runTest('/passkey/verification/start', {
         ...startAuth,
-        payload: { scope: 'passkey' },
+        payload: {},
       });
 
       expect(glean.passkey.verificationStarted).toHaveBeenCalledTimes(1);
@@ -1939,7 +1959,7 @@ describe('passkeys routes', () => {
       await expect(
         runTest('/passkey/verification/start', {
           ...startAuth,
-          payload: { scope: 'passkey' },
+          payload: {},
         })
       ).rejects.toThrow();
       expect(glean.passkey.verificationStarted).not.toHaveBeenCalled();
@@ -1955,21 +1975,19 @@ describe('passkeys routes', () => {
       ]);
     });
 
-    it('rejects a scope outside config.mfa.actions', () => {
-      routes = passkeyRoutes(customs, db, config, statsd, glean, log, mailer);
-      route = routes.find((r) => r.path === '/passkey/verification/start');
-      const schema = optionsOf(route).validate.payload;
+    it('ignores a client-supplied scope and commits the challenge to passkey:wraps', async () => {
+      await runTest('/passkey/verification/start', {
+        ...startAuth,
+        payload: { scope: 'email' },
+      });
 
-      expect(schema.validate({ scope: 'not_an_action' }).error).toBeDefined();
-      expect(schema.validate({ scope: 'passkey' }).error).toBeUndefined();
-    });
-
-    it('rejects a missing scope', () => {
-      routes = passkeyRoutes(customs, db, config, statsd, glean, log, mailer);
-      route = routes.find((r) => r.path === '/passkey/verification/start');
-      const schema = optionsOf(route).validate.payload;
-
-      expect(schema.validate({}).error).toBeDefined();
+      expect(
+        mockPasskeyService.generateVerificationChallenge
+      ).toHaveBeenCalledWith({
+        uid: UID,
+        scope: 'passkey:wraps',
+        credentialId: undefined,
+      });
     });
   });
 
@@ -1985,7 +2003,7 @@ describe('passkeys routes', () => {
       challenge: 'verification-challenge-xyz',
     };
 
-    it('returns an mfaToken carrying the challenge scope, session, and credential', async () => {
+    it('returns an mfa:passkey:wraps token carrying the session and credential, ignoring the stored scope', async () => {
       const result = await runTest<{ mfaToken: string }>(
         '/passkey/verification/finish',
         {
@@ -2000,7 +2018,7 @@ describe('passkeys routes', () => {
       }) as { sub: string; scope: string[]; cid: string; stid: string };
 
       expect(claims.sub).toBe(UID);
-      expect(claims.scope).toEqual(['mfa:recovery_key']);
+      expect(claims.scope).toEqual(['mfa:passkey:wraps']);
       expect(claims.stid).toBe(SESSION_TOKEN_ID);
       expect(claims.cid).toBe(CREDENTIAL_ID_B64);
     });
@@ -2341,7 +2359,6 @@ describe('passkeys routes', () => {
 
       it('accepts a pinned credentialId', () => {
         const { error } = schema.validate({
-          scope: 'passkey',
           credentialId: VALID_CRED_ID,
         });
         expect(error).toBeUndefined();
@@ -2359,7 +2376,6 @@ describe('passkeys routes', () => {
         ['empty string', '', 'string.empty'],
       ])('rejects credentialId (%s)', (_label, badId, expectedType) => {
         const { error } = schema.validate({
-          scope: 'passkey',
           credentialId: badId,
         });
         expect(error?.details).toEqual([
@@ -2372,7 +2388,6 @@ describe('passkeys routes', () => {
 
       it('rejects a credentialId that exceeds the max length', () => {
         const { error } = schema.validate({
-          scope: 'passkey',
           credentialId: 'A'.repeat(1365),
         });
         expect(error?.details).toEqual([
