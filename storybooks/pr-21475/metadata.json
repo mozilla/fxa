@@ -1,0 +1,12 @@
+{
+  "commit": "da07432f3dabb2c04a356bf131682cfe9ddb25a2",
+  "summary": "feat(auth): send Glean server-deletion-request ping on account deletion",
+  "description": "Because:\n\n* Data Engineering finds FxA account deletions by parsing auth-server\n  logs (fxa_delete_events), which is fragile and blocks decommissioning\n  Amplitude\n* Glean server telemetry now supports a server-deletion-request ping that\n  the pipeline can consume directly (DENG-4079)\n\nThis commit:\n\n* Sends account.user_id and account.user_id_sha256 in the built-in\n  server-deletion-request ping and regenerates server_events.ts\n* Submits the ping wherever DB.deleteAccount and accountDeleted.byCloudTask\n  are logged\n* Keeps the existing deletion logs for a parallel validation period",
+  "timestamp": 1791907032000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
