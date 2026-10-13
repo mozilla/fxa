@@ -7,40 +7,37 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
-permissions:
-  contents: write
-  pull-requests: write
-  statuses: write
-  pages: write
-  id-token: write
+permissions: {}
 
 jobs:
   build:
     name: Build Storybooks
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       has_storybooks: ${{ steps.check-affected.outputs.has_storybooks || 'true' }}
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           filter: tree:0
           persist-credentials: false
 
-      - name: Set NX_BASE and NX_HEAD for affected detection
+      - name: Compute merge-base for affected detection
+        id: nx-range
         if: github.event_name == 'pull_request'
         run: |
-          git fetch origin ${GITHUB_BASE_REF}
-          MERGE_BASE=$(git merge-base HEAD origin/${GITHUB_BASE_REF})
-          echo "NX_BASE=$MERGE_BASE" >> $GITHUB_ENV
-          echo "NX_HEAD=HEAD" >> $GITHUB_ENV
+          git fetch origin "${GITHUB_BASE_REF}"
+          MERGE_BASE=$(git merge-base HEAD "origin/${GITHUB_BASE_REF}")
+          echo "nx_base=$MERGE_BASE" >> "$GITHUB_OUTPUT"
           echo "Comparing against merge-base: $MERGE_BASE"
 
       - name: Setup Node.js
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v6
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: '.nvmrc'
           cache: 'yarn'
@@ -54,6 +51,9 @@ jobs:
       - name: Check if any projects with storybook are affected (PR)
         id: check-affected
         if: github.event_name == 'pull_request'
+        env:
+          NX_BASE: ${{ steps.nx-range.outputs.nx_base }}
+          NX_HEAD: HEAD
         run: |
           AFFECTED=$(npx nx show projects --affected -t build-storybook)
           if [ -z "$AFFECTED" ]; then
@@ -67,6 +67,9 @@ jobs:
 
       - name: Build Storybooks for affected packages (PR)
         if: github.event_name == 'pull_request' && steps.check-affected.outputs.has_storybooks == 'true'
+        env:
+          NX_BASE: ${{ steps.nx-range.outputs.nx_base }}
+          NX_HEAD: HEAD
         run: npx nx affected -t build-storybook --output-style=stream
 
       - name: Build all Storybooks (main branch)
@@ -92,6 +95,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     if: needs.build.outputs.has_storybooks == 'true'
+    permissions:
+      contents: write # push storybooks to the gh-pages branch
     outputs:
       deploy_dir: ${{ steps.deploy-dir.outputs.path }}
     # Per-PR (or per-ref) concurrency: different PRs no longer share one global
@@ -103,14 +108,14 @@ jobs:
 
     steps:
       - name: Checkout repository for scripts
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
           path: repo
           persist-credentials: false
 
       - name: Checkout gh-pages branch
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: gh-pages
           path: gh-pages
@@ -118,14 +123,16 @@ jobs:
 
       - name: Set deployment directory
         id: deploy-dir
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            DEPLOY_DIR="storybooks/pr-${{ github.event.pull_request.number }}"
+          if [ "${EVENT_NAME}" == "pull_request" ]; then
+            DEPLOY_DIR="storybooks/pr-${PR_NUMBER}"
           else
             DEPLOY_DIR="storybooks/main"
           fi
-          echo "path=$DEPLOY_DIR" >> $GITHUB_OUTPUT
-          echo "DEPLOY_DIR=$DEPLOY_DIR" >> $GITHUB_ENV
+          echo "path=$DEPLOY_DIR" >> "$GITHUB_OUTPUT"
 
       - name: Download storybooks artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -141,12 +148,14 @@ jobs:
           STORYBOOKS_DIR: gh-pages/storybooks
           REPO_NAME: ${{ github.event.repository.name }}
           REPO_OWNER: ${{ github.repository_owner }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           git -C gh-pages config user.name "github-actions[bot]"
           git -C gh-pages config user.email "github-actions[bot]@users.noreply.github.com"
 
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            COMMIT_MSG="Store storybooks for PR ${{ github.event.pull_request.number }}"
+          if [ "${EVENT_NAME}" == "pull_request" ]; then
+            COMMIT_MSG="Store storybooks for PR ${PR_NUMBER}"
           else
             COMMIT_MSG="Store storybooks from main branch"
           fi
@@ -191,6 +200,10 @@ jobs:
     needs: [build, prepare]
     if: needs.build.outputs.has_storybooks == 'true'
     continue-on-error: true
+    permissions:
+      pages: write # actions/deploy-pages
+      id-token: write # actions/deploy-pages
+      statuses: write # "Link to Storybooks" commit status
     # GitHub Pages allows only one in-progress deployment per environment, so
     # serialize deploy jobs to stop concurrent runs colliding with an HTTP 400.
     concurrency:
@@ -204,10 +217,14 @@ jobs:
       - name: Create GitHub status check
         if: github.event_name == 'pull_request'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          DEPLOY_DIR: ${{ needs.prepare.outputs.deploy_dir }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
         with:
           script: |
-            const deployDir = "${{ needs.prepare.outputs.deploy_dir }}";
-            const deployUrl = `https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${deployDir}/`;
+            const { DEPLOY_DIR, REPO_OWNER, REPO_NAME } = process.env;
+            const deployUrl = `https://${REPO_OWNER}.github.io/${REPO_NAME}/${DEPLOY_DIR}/`;
             const sha = context.payload.pull_request.head.sha;
 
             await github.rest.repos.createCommitStatus({

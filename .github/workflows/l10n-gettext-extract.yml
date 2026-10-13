@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'packages/fxa-content-server/**'
+permissions: {}
 jobs:
   extract:
     runs-on: ubuntu-latest
@@ -12,20 +13,20 @@ jobs:
           sudo apt update
           sudo apt install gettext -y
       - name: Clone l10n repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: mozilla/fxa-content-server-l10n
           path: 'fxa-l10n'
           persist-credentials: false
       - name: Clone FxA code repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 2
           path: 'fxa-code'
           persist-credentials: false
       - name: Set up Node
         # .nvmrc ships in the FxA repo, checked out into fxa-code/ just above
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v6
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: 'fxa-code/.nvmrc'
       - name: Install global npm packages
@@ -50,8 +51,8 @@ jobs:
           NEW_HASHES=$(python ../fxa-l10n/scripts/pot_checksum.py ./packages/fxa-content-server/locale/templates/)
 
           # Checkout base commit
-          git fetch origin ${{ github.event.pull_request.base.sha }}
-          git checkout ${{ github.event.pull_request.base.sha }}
+          git fetch origin "${BASE_SHA}"
+          git checkout "${BASE_SHA}"
 
           # Extract gettext
           cd ./packages/fxa-content-server
@@ -92,3 +93,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.L10N_BUILDCHECK_GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.number }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}

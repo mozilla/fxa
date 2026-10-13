@@ -7,8 +7,6 @@ jobs:
     permissions:
       contents: write # To create a branch and tags
     runs-on: ubuntu-latest
-    outputs:
-      TAG: ${{ steps.echo.outputs.tag }}
     steps:
       - name: Show GitHub context
         env:
@@ -17,22 +15,20 @@ jobs:
         shell: bash
 
       - name: Check out code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Fetch all git tags
         run: git fetch --tags origin
 
       - name: Compute new version number
+        id: version
         run: |
-          echo versionNumber=$(git tag -l --sort=version:refname | grep -v '-' | tail -1 | awk '{print $2 + 1}' FS='.') >> "$GITHUB_ENV"
-
-      - name: Add git tag to output
-        id: echo
-        run: |
-          echo tag=v1.${versionNumber}.0 >> $GITHUB_OUTPUT
+          echo "versionNumber=$(git tag -l --sort=version:refname | grep -v '-' | tail -1 | awk '{print $2 + 1}' FS='.')" >> "$GITHUB_OUTPUT"
 
       - name: Create release branch
-        run: git checkout -b train-${versionNumber}
+        env:
+          versionNumber: ${{ steps.version.outputs.versionNumber }}
+        run: git checkout -b "train-${versionNumber}"
 
       - name: Initialize mandatory git config
         run: |
@@ -40,12 +36,16 @@ jobs:
           git config user.email "noreply@github.com"
 
       - name: Commit update to branch
-        if: env.versionNumber != ''
+        if: steps.version.outputs.versionNumber != ''
+        env:
+          versionNumber: ${{ steps.version.outputs.versionNumber }}
         run: |
-          git push origin train-${versionNumber}
+          git push origin "train-${versionNumber}"
 
       - name: Make a new tag
-        if: env.versionNumber != ''
+        if: steps.version.outputs.versionNumber != ''
+        env:
+          versionNumber: ${{ steps.version.outputs.versionNumber }}
         run: |
           git tag -a "v1.${versionNumber}.0" -m "Train release ${versionNumber}"
-          git push origin v1.${versionNumber}.0
+          git push origin "v1.${versionNumber}.0"

@@ -5,6 +5,8 @@ on:
   push:
     branches: main
 
+permissions: {}
+
 jobs:
   glean-probe-scraper:
-    uses: mozilla/probe-scraper/.github/workflows/glean.yaml@main
+    uses: mozilla/probe-scraper/.github/workflows/glean.yaml@98bfb86af8d6bf2d694f645397c77ed2217eaa25 # main
