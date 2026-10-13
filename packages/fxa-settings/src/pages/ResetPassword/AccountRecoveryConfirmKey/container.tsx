@@ -6,12 +6,20 @@ import React, { useState } from 'react';
 import { useLocation } from 'react-router';
 import base32Decode from 'base32-decode';
 
-import { decryptRecoveryKeyData } from 'fxa-auth-client/lib/recoveryKey';
-import { useAccount, useConfig } from '../../../models';
 import {
+  decryptRecoveryKeyData,
+  getRecoveryKeyIdByUid,
+} from 'fxa-auth-client/lib/recoveryKey';
+import { useConfig } from '../../../models';
+import {
+  useAuthClient,
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../../models/hooks';
+import {
+  AuthUiErrorNos,
+  AuthUiErrors,
+} from '../../../lib/auth-errors/auth-errors';
 
 import { AccountRecoveryConfirmKeyLocationState } from './interfaces';
 import { PasskeyResetSignals, ResetPasswordIntegration } from '../interfaces';
@@ -28,7 +36,7 @@ const AccountRecoveryConfirmKeyContainer = ({
 }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
-  const account = useAccount();
+  const authClient = useAuthClient();
   const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
@@ -70,15 +78,18 @@ const AccountRecoveryConfirmKeyContainer = ({
     fetchedAccountResetToken: string,
     recoveryKey: string
   ) => {
-    // TODO in FXA-9672: do not use Account model in reset password pages
-    const { recoveryData, recoveryKeyId } = await account.getRecoveryKeyBundle(
-      fetchedAccountResetToken,
-      recoveryKey,
-      uid
-    );
-
     const decodedRecoveryKey = base32Decode(recoveryKey, 'Crockford');
     const uint8RecoveryKey = new Uint8Array(decodedRecoveryKey);
+    const recoveryKeyId = await getRecoveryKeyIdByUid(uint8RecoveryKey, uid);
+
+    const { recoveryData } = await authClient
+      .getRecoveryKey(fetchedAccountResetToken, recoveryKeyId)
+      .catch((err: { errno?: number }) => {
+        throw (
+          (err.errno && AuthUiErrorNos[err.errno]) ||
+          AuthUiErrors.UNEXPECTED_ERROR
+        );
+      });
 
     const { kB } = await decryptRecoveryKeyData(
       uint8RecoveryKey,
@@ -106,12 +117,18 @@ const AccountRecoveryConfirmKeyContainer = ({
     try {
       let fetchedAccountResetToken = accountResetToken;
       if (!fetchedAccountResetToken) {
-        // TODO in FXA-9672: do not use Account model in reset password pages
-        fetchedAccountResetToken = await account.passwordForgotVerifyCode(
-          token,
+        // TODO: There is a bug in Backbone and React reset PW around `accountResetWithRecoveryKey`.
+        // We attempt to validate the `code` and `token` provided here, but because the
+        // `accountResetToken` can only be fetched once but uses the `accountResetWithRecoveryKey`
+        // option, auth-server fails to send an email if the user has a recovery key, attempts
+        // to use it unsuccessfully, and then goes through a normal reset via the link back
+        // to a normal reset if a user can't use their key.
+        const verifyCodeResult = await authClient.passwordForgotVerifyCode(
           code,
-          true
+          token,
+          { accountResetWithRecoveryKey: true, includeRecoveryKeyPrompt: false }
         );
+        fetchedAccountResetToken = verifyCodeResult.accountResetToken;
         setAccountResetToken(fetchedAccountResetToken);
       }
       await getRecoveryBundleAndNavigate(fetchedAccountResetToken, recoveryKey);
