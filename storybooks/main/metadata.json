@@ -1,8 +1,8 @@
 {
-  "commit": "3e3ec496e31233536f02a10df00dfbf1b7babbd9",
-  "summary": "Merge pull request #21434 from mozilla/fxa-14637",
-  "description": "fix(functional-tests): skip v2 pairing specs when the stack serves v1",
-  "timestamp": 1791853406000,
+  "commit": "18165dbb46cdb7a013ebcf6bd224c84cbe028314",
+  "summary": "Merge pull request #21457 from mozilla/fxa-10670",
+  "description": "feat(shared): add tagCriticalEvent and browser compat API to sentry libs",
+  "timestamp": 1791856359000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
