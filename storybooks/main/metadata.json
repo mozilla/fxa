@@ -1,8 +1,8 @@
 {
-  "commit": "6aaca32d6e57b564dd6df4288942206295df125b",
-  "summary": "Merge pull request #21469 from mozilla/dependabot/github_actions/actions/upload-artifact-7.0.2",
-  "description": "chore(deps): bump actions/upload-artifact from 7.0.1 to 7.0.2",
-  "timestamp": 1791922470000,
+  "commit": "f9be017f5e9b4c378cbb6e6c982cbd92f3a86499",
+  "summary": "Merge pull request #21477 from mozilla/fxa-14700",
+  "description": "refactor(shared): move Node Sentry callers to @fxa/shared/sentry-node",
+  "timestamp": 1791923246000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
