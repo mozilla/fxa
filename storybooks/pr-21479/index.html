@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 3d598985272889c7899442c6cd725d24849a68e7</title>
+  <title>Storybooks for commit a301b6540315a834eab79e78d29cc7bdb3d94f04</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 3d598985272889c7899442c6cd725d24849a68e7</h1>
+  <h1>Storybooks for commit a301b6540315a834eab79e78d29cc7bdb3d94f04</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,9 +31,24 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/13/2026, 8:10:26 PM UTC</dd>
+    <dd>10/13/2026, 9:06:30 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>Merge branch &#039;main&#039; into fxa-10654</pre></dd>
+    <dd><pre>refactor(shared): move legacy db config, transformers and mysql to a lib</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- fxa-shared db config, transformers and mysql belong in an nx lib.
+- fxa-shared kept a second full copy of db/config.ts.
+
+This commit:
+
+- Adds libs/shared/db/mysql/legacy with config, mysql and transformers.
+- Repoints auth-server, admin-server and fxa-shared importers to the alias.
+- Ports the transformers test to jest and drops the ./db/mysql export.
+- Makes fxa-shared db/config.ts a re-export of the lib config.
+- Lets the lib test-integration target pass with no tests.
+
+Closes FXA-10654</pre></dd>
   </dl>
 </body>
 </html>
