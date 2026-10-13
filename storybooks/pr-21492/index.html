@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 5b55ab6a20149457204b6673928fd626d6976dc1</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 5b55ab6a20149457204b6673928fd626d6976dc1</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/13/2026, 11:31:22 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): show a banner for WAF blocks instead of the unblock flow</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- Sign-in treated WAF 406/429 (errno 125/114) as an auth-server block
+- An unblock code can&#039;t clear a WAF block, so users got stuck
+
+This commit:
+- Adds isWafBlockedError to fxa-auth-client
+- Shows the blocked/throttled banner on sign-in for WAF errors
+
+Closes #FXA-14758</pre></dd>
+  </dl>
+</body>
+</html>

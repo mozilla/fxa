@@ -1,0 +1,11 @@
+{
+  "commit": "5b55ab6a20149457204b6673928fd626d6976dc1",
+  "summary": "fix(settings): show a banner for WAF blocks instead of the unblock flow",
+  "description": "Because:\n- Sign-in treated WAF 406/429 (errno 125/114) as an auth-server block\n- An unblock code can't clear a WAF block, so users got stuck\n\nThis commit:\n- Adds isWafBlockedError to fxa-auth-client\n- Shows the blocked/throttled banner on sign-in for WAF errors\n\nCloses #FXA-14758",
+  "timestamp": 1791934282000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
