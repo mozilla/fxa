@@ -19,16 +19,19 @@ jest.mock('../../../../components/QRCode', () => ({
     value,
     localizedLabel,
     loading,
+    logoSrc,
   }: {
     value: string;
     localizedLabel: string;
     loading?: boolean;
+    logoSrc?: string;
   }) => (
     <img
       alt={localizedLabel}
       data-testid="scan-qr-code"
       data-value={value}
       data-loading={String(!!loading)}
+      data-logo={logoSrc}
     />
   ),
 }));
@@ -104,6 +107,15 @@ describe('Pair2/Authority/ScanQR page', () => {
     expect(screen.getByTestId('scan-qr-code')).toHaveAttribute(
       'data-loading',
       'false'
+    );
+  });
+
+  it('centers the Firefox logo in the QR code', () => {
+    renderWithLocalizationProvider(<Subject />);
+
+    expect(screen.getByTestId('scan-qr-code')).toHaveAttribute(
+      'data-logo',
+      'firefox-logo-browser.svg'
     );
   });
 
