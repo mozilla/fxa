@@ -33,3 +33,7 @@ updates:
     labels:
       - 'maintenance'
       - 'dependencies'
+    groups:
+      codeql-action:
+        patterns:
+          - 'github/codeql-action*'
