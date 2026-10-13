@@ -7,7 +7,7 @@ import {
   TestServerInstance,
 } from '../support/helpers/test-server';
 import crypto from 'crypto';
-import { uuidTransformer } from 'fxa-shared/db/transformers';
+import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
 import {
   Account,
   Device,

@@ -3,8 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { BaseAuthModel, Proc } from './base-auth';
-import { uuidTransformer, intBoolTransformer } from '../../transformers';
-import { convertError } from '../../mysql';
+import {
+  uuidTransformer,
+  intBoolTransformer,
+} from '@fxa/shared/db/mysql/legacy/transformers';
+import { convertError } from '@fxa/shared/db/mysql/legacy/mysql';
 
 export class RecoveryKey extends BaseAuthModel {
   public static tableName = 'recoveryKeys';

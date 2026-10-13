@@ -28,7 +28,7 @@ import {
   TotpToken,
   WafBypassToken,
 } from 'fxa-shared/db/models/auth';
-import { MysqlOAuthShared } from 'fxa-shared/db/mysql';
+import { MysqlOAuthShared } from '@fxa/shared/db/mysql/legacy/mysql';
 import { RedisShared } from 'fxa-shared/db/redis';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { StatsD } from 'hot-shots';

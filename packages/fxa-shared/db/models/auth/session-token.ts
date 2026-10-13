@@ -8,8 +8,8 @@ import {
   aggregateNameValuePairs,
   uuidTransformer,
   intBoolTransformer,
-} from '../../transformers';
-import { convertError, notFound } from '../../mysql';
+} from '@fxa/shared/db/mysql/legacy/transformers';
+import { convertError, notFound } from '@fxa/shared/db/mysql/legacy/mysql';
 
 function notExpired(token: SessionToken) {
   return !!(

@@ -1,8 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { convertError, notFound } from '../../mysql';
-import { uuidTransformer } from '../../transformers';
+import { convertError, notFound } from '@fxa/shared/db/mysql/legacy/mysql';
+import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
 import { BaseAuthModel, Proc } from './base-auth';
 
 export class BaseToken extends BaseAuthModel {

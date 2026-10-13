@@ -10,7 +10,7 @@ import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-set
 import { promises as fs } from 'fs';
 import { AppConfig, AuthLogger } from '../lib/types';
 import { Account } from 'fxa-shared/db/models/auth';
-import { uuidTransformer } from 'fxa-shared/db/transformers';
+import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
 import { Knex } from 'knex';
 
 type CustomerData = {

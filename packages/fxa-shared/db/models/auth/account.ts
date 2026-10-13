@@ -9,8 +9,11 @@ import { Email } from './email';
 import { Device } from './device';
 import { LinkedAccount } from './linked-account';
 import { SecurityEvent } from './security-event';
-import { intBoolTransformer, uuidTransformer } from '../../transformers';
-import { convertError, notFound } from '../../mysql';
+import {
+  intBoolTransformer,
+  uuidTransformer,
+} from '@fxa/shared/db/mysql/legacy/transformers';
+import { convertError, notFound } from '@fxa/shared/db/mysql/legacy/mysql';
 
 export type AccountOptions = {
   include?: Array<'emails' | 'linkedAccounts' | 'securityEvents'>;
