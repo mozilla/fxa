@@ -1,8 +1,8 @@
 {
-  "commit": "95cd922ccb75239cbf129bd274172428d49b9f5a",
-  "summary": "refactor(settings): use auth-client in reset password containers",
-  "description": "Because:\n\n- The reset password pages used the Account model through useAccount.\n- The recovery key reset cached a verified field that /account/reset never returns.\n\nThis commit:\n\n- Calls useAuthClient directly in the three ResetPassword containers.\n- Deletes the Account methods that have no caller left.\n- Caches sessionVerified from the reset response and types the helper return.\n- Mocks useAuthClient in the container tests and asserts the cache write.\n\nCloses FXA-9672",
-  "timestamp": 1791929083000,
+  "commit": "10fb475accc7196fb3af9f2f10c31469a216b772",
+  "summary": "test(settings): tighten reset password container tests",
+  "description": "Because:\n\n* The container tests shared mutable mocks and used loose matchers\n\nThis commit:\n\n* Resets shared sensitive-data and captured-props state before each test\n* Asserts the full webchannel payload and navigate state\n* Splits the relay test into one test per behaviour\n\nCloses #FXA-9672",
+  "timestamp": 1791934197000,
   "storybooks": [
     "fxa-settings"
   ],
