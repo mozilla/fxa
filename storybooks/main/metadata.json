@@ -1,8 +1,8 @@
 {
-  "commit": "f9be017f5e9b4c378cbb6e6c982cbd92f3a86499",
-  "summary": "Merge pull request #21477 from mozilla/fxa-14700",
-  "description": "refactor(shared): move Node Sentry callers to @fxa/shared/sentry-node",
-  "timestamp": 1791923246000,
+  "commit": "6dfe685ef05b41ef253954916b8e286f4914b614",
+  "summary": "Merge pull request #21466 from mozilla/fxa-14706",
+  "description": "fix(settings): link PairConnectHint to the plain SUMO article",
+  "timestamp": 1791923595000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
