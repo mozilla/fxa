@@ -1,8 +1,8 @@
 {
-  "commit": "e38d95fc695ca6cd4eb0b6d19a88d9baf3077f33",
-  "summary": "Merge pull request #21481 from mozilla/fxa-14764",
-  "description": "fix(settings): handle known server errors in passkey sign-in",
-  "timestamp": 1791926689000,
+  "commit": "660fbd002c2f3d247344b872fdf8dfa96411c2b3",
+  "summary": "Merge pull request #21383 from chelisejacobson/FXA-14418",
+  "description": "feat(settings): remove Mozilla logo header from mobile pairing screens",
+  "timestamp": 1791927004000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
