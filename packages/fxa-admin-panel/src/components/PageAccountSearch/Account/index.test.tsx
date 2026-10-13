@@ -562,7 +562,7 @@ it('targets the clicked passkey by its own credentialId with multiple passkeys',
 
 it('displays secondary emails', async () => {
   accountResponse.emails!.push({
-    email: 'ohdeceiver@gmail.com',
+    email: 'secondary@example.com',
     isVerified: false,
     isPrimary: false,
     createdAt: 1589467100316,
@@ -572,7 +572,7 @@ it('displays secondary emails', async () => {
 
   expect(getByTestId('secondary-section')).toBeInTheDocument();
   expect(getByTestId('secondary-email')).toHaveTextContent(
-    'ohdeceiver@gmail.com'
+    'secondary@example.com'
   );
   expect(getByTestId('secondary-verified')).toHaveTextContent('No');
 });

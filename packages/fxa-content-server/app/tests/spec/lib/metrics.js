@@ -899,7 +899,7 @@ describe('lib/metrics/', () => {
     });
 
     it('set-email-domain (popular domain)', () => {
-      notifier.trigger('set-email-domain', 'pmbooth@gmail.com');
+      notifier.trigger('set-email-domain', 'foo@gmail.com');
       assert.equal(metrics.getFilteredData().emailDomain, 'gmail.com');
     });
 
