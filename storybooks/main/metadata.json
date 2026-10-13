@@ -1,8 +1,8 @@
 {
-  "commit": "7ce1b0c3dae15d64f91155cc838fc6bc1cc0553f",
-  "summary": "Merge pull request #21478 from mozilla/fxa-14704",
-  "description": "refactor(shared): inject account-customer lookups into StripeHelper",
-  "timestamp": 1791924627000,
+  "commit": "1ed1faebab591e053c5329498723c022db95e29d",
+  "summary": "Merge pull request #21487 from mozilla/fxa-14768",
+  "description": "fix(functional-tests): wait for resend banner in oauthSignin signup test",
+  "timestamp": 1791926528000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
