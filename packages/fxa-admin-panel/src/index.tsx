@@ -6,7 +6,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import sentryMetrics from '@fxa/shared/sentry-browser';
 import { config, readConfigFromMeta } from './lib/config';
 import App from './App';
 import './styles/tailwind.out.css';

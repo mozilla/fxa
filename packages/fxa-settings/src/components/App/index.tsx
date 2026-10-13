@@ -42,7 +42,7 @@ import {
 } from '../../models/contexts/SettingsContext';
 import { AccountStateProvider } from '../../models/contexts/AccountStateContext';
 
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import sentryMetrics from '@fxa/shared/sentry-browser';
 import { flushL10nErrorReports } from '../../lib/l10n-error-reporter';
 // Components
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
