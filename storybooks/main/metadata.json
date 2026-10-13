@@ -1,8 +1,8 @@
 {
-  "commit": "f981431bbd6fd4eda3148d7f1340146e7de27982",
-  "summary": "Merge pull request #21432 from mozilla/FXA-14657",
-  "description": "fix(settings): send a signed-out desktop off the v2 pairing QR page",
-  "timestamp": 1791846451000,
+  "commit": "19d2919540096e392a43467d76561bf41259541d",
+  "summary": "Merge pull request #21465 from mozilla/fxa-14659",
+  "description": "test(shared): replace real-looking email addresses in test files",
+  "timestamp": 1791853308000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
