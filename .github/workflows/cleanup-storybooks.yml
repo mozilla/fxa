@@ -20,13 +20,14 @@ jobs:
 
     steps:
       - name: Checkout gh-pages branch
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: gh-pages
           path: gh-pages
           fetch-depth: 1
 
       - name: Remove storybooks for closed/stale PRs and enforce cap
+        id: prune
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
@@ -43,7 +44,7 @@ jobs:
           # which would clobber a storybook deploy running concurrently.
           REMOVE_LIST="${RUNNER_TEMP:-/tmp}/sb-remove.txt"
           : > "$REMOVE_LIST"
-          echo "REMOVE_LIST=${REMOVE_LIST}" >> "$GITHUB_ENV"
+          echo "remove_list=${REMOVE_LIST}" >> "$GITHUB_OUTPUT"
           # Open PR dirs kept this run as "updated_ts<TAB>pr<TAB>dir", for the cap below.
           KEPT=()
 
@@ -98,10 +99,10 @@ jobs:
           fi
 
           echo "Total removed: ${REMOVED}"
-          echo "REMOVED=${REMOVED}" >> "$GITHUB_ENV"
+          echo "removed=${REMOVED}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout main branch for scripts
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: main-repo
           persist-credentials: false
@@ -111,6 +112,8 @@ jobs:
           STORYBOOKS_DIR: gh-pages/storybooks
           REPO_NAME: ${{ github.event.repository.name }}
           REPO_OWNER: ${{ github.repository_owner }}
+          REMOVE_LIST: ${{ steps.prune.outputs.remove_list }}
+          REMOVED: ${{ steps.prune.outputs.removed }}
         run: |
           git -C gh-pages config user.name "github-actions[bot]"
           git -C gh-pages config user.email "github-actions[bot]@users.noreply.github.com"
