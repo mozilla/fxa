@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 3e4bf76876c293055a29e68e51abd3cb12309b7d</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 3e4bf76876c293055a29e68e51abd3cb12309b7d</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/13/2026, 9:08:09 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>refactor(shared): move STRIPE_PRICE_METADATA into subscriptions plan config</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- subscriptions/configuration/plan.ts imported STRIPE_PRICE_METADATA from
+  payments/stripe.ts, which blocks moving subscriptions into a lib.
+
+This commit:
+
+- Moves the enum unchanged into subscriptions/configuration/plan.ts.
+- Re-exports it from payments/stripe.ts, so no caller changes.
+- Adds a mocha case that both exports are the same object.
+
+Closes FXA-14712</pre></dd>
+  </dl>
+</body>
+</html>
