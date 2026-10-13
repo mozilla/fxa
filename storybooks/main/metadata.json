@@ -1,8 +1,8 @@
 {
-  "commit": "26930ff60b603553825bd81585b3c8051b004114",
-  "summary": "Merge pull request #21453 from mozilla/dependabot/github_actions/github/codeql-action/init-4.38.3",
-  "description": "chore(deps): bump github/codeql-action/init from 4.38.2 to 4.38.3",
-  "timestamp": 1791902879000,
+  "commit": "995c8d2a1666c675abea28a22ed106ab5b36a24e",
+  "summary": "Merge pull request #21452 from mozilla/dependabot/github_actions/github/codeql-action/autobuild-4.38.3",
+  "description": "chore(deps): bump github/codeql-action/autobuild from 4.38.2 to 4.38.3",
+  "timestamp": 1791902973000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
