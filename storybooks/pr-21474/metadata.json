@@ -1,0 +1,13 @@
+{
+  "commit": "a4baf1eb5fb2a0588aede05d2b4241e7988636d8",
+  "summary": "fix(cms): read the GraphQL operation name with graphql",
+  "description": "Because:\n\n- Apollo Client 4 removed getOperationName from @apollo/client/utilities, so shared-cms no longer builds.\n\nThis commit:\n\n- Gets the operation name with getOperationAST from graphql in the five CMS configuration managers.\n- Builds real DocumentNodes in the two specs that mocked getOperationName.",
+  "timestamp": 1791922145000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
