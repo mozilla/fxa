@@ -1,8 +1,8 @@
 {
-  "commit": "ff26f91b553548d3d2ba391f524c03fb7ff2623b",
-  "summary": "Merge pull request #21473 from mozilla/FXA-13259",
-  "description": "chore(ci): harden GitHub Actions workflows per security checklist",
-  "timestamp": 1791910201000,
+  "commit": "3044da663c86b736ce6d62fc9a36dbc3858de5a7",
+  "summary": "Merge pull request #21472 from mozilla/fxa-14694",
+  "description": "",
+  "timestamp": 1791912178000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
