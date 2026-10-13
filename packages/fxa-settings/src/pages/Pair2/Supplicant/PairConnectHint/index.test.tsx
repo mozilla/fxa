@@ -74,12 +74,12 @@ describe('Pair2/Supplicant/PairConnectHint page', () => {
     expect(screen.getByText('sign in').tagName).toEqual('B');
   });
 
-  it('links “Learn more” to the in-product no-QR pairing article', () => {
+  it('links “Learn more” to the no-QR pairing article', () => {
     renderWithLocalizationProvider(<PairConnectHint />);
 
     expect(screen.getByRole('link', { name: /Learn more/ })).toHaveAttribute(
       'href',
-      'https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/connect-firefox-another-device-without-qr-code'
+      'https://support.mozilla.org/kb/connect-firefox-another-device-without-qr-code'
     );
   });
 
