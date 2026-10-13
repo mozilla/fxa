@@ -40,7 +40,8 @@ export enum WebAuthnErrorType {
  * Reason value reported in Glean `*_submit_frontend_error` events. The
  * taxonomy in FXA-13475 collapses the larger DOMException set to five
  * buckets, so error-shape changes inside the same bucket don't fragment
- * the metric.
+ * the metric. Every entry reporting 'unexpected' logs to Sentry, where the
+ * error name is visible.
  */
 export type WebAuthnGleanReason =
   | 'not_allowed'
@@ -186,7 +187,7 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
   InvalidStateError: {
     category: WebAuthnErrorCategory.DevicePlatform,
     errorType: WebAuthnErrorType.InvalidState,
-    logToSentry: false,
+    logToSentry: true,
     gleanReason: 'unexpected',
     ftlId: {
       registration: 'passkey-registration-error-invalid-state',
@@ -202,7 +203,7 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
   NotReadableError: {
     category: WebAuthnErrorCategory.DevicePlatform,
     errorType: WebAuthnErrorType.NotReadable,
-    logToSentry: false,
+    logToSentry: true,
     gleanReason: 'unexpected',
     ftlId: {
       registration: 'passkey-registration-error-not-readable',
@@ -272,7 +273,7 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
     category: WebAuthnErrorCategory.UserAction,
     errorType: WebAuthnErrorType.NotSupported,
     logToSentry: true,
-    gleanReason: 'not_supported',
+    gleanReason: 'not_allowed',
     ftlId: AUTHENTICATOR_ALREADY_REGISTERED_FTL_ID,
     fallbackText: AUTHENTICATOR_ALREADY_REGISTERED_FALLBACK,
   },
