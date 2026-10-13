@@ -76,8 +76,8 @@ const InlineRecoveryKeySetupContainer = ({
     (sessionToken: string): ((hint: string) => Promise<void>) =>
       async (hint: string) => {
         // The try/catch for this is handled in the component where it's called
-        // because we're sharing the Hint component with Settings + Account.ts
-        authClient.updateRecoveryKeyHint(sessionToken, hint);
+        // because we're sharing the Hint component with Settings
+        await authClient.updateRecoveryKeyHint(sessionToken, hint);
       },
     [authClient]
   );

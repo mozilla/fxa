@@ -1175,12 +1175,6 @@ export class Account implements AccountData {
     firefox.profileChanged({ uid: this.uid });
   }
 
-  async updateRecoveryKeyHint(hint: string) {
-    await this.withLoadingStatus(
-      this.authClient.updateRecoveryKeyHint(sessionToken()!, hint)
-    );
-  }
-
   async metricsOpt(state: 'in' | 'out') {
     const token = sessionToken();
     if (!token) throw AuthUiErrors.INVALID_TOKEN;

@@ -4,24 +4,16 @@
 
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { logViewEvent } from '../../lib/metrics';
-import { Account } from '../../models';
 import RecoveryKeySetupHint, { MAX_HINT_LENGTH } from '.';
 import { viewName } from '../Settings/PageRecoveryKeyCreate';
-import { renderWithRouter, MOCK_ACCOUNT } from '../../models/mocks';
+import { renderWithRouter } from '../../models/mocks';
 import { AuthUiErrorNos } from '../../lib/auth-errors/auth-errors';
 import userEvent from '@testing-library/user-event';
 
 const unexpectedError: any = AuthUiErrorNos[999];
 
-const accountWithSuccess = {
-  ...MOCK_ACCOUNT,
-  updateRecoveryKeyHint: jest.fn().mockResolvedValue(true),
-} as unknown as Account;
-
-const accountWithError = {
-  ...MOCK_ACCOUNT,
-  updateRecoveryKeyHint: jest.fn().mockRejectedValue(unexpectedError),
-} as unknown as Account;
+const updateHintWithSuccess = jest.fn().mockResolvedValue(undefined);
+const updateHintWithError = jest.fn().mockRejectedValue(unexpectedError);
 
 const navigateForward = jest.fn();
 
@@ -32,11 +24,11 @@ jest.mock('../../lib/metrics', () => ({
 
 jest.mock('../../models/AlertBarInfo');
 
-const renderWithContext = (account: Account) => {
+const renderWithContext = (updateRecoveryKeyHint: jest.Mock) => {
   renderWithRouter(
     <RecoveryKeySetupHint
       {...{
-        updateRecoveryKeyHint: account.updateRecoveryKeyHint,
+        updateRecoveryKeyHint,
         navigateForward,
         viewName,
       }}
@@ -50,7 +42,7 @@ describe('RecoveryKeySetupHint', () => {
   });
 
   it('renders as expected', async () => {
-    renderWithContext(accountWithSuccess);
+    renderWithContext(updateHintWithSuccess);
 
     screen.getByRole('heading', {
       level: 2,
@@ -64,7 +56,7 @@ describe('RecoveryKeySetupHint', () => {
   });
 
   it('emits the expected metrics when the user lands on this step of the flow', () => {
-    renderWithContext(accountWithSuccess);
+    renderWithContext(updateHintWithSuccess);
     expect(logViewEvent).toHaveBeenCalledTimes(1);
     expect(logViewEvent).toHaveBeenCalledWith(
       `flow.${viewName}`,
@@ -73,7 +65,7 @@ describe('RecoveryKeySetupHint', () => {
   });
 
   it('saves the hint on submit if the user has entered a valid hint in the text input', async () => {
-    renderWithContext(accountWithSuccess);
+    renderWithContext(updateHintWithSuccess);
     const hintValue = 'Ye Olde Hint';
     const textInput = screen.getByRole('textbox', {
       name: 'Enter a hint (optional)',
@@ -91,9 +83,7 @@ describe('RecoveryKeySetupHint', () => {
         `flow.${viewName}`,
         'create-hint.submit'
       );
-      expect(accountWithSuccess.updateRecoveryKeyHint).toHaveBeenCalledWith(
-        hintValue
-      );
+      expect(updateHintWithSuccess).toHaveBeenCalledWith(hintValue);
       expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
         'create-hint.success'
@@ -104,7 +94,7 @@ describe('RecoveryKeySetupHint', () => {
 
   it('limits the input to a max length', async () => {
     const user = userEvent.setup();
-    renderWithContext(accountWithSuccess);
+    renderWithContext(updateHintWithSuccess);
     const hintValueTooLong = 'a'.repeat(MAX_HINT_LENGTH + 5);
     const textInput = screen.getByRole('textbox', {
       name: 'Enter a hint (optional)',
@@ -114,7 +104,7 @@ describe('RecoveryKeySetupHint', () => {
   });
 
   it('logs an error if saving a valid hint failed', async () => {
-    renderWithContext(accountWithError);
+    renderWithContext(updateHintWithError);
     const hintValue = 'Ye Olde Hint';
     const textInput = screen.getByRole('textbox', {
       name: 'Enter a hint (optional)',
@@ -132,9 +122,7 @@ describe('RecoveryKeySetupHint', () => {
         `flow.${viewName}`,
         'create-hint.submit'
       );
-      expect(accountWithError.updateRecoveryKeyHint).toHaveBeenCalledWith(
-        hintValue
-      );
+      expect(updateHintWithError).toHaveBeenCalledWith(hintValue);
       // logs the error
       expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
@@ -148,11 +136,11 @@ describe('RecoveryKeySetupHint', () => {
   });
 
   it('navigates the user forward on submit without saving a hint, if the user has not entered one', async () => {
-    renderWithContext(accountWithSuccess);
+    renderWithContext(updateHintWithSuccess);
     const submitButton = screen.getByText('Finish');
     fireEvent.click(submitButton);
     await waitFor(() => {
-      expect(accountWithSuccess.updateRecoveryKeyHint).not.toHaveBeenCalled();
+      expect(updateHintWithSuccess).not.toHaveBeenCalled();
       expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
         'create-hint.skip'

@@ -9,6 +9,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { MOCK_EMAIL, MOCK_SESSION_TOKEN, MOCK_UID } from '../../mocks';
 import { Integration } from '../../../models';
 import ResetPasswordWithRecoveryKeyVerifiedContainer from './container';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 const mockUpdateRecoveryKeyHint = jest.fn();
 jest.mock('../../../models', () => ({
@@ -23,13 +24,15 @@ jest.mock('../../../models', () => ({
   }),
 }));
 
+const STORED_ACCOUNT = {
+  uid: MOCK_UID,
+  sessionToken: MOCK_SESSION_TOKEN,
+  email: MOCK_EMAIL,
+};
+let mockStoredAccount: Record<string, string | undefined> = STORED_ACCOUNT;
 jest.mock('../../../lib/cache', () => ({
   ...jest.requireActual('../../../lib/cache'),
-  currentAccount: () => ({
-    uid: MOCK_UID,
-    sessionToken: MOCK_SESSION_TOKEN,
-    email: MOCK_EMAIL,
-  }),
+  currentAccount: () => mockStoredAccount,
 }));
 
 jest.mock('../../../lib/oauth/hooks', () => ({
@@ -48,20 +51,26 @@ jest.mock('./index', () => (props: any) => {
 
 const mockIntegration = { isSync: () => false } as unknown as Integration;
 
+function renderComponent() {
+  renderWithLocalizationProvider(
+    <MemoryRouter>
+      <ResetPasswordWithRecoveryKeyVerifiedContainer
+        integration={mockIntegration}
+      />
+    </MemoryRouter>
+  );
+}
+
 describe('ResetPasswordWithRecoveryKeyVerifiedContainer', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockStoredAccount = STORED_ACCOUNT;
+    capturedProps = undefined;
     mockUpdateRecoveryKeyHint.mockResolvedValue({});
   });
 
   it('saves the hint with the stored session token', async () => {
-    renderWithLocalizationProvider(
-      <MemoryRouter>
-        <ResetPasswordWithRecoveryKeyVerifiedContainer
-          integration={mockIntegration}
-        />
-      </MemoryRouter>
-    );
+    renderComponent();
 
     await act(() => capturedProps.updateRecoveryKeyHint('area 51'));
 
@@ -74,16 +83,20 @@ describe('ResetPasswordWithRecoveryKeyVerifiedContainer', () => {
   it('rejects when the hint request fails', async () => {
     const error = { errno: 999 };
     mockUpdateRecoveryKeyHint.mockRejectedValue(error);
-    renderWithLocalizationProvider(
-      <MemoryRouter>
-        <ResetPasswordWithRecoveryKeyVerifiedContainer
-          integration={mockIntegration}
-        />
-      </MemoryRouter>
-    );
+    renderComponent();
 
     await expect(capturedProps.updateRecoveryKeyHint('area 51')).rejects.toBe(
       error
     );
+  });
+
+  it('rejects with an invalid-token error when no session token is stored', async () => {
+    mockStoredAccount = { ...STORED_ACCOUNT, sessionToken: undefined };
+    renderComponent();
+
+    await expect(capturedProps.updateRecoveryKeyHint('area 51')).rejects.toBe(
+      AuthUiErrors.INVALID_TOKEN
+    );
+    expect(mockUpdateRecoveryKeyHint).not.toHaveBeenCalled();
   });
 });

@@ -5,6 +5,7 @@
 import { MemoryRouter } from 'react-router';
 import FlowRecoveryKeyHint from '.';
 import { Meta } from '@storybook/react';
+import AuthClient from 'fxa-auth-client/browser';
 import { Account, AppContext } from '../../../models';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
@@ -20,29 +21,18 @@ const localizedPageTitle = 'Account Recovery Key';
 const localizedBackButtonTitle = 'Back to settings';
 const viewName = 'settings.account-recovery';
 
-const accountWithSuccess = {
-  ...MOCK_ACCOUNT,
-  updateRecoveryKeyHint: () => {},
-} as unknown as Account;
+const authClientWithHintResult = (updateRecoveryKeyHint: () => Promise<{}>) =>
+  ({ updateRecoveryKeyHint }) as unknown as AuthClient;
 
-const accountWithUnexpectedError = {
-  ...MOCK_ACCOUNT,
-  updateRecoveryKeyHint: () => {
-    throw AuthUiErrors.UNEXPECTED_ERROR;
-  },
-} as unknown as Account;
-
-const accountWithUnknownError = {
-  ...MOCK_ACCOUNT,
-  updateRecoveryKeyHint: () => {
-    throw new Error('Uh oh');
-  },
-} as unknown as Account;
-
-const storyWithContext = (account: Account) => {
+const storyWithContext = (authClient: AuthClient) => {
   const story = () => (
     <MemoryRouter>
-      <AppContext.Provider value={mockAppContext({ account })}>
+      <AppContext.Provider
+        value={mockAppContext({
+          account: MOCK_ACCOUNT as unknown as Account,
+          authClient,
+        })}
+      >
         <FlowRecoveryKeyHint
           {...{ localizedBackButtonTitle, localizedPageTitle, viewName }}
           navigateBackward={() => {
@@ -58,8 +48,14 @@ const storyWithContext = (account: Account) => {
   return story;
 };
 
-export const Default = storyWithContext(accountWithSuccess);
+export const Default = storyWithContext(
+  authClientWithHintResult(() => Promise.resolve({}))
+);
 
-export const WithUnexpectedError = storyWithContext(accountWithUnexpectedError);
+export const WithUnexpectedError = storyWithContext(
+  authClientWithHintResult(() => Promise.reject(AuthUiErrors.UNEXPECTED_ERROR))
+);
 
-export const WithUnknownError = storyWithContext(accountWithUnknownError);
+export const WithUnknownError = storyWithContext(
+  authClientWithHintResult(() => Promise.reject(new Error('Uh oh')))
+);

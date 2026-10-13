@@ -23,6 +23,7 @@ import {
 import ResetPasswordWithRecoveryKeyVerified from './index';
 import { SETTINGS_PATH } from '../../../constants';
 import { currentAccount } from '../../../lib/cache';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
   integration,
@@ -45,7 +46,8 @@ const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
   const { uid, sessionToken, email } = currentAccount() || {};
   const updateRecoveryKeyHint = useCallback(
     async (hint: string) => {
-      await authClient.updateRecoveryKeyHint(sessionToken!, hint);
+      if (!sessionToken) throw AuthUiErrors.INVALID_TOKEN;
+      await authClient.updateRecoveryKeyHint(sessionToken, hint);
     },
     [authClient, sessionToken]
   );
