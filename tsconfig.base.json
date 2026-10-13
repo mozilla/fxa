@@ -140,6 +140,7 @@
       "@fxa/shared/sentry-node": ["./libs/shared/sentry-node/src/index.ts"],
       "@fxa/shared/sentry-utils": ["./libs/shared/sentry-utils/src/index.ts"],
       "@fxa/shared/sentry/client": ["./libs/shared/sentry/src/client.ts"],
+      "@fxa/shared/url-allow-list": ["./libs/shared/url-allow-list/src/index.ts"],
       "@fxa/vendored/common-password-list": [
         "./libs/vendored/common-password-list/src/index.ts"
       ],

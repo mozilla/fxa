@@ -11,7 +11,7 @@ import SubscriptionsManagementRedirectView from '../views/subscriptions_manageme
 import Url from './url';
 import UserAgent from './user-agent';
 import VerificationReasons from './verification-reasons';
-import { isAllowed } from 'fxa-shared/configuration/convict-format-allow-list';
+import { isAllowed } from '@fxa/shared/url-allow-list';
 import ReactExperimentMixin from './generalized-react-app-experiment-mixin';
 import { getClientReactRouteGroups } from '../../../server/lib/routes/react-app/route-groups-client';
 
