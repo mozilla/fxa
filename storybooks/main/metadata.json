@@ -1,8 +1,8 @@
 {
-  "commit": "fc712a74d1e2e3a6d7293bfaa3522b10fe33f0fa",
-  "summary": "Merge pull request #21440 from mozilla/fxa-13677",
-  "description": "fix(passkey): use the challenge timeout for the registration ceremony",
-  "timestamp": 1791914390000,
+  "commit": "54a8fc927f9f57749066fda530771b469acdb26d",
+  "summary": "Merge pull request #21476 from mozilla/fxa-10664",
+  "description": "refactor(settings): move pair-reasons from fxa-shared to fxa-settings",
+  "timestamp": 1791920431000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
