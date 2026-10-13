@@ -57,6 +57,7 @@ import {
   extractChannelIdV2,
   waitForUrlContaining,
   waitForUrlContainingAny,
+  getServedPairingVersion,
 } from '../../lib/pairing-helpers';
 
 const ELIGIBLE_ENTRYPOINT_QS =
@@ -189,7 +190,7 @@ test.describe.serial('v2 iOS pairing flow', () => {
 
   let supplicant: IOSSupplicant | undefined;
 
-  test.beforeEach(async ({}, testInfo) => {
+  test.beforeEach(async ({ browser, target }, testInfo) => {
     if (!process.env.IOS_PAIRING_V2_ENABLED) {
       testInfo.skip(
         true,
@@ -200,6 +201,13 @@ test.describe.serial('v2 iOS pairing flow', () => {
       testInfo.skip(
         true,
         'Firefox Nightly not found — install it, or set FIREFOX_BINARY to a v2-capable build'
+      );
+    }
+    const servedVersion = await getServedPairingVersion(browser, target);
+    if (servedVersion !== 2) {
+      testInfo.skip(
+        true,
+        `Needs the stack to serve config.pairing.version=2 (serving ${servedVersion})`
       );
     }
     supplicant = new IOSSupplicant();

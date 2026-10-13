@@ -64,6 +64,7 @@ import {
   readCapturedOAuthLogin,
   setSupplicantUserAgent,
   sleep,
+  getServedPairingVersion,
 } from '../../lib/pairing-helpers';
 
 const ELIGIBLE_ENTRYPOINT_QS =
@@ -107,10 +108,21 @@ async function clickByTestId(client: MarionetteClient, testId: string) {
 
 test.describe('severity-2 #smoke', () => {
   test.describe.serial('v2 pairing flow', () => {
+    let servedVersion = 1;
+
+    // Baked in at server boot, so a test cannot change it.
+    test.beforeAll(async ({ browser, target }) => {
+      servedVersion = await getServedPairingVersion(browser, target);
+    });
+
     test.beforeEach(() => {
       test.skip(
         !findV2AuthorityBinary(),
         'Firefox Nightly not found — install it, or set FIREFOX_BINARY to a v2-capable build'
+      );
+      test.skip(
+        servedVersion !== 2,
+        `Needs the stack to serve config.pairing.version=2 (serving ${servedVersion})`
       );
     });
 
