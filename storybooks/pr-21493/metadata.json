@@ -1,0 +1,10 @@
+{
+  "commit": "8c434c25b436ce8f0ed056800c48d884c63aa6bd",
+  "summary": "fix(settings): expect firefox-logo-bw.svg in ScanQR test",
+  "description": "Because:\n\n- The ScanQR component imports firefox-logo-bw.svg, but its test still\n  expected firefox-logo-browser.svg, so the frontend test job failed.\n\nThis commit:\n\n- Changes the expected data-logo value in the ScanQR test to\n  firefox-logo-bw.svg.\n\nCloses FXA-14770",
+  "timestamp": 1791934989000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
