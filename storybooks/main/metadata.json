@@ -1,8 +1,8 @@
 {
-  "commit": "3c4409c02050650f9b076826b33aaa303f2646f0",
-  "summary": "Merge pull request #21422 from mozilla/fxa-14686",
-  "description": "fix(passkey): consume challenge before credential lookup",
-  "timestamp": 1791920888000,
+  "commit": "01cc651865b8bdc6074969634031ab745a2c29e4",
+  "summary": "Merge pull request #21482 from mozilla/fxa-14767",
+  "description": "fix(auth): update stale crypto import in authorization spec",
+  "timestamp": 1791922185000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
