@@ -1275,6 +1275,7 @@ passkey-sub-row-created-date = Δημιουργία: { $createdDate }
 passkey-sub-row-last-used-date = Τελευταία χρήση: { $lastUsedDate }
 passkey-sub-row-delete-title = Διαγραφή κλειδιού πρόσβασης
 passkey-delete-modal-heading = Διαγραφή κλειδιού πρόσβασης;
+passkey-delete-modal-content-v3 = Αυτό το κλειδί πρόσβασης θα αφαιρεθεί από τον λογαριασμό σας. Θα πρέπει να συνδεθείτε με κωδικό πρόσβασης, άλλο κλειδί πρόσβασης ή συνδεδεμένο λογαριασμό.
 passkey-delete-modal-cancel-button = Ακύρωση
 passkey-delete-modal-confirm-button = Διαγραφή κλειδιού πρόσβασης
 passkey-delete-success = Το κλειδί πρόσβασης διαγράφηκε
@@ -1651,6 +1652,9 @@ inline-passwordless-sync-setup-success-alert-v2 = Αυτό το κλειδί π�
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Η επιβεβαίωση του κλειδιού πρόσβασης δεν ολοκληρώθηκε
 inline-passwordless-sync-setup-error-cancelled-description = Κάντε επιβεβαίωση με το κλειδί πρόσβασής σας για να παραλείψετε τον κωδικό πρόσβασης την επόμενη φορά.
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = Δεν ήταν δυνατή η ενεργοποίηση αυτού του κλειδιού πρόσβασης για τη σύνδεση στον συγχρονισμό. Θα χρειαστείτε τον κωδικό πρόσβασής σας την επόμενη φορά.
 
 ## InlineRecoveryKeySetup page component
 
@@ -2023,9 +2027,9 @@ pair2-supplicant-sync-success-description-v2 = Ο συγχρονισμός βρ�
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
-## either because the attempt timed out or because it was canceled. Both states
-## are informational and offer no on-screen action, so the copy points the user
-## back to their computer to start again.
+## because the attempt timed out, was canceled, or the device is already signed
+## in to an account. All states are informational and offer no on-screen action,
+## so the copy points the user back to their computer to start again.
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Φαίνεται ότι το χρονικό όριο έληξε
@@ -2035,6 +2039,8 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Για να συνδέ
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Ακυρώθηκε
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Για να συνδέσετε μια συσκευή ανά πάσα στιγμή, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Αυτή η συσκευή έχει ήδη συνδεθεί
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2156,9 +2162,13 @@ confirm-totp-reset-password-use-different-account = Χρήση διαφορετ�
 
 password-reset-flow-heading = Επαναφορά κωδικού πρόσβασης
 password-reset-forgot-heading = Ξεχάσατε τον κωδικό πρόσβασής σας;
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Δοκιμάστε να συνδεθείτε μέσω { -brand-google }, μέσω { -brand-apple } ή με κλειδί πρόσβασης.</signInLink> Εναλλακτικά, εισαγάγετε το email σας και θα σας στείλουμε έναν κωδικό για την επαναφορά του κωδικού πρόσβασής σας.
 password-reset-email-input =
     .label = Εισαγάγετε το email σας
 password-reset-submit-button-2 = Συνέχεια
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Η επαναφορά του κωδικού πρόσβασής σας ενδέχεται να επηρεάσει την ανάκτηση των συγχρονισμένων δεδομένων του προγράμματος περιήγησης. <learnMoreLink>Μάθετε περισσότερα</learnMoreLink>
 
 ## ResetPasswordConfirmed
 

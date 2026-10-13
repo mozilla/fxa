@@ -1338,6 +1338,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = נראה שזמן הפעו
 pair2-supplicant-timeout-and-cancel-timeout-description = כדי לחבר את המכשיר הנייד שלך ולסנכרן את נתוני ה־{ -brand-firefox } שלך, יש לבקר באתר <b>firefox.com/pair</b> במחשב שלך.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = בוטל
 pair2-supplicant-timeout-and-cancel-canceled-description = כדי לחבר מכשיר בכל עת, יש לבקר באתר <b>firefox.com/pair</b> במחשב שלך.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = מכשיר זה כבר מחובר לחשבון
+pair2-supplicant-timeout-and-cancel-signed-in-description = כדי להתחבר לחשבון שלך במחשב, יש להתנתק מ־{ -brand-firefox } במכשיר זה, ולאחר מכן לבקר באתר <b>firefox.com/pair</b> במחשב שלך כדי להשלים את ההתחברות.
 
 
 permissions-heading = ‏{ $serviceName } מבקש גישה ל:

@@ -1343,6 +1343,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = 看來超出時間限制�
 pair2-supplicant-timeout-and-cancel-timeout-description = 若要連結您的行動裝置並同步 { -brand-firefox } 資料，請在您的電腦造訪 <b>firefox.com/pair</b>。
 pair2-supplicant-timeout-and-cancel-cancelled-heading = 已取消
 pair2-supplicant-timeout-and-cancel-canceled-description = 歡迎隨時在您的電腦開啟 <b>firefox.com/pair</b> 連結其他裝置。
+pair2-supplicant-timeout-and-cancel-signed-in-heading = 此裝置已經登入
+pair2-supplicant-timeout-and-cancel-signed-in-description = 若要連結您的桌面版帳號，請先在此裝置登出 { -brand-firefox }，再使用電腦開啟 <b>firefox.com/pair</b> 完成登入。
 
 
 permissions-heading = { $serviceName } 想要存取：

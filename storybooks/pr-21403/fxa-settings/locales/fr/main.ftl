@@ -1196,10 +1196,10 @@ inline-passwordless-sync-setup-description = Utilisez cette clé d’accès pour
 inline-passwordless-sync-setup-enable-button = Activer la clé d’accès
 inline-passwordless-sync-setup-enabling = Activation…
 inline-passwordless-sync-setup-not-now-button = Plus tard
-inline-passwordless-sync-setup-success-alert-v2 = Cette clé est activée pour la connexion synchronisée
+inline-passwordless-sync-setup-success-alert-v2 = Cette clé d’accès permet de se connecter et de synchroniser
 inline-passwordless-sync-setup-error-cancelled = La confirmation de la clé d’accès n’a pas abouti
 inline-passwordless-sync-setup-error-cancelled-description = Confirmez à l’aide de votre clé d’accès pour ne pas avoir à saisir votre mot de passe la prochaine fois.
-inline-passwordless-sync-setup-error-generic-v2 = Nous n’avons pas pu activer cette clé d’accès pour la connexion synchronisée. Vous aurez besoin de votre mot de passe la prochaine fois.
+inline-passwordless-sync-setup-error-generic-v2 = Nous n’avons pas pu activer cette clé d’accès pour la connexion et la synchronisation. Vous aurez besoin de votre mot de passe la prochaine fois.
 
 
 inline-recovery-key-setup-create-error = Oups ! Nous n’avons pas pu créer la clé de récupération de votre compte. Veuillez réessayer plus tard.
@@ -1393,6 +1393,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Le délai de connexion a e
 pair2-supplicant-timeout-and-cancel-timeout-description = Pour connecter votre appareil mobile et synchroniser vos données { -brand-firefox }, consultez <b>firefox.com/pair</b> sur votre ordinateur.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulé
 pair2-supplicant-timeout-and-cancel-canceled-description = Pour connecter un appareil à tout moment, consultez <b>firefox.com/pair</b> sur votre ordinateur.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Cet appareil est déjà connecté
+pair2-supplicant-timeout-and-cancel-signed-in-description = Pour vous connecter à votre compte sur ordinateur, déconnectez-vous de { -brand-firefox } sur cet appareil, puis accédez à <b>firefox.com/pair</b> depuis votre ordinateur pour finaliser la connexion.
 
 
 permissions-heading = { $serviceName } souhaite accéder à :
@@ -1466,11 +1468,11 @@ confirm-totp-reset-password-use-different-account = Utiliser un autre compte
 
 password-reset-flow-heading = Réinitialiser le mot de passe
 password-reset-forgot-heading = Mot de passe oublié ?
-password-reset-alternatives-body = <signInLink>Essayez de vous connecter avec { -brand-google }, { -brand-apple }, ou une clé d’accès à la place.</signInLink> Ou saisissez votre adresse électronique et nous vous enverrons un code pour réinitialiser votre mot de passe.
+password-reset-alternatives-body = <signInLink>Essayez de vous connecter avec { -brand-google }, { -brand-apple } ou une clé d’accès.</signInLink> Sinon, saisissez votre adresse e-mail pour recevoir un code permettant de réinitialiser votre mot de passe.
 password-reset-email-input =
     .label = Saisissez votre adresse e-mail
 password-reset-submit-button-2 = Continuer
-password-reset-data-recovery-warning = La réinitialisation de votre mot de passe peut empêcher la récupération des données synchronisées du navigateur. <learnMoreLink>En savoir plus</learnMoreLink>
+password-reset-data-recovery-warning = La réinitialisation de votre mot de passe peut empêcher la récupération des données synchronisées de votre navigateur. <learnMoreLink>En savoir plus</learnMoreLink>
 
 
 reset-password-complete-header = Votre mot de passe a été réinitialisé

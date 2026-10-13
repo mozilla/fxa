@@ -241,6 +241,7 @@ cancel-subscription-heading = { $productName } aboneliğini iptal et
 ## $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 
 subscription-content-no-longer-use-message = Fatura döneminizin son günü olan { $currentPeriodEnd } tarihinden sonra { $productName } ürününü kullanamayacaksınız.
+subscription-content-cancel-access-message = { $currentPeriodEnd } tarihinde { $productName } erişimimi ve kayıtlı bilgilerimi iptal et
 
 ## $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 

@@ -935,6 +935,7 @@ passkey-sub-row-created-date = Creada: { $createdDate }
 passkey-sub-row-last-used-date = Último uso: { $lastUsedDate }
 passkey-sub-row-delete-title = Eliminar llave de acceso
 passkey-delete-modal-heading = ¿Eliminar tu llave de acceso?
+passkey-delete-modal-content-v3 = Esta llave de acceso se eliminará de tu cuenta. Deberás conectarte usando una contraseña, otra llave de acceso o cuenta vinculada.
 passkey-delete-modal-cancel-button = Cancelar
 passkey-delete-modal-confirm-button = Eliminar llave de acceso
 passkey-delete-success = Llave de acceso eliminada
@@ -1177,13 +1178,16 @@ index-email-bounced = Tu correo de confirmación rebotó. ¿Escribiste bien tu d
 
 
 inline-passwordless-sync-setup-page-title = ¿Omitir contraseña la próxima vez?
+inline-passwordless-sync-setup-success-banner-v2 = Estás conectado y la sincronización está activa
 inline-passwordless-sync-setup-heading = ¿Omitir contraseña la próxima vez?
 inline-passwordless-sync-setup-description = Utilizar esta llave de acceso para conectarse más rápido.
 inline-passwordless-sync-setup-enable-button = Habilitar llave de acceso
 inline-passwordless-sync-setup-enabling = Habilitando…
 inline-passwordless-sync-setup-not-now-button = Ahora no
+inline-passwordless-sync-setup-success-alert-v2 = Esta llave de acceso está habilitada para conectarse y sincronizar
 inline-passwordless-sync-setup-error-cancelled = La confirmación de la llave de acceso no finalizó
 inline-passwordless-sync-setup-error-cancelled-description = Confirma con tu llave de acceso para omitir la contraseña la próxima vez.
+inline-passwordless-sync-setup-error-generic-v2 = No pudimos habilitar esta llave de acceso para conectarse para sincronizar. Necesitarás tu contraseña la próxima vez.
 
 
 inline-recovery-key-setup-create-error = ¡Chuta! No pudimos crear la clave de recuperación de tu cuenta. Por favor, vuelve a intentarlo más tarde.
@@ -1322,6 +1326,7 @@ pair2-authority-download-firefox-cta = Descarga { -brand-firefox }
 pair2-authority-scan-qr-heading = Escanea para conectar tu dispositivo móvil
 pair2-authority-scan-qr-instruction = Escanea el código QR con tu teléfono o tablet para sincronizar tus marcadores, pestañas y más de { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Código QR para conectar tu dispositivo móvil
+pair2-authority-scan-qr-other-ways-link = Otras formas de conectarse
 pair2-authority-scan-qr-skip-button = Saltar por ahora
 
 
@@ -1381,6 +1386,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Para conectar un disp
 permissions-heading = { $serviceName } quiere acceso a:
 permissions-label-email = Correo electrónico
 permissions-label-display-name = Nombre para mostrar
+permissions-label-avatar = Imagen de la cuenta
 permissions-continue-button = Continuar
 permissions-cancel-button = Cancelar
 
@@ -1447,9 +1453,12 @@ confirm-totp-reset-password-use-different-account = Usar una cuenta diferente
 
 
 password-reset-flow-heading = Restablecer tu contraseña
+password-reset-forgot-heading = ¿Olvidaste tu contraseña?
+password-reset-alternatives-body = <signInLink>Intenta conectarte con { -brand-google }, { -brand-apple } o una llave de acceso.</signInLink> O ingresa tu correo electrónico y te enviaremos un código para restablecer tu contraseña.
 password-reset-email-input =
     .label = Ingresa tu correo
 password-reset-submit-button-2 = Continuar
+password-reset-data-recovery-warning = Restablecer tu contraseña puede afectar la posibilidad de recuperar los datos sincronizados del navegador. <learnMoreLink>Más información</learnMoreLink>
 
 
 reset-password-complete-header = Tu contraseña ha sido restablecida
@@ -1685,3 +1694,8 @@ signup-confirmed-sync-description-v2 = Tus contraseñas, direcciones, marcadores
 signup-confirmed-sync-add-device-link = Añadir otro dispositivo
 signup-confirmed-sync-manage-sync-button = Gestionar sincronización
 signup-confirmed-sync-set-password-success-banner = Contraseña de sincronización creada
+
+
+update-firefox-heading = Actualización requerida de { -brand-firefox }
+update-firefox-description = Tu { -product-mozilla-account } usa funcionalidades que no están disponibles en tu versión de { -brand-firefox }. Por favor, descarga e instala la última versión de { -brand-firefox } para continuar.
+update-firefox-download-button = Bajar la última versión

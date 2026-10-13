@@ -1285,6 +1285,7 @@ passkey-sub-row-created-date = Wutworjeny: { $createdDate }
 passkey-sub-row-last-used-date = Posledni raz wužity: { $lastUsedDate }
 passkey-sub-row-delete-title = Hesłowy kluč zhašeć
 passkey-delete-modal-heading = Waš hesłowy kluč zhašeć?
+passkey-delete-modal-content-v3 = Tutón hesłowy kluč so z wašeho konta wotstroni. Dyrbiće so z pomocu hesła, druheho hesłoweho kluča abo zwjazaneho konta přizjewić.
 passkey-delete-modal-cancel-button = Přetorhnyć
 passkey-delete-modal-confirm-button = Hesłowy kluč zhašeć
 passkey-delete-success = Hesłowy kluč je so zhašał
@@ -1650,15 +1651,23 @@ index-email-bounced = Waša wobkrućenska e-mejl je so runje wróćiła. Je e-me
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Hesło přichodny raz přeskočić?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner-v2 = Sće přizjewjeny a synchronizacija je zmóžnjena
 inline-passwordless-sync-setup-heading = Hesło přichodny raz přeskočić?
 inline-passwordless-sync-setup-description = Wužiwajće tutón hesłowy kluč, zo byšće so spěšnišo přizjewił.
 inline-passwordless-sync-setup-enable-button = Hesłowy kluč zmóžnić
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Zmóžnja so…
 inline-passwordless-sync-setup-not-now-button = Nic nětko
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = Hesłowy kluč je za synchronizaciske přizjewjenje zmóžnjeny
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Wobkrućenje hesłoweho kluča so njekónči
 inline-passwordless-sync-setup-error-cancelled-description = Wobkrućće ze swojim hesłowym klučom, zo byšće hesło přichodny raz přeskočił.
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = Njemóžachmy tutón hesłowy kluč za synchronizaciske přizjewjenje zmóžnić. Budźeće přichodny raz waše hesło trjebać.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1918,6 +1927,8 @@ pair2-authority-scan-qr-heading = Skenujće, zo byšće ze swojim mobilnym grato
 pair2-authority-scan-qr-instruction = Skenujće QR-kod ze swojim telefonom abo tabletom, zo byšće swoje zapołožki, rajtarki { -brand-firefox } a wjace synchronizował.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR-kod za zwjazowanje z wašim mobilnym gratom
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Druhe móžnosće přizjewjenja
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Mjeztym přeskočić
 
@@ -2029,9 +2040,9 @@ pair2-supplicant-sync-success-description-v2 = Synchronizacija je po puću. Mó�
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
-## either because the attempt timed out or because it was canceled. Both states
-## are informational and offer no on-screen action, so the copy points the user
-## back to their computer to start again.
+## because the attempt timed out, was canceled, or the device is already signed
+## in to an account. All states are informational and offer no on-screen action,
+## so the copy points the user back to their computer to start again.
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zda so, zo smy čas překročili
@@ -2041,6 +2052,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Zo byšće swój mobil
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Přetorhnjeny
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Zo byšće grat kóždy čas zwjazał, wopytajće <b>firefox.com/pair</b> na swojim ličaku.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Grat je hižo přizjewjeny
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Zo byšće so ze swojim desktopowym kontom zwjazał, wotzjewće so wot { -brand-firefox } na tutym graće a wopytajće potom <b>firefox.com/pair</b> na swojim ličaku, zo byšće přizjewjenje dokónčił.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2052,6 +2067,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Zo byšće grat kóž
 permissions-heading = { $serviceName } chce přistup k:
 permissions-label-email = E-mejlowa adresa
 permissions-label-display-name = Pokazowane mjeno
+permissions-label-avatar = Kontowy wobraz
 permissions-continue-button = Dale
 permissions-cancel-button = Přetorhnyć
 
@@ -2160,9 +2176,14 @@ confirm-totp-reset-password-use-different-account = Druhe konto wužiwać
 ## ResetPassword start page
 
 password-reset-flow-heading = Stajće swoje hesło wróćo
+password-reset-forgot-heading = Sće swoje hesło zabył?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Spytajće sej z { -brand-google }, { -brand-apple } abo hesłowym klučom město toho přizjewić.</signInLink> Abo zapodajće swoju e-mejlowu adresu a budźemy wam kode słać, zo byšće swoje hesło wróćo stajił.
 password-reset-email-input =
     .label = Zapodajće swoju e-mejlowu adresu
 password-reset-submit-button-2 = Dale
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Wróćostajenje wašeho hesła móže so na to wuskutkować, hač móžeće synchronizowane daty wobhladowaka wobnowić. <learnMoreLink>Dalše informacije</learnMoreLink>
 
 ## ResetPasswordConfirmed
 

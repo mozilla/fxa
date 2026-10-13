@@ -1386,6 +1386,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Бөлінген уақы�
 pair2-supplicant-timeout-and-cancel-timeout-description = Мобильді құрылғыңызды қосу және { -brand-firefox } деректеріңізді синхрондау үшін компьютеріңізден <b>firefox.com/pair</b> сайтына кіріңіз.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Бас тартылған
 pair2-supplicant-timeout-and-cancel-canceled-description = Құрылғыны кез келген уақытта қосу үшін компьютеріңізден <b>firefox.com/pair</b> сайтына кіріңіз.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Бұл құрылғы кірген болып тұр
+pair2-supplicant-timeout-and-cancel-signed-in-description = Жұмыс үстелі тіркелгіңізге қосылу үшін осы құрылғыда { -brand-firefox } жүйесінен шығыңыз, содан кейін кіруді аяқтау үшін компьютеріңізде <b>firefox.com/pair</b> сайтына кіріңіз.
 
 
 permissions-heading = { $serviceName } келесіге қол жеткізуді қалайды:
