@@ -304,6 +304,48 @@ describe('sign-up-container', () => {
       expect(handlerResult?.data?.signUp?.sessionToken).toEqual('st123');
     });
 
+    it('sends the v2 payload and returns the v2 unwrapBKey when v2 is on', async () => {
+      jest.spyOn(UseValidateModule, 'useValidatedQueryParams').mockReturnValue({
+        queryParamModel: {
+          email: 'foo@bar.com',
+          isV2: () => true,
+        } as unknown as ModelDataProvider,
+        validationError: undefined,
+      });
+      jest.spyOn(CryptoModule, 'getKeysV2').mockResolvedValue({
+        kB: 'kB123',
+        wrapKb: 'wrapKb123',
+        wrapKbVersion2: 'wrapKbV2123',
+      });
+
+      await render();
+      const handlerResult = await currentSignupProps?.beginSignupHandler(
+        'foo@mozilla.com',
+        'test123'
+      );
+
+      expect(mockAuthClient.signUpWithAuthPW).toHaveBeenCalledWith(
+        'foo@mozilla.com',
+        'apw123',
+        {
+          wrapKb: 'wrapKb123',
+          wrapKbVersion2: 'wrapKbV2123',
+          authPWVersion2: 'apwV2123',
+          clientSalt:
+            'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
+        },
+        {
+          verificationMethod: 'email-otp',
+          keys: true,
+          service: 'sync',
+          metricsContext: {
+            flowId: MOCK_FLOW_ID,
+          },
+        }
+      );
+      expect(handlerResult?.data?.unwrapBKey).toBe('ubkV2123');
+    });
+
     it('handles error fetching credentials', async () => {
       jest
         .spyOn(CryptoModule, 'getCredentials')
