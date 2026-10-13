@@ -1,8 +1,8 @@
 {
-  "commit": "ac4e250340ca8d57b96e2fb2283178fdad5ef456",
-  "summary": "Merge pull request #21401 from mozilla/blender/security-bump-smol-toml",
-  "description": "chore(deps): bump smol-toml to >=1.9.0",
-  "timestamp": 1791896314000,
+  "commit": "a81432f86d16f61f0bcea8284e5a0760514bb67e",
+  "summary": "Merge pull request #21464 from mozilla/fxa-10667",
+  "description": "refactor(oauth): move ScopeSet and constants to @fxa/accounts/oauth",
+  "timestamp": 1791902338000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

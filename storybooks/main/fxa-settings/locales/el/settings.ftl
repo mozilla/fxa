@@ -2039,6 +2039,8 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Για να συνδέ
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Ακυρώθηκε
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Για να συνδέσετε μια συσκευή ανά πάσα στιγμή, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Αυτή η συσκευή έχει ήδη συνδεθεί
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
