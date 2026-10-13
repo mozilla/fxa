@@ -1,8 +1,8 @@
 {
-  "commit": "914f49475503a9ebc89cdd28d9414375a38f90bb",
-  "summary": "Merge pull request #21468 from mozilla/dependabot/github_actions/actions/setup-node-7.1.0",
-  "description": "chore(deps): bump actions/setup-node from 7.0.0 to 7.1.0",
-  "timestamp": 1791904276000,
+  "commit": "b3e26648714726a5378c11544b876f541021df68",
+  "summary": "Merge pull request #21470 from mozilla/fxa-14717",
+  "description": "refactor(db-migrations): copy makeMySQLConfig into the patcher package",
+  "timestamp": 1791904528000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
