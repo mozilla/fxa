@@ -1,0 +1,13 @@
+{
+  "commit": "2a1f3ec65931844f377bd47ce76daac79aaf5792",
+  "summary": "refactor(shared): move fxa-shared user-agent to @fxa/shared/user-agent",
+  "description": "Because:\n- FxA moves shared code from fxa-shared to Nx libs under libs/shared.\n- fxa-auth-server must load only one copy of the user-agent code.\n\nThis commit:\n- Adds libs/shared/user-agent (@fxa/shared/user-agent) with the moved module.\n- Ports the 32 mocha cases to jest and deletes the mocha file.\n- Moves 6 auth-server callers; frozen senders/email.js stays on the shim.\n- Makes fxa-shared/lib/user-agent.ts a 2-line re-export shim with a spec.\n- Adds node-uap to the root package.json and the tsconfig.base.json path.\n\nCloses FXA-14699",
+  "timestamp": 1791924557000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
