@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 44c51ecd52c382f474cd4d3b66b013acf6dc598d</title>
+  <title>Storybooks for commit 5ac2d9039c13c807f7ad886ed4d1315a64946287</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 44c51ecd52c382f474cd4d3b66b013acf6dc598d</h1>
+  <h1>Storybooks for commit 5ac2d9039c13c807f7ad886ed4d1315a64946287</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,23 +31,19 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/13/2026, 3:21:34 PM UTC</dd>
+    <dd>10/13/2026, 3:47:12 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(payments): keep stored Stripe event time in legacy customer fetch</pre></dd>
+    <dd><pre>perf(payments): reuse lock reads in legacy customer fetch</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-* legacyFetchAndInsertCustomer rewrote customer and subscription docs
-  without stripeEventCreatedTime, which let a delayed older webhook
-  overwrite them with stale data
+* legacyFetchAndInsertCustomer read each stored doc twice per
+  transaction: once to lock it and again for its stripeEventCreatedTime
 
 This commit:
 
-* Copies the stored stripeEventCreatedTime onto rewritten customer and
-  subscription docs in legacyFetchAndInsertCustomer
-* Adds tests for carrying the stored event time forward
-
-Closes #PAY-3937</pre></dd>
+* Reuses the lock-read snapshots and reads only docs they missed
+* Adds a test for reading only the missed docs</pre></dd>
   </dl>
 </body>
 </html>

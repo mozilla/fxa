@@ -1,8 +1,8 @@
 {
-  "commit": "44c51ecd52c382f474cd4d3b66b013acf6dc598d",
-  "summary": "fix(payments): keep stored Stripe event time in legacy customer fetch",
-  "description": "Because:\n\n* legacyFetchAndInsertCustomer rewrote customer and subscription docs\n  without stripeEventCreatedTime, which let a delayed older webhook\n  overwrite them with stale data\n\nThis commit:\n\n* Copies the stored stripeEventCreatedTime onto rewritten customer and\n  subscription docs in legacyFetchAndInsertCustomer\n* Adds tests for carrying the stored event time forward\n\nCloses #PAY-3937",
-  "timestamp": 1791904894000,
+  "commit": "5ac2d9039c13c807f7ad886ed4d1315a64946287",
+  "summary": "perf(payments): reuse lock reads in legacy customer fetch",
+  "description": "Because:\n\n* legacyFetchAndInsertCustomer read each stored doc twice per\n  transaction: once to lock it and again for its stripeEventCreatedTime\n\nThis commit:\n\n* Reuses the lock-read snapshots and reads only docs they missed\n* Adds a test for reading only the missed docs",
+  "timestamp": 1791906432000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",
