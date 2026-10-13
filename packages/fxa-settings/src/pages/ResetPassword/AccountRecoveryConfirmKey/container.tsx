@@ -16,10 +16,6 @@ import {
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../../models/hooks';
-import {
-  AuthUiErrorNos,
-  AuthUiErrors,
-} from '../../../lib/auth-errors/auth-errors';
 
 import { AccountRecoveryConfirmKeyLocationState } from './interfaces';
 import { PasskeyResetSignals, ResetPasswordIntegration } from '../interfaces';
@@ -82,14 +78,10 @@ const AccountRecoveryConfirmKeyContainer = ({
     const uint8RecoveryKey = new Uint8Array(decodedRecoveryKey);
     const recoveryKeyId = await getRecoveryKeyIdByUid(uint8RecoveryKey, uid);
 
-    const { recoveryData } = await authClient
-      .getRecoveryKey(fetchedAccountResetToken, recoveryKeyId)
-      .catch((err: { errno?: number }) => {
-        throw (
-          (err.errno && AuthUiErrorNos[err.errno]) ||
-          AuthUiErrors.UNEXPECTED_ERROR
-        );
-      });
+    const { recoveryData } = await authClient.getRecoveryKey(
+      fetchedAccountResetToken,
+      recoveryKeyId
+    );
 
     const { kB } = await decryptRecoveryKeyData(
       uint8RecoveryKey,

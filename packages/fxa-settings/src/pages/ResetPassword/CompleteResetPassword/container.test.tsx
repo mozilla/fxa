@@ -275,8 +275,7 @@ describe('CompleteResetPasswordContainer', () => {
     });
   });
 
-  // getHandledError wraps the error in { error }, so the banner falls back to the generic message.
-  it('shows the generic error banner when the code verification fails', async () => {
+  it('shows the auth error banner when the code verification fails', async () => {
     mockAuthClient.passwordForgotVerifyCode.mockRejectedValue(
       AuthUiErrors.INVALID_VERIFICATION_CODE
     );
@@ -284,7 +283,7 @@ describe('CompleteResetPasswordContainer', () => {
     await submitNewPassword();
 
     expect(
-      await screen.findByText(AuthUiErrors.UNEXPECTED_ERROR.message)
+      await screen.findByText(AuthUiErrors.INVALID_VERIFICATION_CODE.message)
     ).toBeInTheDocument();
     expect(mockAuthClient.accountResetAuthPW).not.toHaveBeenCalled();
   });

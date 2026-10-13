@@ -27,10 +27,7 @@ import {
 import GleanMetrics from '../../../lib/glean';
 import firefox from '../../../lib/channels/firefox';
 import { useEffect, useState } from 'react';
-import {
-  getHandledError,
-  getLocalizedErrorMessage,
-} from '../../../lib/error-utils';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { storeAccountData } from '../../../lib/storage-utils';
 import { sessionToken } from '../../../lib/cache';
 import { updateBasicAccountData } from '../../../lib/account-storage';
@@ -241,31 +238,27 @@ const CompleteResetPasswordContainer = ({
     token: string,
     includeRecoveryKeyPrompt: boolean
   ): Promise<AccountResetData> => {
-    try {
-      const { accountResetToken } = await authClient.passwordForgotVerifyCode(
-        code,
-        token,
-        { accountResetWithRecoveryKey: false, includeRecoveryKeyPrompt }
-      );
-      const { v1, v2Payload } = await getNewPasswordCredentials(
-        emailToUse,
-        newPassword,
-        keyStretchExperiment.queryParamModel.isV2(config)
-      );
-      const accountReset = await authClient.accountResetAuthPW(
-        v1.authPW,
-        accountResetToken,
-        v2Payload,
-        { sessionToken: true, keys: true }
-      );
+    const { accountResetToken } = await authClient.passwordForgotVerifyCode(
+      code,
+      token,
+      { accountResetWithRecoveryKey: false, includeRecoveryKeyPrompt }
+    );
+    const { v1, v2Payload } = await getNewPasswordCredentials(
+      emailToUse,
+      newPassword,
+      keyStretchExperiment.queryParamModel.isV2(config)
+    );
+    const accountReset = await authClient.accountResetAuthPW(
+      v1.authPW,
+      accountResetToken,
+      v2Payload,
+      { sessionToken: true, keys: true }
+    );
 
-      return {
-        ...accountReset,
-        unwrapBKey: v1.unwrapBKey,
-      };
-    } catch (err) {
-      throw getHandledError(err);
-    }
+    return {
+      ...accountReset,
+      unwrapBKey: v1.unwrapBKey,
+    };
   };
 
   const notifyClientOfSignin = async (accountResetData: AccountResetData) => {
