@@ -1996,6 +1996,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = 若要連結您的行�
 pair2-supplicant-timeout-and-cancel-cancelled-heading = 已取消
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = 歡迎隨時在您的電腦開啟 <b>firefox.com/pair</b> 連結其他裝置。
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = 此裝置已經登入
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = 若要連結您的桌面版帳號，請先在此裝置登出 { -brand-firefox }，再使用電腦開啟 <b>firefox.com/pair</b> 完成登入。
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a

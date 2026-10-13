@@ -1386,7 +1386,7 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Per connettere il disp
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Annullato
 pair2-supplicant-timeout-and-cancel-canceled-description = Per connettere un dispositivo in qualsiasi momento, visita <b>firefox.com/pair</b> sul computer.
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Questo dispositivo è già connesso
-pair2-supplicant-timeout-and-cancel-signed-in-description = Per connetterti al tuo account desktop, esci da { -brand-firefox } su questo dispositivo, quindi visita <b>firefox.com/pair</b> sul tuo computer per completare l’accesso.
+pair2-supplicant-timeout-and-cancel-signed-in-description = Per collegarti al tuo account sul computer, disconnettiti da { -brand-firefox } su questo dispositivo, quindi visita <b>firefox.com/pair</b> dal computer per completare l’accesso.
 
 
 permissions-heading = { $serviceName } vuole accedere a:

@@ -1632,6 +1632,10 @@ pair2-supplicant-sync-success-description-v2 = Sinkronizazioa lanean ari da. Den
 
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Bertan behera utzita
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Gailuak saioa hasita du jada
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Mahaigaineko zure kontua lotzeko, amaitu saioa gailu honetako { -brand-firefox }(e)n, gero joan <b>firefox.com/pair</b> helbidera eta hasi saioa zure ordenagailuan.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a

@@ -2033,7 +2033,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Pour connecter un app
 # Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Cet appareil est déjà connecté
 # "firefox.com/pair" is a URL and should not be translated
-pair2-supplicant-timeout-and-cancel-signed-in-description = Pour vous connecter à votre compte ordinateur, déconnectez-vous de { -brand-firefox } sur cet appareil, puis visitez <b>firefox.com/pair</b> sur votre ordinateur afin de vous connecter.
+pair2-supplicant-timeout-and-cancel-signed-in-description = Pour vous connecter à votre compte sur ordinateur, déconnectez-vous de { -brand-firefox } sur cet appareil, puis accédez à <b>firefox.com/pair</b> depuis votre ordinateur pour finaliser la connexion.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a

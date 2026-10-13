@@ -2045,6 +2045,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Pentru a-ți conecta d
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Anulat
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Pentru a conecta un dispozitiv oricând, accesează <b>firefox.com/pair</b> pe calculator.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Deja ești autentificat(ă) pe acest dispozitiv
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Pentru autentificarea în contul de pe calculator, ieși din contul { -brand-firefox } de pe acest dispozitiv, apoi intră pe <b>firefox.com/pair</b> de pe calculator ca să finalizezi autentificarea.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
