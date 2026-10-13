@@ -7,13 +7,9 @@ import classNames from 'classnames';
 import { QRCodeSVG } from 'qrcode.react';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
-// Transparent 1x1 PNG; excavates modules behind the logo so its chip never clips them.
-const TRANSPARENT_PIXEL =
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
-
 /** Logo footprint as a fraction of the QR size. */
 const LOGO_RATIO = 0.2;
-/** White padding (px) around the logo, matching the chip's Tailwind `p-3`. */
+/** White padding (px) around the logo. */
 const LOGO_PADDING_PX = 12;
 
 type QRCodeBaseProps = {
@@ -70,15 +66,9 @@ const QRCode = ({
 
   const isLoading = loading || delaying;
   const logoSize = Math.round(size * LOGO_RATIO);
-  const excavateSize = logoSize + LOGO_PADDING_PX * 2;
-  const imageSettings = logoSrc
-    ? {
-        src: TRANSPARENT_PIXEL,
-        width: excavateSize,
-        height: excavateSize,
-        excavate: true,
-      }
-    : undefined;
+  const chipSize = logoSize + LOGO_PADDING_PX * 2;
+  // Percentages let the chip scale with a fluid SVG.
+  const toPercent = (px: number) => `${(px / size) * 100}%`;
   return (
     // The padding is the QR's quiet zone: the SVG has no margin of its own.
     // Under forced colors (Windows HCM) the browser would repaint it with the
@@ -118,20 +108,23 @@ const QRCode = ({
             size={size}
             level={level}
             minVersion={minVersion}
-            imageSettings={imageSettings}
             role="img"
             aria-label={localizedLabel}
             className="block"
           />
         )}
+        {/* The chip sits over the modules rather than excavating them: level
+            H tolerates the coverage, and the rounded corners show against
+            the code instead of a white square. */}
         {logoSrc && !imageData && (
-          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-3">
-            <img
-              src={logoSrc}
-              alt=""
-              className="block"
-              style={{ width: logoSize, height: logoSize }}
-            />
+          <span
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white"
+            style={{
+              width: toPercent(chipSize),
+              padding: toPercent(LOGO_PADDING_PX),
+            }}
+          >
+            <img src={logoSrc} alt="" className="block aspect-square w-full" />
           </span>
         )}
       </div>
