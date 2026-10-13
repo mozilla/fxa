@@ -28,8 +28,9 @@ CREATE TABLE IF NOT EXISTS deviceCommands (
   commandId INT UNSIGNED NOT NULL,
   commandData VARCHAR(2048),
   PRIMARY KEY (uid, deviceId, commandId),
-  FOREIGN KEY (commandId) REFERENCES deviceCommandIdentifiers(commandId) ON DELETE CASCADE,
-  FOREIGN KEY (uid, deviceId) REFERENCES devices(uid, id) ON DELETE CASCADE
+  KEY commandId (commandId),
+  CONSTRAINT deviceCommands_ibfk_1 FOREIGN KEY (commandId) REFERENCES deviceCommandIdentifiers(commandId) ON DELETE CASCADE,
+  CONSTRAINT deviceCommands_ibfk_2 FOREIGN KEY (uid, deviceId) REFERENCES devices(uid, id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE PROCEDURE `upsertAvailableCommand_1` (
