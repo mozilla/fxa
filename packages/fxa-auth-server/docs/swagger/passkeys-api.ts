@@ -80,6 +80,12 @@ const PASSKEY_AUTHENTICATION_START_POST = {
       - \`keysRequired\` (boolean, optional) — hint for the keys-required PRF scope
       - \`scope\` (string, optional) — an MFA action from \`config.mfa.actions\`. Stored
         on the challenge, so \`/finish\` returns an \`mfa:<scope>\` token for it.
+
+      **Step-up policy:** every action in \`config.mfa.actions\` is accepted, not
+      only \`passkey\`. By design, a user-verified passkey assertion is a step-up
+      factor on par with the emailed OTP at \`/mfa/otp/verify\`. A passkey sign-in
+      already establishes an AAL2 session, so minting a scoped token from the
+      same ceremony is not a step down from the account's other factors.
     `,
   ],
 };
@@ -134,6 +140,9 @@ const PASSKEY_VERIFICATION_START_POST = {
         Stored on the challenge, so \`/finish\` mints an \`mfa:<scope>\` token for it.
       - \`credentialId\` (string, optional) - pins the ceremony to one of the
         account's passkeys.
+
+      **Step-up policy:** every action in \`config.mfa.actions\` is accepted. See
+      \`/passkey/authentication/start\` for the rationale.
     `,
   ],
 };
