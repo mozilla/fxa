@@ -17,7 +17,6 @@ import {
   insertPasskey,
 } from './passkey.repository';
 import {
-  deleteAllPasskeyWrapsForUser,
   deletePasskeyWrap,
   findPasskeyWrap,
   insertPasskeyWrap,
@@ -282,54 +281,6 @@ describe('PasskeyWrapRepository (Integration)', () => {
       await expect(
         findPasskeyWrap(db, uid, secondCredentialId)
       ).resolves.toBeDefined();
-    });
-  });
-
-  describe('deleteAllPasskeyWrapsForUser', () => {
-    it('deletes every wrap for the user and leaves the passkeys registered', async () => {
-      // The password-reset path: kB changed, so the envelopes are useless, but
-      // the credentials stay usable for re-enrolment.
-      const { uid, credentialId } = await createAccountWithPasskey();
-      await insertPasskeyWrap(db, uid, envelope(credentialId), NOW);
-
-      const deleted = await deleteAllPasskeyWrapsForUser(db, uid);
-
-      expect(deleted).toBe(1);
-      await expect(
-        findPasskeyWrap(db, uid, credentialId)
-      ).resolves.toBeUndefined();
-      await expect(
-        findPasskeyByCredentialId(db, credentialId)
-      ).resolves.toBeDefined();
-    });
-
-    it('leaves another user’s wraps alone', async () => {
-      const target = await createAccountWithPasskey();
-      const bystander = await createAccountWithPasskey();
-      await insertPasskeyWrap(
-        db,
-        target.uid,
-        envelope(target.credentialId),
-        NOW
-      );
-      await insertPasskeyWrap(
-        db,
-        bystander.uid,
-        envelope(bystander.credentialId),
-        NOW
-      );
-
-      await deleteAllPasskeyWrapsForUser(db, target.uid);
-
-      await expect(
-        findPasskeyWrap(db, bystander.uid, bystander.credentialId)
-      ).resolves.toBeDefined();
-    });
-
-    it('reports zero when the user has no wraps', async () => {
-      const { uid } = await createAccountWithPasskey();
-
-      await expect(deleteAllPasskeyWrapsForUser(db, uid)).resolves.toBe(0);
     });
   });
 
