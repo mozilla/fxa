@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit d66816cf0c07d9c3b98aeeb2efac3a5473093c56</title>
+  <title>Storybooks for commit b2fb2902547e689c0a394c8ced9b8fb3b2dd108e</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit d66816cf0c07d9c3b98aeeb2efac3a5473093c56</h1>
+  <h1>Storybooks for commit b2fb2902547e689c0a394c8ced9b8fb3b2dd108e</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,7 +31,7 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/13/2026, 8:53:54 PM UTC</dd>
+    <dd>10/13/2026, 9:36:33 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>refactor(shared): point fxa-shared/sentry at the sentry libs</pre></dd>
     <dt>Description</dt>
@@ -41,8 +41,10 @@
 
 This commit:
 - Changes the three fxa-shared/sentry entry points to re-export the libs.
+- Keeps ExtraOpts and InitSentryOpts exported from sentry/node.
 - Deletes the other fxa-shared/sentry files and models/.
 - Deletes the fxa-shared/test/sentry mocha tests; the lib specs cover them.
+- Adds test/sentry-shims.spec.ts to check the shim exports.
 
 Closes FXA-14702</pre></dd>
   </dl>
