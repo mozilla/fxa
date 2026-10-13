@@ -1399,6 +1399,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Zda se, až smy cas pśek�
 pair2-supplicant-timeout-and-cancel-timeout-description = Aby swój mobilny rěd zwězał a swóje daty { -brand-firefox } synchronizěrował, woglědajśo se k <b>firefox.com/pair</b> na swójo licadle.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Anulěrowany
 pair2-supplicant-timeout-and-cancel-canceled-description = Aby rěd kuždy cas zwězał, woglědujśo se k <b>firefox.com/pair</b> na swójom licadle.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Rěd jo južo pśizjawjony
+pair2-supplicant-timeout-and-cancel-signed-in-description = Aby se ze swójim desktopowym kontom zwězał, wótzjawśo se wót { -brand-firefox } na toś tom rěźe a woglědajśo se pón k <b>firefox.com/pair</b> na swójom licadle, aby pśizjawjenje dokóńcył.
 
 
 permissions-heading = { $serviceName } co pśistup k:

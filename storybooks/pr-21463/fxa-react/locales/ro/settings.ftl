@@ -2033,9 +2033,9 @@ pair2-supplicant-sync-success-description-v2 = Sincronizarea este în curs. Poat
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
-## either because the attempt timed out or because it was canceled. Both states
-## are informational and offer no on-screen action, so the copy points the user
-## back to their computer to start again.
+## because the attempt timed out, was canceled, or the device is already signed
+## in to an account. All states are informational and offer no on-screen action,
+## so the copy points the user back to their computer to start again.
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Se pare că timpul de conectare a expirat
@@ -2045,6 +2045,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Pentru a-ți conecta d
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Anulat
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Pentru a conecta un dispozitiv oricând, accesează <b>firefox.com/pair</b> pe calculator.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Deja ești autentificat(ă) pe acest dispozitiv
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Pentru autentificarea în contul de pe calculator, ieși din contul { -brand-firefox } de pe acest dispozitiv, apoi intră pe <b>firefox.com/pair</b> de pe calculator ca să finalizezi autentificarea.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a

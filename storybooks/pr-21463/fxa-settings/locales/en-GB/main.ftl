@@ -1384,6 +1384,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Looks like we timed out
 pair2-supplicant-timeout-and-cancel-timeout-description = To connect your mobile device and synchronise your { -brand-firefox } data, visit <b>firefox.com/pair</b> on your computer.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelled
 pair2-supplicant-timeout-and-cancel-canceled-description = To connect a device at any time, visit <b>firefox.com/pair</b> on your computer.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = This device is already signed in
+pair2-supplicant-timeout-and-cancel-signed-in-description = To connect to your desktop account, sign out of { -brand-firefox } on this device, then visit <b>firefox.com/pair</b> on your computer to complete sign in.
 
 
 permissions-heading = { $serviceName } wants access to:

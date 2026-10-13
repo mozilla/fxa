@@ -1140,6 +1140,8 @@ pair2-supplicant-sync-success-description-v2 = Sinkronizazioa lanean ari da. Den
 
 
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Bertan behera utzita
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Gailuak saioa hasita du jada
+pair2-supplicant-timeout-and-cancel-signed-in-description = Mahaigaineko zure kontua lotzeko, amaitu saioa gailu honetako { -brand-firefox }(e)n, gero joan <b>firefox.com/pair</b> helbidera eta hasi saioa zure ordenagailuan.
 
 
 permissions-heading = { $serviceName } zerbitzuak ondorengorako sarbidea nahi du:

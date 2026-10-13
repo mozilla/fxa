@@ -1430,6 +1430,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Se pare că timpul de cone
 pair2-supplicant-timeout-and-cancel-timeout-description = Pentru a-ți conecta dispozitivul mobil și a-ți sincroniza datele { -brand-firefox }, accesează <b>firefox.com/pair</b> pe calculator.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Anulat
 pair2-supplicant-timeout-and-cancel-canceled-description = Pentru a conecta un dispozitiv oricând, accesează <b>firefox.com/pair</b> pe calculator.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Deja ești autentificat(ă) pe acest dispozitiv
+pair2-supplicant-timeout-and-cancel-signed-in-description = Pentru autentificarea în contul de pe calculator, ieși din contul { -brand-firefox } de pe acest dispozitiv, apoi intră pe <b>firefox.com/pair</b> de pe calculator ca să finalizezi autentificarea.
 
 
 permissions-heading = { $serviceName } vrea acces la:

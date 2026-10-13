@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit a899b7a898bec4f0f064fe52b7a16eef77da3220</title>
+  <title>Storybooks for commit 22e370305daee2a69824df69376e5e59c3575634</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit a899b7a898bec4f0f064fe52b7a16eef77da3220</h1>
+  <h1>Storybooks for commit 22e370305daee2a69824df69376e5e59c3575634</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,19 +31,19 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/12/2026, 9:06:18 PM UTC</dd>
+    <dd>10/13/2026, 11:13:29 AM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>test(auth): cover SES bounce shapes and the EmailBounce model</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- Bounce handler tests missed most SES bounce, subType and complaint shapes.
-- No test covered the EmailBounce model id mapping.
+- The bounce handler tests covered few SES notification shapes.
+- The EmailBounce model had no spec for id mapping or error handling.
 
 This commit:
-- Adds SES notification shape tables to the auth-server bounces spec.
-- Adds edge cases: unknown type, diagnosticCode limits, no headers, many recipients.
-- Adds a Mocha spec for EmailBounce.create in fxa-shared.
-- Pins the literal type ids, the unmapped fallback, and ER_DUP_ENTRY handling.
+- Adds a SES notification shapes block to bounces.spec.ts.
+- Covers bounce and complaint types, diagnosticCode edge cases, and no headers.
+- Covers two recipients and a createEmailBounce rejection.
+- Adds email-bounce.spec.ts in fxa-shared for the EmailBounce model.
 
 Closes FXA-12838</pre></dd>
   </dl>

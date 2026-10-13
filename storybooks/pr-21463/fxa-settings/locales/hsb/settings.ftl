@@ -2040,9 +2040,9 @@ pair2-supplicant-sync-success-description-v2 = Synchronizacija je po puću. Mó�
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
-## either because the attempt timed out or because it was canceled. Both states
-## are informational and offer no on-screen action, so the copy points the user
-## back to their computer to start again.
+## because the attempt timed out, was canceled, or the device is already signed
+## in to an account. All states are informational and offer no on-screen action,
+## so the copy points the user back to their computer to start again.
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zda so, zo smy čas překročili
@@ -2052,6 +2052,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Zo byšće swój mobil
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Přetorhnjeny
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Zo byšće grat kóždy čas zwjazał, wopytajće <b>firefox.com/pair</b> na swojim ličaku.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Grat je hižo přizjewjeny
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Zo byšće so ze swojim desktopowym kontom zwjazał, wotzjewće so wot { -brand-firefox } na tutym graće a wopytajće potom <b>firefox.com/pair</b> na swojim ličaku, zo byšće přizjewjenje dokónčił.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a

@@ -1399,6 +1399,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Zda so, zo smy čas překr
 pair2-supplicant-timeout-and-cancel-timeout-description = Zo byšće swój mobilny grat zwjazał a swoje daty { -brand-firefox } synchronizował, wopytajće <b>firefox.com/pair</b> na swojim ličaku.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Přetorhnjeny
 pair2-supplicant-timeout-and-cancel-canceled-description = Zo byšće grat kóždy čas zwjazał, wopytajće <b>firefox.com/pair</b> na swojim ličaku.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Grat je hižo přizjewjeny
+pair2-supplicant-timeout-and-cancel-signed-in-description = Zo byšće so ze swojim desktopowym kontom zwjazał, wotzjewće so wot { -brand-firefox } na tutym graće a wopytajće potom <b>firefox.com/pair</b> na swojim ličaku, zo byšće přizjewjenje dokónčił.
 
 
 permissions-heading = { $serviceName } chce přistup k:
