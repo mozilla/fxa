@@ -7,10 +7,6 @@ import { useAdapter } from '@type-cacheable/ioredis-adapter';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
 import { Stripe } from 'stripe';
-import {
-  deleteAccountCustomer,
-  getAccountCustomerByUid,
-} from '../db/models/auth';
 import { IapExtraStripeInfo } from '../dto/auth/payments/iap-subscription';
 import { formatPlanConfigDto } from '../dto/auth/payments/plan-configuration';
 import { ILogger } from '../log';
@@ -132,6 +128,11 @@ export abstract class StripeHelper {
   protected abstract readonly productConfigurationManager?: ProductConfigurationManager;
   protected abstract readonly stripeMapperService?: StripeMapperService;
 
+  protected abstract getAccountCustomerByUid(
+    uid: string
+  ): Promise<{ stripeCustomerId?: string } | undefined>;
+  protected abstract deleteAccountCustomer(uid: string): Promise<number>;
+
   /**
    * Create a Stripe Helper with built-in caching.
    */
@@ -229,7 +230,8 @@ export abstract class StripeHelper {
     statusFilter?: Stripe.Subscription.Status[]
   ): Promise<Stripe.Customer | void> {
 
-    const { stripeCustomerId } = (await getAccountCustomerByUid(uid)) || {};
+    const { stripeCustomerId } =
+      (await this.getAccountCustomerByUid(uid)) || {};
     if (!stripeCustomerId) {
       this.statsd.increment('subscriptions.stripe_helper.fetch_customer', {
         outcome: 'no_account_customer',
@@ -255,7 +257,7 @@ export abstract class StripeHelper {
         uid,
         stripeCustomerId,
       });
-      await deleteAccountCustomer(uid);
+      await this.deleteAccountCustomer(uid);
       return;
     }
 

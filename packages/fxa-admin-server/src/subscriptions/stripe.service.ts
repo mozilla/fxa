@@ -6,6 +6,10 @@ import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { Firestore } from '@google-cloud/firestore';
 import { Inject, Injectable, OnModuleDestroy, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import {
+  deleteAccountCustomer,
+  getAccountCustomerByUid,
+} from 'fxa-shared/db/models/auth';
 import { PaymentConfigManager } from 'fxa-shared/payments/configuration/manager';
 import {
   determineIapIdentifiers,
@@ -146,6 +150,14 @@ export class StripeService extends StripeHelper {
     this.initStripe();
   }
 
+  protected override getAccountCustomerByUid(uid: string) {
+    return getAccountCustomerByUid(uid);
+  }
+
+  protected override deleteAccountCustomer(uid: string) {
+    return deleteAccountCustomer(uid);
+  }
+
   /**
    * Resolves the latest stripe invoice.
    * @param invoice - an invoice id
@@ -188,4 +200,3 @@ export function iapPurchaseToPlan(
     return identifiers.some((id) => id === purchaseId.toLowerCase());
   });
 }
-

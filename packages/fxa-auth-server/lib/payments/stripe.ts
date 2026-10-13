@@ -267,6 +267,14 @@ export class StripeHelper extends StripeHelperBase {
     this.initStripe();
   }
 
+  protected override getAccountCustomerByUid(uid: string) {
+    return getAccountCustomerByUid(uid);
+  }
+
+  protected override deleteAccountCustomer(uid: string) {
+    return deleteAccountCustomer(uid);
+  }
+
   async checkStripeAPIKey() {
     try {
       await this.stripe.customers.list({ limit: 1 });
