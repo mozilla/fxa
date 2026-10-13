@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Test } from '@nestjs/testing';
-import { DocumentNode } from 'graphql';
+import { parse } from 'graphql';
 import { StatsD } from 'hot-shots';
 
 import {
@@ -50,10 +50,6 @@ jest.mock('@fxa/shared/db/type-cacheable', () => ({
   StaleWhileRevalidateWithFallbackStrategy: jest
     .fn()
     .mockImplementation(() => ({})),
-}));
-
-jest.mock('@apollo/client/utilities', () => ({
-  getOperationName: jest.fn().mockReturnValue('MockOperation'),
 }));
 
 describe('MeteringConfigurationManager', () => {
@@ -104,7 +100,7 @@ describe('MeteringConfigurationManager', () => {
         elapsed: 1,
         cache: false,
         cacheType: 'method',
-        query: {} as DocumentNode,
+        query: parse('query MockOperation { __typename }'),
         error: undefined,
       };
 
