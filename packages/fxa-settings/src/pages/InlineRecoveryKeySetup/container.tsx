@@ -11,7 +11,7 @@ import {
 } from '../../models';
 import InlineRecoveryKeySetup from '.';
 import { currentAccount } from '../../lib/cache';
-import { generateRecoveryKey } from 'fxa-auth-client/browser';
+import { createRecoveryKeyWithReauth } from '../../lib/recovery-key';
 import { CreateRecoveryKeyHandler } from './interfaces';
 import { useNavigateWithQuery } from '../../lib/hooks';
 import { formatRecoveryKey } from '../../lib/utilities';
@@ -51,27 +51,11 @@ const InlineRecoveryKeySetupContainer = ({
       async () => {
         try {
           // We must reauth for another `keyFetchToken` because we sent it to Sync
-          const reauth = await authClient.sessionReauthWithAuthPW(
+          const recoveryKey = await createRecoveryKeyWithReauth(authClient, {
+            uid,
             sessionToken,
-            { primary: emailForAuth },
-            authPW,
-            {
-              keys: true,
-              reason: 'recovery_key',
-            }
-          );
-          if (!reauth.keyFetchToken) throw new Error('Invalid keyFetchToken');
-          const keys = await authClient.accountKeys(
-            reauth.keyFetchToken,
-            unwrapBKey
-          );
-          const { recoveryKey, recoveryKeyId, recoveryData } =
-            await generateRecoveryKey(uid, keys);
-          await authClient.createRecoveryKey(
-            sessionToken,
-            recoveryKeyId,
-            recoveryData
-          );
+            credentials: { email: emailForAuth, authPW, unwrapBKey },
+          });
 
           setFormattedRecoveryKey(formatRecoveryKey(recoveryKey.buffer));
           navigateForward();

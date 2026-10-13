@@ -6,7 +6,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import FlowContainer from '../FlowContainer';
 import ProgressBar from '../ProgressBar';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useAccount, useFtlMsgResolver } from '../../../models';
+import { useAccount, useAuthClient, useFtlMsgResolver } from '../../../models';
 import { useForm } from 'react-hook-form';
 import { logViewEvent } from '../../../lib/metrics';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
@@ -19,6 +19,9 @@ import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { formatRecoveryKey } from '../../../lib/utilities';
 import Banner from '../../Banner';
 import { useMfaErrorHandler } from '../../../lib/hooks';
+import { createRecoveryKeyWithReauth } from '../../../lib/recovery-key';
+import { sessionToken } from '../../../lib/cache';
+import { updateExtendedAccountState } from '../../../lib/account-storage';
 
 type FormData = {
   password: string;
@@ -42,6 +45,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
   viewName,
 }: FlowRecoveryKeyConfirmPwdProps) => {
   const account = useAccount();
+  const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
   const handleMfaError = useMfaErrorHandler();
 
@@ -76,11 +80,22 @@ export const FlowRecoveryKeyConfirmPwd = ({
     setLocalizedErrorBannerMessage('');
     try {
       const replaceKey = actionType === RecoveryKeyAction.Change;
-      const recoveryKey = await account.createRecoveryKey(
-        password,
+      const token = sessionToken();
+      if (!token) throw AuthUiErrors.INVALID_TOKEN;
+      const recoveryKey = await createRecoveryKeyWithReauth(authClient, {
+        uid: account.uid,
+        sessionToken: token,
+        credentials: { password },
         replaceKey,
-        true
-      );
+        mfaJwt: account.getCachedJwtByScope('recovery_key'),
+      });
+      updateExtendedAccountState({
+        recoveryKey: {
+          exists: true,
+          estimatedSyncDeviceCount:
+            account.recoveryKey?.estimatedSyncDeviceCount,
+        },
+      });
       setFormattedRecoveryKey(formatRecoveryKey(recoveryKey.buffer));
       logViewEvent(`flow.${viewName}`, 'confirm-password.success');
       navigateForward();
@@ -109,6 +124,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
     }
   }, [
     account,
+    authClient,
     actionType,
     ftlMsgResolver,
     getValues,
