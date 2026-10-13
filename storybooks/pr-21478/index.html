@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit f15a0f94d5a39e53e05ddea46f772198e32a9408</title>
+  <title>Storybooks for commit 23d27362aeaa7acbe886b8e0058be5f265ddbc71</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit f15a0f94d5a39e53e05ddea46f772198e32a9408</h1>
+  <h1>Storybooks for commit 23d27362aeaa7acbe886b8e0058be5f265ddbc71</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,24 +31,9 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/13/2026, 5:55:59 PM UTC</dd>
+    <dd>10/13/2026, 8:10:22 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>refactor(shared): inject account-customer lookups into StripeHelper</pre></dd>
-    <dt>Description</dt>
-    <dd><pre>Because:
-
-* FXA-14705 moves the fxa-shared db models, and the fxa-shared dist would
-  then query an AccountCustomers class with no Knex bound.
-
-This commit:
-
-* Removes the db models import from the fxa-shared StripeHelper.
-* Adds abstract getAccountCustomerByUid and deleteAccountCustomer methods,
-  which fetchCustomer calls through this.
-* Implements both methods in the auth-server StripeHelper and the
-  admin-server StripeService.
-
-Closes FXA-14704</pre></dd>
+    <dd><pre>Merge branch &#039;main&#039; into fxa-14704</pre></dd>
   </dl>
 </body>
 </html>
