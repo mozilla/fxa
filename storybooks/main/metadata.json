@@ -1,8 +1,8 @@
 {
-  "commit": "18165dbb46cdb7a013ebcf6bd224c84cbe028314",
-  "summary": "Merge pull request #21457 from mozilla/fxa-10670",
-  "description": "feat(shared): add tagCriticalEvent and browser compat API to sentry libs",
-  "timestamp": 1791856359000,
+  "commit": "94e36ae78ac280e94e12965b261d0fd1a83c0177",
+  "summary": "Merge pull request #21458 from mozilla/fxa-10674",
+  "description": "refactor(shared): point fxa-shared/tracing at @fxa/shared/otel",
+  "timestamp": 1791857756000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
