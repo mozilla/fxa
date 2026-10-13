@@ -1,8 +1,8 @@
 {
-  "commit": "1e6fa3748bcd92ebdcc4317dd99d769967ecfc51",
-  "summary": "Merge pull request #21471 from mozilla/fxa-14701",
-  "description": "refactor(settings): move browser Sentry callers to @fxa/shared/sentry-browser",
-  "timestamp": 1791904916000,
+  "commit": "ff26f91b553548d3d2ba391f524c03fb7ff2623b",
+  "summary": "Merge pull request #21473 from mozilla/FXA-13259",
+  "description": "chore(ci): harden GitHub Actions workflows per security checklist",
+  "timestamp": 1791910201000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

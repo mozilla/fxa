@@ -2039,6 +2039,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Мобильді құ�
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Бас тартылған
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Құрылғыны кез келген уақытта қосу үшін компьютеріңізден <b>firefox.com/pair</b> сайтына кіріңіз.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Бұл құрылғы кірген болып тұр
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Жұмыс үстелі тіркелгіңізге қосылу үшін осы құрылғыда { -brand-firefox } жүйесінен шығыңыз, содан кейін кіруді аяқтау үшін компьютеріңізде <b>firefox.com/pair</b> сайтына кіріңіз.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
