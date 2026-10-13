@@ -12772,28 +12772,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/instrumentation-mongoose@npm:0.55.0":
-  version: 0.55.0
-  resolution: "@opentelemetry/instrumentation-mongoose@npm:0.55.0"
-  dependencies:
-    "@opentelemetry/core": "npm:^2.0.0"
-    "@opentelemetry/instrumentation": "npm:^0.208.0"
-  peerDependencies:
-    "@opentelemetry/api": ^1.3.0
-  checksum: 10c0/a13f3ddccd108af7388ecf5890798c652fd746d0be134943d59f454b2a7537089877370e3a16bda1fa05c9a2229b17ea9b671bc564085fdd20dfd7d24be95a45
-  languageName: node
-  linkType: hard
-
-"@opentelemetry/instrumentation-mongoose@npm:^0.68.0":
-  version: 0.68.0
-  resolution: "@opentelemetry/instrumentation-mongoose@npm:0.68.0"
+"@opentelemetry/instrumentation-mongoose@npm:0.67.0":
+  version: 0.67.0
+  resolution: "@opentelemetry/instrumentation-mongoose@npm:0.67.0"
   dependencies:
     "@opentelemetry/core": "npm:^2.9.0"
-    "@opentelemetry/instrumentation": "npm:^0.222.0"
+    "@opentelemetry/instrumentation": "npm:^0.221.0"
     "@opentelemetry/semantic-conventions": "npm:^1.33.0"
   peerDependencies:
     "@opentelemetry/api": ^1.3.0
-  checksum: 10c0/671e995378ba81cdc3f709450dad7f8d9919aec132f8e25bba4b457ceb80af4432060b16f58108c80aa04ddcd37c3ef4dbd400c98dc70b676dac544b503ff49e
+  checksum: 10c0/dd923fa7417f069c03a5b44b91c138dcb8a3c9dd1747946f3499efc97ed6b2f65dcf0752999d91879f65413437febc3a09594457b85de7e233681969de4e7ea4
   languageName: node
   linkType: hard
 
