@@ -6,9 +6,7 @@
 
 const Sentry = require('@sentry/node');
 
-const {
-  reportValidationError,
-} = require('fxa-shared/sentry/report-validation-error');
+const { reportValidationError } = require('@fxa/shared/sentry-node');
 
 // Case-insensitive substrings: any key containing one of these is redacted
 // before reaching Sentry. Covers `authorization`, `set-cookie`, `authPW`,
