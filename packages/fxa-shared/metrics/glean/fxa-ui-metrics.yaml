@@ -568,8 +568,10 @@ email:
           failed), 'not_supported' (device/browser lacks WebAuthn support),
           'security' (non-HTTPS or cross-origin restriction), 'timeout'
           (ceremony timed out), 'no_passkey_found' (server pre-ceremony
-          check found no matching credential), or 'unexpected' (any other
-          error, including server failures).
+          check found no matching credential), 'throttled' (errno 114),
+          'request_blocked' (errno 125), 'authentication_failed' (errno 227),
+          'challenge_expired' (errno 238), or 'unexpected' (any other error,
+          including server failures).
         type: string
   first_passkey_submit_success:
     type: event
@@ -1197,7 +1199,9 @@ login:
       reason:
         description: |
           Categorized WebAuthn or sign-in error: 'not_allowed', 'not_supported',
-          'security', 'timeout', 'no_passkey_found', or 'unexpected'. See
+          'security', 'timeout', 'no_passkey_found', 'throttled',
+          'request_blocked', 'authentication_failed', 'challenge_expired', or
+          'unexpected'. See
           first_passkey_submit_frontend_error for full definitions.
         type: string
   passkey_submit_success:
@@ -1262,7 +1266,9 @@ login:
       reason:
         description: |
           Categorized WebAuthn or sign-in error: 'not_allowed', 'not_supported',
-          'security', 'timeout', 'no_passkey_found', or 'unexpected'. See
+          'security', 'timeout', 'no_passkey_found', 'throttled',
+          'request_blocked', 'authentication_failed', 'challenge_expired', or
+          'unexpected'. See
           first_passkey_submit_frontend_error for full definitions.
         type: string
   alternative_auth_passkey_submit_success:
@@ -1326,7 +1332,9 @@ login:
       reason:
         description: |
           Categorized WebAuthn or sign-in error: 'not_allowed', 'not_supported',
-          'security', 'timeout', 'no_passkey_found', or 'unexpected'. See
+          'security', 'timeout', 'no_passkey_found', 'throttled',
+          'request_blocked', 'authentication_failed', 'challenge_expired', or
+          'unexpected'. See
           first_passkey_submit_frontend_error for full definitions.
         type: string
   otp_passkey_submit_success:

@@ -7,7 +7,8 @@ import * as Sentry from '@sentry/browser';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { useNavigate } from 'react-router';
 
-import { AuthUiErrors } from '../../auth-errors/auth-errors';
+import { AuthUiError, AuthUiErrors } from '../../auth-errors/auth-errors';
+import { getLocalizedErrorMessage } from '../../error-utils';
 import GleanMetrics from '../../glean';
 import { useGleanView } from '../../glean/useGleanView';
 import { useMounted } from '../useMounted';
@@ -297,6 +298,34 @@ export function usePasskeySignIn({
             'Passkey not recognized. Use another sign-in method.'
           )
         );
+      } else if (
+        errno === AuthUiErrors.THROTTLED.errno ||
+        errno === AuthUiErrors.REQUEST_BLOCKED.errno
+      ) {
+        glean.submitFrontendError(
+          errno === AuthUiErrors.THROTTLED.errno
+            ? 'throttled'
+            : 'request_blocked'
+        );
+        setBanner({
+          type: 'error',
+          content: {
+            localizedHeading: getLocalizedErrorMessage(
+              ftlMsgResolver,
+              err as AuthUiError
+            ),
+          },
+        });
+      } else if (
+        errno === AuthUiErrors.PASSKEY_AUHENTICATION_FAILED.errno ||
+        errno === AuthUiErrors.PASSKEY_CHALLENGE_EXPIRED.errno
+      ) {
+        glean.submitFrontendError(
+          errno === AuthUiErrors.PASSKEY_AUHENTICATION_FAILED.errno
+            ? 'authentication_failed'
+            : 'challenge_expired'
+        );
+        setBanner(passkeyUnexpectedBanner(ftlMsgResolver));
       } else {
         // Drop upstream err.message — backend shapes may include identifiers
         // (uid, email) we can't enforce from here. errno tag + Sentry stack

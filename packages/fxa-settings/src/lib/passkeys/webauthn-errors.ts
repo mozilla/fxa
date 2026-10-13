@@ -51,10 +51,15 @@ export type WebAuthnGleanReason =
 
 /**
  * Superset of `WebAuthnGleanReason` used by the passkey sign-in submit
- * events. Adds `no_passkey_found` for the server-side errno path that
- * never reaches a WebAuthn ceremony.
+ * events. Adds the reasons for known server errnos.
  */
-export type PasskeySignInGleanReason = WebAuthnGleanReason | 'no_passkey_found';
+export type PasskeySignInGleanReason =
+  | WebAuthnGleanReason
+  | 'no_passkey_found'
+  | 'throttled'
+  | 'request_blocked'
+  | 'authentication_failed'
+  | 'challenge_expired';
 
 export interface CategorizedWebAuthnError {
   category: WebAuthnErrorCategory;
