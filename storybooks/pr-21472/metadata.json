@@ -1,8 +1,8 @@
 {
-  "commit": "20f94ae6996047147b9cc1141e536e0e6cc7ebf6",
+  "commit": "1b397d3592972dd8f23f4cd441b92c302772f4d0",
   "summary": "refactor(shared): move METRICS provider to @fxa/shared/metrics/statsd",
-  "description": "Because:\n- MetricsFactory lived in fxa-shared/nestjs, apart from the other StatsD providers.\n- The statsd library is the place for all StatsD providers.\n\nThis commit:\n- Adds LegacyMetricsProvider (token 'METRICS') to @fxa/shared/metrics/statsd.\n- Uses it in 4 admin-server modules and 3 event-broker modules.\n- Adds the statsd path to fxa-event-broker tsconfig.build.json.\n- Updates the fxa-shared nestjs README example.\n- Deletes fxa-shared/nestjs/metrics.service.ts.\n\nCloses FXA-14694",
-  "timestamp": 1791903883000,
+  "description": "Because:\n\n- fxa-admin-server and fxa-event-broker built their METRICS StatsD\n  client with a factory in fxa-shared, which is being removed.\n\nThis commit:\n\n- Adds LegacyMetricsProvider for the 'METRICS' token, which reuses\n  LegacyStatsDProvider's factory.\n- Moves the admin-server and event-broker modules to it.\n- Deletes packages/fxa-shared/nestjs/metrics.service.ts.\n\nCloses FXA-14694",
+  "timestamp": 1791905282000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",
