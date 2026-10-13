@@ -1,0 +1,10 @@
+{
+  "commit": "317c6ad37d3f3f3463e4b9fa334f1efeb2897db7",
+  "summary": "feat(settings): show the Firefox logo in the pairing v2 QR code",
+  "description": "Because:\n\n- The pairing v2 QR code on ScanQR showed no Firefox logo.\n- A fixed-pixel logo chip outgrows the excavated area on a fluid QR.\n\nThis commit:\n\n- Passes the existing Firefox logo to QRCode from ScanQR.\n- Sizes the QRCode logo chip as a percentage of the code size.\n- Adds unit tests for the logo and the percentage sizing.\n\nCloses FXA-14419",
+  "timestamp": 1791890619000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
