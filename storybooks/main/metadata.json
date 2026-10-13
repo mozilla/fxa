@@ -1,8 +1,8 @@
 {
-  "commit": "35608a3dfa91da10fc7cc96ac437dfbcfb22295d",
-  "summary": "Merge pull request #21483 from mozilla/fxa-10656",
-  "description": "refactor(auth): use EmailNormalization from @fxa/accounts/email-sender",
-  "timestamp": 1791926592000,
+  "commit": "e38d95fc695ca6cd4eb0b6d19a88d9baf3077f33",
+  "summary": "Merge pull request #21481 from mozilla/fxa-14764",
+  "description": "fix(settings): handle known server errors in passkey sign-in",
+  "timestamp": 1791926689000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
