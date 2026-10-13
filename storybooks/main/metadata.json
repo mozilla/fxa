@@ -1,8 +1,8 @@
 {
-  "commit": "b3e26648714726a5378c11544b876f541021df68",
-  "summary": "Merge pull request #21470 from mozilla/fxa-14717",
-  "description": "refactor(db-migrations): copy makeMySQLConfig into the patcher package",
-  "timestamp": 1791904528000,
+  "commit": "1e6fa3748bcd92ebdcc4317dd99d769967ecfc51",
+  "summary": "Merge pull request #21471 from mozilla/fxa-14701",
+  "description": "refactor(settings): move browser Sentry callers to @fxa/shared/sentry-browser",
+  "timestamp": 1791904916000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
