@@ -4,7 +4,11 @@
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { LegacyStatsDProvider, StatsDService } from './statsd.provider';
+import {
+  LegacyMetricsProvider,
+  LegacyStatsDProvider,
+  StatsDService,
+} from './statsd.provider';
 import { StatsD } from 'hot-shots';
 
 const mockStatsd = jest.fn();
@@ -49,5 +53,34 @@ describe('LegacyStatsDProvider', () => {
   it('should provide statsd', async () => {
     expect(statsd).toBeDefined();
     expect(mockStatsd).toHaveBeenCalledWith(mockConfig);
+  });
+});
+
+describe('LegacyMetricsProvider', () => {
+  const resolveMetrics = async (host: string) => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        LegacyMetricsProvider,
+        {
+          provide: ConfigService,
+          useValue: { get: jest.fn().mockReturnValue({ host }) },
+        },
+      ],
+    }).compile();
+    return module.resolve<StatsD>('METRICS');
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should provide a real statsd client for the METRICS token', async () => {
+    await resolveMetrics('test');
+    expect(mockStatsd).toHaveBeenCalledWith({ host: 'test' });
+  });
+
+  it('should provide a mock statsd client when host is empty', async () => {
+    await resolveMetrics('');
+    expect(mockStatsd).toHaveBeenCalledWith({ mock: true });
   });
 });

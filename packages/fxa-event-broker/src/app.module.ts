@@ -8,7 +8,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
 import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
 import { MozLoggerModule } from '@fxa/shared/mozlog';
-import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
+import { LegacyMetricsProvider } from '@fxa/shared/metrics/statsd';
 import { getVersionInfo } from 'fxa-shared/nestjs/version';
 
 import { AuthModule } from './auth/auth.module';
@@ -46,7 +46,7 @@ const version = getVersionInfo(__dirname);
       provide: APP_FILTER,
       useClass: SentryGlobalFilter,
     },
-    MetricsFactory,
+    LegacyMetricsProvider,
   ],
 })
 export class AppModule {}

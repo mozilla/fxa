@@ -3,6 +3,7 @@
   "compilerOptions": {
     "paths": {
       "@fxa/shared/log": ["libs/shared/log/src/index"],
+      "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index"],
       "@fxa/shared/mozlog": ["libs/shared/mozlog/src/index"],
       "@fxa/shared/otel": ["libs/shared/otel/src/index"],
       "@fxa/shared/pem-jwk": ["libs/shared/pem-jwk/src/index"],

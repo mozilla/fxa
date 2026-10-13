@@ -134,14 +134,14 @@ const conf = convict({
 Update `app.module.ts` to include the Metrics providor:
 
 ```typescript
-import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
+import { LegacyMetricsProvider } from '@fxa/shared/metrics/statsd';
 
 @Module({
   imports: [
     // .. app imports ..
   ],
   controllers: [],
-  providers: [MetricsFactory],
+  providers: [LegacyMetricsProvider],
 })
 export class AppModule {}
 ```
