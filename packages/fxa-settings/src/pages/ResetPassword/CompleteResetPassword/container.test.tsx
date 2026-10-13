@@ -67,10 +67,12 @@ const mockSensitiveDataClient = createMockSensitiveDataClient();
 jest.mock('../../../lib/account-storage', () => ({
   ...jest.requireActual('../../../lib/account-storage'),
   updateBasicAccountData: jest.fn(),
+  updateExtendedAccountState: jest.fn(),
 }));
-const { updateBasicAccountData: mockUpdateBasicAccountData } = jest.requireMock(
-  '../../../lib/account-storage'
-);
+const {
+  updateBasicAccountData: mockUpdateBasicAccountData,
+  updateExtendedAccountState: mockUpdateExtendedAccountState,
+} = jest.requireMock('../../../lib/account-storage');
 
 jest.mock('../../../lib/oauth/hooks', () => ({
   useFinishOAuthFlowHandler: jest.fn(),
@@ -146,6 +148,8 @@ describe('CompleteResetPasswordContainer', () => {
 
     mockLocationState = RESET_WITHOUT_KEY_STATE;
     mockSensitiveDataClient.DecryptedRecoveryKeyData = undefined;
+    mockSensitiveDataClient.NewRecoveryKeyData = undefined;
+    mockSensitiveDataClient.AccountResetData = undefined;
     mockAuthClient.passwordForgotVerifyCode.mockResolvedValue({
       accountResetToken: MOCK_RESET_TOKEN,
     });
@@ -369,6 +373,47 @@ describe('CompleteResetPasswordContainer', () => {
       expect(mockSensitiveDataClient.NewRecoveryKeyData).toEqual({
         recoveryKey: new Uint8Array(16),
       });
+    });
+
+    it('records the new key in the account cache', async () => {
+      mockLocationState = { ...mockLocationState, estimatedSyncDeviceCount: 2 };
+
+      await renderAndSubmit();
+
+      expect(mockUpdateExtendedAccountState).toHaveBeenCalledWith(
+        { recoveryKey: { exists: true, estimatedSyncDeviceCount: 2 } },
+        MOCK_UID
+      );
+    });
+
+    it('clears the cached key when creating the new one fails', async () => {
+      mockLocationState = { ...mockLocationState, estimatedSyncDeviceCount: 2 };
+      mockAuthClient.createRecoveryKey.mockRejectedValue(
+        AuthUiErrors.UNEXPECTED_ERROR
+      );
+
+      await renderAndSubmit();
+
+      expect(mockUpdateExtendedAccountState).toHaveBeenCalledWith(
+        { recoveryKey: { exists: false, estimatedSyncDeviceCount: 2 } },
+        MOCK_UID
+      );
+    });
+
+    it('continues without a new recovery key when creating it fails', async () => {
+      mockSensitiveDataClient.NewRecoveryKeyData = {
+        recoveryKey: new Uint8Array(8),
+      };
+      mockAuthClient.createRecoveryKey.mockRejectedValue(
+        AuthUiErrors.UNEXPECTED_ERROR
+      );
+
+      await renderAndSubmit();
+
+      expect(mockSensitiveDataClient.NewRecoveryKeyData).toBeUndefined();
+      expect(
+        screen.queryByText(AuthUiErrors.UNEXPECTED_ERROR.message)
+      ).not.toBeInTheDocument();
     });
   });
 });

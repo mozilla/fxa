@@ -30,7 +30,10 @@ import { useEffect, useState } from 'react';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { storeAccountData } from '../../../lib/storage-utils';
 import { sessionToken } from '../../../lib/cache';
-import { updateBasicAccountData } from '../../../lib/account-storage';
+import {
+  updateBasicAccountData,
+  updateExtendedAccountState,
+} from '../../../lib/account-storage';
 import { createRecoveryKeyWithReauth } from '../../../lib/recovery-key';
 import { getNewPasswordCredentials } from '../../../lib/crypto/password-credentials';
 import { SETTINGS_PATH } from '../../../constants';
@@ -357,12 +360,30 @@ const CompleteResetPasswordContainer = ({
 
           // we cannot create a new recovery key if the session is not verified
           if (accountResetData.sessionVerified) {
-            const recoveryKey = await createRecoveryKeyWithReauth(authClient, {
-              uid: accountResetData.uid,
-              sessionToken: accountResetData.sessionToken,
-              credentials: { password: newPassword },
-            });
-            sensitiveDataClient.NewRecoveryKeyData = { recoveryKey };
+            let recoveryKey: Uint8Array | undefined;
+            try {
+              recoveryKey = await createRecoveryKeyWithReauth(authClient, {
+                uid: accountResetData.uid,
+                sessionToken: accountResetData.sessionToken,
+                credentials: { password: newPassword },
+              });
+            } catch {
+              // The password is already reset; continue without a new key.
+            }
+            // Without NewRecoveryKeyData the next page skips the new-key step.
+            sensitiveDataClient.NewRecoveryKeyData = recoveryKey && {
+              recoveryKey,
+            };
+            // The reset deleted the key it used, so only a new key can exist.
+            updateExtendedAccountState(
+              {
+                recoveryKey: {
+                  exists: !!recoveryKey,
+                  estimatedSyncDeviceCount,
+                },
+              },
+              accountResetData.uid
+            );
           }
 
           handleNavigationWithRecoveryKey(
