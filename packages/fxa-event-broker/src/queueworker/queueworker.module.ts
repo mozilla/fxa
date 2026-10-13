@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Module } from '@nestjs/common';
-import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
+import { LegacyMetricsProvider } from '@fxa/shared/metrics/statsd';
 
 import { ClientCapabilityModule } from '../client-capability/client-capability.module';
 import { FirestoreModule } from '../firestore/firestore.module';
@@ -12,6 +12,6 @@ import { ClientWebhooksModule } from '../client-webhooks/client-webhooks.module'
 
 @Module({
   imports: [ClientCapabilityModule, ClientWebhooksModule, FirestoreModule],
-  providers: [QueueworkerService, MetricsFactory, GooglePubsubFactory],
+  providers: [QueueworkerService, LegacyMetricsProvider, GooglePubsubFactory],
 })
 export class QueueworkerModule {}

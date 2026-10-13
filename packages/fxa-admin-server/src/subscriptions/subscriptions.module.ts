@@ -4,7 +4,7 @@
 
 import { Module } from '@nestjs/common';
 import { MozLoggerService } from '@fxa/shared/mozlog';
-import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
+import { LegacyMetricsProvider } from '@fxa/shared/metrics/statsd';
 import {
   AppStoreHelperService,
   AppStorePurchaseManagerService,
@@ -30,7 +30,7 @@ import { SubscriptionsService } from './subscriptions.service';
     AppStorePurchaseManagerService,
     AppStoreService,
     FirestoreFactory,
-    MetricsFactory,
+    LegacyMetricsProvider,
     MozLoggerService,
     PlayStorePurchaseManagerService,
     PlayStoreService,

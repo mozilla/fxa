@@ -4,11 +4,11 @@
 
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { Module } from '@nestjs/common';
-import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
+import { LegacyMetricsProvider } from '@fxa/shared/metrics/statsd';
 import { DatabaseService } from './database.service';
 
 @Module({
-  providers: [DatabaseService, MozLoggerService, MetricsFactory],
+  providers: [DatabaseService, MozLoggerService, LegacyMetricsProvider],
   exports: [DatabaseService],
 })
 export class DatabaseModule {}
