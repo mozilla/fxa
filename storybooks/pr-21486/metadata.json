@@ -1,0 +1,12 @@
+{
+  "commit": "691f5e53cb65cc5ca290ebd9076adc3a287c2cfd",
+  "summary": "refactor(shared): move convict allow-list to @fxa/shared/url-allow-list",
+  "description": "Because:\n- FxA Settings and the content server import the allow-list from fxa-shared.\n- The code fits a small library under libs/shared.\n\nThis commit:\n- Adds @fxa/shared/url-allow-list with isAllowed and the convict format.\n- Ports the chai spec to Jest with the same 29 cases.\n- Points useWebRedirect and router.js to the new alias.\n- Keeps an fxa-shared shim for the content-server Node server.\n\nCloses FXA-10652",
+  "timestamp": 1791927121000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

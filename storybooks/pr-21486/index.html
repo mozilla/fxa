@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 691f5e53cb65cc5ca290ebd9076adc3a287c2cfd</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 691f5e53cb65cc5ca290ebd9076adc3a287c2cfd</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/13/2026, 9:32:01 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>refactor(shared): move convict allow-list to @fxa/shared/url-allow-list</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- FxA Settings and the content server import the allow-list from fxa-shared.
+- The code fits a small library under libs/shared.
+
+This commit:
+- Adds @fxa/shared/url-allow-list with isAllowed and the convict format.
+- Ports the chai spec to Jest with the same 29 cases.
+- Points useWebRedirect and router.js to the new alias.
+- Keeps an fxa-shared shim for the content-server Node server.
+
+Closes FXA-10652</pre></dd>
+  </dl>
+</body>
+</html>
