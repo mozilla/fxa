@@ -73,6 +73,10 @@ function renderComponent() {
 describe('AccountRecoveryConfirmKeyContainer', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    Object.keys(mockSensitiveDataClient).forEach(
+      (key) => delete mockSensitiveDataClient[key]
+    );
+    capturedProps = undefined;
     mockLocationState = {
       code: 'code123',
       email: MOCK_EMAIL,
@@ -100,14 +104,19 @@ describe('AccountRecoveryConfirmKeyContainer', () => {
     );
     expect(mockNavigate).toHaveBeenCalledWith(
       '/account_recovery_reset_password',
-      expect.objectContaining({
-        state: expect.objectContaining({
+      {
+        state: {
           accountResetToken: MOCK_RESET_TOKEN,
+          email: MOCK_EMAIL,
           kB: MOCK_KB,
           recoveryKeyId: 'recoveryKeyId',
-        }),
-      })
+        },
+        replace: true,
+      }
     );
+    expect(mockSensitiveDataClient.DecryptedRecoveryKeyData).toEqual({
+      kB: MOCK_KB,
+    });
   });
 
   it('reuses an existing account reset token', async () => {
@@ -143,5 +152,6 @@ describe('AccountRecoveryConfirmKeyContainer', () => {
     expect(capturedProps.errorMessage).toBe(
       AuthUiErrors.UNEXPECTED_ERROR.message
     );
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 });

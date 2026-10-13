@@ -181,41 +181,41 @@ describe('CompleteResetPasswordContainer', () => {
     fxaLoginSignedInUserSpy.mockRestore();
   });
 
-  it('sends webchannel message and navigates to settings for relay integration', async () => {
+  it('sends the signed-in webchannel message for relay integration', async () => {
     renderComponent();
+    await submitNewPassword();
 
-    expect(await screen.findByLabelText('New password')).toBeInTheDocument();
-
-    const user = userEvent.setup();
-    const newPasswordInput = screen.getByLabelText('New password');
-    const confirmPasswordInput = screen.getByLabelText('Confirm password');
-
-    await user.type(newPasswordInput, 'newPassword123!');
-    await user.type(confirmPasswordInput, 'newPassword123!');
-
-    const submitButton = screen.getByRole('button', {
-      name: 'Create new password',
-    });
-    await user.click(submitButton);
-
-    await waitFor(() => {
-      expect(mockAuthClient.accountResetAuthPW).toHaveBeenCalled();
-    });
-
-    expect(fxaLoginSignedInUserSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
+    await waitFor(() =>
+      expect(fxaLoginSignedInUserSpy).toHaveBeenCalledWith({
+        authAt: MOCK_RESET_RESPONSE.authAt,
+        email: MOCK_EMAIL,
+        sessionToken: MOCK_RESET_RESPONSE.sessionToken,
+        uid: MOCK_UID,
+        verified: true,
         services: { relay: {} },
       })
     );
+  });
 
-    await waitFor(() => {
+  it('navigates to settings after a reset for relay integration', async () => {
+    renderComponent();
+    await submitNewPassword();
+
+    await waitFor(() =>
       expect(mockNavigateWithQuery).toHaveBeenCalledWith(SETTINGS_PATH, {
         replace: true,
-      });
-    });
+      })
+    );
+  });
 
-    expect(mockAlertBar.success).toHaveBeenCalledWith(
-      'Your password has been reset'
+  it('shows the reset success alert for relay integration', async () => {
+    renderComponent();
+    await submitNewPassword();
+
+    await waitFor(() =>
+      expect(mockAlertBar.success).toHaveBeenCalledWith(
+        'Your password has been reset'
+      )
     );
   });
 
