@@ -18,8 +18,8 @@ import {
 } from '../lib/cache';
 import firefox from '../lib/channels/firefox';
 import Storage from '../lib/storage';
-import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
-import { LinkedAccountProviderIds, MfaScope, MozServices } from '../lib/types';
+import { AuthUiErrors } from '../lib/auth-errors/auth-errors';
+import { LinkedAccountProviderIds, MfaScope } from '../lib/types';
 import {
   AccountAvatar,
   AccountBackupCodes,
@@ -60,14 +60,6 @@ export interface SecurityEvent {
   verified?: boolean;
 }
 
-export interface PasswordForgotSendCodePayload {
-  passwordForgotToken: string;
-}
-
-export interface RecoveryKeyBundlePayload {
-  recoveryData: string;
-}
-
 /** Response shape from auth-client recoveryPhoneGet */
 interface RecoveryPhoneGetResponse {
   exists: boolean;
@@ -89,14 +81,6 @@ interface RawEmail {
 
 /** Re-export RawAttachedClient for consumers that import from Account */
 export type { RawAttachedClient };
-
-/** Helper to extract errno from auth-client errors */
-function getErrno(err: unknown): number | undefined {
-  if (typeof err === 'object' && err !== null && 'errno' in err) {
-    return (err as { errno: number }).errno;
-  }
-  return undefined;
-}
 
 /** Maps a raw attached client from auth-client to the AttachedClient shape */
 export function mapAttachedClient(c: RawAttachedClient): AttachedClient {
@@ -717,85 +701,6 @@ export class Account implements AccountData {
       passwordCreated: passwordCreatedResult.passwordCreated,
       hasPassword: true,
     });
-  }
-
-  async resetPassword(
-    email: string,
-    service?: string,
-    redirectTo?: string,
-    metricsContext?: MetricsContext
-  ): Promise<PasswordForgotSendCodePayload> {
-    let options: {
-      service?: string;
-      resume?: string;
-      redirectTo?: string;
-      metricsContext?: MetricsContext;
-    } = {
-      resume: 'e30=', // base64 json for {}
-    };
-
-    // Important! Only set service when it's Firefox Sync
-    if (service && service === MozServices.FirefoxSync) {
-      options.service = 'sync';
-    } else {
-      options.service = service;
-    }
-
-    if (redirectTo) {
-      options.redirectTo = redirectTo;
-    }
-
-    if (metricsContext) {
-      options.metricsContext = metricsContext;
-    }
-
-    return this.authClient.passwordForgotSendCode(email, options);
-  }
-
-  async resetPasswordStatus(passwordForgotToken: string): Promise<boolean> {
-    try {
-      await this.authClient.passwordForgotStatus(passwordForgotToken);
-      // If the request does not fail, that means that the token has not been
-      // consumed yet
-      return true;
-    } catch (err: unknown) {
-      const errno = getErrno(err);
-
-      // Invalid token means the user has completed reset password
-      // or that the provided token is stale (expired or replaced with new token)
-      if (errno === AuthUiErrors.INVALID_TOKEN.errno) {
-        return false;
-      }
-
-      // Throw all other errors
-      if (errno && AuthUiErrorNos[errno]) {
-        throw AuthUiErrorNos[errno];
-      }
-      throw AuthUiErrors.UNEXPECTED_ERROR;
-    }
-  }
-
-  /**
-   * Verify a passwordForgotToken, which returns an accountResetToken that can
-   * be used to perform the actual password reset.
-   *
-   * @param token passwordForgotToken
-   * @param code code
-   */
-  async verifyPasswordForgotToken(token: string, code: string) {
-    try {
-      const result = await this.authClient.passwordForgotVerifyCode(
-        code,
-        token
-      );
-      return { accountResetToken: result.accountResetToken };
-    } catch (err: unknown) {
-      const errno = getErrno(err);
-      if (errno && AuthUiErrorNos[errno]) {
-        throw AuthUiErrorNos[errno];
-      }
-      throw AuthUiErrors.UNEXPECTED_ERROR;
-    }
   }
 
   async setDisplayName(displayName: string) {
