@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 1b12a2e36eb54dfbce98ebc9368ec56846eddc3d</title>
+  <title>Storybooks for commit 9e791f8d1b765a8b3628296496f3095d194620d9</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,24 +23,25 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 1b12a2e36eb54dfbce98ebc9368ec56846eddc3d</h1>
+  <h1>Storybooks for commit 9e791f8d1b765a8b3628296496f3095d194620d9</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/12/2026, 8:27:32 PM UTC</dd>
+    <dd>10/13/2026, 9:37:52 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>refactor(settings): call auth-client directly in reset password containers</pre></dd>
+    <dd><pre>refactor(settings): use auth-client in reset password containers</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- The reset password containers used useAccount(), the Settings account model, for a few auth-client calls.
+
+- The ResetPassword pages loaded the Settings Account model through useAccount, which authentication pages should not do.
 
 This commit:
-- Calls useAuthClient() directly in the three ResetPassword containers.
-- Deletes the four Account methods that lost their last caller.
-- Drops refresh(&#039;account&#039;); uid comes from the reset response.
-- Mocks useAuthClient in the container tests and adds two container specs.
+
+- Calls auth-client directly in the three reset password containers.
+- Moves the reset logic from Account into the containers and removes the four unused Account methods.
+- Adds container tests, including the v2 key-stretch reset branch.
 
 Closes FXA-9672</pre></dd>
   </dl>

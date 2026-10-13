@@ -1374,6 +1374,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = به نظر می‌رسد 
 pair2-supplicant-timeout-and-cancel-timeout-description = برای اتصال دستگاه همراهتان و همگام‌سازی داده‌های { -brand-firefox }، روی رایانه‌تان به <b>firefox.com/pair</b> بروید.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = لغو شد
 pair2-supplicant-timeout-and-cancel-canceled-description = هر وقت خواستید دستگاهی را متصل کنید، روی رایانه‌تان به <b>firefox.com/pair</b> بروید.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = این دستگاه از قبل وارد حساب شده است
+pair2-supplicant-timeout-and-cancel-signed-in-description = برای اتصال به حساب رایانه‌تان، روی این دستگاه از { -brand-firefox } خارج شوید، سپس در رایانه به <b>firefox.com/pair</b> بروید تا ورود را کامل کنید.
 
 
 permissions-heading = { $serviceName } می‌خواهد به این موارد دسترسی داشته باشد:

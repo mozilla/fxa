@@ -1385,6 +1385,7 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Het lijkt erop dat er een 
 pair2-supplicant-timeout-and-cancel-timeout-description = Bezoek <b>firefox.com/pair</b> op uw computer om uw mobiele apparaat te verbinden en uw { -brand-firefox }-gegevens te synchroniseren.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Geannuleerd
 pair2-supplicant-timeout-and-cancel-canceled-description = Bezoek <b>firefox.com/pair</b> op uw computer om op elk gewenst moment een apparaat te verbinden.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Dit apparaat is al aangemeld
 
 
 permissions-heading = { $serviceName } wil toegang tot:

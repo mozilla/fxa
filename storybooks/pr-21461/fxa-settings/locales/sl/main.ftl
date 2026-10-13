@@ -1519,6 +1519,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Kaže, da nam je potekla �
 pair2-supplicant-timeout-and-cancel-timeout-description = Če želite povezati mobilno napravo in sinhronizirati podatke { -brand-firefox(sklon: "rodilnik") }, z računalnikom obiščite <b>firefox.com/pair</b>.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Odpovedana
 pair2-supplicant-timeout-and-cancel-canceled-description = Napravo lahko kadarkoli povežete tako, da z računalnikom obiščete <b>firefox.com/pair</b>.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Ta naprava je že prijavljena
+pair2-supplicant-timeout-and-cancel-signed-in-description = Za povezavo z namiznim računom se odjavite iz { -brand-firefox } v tej napravi in nato v računalniku obiščite <b>firefox.com/pair</b> za dokončanje prijave.
 
 
 permissions-heading = { $serviceName } želi dostop do:
