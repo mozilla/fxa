@@ -9,7 +9,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { isPairGleanReason } from 'fxa-shared/metrics/glean/pair-reasons';
+import { isPairGleanReason } from '../../../lib/glean/pair-reasons';
 import { Link, useLocation } from 'react-router';
 import { UseFxAStatusResult, useNavigateWithQuery } from '../../../lib/hooks';
 import { FtlMsg } from 'fxa-react/lib/utils';
