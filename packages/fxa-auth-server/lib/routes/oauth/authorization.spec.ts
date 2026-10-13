@@ -7,7 +7,7 @@ import { OAuthNativeClients } from '@fxa/accounts/oauth';
 import { AuthLogger } from '../../types';
 
 const Joi = require('joi');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
 
 const CLIENT_ID = '98e6508e88680e1b';
 const BASE64URL_STRING =

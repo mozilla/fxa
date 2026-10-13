@@ -12,7 +12,7 @@ const {
   OAUTH_NATIVE_CLIENT_IDS,
   OAuthNativeClients,
 } = require('@fxa/accounts/oauth');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
 const validators = require('../../oauth/validators');
 const { validateRequestedGrant, generateTokens } = require('../../oauth/grant');
 const { recordStepUpMetrics } = require('../../metrics/step-up');

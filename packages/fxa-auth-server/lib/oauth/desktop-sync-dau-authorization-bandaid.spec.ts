@@ -3,10 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { OAuthNativeClients, OAuthNativeServices } from '@fxa/accounts/oauth';
-import {
-  OAUTH_SCOPE_OLD_SYNC,
-  OAUTH_SCOPE_RELAY,
-} from 'fxa-shared/oauth/constants';
+import { OAUTH_SCOPE_OLD_SYNC, OAUTH_SCOPE_RELAY } from '@fxa/accounts/oauth';
 
 import {
   dropUnconsentedSyncScope,

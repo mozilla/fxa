@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
 
 const { OauthError } = require('@fxa/accounts/errors');
 const { config } = require('../../config');
@@ -10,7 +10,7 @@ const db = require('./db');
 const encrypt = require('@fxa/shared/crypto');
 const JWTAccessToken = require('./jwt_access_token');
 const validators = require('./validators');
-const { SHORT_ACCESS_TOKEN_TTL_IN_MS } = require('fxa-shared/oauth/constants');
+const { SHORT_ACCESS_TOKEN_TTL_IN_MS } = require('@fxa/accounts/oauth');
 
 /**
  * Get the tokenId stored in the DB for `accessToken`

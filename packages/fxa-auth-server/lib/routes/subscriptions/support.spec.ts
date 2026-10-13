@@ -13,7 +13,7 @@ const { getRoute } = require('../../../test/routes_helpers');
 const { supportRoutes } = require('./support');
 const { AppError } = require('@fxa/accounts/errors');
 
-const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
+const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('@fxa/accounts/oauth');
 
 let config: any,
   log: any,

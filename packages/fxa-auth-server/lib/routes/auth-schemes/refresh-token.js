@@ -8,11 +8,11 @@ const { AppError } = require('@fxa/accounts/errors');
 const joi = require('joi');
 const validators = require('../validators');
 const { BEARER_AUTH_REGEX } = validators;
-const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
+const { OAUTH_SCOPE_OLD_SYNC } = require('@fxa/accounts/oauth');
 const encrypt = require('@fxa/shared/crypto');
 const oauthDB = require('../../oauth/db');
 const client = require('../../oauth/client');
-const ScopeSet = require('fxa-shared/oauth/scopes').scopeSetHelpers;
+const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
 
 const OLD_SYNC_SCOPE = ScopeSet.fromArray([OAUTH_SCOPE_OLD_SYNC]);
 
