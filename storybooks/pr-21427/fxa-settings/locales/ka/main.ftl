@@ -201,6 +201,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = დაადასტურეთ პაროლი
 form-password-with-inline-criteria-reset-submit-button = შეიყვანეთ ახალი პაროლი
+form-password-with-inline-criteria-old-password-label =
+    .label = ძველი პაროლი
+form-password-with-inline-criteria-change-password-submit-button = პაროლის შეცვლა
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = პაროლი
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -972,6 +975,7 @@ passkey-sub-row-created-date = შექმნილი: { $createdDate }
 passkey-sub-row-last-used-date = ბოლო გამოყენება: { $lastUsedDate }
 passkey-sub-row-delete-title = საშვის წაშლა
 passkey-delete-modal-heading = წაიშალოს საშვი?
+passkey-delete-modal-content-v3 = ეს საშვი ამოიშლება თქვენი ანგარიშიდან. დაგჭირდებათ ანგარიშზე შესვლა სხვა პაროლით, სხვა საშვით ან მიბმული ანგარიშით.
 passkey-delete-modal-cancel-button = გაუქმება
 passkey-delete-modal-confirm-button = საშვის წაშლა
 passkey-delete-success = საშვი წაიშალა
@@ -1214,13 +1218,16 @@ index-email-bounced = დადასტურების გამოგზა
 
 
 inline-passwordless-sync-setup-page-title = გსურთ პაროლის არიდება შემდეგ ჯერზე?
+inline-passwordless-sync-setup-success-banner-v2 = შესული ხართ და დასინქრონება ჩართულია
 inline-passwordless-sync-setup-heading = გსურთ პაროლის არიდება შემდეგ ჯერზე?
 inline-passwordless-sync-setup-description = გამოიყენეთ ეს საშვი ანგარიშზე უფრო სწრაფი შესვლისთვის.
 inline-passwordless-sync-setup-enable-button = საშვის ჩართვა
 inline-passwordless-sync-setup-enabling = ირთვება…
 inline-passwordless-sync-setup-not-now-button = ახლა არა
+inline-passwordless-sync-setup-success-alert-v2 = ეს საშვი ამოქმედებულია სინქრონიზაციაში შესვლისთვის
 inline-passwordless-sync-setup-error-cancelled = საშვის დადასტურება არ დასრულებულა
 inline-passwordless-sync-setup-error-cancelled-description = დაამოწმეთ თქვენი საშვი შემდეგი შესვლისას პაროლის ასარიდებლად
+inline-passwordless-sync-setup-error-generic-v2 = ამ საშვის ამოქმედება სინქრონიზაციისთვის ვერ ხერხდება. შემდეგ ჯერზე პაროლით მოგიწევთ შესვლა.
 
 
 inline-recovery-key-setup-create-error = უჰ! ანგარიშის აღდგენის გასაღების შექმნა ვერ ხერხდება. მოგვიანებით სცადეთ.
@@ -1359,6 +1366,7 @@ pair2-authority-download-firefox-cta = ჩამოტვირთეთ { -bran
 pair2-authority-scan-qr-heading = წააკითხეთ მობილურ მოწყობილობასთან დასაკავშირებლად
 pair2-authority-scan-qr-instruction = წააკითხეთ QR-კოდი ტელეფონით ან პლანშეტით, რომ დაასინქრონოთ { -brand-firefox } არსებული სანიშნებით, ჩანართებითა თუ სხვ.
 pair2-authority-scan-qr-code-aria-label = QR-კოდი მობილურ მოწყობილობასთან დასაკავშირებლად
+pair2-authority-scan-qr-other-ways-link = სხვა გზები შესვლისთვის
 pair2-authority-scan-qr-skip-button = ამჟამად გამოტოვება
 
 
@@ -1385,8 +1393,19 @@ pair2-supplicant-connect-this-device-connect-button = დაკავშირ�
 pair2-supplicant-connect-this-device-cancel-button = გაუქმება
 
 
+pair2-supplicant-download-firefox-heading-v2 = გახსენით { -brand-firefox } ამ მოწყობილობაზე
+pair2-supplicant-download-firefox-description-v2 = ჩამოტვირთეთ { -brand-firefox } სანიშნების, ისტორიისა და ა. შ. დასინქრონებისთვის სხვადასხვა მოწყობილობაზე.
 pair2-supplicant-download-firefox-continue-button = გასაგრძელებლად გამოიყენეთ { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = იხსნება { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = ჩამოტვირთეთ { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = უკვე მაქვს { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = ვრცლად
+
+
+pair2-supplicant-connect-hint-heading-v2 = მიერთების დასრულება პროგრამაში
+pair2-supplicant-connect-hint-step-app-menu = შეეხეთ <b>პროგრამის მენიუს</b> ხელსაწყოთა ზოლზე
+pair2-supplicant-connect-hint-step-sign-in = შეეხეთ <b>შესვლას</b> და წააკითხეთ კოდი
+pair2-supplicant-connect-hint-learn-more-link = ვრცლად
 
 
 pair2-supplicant-ready-to-scan-heading = რომ დაკავშირდეს მოწყობილობა
@@ -1407,8 +1426,13 @@ pair2-supplicant-timeout-and-cancel-canceled-description = მოწყობი
 permissions-heading = { $serviceName } ითხოვს წვდომას:
 permissions-label-email = ელფოსტის მისამართი
 permissions-label-display-name = გამოსაჩენი სახელი
+permissions-label-avatar = ანგარიშის სურათი
 permissions-continue-button = განაგრძეთ
 permissions-cancel-button = გაუქმება
+
+
+force-password-change-heading = გთხოვთ, შეცვალოთ თქვენი პაროლი
+force-password-change-data-info = დასინქრონებული ისტორია, სანიშნები, ანგარიშები და სხვა პირადი მონაცემები არ დაიკარგება.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } დამოწმებულია
@@ -1468,9 +1492,12 @@ confirm-totp-reset-password-use-different-account = სხვა ანგარ
 
 
 password-reset-flow-heading = პაროლის განულება
+password-reset-forgot-heading = დაგავიწყდათ პაროლი?
+password-reset-alternatives-body = <signInLink>ანგარიშზე სხვა გზით შესასვლელად მოსინჯეთ { -brand-google }, { -brand-apple } ან საშვი.</signInLink> ანდაც შეიყვანეთ თქვენი ელფოსტა და გამოგიგზავნით კოდს პაროლის აღსადგენად.
 password-reset-email-input =
     .label = შეიყვანეთ თქვენი ელფოსტა
 password-reset-submit-button-2 = განაგრძეთ
+password-reset-data-recovery-warning = პაროლის განულებამ შესაძლოა იმოქმედოს დასინქრონებული მონაცემების აღდგენის შესაძლებლობაზე. <learnMoreLink>ვრცლად</learnMoreLink>
 
 
 reset-password-complete-header = თქვენი პაროლი აღდგა.
@@ -1706,3 +1733,7 @@ signup-confirmed-sync-description-v2 = თქვენი პაროლებ�
 signup-confirmed-sync-add-device-link = სხვა მოწყობილობის დამატება
 signup-confirmed-sync-manage-sync-button = სინქრონიზაციის მართვა
 signup-confirmed-sync-set-password-success-banner = დასინქრონების პაროლი შეიქმნა
+
+
+update-firefox-heading = { -brand-firefox } საჭიროებს განახლებას
+update-firefox-download-button = უახლესის ჩამოტვირთვა

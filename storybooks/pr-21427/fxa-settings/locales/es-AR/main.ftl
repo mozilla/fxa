@@ -935,7 +935,7 @@ passkey-sub-row-created-date = Creada: { $createdDate }
 passkey-sub-row-last-used-date = Último uso: { $lastUsedDate }
 passkey-sub-row-delete-title = Borrar clave de acceso
 passkey-delete-modal-heading = ¿Borrar la clave de acceso?
-passkey-delete-modal-content-v3 = Esta clave de acceso será eliminada de tu cuenta. Tendrás que iniciar sesión con una contraseña, otra clave de acceso o una cuenta vinculada.
+passkey-delete-modal-content-v3 = Esta clave de acceso será eliminada de la cuenta. Habrá que iniciar sesión con una contraseña, otra clave de acceso o una cuenta vinculada.
 passkey-delete-modal-cancel-button = Cancelar
 passkey-delete-modal-confirm-button = Borrar clave de acceso
 passkey-delete-success = Clave de acceso eliminada
@@ -1180,7 +1180,7 @@ index-email-bounced = El correo electrónico de confirmación fue devuelto. ¿Ha
 
 
 inline-passwordless-sync-setup-page-title = ¿Omitir la contraseña la próxima vez?
-inline-passwordless-sync-setup-success-banner-v2 = Iniciaste sesión y la sincronización está activada
+inline-passwordless-sync-setup-success-banner-v2 = Se inició sesión y la sincronización está activada
 inline-passwordless-sync-setup-heading = ¿Omitir la contraseña la próxima vez?
 inline-passwordless-sync-setup-description = Usá esta clave de acceso para iniciar sesión más rápido.
 inline-passwordless-sync-setup-enable-button = Habilitar clave de acceso
@@ -1383,6 +1383,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que se agotó el ti
 pair2-supplicant-timeout-and-cancel-timeout-description = Para conectar tu dispositivo móvil y sincronizar tus datos de { -brand-firefox }, visitá <b>firefox.com/pair</b> en tu computadora.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 pair2-supplicant-timeout-and-cancel-canceled-description = Para conectar un dispositivo en cualquier momento, visitá <b>firefox.com/pair</b> en tu computadora.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Este dispositivo ya inició sesión
+pair2-supplicant-timeout-and-cancel-signed-in-description = Para conectarte a tu cuenta de escritorio, cerrá sesión en { -brand-firefox } en este dispositivo y después visitá <b>firefox.com/pair</b> en tu computadora para completar el inicio de sesión.
 
 
 permissions-heading = { $serviceName } quiere acceso a:

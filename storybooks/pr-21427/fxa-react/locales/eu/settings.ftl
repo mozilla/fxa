@@ -1050,6 +1050,7 @@ passkey-sub-row-created-date = Sortuta: { $createdDate }
 passkey-sub-row-last-used-date = Azkenekoz erabilia: { $lastUsedDate }
 passkey-sub-row-delete-title = Ezabatu sarbide-gakoa
 passkey-delete-modal-heading = Ezabatu zure sarbide-gakoa?
+passkey-delete-modal-content-v3 = Sarbide-gako hau zure kontutik kendu egingo da. Pasahitza, beste sarbide-gako bat edo lotutako kontu bat erabiliz hasi beharko duzu saioa.
 passkey-delete-modal-cancel-button = Utzi
 passkey-delete-modal-confirm-button = Ezabatu sarbide-gakoa
 passkey-delete-success = Sarbide-gakoa ezabatuta
@@ -1327,13 +1328,21 @@ index-email-bounced = Zure berrespen-mezu elektronikoa itzuli berri da. Helbide 
 
 ## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
 
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner-v2 = Saioa hasita duzu eta sinkronizazioa aktibo dago
 inline-passwordless-sync-setup-enable-button = Gaitu sarbide-gakoa
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Gaitzen…
 inline-passwordless-sync-setup-not-now-button = Une honetan ez
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = Sarbide-gakoa gaituta dago sinkronizazioaren saio-hasierarako
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Sarbide-gakoaren berrespena ez da amaitu
 inline-passwordless-sync-setup-error-cancelled-description = Berretsi zure sarbide-gakoarekin pasahitza saltatzeko hurrengo aldian.
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = Ezin izan dugu sarbide-gako hau gaitu sinkronizazioaren saio-hasierarako. Zure pasahitza beharko duzu hurrengo aldian.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1520,6 +1529,8 @@ pair2-authority-download-firefox-cta = Deskargatu { -brand-firefox }
 ## their phone or tablet to connect the two devices and start syncing.
 
 pair2-authority-scan-qr-heading = Eskaneatu zure gailu mugikorra konektatzeko
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Saioa hasteko beste modu batzuk
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Saltatu oraingoz
 
@@ -1615,12 +1626,16 @@ pair2-supplicant-sync-success-description-v2 = Sinkronizazioa lanean ari da. Den
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
-## either because the attempt timed out or because it was canceled. Both states
-## are informational and offer no on-screen action, so the copy points the user
-## back to their computer to start again.
+## because the attempt timed out, was canceled, or the device is already signed
+## in to an account. All states are informational and offer no on-screen action,
+## so the copy points the user back to their computer to start again.
 
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Bertan behera utzita
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Gailuak saioa hasita du jada
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Mahaigaineko zure kontua lotzeko, amaitu saioa gailu honetako { -brand-firefox }(e)n, gero joan <b>firefox.com/pair</b> helbidera eta hasi saioa zure ordenagailuan.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -1632,6 +1647,7 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Bertan behera utzita
 permissions-heading = { $serviceName } zerbitzuak ondorengorako sarbidea nahi du:
 permissions-label-email = Helbide elektronikoa
 permissions-label-display-name = Bistaratzeko izena
+permissions-label-avatar = Kontuaren argazkia
 permissions-continue-button = Jarraitu
 permissions-cancel-button = Utzi
 
@@ -1719,9 +1735,14 @@ confirm-totp-reset-password-use-different-account = Erabili beste kontu bat
 ## ResetPassword start page
 
 password-reset-flow-heading = Berrezarri pasahitza
+password-reset-forgot-heading = Pasahitza ahaztu duzu?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Horren ordez, saiatu saioa hasten { -brand-google }, { -brand-apple } edo sarbide-gakoa erabiliz</signInLink>. Edo idatzi zure helbide elektronikoa eta zure pasahitza berrezartzeko kodea bidaliko dizugu.
 password-reset-email-input =
     .label = Idatzi zure helbide elektronikoa
 password-reset-submit-button-2 = Jarraitu
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Pasahitza berrezartzeak eragina izan lezake sinkronizatutako nabigatzaile-datuak berreskuratzeko aukeran. <learnMoreLink>Argibide gehiago</learnMoreLink>
 
 ## ResetPasswordConfirmed
 

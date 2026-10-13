@@ -1187,10 +1187,10 @@ inline-passwordless-sync-setup-description = Använd denna nyckel för att logga
 inline-passwordless-sync-setup-enable-button = Aktivera lösenordsnyckel
 inline-passwordless-sync-setup-enabling = Aktiverar…
 inline-passwordless-sync-setup-not-now-button = Inte nu
-inline-passwordless-sync-setup-success-alert-v2 = Det här lösenordet är aktiverat för synkroniserad inloggning
+inline-passwordless-sync-setup-success-alert-v2 = Den här lösenordsnyckeln är aktiverad för inloggning med synkronisering
 inline-passwordless-sync-setup-error-cancelled = Bekräftelse av lösenordsnyckel slutfördes inte
 inline-passwordless-sync-setup-error-cancelled-description = Bekräfta med din lösenordsnyckel för att hoppa över lösenordet nästa gång.
-inline-passwordless-sync-setup-error-generic-v2 = Vi kunde inte aktivera det här lösenordet för synkroniseringsinloggning. Du behöver ditt lösenord nästa gång.
+inline-passwordless-sync-setup-error-generic-v2 = Det gick inte att aktivera den här lösenordsnyckeln för inloggning med synkronisering. Nästa gång behöver du ange ditt lösenord.
 
 
 inline-recovery-key-setup-create-error = Hoppsan! Vi kunde inte skapa din kontoåterställningsnyckel. Försök igen senare.
@@ -1384,6 +1384,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Vi gjorde timeout
 pair2-supplicant-timeout-and-cancel-timeout-description = För att ansluta din mobila enhet och synkronisera din { -brand-firefox }-data, besök <b>firefox.com/pair</b> på din dator.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Avbruten
 pair2-supplicant-timeout-and-cancel-canceled-description = När du vill ansluta en enhet besöker du <b>firefox.com/pair</b> på din dator.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Den här enheten är redan inloggad
+pair2-supplicant-timeout-and-cancel-signed-in-description = För att ansluta till ditt stationära konto, logga ut från { -brand-firefox } på den här enheten och besök sedan <b>firefox.com/pair</b> på din dator för att slutföra inloggningen.
 
 
 permissions-heading = { $serviceName } vill ha tillgång till:
@@ -1456,12 +1458,12 @@ confirm-totp-reset-password-use-different-account = Använd ett annat konto
 
 
 password-reset-flow-heading = Återställ ditt lösenord
-password-reset-forgot-heading = Glömt ditt lösenord?
-password-reset-alternatives-body = <signInLink>Prova att logga in med { -brand-google }, { -brand-apple } eller en lösenord istället.</signInLink> Eller ange din e-postadress så skickar vi en kod för att återställa ditt lösenord.
+password-reset-forgot-heading = Har du glömt lösenordet?
+password-reset-alternatives-body = <signInLink>Försök i stället att logga in med { -brand-google }, { -brand-apple } eller en lösenordsnyckel.</signInLink> Du kan också ange din e-postadress, så skickar vi en kod som du kan använda för att återställa lösenordet.
 password-reset-email-input =
     .label = Ange din e-postadress
 password-reset-submit-button-2 = Fortsätt
-password-reset-data-recovery-warning = Återställning av lösenordet kan påverka om du kan återställa synkroniserad webbläsardata. <learnMoreLink>Läs mer</learnMoreLink>
+password-reset-data-recovery-warning = Om du återställer lösenordet kan det påverka möjligheten att återfå synkroniserade webbläsardata. <learnMoreLink>Läs mer</learnMoreLink>
 
 
 reset-password-complete-header = Ditt lösenord har återställts

@@ -625,9 +625,9 @@ cs-scope-firefox-vpn = Vstavaná VPN prehliadača { -brand-firefox }
 dc-heading = Zhromažďovanie a používanie údajov
 dc-subheader-moz-accounts = { -product-mozilla-accounts }
 dc-subheader-ff-browser = Prehliadač { -brand-firefox }
-dc-subheader-content-2 = Povoliť { -product-mozilla-accounts(capitalization: "lower", case: "dat") } odosielať technické údaje a údaje o interakciách spoločnosti { -brand-mozilla }.
+dc-subheader-content-2 = Povoliť { -product-mozilla-accounts(capitalization: "lower", case: "dat") } odosielať technické údaje a údaje o používaní spoločnosti { -brand-mozilla }.
 dc-subheader-ff-content = Ak chcete skontrolovať alebo aktualizovať nastavenia prehliadača { -brand-firefox } týkajúce sa údajov, otvorte nastavenia prehliadača { -brand-firefox } a prejdite na Súkromie a bezpečnosť.
-dc-opt-out-success-2 = Odhlásenie bolo úspešné. { -product-mozilla-accounts } nebudú posielať technické údaje ani údaje o interakciách spoločnosti { -brand-mozilla }.
+dc-opt-out-success-2 = Odhlásenie bolo úspešné. { -product-mozilla-accounts } nebudú posielať technické údaje ani údaje o používaní spoločnosti { -brand-mozilla }.
 dc-opt-in-success-2 = Vďaka! Zdieľanie týchto údajov nám pomáha zlepšovať { -product-mozilla-accounts(capitalization: "lower", case: "acc") }.
 dc-opt-in-out-error-2 = Ľutujeme, pri zmene predvoľby zhromažďovania údajov sa vyskytol problém
 dc-learn-more = Ďalšie informácie
@@ -789,7 +789,7 @@ msv-submit-button-2 = Potvrdiť
 
 nav-settings = Nastavenia
 nav-profile = Profil
-nav-security = Bezpečnosť
+nav-security = Zabezpečenie
 nav-connected-services = Pripojené služby
 nav-data-collection = Zhromažďovanie a používanie údajov
 nav-paid-subs = Predplatné
@@ -1056,7 +1056,7 @@ profile-primary-email =
 progress-bar-aria-label-v2 = Krok { $currentStep } z { $numberOfSteps }.
 
 
-security-heading = Bezpečnosť
+security-heading = Zabezpečenie
 security-password =
     .header = Heslo
 security-password-created-date = Vytvorené { $date }
@@ -1613,9 +1613,11 @@ confirm-totp-reset-password-use-different-account = Použiť iný účet
 
 password-reset-flow-heading = Zmena hesla
 password-reset-forgot-heading = Zabudli ste heslo?
+password-reset-alternatives-body = <signInLink>Namiesto toho sa skúste prihlásiť cez { -brand-google }, { -brand-apple } alebo pomocou prístupového kľúča.</signInLink> Prípadne zadajte svoj e‑mail a pošleme vám kód na obnovenie hesla.
 password-reset-email-input =
     .label = Zadajte svoju e‑mailovú adresu
 password-reset-submit-button-2 = Pokračovať
+password-reset-data-recovery-warning = Obnovenie hesla môže ovplyvniť možnosť obnoviť synchronizované údaje prehliadača. <learnMoreLink>Ďalšie informácie</learnMoreLink>
 
 
 reset-password-complete-header = Vaše heslo bolo zmenené

@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit bc10c6df638d66db2d92823ad543e1f2795a65ae</title>
+  <title>Storybooks for commit 44c51ecd52c382f474cd4d3b66b013acf6dc598d</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit bc10c6df638d66db2d92823ad543e1f2795a65ae</h1>
+  <h1>Storybooks for commit 44c51ecd52c382f474cd4d3b66b013acf6dc598d</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,23 +31,21 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/8/2026, 8:47:02 PM UTC</dd>
+    <dd>10/13/2026, 3:21:34 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(payments): guard subscription writes on Stripe event time</pre></dd>
+    <dd><pre>fix(payments): keep stored Stripe event time in legacy customer fetch</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-* fetchAndInsertSubscription wrote without stripeEventCreatedTime, so an
-  older event&#039;s stale fetchAndInsertCustomer write could overwrite it
-* Reading Stripe inside the transaction repeated Stripe calls on every
-  contention retry
+* legacyFetchAndInsertCustomer rewrote customer and subscription docs
+  without stripeEventCreatedTime, which let a delayed older webhook
+  overwrite them with stale data
 
 This commit:
 
-* Reads Stripe before the transaction in fetchAndInsertSubscription
-* Skips subscription writes when a same-or-newer event is stored
-* Stores stripeEventCreatedTime on subscription writes
-* Passes event.created from processSubscriptionEventToFirestore
+* Copies the stored stripeEventCreatedTime onto rewritten customer and
+  subscription docs in legacyFetchAndInsertCustomer
+* Adds tests for carrying the stored event time forward
 
 Closes #PAY-3937</pre></dd>
   </dl>

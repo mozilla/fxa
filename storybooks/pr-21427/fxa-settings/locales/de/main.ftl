@@ -1383,6 +1383,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Zeitüberschreitung
 pair2-supplicant-timeout-and-cancel-timeout-description = Um Ihr Mobilgerät zu verbinden und Ihre { -brand-firefox }-Daten zu synchronisieren, besuchen Sie <b>firefox.com/pair</b> auf Ihrem Computer.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Abgebrochen
 pair2-supplicant-timeout-and-cancel-canceled-description = Um jederzeit ein Gerät zu verbinden, besuchen Sie <b>firefox.com/pair</b> auf Ihrem Computer.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Dieses Gerät ist bereits angemeldet
+pair2-supplicant-timeout-and-cancel-signed-in-description = Um eine Verbindung mit Ihrem Desktop-Konto herzustellen, melden Sie sich auf diesem Gerät bei { -brand-firefox } ab und besuchen Sie dann <b>firefox.com/pair</b> auf Ihrem Computer, um die Anmeldung abzuschließen.
 
 
 permissions-heading = { $serviceName } möchte Zugriff auf:

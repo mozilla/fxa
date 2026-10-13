@@ -937,6 +937,7 @@ passkey-sub-row-created-date = ساخته‌شده در: { $createdDate }
 passkey-sub-row-last-used-date = آخرین استفاده: { $lastUsedDate }
 passkey-sub-row-delete-title = حذف کلید عبور
 passkey-delete-modal-heading = کلید عبورتان حذف شود؟
+passkey-delete-modal-content-v3 = این کلید عبور از حساب شما برداشته می‌شود. باید با گذرواژه، کلید عبوری دیگر یا حساب پیوندشده وارد شوید.
 passkey-delete-modal-cancel-button = انصراف
 passkey-delete-modal-confirm-button = حذف کلید عبور
 passkey-delete-success = کلید عبور حذف شد
@@ -1170,13 +1171,16 @@ index-email-bounced = رایانامهٔ تأییدتان همین الان بر
 
 
 inline-passwordless-sync-setup-page-title = دفعهٔ بعد بدون گذرواژه وارد شوید؟
+inline-passwordless-sync-setup-success-banner-v2 = وارد شدید و همگام‌سازی روشن است
 inline-passwordless-sync-setup-heading = دفعهٔ بعد بدون گذرواژه وارد شوید؟
 inline-passwordless-sync-setup-description = با این کلید عبور سریع‌تر وارد شوید.
 inline-passwordless-sync-setup-enable-button = فعال کردن کلید عبور
 inline-passwordless-sync-setup-enabling = در حال فعال‌سازی…
 inline-passwordless-sync-setup-not-now-button = الان نه
+inline-passwordless-sync-setup-success-alert-v2 = این کلید عبور برای همگام‌سازی ورود به‌کار انداختن شد
 inline-passwordless-sync-setup-error-cancelled = تأیید کلید عبور کامل نشد
 inline-passwordless-sync-setup-error-cancelled-description = با کلید عبورتان تأیید کنید تا دفعهٔ بعد بدون گذرواژه وارد شوید.
+inline-passwordless-sync-setup-error-generic-v2 = ما نتوانستیم این کلید عبور را برای ورود همگام‌سازی به‌کار بندازیم. دفعه بعد به گذرواژه‌تان نیاز خواهید داشت.
 
 
 inline-recovery-key-setup-create-error = ای وای! نتوانستیم کلید بازیابی حسابتان را بسازیم. لطفاً بعداً دوباره امتحان کنید.
@@ -1315,6 +1319,7 @@ pair2-authority-download-firefox-cta = بارگیری { -brand-firefox }
 pair2-authority-scan-qr-heading = برای اتصال دستگاه همراهتان اسکن کنید
 pair2-authority-scan-qr-instruction = کد QR را با تلفن یا تبلتتان اسکن کنید تا نشانک‌ها، زبانه‌ها و چیزهای دیگر { -brand-firefox } همگام شوند.
 pair2-authority-scan-qr-code-aria-label = کد QR برای اتصال دستگاه همراه
+pair2-authority-scan-qr-other-ways-link = راه‌های دیگه برای ورود
 pair2-authority-scan-qr-skip-button = فعلاً رد شوید
 
 
@@ -1369,12 +1374,14 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = به نظر می‌رسد 
 pair2-supplicant-timeout-and-cancel-timeout-description = برای اتصال دستگاه همراهتان و همگام‌سازی داده‌های { -brand-firefox }، روی رایانه‌تان به <b>firefox.com/pair</b> بروید.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = لغو شد
 pair2-supplicant-timeout-and-cancel-canceled-description = هر وقت خواستید دستگاهی را متصل کنید، روی رایانه‌تان به <b>firefox.com/pair</b> بروید.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = این دستگاه از قبل وارد حساب شده است
+pair2-supplicant-timeout-and-cancel-signed-in-description = برای اتصال به حساب رایانه‌تان، روی این دستگاه از { -brand-firefox } خارج شوید، سپس در رایانه به <b>firefox.com/pair</b> بروید تا ورود را کامل کنید.
 
 
 permissions-heading = { $serviceName } می‌خواهد به این موارد دسترسی داشته باشد:
 permissions-label-email = نشانی رایانامه
 permissions-label-display-name = نام نمایشی
-permissions-label-avatar = تصویرِ حساب
+permissions-label-avatar = تصویر حساب
 permissions-continue-button = ادامه
 permissions-cancel-button = انصراف
 
@@ -1442,9 +1449,11 @@ confirm-totp-reset-password-use-different-account = استفاده از حساب
 
 password-reset-flow-heading = بازنشانی گذرواژه
 password-reset-forgot-heading = گذرواژه را فراموش کرده‌اید؟
+password-reset-alternatives-body = <signInLink>به جای آن، با { -brand-google }، { -brand-apple } یا با کلید عبور وارد شوید؛</signInLink> یا رایانامه خود را وارد کنید تا کدی برای تنظیم مجدد گذرواژه برای شما ارسال کنیم.
 password-reset-email-input =
     .label = رایانامه‌تان را وارد کنید
 password-reset-submit-button-2 = ادامه
+password-reset-data-recovery-warning = بازنشانی گذرواژه ممکن است و روی امکان بازیابی داده‌های همگام‌شدهٔ مرورگرتان اثر می‌گذارد. <learnMoreLink>بیشتر بدانید</learnMoreLink>
 
 
 reset-password-complete-header = گذرواژهٔ شما بازنشانی شد

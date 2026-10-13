@@ -1271,7 +1271,7 @@ passkey-sub-row-created-date = Creada: { $createdDate }
 passkey-sub-row-last-used-date = Último uso: { $lastUsedDate }
 passkey-sub-row-delete-title = Borrar clave de acceso
 passkey-delete-modal-heading = ¿Borrar la clave de acceso?
-passkey-delete-modal-content-v3 = Esta clave de acceso será eliminada de tu cuenta. Tendrás que iniciar sesión con una contraseña, otra clave de acceso o una cuenta vinculada.
+passkey-delete-modal-content-v3 = Esta clave de acceso será eliminada de la cuenta. Habrá que iniciar sesión con una contraseña, otra clave de acceso o una cuenta vinculada.
 passkey-delete-modal-cancel-button = Cancelar
 passkey-delete-modal-confirm-button = Borrar clave de acceso
 passkey-delete-success = Clave de acceso eliminada
@@ -1636,7 +1636,7 @@ index-email-bounced = El correo electrónico de confirmación fue devuelto. ¿Ha
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = ¿Omitir la contraseña la próxima vez?
 # Success banner after signing in.
-inline-passwordless-sync-setup-success-banner-v2 = Iniciaste sesión y la sincronización está activada
+inline-passwordless-sync-setup-success-banner-v2 = Se inició sesión y la sincronización está activada
 inline-passwordless-sync-setup-heading = ¿Omitir la contraseña la próxima vez?
 inline-passwordless-sync-setup-description = Usá esta clave de acceso para iniciar sesión más rápido.
 inline-passwordless-sync-setup-enable-button = Habilitar clave de acceso
@@ -2024,9 +2024,9 @@ pair2-supplicant-sync-success-description-v2 = La sincronización está en curso
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
-## either because the attempt timed out or because it was canceled. Both states
-## are informational and offer no on-screen action, so the copy points the user
-## back to their computer to start again.
+## because the attempt timed out, was canceled, or the device is already signed
+## in to an account. All states are informational and offer no on-screen action,
+## so the copy points the user back to their computer to start again.
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que se agotó el tiempo de espera
@@ -2036,6 +2036,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Para conectar tu dispo
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Para conectar un dispositivo en cualquier momento, visitá <b>firefox.com/pair</b> en tu computadora.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Este dispositivo ya inició sesión
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Para conectarte a tu cuenta de escritorio, cerrá sesión en { -brand-firefox } en este dispositivo y después visitá <b>firefox.com/pair</b> en tu computadora para completar el inicio de sesión.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a

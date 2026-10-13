@@ -939,6 +939,7 @@ passkey-sub-row-created-date = Жасалған: { $createdDate }
 passkey-sub-row-last-used-date = Соңғы рет қолданылған: { $lastUsedDate }
 passkey-sub-row-delete-title = Рұқсат кілтін өшіру
 passkey-delete-modal-heading = Рұқсат кілтіңізді өшіру керек пе?
+passkey-delete-modal-content-v3 = Бұл рұқсат кілті сіздің тіркелгіңізден өшіріледі. Пароль, басқа рұқсат кілті немесе байланыстырылған тіркелгі арқылы кіруіңіз керек.
 passkey-delete-modal-cancel-button = Бас тарту
 passkey-delete-modal-confirm-button = Рұқсат кілтін өшіру
 passkey-delete-success = Рұқсат кілті өшірілді
@@ -1182,13 +1183,16 @@ index-email-bounced = Сіздің растау хатыңыз қайтарыл�
 
 
 inline-passwordless-sync-setup-page-title = Келесі жолы парольді өткізіп жіберу керек пе?
+inline-passwordless-sync-setup-success-banner-v2 = Сіз жүйеге кірдіңіз және синхрондау іске қосулы
 inline-passwordless-sync-setup-heading = Келесі жолы парольді өткізіп жіберу керек пе?
 inline-passwordless-sync-setup-description = Жылдам кіру үшін осы рұқсат кілтін пайдаланыңыз.
 inline-passwordless-sync-setup-enable-button = Рұқсат кілтін іске қосу
 inline-passwordless-sync-setup-enabling = Іске қосылуда…
 inline-passwordless-sync-setup-not-now-button = Қазір емес
+inline-passwordless-sync-setup-success-alert-v2 = Бұл рұқсат кілті синхрондаумен кіру үшін іске қосылған
 inline-passwordless-sync-setup-error-cancelled = Рұқсат кілтін растау аяқталмады
 inline-passwordless-sync-setup-error-cancelled-description = Келесі жолы парольді өткізіп жіберу үшін рұқсат кілтіңізбен растаңыз.
+inline-passwordless-sync-setup-error-generic-v2 = Синхрондаумен кіру үшін бұл рұқсат кілтін іске қосу мүмкін болмады. Келесі жолы пароліңіз қажет болады.
 
 
 inline-recovery-key-setup-create-error = Тіркелгіңізді қалпына келтіру кілтін жасай алмадық. Әрекетті кейінірек қайталап көріңіз.
@@ -1327,6 +1331,7 @@ pair2-authority-download-firefox-cta = { -brand-firefox } жүктеп алу
 pair2-authority-scan-qr-heading = Мобильді құрылғыңызды байланыстыру үшін сканерлеңіз
 pair2-authority-scan-qr-instruction = { -brand-firefox } бетбелгілер, беттер және т.б. синхрондау үшін QR кодын телефоныңызбен немесе планшетіңізбен сканерлеңіз.
 pair2-authority-scan-qr-code-aria-label = Мобильді құрылғыңызды байланыстыру үшін QR коды
+pair2-authority-scan-qr-other-ways-link = Кірудің басқа жолдары
 pair2-authority-scan-qr-skip-button = Әзірше өткізіп жіберу
 
 
@@ -1386,6 +1391,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Құрылғыны к
 permissions-heading = { $serviceName } келесіге қол жеткізуді қалайды:
 permissions-label-email = Эл. пошта адресі
 permissions-label-display-name = Көрсетілетін аты
+permissions-label-avatar = Тіркелгі суреті
 permissions-continue-button = Жалғастыру
 permissions-cancel-button = Бас тарту
 
@@ -1452,9 +1458,12 @@ confirm-totp-reset-password-use-different-account = Басқа тіркелгі�
 
 
 password-reset-flow-heading = Парольді тастау
+password-reset-forgot-heading = Пароліңізді ұмыттыңыз ба?
+password-reset-alternatives-body = <signInLink>Оның орнына { -brand-google }, { -brand-apple } немесе рұқсат кілтімен кіріп көріңіз.</signInLink> Немесе электрондық поштаңызды енгізіңіз, сонда біз сізге пароліңізді қалпына келтіру үшін код жібереміз.
 password-reset-email-input =
     .label = Эл. поштаңызды енгізіңіз
 password-reset-submit-button-2 = Жалғастыру
+password-reset-data-recovery-warning = Паролңізді қалпына келтіру синхрондалған браузер деректерін қалпына келтіру мүмкіндігіңізге әсер етуі мүмкін. <learnMoreLink>Көбірек білу</learnMoreLink>
 
 
 reset-password-complete-header = Пароліңіз тасталды

@@ -937,6 +937,7 @@ passkey-sub-row-created-date = Created: { $createdDate }
 passkey-sub-row-last-used-date = Last used: { $lastUsedDate }
 passkey-sub-row-delete-title = Delete passkey
 passkey-delete-modal-heading = Delete your passkey?
+passkey-delete-modal-content-v3 = This passkey will be removed from your account. You’ll need to sign in using a password, another passkey or linked account.
 passkey-delete-modal-cancel-button = Cancel
 passkey-delete-modal-confirm-button = Delete passkey
 passkey-delete-success = Passkey deleted
@@ -1180,13 +1181,16 @@ index-email-bounced = Your confirmation email was just returned. Mistyped email?
 
 
 inline-passwordless-sync-setup-page-title = Skip the password next time?
+inline-passwordless-sync-setup-success-banner-v2 = You’re signed in, and synchronisation is on
 inline-passwordless-sync-setup-heading = Skip the password next time?
 inline-passwordless-sync-setup-description = Use this passkey to sign in faster.
 inline-passwordless-sync-setup-enable-button = Enable passkey
 inline-passwordless-sync-setup-enabling = Enabling…
 inline-passwordless-sync-setup-not-now-button = Not now
+inline-passwordless-sync-setup-success-alert-v2 = This passkey is enabled for synchronisation sign-in
 inline-passwordless-sync-setup-error-cancelled = Passkey confirmation didn’t finish
 inline-passwordless-sync-setup-error-cancelled-description = Confirm with your passkey to skip the password next time.
+inline-passwordless-sync-setup-error-generic-v2 = We couldn’t enable this passkey for synchronisation sign-in. You’ll need your password next time.
 
 
 inline-recovery-key-setup-create-error = Oops! We couldn’t create your account recovery key. Please try again later.
@@ -1325,6 +1329,7 @@ pair2-authority-download-firefox-cta = Download { -brand-firefox }
 pair2-authority-scan-qr-heading = Scan to connect your mobile device
 pair2-authority-scan-qr-instruction = Scan the QR code with your phone or tablet to synchronise your { -brand-firefox } bookmarks, tabs and more.
 pair2-authority-scan-qr-code-aria-label = QR code to connect your mobile device
+pair2-authority-scan-qr-other-ways-link = Other ways to sign in
 pair2-authority-scan-qr-skip-button = Skip for now
 
 
@@ -1379,11 +1384,14 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Looks like we timed out
 pair2-supplicant-timeout-and-cancel-timeout-description = To connect your mobile device and synchronise your { -brand-firefox } data, visit <b>firefox.com/pair</b> on your computer.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelled
 pair2-supplicant-timeout-and-cancel-canceled-description = To connect a device at any time, visit <b>firefox.com/pair</b> on your computer.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = This device is already signed in
+pair2-supplicant-timeout-and-cancel-signed-in-description = To connect to your desktop account, sign out of { -brand-firefox } on this device, then visit <b>firefox.com/pair</b> on your computer to complete sign in.
 
 
 permissions-heading = { $serviceName } wants access to:
 permissions-label-email = Email address
 permissions-label-display-name = Display name
+permissions-label-avatar = Account picture
 permissions-continue-button = Continue
 permissions-cancel-button = Cancel
 
@@ -1450,9 +1458,12 @@ confirm-totp-reset-password-use-different-account = Use a different account
 
 
 password-reset-flow-heading = Reset your password
+password-reset-forgot-heading = Forgot your password?
+password-reset-alternatives-body = <signInLink>Try signing in with { -brand-google }, { -brand-apple } or a passkey instead.</signInLink> Or enter your email and we’ll send you a code to reset your password.
 password-reset-email-input =
     .label = Enter your email
 password-reset-submit-button-2 = Continue
+password-reset-data-recovery-warning = Resetting your password may affect whether you can recover synchronised browser data. <learnMoreLink>Learn more</learnMoreLink>
 
 
 reset-password-complete-header = Your password has been reset

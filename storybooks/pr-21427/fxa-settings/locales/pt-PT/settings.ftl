@@ -1271,7 +1271,7 @@ passkey-sub-row-created-date = Criado: { $createdDate }
 passkey-sub-row-last-used-date = Última utilização: { $lastUsedDate }
 passkey-sub-row-delete-title = Apagar chave-passe
 passkey-delete-modal-heading = Apagar a sua chave-passe?
-passkey-delete-modal-content-v3 = Esta chave será removida da sua conta. Terá de iniciar sessão utilizando uma palavra-passe, outra chave de acesso ou a conta associada.
+passkey-delete-modal-content-v3 = Esta chave-passe será removida da sua conta. Terá de iniciar sessão com uma palavra-passe, outra chave-passe, ou uma conta associada.
 passkey-delete-modal-cancel-button = Cancelar
 passkey-delete-modal-confirm-button = Apagar chave-passe
 passkey-delete-success = Chave-passe apagada
@@ -1634,7 +1634,7 @@ index-email-bounced = A sua mensagem de confirmação foi devolvida. Digitou mal
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Saltar a palavra-passe da próxima vez?
 # Success banner after signing in.
-inline-passwordless-sync-setup-success-banner-v2 = Tem sessão iniciada e a sincronização está ligada
+inline-passwordless-sync-setup-success-banner-v2 = Tem sessão iniciada, e a sincronização está ligada
 inline-passwordless-sync-setup-heading = Saltar a palavra-passe da próxima vez?
 inline-passwordless-sync-setup-description = Use esta chave-passe para iniciar sessão mais rapidamente.
 inline-passwordless-sync-setup-enable-button = Ativar chave-passe
@@ -1643,13 +1643,13 @@ inline-passwordless-sync-setup-enabling = A ativar…
 inline-passwordless-sync-setup-not-now-button = Agora não
 # Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
 # "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
-inline-passwordless-sync-setup-success-alert-v2 = Esta chave de acesso está ativada para o início de sessão de sincronização
+inline-passwordless-sync-setup-success-alert-v2 = Esta chave-passe está ativada para iniciar sessão e sincronizar dados
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = A confirmação da palavra-chave não foi concluída
 inline-passwordless-sync-setup-error-cancelled-description = Confirme com a sua palavra-chave para saltar a palavra-passe da próxima vez.
 # Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
 # "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
-inline-passwordless-sync-setup-error-generic-v2 = Não conseguimos ativar esta chave de acesso para o início de sessão de sincronização. Irá precisar da sua palavra-passe da próxima vez.
+inline-passwordless-sync-setup-error-generic-v2 = Não conseguimos ativar esta chave-passe para o início de sessão de sincronização. Irá precisar da sua palavra-passe da próxima vez.
 
 ## InlineRecoveryKeySetup page component
 
@@ -2024,9 +2024,9 @@ pair2-supplicant-sync-success-description-v2 = A sincronização está em curso.
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
-## either because the attempt timed out or because it was canceled. Both states
-## are informational and offer no on-screen action, so the copy points the user
-## back to their computer to start again.
+## because the attempt timed out, was canceled, or the device is already signed
+## in to an account. All states are informational and offer no on-screen action,
+## so the copy points the user back to their computer to start again.
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que expirámos
@@ -2036,6 +2036,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Para ligar o seu dispo
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Para ligar um dispositivo a qualquer momento, visite <b>firefox.com/pair</b> no seu computador.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Este dispositivo já tem sessão iniciada
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Para ligar à sua conta de computador, termine sessão no { -brand-firefox } neste dispositivo e visite <b>firefox.com/pair</b> no seu computador para concluir o início de sessão.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2158,7 +2162,7 @@ confirm-totp-reset-password-use-different-account = Utilizar uma conta diferente
 password-reset-flow-heading = Redefinir a sua palavra-passe
 password-reset-forgot-heading = Esqueceu-se da sua palavra-passe?
 # The text inside <signInLink> links to the email-first sign-in page.
-password-reset-alternatives-body = <signInLink>Tente iniciar sessão com { -brand-google }, { -brand-apple }, ou uma chave de acesso.</signInLink> Ou introduza o seu e-mail e iremos enviar um código para repor a sua palavra-passe.
+password-reset-alternatives-body = <signInLink>Experimente iniciar sessão com { -brand-google }, { -brand-apple } ou uma chave-passe.</signInLink> Ou introduza o seu e-mail e iremos enviar-lhe um código para repor a sua palavra-passe.
 password-reset-email-input =
     .label = Inserir o seu e-mail
 password-reset-submit-button-2 = Continuar
