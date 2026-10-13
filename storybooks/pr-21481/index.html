@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 08daac1eb789e07565c3de22dc2ae56ce36caaaf</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 08daac1eb789e07565c3de22dc2ae56ce36caaaf</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/13/2026, 7:22:52 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): handle known server errors in passkey sign-in</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- Passkey sign-in showed the generic error banner for throttled and blocked requests.
+- Known passkey errnos went to Sentry and Glean as unexpected.
+
+This commit:
+- Shows the localized banner for errno 114 and 125 in usePasskeySignIn.
+- Reports named Glean reasons for 114, 125, 227 and 238, with no Sentry call.
+- Adds the four reasons to PasskeySignInGleanReason and fxa-ui-metrics.yaml.
+- Adds unit cases and a functional test for the WAF 429 and 406 banners.
+
+Closes FXA-14764</pre></dd>
+  </dl>
+</body>
+</html>
