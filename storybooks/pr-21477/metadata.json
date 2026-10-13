@@ -1,8 +1,8 @@
 {
-  "commit": "b269dd8a5562cc01afc71391cb1b1759d0d073d3",
-  "summary": "refactor(shared): move Node Sentry callers to @fxa/shared/sentry-node",
-  "description": "Because:\n\n- Node callers still import Sentry from fxa-shared/sentry, which FxA will remove.\n\nThis commit:\n\n- Moves the Node Sentry imports in fxa-auth-server, fxa-admin-panel server, fxa-admin-server and fxa-event-broker to @fxa/shared/sentry-node.\n- Adds the @fxa/shared/sentry-node path to two tsconfig.build.json files.\n- Types the mozlog logger as ILogger in two monitoring.ts files.\n\nCloses FXA-14700",
-  "timestamp": 1791913954000,
+  "commit": "ebd0011d7c6023af78a509aa394b3bb0276fba41",
+  "summary": "Merge branch 'main' into fxa-14700",
+  "description": "",
+  "timestamp": 1791922219000,
   "storybooks": [
     "fxa-admin-panel"
   ],
