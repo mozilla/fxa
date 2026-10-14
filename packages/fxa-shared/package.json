@@ -53,14 +53,6 @@
       "import": "./dist/esm/packages/fxa-shared/express/*.js",
       "require": "./dist/cjs/packages/fxa-shared/express/*.js"
     },
-    "./feature-flags": {
-      "import": "./dist/esm/packages/fxa-shared/feature-flags/index.js",
-      "require": "./dist/cjs/packages/fxa-shared/feature-flags/index.js"
-    },
-    "./feature-flags/*": {
-      "import": "./dist/esm/packages/fxa-shared/feature-flags/*.js",
-      "require": "./dist/cjs/packages/fxa-shared/feature-flags/*.js"
-    },
     "./lib/*": {
       "import": "./dist/esm/packages/fxa-shared/lib/*.js",
       "require": "./dist/cjs/packages/fxa-shared/lib/*.js"

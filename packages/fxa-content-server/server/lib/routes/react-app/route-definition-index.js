@@ -11,10 +11,7 @@ function getIndexRouteDefinition(config) {
   let featureFlags;
   const featureFlagConfig = config.get('featureFlags');
   if (featureFlagConfig.enabled) {
-    featureFlags = require('fxa-shared').featureFlags(
-      featureFlagConfig,
-      logger
-    );
+    featureFlags = require('../../feature-flags')(featureFlagConfig, logger);
   } else {
     featureFlags = { get: () => ({}) };
   }
