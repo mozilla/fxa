@@ -2040,7 +2040,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = När du vill ansluta 
 # Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Den här enheten är redan inloggad
 # "firefox.com/pair" is a URL and should not be translated
-pair2-supplicant-timeout-and-cancel-signed-in-description = För att ansluta till ditt stationära konto, logga ut från { -brand-firefox } på den här enheten och besök sedan <b>firefox.com/pair</b> på din dator för att slutföra inloggningen.
+pair2-supplicant-timeout-and-cancel-signed-in-description = För att ansluta till din dators konto, logga ut från { -brand-firefox } på den här enheten och besök sedan <b>firefox.com/pair</b> på din dator för att slutföra inloggningen.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
