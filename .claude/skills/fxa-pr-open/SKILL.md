@@ -124,7 +124,7 @@ Body drafting guidance:
 - **"This pull request"** bullets describe what the code now does. Up to 7 bullets, one line each. Be specific ("Adds `signinFlow.ts` to handle passkey discovery before falling back to password sign-in"), not vague ("Refactors the sign-in page") — but name the behaviour and stop. No trailing rationale clause ("so that…", "without this…", "which avoids…", "the reason being…"); if a decision genuinely needs defending, it goes in "Other information" or a review comment, not appended to every bullet. Fold related edits into one bullet rather than adding bullets. Backtick a path only when the reviewer needs to open that file.
 - **"How to review"** — fill in only when the diff is non-trivial (>~5 files or any risky path). Otherwise leave the three sub-bullets empty.
 - **"Screenshots"** — if the user captured some in Step 3, reference them here (markdown image syntax once attached) or leave the placeholder line for the user to drop attachments into. Leave untouched if no UI changed.
-- **"Other information"** — feature-flag rollout notes, follow-up tickets, deploy ordering caveats, related PRs from intake. Leave placeholder if none.
+- **"Other information"** — feature-flag rollout notes, follow-up tickets, deploy ordering caveats, related PRs from intake. Leave placeholder if none. If the diff adds a patch under `packages/db-migrations/`, a migration note is required here. Say whether it's backward compatible with the release in production. For a contract step, name the release that shipped the expand step. If it isn't backward compatible, say what breaks on a code rollback and give the recovery plan (`.claude/rules/db-migrations.md`).
 
 ### Before presenting: one cut pass
 

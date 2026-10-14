@@ -147,6 +147,9 @@ Tell this agent it is a senior architect who knows FXA's monorepo structure and 
 - Verify database migrations:
   - Never edit existing published migration files
   - New migration has corresponding rollback
+  - Rollback safety: the migration must work with the release currently in production, because migrations will apply before the code deploys and stay if that code is rolled back. Drops, renames, type changes, new `NOT NULL` columns without a default, and changes to stored procedures still in use need an expand → contract split. Also flag new code that writes data the production release can't read, such as a new enum value. HIGH unless the PR says why it can't be backward compatible and gives a recovery plan. Details: `.claude/rules/db-migrations.md`.
+  - Separate PR: a migration bundled with the code that uses it is MEDIUM, unless the PR says why they must ship together.
+  - Contract steps: when a migration drops a column, table, or procedure, confirm the code that stopped using it is in an earlier release train tag, not just on `main` (check in `.claude/rules/db-migrations.md`). HIGH if it isn't. If you can't confirm it, say so in the findings.
   - Sequential patch numbering has no gaps
   - Index changes separate from schema changes
   - Test DB patches aligned with current test DB state (`/fxa-shared/test/db/models/**/*.sql`)

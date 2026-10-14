@@ -70,7 +70,11 @@ and network access.
    - an API that another repo consumes, such as exported `fxa-shared` code. `fxa-auth-client` is
      internal to this repo, so its methods may change
    - a new DB migration: a forward patch plus its rollback. Never allow an edit to a published
-     migration file, even with sign-off; `CLAUDE.md` forbids it
+     migration file, even with sign-off; `CLAUDE.md` forbids it. The ticket must say whether the
+     migration is backward compatible with the release in production. Scope the migration to its
+     own ticket, separate from the code that uses it. If it needs expand →
+     contract (`.claude/rules/db-migrations.md`), scope the ticket to one step. For a contract
+     step, name the release that shipped the expand step
    - prod data or prod SQL
    - `.github/`, `.circleci/`, `.husky/`, `_scripts/`, or a `package.json` `scripts` block
    - a dependency on an unmerged PR, another ticket, or a prod deploy
