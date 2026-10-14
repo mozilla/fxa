@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 90a281ad106d153ae41de64682f379b2600115c9</title>
+  <title>Storybooks for commit 9e1fa8930c875079bc3b8e3907a99be7ab00f39c</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,25 +23,29 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 90a281ad106d153ae41de64682f379b2600115c9</h1>
+  <h1>Storybooks for commit 9e1fa8930c875079bc3b8e3907a99be7ab00f39c</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/14/2026, 12:29:28 AM UTC</dd>
+    <dd>10/14/2026, 12:35:05 AM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(settings): guard AppLayout pathname check for mocked locations</pre></dd>
+    <dd><pre>fix(settings): repair ScanQR and AppLayout tests broken on main</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- AppLayout calls window.location.pathname.startsWith, which throws when a
-  test mocks window.location without pathname.
-- The App and CookiesDisabled suites fail on main with that TypeError.
+- The ScanQR test expects firefox-logo-browser.svg, but the page uses
+  firefox-logo-bw.svg.
+- AppLayout calls window.location.pathname.startsWith, which throws when the
+  App and CookiesDisabled tests mock window.location without pathname.
 
 This commit:
 
-- Uses optional chaining with a false default for the mobile pairing check.</pre></dd>
+- Expects firefox-logo-bw.svg in the ScanQR logo test.
+- Guards the AppLayout mobile pairing check with optional chaining.
+
+Closes FXA-14770</pre></dd>
   </dl>
 </body>
 </html>
