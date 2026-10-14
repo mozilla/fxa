@@ -1,0 +1,13 @@
+{
+  "commit": "f463ef459515c6860699041cf2cfb04ef31f1503",
+  "summary": "refactor(accounts): move connected-services to @fxa/accounts/connected-services",
+  "description": "Because:\n\n- connected-services lived in fxa-shared, not in an nx lib.\n\nThis commit:\n\n- Moves packages/fxa-shared/connected-services to @fxa/accounts/connected-services.\n- Moves every fxa-auth-server and fxa-admin-server importer and amplitude.ts.\n- Ports the 4 mocha tests to jest and deletes the old folder and exports.\n- Adds cldr-localenames-full 46.0.0 to the root package.json.\n- Keeps the ScopeSet brand; fxa-shared/db still builds ScopeSet.\n\nCloses FXA-10653",
+  "timestamp": 1791991909000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
