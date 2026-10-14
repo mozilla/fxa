@@ -115,7 +115,7 @@ describe('Pair2/Authority/ScanQR page', () => {
 
     expect(screen.getByTestId('scan-qr-code')).toHaveAttribute(
       'data-logo',
-      'firefox-logo-browser.svg'
+      'firefox-logo-bw.svg'
     );
   });
 
