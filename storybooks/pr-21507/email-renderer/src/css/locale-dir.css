@@ -1,0 +1,13 @@
+.ltr div {
+  direction: ltr !important;
+}
+.ltr td {
+  direction: ltr !important;
+}
+
+.rtl div {
+  direction: rtl !important;
+}
+.rtl td {
+  direction: rtl !important;
+}

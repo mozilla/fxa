@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 799d25c4855c1db7db623cda91fd711de3ee2411</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 799d25c4855c1db7db623cda91fd711de3ee2411</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/14/2026, 5:33:50 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>refactor(shared): move fxa-shared db test helpers to legacy db lib</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- The db test helpers and SQL fixtures test the legacy db lib but lived in fxa-shared.
+- fxa-admin-server loaded them through fxa-shared dist, a second copy of the models.
+
+This commit:
+- Moves the helpers and 49 .sql fixtures to the legacy db lib under src/lib/testing.
+- Points admin-server and the fxa-shared db specs at the deep testing paths.
+- Keeps testing/ out of the lib build and removes the fxa-shared test export.
+- Adds chance and @types/chance to the root devDependencies.
+
+Closes FXA-14707</pre></dd>
+  </dl>
+</body>
+</html>
