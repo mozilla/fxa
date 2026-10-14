@@ -11,6 +11,8 @@ import { MOCK_CMS_INFO } from '../../mocks';
 import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import type { Integration } from '../../../models';
+import { mockAppContext } from '../../../models/mocks';
+import { AppContext } from '../../../models/contexts/AppContext';
 
 const sendTabIntegration = {
   data: { entrypoint: 'send-tab-toolbar-icon' },
@@ -21,7 +23,14 @@ const fxaStatusResult = mockUseFxAStatus();
 export default {
   title: 'Pages/Pair',
   component: Pair,
-  decorators: [withLocalization],
+  decorators: [
+    withLocalization,
+    (Story) => (
+      <AppContext.Provider value={mockAppContext()}>
+        <Story />
+      </AppContext.Provider>
+    ),
+  ],
 } as Meta;
 
 export const ChoiceScreen = () => (

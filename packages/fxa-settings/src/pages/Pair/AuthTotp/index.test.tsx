@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -12,19 +13,37 @@ import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 import { MozServices } from '../../../lib/types';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { AppContext } from '../../../models/contexts/AppContext';
+import AuthClient from 'fxa-auth-client/browser';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
 }));
 
+const mockNavigate = jest.fn();
 jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
-  useNavigateWithQuery: () => jest.fn(),
+  useNavigateWithQuery: () => mockNavigate,
+}));
+
+let mockLocationState: unknown = null;
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useLocation: () => ({ state: mockLocationState }),
+}));
+
+jest.mock('../../../lib/account-storage', () => ({
+  getBasicAccountData: () => ({
+    uid: 'uid-123',
+    sessionToken: 'session-token',
+  }),
+  recordTotpVerified: jest.fn(),
 }));
 
 // Helper to render with AppContext that includes authClient
-function renderWithAppContext(ui: React.ReactElement) {
-  const appCtx = mockAppContext();
+function renderWithAppContext(
+  ui: React.ReactElement,
+  appCtx = mockAppContext()
+) {
   return renderWithLocalizationProvider(
     <AppContext.Provider value={appCtx}>{ui}</AppContext.Provider>
   );
@@ -69,6 +88,42 @@ describe('Sign in with TOTP code page', () => {
     expect(headingEl).toHaveTextContent(
       'Enter authentication code to continue to Mozilla VPN'
     );
+  });
+
+  describe('after a valid code', () => {
+    afterEach(() => {
+      mockNavigate.mockReset();
+      mockLocationState = null;
+    });
+
+    async function submitValidCode() {
+      const authClient = {
+        verifyTotpCode: jest.fn().mockResolvedValue({ success: true }),
+      } as unknown as AuthClient;
+      renderWithAppContext(
+        <AuthTotp email={MOCK_ACCOUNT.primaryEmail.email} />,
+        mockAppContext({ authClient })
+      );
+      const user = userEvent.setup();
+      await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+      await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
+    }
+
+    it('returns to /pair when /pair sent the user here', async () => {
+      mockLocationState = { returnToPair: true };
+      await submitValidCode();
+      expect(mockNavigate).toHaveBeenCalledWith('/pair', {
+        state: { totpComplete: true },
+      });
+    });
+
+    it('goes to /pair/auth/allow by default', async () => {
+      await submitValidCode();
+      expect(mockNavigate).toHaveBeenCalledWith('/pair/auth/allow', {
+        state: { totpComplete: true },
+      });
+    });
   });
 
   it('emits a metrics event on render', () => {
