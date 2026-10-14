@@ -12,7 +12,7 @@ const Client = require('../client')();
 const jwt = require('jsonwebtoken');
 const tokens = require('../../lib/tokens')({ trace: function () {} });
 const { setupAccountDatabase } = require('@fxa/shared/db/mysql/account');
-const { email: emailHelper } = require('fxa-shared');
+const { normalizeEmail } = require('@fxa/shared/email');
 const baseConfig = require('../../config').default.getProperties();
 
 const password = 'allyourbasearebelongtous';
@@ -139,7 +139,7 @@ describe.each(testVersions)(
             .insertInto('emails')
             .values({
               email: secondEmail,
-              normalizedEmail: emailHelper.helpers.normalizeEmail(secondEmail),
+              normalizedEmail: normalizeEmail(secondEmail),
               uid: Buffer.from(client.uid, 'hex'),
               emailCode: Buffer.from(
                 crypto.randomBytes(16).toString('hex'),
@@ -185,7 +185,7 @@ describe.each(testVersions)(
             .insertInto('emails')
             .values({
               email: secondEmail,
-              normalizedEmail: emailHelper.helpers.normalizeEmail(secondEmail),
+              normalizedEmail: normalizeEmail(secondEmail),
               uid: Buffer.from(client.uid, 'hex'),
               emailCode: Buffer.from(
                 crypto.randomBytes(16).toString('hex'),
@@ -519,7 +519,7 @@ describe.each(testVersions)(
             .insertInto('emails')
             .values({
               email: thirdEmail,
-              normalizedEmail: emailHelper.helpers.normalizeEmail(thirdEmail),
+              normalizedEmail: normalizeEmail(thirdEmail),
               uid: Buffer.from(client.uid, 'hex'),
               emailCode: Buffer.from(
                 crypto.randomBytes(16).toString('hex'),
@@ -914,7 +914,7 @@ describe.each(testVersions)(
             .insertInto('emails')
             .values({
               email: secondEmail,
-              normalizedEmail: emailHelper.helpers.normalizeEmail(secondEmail),
+              normalizedEmail: normalizeEmail(secondEmail),
               uid: Buffer.from(client.uid, 'hex'),
               emailCode,
               isVerified: 0,

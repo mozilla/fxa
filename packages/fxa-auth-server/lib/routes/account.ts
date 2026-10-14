@@ -7,7 +7,7 @@ import {
   PlayStoreSubscription,
 } from 'fxa-shared/dto/auth/payments/iap-subscription';
 import { WrappedErrorCodes } from 'fxa-shared/email/emailValidatorErrors';
-import TopEmailDomains from 'fxa-shared/email/topEmailDomains';
+import { TopEmailDomains, normalizeEmail } from '@fxa/shared/email';
 import { tryResolveIpv4, tryResolveMx } from 'fxa-shared/email/validateEmail';
 import {
   OAUTH_SCOPE_OLD_SYNC,
@@ -50,7 +50,6 @@ import validators from './validators';
 import { AccountEventsManager } from '../account-events';
 import { gleanMetrics } from '../metrics/glean';
 import { AccountDeleteManager } from '../account-delete';
-import { normalizeEmail } from 'fxa-shared/email/helpers';
 import { DeleteAccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { ProfileClient } from '@fxa/profile/client';
 import { DB } from '../db';
