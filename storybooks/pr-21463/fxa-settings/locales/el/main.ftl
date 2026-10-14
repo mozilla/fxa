@@ -1454,6 +1454,7 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Φαίνεται ότι τ
 pair2-supplicant-timeout-and-cancel-timeout-description = Για να συνδέσετε την κινητή σας συσκευή και να συγχρονίσετε τα δεδομένα σας από το { -brand-firefox }, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Ακυρώθηκε
 pair2-supplicant-timeout-and-cancel-canceled-description = Για να συνδέσετε μια συσκευή ανά πάσα στιγμή, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Αυτή η συσκευή έχει ήδη συνδεθεί
 
 
 permissions-heading = Το { $serviceName } ζητά πρόσβαση σε:

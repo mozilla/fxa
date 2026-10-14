@@ -2041,6 +2041,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Чтобы подкл�
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Отменено
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Чтобы подключить устройство в любое время, посетите <b>firefox.com/pair</b> на вашем компьютере.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = На этом устройстве уже выполнен вход
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Чтобы подключиться к аккаунту, выйдите из { -brand-firefox } на этом устройстве, затем посетите <b>firefox.com/pair</b> на компьютере, чтобы завершить вход.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
