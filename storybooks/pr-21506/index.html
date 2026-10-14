@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit b858ee8b097ac3e58b440b641aa5deb2129bcc8b</title>
+  <title>Storybooks for commit 87123e78f2838d7d9c7692cb95360402e9a41241</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,20 +23,19 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit b858ee8b097ac3e58b440b641aa5deb2129bcc8b</h1>
+  <h1>Storybooks for commit 87123e78f2838d7d9c7692cb95360402e9a41241</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/14/2026, 8:46:13 PM UTC</dd>
+    <dd>10/14/2026, 9:31:23 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): ask 2FA accounts for TOTP before v2 pairing starts</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 - A 2FA account was asked for its TOTP code on approve_signin, after the pairing channel was open.
 - The user can leave the page to read the code, and the channel can die.
-- The ticket drops the 4-minute re-prompt at approve.
 
 This commit:
 - Moves the TOTP check to ScanQR, before createChannel().
@@ -44,6 +43,7 @@ This commit:
 - Removes the TOTP check and the stale re-prompt from ApproveSignIn.
 - Splits startPairingFlowV2 into openPairingV2Entrypoint and readV2QrFromScanQr.
 - Updates the unit tests and the 2FA functional spec.
+- Notes when TOTP was last validated, to void unnecessary prompts
 
 Closes FXA-14774</pre></dd>
   </dl>
