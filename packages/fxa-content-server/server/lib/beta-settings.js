@@ -111,6 +111,7 @@ const settingsConfig = {
     clients: config.get('pairing.clients'),
     serverBaseUri: config.get('pairing.server_base_uri'),
     version: config.get('pairing.version'),
+    totpMaxAgeMinutes: config.get('pairing.totp_max_age_minutes'),
     v2MinVersion: {
       ios: config.get('pairing.v2_min_version.ios'),
       android: config.get('pairing.v2_min_version.android'),

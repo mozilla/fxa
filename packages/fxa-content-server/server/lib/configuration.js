@@ -783,6 +783,12 @@ const conf = (module.exports = convict({
       env: 'PAIRING_VERSION',
       format: Number,
     },
+    totp_max_age_minutes: {
+      default: 5,
+      doc: 'How recently the browser must have verified a TOTP code for a 2FA account to start a pairing without entering one again.',
+      env: 'PAIRING_TOTP_MAX_AGE_MINUTES',
+      format: Number,
+    },
     v2_min_version: {
       ios: {
         default: undefined,

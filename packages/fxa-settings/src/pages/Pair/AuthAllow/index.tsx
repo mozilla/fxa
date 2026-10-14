@@ -15,7 +15,7 @@ import GleanMetrics from '../../../lib/glean';
 import { useGleanView } from '../../../lib/glean/useGleanView';
 import Banner from '../../../components/Banner';
 import { PairingAuthorityIntegration } from '../../../models/integrations/pairing-authority-integration';
-import { Integration, useAuthClient } from '../../../models';
+import { Integration, useAuthClient, useConfig } from '../../../models';
 import { firefox } from '../../../lib/channels/firefox';
 import { useNavigateWithQuery } from '../../../lib/hooks';
 import { getBasicAccountData } from '../../../lib/account-storage';
@@ -51,6 +51,7 @@ const AuthAllow = ({
   useGleanView(() => GleanMetrics.cadApproveDevice.view());
   const navigateWithQuery = useNavigateWithQuery();
   const authClient = useAuthClient();
+  const config = useConfig();
   const location = useLocation();
   const [error, setError] = useState<string | undefined>(errorProp);
   const [totpChecked, setTotpChecked] = useState(false);
@@ -74,20 +75,25 @@ const AuthAllow = ({
     }
     isTotpCheckStarted.current = true;
 
-    const sessionToken = getBasicAccountData()?.sessionToken;
+    const accountData = getBasicAccountData();
+    const sessionToken = accountData?.sessionToken;
     if (!sessionToken) {
       setTotpChecked(true);
       return;
     }
 
     (async () => {
-      if (await pairingRequiresTotp(authClient, sessionToken)) {
+      const required = await pairingRequiresTotp(authClient, sessionToken, {
+        verifiedAt: accountData?.totpVerifiedAt,
+        maxAgeMs: config.pairing.totpMaxAgeMinutes * 60 * 1000,
+      });
+      if (required) {
         navigateWithQuery('/pair/auth/totp');
         return;
       }
       setTotpChecked(true);
     })();
-  }, [authClient, navigateWithQuery, totpComplete]);
+  }, [authClient, config, navigateWithQuery, totpComplete]);
 
   // Validate client_id against pairing allowlist (matching Backbone behavior)
   useEffect(() => {

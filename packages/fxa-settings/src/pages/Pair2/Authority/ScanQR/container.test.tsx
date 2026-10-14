@@ -43,6 +43,20 @@ jest.mock('react-router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
+const mockAccountProfile = jest.fn();
+jest.mock('../../../../models', () => ({
+  ...jest.requireActual('../../../../models'),
+  useAuthClient: () => ({ accountProfile: mockAccountProfile }),
+}));
+
+const MOCK_SESSION_TOKEN = 'a'.repeat(64);
+jest.mock('../../../../lib/account-storage', () => ({
+  getBasicAccountData: jest.fn(),
+}));
+const { getBasicAccountData: mockGetBasicAccountData } = jest.requireMock(
+  '../../../../lib/account-storage'
+);
+
 const mockQrSkip = jest.fn();
 jest.mock('../../../../lib/glean', () => ({
   __esModule: true,
@@ -86,6 +100,13 @@ describe('Pair2/Authority/ScanQR container', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     integration = mockAuthorityIntegration();
+    // Default to an account without 2FA so the channel opens straight away.
+    mockGetBasicAccountData.mockReturnValue({
+      sessionToken: MOCK_SESSION_TOKEN,
+    });
+    mockAccountProfile.mockResolvedValue({
+      authenticationMethods: ['pwd', 'email'],
+    });
     captureException = jest
       .spyOn(Sentry, 'captureException')
       .mockImplementation(() => '');
@@ -97,10 +118,15 @@ describe('Pair2/Authority/ScanQR container', () => {
 
   const renderContainer = (
     i: Integration = integration,
-    fxaStatusResult: UseFxAStatusResult = signedInStatus(MOCK_SIGNED_IN_USER)
+    fxaStatusResult: UseFxAStatusResult = signedInStatus(MOCK_SIGNED_IN_USER),
+    locationState?: Record<string, unknown>
   ) =>
     renderWithLocalizationProvider(
-      <MemoryRouter>
+      <MemoryRouter
+        initialEntries={[
+          { pathname: '/pair/authority/scan_qr', state: locationState },
+        ]}
+      >
         <ScanQRContainer integration={i} {...{ fxaStatusResult }} />
       </MemoryRouter>
     );
@@ -124,6 +150,7 @@ describe('Pair2/Authority/ScanQR container', () => {
 
       expect(integration.createChannel).not.toHaveBeenCalled();
       expect(hardNavigate).not.toHaveBeenCalled();
+      expect(mockAccountProfile).not.toHaveBeenCalled();
     });
 
     it.each([
@@ -140,6 +167,7 @@ describe('Pair2/Authority/ScanQR container', () => {
 
         expect(hardNavigate).toHaveBeenCalledWith('/pair', {}, true);
         expect(integration.createChannel).not.toHaveBeenCalled();
+        expect(mockAccountProfile).not.toHaveBeenCalled();
       }
     );
 
@@ -151,6 +179,7 @@ describe('Pair2/Authority/ScanQR container', () => {
 
       expect(hardNavigate).toHaveBeenCalledWith('/pair', {}, true);
       expect(integration.createChannel).not.toHaveBeenCalled();
+      expect(mockAccountProfile).not.toHaveBeenCalled();
     });
 
     describe('while the QR is on screen', () => {
@@ -301,9 +330,10 @@ describe('Pair2/Authority/ScanQR container', () => {
 
   // The handler is assigned before the channel is awaited, so a state change
   // arriving mid-creation still routes.
-  it('routes a state change that arrives before the channel is created', () => {
+  it('routes a state change that arrives before the channel is created', async () => {
     integration.createChannel.mockReturnValue(new Promise(() => {}));
     renderContainer();
+    await waitFor(() => expect(integration.onStateChange).toBeTruthy());
 
     emitState(integration, AuthorityState.WaitingForAuthorizations);
 
@@ -424,6 +454,89 @@ describe('Pair2/Authority/ScanQR container', () => {
 
       expect(mockNavigate).toHaveBeenCalledWith('/settings');
       await waitFor(() => expect(captureException).toHaveBeenCalledWith(err));
+    });
+  });
+
+  // The code is asked for before the channel exists, so switching apps to read
+  // it cannot kill a live pairing.
+  describe('two-step authentication', () => {
+    it('sends a 2FA account to the TOTP screen without opening a channel', async () => {
+      mockAccountProfile.mockResolvedValue({
+        authenticationMethods: ['pwd', 'email', 'otp'],
+      });
+
+      renderContainer();
+
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('/pair/authority/totp', {
+          replace: true,
+        })
+      );
+      expect(mockAccountProfile).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
+      expect(integration.createChannel).not.toHaveBeenCalled();
+    });
+
+    it('opens the channel without a profile lookup when returning from a verified code', async () => {
+      mockAccountProfile.mockResolvedValue({
+        authenticationMethods: ['pwd', 'email', 'otp'],
+      });
+
+      renderContainer(integration, signedInStatus(MOCK_SIGNED_IN_USER), {
+        totpComplete: true,
+      });
+
+      await waitFor(() => expect(integration.createChannel).toHaveBeenCalled());
+      expect(mockAccountProfile).not.toHaveBeenCalled();
+    });
+
+    it('opens the channel without a profile lookup when this browser verified a code just now', async () => {
+      mockGetBasicAccountData.mockReturnValue({
+        sessionToken: MOCK_SESSION_TOKEN,
+        totpVerifiedAt: Date.now(),
+      });
+
+      renderContainer();
+
+      await waitFor(() => expect(integration.createChannel).toHaveBeenCalled());
+      expect(mockAccountProfile).not.toHaveBeenCalled();
+    });
+
+    it('opens the channel for an account without 2FA', async () => {
+      renderContainer();
+
+      await waitFor(() => expect(integration.createChannel).toHaveBeenCalled());
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    it('opens the channel when no session token is stored', async () => {
+      mockGetBasicAccountData.mockReturnValue(null);
+
+      renderContainer();
+
+      await waitFor(() => expect(integration.createChannel).toHaveBeenCalled());
+      expect(mockAccountProfile).not.toHaveBeenCalled();
+    });
+
+    it('opens the channel when the profile lookup fails', async () => {
+      mockAccountProfile.mockRejectedValue(
+        new Error('Backend service failure')
+      );
+
+      renderContainer();
+
+      await waitFor(() => expect(integration.createChannel).toHaveBeenCalled());
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    it('still skips to settings while the check is pending', async () => {
+      mockAccountProfile.mockReturnValue(new Promise(() => {}));
+      const user = userEvent.setup();
+      renderContainer();
+
+      await user.click(screen.getByRole('button', { name: 'Skip for now' }));
+
+      expect(mockNavigate).toHaveBeenCalledWith('/settings');
+      expect(integration.createChannel).not.toHaveBeenCalled();
     });
   });
 
