@@ -39,7 +39,7 @@ const SyncSuccess = ({
         </p>
       </FtlMsg>
 
-      <SyncSuccessImage className="mt-6 h-40 w-auto" />
+      <SyncSuccessImage className="mt-6 h-40 w-auto max-w-full" />
 
       <FtlMsg id="pair2-authority-sync-success-sync-settings-button-v2">
         <button

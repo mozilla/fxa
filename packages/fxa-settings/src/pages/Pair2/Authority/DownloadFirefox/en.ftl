@@ -5,7 +5,7 @@
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Open { -brand-firefox } to sync
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = To set up syncing across devices, open { -brand-firefox } on this device and visit <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = To set up syncing across devices, open { -brand-firefox } on this device and visit <b>firefox.com/pair</b>.
 
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Download { -brand-firefox }

@@ -20,7 +20,7 @@ const SyncSuccess = () => {
       <div className="flex flex-col items-center text-center">
         <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
 
-        <SyncSuccessImage className="mt-10 h-[176px] w-auto" />
+        <SyncSuccessImage className="mt-10 h-[104px] w-auto" />
 
         <FtlMsg id="pair2-supplicant-sync-success-heading">
           <h1 className="card-header mt-4">Your device is connected</h1>
