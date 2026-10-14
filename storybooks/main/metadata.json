@@ -1,8 +1,8 @@
 {
-  "commit": "994f9b22c6eb8e534dbb393f719eaf765237ce61",
-  "summary": "Merge pull request #21516 from mozilla/fxa-14778",
-  "description": "chore(shared): copy FxA Glean YAML to the glean registry lib",
-  "timestamp": 1792012097000,
+  "commit": "8e7b7f8a5d32f5e77717afe4214a1cfc106ffe68",
+  "summary": "Merge pull request #21423 from mozilla/fxa-14687",
+  "description": "feat(auth): emit passkey wrap_invalidated on stale replace and reset",
+  "timestamp": 1792016421000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
