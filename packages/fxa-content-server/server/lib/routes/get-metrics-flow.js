@@ -12,11 +12,10 @@ const logFlowEvent = require('../flow-event').logFlowEvent;
 const logger = require('../logging/log')('server.get-metrics-flow');
 const geodbConfig = config.get('geodb');
 const geodb = require('fxa-geodb')(geodbConfig);
-const remoteAddress =
-  require('fxa-shared/express/remote-address').remoteAddress(
-    config.get('clientAddressDepth')
-  );
-const geolocate = require('fxa-shared/express/geo-locate').geolocate(geodb)(
+const remoteAddress = require('@fxa/shared/express').remoteAddress(
+  config.get('clientAddressDepth')
+);
+const geolocate = require('@fxa/shared/express').geolocate(geodb)(
   remoteAddress
 )(logger);
 const { v4: uuidv4 } = require('uuid');

@@ -12,7 +12,7 @@ import {
   NextFunction,
   RequestHandler,
 } from 'express';
-import { RouteDefinition } from 'fxa-shared/express/routing';
+import { RouteDefinition } from '@fxa/shared/express';
 
 export interface ReactRouteGroup {
   featureFlagOn: boolean;
