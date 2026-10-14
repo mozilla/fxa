@@ -1,8 +1,8 @@
 {
-  "commit": "cb76a07860fdfdcf069501e5fade71c027600087",
+  "commit": "78c99b50b2dabaee30d067df648ab314ce9f75e5",
   "summary": "refactor(shared): move fxa-shared/express into @fxa/shared/express lib",
-  "description": "Because:\n- The epic that moves fxa-shared folders to Nx libs needs express in its own lib.\n- The fxa-content-server Node server must keep working through the fxa-shared paths.\n\nThis commit:\n- Adds the lib libs/shared/express and the @fxa/shared/express path.\n- Moves cors, geo-locate, remote-address and routing into the lib.\n- Changes the fxa-shared express files to one-line re-exports.\n- Ports the mocha tests to Jest specs in the lib and adds a shim spec.\n- Adds celebrate, cors, joi and @types/cors to the root package.json.\n\nCloses FXA-10658",
-  "timestamp": 1791991635000,
+  "description": "Because:\n- The epic that moves fxa-shared folders to Nx libs needs express in its own lib.\n- The fxa-content-server Node server must keep working through the fxa-shared paths.\n\nThis commit:\n- Adds the lib libs/shared/express and the @fxa/shared/express path.\n- Moves cors, geo-locate, remote-address and routing into the lib.\n- Changes the fxa-shared express files, cors included, to re-exports.\n- Ports the mocha tests to Jest specs in the lib and adds a shim spec.\n- Adds celebrate, cors, joi and @types/cors to the root package.json.\n\nCloses FXA-10658",
+  "timestamp": 1791993696000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
