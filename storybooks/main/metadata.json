@@ -1,8 +1,8 @@
 {
-  "commit": "f372fb20865c5a7eb1bcf2093fb6ed83bab00e17",
-  "summary": "Merge pull request #21495 from mozilla/fxa-14695",
-  "description": "refactor(shared): move nestjs health to @fxa/shared/nest-health",
-  "timestamp": 1791989902000,
+  "commit": "b56b7b9d78f721093c008a55a8fed0acd7f120eb",
+  "summary": "Merge pull request #21496 from mozilla/fxa-14709",
+  "description": "refactor(content-server): move metrics validator and flow-performance",
+  "timestamp": 1791990080000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
