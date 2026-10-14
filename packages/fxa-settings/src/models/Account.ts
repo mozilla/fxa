@@ -2,15 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import base32Decode from 'base32-decode';
 import config from '../lib/config';
 import AuthClient, {
   AUTH_PROVIDER,
-  generateRecoveryKey,
-  getRecoveryKeyIdByUid,
-  getCredentials,
-  getCredentialsV2,
-  getKeysV2,
   AttachedClient as RawAttachedClient,
 } from 'fxa-auth-client/browser';
 import type { Passkey } from 'fxa-auth-client/browser';
@@ -24,15 +18,13 @@ import {
 } from '../lib/cache';
 import firefox from '../lib/channels/firefox';
 import Storage from '../lib/storage';
-import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
-import { LinkedAccountProviderIds, MfaScope, MozServices } from '../lib/types';
+import { AuthUiErrors } from '../lib/auth-errors/auth-errors';
+import { LinkedAccountProviderIds, MfaScope } from '../lib/types';
 import {
   AccountAvatar,
   AccountBackupCodes,
   AccountTotp,
 } from '../lib/interfaces';
-import { createSaltV2 } from 'fxa-auth-client/lib/salt';
-import { getHandledError } from '../lib/error-utils';
 import * as Sentry from '@sentry/browser';
 import {
   getFullAccountData,
@@ -68,14 +60,6 @@ export interface SecurityEvent {
   verified?: boolean;
 }
 
-export interface PasswordForgotSendCodePayload {
-  passwordForgotToken: string;
-}
-
-export interface RecoveryKeyBundlePayload {
-  recoveryData: string;
-}
-
 /** Response shape from auth-client recoveryPhoneGet */
 interface RecoveryPhoneGetResponse {
   exists: boolean;
@@ -97,14 +81,6 @@ interface RawEmail {
 
 /** Re-export RawAttachedClient for consumers that import from Account */
 export type { RawAttachedClient };
-
-/** Helper to extract errno from auth-client errors */
-function getErrno(err: unknown): number | undefined {
-  if (typeof err === 'object' && err !== null && 'errno' in err) {
-    return (err as { errno: number }).errno;
-  }
-  return undefined;
-}
 
 /** Maps a raw attached client from auth-client to the AttachedClient shape */
 export function mapAttachedClient(c: RawAttachedClient): AttachedClient {
@@ -644,30 +620,6 @@ export class Account implements AccountData {
     return securityEvents;
   }
 
-  async getRecoveryKeyBundle(
-    accountResetToken: string,
-    recoveryKey: string,
-    uid: hexstring
-  ) {
-    const decodedRecoveryKey = base32Decode(recoveryKey, 'Crockford');
-    const uint8RecoveryKey = new Uint8Array(decodedRecoveryKey);
-    const recoveryKeyId = await getRecoveryKeyIdByUid(uint8RecoveryKey, uid);
-
-    try {
-      const recoveryData = await this.authClient.getRecoveryKey(
-        accountResetToken,
-        recoveryKeyId
-      );
-      return { recoveryData: recoveryData.recoveryData, recoveryKeyId };
-    } catch (err: unknown) {
-      const errno = getErrno(err);
-      if (errno && AuthUiErrorNos[errno]) {
-        throw AuthUiErrorNos[errno];
-      }
-      throw AuthUiErrors.UNEXPECTED_ERROR;
-    }
-  }
-
   async changePassword(oldPassword: string, newPassword: string) {
     const currentSessionToken = sessionToken();
 
@@ -749,196 +701,6 @@ export class Account implements AccountData {
       passwordCreated: passwordCreatedResult.passwordCreated,
       hasPassword: true,
     });
-  }
-
-  async resetPassword(
-    email: string,
-    service?: string,
-    redirectTo?: string,
-    metricsContext?: MetricsContext
-  ): Promise<PasswordForgotSendCodePayload> {
-    let options: {
-      service?: string;
-      resume?: string;
-      redirectTo?: string;
-      metricsContext?: MetricsContext;
-    } = {
-      resume: 'e30=', // base64 json for {}
-    };
-
-    // Important! Only set service when it's Firefox Sync
-    if (service && service === MozServices.FirefoxSync) {
-      options.service = 'sync';
-    } else {
-      options.service = service;
-    }
-
-    if (redirectTo) {
-      options.redirectTo = redirectTo;
-    }
-
-    if (metricsContext) {
-      options.metricsContext = metricsContext;
-    }
-
-    return this.authClient.passwordForgotSendCode(email, options);
-  }
-
-  async resetPasswordStatus(passwordForgotToken: string): Promise<boolean> {
-    try {
-      await this.authClient.passwordForgotStatus(passwordForgotToken);
-      // If the request does not fail, that means that the token has not been
-      // consumed yet
-      return true;
-    } catch (err: unknown) {
-      const errno = getErrno(err);
-
-      // Invalid token means the user has completed reset password
-      // or that the provided token is stale (expired or replaced with new token)
-      if (errno === AuthUiErrors.INVALID_TOKEN.errno) {
-        return false;
-      }
-
-      // Throw all other errors
-      if (errno && AuthUiErrorNos[errno]) {
-        throw AuthUiErrorNos[errno];
-      }
-      throw AuthUiErrors.UNEXPECTED_ERROR;
-    }
-  }
-
-  /**
-   * @param token passwordForgotToken
-   * @param code code
-   * @param accountResetWithRecoveryKey is account being reset with recovery key?
-   * @param includeRecoveryKeyPrompt should a prompt to create a recovery key be included in the success email?
-   */
-  async passwordForgotVerifyCode(
-    token: string,
-    code: string,
-    accountResetWithRecoveryKey = false,
-    includeRecoveryKeyPrompt = false
-  ): Promise<string> {
-    // TODO: There is a bug in Backbone and React reset PW around `accountResetWithRecoveryKey`.
-    // We attempt to validate the `code` and `token` provided here, but because the
-    // `accountResetToken` can only be fetched once but uses the `accountResetWithRecoveryKey`
-    // option, auth-server fails to send an email if the user has a recovery key, attempts
-    // to use it unsuccessfully, and then goes through a normal reset via the link back
-    // to a normal reset if a user can't use their key.
-    const { accountResetToken } =
-      await this.authClient.passwordForgotVerifyCode(code, token, {
-        accountResetWithRecoveryKey,
-        includeRecoveryKeyPrompt,
-      });
-    return accountResetToken;
-  }
-
-  /**
-   * Verify a passwordForgotToken, which returns an accountResetToken that can
-   * be used to perform the actual password reset.
-   *
-   * @param token passwordForgotToken
-   * @param code code
-   */
-  async verifyPasswordForgotToken(token: string, code: string) {
-    try {
-      const result = await this.authClient.passwordForgotVerifyCode(
-        code,
-        token
-      );
-      return { accountResetToken: result.accountResetToken };
-    } catch (err: unknown) {
-      const errno = getErrno(err);
-      if (errno && AuthUiErrorNos[errno]) {
-        throw AuthUiErrorNos[errno];
-      }
-      throw AuthUiErrors.UNEXPECTED_ERROR;
-    }
-  }
-
-  /**
-   * Complete the password reset process. When a user reset's their password,
-   * all current sessions are revoked and they will have to re-login connected
-   * devices. Depending on if they used a recovery key, their encryption key might
-   * change.
-   *
-   * @param token passwordForgotToken
-   * @param code
-   * @param email current user email
-   * @param newPassword new password
-   */
-  async completeResetPassword(
-    v2: boolean,
-    token: string,
-    code: string,
-    email: string,
-    newPassword: string,
-    resetToken?: string,
-    kB?: string,
-    includeRecoveryKeyPrompt = false
-  ): Promise<{
-    authAt: number;
-    keyFetchToken: string;
-    sessionToken: string;
-    uid: string;
-    unwrapBKey: string;
-    unwrapBKeyVersion2?: string;
-    emailVerified: boolean;
-    sessionVerified: boolean;
-  }> {
-    try {
-      // if we already have a reset token, that means the user successfully used a recovery key
-      const accountResetToken =
-        resetToken ||
-        (await this.passwordForgotVerifyCode(
-          token,
-          code,
-          false,
-          includeRecoveryKeyPrompt
-        ));
-      const credentials = await getCredentials(email, newPassword);
-
-      let credentialsV2 = undefined;
-      let newPasswordV2 = undefined;
-      if (v2) {
-        credentialsV2 = await getCredentialsV2({
-          password: newPassword,
-          clientSalt: createSaltV2(),
-        });
-
-        const { wrapKb, wrapKbVersion2 } = await getKeysV2({
-          kB,
-          v1: credentials,
-          v2: credentialsV2,
-        });
-
-        newPasswordV2 = {
-          wrapKb,
-          authPWVersion2: credentialsV2.authPW,
-          wrapKbVersion2,
-          clientSalt: credentialsV2.clientSalt,
-        };
-      }
-
-      const accountReset = await this.authClient.accountResetAuthPW(
-        credentials.authPW,
-        accountResetToken,
-        newPasswordV2 ?? {},
-        {
-          sessionToken: true,
-          keys: true,
-        }
-      );
-
-      // localStorage is handled by the caller via storeAccountData
-      return {
-        ...accountReset,
-        unwrapBKey: credentials.unwrapBKey,
-        unwrapBKeyVersion2: credentialsV2?.unwrapBKey,
-      };
-    } catch (err) {
-      throw getHandledError(err);
-    }
   }
 
   async setDisplayName(displayName: string) {
@@ -1318,70 +1080,6 @@ export class Account implements AccountData {
     firefox.profileChanged({ uid: this.uid });
   }
 
-  async createRecoveryKey(
-    password: string,
-    replaceKey: boolean,
-    useMfaJwt: boolean
-  ) {
-    const reauth = await this.withLoadingStatus(
-      (async () => {
-        const emails = await this.authClient.accountEmails(sessionToken()!);
-        return this.authClient.sessionReauth(
-          sessionToken()!,
-          emails,
-          password,
-          {
-            keys: true,
-            reason: 'recovery_key',
-          }
-        );
-      })()
-    );
-    const keys = await this.withLoadingStatus(
-      this.authClient.accountKeys(reauth.keyFetchToken!, reauth.unwrapBKey!)
-    );
-    const { recoveryKey, recoveryKeyId, recoveryData } =
-      await generateRecoveryKey(this.uid, keys);
-
-    if (useMfaJwt) {
-      const jwt = this.getCachedJwtByScope('recovery_key');
-      await this.withLoadingStatus(
-        this.authClient.createRecoveryKeyWithJwt(
-          jwt,
-          recoveryKeyId,
-          recoveryData,
-          true,
-          replaceKey
-        )
-      );
-    } else {
-      await this.withLoadingStatus(
-        this.authClient.createRecoveryKey(
-          sessionToken()!,
-          recoveryKeyId,
-          recoveryData,
-          true,
-          replaceKey
-        )
-      );
-    }
-
-    const currentRecoveryKey = this.recoveryKey;
-    updateExtendedAccountState({
-      recoveryKey: {
-        exists: true,
-        estimatedSyncDeviceCount: currentRecoveryKey?.estimatedSyncDeviceCount,
-      },
-    });
-    return recoveryKey;
-  }
-
-  async updateRecoveryKeyHint(hint: string) {
-    await this.withLoadingStatus(
-      this.authClient.updateRecoveryKeyHint(sessionToken()!, hint)
-    );
-  }
-
   async metricsOpt(state: 'in' | 'out') {
     const token = sessionToken();
     if (!token) throw AuthUiErrors.INVALID_TOKEN;
@@ -1422,43 +1120,6 @@ export class Account implements AccountData {
     );
     firefox.accountDeleted(this.uid);
     Storage.factory('localStorage').clear();
-  }
-
-  async resetPasswordWithRecoveryKey(opts: {
-    accountResetToken: string;
-    emailToHashWith: string;
-    password: string;
-    recoveryKeyId: string;
-    kB: string;
-    isFirefoxMobileClient: boolean;
-  }) {
-    const response = await this.authClient.resetPasswordWithRecoveryKey(
-      opts.accountResetToken,
-      // During the (unauthenticated) password reset flow `this.primaryEmail.email`
-      // is the empty-string default, so both the v1 salt and the credential-status
-      // lookup must use `emailToHashWith` — the email the reset was initiated with.
-      {
-        primary: opts.emailToHashWith,
-        original: opts.emailToHashWith,
-      },
-      opts.password,
-      opts.recoveryKeyId,
-      { kB: opts.kB },
-      {
-        sessionToken: true,
-        keys: true,
-        isFirefoxMobileClient: opts.isFirefoxMobileClient,
-      }
-    );
-
-    if (response.sessionToken) {
-      sessionToken(response.sessionToken);
-      updateBasicAccountData({
-        sessionVerified: response.verified,
-      });
-    }
-
-    return response;
   }
 
   async removeRecoveryPhone() {

@@ -19,6 +19,7 @@ import {
 import { InlineRecoveryKeySetupProps } from './interfaces';
 import { MOCK_EMAIL } from '../InlineTotpSetup/mocks';
 import { MemoryRouter } from 'react-router';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
@@ -163,5 +164,19 @@ describe('InlineRecoveryKeySetupContainer', () => {
       MOCK_SESSION_TOKEN,
       'take the hint'
     );
+  });
+
+  it('updateRecoveryHint rejects when authClient fails', async () => {
+    const error = AuthUiErrors.UNEXPECTED_ERROR;
+    mockAuthClient.updateRecoveryKeyHint = jest.fn().mockRejectedValue(error);
+    render(
+      <MemoryRouter>
+        <InlineRecoveryKeySetupContainer />
+      </MemoryRouter>
+    );
+
+    await expect(
+      currentProps?.updateRecoveryHintHandler('take the hint')
+    ).rejects.toBe(error);
   });
 });

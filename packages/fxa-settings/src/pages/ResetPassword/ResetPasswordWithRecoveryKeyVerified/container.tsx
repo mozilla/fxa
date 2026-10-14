@@ -11,7 +11,6 @@ import { hardNavigate } from 'fxa-react/lib/utils';
 import {
   Integration,
   isOAuthIntegration,
-  useAccount,
   useAlertBar,
   useAuthClient,
   useFtlMsgResolver,
@@ -24,6 +23,7 @@ import {
 import ResetPasswordWithRecoveryKeyVerified from './index';
 import { SETTINGS_PATH } from '../../../constants';
 import { currentAccount } from '../../../lib/cache';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
   integration,
@@ -43,11 +43,13 @@ const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
   const [oAuthError, setOAuthError] =
     useState<FinishOAuthFlowHandlerResult['error']>();
 
-  const account = useAccount();
   const { uid, sessionToken, email } = currentAccount() || {};
   const updateRecoveryKeyHint = useCallback(
-    async (hint: string) => account.updateRecoveryKeyHint(hint),
-    [account]
+    async (hint: string) => {
+      if (!sessionToken) throw AuthUiErrors.INVALID_TOKEN;
+      await authClient.updateRecoveryKeyHint(sessionToken, hint);
+    },
+    [authClient, sessionToken]
   );
   const { keyFetchToken, unwrapBKey } =
     sensitiveDataClient.AccountResetData || {};
