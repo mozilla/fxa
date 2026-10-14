@@ -1,8 +1,8 @@
 {
-  "commit": "a80e1e3e2e4f7a326a022639b173c91015a1fdcb",
-  "summary": "Merge pull request #21493 from mozilla/fxa-14770",
-  "description": "fix(settings): expect firefox-logo-bw.svg in ScanQR test",
-  "timestamp": 1791939708000,
+  "commit": "b0ad9193eaa0b6148c87c60f28fc4d0461c07aac",
+  "summary": "Merge pull request #21402 from mozilla/blender/security-bump-@opentelemetry/instrumentation-pg",
+  "description": "chore(deps): bump @opentelemetry/instrumentation-pg to >=0.73.0",
+  "timestamp": 1791940766000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
