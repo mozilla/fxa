@@ -1,8 +1,8 @@
 {
-  "commit": "9d9a36ffd1c13900eb8c4e8e908234f66f2f5157",
-  "summary": "Merge pull request #21508 from mozilla/fxa-14698",
-  "description": "refactor(shared): move email DNS validation to @fxa/shared/email/server",
-  "timestamp": 1792002708000,
+  "commit": "9f3fe6a7b64bb698615cba34e9cae9990bf46e80",
+  "summary": "Merge pull request #21501 from mozilla/fxa-10653",
+  "description": "refactor(accounts): move connected-services to @fxa/accounts/connected-services",
+  "timestamp": 1792003133000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
