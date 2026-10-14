@@ -18,7 +18,7 @@ import {
   randomAccount,
   randomEmail,
   randomEmailBounce,
-} from 'fxa-shared/test/db/models/auth/helpers';
+} from '@fxa/shared/db/mysql/legacy/testing/models/auth/helpers';
 
 const config = Config.getProperties();
 

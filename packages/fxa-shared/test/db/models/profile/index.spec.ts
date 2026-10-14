@@ -15,13 +15,16 @@ import {
   profileByUid,
   selectedAvatar,
 } from '@fxa/shared/db/mysql/legacy/models/profile';
-import { defaultOpts, testDatabaseSetup } from '../../helpers';
+import {
+  defaultOpts,
+  testDatabaseSetup,
+} from '@fxa/shared/db/mysql/legacy/testing/helpers';
 import {
   chance,
   defaultProvider,
   randomAvatar,
   randomProfile,
-} from './helpers';
+} from '@fxa/shared/db/mysql/legacy/testing/models/profile/helpers';
 
 const PROFILE_1 = randomProfile();
 const PROFILE_2 = randomProfile();

@@ -6,13 +6,9 @@ import fs from 'fs';
 import path from 'path';
 
 import Chance from 'chance';
-import { knex, Knex } from 'knex';
+import { Knex } from 'knex';
 
-import {
-  Account,
-  BaseAuthModel,
-  EmailBounce,
-} from '@fxa/shared/db/mysql/legacy/models/auth';
+import { Account, BaseAuthModel, EmailBounce } from '../../../models/auth';
 import { randomBytes } from 'crypto';
 
 export type AccountIsh = Pick<
@@ -67,7 +63,7 @@ export function randomEmail(account: AccountIsh, primary = true) {
 
 export function randomEmailBounce(
   email: string,
-  withDiagnosticCode: boolean = false
+  withDiagnosticCode = false
 ): BounceIsh {
   return {
     bounceSubType: chance.integer({ min: 0, max: 14 }),

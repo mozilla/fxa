@@ -6,7 +6,10 @@ import {
   IMysqlStoreSharedEvents,
   MysqlStoreShared,
 } from '@fxa/shared/db/mysql/legacy/mysql';
-import { defaultOpts, testDatabaseSetup } from './helpers';
+import {
+  defaultOpts,
+  testDatabaseSetup,
+} from '@fxa/shared/db/mysql/legacy/testing/helpers';
 
 const dbOpts = Object.assign({}, defaultOpts.testDbConfig, {
   connectionLimit: 20,

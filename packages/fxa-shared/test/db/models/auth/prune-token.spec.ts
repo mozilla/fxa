@@ -14,7 +14,10 @@ import {
 import { MetaData } from '@fxa/shared/db/mysql/legacy/models/auth/metadata';
 import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
 import { ILogger } from '../../../../log';
-import { defaultOpts, testDatabaseSetup } from '../../helpers';
+import {
+  defaultOpts,
+  testDatabaseSetup,
+} from '@fxa/shared/db/mysql/legacy/testing/helpers';
 import crypto from 'crypto';
 
 const toRandomBuff = (size) =>
