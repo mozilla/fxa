@@ -1,8 +1,8 @@
 {
-  "commit": "9f3fe6a7b64bb698615cba34e9cae9990bf46e80",
-  "summary": "Merge pull request #21501 from mozilla/fxa-10653",
-  "description": "refactor(accounts): move connected-services to @fxa/accounts/connected-services",
-  "timestamp": 1792003133000,
+  "commit": "4093d09db5ef75d508b09ed1514742bbffb463d0",
+  "summary": "Merge pull request #21507 from mozilla/fxa-14707",
+  "description": "refactor(shared): move fxa-shared db test helpers to legacy db lib",
+  "timestamp": 1792003301000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
