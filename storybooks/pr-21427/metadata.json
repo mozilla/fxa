@@ -1,8 +1,8 @@
 {
-  "commit": "5ac2d9039c13c807f7ad886ed4d1315a64946287",
-  "summary": "perf(payments): reuse lock reads in legacy customer fetch",
-  "description": "Because:\n\n* legacyFetchAndInsertCustomer read each stored doc twice per\n  transaction: once to lock it and again for its stripeEventCreatedTime\n\nThis commit:\n\n* Reuses the lock-read snapshots and reads only docs they missed\n* Adds a test for reading only the missed docs",
-  "timestamp": 1791906432000,
+  "commit": "580081cf416d6c3f3068c3314dbb8c84fbfe51ed",
+  "summary": "fix(payments): guard subscription writes on Stripe event time",
+  "description": "Because:\n\n* fetchAndInsertSubscription wrote without stripeEventCreatedTime, so an\n  older event's stale fetchAndInsertCustomer write could overwrite it\n* legacyFetchAndInsertCustomer rewrote customer and subscription docs\n  without stripeEventCreatedTime, which let a delayed older webhook\n  overwrite them with stale data\n* Reading Stripe inside the transaction repeated Stripe calls on every\n  contention retry\n\nThis commit:\n\n* Reads Stripe before the transaction in fetchAndInsertSubscription\n* Skips subscription writes when a same-or-newer event is stored\n* Stores stripeEventCreatedTime on subscription writes\n* Passes event.created from processSubscriptionEventToFirestore\n* Copies the stored stripeEventCreatedTime onto rewritten customer and\n  subscription docs in legacyFetchAndInsertCustomer\n\nCloses #PAY-3937",
+  "timestamp": 1791993938000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",

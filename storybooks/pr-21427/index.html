@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 5ac2d9039c13c807f7ad886ed4d1315a64946287</title>
+  <title>Storybooks for commit 580081cf416d6c3f3068c3314dbb8c84fbfe51ed</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 5ac2d9039c13c807f7ad886ed4d1315a64946287</h1>
+  <h1>Storybooks for commit 580081cf416d6c3f3068c3314dbb8c84fbfe51ed</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,19 +31,30 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/13/2026, 3:47:12 PM UTC</dd>
+    <dd>10/14/2026, 4:05:38 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>perf(payments): reuse lock reads in legacy customer fetch</pre></dd>
+    <dd><pre>fix(payments): guard subscription writes on Stripe event time</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-* legacyFetchAndInsertCustomer read each stored doc twice per
-  transaction: once to lock it and again for its stripeEventCreatedTime
+* fetchAndInsertSubscription wrote without stripeEventCreatedTime, so an
+  older event&#039;s stale fetchAndInsertCustomer write could overwrite it
+* legacyFetchAndInsertCustomer rewrote customer and subscription docs
+  without stripeEventCreatedTime, which let a delayed older webhook
+  overwrite them with stale data
+* Reading Stripe inside the transaction repeated Stripe calls on every
+  contention retry
 
 This commit:
 
-* Reuses the lock-read snapshots and reads only docs they missed
-* Adds a test for reading only the missed docs</pre></dd>
+* Reads Stripe before the transaction in fetchAndInsertSubscription
+* Skips subscription writes when a same-or-newer event is stored
+* Stores stripeEventCreatedTime on subscription writes
+* Passes event.created from processSubscriptionEventToFirestore
+* Copies the stored stripeEventCreatedTime onto rewritten customer and
+  subscription docs in legacyFetchAndInsertCustomer
+
+Closes #PAY-3937</pre></dd>
   </dl>
 </body>
 </html>

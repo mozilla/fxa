@@ -2047,6 +2047,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Ak chcete pripojiť sv
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Zrušené
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Ak chcete kedykoľvek pripojiť zariadenie, navštívte na svojom počítači stránku <b>firefox.com/pair</b>.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Toto zariadenie je už prihlásené
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Ak chcete prepojiť účet v počítači, odhláste sa z aplikácie { -brand-firefox } na tomto zariadení a potom v počítači prejdite na <b>firefox.com/pair</b> a dokončite prihlásenie.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
