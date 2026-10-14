@@ -17,6 +17,7 @@ import {
   insertPasskey,
 } from './passkey.repository';
 import {
+  countPasskeyWrapsByUid,
   deletePasskeyWrap,
   findPasskeyWrap,
   insertPasskeyWrap,
@@ -281,6 +282,34 @@ describe('PasskeyWrapRepository (Integration)', () => {
       await expect(
         findPasskeyWrap(db, uid, secondCredentialId)
       ).resolves.toBeDefined();
+    });
+  });
+
+  describe('countPasskeyWrapsByUid', () => {
+    it('counts the user’s wraps', async () => {
+      const { uid, credentialId } = await createAccountWithPasskey();
+      await insertPasskeyWrap(db, uid, envelope(credentialId), NOW);
+
+      await expect(countPasskeyWrapsByUid(db, uid)).resolves.toBe(1);
+    });
+
+    it('reports zero when the user’s passkeys hold no wraps', async () => {
+      const { uid } = await createAccountWithPasskey();
+
+      await expect(countPasskeyWrapsByUid(db, uid)).resolves.toBe(0);
+    });
+
+    it('does not count another user’s wraps', async () => {
+      const target = await createAccountWithPasskey();
+      const bystander = await createAccountWithPasskey();
+      await insertPasskeyWrap(
+        db,
+        bystander.uid,
+        envelope(bystander.credentialId),
+        NOW
+      );
+
+      await expect(countPasskeyWrapsByUid(db, target.uid)).resolves.toBe(0);
     });
   });
 

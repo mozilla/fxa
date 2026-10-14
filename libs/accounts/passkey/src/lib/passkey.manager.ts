@@ -27,6 +27,7 @@ import {
   updatePasskeyPrfEnabled,
 } from './passkey.repository';
 import {
+  countPasskeyWrapsByUid,
   deletePasskeyWrap as repositoryDeletePasskeyWrap,
   findPasskeyWrap as repositoryFindPasskeyWrap,
   insertPasskeyWrap,
@@ -308,5 +309,14 @@ export class PasskeyManager {
     staleBefore?: number
   ): Promise<boolean> {
     return repositoryDeletePasskeyWrap(this.db, uid, credentialId, staleBefore);
+  }
+
+  /**
+   * Count the wraps a user holds.
+   *
+   * @returns Current wrap count for the user
+   */
+  async countPasskeyWraps(uid: string): Promise<number> {
+    return countPasskeyWrapsByUid(this.db, uid);
   }
 }
