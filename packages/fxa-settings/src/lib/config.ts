@@ -97,6 +97,11 @@ export interface Config {
     serverBaseUri: string;
     version: number;
     /**
+     * Minutes within which a TOTP code this browser verified lets a 2FA
+     * account start a pairing without entering one again.
+     */
+    totpMaxAgeMinutes: number;
+    /**
      * Lowest Firefox major version, per platform, that takes the v2 flow. A
      * platform left out defers to the `pairingVersion` the browser reports in
      * fxa_status. Setting `ios` is also what lets a pairing QR scanned outside
@@ -229,6 +234,7 @@ export function getDefault() {
       clients: [],
       serverBaseUri: 'wss://channelserver.services.mozilla.com',
       version: 1,
+      totpMaxAgeMinutes: 5,
       v2MinVersion: {},
     },
     mobileStoreLinks: {

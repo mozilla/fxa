@@ -16,7 +16,10 @@ import { MozServices } from '../../../lib/types';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { useNavigateWithQuery } from '../../../lib/hooks';
 import { Integration } from '../../../models';
-import { getBasicAccountData } from '../../../lib/account-storage';
+import {
+  getBasicAccountData,
+  recordTotpVerified,
+} from '../../../lib/account-storage';
 import AppLayout from '../../../components/AppLayout';
 
 export type AuthTotpProps = {
@@ -73,6 +76,8 @@ const AuthTotp = ({ email, serviceName, onVerified }: AuthTotpProps) => {
           );
           return;
         }
+
+        recordTotpVerified(accountData.uid);
 
         if (onVerified) {
           onVerified();

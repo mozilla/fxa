@@ -56,8 +56,11 @@ import {
   signInAuthorityViaMarionette,
   getSignedInUser,
   startPairingFlowV2,
+  openPairingV2Entrypoint,
+  readV2QrFromScanQr,
   enableTotpOnAccount,
   enterTotpCodeViaMarionette,
+  forgetTotpVerification,
   waitForUrlContaining,
   attachAuthorityDiagnostics,
   mockSupplicantOAuthLogin,
@@ -264,8 +267,8 @@ test.describe('severity-2 #smoke', () => {
       });
     });
 
-    // Approving mints a code carrying the account's Sync keys, so a 2FA account
-    // is asked for its second factor again right before approval, as in v1.
+    // A 2FA account enters its code before the channel opens, so no channel is
+    // live while the user reads the code from another app.
     test('2FA account: authority enters a TOTP code before it can approve', async ({
       target,
       testAccountTracker,
@@ -298,15 +301,31 @@ test.describe('severity-2 #smoke', () => {
             totpSecret
           );
           expect((await getSignedInUser(authority)).signedIn).toBe(true);
+          // Sign-in just verified a code; age it so scan_qr prompts again.
+          await forgetTotpVerification(authority);
           return totpSecret;
         });
 
-      const pairUrl = await test.step('Authority mints the v2 QR', async () => {
-        const url = await startPairingFlowV2(
+      await test.step('Authority opens the v2 entrypoint', async () => {
+        await openPairingV2Entrypoint(
           authority,
           target.contentServerUrl,
           ELIGIBLE_ENTRYPOINT_QS
         );
+      });
+
+      await test.step('Authority is asked for its TOTP code', async () => {
+        await waitForUrlContaining(
+          authority,
+          PAIR_V2_ROUTES.AUTHORITY_TOTP,
+          TIMEOUTS.PAIR_V2_HANDSHAKE
+        );
+        await sleep(WATCH_MS); // authority: enter authentication code
+        await enterTotpCodeViaMarionette(authority, secret);
+      });
+
+      const pairUrl = await test.step('Authority mints the v2 QR', async () => {
+        const url = await readV2QrFromScanQr(authority);
         expect(url).toContain('v=2');
         await sleep(WATCH_MS); // authority: QR on screen
         return url;
@@ -333,16 +352,6 @@ test.describe('severity-2 #smoke', () => {
           TIMEOUTS.PAIR_V2_HANDSHAKE
         );
         await sleep(WATCH_MS); // supplicant: approve sign-in
-      });
-
-      await test.step('Authority is asked for its TOTP code', async () => {
-        await waitForUrlContaining(
-          authority,
-          PAIR_V2_ROUTES.AUTHORITY_TOTP,
-          TIMEOUTS.PAIR_V2_HANDSHAKE
-        );
-        await sleep(WATCH_MS); // authority: enter authentication code
-        await enterTotpCodeViaMarionette(authority, secret);
       });
 
       await test.step('Authority approves', async () => {
