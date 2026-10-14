@@ -1,0 +1,40 @@
+{
+  "name": "shared-nest-health",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/nest-health/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "main": "libs/shared/nest-health/src/index.ts",
+        "outputPath": "dist/libs/shared/nest-health",
+        "tsConfig": "libs/shared/nest-health/tsconfig.lib.json",
+        "assets": [
+          {
+            "glob": "libs/shared/nest-health/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ]
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/shared/nest-health/jest.config.ts",
+        "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
+      }
+    }
+  }
+}
