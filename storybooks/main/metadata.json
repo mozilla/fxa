@@ -1,8 +1,8 @@
 {
-  "commit": "b0ad9193eaa0b6148c87c60f28fc4d0461c07aac",
-  "summary": "Merge pull request #21402 from mozilla/blender/security-bump-@opentelemetry/instrumentation-pg",
-  "description": "chore(deps): bump @opentelemetry/instrumentation-pg to >=0.73.0",
-  "timestamp": 1791940766000,
+  "commit": "d208bd2324bb7f71886eb5d83a429c59af83b935",
+  "summary": "Merge pull request #21486 from mozilla/fxa-10652",
+  "description": "refactor(shared): move convict allow-list to @fxa/shared/url-allow-list",
+  "timestamp": 1791945195000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
