@@ -8,7 +8,7 @@ import _ from 'underscore';
 import Constants from './constants';
 import Newsletters from './newsletters';
 import OAuthPrompt from './oauth-prompt';
-import { isEmailValid } from 'fxa-shared/email/helpers';
+import { isEmailValid } from '@fxa/shared/email';
 
 const UNBLOCK_CODE_LENGTH = Constants.UNBLOCK_CODE_LENGTH;
 

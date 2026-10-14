@@ -80,6 +80,10 @@ const webpackConfig = {
       'ua-parser-js': require.resolve('ua-parser-js/src/ua-parser'),
       vat: require.resolve('node-vat/vat'),
       'fxa-auth-client/browser': require.resolve('fxa-auth-client/browser'),
+      '@fxa/shared/email': path.resolve(
+        __dirname,
+        '../../libs/shared/email/src/index.ts'
+      ),
       '@fxa/shared/url-allow-list': path.resolve(
         __dirname,
         '../../libs/shared/url-allow-list/src/index.ts'

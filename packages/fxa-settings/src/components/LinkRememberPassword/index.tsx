@@ -4,7 +4,7 @@
 
 import React, { useEffect } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { isEmailValid } from 'fxa-shared/email/helpers';
+import { isEmailValid } from '@fxa/shared/email';
 import { Link, useLocation } from 'react-router';
 import GleanMetrics from '../../lib/glean';
 
