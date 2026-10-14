@@ -1,20 +1,15 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import 'mocha';
 import 'reflect-metadata';
 
-import { assert } from 'chai';
 import { Knex } from 'knex';
 
-import { EmailType, SentEmail } from '@fxa/shared/db/mysql/legacy/models/auth';
-import {
-  defaultOpts,
-  testDatabaseSetup,
-} from '@fxa/shared/db/mysql/legacy/testing/helpers';
-import { randomAccount } from '@fxa/shared/db/mysql/legacy/testing/models/auth/helpers';
+import { EmailType, SentEmail } from '.';
+import { defaultOpts, testDatabaseSetup } from '../../testing/helpers';
+import { randomAccount } from '../../testing/models/auth/helpers';
 
-describe('#integration - SentEmail', () => {
+describe('SentEmail', () => {
   const emailType = 'subscriptionPaymentFailed';
   const emailParams = {
     subscriptionId: 'sub_bigtime',
@@ -23,8 +18,7 @@ describe('#integration - SentEmail', () => {
   let knex: Knex;
   let emailTypeId: number;
 
-  before(async function () {
-    this.timeout(20000);
+  beforeAll(async () => {
     knex = await testDatabaseSetup({
       ...defaultOpts,
       auth: true,
@@ -32,37 +26,40 @@ describe('#integration - SentEmail', () => {
       profile: false,
     });
     emailTypeId = (
-      await EmailType.query().findOne({
+      (await EmailType.query().findOne({
         emailType,
-      })
+      })) as EmailType
     ).id;
-  });
+  }, 20000);
 
-  after(async () => {
+  afterAll(async () => {
     await knex?.destroy();
   });
 
   describe('createSentEmail', () => {
     it('inserts correctly without params', async () => {
       const acct = randomAccount();
-      const inserted = await SentEmail.createSentEmail(acct.uid, emailType);
-      assert.strictEqual(inserted.uid, acct.uid);
-      assert.strictEqual(inserted.emailTypeId, emailTypeId);
-      assert.approximately(inserted.sentAt, Date.now(), 2000);
-      assert.isNull(inserted.params);
+      const inserted = (await SentEmail.createSentEmail(
+        acct.uid,
+        emailType
+      )) as SentEmail;
+      expect(inserted.uid).toBe(acct.uid);
+      expect(inserted.emailTypeId).toBe(emailTypeId);
+      expect(Math.abs(inserted.sentAt - Date.now())).toBeLessThanOrEqual(2000);
+      expect(inserted.params).toBeNull();
     });
 
     it('inserts correctly with params', async () => {
       const acct = randomAccount();
-      const inserted = await SentEmail.createSentEmail(
+      const inserted = (await SentEmail.createSentEmail(
         acct.uid,
         emailType,
         emailParams
-      );
-      assert.strictEqual(inserted.uid, acct.uid);
-      assert.strictEqual(inserted.emailTypeId, emailTypeId);
-      assert.approximately(inserted.sentAt, Date.now(), 2000);
-      assert.deepEqual(inserted.params, emailParams);
+      )) as SentEmail;
+      expect(inserted.uid).toBe(acct.uid);
+      expect(inserted.emailTypeId).toBe(emailTypeId);
+      expect(Math.abs(inserted.sentAt - Date.now())).toBeLessThanOrEqual(2000);
+      expect(inserted.params).toEqual(emailParams);
     });
   });
 
@@ -75,7 +72,7 @@ describe('#integration - SentEmail', () => {
         acct.uid,
         emailType
       );
-      assert.deepEqual(actual, expected);
+      expect(actual).toEqual(expected);
     });
 
     it('finds the correct record with the given params', async () => {
@@ -91,7 +88,7 @@ describe('#integration - SentEmail', () => {
         emailType,
         emailParams
       );
-      assert.deepEqual(actual, expected);
+      expect(actual).toEqual(expected);
     });
 
     it('returns undefined when no match record is found', async () => {
@@ -102,7 +99,7 @@ describe('#integration - SentEmail', () => {
         'subscriptionPaymentExpired',
         emailParams
       );
-      assert.isUndefined(actual);
+      expect(actual).toBeUndefined();
     });
   });
 });

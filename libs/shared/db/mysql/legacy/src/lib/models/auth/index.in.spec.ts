@@ -1,10 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import 'mocha';
 import 'reflect-metadata';
 
-import { assert } from 'chai';
 import { Knex } from 'knex';
 import { ValidationError } from 'objection';
 
@@ -23,27 +21,23 @@ import {
   LinkedAccount,
   updateAccountCustomer,
   updatePayPalBA,
-} from '@fxa/shared/db/mysql/legacy/models/auth';
-import {
-  defaultOpts,
-  testDatabaseSetup,
-} from '@fxa/shared/db/mysql/legacy/testing/helpers';
+} from '.';
+import { defaultOpts, testDatabaseSetup } from '../../testing/helpers';
 import {
   chance,
   randomAccount,
   randomEmail,
-} from '@fxa/shared/db/mysql/legacy/testing/models/auth/helpers';
-import { sanitizeIp } from '@fxa/shared/db/mysql/legacy/models/auth/security-event';
+} from '../../testing/models/auth/helpers';
+import { sanitizeIp } from './security-event';
 
 const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
-import { Device } from '@fxa/shared/db/mysql/legacy/models/auth';
+import { Device } from '.';
 
-describe('#integration - auth', () => {
+describe('auth', () => {
   let knex: Knex;
 
-  before(async function () {
-    this.timeout(20000);
+  beforeAll(async () => {
     knex = await testDatabaseSetup({
       ...defaultOpts,
       auth: true,
@@ -52,38 +46,38 @@ describe('#integration - auth', () => {
     });
     // Load the user in
     await Account.query().insertGraph({ ...USER_1, emails: [EMAIL_1] });
-  });
+  }, 20000);
 
-  after(async () => {
+  afterAll(async () => {
     await knex?.destroy();
   });
 
   describe('accountExists', () => {
     it('returns true if the account is found', async () => {
-      assert.isTrue(await accountExists(USER_1.uid));
+      expect(await accountExists(USER_1.uid)).toBe(true);
     });
 
     it('returns false if the account is not found', async () => {
       const uid = chance.guid({ version: 4 }).replace(/-/g, '');
-      assert.isFalse(await accountExists(uid));
+      expect(await accountExists(uid)).toBe(false);
     });
   });
 
   describe('getUidAndEmailByStripeCustomerId', () => {
     const stripeCustomerId = 'cus_123456789';
-    before(async () => {
+    beforeAll(async () => {
       await createAccountCustomer(USER_1.uid, stripeCustomerId);
     });
     it('finds an existing FxA user id and email', async () => {
       const result = await getUidAndEmailByStripeCustomerId(stripeCustomerId);
-      assert.isDefined(result);
-      assert.equal(result.uid, USER_1.uid);
-      assert.equal(result.email, USER_1.email);
+      expect(result).toBeDefined();
+      expect(result.uid).toBe(USER_1.uid);
+      expect(result.email).toBe(USER_1.email);
     });
     it('returns null for uid and email if the stripeCustomerId is not found', async () => {
       const { uid, email } = await getUidAndEmailByStripeCustomerId('cus_123');
-      assert.isNull(uid);
-      assert.isNull(email);
+      expect(uid).toBeNull();
+      expect(email).toBeNull();
     });
   });
 
@@ -97,19 +91,18 @@ describe('#integration - auth', () => {
           customerId
         )) as AccountCustomers;
 
-        assert.isDefined(testCustomer);
-        assert.equal(testCustomer.uid, userId);
-        assert.equal(testCustomer.stripeCustomerId, customerId);
-        assert.isNotNull(testCustomer.createdAt);
-        assert.equal(testCustomer.createdAt, testCustomer.updatedAt);
+        expect(testCustomer).toBeDefined();
+        expect(testCustomer.uid).toBe(userId);
+        expect(testCustomer.stripeCustomerId).toBe(customerId);
+        expect(testCustomer.createdAt).not.toBeNull();
+        expect(testCustomer.createdAt).toBe(testCustomer.updatedAt);
 
         // Insert is only attempted when the record for the given uid does not exist.
         const secondCustomer = await createAccountCustomer(
           userId,
           'cus_o8ghropsigjpser'
         );
-        assert.equal(
-          secondCustomer.stripeCustomerId,
+        expect(secondCustomer?.stripeCustomerId).toBe(
           testCustomer.stripeCustomerId
         );
       });
@@ -120,10 +113,10 @@ describe('#integration - auth', () => {
             '27384d1476564252aade14e9c71bec4\\',
             'cus_123'
           );
-          assert.fail('Validation error expected for invalid uid');
+          throw new Error('Validation error expected for invalid uid');
         } catch (err) {
-          assert.isTrue(err instanceof ValidationError);
-          assert.isTrue(err.message.includes('uid: must match pattern'));
+          expect(err instanceof ValidationError).toBe(true);
+          expect(err.message.includes('uid: must match pattern')).toBe(true);
         }
       });
 
@@ -133,14 +126,14 @@ describe('#integration - auth', () => {
             '27384d1476564252aade14e9c71bec53',
             'cus_12_'
           );
-          assert.fail(
+          throw new Error(
             'Validation error expected for invalid stripe customer id'
           );
         } catch (err) {
-          assert.isTrue(err instanceof ValidationError);
-          assert.isTrue(
+          expect(err instanceof ValidationError).toBe(true);
+          expect(
             err.message.includes('stripeCustomerId: must match pattern')
-          );
+          ).toBe(true);
         }
       });
     });
@@ -148,29 +141,29 @@ describe('#integration - auth', () => {
       const uid = '1bec4927384d147aade165642524e9c7';
       const stripeCustomerId = 'cus_123456789';
 
-      before(async () => {
+      beforeAll(async () => {
         await createAccountCustomer(uid, stripeCustomerId);
       });
       it('finds an existing accountCustomer', async () => {
         const result = (await getAccountCustomerByUid(uid)) as AccountCustomers;
-        assert.isDefined(result);
-        assert.equal(result.uid, uid);
-        assert.equal(result.stripeCustomerId, stripeCustomerId);
+        expect(result).toBeDefined();
+        expect(result.uid).toBe(uid);
+        expect(result.stripeCustomerId).toBe(stripeCustomerId);
       });
 
       it('does not find a non-existent accountCustomer', async () => {
         const result = await getAccountCustomerByUid(
           '11114d1476500002aade14e9c71baaaa'
         );
-        assert.isUndefined(result);
+        expect(result).toBeUndefined();
       });
 
       it('handles bad input', async () => {
         try {
-          const result = await getAccountCustomerByUid('asfgewarger089_');
-          assert.fail();
+          await getAccountCustomerByUid('asfgewarger089_');
+          throw new Error();
         } catch (err) {
-          assert.isTrue(err.message.includes('Invalid hex data'));
+          expect(err.message.includes('Invalid hex data')).toBe(true);
         }
       });
     });
@@ -179,23 +172,23 @@ describe('#integration - auth', () => {
       const uid = '00000927384d147aade1656425200000';
       const stripeCustomerId = 'cus_asdf1234';
 
-      before(async () => {
+      beforeAll(async () => {
         await createAccountCustomer(uid, stripeCustomerId);
       });
       it('Returns 1 when a row is successfully updated', async () => {
-        assert.equal(await updateAccountCustomer(uid, 'cus_1234'), 1);
+        expect(await updateAccountCustomer(uid, 'cus_1234')).toBe(1);
       });
 
       it('Returns 0 when no rows are affected', async () => {
-        assert.equal(await updateAccountCustomer('0000', 'cus_1234'), 0);
+        expect(await updateAccountCustomer('0000', 'cus_1234')).toBe(0);
       });
 
       it('Throws error when validation fails', async () => {
         try {
           await updateAccountCustomer(uid, '34rsdfg');
-          assert.fail();
+          throw new Error();
         } catch (err) {
-          assert.isTrue(err instanceof ValidationError);
+          expect(err instanceof ValidationError).toBe(true);
         }
       });
     });
@@ -204,15 +197,15 @@ describe('#integration - auth', () => {
       const uid = 'aa000927384d147aade1656425200000';
       const stripeCustomerId = 'cus_asdf1234';
 
-      before(async () => {
+      beforeAll(async () => {
         await createAccountCustomer(uid, stripeCustomerId);
       });
       it('Returns 1 when a row is successfully deleted', async () => {
-        assert.equal(await deleteAccountCustomer(uid), 1);
+        expect(await deleteAccountCustomer(uid)).toBe(1);
       });
 
       it('Returns 0 when no rows are affected', async () => {
-        assert.equal(await deleteAccountCustomer('0000'), 0);
+        expect(await deleteAccountCustomer('0000')).toBe(0);
       });
     });
     it('creates, retrieves, updates, and deletes an AccountCustomer successfully', async () => {
@@ -225,25 +218,24 @@ describe('#integration - auth', () => {
         customerId
       )) as AccountCustomers;
 
-      assert.isDefined(testCustomer);
-      assert.equal(testCustomer.uid, userId);
-      assert.equal(testCustomer.stripeCustomerId, customerId);
-      assert.isNotNull(testCustomer.createdAt);
-      assert.equal(testCustomer.createdAt, testCustomer.updatedAt);
+      expect(testCustomer).toBeDefined();
+      expect(testCustomer.uid).toBe(userId);
+      expect(testCustomer.stripeCustomerId).toBe(customerId);
+      expect(testCustomer.createdAt).not.toBeNull();
+      expect(testCustomer.createdAt).toBe(testCustomer.updatedAt);
 
       // Test Retrieval
       const locatedCustomer = (await getAccountCustomerByUid(
         userId
       )) as AccountCustomers;
-      assert.isDefined(locatedCustomer);
+      expect(locatedCustomer).toBeDefined();
 
-      assert.equal(locatedCustomer.uid, testCustomer.uid);
-      assert.equal(
-        locatedCustomer.stripeCustomerId,
+      expect(locatedCustomer.uid).toBe(testCustomer.uid);
+      expect(locatedCustomer.stripeCustomerId).toBe(
         testCustomer.stripeCustomerId
       );
-      assert.equal(locatedCustomer.createdAt, testCustomer.createdAt);
-      assert.equal(locatedCustomer.updatedAt, testCustomer.updatedAt);
+      expect(locatedCustomer.createdAt).toBe(testCustomer.createdAt);
+      expect(locatedCustomer.updatedAt).toBe(testCustomer.updatedAt);
 
       // Test Update
       const createdAt = testCustomer.createdAt;
@@ -252,26 +244,26 @@ describe('#integration - auth', () => {
         userId,
         newCustomerId
       );
-      assert.equal(numberOfUpdatedRows, 1);
+      expect(numberOfUpdatedRows).toBe(1);
 
       // Test Retreival Again
       const updatedCustomer = (await getAccountCustomerByUid(
         userId
       )) as AccountCustomers;
-      assert.isDefined(updatedCustomer);
-      assert.equal(updatedCustomer.uid, userId);
-      assert.equal(updatedCustomer.stripeCustomerId, newCustomerId);
-      assert.equal(updatedCustomer.createdAt, createdAt);
-      assert.notEqual(updatedCustomer.updatedAt, createdAt);
-      assert.isTrue(updatedCustomer.updatedAt > createdAt);
+      expect(updatedCustomer).toBeDefined();
+      expect(updatedCustomer.uid).toBe(userId);
+      expect(updatedCustomer.stripeCustomerId).toBe(newCustomerId);
+      expect(updatedCustomer.createdAt).toBe(createdAt);
+      expect(updatedCustomer.updatedAt).not.toBe(createdAt);
+      expect(updatedCustomer.updatedAt > createdAt).toBe(true);
 
       // Test Deletion
       const numberOfAffectedRows = await deleteAccountCustomer(userId);
-      assert.equal(numberOfAffectedRows, 1);
+      expect(numberOfAffectedRows).toBe(1);
 
       // Test Final Retrieval
       const finallocate = await getAccountCustomerByUid(userId);
-      assert.isUndefined(finallocate);
+      expect(finallocate).toBeUndefined();
     });
   });
 
@@ -287,11 +279,11 @@ describe('#integration - auth', () => {
           status
         );
 
-        assert.isDefined(testCustomer);
-        assert.equal(testCustomer.uid, userId);
-        assert.equal(testCustomer.billingAgreementId, billingAgreementId);
-        assert.equal(testCustomer.status, status);
-        assert.isNotNull(testCustomer.createdAt);
+        expect(testCustomer).toBeDefined();
+        expect(testCustomer.uid).toBe(userId);
+        expect(testCustomer.billingAgreementId).toBe(billingAgreementId);
+        expect(testCustomer.status).toBe(status);
+        expect(testCustomer.createdAt).not.toBeNull();
       });
 
       it('Fails to create when the uid is invalid', async () => {
@@ -301,10 +293,10 @@ describe('#integration - auth', () => {
             'B-1234XXXXX',
             'Active'
           );
-          assert.fail('Validation error expected for invalid uid');
+          throw new Error('Validation error expected for invalid uid');
         } catch (err) {
-          assert.isTrue(err instanceof ValidationError);
-          assert.isTrue(err.message.includes('uid: must match pattern'));
+          expect(err instanceof ValidationError).toBe(true);
+          expect(err.message.includes('uid: must match pattern')).toBe(true);
         }
       });
 
@@ -315,14 +307,14 @@ describe('#integration - auth', () => {
             'BASDFASDF',
             'Active'
           );
-          assert.fail(
+          throw new Error(
             'Validation error expected for invalid billing agreement id'
           );
         } catch (err) {
-          assert.isTrue(err instanceof ValidationError);
-          assert.isTrue(
+          expect(err instanceof ValidationError).toBe(true);
+          expect(
             err.message.includes('billingAgreementId: must match pattern')
-          );
+          ).toBe(true);
         }
       });
     });
@@ -331,32 +323,32 @@ describe('#integration - auth', () => {
       const billingAgreementId = 'B-1234XXXXX';
       const status = 'Active';
 
-      before(async () => {
+      beforeAll(async () => {
         await createPayPalBA(uid, billingAgreementId, status);
       });
 
       it('finds an existing paypalCustomer', async () => {
         const result = await getAllPayPalBAByUid(uid);
-        assert.isDefined(result);
-        assert.lengthOf(result, 1);
+        expect(result).toBeDefined();
+        expect(result).toHaveLength(1);
         const ba = result[0];
-        assert.equal(ba.uid, uid);
-        assert.equal(ba.billingAgreementId, billingAgreementId);
+        expect(ba.uid).toBe(uid);
+        expect(ba.billingAgreementId).toBe(billingAgreementId);
       });
 
       it('does not find a non-existent paypalCustomer', async () => {
         const result = await getAllPayPalBAByUid(
           '11114d1476500002aade14e9c71baaaa'
         );
-        assert.lengthOf(result, 0);
+        expect(result).toHaveLength(0);
       });
 
       it('handles bad input', async () => {
         try {
-          const result = await getAllPayPalBAByUid('asfgewarger089_');
-          assert.fail();
+          await getAllPayPalBAByUid('asfgewarger089_');
+          throw new Error();
         } catch (err) {
-          assert.isTrue(err.message.includes('Invalid hex data'));
+          expect(err.message.includes('Invalid hex data')).toBe(true);
         }
       });
     });
@@ -366,20 +358,20 @@ describe('#integration - auth', () => {
       const billingAgreementId = 'B-1234XXXXX';
       const status = 'Active';
 
-      before(async () => {
+      beforeAll(async () => {
         await createPayPalBA(uid, billingAgreementId, status);
       });
 
       it('finds an existing PayPalBillingAgreements', async () => {
         const result = await getPayPalBAByBAId(billingAgreementId);
-        assert.isDefined(result);
-        assert.equal(result.uid, uid);
-        assert.equal(result.billingAgreementId, billingAgreementId);
+        expect(result).toBeDefined();
+        expect(result?.uid).toBe(uid);
+        expect(result?.billingAgreementId).toBe(billingAgreementId);
       });
 
       it('does not find a non-existent PayPalBillingAgreements', async () => {
         const result = await getPayPalBAByBAId('B-1234');
-        assert.isUndefined(result, 'no result defined');
+        expect(result).toBeUndefined();
       });
     });
 
@@ -388,30 +380,28 @@ describe('#integration - auth', () => {
       const billingAgreementId = 'B-1234XXXXX';
       const status = 'Active';
 
-      before(async () => {
+      beforeAll(async () => {
         await createPayPalBA(uid, billingAgreementId, status);
       });
 
       it('Returns 1 when a row is successfully updated', async () => {
-        assert.equal(
-          await updatePayPalBA(uid, billingAgreementId, 'Cancelled'),
+        expect(await updatePayPalBA(uid, billingAgreementId, 'Cancelled')).toBe(
           1
         );
       });
 
       it('Returns 0 when no rows are affected', async () => {
-        assert.equal(
-          await updatePayPalBA('0000', billingAgreementId, 'Cancelled'),
-          0
-        );
+        expect(
+          await updatePayPalBA('0000', billingAgreementId, 'Cancelled')
+        ).toBe(0);
       });
 
       it('Throws error when validation fails', async () => {
         try {
           await updatePayPalBA(uid, billingAgreementId, '1213212312' as any);
-          assert.fail();
+          throw new Error();
         } catch (err) {
-          assert.isTrue(err instanceof ValidationError);
+          expect(err instanceof ValidationError).toBe(true);
         }
       });
     });
@@ -421,16 +411,16 @@ describe('#integration - auth', () => {
       const billingAgreementId = 'B-1234XXXXX';
       const status = 'Active';
 
-      before(async () => {
+      beforeAll(async () => {
         await createPayPalBA(uid, billingAgreementId, status);
       });
 
       it('Returns 1 when a row is successfully deleted', async () => {
-        assert.equal(await deleteAllPayPalBAs(uid), 1);
+        expect(await deleteAllPayPalBAs(uid)).toBe(1);
       });
 
       it('Returns 0 when no rows are affected', async () => {
-        assert.equal(await deleteAllPayPalBAs('0000'), 0);
+        expect(await deleteAllPayPalBAs('0000')).toBe(0);
       });
     });
 
@@ -453,33 +443,27 @@ describe('#integration - auth', () => {
         status2
       );
 
-      assert.isDefined(testBA1);
-      assert.equal(testBA1.uid, userId);
-      assert.equal(testBA1.billingAgreementId, billingAgreementId1);
-      assert.isNotNull(testBA1.createdAt);
+      expect(testBA1).toBeDefined();
+      expect(testBA1.uid).toBe(userId);
+      expect(testBA1.billingAgreementId).toBe(billingAgreementId1);
+      expect(testBA1.createdAt).not.toBeNull();
 
-      assert.isDefined(testBA2);
-      assert.equal(testBA2.uid, userId);
-      assert.equal(testBA2.billingAgreementId, billingAgreementId2);
-      assert.isNotNull(testBA2.createdAt);
+      expect(testBA2).toBeDefined();
+      expect(testBA2.uid).toBe(userId);
+      expect(testBA2.billingAgreementId).toBe(billingAgreementId2);
+      expect(testBA2.createdAt).not.toBeNull();
 
       // Test Retrieval
       const locatedBAs = await getAllPayPalBAByUid(userId);
-      assert.lengthOf(locatedBAs, 2);
+      expect(locatedBAs).toHaveLength(2);
 
-      assert.equal(locatedBAs[0].uid, testBA2.uid);
-      assert.equal(
-        locatedBAs[0].billingAgreementId,
-        testBA2.billingAgreementId
-      );
-      assert.equal(locatedBAs[0].createdAt, testBA2.createdAt);
+      expect(locatedBAs[0].uid).toBe(testBA2.uid);
+      expect(locatedBAs[0].billingAgreementId).toBe(testBA2.billingAgreementId);
+      expect(locatedBAs[0].createdAt).toBe(testBA2.createdAt);
 
-      assert.equal(locatedBAs[1].uid, testBA1.uid);
-      assert.equal(
-        locatedBAs[1].billingAgreementId,
-        testBA1.billingAgreementId
-      );
-      assert.equal(locatedBAs[1].createdAt, testBA1.createdAt);
+      expect(locatedBAs[1].uid).toBe(testBA1.uid);
+      expect(locatedBAs[1].billingAgreementId).toBe(testBA1.billingAgreementId);
+      expect(locatedBAs[1].createdAt).toBe(testBA1.createdAt);
 
       // Test Update
       const newStatus = 'Suspended';
@@ -488,22 +472,22 @@ describe('#integration - auth', () => {
         billingAgreementId2,
         newStatus
       );
-      assert.equal(numberOfUpdatedRows, 1);
+      expect(numberOfUpdatedRows).toBe(1);
 
       // Test Retreival Again
       const updatedBA = (await getAllPayPalBAByUid(userId))[0];
-      assert.isDefined(updatedBA);
-      assert.equal(updatedBA.uid, userId);
-      assert.equal(updatedBA.billingAgreementId, billingAgreementId2);
-      assert.equal(updatedBA.status, newStatus);
+      expect(updatedBA).toBeDefined();
+      expect(updatedBA.uid).toBe(userId);
+      expect(updatedBA.billingAgreementId).toBe(billingAgreementId2);
+      expect(updatedBA.status).toBe(newStatus);
 
       // Test Deletion
       const numberOfAffectedRows = await deleteAllPayPalBAs(userId);
-      assert.equal(numberOfAffectedRows, 2);
+      expect(numberOfAffectedRows).toBe(2);
 
       // Test Final Retrieval
       const finallocate = await getAllPayPalBAByUid(userId);
-      assert.lengthOf(finallocate, 0);
+      expect(finallocate).toHaveLength(0);
     });
   });
 
@@ -521,19 +505,19 @@ describe('#integration - auth', () => {
 
         const linkedAccounts = await LinkedAccount.findByUid(userId);
 
-        assert.equal(linkedAccounts.length, 1);
+        expect(linkedAccounts.length).toBe(1);
 
-        assert.equal(linkedAccounts[0].uid, userId);
-        assert.equal(linkedAccounts[0].id, id);
-        assert.equal(linkedAccounts[0].providerId, 1);
+        expect(linkedAccounts[0].uid).toBe(userId);
+        expect(linkedAccounts[0].id).toBe(id);
+        expect(linkedAccounts[0].providerId).toBe(1);
 
         const linkedAccount = await LinkedAccount.findByLinkedAccount(
           id,
           GOOGLE_PROVIDER
         );
-        assert.equal(linkedAccount.uid, userId);
-        assert.equal(linkedAccount.id, id);
-        assert.equal(linkedAccount.providerId, 1);
+        expect(linkedAccount?.uid).toBe(userId);
+        expect(linkedAccount?.id).toBe(id);
+        expect(linkedAccount?.providerId).toBe(1);
       });
 
       it('can delete linked account', async () => {
@@ -546,7 +530,7 @@ describe('#integration - auth', () => {
           id,
           GOOGLE_PROVIDER
         );
-        assert.isUndefined(linkedAccount);
+        expect(linkedAccount).toBeUndefined();
       });
     });
   });
@@ -566,7 +550,7 @@ describe('#integration - auth', () => {
         startCreatedAtDate: 0,
         endCreatedAtDate: Date.now(),
       });
-      assert.equal(unverifiedAccounts.length, 3);
+      expect(unverifiedAccounts.length).toBe(3);
     });
   });
   describe('Account.revokeTokens', () => {
@@ -625,18 +609,18 @@ describe('#integration - auth', () => {
     for (const table of revokedTables) {
       it(`deletes the account's ${table} rows`, async () => {
         await Account.revokeTokens(uid);
-        assert.equal(await countRows(table, uid), 0);
+        expect(await countRows(table, uid)).toBe(0);
       });
     }
 
     it('leaves the account row in place', async () => {
       await Account.revokeTokens(uid);
-      assert.isNotNull(await Account.findByUid(uid));
+      expect(await Account.findByUid(uid)).not.toBeNull();
     });
 
     it("leaves other accounts' sessions untouched", async () => {
       await Account.revokeTokens(uid);
-      assert.equal(await countRows('sessionTokens', OTHER_UID), 1);
+      expect(await countRows('sessionTokens', OTHER_UID)).toBe(1);
     });
   });
 
@@ -671,12 +655,12 @@ describe('#integration - auth', () => {
         refreshTokenId
       );
 
-      assert.isNotNull(device);
-      assert.equal(device.id, deviceId);
-      assert.equal(device.refreshTokenId, refreshTokenId);
-      assert.equal(device.name, 'Test Device');
-      assert.equal(device.type, 'mobile');
-      assert.isObject(device.availableCommands);
+      expect(device).not.toBeNull();
+      expect(device?.id).toBe(deviceId);
+      expect(device?.refreshTokenId).toBe(refreshTokenId);
+      expect(device?.name).toBe('Test Device');
+      expect(device?.type).toBe('mobile');
+      expect(device?.availableCommands).toEqual(expect.any(Object));
     });
 
     it('returns null when device not found', async () => {
@@ -689,7 +673,7 @@ describe('#integration - auth', () => {
         refreshTokenId
       );
 
-      assert.isNull(device);
+      expect(device).toBeNull();
     });
 
     it('aggregates deviceCommands correctly', async () => {
@@ -729,43 +713,47 @@ describe('#integration - auth', () => {
         );
       }
 
-      const device = await Device.findByUidAndRefreshTokenId(
+      const device = (await Device.findByUidAndRefreshTokenId(
         uid,
         refreshTokenId
-      );
+      )) as Device;
 
-      assert.isNotNull(device);
-      assert.isObject(device.availableCommands);
-      assert.equal(Object.keys(device.availableCommands).length, 2);
-      assert.isString(
-        device.availableCommands['https://identity.mozilla.com/cmd/open-uri']
-      );
-      assert.isString(
-        device.availableCommands['https://identity.mozilla.com/cmd/send-tab']
-      );
+      expect(device).not.toBeNull();
+      expect(device.availableCommands).toEqual(expect.any(Object));
+      expect(Object.keys(device.availableCommands).length).toBe(2);
+      expect(
+        typeof device.availableCommands[
+          'https://identity.mozilla.com/cmd/open-uri'
+        ]
+      ).toBe('string');
+      expect(
+        typeof device.availableCommands[
+          'https://identity.mozilla.com/cmd/send-tab'
+        ]
+      ).toBe('string');
     });
   });
 });
 
-describe('security-event', async () => {
+describe('security-event', () => {
   describe('sanitizes ip address', () => {
     it('handles multiple ips', () => {
       const ip = sanitizeIp(' 127.0.0.1, 127.0.0.2');
-      assert.equal(ip, '127.0.0.1');
+      expect(ip).toBe('127.0.0.1');
     });
     it('handles ip v4', () => {
       const ip = sanitizeIp('127.0.0.1');
-      assert.equal(ip, '127.0.0.1');
+      expect(ip).toBe('127.0.0.1');
     });
 
     it('trims whitespace', () => {
       const ip = sanitizeIp(' 127.0.0.1  ');
-      assert.equal(ip, '127.0.0.1');
+      expect(ip).toBe('127.0.0.1');
     });
 
     it('handles multiple ip v6', () => {
       const ip = sanitizeIp('2001:db8::1111, 2001:db8::2222');
-      assert.equal(ip, '2001:db8::1111');
+      expect(ip).toBe('2001:db8::1111');
     });
   });
 });

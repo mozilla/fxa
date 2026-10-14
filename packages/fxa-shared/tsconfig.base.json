@@ -5,7 +5,7 @@
     "declaration": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "types": ["mocha", "mozlog", "jest", "node"]
+    "types": ["mocha", "mozlog", "jest", "node", "sinon"]
   },
   "include": ["./**/*", "./**/**/*", "./*", "./**/*.json"],
   "exclude": ["./dist", "./node_modules", "./**/*.spec.ts"]
