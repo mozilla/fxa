@@ -1,8 +1,8 @@
 {
-  "commit": "660fbd002c2f3d247344b872fdf8dfa96411c2b3",
-  "summary": "Merge pull request #21383 from chelisejacobson/FXA-14418",
-  "description": "feat(settings): remove Mozilla logo header from mobile pairing screens",
-  "timestamp": 1791927004000,
+  "commit": "a80e1e3e2e4f7a326a022639b173c91015a1fdcb",
+  "summary": "Merge pull request #21493 from mozilla/fxa-14770",
+  "description": "fix(settings): expect firefox-logo-bw.svg in ScanQR test",
+  "timestamp": 1791939708000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
