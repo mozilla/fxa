@@ -32,16 +32,14 @@ const path = require('path');
 
 const versionInfo = require('./version');
 
-const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
+const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('@fxa/accounts/oauth');
 const {
   supportedLanguages: DEFAULT_SUPPORTED_LANGUAGES,
 } = require('@fxa/shared/l10n');
 
 convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
-convict.addFormats(
-  require('fxa-shared/configuration/convict-format-allow-list').format
-);
+convict.addFormats(require('@fxa/shared/url-allow-list').format);
 
 const conf = (module.exports = convict({
   allowed_iframe_contexts: {

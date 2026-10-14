@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // This module contains mappings from content server event names to
-// amplitude event definitions. A module in fxa-shared is responsible
+// amplitude event definitions. @fxa/shared/metrics/amplitude is responsible
 // for performing the actual transformations.
 //
 // You can see the event taxonomy here:
@@ -14,8 +14,8 @@
 
 'use strict';
 
-const pick = (obj, keys) => Object.fromEntries(keys.filter(k => k in obj).map(k => [k, obj[k]]));
-
+const pick = (obj, keys) =>
+  Object.fromEntries(keys.filter((k) => k in obj).map((k) => [k, obj[k]]));
 
 const {
   GROUPS,
@@ -25,9 +25,9 @@ const {
   mapLocation,
   mapOs,
   validate,
-} = require('fxa-shared/metrics/amplitude').amplitude;
+} = require('@fxa/shared/metrics/amplitude').amplitude;
 const logger = require('./logging/log')();
-const ua = require('fxa-shared/lib/user-agent').default;
+const ua = require('@fxa/shared/user-agent').userAgent;
 const config = require('./configuration');
 const { version: VERSION } = require('../../package.json');
 
