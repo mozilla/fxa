@@ -86,7 +86,7 @@ export const AppLayout = ({
   // The mobile pairing screens carry their own Firefox lockup instead of the
   // Mozilla logo header, and their loading states match.
   const isMobilePairingScreen =
-    window.location.pathname.startsWith('/pair/supplicant');
+    window.location.pathname?.startsWith('/pair/supplicant') ?? false;
 
   return (
     <>
