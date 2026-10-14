@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 8c434c25b436ce8f0ed056800c48d884c63aa6bd</title>
+  <title>Storybooks for commit 90a281ad106d153ae41de64682f379b2600115c9</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,27 +23,25 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 8c434c25b436ce8f0ed056800c48d884c63aa6bd</h1>
+  <h1>Storybooks for commit 90a281ad106d153ae41de64682f379b2600115c9</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/13/2026, 11:43:09 PM UTC</dd>
+    <dd>10/14/2026, 12:29:28 AM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(settings): expect firefox-logo-bw.svg in ScanQR test</pre></dd>
+    <dd><pre>fix(settings): guard AppLayout pathname check for mocked locations</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- The ScanQR component imports firefox-logo-bw.svg, but its test still
-  expected firefox-logo-browser.svg, so the frontend test job failed.
+- AppLayout calls window.location.pathname.startsWith, which throws when a
+  test mocks window.location without pathname.
+- The App and CookiesDisabled suites fail on main with that TypeError.
 
 This commit:
 
-- Changes the expected data-logo value in the ScanQR test to
-  firefox-logo-bw.svg.
-
-Closes FXA-14770</pre></dd>
+- Uses optional chaining with a false default for the mobile pairing check.</pre></dd>
   </dl>
 </body>
 </html>

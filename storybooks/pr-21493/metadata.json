@@ -1,8 +1,8 @@
 {
-  "commit": "8c434c25b436ce8f0ed056800c48d884c63aa6bd",
-  "summary": "fix(settings): expect firefox-logo-bw.svg in ScanQR test",
-  "description": "Because:\n\n- The ScanQR component imports firefox-logo-bw.svg, but its test still\n  expected firefox-logo-browser.svg, so the frontend test job failed.\n\nThis commit:\n\n- Changes the expected data-logo value in the ScanQR test to\n  firefox-logo-bw.svg.\n\nCloses FXA-14770",
-  "timestamp": 1791934989000,
+  "commit": "90a281ad106d153ae41de64682f379b2600115c9",
+  "summary": "fix(settings): guard AppLayout pathname check for mocked locations",
+  "description": "Because:\n\n- AppLayout calls window.location.pathname.startsWith, which throws when a\n  test mocks window.location without pathname.\n- The App and CookiesDisabled suites fail on main with that TypeError.\n\nThis commit:\n\n- Uses optional chaining with a false default for the mobile pairing check.",
+  "timestamp": 1791937768000,
   "storybooks": [
     "fxa-settings"
   ],
