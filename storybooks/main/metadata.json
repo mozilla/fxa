@@ -1,8 +1,8 @@
 {
-  "commit": "22b1031bde31d99bb439dbdbcbcd35cb2510049b",
-  "summary": "Merge pull request #21509 from mozilla/fxa-14776",
-  "description": "fix(functional-tests): drain the first OTP in the passwordless signup test",
-  "timestamp": 1792007018000,
+  "commit": "036e56fb9767b0d7b6f73e871b42e464ef36ef9e",
+  "summary": "Merge pull request #21510 from mozilla/fxa-14708",
+  "description": "test(shared): port fxa-shared db mocha specs to jest in legacy db lib",
+  "timestamp": 1792008589000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
