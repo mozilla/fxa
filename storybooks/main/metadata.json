@@ -1,8 +1,8 @@
 {
-  "commit": "b56b7b9d78f721093c008a55a8fed0acd7f120eb",
-  "summary": "Merge pull request #21496 from mozilla/fxa-14709",
-  "description": "refactor(content-server): move metrics validator and flow-performance",
-  "timestamp": 1791990080000,
+  "commit": "9ba74ff540c4155fac5372c8456f639cd31e8831",
+  "summary": "Merge pull request #21497 from mozilla/fxa-14696",
+  "description": "refactor(shared): move fxa-shared email helpers to @fxa/shared/email",
+  "timestamp": 1791990433000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
