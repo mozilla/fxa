@@ -1,8 +1,8 @@
 {
-  "commit": "a22d0bedd3ba3f92e181b8e89812291b8c663175",
-  "summary": "Merge pull request #21485 from mozilla/fxa-14702",
-  "description": "refactor(shared): point fxa-shared/sentry at the sentry libs",
-  "timestamp": 1791983273000,
+  "commit": "a0fccc806c5f00a5febad46b90e1ae9d5829e2f9",
+  "summary": "Merge pull request #21488 from mozilla/fxa-14712",
+  "description": "refactor(shared): move STRIPE_PRICE_METADATA into subscriptions plan config",
+  "timestamp": 1791983702000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
