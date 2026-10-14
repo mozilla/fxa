@@ -1,8 +1,8 @@
 {
-  "commit": "ca64ca5de08de6335f41c89e541be3264bc81b7a",
-  "summary": "Merge pull request #21511 from mozilla/fxa-14710",
-  "description": "refactor(shared): move amplitude to @fxa/shared/metrics/amplitude",
-  "timestamp": 1792009315000,
+  "commit": "994f9b22c6eb8e534dbb393f719eaf765237ce61",
+  "summary": "Merge pull request #21516 from mozilla/fxa-14778",
+  "description": "chore(shared): copy FxA Glean YAML to the glean registry lib",
+  "timestamp": 1792012097000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
