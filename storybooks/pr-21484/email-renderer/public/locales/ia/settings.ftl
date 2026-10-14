@@ -2041,6 +2041,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Pro connecter tu appar
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancellate
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Pro connecter un apparato quandocunque, visita <b>firefox.com/par</b> sur tu computator.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Iste apparato es jam connexe
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Pro connecter te a tu conto de scriptorio, claude  connexion de { -brand-firefox } sur iste apparato, pois visita <b>firefox.com/par</b> sur tu computator a completa le accesso.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
