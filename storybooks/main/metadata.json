@@ -1,8 +1,8 @@
 {
-  "commit": "cef04083ee8202dec82752a9580290a495d179c9",
-  "summary": "Merge pull request #21484 from mozilla/fxa-14699",
-  "description": "refactor(shared): move fxa-shared user-agent to @fxa/shared/user-agent",
-  "timestamp": 1791982815000,
+  "commit": "a22d0bedd3ba3f92e181b8e89812291b8c663175",
+  "summary": "Merge pull request #21485 from mozilla/fxa-14702",
+  "description": "refactor(shared): point fxa-shared/sentry at the sentry libs",
+  "timestamp": 1791983273000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
