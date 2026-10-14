@@ -2,12 +2,4 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import cors from './cors';
-import routing from './routing';
-
-export const express: any = () => ({
-  cors,
-  routing,
-});
-
-export default express;
+export { express, express as default } from '@fxa/shared/express';
