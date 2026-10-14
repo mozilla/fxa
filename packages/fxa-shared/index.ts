@@ -8,7 +8,6 @@ import popularDomains from './email/popularDomains.json';
 import express from './express';
 import featureFlags from './feature-flags';
 import amplitude from './metrics/amplitude';
-import flowPerformance from './metrics/flow-performance';
 import scopes from './oauth/scopes';
 import {
   metadataFromPlan,
@@ -26,7 +25,6 @@ module.exports = {
   featureFlags,
   metrics: {
     amplitude,
-    flowPerformance,
   },
   oauth: {
     scopes,

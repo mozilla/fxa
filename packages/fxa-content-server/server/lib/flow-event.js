@@ -19,8 +19,12 @@ const geolocate = require('fxa-shared/express/geo-locate').geolocate(geodb)(
 )(log);
 const os = require('os');
 const statsd = require('./statsd');
-const { VERSION, PERFORMANCE_TIMINGS, limitLength, isValidTime } =
-  require('fxa-shared').metrics.flowPerformance;
+const {
+  VERSION,
+  PERFORMANCE_TIMINGS,
+  limitLength,
+  isValidTime,
+} = require('./flow-performance');
 
 const VALIDATION_PATTERNS = require('./validation').PATTERNS;
 const DNT_ALLOWED_DATA = ['context', 'entrypoint', 'service'];
