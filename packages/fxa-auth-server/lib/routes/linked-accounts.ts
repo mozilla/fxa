@@ -11,7 +11,7 @@ import {
   Provider,
   PROVIDER,
   PROVIDER_NAME,
-} from 'fxa-shared/db/models/auth/linked-account';
+} from '@fxa/shared/db/mysql/legacy/models/auth/linked-account';
 import THIRD_PARTY_AUTH_DOCS from '../../docs/swagger/third-party-auth-api';
 import isA from 'joi';
 import DESCRIPTION from '../../docs/swagger/shared/descriptions';

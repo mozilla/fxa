@@ -4,7 +4,7 @@
 
 import { fn } from 'objection';
 import { BaseAuthModel } from './base-auth';
-import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
+import { uuidTransformer } from '../../transformers';
 
 export class Email extends BaseAuthModel {
   static tableName = 'emails';

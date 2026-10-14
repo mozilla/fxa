@@ -42,8 +42,7 @@ describe('DomainBlocklist', () => {
     });
 
     it('normalizes the email domain to lowercase before matching', async () => {
-      const result =
-        await DomainBlocklist.findMatchingDomain('user@EVIL.COM');
+      const result = await DomainBlocklist.findMatchingDomain('user@EVIL.COM');
       expect(result).toBe('evil.com');
     });
 
@@ -77,7 +76,6 @@ describe('DomainBlocklist', () => {
       const TTL_MS = 5 * 60 * 1000;
       const dateSpy = jest
         .spyOn(Date, 'now')
-        .mockReturnValueOnce(now) // cache-check on first call (miss)
         .mockReturnValueOnce(now) // set cacheExpiresAt = now + TTL
         .mockReturnValueOnce(now + TTL_MS + 1) // cache-check on second call (expired)
         .mockReturnValueOnce(now + TTL_MS + 1); // set cacheExpiresAt after second fetch

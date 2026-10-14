@@ -5,7 +5,7 @@ import 'mocha';
 
 import { assert } from 'chai';
 
-import { constantTimeHexEqual } from '../../../../db/models/auth/account';
+import { constantTimeHexEqual } from '@fxa/shared/db/mysql/legacy/models/auth/account';
 
 describe('constantTimeHexEqual', () => {
   const hash = 'a'.repeat(64);

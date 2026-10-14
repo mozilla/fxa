@@ -14,9 +14,9 @@ import {
 import Config from '../config';
 import { clearDb, bindKnex, scaffoldDb, TargetDB } from './db-helpers';
 
-import { Account } from 'fxa-shared/db/models/auth';
+import { Account } from '@fxa/shared/db/mysql/legacy/models/auth';
 import { Knex } from 'knex';
-import { Profile } from 'fxa-shared/db/models/profile';
+import { Profile } from '@fxa/shared/db/mysql/legacy/models/profile';
 import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
 
 const config = Config.getProperties();

@@ -14,7 +14,7 @@ import {
   Profile,
   profileByUid,
   selectedAvatar,
-} from '../../../../db/models/profile';
+} from '@fxa/shared/db/mysql/legacy/models/profile';
 import { defaultOpts, testDatabaseSetup } from '../../helpers';
 import {
   chance,

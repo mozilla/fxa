@@ -23,14 +23,14 @@ import {
   LinkedAccount,
   updateAccountCustomer,
   updatePayPalBA,
-} from '../../../../db/models/auth';
+} from '@fxa/shared/db/mysql/legacy/models/auth';
 import { defaultOpts, testDatabaseSetup } from '../../../../test/db/helpers';
 import { chance, randomAccount, randomEmail } from './helpers';
-import { sanitizeIp } from '../../../../db/models/auth/security-event';
+import { sanitizeIp } from '@fxa/shared/db/mysql/legacy/models/auth/security-event';
 
 const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
-import { Device } from '../../../../db/models/auth';
+import { Device } from '@fxa/shared/db/mysql/legacy/models/auth';
 
 describe('#integration - auth', () => {
   let knex: Knex;

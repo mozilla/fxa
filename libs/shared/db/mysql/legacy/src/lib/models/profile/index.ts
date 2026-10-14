@@ -4,7 +4,7 @@
 
 import { Avatar } from './avatar';
 import { Profile } from './profile';
-import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
+import { uuidTransformer } from '../../transformers';
 
 export { ProfileBaseModel } from './profile-base';
 export { AvatarProvider } from './avatar-providers';

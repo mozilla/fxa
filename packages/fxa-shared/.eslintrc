@@ -17,8 +17,6 @@
     "dist",
     "node_modules",
     "pm2.config.js",
-    // Weird catch 22 resulted in not being able to lint this...
-    "db/models/auth/security-event.ts",
   ],
   "root": true,
 }

@@ -6,7 +6,7 @@ import { Command } from 'commander';
 import {
   AccountCustomers,
   getAccountCustomerByUid,
-} from 'fxa-shared/db/models/auth';
+} from '@fxa/shared/db/mysql/legacy/models/auth';
 import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
 

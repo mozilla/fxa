@@ -20,7 +20,7 @@ const mockReportSentryError = reportSentryError as jest.MockedFunction<
 
 const isActiveStub = jest.fn();
 
-jest.mock('fxa-shared/db/models/auth', () => ({}));
+jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => ({}));
 jest.mock('./sentry', () => ({
   ...jest.requireActual('./sentry'),
   reportSentryError: jest.fn(),
@@ -70,7 +70,7 @@ describe('AccountDeleteManager', () => {
     isActiveStub.mockReset();
 
     // Set up mock auth models on the mocked module
-    const authModels = require('fxa-shared/db/models/auth');
+    const authModels = require('@fxa/shared/db/mysql/legacy/models/auth');
     mockAuthModels = authModels;
     mockAuthModels.getAllPayPalBAByUid = jest.fn(async () => {
       return [{ status: 'Active', billingAgreementId: 'B-test' }];

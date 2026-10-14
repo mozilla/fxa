@@ -6,7 +6,7 @@ import fs from 'fs';
 import { Knex, knex } from 'knex';
 import path from 'path';
 
-import { ProfileBaseModel } from '../../../../db/models/profile';
+import { ProfileBaseModel } from '@fxa/shared/db/mysql/legacy/models/profile';
 
 export const chance = new Chance();
 

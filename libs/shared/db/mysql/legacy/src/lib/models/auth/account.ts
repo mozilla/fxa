@@ -2,18 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import crypto, { verify } from 'crypto';
+import crypto from 'crypto';
 import { fn, raw } from 'objection';
 import { BaseAuthModel, Proc } from './base-auth';
 import { Email } from './email';
 import { Device } from './device';
 import { LinkedAccount } from './linked-account';
 import { SecurityEvent } from './security-event';
-import {
-  intBoolTransformer,
-  uuidTransformer,
-} from '@fxa/shared/db/mysql/legacy/transformers';
-import { convertError, notFound } from '@fxa/shared/db/mysql/legacy/mysql';
+import { intBoolTransformer, uuidTransformer } from '../../transformers';
+import { convertError, notFound } from '../../mysql';
 
 export type AccountOptions = {
   include?: Array<'emails' | 'linkedAccounts' | 'securityEvents'>;
@@ -378,7 +375,7 @@ export class Account extends BaseAuthModel {
     }
   }
 
-  static async consumeSigninCode(code: string, maxAge: number = 172800000) {
+  static async consumeSigninCode(code: string, maxAge = 172800000) {
     const newerThan = Date.now() - maxAge;
     try {
       const { rows } = await Account.callProcedure(
@@ -565,7 +562,7 @@ export class Account extends BaseAuthModel {
       .where('verifierSetAt', 0);
 
     if (options?.include?.includes('emails')) {
-      for (let account of allAccounts) {
+      for (const account of allAccounts) {
         account.emails = await Email.findByUid(account.uid);
         account.primaryEmail = account.emails.find((email) => email.isPrimary);
       }

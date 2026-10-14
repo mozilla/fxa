@@ -33,7 +33,7 @@ const {
   PlayStoreSubscriptionPurchase,
 } = require('./iap/google-play/subscription-purchase');
 
-const authDbModule = require('fxa-shared/db/models/auth');
+const authDbModule = require('@fxa/shared/db/mysql/legacy/models/auth');
 const { PurchaseQueryError } = require('./iap/google-play/types');
 const { CapabilityManager } = require('@fxa/payments/capability');
 const { FreeAccessProgramService } = require('@fxa/free-access-program');

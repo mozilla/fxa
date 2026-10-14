@@ -102,7 +102,7 @@ export abstract class BaseAuthModel extends BaseModel {
     ...args: any[]
   ): Promise<{ status: QueryStatus; rows: any[] }>;
   static async callProcedure(name: Proc, ...args: any[]) {
-    let [txn, ...rest] = args;
+    const [txn, ...rest] = args;
     const knex = this.knex() as Knex;
     const query =
       txn && typeof txn.commit === 'function'
@@ -139,7 +139,7 @@ export abstract class BaseAuthModel extends BaseModel {
   }
 
   private static callProcedureRaw(args: any[], name: Proc, outputs: string[]) {
-    let [txn, ...rest] = args;
+    const [txn, ...rest] = args;
     const knex = this.knex() as Knex;
     const query =
       txn && typeof txn.commit === 'function'

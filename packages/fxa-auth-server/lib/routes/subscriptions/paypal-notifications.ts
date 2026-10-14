@@ -7,7 +7,7 @@ import {
   getPayPalBAByBAId,
   PayPalBillingAgreements,
   updatePayPalBA,
-} from 'fxa-shared/db/models/auth';
+} from '@fxa/shared/db/mysql/legacy/models/auth';
 import { Stripe } from 'stripe';
 
 import { ConfigType } from '../../../config';

@@ -5,7 +5,7 @@ import { AuthCredentials, Request, RequestApplicationState } from '@hapi/hapi';
 import { Token } from 'typedi';
 import { Logger } from 'mozlog';
 import { ConfigType } from '../config';
-import { PasswordForgotToken } from 'fxa-shared/db/models/auth';
+import { PasswordForgotToken } from '@fxa/shared/db/mysql/legacy/models/auth';
 
 /**
  * Auth-Server specific interfaces to use objects.

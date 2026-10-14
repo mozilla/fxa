@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import { MozLoggerService } from '@fxa/shared/mozlog';
-import { EmailBlocklist } from 'fxa-shared/db/models/auth';
+import { EmailBlocklist } from '@fxa/shared/db/mysql/legacy/models/auth';
 import { AuthHeaderGuard } from '../../auth/auth-header.guard';
 import { AuditLog } from '../../auth/audit-log.decorator';
 import { Features } from '../../auth/user-group-header.decorator';

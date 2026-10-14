@@ -5,8 +5,8 @@
 import * as isA from 'joi';
 import { Container } from 'typedi';
 import { StatsD } from 'hot-shots';
-import { SecurityEvent } from 'fxa-shared/db/models/auth/security-event';
-import { Account, Email } from 'fxa-shared/db/models/auth';
+import { SecurityEvent } from '@fxa/shared/db/mysql/legacy/models/auth/security-event';
+import { Account, Email } from '@fxa/shared/db/mysql/legacy/models/auth';
 import { AuthRequest, SessionTokenAuthCredential } from '../types';
 import { recordSecurityEvent } from './utils/security-event';
 import { signMfaToken } from './utils/mfa-token';

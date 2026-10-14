@@ -7,7 +7,7 @@ import { SeverityLevel } from '@sentry/core';
 import {
   Account,
   getUidAndEmailByStripeCustomerId,
-} from 'fxa-shared/db/models/auth';
+} from '@fxa/shared/db/mysql/legacy/models/auth';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
 import isA from 'joi';
 import { Stripe } from 'stripe';

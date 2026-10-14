@@ -13,7 +13,7 @@
  */
 
 // Redis boundary: RedisShared's constructor opens an ioredis connection.
-jest.mock('fxa-shared/db/redis', () => {
+jest.mock('@fxa/shared/db/mysql/legacy/redis', () => {
   class RedisShared {
     // Any command resolves to undefined; specs asserting real Redis results
     // replace `this.redis` with their own mock.

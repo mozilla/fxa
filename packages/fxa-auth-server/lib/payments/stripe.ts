@@ -17,7 +17,7 @@ import {
   getAccountCustomerByUid,
   getUidAndEmailByStripeCustomerId,
   updatePayPalBA,
-} from 'fxa-shared/db/models/auth';
+} from '@fxa/shared/db/mysql/legacy/models/auth';
 import {
   getIapPurchaseType,
   isAppStoreSubscriptionPurchase,

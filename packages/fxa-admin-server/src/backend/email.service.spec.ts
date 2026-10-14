@@ -21,7 +21,7 @@ import {
   EmailLinkBuilder,
   FxaEmailRenderer,
 } from '@fxa/accounts/email-renderer';
-import { Account } from 'fxa-shared/db/models/auth';
+import { Account } from '@fxa/shared/db/mysql/legacy/models/auth';
 import { Bounces, EmailSender } from '@fxa/accounts/email-sender';
 
 describe('Email Service', () => {

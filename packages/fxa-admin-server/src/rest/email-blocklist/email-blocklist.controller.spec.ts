@@ -6,12 +6,12 @@ import { BadRequestException, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MozLoggerService } from '@fxa/shared/mozlog';
-import { EmailBlocklist } from 'fxa-shared/db/models/auth';
+import { EmailBlocklist } from '@fxa/shared/db/mysql/legacy/models/auth';
 import { EventLoggingService } from '../../event-logging/event-logging.service';
 import { AuditLogInterceptor } from '../../auth/audit-log.interceptor';
 import { EmailBlocklistController } from './email-blocklist.controller';
 
-jest.mock('fxa-shared/db/models/auth', () => ({
+jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => ({
   EmailBlocklist: {
     findAll: jest.fn(),
     addMany: jest.fn(),

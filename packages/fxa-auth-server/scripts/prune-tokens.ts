@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { program } from 'commander';
-import { setupDatabase } from 'fxa-shared/db';
-import { BaseAuthModel } from 'fxa-shared/db/models/auth';
+import { setupDatabase } from '@fxa/shared/db/mysql/legacy';
+import { BaseAuthModel } from '@fxa/shared/db/mysql/legacy/models/auth';
 import { StatsD } from 'hot-shots';
 import * as Sentry from '@sentry/node';
 import { initSentry } from '@fxa/shared/sentry-node';
 import moment from 'moment';
-import { SessionToken } from 'fxa-shared/db/models/auth/session-token';
-const { PruneTokens } = require('fxa-shared/db/models/auth');
+import { SessionToken } from '@fxa/shared/db/mysql/legacy/models/auth/session-token';
+const { PruneTokens } = require('@fxa/shared/db/mysql/legacy/models/auth');
 const pckg = require('../package.json');
 
 // Max number anticipated redis session tokens

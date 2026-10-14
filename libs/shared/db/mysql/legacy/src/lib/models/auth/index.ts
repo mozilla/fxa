@@ -1,10 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import {
-  uuidTransformer,
-  aggregateNameValuePairs,
-} from '@fxa/shared/db/mysql/legacy/transformers';
+import { uuidTransformer } from '../../transformers';
 import { Account, AccountOptions } from './account';
 import { AccountCustomers } from './account-customers';
 import { AccountResetToken } from './account-reset-token';
@@ -229,6 +226,7 @@ export async function deleteAllPayPalBAs(uid: string) {
  * of an Objection Model.
  */
 type NonFunctionPropertyNames<T> = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   [K in keyof T]: T[K] extends Function ? never : K;
 }[keyof T];
 type NonFunctionProperties<T> = Pick<T, NonFunctionPropertyNames<T>>;

@@ -9,13 +9,13 @@ import {
   Account,
   SessionToken,
   SignInCodes,
-} from 'fxa-shared/db/models/auth';
+} from '@fxa/shared/db/mysql/legacy/models/auth';
 import crypto from 'crypto';
 import {
   setupAuthDatabase,
   setupDatabase,
   setupProfileDatabase,
-} from 'fxa-shared/db';
+} from '@fxa/shared/db/mysql/legacy';
 
 const toRandomBuff = (size: number) =>
   uuidTransformer.to(crypto.randomBytes(size).toString('hex'));

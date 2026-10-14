@@ -29,11 +29,11 @@ import {
   Account,
   Email,
   getAccountCustomerByUid,
-} from 'fxa-shared/db/models/auth';
+} from '@fxa/shared/db/mysql/legacy/models/auth';
 import {
   SecurityEventNames,
   SECURITY_EVENTS_LIMIT,
-} from 'fxa-shared/db/models/auth/security-event';
+} from '@fxa/shared/db/mysql/legacy/models/auth/security-event';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
