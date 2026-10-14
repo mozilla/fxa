@@ -1,8 +1,8 @@
 {
-  "commit": "a0fccc806c5f00a5febad46b90e1ae9d5829e2f9",
-  "summary": "Merge pull request #21488 from mozilla/fxa-14712",
-  "description": "refactor(shared): move STRIPE_PRICE_METADATA into subscriptions plan config",
-  "timestamp": 1791983702000,
+  "commit": "f372fb20865c5a7eb1bcf2093fb6ed83bab00e17",
+  "summary": "Merge pull request #21495 from mozilla/fxa-14695",
+  "description": "refactor(shared): move nestjs health to @fxa/shared/nest-health",
+  "timestamp": 1791989902000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
