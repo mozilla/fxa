@@ -19,7 +19,7 @@ import {
   ReasonForDeletion,
   DeleteAccountTasksFactory,
 } from '@fxa/shared/cloud-tasks';
-import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
+import { getAccountCustomerByUid } from '@fxa/shared/db/mysql/legacy/models/auth';
 
 class CleanupFirestoreHelper {
   private firestore: Firestore;

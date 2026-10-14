@@ -46,11 +46,11 @@ const { FxaMailer } = require('../senders/fxa-mailer');
 const { RecoveryPhoneService } = require('@fxa/accounts/recovery-phone');
 const { BackupCodeManager } = require('@fxa/accounts/two-factor');
 
-// Dynamic mock for fxa-shared/db/models/auth — changed per-test via makeRoutes
+// Dynamic mock for @fxa/shared/db/mysql/legacy/models/auth — changed per-test via makeRoutes
 // eslint-disable-next-line no-var
 var fxaSharedDbModelsOverride: any = {};
-jest.mock('fxa-shared/db/models/auth', () => {
-  const actual = jest.requireActual('fxa-shared/db/models/auth');
+jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => {
+  const actual = jest.requireActual('@fxa/shared/db/mysql/legacy/models/auth');
   return new Proxy(actual, {
     get: (target: any, prop: string) =>
       fxaSharedDbModelsOverride && prop in fxaSharedDbModelsOverride
@@ -146,12 +146,12 @@ const makeRoutes = function (options: any = {}, requireMocks: any = {}) {
     check: () => Promise.resolve(true),
     checkAuthenticated: () => Promise.resolve(true),
   };
-  // Set up fxa-shared/db/models/auth mock with per-call overrides
+  // Set up @fxa/shared/db/mysql/legacy/models/auth mock with per-call overrides
   fxaSharedDbModelsOverride = {
     getAccountCustomerByUid: mockGetAccountCustomerByUid,
     EmailBlocklist: { findMatchingRegex: jest.fn().mockResolvedValue(null) },
     DomainBlocklist: { findMatchingDomain: jest.fn().mockResolvedValue(null) },
-    ...((requireMocks || {})['fxa-shared/db/models/auth'] || {}),
+    ...((requireMocks || {})['@fxa/shared/db/mysql/legacy/models/auth'] || {}),
   };
 
   const signinUtils =
@@ -1335,7 +1335,7 @@ describe('/account/create', () => {
     const accountRoutes = makeRoutes(
       { log: mockLog, db: mockDB },
       {
-        'fxa-shared/db/models/auth': {
+        '@fxa/shared/db/mysql/legacy/models/auth': {
           EmailBlocklist: {
             findMatchingRegex: jest.fn().mockResolvedValue(blockedRegex),
           },
@@ -1375,7 +1375,7 @@ describe('/account/create', () => {
     const accountRoutes = makeRoutes(
       { log: mockLog, db: mockDB },
       {
-        'fxa-shared/db/models/auth': {
+        '@fxa/shared/db/mysql/legacy/models/auth': {
           EmailBlocklist: {
             findMatchingRegex: jest.fn().mockResolvedValue(null),
           },
@@ -4879,7 +4879,7 @@ describe('/account/metrics_opt', () => {
         customs: mockCustoms,
       },
       {
-        'fxa-shared/db/models/auth': {
+        '@fxa/shared/db/mysql/legacy/models/auth': {
           Account: { setMetricsOpt: setMetricsOptStub },
           getAccountCustomerByUid: mockGetAccountCustomerByUid,
         },

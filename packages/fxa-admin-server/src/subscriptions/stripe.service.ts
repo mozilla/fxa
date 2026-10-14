@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import {
   deleteAccountCustomer,
   getAccountCustomerByUid,
-} from 'fxa-shared/db/models/auth';
+} from '@fxa/shared/db/mysql/legacy/models/auth';
 import { PaymentConfigManager } from 'fxa-shared/payments/configuration/manager';
 import {
   determineIapIdentifiers,

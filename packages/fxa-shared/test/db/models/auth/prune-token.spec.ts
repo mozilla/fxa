@@ -7,8 +7,11 @@ import { Knex } from 'knex';
 import 'mocha';
 import 'reflect-metadata';
 import sinon from 'sinon';
-import { PruneTokens, SessionToken } from '../../../../db/models/auth';
-import { MetaData } from '../../../../db/models/auth/metadata';
+import {
+  PruneTokens,
+  SessionToken,
+} from '@fxa/shared/db/mysql/legacy/models/auth';
+import { MetaData } from '@fxa/shared/db/mysql/legacy/models/auth/metadata';
 import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
 import { ILogger } from '../../../../log';
 import { defaultOpts, testDatabaseSetup } from '../../helpers';

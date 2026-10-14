@@ -5,13 +5,13 @@
 import { createMock } from '@golevelup/ts-jest';
 import { AuthLogger } from './types';
 
-// Mock fxa-shared/db to prevent real DB connections
-jest.mock('fxa-shared/db', () => ({
+// Mock @fxa/shared/db/mysql/legacy to prevent real DB connections
+jest.mock('@fxa/shared/db/mysql/legacy', () => ({
   setupAuthDatabase: jest.fn(),
 }));
 
-// Mock fxa-shared/db/models/auth - defined inline to avoid TDZ issues with jest.mock hoisting
-jest.mock('fxa-shared/db/models/auth', () => ({
+// Mock @fxa/shared/db/mysql/legacy/models/auth - defined inline to avoid TDZ issues with jest.mock hoisting
+jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => ({
   Device: {
     delete: jest
       .fn()
@@ -72,7 +72,7 @@ jest.mock('fxa-shared/connected-services', () => {
 
 // Import after mocks
 const config = require('../config').default.getProperties();
-const models: any = require('fxa-shared/db/models/auth');
+const models: any = require('@fxa/shared/db/mysql/legacy/models/auth');
 const { createDB } = require('./db');
 const { ERRNO } = require('@fxa/accounts/errors');
 

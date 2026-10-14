@@ -10,8 +10,10 @@ import { AuthLogger } from '../types';
 const mockLog = createMock<AuthLogger>();
 const { CurrencyHelper } = require('./currencies');
 const { StripeHelper } = require('./stripe');
-const { SentEmail } = require('fxa-shared/db/models/auth/sent-email');
-const authDbModule = require('fxa-shared/db/models/auth');
+const {
+  SentEmail,
+} = require('@fxa/shared/db/mysql/legacy/models/auth/sent-email');
+const authDbModule = require('@fxa/shared/db/mysql/legacy/models/auth');
 const { SubscriptionReminders } = require('./subscription-reminders');
 const invoicePreview = require('../../test/local/payments/fixtures/stripe/invoice_preview_tax.json');
 const longPlan1 = require('../../test/local/payments/fixtures/stripe/plan1.json');

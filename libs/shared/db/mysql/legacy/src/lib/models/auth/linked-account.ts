@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { BaseAuthModel } from './base-auth';
-import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
+import { uuidTransformer } from '../../transformers';
 
 export const PROVIDER = {
   __fxa__unmapped: 0,

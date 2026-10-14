@@ -1,7 +1,7 @@
 import 'mocha';
 import { assert } from 'chai';
 import sinon from 'sinon';
-import { SessionToken } from '../../../../db/models/auth';
+import { SessionToken } from '@fxa/shared/db/mysql/legacy/models/auth';
 import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
 import crypto from 'crypto';
 

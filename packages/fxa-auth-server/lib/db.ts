@@ -8,7 +8,7 @@ import {
   mergeDeviceAndSessionToken,
   mergeDevicesAndSessionTokens,
 } from 'fxa-shared/connected-services';
-import { setupAuthDatabase } from 'fxa-shared/db';
+import { setupAuthDatabase } from '@fxa/shared/db/mysql/legacy';
 import {
   Account,
   BaseToken,
@@ -25,7 +25,7 @@ import {
   RecoveryKey,
   SecurityEvent,
   TotpToken,
-} from 'fxa-shared/db/models/auth';
+} from '@fxa/shared/db/mysql/legacy/models/auth';
 import { normalizeEmail } from '@fxa/shared/email';
 import { Knex } from 'knex';
 import { StatsD } from 'hot-shots';
@@ -36,7 +36,7 @@ import {
   verificationMethodToNumber,
   verificationMethodToString,
   VerificationMethod,
-} from 'fxa-shared/db/models/auth/session-token';
+} from '@fxa/shared/db/mysql/legacy/models/auth/session-token';
 import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 

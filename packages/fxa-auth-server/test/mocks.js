@@ -21,8 +21,8 @@ const { ProductConfigurationManager } = require('@fxa/shared/cms');
 
 // Patch Account.metricsEnabled before loading amplitude (replicates what
 // proxyquire used to do without replacing the entire auth models module).
-// Guard: some test files mock 'fxa-shared/db/models/auth' as {} before this runs.
-const _authModels = require('fxa-shared/db/models/auth');
+// Guard: some test files mock '@fxa/shared/db/mysql/legacy/models/auth' as {} before this runs.
+const _authModels = require('@fxa/shared/db/mysql/legacy/models/auth');
 const _Account = _authModels.Account;
 let _origMetricsEnabled;
 if (_Account) {

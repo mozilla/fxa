@@ -8,7 +8,10 @@ import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { DB } from '../../db';
 import { getClientServiceTags } from '../../metrics/client-tags';
-import { EmailBlocklist, DomainBlocklist } from 'fxa-shared/db/models/auth';
+import {
+  EmailBlocklist,
+  DomainBlocklist,
+} from '@fxa/shared/db/mysql/legacy/models/auth';
 
 /**
  * Throws `error.accountDisabled` when an administrator has disabled the

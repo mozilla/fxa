@@ -13,7 +13,7 @@ const dbStub = {
   updatePayPalBA: jest.fn(),
 };
 
-jest.mock('fxa-shared/db/models/auth', () => dbStub);
+jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => dbStub);
 
 const mocks = require('../../../test/mocks');
 

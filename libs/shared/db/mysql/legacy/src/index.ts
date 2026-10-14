@@ -4,3 +4,4 @@
 export * from './lib/config';
 export * from './lib/mysql';
 export * from './lib/transformers';
+export * from './lib/setup';

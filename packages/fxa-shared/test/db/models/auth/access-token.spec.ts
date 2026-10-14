@@ -5,7 +5,7 @@ import 'mocha';
 
 import { assert } from 'chai';
 
-import { AccessToken } from '../../../../db/models/auth/access-token';
+import { AccessToken } from '@fxa/shared/db/mysql/legacy/models/auth/access-token';
 
 // Deterministic. authAt is seconds since epoch; the others are ms.
 const MOCK_CREATED_AT = 1_700_000_000_000;

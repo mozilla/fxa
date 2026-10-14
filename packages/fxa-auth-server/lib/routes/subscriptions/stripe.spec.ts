@@ -18,7 +18,7 @@ const { handleAuth } = require('.');
 // Import the real buildTaxAddress for direct tests (not through the mock)
 const { buildTaxAddress: realBuildTaxAddress } = jest.requireActual('./utils');
 
-jest.mock('fxa-shared/db/models/auth', () => ({
+jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => ({
   getAccountCustomerByUid: jest.fn(),
 }));
 

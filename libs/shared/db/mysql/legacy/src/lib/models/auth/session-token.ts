@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { BaseAuthModel, Proc } from './base-auth';
+import { Proc } from './base-auth';
 import { BaseToken } from './base-token';
 import {
   aggregateNameValuePairs,
   uuidTransformer,
   intBoolTransformer,
-} from '@fxa/shared/db/mysql/legacy/transformers';
-import { convertError, notFound } from '@fxa/shared/db/mysql/legacy/mysql';
+} from '../../transformers';
+import { convertError, notFound } from '../../mysql';
 
 function notExpired(token: SessionToken) {
   return !!(

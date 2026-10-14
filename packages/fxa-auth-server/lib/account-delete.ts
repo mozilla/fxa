@@ -5,7 +5,7 @@
 import {
   deleteAllPayPalBAs,
   getAllPayPalBAByUid,
-} from 'fxa-shared/db/models/auth';
+} from '@fxa/shared/db/mysql/legacy/models/auth';
 import { Container } from 'typedi';
 import { Logger } from 'mozlog';
 import { StatsD } from 'hot-shots';

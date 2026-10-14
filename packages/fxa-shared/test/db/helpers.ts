@@ -1,6 +1,6 @@
 import { knex, Knex } from 'knex';
-import { setupDatabase } from '../../db';
-import { MySQLConfig } from '../../db/config';
+import { setupDatabase } from '@fxa/shared/db/mysql/legacy';
+import { MySQLConfig } from '@fxa/shared/db/mysql/legacy/config';
 import { testAuthDatabaseSetup } from './models/auth/helpers';
 import { testOauthDatabaseSetup } from './models/oauth/helpers';
 import { testProfileDatabaseSetup } from './models/profile/helpers';

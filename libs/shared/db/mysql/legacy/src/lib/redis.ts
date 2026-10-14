@@ -6,7 +6,8 @@ import Redis from 'ioredis';
 import { basename, extname, resolve } from 'path';
 import { StatsD } from 'hot-shots';
 
-import { ILogger } from '../log';
+import type { ILogger } from '@fxa/shared/log';
+import { LUA_SCRIPTS } from './lua-scripts';
 import { AccessToken as AccessToken } from './models/auth/access-token';
 import { RefreshTokenMetadata } from './models/auth/refresh-token-meta-data';
 
@@ -106,11 +107,12 @@ export class RedisShared {
       this.metrics?.increment('redis.end');
     });
 
-    const scriptsDirectory = resolve(__dirname, 'luaScripts');
-
     // Applies custom scripts which are turned into methods on
     // the redis object.
-    this.defineCommands(redis, scriptsDirectory);
+    for (const [scriptName, lua] of Object.entries(LUA_SCRIPTS)) {
+      const [name, numberOfKeys] = scriptName.split('_');
+      redis.defineCommand(name, { lua, numberOfKeys: +numberOfKeys });
+    }
 
     // Invoke type guard to make sure custom scripts were loaded
     // properly. Fail hard otherwise.
@@ -153,7 +155,7 @@ export class RedisShared {
   }
 
   protected cacellableAction(cb: () => void, ms: number, cancel: Promise<any>) {
-    var id = setTimeout(cb, ms);
+    const id = setTimeout(cb, ms);
     cancel.then(() => clearTimeout(id));
   }
 

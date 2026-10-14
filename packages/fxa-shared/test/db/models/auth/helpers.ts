@@ -12,7 +12,7 @@ import {
   Account,
   BaseAuthModel,
   EmailBounce,
-} from '../../../../db/models/auth';
+} from '@fxa/shared/db/mysql/legacy/models/auth';
 import { randomBytes } from 'crypto';
 
 export type AccountIsh = Pick<

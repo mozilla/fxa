@@ -7,7 +7,11 @@ import { Model } from 'objection';
 import yargs from 'yargs';
 
 import Config from '../config';
-import { Account, Email, EmailBounce } from 'fxa-shared/db/models/auth';
+import {
+  Account,
+  Email,
+  EmailBounce,
+} from '@fxa/shared/db/mysql/legacy/models/auth';
 import {
   AccountIsh,
   BounceIsh,

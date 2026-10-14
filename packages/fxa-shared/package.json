@@ -29,37 +29,9 @@
       "import": "./dist/esm/packages/fxa-shared/coverage/*.js",
       "require": "./dist/cjs/packages/fxa-shared/coverage/*.js"
     },
-    "./db": {
-      "import": "./dist/esm/packages/fxa-shared/db/index.js",
-      "require": "./dist/cjs/packages/fxa-shared/db/index.js"
-    },
-    "./db/*": {
-      "import": "./dist/esm/packages/fxa-shared/db/*.js",
-      "require": "./dist/cjs/packages/fxa-shared/db/*.js"
-    },
     "./db/config": {
       "import": "./dist/esm/packages/fxa-shared/db/config.js",
       "require": "./dist/cjs/packages/fxa-shared/db/config.js"
-    },
-    "./db/models": {
-      "import": "./dist/esm/packages/fxa-shared/db/models/index.js",
-      "require": "./dist/cjs/packages/fxa-shared/db/models/index.js"
-    },
-    "./db/models/auth": {
-      "import": "./dist/esm/packages/fxa-shared/db/models/auth/index.js",
-      "require": "./dist/cjs/packages/fxa-shared/db/models/auth/index.js"
-    },
-    "./db/models/auth/*": {
-      "import": "./dist/esm/packages/fxa-shared/db/models/auth/*.js",
-      "require": "./dist/cjs/packages/fxa-shared/db/models/auth/*.js"
-    },
-    "./db/models/profile": {
-      "import": "./dist/esm/packages/fxa-shared/db/models/profile/index.js",
-      "require": "./dist/cjs/packages/fxa-shared/db/models/profile/index.js"
-    },
-    "./db/redis": {
-      "import": "./dist/esm/packages/fxa-shared/db/redis.js",
-      "require": "./dist/cjs/packages/fxa-shared/db/redis.js"
     },
     "./dto/*": {
       "import": "./dist/esm/packages/fxa-shared/dto/*.js",

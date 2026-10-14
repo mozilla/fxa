@@ -10,7 +10,7 @@ import {
   setupAuthDatabase,
   setupDatabase,
   setupProfileDatabase,
-} from 'fxa-shared/db';
+} from '@fxa/shared/db/mysql/legacy';
 import packageJson from '../../package.json';
 import Config from '../config';
 import mozlog from 'mozlog';

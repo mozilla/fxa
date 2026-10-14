@@ -5,7 +5,7 @@
 /**
  * Fix for module resolution not finding .ts files under Jest/ts-jest.
  * resolve.sync() defaults to only .js extensions, which breaks jest.mock()
- * for modules that resolve to .ts index files (e.g. fxa-shared/db/models/auth).
+ * for modules that resolve to .ts index files (e.g. @fxa/shared/db/mysql/legacy/models/auth).
  * This patches resolve.sync to also look for .ts files.
  */
 

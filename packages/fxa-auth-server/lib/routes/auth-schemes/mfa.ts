@@ -6,7 +6,7 @@ import { Request, ResponseToolkit } from '@hapi/hapi';
 import { AppError } from '@fxa/accounts/errors';
 import { ConfigType } from '../../../config/index';
 import * as jwt from 'jsonwebtoken';
-import { Account } from 'fxa-shared/db/models/auth';
+import { Account } from '@fxa/shared/db/mysql/legacy/models/auth';
 import { StatsD } from 'hot-shots';
 import * as authMethods from '../../authMethods';
 

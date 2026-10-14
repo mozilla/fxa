@@ -17,7 +17,7 @@ import { AuthRequest } from '../types';
 import { ConfigType } from '../../config';
 import { isPasskeyPasswordlessSyncEnabled } from '../passkey-utils';
 import { recordSecurityEvent } from './utils/security-event';
-import type { SecurityEventNames } from 'fxa-shared/db/models/auth/security-event';
+import type { SecurityEventNames } from '@fxa/shared/db/mysql/legacy/models/auth/security-event';
 import { reportSentryError } from '../sentry';
 import { base64urlCredentialId, base64urlString } from './passkeys';
 import type { Customs, DB } from './passkeys';

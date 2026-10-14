@@ -2,12 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { BaseAuthModel, Proc } from './base-auth';
-import {
-  intBoolTransformer,
-  uuidTransformer,
-} from '@fxa/shared/db/mysql/legacy/transformers';
-import { convertError, notFound } from '@fxa/shared/db/mysql/legacy/mysql';
-import { Account } from './account';
+import { intBoolTransformer, uuidTransformer } from '../../transformers';
+import { convertError, notFound } from '../../mysql';
 
 export class TotpToken extends BaseAuthModel {
   public static tableName = 'totp';

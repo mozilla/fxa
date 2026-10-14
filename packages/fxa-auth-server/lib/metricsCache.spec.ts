@@ -13,7 +13,7 @@ jest.mock('typedi', () => ({
 
 // Mock RedisShared so the constructor does not create a real ioredis connection.
 // We replace `this.redis` in beforeEach anyway, but this prevents side effects.
-jest.mock('fxa-shared/db/redis', () => {
+jest.mock('@fxa/shared/db/mysql/legacy/redis', () => {
   class RedisShared {
     redis: any = {};
     constructor() {

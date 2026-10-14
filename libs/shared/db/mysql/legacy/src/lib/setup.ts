@@ -5,7 +5,7 @@
 import { StatsD } from 'hot-shots';
 import { knex, Knex } from 'knex';
 import { promisify } from 'util';
-import { ILogger } from '../log';
+import type { ILogger } from '@fxa/shared/log';
 
 import { MySQLConfig } from './config';
 import { BaseAuthModel } from './models/auth';

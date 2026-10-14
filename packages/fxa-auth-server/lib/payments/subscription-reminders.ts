@@ -12,7 +12,7 @@ import { StripeHelper } from './stripe';
 import {
   getUidAndEmailByStripeCustomerId,
   SentEmail,
-} from 'fxa-shared/db/models/auth';
+} from '@fxa/shared/db/mysql/legacy/models/auth';
 import {
   getSubplatIntervalFromSubscription,
   SubplatInterval,

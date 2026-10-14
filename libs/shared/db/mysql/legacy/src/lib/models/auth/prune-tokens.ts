@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { StatsD } from 'hot-shots';
-import { ILogger } from '../../../log';
-import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
+import type { ILogger } from '@fxa/shared/log';
+import { uuidTransformer } from '../../transformers';
 import { BaseAuthModel, Proc } from './base-auth';
 
 /**

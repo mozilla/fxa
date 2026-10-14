@@ -4,10 +4,7 @@
 
 import { Model } from 'objection';
 
-import {
-  intBoolTransformer,
-  uuidTransformer,
-} from '@fxa/shared/db/mysql/legacy/transformers';
+import { intBoolTransformer, uuidTransformer } from '../transformers';
 
 /**
  * Base Model for helpers that should be present on all models.

@@ -7,7 +7,7 @@ import 'reflect-metadata';
 import { assert } from 'chai';
 import { Knex } from 'knex';
 
-import { EmailType, SentEmail } from '../../../../db/models/auth';
+import { EmailType, SentEmail } from '@fxa/shared/db/mysql/legacy/models/auth';
 import { defaultOpts, testDatabaseSetup } from '../../../../test/db/helpers';
 import { randomAccount } from '../../../../test/db/models/auth/helpers';
 

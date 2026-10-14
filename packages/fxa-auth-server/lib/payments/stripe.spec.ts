@@ -55,8 +55,8 @@ jest.mock('../redis', () => {
 // Mock the entire db/models/auth module so no real MySQL is needed.
 // createAccountCustomer / getAccountCustomerByUid / deleteAccountCustomer
 // are backed by the in-memory Map above.
-jest.mock('fxa-shared/db/models/auth', () => {
-  const real = jest.requireActual('fxa-shared/db/models/auth');
+jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => {
+  const real = jest.requireActual('@fxa/shared/db/mysql/legacy/models/auth');
   const store = () =>
     (globalThis as any).__accountCustomerStore as Map<string, any>;
   return {
@@ -89,7 +89,7 @@ jest.mock('fxa-shared/db/models/auth', () => {
 });
 
 // Get a reference to the mocked db module so tests can configure stubs
-const dbStub = require('fxa-shared/db/models/auth');
+const dbStub = require('@fxa/shared/db/mysql/legacy/models/auth');
 
 // Save the original mock implementations so they can be restored after
 // jest.restoreAllMocks() (which wipes jest.fn() implementations when
@@ -124,9 +124,7 @@ const {
   PurchaseWithDetailsOfferingContentTransformedFactory,
 } = require('@fxa/shared/cms');
 
-const {
-  MozillaSubscriptionTypes,
-} = require('fxa-shared/subscriptions/types');
+const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 
 const STRIPE_FIXTURES = '../../test/local/payments/fixtures/stripe';
 const APPLE_FIXTURES = '../../test/local/payments/fixtures/apple-app-store';
@@ -279,7 +277,7 @@ const transactionInfo = require(
 const {
   createAccountCustomer,
   getAccountCustomerByUid,
-} = require('fxa-shared/db/models/auth');
+} = require('@fxa/shared/db/mysql/legacy/models/auth');
 const {
   AppStoreSubscriptionPurchase,
 } = require('./iap/apple-app-store/subscription-purchase');

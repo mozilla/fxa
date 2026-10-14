@@ -16,7 +16,7 @@ import {
   RecoveryPhones,
   SessionToken,
   TotpToken,
-} from 'fxa-shared/db/models/auth';
+} from '@fxa/shared/db/mysql/legacy/models/auth';
 
 const Client = require('../client')();
 const otplib = require('otplib');

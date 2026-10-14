@@ -5,8 +5,8 @@
 import crypto from 'crypto';
 import ip from 'ip';
 import { BaseAuthModel, Proc } from './base-auth';
-import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
-import { convertError } from '@fxa/shared/db/mysql/legacy/mysql';
+import { uuidTransformer } from '../../transformers';
+import { convertError } from '../../mysql';
 
 // These are the values of the `securityEventNames` table in the fxa DB.  The
 // numeric id is a MySQL auto_increment'd value.  It's best to run the
