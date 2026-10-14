@@ -9,9 +9,12 @@ import {
   AppStoreSubscription,
   PlayStoreSubscription,
 } from 'fxa-shared/dto/auth/payments/iap-subscription';
-import { WrappedErrorCodes } from 'fxa-shared/email/emailValidatorErrors';
+import {
+  WrappedErrorCodes,
+  tryResolveIpv4,
+  tryResolveMx,
+} from '@fxa/shared/email/server';
 import { TopEmailDomains, normalizeEmail } from '@fxa/shared/email';
-import { tryResolveIpv4, tryResolveMx } from 'fxa-shared/email/validateEmail';
 import {
   OAUTH_SCOPE_OLD_SYNC,
   scopeSetHelpers as ScopeSet,
