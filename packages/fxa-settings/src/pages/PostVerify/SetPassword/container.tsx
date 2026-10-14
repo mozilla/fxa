@@ -19,12 +19,19 @@ import {
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { NavigationOptions } from '../../Signin/interfaces';
-import { handleNavigation } from '../../Signin/utils';
+import { cachedSignIn, handleNavigation } from '../../Signin/utils';
 import { buildPasskeyAuthSuccessReason } from '../../../lib/passkeys/signin-flow';
 import GleanMetrics from '../../../lib/glean';
 import { QueryParams } from '../../..';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
 import AppLayout from '../../../components/AppLayout';
+
+// Accounts that already have a password sign in instead; `origin` lets
+// /signin say the sign-in is for Sync setup.
+const SIGNIN_REDIRECT = {
+  replace: true,
+  state: { origin: 'post-verify-set-password' as const },
+};
 
 const SetPasswordContainer = ({
   integration,
@@ -249,15 +256,79 @@ const SetPasswordContainer = ({
       passwordStatus.hasPassword);
   useEffect(() => {
     if (shouldRedirectToSignin) {
-      navigateWithQuery('/signin', { replace: true });
+      navigateWithQuery('/signin', SIGNIN_REDIRECT);
     }
   }, [shouldRedirectToSignin, navigateWithQuery]);
+
+  // Firefox deep-links here, so unlike the cached sign-in path nothing has
+  // verified the session yet, and /password/create needs a verified one.
+  // An unverified session takes the sign-in code page first; handleNavigation
+  // brings it back here afterwards.
+  const [sessionVerified, setSessionVerified] = useState(false);
+  const sessionCheckRef = useRef(false);
+  useEffect(() => {
+    if (
+      !email ||
+      !sessionToken ||
+      shouldRedirectToSignin ||
+      passwordStatus.isLoading ||
+      sessionCheckRef.current
+    ) {
+      return;
+    }
+    sessionCheckRef.current = true;
+    (async () => {
+      const { data, error } = await cachedSignIn(sessionToken, authClient);
+      if (error || !data) {
+        navigateWithQuery('/signin', SIGNIN_REDIRECT);
+        return;
+      }
+      if (data.emailVerified && data.sessionVerified) {
+        setSessionVerified(true);
+        return;
+      }
+      try {
+        const { error: navError } = await handleNavigation({
+          navigate,
+          email,
+          signinData: { ...data, sessionToken },
+          integration,
+          finishOAuthFlowHandler,
+          queryParams: location.search,
+          handleFxaLogin: false,
+          handleFxaOAuthLogin: false,
+          isSignInWithThirdPartyAuth: true,
+          supportsKeysOptionalLogin,
+          authClient,
+        });
+        if (!navError) return;
+      } catch {
+        // Sending the code failed (e.g. throttled); sign-in can resend it.
+      }
+      navigateWithQuery('/signin', SIGNIN_REDIRECT);
+    })();
+  }, [
+    email,
+    sessionToken,
+    shouldRedirectToSignin,
+    passwordStatus.isLoading,
+    authClient,
+    navigate,
+    navigateWithQuery,
+    integration,
+    finishOAuthFlowHandler,
+    location.search,
+    supportsKeysOptionalLogin,
+  ]);
 
   if (missingAuthState) {
     return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
+  }
+  if (!sessionVerified) {
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 
   // Don't render SetPassword until this check is finished, otherwise

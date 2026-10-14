@@ -42,6 +42,7 @@ export type FxAStatusResponse = {
         sessionToken?: string;
         uid?: string;
         verified?: boolean;
+        hasSyncKey?: boolean;
       };
       clientId: string;
       capabilities: {

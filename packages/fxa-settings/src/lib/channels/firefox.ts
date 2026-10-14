@@ -92,7 +92,6 @@ export type FxAStatusResponse = {
     choose_what_to_sync?: boolean;
     keys_optional?: boolean;
     can_link_account_uid?: boolean;
-    hasSyncKeys?: boolean;
   };
   clientId?: string;
   signedInUser?: SignedInUser;
@@ -105,6 +104,9 @@ export type SignedInUser = {
   sessionToken: string | undefined;
   uid: string;
   verified: boolean;
+  // Whether the browser holds the Sync key. Undefined when the Firefox version
+  // predates the field; false also when Firefox cannot read its stored keys.
+  hasSyncKey?: boolean;
 };
 
 export type PairOAuthStartState = {
@@ -242,6 +244,15 @@ export function buildSyncOAuthSearch(
   }
   if (oauthParams.keys_jwk) search.set('keys_jwk', oauthParams.keys_jwk);
   return search;
+}
+
+// Pairing hands the Sync key to the other device, so a browser session can
+// pair only if it holds one. A Firefox that predates the field sends
+// undefined, so only an explicit false blocks pairing.
+export function canPairFromBrowser(
+  user?: SignedInUser
+): user is SignedInUser & { sessionToken: string } {
+  return !!(user?.sessionToken && user.verified && user.hasSyncKey !== false);
 }
 
 // timeout tuned for device latency

@@ -8,6 +8,7 @@ import {
   Firefox,
   FirefoxCommand,
   buildSyncOAuthSearch,
+  canPairFromBrowser,
   DEFAULT_SEND_TIMEOUT_LENGTH_MS,
   FxAOAuthFlowBeginResponse,
   FxAStatusResponse,
@@ -125,6 +126,31 @@ describe('buildSyncOAuthSearch', () => {
     ]);
     expect(search.get('code_challenge')).toBe(OAUTH_PARAMS.code_challenge);
     expect(search.toString()).not.toContain(MOCK_CODE_VERIFIER);
+  });
+});
+
+describe('canPairFromBrowser', () => {
+  const SIGNED_IN_USER: SignedInUser = {
+    uid: 'sync-uid',
+    email: 'sync@example.com',
+    sessionToken: 'token',
+    verified: true,
+  };
+
+  it.each([
+    ['no signedInUser', undefined],
+    ['no sessionToken', { ...SIGNED_IN_USER, sessionToken: undefined }],
+    ['an unverified session', { ...SIGNED_IN_USER, verified: false }],
+    ['hasSyncKey false', { ...SIGNED_IN_USER, hasSyncKey: false }],
+  ])('is false with %s', (_, user) => {
+    expect(canPairFromBrowser(user)).toBe(false);
+  });
+
+  it.each([
+    ['hasSyncKey true', { ...SIGNED_IN_USER, hasSyncKey: true }],
+    ['hasSyncKey undefined (Firefox predating the field)', SIGNED_IN_USER],
+  ])('is true for a verified session with %s', (_, user) => {
+    expect(canPairFromBrowser(user)).toBe(true);
   });
 });
 

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { FirefoxCommand } from '../../lib/channels';
+import { FF_OAUTH_CLIENT_ID, FirefoxCommand } from '../../lib/channels';
 import { Page, expect } from '../../lib/fixtures/standard';
 import { test } from '../../lib/fixtures/pairing';
 import { findV2AuthorityBinary } from '../../lib/firefox-binary';
@@ -25,6 +25,63 @@ import { SigninPage } from '../../pages/signin';
 // eligible entrypoint to consider pairing at all.
 const ELIGIBLE_ENTRYPOINT_QS =
   'context=oauth_webchannel_v1&entrypoint=fxa_app_menu';
+
+const STOP_MOCK = 'fxa-test.stop-fxa-status-mock';
+
+// Answers fxa_status as a Firefox that is signed in but holds no Sync key
+// (e.g. a VPN sign-in that skipped the password). Playwright's Firefox predates
+// `hasSyncKey`, so this is faked; it replies before Firefox does and stops
+// once STOP_MOCK is set in sessionStorage, letting the real replies through.
+async function mockKeylessBrowserUser(
+  page: Page,
+  credentials: Credentials,
+  sessionToken: string
+) {
+  const signedInUser = {
+    uid: credentials.uid,
+    email: credentials.email,
+    sessionToken,
+    verified: true,
+    hasSyncKey: false,
+  };
+  await page.addInitScript(
+    ({ fxaStatusCommand, signedInUser, clientId, stopKey }) => {
+      window.addEventListener('WebChannelMessageToChrome', (e: Event) => {
+        const detail = JSON.parse((e as CustomEvent).detail);
+        const { command, messageId } = detail.message;
+        if (command !== fxaStatusCommand || sessionStorage.getItem(stopKey)) {
+          return;
+        }
+        window.dispatchEvent(
+          new CustomEvent('WebChannelMessageToContent', {
+            detail: {
+              id: 'account_updates',
+              message: {
+                command,
+                messageId,
+                data: {
+                  signedInUser,
+                  clientId,
+                  capabilities: {
+                    engines: [],
+                    pairing: true,
+                    multiService: true,
+                  },
+                },
+              },
+            },
+          })
+        );
+      });
+    },
+    {
+      fxaStatusCommand: FirefoxCommand.FxAStatus,
+      signedInUser,
+      clientId: FF_OAUTH_CLIENT_ID,
+      stopKey: STOP_MOCK,
+    }
+  );
+}
 
 test.describe('severity-2 #smoke', () => {
   test.describe('Pair entry flow', () => {
@@ -52,6 +109,86 @@ test.describe('severity-2 #smoke', () => {
 
       await settings.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       await settings.checkWebChannelMessage(FirefoxCommand.OAuthFlowBegin);
+    });
+
+    test('a signed-in browser without the Sync key signs in with its password and lands straight on pairing', async ({
+      target,
+      syncOAuthBrowserPages: { page, settings, signin, connectAnotherDevice },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUp();
+      await page.goto(target.contentServerUrl);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(settings.settingsHeading).toBeVisible();
+      const sessionToken = (
+        await settings.getAccountFromLocalStorage(credentials.email)
+      )?.sessionToken as string;
+      expect(sessionToken).toBeTruthy();
+
+      await mockKeylessBrowserUser(page, credentials, sessionToken);
+      await page.goto(`${target.contentServerUrl}/pair`);
+
+      await expect(page).toHaveURL(/\/signin\?/);
+      await expect(signin.passwordTextbox).toBeVisible();
+      await page.evaluate((key) => sessionStorage.setItem(key, '1'), STOP_MOCK);
+      await signin.fillOutPasswordForm(credentials.password);
+
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(page).toHaveURL(/\/pair(\?|$)/);
+    });
+
+    test('a signed-in browser without the Sync key signs in with password and 2FA before pairing', async ({
+      target,
+      syncOAuthBrowserPages: {
+        page,
+        settings,
+        signin,
+        signinTotpCode,
+        totp,
+        connectAnotherDevice,
+      },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUp();
+      await page.goto(target.contentServerUrl);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(settings.settingsHeading).toBeVisible();
+      await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
+      const { secret } =
+        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
+      await expect(settings.totp.status).toHaveText('Enabled');
+      // The web session doubles as the browser's: set_password checks it
+      // server-side before deciding where to send the user.
+      const sessionToken = (
+        await settings.getAccountFromLocalStorage(credentials.email)
+      )?.sessionToken as string;
+      expect(sessionToken).toBeTruthy();
+
+      await mockKeylessBrowserUser(page, credentials, sessionToken);
+      await page.goto(`${target.contentServerUrl}/pair`);
+
+      // Sent through the Sync sign-in rather than straight to the choice
+      // screen: set_password hands an account that has a password to /signin.
+      await expect(page).toHaveURL(
+        (url) =>
+          url.pathname === '/signin' &&
+          url.searchParams.get('service') === 'sync' &&
+          url.searchParams.get('context') === 'oauth_webchannel_v1'
+      );
+      await expect(signin.passwordTextbox).toBeVisible();
+      // From here Firefox's own replies take over: the real sign-in hands it
+      // the key, and /pair must see that, not the fake.
+      await page.evaluate((key) => sessionStorage.setItem(key, '1'), STOP_MOCK);
+      await signin.fillOutPasswordForm(credentials.password);
+
+      await page.waitForURL(/signin_totp_code/);
+      await signinTotpCode.fillOutCodeForm(await getTotpCode(secret));
+
+      await expect(page).toHaveURL(/\/pair(\?|$)/);
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
     test('Continue advances to the download view when no mobile is selected', async ({
@@ -182,9 +319,7 @@ test.describe('severity-2 #smoke', () => {
       await settings.goto();
 
       // The CTA is gated to desktop Firefox; the functional-test browser qualifies.
-      const connectDevice = page.locator(
-        '[data-glean-id="account_pref_connect_device_submit"]'
-      );
+      const connectDevice = settings.connectDeviceButton;
       await expect(connectDevice).toBeVisible();
       await expect(connectDevice).toHaveAttribute('href', /\/pair/);
 

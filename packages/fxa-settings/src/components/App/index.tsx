@@ -283,6 +283,10 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
 
   // Whether the user is signed into Firefox via WebChannel
   const [isSignedIntoFirefox, setIsSignedIntoFirefox] = useState(false);
+  // Whether that Firefox holds the Sync key; undefined until it says so.
+  const [browserHasSyncKey, setBrowserHasSyncKey] = useState<
+    boolean | undefined
+  >();
 
   // Track current page's split layout state to prevent visual flashing during navigation.
   // This state is updated by AppLayout and read by the Suspense fallback to preserve
@@ -318,6 +322,7 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
           );
           if (isValidSession) {
             setIsSignedIntoFirefox(true);
+            setBrowserHasSyncKey(userFromBrowser.hasSyncKey);
             const cachedUser = getAccountByUid(userFromBrowser.uid);
             // Refresh the token without switching the "current" account.
             persistAccount(
@@ -514,6 +519,7 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
                   isSignedIn,
                   integration,
                   isSignedIntoFirefox,
+                  browserHasSyncKey,
                   setCurrentSplitLayout,
                 }}
               />
@@ -543,11 +549,13 @@ const SettingsRoutes = ({
   isSignedIn,
   integration,
   isSignedIntoFirefox,
+  browserHasSyncKey,
   setCurrentSplitLayout,
 }: {
   isSignedIn: boolean;
   integration: Integration;
   isSignedIntoFirefox: boolean;
+  browserHasSyncKey?: boolean;
   setCurrentSplitLayout: (value: boolean) => void;
 }) => {
   const location = useLocation();
@@ -589,7 +597,12 @@ const SettingsRoutes = ({
       <SettingsContext.Provider value={settingsContext}>
         <ScrollToTop>
           <Settings
-            {...{ integration, isSignedIntoFirefox, setCurrentSplitLayout }}
+            {...{
+              integration,
+              isSignedIntoFirefox,
+              browserHasSyncKey,
+              setCurrentSplitLayout,
+            }}
           />
         </ScrollToTop>
       </SettingsContext.Provider>

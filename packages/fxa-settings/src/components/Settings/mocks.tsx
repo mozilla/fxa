@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Suspense } from 'react';
+import React, { Suspense } from 'react';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import Settings from '.';
 import { GenericData } from '../../lib/model-data';
@@ -29,7 +29,12 @@ const flowQueryParams = {
   flowId: 'x',
 };
 
-export const Subject = () => (
+export const Subject = (
+  props: Pick<
+    React.ComponentProps<typeof Settings>,
+    'isSignedIntoFirefox' | 'browserHasSyncKey'
+  >
+) => (
   <Routes>
     <Route
       path="/settings/*"
@@ -38,6 +43,7 @@ export const Subject = () => (
           <Settings
             {...{ flowQueryParams }}
             integration={createMockSettingsIntegration()}
+            {...props}
           />
         </Suspense>
       }

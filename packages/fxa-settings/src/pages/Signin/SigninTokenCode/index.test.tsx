@@ -487,6 +487,32 @@ describe('SigninTokenCode page', () => {
         });
       });
 
+      it('sends a passwordless Sync session to set a password instead of finishing OAuth', async () => {
+        session = mockSession();
+        const finishOAuthFlowHandler = jest.fn();
+        const integration = createMockSigninOAuthNativeSyncIntegration();
+        render({
+          finishOAuthFlowHandler,
+          integration,
+          signinState: {
+            ...createMockSigninLocationState(integration.wantsKeys()),
+            isSignInWithThirdPartyAuth: true,
+          },
+        });
+        await submitCode();
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith(
+            expect.stringMatching(/^\/post_verify\/set_password/),
+            expect.objectContaining({
+              state: expect.objectContaining({
+                passwordCreationReason: 'third_party_auth',
+              }),
+            })
+          );
+        });
+        expect(finishOAuthFlowHandler).not.toHaveBeenCalled();
+      });
+
       it('leaves isPasswordlessOtpSignin unset for a password sign-in', async () => {
         const handleNavigationSpy = jest.spyOn(SigninUtils, 'handleNavigation');
         session = mockSession();

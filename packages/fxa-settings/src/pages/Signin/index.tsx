@@ -26,7 +26,7 @@ import {
 import { usePasskeySignIn } from '../../lib/hooks/usePasskeySignIn';
 import { shouldShowPasskeySignin } from '../../lib/passkeys';
 import { isWebAuthnSupported } from '../../lib/passkeys/webauthn';
-import { SigninFormData, SigninProps } from './interfaces';
+import { SigninFormData, SigninLocationState, SigninProps } from './interfaces';
 import { handleNavigation } from './utils';
 import { isWafBlockedError } from 'fxa-auth-client/browser';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
@@ -60,6 +60,9 @@ const Signin = ({
 }: SigninProps) => {
   const config = useConfig();
   const location = useLocation();
+  const sentFromSetPassword =
+    (location.state as SigninLocationState | null)?.origin ===
+    'post-verify-set-password';
   const navigate = useNavigate();
   const navigateWithQuery = useNavigateWithQuery();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -429,16 +432,31 @@ const Signin = ({
         />
 
         <div className="flex">
-          <FtlMsg id="signin-button">
-            <CmsButtonWithFallback
-              type="submit"
-              disabled={signinButtonLocked}
-              buttonColor={cmsInfo?.shared.buttonColor}
-              buttonText={signinPageCms?.primaryButtonText}
-            >
-              Sign in
-            </CmsButtonWithFallback>
-          </FtlMsg>
+          {/* set_password sends an account that has a password here to sign
+              in for Sync; completing it turns Sync on, so say so. */}
+          {sentFromSetPassword ? (
+            <FtlMsg id="signin-button-start-syncing">
+              <CmsButtonWithFallback
+                type="submit"
+                disabled={signinButtonLocked}
+                buttonColor={cmsInfo?.shared.buttonColor}
+                buttonText={signinPageCms?.primaryButtonText}
+              >
+                Start syncing
+              </CmsButtonWithFallback>
+            </FtlMsg>
+          ) : (
+            <FtlMsg id="signin-button">
+              <CmsButtonWithFallback
+                type="submit"
+                disabled={signinButtonLocked}
+                buttonColor={cmsInfo?.shared.buttonColor}
+                buttonText={signinPageCms?.primaryButtonText}
+              >
+                Sign in
+              </CmsButtonWithFallback>
+            </FtlMsg>
+          )}
         </div>
       </form>
 

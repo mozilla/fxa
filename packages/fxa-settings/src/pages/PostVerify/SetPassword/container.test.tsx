@@ -68,6 +68,11 @@ jest.mock('../../../lib/oauth/hooks.tsx', () => {
 const mockSensitiveDataClient = createMockSensitiveDataClient();
 
 const mockNavigate = jest.fn();
+// /signin reads `origin` to explain that the sign-in is for Sync setup.
+const SIGNIN_REDIRECT = {
+  replace: true,
+  state: { origin: 'post-verify-set-password' },
+};
 const mockLocation = {
   state: undefined as Record<string, unknown> | undefined,
 };
@@ -98,6 +103,17 @@ function mockModelsModule() {
   mockAuthClient.accountStatus = jest.fn().mockResolvedValue({
     hasPassword: false,
   });
+  // A verified, password-only session by default; the session-verification
+  // tests override these.
+  mockAuthClient.accountProfile = jest.fn().mockResolvedValue({
+    authenticationMethods: ['pwd'],
+  });
+  mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({
+    state: 'verified',
+    details: { sessionVerified: true, accountEmailVerified: true },
+  });
+  // handleNavigation sends the code before routing to signin_token_code.
+  mockAuthClient.sessionResendVerifyCode = jest.fn().mockResolvedValue({});
   (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
     () => mockAuthClient
   );
@@ -253,7 +269,7 @@ describe('SetPassword-container', () => {
 
     render();
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/signin', { replace: true });
+      expect(mockNavigate).toHaveBeenCalledWith('/signin', SIGNIN_REDIRECT);
     });
     expect(SetPasswordModule.default).not.toHaveBeenCalled();
   });
@@ -284,7 +300,7 @@ describe('SetPassword-container', () => {
       supportsKeysOptionalLogin: true,
     });
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/signin', { replace: true });
+      expect(mockNavigate).toHaveBeenCalledWith('/signin', SIGNIN_REDIRECT);
     });
     expect(SetPasswordModule.default).not.toHaveBeenCalled();
   });
@@ -295,9 +311,87 @@ describe('SetPassword-container', () => {
     });
     render();
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/signin', { replace: true });
+      expect(mockNavigate).toHaveBeenCalledWith('/signin', SIGNIN_REDIRECT);
     });
     expect(SetPasswordModule.default).not.toHaveBeenCalled();
+  });
+
+  // Firefox deep-links here, so unlike the cached sign-in path nothing has
+  // verified the session yet, and /password/create needs a verified one.
+  describe('session verification', () => {
+    it('sends an unverified session to the sign-in code page instead of showing the form', async () => {
+      mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({
+        state: 'unverified',
+        details: { sessionVerified: false, accountEmailVerified: true },
+      });
+      render();
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith(
+          expect.stringMatching(/^\/signin_token_code/),
+          expect.objectContaining({
+            state: expect.objectContaining({
+              email: MOCK_EMAIL,
+              sessionToken: MOCK_SESSION_TOKEN,
+              isSignInWithThirdPartyAuth: true,
+            }),
+          })
+        )
+      );
+      expect(SetPasswordModule.default).not.toHaveBeenCalled();
+    });
+
+    it('sends an unverified session on a 2FA account to the TOTP code page', async () => {
+      mockAuthClient.accountProfile = jest.fn().mockResolvedValue({
+        authenticationMethods: ['pwd', 'otp'],
+      });
+      mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({
+        state: 'unverified',
+        details: { sessionVerified: false, accountEmailVerified: true },
+      });
+      render();
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith(
+          expect.stringMatching(/^\/signin_totp_code/),
+          expect.anything()
+        )
+      );
+      expect(SetPasswordModule.default).not.toHaveBeenCalled();
+    });
+
+    it('redirects to signin when sending the sign-in code fails', async () => {
+      mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({
+        state: 'unverified',
+        details: { sessionVerified: false, accountEmailVerified: true },
+      });
+      mockAuthClient.sessionResendVerifyCode = jest
+        .fn()
+        .mockRejectedValue({ errno: 114 });
+      render();
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('/signin', SIGNIN_REDIRECT)
+      );
+      expect(SetPasswordModule.default).not.toHaveBeenCalled();
+    });
+
+    it('redirects to signin when the stored session is no longer valid', async () => {
+      mockAuthClient.accountProfile = jest
+        .fn()
+        .mockRejectedValue({ errno: 110 });
+      render();
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('/signin', SIGNIN_REDIRECT)
+      );
+      expect(SetPasswordModule.default).not.toHaveBeenCalled();
+    });
+
+    it('renders the form once the session is confirmed verified', async () => {
+      render();
+      await waitFor(() => expect(SetPasswordModule.default).toHaveBeenCalled());
+      expect(mockAuthClient.sessionStatus).toHaveBeenCalledWith(
+        MOCK_SESSION_TOKEN
+      );
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
   });
 
   describe('password state gating', () => {
@@ -315,7 +409,7 @@ describe('SetPassword-container', () => {
       mockCurrentAccount({ ...MOCK_STORED_ACCOUNT, hasPassword: true });
       render();
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/signin', { replace: true });
+        expect(mockNavigate).toHaveBeenCalledWith('/signin', SIGNIN_REDIRECT);
       });
       expect(mockAuthClient.accountStatus).not.toHaveBeenCalled();
       expect(SetPasswordModule.default).not.toHaveBeenCalled();
