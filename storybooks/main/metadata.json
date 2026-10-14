@@ -1,8 +1,8 @@
 {
-  "commit": "fbdd92753aad63161fae777426cb75833b689d72",
-  "summary": "Merge pull request #21489 from mozilla/fxa-14769",
-  "description": "chore(settings): remove the pairing POC pages",
-  "timestamp": 1791995863000,
+  "commit": "2c0c5e599ace1fd68a1655fb6e0d63b24b386ab1",
+  "summary": "Merge pull request #21504 from mozilla/fxa-10659",
+  "description": "refactor(content-server): move feature-flags out of fxa-shared",
+  "timestamp": 1791996221000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
