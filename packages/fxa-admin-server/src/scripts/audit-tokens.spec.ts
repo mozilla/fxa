@@ -17,7 +17,7 @@ import { clearDb, bindKnex, scaffoldDb, TargetDB } from './db-helpers';
 import { Account } from 'fxa-shared/db/models/auth';
 import { Knex } from 'knex';
 import { Profile } from 'fxa-shared/db/models/profile';
-import { uuidTransformer } from 'fxa-shared/db/transformers';
+import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
 
 const config = Config.getProperties();
 const exec = util.promisify(require('node:child_process').exec);

@@ -5,8 +5,8 @@ import { randomUUID } from 'crypto';
 import { StatsD } from 'hot-shots';
 import mysql from 'mysql';
 
-import { ILogger } from '../log';
-import ScopeSet from '../oauth/scopes';
+import type { ILogger } from '@fxa/shared/log';
+import { scopeSetHelpers as ScopeSet } from '@fxa/accounts/oauth';
 
 type Millisecond = number;
 interface DbPoolConfig extends mysql.PoolConfig {
@@ -77,7 +77,7 @@ export function convertError(
       e.statusCode = 404;
       break;
     case MysqlErrors.ER_DELETE_PRIMARY_EMAIL:
-      (e.errno = 136), (e.statusCode = 400);
+      ((e.errno = 136), (e.statusCode = 400));
       break;
     case MysqlErrors.ER_EXPIRED_TOKEN_VERIFICATION_CODE:
       e.errno = 137;

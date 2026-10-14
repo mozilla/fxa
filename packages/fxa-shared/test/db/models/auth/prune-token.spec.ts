@@ -9,7 +9,7 @@ import 'reflect-metadata';
 import sinon from 'sinon';
 import { PruneTokens, SessionToken } from '../../../../db/models/auth';
 import { MetaData } from '../../../../db/models/auth/metadata';
-import { uuidTransformer } from '../../../../db/transformers';
+import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
 import { ILogger } from '../../../../log';
 import { defaultOpts, testDatabaseSetup } from '../../helpers';
 import crypto from 'crypto';

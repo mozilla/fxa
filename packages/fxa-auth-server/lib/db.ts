@@ -37,7 +37,7 @@ import {
   verificationMethodToString,
   VerificationMethod,
 } from 'fxa-shared/db/models/auth/session-token';
-import { uuidTransformer } from 'fxa-shared/db/transformers';
+import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 
 function resolveMetrics(): StatsD | undefined {

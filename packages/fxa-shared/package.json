@@ -57,10 +57,6 @@
       "import": "./dist/esm/packages/fxa-shared/db/models/profile/index.js",
       "require": "./dist/cjs/packages/fxa-shared/db/models/profile/index.js"
     },
-    "./db/mysql": {
-      "import": "./dist/esm/packages/fxa-shared/db/mysql.js",
-      "require": "./dist/cjs/packages/fxa-shared/db/mysql.js"
-    },
     "./db/redis": {
       "import": "./dist/esm/packages/fxa-shared/db/redis.js",
       "require": "./dist/cjs/packages/fxa-shared/db/redis.js"

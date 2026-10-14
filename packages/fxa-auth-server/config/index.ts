@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import convict from 'convict';
 import fs from 'fs';
-import { makeRedisConfig } from 'fxa-shared/db/config';
+import { makeRedisConfig } from '@fxa/shared/db/mysql/legacy/config';
 import { tracingConfig } from '@fxa/shared/otel';
 import { CloudTasksConvictConfigFactory } from '@fxa/shared/cloud-tasks';
 import path from 'path';

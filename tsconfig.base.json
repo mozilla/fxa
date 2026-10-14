@@ -111,6 +111,12 @@
         "./libs/shared/db/mysql/account/src/lib/*"
       ],
       "@fxa/shared/db/mysql/core": ["./libs/shared/db/mysql/core/src/index.ts"],
+      "@fxa/shared/db/mysql/legacy": [
+        "./libs/shared/db/mysql/legacy/src/index.ts"
+      ],
+      "@fxa/shared/db/mysql/legacy/*": [
+        "./libs/shared/db/mysql/legacy/src/lib/*"
+      ],
       "@fxa/shared/db/type-cacheable": [
         "./libs/shared/db/type-cacheable/src/index.ts"
       ],
@@ -140,6 +146,7 @@
       "@fxa/shared/sentry-node": ["./libs/shared/sentry-node/src/index.ts"],
       "@fxa/shared/sentry-utils": ["./libs/shared/sentry-utils/src/index.ts"],
       "@fxa/shared/sentry/client": ["./libs/shared/sentry/src/client.ts"],
+      "@fxa/shared/url-allow-list": ["./libs/shared/url-allow-list/src/index.ts"],
       "@fxa/shared/user-agent": ["./libs/shared/user-agent/src/index.ts"],
       "@fxa/vendored/common-password-list": [
         "./libs/vendored/common-password-list/src/index.ts"

@@ -2,7 +2,7 @@ import 'mocha';
 import { assert } from 'chai';
 import sinon from 'sinon';
 import { SessionToken } from '../../../../db/models/auth';
-import { uuidTransformer } from '../../../../db/transformers';
+import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
 import crypto from 'crypto';
 
 const toRandomBuff = (size) =>
@@ -109,9 +109,9 @@ describe('SessionToken Unit Tests', () => {
       );
 
       assert.equal(
-          tokens.length,
-          1,
-          'Should return exactly 1 token (the valid one)'
+        tokens.length,
+        1,
+        'Should return exactly 1 token (the valid one)'
       );
       assert.equal(tokens[0].createdAt, validTime);
     } finally {

@@ -25,7 +25,7 @@ const {
 const { AccountResetToken, Device } = require('fxa-shared/db/models/auth');
 const { UnblockCodes } = require('fxa-shared/db/models/auth/unblock-codes');
 const { SignInCodes } = require('fxa-shared/db/models/auth/sign-in-codes');
-const { uuidTransformer } = require('fxa-shared/db/transformers');
+const { uuidTransformer } = require('@fxa/shared/db/mysql/legacy/transformers');
 
 const log = mocks.mockLog();
 const Token = require('../../lib/tokens')(log, config);

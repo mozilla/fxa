@@ -20,7 +20,7 @@ import {
   VirtualCredential,
 } from '@fxa/accounts/passkey/testing';
 import { ERRNO } from '@fxa/accounts/errors';
-import { uuidTransformer } from 'fxa-shared/db/transformers';
+import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
 import Config from '../../config';
 
 import {
