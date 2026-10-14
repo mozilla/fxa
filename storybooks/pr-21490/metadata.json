@@ -1,8 +1,8 @@
 {
-  "commit": "1045be5f80429a938cd38764e4b6bbb7cd1025df",
+  "commit": "8f86303e2fc231b0b35d7ac62fc6cfe06ab76151",
   "summary": "feat(settings): update Pair2 sync success illustration and download copy",
   "description": "Because:\n\n* The Pair2 sync success pages show an old illustration.\n* The Download Firefox instruction has no final period.\n* firefox.com/pair renders as plain text, because FtlMsg lacks elems.\n\nThis commit:\n\n* Replaces the sync success SVG with the kit-devices-sync art.\n* Sets the mobile image to 104px high and caps the desktop width.\n* Adds the period and bumps the Fluent id to -v2.\n* Passes b to FtlMsg in elems, so firefox.com/pair is bold.\n\nCloses FXA-14420",
-  "timestamp": 1791939796000,
+  "timestamp": 1791944230000,
   "storybooks": [
     "fxa-settings"
   ],
