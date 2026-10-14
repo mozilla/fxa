@@ -8,8 +8,11 @@ import { assert } from 'chai';
 import { Knex } from 'knex';
 
 import { EmailType, SentEmail } from '@fxa/shared/db/mysql/legacy/models/auth';
-import { defaultOpts, testDatabaseSetup } from '../../../../test/db/helpers';
-import { randomAccount } from '../../../../test/db/models/auth/helpers';
+import {
+  defaultOpts,
+  testDatabaseSetup,
+} from '@fxa/shared/db/mysql/legacy/testing/helpers';
+import { randomAccount } from '@fxa/shared/db/mysql/legacy/testing/models/auth/helpers';
 
 describe('#integration - SentEmail', () => {
   const emailType = 'subscriptionPaymentFailed';

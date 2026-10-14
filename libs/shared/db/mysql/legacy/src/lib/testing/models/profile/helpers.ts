@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import Chance from 'chance';
 import fs from 'fs';
-import { Knex, knex } from 'knex';
+import { Knex } from 'knex';
 import path from 'path';
 
-import { ProfileBaseModel } from '@fxa/shared/db/mysql/legacy/models/profile';
+import { ProfileBaseModel } from '../../../models/profile';
 
 export const chance = new Chance();
 

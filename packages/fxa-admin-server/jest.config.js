@@ -1,7 +1,12 @@
 const { pathsToModuleNameMapper } = require('ts-jest');
 const { compilerOptions } = require('./tsconfig.build.json');
 module.exports = {
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths),
+  moduleNameMapper: {
+    // testing/ and its .sql fixtures are not in dist, so load them from source
+    '^@fxa/shared/db/mysql/legacy/testing/(.*)$':
+      '<rootDir>/../../../libs/shared/db/mysql/legacy/src/lib/testing/$1',
+    ...pathsToModuleNameMapper(compilerOptions.paths),
+  },
   modulePaths: ['<rootDir>/../dist/'],
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: 'src',

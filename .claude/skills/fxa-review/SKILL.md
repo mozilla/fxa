@@ -149,7 +149,7 @@ Tell this agent it is a senior architect who knows FXA's monorepo structure and 
   - New migration has corresponding rollback
   - Sequential patch numbering has no gaps
   - Index changes separate from schema changes
-  - Test DB patches aligned with current test DB state (`/fxa-shared/test/db/models/**/*.sql`)
+  - Test DB patches aligned with current test DB state (`libs/shared/db/mysql/legacy/src/lib/testing/models/**/*.sql`)
 - Check cross-package boundary violations: relative imports across package boundaries instead of `@fxa/*` aliases
 - Check for circular or bi-directional dependencies between packages/libs — these break build ordering and are hard to untangle later
 - Flag colliding exports: new exports that duplicate existing ones elsewhere in the monorepo

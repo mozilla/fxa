@@ -24,8 +24,15 @@ import {
   updateAccountCustomer,
   updatePayPalBA,
 } from '@fxa/shared/db/mysql/legacy/models/auth';
-import { defaultOpts, testDatabaseSetup } from '../../../../test/db/helpers';
-import { chance, randomAccount, randomEmail } from './helpers';
+import {
+  defaultOpts,
+  testDatabaseSetup,
+} from '@fxa/shared/db/mysql/legacy/testing/helpers';
+import {
+  chance,
+  randomAccount,
+  randomEmail,
+} from '@fxa/shared/db/mysql/legacy/testing/models/auth/helpers';
 import { sanitizeIp } from '@fxa/shared/db/mysql/legacy/models/auth/security-event';
 
 const USER_1 = randomAccount();
