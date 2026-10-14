@@ -7,7 +7,7 @@ const logger = require('../logging')('server.web');
 
 const Hapi = require('@hapi/hapi');
 const Sentry = require('@sentry/node');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
 
 const AppError = require('../error');
 const summary = require('../logging/summary');

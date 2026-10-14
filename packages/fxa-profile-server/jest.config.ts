@@ -1,6 +1,13 @@
+const { pathsToModuleNameMapper } = require('ts-jest');
+const { compilerOptions } = require('../../tsconfig.base.json');
+
 module.exports = {
   testEnvironment: 'node',
   rootDir: '.',
+  // Jest ignores the tsconfig-paths hook that lib/config.js registers.
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
+    prefix: '<rootDir>/../../',
+  }),
   testMatch: [
     '<rootDir>/lib/**/*.spec.ts',
     '<rootDir>/test/**/*.spec.ts',

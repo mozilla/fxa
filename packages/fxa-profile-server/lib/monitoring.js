@@ -3,11 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Sentry = require('@sentry/node');
-const { initTracing } = require('fxa-shared/tracing/node-tracing');
-const { initSentry } = require('fxa-shared/sentry/node');
 const { version } = require('../package.json');
 
+// config registers the @fxa/* path aliases, so it must load before them.
 const config = require('./config').getProperties();
+const { initTracing } = require('@fxa/shared/otel');
+const { initSentry } = require('@fxa/shared/sentry-node');
 const log = require('./logging')('configure-sentry');
 
 // Sentry also uses OTEL under the hood. Tracing must start first, and each side
