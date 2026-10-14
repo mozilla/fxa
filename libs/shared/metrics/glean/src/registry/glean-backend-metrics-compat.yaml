@@ -1,0 +1,9 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+---
+$schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
+# No metrics. This file held pipeline-compatibility definitions for the
+# retired `accounts-events` ping. probe-scraper still fetches it, so it stays
+# until the pipeline configuration is updated.
