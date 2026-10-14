@@ -1,0 +1,12 @@
+{
+  "commit": "e24bab3fb67e0ed4cd75e8dd295bf807d79d95e1",
+  "summary": "refactor(shared): move fxa-shared email helpers to @fxa/shared/email",
+  "description": "Because:\n- FxA moves shared code from packages/fxa-shared to Nx libs.\n- fxa-auth-server must load the email helpers from one place.\n\nThis commit:\n- Adds libs/shared/email (@fxa/shared/email) with helpers and TopEmailDomains.\n- Ports the mocha helpers test to jest.\n- Changes 13 fxa-auth-server files to import @fxa/shared/email.\n- Makes the fxa-shared email helpers and topEmailDomains one-line shims.\n- Removes email.helpers from the fxa-shared barrel.\n\nCloses FXA-14696",
+  "timestamp": 1791986479000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
