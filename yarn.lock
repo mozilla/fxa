@@ -32680,6 +32680,7 @@ __metadata:
     class-transformer: "npm:^0.5.1"
     class-validator: "npm:0.14.1"
     classnames: "npm:^2.5.1"
+    cldr-localenames-full: "npm:46.0.0"
     clsx: "npm:^2.1.1"
     copyfiles: "npm:^2.4.1"
     cors: "npm:^2.8.5"

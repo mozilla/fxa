@@ -1,18 +1,15 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { assert } from 'chai';
-import Sinon, { SinonSpiedInstance } from 'sinon';
-
 import {
-  AttachedDevice,
-  AttachedOAuthClient,
-  AttachedSession,
   AuthorizedClientsFactory,
   ConnectedServicesFactory,
   IAuthorizedClientsBindings,
   IConnectedServicesFactoryBindings,
-} from '../../connected-services';
+} from './factories';
+import { AttachedDevice } from './models/AttachedDevice';
+import { AttachedOAuthClient } from './models/AttachedOAuthClient';
+import { AttachedSession } from './models/AttachedSession';
 
 describe('connected-services/factories', () => {
   describe('authorized clients', () => {
@@ -28,7 +25,6 @@ describe('connected-services/factories', () => {
     let refreshTokens: any[] = [];
     let accessTokens: any[] = [];
     let bindings: Bindings;
-    let bStubbed: SinonSpiedInstance<Bindings>;
     let factory: AuthorizedClientsFactory;
 
     const defaultToken = {
@@ -55,7 +51,8 @@ describe('connected-services/factories', () => {
       refreshTokens = [];
       accessTokens = [];
       bindings = new Bindings();
-      bStubbed = Sinon.spy(bindings);
+      jest.spyOn(bindings, 'getAccessTokensByUid');
+      jest.spyOn(bindings, 'getRefreshTokensByUid');
       factory = new AuthorizedClientsFactory(bindings);
       refreshTokens.push({ ...defaultRefreshToken });
       accessTokens.push({ ...defaultAccessToken });
@@ -64,26 +61,24 @@ describe('connected-services/factories', () => {
     it('invokes bindings', async () => {
       const results = await factory.build('test');
 
-      assert.exists(results);
-      Sinon.assert.calledOnce(bStubbed.getAccessTokensByUid);
-      Sinon.assert.calledOnce(bStubbed.getRefreshTokensByUid);
+      expect(results).toEqual(expect.anything());
+      expect(bindings.getAccessTokensByUid).toHaveBeenCalledTimes(1);
+      expect(bindings.getRefreshTokensByUid).toHaveBeenCalledTimes(1);
     });
 
     it('builds authorized clients with overlapping client names', async () => {
       const results = await factory.build('test');
 
-      assert.lengthOf(results, 1);
+      expect(results).toHaveLength(1);
     });
 
     it('updates timestamps', async () => {
       const results = await factory.build('test');
 
-      assert.equal(
-        results[0].last_access_time,
+      expect(results[0].last_access_time).toBe(
         refreshTokens[0].lastUsedAt.getTime()
       );
-      assert.equal(
-        results[0].created_time,
+      expect(results[0].created_time).toBe(
         refreshTokens[0].createdAt.getTime()
       );
     });
@@ -92,7 +87,7 @@ describe('connected-services/factories', () => {
       accessTokens[0].clientId = 'abcd';
       const results = await factory.build('test');
 
-      assert.lengthOf(results, 2);
+      expect(results).toHaveLength(2);
     });
 
     it('it ingores can grant tokens', async () => {
@@ -100,7 +95,7 @@ describe('connected-services/factories', () => {
       accessTokens[0].clientCanGrant = true;
       const results = await factory.build('test');
 
-      assert.lengthOf(results, 1);
+      expect(results).toHaveLength(1);
     });
   });
 
@@ -126,7 +121,6 @@ describe('connected-services/factories', () => {
     let oauthClients: AttachedOAuthClient[];
     let sessions: AttachedSession[];
     let bindings = new Bindings();
-    let bStubbed: SinonSpiedInstance<Bindings>;
     let factory: ConnectedServicesFactory;
 
     beforeEach(() => {
@@ -159,49 +153,54 @@ describe('connected-services/factories', () => {
         } as AttachedSession,
       ];
       bindings = new Bindings();
-      bStubbed = Sinon.spy(bindings);
+      jest.spyOn(bindings, 'deviceList');
+      jest.spyOn(bindings, 'oauthClients');
+      jest.spyOn(bindings, 'sessions');
+      jest.spyOn(bindings, 'serializeSessionTokenId');
       factory = new ConnectedServicesFactory(bindings);
     });
 
     it('invokes bindings', async () => {
       const results = await factory.build('1234', 'en');
 
-      assert.exists(results);
-      Sinon.assert.calledOnce(bStubbed.deviceList);
-      Sinon.assert.calledOnce(bStubbed.oauthClients);
-      Sinon.assert.calledOnce(bStubbed.sessions);
+      expect(results).toEqual(expect.anything());
+      expect(bindings.deviceList).toHaveBeenCalledTimes(1);
+      expect(bindings.oauthClients).toHaveBeenCalledTimes(1);
+      expect(bindings.sessions).toHaveBeenCalledTimes(1);
     });
 
     it('builds ConnectedServicesFactory with overlapping tokens', async () => {
       const results = await factory.build('1234', 'en');
-      assert.lengthOf(results, 1);
+      expect(results).toHaveLength(1);
     });
 
     it('builds ConnectedServicesFactory with differing tokens', async () => {
       sessions[0].id = 'test1';
       oauthClients[0].refresh_token_id = 'test2';
       const results = await factory.build('1234', 'en');
-      assert.lengthOf(results, 3);
+      expect(results).toHaveLength(3);
     });
 
     it('opaques the raw sessionTokenId via serializeSessionTokenId', async () => {
       const results = await factory.build('1234', 'en');
 
-      assert.equal(results[0].sessionTokenId, 'handle-test');
-      Sinon.assert.calledWith(bStubbed.serializeSessionTokenId, 'test');
+      expect(results[0].sessionTokenId).toBe('handle-test');
+      expect(bindings.serializeSessionTokenId).toHaveBeenCalledWith('test');
     });
 
     it('builds ConnectedServicesFactory with overlapping tokens', async () => {
       const bindings = new Bindings();
-      let bStubbed = Sinon.spy(bindings);
+      jest.spyOn(bindings, 'deviceList');
+      jest.spyOn(bindings, 'oauthClients');
+      jest.spyOn(bindings, 'sessions');
       const factory = new ConnectedServicesFactory(bindings);
 
       const results = await factory.build('1234', 'en');
 
-      assert.lengthOf(results, 1);
-      Sinon.assert.calledOnce(bStubbed.deviceList);
-      Sinon.assert.calledOnce(bStubbed.oauthClients);
-      Sinon.assert.calledOnce(bStubbed.sessions);
+      expect(results).toHaveLength(1);
+      expect(bindings.deviceList).toHaveBeenCalledTimes(1);
+      expect(bindings.oauthClients).toHaveBeenCalledTimes(1);
+      expect(bindings.sessions).toHaveBeenCalledTimes(1);
     });
 
     it('coerces undefined device name to null', async () => {
@@ -220,7 +219,7 @@ describe('connected-services/factories', () => {
 
       const results = await factory.build('1234', 'en');
 
-      assert.strictEqual(results[0].name, null);
+      expect(results[0].name).toBe(null);
     });
 
     it('coerces undefined client_name to null', async () => {
@@ -240,7 +239,7 @@ describe('connected-services/factories', () => {
       const results = await factory.build('1234', 'en');
 
       // Verify name is null, not undefined (required for validation)
-      assert.strictEqual(results[0].name, null);
+      expect(results[0].name).toBe(null);
     });
   });
 });

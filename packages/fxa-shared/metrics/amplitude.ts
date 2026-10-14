@@ -8,7 +8,7 @@ import {
   ParsedUa,
   ParsedOs,
 } from '../lib/user-agent';
-import { Location } from '../connected-services/models/Location';
+import { Location } from '@fxa/accounts/connected-services';
 import { ILogger } from '../log';
 import { StatsD } from 'hot-shots';
 

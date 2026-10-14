@@ -20,7 +20,7 @@ import {
   emailTypeToHandlerVals,
 } from './inactive-accounts';
 import { DB } from './db';
-import { ConnectedServicesDb } from 'fxa-shared/connected-services';
+import { ConnectedServicesDb } from '@fxa/accounts/connected-services';
 import { GleanMetricsType } from './metrics/glean';
 import { Logger } from 'mozlog';
 

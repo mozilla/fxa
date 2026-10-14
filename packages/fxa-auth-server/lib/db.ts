@@ -7,7 +7,7 @@ import {
   mergeCachedSessionTokens,
   mergeDeviceAndSessionToken,
   mergeDevicesAndSessionTokens,
-} from 'fxa-shared/connected-services';
+} from '@fxa/accounts/connected-services';
 import { setupAuthDatabase } from '@fxa/shared/db/mysql/legacy';
 import {
   Account,

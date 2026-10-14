@@ -4,7 +4,7 @@
 
 const { config } = require('../../../config');
 const redis = require('../../redis');
-const { ConnectedServicesCache } = require('fxa-shared/connected-services');
+const { ConnectedServicesCache } = require('@fxa/accounts/connected-services');
 const { AuthLogger } = require('../../types');
 const { Container } = require('typedi');
 
