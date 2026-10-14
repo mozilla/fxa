@@ -19,7 +19,10 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useConfig, useFtlMsgResolver } from '../../models';
 import { Constants } from '../../lib/constants';
 import { getBasicAccountData } from '../../lib/account-storage';
-import firefox, { buildSyncOAuthSearch } from '../../lib/channels/firefox';
+import firefox, {
+  buildSyncOAuthSearch,
+  canPairFromBrowser,
+} from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
 import AppLayout from '../../components/AppLayout';
 import { detectDevice, Devices } from '../../lib/utilities';
@@ -215,7 +218,9 @@ const ConnectAnotherDevice = ({
       const browserSignedIn = !!(
         signedInUser?.sessionToken && signedInUser.verified
       );
-      if (browserSignedIn && isEligibleForPairing()) {
+      // Only the pairing redirect needs the Sync key; the page itself renders
+      // for any signed-in browser.
+      if (canPairFromBrowser(signedInUser) && isEligibleForPairing()) {
         // The browser has to support pairing at all; which version it gets is
         // the same gate as /pair, see isPairingV2Enabled.
         if (

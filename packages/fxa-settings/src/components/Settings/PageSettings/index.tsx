@@ -48,10 +48,18 @@ import {
 export const PageSettings = ({
   integration,
   isSignedIntoFirefox = false,
+  browserHasSyncKey,
 }: {
   integration?: SettingsIntegration;
   isSignedIntoFirefox?: boolean;
+  // From fxa_status; undefined when Firefox predates the field.
+  browserHasSyncKey?: boolean;
 }) => {
+  // A browser that reports having no Sync key gets no pairing CTA; see
+  // canPairFromBrowser. The button also shows for a signed-out browser, since
+  // /pair signs in itself; the banner needs the browser session.
+  const browserCanPair = browserHasSyncKey !== false;
+  const signedIntoPairableFirefox = isSignedIntoFirefox && browserCanPair;
   const account = useAccount();
   const {
     uid,
@@ -172,7 +180,7 @@ export const PageSettings = ({
   // the recovery promos yield to it (but still show on Firefox mobile, where
   // the Firefox promo is suppressed).
   const eligibleForFirefoxPromo =
-    !dismissedFirefoxPromo && shouldShowFirefoxPromo(isSignedIntoFirefox);
+    !dismissedFirefoxPromo && shouldShowFirefoxPromo(signedIntoPairableFirefox);
 
   // Recovery phone promo is prioritized if user is eligible for both
   const eligibleForRecoveryPhonePromo =
@@ -215,7 +223,7 @@ export const PageSettings = ({
       </div>
       <div className="flex flex-col flex-7 max-w-full gap-8 mt-10">
         {eligibleForFirefoxPromo && (
-          <FirefoxPromoBanner {...{ isSignedIntoFirefox }} />
+          <FirefoxPromoBanner isSignedIntoFirefox={signedIntoPairableFirefox} />
         )}
         {eligibleForRecoveryPhonePromo && <RecoveryPhonePromoBanner />}
         {eligibleForRecoveryKeyPromo && <AccountRecoveryKeyPromoBanner />}
@@ -223,10 +231,13 @@ export const PageSettings = ({
         <Security ref={securityRef} />
         <ConnectedServices
           ref={connectedServicesRef}
-          showConnectDeviceButton={isPairingSupported({
-            isFirefox: isProbablyFirefox(),
-            isMobile: isMobileOrTabletDevice(),
-          })}
+          showConnectDeviceButton={
+            browserCanPair &&
+            isPairingSupported({
+              isFirefox: isProbablyFirefox(),
+              isMobile: isMobileOrTabletDevice(),
+            })
+          }
         />
         <LinkedAccounts ref={linkedAccountsRef} />
         <DataCollection ref={dataCollectionRef} />

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import React from 'react';
 import Settings from '.';
 import { GenericData } from '../../lib/model-data';
 import { IntegrationData, IntegrationType } from '../../models';
@@ -27,7 +28,12 @@ const flowQueryParams = {
   flowId: 'x',
 };
 
-export const Subject = () => (
+export const Subject = (
+  props: Pick<
+    React.ComponentProps<typeof Settings>,
+    'isSignedIntoFirefox' | 'browserHasSyncKey'
+  >
+) => (
   <Routes>
     <Route
       path="/settings/*"
@@ -35,6 +41,7 @@ export const Subject = () => (
         <Settings
           {...{ flowQueryParams }}
           integration={createMockSettingsIntegration()}
+          {...props}
         />
       }
     />

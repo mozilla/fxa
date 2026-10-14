@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ReactNode } from 'react';
-import { waitFor } from '@testing-library/react';
+import { waitFor, within } from '@testing-library/react';
 import { Account, AppContext } from '../../models';
 import { useAccountState } from '../../models/contexts/AccountStateContext';
 import {
@@ -363,6 +363,37 @@ describe('Settings App', () => {
     await router.navigate(SETTINGS_PATH);
 
     expect(getByTestId('settings-profile')).toBeInTheDocument();
+  });
+
+  it('passes the browser Sync key state through to PageSettings', async () => {
+    // The CTA is gated to desktop Firefox, which jsdom is not.
+    const { userAgent } = navigator;
+    Object.defineProperty(navigator, 'userAgent', {
+      value: 'Mozilla/5.0 (Macintosh) Gecko/20100101 Firefox/123.0',
+      configurable: true,
+    });
+    try {
+      const { getByTestId } = renderWithRouter(
+        <AppContext.Provider value={mockAppContext()}>
+          <Subject isSignedIntoFirefox browserHasSyncKey={false} />
+        </AppContext.Provider>,
+        { route: SETTINGS_PATH }
+      );
+
+      const connectedServices = await waitFor(() =>
+        getByTestId('settings-connected-services')
+      );
+      expect(
+        within(connectedServices).queryByRole('link', {
+          name: 'Connect a device',
+        })
+      ).not.toBeInTheDocument();
+    } finally {
+      Object.defineProperty(navigator, 'userAgent', {
+        value: userAgent,
+        configurable: true,
+      });
+    }
   });
 
   it('routes to PageDisplayName', async () => {

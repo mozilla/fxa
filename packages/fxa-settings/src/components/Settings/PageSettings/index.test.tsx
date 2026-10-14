@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import PageSettings from '.';
 import {
@@ -216,6 +216,63 @@ describe('PageSettings', () => {
           GleanMetrics.accountBanner.reactivationSuccessView
         ).toHaveBeenCalledTimes(1);
       });
+    });
+  });
+
+  describe('connect a device CTAs on desktop Firefox', () => {
+    const FIREFOX_DESKTOP_UA =
+      'Mozilla/5.0 (Macintosh) Gecko/20100101 Firefox/123.0';
+    const { userAgent: realUserAgent } = navigator;
+
+    beforeEach(() => {
+      localStorage.clear();
+      Object.defineProperty(navigator, 'userAgent', {
+        value: FIREFOX_DESKTOP_UA,
+        configurable: true,
+      });
+    });
+
+    afterEach(() => {
+      Object.defineProperty(navigator, 'userAgent', {
+        value: realUserAgent,
+        configurable: true,
+      });
+    });
+
+    const renderSignedIntoFirefox = (browserHasSyncKey?: boolean) =>
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext()}>
+          <PageSettings
+            integration={mockWebIntegration}
+            isSignedIntoFirefox
+            {...{ browserHasSyncKey }}
+          />
+        </AppContext.Provider>
+      );
+
+    // The promo CTA has the same accessible name, so scope to the section.
+    const connectedServicesButton = () =>
+      within(
+        screen.getByTestId('settings-connected-services')
+      ).queryByRole('link', { name: 'Connect a device' });
+
+    it('shows the promo banner and the Connected Services button when the browser does not report the Sync key', async () => {
+      renderSignedIntoFirefox(undefined);
+
+      await waitFor(() => expect(connectedServicesButton()).toBeInTheDocument());
+      expect(screen.getByTestId('firefox-promo-cta')).toBeInTheDocument();
+    });
+
+    it('hides both when the browser reports it has no Sync key', async () => {
+      renderSignedIntoFirefox(false);
+
+      await waitFor(() =>
+        expect(screen.getByTestId('settings-profile')).toBeInTheDocument()
+      );
+      expect(connectedServicesButton()).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('firefox-promo-cta')
+      ).not.toBeInTheDocument();
     });
   });
 

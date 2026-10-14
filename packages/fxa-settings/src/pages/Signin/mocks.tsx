@@ -370,6 +370,8 @@ export const mockSendUnblockEmailHandler: SendUnblockEmailHandler = () =>
  */
 export type SubjectProps = Partial<SigninProps> & {
   sessionToken?: hexstring;
+  /** Router state the page is entered with, e.g. `origin` from set_password. */
+  locationState?: Record<string, unknown>;
   cachedSigninHandler?: CachedSigninHandler;
   supportsKeysOptionalLogin?: boolean;
   passwordlessSupported?: boolean;
@@ -401,6 +403,7 @@ export const Subject = ({
   isSignedIntoFirefox = false,
   supportsKeysOptionalLogin = false,
   passkeyEnabled = false,
+  locationState,
   ...props // overrides
 }: SubjectProps = {}) => {
   const useFxAStatusResult = mockUseFxAStatus({ supportsKeysOptionalLogin });
@@ -413,7 +416,9 @@ export const Subject = ({
     };
   }
   return (
-    <MemoryRouter>
+    <MemoryRouter
+      initialEntries={[{ pathname: '/signin', state: locationState ?? null }]}
+    >
       <AppContext.Provider value={contextValue}>
         <SigninDecider
           {...{
