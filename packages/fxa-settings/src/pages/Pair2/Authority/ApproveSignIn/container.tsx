@@ -9,17 +9,11 @@ import {
   Integration,
   PairingAuthorityIntegration,
   useAccount,
-  useAuthClient,
 } from '../../../../models';
-import { useLocation, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import ApproveSignIn from '.';
 import { navigateWithQuery } from '../../../../lib/utilities';
-import { getBasicAccountData } from '../../../../lib/account-storage';
-import {
-  isSecondFactorStale,
-  pairingRequiresTotp,
-} from '../../../../lib/pairing/totp-gate';
 import * as Sentry from '@sentry/browser';
 
 export const ApproveSignInContainer = ({
@@ -35,50 +29,10 @@ export const ApproveSignInContainer = ({
   }
 
   const navigate = useNavigate();
-  const location = useLocation();
   const account = useAccount();
-  const authClient = useAuthClient();
   const [remoteMetadata, setRemoteMetadata] = useState<RemoteMetadata | null>(
     integration.remoteMetadata
   );
-
-  // Approving mints an OAuth code carrying the account's Sync keys, so a 2FA
-  // account re-enters its TOTP code first. The TOTP page sends the user back
-  // here with `totpComplete` so the check is not repeated.
-  const locationState = location.state as {
-    totpComplete?: boolean;
-    totpVerifiedAt?: number;
-  } | null;
-  const totpComplete = locationState?.totpComplete === true;
-  const totpVerifiedAt = locationState?.totpVerifiedAt;
-  const [totpChecked, setTotpChecked] = useState(totpComplete);
-
-  useEffect(() => {
-    if (totpComplete) {
-      return;
-    }
-    const sessionToken = getBasicAccountData()?.sessionToken;
-    if (!sessionToken) {
-      setTotpChecked(true);
-      return;
-    }
-
-    let cancelled = false;
-    pairingRequiresTotp(authClient, sessionToken).then((required) => {
-      if (cancelled) {
-        return;
-      }
-      if (required) {
-        navigateWithQuery('/pair/authority/totp', { replace: true });
-        return;
-      }
-      setTotpChecked(true);
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [authClient, totpComplete]);
 
   useEffect(() => {
     integration.onStateChange = (state: AuthorityState) => {
@@ -121,12 +75,6 @@ export const ApproveSignInContainer = ({
     if (approving.current) {
       return;
     }
-    // This screen can sit open for as long as the pairing channel stays up, so
-    // a code verified a while ago is asked for again rather than trusted.
-    if (totpVerifiedAt !== undefined && isSecondFactorStale(totpVerifiedAt)) {
-      navigateWithQuery('/pair/authority/totp', { replace: true });
-      return;
-    }
     approving.current = true;
     // `authorize()` routes the failures it expects through `fail()`, which lands
     // on the Failed case above. This catch is the backstop so nothing here
@@ -141,7 +89,7 @@ export const ApproveSignInContainer = ({
     navigate('/settings/change_password');
   };
 
-  if (!totpChecked || !remoteMetadata) {
+  if (!remoteMetadata) {
     return <LoadingSpinner />;
   }
 

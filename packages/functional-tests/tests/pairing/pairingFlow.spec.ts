@@ -40,6 +40,7 @@ import {
   findElementBySelectors,
   enableTotpOnAccount,
   enterTotpCodeViaMarionette,
+  forgetTotpVerification,
   completeSupplicantApproval,
   captureDiagnostics,
   verifyPairChoiceScreen,
@@ -207,6 +208,8 @@ test.describe('severity-2 #smoke', () => {
           );
           const user = await getSignedInUser(client);
           expect(user.signedIn).toBe(true);
+          // Sign-in just verified a code; age it so approval prompts again.
+          await forgetTotpVerification(client);
           return user;
         });
 

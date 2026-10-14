@@ -3,13 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import * as Sentry from '@sentry/react';
 import ScanQR from '.';
 import {
   AuthorityState,
   Integration,
   PairingAuthorityIntegration,
+  useAuthClient,
+  useConfig,
 } from '../../../../models';
 import {
   UseFxAStatusResult,
@@ -19,15 +21,17 @@ import GleanMetrics from '../../../../lib/glean';
 import firefox from '../../../../lib/channels/firefox';
 import { Constants } from '../../../../lib/constants';
 import { hardNavigate } from 'fxa-react/lib/utils';
+import { getBasicAccountData } from '../../../../lib/account-storage';
+import { pairingRequiresTotp } from '../../../../lib/pairing/totp-gate';
 
 export const SIGNED_IN_POLL_MS = 5_000;
 
 /**
- * Owns the pairing channel for the authority. Mints a channel on mount so the
- * QR always scans to one that exists on the channel server. The channel then
- * outlives this page — the authority moves on while the supplicant is still
- * joining — so it is only torn down when creation itself fails or the user
- * skips pairing.
+ * Owns the pairing channel for the authority. Mints a channel once any TOTP
+ * check passes, so the QR always scans to one that exists on the channel
+ * server. The channel then outlives this page — the authority moves on while
+ * the supplicant is still joining — so it is only torn down when creation
+ * itself fails or the user skips pairing.
  */
 const ScanQRContainer = ({
   integration,
@@ -38,7 +42,17 @@ const ScanQRContainer = ({
 }) => {
   const navigateWithQuery = useNavigateWithQuery();
   const navigate = useNavigate();
+  const location = useLocation();
+  const authClient = useAuthClient();
+  const config = useConfig();
   const [qrCodeValue, setQrCodeValue] = useState('');
+  // A 2FA account enters its code before the channel opens, so no TOTP prompt
+  // can send the user to another app while the channel is live. The TOTP page
+  // returns here with `totpComplete` so the check is not repeated.
+  const totpComplete =
+    (location.state as { totpComplete?: boolean } | null)?.totpComplete ===
+    true;
+  const [totpChecked, setTotpChecked] = useState(totpComplete);
 
   if (!(integration instanceof PairingAuthorityIntegration)) {
     throw new Error(
@@ -57,6 +71,44 @@ const ScanQRContainer = ({
   const isSignedIn = !!(signedInUser?.sessionToken && signedInUser.verified);
 
   useEffect(() => {
+    if (fxaStatusState === 'pending' || !isSignedIn || totpChecked) {
+      return;
+    }
+    const accountData = getBasicAccountData();
+    const sessionToken = accountData?.sessionToken;
+    if (!sessionToken) {
+      setTotpChecked(true);
+      return;
+    }
+
+    let cancelled = false;
+    pairingRequiresTotp(authClient, sessionToken, {
+      verifiedAt: accountData?.totpVerifiedAt,
+      maxAgeMs: config.pairing.totpMaxAgeMinutes * 60 * 1000,
+    }).then((required) => {
+      if (cancelled) {
+        return;
+      }
+      if (required) {
+        navigateWithQuery('/pair/authority/totp', { replace: true });
+        return;
+      }
+      setTotpChecked(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    authClient,
+    config,
+    navigateWithQuery,
+    fxaStatusState,
+    isSignedIn,
+    totpChecked,
+  ]);
+
+  useEffect(() => {
     if (fxaStatusState === 'pending') {
       return;
     }
@@ -65,6 +117,9 @@ const ScanQRContainer = ({
       // comes back here once the browser has an account again. Full reload,
       // because `useIntegration` is not keyed on location.
       hardNavigate('/pair', {}, true);
+      return;
+    }
+    if (!totpChecked) {
       return;
     }
 
@@ -113,8 +168,7 @@ const ScanQRContainer = ({
       // Unsubscribe only — the channel outlives this page for continue_on_mobile.
       integration.onStateChange = null;
     };
-  }, [integration, navigateWithQuery, fxaStatusState, isSignedIn]);
-
+  }, [integration, navigateWithQuery, fxaStatusState, isSignedIn, totpChecked]);
 
   useEffect(() => {
     if (!isSignedIn) {
