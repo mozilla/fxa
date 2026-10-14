@@ -1,8 +1,8 @@
 {
-  "commit": "a80a2a71073df70b9b59961af90f75f6197288cb",
-  "summary": "Merge pull request #21498 from mozilla/fxa-14705",
-  "description": "refactor(shared): move fxa-shared db models, setup and RedisShared to legacy db lib",
-  "timestamp": 1791992984000,
+  "commit": "fbdd92753aad63161fae777426cb75833b689d72",
+  "summary": "Merge pull request #21489 from mozilla/fxa-14769",
+  "description": "chore(settings): remove the pairing POC pages",
+  "timestamp": 1791995863000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
