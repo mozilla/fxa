@@ -36,7 +36,8 @@ test.describe('severity-1 #smoke', () => {
         // then re-enter same email to complete the flow
         await signinPasswordlessCode.useDifferentAccountLink.click();
         await expect(page).not.toHaveURL(/signin_passwordless_code/);
-        await target.emailClient.clear(email);
+        // Drain code #1 so the final read can't pick it up; send #2 invalidates it
+        await target.emailClient.getPasswordlessSignupCode(email);
         await signin.fillOutEmailFirstForm(email);
         await page.waitForURL(/signin_passwordless_code/);
 
