@@ -1,8 +1,8 @@
 {
-  "commit": "87123e78f2838d7d9c7692cb95360402e9a41241",
+  "commit": "b83ed7120df6c1c1bb595097e2838bcc08da617e",
   "summary": "fix(settings): ask 2FA accounts for TOTP before v2 pairing starts",
-  "description": "Because:\n- A 2FA account was asked for its TOTP code on approve_signin, after the pairing channel was open.\n- The user can leave the page to read the code, and the channel can die.\n\nThis commit:\n- Moves the TOTP check to ScanQR, before createChannel().\n- Returns EnterTotp to scan_qr with totpComplete state.\n- Removes the TOTP check and the stale re-prompt from ApproveSignIn.\n- Splits startPairingFlowV2 into openPairingV2Entrypoint and readV2QrFromScanQr.\n- Updates the unit tests and the 2FA functional spec.\n- Notes when TOTP was last validated, to void unnecessary prompts\n\nCloses FXA-14774",
-  "timestamp": 1792013483000,
+  "description": "Because:\n- A 2FA account was asked for TOTP after the v2 pairing channel was open.\n- The 2FA pairing specs sign in with TOTP and pair at once, so the fresh code skipped the prompt.\n\nThis commit:\n- Asks for TOTP on ScanQR before createChannel() and drops it from ApproveSignIn.\n- Records totpVerifiedAt when a code is verified at sign-in or on AuthTotp.\n- Skips the pairing prompt for a code newer than pairing.totp_max_age_minutes.\n- Adds forgetTotpVerification so the 2FA pairing specs still assert the prompt.\n\nCloses FXA-14774",
+  "timestamp": 1792015471000,
   "storybooks": [
     "fxa-settings"
   ],

@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 87123e78f2838d7d9c7692cb95360402e9a41241</title>
+  <title>Storybooks for commit b83ed7120df6c1c1bb595097e2838bcc08da617e</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,27 +23,25 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 87123e78f2838d7d9c7692cb95360402e9a41241</h1>
+  <h1>Storybooks for commit b83ed7120df6c1c1bb595097e2838bcc08da617e</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/14/2026, 9:31:23 PM UTC</dd>
+    <dd>10/14/2026, 10:04:31 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): ask 2FA accounts for TOTP before v2 pairing starts</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- A 2FA account was asked for its TOTP code on approve_signin, after the pairing channel was open.
-- The user can leave the page to read the code, and the channel can die.
+- A 2FA account was asked for TOTP after the v2 pairing channel was open.
+- The 2FA pairing specs sign in with TOTP and pair at once, so the fresh code skipped the prompt.
 
 This commit:
-- Moves the TOTP check to ScanQR, before createChannel().
-- Returns EnterTotp to scan_qr with totpComplete state.
-- Removes the TOTP check and the stale re-prompt from ApproveSignIn.
-- Splits startPairingFlowV2 into openPairingV2Entrypoint and readV2QrFromScanQr.
-- Updates the unit tests and the 2FA functional spec.
-- Notes when TOTP was last validated, to void unnecessary prompts
+- Asks for TOTP on ScanQR before createChannel() and drops it from ApproveSignIn.
+- Records totpVerifiedAt when a code is verified at sign-in or on AuthTotp.
+- Skips the pairing prompt for a code newer than pairing.totp_max_age_minutes.
+- Adds forgetTotpVerification so the 2FA pairing specs still assert the prompt.
 
 Closes FXA-14774</pre></dd>
   </dl>
