@@ -1,8 +1,8 @@
 {
-  "commit": "4093d09db5ef75d508b09ed1514742bbffb463d0",
-  "summary": "Merge pull request #21507 from mozilla/fxa-14707",
-  "description": "refactor(shared): move fxa-shared db test helpers to legacy db lib",
-  "timestamp": 1792003301000,
+  "commit": "f6513d066e217be90ceb3a4d32e7e51284f3edc6",
+  "summary": "Merge pull request #21461 from mozilla/fxa-9672",
+  "description": "refactor(settings): call auth-client directly in reset password containers",
+  "timestamp": 1792003381000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
