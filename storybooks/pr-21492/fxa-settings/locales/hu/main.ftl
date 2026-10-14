@@ -978,7 +978,7 @@ passkey-sub-row-created-date = Létrehozva: { $createdDate }
 passkey-sub-row-last-used-date = Utoljára használva: { $lastUsedDate }
 passkey-sub-row-delete-title = Jelkulcs törlése
 passkey-delete-modal-heading = Törli a jelkulcsot?
-passkey-delete-modal-content-v3 = Ez a jelkulcs eltávolításra kerül a fiókjából. Be kell jelentkeznie egy jelszóval, másik jelkulccsal vagy összekapcsolt fiókkal.
+passkey-delete-modal-content-v3 = Ez a jelkulcs el lesz távolítva a fiókjából. Be kell jelentkeznie egy jelszóval, egy másik jelkulccsal vagy egy összekapcsolt fiókkal.
 passkey-delete-modal-cancel-button = Mégse
 passkey-delete-modal-confirm-button = Jelkulcs törlése
 passkey-delete-success = Jelkulcs törölve
@@ -1229,10 +1229,10 @@ inline-passwordless-sync-setup-description = Használja ezt a jelkulcsot a gyors
 inline-passwordless-sync-setup-enable-button = Jelkulcs engedélyezése
 inline-passwordless-sync-setup-enabling = Engedélyezés…
 inline-passwordless-sync-setup-not-now-button = Most nem
-inline-passwordless-sync-setup-success-alert-v2 = Ez a jelkulcs engedélyezve van a szinkronizálási bejelentkezéshez
+inline-passwordless-sync-setup-success-alert-v2 = Ez a jelkulcs engedélyezve van a szinkronizálásba való bejelentkezéshez
 inline-passwordless-sync-setup-error-cancelled = A jelszó megerősítése nem fejeződött be
 inline-passwordless-sync-setup-error-cancelled-description = Erősítse meg a jelkulcsával, hogy legközelebb kihagyja a jelszót.
-inline-passwordless-sync-setup-error-generic-v2 = Nem tudtuk engedélyezni ezt a jelkulcsot a szinkronizált bejelentkezésnél. Legközelebb szüksége lesz a jelszavára.
+inline-passwordless-sync-setup-error-generic-v2 = Nem tudtuk engedélyezni ezt a jelkulcsot a szinkronizálásba való bejelentkezésnél. Legközelebb szüksége lesz a jelszavára.
 
 
 inline-recovery-key-setup-create-error = Hoppá! Nem tudtuk létrehozni a fiók-helyreállítási kulcsát. Próbálja újra később.
@@ -1398,18 +1398,18 @@ pair2-supplicant-connect-this-device-connect-button = Kapcsolódás
 pair2-supplicant-connect-this-device-cancel-button = Mégse
 
 
-pair2-supplicant-download-firefox-heading-v2 = Nyissa meg a(z) { -brand-firefox } kiegészítőt ezen az eszközön
-pair2-supplicant-download-firefox-description-v2 = Töltse le a(z) { -brand-firefox } programot, és szinkronizálja a könyvjelzőket, előzményeket és egyebeket az eszközök között.
+pair2-supplicant-download-firefox-heading-v2 = Nyissa meg a { -brand-firefox }ot ezen az eszközön
+pair2-supplicant-download-firefox-description-v2 = Töltse le a { -brand-firefox }ot, és szinkronizálja a könyvjelzőket, az előzményeket és egyebeket az eszközök között.
 pair2-supplicant-download-firefox-continue-button = Folytatás a { -brand-firefox }ban
 pair2-supplicant-download-firefox-opening-button = A { -brand-firefox } megnyitása…
 pair2-supplicant-download-firefox-download-button = A { -brand-firefox } letöltése
-pair2-supplicant-download-firefox-have-firefox-button = Már van { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = Már van { -brand-firefox }om
 pair2-supplicant-download-firefox-learn-more-link = További tudnivalók
 
 
 pair2-supplicant-connect-hint-heading-v2 = Fejezze be a párosítást az alkalmazásban
 pair2-supplicant-connect-hint-step-app-menu = Koppintson az <b>alkalmazásmenüre</b> az eszköztárban
-pair2-supplicant-connect-hint-step-sign-in = Koppintson a <b>bejelentkezés</b>re, majd olvassa le a kódot
+pair2-supplicant-connect-hint-step-sign-in = Koppintson a <b>bejelentkezésre</b>, majd olvassa le a kódot
 pair2-supplicant-connect-hint-learn-more-link = További tudnivalók
 
 
@@ -1427,7 +1427,7 @@ pair2-supplicant-timeout-and-cancel-timeout-description = A mobileszköz csatlak
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Megszakítva
 pair2-supplicant-timeout-and-cancel-canceled-description = Eszköz csatlakoztatásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Ez az eszköz már be van jelentkezve
-pair2-supplicant-timeout-and-cancel-signed-in-description = Az asztali fiókjához való csatlakozáshoz jelentkezzen ki a(z) { -brand-firefox } böngészőből ezen az eszközön, majd keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén a bejelentkezés befejezéséhez.
+pair2-supplicant-timeout-and-cancel-signed-in-description = Az asztali fiókjához való csatlakozáshoz jelentkezzen ki a { -brand-firefox }ból ezen az eszközön, majd keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén a bejelentkezés befejezéséhez.
 
 
 permissions-heading = A(z) { $serviceName } hozzáférést kér a következőhöz:
@@ -1439,7 +1439,7 @@ permissions-cancel-button = Mégse
 
 
 force-password-change-heading = Változtassa meg a jelszavát
-force-password-change-info = Gyanús viselkedést észleltünk a következőnél: { -product-mozilla-account }. Fiókja védelme érdekében hozzon létre egy új jelszót. Ezzel a jelszóval újra bejelentkezhet az összes { -product-mozilla-account } szolgáltatásba.
+force-password-change-info = Gyanús viselkedést észleltünk a { -product-mozilla-account }jánál. Fiókja védelme érdekében hozzon létre egy új jelszót. Ezzel a jelszóval újra bejelentkezhet a { -product-mozilla-account }ja összes szolgáltatásába.
 force-password-change-data-info = A szinkronizált előzmények, könyvjelzők, bejelentkezések és egyéb személyes adatok nem vesznek el.
 
 
@@ -1501,11 +1501,11 @@ confirm-totp-reset-password-use-different-account = Másik fiók használata
 
 password-reset-flow-heading = Jelszó visszaállítása
 password-reset-forgot-heading = Elfelejtette a jelszavát?
-password-reset-alternatives-body = <signInLink>Próbáljon meg bejelentkezni a(z) { -brand-google }, { -brand-apple } használatával, vagy inkább egy jelkulcsot.</signInLink> Vagy adja meg az e-mail címét, és küldünk egy kódot, amellyel helyreállíthatja a jelszavát.
+password-reset-alternatives-body = <signInLink>Próbáljon meg bejelentkezni a { -brand-google }, az { -brand-apple } vagy egy jelkulcs használatával.</signInLink> Vagy adja meg az e-mail-címét, és küldünk egy kódot, amellyel visszaállíthatja a jelszavát.
 password-reset-email-input =
     .label = Adja meg az e-mail-címét
 password-reset-submit-button-2 = Folytatás
-password-reset-data-recovery-warning = A jelszó visszaállítása befolyásolhatja, hogy visszaállíthatja-e a szinkronizált böngészőadatokat. <learnMoreLink>Tudjon meg többet</learnMoreLink>
+password-reset-data-recovery-warning = A jelszó visszaállítása befolyásolhatja, hogy visszaállíthatja-e a szinkronizált böngészőadatokat. <learnMoreLink>További tudnivalók</learnMoreLink>
 
 
 reset-password-complete-header = A jelszó vissza lett állítva
@@ -1744,5 +1744,5 @@ signup-confirmed-sync-set-password-success-banner = Szinkronizálási jelszó l�
 
 
 update-firefox-heading = { -brand-firefox } frissítés szükséges
-update-firefox-description = A(z) { -product-mozilla-account } olyan funkciókat használ, amelyek nem támogatottak a { -brand-firefox } Ön verziójában. A folytatáshoz töltse le és telepítse a { -brand-firefox } legfrissebb verzióját.
+update-firefox-description = A { -product-mozilla-account } olyan funkciókat használ, amelyek nem támogatottak a { -brand-firefox }-verziójában. A folytatáshoz töltse le és telepítse a { -brand-firefox } legfrissebb verzióját.
 update-firefox-download-button = Legfrissebb letöltése

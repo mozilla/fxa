@@ -1386,6 +1386,7 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Bezoek <b>firefox.com/
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Geannuleerd
 pair2-supplicant-timeout-and-cancel-canceled-description = Bezoek <b>firefox.com/pair</b> op uw computer om op elk gewenst moment een apparaat te verbinden.
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Dit apparaat is al aangemeld
+pair2-supplicant-timeout-and-cancel-signed-in-description = Meld u af bij { -brand-firefox } op dit apparaat en ga vervolgens op uw computer naar <b>firefox.com/pair</b> om de aanmelding te voltooien en verbinding te maken met uw desktopaccount.
 
 
 permissions-heading = { $serviceName } wil toegang tot:
