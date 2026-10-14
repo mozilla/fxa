@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit f463ef459515c6860699041cf2cfb04ef31f1503</title>
+  <title>Storybooks for commit 889bf4e654644afcfa20f634f336a934aac968fb</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit f463ef459515c6860699041cf2cfb04ef31f1503</h1>
+  <h1>Storybooks for commit 889bf4e654644afcfa20f634f336a934aac968fb</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
@@ -32,21 +32,18 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/14/2026, 3:31:49 PM UTC</dd>
+    <dd>10/14/2026, 4:06:48 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>refactor(accounts): move connected-services to @fxa/accounts/connected-services</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- connected-services lived in fxa-shared, not in an nx lib.
+- origin/main moved the fxa-shared db imports to @fxa/shared/db/mysql/legacy
+- this branch moved the connected-services imports to @fxa/accounts/connected-services
 
 This commit:
 
-- Moves packages/fxa-shared/connected-services to @fxa/accounts/connected-services.
-- Moves every fxa-auth-server and fxa-admin-server importer and amplitude.ts.
-- Ports the 4 mocha tests to jest and deletes the old folder and exports.
-- Adds cldr-localenames-full 46.0.0 to the root package.json.
-- Keeps the ScopeSet brand; fxa-shared/db still builds ScopeSet.
+- resolves the import conflicts in four files and keeps both moves
 
 Closes FXA-10653</pre></dd>
   </dl>
