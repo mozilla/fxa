@@ -1,8 +1,8 @@
 {
-  "commit": "889bf4e654644afcfa20f634f336a934aac968fb",
+  "commit": "7a8683282e01d34235e9a162e7f188a077953ad2",
   "summary": "refactor(accounts): move connected-services to @fxa/accounts/connected-services",
-  "description": "Because:\n\n- origin/main moved the fxa-shared db imports to @fxa/shared/db/mysql/legacy\n- this branch moved the connected-services imports to @fxa/accounts/connected-services\n\nThis commit:\n\n- resolves the import conflicts in four files and keeps both moves\n\nCloses FXA-10653",
-  "timestamp": 1791994008000,
+  "description": "Because:\n\n- connected-services lived in packages/fxa-shared, which moves to Nx libs.\n- fxa-auth-server must load one copy of the code, with no shim.\n\nThis commit:\n\n- Adds libs/accounts/connected-services with the moved files and jest specs.\n- Points the fxa-auth-server, fxa-admin-server and amplitude.ts imports at it.\n- Adds the tsconfig paths and the root cldr-localenames-full dependency.\n- Deletes packages/fxa-shared/connected-services, its tests and exports.\n\nCloses FXA-10653",
+  "timestamp": 1791999218000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
