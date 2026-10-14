@@ -9,12 +9,14 @@ import { findV2AuthorityBinary } from '../../lib/firefox-binary';
 import { MarionetteClient } from '../../lib/marionette';
 import { PAIR_V2_ROUTES, SELECTORS } from '../../lib/pairing-constants';
 import {
+  enableTotpOnAccount,
   findElementBySelectors,
   getServedPairingVersion,
   setPairingVersion,
   signInAuthorityViaMarionette,
   waitForUrlContaining,
 } from '../../lib/pairing-helpers';
+import { getTotpCode } from '../../lib/totp';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { SettingsPage } from '../../pages/settings';
 import { SigninPage } from '../../pages/signin';
@@ -75,6 +77,79 @@ test.describe('severity-2 #smoke', () => {
       await page.getByTestId('pair-continue-btn').click();
 
       await expect(page.locator('#pair-header-mobile')).toBeVisible();
+    });
+
+    test('2FA account enters a TOTP code before /pair starts pairing', async ({
+      target,
+      syncOAuthBrowserPages: { page, signin, signinTotpCode },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUpSync();
+      const secret = await enableTotpOnAccount(
+        target.authClient,
+        await testAccountTracker.getMfaJwtForScope(
+          '2fa',
+          credentials.sessionToken,
+          credentials.email
+        )
+      );
+      // The tracker needs the secret to delete a 2FA account.
+      credentials.secret = secret;
+
+      await page.goto(`${target.contentServerUrl}/pair`);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await page.waitForURL(/signin_totp_code/);
+      await signinTotpCode.fillOutCodeForm(await getTotpCode(secret));
+      await expect(page.getByTestId('has-mobile')).toBeVisible();
+
+      // Sign-in just verified a code, so age it out and count pair_preferences
+      // instead of letting Firefox navigate away on it.
+      await page.evaluate(() => {
+        const key = '__fxa_storage.accounts';
+        const accounts = JSON.parse(localStorage.getItem(key) || '{}');
+        for (const uid of Object.keys(accounts)) {
+          delete accounts[uid].totpVerifiedAt;
+        }
+        localStorage.setItem(key, JSON.stringify(accounts));
+
+        (window as any).pairPreferencesSent = 0;
+        const dispatch = window.dispatchEvent.bind(window);
+        window.dispatchEvent = (event: Event) => {
+          if (event.type === 'WebChannelMessageToChrome') {
+            const detail = (event as CustomEvent).detail;
+            const { message } =
+              typeof detail === 'string' ? JSON.parse(detail) : detail;
+            if (message?.command === 'fxaccounts:pair_preferences') {
+              (window as any).pairPreferencesSent++;
+              return true;
+            }
+          }
+          return dispatch(event);
+        };
+      });
+
+      await page.locator('label[for="has-mobile"]').click();
+      await page.getByTestId('pair-continue-btn').click();
+      await page.waitForURL(/\/pair\/auth\/totp/);
+      expect(
+        await page.evaluate(() => (window as any).pairPreferencesSent)
+      ).toBe(0);
+
+      await page
+        .getByLabel('Enter 6-digit code')
+        .fill(await getTotpCode(secret));
+      await page.getByRole('button', { name: 'Confirm' }).click();
+
+      // Back on /pair, pairing resumes with no second click.
+      await page.waitForURL(/\/pair(\?|$)/);
+      await page.waitForFunction(
+        () => (window as any).pairPreferencesSent === 1
+      );
+      await expect(page.getByTestId('has-mobile')).toBeVisible();
+      expect(
+        await page.evaluate(() => (window as any).pairPreferencesSent)
+      ).toBe(1);
     });
 
     test('direct /connect_another_device dispatches fxa_status and oauth_flow_begin', async ({
@@ -149,7 +224,7 @@ test.describe('severity-2 #smoke', () => {
       client: MarionetteClient,
       contentServerUrl: string,
       version: number,
-          credentials: Pick<Credentials, 'email' | 'password'>
+      credentials: Pick<Credentials, 'email' | 'password'>
     ) {
       await setPairingVersion(client, version);
       await signInAuthorityViaMarionette(

@@ -14,7 +14,7 @@ import { Link, useLocation } from 'react-router';
 import { UseFxAStatusResult, useNavigateWithQuery } from '../../../lib/hooks';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { usePageViewEvent } from '../../../lib/metrics';
-import { useFtlMsgResolver } from '../../../models';
+import { useAuthClient, useFtlMsgResolver } from '../../../models';
 import { useCmsInfoState, useConfig } from '../../../models/hooks';
 import { RelierCmsInfo } from '../../../models/integrations';
 import AppLayout from '../../../components/AppLayout';
@@ -64,6 +64,8 @@ import {
   pickPairingAttributionFromData,
   stashPairingAttribution,
 } from '../../../lib/pairing-attribution';
+import { getBasicAccountData } from '../../../lib/account-storage';
+import { pairingRequiresTotp } from '../../../lib/pairing/totp-gate';
 import type { PairOrigin } from '../../Signin/utils';
 import type { SigninLocationState } from '../../Signin/interfaces';
 import type { Integration } from '../../../models';
@@ -136,6 +138,7 @@ const Pair = ({
     'QR code'
   );
   const config = useConfig();
+  const authClient = useAuthClient();
   const navigateWithQuery = useNavigateWithQuery();
   const location = useLocation();
 
@@ -485,6 +488,37 @@ const Pair = ({
     firefox.send(FirefoxCommand.PairPreferences, {});
   }, [pairingAttribution]);
 
+  // Ask for the TOTP code before Firefox opens the channel; Pair/AuthAllow
+  // keeps the same check for pairings started from about:preferences.
+  const startPairing = useCallback(async () => {
+    const accountData = getBasicAccountData();
+    const sessionToken = accountData?.sessionToken;
+    if (
+      sessionToken &&
+      (await pairingRequiresTotp(authClient, sessionToken, {
+        verifiedAt: accountData?.totpVerifiedAt,
+        maxAgeMs: config.pairing.totpMaxAgeMinutes * 60 * 1000,
+      }))
+    ) {
+      navigateWithQuery('/pair/auth/totp', { state: { returnToPair: true } });
+      return;
+    }
+    openPairPreferences();
+  }, [authClient, config, navigateWithQuery, openPairPreferences]);
+
+  // Back from /pair/auth/totp with a good code: resume the pairing the user
+  // already started. Like AuthAllow, trust `totpComplete` rather than ask again.
+  const totpComplete = !!(location.state as { totpComplete?: unknown } | null)
+    ?.totpComplete;
+  const resumedPairingRef = useRef(false);
+  useEffect(() => {
+    if (bootstrapping || !totpComplete || resumedPairingRef.current) return;
+    resumedPairingRef.current = true;
+    // Drop the router state so Back or a reload does not start pairing again.
+    navigateWithQuery('/pair', { replace: true });
+    openPairPreferences();
+  }, [bootstrapping, totpComplete, navigateWithQuery, openPairPreferences]);
+
   const handleRadioChange = useCallback((value: MobileChoice) => {
     setSelectedRadio(value);
     GleanMetrics.cadFireFox.choiceEngage({
@@ -504,8 +538,8 @@ const Pair = ({
       setCurrentView('download');
       return;
     }
-    openPairPreferences();
-  }, [selectedRadio, openPairPreferences]);
+    startPairing();
+  }, [selectedRadio, startPairing]);
 
   const handleBackButton = useCallback(() => {
     setCurrentView('choice');
@@ -516,8 +550,8 @@ const Pair = ({
 
   const handleSyncDeviceSubmit = useCallback(() => {
     GleanMetrics.cadFireFox.syncDeviceSubmit();
-    openPairPreferences();
-  }, [openPairPreferences]);
+    startPairing();
+  }, [startPairing]);
 
   if (bootstrapping || fxaStatusResult.fxaStatusState === 'pending') {
     return <LoadingSpinner fullScreen />;
