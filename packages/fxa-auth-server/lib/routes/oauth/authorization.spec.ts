@@ -1436,7 +1436,7 @@ describe('isLocalHost', () => {
 
 describe('isPairingAuthorization', () => {
   const { isPairingAuthorization } = require('./authorization');
-  const { parseToScalars } = require('fxa-shared/lib/user-agent');
+  const { parseToScalars } = require('@fxa/shared/user-agent');
 
   // Real user agents, captured from physical devices in FXA-10427. Driven
   // through the actual parser rather than hand-built scalars, because the bug

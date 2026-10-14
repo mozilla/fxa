@@ -21,7 +21,7 @@ import { AuthLogger, AuthRequest } from '../types';
 import { recordSecurityEvent } from './utils/security-event';
 import * as validators from './validators';
 import { FxaMailer } from '../senders/fxa-mailer';
-import { formatUserAgentInfo } from 'fxa-shared/lib/user-agent';
+import { formatUserAgentInfo } from '@fxa/shared/user-agent';
 import { formatGeoData } from 'fxa-shared/lib/geo-data';
 import type { DB } from '../db';
 import {

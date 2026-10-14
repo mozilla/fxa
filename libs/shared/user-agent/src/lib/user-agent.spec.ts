@@ -2,137 +2,137 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
+import * as userAgent from './user-agent';
 
-const assert = require('chai').assert;
-const proxyquire = require('proxyquire');
-const sinon = require('sinon');
+type ParseToScalars = (
+  userAgentString?: string
+) => userAgent.UAScalarProperties;
+
+// The fixtures leave out fields on purpose to test the toVersionString checks.
+const asParsed = (result: unknown) =>
+  result as userAgent.ParsedUserAgentProperties;
 
 describe('lib/user-agent:', () => {
-  let userAgent;
-
-  before(() => {
-    userAgent = require('../../lib/user-agent');
-  });
-
   it('interface is correct', () => {
-    assert.isFunction(userAgent.parse);
-    assert.lengthOf(userAgent.parse, 1);
-    assert.isFunction(userAgent.isToVersionStringSupported);
-    assert.isFunction(userAgent.parseToScalars);
+    expect(typeof userAgent.parse).toBe('function');
+    expect(userAgent.parse).toHaveLength(1);
+    expect(typeof userAgent.isToVersionStringSupported).toBe('function');
+    expect(typeof userAgent.parseToScalars).toBe('function');
   });
 
   it('isToVersionStringSupported returns false if os.toVersionString is not available', () => {
-    assert.isFalse(
-      userAgent.isToVersionStringSupported({
-        os: {
-          major: 1,
-          minor: 0,
-        },
-        ua: {
-          major: 1,
-          minor: 0,
-          toVersionString: function () {},
-        },
-      })
-    );
+    expect(
+      userAgent.isToVersionStringSupported(
+        asParsed({
+          os: {
+            major: 1,
+            minor: 0,
+          },
+          ua: {
+            major: 1,
+            minor: 0,
+            toVersionString: function () {},
+          },
+        })
+      )
+    ).toBe(false);
   });
 
   it('isToVersionStringSupported returns false if ua.toVersionString is not available', () => {
-    assert.isFalse(
-      userAgent.isToVersionStringSupported({
-        os: {
-          major: 1,
-          minor: 0,
-          toVersionString: function () {},
-        },
-        ua: {
-          major: 1,
-          minor: 0,
-        },
-      })
-    );
+    expect(
+      userAgent.isToVersionStringSupported(
+        asParsed({
+          os: {
+            major: 1,
+            minor: 0,
+            toVersionString: function () {},
+          },
+          ua: {
+            major: 1,
+            minor: 0,
+          },
+        })
+      )
+    ).toBe(false);
   });
 
   it('isToVersionStringSupported returns true if toVersionString is available', () => {
-    assert.isTrue(
-      userAgent.isToVersionStringSupported({
-        os: {
-          major: 1,
-          minor: 0,
-          toVersionString: function () {},
-        },
-        ua: {
-          major: 1,
-          minor: 0,
-          toVersionString: function () {},
-        },
-      })
-    );
+    expect(
+      userAgent.isToVersionStringSupported(
+        asParsed({
+          os: {
+            major: 1,
+            minor: 0,
+            toVersionString: function () {},
+          },
+          ua: {
+            major: 1,
+            minor: 0,
+            toVersionString: function () {},
+          },
+        })
+      )
+    ).toBe(true);
   });
 
   it('parses a valid user-agent string', () => {
     const result = userAgent.parse(
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:61.0) Gecko/20100101 Firefox/65.0'
     );
-    assert.equal(result.ua.family, 'Firefox');
-    assert.equal(result.ua.toVersionString(), '65.0');
-    assert.equal(result.ua.major, '65');
-    assert.equal(result.ua.minor, '0');
-    assert.isNull(result.ua.patch);
-    assert.equal(result.os.family, 'Mac OS X');
-    assert.equal(result.os.toVersionString(), '10.11');
-    assert.isNull(result.os.patch);
+    expect(result.ua.family).toBe('Firefox');
+    expect(result.ua.toVersionString()).toBe('65.0');
+    expect(result.ua.major).toBe('65');
+    expect(result.ua.minor).toBe('0');
+    expect(result.ua.patch).toBeNull();
+    expect(result.os.family).toBe('Mac OS X');
+    expect(result.os.toVersionString()).toBe('10.11');
+    expect(result.os.patch).toBeNull();
   });
 
   it('returns the correct scalars', () => {
     const result = userAgent.parseToScalars(
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:61.0) Gecko/20100101 Firefox/65.0'
     );
-    assert.equal(result.browser, 'Firefox');
-    assert.equal(result.browserVersion, '65.0');
-    assert.equal(result.os, 'Mac OS X');
-    assert.equal(result.osVersion, '10.11');
-    assert.equal(result.deviceType, null);
-    assert.equal(result.formFactor, null);
+    expect(result.browser).toBe('Firefox');
+    expect(result.browserVersion).toBe('65.0');
+    expect(result.os).toBe('Mac OS X');
+    expect(result.osVersion).toBe('10.11');
+    expect(result.deviceType).toBeNull();
+    expect(result.formFactor).toBeNull();
   });
 
   it('parses a valid vulnerable-but-safe user-agent string', () => {
     const result = userAgent.parse('wibble-iPad/1.0 CFNetwork');
-    assert.equal(result.ua.family, 'wibble');
-    assert.equal(result.ua.toVersionString(), '1.0');
+    expect(result.ua.family).toBe('wibble');
+    expect(result.ua.toVersionString()).toBe('1.0');
   });
 
   it('excludes unsafe input from the result', () => {
     const result = userAgent.parse('<a>wibble</a>-iPad/1.0 CFNetwork');
-    assert.isNull(result.ua.family);
-    assert.equal(result.ua.toVersionString(), '1.0');
+    expect(result.ua.family).toBeNull();
+    expect(result.ua.toVersionString()).toBe('1.0');
   });
 
   it('drops dodgy-looking fields from vulnerable node-uap regexes', () => {
-    assert.deepEqual(
-      userAgent.parseToScalars('http://example.com-iPad/1.0 CFNetwork'),
-      {
-        browser: null,
-        browserVersion: '1.0',
-        os: 'iOS',
-        osVersion: '1.0',
-        deviceType: 'mobile',
-        formFactor: null,
-      }
-    );
-    assert.deepEqual(
-      userAgent.parseToScalars('<a>foo</a>-iPhone/2 CFNetwork'),
-      {
-        browser: null,
-        browserVersion: '2',
-        os: 'iOS',
-        osVersion: null,
-        deviceType: 'mobile',
-        formFactor: 'iPhone',
-      }
-    );
-    assert.deepEqual(userAgent.parseToScalars('wibble\t/7 CFNetwork'), {
+    expect(
+      userAgent.parseToScalars('http://example.com-iPad/1.0 CFNetwork')
+    ).toEqual({
+      browser: null,
+      browserVersion: '1.0',
+      os: 'iOS',
+      osVersion: '1.0',
+      deviceType: 'mobile',
+      formFactor: null,
+    });
+    expect(userAgent.parseToScalars('<a>foo</a>-iPhone/2 CFNetwork')).toEqual({
+      browser: null,
+      browserVersion: '2',
+      os: 'iOS',
+      osVersion: null,
+      deviceType: 'mobile',
+      formFactor: 'iPhone',
+    });
+    expect(userAgent.parseToScalars('wibble\t/7 CFNetwork')).toEqual({
       browser: null,
       browserVersion: '7',
       os: null,
@@ -145,32 +145,34 @@ describe('lib/user-agent:', () => {
   it('correctly parses iPad user agents requesting a desktop site', () => {
     // Note: the iOS version is not included in this type of user agent
     // and `osVersion` is therefore not accurate
-    assert.deepEqual(
+    expect(
       userAgent.parseToScalars(
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/20.2 Safari/605.1.15'
-      ),
-      {
-        browser: 'Firefox iOS',
-        browserVersion: '20.2',
-        os: 'Mac OS X',
-        osVersion: '10.15',
-        deviceType: 'tablet',
-        formFactor: 'iPad',
-      }
-    );
+      )
+    ).toEqual({
+      browser: 'Firefox iOS',
+      browserVersion: '20.2',
+      os: 'Mac OS X',
+      osVersion: '10.15',
+      deviceType: 'tablet',
+      formFactor: 'iPad',
+    });
   });
 
   describe('scalar results with mocked parser dependency', () => {
-    let uaParser, userAgent, parserResult;
+    let uaParser: { parse: jest.Mock };
+    let userAgent: ParseToScalars;
+    let parserResult: any;
 
     beforeEach(() => {
       uaParser = {
-        parse: sinon.spy(() => parserResult),
+        parse: jest.fn(() => parserResult),
       };
 
-      userAgent = proxyquire('../../lib/user-agent', {
-        'node-uap': uaParser,
-      }).parseToScalars;
+      jest.isolateModules(() => {
+        jest.doMock('node-uap', () => uaParser);
+        userAgent = require('./user-agent').parseToScalars;
+      });
     });
 
     it('sets data correctly', () => {
@@ -189,16 +191,16 @@ describe('lib/user-agent:', () => {
       };
       const result = userAgent('qux');
 
-      assert.equal(uaParser.parse.callCount, 1);
-      assert.ok(uaParser.parse.calledWithExactly('qux'));
+      expect(uaParser.parse).toHaveBeenCalledTimes(1);
+      expect(uaParser.parse).toHaveBeenCalledWith('qux');
 
-      assert.equal(Object.keys(result).length, 6);
-      assert.equal(result.browser, 'foo');
-      assert.equal(result.browserVersion, '1');
-      assert.equal(result.os, 'bar');
-      assert.equal(result.osVersion, '2');
-      assert.equal(result.deviceType, 'mobile');
-      assert.equal(result.formFactor, 'baz');
+      expect(Object.keys(result)).toHaveLength(6);
+      expect(result.browser).toBe('foo');
+      expect(result.browserVersion).toBe('1');
+      expect(result.os).toBe('bar');
+      expect(result.osVersion).toBe('2');
+      expect(result.deviceType).toBe('mobile');
+      expect(result.formFactor).toBe('baz');
     });
 
     it('ignores family:Other', () => {
@@ -217,16 +219,16 @@ describe('lib/user-agent:', () => {
       };
       const result = userAgent('wibble');
 
-      assert.equal(uaParser.parse.callCount, 1);
-      assert.ok(uaParser.parse.calledWithExactly('wibble'));
+      expect(uaParser.parse).toHaveBeenCalledTimes(1);
+      expect(uaParser.parse).toHaveBeenCalledWith('wibble');
 
-      assert.equal(Object.keys(result).length, 6);
-      assert.equal(result.browser, null);
-      assert.equal(result.browserVersion, '1.0');
-      assert.equal(result.os, null);
-      assert.equal(result.osVersion, '2.0');
-      assert.equal(result.deviceType, null);
-      assert.equal(result.formFactor, null);
+      expect(Object.keys(result)).toHaveLength(6);
+      expect(result.browser).toBeNull();
+      expect(result.browserVersion).toBe('1.0');
+      expect(result.os).toBeNull();
+      expect(result.osVersion).toBe('2.0');
+      expect(result.deviceType).toBeNull();
+      expect(result.formFactor).toBeNull();
     });
 
     it('recognises Android phones as a mobile OS', () => {
@@ -247,8 +249,8 @@ describe('lib/user-agent:', () => {
       };
       const result = userAgent();
 
-      assert.equal(result.deviceType, 'mobile');
-      assert.equal(result.formFactor, null);
+      expect(result.deviceType).toBe('mobile');
+      expect(result.formFactor).toBeNull();
     });
 
     it('recognises iOS as a mobile OS', () => {
@@ -267,8 +269,8 @@ describe('lib/user-agent:', () => {
       };
       const result = userAgent();
 
-      assert.equal(result.deviceType, 'mobile');
-      assert.equal(result.formFactor, 'iPhone 7');
+      expect(result.deviceType).toBe('mobile');
+      expect(result.formFactor).toBe('iPhone 7');
     });
 
     it('does not recognise Mac OS X as a mobile OS', () => {
@@ -287,7 +289,7 @@ describe('lib/user-agent:', () => {
       };
       const result = userAgent();
 
-      assert.equal(result.deviceType, null);
+      expect(result.deviceType).toBeNull();
     });
 
     it('does not recognise Linux as a mobile OS', () => {
@@ -306,7 +308,7 @@ describe('lib/user-agent:', () => {
       };
       const result = userAgent();
 
-      assert.equal(result.deviceType, null);
+      expect(result.deviceType).toBeNull();
     });
 
     it('does not recognise Windows as a mobile OS', () => {
@@ -325,7 +327,7 @@ describe('lib/user-agent:', () => {
       };
       const result = userAgent();
 
-      assert.equal(result.deviceType, null);
+      expect(result.deviceType).toBeNull();
     });
 
     it('recognises iPads as tablets', () => {
@@ -346,8 +348,8 @@ describe('lib/user-agent:', () => {
       };
       const result = userAgent();
 
-      assert.equal(result.deviceType, 'tablet');
-      assert.equal(result.formFactor, 'iPad Pro');
+      expect(result.deviceType).toBe('tablet');
+      expect(result.formFactor).toBe('iPad Pro');
     });
 
     it('recognises Android tablets as tablets', () => {
@@ -368,8 +370,8 @@ describe('lib/user-agent:', () => {
       };
       const result = userAgent();
 
-      assert.equal(result.deviceType, 'tablet');
-      assert.equal(result.formFactor, 'Nexus 7');
+      expect(result.deviceType).toBe('tablet');
+      expect(result.formFactor).toBe('Nexus 7');
     });
 
     it('ignores form factor for generic devices', () => {
@@ -391,19 +393,20 @@ describe('lib/user-agent:', () => {
       };
       const result = userAgent();
 
-      assert.equal(result.deviceType, 'mobile');
-      assert.equal(result.formFactor, null);
+      expect(result.deviceType).toBe('mobile');
+      expect(result.formFactor).toBeNull();
     });
 
     it('recognises old Firefox-iOS user agents', () => {
       parserResult = null;
       const result = userAgent('Firefox-iOS-FxA/5.3 (Firefox)');
 
-      assert.equal(result.browser, 'Firefox');
-      assert.equal(result.browserVersion, '5.3');
-      assert.equal(result.os, 'iOS');
-      assert.equal(result.deviceType, 'mobile');
-      assert.equal(result.formFactor, null);
+      expect(result.browser).toBe('Firefox');
+      expect(result.browserVersion).toBe('5.3');
+      expect(result.os).toBe('iOS');
+      expect(result.deviceType).toBe('mobile');
+      // The Sync regex path returns undefined here, though the type says null
+      expect(result.formFactor ?? null).toBeNull();
     });
 
     it('recognises new Firefox-iOS user agents', () => {
@@ -412,12 +415,12 @@ describe('lib/user-agent:', () => {
         'Firefox-iOS-FxA/6.0b42 (iPhone 6S; iPhone OS 10.3) (Nightly)'
       );
 
-      assert.equal(result.browser, 'Nightly');
-      assert.equal(result.browserVersion, '6.0');
-      assert.equal(result.os, 'iOS');
-      assert.equal(result.osVersion, '10.3');
-      assert.equal(result.deviceType, 'mobile');
-      assert.equal(result.formFactor, 'iPhone 6S');
+      expect(result.browser).toBe('Nightly');
+      expect(result.browserVersion).toBe('6.0');
+      expect(result.os).toBe('iOS');
+      expect(result.osVersion).toBe('10.3');
+      expect(result.deviceType).toBe('mobile');
+      expect(result.formFactor).toBe('iPhone 6S');
     });
 
     it('recognises new Firefox-iOS user agent on iPads', () => {
@@ -426,23 +429,24 @@ describe('lib/user-agent:', () => {
         'Firefox-iOS-FxA/6.0b42 (iPad Mini; iPhone OS 10.3) (Nightly)'
       );
 
-      assert.equal(result.browser, 'Nightly');
-      assert.equal(result.browserVersion, '6.0');
-      assert.equal(result.os, 'iOS');
-      assert.equal(result.osVersion, '10.3');
-      assert.equal(result.deviceType, 'tablet');
-      assert.equal(result.formFactor, 'iPad Mini');
+      expect(result.browser).toBe('Nightly');
+      expect(result.browserVersion).toBe('6.0');
+      expect(result.os).toBe('iOS');
+      expect(result.osVersion).toBe('10.3');
+      expect(result.deviceType).toBe('tablet');
+      expect(result.formFactor).toBe('iPad Mini');
     });
 
     it('recognises Firefox-Android user agents', () => {
       parserResult = null;
       const result = userAgent('Firefox-Android-FxAccounts/49.0.2 (Firefox)');
 
-      assert.equal(result.browser, 'Firefox');
-      assert.equal(result.browserVersion, '49.0.2');
-      assert.equal(result.os, 'Android');
-      assert.equal(result.deviceType, 'mobile');
-      assert.equal(result.formFactor, null);
+      expect(result.browser).toBe('Firefox');
+      expect(result.browserVersion).toBe('49.0.2');
+      expect(result.os).toBe('Android');
+      expect(result.deviceType).toBe('mobile');
+      // The Sync regex path returns undefined here, though the type says null
+      expect(result.formFactor ?? null).toBeNull();
     });
 
     it('recognises old Android Sync user agents', () => {
@@ -464,11 +468,12 @@ describe('lib/user-agent:', () => {
       };
       const result = userAgent('Firefox AndroidSync 1.51.0.0 (Firefox)');
 
-      assert.equal(result.browser, null);
-      assert.equal(result.browserVersion, null);
-      assert.equal(result.os, 'Android');
-      assert.equal(result.deviceType, 'mobile');
-      assert.equal(result.formFactor, null);
+      expect(result.browser).toBeNull();
+      // The Sync regex path returns undefined here, though the type says null
+      expect(result.browserVersion ?? null).toBeNull();
+      expect(result.os).toBe('Android');
+      expect(result.deviceType).toBe('mobile');
+      expect(result.formFactor).toBeNull();
     });
 
     it('recognises new mobile Sync library user agents on Android', () => {
@@ -477,12 +482,12 @@ describe('lib/user-agent:', () => {
         'Mobile-Android-Sync/(Mobile; Android 6.0) (foo bar)'
       );
 
-      assert.equal(result.browser, 'foo bar');
-      assert.equal(result.browserVersion, null);
-      assert.equal(result.os, 'Android');
-      assert.equal(result.osVersion, '6.0');
-      assert.equal(result.deviceType, 'mobile');
-      assert.equal(result.formFactor, 'Mobile');
+      expect(result.browser).toBe('foo bar');
+      expect(result.browserVersion).toBeNull();
+      expect(result.os).toBe('Android');
+      expect(result.osVersion).toBe('6.0');
+      expect(result.deviceType).toBe('mobile');
+      expect(result.formFactor).toBe('Mobile');
     });
 
     it('recognises new mobile Sync library user agents on iOS', () => {
@@ -491,44 +496,44 @@ describe('lib/user-agent:', () => {
         'Mobile-iOS-Sync/(iPad Mini; iOS 10.3) (wibble)'
       );
 
-      assert.equal(result.browser, 'wibble');
-      assert.equal(result.browserVersion, null);
-      assert.equal(result.os, 'iOS');
-      assert.equal(result.osVersion, '10.3');
-      assert.equal(result.deviceType, 'tablet');
-      assert.equal(result.formFactor, 'iPad Mini');
+      expect(result.browser).toBe('wibble');
+      expect(result.browserVersion).toBeNull();
+      expect(result.os).toBe('iOS');
+      expect(result.osVersion).toBe('10.3');
+      expect(result.deviceType).toBe('tablet');
+      expect(result.formFactor).toBe('iPad Mini');
     });
   });
 
   describe('platformFromOS:', () => {
-    const { platformFromOS } = require('../../lib/user-agent');
+    const { platformFromOS } = userAgent;
 
     it('maps iOS OS families to ios', () => {
-      assert.equal(platformFromOS('iOS'), 'ios');
-      assert.equal(platformFromOS('iPhone OS'), 'ios');
+      expect(platformFromOS('iOS')).toBe('ios');
+      expect(platformFromOS('iPhone OS')).toBe('ios');
     });
 
     it('maps Android to android', () => {
-      assert.equal(platformFromOS('Android'), 'android');
+      expect(platformFromOS('Android')).toBe('android');
     });
 
     it('maps desktop OS families to desktop', () => {
-      assert.equal(platformFromOS('Windows'), 'desktop');
-      assert.equal(platformFromOS('Mac OS X'), 'desktop');
-      assert.equal(platformFromOS('Linux'), 'desktop');
+      expect(platformFromOS('Windows')).toBe('desktop');
+      expect(platformFromOS('Mac OS X')).toBe('desktop');
+      expect(platformFromOS('Linux')).toBe('desktop');
     });
 
     it('returns unknown when the OS is missing', () => {
-      assert.equal(platformFromOS(''), 'unknown');
-      assert.equal(platformFromOS(undefined), 'unknown');
+      expect(platformFromOS('')).toBe('unknown');
+      expect(platformFromOS(undefined)).toBe('unknown');
     });
 
     it('returns unknown for non-desktop or unrecognized OS families', () => {
-      assert.equal(platformFromOS('Windows Phone'), 'unknown');
-      assert.equal(platformFromOS('Windows Mobile'), 'unknown');
-      assert.equal(platformFromOS('Firefox OS'), 'unknown');
-      assert.equal(platformFromOS('tvOS'), 'unknown');
-      assert.equal(platformFromOS('SomeFutureOS'), 'unknown');
+      expect(platformFromOS('Windows Phone')).toBe('unknown');
+      expect(platformFromOS('Windows Mobile')).toBe('unknown');
+      expect(platformFromOS('Firefox OS')).toBe('unknown');
+      expect(platformFromOS('tvOS')).toBe('unknown');
+      expect(platformFromOS('SomeFutureOS')).toBe('unknown');
     });
   });
 });

@@ -9,7 +9,7 @@ const Hapi = require('@hapi/hapi');
 const HapiSwagger = require('hapi-swagger');
 const path = require('path');
 const { getRemoteAddressChain } = require('./getRemoteAddressChain');
-const userAgent = require('fxa-shared/lib/user-agent').parseToScalars;
+const userAgent = require('@fxa/shared/user-agent').parseToScalars;
 const schemeRefreshToken = require('./routes/auth-schemes/refresh-token');
 const authOauth = require('./routes/auth-schemes/auth-oauth');
 const sharedSecretAuth = require('./routes/auth-schemes/shared-secret');
@@ -404,7 +404,10 @@ async function create(
         path: request.path,
         // Scheme only (e.g. "Hawk"/"Bearer"); a scheme-less header is redacted so
         // a bare token can't leak into logs.
-        auth: separatorIndex > 0 ? authHeader.slice(0, separatorIndex) : '[redacted]',
+        auth:
+          separatorIndex > 0
+            ? authHeader.slice(0, separatorIndex)
+            : '[redacted]',
         type: request.headers['content-type'] || '',
       });
     }

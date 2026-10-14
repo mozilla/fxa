@@ -16,7 +16,7 @@ const PUSH_SERVER_REGEX = require('../config').default.get(
   'push.allowedServerRegex'
 );
 const { synthesizeClientName } = require('fxa-shared/connected-services');
-const { platformFromOS } = require('fxa-shared/lib/user-agent');
+const { platformFromOS } = require('@fxa/shared/user-agent');
 const { reportSentryError } = require('./sentry');
 const {
   deauthorizeOnDisconnect,
