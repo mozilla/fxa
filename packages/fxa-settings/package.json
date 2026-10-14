@@ -79,6 +79,7 @@
       "\\.(css|sass|scss)$": "identity-obj-proxy",
       "@fxa/shared/l10n": "<rootDir>/../../libs/shared/l10n/src/index.ts",
       "@fxa/shared/metrics/glean": "<rootDir>/../../libs/shared/metrics/glean/src/index.ts",
+      "@fxa/shared/url-allow-list": "<rootDir>/../../libs/shared/url-allow-list/src/index.ts",
       "@fxa/shared/sentry-browser": "<rootDir>/../../libs/shared/sentry-browser/src/index.ts",
       "@fxa/shared/sentry-utils": "<rootDir>/../../libs/shared/sentry-utils/src/index.ts",
       "^@fxa/shared/assets(.*)$": "<rootDir>/../../libs/shared/assets/src$1",
