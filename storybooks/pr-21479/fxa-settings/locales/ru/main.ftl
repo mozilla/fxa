@@ -1424,6 +1424,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Похоже, у нас и
 pair2-supplicant-timeout-and-cancel-timeout-description = Чтобы подключить мобильное устройство и синхронизировать данные { -brand-firefox }, посетите <b>firefox.com/pair</b> на вашем компьютере.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Отменено
 pair2-supplicant-timeout-and-cancel-canceled-description = Чтобы подключить устройство в любое время, посетите <b>firefox.com/pair</b> на вашем компьютере.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = На этом устройстве уже выполнен вход
+pair2-supplicant-timeout-and-cancel-signed-in-description = Чтобы подключиться к аккаунту, выйдите из { -brand-firefox } на этом устройстве, затем посетите <b>firefox.com/pair</b> на компьютере, чтобы завершить вход.
 
 
 permissions-heading = { $serviceName } хочет получить доступ к:

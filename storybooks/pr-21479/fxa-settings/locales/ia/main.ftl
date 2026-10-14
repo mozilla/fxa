@@ -1388,6 +1388,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Il pare que nos exiva fora
 pair2-supplicant-timeout-and-cancel-timeout-description = Pro connecter tu apparato mobile e synchronisar tu datos de { -brand-firefox }, visita <b>firefox.com/par</b> sur tu computator.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancellate
 pair2-supplicant-timeout-and-cancel-canceled-description = Pro connecter un apparato quandocunque, visita <b>firefox.com/par</b> sur tu computator.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Iste apparato es jam connexe
+pair2-supplicant-timeout-and-cancel-signed-in-description = Pro connecter te a tu conto de scriptorio, claude  connexion de { -brand-firefox } sur iste apparato, pois visita <b>firefox.com/par</b> sur tu computator a completa le accesso.
 
 
 permissions-heading = { $serviceName } vole acceder a:
