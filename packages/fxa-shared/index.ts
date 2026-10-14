@@ -3,7 +3,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 import * as iapSubscription from './dto/auth/payments/iap-subscription';
 import * as invoice from './dto/auth/payments/invoice';
-import popularDomains from './email/popularDomains.json';
 import express from './express';
 import featureFlags from './feature-flags';
 import amplitude from './metrics/amplitude';
@@ -16,9 +15,6 @@ import * as stripe from './subscriptions/stripe';
 import * as subscriptions from './subscriptions/type-guards';
 
 module.exports = {
-  email: {
-    popularDomains,
-  },
   express,
   featureFlags,
   metrics: {

@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router';
 import { isEmail } from 'class-validator';
 
-import { isEmailMask } from 'fxa-shared/email/helpers';
+import { isEmailMask } from '@fxa/shared/email';
 
 import { firefox } from '../../lib/channels/firefox';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';

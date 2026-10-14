@@ -3,3 +3,4 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 export * from './lib/helpers';
 export { default as TopEmailDomains } from './lib/topEmailDomains';
+export { default as popularDomains } from './lib/popularDomains.json';

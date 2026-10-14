@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { isEmailMask } from 'fxa-shared/email/helpers';
+import { isEmailMask } from '@fxa/shared/email';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppLayout from '../../components/AppLayout';
