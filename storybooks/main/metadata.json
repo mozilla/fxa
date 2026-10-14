@@ -1,8 +1,8 @@
 {
-  "commit": "517651a36053d1fc306520bd7d95bfeb4543c7fd",
-  "summary": "Merge pull request #21479 from mozilla/fxa-10654",
-  "description": "refactor(shared): move legacy db config, transformers and mysql to a lib",
-  "timestamp": 1791945232000,
+  "commit": "cef04083ee8202dec82752a9580290a495d179c9",
+  "summary": "Merge pull request #21484 from mozilla/fxa-14699",
+  "description": "refactor(shared): move fxa-shared user-agent to @fxa/shared/user-agent",
+  "timestamp": 1791982815000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
