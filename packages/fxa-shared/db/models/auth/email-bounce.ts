@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { EmailType } from '.';
-import { convertError, MysqlErrors } from '../../mysql';
+import { convertError, MysqlErrors } from '@fxa/shared/db/mysql/legacy/mysql';
 import { BaseAuthModel, Proc } from './base-auth';
 import * as Sentry from '@sentry/node';
 

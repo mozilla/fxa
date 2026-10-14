@@ -8,7 +8,7 @@ const unique = require('../../unique');
 const { ScopeIdCache } = require('../../scopes-cache');
 
 // Shared base class
-const { MysqlOAuthShared } = require('fxa-shared/db/mysql');
+const { MysqlOAuthShared } = require('@fxa/shared/db/mysql/legacy/mysql');
 const { Container } = require('typedi');
 const { AuthLogger } = require('../../../types');
 const { StatsD } = require('hot-shots');

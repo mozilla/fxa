@@ -4,7 +4,7 @@
 
 import { StatsD } from 'hot-shots';
 import { ILogger } from '../../../log';
-import { uuidTransformer } from '../../transformers';
+import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
 import { BaseAuthModel, Proc } from './base-auth';
 
 /**

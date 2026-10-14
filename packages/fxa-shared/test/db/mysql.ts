@@ -2,7 +2,10 @@ import { assert } from 'chai';
 import { StatsD } from 'hot-shots';
 import { Connection } from 'mysql';
 import sinon from 'sinon';
-import { IMysqlStoreSharedEvents, MysqlStoreShared } from '../../db/mysql';
+import {
+  IMysqlStoreSharedEvents,
+  MysqlStoreShared,
+} from '@fxa/shared/db/mysql/legacy/mysql';
 import { defaultOpts, testDatabaseSetup } from './helpers';
 
 const dbOpts = Object.assign({}, defaultOpts.testDbConfig, {

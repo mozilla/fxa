@@ -26,6 +26,8 @@ const base = {
   moduleNameMapper: {
     '^@fxa/free-access-program$':
       '<rootDir>/../../libs/free-access-program/src',
+    '^@fxa/shared/db/mysql/legacy/(.*)$':
+      '<rootDir>/../../libs/shared/db/mysql/legacy/src/lib/$1',
     '^@fxa/shared/(.*)$': '<rootDir>/../../libs/shared/$1/src',
     // Secondary entry points must precede the greedy pattern below, which would
     // otherwise map them to `libs/accounts/<pkg>/<entry>/src`.

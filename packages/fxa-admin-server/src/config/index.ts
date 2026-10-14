@@ -4,7 +4,10 @@
 
 import convict from 'convict';
 import fs from 'fs';
-import { makeMySQLConfig, makeRedisConfig } from 'fxa-shared/db/config';
+import {
+  makeMySQLConfig,
+  makeRedisConfig,
+} from '@fxa/shared/db/mysql/legacy/config';
 import { GuardConfig, USER_EMAIL_HEADER } from '@fxa/shared/guards';
 import { tracingConfig } from '@fxa/shared/otel';
 import path from 'path';

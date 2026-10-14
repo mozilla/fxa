@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { assert } from 'chai';
-import { aggregateNameValuePairs } from '../../db/transformers';
+import { aggregateNameValuePairs } from './transformers';
 
 const id = Buffer.from('01', 'hex');
 
@@ -23,9 +22,9 @@ describe('aggregateNameValuePairs', () => {
       { id, commandName: 'send-tab', commandData: 'data' },
     ]);
 
-    assert.deepEqual(item.availableCommands, { 'send-tab': 'data' });
-    assert.isNull(Object.getPrototypeOf(item.availableCommands));
-    assert.equal(JSON.stringify(item.availableCommands), '{"send-tab":"data"}');
+    expect(item.availableCommands).toEqual({ 'send-tab': 'data' });
+    expect(Object.getPrototypeOf(item.availableCommands)).toBeNull();
+    expect(JSON.stringify(item.availableCommands)).toBe('{"send-tab":"data"}');
   });
 
   it('leaves the result NULL when the id is NULL', () => {
@@ -33,7 +32,7 @@ describe('aggregateNameValuePairs', () => {
       { id: null, commandName: null, commandData: null },
     ]);
 
-    assert.isNull(item.availableCommands);
+    expect(item.availableCommands).toBeNull();
   });
 
   it('skips names that reach Object.prototype', () => {
@@ -44,6 +43,6 @@ describe('aggregateNameValuePairs', () => {
       { id, commandName: 'send-tab', commandData: 'data' },
     ]);
 
-    assert.deepEqual(Object.keys(item.availableCommands), ['send-tab']);
+    expect(Object.keys(item.availableCommands)).toEqual(['send-tab']);
   });
 });

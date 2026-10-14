@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { setupDatabase } from 'fxa-shared/db';
-import { MySQLConfig } from 'fxa-shared/db/config';
+import { MySQLConfig } from '@fxa/shared/db/mysql/legacy/config';
 import type { ILogger } from '@fxa/shared/log';
 import { StatsD } from 'hot-shots';
 

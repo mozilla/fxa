@@ -4,7 +4,9 @@
   "compilerOptions": {
     "paths": {
       "@fxa/accounts/email-sender": ["libs/accounts/email-sender/src/index"],
-      "@fxa/accounts/email-renderer": ["libs/accounts/email-renderer/src/index"],
+      "@fxa/accounts/email-renderer": [
+        "libs/accounts/email-renderer/src/index"
+      ],
       "@fxa/accounts/errors": ["libs/accounts/errors/src/index"],
       "@fxa/accounts/oauth": ["libs/accounts/oauth/src/index"],
       "@fxa/payments/legacy": ["libs/payments/legacy/src/index"],
@@ -30,6 +32,10 @@
         "libs/shared/db/mysql/account/src/index"
       ],
       "@fxa/shared/db/mysql/core": ["libs/shared/db/mysql/core/src/index"],
+      "@fxa/shared/db/mysql/legacy": ["libs/shared/db/mysql/legacy/src/index"],
+      "@fxa/shared/db/mysql/legacy/*": [
+        "libs/shared/db/mysql/legacy/src/lib/*"
+      ],
       "@fxa/shared/db/type-cacheable": [
         "libs/shared/db/type-cacheable/src/index"
       ],

@@ -111,6 +111,12 @@
         "./libs/shared/db/mysql/account/src/lib/*"
       ],
       "@fxa/shared/db/mysql/core": ["./libs/shared/db/mysql/core/src/index.ts"],
+      "@fxa/shared/db/mysql/legacy": [
+        "./libs/shared/db/mysql/legacy/src/index.ts"
+      ],
+      "@fxa/shared/db/mysql/legacy/*": [
+        "./libs/shared/db/mysql/legacy/src/lib/*"
+      ],
       "@fxa/shared/db/type-cacheable": [
         "./libs/shared/db/type-cacheable/src/index.ts"
       ],
