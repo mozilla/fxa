@@ -21,6 +21,7 @@ import GleanMetrics from '../../../../lib/glean';
 import firefox from '../../../../lib/channels/firefox';
 import { Constants } from '../../../../lib/constants';
 import { hardNavigate } from 'fxa-react/lib/utils';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { getBasicAccountData } from '../../../../lib/account-storage';
 import { pairingRequiresTotp } from '../../../../lib/pairing/totp-gate';
 
@@ -213,6 +214,12 @@ const ScanQRContainer = ({
     // parameters stop here rather than following the user there.
     navigate('/settings');
   };
+
+  // Nothing of the QR card shows until the TOTP check settles, so a 2FA
+  // account is not shown a code it is about to be routed away from.
+  if (!totpChecked) {
+    return <LoadingSpinner fullScreen />;
+  }
 
   return <ScanQR {...{ qrCodeValue, onSkip }} />;
 };
