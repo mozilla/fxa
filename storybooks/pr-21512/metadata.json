@@ -1,0 +1,10 @@
+{
+  "commit": "cbf9ec43b8ffe8d05e7c589415f9e8a8cba7e794",
+  "summary": "fix(settings): wait for a fresh fxa_status after sign-in reaches /pair",
+  "description": "Because:\n\n* Sign-in moves to /pair in the router, so useFxAStatus kept the\n  signed-out answer from the sign-in page and reported it as current.\n* Firefox answers /pair's own fxa_status only after oauth_login's\n  token exchange, which can outlast its 1 s of retries.\n* /pair then bounced a just-signed-in Sync user to cached sign-in, or\n  showed the v1 screen on a v2-capable Firefox.\n\nThis commit:\n\n* Resets fxaStatusState to 'pending' whenever useFxAStatus re-asks.\n* Stops the effect re-running, and re-asking, once engines arrive.\n* Adds a /pair regression test for the client-side move from sign-in.\n\nCloses #FXA-14762",
+  "timestamp": 1792006896000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
