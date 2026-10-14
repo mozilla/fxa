@@ -1,8 +1,8 @@
 {
-  "commit": "2c0c5e599ace1fd68a1655fb6e0d63b24b386ab1",
-  "summary": "Merge pull request #21504 from mozilla/fxa-10659",
-  "description": "refactor(content-server): move feature-flags out of fxa-shared",
-  "timestamp": 1791996221000,
+  "commit": "1687a70061f412c0d567c34defae9e8e1427d459",
+  "summary": "Merge pull request #21500 from mozilla/fxa-10658",
+  "description": "refactor(shared): move fxa-shared/express into @fxa/shared/express lib",
+  "timestamp": 1791996447000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
