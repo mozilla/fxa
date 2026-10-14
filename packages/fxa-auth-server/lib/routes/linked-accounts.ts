@@ -21,7 +21,7 @@ import {
   checkBlocklists,
   notifyAttachedServicesForAccountSession,
 } from './utils/account';
-import { normalizeEmail } from 'fxa-shared/email/helpers';
+import { normalizeEmail } from '@fxa/shared/email';
 import { recordSecurityEvent } from './utils/security-event';
 import {
   getGooglePublicKey,

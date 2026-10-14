@@ -30,7 +30,7 @@ import {
   PASSWORDLESS_SEND_OTP_SIGNIN,
   PASSWORDLESS_SEND_OTP_SIGNUP,
 } from './utils/passwordless';
-import { normalizeEmail } from 'fxa-shared/email/helpers';
+import { normalizeEmail } from '@fxa/shared/email';
 import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 import {
   checkBlocklists,

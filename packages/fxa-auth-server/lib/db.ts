@@ -26,7 +26,7 @@ import {
   SecurityEvent,
   TotpToken,
 } from 'fxa-shared/db/models/auth';
-import { normalizeEmail } from 'fxa-shared/email/helpers';
+import { normalizeEmail } from '@fxa/shared/email';
 import { Knex } from 'knex';
 import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';

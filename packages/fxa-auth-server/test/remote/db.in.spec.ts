@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import crypto from 'crypto';
-import { normalizeEmail } from 'fxa-shared/email/helpers';
+import { normalizeEmail } from '@fxa/shared/email';
 import IORedis from 'ioredis';
 
 import {
