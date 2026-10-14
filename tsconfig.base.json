@@ -29,6 +29,9 @@
     "useUnknownInCatchVariables": false,
     "baseUrl": ".",
     "paths": {
+      "@fxa/accounts/connected-services": [
+        "./libs/accounts/connected-services/src/index.ts"
+      ],
       "@fxa/accounts/email-renderer": [
         "./libs/accounts/email-renderer/src/index.ts"
       ],

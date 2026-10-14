@@ -17,14 +17,6 @@
       "import": "./dist/esm/packages/fxa-shared/configuration/*.js",
       "require": "./dist/cjs/packages/fxa-shared/configuration/*.js"
     },
-    "./connected-services": {
-      "import": "./dist/esm/packages/fxa-shared/connected-services/index.js",
-      "require": "./dist/cjs/packages/fxa-shared/connected-services/index.js"
-    },
-    "./connected-services/*": {
-      "import": "./dist/esm/packages/fxa-shared/connected-services/*.js",
-      "require": "./dist/cjs/packages/fxa-shared/connected-services/*.js"
-    },
     "./coverage/*": {
       "import": "./dist/esm/packages/fxa-shared/coverage/*.js",
       "require": "./dist/cjs/packages/fxa-shared/coverage/*.js"

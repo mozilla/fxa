@@ -11,7 +11,7 @@ const redis = require('./redis');
 const AccessToken = require('./accessToken');
 const { SHORT_ACCESS_TOKEN_TTL_IN_MS } = require('@fxa/accounts/oauth');
 const RefreshTokenMetadata = require('./refreshTokenMetadata');
-const { ConnectedServicesDb } = require('fxa-shared/connected-services');
+const { ConnectedServicesDb } = require('@fxa/accounts/connected-services');
 const resolveScopesForService = require('./resolve-scopes-for-service');
 
 const JWT_ACCESS_TOKENS_ENABLED = config.get(

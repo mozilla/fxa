@@ -3,6 +3,9 @@
   "exclude": ["node_modules", "test", "dist", "**/*spec.ts"],
   "compilerOptions": {
     "paths": {
+      "@fxa/accounts/connected-services": [
+        "libs/accounts/connected-services/src/index"
+      ],
       "@fxa/accounts/email-sender": ["libs/accounts/email-sender/src/index"],
       "@fxa/accounts/email-renderer": [
         "libs/accounts/email-renderer/src/index"

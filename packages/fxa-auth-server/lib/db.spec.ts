@@ -58,10 +58,10 @@ jest.mock('./features', () => {
 
 // Configurable connected-services mock
 const actualConnectedServices = jest.requireActual(
-  'fxa-shared/connected-services'
+  '@fxa/accounts/connected-services'
 );
 let connectedServicesMock: any = actualConnectedServices;
-jest.mock('fxa-shared/connected-services', () => {
+jest.mock('@fxa/accounts/connected-services', () => {
   return new Proxy(
     {},
     {

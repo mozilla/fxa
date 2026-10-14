@@ -1,13 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { assert } from 'chai';
-
-import {
-  ClientFormatter,
-  IClientFormatterRequest,
-} from '../../connected-services';
-import { AttachedClient } from '../../connected-services/models/AttachedClient';
+import { ClientFormatter, IClientFormatterRequest } from './formatters';
+import { AttachedClient } from './models/AttachedClient';
 
 describe('connected-services/formatters', () => {
   let clientFormatter: ClientFormatter;
@@ -58,12 +53,12 @@ describe('connected-services/formatters', () => {
   it('formats US location', () => {
     clientFormatter.formatLocation(client, request);
 
-    assert.exists(client.location?.city);
-    assert.exists(client.location?.state);
-    assert.exists(client.location?.stateCode);
-    assert.exists(client.location?.country);
+    expect(client.location?.city).toEqual(expect.anything());
+    expect(client.location?.state).toEqual(expect.anything());
+    expect(client.location?.stateCode).toEqual(expect.anything());
+    expect(client.location?.country).toEqual(expect.anything());
     // Not set, is this a bug?
-    // assert.exists(client.location?.countryCode);
+    // expect(client.location?.countryCode).toEqual(expect.anything());
   });
 
   it('formats DE location', () => {
@@ -74,18 +69,18 @@ describe('connected-services/formatters', () => {
     };
     clientFormatter.formatLocation(client, request);
 
-    assert.exists(client.location?.country);
+    expect(client.location?.country).toEqual(expect.anything());
     // Not set, is this a bug?
-    // assert.exists(client.location?.city);
-    // assert.exists(client.location?.state);
-    // assert.exists(client.location?.stateCode);
-    // assert.exists(client.location?.countryCode);
+    // expect(client.location?.city).toEqual(expect.anything());
+    // expect(client.location?.state).toEqual(expect.anything());
+    // expect(client.location?.stateCode).toEqual(expect.anything());
+    // expect(client.location?.countryCode).toEqual(expect.anything());
   });
 
   it('formats timestamps', () => {
     clientFormatter.formatTimestamps(client, request);
 
-    assert.exists(client.createdTimeFormatted);
-    assert.exists(client.lastAccessTimeFormatted);
+    expect(client.createdTimeFormatted).toEqual(expect.anything());
+    expect(client.lastAccessTimeFormatted).toEqual(expect.anything());
   });
 });

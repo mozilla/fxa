@@ -1,9 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { assert } from 'chai';
-import Sinon, { SinonSpiedInstance } from 'sinon';
-
 import {
   ConnectedServicesCache,
   ConnectedServicesDb,
@@ -11,7 +8,7 @@ import {
   IConnectedServicesDbStore,
   IRefreshTokensCache,
   ISessionTokensCache,
-} from '../../connected-services';
+} from './accessors';
 
 const MOCK_ACCESS_TOKEN = Object.freeze({ tokenId: 'a'.repeat(64) });
 
@@ -63,9 +60,6 @@ describe('connected-services/accessors', () => {
   let testDbStore: TestDbStore;
   let testTokenCache: TestTokenCache;
 
-  let stubDbStore: SinonSpiedInstance<TestDbStore>;
-  let stubTokenCache: SinonSpiedInstance<TestTokenCache>;
-
   const uid = '1234';
 
   beforeEach(() => {
@@ -80,65 +74,70 @@ describe('connected-services/accessors', () => {
 
     db = new ConnectedServicesDb(testDbStore, cache);
 
-    stubDbStore = Sinon.spy(testDbStore);
-    stubTokenCache = Sinon.spy(testTokenCache);
+    jest.spyOn(testDbStore, 'getRefreshTokensByUid');
+    jest.spyOn(testDbStore, 'getAccessTokensByUid');
+    jest.spyOn(testTokenCache, 'getAccessToken');
+    jest.spyOn(testTokenCache, 'getAccessTokens');
+    jest.spyOn(testTokenCache, 'getRefreshTokens');
+    jest.spyOn(testTokenCache, 'getSessionTokens');
+    jest.spyOn(testTokenCache, 'pruneRefreshTokens');
   });
 
   describe('connected services database', () => {
     it('gets access tokens from the cache only', async () => {
       const result = await db.getAccessTokensByUid(uid);
 
-      assert.deepEqual(result, [MOCK_ACCESS_TOKEN]);
-      Sinon.assert.calledOnceWithExactly(stubTokenCache.getAccessTokens, uid);
-      Sinon.assert.notCalled(stubDbStore.getAccessTokensByUid);
+      expect(result).toEqual([MOCK_ACCESS_TOKEN]);
+      expect(testTokenCache.getAccessTokens).toHaveBeenCalledTimes(1);
+      expect(testTokenCache.getAccessTokens).toHaveBeenCalledWith(uid);
+      expect(testDbStore.getAccessTokensByUid).not.toHaveBeenCalled();
     });
 
     it('gets access refresh tokens', async () => {
       const result = await db.getRefreshTokensByUid(uid);
 
-      assert.lengthOf(result, 1);
-      Sinon.assert.calledOnceWithExactly(stubTokenCache.getRefreshTokens, uid);
-      Sinon.assert.calledOnceWithExactly(
-        stubDbStore.getRefreshTokensByUid,
-        uid
-      );
-      Sinon.assert.calledOnce(stubTokenCache.pruneRefreshTokens);
+      expect(result).toHaveLength(1);
+      expect(testTokenCache.getRefreshTokens).toHaveBeenCalledTimes(1);
+      expect(testTokenCache.getRefreshTokens).toHaveBeenCalledWith(uid);
+      expect(testDbStore.getRefreshTokensByUid).toHaveBeenCalledTimes(1);
+      expect(testDbStore.getRefreshTokensByUid).toHaveBeenCalledWith(uid);
+      expect(testTokenCache.pruneRefreshTokens).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe('connected services cache', async () => {
+  describe('connected services cache', () => {
     it('gets access token', async () => {
       const result = await cache.getAccessToken(uid);
 
-      assert.notInstanceOf(result, Array);
-      Sinon.assert.calledOnce(stubTokenCache.getAccessToken);
+      expect(result).not.toBeInstanceOf(Array);
+      expect(testTokenCache.getAccessToken).toHaveBeenCalledTimes(1);
     });
 
     it('gets access tokens', async () => {
       const result = await cache.getAccessTokens(uid);
 
-      assert.deepEqual(result, [MOCK_ACCESS_TOKEN]);
-      Sinon.assert.calledOnce(stubTokenCache.getAccessTokens);
+      expect(result).toEqual([MOCK_ACCESS_TOKEN]);
+      expect(testTokenCache.getAccessTokens).toHaveBeenCalledTimes(1);
     });
 
     it('gets refresh tokens', async () => {
       const result = await cache.getRefreshTokens(uid);
 
-      assert.lengthOf(result, 1);
-      Sinon.assert.calledOnce(stubTokenCache.getRefreshTokens);
+      expect(result).toHaveLength(1);
+      expect(testTokenCache.getRefreshTokens).toHaveBeenCalledTimes(1);
     });
 
     it('gets session tokens', async () => {
       const result = await cache.getSessionTokens(uid);
 
-      assert.lengthOf(result, 0);
-      Sinon.assert.calledOnce(stubTokenCache.getSessionTokens);
+      expect(result).toHaveLength(0);
+      expect(testTokenCache.getSessionTokens).toHaveBeenCalledTimes(1);
     });
 
     it('gets refresh token', async () => {
       await cache.pruneRefreshTokens(uid, ['key1']);
 
-      Sinon.assert.calledOnce(stubTokenCache.pruneRefreshTokens);
+      expect(testTokenCache.pruneRefreshTokens).toHaveBeenCalledTimes(1);
     });
   });
 });

@@ -14,11 +14,11 @@ const DEVICES_SCHEMA = require('../devices').schema;
 const DEVICES_AND_SESSIONS_DOC =
   require('../../docs/swagger/devices-and-sessions-api').default;
 
-const { ConnectedServicesFactory } = require('fxa-shared/connected-services');
-const DESCRIPTIONS = require('../../docs/swagger/shared/descriptions').default;
 const {
-  computeSessionTokenHandle,
-} = require('./utils/session-token-handle');
+  ConnectedServicesFactory,
+} = require('@fxa/accounts/connected-services');
+const DESCRIPTIONS = require('../../docs/swagger/shared/descriptions').default;
+const { computeSessionTokenHandle } = require('./utils/session-token-handle');
 
 module.exports = (log, db, devices, clientUtils, config) => {
   const sessionTokenHandleKey = config.sessionTokenHandle.key;
@@ -124,7 +124,11 @@ module.exports = (log, db, devices, clientUtils, config) => {
           // into a uid-bound handle before it leaves the builder. The destroy
           // endpoint can resolve this handle back to the real session.
           serializeSessionTokenId: (sessionTokenId) =>
-            computeSessionTokenHandle(sessionTokenHandleKey, uid, sessionTokenId),
+            computeSessionTokenHandle(
+              sessionTokenHandleKey,
+              uid,
+              sessionTokenId
+            ),
         });
         const clients = await factory.build(id, request.app.acceptLanguage);
 

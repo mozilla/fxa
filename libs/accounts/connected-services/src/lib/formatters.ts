@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { determineLocale, localizeTimestamp } from '@fxa/shared/l10n';
-import { ILogger } from '../log';
+import { ILogger } from '@fxa/shared/log';
 import { AttachedClient } from './models/AttachedClient';
 import { ClientFormatterConfig } from './models/ClientFormatterConfig';
 
@@ -73,7 +73,9 @@ export class ClientFormatter implements IClientFormatter {
         } else if (location.countryCode) {
           const territoriesLang =
             language === 'en-US' ? 'en-US-POSIX' : language;
-          const territories = require(`cldr-localenames-full/main/${territoriesLang}/territories.json`);
+          const territories = require(
+            `cldr-localenames-full/main/${territoriesLang}/territories.json`
+          );
           client.location = {
             country:
               territories.main[language].localeDisplayNames.territories[

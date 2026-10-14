@@ -1,15 +1,10 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { assert } from 'chai';
-
-import {
-  AttachedSession,
-  Device,
-  DeviceSessionToken,
-  mergeDevicesAndSessionTokens,
-  synthesizeClientName,
-} from '../../connected-services';
+import { AttachedSession } from './models/AttachedSession';
+import { Device } from './models/Device';
+import { DeviceSessionToken } from './models/DeviceSessionToken';
+import { mergeDevicesAndSessionTokens, synthesizeClientName } from './util';
 
 describe('connected-services/util', () => {
   const attachedSession: AttachedSession = {
@@ -72,20 +67,19 @@ describe('connected-services/util', () => {
       true
     );
 
-    assert.lengthOf(result, 1);
+    expect(result).toHaveLength(1);
 
     // Spot check a few properties
-    assert.equal(
-      result[0].uaBrowserVersion,
+    expect(result[0].uaBrowserVersion).toBe(
       deviceSessionToken['1234'].uaBrowserVersion
     );
-    assert.equal(result[0].uaBrowser, deviceSessionToken['1234'].uaBrowser);
-    assert.equal(result[0].uaOS, deviceSessionToken['1234'].uaOS);
-    assert.equal(result[0].uaOSVersion, deviceSessionToken['1234'].uaOSVersion);
+    expect(result[0].uaBrowser).toBe(deviceSessionToken['1234'].uaBrowser);
+    expect(result[0].uaOS).toBe(deviceSessionToken['1234'].uaOS);
+    expect(result[0].uaOSVersion).toBe(deviceSessionToken['1234'].uaOSVersion);
   });
 
   it('can synthesizeClientName', () => {
     const result = synthesizeClientName(attachedSession);
-    assert.equal(result, 'Firefox 96, Linux 18.18');
+    expect(result).toBe('Firefox 96, Linux 18.18');
   });
 });

@@ -20,11 +20,11 @@ import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { SentryTraced } from '@sentry/nestjs';
 import {
+  AttachedSession,
   ClientFormatter,
   ConnectedServicesFactory,
   SessionToken,
-} from 'fxa-shared/connected-services';
-import { AttachedSession } from 'fxa-shared/connected-services/models/AttachedSession';
+} from '@fxa/accounts/connected-services';
 import {
   Account,
   Email,
