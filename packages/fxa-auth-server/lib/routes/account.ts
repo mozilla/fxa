@@ -1637,6 +1637,18 @@ export class AccountHandler {
           keysHaveChanged = true;
         }
       }
+      // db.resetAccount() deletes every passkey wrap, so look for them first.
+      // A failed lookup must not block the reset.
+      let hadPasskeyWraps = false;
+      if (keysHaveChanged) {
+        try {
+          hadPasskeyWraps = await Container.get(PasskeyService).hasPasskeyWraps(
+            accountResetToken.uid
+          );
+        } catch (err) {
+          this.log.error('Account.reset.hasPasskeyWraps', { err });
+        }
+      }
       // db.resetAccount() deletes all the devices saved in the account,
       // so grab the list to notify before we call it.
       const devicesToNotify = await request.app.devices;
@@ -1651,9 +1663,20 @@ export class AccountHandler {
         verifierVersion: password.version,
         keysHaveChanged,
       });
+      account = await this.db.account(accountResetToken.uid);
+      if (hadPasskeyWraps) {
+        try {
+          await recordSecurityEvent('account.passkey.wrap_invalidated', {
+            db: this.db,
+            account,
+            request,
+          });
+        } catch (err) {
+          this.log.error('Account.reset.wrapInvalidated', { err });
+        }
+      }
       // Notify various interested parties about this password reset.
       // These can all safely happen in parallel.
-      account = await this.db.account(accountResetToken.uid);
       await Promise.all([
         this.push.notifyPasswordReset(account.uid, devicesToNotify),
         request.emitMetricsEvent('account.reset', {

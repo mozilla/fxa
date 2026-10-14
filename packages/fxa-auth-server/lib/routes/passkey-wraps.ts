@@ -104,7 +104,7 @@ export class PasskeyWrapsHandler {
       throw AppError.invalidMfaToken();
     }
 
-    let result: 'created' | 'unchanged';
+    let result: Awaited<ReturnType<PasskeyService['storePasskeyWrap']>>;
     try {
       result = await this.service.storePasskeyWrap(
         uid,
@@ -134,6 +134,14 @@ export class PasskeyWrapsHandler {
     // Guarded like the failure path: the row is already committed, so a failed
     // audit write must not turn a stored wrap into a 500 the client retries —
     // the retry answers `created: false` and the event is never emitted at all.
+    if (result === 'invalidated') {
+      // A concurrent identical request inserted the row and records its creation.
+      await this.recordEvent(request, 'account.passkey.wrap_invalidated');
+      return { created: false };
+    }
+    if (result === 'replaced') {
+      await this.recordEvent(request, 'account.passkey.wrap_invalidated');
+    }
     await this.recordEvent(request, 'account.passkey.wrap_created');
 
     return { created: true };

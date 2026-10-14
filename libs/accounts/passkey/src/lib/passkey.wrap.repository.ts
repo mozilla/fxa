@@ -183,3 +183,22 @@ export async function deletePasskeyWrap(
 
   return result.numDeletedRows === BigInt(1);
 }
+
+/**
+ * Count the wraps a user holds. Every wrap belongs to a registered passkey, so
+ * this is also the number of passkeys set up for passwordless Sync.
+ *
+ * @returns Number of wraps for the user
+ */
+export async function countPasskeyWrapsByUid(
+  db: AccountDatabase,
+  uid: string
+): Promise<number> {
+  const result = await db
+    .selectFrom('passkeyWraps')
+    .select(db.fn.count('credentialId').as('count'))
+    .where('uid', '=', uuidTransformer.to(uid))
+    .executeTakeFirst();
+
+  return Number(result?.count ?? 0);
+}

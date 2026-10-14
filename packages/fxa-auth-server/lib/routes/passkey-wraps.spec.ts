@@ -159,6 +159,57 @@ describe('passkey wraps routes', () => {
       );
     });
 
+    it('records only wrap_created on a plain insert', async () => {
+      await run();
+
+      expect(recordSecurityEvent).not.toHaveBeenCalledWith(
+        'account.passkey.wrap_invalidated',
+        expect.anything()
+      );
+    });
+
+    it('records wrap_invalidated then wrap_created when a stale wrap is replaced', async () => {
+      service.storePasskeyWrap.mockResolvedValue('replaced');
+
+      const result = await run();
+
+      expect(result).toEqual({ created: true });
+      expect(
+        jest.mocked(recordSecurityEvent).mock.calls.map(([name]) => name)
+      ).toEqual([
+        'account.passkey.wrap_invalidated',
+        'account.passkey.wrap_created',
+      ]);
+    });
+
+    it('still records wrap_created and reports created when the wrap_invalidated write fails', async () => {
+      service.storePasskeyWrap.mockResolvedValue('replaced');
+      jest
+        .mocked(recordSecurityEvent)
+        .mockRejectedValueOnce(new Error('db is down'));
+
+      const result = await run();
+
+      expect(result).toEqual({ created: true });
+      expect(
+        jest.mocked(recordSecurityEvent).mock.calls.map(([name]) => name)
+      ).toEqual([
+        'account.passkey.wrap_invalidated',
+        'account.passkey.wrap_created',
+      ]);
+    });
+
+    it('records only wrap_invalidated and reports not created when a concurrent request inserted the wrap', async () => {
+      service.storePasskeyWrap.mockResolvedValue('invalidated');
+
+      const result = await run();
+
+      expect(result).toEqual({ created: false });
+      expect(
+        jest.mocked(recordSecurityEvent).mock.calls.map(([name]) => name)
+      ).toEqual(['account.passkey.wrap_invalidated']);
+    });
+
     // Returned bare rather than through the toolkit, so Hapi's default 200
     // applies; only the 201 needs an explicit code.
     it('reports an unchanged wrap without re-emitting the event', async () => {
@@ -167,10 +218,7 @@ describe('passkey wraps routes', () => {
       const result = await run();
 
       expect(result).toEqual({ created: false });
-      expect(recordSecurityEvent).not.toHaveBeenCalledWith(
-        'account.passkey.wrap_created',
-        expect.anything()
-      );
+      expect(recordSecurityEvent).not.toHaveBeenCalled();
     });
 
     it('refuses a token minted for a different credential', async () => {
