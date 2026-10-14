@@ -1,8 +1,8 @@
 {
-  "commit": "8e7b7f8a5d32f5e77717afe4214a1cfc106ffe68",
-  "summary": "Merge pull request #21423 from mozilla/fxa-14687",
-  "description": "feat(auth): emit passkey wrap_invalidated on stale replace and reset",
-  "timestamp": 1792016421000,
+  "commit": "b4a26d9ddc91660fb2991121624e41bacc516ffa",
+  "summary": "Merge pull request #21506 from mozilla/fxa-14774",
+  "description": "fix(settings): ask 2FA accounts for TOTP before v2 pairing starts",
+  "timestamp": 1792016985000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
