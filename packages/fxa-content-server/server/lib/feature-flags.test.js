@@ -36,9 +36,9 @@ describe('feature-flags/index:', () => {
     };
     redisFactory = sinon.spy(() => redis);
     log = {};
-    initialise = proxyquire('../../feature-flags', {
+    initialise = proxyquire('./feature-flags', {
       ioredis: redisFactory,
-    }).default;
+    });
 
     // Prevents some kind of race condition. Something up ^ there
     // is hitting clear timeout.

@@ -4,7 +4,7 @@
 
 'use strict';
 
-import Redis from 'ioredis';
+const Redis = require('ioredis');
 
 const FLAGS_PREFIX = 'featureFlags:';
 const FLAGS_KEY = 'current';
@@ -28,7 +28,7 @@ const FLAGS_KEY = 'current';
  *
  * @returns {FeatureFlags}
  */
-export default function initialise(config: any, log: any, defaults: any) {
+module.exports = function initialise(config, log, defaults) {
   const { interval, redis: redisConfig } = config;
 
   if (!(interval > 0 && interval < Infinity)) {
@@ -44,8 +44,8 @@ export default function initialise(config: any, log: any, defaults: any) {
     keyPrefix: FLAGS_PREFIX,
   });
 
-  let cache: Promise<any> | undefined;
-  let timeout: NodeJS.Timeout | undefined;
+  let cache;
+  let timeout;
 
   refresh();
 
@@ -69,7 +69,7 @@ export default function initialise(config: any, log: any, defaults: any) {
           cache = Promise.resolve(JSON.parse(result));
         }
       } else {
-        cache = redis.get(FLAGS_KEY).then((result: any) => JSON.parse(result));
+        cache = redis.get(FLAGS_KEY).then((result) => JSON.parse(result));
         // The positioning of `await` is deliberate here.
         // The initial value of `cache` must be a promise
         // so that callers can access it uniformly.
@@ -117,4 +117,4 @@ export default function initialise(config: any, log: any, defaults: any) {
 
     return redis.quit();
   }
-}
+};

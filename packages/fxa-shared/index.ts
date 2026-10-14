@@ -5,7 +5,6 @@ import * as iapSubscription from './dto/auth/payments/iap-subscription';
 import * as invoice from './dto/auth/payments/invoice';
 import popularDomains from './email/popularDomains.json';
 import express from './express';
-import featureFlags from './feature-flags';
 import amplitude from './metrics/amplitude';
 import scopes from './oauth/scopes';
 import {
@@ -20,7 +19,6 @@ module.exports = {
     popularDomains,
   },
   express,
-  featureFlags,
   metrics: {
     amplitude,
   },
