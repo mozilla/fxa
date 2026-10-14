@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import joi from 'joi';
 
-import { STRIPE_PRICE_METADATA } from '../../payments/stripe';
 import {
   BaseConfig,
   baseConfigSchema,
@@ -16,6 +15,12 @@ import {
   UrlConfig,
 } from './base';
 import { ProductConfig } from './product';
+
+export enum STRIPE_PRICE_METADATA {
+  APP_STORE_PRODUCT_IDS = 'appStoreProductIds',
+  PROMOTION_CODES = 'promotionCodes',
+  PLAY_SKU_IDS = 'playSkuIds',
+}
 
 export const planConfigJoiKeys = {
   productConfigId: joi.string().allow(null).allow(''),

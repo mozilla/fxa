@@ -10,7 +10,10 @@ import { Stripe } from 'stripe';
 import { IapExtraStripeInfo } from '../dto/auth/payments/iap-subscription';
 import { formatPlanConfigDto } from '../dto/auth/payments/plan-configuration';
 import { ILogger } from '../log';
-import { MergedPlanConfig } from '../subscriptions/configuration/plan';
+import {
+  MergedPlanConfig,
+  STRIPE_PRICE_METADATA,
+} from '../subscriptions/configuration/plan';
 import { mapPlanConfigsByPriceId } from '../subscriptions/configuration/utils';
 import {
   AbbrevPlan,
@@ -26,6 +29,8 @@ import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { StripeMapperService } from '@fxa/payments/legacy';
 import * as Sentry from '@sentry/node';
+
+export { STRIPE_PRICE_METADATA } from '../subscriptions/configuration/plan';
 
 export function discountsNeedExpansion(
   discounts?: Array<string | Stripe.Discount | Stripe.DeletedDiscount> | null
@@ -71,12 +76,6 @@ export const STRIPE_OBJECT_TYPE_TO_RESOURCE: Record<string, string> = {
 export const VALID_RESOURCE_TYPES = Object.values(
   STRIPE_OBJECT_TYPE_TO_RESOURCE
 );
-
-export enum STRIPE_PRICE_METADATA {
-  APP_STORE_PRODUCT_IDS = 'appStoreProductIds',
-  PROMOTION_CODES = 'promotionCodes',
-  PLAY_SKU_IDS = 'playSkuIds',
-}
 
 // PlayStoreSubscriptionPurchase or AppStoreSubscriptionPurchase properties corresponding to the Stripe price id
 export enum STRIPE_PRICE_ID_TO_IAP_ANALOG {
@@ -229,7 +228,6 @@ export abstract class StripeHelper {
     )[],
     statusFilter?: Stripe.Subscription.Status[]
   ): Promise<Stripe.Customer | void> {
-
     const { stripeCustomerId } =
       (await this.getAccountCustomerByUid(uid)) || {};
     if (!stripeCustomerId) {
@@ -267,7 +265,7 @@ export abstract class StripeHelper {
       const subscriptionCountBeforeRefetch = customer.subscriptions.data.length;
       await this.stripeFirestore.legacyFetchAndInsertCustomer(customer.id);
       // Retrieve the customer again.
-       // DS: This can fail without error resutling in 0 subscriptions!
+      // DS: This can fail without error resutling in 0 subscriptions!
       customer = await this.expandResource<Stripe.Customer>(
         stripeCustomerId,
         CUSTOMER_RESOURCE
@@ -443,8 +441,15 @@ export abstract class StripeHelper {
         continue;
       }
 
-      item.product.metadata = Object.fromEntries(Object.entries(item.product.metadata ?? {}).map(([k, v]) => [k, v.trim()]));
-      item.metadata = Object.fromEntries(Object.entries(item.metadata ?? {}).map(([k, v]) => [k, v.trim()]));
+      item.product.metadata = Object.fromEntries(
+        Object.entries(item.product.metadata ?? {}).map(([k, v]) => [
+          k,
+          v.trim(),
+        ])
+      );
+      item.metadata = Object.fromEntries(
+        Object.entries(item.metadata ?? {}).map(([k, v]) => [k, v.trim()])
+      );
 
       plans.push(item);
     }

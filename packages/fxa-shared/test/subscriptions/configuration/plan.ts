@@ -5,7 +5,12 @@
 'use strict';
 
 import { assert } from 'chai';
-import { PlanConfig } from '../../../subscriptions/configuration/plan';
+import { STRIPE_PRICE_METADATA as PAYMENTS_STRIPE_PRICE_METADATA } from '../../../payments/stripe';
+import {
+  PlanConfig,
+  planConfigJoiKeys,
+  STRIPE_PRICE_METADATA,
+} from '../../../subscriptions/configuration/plan';
 
 const firestoreObject = {
   id: 'abc123',
@@ -35,6 +40,14 @@ const validSchemaValidation = {
 };
 
 describe('PlanConfig', () => {
+  it('shares STRIPE_PRICE_METADATA with payments/stripe and keeps the IAP keys', () => {
+    assert.strictEqual(PAYMENTS_STRIPE_PRICE_METADATA, STRIPE_PRICE_METADATA);
+    assert.containsAllKeys(planConfigJoiKeys, [
+      'playSkuIds',
+      'appStoreProductIds',
+    ]);
+  });
+
   it('loads an object from firestore', () => {
     const planConfig = PlanConfig.fromFirestoreObject(
       firestoreObject,
