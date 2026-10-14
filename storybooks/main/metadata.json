@@ -1,8 +1,8 @@
 {
-  "commit": "2bfa757c887c42581e6ad890629a3640c6ca9103",
-  "summary": "Merge pull request #21513 from mozilla/dependabot/github_actions/actions/download-artifact-8.0.2",
-  "description": "chore(deps): bump actions/download-artifact from 8.0.1 to 8.0.2",
-  "timestamp": 1792008624000,
+  "commit": "ca64ca5de08de6335f41c89e541be3264bc81b7a",
+  "summary": "Merge pull request #21511 from mozilla/fxa-14710",
+  "description": "refactor(shared): move amplitude to @fxa/shared/metrics/amplitude",
+  "timestamp": 1792009315000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
