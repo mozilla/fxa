@@ -104,3 +104,24 @@ export function isPasswordlessEligible(
   return !account;
 }
 
+/**
+ * Converts app request geoLocation data to a standardized format
+ * used in email rendering library.
+ * @param geoData Object containing city, state, and country
+ * @returns
+ */
+export function formatGeoData({
+  city,
+  state,
+  country,
+}: {
+  city?: string;
+  state?: string;
+  country?: string;
+} = {}): { city: string; country: string; stateCode: string } {
+  return {
+    city: city || '',
+    country: country || '',
+    stateCode: state || '',
+  };
+}

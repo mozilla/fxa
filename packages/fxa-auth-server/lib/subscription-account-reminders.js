@@ -19,7 +19,7 @@
 // * https://redis.io/topics/data-types#sorted-sets
 // * https://redis.io/topics/data-types-intro#redis-sorted-sets
 
-const { props } = require('fxa-shared/lib/promise-extras');
+const { props } = require('./promise-extras');
 
 const INTERVAL_PATTERN = /^([a-z]+)Interval$/;
 const METADATA_KEY_SUB_FLOW = 'metadata_sub_flow';
@@ -35,7 +35,14 @@ module.exports = (log, config) => {
   if (!config.redis || !config.redis.host) {
     return {
       keys: [],
-      async create(uid, flowId, flowBeginTime, deviceId, productId, productName) {
+      async create(
+        uid,
+        flowId,
+        flowBeginTime,
+        deviceId,
+        productId,
+        productName
+      ) {
         return {};
       },
       async delete(uid) {
@@ -71,7 +78,9 @@ module.exports = (log, config) => {
         const key = matches[1];
 
         if (key === METADATA_KEY_SUB_FLOW) {
-          throw new Error('Invalid subscriptionAccount reminder key found in config');
+          throw new Error(
+            'Invalid subscriptionAccount reminder key found in config'
+          );
         }
 
         keys.push(key);
@@ -107,7 +116,15 @@ module.exports = (log, config) => {
      *                      of elements added to that sorted set, i.e. the result of
      *                      [`redis.zadd`](https://redis.io/commands/zadd).
      */
-    async create(uid, flowId, flowBeginTime, deviceId, productId, productName,now = Date.now()) {
+    async create(
+      uid,
+      flowId,
+      flowBeginTime,
+      deviceId,
+      productId,
+      productName,
+      now = Date.now()
+    ) {
       try {
         if (rolloutRate <= 1 && Math.random() < rolloutRate) {
           const result = await props(
@@ -119,7 +136,13 @@ module.exports = (log, config) => {
           if (flowId && flowBeginTime && deviceId && productId && productName) {
             await redis.set(
               `${METADATA_KEY_SUB_FLOW}:${uid}`,
-              JSON.stringify([flowId, flowBeginTime, deviceId, productId, productName])
+              JSON.stringify([
+                flowId,
+                flowBeginTime,
+                deviceId,
+                productId,
+                productName,
+              ])
             );
           }
           log.info('subscriptionAccountReminders.create', {
@@ -186,10 +209,24 @@ module.exports = (log, config) => {
                 for (const item of items) {
                   if (index % 2 === 0) {
                     const uid = item;
-                    let metadata = await redis.get(`${METADATA_KEY_SUB_FLOW}:${uid}`);
+                    let metadata = await redis.get(
+                      `${METADATA_KEY_SUB_FLOW}:${uid}`
+                    );
                     if (metadata) {
-                      const [flowId, flowBeginTime, deviceId, productId, productName] = JSON.parse(metadata);
-                      metadata = { flowId, flowBeginTime, deviceId, productId, productName };
+                      const [
+                        flowId,
+                        flowBeginTime,
+                        deviceId,
+                        productId,
+                        productName,
+                      ] = JSON.parse(metadata);
+                      metadata = {
+                        flowId,
+                        flowBeginTime,
+                        deviceId,
+                        productId,
+                        productName,
+                      };
                       if (keyIndex === keys.length - 1) {
                         await redis.del(`${METADATA_KEY_SUB_FLOW}:${uid}`);
                       }
@@ -202,7 +239,11 @@ module.exports = (log, config) => {
                 }
                 return reminders;
               });
-            log.info('subscriptionAccountReminders.process', { key, now, cutoff });
+            log.info('subscriptionAccountReminders.process', {
+              key,
+              now,
+              cutoff,
+            });
             return result;
           }, {})
         );
@@ -226,21 +267,57 @@ module.exports = (log, config) => {
         const result = await redis.zadd(
           key,
           ...reminders.reduce((args, reminder) => {
-            const { timestamp, uid, flowId, flowBeginTime, deviceId, productId, productName } = reminder;
+            const {
+              timestamp,
+              uid,
+              flowId,
+              flowBeginTime,
+              deviceId,
+              productId,
+              productName,
+            } = reminder;
             args.push(timestamp, uid);
-            if (flowId && flowBeginTime && deviceId && productId && productName) {
-              metadata.push({ uid, flowId, flowBeginTime, deviceId, productId, productName });
+            if (
+              flowId &&
+              flowBeginTime &&
+              deviceId &&
+              productId &&
+              productName
+            ) {
+              metadata.push({
+                uid,
+                flowId,
+                flowBeginTime,
+                deviceId,
+                productId,
+                productName,
+              });
             }
             return args;
           }, [])
         );
         await Promise.all(
-          metadata.map(({ uid, flowId, flowBeginTime, deviceId, productId, productName }) => {
-            return redis.set(
-              `${METADATA_KEY_SUB_FLOW}:${uid}`,
-              JSON.stringify([flowId, flowBeginTime, deviceId, productId, productName])
-            );
-          })
+          metadata.map(
+            ({
+              uid,
+              flowId,
+              flowBeginTime,
+              deviceId,
+              productId,
+              productName,
+            }) => {
+              return redis.set(
+                `${METADATA_KEY_SUB_FLOW}:${uid}`,
+                JSON.stringify([
+                  flowId,
+                  flowBeginTime,
+                  deviceId,
+                  productId,
+                  productName,
+                ])
+              );
+            }
+          )
         );
         log.info('subscriptionAccountReminders.reinstate', { key, reminders });
         return result;

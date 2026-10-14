@@ -22,9 +22,9 @@ import { recordSecurityEvent } from './utils/security-event';
 import * as validators from './validators';
 import { FxaMailer } from '../senders/fxa-mailer';
 import { formatUserAgentInfo } from '@fxa/shared/user-agent';
-import { formatGeoData } from 'fxa-shared/lib/geo-data';
 import type { DB } from '../db';
 import {
+  formatGeoData,
   isClientAllowedForPasswordless,
   isPasswordlessEligible,
   PASSWORDLESS_SEND_OTP_SIGNIN,
