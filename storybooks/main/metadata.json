@@ -1,8 +1,8 @@
 {
-  "commit": "f6513d066e217be90ceb3a4d32e7e51284f3edc6",
-  "summary": "Merge pull request #21461 from mozilla/fxa-9672",
-  "description": "refactor(settings): call auth-client directly in reset password containers",
-  "timestamp": 1792003381000,
+  "commit": "22b1031bde31d99bb439dbdbcbcd35cb2510049b",
+  "summary": "Merge pull request #21509 from mozilla/fxa-14776",
+  "description": "fix(functional-tests): drain the first OTP in the passwordless signup test",
+  "timestamp": 1792007018000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
