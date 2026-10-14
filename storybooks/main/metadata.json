@@ -1,8 +1,8 @@
 {
-  "commit": "dff86c0dd7c20a6cd7723700ba1741540f5d7828",
-  "summary": "Merge pull request #21499 from mozilla/fxa-14715",
-  "description": "refactor(profile): import @fxa libs instead of fxa-shared",
-  "timestamp": 1791992154000,
+  "commit": "a80a2a71073df70b9b59961af90f75f6197288cb",
+  "summary": "Merge pull request #21498 from mozilla/fxa-14705",
+  "description": "refactor(shared): move fxa-shared db models, setup and RedisShared to legacy db lib",
+  "timestamp": 1791992984000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
