@@ -1,8 +1,8 @@
 {
-  "commit": "b2fb2902547e689c0a394c8ced9b8fb3b2dd108e",
+  "commit": "b252623c12c3916e4fad658bd18cf2cfbf9423b5",
   "summary": "refactor(shared): point fxa-shared/sentry at the sentry libs",
   "description": "Because:\n- packages/fxa-shared/sentry duplicates @fxa/shared/sentry-utils and\n  @fxa/shared/sentry-node.\n\nThis commit:\n- Changes the three fxa-shared/sentry entry points to re-export the libs.\n- Keeps ExtraOpts and InitSentryOpts exported from sentry/node.\n- Deletes the other fxa-shared/sentry files and models/.\n- Deletes the fxa-shared/test/sentry mocha tests; the lib specs cover them.\n- Adds test/sentry-shims.spec.ts to check the shim exports.\n\nCloses FXA-14702",
-  "timestamp": 1791927393000,
+  "timestamp": 1791939807000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",
