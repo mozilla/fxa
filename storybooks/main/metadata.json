@@ -1,8 +1,8 @@
 {
-  "commit": "9ba74ff540c4155fac5372c8456f639cd31e8831",
-  "summary": "Merge pull request #21497 from mozilla/fxa-14696",
-  "description": "refactor(shared): move fxa-shared email helpers to @fxa/shared/email",
-  "timestamp": 1791990433000,
+  "commit": "dff86c0dd7c20a6cd7723700ba1741540f5d7828",
+  "summary": "Merge pull request #21499 from mozilla/fxa-14715",
+  "description": "refactor(profile): import @fxa libs instead of fxa-shared",
+  "timestamp": 1791992154000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
