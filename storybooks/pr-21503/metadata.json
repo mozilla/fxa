@@ -1,0 +1,12 @@
+{
+  "commit": "781bc62ebe46418db9b615cd90f5fedf8ed20b0a",
+  "summary": "refactor(shared): move app email imports to @fxa/shared/email",
+  "description": "Because:\n- fxa-settings, the content-server app and the auth-server config still import email code from fxa-shared.\n\nThis commit:\n- Moves popularDomains.json to @fxa/shared/email and ports its spec to jest.\n- Changes fxa-settings and content-server app imports to @fxa/shared/email.\n- Adds the lib to the settings jest mapper and the content-server webpack alias.\n- Changes the auth-server popular domains config to require @fxa/shared/email.\n- Removes the fxa-shared email shims, the barrel key and the JSON exports entry.\n\nCloses FXA-14697",
+  "timestamp": 1791993633000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
