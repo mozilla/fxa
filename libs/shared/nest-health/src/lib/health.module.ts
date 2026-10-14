@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { DynamicModule, Module, ModuleMetadata } from '@nestjs/common';
 
-import { Version } from '../version';
+import { Version } from './version';
 import { HEALTH_CONFIG } from './health.constants';
 import { HealthController } from './health.controller';
 

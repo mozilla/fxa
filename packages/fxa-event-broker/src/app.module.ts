@@ -6,10 +6,9 @@ import { APP_FILTER } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
-import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
 import { MozLoggerModule } from '@fxa/shared/mozlog';
 import { LegacyMetricsProvider } from '@fxa/shared/metrics/statsd';
-import { getVersionInfo } from 'fxa-shared/nestjs/version';
+import { getVersionInfo, HealthModule } from '@fxa/shared/nest-health';
 
 import { AuthModule } from './auth/auth.module';
 import { ClientCapabilityModule } from './client-capability/client-capability.module';

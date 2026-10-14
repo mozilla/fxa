@@ -3,9 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Controller, Get, Inject } from '@nestjs/common';
 
-import { Version } from '../version';
+import { Version } from './version';
 import { HEALTH_CONFIG } from './health.constants';
-import { HealthControllerConfigParams } from './health.module';
+// A type import, so SWC drops it and the module import cycle stays out of runtime.
+import type { HealthControllerConfigParams } from './health.module';
 
 let lastTrigger = Date.now() - 60_000;
 

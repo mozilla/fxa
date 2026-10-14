@@ -99,6 +99,7 @@
     "clsx": "^2.1.1",
     "diffparser": "^2.0.1",
     "dotenv": "^17.4.2",
+    "find-up": "^5.0.0",
     "graphql": "^16.10.0",
     "graphql-request": "^6.1.0",
     "helmet": "^8.1.0",

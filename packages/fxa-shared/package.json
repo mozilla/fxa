@@ -97,10 +97,6 @@
       "import": "./dist/esm/packages/fxa-shared/metrics/*.js",
       "require": "./dist/cjs/packages/fxa-shared/metrics/*.js"
     },
-    "./nestjs/*": {
-      "import": "./dist/esm/packages/fxa-shared/nestjs/*.js",
-      "require": "./dist/cjs/packages/fxa-shared/nestjs/*.js"
-    },
     "./oauth/*": {
       "import": "./dist/esm/packages/fxa-shared/oauth/*.js",
       "require": "./dist/cjs/packages/fxa-shared/oauth/*.js"
@@ -258,7 +254,7 @@
       "json",
       "ts"
     ],
-    "rootDir": "nestjs",
+    "rootDir": ".",
     "testRegex": ".spec.ts$",
     "transform": {
       "^.+\\.(t|j)s$": [
@@ -268,8 +264,15 @@
         }
       ]
     },
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "coverageDirectory": "coverage",
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/",
+      "<rootDir>/test/",
+      "<rootDir>/db/"
+    ],
+    "passWithNoTests": true
   },
   "mocha": {
     "reporter": "mocha-multi",
