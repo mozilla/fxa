@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit f250ffb30fd9ff6f584f3c1f2c34719518c4b4fe</title>
+  <title>Storybooks for commit d29131f1564e7c7709b5fd962f2f3cd778eba301</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit f250ffb30fd9ff6f584f3c1f2c34719518c4b4fe</h1>
+  <h1>Storybooks for commit d29131f1564e7c7709b5fd962f2f3cd778eba301</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
@@ -32,7 +32,7 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/14/2026, 7:36:53 PM UTC</dd>
+    <dd>10/14/2026, 7:59:43 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>refactor(shared): move amplitude to @fxa/shared/metrics/amplitude</pre></dd>
     <dt>Description</dt>
@@ -40,14 +40,15 @@
 
 * FxA moves shared code from fxa-shared to Nx libs under libs/shared.
 * fxa-auth-server must load only one copy of the Amplitude code.
+* initialize typed group as a GROUPS key, but callers pass a GROUPS value.
 
 This commit:
 
 * Adds libs/shared/metrics/amplitude with the moved module and schema.
-* Ports the 42 mocha cases to jest and deletes the mocha file.
-* Moves the auth-server callers in log.js and metrics/amplitude.js.
-* Makes fxa-shared/metrics/amplitude.ts a re-export shim with a spec.
+* Ports the mocha spec to jest and deletes the mocha file.
+* Moves the auth-server callers and makes fxa-shared a re-export shim.
 * Adds ajv to the root package.json and the tsconfig.base.json path.
+* Types group as a GROUPS value (GROUPS as const) and drops the spec cast.
 
 Closes FXA-14710</pre></dd>
   </dl>

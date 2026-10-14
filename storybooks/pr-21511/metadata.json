@@ -1,8 +1,8 @@
 {
-  "commit": "f250ffb30fd9ff6f584f3c1f2c34719518c4b4fe",
+  "commit": "d29131f1564e7c7709b5fd962f2f3cd778eba301",
   "summary": "refactor(shared): move amplitude to @fxa/shared/metrics/amplitude",
-  "description": "Because:\n\n* FxA moves shared code from fxa-shared to Nx libs under libs/shared.\n* fxa-auth-server must load only one copy of the Amplitude code.\n\nThis commit:\n\n* Adds libs/shared/metrics/amplitude with the moved module and schema.\n* Ports the 42 mocha cases to jest and deletes the mocha file.\n* Moves the auth-server callers in log.js and metrics/amplitude.js.\n* Makes fxa-shared/metrics/amplitude.ts a re-export shim with a spec.\n* Adds ajv to the root package.json and the tsconfig.base.json path.\n\nCloses FXA-14710",
-  "timestamp": 1792006613000,
+  "description": "Because:\n\n* FxA moves shared code from fxa-shared to Nx libs under libs/shared.\n* fxa-auth-server must load only one copy of the Amplitude code.\n* initialize typed group as a GROUPS key, but callers pass a GROUPS value.\n\nThis commit:\n\n* Adds libs/shared/metrics/amplitude with the moved module and schema.\n* Ports the mocha spec to jest and deletes the mocha file.\n* Moves the auth-server callers and makes fxa-shared a re-export shim.\n* Adds ajv to the root package.json and the tsconfig.base.json path.\n* Types group as a GROUPS value (GROUPS as const) and drops the spec cast.\n\nCloses FXA-14710",
+  "timestamp": 1792007983000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
