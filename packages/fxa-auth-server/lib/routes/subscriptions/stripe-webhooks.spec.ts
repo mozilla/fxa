@@ -242,6 +242,42 @@ describe('StripeWebhookHandler', () => {
           .mockImplementation((fn: any) => fn(scopeSpy));
       });
 
+      describe('stripe_api_version tag', () => {
+        it('tags the version off the verified event', async () => {
+          const setTagSpy = jest
+            .spyOn(Sentry, 'setTag')
+            .mockImplementation(() => {});
+          const createdEvent = deepCopy(eventCustomerUpdated);
+          StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.mockReturnValue(
+            createdEvent
+          );
+
+          await StripeWebhookHandlerInstance.handleWebhookEvent(request);
+
+          expect(setTagSpy).toHaveBeenCalledWith(
+            'stripe_api_version',
+            createdEvent.api_version
+          );
+        });
+
+        it('does not tag when the signature is rejected', async () => {
+          const setTagSpy = jest
+            .spyOn(Sentry, 'setTag')
+            .mockImplementation(() => {});
+          StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.mockImplementation(
+            () => {
+              throw new Error('Webhook signature verification failed');
+            }
+          );
+
+          await expect(
+            StripeWebhookHandlerInstance.handleWebhookEvent(request)
+          ).rejects.toThrow('Webhook signature verification failed');
+
+          expect(setTagSpy).not.toHaveBeenCalled();
+        });
+      });
+
       const assertNamedHandlerCalled = (
         expectedHandlerName: string | null = null
       ) => {
