@@ -1,8 +1,8 @@
 {
-  "commit": "f9365d37f05a00803f1390acaaaa9644d3a76d64",
+  "commit": "d238051ed08d7ff1e44eb607181bb2d512dfdce0",
   "summary": "test(settings): tighten reset password container tests",
   "description": "Because:\n\n* The container tests shared mutable mocks and used loose matchers\n\nThis commit:\n\n* Resets shared sensitive-data and captured-props state before each test\n* Asserts the full webchannel payload and navigate state\n* Splits the relay test into one test per behaviour\n\nCloses #FXA-9672",
-  "timestamp": 1791944264000,
+  "timestamp": 1791991530000,
   "storybooks": [
     "fxa-settings"
   ],
