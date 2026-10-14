@@ -183,10 +183,10 @@ view-invoice-link-action = Ver fatura
 view-invoice-plaintext = Ver Fatura: { $invoiceLink }
 #  Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-downloadSubscription-subject = Bem-vindo(a) ao { $productName }.
+downloadSubscription-subject = Boas-vindas ao { $productName }.
 #  Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
-downloadSubscription-title = Bem-vindo(a) ao { $productName }.
+downloadSubscription-title = Boas-vindas ao { $productName }.
 downloadSubscription-content-2 = Vamos começar a utilizar todas as funcionalidades incluídas na sua subscrição:
 downloadSubscription-link-action-2 = Começar
 fraudulentAccountDeletion-subject-2 = A sua { -product-mozilla-account } foi eliminada
@@ -264,7 +264,7 @@ subscriptionAccountReminderFirst-content-select-2 = Selecione “Criar Palavra-p
 subscriptionAccountReminderFirst-action = Criar palavra-passe
 subscriptionAccountReminderFirst-action-plaintext = { subscriptionAccountReminderFirst-action }:
 subscriptionAccountReminderSecond-subject = Lembrete final: configure a sua conta
-subscriptionAccountReminderSecond-title-2 = Bem-vindo(a) à { -brand-mozilla }!
+subscriptionAccountReminderSecond-title-2 = Boas-vindas à { -brand-mozilla }!
 subscriptionAccountReminderSecond-content-info-3 = Há alguns dias, criou uma { -product-mozilla-account } mas nunca a confirmou. Nós gostaríamos que concluísse a configuração da sua conta, para que possa utilizar a sua nova subscrição.
 subscriptionAccountReminderSecond-content-select-2 = Selecione “Criar Palavra-passe” para definir uma nova palavra-passe e concluir a confirmação da sua conta.
 subscriptionAccountReminderSecond-action = Criar palavra-passe

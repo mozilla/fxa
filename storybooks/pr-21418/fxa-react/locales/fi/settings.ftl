@@ -1593,8 +1593,6 @@ pair2-authority-scan-qr-heading = Skannaa yhdistääksesi mobiililaitteesi
 pair2-authority-scan-qr-instruction = Skannaa QR-koodi puhelimellasi tai tabletillasi synkronoidaksesi { -brand-firefox }in kirjanmerkit, välilehdet ja paljon muuta.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR-koodi mobiililaitteen yhdistämiseksi
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Apua skannaukseen
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,

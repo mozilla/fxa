@@ -2130,8 +2130,8 @@ pair2-authority-scan-qr-heading = Scan to connect your mobile device
 pair2-authority-scan-qr-instruction = Scan the QR code with your phone or tablet to sync your { -brand-firefox } bookmarks, tabs, and more.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR code to connect your mobile device
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Get help scanning
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Other ways to sign in
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Skip for now
 
@@ -2240,14 +2240,12 @@ pair2-supplicant-ready-to-scan-learn-more-link = Learn more
 pair2-supplicant-sync-success-heading = Your device is connected
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = Syncing is underway. It may take a while for your synced data to appear. Feel free to keep browsing.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Manage sync settings
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
-## either because the attempt timed out or because it was canceled. Both states
-## are informational and offer no on-screen action, so the copy points the user
-## back to their computer to start again.
+## because the attempt timed out, was canceled, or the device is already signed
+## in to an account. All states are informational and offer no on-screen action,
+## so the copy points the user back to their computer to start again.
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Looks like we timed out
@@ -2257,6 +2255,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = To connect your mobile
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelled
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = To connect a device anytime, visit <b>firefox.com/pair</b> on your computer.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = This device is already signed in
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = To connect to your desktop account, sign out of { -brand-firefox } on this device, then visit <b>firefox.com/pair</b> on your computer to complete sign in.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2268,6 +2270,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = To connect a device a
 permissions-heading = { $serviceName } wants access to:
 permissions-label-email = Email address
 permissions-label-display-name = Display name
+permissions-label-avatar = Account picture
 permissions-continue-button = Continue
 permissions-cancel-button = Cancel
 

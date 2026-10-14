@@ -1192,10 +1192,8 @@ index-account-delete-success = Pomyślnie usunięto konto
 index-email-bounced = Wiadomość z potwierdzeniem została zwrócona. Błąd w adresie e-mail?
 
 
-inline-passwordless-sync-setup-success-alert = Tym kluczem dostępu można logować się do synchronizacji
 inline-passwordless-sync-setup-error-cancelled = Nie udało się potwierdzić klucza dostępu
 inline-passwordless-sync-setup-error-cancelled-description = Potwierdź za pomocą klucza dostępu, aby następnym razem nie wpisywać hasła.
-inline-passwordless-sync-setup-error-generic = Wystąpił błąd. Następnym razem nadal trzeba będzie podać hasło.
 
 
 inline-recovery-key-setup-create-error = Ups! Nie można utworzyć klucza odzyskiwania konta. Proszę spróbować ponownie później.
@@ -1351,6 +1349,7 @@ pair2-supplicant-connect-hint-learn-more-link = Dowiedz się więcej
 permissions-heading = { $serviceName } prosi o dostęp do:
 permissions-label-email = Adres e-mail
 permissions-label-display-name = Wyświetlana nazwa
+permissions-label-avatar = Obraz konta
 permissions-continue-button = Kontynuuj
 permissions-cancel-button = Anuluj
 
@@ -1417,9 +1416,11 @@ confirm-totp-reset-password-use-different-account = Użyj innego konta
 
 
 password-reset-flow-heading = Zmień hasło
+password-reset-forgot-heading = Nie pamiętasz hasła?
 password-reset-email-input =
     .label = Wpisz adres e-mail
 password-reset-submit-button-2 = Kontynuuj
+password-reset-data-recovery-warning = Resetowanie hasła może wpłynąć na możliwość odzyskania zsynchronizowanych danych przeglądarki. <learnMoreLink>Więcej informacji</learnMoreLink>
 
 
 reset-password-complete-header = Zmieniono hasło

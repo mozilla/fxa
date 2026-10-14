@@ -1020,7 +1020,6 @@ pair2-authority-download-firefox-cta = { -brand-firefox } ਨੂੰ ਡਾਊਨ
 pair2-authority-scan-qr-heading = ਆਪਣੇ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰਨ ਲਈ ਸਕੈਨ ਕਰੋ
 pair2-authority-scan-qr-instruction = ਆਪਣੇ { -brand-firefox } ਬੁੱਕਮਾਰਕਾਂ, ਟੈਬਾਂ ਅਤੇ ਹੋਰ ਚੀਜ਼ਾਂ ਨੂੰ ਸਿੰਕ ਕਰਨ ਵਾਸਤੇ ਆਪਣੇ ਫ਼ੋਨ ਜਾਂ ਟੈਬਲੇਟ ਨਾਲ QR ਕੋਡ ਨੂੰ ਸਕੈਨ ਕਰੋ।
 pair2-authority-scan-qr-code-aria-label = ਤੁਹਾਡੇ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰਨ ਲਈ QR ਕੋਡ
-pair2-authority-scan-qr-help-link = ਸਕੈਨ ਕਰਨ ਲਈ ਮਦਦ ਲਵੋ
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = ਹਾਲੇ ਵੀ ਕਿਸੇ ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ?

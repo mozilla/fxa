@@ -6,7 +6,11 @@
 -brand-firefox = Firefox
 -product-firefox-accounts = Firefox hesapları
 -product-mozilla-account = Mozilla hesabı
--product-mozilla-accounts = Mozilla hesapları
+-product-mozilla-accounts =
+    { $capitalization ->
+        [uppercase] Mozilla Hesapları
+       *[lowercase] Mozilla hesapları
+    }
 -product-firefox-account = Firefox hesabı
 -product-mozilla-vpn = Mozilla VPN
 -product-mozilla-vpn-short = VPN

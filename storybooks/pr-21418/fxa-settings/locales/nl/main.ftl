@@ -937,7 +937,7 @@ passkey-sub-row-created-date = Gemaakt: { $createdDate }
 passkey-sub-row-last-used-date = Laatst gebruikt: { $lastUsedDate }
 passkey-sub-row-delete-title = Wachtwoordsleutel verwijderen
 passkey-delete-modal-heading = Uw wachtwoordsleutel verwijderen?
-passkey-delete-modal-content-v2 = Deze wachtwoordsleutel zal van uw account worden verwijderd. U dient zich aan te melden met een andere methode (wachtwoord, andere wachtwoordsleutel of gekoppelde account).
+passkey-delete-modal-content-v3 = Deze wachtwoordsleutel zal van uw account worden verwijderd. U dient zich aan te melden met een wachtwoord, een andere wachtwoordsleutel of gekoppelde account.
 passkey-delete-modal-cancel-button = Annuleren
 passkey-delete-modal-confirm-button = Wachtwoordsleutel verwijderen
 passkey-delete-success = Wachtwoordsleutel verwijderd
@@ -1182,16 +1182,16 @@ index-email-bounced = Uw bevestigings-e-mailbericht is zojuist geretourneerd. He
 
 
 inline-passwordless-sync-setup-page-title = De volgende keer het wachtwoord overslaan?
-inline-passwordless-sync-setup-success-banner = Aangemeld bij { -brand-firefox }
+inline-passwordless-sync-setup-success-banner-v2 = U bent aangemeld en synchronisatie is ingeschakeld
 inline-passwordless-sync-setup-heading = De volgende keer het wachtwoord overslaan?
 inline-passwordless-sync-setup-description = Gebruik deze wachtwoordsleutel om u sneller aan te melden.
 inline-passwordless-sync-setup-enable-button = Wachtwoordsleutel inschakelen
 inline-passwordless-sync-setup-enabling = Inschakelen…
 inline-passwordless-sync-setup-not-now-button = Niet nu
-inline-passwordless-sync-setup-success-alert = Deze wachtwoordsleutel is klaar voor aanmelden en synchroniseren
+inline-passwordless-sync-setup-success-alert-v2 = Deze wachtwoordsleutel is ingeschakeld voor aanmelden en synchroniseren
 inline-passwordless-sync-setup-error-cancelled = Bevestiging van wachtwoordsleutel niet voltooid
 inline-passwordless-sync-setup-error-cancelled-description = Bevestig met uw wachtwoordsleutel om het wachtwoord de volgende keer over te slaan.
-inline-passwordless-sync-setup-error-generic = Er is iets misgegaan, u dient de volgende keer nog steeds uw wachtwoord in te voeren
+inline-passwordless-sync-setup-error-generic-v2 = We konden deze wachtwoordsleutel niet inschakelen voor aanmelden met synchronisatie. De volgende keer hebt u uw wachtwoord nodig.
 
 
 inline-recovery-key-setup-create-error = Oeps! We konden uw accountherstelsleutel niet aanmaken. Probeer het later opnieuw.
@@ -1330,7 +1330,7 @@ pair2-authority-download-firefox-cta = { -brand-firefox } downloaden
 pair2-authority-scan-qr-heading = Scan om uw mobiele apparaat te verbinden
 pair2-authority-scan-qr-instruction = Scan de QR-code met uw telefoon of tablet om uw { -brand-firefox }-bladwijzers, tabbladen en meer te synchroniseren.
 pair2-authority-scan-qr-code-aria-label = QR-code om uw mobiele apparaat te verbinden
-pair2-authority-scan-qr-help-link = Hulp bij scannen ontvangen
+pair2-authority-scan-qr-other-ways-link = Andere manieren om aan te melden
 pair2-authority-scan-qr-skip-button = Voorlopig overslaan
 
 
@@ -1379,18 +1379,19 @@ pair2-supplicant-ready-to-scan-learn-more-link = Meer info
 
 pair2-supplicant-sync-success-heading = Uw apparaat is verbonden
 pair2-supplicant-sync-success-description-v2 = De synchronisatie is gestart. Het kan even duren voordat uw gesynchroniseerde gegevens verschijnen. U kunt ondertussen gewoon verder surfen.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Synchronisatie-instellingen beheren
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Het lijkt erop dat er een time-out is opgetreden
 pair2-supplicant-timeout-and-cancel-timeout-description = Bezoek <b>firefox.com/pair</b> op uw computer om uw mobiele apparaat te verbinden en uw { -brand-firefox }-gegevens te synchroniseren.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Geannuleerd
 pair2-supplicant-timeout-and-cancel-canceled-description = Bezoek <b>firefox.com/pair</b> op uw computer om op elk gewenst moment een apparaat te verbinden.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Dit apparaat is al aangemeld
 
 
 permissions-heading = { $serviceName } wil toegang tot:
 permissions-label-email = E-mailadres
 permissions-label-display-name = Weergavenaam
+permissions-label-avatar = Accountafbeelding
 permissions-continue-button = Doorgaan
 permissions-cancel-button = Annuleren
 
@@ -1457,10 +1458,12 @@ confirm-totp-reset-password-use-different-account = Een andere account gebruiken
 
 
 password-reset-flow-heading = Uw wachtwoord opnieuw instellen
-password-reset-body-3 = Het opnieuw instellen van uw wachtwoord kan invloed hebben op gesynchroniseerde browsergegevens.
+password-reset-forgot-heading = Uw wachtwoord vergeten?
+password-reset-alternatives-body = <signInLink>Probeer u aan te melden met { -brand-google }, { -brand-apple } of een wachtwoordsleutel.</signInLink> Of voer uw e-mailadres in en we sturen u een code om uw wachtwoord opnieuw in te stellen.
 password-reset-email-input =
     .label = Voer uw e-mailadres in
 password-reset-submit-button-2 = Doorgaan
+password-reset-data-recovery-warning = Het opnieuw instellen van uw wachtwoord kan invloed hebben op of u gesynchroniseerde browsergegevens kunt herstellen. <learnMoreLink>Meer info</learnMoreLink>
 
 
 reset-password-complete-header = Uw wachtwoord is opnieuw ingesteld

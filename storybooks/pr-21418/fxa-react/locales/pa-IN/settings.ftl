@@ -1420,8 +1420,6 @@ pair2-authority-scan-qr-heading = ਆਪਣੇ ਮੋਬਾਈਲ ਡਿਵਾ�
 pair2-authority-scan-qr-instruction = ਆਪਣੇ { -brand-firefox } ਬੁੱਕਮਾਰਕਾਂ, ਟੈਬਾਂ ਅਤੇ ਹੋਰ ਚੀਜ਼ਾਂ ਨੂੰ ਸਿੰਕ ਕਰਨ ਵਾਸਤੇ ਆਪਣੇ ਫ਼ੋਨ ਜਾਂ ਟੈਬਲੇਟ ਨਾਲ QR ਕੋਡ ਨੂੰ ਸਕੈਨ ਕਰੋ।
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = ਤੁਹਾਡੇ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰਨ ਲਈ QR ਕੋਡ
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = ਸਕੈਨ ਕਰਨ ਲਈ ਮਦਦ ਲਵੋ
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,

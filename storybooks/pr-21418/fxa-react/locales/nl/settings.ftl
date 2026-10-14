@@ -1273,7 +1273,7 @@ passkey-sub-row-created-date = Gemaakt: { $createdDate }
 passkey-sub-row-last-used-date = Laatst gebruikt: { $lastUsedDate }
 passkey-sub-row-delete-title = Wachtwoordsleutel verwijderen
 passkey-delete-modal-heading = Uw wachtwoordsleutel verwijderen?
-passkey-delete-modal-content-v2 = Deze wachtwoordsleutel zal van uw account worden verwijderd. U dient zich aan te melden met een andere methode (wachtwoord, andere wachtwoordsleutel of gekoppelde account).
+passkey-delete-modal-content-v3 = Deze wachtwoordsleutel zal van uw account worden verwijderd. U dient zich aan te melden met een wachtwoord, een andere wachtwoordsleutel of gekoppelde account.
 passkey-delete-modal-cancel-button = Annuleren
 passkey-delete-modal-confirm-button = Wachtwoordsleutel verwijderen
 passkey-delete-success = Wachtwoordsleutel verwijderd
@@ -1638,20 +1638,22 @@ index-email-bounced = Uw bevestigings-e-mailbericht is zojuist geretourneerd. He
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = De volgende keer het wachtwoord overslaan?
 # Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Aangemeld bij { -brand-firefox }
+inline-passwordless-sync-setup-success-banner-v2 = U bent aangemeld en synchronisatie is ingeschakeld
 inline-passwordless-sync-setup-heading = De volgende keer het wachtwoord overslaan?
 inline-passwordless-sync-setup-description = Gebruik deze wachtwoordsleutel om u sneller aan te melden.
 inline-passwordless-sync-setup-enable-button = Wachtwoordsleutel inschakelen
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Inschakelen…
 inline-passwordless-sync-setup-not-now-button = Niet nu
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Deze wachtwoordsleutel is klaar voor aanmelden en synchroniseren
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = Deze wachtwoordsleutel is ingeschakeld voor aanmelden en synchroniseren
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Bevestiging van wachtwoordsleutel niet voltooid
 inline-passwordless-sync-setup-error-cancelled-description = Bevestig met uw wachtwoordsleutel om het wachtwoord de volgende keer over te slaan.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Er is iets misgegaan, u dient de volgende keer nog steeds uw wachtwoord in te voeren
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = We konden deze wachtwoordsleutel niet inschakelen voor aanmelden met synchronisatie. De volgende keer hebt u uw wachtwoord nodig.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1911,8 +1913,8 @@ pair2-authority-scan-qr-heading = Scan om uw mobiele apparaat te verbinden
 pair2-authority-scan-qr-instruction = Scan de QR-code met uw telefoon of tablet om uw { -brand-firefox }-bladwijzers, tabbladen en meer te synchroniseren.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR-code om uw mobiele apparaat te verbinden
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Hulp bij scannen ontvangen
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Andere manieren om aan te melden
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Voorlopig overslaan
 
@@ -2021,14 +2023,12 @@ pair2-supplicant-ready-to-scan-learn-more-link = Meer info
 pair2-supplicant-sync-success-heading = Uw apparaat is verbonden
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = De synchronisatie is gestart. Het kan even duren voordat uw gesynchroniseerde gegevens verschijnen. U kunt ondertussen gewoon verder surfen.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Synchronisatie-instellingen beheren
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
-## either because the attempt timed out or because it was canceled. Both states
-## are informational and offer no on-screen action, so the copy points the user
-## back to their computer to start again.
+## because the attempt timed out, was canceled, or the device is already signed
+## in to an account. All states are informational and offer no on-screen action,
+## so the copy points the user back to their computer to start again.
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Het lijkt erop dat er een time-out is opgetreden
@@ -2038,6 +2038,8 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Bezoek <b>firefox.com/
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Geannuleerd
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Bezoek <b>firefox.com/pair</b> op uw computer om op elk gewenst moment een apparaat te verbinden.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Dit apparaat is al aangemeld
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2049,6 +2051,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Bezoek <b>firefox.com
 permissions-heading = { $serviceName } wil toegang tot:
 permissions-label-email = E-mailadres
 permissions-label-display-name = Weergavenaam
+permissions-label-avatar = Accountafbeelding
 permissions-continue-button = Doorgaan
 permissions-cancel-button = Annuleren
 
@@ -2157,10 +2160,14 @@ confirm-totp-reset-password-use-different-account = Een andere account gebruiken
 ## ResetPassword start page
 
 password-reset-flow-heading = Uw wachtwoord opnieuw instellen
-password-reset-body-3 = Het opnieuw instellen van uw wachtwoord kan invloed hebben op gesynchroniseerde browsergegevens.
+password-reset-forgot-heading = Uw wachtwoord vergeten?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Probeer u aan te melden met { -brand-google }, { -brand-apple } of een wachtwoordsleutel.</signInLink> Of voer uw e-mailadres in en we sturen u een code om uw wachtwoord opnieuw in te stellen.
 password-reset-email-input =
     .label = Voer uw e-mailadres in
 password-reset-submit-button-2 = Doorgaan
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Het opnieuw instellen van uw wachtwoord kan invloed hebben op of u gesynchroniseerde browsergegevens kunt herstellen. <learnMoreLink>Meer info</learnMoreLink>
 
 ## ResetPasswordConfirmed
 

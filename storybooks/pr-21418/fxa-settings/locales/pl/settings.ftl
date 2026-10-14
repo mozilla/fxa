@@ -1410,13 +1410,9 @@ index-email-bounced = Wiadomość z potwierdzeniem została zwrócona. Błąd w
 
 ## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
 
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Tym kluczem dostępu można logować się do synchronizacji
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Nie udało się potwierdzić klucza dostępu
 inline-passwordless-sync-setup-error-cancelled-description = Potwierdź za pomocą klucza dostępu, aby następnym razem nie wpisywać hasła.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Wystąpił błąd. Następnym razem nadal trzeba będzie podać hasło.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1722,6 +1718,7 @@ pair2-supplicant-connect-hint-learn-more-link = Dowiedz się więcej
 permissions-heading = { $serviceName } prosi o dostęp do:
 permissions-label-email = Adres e-mail
 permissions-label-display-name = Wyświetlana nazwa
+permissions-label-avatar = Obraz konta
 permissions-continue-button = Kontynuuj
 permissions-cancel-button = Anuluj
 
@@ -1830,9 +1827,12 @@ confirm-totp-reset-password-use-different-account = Użyj innego konta
 ## ResetPassword start page
 
 password-reset-flow-heading = Zmień hasło
+password-reset-forgot-heading = Nie pamiętasz hasła?
 password-reset-email-input =
     .label = Wpisz adres e-mail
 password-reset-submit-button-2 = Kontynuuj
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Resetowanie hasła może wpłynąć na możliwość odzyskania zsynchronizowanych danych przeglądarki. <learnMoreLink>Więcej informacji</learnMoreLink>
 
 ## ResetPasswordConfirmed
 

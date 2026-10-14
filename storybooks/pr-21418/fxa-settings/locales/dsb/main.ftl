@@ -169,6 +169,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Gronidło wobkšuśiś
 form-password-with-inline-criteria-reset-submit-button = Nowe gronidło napóraś
+form-password-with-inline-criteria-old-password-label =
+    .label = Stare gronidło
+form-password-with-inline-criteria-change-password-submit-button = Gronidło změniś
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Gronidło
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -946,7 +949,7 @@ passkey-sub-row-created-date = Napórany: { $createdDate }
 passkey-sub-row-last-used-date = Slědny raz wužyty: { $lastUsedDate }
 passkey-sub-row-delete-title = Gronidłowy kluc lašowaś
 passkey-delete-modal-heading = Gronidłowy kluc lašowaś?
-passkey-delete-modal-content-v2 = Toś ten gronidłowy kluc se z wašogo konta wótwónoźijo. Musyśo se z pomocu drugeje metody (gronidło, drugi gronidłowy kluc abo zwězane konto) pśizjawiś.
+passkey-delete-modal-content-v3 = Toś ten gronidłowy kluc se z wašogo konta wótwónoźijo. Musyśo se z pomocu gronidła, drugego gronidłowego kluca abo zwězanego konta pśizjawiś.
 passkey-delete-modal-cancel-button = Pśetergnuś
 passkey-delete-modal-confirm-button = Gronidłowy kluc lašowaś
 passkey-delete-success = Gronidłowy kluc jo se wulašował
@@ -1193,16 +1196,16 @@ index-email-bounced = Waša wobkšuśeńska mejlka jo se rowno wrośiła. Jo e-m
 
 
 inline-passwordless-sync-setup-page-title = Gronidło pśiducy raz pśeskócyś?
-inline-passwordless-sync-setup-success-banner = Pla { -brand-firefox } pśizjawjony
+inline-passwordless-sync-setup-success-banner-v2 = Sćo pśizjawjony a synchronizacija jo zmóžnjona
 inline-passwordless-sync-setup-heading = Gronidło pśiducy raz pśeskócyś?
 inline-passwordless-sync-setup-description = Wužywajśo toś ten gronidłowy kluc, aby se malsnjej pśizjawił.
 inline-passwordless-sync-setup-enable-button = Gronidłowy kluc zmóžniś
 inline-passwordless-sync-setup-enabling = Zmóžnja se…
 inline-passwordless-sync-setup-not-now-button = Nic něnto
-inline-passwordless-sync-setup-success-alert = Gronidłowy kluc jo gótowy za pśizjawjenje synchronizacije
+inline-passwordless-sync-setup-success-alert-v2 = Toś ten gronidłowy kluc jo za pśizjawjenje synchronizacije zmóžnjony
 inline-passwordless-sync-setup-error-cancelled = Wobkšuśenje gronidłowego kluca se njekóńcy
 inline-passwordless-sync-setup-error-cancelled-description = Wobkšuśćo ze swójim gronidłowym klucom, aby gronidło pśiducy raz pśeskócył.
-inline-passwordless-sync-setup-error-generic = Něco njejo se raźiło, musyśo hyšći swójo gronidło pśiducy raz zapódaś
+inline-passwordless-sync-setup-error-generic-v2 = Njejsmy mógli toś ten gronidłowy kluc za pśizjawjenje synchronizacije zmóžniś. Buźośo pśiducy raz wašo gronidło trjebaś.
 
 
 inline-recovery-key-setup-create-error = Hopla! Njejsmy mógli waš kontowy wótnowjeński kluc napóraś. Pšosym wopytajśo pózdźej hyšći raz.
@@ -1341,7 +1344,7 @@ pair2-authority-download-firefox-cta = { -brand-firefox } ześěgnuś
 pair2-authority-scan-qr-heading = Za zwězowanje ze swójom rědom scannowaś
 pair2-authority-scan-qr-instruction = Scannujśo QR-kod ze swójom telefonom abo tabletom, aby swóje cytańske znamjenja, rejtariki { -brand-firefox } a wěcej synchronizěrował.
 pair2-authority-scan-qr-code-aria-label = QR-kod za zwězowanje z wašym mobilnym rědom
-pair2-authority-scan-qr-help-link = Pomoc za scannowanje dostaś
+pair2-authority-scan-qr-other-ways-link = Druge móžnosći pśizjawjenja
 pair2-authority-scan-qr-skip-button = Tuchylu pśeskócyś
 
 
@@ -1368,8 +1371,19 @@ pair2-supplicant-connect-this-device-connect-button = Zwězaś
 pair2-supplicant-connect-this-device-cancel-button = Pśetergnuś
 
 
+pair2-supplicant-download-firefox-heading-v2 = Na toś tom rěźe { -brand-firefox } wócyniś
+pair2-supplicant-download-firefox-description-v2 = Ześěgniśo { -brand-firefox }, aby cytańske znamjenja, historiju a wěcej pśez rědy synchronizěrował.
 pair2-supplicant-download-firefox-continue-button = Z { -brand-firefox } pókšacowaś
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } se wócynja …
+pair2-supplicant-download-firefox-download-button = { -brand-firefox } ześěgnuś
+pair2-supplicant-download-firefox-have-firefox-button = Mam južo { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Dalšne informacije
+
+
+pair2-supplicant-connect-hint-heading-v2 = Koplowanje w nałoženju dokóńcyś
+pair2-supplicant-connect-hint-step-app-menu = Pótusniśo <b>nałožeński meni</b> w symbolowej rědce
+pair2-supplicant-connect-hint-step-sign-in = Pótusniśo <b>Pśizjawiś</b> a scannujśo pón kode
+pair2-supplicant-connect-hint-learn-more-link = Dalšne informacije
 
 
 pair2-supplicant-ready-to-scan-heading = Rěd zwězaś
@@ -1379,20 +1393,27 @@ pair2-supplicant-ready-to-scan-learn-more-link = Dalšne informacije
 
 pair2-supplicant-sync-success-heading = Waš rěd jo zwězany
 pair2-supplicant-sync-success-description-v2 = Synchronizacija jo pó droze. Móžo chylku traś, daniž se waše synchronizěrowane daty njezjawiju. Móžośo ga dalej pśeglědowaś.
-pair2-supplicant-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije zastojaś
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zda se, až smy cas pśekšocyli
 pair2-supplicant-timeout-and-cancel-timeout-description = Aby swój mobilny rěd zwězał a swóje daty { -brand-firefox } synchronizěrował, woglědajśo se k <b>firefox.com/pair</b> na swójo licadle.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Anulěrowany
 pair2-supplicant-timeout-and-cancel-canceled-description = Aby rěd kuždy cas zwězał, woglědujśo se k <b>firefox.com/pair</b> na swójom licadle.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Rěd jo južo pśizjawjony
+pair2-supplicant-timeout-and-cancel-signed-in-description = Aby se ze swójim desktopowym kontom zwězał, wótzjawśo se wót { -brand-firefox } na toś tom rěźe a woglědajśo se pón k <b>firefox.com/pair</b> na swójom licadle, aby pśizjawjenje dokóńcył.
 
 
 permissions-heading = { $serviceName } co pśistup k:
 permissions-label-email = E-mailowa adresa
 permissions-label-display-name = Zwobraznjeńske mě
+permissions-label-avatar = Kontowy wobraz
 permissions-continue-button = Dalej
 permissions-cancel-button = Pśetergnuś
+
+
+force-password-change-heading = Změńśo pšosym swójo gronidło
+force-password-change-info = Smy zwěsćili suspektne zaźaržanje we wašom konśe { -product-mozilla-account }. Aby swójo konto šćitał, napórajśo pšosym nowe gronidło. Wužywajśo to gronidło, aby se zasej pla słužbow swójogo konta { -product-mozilla-account } pśizjawił.
+force-password-change-data-info = Synchronizěrowana historija, cytańske znamjenja, pśizjawjenja a druge wósobinske daty se njezgubiju.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } wobkšuśone
@@ -1452,10 +1473,12 @@ confirm-totp-reset-password-use-different-account = Druge konto wužywaś
 
 
 password-reset-flow-heading = Stajśo swójo gronidło slědk
-password-reset-body-3 = Gaž swójo gronidło slědk stajaśo, móžo to synchronizěrowane daty wobglědowaka wobwliwowaś.
+password-reset-forgot-heading = Sćo swójo gronidło zabył?
+password-reset-alternatives-body = <signInLink>Wopytajśo se z { -brand-google }, { -brand-apple } abo gronidłowym klucom město togo pśizjawiś.</signInLink> Abo zapódajśo swóju e-mailowu adresu a buźomy wam kode słaś, aby swójo gronidło slědk stajił.
 password-reset-email-input =
     .label = Zapódajśo swóju e-mailowu adresu
 password-reset-submit-button-2 = Dalej
+password-reset-data-recovery-warning = Slědkstajenje wašogo gronidła móžo se na to wustatkowaś, lěc móžośo synchronizěrowane daty wobglědowaka wótnowiś. <learnMoreLink>Dalšne informacije</learnMoreLink>
 
 
 reset-password-complete-header = Wašo gronidło jo se slědk stajiło
@@ -1703,3 +1726,8 @@ signup-confirmed-sync-description-v2 = Waše gronidła, adrese, cytańske znamje
 signup-confirmed-sync-add-device-link = Drugi rěd pśidaś
 signup-confirmed-sync-manage-sync-button = Synchronizaciju zastojaś
 signup-confirmed-sync-set-password-success-banner = Gronidło za synchronizaciju napórane
+
+
+update-firefox-heading = Aktualizacija { -brand-firefox } trjebna
+update-firefox-description = Wašo konto { -product-mozilla-account } funkcije wužywa, kótarež waša wersija { -brand-firefox } njepódpěra. Pšosym ześěgniśo a instalěrujśo nejnowšu wersiju { -brand-firefox }, aby pókšacował.
+update-firefox-download-button = Nejnowšu wersiju ześěgnuś

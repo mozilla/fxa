@@ -259,10 +259,10 @@ postAddAccountRecovery-body-part1 = Gorde gako hau leku seguru batean — pasahi
 # Key here refers to account recovery key
 postAddAccountRecovery-body-part2 = Gako hau behin bakarrik erabil daiteke. Erabili ondoren, automatikoki sortuko dizugu berri bat. Edo edozein unetan berri bat sor dezakezu zure kontuaren ezarpenetatik.
 postAddAccountRecovery-action = Kudeatu kontua
-postAddLinkedAccount-subject-2 = Kontu berria zure { -product-mozilla-account }-ri lotuta
+postAddLinkedAccount-subject-2 = Kontu berria lotu da zure { -product-mozilla-account }rekin
 #  Variables:
 #  $providerName (String) - The name of the provider, e.g. Apple, Google
-postAddLinkedAccount-title-2 = Zure { $providerName } kontuarekin lotu da zure { -product-mozilla-account }
+postAddLinkedAccount-title-2 = Zure { $providerName } kontua zure { -product-mozilla-account }rekin lotu da
 postAddLinkedAccount-action = Kudeatu kontua
 postAddPasskey-subject = Sarbide-gakoa sortuta
 postAddPasskey-preview = Orain zure gailua erabil dezakezu saioa hasteko

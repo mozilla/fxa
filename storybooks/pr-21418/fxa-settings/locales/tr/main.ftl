@@ -6,7 +6,11 @@
 -brand-firefox = Firefox
 -product-firefox-accounts = Firefox hesapları
 -product-mozilla-account = Mozilla hesabı
--product-mozilla-accounts = Mozilla hesapları
+-product-mozilla-accounts =
+    { $capitalization ->
+        [uppercase] Mozilla Hesapları
+       *[lowercase] Mozilla hesapları
+    }
 -product-firefox-account = Firefox hesabı
 -product-mozilla-vpn = Mozilla VPN
 -product-mozilla-vpn-short = VPN
@@ -1117,7 +1121,6 @@ index-account-delete-success = Hesap başarıyla silindi
 index-email-bounced = Onay e-postanız geri döndü. E-posta adresinizi yanlış yazmış olabilir misiniz?
 
 
-inline-passwordless-sync-setup-success-banner = { -brand-firefox }’a giriş yapıldı
 inline-passwordless-sync-setup-heading = Bir dahaki sefere parolayı atlamak ister misiniz?
 inline-passwordless-sync-setup-description = Daha hızlı giriş yapmak için bu geçiş anahtarını kullanın.
 inline-passwordless-sync-setup-enable-button = Geçiş anahtarını etkinleştir
@@ -1261,7 +1264,6 @@ pair2-authority-download-firefox-cta = { -brand-firefox }’u indir
 pair2-authority-scan-qr-heading = Mobil cihazınızı bağlamak için okutun
 pair2-authority-scan-qr-instruction = { -brand-firefox } yer imlerinizi, sekmelerinizi ve daha fazlasını eşitlemek için telefonunuz veya tabletinizle QR kodunu okutun.
 pair2-authority-scan-qr-code-aria-label = Mobil cihazınızı bağlamak için QR kodu
-pair2-authority-scan-qr-help-link = Okutma konusunda yardım alın
 pair2-authority-scan-qr-skip-button = Şimdilik geç
 
 
@@ -1296,7 +1298,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = Daha fazla bilgi al
 
 
 pair2-supplicant-sync-success-heading = Cihazınız bağlandı
-pair2-supplicant-sync-success-sync-settings-button-v2 = Eşitleme ayarlarını yönet
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zaman aşımına uğradık
@@ -1365,7 +1366,6 @@ confirm-totp-reset-password-use-different-account = Farklı bir hesap kullan
 
 
 password-reset-flow-heading = Parolanızı sıfırlayın
-password-reset-body-3 = Parolanızı sıfırlamanız eşitlenmiş tarayıcı verilerini etkileyebilir.
 password-reset-email-input =
     .label = E-posta adresinizi yazın
 password-reset-submit-button-2 = Devam et

@@ -155,6 +155,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = 비밀번호 확인
 form-password-with-inline-criteria-reset-submit-button = 새로운 비밀번호 생성
+form-password-with-inline-criteria-old-password-label =
+    .label = 이전 비밀번호
+form-password-with-inline-criteria-change-password-submit-button = 비밀번호 변경
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = 비밀번호
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -912,7 +915,7 @@ passkey-sub-row-created-date = 생성: { $createdDate }
 passkey-sub-row-last-used-date = 최근 사용: { $lastUsedDate }
 passkey-sub-row-delete-title = 패스키 삭제
 passkey-delete-modal-heading = 패스키를 삭제 하시겠습니까?
-passkey-delete-modal-content-v2 = 이 패스키가 계정에서 제거됩니다. 다른 방법(비밀번호, 다른 패스키, 연결된 계정)을 이용해 로그인해야 합니다.
+passkey-delete-modal-content-v3 = 이 패스키는 계정에서 삭제됩니다. 비밀번호나 다른 패스키 또는 연결된 계정을 사용하여 로그인해야 합니다.
 passkey-delete-modal-cancel-button = 취소
 passkey-delete-modal-confirm-button = 패스키 삭제
 passkey-delete-success = 패스키 삭제됨
@@ -1153,16 +1156,16 @@ index-email-bounced = 확인 이메일이 반송되었습니다. 이메일을 �
 
 
 inline-passwordless-sync-setup-page-title = 다음에 비밀번호를 건너뛰시겠습니까?
-inline-passwordless-sync-setup-success-banner = { -brand-firefox }에 로그인됨
+inline-passwordless-sync-setup-success-banner-v2 = 로그인되어 있으며 동기화가 켜져 있습니다
 inline-passwordless-sync-setup-heading = 다음에 비밀번호를 건너뛰시겠습니까?
 inline-passwordless-sync-setup-description = 이 패스키를 사용하여 더 빠르게 로그인하십시오.
 inline-passwordless-sync-setup-enable-button = 패스키 활성화
 inline-passwordless-sync-setup-enabling = 활성화 중…
 inline-passwordless-sync-setup-not-now-button = 지금 안 함
-inline-passwordless-sync-setup-success-alert = 이 패스키는 동기화 로그인을 위해 준비되었습니다.
+inline-passwordless-sync-setup-success-alert-v2 = 이 패스키는 동기화 로그인에 사용됩니다
 inline-passwordless-sync-setup-error-cancelled = 패스키 확인이 완료되지 않음
 inline-passwordless-sync-setup-error-cancelled-description = 다음에 비밀번호를 건너 뛰려면 패스키로 확인하세요.
-inline-passwordless-sync-setup-error-generic = 문제가 발생했습니다. 다음에 비밀번호를 입력해야 합니다.
+inline-passwordless-sync-setup-error-generic-v2 = 동기화 로그인에 이 패스키를 활성화할 수 없습니다. 다음 번에 비밀번호가 필요합니다.
 
 
 inline-recovery-key-setup-create-error = 이런! 계정 복구 키를 만들지 못했습니다. 잠시 후에 다시 시도해 주세요.
@@ -1301,7 +1304,7 @@ pair2-authority-download-firefox-cta = { -brand-firefox } 다운로드
 pair2-authority-scan-qr-heading = 스캔하여 모바일 기기 연결
 pair2-authority-scan-qr-instruction = 폰이나 태블릿으로 QR 코드를 스캔하여 { -brand-firefox } 북마크, 탭 등을 동기화하세요.
 pair2-authority-scan-qr-code-aria-label = 모바일 기기와 연결하기 위한 QR 코드
-pair2-authority-scan-qr-help-link = 스캔 도움 받기
+pair2-authority-scan-qr-other-ways-link = 다른 로그인 방법
 pair2-authority-scan-qr-skip-button = 지금은 건너뛰기
 
 
@@ -1328,8 +1331,19 @@ pair2-supplicant-connect-this-device-connect-button = 연결
 pair2-supplicant-connect-this-device-cancel-button = 취소
 
 
+pair2-supplicant-download-firefox-heading-v2 = 이 기기에서 { -brand-firefox } 열기
+pair2-supplicant-download-firefox-description-v2 = { -brand-firefox }를 다운로드하여 기기 간에 북마크, 방문 기록 등을 동기화합니다.
 pair2-supplicant-download-firefox-continue-button = { -brand-firefox }에서 계속
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } 실행 중…
+pair2-supplicant-download-firefox-download-button = { -brand-firefox } 다운로드
+pair2-supplicant-download-firefox-have-firefox-button = 이미 { -brand-firefox }가 있습니다
+pair2-supplicant-download-firefox-learn-more-link = 더 알아보기
+
+
+pair2-supplicant-connect-hint-heading-v2 = 앱에서 페어링 완료하기
+pair2-supplicant-connect-hint-step-app-menu = 툴바에서 <b>앱 메뉴</b>를 누르세요
+pair2-supplicant-connect-hint-step-sign-in = <b>로그인</b>을 누른 다음 코드를 스캔하세요
+pair2-supplicant-connect-hint-learn-more-link = 더 알아보기
 
 
 pair2-supplicant-ready-to-scan-heading = 기기를 연결하려면
@@ -1339,7 +1353,6 @@ pair2-supplicant-ready-to-scan-learn-more-link = 더 알아보기
 
 pair2-supplicant-sync-success-heading = 기기가 연결되었습니다
 pair2-supplicant-sync-success-description-v2 = 동기화가 진행 중입니다. 동기화된 데이터가 나타날 때까지 시간이 걸릴 수 있습니다. 계속 브라우징해도 됩니다.
-pair2-supplicant-sync-success-sync-settings-button-v2 = 동기화 설정 관리
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = 시간이 초과된 것 같습니다
@@ -1351,8 +1364,14 @@ pair2-supplicant-timeout-and-cancel-canceled-description = 언제든 기기에 �
 permissions-heading = { $serviceName } 접근 요청:
 permissions-label-email = 이메일 주소
 permissions-label-display-name = 표시 이름
+permissions-label-avatar = 계정 사진
 permissions-continue-button = 계속
 permissions-cancel-button = 취소
+
+
+force-password-change-heading = 비밀번호를 변경하세요
+force-password-change-info = { -product-mozilla-account } 계정에서 의심스러운 행동이 감지되었습니다. 계정을 보호하려면 비밀번호를 변경하세요. 이 비밀번호를 사용하여 모든 { -product-mozilla-account } 계정에 다시 로그인 하세요.
+force-password-change-data-info = 동기화 된 방문 기록, 북마크, 로그인 및 기타 개인 데이터는 손실되지 않습니다.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } 확인됨
@@ -1412,10 +1431,12 @@ confirm-totp-reset-password-use-different-account = 다른 계정 사용
 
 
 password-reset-flow-heading = 비밀번호 재설정
-password-reset-body-3 = 비밀번호를 재설정하면 동기화된 브라우저 데이터에 영향을 줄 수 있습니다.
+password-reset-forgot-heading = 비밀번호를 잊으셨나요?
+password-reset-alternatives-body = <signInLink>{ -brand-google }, { -brand-apple } 또는 대신 암호 키로 로그인해 보세요.</signInLink> 또는 이메일을 입력하면 비밀번호를 재설정할 수 있는 코드를 보내드립니다.
 password-reset-email-input =
     .label = 이메일 입력
 password-reset-submit-button-2 = 계속
+password-reset-data-recovery-warning = 비밀번호를 재설정하면 동기화된 브라우저 데이터를 복구할 수 있는지 여부에 영향을 미칠 수 있습니다. <learnMoreLink>자세히 알아보기</learnMoreLink>
 
 
 reset-password-complete-header = 비밀번호가 재설정되었습니다
@@ -1631,3 +1652,8 @@ signup-confirmed-sync-description-v2 = 비밀번호, 주소, 북마크, 기록 �
 signup-confirmed-sync-add-device-link = 다른 기기 추가
 signup-confirmed-sync-manage-sync-button = 동기화 관리
 signup-confirmed-sync-set-password-success-banner = 동기화 비밀번호 생성됨
+
+
+update-firefox-heading = { -brand-firefox } 업데이트 필요
+update-firefox-description = { -product-mozilla-account }가 현재 { -brand-firefox } 버전에서 지원하지 않는 기능을 사용하고 있습니다. 계속하려면 최신 버전의 { -brand-firefox }를 다운로드하여 설치하세요.
+update-firefox-download-button = 최신 다운로드

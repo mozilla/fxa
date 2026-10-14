@@ -173,6 +173,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Gronidło wobkšuśiś
 form-password-with-inline-criteria-reset-submit-button = Nowe gronidło napóraś
+form-password-with-inline-criteria-old-password-label =
+    .label = Stare gronidło
+form-password-with-inline-criteria-change-password-submit-button = Gronidło změniś
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Gronidło
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1282,7 +1285,7 @@ passkey-sub-row-created-date = Napórany: { $createdDate }
 passkey-sub-row-last-used-date = Slědny raz wužyty: { $lastUsedDate }
 passkey-sub-row-delete-title = Gronidłowy kluc lašowaś
 passkey-delete-modal-heading = Gronidłowy kluc lašowaś?
-passkey-delete-modal-content-v2 = Toś ten gronidłowy kluc se z wašogo konta wótwónoźijo. Musyśo se z pomocu drugeje metody (gronidło, drugi gronidłowy kluc abo zwězane konto) pśizjawiś.
+passkey-delete-modal-content-v3 = Toś ten gronidłowy kluc se z wašogo konta wótwónoźijo. Musyśo se z pomocu gronidła, drugego gronidłowego kluca abo zwězanego konta pśizjawiś.
 passkey-delete-modal-cancel-button = Pśetergnuś
 passkey-delete-modal-confirm-button = Gronidłowy kluc lašowaś
 passkey-delete-success = Gronidłowy kluc jo se wulašował
@@ -1649,20 +1652,22 @@ index-email-bounced = Waša wobkšuśeńska mejlka jo se rowno wrośiła. Jo e-m
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Gronidło pśiducy raz pśeskócyś?
 # Success banner after signing in.
-inline-passwordless-sync-setup-success-banner = Pla { -brand-firefox } pśizjawjony
+inline-passwordless-sync-setup-success-banner-v2 = Sćo pśizjawjony a synchronizacija jo zmóžnjona
 inline-passwordless-sync-setup-heading = Gronidło pśiducy raz pśeskócyś?
 inline-passwordless-sync-setup-description = Wužywajśo toś ten gronidłowy kluc, aby se malsnjej pśizjawił.
 inline-passwordless-sync-setup-enable-button = Gronidłowy kluc zmóžniś
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Zmóžnja se…
 inline-passwordless-sync-setup-not-now-button = Nic něnto
-# Success message shown in the Settings alert bar after the passkey was stored.
-inline-passwordless-sync-setup-success-alert = Gronidłowy kluc jo gótowy za pśizjawjenje synchronizacije
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = Toś ten gronidłowy kluc jo za pśizjawjenje synchronizacije zmóžnjony
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Wobkšuśenje gronidłowego kluca se njekóńcy
 inline-passwordless-sync-setup-error-cancelled-description = Wobkšuśćo ze swójim gronidłowym klucom, aby gronidło pśiducy raz pśeskócył.
-# Error shown in the Settings alert bar when storing the passkey failed. The user is already signed in; only the password-free setup failed, so the next sign-in still asks for a password.
-inline-passwordless-sync-setup-error-generic = Něco njejo se raźiło, musyśo hyšći swójo gronidło pśiducy raz zapódaś
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = Njejsmy mógli toś ten gronidłowy kluc za pśizjawjenje synchronizacije zmóžniś. Buźośo pśiducy raz wašo gronidło trjebaś.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1922,8 +1927,8 @@ pair2-authority-scan-qr-heading = Za zwězowanje ze swójom rědom scannowaś
 pair2-authority-scan-qr-instruction = Scannujśo QR-kod ze swójom telefonom abo tabletom, aby swóje cytańske znamjenja, rejtariki { -brand-firefox } a wěcej synchronizěrował.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR-kod za zwězowanje z wašym mobilnym rědom
-# Link to a support article for users having trouble scanning the QR code
-pair2-authority-scan-qr-help-link = Pomoc za scannowanje dostaś
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Druge móžnosći pśizjawjenja
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Tuchylu pśeskócyś
 
@@ -1983,11 +1988,35 @@ pair2-supplicant-connect-this-device-cancel-button = Pśetergnuś
 ## not Firefox. It offers to open the Firefox app to finish pairing, and to
 ## install it first when the user does not have it yet.
 
+pair2-supplicant-download-firefox-heading-v2 = Na toś tom rěźe { -brand-firefox } wócyniś
+# "sync" is a verb here, referring to syncing data between the user's devices.
+pair2-supplicant-download-firefox-description-v2 = Ześěgniśo { -brand-firefox }, aby cytańske znamjenja, historiju a wěcej pśez rědy synchronizěrował.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Z { -brand-firefox } pókšacowaś
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } se wócynja …
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = { -brand-firefox } ześěgnuś
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = Mam južo { -brand-firefox }
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = Dalšne informacije
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = Koplowanje w nałoženju dokóńcyś
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = Pótusniśo <b>nałožeński meni</b> w symbolowej rědce
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = Pótusniśo <b>Pśizjawiś</b> a scannujśo pón kode
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = Dalšne informacije
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2008,14 +2037,12 @@ pair2-supplicant-ready-to-scan-learn-more-link = Dalšne informacije
 pair2-supplicant-sync-success-heading = Waš rěd jo zwězany
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = Synchronizacija jo pó droze. Móžo chylku traś, daniž se waše synchronizěrowane daty njezjawiju. Móžośo ga dalej pśeglědowaś.
-# Opens the browser's sync settings, where the user chooses what to sync
-pair2-supplicant-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije zastojaś
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
-## either because the attempt timed out or because it was canceled. Both states
-## are informational and offer no on-screen action, so the copy points the user
-## back to their computer to start again.
+## because the attempt timed out, was canceled, or the device is already signed
+## in to an account. All states are informational and offer no on-screen action,
+## so the copy points the user back to their computer to start again.
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zda se, až smy cas pśekšocyli
@@ -2025,6 +2052,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Aby swój mobilny rěd
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Anulěrowany
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Aby rěd kuždy cas zwězał, woglědujśo se k <b>firefox.com/pair</b> na swójom licadle.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Rěd jo južo pśizjawjony
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Aby se ze swójim desktopowym kontom zwězał, wótzjawśo se wót { -brand-firefox } na toś tom rěźe a woglědajśo se pón k <b>firefox.com/pair</b> na swójom licadle, aby pśizjawjenje dokóńcył.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2036,8 +2067,16 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Aby rěd kuždy cas z
 permissions-heading = { $serviceName } co pśistup k:
 permissions-label-email = E-mailowa adresa
 permissions-label-display-name = Zwobraznjeńske mě
+permissions-label-avatar = Kontowy wobraz
 permissions-continue-button = Dalej
 permissions-cancel-button = Pśetergnuś
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Změńśo pšosym swójo gronidło
+force-password-change-info = Smy zwěsćili suspektne zaźaržanje we wašom konśe { -product-mozilla-account }. Aby swójo konto šćitał, napórajśo pšosym nowe gronidło. Wužywajśo to gronidło, aby se zasej pla słužbow swójogo konta { -product-mozilla-account } pśizjawił.
+force-password-change-data-info = Synchronizěrowana historija, cytańske znamjenja, pśizjawjenja a druge wósobinske daty se njezgubiju.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2137,10 +2176,14 @@ confirm-totp-reset-password-use-different-account = Druge konto wužywaś
 ## ResetPassword start page
 
 password-reset-flow-heading = Stajśo swójo gronidło slědk
-password-reset-body-3 = Gaž swójo gronidło slědk stajaśo, móžo to synchronizěrowane daty wobglědowaka wobwliwowaś.
+password-reset-forgot-heading = Sćo swójo gronidło zabył?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Wopytajśo se z { -brand-google }, { -brand-apple } abo gronidłowym klucom město togo pśizjawiś.</signInLink> Abo zapódajśo swóju e-mailowu adresu a buźomy wam kode słaś, aby swójo gronidło slědk stajił.
 password-reset-email-input =
     .label = Zapódajśo swóju e-mailowu adresu
 password-reset-submit-button-2 = Dalej
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Slědkstajenje wašogo gronidła móžo se na to wustatkowaś, lěc móžośo synchronizěrowane daty wobglědowaka wótnowiś. <learnMoreLink>Dalšne informacije</learnMoreLink>
 
 ## ResetPasswordConfirmed
 
@@ -2517,3 +2560,10 @@ signup-confirmed-sync-description-v2 = Waše gronidła, adrese, cytańske znamje
 signup-confirmed-sync-add-device-link = Drugi rěd pśidaś
 signup-confirmed-sync-manage-sync-button = Synchronizaciju zastojaś
 signup-confirmed-sync-set-password-success-banner = Gronidło za synchronizaciju napórane
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = Aktualizacija { -brand-firefox } trjebna
+update-firefox-description = Wašo konto { -product-mozilla-account } funkcije wužywa, kótarež waša wersija { -brand-firefox } njepódpěra. Pšosym ześěgniśo a instalěrujśo nejnowšu wersiju { -brand-firefox }, aby pókšacował.
+update-firefox-download-button = Nejnowšu wersiju ześěgnuś
