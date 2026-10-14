@@ -1,0 +1,40 @@
+{
+  "name": "shared-metrics-amplitude",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/metrics/amplitude/src",
+  "projectType": "library",
+  "tags": ["scope:shared:lib"],
+  "targets": {
+    "build": {
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "main": "libs/shared/metrics/amplitude/src/index.ts",
+        "outputPath": "dist/libs/shared/metrics/amplitude",
+        "tsConfig": "libs/shared/metrics/amplitude/tsconfig.lib.json",
+        "assets": [
+          {
+            "glob": "libs/shared/metrics/amplitude/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ]
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/shared/metrics/amplitude/jest.config.ts",
+        "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
+      }
+    }
+  }
+}

@@ -2,51 +2,42 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
-const { assert } = require('chai');
+import { amplitude } from './amplitude';
 
 const DAY = 1000 * 60 * 60 * 24;
 const WEEK = DAY * 7;
 const FOUR_WEEKS = WEEK * 4;
 const APP_VERSION = /^([0-9]+)\.([0-9]+)$/; // Matches `XXX.X` version number
-const deepCopy = (object) => JSON.parse(JSON.stringify(object));
+const deepCopy = (object: unknown) => JSON.parse(JSON.stringify(object));
 
 describe('metrics/amplitude:', () => {
-  let amplitude;
-
-  before(() => {
-    amplitude = require('../../metrics/amplitude').amplitude;
-  });
-
   it('exports the event groups', () => {
-    assert.isObject(amplitude.GROUPS);
-    assert.isString(amplitude.GROUPS.activity);
-    assert.isString(amplitude.GROUPS.connectDevice);
-    assert.isString(amplitude.GROUPS.email);
-    assert.isString(amplitude.GROUPS.emailFirst);
-    assert.isString(amplitude.GROUPS.login);
-    assert.isString(amplitude.GROUPS.notify);
-    assert.isString(amplitude.GROUPS.registration);
-    assert.isString(amplitude.GROUPS.settings);
+    expect(typeof amplitude.GROUPS).toBe('object');
+    expect(typeof amplitude.GROUPS.activity).toBe('string');
+    expect(typeof amplitude.GROUPS.connectDevice).toBe('string');
+    expect(typeof amplitude.GROUPS.email).toBe('string');
+    expect(typeof amplitude.GROUPS.emailFirst).toBe('string');
+    expect(typeof amplitude.GROUPS.login).toBe('string');
+    expect(typeof amplitude.GROUPS.notify).toBe('string');
+    expect(typeof amplitude.GROUPS.registration).toBe('string');
+    expect(typeof amplitude.GROUPS.settings).toBe('string');
   });
 
   it('has an EVENT_PROPERTIES entry for each group', () => {
-    for (const group of Object.keys(amplitude.GROUPS)) {
-      const groupName = amplitude.GROUPS[group];
-      assert.isFunction(amplitude.EVENT_PROPERTIES[groupName], group);
+    for (const groupName of Object.values(amplitude.GROUPS)) {
+      expect(typeof amplitude.EVENT_PROPERTIES[groupName]).toBe('function');
     }
   });
 
   it('exports an initialize method', () => {
-    assert.isFunction(amplitude.initialize);
-    assert.lengthOf(amplitude.initialize, 5);
+    expect(typeof amplitude.initialize).toBe('function');
+    expect(amplitude.initialize).toHaveLength(5);
   });
 
   describe('initialize:', () => {
-    let transform;
+    let transform: (...args: any[]) => any;
 
-    before(() => {
+    beforeAll(() => {
       transform = amplitude.initialize(
         {
           foo: 'bar',
@@ -77,7 +68,7 @@ describe('metrics/amplitude:', () => {
           [
             /^(wibble)\.(blee)/,
             {
-              group: (eventCategory) =>
+              group: (eventCategory: string) =>
                 eventCategory === 'wibble'
                   ? amplitude.GROUPS.registration
                   : null,
@@ -88,7 +79,7 @@ describe('metrics/amplitude:', () => {
             /wobble\.(\w+)\.(\w+)/,
             {
               group: amplitude.GROUPS.login,
-              event: (eventCategory, eventTarget) =>
+              event: (eventCategory: string, eventTarget: string) =>
                 `${eventCategory}.${eventTarget}`,
             },
           ],
@@ -139,9 +130,9 @@ describe('metrics/amplitude:', () => {
     });
 
     describe('transform a simple event:', () => {
-      let now, result;
+      let now: number, result: any;
 
-      before(() => {
+      beforeAll(() => {
         now = Date.now();
         result = transform(
           {
@@ -200,10 +191,10 @@ describe('metrics/amplitude:', () => {
         //       they're run inside a container, due to the resolution or otherwise
         //       of `require('../../../package.json')` in metrics/amplitude.js
         if (result.app_version) {
-          assert.equal(APP_VERSION.test(result.app_version), true);
+          expect(APP_VERSION.test(result.app_version)).toBe(true);
         }
         delete result.app_version;
-        assert.deepEqual(result, {
+        expect(result).toStrictEqual({
           country: 'c',
           device_id: 'd',
           device_model: 'm',
@@ -247,9 +238,9 @@ describe('metrics/amplitude:', () => {
     });
 
     describe('transform a fuzzy event:', () => {
-      let result;
+      let result: any;
 
-      before(() => {
+      beforeAll(() => {
         result = transform(
           {
             type: 'sourceEvent3',
@@ -270,10 +261,10 @@ describe('metrics/amplitude:', () => {
         //       they're run inside a container, due to the resolution or otherwise
         //       of `require('../../../package.json')` in metrics/amplitude.js
         if (result.app_version) {
-          assert.equal(APP_VERSION.test(result.app_version), true);
+          expect(APP_VERSION.test(result.app_version)).toBe(true);
         }
         delete result.app_version;
-        assert.deepEqual(result, {
+        expect(result).toStrictEqual({
           device_id: 'a',
           event_properties: {},
           event_type: 'fxa_login - targetEvent3',
@@ -289,39 +280,39 @@ describe('metrics/amplitude:', () => {
     });
 
     describe('transform a fuzzy event with a group function:', () => {
-      let result;
+      let result: any;
 
-      before(() => {
+      beforeAll(() => {
         result = transform({ type: 'wibble.blee' }, {});
       });
 
       it('returned the correct event type', () => {
-        assert.equal(result.event_type, 'fxa_reg - targetEvent4');
+        expect(result.event_type).toBe('fxa_reg - targetEvent4');
       });
     });
 
     describe('transform a fuzzy event with an event function:', () => {
-      let result;
+      let result: any;
 
-      before(() => {
+      beforeAll(() => {
         result = transform({ type: 'wobble.glick.gluck' }, {});
       });
 
       it('returned the correct event type', () => {
-        assert.equal(result.event_type, 'fxa_login - glick.gluck');
+        expect(result.event_type).toBe('fxa_login - glick.gluck');
       });
     });
 
     describe('transform an event with connect-another-device properties:', () => {
-      let result;
+      let result: any;
 
-      before(() => {
+      beforeAll(() => {
         result = transform({ type: 'pair.ios' }, {});
       });
 
       it('returned the correct event data', () => {
-        assert.equal(result.event_type, 'fxa_connect_device - cadEvent');
-        assert.deepEqual(result.event_properties, {
+        expect(result.event_type).toBe('fxa_connect_device - cadEvent');
+        expect(result.event_properties).toStrictEqual({
           connect_device_flow: 'pairing',
           connect_device_os: 'ios',
         });
@@ -329,9 +320,9 @@ describe('metrics/amplitude:', () => {
     });
 
     describe('transform an event with email properties:', () => {
-      let result;
+      let result: any;
 
-      before(() => {
+      beforeAll(() => {
         result = transform(
           { type: 'verifySecondaryCodeEmail.wibble' },
           {
@@ -345,8 +336,8 @@ describe('metrics/amplitude:', () => {
       });
 
       it('returned the correct event data', () => {
-        assert.equal(result.event_type, 'fxa_email - emailEvent');
-        assert.deepEqual(result.event_properties, {
+        expect(result.event_type).toBe('fxa_email - emailEvent');
+        expect(result.event_properties).toStrictEqual({
           email_provider: 'foo',
           email_template: 'verifySecondaryCodeEmail',
           email_type: 'secondary_email',
@@ -356,22 +347,22 @@ describe('metrics/amplitude:', () => {
     });
 
     describe('transform an event with disconnect properties:', () => {
-      let result;
+      let result: any;
 
-      before(() => {
+      beforeAll(() => {
         result = transform({ type: 'disconnect.wibble.blee' }, {});
       });
 
       it('returned the correct event data', () => {
-        assert.equal(result.event_type, 'fxa_pref - disconnect_device');
-        assert.deepEqual(result.event_properties, { reason: 'wibble' });
+        expect(result.event_type).toBe('fxa_pref - disconnect_device');
+        expect(result.event_properties).toStrictEqual({ reason: 'wibble' });
       });
     });
 
     describe('transform an event with newsletters optIn properties:', () => {
-      let result;
+      let result: any;
 
-      before(() => {
+      beforeAll(() => {
         result = transform(
           { type: 'newsletters.optIn.wibble' },
           {
@@ -381,8 +372,8 @@ describe('metrics/amplitude:', () => {
       });
 
       it('returned the correct event data', () => {
-        assert.equal(result.event_type, 'fxa_pref - newsletters');
-        assert.deepEqual(result.user_properties, {
+        expect(result.event_type).toBe('fxa_pref - newsletters');
+        expect(result.user_properties).toStrictEqual({
           newsletter_state: 'subscribed',
           newsletters: ['test_pilot'],
         });
@@ -390,42 +381,42 @@ describe('metrics/amplitude:', () => {
     });
 
     describe('transform an event with undefined service:', () => {
-      let result;
+      let result: any;
 
-      before(() => {
+      beforeAll(() => {
         result = transform({ type: 'wibble.blee' }, { service: 'gribble' });
       });
 
       it('returned the correct event data', () => {
-        assert.deepEqual(result.event_properties, {
+        expect(result.event_properties).toStrictEqual({
           oauth_client_id: 'gribble',
           service: 'undefined_oauth',
         });
-        assert.deepEqual(result.user_properties, {
+        expect(result.user_properties).toStrictEqual({
           $append: { fxa_services_used: 'undefined_oauth' },
         });
       });
     });
 
     describe('transform an event with service=sync:', () => {
-      let result;
+      let result: any;
 
-      before(() => {
+      beforeAll(() => {
         result = transform({ type: 'wibble.blee' }, { service: 'sync' });
       });
 
       it('returned the correct event data', () => {
-        assert.deepEqual(result.event_properties, { service: 'sync' });
-        assert.deepEqual(result.user_properties, {
+        expect(result.event_properties).toStrictEqual({ service: 'sync' });
+        expect(result.user_properties).toStrictEqual({
           $append: { fxa_services_used: 'sync' },
         });
       });
     });
 
     describe('transform an event with service=content-server:', () => {
-      let result;
+      let result: any;
 
-      before(() => {
+      beforeAll(() => {
         result = transform(
           { type: 'wibble.blee' },
           { service: 'content-server' }
@@ -433,8 +424,8 @@ describe('metrics/amplitude:', () => {
       });
 
       it('returned the correct event data', () => {
-        assert.deepEqual(result.event_properties, {});
-        assert.deepEqual(result.user_properties, {});
+        expect(result.event_properties).toStrictEqual({});
+        expect(result.user_properties).toStrictEqual({});
       });
     });
 
@@ -444,12 +435,12 @@ describe('metrics/amplitude:', () => {
           { type: 'wibble.blee' },
           { sourceCountry: 'GD', checkoutType: 'without-account' }
         );
-        assert.deepEqual(actual.event_properties, {});
+        expect(actual.event_properties).toStrictEqual({});
       });
 
       it('did not include the subscription event details in event properties when none was found', () => {
         const actual = transform({ type: 'fxa_pay_setup.blee.quuz' }, {});
-        assert.deepEqual(actual.event_properties, {});
+        expect(actual.event_properties).toStrictEqual({});
       });
 
       it('returned the correct subscription event details event properties', () => {
@@ -457,7 +448,7 @@ describe('metrics/amplitude:', () => {
           { type: 'fxa_pay_setup.blee.quuz' },
           { country_code_source: 'GD', checkoutType: 'without-account' }
         );
-        assert.deepEqual(actual.event_properties, {
+        expect(actual.event_properties).toStrictEqual({
           country_code_source: 'GD',
           checkout_type: 'without-account',
         });
@@ -482,135 +473,96 @@ describe('metrics/amplitude:', () => {
     };
     it('success', () => {
       const result = amplitude.validate(minimumEvent);
-      assert.isTrue(result);
+      expect(result).toBe(true);
     });
 
     it('success if country_code is 2 characters code', () => {
-      const event = {
+      const event: Record<string, any> = {
         ...minimumEvent,
         country_code: 'US',
       };
       const result = amplitude.validate(event);
-      assert.isTrue(result);
+      expect(result).toBe(true);
     });
 
     it('errors - op required', () => {
-      const event = {
+      const event: Record<string, any> = {
         ...minimumEvent,
       };
       delete event.op;
-      try {
-        amplitude.validate(event);
-        assert.fail('Validate is expected to fail');
-      } catch (err) {
-        assert.isTrue(err instanceof Error);
-        assert.equal(
-          err.message,
-          `Invalid data: event must have required property 'op'`
-        );
-      }
+      expect(() => amplitude.validate(event)).toThrow(
+        new Error(`Invalid data: event must have required property 'op'`)
+      );
     });
 
     it('errors - event_type required', () => {
-      const event = {
+      const event: Record<string, any> = {
         ...minimumEvent,
       };
       delete event.event_type;
-      try {
-        amplitude.validate(event);
-        assert.fail('Validate is expected to fail');
-      } catch (err) {
-        assert.isTrue(err instanceof Error);
-        assert.equal(
-          err.message,
+      expect(() => amplitude.validate(event)).toThrow(
+        new Error(
           `Invalid data: event must have required property 'event_type'`
-        );
-      }
+        )
+      );
     });
 
     it('errors - time required', () => {
-      const event = {
+      const event: Record<string, any> = {
         ...minimumEvent,
       };
       delete event.time;
-      try {
-        amplitude.validate(event);
-        assert.fail('Validate is expected to fail');
-      } catch (err) {
-        assert.isTrue(err instanceof Error);
-        assert.equal(
-          err.message,
-          `Invalid data: event must have required property 'time'`
-        );
-      }
+      expect(() => amplitude.validate(event)).toThrow(
+        new Error(`Invalid data: event must have required property 'time'`)
+      );
     });
 
     it('errors - event_properties required', () => {
-      const event = {
+      const event: Record<string, any> = {
         ...minimumEvent,
       };
       delete event.event_properties;
-      try {
-        amplitude.validate(event);
-        assert.fail('Validate is expected to fail');
-      } catch (err) {
-        assert.isTrue(err instanceof Error);
-        assert.equal(
-          err.message,
+      expect(() => amplitude.validate(event)).toThrow(
+        new Error(
           `Invalid data: event must have required property 'event_properties'`
-        );
-      }
+        )
+      );
     });
 
     it('errors - user_properties required', () => {
-      const event = {
+      const event: Record<string, any> = {
         ...minimumEvent,
       };
       delete event.user_properties;
-      try {
-        amplitude.validate(event);
-        assert.fail('Validate is expected to fail');
-      } catch (err) {
-        assert.isTrue(err instanceof Error);
-        assert.equal(
-          err.message,
+      expect(() => amplitude.validate(event)).toThrow(
+        new Error(
           `Invalid data: event must have required property 'user_properties'`
-        );
-      }
+        )
+      );
     });
 
     it('errors if country_code is more than 2 characters', () => {
-      const event = {
+      const event: Record<string, any> = {
         ...minimumEvent,
         country_code: 'USA',
       };
-      try {
-        amplitude.validate(event);
-        assert.fail('Validate is expected to fail');
-      } catch (err) {
-        assert.isTrue(err instanceof Error);
-        assert.equal(
-          err.message,
+      expect(() => amplitude.validate(event)).toThrow(
+        new Error(
           `Invalid data: event/country_code must match pattern "^[A-Z]{2}$"`
-        );
-      }
+        )
+      );
     });
 
     it('errors if country_code less than 2 characters', () => {
-      const event = {
+      const event: Record<string, any> = {
         ...minimumEvent,
         country_code: 'U',
       };
-      try {
-        amplitude.validate(event);
-        assert.fail('Validate is expected to fail');
-      } catch (err) {
-        assert.isTrue(err instanceof Error);
-        assert.equal(
-          err.message,
+      expect(() => amplitude.validate(event)).toThrow(
+        new Error(
           `Invalid data: event/country_code must match pattern "^[A-Z]{2}$"`
-        );
-      }
+        )
+      );
     });
 
     describe('fxa_pay_setup - * events', () => {
@@ -641,7 +593,7 @@ describe('metrics/amplitude:', () => {
       it('success - valid with all required and all optional properties', () => {
         const event = deepCopy(fxa_pay_setup_event);
         const result = amplitude.validate(event);
-        assert.isTrue(result);
+        expect(result).toBe(true);
       });
       it('success - valid with only required and none of the optional properties', () => {
         const eventNoOptional = deepCopy(fxa_pay_setup_event);
@@ -653,7 +605,7 @@ describe('metrics/amplitude:', () => {
         delete eventNoOptional.event_properties.subscribed_plan_ids;
         delete eventNoOptional.user_id;
         const result = amplitude.validate(eventNoOptional);
-        assert.isTrue(result);
+        expect(result).toBe(true);
       });
       it('error - all required fields are missing', () => {
         const eventNoRequired = deepCopy(fxa_pay_setup_event);
@@ -666,16 +618,11 @@ describe('metrics/amplitude:', () => {
         delete eventNoRequired.event_properties.product_id;
         delete eventNoRequired.time;
 
-        try {
-          amplitude.validate(eventNoRequired);
-          assert.fail('Validate is expected to fail');
-        } catch (err) {
-          assert.isTrue(err instanceof Error);
-          assert.equal(
-            err.message,
+        expect(() => amplitude.validate(eventNoRequired)).toThrow(
+          new Error(
             `Invalid data: event must have required property 'language', event/user_properties must have required property 'flow_id', event/event_properties must have required property 'plan_id', event/event_properties must have required property 'product_id', event must match "then" schema, event/event_properties must have required property 'checkout_type', event must match "then" schema, event must have required property 'time'`
-          );
-        }
+          )
+        );
       });
       describe('fxa_pay_setup - submit events', () => {
         it('error - required field(s) are missing', () => {
@@ -683,16 +630,11 @@ describe('metrics/amplitude:', () => {
           eventNoRequired.event_type = 'fxa_pay_setup - submit';
           delete eventNoRequired.event_properties.payment_provider;
 
-          try {
-            amplitude.validate(eventNoRequired);
-            assert.fail('Validate is expected to fail');
-          } catch (err) {
-            assert.isTrue(err instanceof Error);
-            assert.equal(
-              err.message,
+          expect(() => amplitude.validate(eventNoRequired)).toThrow(
+            new Error(
               `Invalid data: event/event_properties must have required property 'payment_provider', event must match "then" schema`
-            );
-          }
+            )
+          );
         });
       });
       describe('fxa_pay_setup - success events', () => {
@@ -701,16 +643,11 @@ describe('metrics/amplitude:', () => {
           eventNoRequired.event_type = 'fxa_pay_setup - success';
           delete eventNoRequired.event_properties.payment_provider;
 
-          try {
-            amplitude.validate(eventNoRequired);
-            assert.fail('Validate is expected to fail');
-          } catch (err) {
-            assert.isTrue(err instanceof Error);
-            assert.equal(
-              err.message,
+          expect(() => amplitude.validate(eventNoRequired)).toThrow(
+            new Error(
               `Invalid data: event/event_properties must have required property 'payment_provider', event must match "then" schema`
-            );
-          }
+            )
+          );
         });
       });
       describe('fxa_pay_setup - fail events', () => {
@@ -719,16 +656,11 @@ describe('metrics/amplitude:', () => {
           eventNoRequired.event_type = 'fxa_pay_setup - fail';
           delete eventNoRequired.event_properties.payment_provider;
 
-          try {
-            amplitude.validate(eventNoRequired);
-            assert.fail('Validate is expected to fail');
-          } catch (err) {
-            assert.isTrue(err instanceof Error);
-            assert.equal(
-              err.message,
+          expect(() => amplitude.validate(eventNoRequired)).toThrow(
+            new Error(
               `Invalid data: event/event_properties must have required property 'payment_provider', event must match "then" schema, event/event_properties must have required property 'error_id', event must match "then" schema`
-            );
-          }
+            )
+          );
         });
       });
     });
@@ -761,7 +693,7 @@ describe('metrics/amplitude:', () => {
       it('success - valid with all required and all optional properties', () => {
         const event = deepCopy(fxa_pay_subscription_change_event);
         const result = amplitude.validate(event);
-        assert.isTrue(result);
+        expect(result).toBe(true);
       });
       it('success - valid with only required and none of the optional properties', () => {
         const eventNoOptional = deepCopy(fxa_pay_subscription_change_event);
@@ -770,7 +702,7 @@ describe('metrics/amplitude:', () => {
         delete eventNoOptional.event_properties.promotion_code;
         delete eventNoOptional.event_properties.subscribed_plan_ids;
         const result = amplitude.validate(eventNoOptional);
-        assert.isTrue(result);
+        expect(result).toBe(true);
       });
       it('error - all required fields are missing', () => {
         const eventNoRequired = deepCopy(fxa_pay_subscription_change_event);
@@ -787,32 +719,22 @@ describe('metrics/amplitude:', () => {
         delete eventNoRequired.time;
         delete eventNoRequired.user_id;
 
-        try {
-          amplitude.validate(eventNoRequired);
-          assert.fail('Validate is expected to fail');
-        } catch (err) {
-          assert.isTrue(err instanceof Error);
-          assert.equal(
-            err.message,
+        expect(() => amplitude.validate(eventNoRequired)).toThrow(
+          new Error(
             `Invalid data: event must have required property 'language', event/user_properties must have required property 'flow_id', event/event_properties must have required property 'plan_id', event/event_properties must have required property 'product_id', event must match "then" schema, event must have required property 'user_id', event/event_properties must have required property 'previous_plan_id', event/event_properties must have required property 'previous_product_id', event/event_properties must have required property 'subscription_id', event/event_properties must have required property 'payment_provider', event must match "then" schema, event must have required property 'time'`
-          );
-        }
+          )
+        );
       });
       describe('fxa_pay_subscription_change - fail events', () => {
         it('error - required field(s) are missing', () => {
           const eventNoRequired = deepCopy(fxa_pay_subscription_change_event);
           eventNoRequired.event_type = 'fxa_pay_subscription_change - fail';
 
-          try {
-            amplitude.validate(eventNoRequired);
-            assert.fail('Validate is expected to fail');
-          } catch (err) {
-            assert.isTrue(err instanceof Error);
-            assert.equal(
-              err.message,
+          expect(() => amplitude.validate(eventNoRequired)).toThrow(
+            new Error(
               `Invalid data: event/event_properties must have required property 'error_id', event must match "then" schema`
-            );
-          }
+            )
+          );
         });
       });
     });
@@ -838,25 +760,25 @@ describe('metrics/amplitude:', () => {
       };
 
       it('success - valid with all required and all optional properties', () => {
-        const event = {
+        const event: Record<string, any> = {
           ...subscriptionEndedEvent,
         };
         const result = amplitude.validate(event);
-        assert.isTrue(result);
+        expect(result).toBe(true);
       });
 
       it('success - valid with only required and none of the optional properties', () => {
-        const event = {
+        const event: Record<string, any> = {
           ...subscriptionEndedEvent,
         };
         delete event.user_id;
 
         const result = amplitude.validate(event);
-        assert.isTrue(result);
+        expect(result).toBe(true);
       });
 
       it('error - all fields (required or optional) are missing', () => {
-        const event = {
+        const event: Record<string, any> = {
           ...subscriptionEndedEvent,
         };
         delete event.event_properties;
@@ -865,20 +787,15 @@ describe('metrics/amplitude:', () => {
         delete event.time;
         delete event.user_id;
 
-        try {
-          amplitude.validate(event);
-          assert.fail('Validate is expected to fail');
-        } catch (err) {
-          assert.isTrue(err instanceof Error);
-          assert.equal(
-            err.message,
+        expect(() => amplitude.validate(event)).toThrow(
+          new Error(
             `Invalid data: event must have required property 'event_type', event must have required property 'time', event must have required property 'event_properties'`
-          );
-        }
+          )
+        );
       });
 
       it('error - all required fields are missing', () => {
-        const event = {
+        const event: Record<string, any> = {
           ...subscriptionEndedEvent,
         };
         delete event.event_type;
@@ -886,52 +803,37 @@ describe('metrics/amplitude:', () => {
         delete event.time;
         delete event.event_properties;
 
-        try {
-          amplitude.validate(event);
-          assert.fail('Validate is expected to fail');
-        } catch (err) {
-          assert.isTrue(err instanceof Error);
-          assert.equal(
-            err.message,
+        expect(() => amplitude.validate(event)).toThrow(
+          new Error(
             `Invalid data: event must have required property 'event_type', event must have required property 'time', event must have required property 'event_properties'`
-          );
-        }
+          )
+        );
       });
 
       it('error - one required field is missing', () => {
-        const event = {
+        const event: Record<string, any> = {
           ...subscriptionEndedEvent,
         };
         delete event.time;
 
-        try {
-          amplitude.validate(event);
-          assert.fail('Validate is expected to fail');
-        } catch (err) {
-          assert.isTrue(err instanceof Error);
-          assert.equal(
-            err.message,
+        expect(() => amplitude.validate(event)).toThrow(
+          new Error(
             `Invalid data: event must have required property 'time', event must match "then" schema, event must have required property 'time'`
-          );
-        }
+          )
+        );
       });
 
       it('error - one required event properties field is missing', () => {
-        const event = {
+        const event: Record<string, any> = {
           ...subscriptionEndedEvent,
         };
         delete event.event_properties.plan_id;
 
-        try {
-          amplitude.validate(event);
-          assert.fail('Validate is expected to fail');
-        } catch (err) {
-          assert.isTrue(err instanceof Error);
-          assert.equal(
-            err.message,
+        expect(() => amplitude.validate(event)).toThrow(
+          new Error(
             `Invalid data: event/event_properties must have required property 'plan_id', event must match "then" schema`
-          );
-        }
+          )
+        );
       });
     });
   });

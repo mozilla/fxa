@@ -10,7 +10,8 @@ const mozlog = require('mozlog');
 const { config } = require('../config');
 const logConfig = config.get('log');
 const amplitudeConfig = config.get('amplitude');
-const validateAmplitudeEvent = require('fxa-shared').metrics.amplitude.validate;
+const validateAmplitudeEvent = require('@fxa/shared/metrics/amplitude')
+  .amplitude.validate;
 let statsd;
 const Sentry = require('@sentry/node');
 const notifier = require('./notifier');

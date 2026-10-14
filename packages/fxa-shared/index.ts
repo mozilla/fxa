@@ -4,7 +4,6 @@
 import * as iapSubscription from './dto/auth/payments/iap-subscription';
 import * as invoice from './dto/auth/payments/invoice';
 import express from './express';
-import amplitude from './metrics/amplitude';
 import scopes from './oauth/scopes';
 import {
   metadataFromPlan,
@@ -15,9 +14,6 @@ import * as subscriptions from './subscriptions/type-guards';
 
 module.exports = {
   express,
-  metrics: {
-    amplitude,
-  },
   oauth: {
     scopes,
   },

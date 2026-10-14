@@ -32674,6 +32674,7 @@ __metadata:
     "@types/twilio": "npm:^3.19.3"
     "@typescript-eslint/eslint-plugin": "npm:^5.59.1"
     "@typescript-eslint/parser": "npm:^7.1.1"
+    ajv: "npm:^8.20.0"
     app-store-server-api: "npm:^1.0.0"
     autoprefixer: "npm:^10.4.14"
     babel-jest: "npm:30.0.5"
