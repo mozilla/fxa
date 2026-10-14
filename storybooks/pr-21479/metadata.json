@@ -1,8 +1,8 @@
 {
-  "commit": "f6a7ad187ac738eb9259af7ab233a1a308d18f4c",
+  "commit": "55110d33b43602056e7bec363a0fc2c71f6e9f33",
   "summary": "refactor(shared): move legacy db config, transformers and mysql to a lib",
   "description": "Because:\n\n- fxa-shared db config, transformers and mysql belong in an nx lib.\n- fxa-shared kept a second full copy of db/config.ts.\n\nThis commit:\n\n- Adds libs/shared/db/mysql/legacy with config, mysql and transformers.\n- Repoints auth-server, admin-server and fxa-shared importers to the alias.\n- Ports the transformers test to jest and drops the ./db/mysql export.\n- Makes fxa-shared db/config.ts a re-export of the lib config.\n- Sets passWithNoTests on the lib test-integration target.\n\nCloses FXA-10654",
-  "timestamp": 1791939815000,
+  "timestamp": 1791944254000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",
