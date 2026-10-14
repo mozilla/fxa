@@ -1,10 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import 'mocha';
 import 'reflect-metadata';
 
-import { assert } from 'chai';
 import { Knex } from 'knex';
 
 import {
@@ -14,27 +12,23 @@ import {
   Profile,
   profileByUid,
   selectedAvatar,
-} from '@fxa/shared/db/mysql/legacy/models/profile';
-import {
-  defaultOpts,
-  testDatabaseSetup,
-} from '@fxa/shared/db/mysql/legacy/testing/helpers';
+} from '.';
+import { defaultOpts, testDatabaseSetup } from '../../testing/helpers';
 import {
   chance,
   defaultProvider,
   randomAvatar,
   randomProfile,
-} from '@fxa/shared/db/mysql/legacy/testing/models/profile/helpers';
+} from '../../testing/models/profile/helpers';
 
 const PROFILE_1 = randomProfile();
 const PROFILE_2 = randomProfile();
 
-describe('#integration - auth', () => {
+describe('auth', () => {
   let knex: Knex;
   let avatar: Avatar;
 
-  before(async function () {
-    this.timeout(20000);
+  beforeAll(async () => {
     knex = await testDatabaseSetup({
       ...defaultOpts,
       auth: false,
@@ -46,7 +40,7 @@ describe('#integration - auth', () => {
     // Load a random profile in
     const profile = await Profile.query().insert(PROFILE_1);
     // Load another random profile
-    const profile2 = await Profile.query().insert(PROFILE_2);
+    await Profile.query().insert(PROFILE_2);
     // Load a random avatar
     avatar = await Avatar.query().insert(
       randomAvatar(profile.userId, provider.id)
@@ -56,34 +50,34 @@ describe('#integration - auth', () => {
       userId: profile.userId,
       avatarId: avatar.id,
     });
-  });
+  }, 20000);
 
-  after(async () => {
+  afterAll(async () => {
     await knex?.destroy();
   });
 
   describe('profileByUid', () => {
     it('retrieves profile successfully', async () => {
       const result = await profileByUid(PROFILE_1.userId);
-      assert.deepInclude(result, PROFILE_1);
+      expect(result).toMatchObject(PROFILE_1);
     });
 
     it('does not retrieve a non-existent profile', async () => {
       const uid = chance.guid({ version: 4 }).replace(/-/g, '');
       const result = await profileByUid(uid);
-      assert.isUndefined(result);
+      expect(result).toBeUndefined();
     });
   });
 
   describe('selectedAvatar', () => {
     it('retrieves selected avatar successfully', async () => {
       const result = await selectedAvatar(PROFILE_1.userId);
-      assert.deepEqual(result, avatar);
+      expect(result).toEqual(avatar);
     });
 
     it('does not retrieve an avatar if none selected', async () => {
       const result = await selectedAvatar(PROFILE_2.userId);
-      assert.isUndefined(result);
+      expect(result).toBeUndefined();
     });
   });
 });

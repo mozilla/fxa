@@ -1,22 +1,13 @@
-import 'mocha';
-import { assert } from 'chai';
-import sinon from 'sinon';
-import { SessionToken } from '@fxa/shared/db/mysql/legacy/models/auth';
-import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
+import { SessionToken } from '.';
+import { uuidTransformer } from '../../transformers';
 import crypto from 'crypto';
 
-const toRandomBuff = (size) =>
+const toRandomBuff = (size: number) =>
   uuidTransformer.to(crypto.randomBytes(size).toString('hex'));
 
 describe('SessionToken Unit Tests', () => {
-  let sandbox;
-
-  beforeEach(() => {
-    sandbox = sinon.createSandbox();
-  });
-
   afterEach(() => {
-    sandbox.restore();
+    jest.restoreAllMocks();
   });
 
   it('filters out expired tokens (older than 28 days by default)', async () => {
@@ -50,7 +41,7 @@ describe('SessionToken Unit Tests', () => {
       createdAt: expiredTime,
     };
 
-    sandbox.stub(SessionToken, 'callProcedure').resolves({
+    jest.spyOn(SessionToken as any, 'callProcedure').mockResolvedValue({
       rows: [validRow, expiredRow],
     });
 
@@ -58,12 +49,9 @@ describe('SessionToken Unit Tests', () => {
       '0123456789abcdef0123456789abcdef'
     );
 
-    assert.equal(
-      tokens.length,
-      1,
-      'Should return exactly 1 token (the valid one)'
-    );
-    assert.equal(tokens[0].createdAt, validTime);
+    // Should return exactly 1 token (the valid one)
+    expect(tokens.length).toBe(1);
+    expect(tokens[0].createdAt).toBe(validTime);
   });
 
   it('respects configured expiry', async () => {
@@ -100,7 +88,7 @@ describe('SessionToken Unit Tests', () => {
         createdAt: expiredTime,
       };
 
-      sandbox.stub(SessionToken, 'callProcedure').resolves({
+      jest.spyOn(SessionToken as any, 'callProcedure').mockResolvedValue({
         rows: [validRow, expiredRow],
       });
 
@@ -108,12 +96,9 @@ describe('SessionToken Unit Tests', () => {
         '0123456789abcdef0123456789abcdef'
       );
 
-      assert.equal(
-        tokens.length,
-        1,
-        'Should return exactly 1 token (the valid one)'
-      );
-      assert.equal(tokens[0].createdAt, validTime);
+      // Should return exactly 1 token (the valid one)
+      expect(tokens.length).toBe(1);
+      expect(tokens[0].createdAt).toBe(validTime);
     } finally {
       SessionToken.sessionExpiryMs = originalExpiry;
     }

@@ -1,11 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import 'mocha';
-
-import { assert } from 'chai';
-
-import { AccessToken } from '@fxa/shared/db/mysql/legacy/models/auth/access-token';
+import { AccessToken } from './access-token';
 
 // Deterministic. authAt is seconds since epoch; the others are ms.
 const MOCK_CREATED_AT = 1_700_000_000_000;
@@ -36,32 +32,31 @@ describe('AccessToken authentication-event metadata (RFC 9470)', () => {
       })
     );
 
-    assert.strictEqual(token.authAt, MOCK_AUTH_AT);
-    assert.deepEqual(token.amr, ['pwd', 'otp']);
-    assert.strictEqual(token.aal, 2);
+    expect(token.authAt).toBe(MOCK_AUTH_AT);
+    expect(token.amr).toEqual(['pwd', 'otp']);
+    expect(token.aal).toBe(2);
 
     const json = token.toJSON() as any;
-    assert.strictEqual(json.authAt, MOCK_AUTH_AT);
-    assert.deepEqual(json.amr, ['pwd', 'otp']);
-    assert.strictEqual(json.aal, 2);
+    expect(json.authAt).toBe(MOCK_AUTH_AT);
+    expect(json.amr).toEqual(['pwd', 'otp']);
+    expect(json.aal).toBe(2);
 
-    // A full re-hydration preserves the model, including the new fields.
+    // A full re-hydration preserves the model, including the metadata fields.
     const reparsed = AccessToken.parse(JSON.stringify(json));
-    assert.deepEqual(reparsed, token);
+    expect(reparsed).toEqual(token);
   });
 
   it('omits the metadata keys when the token carries none', () => {
     const token = AccessToken.parse(JSON.stringify(baseJson));
 
-    assert.isUndefined(token.authAt);
-    assert.isUndefined(token.amr);
-    assert.isUndefined(token.aal);
+    expect(token.authAt).toBeUndefined();
+    expect(token.amr).toBeUndefined();
+    expect(token.aal).toBeUndefined();
 
-    // JSON.stringify drops undefined values, so tokens without the metadata
-    // serialize exactly as they did before this field was added.
+    // JSON.stringify drops undefined values.
     const serialized = JSON.stringify(token.toJSON());
-    assert.notInclude(serialized, 'authAt');
-    assert.notInclude(serialized, 'amr');
-    assert.notInclude(serialized, 'aal');
+    expect(serialized).not.toContain('authAt');
+    expect(serialized).not.toContain('amr');
+    expect(serialized).not.toContain('aal');
   });
 });

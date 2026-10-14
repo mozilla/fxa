@@ -1,15 +1,7 @@
-import { assert } from 'chai';
 import { StatsD } from 'hot-shots';
 import { Connection } from 'mysql';
-import sinon from 'sinon';
-import {
-  IMysqlStoreSharedEvents,
-  MysqlStoreShared,
-} from '@fxa/shared/db/mysql/legacy/mysql';
-import {
-  defaultOpts,
-  testDatabaseSetup,
-} from '@fxa/shared/db/mysql/legacy/testing/helpers';
+import { IMysqlStoreSharedEvents, MysqlStoreShared } from './mysql';
+import { defaultOpts, testDatabaseSetup } from './testing/helpers';
 
 const dbOpts = Object.assign({}, defaultOpts.testDbConfig, {
   connectionLimit: 20,
@@ -31,8 +23,7 @@ type TestStats = {
   };
 };
 
-const sandbox = sinon.createSandbox();
-const statsdStub = { increment: sandbox.stub() };
+const statsdStub = { increment: jest.fn() };
 
 class MysqlStoreTestEvents implements IMysqlStoreSharedEvents {
   /**
@@ -106,13 +97,14 @@ class MySqlStoreTest extends MysqlStoreShared {
   }
 }
 
-describe('#integration - mysql', function () {
-  this.timeout(-1);
+jest.setTimeout(60000);
+
+describe('mysql', () => {
   let events: MysqlStoreTestEvents;
   let mysql: MySqlStoreTest;
   let mysql2: MySqlStoreTest;
 
-  before(async () => {
+  beforeAll(async () => {
     const knex = await testDatabaseSetup(defaultOpts);
     await knex.destroy();
     events = new MysqlStoreTestEvents();
@@ -120,13 +112,13 @@ describe('#integration - mysql', function () {
     mysql2 = new MySqlStoreTest(dbOpts, events);
   });
 
-  after(async () => {
+  afterAll(async () => {
     await mysql.close();
     await mysql2.close();
   });
 
   beforeEach(() => {
-    sandbox.reset();
+    statsdStub.increment.mockReset();
   });
 
   it('releases connections ', async () => {
@@ -135,8 +127,8 @@ describe('#integration - mysql', function () {
       promises.push(mysql.query('show tables;', {}));
     }
     await Promise.all(promises);
-    assert.equal(events.stats.pool.aquire, events.stats.pool.release);
-    assert.equal(events.stats.pool.connection, dbOpts.connectionLimit);
+    expect(events.stats.pool.aquire).toBe(events.stats.pool.release);
+    expect(events.stats.pool.connection).toBe(dbOpts.connectionLimit);
   });
 
   it('detects closes connection on error ', async () => {
@@ -145,9 +137,9 @@ describe('#integration - mysql', function () {
         await mysql.query('show foo;', {});
       } catch (_err) {}
     }
-    assert.equal(events.stats.pool.aquire, events.stats.pool.release);
-    assert.equal(events.stats.pool.aquire, events.stats.pool.release);
-    assert.equal(events.stats.pool.connection, dbOpts.connectionLimit);
+    expect(events.stats.pool.aquire).toBe(events.stats.pool.release);
+    expect(events.stats.pool.aquire).toBe(events.stats.pool.release);
+    expect(events.stats.pool.connection).toBe(dbOpts.connectionLimit);
   });
 
   it('shares pools accross instances', async () => {
@@ -158,10 +150,9 @@ describe('#integration - mysql', function () {
     }
     await Promise.all(promises);
 
-    assert.equal(events.stats.pool.aquire, events.stats.pool.release);
-    assert.equal(events.stats.pool.connection, dbOpts.connectionLimit * 2);
-    assert.equal(
-      Object.keys(events.stats.pool.threadIds).length,
+    expect(events.stats.pool.aquire).toBe(events.stats.pool.release);
+    expect(events.stats.pool.connection).toBe(dbOpts.connectionLimit * 2);
+    expect(Object.keys(events.stats.pool.threadIds).length).toBe(
       dbOpts.connectionLimit * 2
     );
   });
@@ -171,17 +162,17 @@ describe('#integration - mysql', function () {
     mysql = new MySqlStoreTest({ ...dbOpts, idleLimitMs: 10 });
     const conn1 = await mysql.getConnection();
     const conn2 = await mysql.getConnection();
-    assert.notEqual((conn1 as Connection).state, 'disconnected');
-    assert.notEqual((conn2 as Connection).state, 'disconnected');
+    expect((conn1 as Connection).state).not.toBe('disconnected');
+    expect((conn2 as Connection).state).not.toBe('disconnected');
 
     await new Promise((resolve) => {
       setTimeout(resolve, 50);
     });
-    const closeConnCount = statsdStub.increment.args.filter(
+    const closeConnCount = statsdStub.increment.mock.calls.filter(
       (x) => x[0] === 'mysql.close_idle_connection'
     ).length;
-    assert.equal(closeConnCount, 2);
-    assert.equal((conn1 as Connection).state, 'disconnected');
-    assert.equal((conn2 as Connection).state, 'disconnected');
+    expect(closeConnCount).toBe(2);
+    expect((conn1 as Connection).state).toBe('disconnected');
+    expect((conn2 as Connection).state).toBe('disconnected');
   });
 });
