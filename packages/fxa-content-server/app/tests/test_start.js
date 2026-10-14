@@ -67,6 +67,7 @@ require('./spec/lib/fxa-client');
 require('./spec/lib/image-loader');
 require('./spec/lib/logger');
 require('./spec/lib/metrics');
+require('./spec/lib/metric-validator');
 require('./spec/lib/null-metrics');
 require('./spec/lib/null-storage');
 require('./spec/lib/oauth-client');

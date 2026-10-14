@@ -27,10 +27,7 @@ import speedTrap from './speed-trap';
 import Strings from './strings';
 import SubscriptionModel from 'models/subscription';
 import xhr from './xhr';
-import {
-  MetricValidator,
-  MetricErrorReporter,
-} from 'fxa-shared/metrics/validate';
+import { MetricValidator, MetricErrorReporter } from './metric-validator';
 import Validate from '../lib/validate';
 
 // Speed trap is a singleton, convert it

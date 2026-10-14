@@ -3,42 +3,32 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { assert } from 'chai';
-import { BrowserClient } from '@sentry/browser';
-import moment from 'moment';
-import sinon from 'sinon';
 
 import {
-  CheckedMetrics,
-  CheckedUtmMetrics,
   INVALID_UTM,
   MetricErrorReporter,
   MetricValidator,
-} from '../../metrics/validate';
+} from 'lib/metric-validator';
 
-const MAX_INTEGER = Number.MAX_SAFE_INTEGER;
-const INTEGER_OVERFLOW = Number.MAX_SAFE_INTEGER + 1;
-
-describe('sanitize', function () {
-  let client: Pick<BrowserClient, 'captureException'>;
-  let reporter: MetricErrorReporter;
-  let metrics: MetricValidator;
-  let fakeSentryCapture: any;
+describe('lib/metric-validator', function () {
+  let client;
+  let reporter;
+  let metrics;
 
   beforeEach(() => {
     client = {
       captureException: () => '',
     };
 
-    fakeSentryCapture = sinon.spy(client, 'captureException');
     reporter = new MetricErrorReporter(client);
     metrics = new MetricValidator(reporter, {
-      maxEventOffset: moment.duration(2, 'days').asMilliseconds(),
+      maxEventOffset: 2 * 24 * 60 * 60 * 1000,
     });
   });
 
   describe('sanitize', () => {
     describe('utm', () => {
-      function checkUtm(data: CheckedUtmMetrics, expected: CheckedUtmMetrics) {
+      function checkUtm(data, expected) {
         metrics.sanitizeUtmParams(data);
         assert.include(data, expected);
       }
@@ -68,10 +58,7 @@ describe('sanitize', function () {
     });
 
     describe('events', () => {
-      function checkEvents(
-        data: Pick<CheckedMetrics, 'events'>,
-        expected: Pick<CheckedMetrics, 'events'>
-      ) {
+      function checkEvents(data, expected) {
         metrics.sanitizeEvents(data);
         assert.deepInclude(data, expected);
       }
@@ -103,10 +90,7 @@ describe('sanitize', function () {
     });
 
     describe('device id', () => {
-      function checkDeviceId(
-        data: Pick<CheckedMetrics, 'deviceId'>,
-        expected: Pick<CheckedMetrics, 'deviceId'>
-      ) {
+      function checkDeviceId(data, expected) {
         metrics.sanitizeDeviceId(data);
         assert.include(data, expected);
       }
