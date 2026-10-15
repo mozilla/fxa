@@ -176,6 +176,9 @@ test.describe('severity-2 #smoke', () => {
         );
         expect(url).toContain('channel_id=');
         expect(url).toContain('v=2');
+        expect(new URL(url).searchParams.get('utm_content')).toBe(
+          'DTM_SYNC_PAIR_V2'
+        );
         await sleep(WATCH_MS); // authority: QR on screen
         return url;
       });

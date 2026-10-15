@@ -150,13 +150,15 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
     if (!this._channel?.channelId || !this._channel?.channelKey) {
       throw new Error('Cannot build a pair URL before the channel is created.');
     }
-    // Shared with the supplicant's deep link back into Firefox, so the URL we
-    // encode and the URL we hand off can never disagree.
-    return buildPairUrl({
+    // Shared with the supplicant's deep link back into Firefox, so the channel
+    // we encode and the channel we hand off can never disagree.
+    const url = buildPairUrl({
       channelId: this._channel.channelId,
       channelKey: this._channel.channelKey,
       version: v,
     });
+    // Marketing attribution for v2 QR scans; the query goes before the fragment.
+    return v === '2' ? url.replace('#', '?utm_content=DTM_SYNC_PAIR_V2#') : url;
   }
 
   async createChannel(): Promise<void> {

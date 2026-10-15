@@ -520,11 +520,19 @@ describe('PairingAuthorityIntegration', () => {
     });
 
     describe('getPairUrl', () => {
-      it('encodes the channel credentials in the fragment', async () => {
+      it('adds utm_content before the fragment for v2', async () => {
         await integration.createChannel();
 
         expect(integration.getPairUrl('2')).toBe(
-          `${window.location.origin}/pair#channel_id=chan-1&channel_key=key-1&v=2`
+          `${window.location.origin}/pair?utm_content=DTM_SYNC_PAIR_V2#channel_id=chan-1&channel_key=key-1&v=2`
+        );
+      });
+
+      it('leaves the v1 URL without a query', async () => {
+        await integration.createChannel();
+
+        expect(integration.getPairUrl('1')).toBe(
+          `${window.location.origin}/pair#channel_id=chan-1&channel_key=key-1&v=1`
         );
       });
 
