@@ -1,4 +1,6 @@
-import { expect } from 'chai';
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
   AbbrevPlan,
@@ -6,15 +8,15 @@ import {
   Plan,
   ProductMetadata,
   MozillaSubscriptionTypes,
-} from '../../subscriptions/types';
+} from './types';
 import {
   DEFAULT_PRODUCT_DETAILS,
   metadataFromPlan,
   productDetailsFromPlan,
   getProductSupportApps,
-} from '../../subscriptions/metadata';
-import { PlanConfigurationDtoT } from '../../dto/auth/payments/plan-configuration';
-import { LatestInvoiceItems } from '../../dto/auth/payments/invoice';
+} from './metadata';
+import { PlanConfigurationDtoT } from '../dto/auth/payments/plan-configuration';
+import { LatestInvoiceItems } from '../dto/auth/payments/invoice';
 
 const NULL_METADATA = {
   productSet: [],
@@ -113,7 +115,7 @@ const PLAN_WITH_METADATA = {
 describe('subscriptions/metadata', () => {
   describe('metadataFromPlan', () => {
     it('produces default null values', () => {
-      expect(metadataFromPlan(PLAN)).to.deep.equal(NULL_METADATA);
+      expect(metadataFromPlan(PLAN)).toStrictEqual(NULL_METADATA);
     });
 
     it('extracts product metadata', () => {
@@ -124,7 +126,7 @@ describe('subscriptions/metadata', () => {
           productOrder: '1',
         }
       );
-      expect(metadataFromPlan({ ...PLAN, product_metadata })).to.deep.equal({
+      expect(metadataFromPlan({ ...PLAN, product_metadata })).toStrictEqual({
         ...NULL_METADATA,
         ...product_metadata,
       });
@@ -138,7 +140,7 @@ describe('subscriptions/metadata', () => {
           productOrder: '1',
         }
       );
-      expect(metadataFromPlan({ ...PLAN, plan_metadata })).to.deep.equal({
+      expect(metadataFromPlan({ ...PLAN, plan_metadata })).toStrictEqual({
         ...NULL_METADATA,
         ...plan_metadata,
       });
@@ -160,7 +162,7 @@ describe('subscriptions/metadata', () => {
       );
       expect(
         metadataFromPlan({ ...PLAN, plan_metadata, product_metadata })
-      ).to.deep.equal({
+      ).toStrictEqual({
         ...NULL_METADATA,
         productOrder: '1',
         productSet: ['bar'],
@@ -172,13 +174,13 @@ describe('subscriptions/metadata', () => {
     const plan = PLAN_WITH_METADATA;
 
     it('extracts base details when metadata does not supply product details', () => {
-      expect(productDetailsFromPlan(PLAN)).to.deep.equal(
+      expect(productDetailsFromPlan(PLAN)).toStrictEqual(
         DEFAULT_PRODUCT_DETAILS
       );
     });
 
     it('extracts product details for default locale', () => {
-      expect(productDetailsFromPlan(plan)).to.deep.equal({
+      expect(productDetailsFromPlan(plan)).toStrictEqual({
         subtitle: 'Great Full-device VPN',
         details: [
           'Foo Device-level encryption',
@@ -195,7 +197,7 @@ describe('subscriptions/metadata', () => {
     });
 
     it('extracts product details for xx-pirate locale', () => {
-      expect(productDetailsFromPlan(plan, ['xx-pirate'])).to.deep.equal({
+      expect(productDetailsFromPlan(plan, ['xx-pirate'])).toStrictEqual({
         subtitle: 'VPN fer yer full-device',
         details: [
           'Device-level encryption arr',
@@ -214,7 +216,7 @@ describe('subscriptions/metadata', () => {
     });
 
     it('extracts product details for xx-partial locale', () => {
-      expect(productDetailsFromPlan(plan, ['xx-partial'])).to.deep.equal({
+      expect(productDetailsFromPlan(plan, ['xx-partial'])).toStrictEqual({
         subtitle: 'Partial localization',
         details: [
           'Foo Device-level encryption',
@@ -231,7 +233,7 @@ describe('subscriptions/metadata', () => {
     });
 
     it('extracts product details for xx-unknown locale', () => {
-      expect(productDetailsFromPlan(plan, ['xx-unknown'])).to.deep.equal({
+      expect(productDetailsFromPlan(plan, ['xx-unknown'])).toStrictEqual({
         subtitle: 'Great Full-device VPN',
         details: [
           'Foo Device-level encryption',
@@ -328,7 +330,7 @@ describe('subscriptions/metadata', () => {
 
     it('returns an empty dictionary when there are no matching products', () => {
       const actual = getProductSupportApps(subscriptions)(plans);
-      expect(actual).to.deep.equal({});
+      expect(actual).toStrictEqual({});
     });
 
     it('returns an empty dictionary when there are no matching metadata', () => {
@@ -342,7 +344,7 @@ describe('subscriptions/metadata', () => {
       const actual = getProductSupportApps(subscriptions)(
         matchingPlanNoMetadata
       );
-      expect(actual).to.deep.equal({});
+      expect(actual).toStrictEqual({});
     });
 
     it('returns, from product metadata, a dictionary keyed by product ids', () => {
@@ -355,7 +357,7 @@ describe('subscriptions/metadata', () => {
       const actual = getProductSupportApps(subscriptions)(
         matchingPlanNoMetadata
       );
-      expect(actual).to.deep.equal({ prod_GjeBkx6iQFoVgg: ['Pop!_OS'] });
+      expect(actual).toStrictEqual({ prod_GjeBkx6iQFoVgg: ['Pop!_OS'] });
     });
 
     it('returns an empty dictionary when theres no firestore product config', () => {
@@ -369,7 +371,7 @@ describe('subscriptions/metadata', () => {
       const actual = getProductSupportApps(subscriptions)(
         matchingPlanNoMetadata
       );
-      expect(actual).to.deep.equal({});
+      expect(actual).toStrictEqual({});
     });
 
     it('returns, from firestore product config, a dictionary keyed by product ids', () => {
@@ -386,7 +388,7 @@ describe('subscriptions/metadata', () => {
       const actual = getProductSupportApps(subscriptions)(
         matchingPlanNoMetadata
       );
-      expect(actual).to.deep.equal({ prod_GjeBkx6iQFoVgg: ['Bam!_OS'] });
+      expect(actual).toStrictEqual({ prod_GjeBkx6iQFoVgg: ['Bam!_OS'] });
     });
   });
 });

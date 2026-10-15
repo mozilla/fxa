@@ -1,6 +1,7 @@
-import { assert, expect } from 'chai';
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { PlanConfigurationDtoT } from '../../../dto/auth/payments/plan-configuration';
 import {
   flattenProductConfigLocalesData,
   getPlanProductConfig,
@@ -11,7 +12,7 @@ import {
   uiContentFromProductConfig,
   urlsFromProductConfig,
   webIconConfigFromProductConfig,
-} from '../../../subscriptions/configuration/utils';
+} from './utils';
 import {
   CONFIGURATION,
   CONFIGURATION_UI_CONTENT,
@@ -21,7 +22,7 @@ import {
   PLAN,
   PLAN_WITH_CONFIGURATION,
   PLAN_WITH_METADATA,
-} from '../configuration/helpers';
+} from '../fixtures/plans';
 
 const missingPlanConfigMessage = (planId: string) =>
   `Plan configuration for ${planId} not found.`;
@@ -143,7 +144,7 @@ describe('product configuration util functions', () => {
   describe('mergeConfigs', () => {
     it('merges product configs into plans configs', () => {
       const actual = mergeConfigs(planConfig, productConfig);
-      assert.deepEqual(actual, fullMergedConfig);
+      expect(actual).toStrictEqual(fullMergedConfig);
     });
   });
 
@@ -153,23 +154,20 @@ describe('product configuration util functions', () => {
       const planConfigB = { ...planConfig, stripePriceId: 'bb' };
       const expected = { a: planConfigA, bb: planConfigB };
       const actual = mapPlanConfigsByPriceId([planConfigA, planConfigB]);
-      assert.deepEqual(actual, expected);
+      expect(actual).toStrictEqual(expected);
     });
   });
 
   describe('getPlanProductConfig', () => {
     it('returns the plans configuration', () => {
       const actual = getPlanProductConfig(PLAN_WITH_CONFIGURATION);
-      expect(actual).to.deep.equal(CONFIGURATION);
+      expect(actual).toStrictEqual(CONFIGURATION);
     });
 
     it('throws an error if plans has no configuration', () => {
-      try {
-        getPlanProductConfig(PLAN);
-        assert.fail();
-      } catch (err) {
-        expect(err.message).to.equal(missingPlanConfigMessage(PLAN.plan_id));
-      }
+      expect(() => getPlanProductConfig(PLAN)).toThrow(
+        missingPlanConfigMessage(PLAN.plan_id)
+      );
     });
   });
 
@@ -178,23 +176,20 @@ describe('product configuration util functions', () => {
       const actual = flattenProductConfigLocalesData(PLAN_WITH_CONFIGURATION, [
         'en',
       ]);
-      expect(actual).to.deep.equal(LOCALE_CONFIGURATION_NONE);
+      expect(actual).toStrictEqual(LOCALE_CONFIGURATION_NONE);
     });
 
     it('returns selected locale configuration', () => {
       const actual = flattenProductConfigLocalesData(PLAN_WITH_CONFIGURATION, [
         'fr',
       ]);
-      expect(actual).to.deep.equal(LOCALE_CONFIGURATION_FR);
+      expect(actual).toStrictEqual(LOCALE_CONFIGURATION_FR);
     });
 
     it('throws an error if plans has no configuration', () => {
-      try {
-        flattenProductConfigLocalesData(PLAN);
-        assert.fail();
-      } catch (err) {
-        expect(err.message).to.equal(missingPlanConfigMessage(PLAN.plan_id));
-      }
+      expect(() => flattenProductConfigLocalesData(PLAN)).toThrow(
+        missingPlanConfigMessage(PLAN.plan_id)
+      );
     });
   });
 
@@ -205,12 +200,12 @@ describe('product configuration util functions', () => {
         ['de'],
         true
       );
-      expect(actual).to.equal(CONFIGURATION_URLS);
+      expect(actual).toBe(CONFIGURATION_URLS);
     });
 
     it('returns url from plan metadata if featureFlag is false', () => {
       const actual = urlsFromProductConfig(PLAN_WITH_METADATA, ['de'], false);
-      expect(actual).to.deep.equal({
+      expect(actual).toStrictEqual({
         termsOfService: 'https://example.org/en-US/terms',
         privacyNotice: 'https://example.org/en-US/privacy',
         termsOfServiceDownload: 'https://example.org/en-US/terms/download',
@@ -222,7 +217,7 @@ describe('product configuration util functions', () => {
 
     it('prioritizes url from plan metadata over product_metadata', () => {
       const actual = urlsFromProductConfig(PLAN_WITH_METADATA, ['de'], false);
-      expect(actual).to.deep.equal({
+      expect(actual).toStrictEqual({
         termsOfService: 'https://example.org/en-US/terms',
         privacyNotice: 'https://example.org/en-US/privacy',
         termsOfServiceDownload: 'https://example.org/en-US/terms/download',
@@ -230,7 +225,7 @@ describe('product configuration util functions', () => {
         successActionButton: undefined,
         cancellationSurvey: undefined,
       });
-      expect(actual).to.not.deep.equal({
+      expect(actual).not.toStrictEqual({
         termsOfService: 'https://example.org/en-US/terms2',
         privacyNotice: 'https://example.org/en-US/privacy2',
         termsOfServiceDownload: 'https://example.org/en-US/terms/download2',
@@ -241,12 +236,9 @@ describe('product configuration util functions', () => {
     });
 
     it('throws an error if no plan configuration is available and featureFlag is true', () => {
-      try {
-        urlsFromProductConfig(PLAN, ['de'], true);
-        assert.fail();
-      } catch (err) {
-        expect(err.message).to.equal(missingPlanConfigMessage(PLAN.plan_id));
-      }
+      expect(() => urlsFromProductConfig(PLAN, ['de'], true)).toThrow(
+        missingPlanConfigMessage(PLAN.plan_id)
+      );
     });
   });
 
@@ -257,7 +249,7 @@ describe('product configuration util functions', () => {
         ['de'],
         true
       );
-      expect(actual).to.deep.equal({
+      expect(actual).toStrictEqual({
         webIcon: CONFIGURATION_URLS.webIcon,
         webIconBackground: CONFIGURATION.styles.webIconBackground,
       });
@@ -269,19 +261,16 @@ describe('product configuration util functions', () => {
         ['de'],
         false
       );
-      expect(actual).to.deep.equal({
-        webIcon: PLAN_WITH_METADATA.plan_metadata!.webIconURL,
-        webIconBackground: PLAN_WITH_METADATA.plan_metadata!.webIconBackground,
+      expect(actual).toStrictEqual({
+        webIcon: PLAN_WITH_METADATA.plan_metadata?.webIconURL,
+        webIconBackground: PLAN_WITH_METADATA.plan_metadata?.webIconBackground,
       });
     });
 
     it('throws an error if no plan configuration is available and featureFlag is true', () => {
-      try {
-        webIconConfigFromProductConfig(PLAN, ['de'], true);
-        assert.fail();
-      } catch (err) {
-        expect(err.message).to.equal(missingPlanConfigMessage(PLAN.plan_id));
-      }
+      expect(() => webIconConfigFromProductConfig(PLAN, ['de'], true)).toThrow(
+        missingPlanConfigMessage(PLAN.plan_id)
+      );
     });
   });
 
@@ -292,7 +281,7 @@ describe('product configuration util functions', () => {
         ['de'],
         true
       );
-      expect(actual).to.deep.equal(CONFIGURATION_UI_CONTENT);
+      expect(actual).toStrictEqual(CONFIGURATION_UI_CONTENT);
     });
 
     it('returns uiContent from plan metadata if featureFlag is false', () => {
@@ -301,28 +290,27 @@ describe('product configuration util functions', () => {
         ['de'],
         false
       );
-      expect(actual).to.deep.equal({
-        name: PLAN_WITH_METADATA.plan_metadata!['product:name'],
-        subtitle: PLAN_WITH_METADATA.plan_metadata!['product:subtitle'],
+      expect(actual).toStrictEqual({
+        name: PLAN_WITH_METADATA.plan_metadata?.['product:name'],
+        subtitle: PLAN_WITH_METADATA.plan_metadata?.['product:subtitle'],
         details: [
-          PLAN_WITH_METADATA.plan_metadata!['product:details:1'],
-          PLAN_WITH_METADATA.plan_metadata!['product:details:2'],
-          PLAN_WITH_METADATA.plan_metadata!['product:details:3'],
-          PLAN_WITH_METADATA.plan_metadata!['product:details:4'],
+          PLAN_WITH_METADATA.plan_metadata?.['product:details:1'],
+          PLAN_WITH_METADATA.plan_metadata?.['product:details:2'],
+          PLAN_WITH_METADATA.plan_metadata?.['product:details:3'],
+          PLAN_WITH_METADATA.plan_metadata?.['product:details:4'],
         ],
         successActionButtonLabel:
-          PLAN_WITH_METADATA.plan_metadata!['product:successActionButtonLabel'],
-        upgradeCTA: PLAN_WITH_METADATA.plan_metadata!.upgradeCTA,
+          PLAN_WITH_METADATA.plan_metadata?.[
+            'product:successActionButtonLabel'
+          ],
+        upgradeCTA: PLAN_WITH_METADATA.plan_metadata?.upgradeCTA,
       });
     });
 
     it('throws an error if no plan configuration is available and featureFlag is true', () => {
-      try {
-        uiContentFromProductConfig(PLAN, ['de'], true);
-        assert.fail();
-      } catch (err) {
-        expect(err.message).to.equal(missingPlanConfigMessage(PLAN.plan_id));
-      }
+      expect(() => uiContentFromProductConfig(PLAN, ['de'], true)).toThrow(
+        missingPlanConfigMessage(PLAN.plan_id)
+      );
     });
   });
 
@@ -332,7 +320,7 @@ describe('product configuration util functions', () => {
         PLAN_WITH_CONFIGURATION,
         true
       );
-      expect(actual).to.deep.equal({
+      expect(actual).toStrictEqual({
         productOrder: `${CONFIGURATION.productOrder}`,
         productSet: CONFIGURATION.productSet,
       });
@@ -349,7 +337,7 @@ describe('product configuration util functions', () => {
         },
         true
       );
-      expect(actual).to.deep.equal({
+      expect(actual).toStrictEqual({
         productOrder: '0',
         productSet: CONFIGURATION.productSet,
       });
@@ -366,7 +354,7 @@ describe('product configuration util functions', () => {
         },
         true
       );
-      expect(actual).to.deep.equal({
+      expect(actual).toStrictEqual({
         productOrder: undefined,
         productSet: CONFIGURATION.productSet,
       });
@@ -374,19 +362,16 @@ describe('product configuration util functions', () => {
 
     it('returns product update config from plan metadata if featureFlag is false', () => {
       const actual = productUpgradeFromProductConfig(PLAN_WITH_METADATA, false);
-      expect(actual).to.deep.equal({
-        productOrder: PLAN_WITH_METADATA.plan_metadata!.productOrder,
-        productSet: PLAN_WITH_METADATA.plan_metadata!.productSet.split(','),
+      expect(actual).toStrictEqual({
+        productOrder: PLAN_WITH_METADATA.plan_metadata?.productOrder,
+        productSet: PLAN_WITH_METADATA.plan_metadata?.productSet.split(','),
       });
     });
 
     it('throws an error if no plan configuration is available and featureFlag is true', () => {
-      try {
-        productUpgradeFromProductConfig(PLAN, true);
-        assert.fail();
-      } catch (err) {
-        expect(err.message).to.equal(missingPlanConfigMessage(PLAN.plan_id));
-      }
+      expect(() => productUpgradeFromProductConfig(PLAN, true)).toThrow(
+        missingPlanConfigMessage(PLAN.plan_id)
+      );
     });
   });
 
@@ -399,12 +384,12 @@ describe('product configuration util functions', () => {
 
     it('returns the defaults when no other locales are available', () => {
       const actual = localizedPlanConfig(fullMergedConfig, []);
-      assert.deepEqual(actual, defaults);
+      expect(actual).toStrictEqual(defaults);
     });
 
     it('returns the defaults if the picked lang is not one of the available locales', () => {
       const actual = localizedPlanConfig(fullMergedConfig, ['no']);
-      assert.deepEqual(actual, defaults);
+      expect(actual).toStrictEqual(defaults);
     });
 
     it('returns the localized config of the picked lang', () => {
@@ -413,7 +398,7 @@ describe('product configuration util functions', () => {
         locales: { ...fullMergedConfig.locales, fr: LOCALE_CONFIGURATION_FR },
       };
       const actual = localizedPlanConfig(extraConfig, ['fr']);
-      assert.deepEqual(actual, {
+      expect(actual).toStrictEqual({
         ...LOCALE_CONFIGURATION_FR,
         support: {
           ...fullMergedConfig.support,

@@ -9,7 +9,7 @@ import { PaymentConfigManager } from '../../lib/payments/configuration/manager';
 import { ProductConfig } from '@fxa/accounts/subscriptions-legacy/subscriptions/configuration/product';
 import { PlanConfig } from '@fxa/accounts/subscriptions-legacy/subscriptions/configuration/plan';
 const plan = require('fxa-auth-server/test/local/payments/fixtures/stripe/plan2.json');
-const product = require('fxa-shared/test/fixtures/stripe/product1.json');
+const product = require('../../test/local/payments/fixtures/stripe/product_123done_pro.json');
 const { mockLog, mockStripeHelper } = require('../../test/mocks');
 
 function deepCopy(object: any) {

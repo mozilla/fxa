@@ -1,5 +1,7 @@
-import 'chai';
-import { assert } from 'chai';
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { Stripe } from 'stripe';
 
 import {
@@ -12,21 +14,25 @@ import {
   filterInvoice,
   getSubscriptionUpdateEligibility,
   getMinimumAmount,
-} from '../../subscriptions/stripe';
+} from './stripe';
 import {
   Plan,
   SubscriptionStripeError,
   SubscriptionStripeErrorType,
   SubscriptionUpdateEligibility,
-} from '../../subscriptions/types';
+} from './types';
+// require() keeps the fixtures untyped; typed JSON imports do not match the Stripe types.
+const customer1WithSubscription = require('./fixtures/customer1_with_subscription.json');
+const subscriptionExpanded = require('./fixtures/subscription_expanded.json');
+const price1 = require('./fixtures/price1_with_product.json');
+const plan = require('./fixtures/plan1_with_product.json');
 
-const customer1WithSubscription = require('../fixtures/stripe/customer1_with_subscription.json');
-const subscriptionExpanded = require('../fixtures/stripe/subscription_expanded.json');
-const price1 = require('../fixtures/stripe/price1_with_product.json');
-const plan = require('../fixtures/stripe/plan1_with_product.json');
+function assertKeys(item: unknown, keys: string[]) {
+  expect(Object.keys(item as object).sort()).toEqual([...keys].sort());
+}
 
 function assertSubscription(item?: DeepPartial<Stripe.Subscription>) {
-  assert.hasAllKeys(item, [
+  assertKeys(item, [
     'cancel_at_period_end',
     'cancel_at',
     'canceled_at',
@@ -40,28 +46,21 @@ function assertSubscription(item?: DeepPartial<Stripe.Subscription>) {
 }
 
 function assertSubscriptionItem(item?: DeepPartial<Stripe.SubscriptionItem>) {
-  assert.hasAllKeys(item, ['id', 'created', 'price']);
+  assertKeys(item, ['id', 'created', 'price']);
 }
 
 function assertSource(item?: DeepPartial<Stripe.CustomerSource>) {
-  assert.hasAllKeys(item, [
-    'id',
-    'object',
-    'brand',
-    'exp_month',
-    'exp_year',
-    'last4',
-  ]);
+  assertKeys(item, ['id', 'object', 'brand', 'exp_month', 'exp_year', 'last4']);
 }
 
 function assertInvoice(item?: DeepPartial<Stripe.Invoice>) {
-  assert.hasAllKeys(item, ['id', 'object', 'status']);
+  assertKeys(item, ['id', 'object', 'status']);
 }
 
 function assertIntent(
   item?: DeepPartial<Stripe.PaymentIntent | Stripe.SetupIntent>
 ) {
-  assert.hasAllKeys(item, [
+  assertKeys(item, [
     'client_secret',
     'created',
     'next_action',
@@ -71,7 +70,7 @@ function assertIntent(
 }
 
 function assertPrice(item?: DeepPartial<Stripe.Price>) {
-  assert.hasAllKeys(item, [
+  assertKeys(item, [
     'id',
     'active',
     'currency',
@@ -82,29 +81,24 @@ function assertPrice(item?: DeepPartial<Stripe.Price>) {
     'type',
     'unit_amount',
   ]);
-  assert.lengthOf(
+  expect(
     Object.keys(item?.metadata as any).filter(
       (k) => !k.startsWith('capabilities')
-    ),
-    6
-  );
+    )
+  ).toHaveLength(6);
 }
 
 function assertProduct(item?: DeepPartial<Stripe.Product>) {
-  assert.hasAllKeys(item, ['id', 'active', 'description', 'metadata', 'name']);
+  assertKeys(item, ['id', 'active', 'description', 'metadata', 'name']);
 }
 
 describe('stripe', () => {
   describe('filterCustomer', () => {
     it('filters recursively', () => {
       const result = filterCustomer(customer1WithSubscription);
-      assert.hasAllKeys(result, [
-        'invoice_settings',
-        'sources',
-        'subscriptions',
-      ]);
+      assertKeys(result, ['invoice_settings', 'sources', 'subscriptions']);
       assertSource(result.sources?.data?.[0]);
-      assert.hasAllKeys(result.invoice_settings, ['default_payment_method']);
+      assertKeys(result.invoice_settings, ['default_payment_method']);
       assertSubscription(result.subscriptions?.data?.[0]);
     });
   });
@@ -175,17 +169,17 @@ describe('stripe', () => {
 
     it('returns invalid when the same plan is passed', () => {
       const actual = getSubscriptionUpdateEligibility(currentPlan, currentPlan);
-      assert.equal(actual, SubscriptionUpdateEligibility.INVALID);
+      expect(actual).toBe(SubscriptionUpdateEligibility.INVALID);
     });
 
     it('returns upgrade when plan "upgrade" is allowed', () => {
       const actual = getSubscriptionUpdateEligibility(currentPlan, newPlan);
-      assert.equal(actual, SubscriptionUpdateEligibility.UPGRADE);
+      expect(actual).toBe(SubscriptionUpdateEligibility.UPGRADE);
     });
 
     it('returns downgrade for a plan "downgrade"', () => {
       const actual = getSubscriptionUpdateEligibility(newPlan, currentPlan);
-      assert.equal(actual, SubscriptionUpdateEligibility.DOWNGRADE);
+      expect(actual).toBe(SubscriptionUpdateEligibility.DOWNGRADE);
     });
 
     it('returns invalid when a plan is not in a product set', () => {
@@ -193,12 +187,10 @@ describe('stripe', () => {
         ...newPlan,
         plan_metadata: { ...newPlan.plan_metadata, productSet: undefined },
       };
-      assert.equal(
-        getSubscriptionUpdateEligibility(currentPlan, x),
+      expect(getSubscriptionUpdateEligibility(currentPlan, x)).toBe(
         SubscriptionUpdateEligibility.INVALID
       );
-      assert.equal(
-        getSubscriptionUpdateEligibility(x, currentPlan),
+      expect(getSubscriptionUpdateEligibility(x, currentPlan)).toBe(
         SubscriptionUpdateEligibility.INVALID
       );
     });
@@ -208,8 +200,7 @@ describe('stripe', () => {
         ...newPlan,
         plan_metadata: { ...newPlan.plan_metadata, productSet: 'testo' },
       };
-      assert.equal(
-        getSubscriptionUpdateEligibility(currentPlan, x),
+      expect(getSubscriptionUpdateEligibility(currentPlan, x)).toBe(
         SubscriptionUpdateEligibility.INVALID
       );
     });
@@ -219,8 +210,7 @@ describe('stripe', () => {
         ...newPlan,
         plan_metadata: { ...newPlan.plan_metadata, productOrder: undefined },
       };
-      assert.equal(
-        getSubscriptionUpdateEligibility(currentPlan, x),
+      expect(getSubscriptionUpdateEligibility(currentPlan, x)).toBe(
         SubscriptionUpdateEligibility.INVALID
       );
     });
@@ -233,8 +223,7 @@ describe('stripe', () => {
           productOrder: 'not a number',
         },
       };
-      assert.equal(
-        getSubscriptionUpdateEligibility(currentPlan, x),
+      expect(getSubscriptionUpdateEligibility(currentPlan, x)).toBe(
         SubscriptionUpdateEligibility.INVALID
       );
     });
@@ -244,11 +233,10 @@ describe('stripe', () => {
         ...newPlan,
         plan_metadata: {
           ...newPlan.plan_metadata,
-          productOrder: currentPlan.plan_metadata!.productOrder,
+          productOrder: currentPlan.plan_metadata?.productOrder,
         },
       };
-      assert.equal(
-        getSubscriptionUpdateEligibility(currentPlan, x),
+      expect(getSubscriptionUpdateEligibility(currentPlan, x)).toBe(
         SubscriptionUpdateEligibility.INVALID
       );
     });
@@ -259,8 +247,7 @@ describe('stripe', () => {
         plan_metadata: { ...currentPlan.plan_metadata, productSet: null },
       };
 
-      assert.equal(
-        getSubscriptionUpdateEligibility(x, newPlan),
+      expect(getSubscriptionUpdateEligibility(x, newPlan)).toBe(
         SubscriptionUpdateEligibility.INVALID
       );
     });
@@ -271,8 +258,7 @@ describe('stripe', () => {
         plan_metadata: { ...newPlan.plan_metadata, productSet: null },
       };
 
-      assert.equal(
-        getSubscriptionUpdateEligibility(currentPlan, x),
+      expect(getSubscriptionUpdateEligibility(currentPlan, x)).toBe(
         SubscriptionUpdateEligibility.INVALID
       );
     });
@@ -283,8 +269,7 @@ describe('stripe', () => {
         plan_metadata: { ...newPlan.plan_metadata, productSet: [] },
       };
 
-      assert.equal(
-        getSubscriptionUpdateEligibility(currentPlan, x),
+      expect(getSubscriptionUpdateEligibility(currentPlan, x)).toBe(
         SubscriptionUpdateEligibility.INVALID
       );
     });
@@ -295,8 +280,7 @@ describe('stripe', () => {
         plan_metadata: { ...currentPlan.plan_metadata, productSet: [] },
       };
 
-      assert.equal(
-        getSubscriptionUpdateEligibility(x, newPlan),
+      expect(getSubscriptionUpdateEligibility(x, newPlan)).toBe(
         SubscriptionUpdateEligibility.INVALID
       );
     });
@@ -312,10 +296,9 @@ describe('stripe', () => {
         plan_metadata: { ...currentPlan.plan_metadata, productSet: ['2'] },
       };
 
-      assert.equal(
-        getSubscriptionUpdateEligibility(currentPlanCopy, newPlanCopy),
-        SubscriptionUpdateEligibility.INVALID
-      );
+      expect(
+        getSubscriptionUpdateEligibility(currentPlanCopy, newPlanCopy)
+      ).toBe(SubscriptionUpdateEligibility.INVALID);
     });
 
     it('returns upgrade if there is 1 element of overlap in the productSet arrays', () => {
@@ -329,10 +312,9 @@ describe('stripe', () => {
         plan_metadata: { ...currentPlan.plan_metadata, productSet: ['1', '2'] },
       };
 
-      assert.equal(
-        getSubscriptionUpdateEligibility(currentPlanCopy, newPlanCopy),
-        SubscriptionUpdateEligibility.UPGRADE
-      );
+      expect(
+        getSubscriptionUpdateEligibility(currentPlanCopy, newPlanCopy)
+      ).toBe(SubscriptionUpdateEligibility.UPGRADE);
     });
 
     it('returns upgrade if there is more than 1 element of overlap in the productSet arrays', () => {
@@ -346,10 +328,9 @@ describe('stripe', () => {
         plan_metadata: { ...currentPlan.plan_metadata, productSet: ['1', '2'] },
       };
 
-      assert.equal(
-        getSubscriptionUpdateEligibility(currentPlanCopy, newPlanCopy),
-        SubscriptionUpdateEligibility.UPGRADE
-      );
+      expect(
+        getSubscriptionUpdateEligibility(currentPlanCopy, newPlanCopy)
+      ).toBe(SubscriptionUpdateEligibility.UPGRADE);
     });
   });
 
@@ -358,13 +339,12 @@ describe('stripe', () => {
       const expected = 50;
       const result = getMinimumAmount('usd');
 
-      assert.equal(result, expected);
+      expect(result).toBe(expected);
     });
 
     it('should throw SubscriptionTypeError for invalid currency', () => {
-      assert.throws(
-        () => getMinimumAmount('fake'),
-        SubscriptionStripeError,
+      expect(() => getMinimumAmount('fake')).toThrow(SubscriptionStripeError);
+      expect(() => getMinimumAmount('fake')).toThrow(
         SubscriptionStripeErrorType.NO_MIN_CHARGE_AMOUNT
       );
     });
