@@ -2,9 +2,9 @@
   "_comment": "Generated from the ciphersuite and Web Crypto directly, not through the module. Not regenerable once any client has written a v1 envelope. See the README under \"Regenerating the fixture\" and the hash pin in golden-envelope.test.ts.",
   "_provenance": {
     "generated": "2026-08-14 to 2026-08-18 during FXA-13144 (PR #21006, commit 1d572d471f), from a throwaway Node script importing hpke 1.1.3 and using crypto.subtle directly. kB, prfOut, keyWrapIv, pkR and skRRaw are fixed inputs and have never changed.",
-    "hpkeFieldsRegenerated": "2026-09-04 during FXA-13147 (commit 636b874d03) when keysChangedAt left the aad and the context moved wholly into info. prfWrappedSkR was unaffected. No client had written an envelope.",
-    "independentlyVerified": "2026-09-14, FXA-14269: all three layers (context framing, HKDF + AES-GCM unwrap, HPKE open) reproduced with hpke 1.1.3 and crypto.subtle alone, constants copied by value, no import from this module.",
-    "frozenSince": "2026-09-14, FXA-14269"
+    "hpkeFieldsRegenerated": "2026-09-04 during FXA-13147 (commit 636b874d03) when keysChangedAt left the aad and the context moved wholly into info. prfWrappedSkR was unaffected. No client had written an envelope. Regenerated again 2026-10-15 during FXA-14742 with hpke 1.1.3 when pkR, enc and ct were bound into the skR wrap's aad; prfWrappedSkR changed in its GCM tag only (same key, iv and scalar). No client had written an envelope.",
+    "independentlyVerified": "2026-09-14, FXA-14269 (pre-FXA-14742 format). The 2026-10-15 vectors were produced by a throwaway script importing hpke and crypto.subtle only, which also unwrapped and opened them; a second-person reproduction is still owed.",
+    "frozenSince": "2026-10-15, FXA-14742"
   },
   "kB": "00112233445566778899aabbccddeeff102030405060708090a0b0c0d0e0f001",
   "prfOut": "fedcba98765432100123456789abcdeff0e1d2c3b4a5968778695a4b3c2d1e0f",
@@ -14,7 +14,7 @@
   "keyWrapIv": "a1b2c3d4e5f60718293a4b5c",
   "pkR": "04014a963f6fd22ad4a52153d578a4f6c58e8ae21b043c9d94875644ac3bbbcb45f5ffd92a7580b46cf2d7217459b9d508655a4abef13cc9a347230cc25d552015433400be039a77b08db4ddb8d4dcbccc28007e07111d981102d25f98ecd11923e435b46b23e4df8fd5bee17235025b39454531de0bbecfb72c4a060da88b34fd09d8a854",
   "skRRaw": "00c5ad512c4129bdba46c5f48cd7534166e9d1d354f14469e5b11cb38ebd66c15da8b16553a9b2eb25c0cd07bcfb3e14a3ff53ffa46430a8dcd57675e818622735eb",
-  "prfWrappedSkR": "82592fc4439ebac48933abd76fc50950cd78551a1548a8b2f7d1953b7af25d1effa6083a159c8d84b12fbca733c36ea72ef4efc83a14687e62c950986813788aae8e12695fcd7d1f6bd24b2c12e1e1f13b50",
-  "hpkeEncapsulatedSecret": "0400e802c49a3007e99940f7825303e508d5d352ffcee0f27c02eb7009dbbb01e63b1683b07bcd41ba3ba6266c9347b14872acf6e6eea5cc479e42f3ab6189fc7727bd01568a8f46e79c49b749000a2640d747306bb060c2ee39ecad6af8f9ef6e369bebe918cd1d2198b8ab5e45ef773c78098b36ec852bdfb9f64c5f799c2842656be4fa",
-  "hpkeSealedKb": "cbb84074fe00431676190d89614c15c819f4e7b605a944ed915b7619905d7d5db10d344ca77c5ebf9fb766d25a614e6b"
+  "prfWrappedSkR": "82592fc4439ebac48933abd76fc50950cd78551a1548a8b2f7d1953b7af25d1effa6083a159c8d84b12fbca733c36ea72ef4efc83a14687e62c950986813788aae8e2e9307dc796a58d2052792b55488dbfc",
+  "hpkeEncapsulatedSecret": "0401fefbab3be6a8c9fa5b615ec04fc076a78d63f2ba9fcd6456b08632573645eb745aaeef2177604d89cb560e3a72f24073de9910b286e816f7f8e2ad1efb25374615014347538b2c0ffb717b070d6a517153f78b001508c431919c609bf8197437204136238b101916550f3f97c7b1bb3373b8d602f26095f343e034027360b1e2e461af",
+  "hpkeSealedKb": "41efe707d595812d801e506a0dbce0126121aeb39aa77c6a42cd7117517ef06072a2d5dfc6916d3ec8e9a90693014772"
 }

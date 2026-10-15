@@ -59,7 +59,7 @@ const VECTOR_FIELDS = [
  * any vector means changing this too, deliberately, in a second file.
  */
 const FIXTURE_SHA256 =
-  'c99094fa17288839e96a7a36ede5c8a62919af75254a99649adf361867b562f0';
+  'c66786e23a4a02ec598bfde299dea1bc5cf5c19222198ec0c2ea627b1e6929ec';
 
 describe('frozen v1 envelope', () => {
   const context = bytes(fixture.context);
@@ -89,12 +89,29 @@ describe('frozen v1 envelope', () => {
     ).toBe(fixture.context);
   });
 
+  // The skR wrap's aad is the context followed by the HPKE fields, each with a
+  // 2-byte big-endian length prefix. Built here by hand so a drift in the
+  // module's framing fails this rather than agreeing with itself.
+  const frame = (...parts: Uint8Array[]) =>
+    Buffer.concat(
+      parts.flatMap((part) => [
+        Buffer.from([(part.length >> 8) & 0xff, part.length & 0xff]),
+        Buffer.from(part),
+      ])
+    );
+  const keyWrapAad = Uint8Array.from(
+    Buffer.concat([
+      Buffer.from(context),
+      frame(envelope.pkR, sealedKb.encapsulatedSecret, sealedKb.ciphertext),
+    ])
+  );
+
   it('unwraps skR to the recorded scalar', async () => {
     const unwrapped = await unwrapRecipientPrivateKey(
       envelope.prfWrappedSkR,
       envelope.keyWrapIv,
       bytes(fixture.prfOut),
-      context
+      keyWrapAad
     );
 
     expect(hex(unwrapped)).toBe(fixture.skRRaw);
