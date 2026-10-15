@@ -1,8 +1,8 @@
 {
-  "commit": "5b124247c387fdf21a46f131aba8d4f5503ebb39",
-  "summary": "Merge pull request #21525 from mozilla/fxa-8591",
-  "description": "chore(deps): upgrade base32-encode to v2 in fxa-settings",
-  "timestamp": 1792095175000,
+  "commit": "a515315fddfc60349fa00e0e9655715151087807",
+  "summary": "Merge pull request #21492 from mozilla/FXA-14758",
+  "description": "fix(settings): show a banner for WAF blocks instead of the unblock flow",
+  "timestamp": 1792100370000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
