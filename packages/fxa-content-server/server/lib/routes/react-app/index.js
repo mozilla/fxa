@@ -134,7 +134,6 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       routes: reactRoute.getRoutes([
         'post_verify/password/force_password_change',
         'subscriptions',
-        'update_firefox',
       ]),
       fullProdRollout: false,
     },
@@ -153,6 +152,13 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         // service_welcome sits here because it shares the post-verify React surface.
         'post_verify/service_welcome',
       ]),
+      fullProdRollout: true,
+    },
+
+    // Backbone has no route for update_firefox, so React is the only option.
+    updateFirefoxRoutes: {
+      featureFlagOn: true,
+      routes: reactRoute.getRoutes(['update_firefox']),
       fullProdRollout: true,
     },
 
