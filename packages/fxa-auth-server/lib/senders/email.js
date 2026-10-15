@@ -7,13 +7,15 @@
 const emailUtils = require('../email/utils/helpers');
 const moment = require('moment-timezone');
 const nodemailer = require('nodemailer');
-const safeUserAgent = require('fxa-shared/lib/user-agent').default;
+const { userAgent: safeUserAgent } = require('@fxa/shared/user-agent');
 const url = require('url');
 const { URL } = url;
 const {
   localizedPlanConfig,
-} = require('fxa-shared/subscriptions/configuration/utils');
-const { productDetailsFromPlan } = require('fxa-shared').subscriptions.metadata;
+} = require('@fxa/accounts/subscriptions-legacy/subscriptions/configuration/utils');
+const {
+  productDetailsFromPlan,
+} = require('@fxa/accounts/subscriptions-legacy/subscriptions/metadata');
 const Renderer = require('./renderer').default;
 const { NodeRendererBindings } = require('./renderer/bindings-node');
 const { determineLocale } = require('../../../../libs/shared/l10n/src');
