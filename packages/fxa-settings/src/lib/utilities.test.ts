@@ -6,6 +6,7 @@ import {
   buildPairingDownloadUrl,
   constructHrefWithUtm,
   deepMerge,
+  formatRecoveryKey,
   formatSecret,
   isBase32Crockford,
   isIosSafari,
@@ -388,6 +389,15 @@ describe('isIosSafari', () => {
         Object.defineProperty(navigator, 'userAgent', original);
       }
     }
+  });
+});
+
+describe('formatRecoveryKey', () => {
+  it('encodes the key as grouped Crockford base32', () => {
+    const key = new Uint8Array(20).map((_, i) => i * 13);
+    expect(formatRecoveryKey(key.buffer)).toBe(
+      '006H M9SM 8575 PT3N GA7S SADP RF8D VTQQ'
+    );
   });
 });
 
