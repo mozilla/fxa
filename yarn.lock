@@ -14,7 +14,7 @@ __metadata:
     convict-format-with-validator: "npm:^6.2.0"
     cookie-session: "npm:^2.1.0"
     eslint: "npm:^7.32.0"
-    express: "npm:^4.21.2"
+    express: "npm:^5.2.1"
     ioredis: "npm:^5.0.6"
     morgan: "npm:^1.11.0"
     pm2: "npm:^7.0.0"
