@@ -95,7 +95,8 @@ export class ModelDataProvider {
     }
     this.isDirty = false;
 
-    let errors = validateSync(this);
+    // The base class has no decorators, so skip the unknownValue check.
+    let errors = validateSync(this, { forbidUnknownValues: false });
 
     // If a key was provided only consider errors for that property.
     if (typeof properties === 'string') {
