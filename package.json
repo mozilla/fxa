@@ -104,7 +104,7 @@
     "cors": "^2.8.5",
     "diffparser": "^2.0.1",
     "dotenv": "^17.4.2",
-    "find-up": "^5.0.0",
+    "find-up": "^6.3.0",
     "googleapis": "^144.0.0",
     "graphql": "^16.10.0",
     "graphql-request": "^6.1.0",
