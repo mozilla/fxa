@@ -19437,10 +19437,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/dateformat@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "@types/dateformat@npm:3.0.1"
-  checksum: 10c0/f0cbd170987ede1fb4b541f1471de7eb722577b391ba3209df6e6840f32cb3ec2be8a8a5e00ff364834429d16bc341472087d91a960b903f331f5c44073af9a4
+"@types/dateformat@npm:^5.0.0":
+  version: 5.0.3
+  resolution: "@types/dateformat@npm:5.0.3"
+  checksum: 10c0/828452c096b0b6901a64ce1f3a47fb96755f2451a2605b59fb271407526c62020d171aab6946f9268ca5a4d63db7952c32595bf30b49ed54b218414ec6a02261
   languageName: node
   linkType: hard
 
@@ -31850,7 +31850,7 @@ __metadata:
     "@testing-library/jest-dom": "npm:^5.16.5"
     "@types/chance": "npm:^1.1.2"
     "@types/convict": "npm:^6.1.1"
-    "@types/dateformat": "npm:^3.0.1"
+    "@types/dateformat": "npm:^5.0.0"
     "@types/express": "npm:^4.17.12"
     "@types/on-headers": "npm:^2.1.30"
     "@types/postcss-import": "npm:^14"
