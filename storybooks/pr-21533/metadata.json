@@ -1,8 +1,8 @@
 {
-  "commit": "29dc2f230c1fd21809bae7e55043662582988d45",
+  "commit": "f4d859d7be8cd5195ff1537968405af7712b4140",
   "summary": "chore(deps): remove nest-typed-config/class-validator resolution",
-  "description": "Because:\n- The nest-typed-config/class-validator resolution held class-validator at 0.14.1.\n- From 0.14.2, validate() without options rejects classes that have no decorators.\n\nThis commit:\n- Removes the resolution and moves root class-validator to ^0.15.1.\n- Adds top-level decorators to GetExperimentsActionResult and GetCMSChurnInterventionActionResult.\n- Adds NextIOValidator specs for both result classes.\n\nCloses FXA-11987",
-  "timestamp": 1792098605000,
+  "description": "Because:\n\n* A resolution pinned class-validator to 0.14.1.\n* From 0.14.2, validate() without options rejects undecorated classes.\n\nThis commit:\n\n* Removes the resolution and moves root class-validator to ^0.15.1.\n* Adds top-level decorators to two payments result classes.\n* Skips the unknownValue check in ModelDataProvider.validate().\n\nCloses FXA-11987",
+  "timestamp": 1792100741000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
