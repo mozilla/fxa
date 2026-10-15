@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit d7286d117f11034ae0a2475937e44f7bcb50eb4a</title>
+  <title>Storybooks for commit 82a8d1f653dcde19e73654d9a61e16411b51b42c</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit d7286d117f11034ae0a2475937e44f7bcb50eb4a</h1>
+  <h1>Storybooks for commit 82a8d1f653dcde19e73654d9a61e16411b51b42c</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/15/2026, 8:42:04 PM UTC</dd>
+    <dd>10/15/2026, 10:16:52 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): render the 500 error page in React</pre></dd>
     <dt>Description</dt>
@@ -37,6 +37,7 @@
 
 * The 500 page was a server template outside React and Fluent
 * The 502, 503 and update_firefox server pages were not needed
+* The CI extract job cannot parse ?? in content-server server files
 
 This commit:
 
@@ -44,7 +45,7 @@ This commit:
 * Serves that page from the content-server 500 handler for HTML
 * Fixes the JSON and text 500 branches to use req.gettext
 * Removes the 500, 502, 503 and update_firefox server routes
-* Lets React always serve /update_firefox
+* Uses ES2018 syntax in the beta-settings spec
 
 Closes FXA-6656</pre></dd>
   </dl>
