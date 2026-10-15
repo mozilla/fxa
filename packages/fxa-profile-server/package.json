@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@types/sharp": "^0",
-    "@types/sinon": "^17.0.0",
+    "@types/sinon": "^22.0.0",
     "commander": "^13.1.0",
     "eslint": "^8.18.0",
     "jest-junit": "^16.0.0",
@@ -46,7 +46,7 @@
     "pngparse": "2.0.1",
     "prettier": "^3.5.3",
     "rimraf": "^6.0.1",
-    "sinon": "^14.0.0",
+    "sinon": "^22.1.0",
     "ts-jest": "^29.1.1"
   },
   "repository": {

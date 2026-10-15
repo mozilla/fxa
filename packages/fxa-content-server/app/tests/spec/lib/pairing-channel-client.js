@@ -13,7 +13,7 @@ describe('lib/pairing-channel-client', () => {
   let sandbox;
 
   beforeEach(() => {
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
   });
 
   afterEach(() => {

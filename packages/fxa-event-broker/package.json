@@ -34,7 +34,7 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.973.0",
-    "@types/sinon": "10.0.1",
+    "@types/sinon": "^22.0.0",
     "convict": "^6.2.5",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
