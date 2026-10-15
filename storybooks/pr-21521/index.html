@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 40fef50bbf1bf83d53a39d77578e414b99038d03</title>
+  <title>Storybooks for commit 2bc72b044ae0705229b7f32118f562ca80e90a3c</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,25 +23,27 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 40fef50bbf1bf83d53a39d77578e414b99038d03</h1>
+  <h1>Storybooks for commit 2bc72b044ae0705229b7f32118f562ca80e90a3c</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/15/2026, 4:57:50 PM UTC</dd>
+    <dd>10/15/2026, 8:20:58 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(settings): show loading state on v2 pairing scan_qr during TOTP</pre></dd>
+    <dd><pre>fix(settings): ask 2FA accounts for TOTP before v1 pairing starts</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-* On v2 pairing, a 2FA account saw the QR card on scan_qr before
-  the redirect to the TOTP page.
+- A 2FA account on v1 pairing could start pairing from /pair with no
+  recent TOTP code; the code prompt came only after Firefox opened the channel.
 
 This commit:
-* Shows the loading state on scan_qr until the TOTP check finishes.
-* Hides &quot;Skip for now&quot; while the check is pending.
+- Gates /pair &quot;Continue&quot; and &quot;Continue to sync&quot; on pairingRequiresTotp
+- Sends the user to /pair/auth/totp, which returns to /pair after a good code
+- Resumes pair_preferences once on return, and drops the router state
+- Adds unit tests and a functional test for the 2FA /pair flow
 
-Closes FXA-14782</pre></dd>
+Closes FXA-14781</pre></dd>
   </dl>
 </body>
 </html>
