@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 312c0ee66e431aa163903b0504c3a689911ace5d</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 312c0ee66e431aa163903b0504c3a689911ace5d</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/15/2026, 7:27:33 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(settings): add utm_content to the v2 pairing QR URL</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- The v2 pairing QR URL has no campaign tag for scans.
+
+This commit:
+- Adds utm_content=DTM_SYNC_PAIR_V2 to the getPairUrl(&#039;2&#039;) URL, before the fragment.
+- Keeps the v1 URL and the supplicant deep links unchanged.
+- Covers v1 and v2 in the unit tests and asserts the tag in pairingFlowV2.spec.ts.
+
+Closes FXA-14784</pre></dd>
+  </dl>
+</body>
+</html>
