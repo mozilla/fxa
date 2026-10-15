@@ -46,6 +46,9 @@
       "@fxa/accounts/recovery-phone": [
         "./libs/accounts/recovery-phone/src/index.ts"
       ],
+      "@fxa/accounts/subscriptions-legacy/*": [
+        "./libs/accounts/subscriptions-legacy/src/*"
+      ],
       "@fxa/accounts/two-factor": ["./libs/accounts/two-factor/src/index.ts"],
       "@fxa/entitlements/metering": ["./libs/entitlements/metering/src/index.ts"],
       "@fxa/entitlements/metering/testing": [

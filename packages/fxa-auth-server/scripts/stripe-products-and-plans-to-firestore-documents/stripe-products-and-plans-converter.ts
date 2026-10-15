@@ -12,9 +12,9 @@ import {
   UiContentConfigKeys,
   UrlConfig,
   UrlConfigKeys,
-} from 'fxa-shared/subscriptions/configuration/base';
-import { PlanConfig } from 'fxa-shared/subscriptions/configuration/plan';
-import { ProductConfig } from 'fxa-shared/subscriptions/configuration/product';
+} from '@fxa/accounts/subscriptions-legacy/subscriptions/configuration/base';
+import { PlanConfig } from '@fxa/accounts/subscriptions-legacy/subscriptions/configuration/plan';
+import { ProductConfig } from '@fxa/accounts/subscriptions-legacy/subscriptions/configuration/product';
 import { Logger } from 'mozlog';
 import Stripe from 'stripe';
 import { Container } from 'typedi';

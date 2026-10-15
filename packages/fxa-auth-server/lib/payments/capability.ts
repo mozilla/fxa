@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { getUidAndEmailByStripeCustomerId } from '@fxa/shared/db/mysql/legacy/models/auth';
-import { ALL_RPS_CAPABILITIES_KEY } from 'fxa-shared/subscriptions/configuration/base';
-import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
+import { ALL_RPS_CAPABILITIES_KEY } from '@fxa/accounts/subscriptions-legacy/subscriptions/configuration/base';
+import { ACTIVE_SUBSCRIPTION_STATUSES } from '@fxa/accounts/subscriptions-legacy/subscriptions/stripe';
 import {
   AbbrevPlan,
   ClientIdCapabilityMap,
   SubscriptionChangeEligibility,
   SubscriptionEligibilityResult,
-} from 'fxa-shared/subscriptions/types';
+} from '@fxa/accounts/subscriptions-legacy/subscriptions/types';
 import { StatsD } from 'hot-shots';
 import Stripe from 'stripe';
 import Container from 'typedi';
@@ -765,7 +765,6 @@ export class CapabilityService {
   private async fetchSubscribedPricesFromStripe(
     uid: string
   ): Promise<string[]> {
-
     let customer: Stripe.Customer | void;
     try {
       customer = await this.stripeHelper.fetchCustomer(uid, ['subscriptions']);
@@ -824,11 +823,7 @@ export class CapabilityService {
     try {
       return await this.capabilityManager.getClients();
     } catch (err) {
-      throw error.internalValidationError(
-        'subscriptions.getClients',
-        {},
-        err
-      );
+      throw error.internalValidationError('subscriptions.getClients', {}, err);
     }
   }
 

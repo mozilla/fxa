@@ -37,17 +37,17 @@ import {
   StripeHelper as StripeHelperBase,
   SUBSCRIPTIONS_RESOURCE,
 } from 'fxa-shared/payments/stripe';
-import { PlanConfig } from 'fxa-shared/subscriptions/configuration/plan';
+import { PlanConfig } from '@fxa/accounts/subscriptions-legacy/subscriptions/configuration/plan';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
   singlePlan,
-} from 'fxa-shared/subscriptions/stripe';
+} from '@fxa/accounts/subscriptions-legacy/subscriptions/stripe';
 import {
   AbbrevPlan,
   AbbrevProduct,
   MozillaSubscriptionTypes,
   WebSubscription,
-} from 'fxa-shared/subscriptions/types';
+} from '@fxa/accounts/subscriptions-legacy/subscriptions/types';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
 import { Logger } from 'mozlog';

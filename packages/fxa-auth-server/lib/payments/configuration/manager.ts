@@ -12,8 +12,8 @@ import {
   PaymentConfigManager as PaymentConfigManagerBase,
   PaymentConfigManagerError,
 } from 'fxa-shared/payments/configuration/manager';
-import { PlanConfig } from 'fxa-shared/subscriptions/configuration/plan';
-import { ProductConfig } from 'fxa-shared/subscriptions/configuration/product';
+import { PlanConfig } from '@fxa/accounts/subscriptions-legacy/subscriptions/configuration/plan';
+import { ProductConfig } from '@fxa/accounts/subscriptions-legacy/subscriptions/configuration/product';
 
 export class PaymentConfigManager extends PaymentConfigManagerBase {
   constructor() {

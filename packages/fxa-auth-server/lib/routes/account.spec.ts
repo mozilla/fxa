@@ -29,7 +29,9 @@ const { CapabilityService } = require('../payments/capability');
 const { AccountEventsManager } = require('../account-events');
 const { AccountDeleteManager } = require('../account-delete');
 const { normalizeEmail } = require('@fxa/shared/email');
-const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
+const {
+  MozillaSubscriptionTypes,
+} = require('@fxa/accounts/subscriptions-legacy/subscriptions/types');
 const {
   PlaySubscriptions,
 } = require('../payments/iap/google-play/subscriptions');

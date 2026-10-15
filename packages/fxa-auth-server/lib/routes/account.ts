@@ -8,7 +8,7 @@ import {
 import {
   AppStoreSubscription,
   PlayStoreSubscription,
-} from 'fxa-shared/dto/auth/payments/iap-subscription';
+} from '@fxa/accounts/subscriptions-legacy/dto/auth/payments/iap-subscription';
 import {
   WrappedErrorCodes,
   tryResolveIpv4,
@@ -20,7 +20,7 @@ import {
   scopeSetHelpers as ScopeSet,
 } from '@fxa/accounts/oauth';
 import { list as listAuthorizedClients } from '../oauth/authorized_clients';
-import { WebSubscription } from 'fxa-shared/subscriptions/types';
+import { WebSubscription } from '@fxa/accounts/subscriptions-legacy/subscriptions/types';
 import isA from 'joi';
 import { Container } from 'typedi';
 

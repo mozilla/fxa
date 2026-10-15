@@ -7,16 +7,16 @@ import { writeFile } from 'fs/promises';
 import PQueue from 'p-queue';
 import { PayPalHelper } from '../../lib/payments/paypal';
 
-import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
+import { ACTIVE_SUBSCRIPTION_STATUSES } from '@fxa/accounts/subscriptions-legacy/subscriptions/stripe';
 import { RefundType } from '@fxa/payments/paypal';
 
 /**
-  * For RAM-preserving pruposes only
-  */
+ * For RAM-preserving pruposes only
+ */
 const QUEUE_SIZE_LIMIT = 1000;
 /**
-  * For RAM-preserving pruposes only
-  */
+ * For RAM-preserving pruposes only
+ */
 const QUEUE_CONCURRENCY_LIMIT = 100;
 
 export class CustomerPlanMover {
@@ -38,11 +38,13 @@ export class CustomerPlanMover {
     private paypalHelper: PayPalHelper
   ) {
     if (proratedRefundRate !== null && proratedRefundRate <= 0) {
-      throw new Error("proratedRefundRate must be greater than zero");
+      throw new Error('proratedRefundRate must be greater than zero');
     }
 
     if (prorationBehavior !== 'none' && proratedRefundRate !== null) {
-      throw new Error("prorationBehavior can only be specified as non-'none' if proratedRefundRate is null");
+      throw new Error(
+        "prorationBehavior can only be specified as non-'none' if proratedRefundRate is null"
+      );
     }
 
     this.stripeQueue = new PQueue({
@@ -54,29 +56,39 @@ export class CustomerPlanMover {
   async convert() {
     await this.writeReportHeader();
 
-    const destinationPrice = await this.stripe.prices.retrieve(this.destinationPlanId, {
-      expand: ['currency_options'],
-    });
+    const destinationPrice = await this.stripe.prices.retrieve(
+      this.destinationPlanId,
+      {
+        expand: ['currency_options'],
+      }
+    );
 
-    const conversionQueue = new PQueue({ concurrency: QUEUE_CONCURRENCY_LIMIT });
+    const conversionQueue = new PQueue({
+      concurrency: QUEUE_CONCURRENCY_LIMIT,
+    });
 
     for await (const subscription of this.stripe.subscriptions.list({
       price: this.sourcePlanId,
       limit: 100,
     })) {
       if (conversionQueue.size + conversionQueue.pending >= QUEUE_SIZE_LIMIT) {
-        await conversionQueue.onSizeLessThan(QUEUE_SIZE_LIMIT - QUEUE_CONCURRENCY_LIMIT);
+        await conversionQueue.onSizeLessThan(
+          QUEUE_SIZE_LIMIT - QUEUE_CONCURRENCY_LIMIT
+        );
       }
 
       conversionQueue.add(() => {
-        return this.convertSubscription(subscription, destinationPrice);;
+        return this.convertSubscription(subscription, destinationPrice);
       });
     }
 
     await conversionQueue.onIdle();
   }
 
-  async convertSubscription(subscription: Stripe.Subscription, destinationPrice: Stripe.Price) {
+  async convertSubscription(
+    subscription: Stripe.Subscription,
+    destinationPrice: Stripe.Price
+  ) {
     const paymentProvider =
       subscription.collection_method === 'send_invoice' ? 'PayPal' : 'Stripe';
 
@@ -88,13 +100,20 @@ export class CustomerPlanMover {
           ? subscription.customer
           : subscription.customer.id;
 
-      if (this.skipSubscriptionIfSetToCancel && subscription.cancel_at_period_end) {
-        console.log(`Skipping subscription ${subscription.id} as it is set to cancel at period end`);
+      if (
+        this.skipSubscriptionIfSetToCancel &&
+        subscription.cancel_at_period_end
+      ) {
+        console.log(
+          `Skipping subscription ${subscription.id} as it is set to cancel at period end`
+        );
         return;
       }
 
       if (!ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
-        throw new Error(`Sub is not in active state: ${subscription.status}, ${subscription.id}`);
+        throw new Error(
+          `Sub is not in active state: ${subscription.status}, ${subscription.id}`
+        );
       }
 
       const customer = await this.fetchCustomer(customerId);
@@ -103,11 +122,17 @@ export class CustomerPlanMover {
       }
       const isExcluded = this.isCustomerExcluded(customer.subscriptions.data);
 
-      const destinationPriceCurrencyOptionForCurrency = destinationPrice.currency_options?.[subscription.currency];
+      const destinationPriceCurrencyOptionForCurrency =
+        destinationPrice.currency_options?.[subscription.currency];
       const destinationPriceUnitAmountForCurrency =
         destinationPriceCurrencyOptionForCurrency?.unit_amount ??
-        (typeof destinationPriceCurrencyOptionForCurrency?.unit_amount_decimal === "string"
-          ? Math.round(parseFloat(destinationPriceCurrencyOptionForCurrency.unit_amount_decimal))
+        (typeof destinationPriceCurrencyOptionForCurrency?.unit_amount_decimal ===
+        'string'
+          ? Math.round(
+              parseFloat(
+                destinationPriceCurrencyOptionForCurrency.unit_amount_decimal
+              )
+            )
           : null);
 
       let amountRefunded: number | null = null;
@@ -125,7 +150,7 @@ export class CustomerPlanMover {
             daysUntilNextBill = calculation.daysUntilBill;
             daysSinceLastBill = calculation.daysSinceBill;
             previousInvoiceAmountDue = calculation.invoice.amount_due;
-          } catch(e) {
+          } catch (e) {
             console.warn(e);
           }
         }
@@ -133,13 +158,19 @@ export class CustomerPlanMover {
         if (!this.dryRun) {
           await this.enqueueRequest(() =>
             this.stripe.subscriptions.update(subscription.id, {
-              items: [{
-                id: subscription.items.data[0].id,
-                price: this.destinationPlanId
-              }],
-              discounts: this.coupon ? [{
-                coupon: this.coupon
-              }] : undefined,
+              items: [
+                {
+                  id: subscription.items.data[0].id,
+                  price: this.destinationPlanId,
+                },
+              ],
+              discounts: this.coupon
+                ? [
+                    {
+                      coupon: this.coupon,
+                    },
+                  ]
+                : undefined,
               proration_behavior: this.prorationBehavior,
               metadata: {
                 currency: subscription.currency,
@@ -147,7 +178,9 @@ export class CustomerPlanMover {
                 previous_plan_id: this.sourcePlanId,
                 amount: destinationPriceUnitAmountForCurrency,
               },
-              billing_cycle_anchor: this.resetBillingCycleAnchor ? "now" : "unchanged"
+              billing_cycle_anchor: this.resetBillingCycleAnchor
+                ? 'now'
+                : 'unchanged',
             })
           );
         }
@@ -159,7 +192,7 @@ export class CustomerPlanMover {
           try {
             amountRefunded = await this.attemptRefund(subscription);
             isOwed = false;
-          } catch(e) {
+          } catch (e) {
             console.log(`Failed to issue a refund for ${customerId} ${e}`);
             isOwed = true;
           }
@@ -221,9 +254,16 @@ export class CustomerPlanMover {
    * @param subscription The subscription to calculate for
    * @returns Object containing refundAmount, daysSinceBill, and invoice
    */
-  async calculateRefundAmount(subscription: Stripe.Subscription): Promise<{ refundAmount: number, daysUntilBill: number, daysSinceBill: number, invoice: Stripe.Invoice }> {
+  async calculateRefundAmount(subscription: Stripe.Subscription): Promise<{
+    refundAmount: number;
+    daysUntilBill: number;
+    daysSinceBill: number;
+    invoice: Stripe.Invoice;
+  }> {
     if (!this.proratedRefundRate) {
-      throw new Error("proratedRefundRate must be specified to use calculateRefundAmount");
+      throw new Error(
+        'proratedRefundRate must be specified to use calculateRefundAmount'
+      );
     }
 
     if (!subscription.latest_invoice) {
@@ -240,7 +280,7 @@ export class CustomerPlanMover {
     );
 
     if (invoice.status !== 'paid') {
-      throw new Error("Customer is pending renewal right now!");
+      throw new Error('Customer is pending renewal right now!');
     }
 
     const oneDayMs = 1000 * 60 * 60 * 24;
@@ -272,22 +312,31 @@ export class CustomerPlanMover {
     const invoice = calculation.invoice;
 
     if (refundAmount > invoice.amount_due) {
-      throw new Error(`Will not refund ${invoice.id} for ${refundAmount} as it would eclipse the amount due on the invoice`);
+      throw new Error(
+        `Will not refund ${invoice.id} for ${refundAmount} as it would eclipse the amount due on the invoice`
+      );
     }
 
     if (refundAmount <= 0) {
-      throw new Error(`Will not refund ${invoice.id} for ${refundAmount} as it is less than or equal to zero`);
+      throw new Error(
+        `Will not refund ${invoice.id} for ${refundAmount} as it is less than or equal to zero`
+      );
     }
 
     if (invoice.collection_method === 'send_invoice') {
-      const behavior = refundAmount === invoice.amount_due ? {
-        refundType: RefundType.Full
-      } as const : {
-        refundType: RefundType.Partial,
-        amount: refundAmount,
-      } as const;
+      const behavior =
+        refundAmount === invoice.amount_due
+          ? ({
+              refundType: RefundType.Full,
+            } as const)
+          : ({
+              refundType: RefundType.Partial,
+              amount: refundAmount,
+            } as const);
 
-      console.log(`Issuing ${refundAmount} (${behavior.refundType}) Paypal refund for ${invoice.id}`);
+      console.log(
+        `Issuing ${refundAmount} (${behavior.refundType}) Paypal refund for ${invoice.id}`
+      );
       if (this.dryRun) {
         console.log('(dry run mode, no refund issued)');
       } else {
@@ -307,7 +356,7 @@ export class CustomerPlanMover {
         await this.enqueueRequest(() =>
           this.stripe.refunds.create({
             charge: chargeId,
-            amount: refundAmount
+            amount: refundAmount,
           })
         );
       }
@@ -323,7 +372,8 @@ export class CustomerPlanMover {
   isCustomerExcluded(subscriptions: Stripe.Subscription[]) {
     for (const subscription of subscriptions) {
       for (const item of subscription.items.data) {
-        if (this.excludeCustomersHavingPriceIds.includes(item.plan.id)) return true;
+        if (this.excludeCustomersHavingPriceIds.includes(item.plan.id))
+          return true;
       }
     }
 
@@ -332,19 +382,19 @@ export class CustomerPlanMover {
 
   async writeReportHeader() {
     const data = [
-      "subscriptionId",
-      "fxaUid",
-      "stripeEmail",
-      "postalCode",
-      "isExcluded",
-      "amountRefunded",
-      "approximateAmountWasOwed",
-      "daysUntilNextBill",
-      "daysSinceLastBill",
-      "previousInvoiceAmountDue",
-      "isOwed",
-      "error",
-      "paymentProvider"
+      'subscriptionId',
+      'fxaUid',
+      'stripeEmail',
+      'postalCode',
+      'isExcluded',
+      'amountRefunded',
+      'approximateAmountWasOwed',
+      'daysUntilNextBill',
+      'daysSinceLastBill',
+      'previousInvoiceAmountDue',
+      'isOwed',
+      'error',
+      'paymentProvider',
     ];
 
     const reportCSV = data.join(',') + '\n';
@@ -356,19 +406,22 @@ export class CustomerPlanMover {
   }
 
   async writeReport(args: {
-    subscription: Stripe.Subscription,
-    customer: Stripe.Customer | null,
-    paymentProvider: 'Stripe' | 'PayPal',
-    isExcluded: boolean,
-    amountRefunded: number | null,
-    approximateAmountWasOwed: number | null,
-    daysUntilNextBill: number | null,
-    daysSinceLastBill: number | null,
-    previousInvoiceAmountDue: number | null,
-    isOwed: boolean,
-    error: boolean
+    subscription: Stripe.Subscription;
+    customer: Stripe.Customer | null;
+    paymentProvider: 'Stripe' | 'PayPal';
+    isExcluded: boolean;
+    amountRefunded: number | null;
+    approximateAmountWasOwed: number | null;
+    daysUntilNextBill: number | null;
+    daysSinceLastBill: number | null;
+    previousInvoiceAmountDue: number | null;
+    isOwed: boolean;
+    error: boolean;
   }) {
-    const postalCode = args.customer?.shipping?.address?.postal_code ?? args.customer?.address?.postal_code ?? "null";
+    const postalCode =
+      args.customer?.shipping?.address?.postal_code ??
+      args.customer?.address?.postal_code ??
+      'null';
 
     const data = [
       args.subscription.id,
@@ -376,14 +429,14 @@ export class CustomerPlanMover {
       `"${args.customer?.email}"`,
       postalCode,
       String(args.isExcluded),
-      args.amountRefunded ?? "null",
-      args.approximateAmountWasOwed ?? "null",
-      args.daysUntilNextBill ?? "null",
-      args.daysSinceLastBill ?? "null",
-      args.previousInvoiceAmountDue ?? "null",
+      args.amountRefunded ?? 'null',
+      args.approximateAmountWasOwed ?? 'null',
+      args.daysUntilNextBill ?? 'null',
+      args.daysSinceLastBill ?? 'null',
+      args.previousInvoiceAmountDue ?? 'null',
       args.isOwed,
       args.error,
-      args.paymentProvider
+      args.paymentProvider,
     ];
 
     const reportCSV = data.join(',') + '\n';

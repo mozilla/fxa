@@ -124,7 +124,9 @@ const {
   PurchaseWithDetailsOfferingContentTransformedFactory,
 } = require('@fxa/shared/cms');
 
-const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
+const {
+  MozillaSubscriptionTypes,
+} = require('@fxa/accounts/subscriptions-legacy/subscriptions/types');
 
 const STRIPE_FIXTURES = '../../test/local/payments/fixtures/stripe';
 const APPLE_FIXTURES = '../../test/local/payments/fixtures/apple-app-store';

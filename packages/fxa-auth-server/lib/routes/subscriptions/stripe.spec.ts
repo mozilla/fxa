@@ -61,7 +61,7 @@ let config: any,
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('@fxa/accounts/oauth');
 const {
   SubscriptionEligibilityResult,
-} = require('fxa-shared/subscriptions/types');
+} = require('@fxa/accounts/subscriptions-legacy/subscriptions/types');
 
 const ACCOUNT_LOCALE = 'en-US';
 const TEST_EMAIL = 'test@email.com';
