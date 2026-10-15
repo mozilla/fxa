@@ -1,8 +1,8 @@
 {
-  "commit": "1adcd04c6deac2f77264f92a0641a68b1cfec3c3",
-  "summary": "Merge pull request #21515 from mozilla/fxa-14716",
-  "description": "refactor(content-server): move server imports off fxa-shared",
-  "timestamp": 1792018996000,
+  "commit": "418e4b620dc754b8f129c17864a2c33e0b4fc449",
+  "summary": "Merge pull request #21427 from mozilla/pay-3937-fix-webhook-outoforder-update",
+  "description": "fix(payments): guard subscription writes on Stripe event time",
+  "timestamp": 1792068905000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
