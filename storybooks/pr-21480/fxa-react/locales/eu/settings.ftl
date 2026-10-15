@@ -5,8 +5,8 @@
 
 ## Banner component
 
-resend-code-success-banner-heading = Kode berri bat bidali da zure posta elektronikora.
-resend-link-success-banner-heading = Esteka berri bat bidali da zure posta elektronikora.
+resend-code-success-banner-heading = Kode berri bat bidali da zure helbide elektronikora.
+resend-link-success-banner-heading = Lotura berri bat bidali da zure helbide elektronikora.
 # $accountsEmail is the Mozilla accounts sender email address (e.g. accounts@firefox.com)
 resend-success-banner-description = Gehitu { $accountsEmail } zure kontaktuetara arazorik gabeko bidalketarako.
 
@@ -16,7 +16,7 @@ resend-success-banner-description = Gehitu { $accountsEmail } zure kontaktuetara
 # This aria-label applies to the dismiss/close button of the banner
 # This text is for screen-readers
 brand-banner-dismiss-button-2 =
-    .aria-label = Itxi pankarta
+    .aria-label = Itxi iragarki-banda
 # This message is displayed as the title element in the banner, prior to actually launching the new brand
 brand-prelaunch-title = { -product-firefox-accounts } berrizendatuko da azaroaren batean { -product-mozilla-accounts }
 # This message is displayed as sub title element in the banner, giving a it more context about the brand changes.

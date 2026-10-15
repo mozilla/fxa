@@ -66,13 +66,13 @@ app-logo-alt-3 =
 
 
 
-resend-code-success-banner-heading = Kode berri bat bidali da zure posta elektronikora.
-resend-link-success-banner-heading = Esteka berri bat bidali da zure posta elektronikora.
+resend-code-success-banner-heading = Kode berri bat bidali da zure helbide elektronikora.
+resend-link-success-banner-heading = Lotura berri bat bidali da zure helbide elektronikora.
 resend-success-banner-description = Gehitu { $accountsEmail } zure kontaktuetara arazorik gabeko bidalketarako.
 
 
 brand-banner-dismiss-button-2 =
-    .aria-label = Itxi pankarta
+    .aria-label = Itxi iragarki-banda
 brand-prelaunch-title = { -product-firefox-accounts } berrizendatuko da azaroaren batean { -product-mozilla-accounts }
 brand-prelaunch-subtitle = Erabiltzaile-izen eta pasahitz berarekin hasiko duzu saioa oraindik, eta ez dago beste aldaketarik erabiltzen dituzun produktuetan.
 brand-postlaunch-title = { -product-firefox-accounts } { -product-mozilla-accounts } izena jarri diegu. Erabiltzaile-izen eta pasahitz berarekin hasiko duzu saioa oraindik, eta ez dago beste aldaketarik erabiltzen dituzun produktuetan.
