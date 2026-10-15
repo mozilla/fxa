@@ -1,8 +1,8 @@
 {
-  "commit": "17b0ebd5fde3aeacec85c275458a745c55b39a75",
-  "summary": "Merge pull request #21526 from mozilla/fxa-5409",
-  "description": "chore(deps): upgrade find-up to 6.3.0",
-  "timestamp": 1792093156000,
+  "commit": "b4a5854adfd3918c9768fe48c77a9127744cb3e0",
+  "summary": "Merge pull request #21527 from mozilla/fxa-11990",
+  "description": "chore(deps): remove @types/react resolution",
+  "timestamp": 1792094723000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
