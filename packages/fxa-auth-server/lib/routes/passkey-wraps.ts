@@ -62,6 +62,26 @@ function isBoundTo(cid: string | undefined, credentialId: string): boolean {
 }
 
 /**
+ * Whether a password has been verified on the token's session since it was
+ * created.
+ *
+ * `/session/reauth` is the only writer of `authAt`, and a session with none
+ * recorded reads back with `authAt` equal to `createdAt`. A passkey sign-in,
+ * or a `/passkey/verification` step-up on that session, moves neither; the
+ * cid-bound token alone proves possession of the passkey, not of `kB`.
+ */
+function hasPasswordReauth(session: {
+  createdAt?: number;
+  authAt?: number;
+}): boolean {
+  return (
+    !!session.authAt &&
+    !!session.createdAt &&
+    session.authAt > session.createdAt
+  );
+}
+
+/**
  * Handlers for the passkey wrap endpoints. The envelopes that let a passkey
  * unlock `kB`.
  */
@@ -78,15 +98,20 @@ export class PasskeyWrapsHandler {
    * Creates the wrap for a credential that has none. A stale wrap is resolved
    * by deleting the wrap, leaving the passkey registered.
    *
-   * Requires an `mfa:passkey` token bound to the credential being written.
+   * Requires an `mfa:passkey` token bound to the credential being written, on
+   * a session that has verified the password since it was created. The sealed
+   * `kB` is stored unread, so that reauth is the only proof the caller could
+   * have derived it.
    *
    * @returns `{ created: boolean }` — false when an identical wrap was already
    *   stored.
    */
   async createPasskeyWrap(request: AuthRequest) {
-    const { uid, cid } = request.auth.credentials as {
+    const { uid, cid, createdAt, authAt } = request.auth.credentials as {
       uid: string;
       cid?: string;
+      createdAt?: number;
+      authAt?: number;
     };
     const payload = request.payload as WrapPayload;
     const { credentialId } = payload;
@@ -100,6 +125,11 @@ export class PasskeyWrapsHandler {
     );
 
     if (!isBoundTo(cid, credentialId)) {
+      await this.recordEvent(request, 'account.passkey.wrap_creation_failure');
+      throw AppError.invalidMfaToken();
+    }
+
+    if (!hasPasswordReauth({ createdAt, authAt })) {
       await this.recordEvent(request, 'account.passkey.wrap_creation_failure');
       throw AppError.invalidMfaToken();
     }

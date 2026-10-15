@@ -49,6 +49,13 @@ const validPayload = (overrides: Record<string, unknown> = {}) => ({
 const KEYS_CHANGED_AT = 1_700_000_000_000;
 const WRAP_CREATED_AT = KEYS_CHANGED_AT + 10_000;
 
+/**
+ * A session the password step has reauthenticated. `/session/reauth` moves
+ * `authAt` past `createdAt`; a passkey sign-in alone leaves them equal.
+ */
+const SESSION_CREATED_AT = KEYS_CHANGED_AT + 5_000;
+const SESSION_REAUTHED_AT = SESSION_CREATED_AT + 1_000;
+
 /** The stored row, binary as the repository returns it. */
 const storedWrap = (overrides: Record<string, unknown> = {}) => ({
   uid: Buffer.from(UID, 'hex'),
@@ -90,12 +97,22 @@ describe('passkey wraps routes', () => {
     payload: Record<string, unknown> = validPayload(),
     // An options object so a test can pass no binding at all; a positional
     // default would swallow `undefined` and assert nothing.
-    { cid }: { cid?: string } = { cid: CREDENTIAL_ID }
+    { cid, authAt = SESSION_REAUTHED_AT }: { cid?: string; authAt?: number } = {
+      cid: CREDENTIAL_ID,
+    }
   ) {
     const route = buildRoute();
     const request = asRequest({
       headers: { 'user-agent': 'test-agent' },
-      auth: { credentials: { uid: UID, id: 'session-token-id', cid } },
+      auth: {
+        credentials: {
+          uid: UID,
+          id: 'session-token-id',
+          cid,
+          createdAt: SESSION_CREATED_AT,
+          authAt,
+        },
+      },
       payload,
       app: {
         clientAddress: '127.0.0.1',
@@ -219,6 +236,15 @@ describe('passkey wraps routes', () => {
 
       expect(result).toEqual({ created: false });
       expect(recordSecurityEvent).not.toHaveBeenCalled();
+    });
+
+    // A passkey sign-in, or a step-up on that session, mints a bound token
+    // without ever checking the password; only `/session/reauth` moves authAt.
+    it('refuses a session with no password reauth since creation', async () => {
+      await expect(
+        run(validPayload(), { cid: CREDENTIAL_ID, authAt: SESSION_CREATED_AT })
+      ).rejects.toMatchObject({ errno: ERRNO.INVALID_MFA_TOKEN });
+      expect(service.storePasskeyWrap).not.toHaveBeenCalled();
     });
 
     it('refuses a token minted for a different credential', async () => {
