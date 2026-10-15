@@ -82,8 +82,6 @@
     "compile": "yarn build-ts",
     "copy-assets": "cp -r ./db/luaScripts ./dist/esm/packages/fxa-shared/db/luaScripts; cp -r ./db/luaScripts ./dist/cjs/packages/fxa-shared/db/luaScripts",
     "copy-sql": "echo '{ \"type\": \"module\" }' > ./dist/esm/packages/fxa-shared/db/package.json && find test -name \\*.sql -exec cp \\{\\} dist/esm/packages/fxa-shared/\\{\\} \\; ; find test -name \\*.sql -exec cp \\{\\} dist/cjs/packages/fxa-shared/\\{\\} \\;",
-    "glean-generate": "npx glean translate ./metrics/glean/fxa-ui-pings.yaml ./metrics/glean/fxa-ui-metrics.yaml -f typescript -o ./metrics/glean/web && prettier --config ../../_dev/.prettierrc --write ./metrics/glean/web/*.ts",
-    "glean-lint": "npx glean glinter ./metrics/glean/fxa-ui-pings.yaml ./metrics/glean/fxa-ui-metrics.yaml",
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
@@ -97,7 +95,7 @@
     "test-jest": "jest --runInBand --logHeapUsage --coverage",
     "test-jest-unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-shared-jest-unit-results.xml jest --coverage --runInBand --logHeapUsage --forceExit --coverage -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit",
     "test-jest-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-shared-jest-integration-results.xml jest --coverage --runInBand --logHeapUsage --coverage -t '#integration' --ci --reporters=default --reporters=jest-junit",
-    "lint": "yarn glean-lint && eslint .",
+    "lint": "eslint .",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "repository": {
