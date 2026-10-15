@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 1607e021452cd7065c3d939d42ccc38cf4e9458a</title>
+  <title>Storybooks for commit b059261367803f92e06d3e86c8af8eba173f1a96</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,27 +23,29 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 1607e021452cd7065c3d939d42ccc38cf4e9458a</h1>
+  <h1>Storybooks for commit b059261367803f92e06d3e86c8af8eba173f1a96</h1>
   <ul>
-    <li><a href="./fxa-settings/">fxa-settings</a></li>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/15/2026, 6:26:06 PM UTC</dd>
+    <dd>10/15/2026, 7:06:11 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): skip passkey registration on a challenge mismatch</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-* On Firefox for Android, create() can return a credential signed over
-  another challenge, so registration/finish fails and the device keeps a
-  passkey that FxA has no record of.
+* create() can return a credential signed over another challenge, so
+  registration/finish fails and the device keeps an unknown passkey.
 
 This commit:
 
 * Compares the clientDataJSON challenge with the registration/start one.
 * On a mismatch, skips registration/finish and shows the add-passkey error.
 * Records the frontend error event with reason challenge_mismatch.
+* Documents challenge_mismatch in both Glean registry copies.
 
 Closes FXA-14286</pre></dd>
   </dl>
