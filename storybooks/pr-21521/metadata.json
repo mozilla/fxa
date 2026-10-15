@@ -1,0 +1,10 @@
+{
+  "commit": "40fef50bbf1bf83d53a39d77578e414b99038d03",
+  "summary": "fix(settings): show loading state on v2 pairing scan_qr during TOTP",
+  "description": "Because:\n* On v2 pairing, a 2FA account saw the QR card on scan_qr before\n  the redirect to the TOTP page.\n\nThis commit:\n* Shows the loading state on scan_qr until the TOTP check finishes.\n* Hides \"Skip for now\" while the check is pending.\n\nCloses FXA-14782",
+  "timestamp": 1792083470000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
