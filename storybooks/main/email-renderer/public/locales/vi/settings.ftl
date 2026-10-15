@@ -1859,6 +1859,20 @@ pair2-authority-scan-qr-heading = Quét để kết nối thiết bị di độn
 pair2-authority-scan-qr-instruction = Quét mã QR bằng điện thoại hoặc máy tính bảng của bạn để đồng bộ hoá dấu trang, thẻ và nhiều nội dung khác của { -brand-firefox }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Mã QR để kết nối thiết bị di động của bạn
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Các cách khác để đăng nhập
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Tạm thời bỏ qua
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and links to sync settings.
+
+pair2-authority-sync-success-heading-v2 = Thiết bị của bạn đã được kết nối
+# "Syncing" here means copying data between the user's devices
+pair2-authority-sync-success-description-v2 = Quá trình đồng bộ đang diễn ra. Có thể mất một lúc để dữ liệu được đồng bộ hiển thị. Hãy thoải mái tiếp tục duyệt web.Quá trình đồng bộ đang diễn ra. Có thể mất một lúc để dữ liệu được đồng bộ hiển thị. Hãy thoải mái tiếp tục duyệt web.
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button-v2 = Quản lý cài đặt đồng bộ hoá
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1868,6 +1882,8 @@ pair2-authority-scan-qr-code-aria-label = Mã QR để kết nối thiết bị 
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = Bạn vẫn muốn kết nối thiết bị chứ?
 pair2-authority-timeout-and-cancel-timeout-description = Có vẻ như đã hết thời gian chờ. Hãy thử lại nếu bạn vẫn muốn kết nối thiết bị di động và đồng bộ hoá dữ liệu { -brand-firefox } của mình.
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-cancelled-heading = Đã huỷ bỏ
 pair2-authority-timeout-and-cancel-canceled-description = Nếu bạn đổi ý hoặc muốn kết nối thiết bị khác, hãy thử lại.
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = Thử lại
@@ -1904,11 +1920,35 @@ pair2-supplicant-connect-this-device-cancel-button = Huỷ bỏ
 ## not Firefox. It offers to open the Firefox app to finish pairing, and to
 ## install it first when the user does not have it yet.
 
+pair2-supplicant-download-firefox-heading-v2 = Mở { -brand-firefox } trên thiết bị này
+# "sync" is a verb here, referring to syncing data between the user's devices.
+pair2-supplicant-download-firefox-description-v2 = Tải xuống { -brand-firefox } để đồng bộ dấu trang, lịch sử và nhiều hơn nữa trên các thiết bị.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Tiếp tục trong { -brand-firefox }
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = Đang mở { -brand-firefox }…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = Tải xuống { -brand-firefox }
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = Tôi đã có { -brand-firefox }
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = Tìm hiểu thêm
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = Hoàn tất thiết lập trong ứng dụng
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = Nhấn vào <b>menu ứng dụng</b> trên thanh công cụ
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = Nhấn vào <b>đăng nhập</b>, sau đó quét mã
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = Tìm hiểu thêm
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -1927,6 +1967,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Tìm hiểu thêm
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Thiết bị của bạn đã được kết nối
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = Quá trình đồng bộ đang diễn ra. Có thể mất một lúc để dữ liệu được đồng bộ hiển thị. Hãy thoải mái tiếp tục duyệt web.
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -1938,8 +1980,35 @@ pair2-supplicant-sync-success-heading = Thiết bị của bạn đã được k
 pair2-supplicant-timeout-and-cancel-timeout-heading = Có vẻ như đã hết thời gian chờ
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-timeout-description = Để kết nối thiết bị di động và đồng bộ hoá dữ liệu { -brand-firefox } của bạn, hãy truy cập <b>firefox.com/pair</b> trên máy tính của bạn.
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Đã huỷ bỏ
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Để kết nối thiết bị bất cứ lúc nào, hãy truy cập <b>firefox.com/pair</b> trên máy tính của bạn.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Thiết bị này đã đăng nhập trước đó
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Để kết nối với tài khoản máy tính để bàn của bạn, hãy đăng xuất khỏi { -brand-firefox } trên thiết bị này, sau đó truy cập <b>firefox.com/pair</b> trên máy tính của bạn để hoàn tất đăng nhập.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } muốn truy cập vào:
+permissions-label-email = Địa chỉ email
+permissions-label-display-name = Tên hiển thị
+permissions-label-avatar = Ảnh tài khoản
+permissions-continue-button = Tiếp tục
+permissions-cancel-button = Huỷ bỏ
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Vui lòng thay đổi mật khẩu của bạn
+force-password-change-info = Chúng tôi đã phát hiện hành vi đáng ngờ trên { -product-mozilla-account } của bạn. Để bảo vệ tài khoản của bạn, vui lòng tạo một mật khẩu mới. Bạn sẽ sử dụng mật khẩu này để đăng nhập lại vào tất cả các dịch vụ { -product-mozilla-account } của bạn.
+force-password-change-data-info = Lịch sử được đồng bộ hóa, dấu trang, đăng nhập và dữ liệu cá nhân khác sẽ không bị mất.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2039,9 +2108,14 @@ confirm-totp-reset-password-use-different-account = Sử dụng một tài kho�
 ## ResetPassword start page
 
 password-reset-flow-heading = Đặt lại mật khẩu của bạn
+password-reset-forgot-heading = Bạn đã quên mật khẩu?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Thử đăng nhập bằng { -brand-google }, { -brand-apple } hoặc passkey.</signInLink> Hoặc nhập email của bạn và chúng tôi sẽ gửi cho bạn mã để đặt lại mật khẩu.
 password-reset-email-input =
     .label = Nhập email của bạn
 password-reset-submit-button-2 = Tiếp tục
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Việc đặt lại mật khẩu có thể ảnh hưởng đến khả năng khôi phục dữ liệu trình duyệt đã đồng bộ hóa của bạn. <learnMoreLink>Tìm hiểu thêm</learnMoreLink>
 
 ## ResetPasswordConfirmed
 
@@ -2382,3 +2456,10 @@ signup-confirmed-sync-description-v2 = Mật khẩu, địa chỉ, dấu trang, 
 signup-confirmed-sync-add-device-link = Thêm thiết bị khác
 signup-confirmed-sync-manage-sync-button = Quản lý đồng bộ hoá
 signup-confirmed-sync-set-password-success-banner = Đã tạo mật khẩu đồng bộ hoá
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = Yêu cầu cập nhật { -brand-firefox }
+update-firefox-description = { -product-mozilla-account } của bạn sử dụng các tính năng không được hỗ trợ trong phiên bản { -brand-firefox } hiện tại. Vui lòng tải xuống và cài đặt phiên bản { -brand-firefox } mới nhất để tiếp tục.
+update-firefox-download-button = Tải xuống bản mới nhất

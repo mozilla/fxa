@@ -1,8 +1,8 @@
 {
-  "commit": "51ea17f0790df5d202e9a9d00565f33809ef0096",
-  "summary": "Merge pull request #21512 from mozilla/fxa-14762",
-  "description": "fix(settings): wait for a fresh fxa_status after sign-in reaches /pair",
-  "timestamp": 1792103722000,
+  "commit": "cc2be9864608d72cee272bd59d77c139f9f7c48c",
+  "summary": "Merge pull request #21521 from mozilla/fxa-14782",
+  "description": "fix(settings): show loading state on v2 pairing scan_qr during TOTP",
+  "timestamp": 1792104626000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

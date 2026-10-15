@@ -1285,10 +1285,18 @@ pair2-authority-download-firefox-cta = Tải xuống { -brand-firefox }
 pair2-authority-scan-qr-heading = Quét để kết nối thiết bị di động của bạn
 pair2-authority-scan-qr-instruction = Quét mã QR bằng điện thoại hoặc máy tính bảng của bạn để đồng bộ hoá dấu trang, thẻ và nhiều nội dung khác của { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Mã QR để kết nối thiết bị di động của bạn
+pair2-authority-scan-qr-other-ways-link = Các cách khác để đăng nhập
+pair2-authority-scan-qr-skip-button = Tạm thời bỏ qua
+
+
+pair2-authority-sync-success-heading-v2 = Thiết bị của bạn đã được kết nối
+pair2-authority-sync-success-description-v2 = Quá trình đồng bộ đang diễn ra. Có thể mất một lúc để dữ liệu được đồng bộ hiển thị. Hãy thoải mái tiếp tục duyệt web.Quá trình đồng bộ đang diễn ra. Có thể mất một lúc để dữ liệu được đồng bộ hiển thị. Hãy thoải mái tiếp tục duyệt web.
+pair2-authority-sync-success-sync-settings-button-v2 = Quản lý cài đặt đồng bộ hoá
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Bạn vẫn muốn kết nối thiết bị chứ?
 pair2-authority-timeout-and-cancel-timeout-description = Có vẻ như đã hết thời gian chờ. Hãy thử lại nếu bạn vẫn muốn kết nối thiết bị di động và đồng bộ hoá dữ liệu { -brand-firefox } của mình.
+pair2-authority-timeout-and-cancel-cancelled-heading = Đã huỷ bỏ
 pair2-authority-timeout-and-cancel-canceled-description = Nếu bạn đổi ý hoặc muốn kết nối thiết bị khác, hãy thử lại.
 pair2-authority-timeout-and-cancel-try-again-button = Thử lại
 pair2-authority-timeout-and-cancel-sync-settings-button = Cài đặt đồng bộ hoá
@@ -1304,8 +1312,19 @@ pair2-supplicant-connect-this-device-connect-button = Kết nối
 pair2-supplicant-connect-this-device-cancel-button = Huỷ bỏ
 
 
+pair2-supplicant-download-firefox-heading-v2 = Mở { -brand-firefox } trên thiết bị này
+pair2-supplicant-download-firefox-description-v2 = Tải xuống { -brand-firefox } để đồng bộ dấu trang, lịch sử và nhiều hơn nữa trên các thiết bị.
 pair2-supplicant-download-firefox-continue-button = Tiếp tục trong { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Đang mở { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Tải xuống { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = Tôi đã có { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Tìm hiểu thêm
+
+
+pair2-supplicant-connect-hint-heading-v2 = Hoàn tất thiết lập trong ứng dụng
+pair2-supplicant-connect-hint-step-app-menu = Nhấn vào <b>menu ứng dụng</b> trên thanh công cụ
+pair2-supplicant-connect-hint-step-sign-in = Nhấn vào <b>đăng nhập</b>, sau đó quét mã
+pair2-supplicant-connect-hint-learn-more-link = Tìm hiểu thêm
 
 
 pair2-supplicant-ready-to-scan-heading = Để kết nối thiết bị
@@ -1314,11 +1333,28 @@ pair2-supplicant-ready-to-scan-learn-more-link = Tìm hiểu thêm
 
 
 pair2-supplicant-sync-success-heading = Thiết bị của bạn đã được kết nối
+pair2-supplicant-sync-success-description-v2 = Quá trình đồng bộ đang diễn ra. Có thể mất một lúc để dữ liệu được đồng bộ hiển thị. Hãy thoải mái tiếp tục duyệt web.
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Có vẻ như đã hết thời gian chờ
 pair2-supplicant-timeout-and-cancel-timeout-description = Để kết nối thiết bị di động và đồng bộ hoá dữ liệu { -brand-firefox } của bạn, hãy truy cập <b>firefox.com/pair</b> trên máy tính của bạn.
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Đã huỷ bỏ
 pair2-supplicant-timeout-and-cancel-canceled-description = Để kết nối thiết bị bất cứ lúc nào, hãy truy cập <b>firefox.com/pair</b> trên máy tính của bạn.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Thiết bị này đã đăng nhập trước đó
+pair2-supplicant-timeout-and-cancel-signed-in-description = Để kết nối với tài khoản máy tính để bàn của bạn, hãy đăng xuất khỏi { -brand-firefox } trên thiết bị này, sau đó truy cập <b>firefox.com/pair</b> trên máy tính của bạn để hoàn tất đăng nhập.
+
+
+permissions-heading = { $serviceName } muốn truy cập vào:
+permissions-label-email = Địa chỉ email
+permissions-label-display-name = Tên hiển thị
+permissions-label-avatar = Ảnh tài khoản
+permissions-continue-button = Tiếp tục
+permissions-cancel-button = Huỷ bỏ
+
+
+force-password-change-heading = Vui lòng thay đổi mật khẩu của bạn
+force-password-change-info = Chúng tôi đã phát hiện hành vi đáng ngờ trên { -product-mozilla-account } của bạn. Để bảo vệ tài khoản của bạn, vui lòng tạo một mật khẩu mới. Bạn sẽ sử dụng mật khẩu này để đăng nhập lại vào tất cả các dịch vụ { -product-mozilla-account } của bạn.
+force-password-change-data-info = Lịch sử được đồng bộ hóa, dấu trang, đăng nhập và dữ liệu cá nhân khác sẽ không bị mất.
 
 
 service-welcome-signup-success-banner = Đã xác nhận { -product-mozilla-account }
@@ -1378,9 +1414,12 @@ confirm-totp-reset-password-use-different-account = Sử dụng một tài kho�
 
 
 password-reset-flow-heading = Đặt lại mật khẩu của bạn
+password-reset-forgot-heading = Bạn đã quên mật khẩu?
+password-reset-alternatives-body = <signInLink>Thử đăng nhập bằng { -brand-google }, { -brand-apple } hoặc passkey.</signInLink> Hoặc nhập email của bạn và chúng tôi sẽ gửi cho bạn mã để đặt lại mật khẩu.
 password-reset-email-input =
     .label = Nhập email của bạn
 password-reset-submit-button-2 = Tiếp tục
+password-reset-data-recovery-warning = Việc đặt lại mật khẩu có thể ảnh hưởng đến khả năng khôi phục dữ liệu trình duyệt đã đồng bộ hóa của bạn. <learnMoreLink>Tìm hiểu thêm</learnMoreLink>
 
 
 reset-password-complete-header = Mật khẩu của bạn đã được đặt lại
@@ -1592,3 +1631,8 @@ signup-confirmed-sync-description-v2 = Mật khẩu, địa chỉ, dấu trang, 
 signup-confirmed-sync-add-device-link = Thêm thiết bị khác
 signup-confirmed-sync-manage-sync-button = Quản lý đồng bộ hoá
 signup-confirmed-sync-set-password-success-banner = Đã tạo mật khẩu đồng bộ hoá
+
+
+update-firefox-heading = Yêu cầu cập nhật { -brand-firefox }
+update-firefox-description = { -product-mozilla-account } của bạn sử dụng các tính năng không được hỗ trợ trong phiên bản { -brand-firefox } hiện tại. Vui lòng tải xuống và cài đặt phiên bản { -brand-firefox } mới nhất để tiếp tục.
+update-firefox-download-button = Tải xuống bản mới nhất
