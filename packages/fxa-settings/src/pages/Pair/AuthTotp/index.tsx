@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState, useCallback } from 'react';
+import { useLocation } from 'react-router';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver, useAuthClient } from '../../../models';
@@ -34,6 +35,7 @@ export const viewName = 'pair.auth.totp';
 const AuthTotp = ({ email, serviceName, onVerified }: AuthTotpProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const navigateWithQuery = useNavigateWithQuery();
+  const location = useLocation();
   const authClient = useAuthClient();
   const [codeErrorMessage, setCodeErrorMessage] = useState('');
 
@@ -79,19 +81,24 @@ const AuthTotp = ({ email, serviceName, onVerified }: AuthTotpProps) => {
 
         recordTotpVerified(accountData.uid);
 
+        // /pair sends here before it starts pairing, and resumes on return.
+        const state = location.state as { returnToPair?: boolean } | null;
         if (onVerified) {
           onVerified();
         } else {
-          navigateWithQuery('/pair/auth/allow', {
-            state: { totpComplete: true },
-          });
+          navigateWithQuery(
+            state?.returnToPair ? '/pair' : '/pair/auth/allow',
+            {
+              state: { totpComplete: true },
+            }
+          );
         }
       } catch (e: unknown) {
         const message = e instanceof Error ? e.message : 'Invalid code';
         setCodeErrorMessage(message);
       }
     },
-    [authClient, ftlMsgResolver, navigateWithQuery, onVerified]
+    [authClient, ftlMsgResolver, location.state, navigateWithQuery, onVerified]
   );
 
   return (
