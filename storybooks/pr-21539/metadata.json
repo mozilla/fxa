@@ -1,0 +1,13 @@
+{
+  "commit": "3309a564ff1bb22765803e6b2e8ef63cdc5f1a18",
+  "summary": "chore(deps): update tailwindcss to version 4",
+  "description": "Because:\n- Tailwind 3 is outdated, and all packages must move to v4 together.\n\nThis commit:\n- Updates tailwindcss to 4.3.3 with @tailwindcss/postcss and @tailwindcss/cli.\n- Removes plugins and PostCSS deps that v4 makes redundant.\n- Loads the JS configs with @config and renames v3 utilities.\n- Converts @apply targets to @utility, @screen to @variant, flattens &-suffix nesting.\n- Inlines SVGs in the configs because the v4 CLI runs no PostCSS.\n\nCloses FXA-11093",
+  "timestamp": 1792099513000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
