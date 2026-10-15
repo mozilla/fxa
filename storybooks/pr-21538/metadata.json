@@ -1,0 +1,13 @@
+{
+  "commit": "1facbb72932069fff8bc0198a760cc70e2fb4005",
+  "summary": "chore(deps): upgrade mailparser to 3.x in auth-server test mail helper",
+  "description": "Because:\n\n* mailparser 0.6.1 is old, and only the auth test mail helper uses it\n* the 3.x parser is async, so a direct port replies before it stores\n\nThis commit:\n\n* upgrades mailparser to 3.x in fxa-auth-server\n* ports mail_helper to simpleParser and keeps the 0.x mail shape\n* stores mail in arrival order and accepts only after the store\n* times out or rejects a bad mail so later mail is not stalled\n\nCloses FXA-5351",
+  "timestamp": 1792099479000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
