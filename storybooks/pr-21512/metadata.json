@@ -1,8 +1,8 @@
 {
-  "commit": "f40e2035671b17b7794b648df15ecffda9513b93",
+  "commit": "a9227689ef39cd4958402274e389ee9a126b40d6",
   "summary": "fix(settings): wait for a fresh fxa_status after sign-in reaches /pair",
-  "description": "Because:\n\n* Sign-in moves to /pair in the router, so useFxAStatus kept the\n  signed-out answer from the sign-in page and reported it as current.\n* Firefox answers /pair's own fxa_status only after oauth_login's\n  token exchange, which can outlast its 1 s of retries.\n* /pair then bounced a just-signed-in Sync user to cached sign-in, or\n  showed the v1 screen on a v2-capable Firefox.\n\nThis commit:\n\n* Reports fxaStatusState as 'pending' during render when isPairing\n  changes, before pages' effects can act on the old answer.\n* Stops the effect re-running, and re-asking, once engines arrive.\n* Adds hook tests for both.\n\nCloses #FXA-14762",
-  "timestamp": 1792079899000,
+  "description": "Because:\n\n* Sign-in moves to /pair in the router, so useFxAStatus kept the\n  signed-out answer from the sign-in page and reported it as current.\n* /pair's own 1 s check waits behind Firefox's oauth_login token\n  exchange, so a slow exchange left /pair acting on that stale answer.\n* That could bounce a just-signed-in Sync user to cached sign-in, and\n  likely explains the v1 screen seen on a v2-capable Firefox.\n\nThis commit:\n\n* Reports fxaStatusState as 'pending' during render when isPairing\n  changes, before pages' effects can act on the old answer.\n* Adds a hook test that a page sees 'pending' on a move to /pair.\n\nCloses #FXA-14762",
+  "timestamp": 1792081441000,
   "storybooks": [
     "fxa-settings"
   ],
