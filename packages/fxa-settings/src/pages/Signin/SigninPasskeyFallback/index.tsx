@@ -143,12 +143,12 @@ const SigninPasskeyFallback = ({
       {email && (
         <div className="flex items-center gap-3 mb-6">
           {avatarLoading ? (
-            <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center">
+            <div className="w-10 h-10 shrink-0 flex items-center justify-center">
               <LoadingSpinner />
             </div>
           ) : (
             <Avatar
-              className="w-10 h-10 flex-shrink-0"
+              className="w-10 h-10 shrink-0"
               avatar={avatarData?.account?.avatar}
             />
           )}

@@ -104,7 +104,7 @@ export default async function UpgradeSuccessLayout({
               }
             />
           </div>
-          <div className="bg-white rounded-b-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:clip-shadow tablet:rounded-t-none desktop:px-12 desktop:pb-12">
+          <div className="bg-white rounded-b-lg shadow-xs shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:clip-shadow tablet:rounded-t-none desktop:px-12 desktop:pb-12">
             {children}
             <TermsAndPrivacy
               l10n={l10n}

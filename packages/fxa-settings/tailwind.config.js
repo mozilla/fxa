@@ -4,6 +4,7 @@
 
 // Please refer to fxa-react/configs/tailwind for the main config file
 
+const { readFileSync } = require('fs');
 const { resolve } = require('path');
 const extractImportedComponents = require('fxa-react/extract-imported-components');
 const config = require('fxa-react/configs/tailwind');
@@ -25,6 +26,12 @@ if (process.env.STORYBOOK_BUILD === '1') {
 
 config.content.push('./src/components/images/**/*.svg');
 
+// The Tailwind CLI runs no PostCSS plugins, so the config inlines these SVGs.
+const inline = (file) =>
+  `url('data:image/svg+xml;base64,${readFileSync(
+    resolve(__dirname, 'src/components/Icons', file)
+  ).toString('base64')}')`;
+
 config.theme.extend = {
   ...config.theme.extend,
   transitionDelay: {
@@ -43,8 +50,8 @@ config.theme.extend = {
     'ff-logo': "url('../../libs/shared/assets/src/images/ff-logo.svg')",
     // Flag images are displayed as background-images in the country selection inputs.
     // This prevents the image from interfering with "type to search/select"
-    'flag-usa': "inline('../components/Icons/icon_flag_usa.min.svg')",
-    'flag-canada': "inline('../components/Icons/icon_flag_canada.min.svg')",
+    'flag-usa': inline('icon_flag_usa.min.svg'),
+    'flag-canada': inline('icon_flag_canada.min.svg'),
   },
   keyframes: {
     ...config.theme.extend.keyframes,

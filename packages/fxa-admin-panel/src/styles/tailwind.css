@@ -2,11 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@import 'tailwindcss' source(none);
 
-@import './tables';
+@import './tables.css';
+
+@config '../../tailwind.config.js';
+
+@custom-variant tablet (@media (min-width: 768px) and (min-height: 481px));
 
 .icon-dark path {
   fill: #0c0c0d;

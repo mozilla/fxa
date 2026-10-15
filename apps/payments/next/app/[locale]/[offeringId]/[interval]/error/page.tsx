@@ -26,16 +26,10 @@ export default async function ErrorPage({
 
   const newPageSearchParams = { ...resolvedSearchParams };
   delete newPageSearchParams.reason;
-  const newPageUrl = buildRedirectUrl(
-    offeringId,
-    interval,
-    'new',
-    'checkout',
-    {
-      locale,
-      searchParams: newPageSearchParams,
-    }
-  );
+  const newPageUrl = buildRedirectUrl(offeringId, interval, 'new', 'checkout', {
+    locale,
+    searchParams: newPageSearchParams,
+  });
 
   const session = await auth();
   if (!session?.user?.id) {
@@ -82,7 +76,7 @@ export default async function ErrorPage({
 
   return (
     <section
-      className="flex flex-col items-center text-center max-w-lg mx-auto mt-6 p-16 tablet:my-10 gap-16 bg-white shadow tablet:rounded-xl border border-transparent"
+      className="flex flex-col items-center text-center max-w-lg mx-auto mt-6 p-16 tablet:my-10 gap-16 bg-white shadow-sm tablet:rounded-xl border border-transparent"
       aria-labelledby="error-page-heading"
     >
       <h1 id="error-page-heading" className="text-xl font-bold">

@@ -306,7 +306,7 @@ The `fxa-settings`, `fxa-admin-panel`, and `fxa-content-server` packages are set
 
 Each package has its own `tailwind.css` file. This file, any CSS files this file imports, and the Tailwind configuration file are compiled to produce `tailwind.out.css`. Rebuilding this `.out` file should happen automatically on any change.
 
-We should not be using SCSS except in packages that are work-in-progress conversions to CSS with PostCSS because it adds an additional build step we don't need, [see related Tailwind docs](https://tailwindcss.com/docs/using-with-preprocessors). New files should be created rarely (see the [component classes](#component-classes) section of this README) but with CSS when deemed necessary. We can nest elements and reference parent components with `tailwindcss/nesting` provided by Tailwind which uses `postcss-nested` under the hood, as well as `postcss-import` to import our CSS files, and `postcss-assets` when needed.
+We should not be using SCSS except in packages that are work-in-progress conversions to CSS with PostCSS because it adds an additional build step we don't need, [see related Tailwind docs](https://tailwindcss.com/docs/using-with-preprocessors). New files should be created rarely (see the [component classes](#component-classes) section of this README) but with CSS when deemed necessary. Tailwind supports CSS nesting and `@import` of our CSS files without extra PostCSS plugins.
 
 **FxA has a design guide available** in Storybook to help alleviate much of the burden around finding the correct class name to use as well as some of the mental math involved explained below. Run `yarn storybook` in this package to pull it up and see the "Storybook" section for more information on Storybook.
 
@@ -367,7 +367,7 @@ This makes more sense as a new utility class instead of a component because some
 }
 ```
 
-Assuming this package already uses `postcss-import`, all we need to do now is `@import ./ctas.css` into our `tailwind.css` file and apply our new utility class:
+All we need to do now is `@import ./ctas.css` into our `tailwind.css` file and apply our new utility class:
 
 ```tsx
 // my-component.tsx
@@ -390,8 +390,7 @@ See the [Tailwind docs on this subject](https://tailwindcss.com/docs/extracting-
 ##### RTL support
 
 When padding, margin or relative positions are directional (e.g. more padding on the left), we need to consider support for RTL languages (HE, AR, FA).
-The [Tailwind Direction plugin](https://github.com/RonMelkhior/tailwindcss-dir) will automatically create a set of new classes
-for all directional classes with the `ltr:` and `rtl:` prefixes.
+Tailwind has built-in `ltr:` and `rtl:` variants for all directional classes.
 
 In order to use it properly, we need to use only the prefixed classes, so that instead of the class `ml-3` we should use: `ltr:ml-3 rtl:mr-3`.
 This will give a left margin of `0.75rem` on LTR languages and right margin of `0.75rem` on RTL languages.

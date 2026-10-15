@@ -114,7 +114,7 @@ const QRCode = ({
           />
         )}
         {/* The chip sits over the modules rather than excavating them: level
-            H tolerates the coverage, and the rounded corners show against
+            H tolerates the coverage, and the rounded-sm corners show against
             the code instead of a white square. */}
         {logoSrc && !imageData && (
           <span

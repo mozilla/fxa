@@ -68,7 +68,7 @@ export const Checkbox = ({
           }}
         />
         <span
-          className={`block border-2 rounded w-5 h-5 transition-all duration-100 ease-in-out relative ${
+          className={`block border-2 rounded-sm w-5 h-5 transition-all duration-100 ease-in-out relative ${
             disabled
               ? 'border-grey-300 text-grey-300'
               : `cursor-pointer ${

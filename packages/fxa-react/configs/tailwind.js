@@ -3,13 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const plugin = require('tailwindcss/plugin');
-const tailwindcssDir = require('tailwindcss-dir');
 
 const screenSizes = {
   mobileLandscape: '480px',
-  tablet: {
-    raw: '(min-width: 768px) and (min-height: 481px)',
-  },
   desktop: '1024px',
   desktopXl: '1441px',
 };
@@ -116,11 +112,11 @@ module.exports = {
         1500: '1500ms',
       },
     },
+    // tablet has a height condition, so the CSS entries declare it with @custom-variant
     screens: screenSizes,
-    // for the container-queries plugin
     // allows components to resize based on the size of their parent container
     // instead of the viewport
-    containers: screenSizes,
+    containers: { ...screenSizes, tablet: '768px' },
     fontSize: {
       // These classes must be included here
       // To be picked up by fxa-settings' Typography design guide
@@ -350,8 +346,6 @@ module.exports = {
       };
       addComponents(carets);
     }),
-    tailwindcssDir(),
-    require('@tailwindcss/container-queries'),
     plugin(function ({ addUtilities, theme }) {
       addUtilities({
         '.text-shadow-cms': {
@@ -361,9 +355,4 @@ module.exports = {
       });
     }),
   ],
-  // Workaround for TW's JIT engine, to provide access to all TW classes
-  // for styling/debugging in browser DevTools (in dev mode only)
-  ...(process.env.NODE_ENV === 'development' && {
-    safelist: [{ pattern: /.*/ }],
-  }),
 };

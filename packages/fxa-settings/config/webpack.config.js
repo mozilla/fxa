@@ -166,7 +166,7 @@ module.exports = function (webpackEnv) {
                   'postcss-normalize',
                 ]
               : [
-                  'tailwindcss',
+                  '@tailwindcss/postcss',
                   'postcss-flexbugs-fixes',
                   [
                     'postcss-preset-env',
@@ -307,7 +307,10 @@ module.exports = function (webpackEnv) {
           },
         }),
         // This is only used in production mode
-        new CssMinimizerPlugin(),
+        new CssMinimizerPlugin({
+          // postcss-calc cannot parse Tailwind v4's calc(infinity * 1px)
+          minimizerOptions: { preset: ['default', { calc: false }] },
+        }),
       ],
       splitChunks: isEnvProduction
         ? {

@@ -13,7 +13,7 @@ import { AdminPanelFeature } from '@fxa/shared/guards';
 import Guard from '../Guard';
 
 const getNavLinkClassName = (isActive: boolean) =>
-  `rounded text-grey-900 flex mt-2 px-3 py-2 no-underline hover:bg-grey-100 focus:bg-grey-100 ${
+  `rounded-sm text-grey-900 flex mt-2 px-3 py-2 no-underline hover:bg-grey-100 focus:bg-grey-100 ${
     isActive ? 'bg-grey-50 font-semibold' : 'bg-grey-10'
   }`;
 

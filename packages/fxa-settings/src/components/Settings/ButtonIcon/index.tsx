@@ -34,7 +34,7 @@ export const ButtonIcon = ({
 
   return (
     <button
-      className={`relative w-8 h-8 rounded disabled:text-grey-300 hover:bg-grey-50 dark:hover:bg-grey-600 active:bg-grey-100 dark:active:bg-grey-500 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 focus:bg-grey-10 dark:focus:bg-grey-600 disabled:cursor-wait ${classNames}`}
+      className={`relative w-8 h-8 rounded-sm disabled:text-grey-300 hover:bg-grey-50 dark:hover:bg-grey-600 active:bg-grey-100 dark:active:bg-grey-500 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 focus:bg-grey-10 dark:focus:bg-grey-600 disabled:cursor-wait ${classNames}`}
       data-testid={testId}
       {...{
         'data-glean-id': gleanDataAttrs?.id,

@@ -40,7 +40,7 @@ const ResetPasswordWarning = ({
       }
     >
       {/* Arbitrary variant [&::-webkit-details-marker]:hidden removes the list arrow on webkit based browsers */}
-      <summary className="flex items-center cursor-pointer list-none [&::-webkit-details-marker]:hidden rounded-sm focus-visible-default outline-offset-2">
+      <summary className="flex items-center cursor-pointer list-none [&::-webkit-details-marker]:hidden rounded-xs focus-visible-default outline-offset-2">
         <WarnIcon
           role="img"
           className="me-4"

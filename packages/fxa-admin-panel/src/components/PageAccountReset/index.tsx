@@ -43,7 +43,7 @@ export const PageAccountReset = () => {
 
   const saveButtonClass = () => {
     const base =
-      'bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded';
+      'bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded-sm';
     const active =
       'text-red-700 hover:text-red-700 hover:border-2 hover:border-grey-10 hover:bg-grey-50';
     const inactive = 'text-grey-700 cursor-not-allowed';
@@ -100,8 +100,8 @@ export const PageAccountReset = () => {
       <br />
       <p>
         Provide a list of up to 1000 emails or UIDs separated by either a comma
-        or newline in the textarea below. Then press 'Reset Accounts'. This
-        will kick off the reset process and the status of each entry will be
+        or newline in the textarea below. Then press 'Reset Accounts'. This will
+        kick off the reset process and the status of each entry will be
         displayed in the table below.
       </p>
 
@@ -111,7 +111,7 @@ export const PageAccountReset = () => {
           data-testid="notification-email-input"
           type="text"
           name="notificationEmail"
-          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          className="bg-grey-50 rounded-l-sm w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
           placeholder="Enter your email to be notified of end result!"
         />
         <br />

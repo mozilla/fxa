@@ -98,7 +98,7 @@ const PairUnsupported = ({ error }: PairUnsupportedProps) => {
           <FtlMsg id="pair-unsupported-oops-header">
             <h2
               id="pair-unsupported-header"
-              className="card-header focus:outline-none mt-5"
+              className="card-header focus:outline-hidden mt-5"
               tabIndex={-1}
             >
               Oops! It looks like you’re not using Firefox.
@@ -135,7 +135,7 @@ const PairUnsupported = ({ error }: PairUnsupportedProps) => {
           <FtlMsg id="pair-unsupported-header">
             <h1
               id="pair-unsupported-header"
-              className="card-header mb-2 focus:outline-none"
+              className="card-header mb-2 focus:outline-hidden"
               tabIndex={-1}
             >
               Pair using an app
@@ -180,7 +180,7 @@ const PairUnsupported = ({ error }: PairUnsupportedProps) => {
           <FtlMsg id="pair-unsupported-connecting-mobile-header-v2">
             <h1
               id="pair-unsupported-header"
-              className="card-header focus:outline-none"
+              className="card-header focus:outline-hidden"
               tabIndex={-1}
             >
               Connecting your mobile device with your Mozilla account
@@ -216,7 +216,7 @@ const PairUnsupported = ({ error }: PairUnsupportedProps) => {
           <FtlMsg id="pair-unsupported-desktop-firefox-fallback-header-v2">
             <h2
               id="pair-unsupported-header"
-              className="card-header focus:outline-none mt-5"
+              className="card-header focus:outline-hidden mt-5"
               tabIndex={-1}
             >
               Oops! Something went wrong.

@@ -7,7 +7,7 @@ import { adminApi } from '../../lib/api';
 import type { DomainBlocklistEntry } from 'fxa-admin-server/src/types';
 
 const btnClass =
-  'bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded';
+  'bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded-sm';
 
 /** A synced list holds tens of thousands of rows; mounting them all is slow. */
 const SHOW_LIMIT = 1000;
@@ -185,7 +185,7 @@ const PageDomainBlocklist = () => {
         <button
           type="submit"
           data-testid="domain-blocklist-add-btn"
-          className="bg-green-50 border-2 p-1 border-green-300 font-small leading-6 rounded disabled:opacity-40 disabled:cursor-not-allowed"
+          className="bg-green-50 border-2 p-1 border-green-300 font-small leading-6 rounded-sm disabled:opacity-40 disabled:cursor-not-allowed"
           disabled={submitting || !hasInput}
         >
           ➕ Add Entries
@@ -237,7 +237,7 @@ const PageDomainBlocklist = () => {
         <h2 className="header-page">Current Blocklist</h2>
         {entries.length > 0 && (
           <button
-            className="bg-red-50 border-2 p-1 border-red-300 font-small leading-6 rounded"
+            className="bg-red-50 border-2 p-1 border-red-300 font-small leading-6 rounded-sm"
             onClick={handleDeleteAll}
           >
             🗑️ Delete All

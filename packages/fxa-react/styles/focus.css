@@ -9,6 +9,8 @@
  * NOTE: Using focus-visible instead of focus here because focus-visible is only
  * triggered when navigating with keyboard, while focus is also triggered by
  * mouse press, which is not the desired behavior for button-like components. */
-.focus-visible-default:focus-visible {
-  @apply outline outline-blue-500 outline-2;
+@utility focus-visible-default {
+  &:focus-visible {
+    @apply outline outline-blue-500 outline-2;
+  }
 }

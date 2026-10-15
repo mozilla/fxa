@@ -5,7 +5,7 @@
 /* When we use this in React and no longer need it in content-server, we should use
  * a component instead of this class abstraction if possible. */
 .input-radio {
-  @apply absolute appearance-none w-full h-full top-0 drop-shadow-sm bg-grey-10 rounded-lg border-grey-100 border-2 hover:border-blue-100 hover:bg-white focus-visible:outline-none;
+  @apply absolute appearance-none w-full h-full top-0 drop-shadow-xs bg-grey-10 rounded-lg border-grey-100 border-2 hover:border-blue-100 hover:bg-white focus-visible:outline-hidden;
   @apply dark:bg-grey-700 dark:border-grey-500 dark:hover:border-blue-400 dark:hover:bg-grey-600;
 
   &:checked {
@@ -16,12 +16,12 @@
   &:not(:checked) {
     @apply focus:shadow-input-blue-focus focus-visible:shadow-input-blue-focus;
   }
+}
 
-  &-wrapper {
-    @apply relative flex mb-4;
-  }
+.input-radio-wrapper {
+  @apply relative flex mb-4;
+}
 
-  &-label {
-    @apply flex p-4 ps-6 z-10 hover:cursor-pointer;
-  }
+.input-radio-label {
+  @apply flex p-4 ps-6 z-10 hover:cursor-pointer;
 }

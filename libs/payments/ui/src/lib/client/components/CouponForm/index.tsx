@@ -58,7 +58,7 @@ const WithCoupon = ({
       <Form.Root
         aria-describedby="Applied promotion code"
         action={removeCoupon}
-        className="bg-white rounded-b-lg shadow-sm shadow-grey-300 mt-6 p-4 rounded-t-lg text-base tablet:my-8"
+        className="bg-white rounded-b-lg shadow-xs shadow-grey-300 mt-6 p-4 rounded-t-lg text-base tablet:my-8"
         data-testid="coupon-hascoupon"
       >
         <Form.Field name="appliedCouponCode">
@@ -101,7 +101,7 @@ const CouponInput = forwardRef<HTMLInputElement, CouponInputProps>(
       <Localized attrs={{ placeholder: true }} id="next-coupon-enter-code">
         <input
           className={classNames(
-            'w-full border rounded-md p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none',
+            'w-full border rounded-md p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-hidden',
             {
               'border-black/30': !errorMessage && !pending,
               'border-alert-red text-alert-red shadow-inputError': errorMessage,
@@ -178,7 +178,7 @@ const WithoutCoupon = ({
     <section aria-labelledby="coupon-heading">
       <Form.Root
         action={formAction}
-        className="bg-white rounded-b-lg shadow-sm shadow-grey-300 mt-6 p-4 rounded-t-lg text-base tablet:my-8"
+        className="bg-white rounded-b-lg shadow-xs shadow-grey-300 mt-6 p-4 rounded-t-lg text-base tablet:my-8"
         data-testid="coupon-form"
       >
         <Form.Field name="couponCode">

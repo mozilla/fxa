@@ -54,8 +54,16 @@ export default async function Location({
   let customerCurrency: string | undefined;
   try {
     const [cmsData, validateLocationResults] = await Promise.all([
-      fetchCMSData(resolvedParams.offeringId, acceptLanguage, resolvedParams.locale),
-      validateLocationAction(resolvedParams.offeringId, taxAddress, resolvedParams.interval),
+      fetchCMSData(
+        resolvedParams.offeringId,
+        acceptLanguage,
+        resolvedParams.locale
+      ),
+      validateLocationAction(
+        resolvedParams.offeringId,
+        taxAddress,
+        resolvedParams.interval
+      ),
     ]);
     cms = cmsData;
     locationStatus = validateLocationResults.status;
@@ -87,7 +95,7 @@ export default async function Location({
   return (
     <div className="flex justify-center">
       <section
-        className="w-full max-w-[576px] bg-white rounded-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 text-grey-600 tablet:clip-shadow desktop:px-12 desktop:pb-12"
+        className="w-full max-w-[576px] bg-white rounded-lg shadow-xs shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 text-grey-600 tablet:clip-shadow desktop:px-12 desktop:pb-12"
         aria-labelledby="location-page-heading"
       >
         <h1
@@ -116,7 +124,8 @@ export default async function Location({
           </Banner>
         ) : locationStatus === LocationStatus.ProductNotAvailable ||
           locationStatus === TaxChangeAllowedStatus.CurrencyNotFound ||
-          locationStatus === TaxChangeAllowedStatus.PriceCurrencyNotAvailable ? (
+          locationStatus ===
+            TaxChangeAllowedStatus.PriceCurrencyNotAvailable ? (
           <Banner variant={BannerVariant.Error} showCloseButton={true}>
             {l10n.getString(
               'select-tax-location-product-not-available',

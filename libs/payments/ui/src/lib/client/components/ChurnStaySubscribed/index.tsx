@@ -275,7 +275,7 @@ export function ChurnStaySubscribed({
               {goToProductUrl && (
                 <LinkExternal
                   href={goToProductUrl}
-                  className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
+                  className="border box-border flex font-bold font-header h-12 items-center justify-center rounded-sm text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
                 >
                   <Localized
                     id="churn-stay-subscribed-button-go-to-product-page"
@@ -287,7 +287,7 @@ export function ChurnStaySubscribed({
               )}
 
               <Link
-                className="border box-border flex font-bold font-header h-14 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
+                className="border box-border flex font-bold font-header h-14 items-center justify-center rounded-sm text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
                 href={`/${locale}/subscriptions/landing`}
                 onClick={(e) => {
                   e.preventDefault();
@@ -386,7 +386,7 @@ export function ChurnStaySubscribed({
               </SubmitButton>
             </Form.Submit>
             <Link
-              className="border box-border font-bold font-header h-14 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full"
+              className="border box-border font-bold font-header h-14 items-center justify-center rounded-sm text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full"
               href={`/${locale}/subscriptions/landing`}
               onClick={(e) => {
                 e.preventDefault();
@@ -457,7 +457,7 @@ export function ChurnStaySubscribed({
               {goToProductUrl && (
                 <LinkExternal
                   href={goToProductUrl}
-                  className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
+                  className="border box-border flex font-bold font-header h-12 items-center justify-center rounded-sm text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
                 >
                   <Localized
                     id="churn-error-page-button-go-to-product-page"
@@ -469,7 +469,7 @@ export function ChurnStaySubscribed({
               )}
               <Link
                 href={`/${locale}/subscriptions/landing`}
-                className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
+                className="border box-border flex font-bold font-header h-12 items-center justify-center rounded-sm text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
               >
                 <Localized id="churn-error-page-button-manage-subscriptions">
                   <span>Manage subscriptions</span>

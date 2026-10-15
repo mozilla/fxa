@@ -26,10 +26,10 @@ const descriptions = {
 
 const BreakpointExample = ({ size, screens }) => (
   <div
-    className={`shadow-md mb-4 rounded border border-black/25 max-w-${size}`}
+    className={`shadow-md mb-4 rounded-sm border border-black/25 max-w-${size}`}
   >
     <div
-      className={`rounded-t bg-grey-100 text-grey-900 px-3 text-sm flex flex-col tablet:flex-row justify-between py-2 ${size}:bg-green-400`}
+      className={`rounded-t-sm bg-grey-100 text-grey-900 px-3 text-sm flex flex-col tablet:flex-row justify-between py-2 ${size}:bg-green-400`}
     >
       {typeof screens[size] === 'string' && (
         <span className="font-bold">(min-width: {screens[size]})</span>
@@ -38,17 +38,17 @@ const BreakpointExample = ({ size, screens }) => (
         <span className="font-bold">{screens[size].raw}</span>
       )}
 
-      <code className="tablet:px-1 rounded-sm">
+      <code className="tablet:px-1 rounded-xs">
         <Copiable value={`${size}:bg-green-400`}>
           <span
-            className={`tablet:px-1 rounded-sm ${size}:bg-white/75 ${size}:text-black`}
+            className={`tablet:px-1 rounded-xs ${size}:bg-white/75 ${size}:text-black`}
           >
             {size}:bg-green-400
           </span>
         </Copiable>
       </code>
     </div>
-    <p className={`rounded-b bg-white p-3 border-t-0 max-w-${size}`}>
+    <p className={`rounded-b-sm bg-white p-3 border-t-0 max-w-${size}`}>
       <Copiable value={size}>
         <Snippet>{size}</Snippet>
       </Copiable>{' '}
@@ -109,22 +109,22 @@ const Breakpoints = ({ config }) => {
 
       {/* NOTE: this section is not dynamic */}
       <div
-        className={`shadow-md mb-4 rounded border border-black/25 p-3 w-full text-white bg-yellow-700 mobileLandscape:bg-green-800 tablet:bg-violet-600 desktop:bg-blue-800 desktopXl:bg-red-700 overflow-scroll whitespace-nowrap`}
+        className={`shadow-md mb-4 rounded-sm border border-black/25 p-3 w-full text-white bg-yellow-700 mobileLandscape:bg-green-800 tablet:bg-violet-600 desktop:bg-blue-800 desktopXl:bg-red-700 overflow-scroll whitespace-nowrap`}
       >
         <Copiable value="bg-yellow-700 mobileLandscape:bg-green-800 tablet:bg-violet-600 desktop:bg-blue-800 desktopXl:bg-red-700">
-          <code className="px-2 py-1 rounded-sm bg-white/75 text-black mobileLandscape:bg-transparent mobileLandscape:text-white">
+          <code className="px-2 py-1 rounded-xs bg-white/75 text-black mobileLandscape:bg-transparent mobileLandscape:text-white">
             bg-yellow-700
           </code>{' '}
-          <code className="px-2 py-1 rounded-sm mobileLandscape:bg-white/75 mobileLandscape:text-black tablet:bg-transparent tablet:text-white">
+          <code className="px-2 py-1 rounded-xs mobileLandscape:bg-white/75 mobileLandscape:text-black tablet:bg-transparent tablet:text-white">
             mobileLandscape:bg-green-800
           </code>{' '}
-          <code className="px-2 py-1 rounded-sm tablet:bg-white/75 tablet:text-black desktop:bg-transparent desktop:text-white">
+          <code className="px-2 py-1 rounded-xs tablet:bg-white/75 tablet:text-black desktop:bg-transparent desktop:text-white">
             tablet:bg-violet-600
           </code>{' '}
-          <code className="px-2 py-1 rounded-sm desktop:bg-white/75 desktop:text-black desktopXl:bg-transparent desktopXl:text-white">
+          <code className="px-2 py-1 rounded-xs desktop:bg-white/75 desktop:text-black desktopXl:bg-transparent desktopXl:text-white">
             desktop:bg-blue-800
           </code>{' '}
-          <code className="px-2 py-1 rounded-sm desktopXl:bg-white/75 desktopXl:text-black">
+          <code className="px-2 py-1 rounded-xs desktopXl:bg-white/75 desktopXl:text-black">
             desktopXl:bg-red-700
           </code>
         </Copiable>

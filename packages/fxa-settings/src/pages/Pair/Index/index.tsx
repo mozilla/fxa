@@ -573,7 +573,7 @@ const Pair = ({
           <h2
             ref={downloadHeaderRef}
             id="pair-header-mobile"
-            className="card-header focus:outline-none"
+            className="card-header focus:outline-hidden"
             tabIndex={-1}
           >
             Download Firefox for mobile
@@ -676,7 +676,7 @@ const Pair = ({
             ref={choiceHeaderRef}
             id="pair-header"
             data-testid="pair-header"
-            className="card-header focus:outline-none"
+            className="card-header focus:outline-hidden"
             tabIndex={-1}
           >
             Download or open Firefox on the device where you want to send tabs
@@ -692,7 +692,7 @@ const Pair = ({
               ref={choiceHeaderRef}
               id="pair-header"
               data-testid="pair-header"
-              className="card-header focus:outline-none"
+              className="card-header focus:outline-hidden"
               tabIndex={-1}
             >
               Sync your Firefox experience

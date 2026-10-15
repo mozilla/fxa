@@ -20,7 +20,7 @@ const Copiable = ({ value, children }) => {
       onClick={copyToClipboard}
       className="copy-container relative inline-block"
     >
-      <button className="copy-content hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 text-sm pointer bg-white text-grey-900 focus:bg-grey-100 px-1 shadow-md rounded border border-grey-200 rounded-md whitespace-nowrap font-mono pr-7">
+      <button className="copy-content hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 text-sm pointer bg-white text-grey-900 focus:bg-grey-100 px-1 shadow-md rounded-sm border border-grey-200 rounded-md whitespace-nowrap font-mono pr-7">
         {isActive ? 'copied!' : value}{' '}
         <img
           src="assets/copy-icon.svg"

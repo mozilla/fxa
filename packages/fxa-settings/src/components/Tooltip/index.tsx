@@ -49,7 +49,7 @@ export const Tooltip = ({
       aria-live="polite"
       className={classNames(
         `z-50 absolute py-2 px-6 text-white
-         rounded text-xs font-header font-bold
+         rounded-sm text-xs font-header font-bold
           shadow-tooltip-grey-drop border-transparent border border-solid
          `,
         type === 'error' ? 'bg-red-600' : 'bg-grey-500',

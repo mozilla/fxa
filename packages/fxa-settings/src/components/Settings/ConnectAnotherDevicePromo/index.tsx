@@ -40,7 +40,7 @@ export function ConnectAnotherDevicePromo() {
       </div>
       <div className="flex flex-2 justify-center mt-5 mobileLandscape:mt-0 mobileLandscape:justify-end mobileLandscape:rtl:justify-start">
         <LinkExternal
-          className="self-center rounded focus-visible-default outline-offset-2"
+          className="self-center rounded-sm focus-visible-default outline-offset-2"
           data-testid="play-store-link"
           href={APP_DOWNLOAD_LINK}
           onClick={() => GleanMetrics.accountPref.googlePlaySubmit()}
@@ -48,7 +48,7 @@ export function ConnectAnotherDevicePromo() {
           {GooglePlayBadge}
         </LinkExternal>
         <LinkExternal
-          className="self-center m-2 rounded focus-visible-default outline-offset-2"
+          className="self-center m-2 rounded-sm focus-visible-default outline-offset-2"
           data-testid="app-store-link"
           href={APP_DOWNLOAD_LINK}
           onClick={() => GleanMetrics.accountPref.appleSubmit()}

@@ -297,7 +297,7 @@ const Expanded = ({
               }
             }}
             className={classNames(
-              'appearance-none pr-10 w-full border rounded-md p-3 bg-white placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:text-grey-500 data-[invalid=true]:border-alert-red data-[invalid=true]:shadow-inputError',
+              'appearance-none pr-10 w-full border rounded-md p-3 bg-white placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-hidden data-[invalid=true]:text-grey-500 data-[invalid=true]:border-alert-red data-[invalid=true]:shadow-inputError',
               {
                 'border-black/30':
                   !serverErrors.missingCountryCode &&
@@ -423,7 +423,7 @@ const Expanded = ({
             <input
               id="postalCode"
               className={classNames(
-                'w-full border rounded-md p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError data-[invalid=true]:placeholder:text-alert-red',
+                'w-full border rounded-md p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-hidden data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError data-[invalid=true]:placeholder:text-alert-red',
                 {
                   'border-black/30': !serverErrors.invalidPostalCode,
                   'border-alert-red text-alert-red shadow-inputError':

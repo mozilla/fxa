@@ -158,7 +158,7 @@ export async function ChurnError({
                 <div className="flex flex-col gap-3 w-full">
                   <Link
                     href={`/${locale}/subscriptions/landing`}
-                    className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-blue-500 border-blue-600 hover:bg-blue-700 text-white"
+                    className="border box-border flex font-bold font-header h-12 items-center justify-center rounded-sm text-center py-2 px-5 bg-blue-500 border-blue-600 hover:bg-blue-700 text-white"
                   >
                     {l10n.getString(
                       'churn-error-page-button-manage-subscriptions',
@@ -167,7 +167,7 @@ export async function ChurnError({
                   </Link>
                   <LinkExternal
                     href={supportUrl}
-                    className="box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 border-2 border-blue-600 hover:bg-grey-50 text-blue-600"
+                    className="box-border flex font-bold font-header h-12 items-center justify-center rounded-sm text-center py-2 px-5 border-2 border-blue-600 hover:bg-grey-50 text-blue-600"
                   >
                     {l10n.getString(
                       'churn-error-page-button-contact-support',
@@ -202,7 +202,7 @@ export async function ChurnError({
                 <div className="w-full">
                   <LinkExternal
                     href={successActionButtonUrl}
-                    className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-blue-500 border-blue-600 hover:bg-blue-700 text-white"
+                    className="border box-border flex font-bold font-header h-12 items-center justify-center rounded-sm text-center py-2 px-5 bg-blue-500 border-blue-600 hover:bg-blue-700 text-white"
                   >
                     {l10n.getString(
                       'churn-error-page-button-go-to-product-page',
@@ -262,7 +262,7 @@ export async function ChurnError({
                 <div className="flex flex-col gap-3 w-full">
                   <LinkExternal
                     href={successActionButtonUrl}
-                    className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
+                    className="border box-border flex font-bold font-header h-12 items-center justify-center rounded-sm text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
                   >
                     {l10n.getString(
                       'churn-error-page-button-go-to-product-page',
@@ -272,7 +272,7 @@ export async function ChurnError({
                   </LinkExternal>
                   <Link
                     href={`/${locale}/subscriptions/landing`}
-                    className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
+                    className="border box-border flex font-bold font-header h-12 items-center justify-center rounded-sm text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
                   >
                     {l10n.getString(
                       'churn-error-page-button-manage-subscriptions',
@@ -313,7 +313,7 @@ export async function ChurnError({
           <div className="flex flex-col gap-3 w-full">
             <LinkExternal
               href={'https://support.mozilla.org'}
-              className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-blue-500 border-blue-600 hover:bg-blue-700 text-white"
+              className="border box-border flex font-bold font-header h-12 items-center justify-center rounded-sm text-center py-2 px-5 bg-blue-500 border-blue-600 hover:bg-blue-700 text-white"
             >
               {l10n.getString(
                 'churn-error-page-button-contact-support',
@@ -322,7 +322,7 @@ export async function ChurnError({
             </LinkExternal>
             <Link
               href={`/${locale}/subscriptions/${subscriptionId}/loyalty-discount/stay-subscribed`}
-              className="border-2 box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 border-blue-600 hover:bg-grey-50 text-blue-600"
+              className="border-2 box-border flex font-bold font-header h-12 items-center justify-center rounded-sm text-center py-2 px-5 border-blue-600 hover:bg-grey-50 text-blue-600"
             >
               {l10n.getString('churn-error-page-button-try-again', 'Try again')}
             </Link>

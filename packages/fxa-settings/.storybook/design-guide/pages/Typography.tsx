@@ -55,7 +55,7 @@ export const Typography = ({ config }) => {
               <div className="flex-1 flex justify-end">
                 <button
                   onClick={toggleIsBold}
-                  className="border border-grey-200 rounded-md px-2 py-1 shadow-sm text-xs font-normal hover:bg-grey-50"
+                  className="border border-grey-200 rounded-md px-2 py-1 shadow-xs text-xs font-normal hover:bg-grey-50"
                 >
                   click to apply{' '}
                   <code className="text-grey-500">
@@ -64,7 +64,7 @@ export const Typography = ({ config }) => {
                 </button>
                 <button
                   onClick={toggleHasBreak}
-                  className="border border-grey-200 rounded-md px-2 py-1 shadow-sm text-xs font-normal ml-2 hover:bg-grey-50"
+                  className="border border-grey-200 rounded-md px-2 py-1 shadow-xs text-xs font-normal ml-2 hover:bg-grey-50"
                 >
                   click to {hasBreak ? 'remove' : 'add'}{' '}
                   <code className="text-grey-500">{'<br />'}</code>
@@ -131,7 +131,7 @@ export const Typography = ({ config }) => {
             className="mb-6 border border-grey-200 rounded-md shadow-md"
             key={fontFamilyShortName}
           >
-            <div className="bg-purple-700 rounded-t-sm p-2 flex justify-between">
+            <div className="bg-purple-700 rounded-t-xs p-2 flex justify-between">
               <Copiable value={`font-${fontFamilyShortName}`}>
                 <code className="text-white flex-1">
                   {`font-${fontFamilyShortName}`}

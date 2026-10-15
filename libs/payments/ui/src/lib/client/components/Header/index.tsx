@@ -73,11 +73,11 @@ export const Header = ({ auth, cart, redirectPath }: HeaderProps) => {
   const signOutRedirectPath =
     cart?.taxAddress.countryCode && cart.taxAddress.postalCode
       ? buildSignOutRedirectPath(
-        params,
-        searchParams,
-        cart.taxAddress.countryCode,
-        cart.taxAddress.postalCode
-      )
+          params,
+          searchParams,
+          cart.taxAddress.countryCode,
+          cart.taxAddress.postalCode
+        )
       : redirectPath || '/';
 
   const signedIn = auth && auth.user;
@@ -151,7 +151,7 @@ export const Header = ({ auth, cart, redirectPath }: HeaderProps) => {
 
   return (
     <header
-      className="bg-white fixed flex justify-between items-center shadow h-16 left-0 top-0 mx-auto my-0 px-4 py-0 w-full z-40 tablet:h-20"
+      className="bg-white fixed flex justify-between items-center shadow-sm h-16 left-0 top-0 mx-auto my-0 px-4 py-0 w-full z-40 tablet:h-20"
       role="banner"
       id="header"
     >
@@ -168,7 +168,7 @@ export const Header = ({ auth, cart, redirectPath }: HeaderProps) => {
           <LinkExternal
             href="https://support.mozilla.org/products/mozilla-account"
             title="Help"
-            className="inline-block relative p-2 -m-2 z-[1] rounded hover:bg-grey-100"
+            className="inline-block relative p-2 -m-2 z-[1] rounded-sm hover:bg-grey-100"
           >
             <Localized
               id="payments-header-help"
@@ -196,7 +196,7 @@ export const Header = ({ auth, cart, redirectPath }: HeaderProps) => {
               aria-label="Mozilla products"
               aria-expanded={!!isBentoMenuRevealed}
               aria-haspopup="menu"
-              className="rounded p-2 mx-2 border-transparent hover:bg-grey-100 transition-standard desktop:mx-8"
+              className="rounded-sm p-2 mx-2 border-transparent hover:bg-grey-100 transition-standard desktop:mx-8"
             >
               <Localized
                 id="payments-header-bento"
@@ -388,7 +388,7 @@ export const Header = ({ auth, cart, redirectPath }: HeaderProps) => {
                     <div className="px-4 py-5">
                       <button
                         onClick={() => {
-                          signOut({ redirectTo: signOutRedirectPath })
+                          signOut({ redirectTo: signOutRedirectPath });
                         }}
                         className="pl-3 group"
                       >

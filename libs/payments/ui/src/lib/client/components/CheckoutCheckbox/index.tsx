@@ -75,7 +75,7 @@ export function CheckoutCheckbox({
             className={clsx(
               'block font-semibold pt-6 text-grey-600 text-start',
               disabled &&
-                'pointer-events-none cursor-not-allowed relative focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10 select-none'
+                'pointer-events-none cursor-not-allowed relative focus:border-blue-400 focus:outline-hidden focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10 select-none'
             )}
           >
             A payment method is required to start your free trial. You will not
@@ -89,7 +89,7 @@ export function CheckoutCheckbox({
             className={clsx(
               'flex gap-5 items-start my-6',
               disabled &&
-                'pointer-events-none cursor-not-allowed relative focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10 select-none'
+                'pointer-events-none cursor-not-allowed relative focus:border-blue-400 focus:outline-hidden focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10 select-none'
             )}
           >
             <Tooltip.Trigger asChild>

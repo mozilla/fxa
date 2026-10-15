@@ -114,8 +114,8 @@ export function LinkedAccount({
       data-testid="settings-linked-account"
       data-name={providerId}
     >
-      <div className="p-4 border-2 border-solid border-grey-100 rounded flex mobileLandscape:justify-around items-center flex-col mobileLandscape:flex-row">
-        <div className="flex flex-grow w-full mobileLandscape:flex-2">
+      <div className="p-4 border-2 border-solid border-grey-100 rounded-sm flex mobileLandscape:justify-around items-center flex-col mobileLandscape:flex-row">
+        <div className="flex grow w-full mobileLandscape:flex-2">
           <span className="flex justify-center items-center flex-0">
             {providerId === 1 && <GoogleIcon role="img" aria-label="Google" />}
             {providerId === 2 && <AppleIcon role="img" aria-label="Apple" />}
@@ -130,7 +130,7 @@ export function LinkedAccount({
           </div>
         </div>
 
-        <div className="flex flex-grow w-full mobileLandscape:justify-end mobileLandscape:flex-1">
+        <div className="flex grow w-full mobileLandscape:justify-end mobileLandscape:flex-1">
           <Localized id="la-unlink-button">
             <button
               className="cta-neutral cta-base cta-base-p disabled:cursor-wait whitespace-nowrap"

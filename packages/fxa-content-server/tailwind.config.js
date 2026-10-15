@@ -4,7 +4,15 @@
 
 // Please refer to fxa-react/configs/tailwind for the main config file
 
+const { readFileSync } = require('fs');
+const { join } = require('path');
 const config = require('fxa-react/configs/tailwind');
+
+// The Tailwind CLI runs no PostCSS plugins, so the config inlines these SVGs.
+const inline = (file) =>
+  `url('data:image/svg+xml;base64,${readFileSync(
+    join(__dirname, 'app/images', file)
+  ).toString('base64')}')`;
 
 config.content = [
   './app/scripts/templates/**/*.mustache',
@@ -21,27 +29,34 @@ config.theme.extend = {
   ...config.theme.extend,
   backgroundImage: {
     ...config.theme.extend.backgroundImage,
-    'check-white': 'inline("../images/icon-check-white.svg")',
-    'show-password': 'inline("../images/icon-show-password.svg")',
-    'hide-password': 'inline("../images/icon-show-password-closed.svg")',
+    'check-white': inline('icon-check-white.svg'),
+    'show-password': inline('icon-show-password.svg'),
+    'hide-password': inline('icon-show-password-closed.svg'),
     // TODO: Use 'close' SVGs from 'fxa-react' once using React
-    'close-black': 'inline("../images/close.svg")',
-    'close-white': 'inline("../images/close-white.svg")',
-    'mobile-ff': 'inline("../images/mobile-ff.svg")',
-    'mobile-download': 'inline("../images/mobile-download.svg")',
-    'no-ff-desktop': 'inline("../images/no-ff-desktop.svg")',
-    'icon-warning': 'inline("../images/icon-warning.svg")',
+    'close-black': inline('close.svg'),
+    'close-white': inline('close-white.svg'),
+    'mobile-ff': inline('mobile-ff.svg'),
+    'mobile-download': inline('mobile-download.svg'),
+    'no-ff-desktop': inline('no-ff-desktop.svg'),
+    'icon-warning': inline('icon-warning.svg'),
+    'default-profile': inline('default-profile.svg'),
+    'graphic-mail': inline('graphic_mail.svg'),
+    'triple-device-hearts': inline('graphic-triple-device-hearts.svg'),
+    'account-verified': inline('account-verified.svg'),
+    'qr-code-firefox-mobile': inline('qr_code_firefox_mobile.svg'),
+    'confirm-pairing': inline('confirm-pairing.svg'),
+    'broken-connection': inline('graphic_broken_connection.svg'),
+    'spinner-white': inline('spinnerwhite.svg'),
   },
   content: {
     ...config.theme.extend.content,
-    'circle-check': "inline('../images/circle-check.svg')",
+    'circle-check': inline('circle-check.svg'),
     // Note, this is also used in fxa-settings but as an inlined SVG
-    'icon-circle-check-outline':
-      "inline('../images/icon-circle-check-outline.svg')",
-    lock: "inline('../images/icon-lock.svg')",
-    alert: "inline('../images/icon-warning-red-50.svg')",
-    'check-blue': "inline('../images/icon-check-blue-50.svg')",
-    key: "inline('../images/icon-key-grey-50.svg')",
+    'icon-circle-check-outline': inline('icon-circle-check-outline.svg'),
+    lock: inline('icon-lock.svg'),
+    alert: inline('icon-warning-red-50.svg'),
+    'check-blue': inline('icon-check-blue-50.svg'),
+    key: inline('icon-key-grey-50.svg'),
   },
 };
 

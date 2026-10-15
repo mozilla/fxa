@@ -115,7 +115,7 @@ export const Banner = ({
         <button
           aria-label={`Close banner`}
           className={classNames(
-            'shrink-0 self-start hover:backdrop-saturate-150 focus:backdrop-saturate-200 focus-visible-default rounded',
+            'shrink-0 self-start hover:backdrop-saturate-150 focus:backdrop-saturate-200 focus-visible-default rounded-sm',
             type === 'error' && 'hover:bg-red-200 focus:bg-red-300',
             type === 'info' &&
               !isFancy &&

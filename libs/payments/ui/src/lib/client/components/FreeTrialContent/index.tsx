@@ -254,7 +254,7 @@ export const FreeTrialContent = ({
               {failedInvoiceUrl && (
                 <LinkExternal
                   href={failedInvoiceUrl}
-                  className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                  className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 shrink-0 overflow-hidden text-ellipsis whitespace-nowrap"
                   data-testid="free-trial-link-view-invoice"
                   aria-label={l10n.getString(
                     'free-trial-content-link-view-invoice-aria',

@@ -81,7 +81,7 @@ export default async function ChurnTerms({
         </div>
         <div className="flex">
           <LinkExternal
-            className="border box-border font-header rounded text-center py-2 px-5 border-grey-200 w-auto bg-grey-10 font-semibold hover:bg-grey-50 text-grey-700"
+            className="border box-border font-header rounded-sm text-center py-2 px-5 border-grey-200 w-auto bg-grey-10 font-semibold hover:bg-grey-50 text-grey-700"
             href={`${content.supportUrl}${searchParamsString}`}
             aria-label={l10n.getString(
               'loyalty-discount-terms-contact-support-product-aria',

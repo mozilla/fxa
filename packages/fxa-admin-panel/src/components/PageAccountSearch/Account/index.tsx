@@ -81,7 +81,7 @@ export const LinkedAccount = ({
       <>{providerId}</>
       <>{getFormattedDate(authAt)}</>
       <button
-        className="p-1 text-red-700 border-2 rounded border-grey-100 bg-grey-10 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
+        className="p-1 text-red-700 border-2 rounded-sm border-grey-100 bg-grey-10 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
         type="button"
         onClick={handleUnlinkAccount}
       >
@@ -232,7 +232,7 @@ export const Account = ({
 
                 <Guard features={[AdminPanelFeature.EditLocale]}>
                   <button
-                    className="bg-grey-10 border-2 border-grey-100 font-small leading-6 ml-2 rounded text-red-700 w-10 hover:border-2 hover:border-grey-10 hover:bg-grey-50"
+                    className="bg-grey-10 border-2 border-grey-100 font-small leading-6 ml-2 rounded-sm text-red-700 w-10 hover:border-2 hover:border-grey-10 hover:bg-grey-50"
                     type="button"
                     onClick={handleEditLocale}
                     data-testid="edit-account-locale"
@@ -460,7 +460,7 @@ export const Account = ({
                     <div className="flex flex-col items-start gap-2 whitespace-nowrap">
                       <Guard features={[AdminPanelFeature.RemovePasskeys]}>
                         <button
-                          className="p-1 text-red-700 border-2 rounded border-grey-100 bg-grey-10 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
+                          className="p-1 text-red-700 border-2 rounded-sm border-grey-100 bg-grey-10 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
                           type="button"
                           data-testid={`remove-passkey-${passkey.credentialId}`}
                           aria-label={`Remove passkey ${passkey.name}`}
@@ -477,7 +477,7 @@ export const Account = ({
                       {passkey.hasPasswordlessSync && (
                         <Guard features={[AdminPanelFeature.RemovePasskeyWrap]}>
                           <button
-                            className="p-1 text-red-700 border-2 rounded border-grey-100 bg-grey-10 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
+                            className="p-1 text-red-700 border-2 rounded-sm border-grey-100 bg-grey-10 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
                             type="button"
                             data-testid={`remove-passkey-wrap-${passkey.credentialId}`}
                             aria-label={`Remove passwordless sync for passkey ${passkey.name}`}
@@ -644,7 +644,7 @@ export const Account = ({
               securityEvents.length > INITIAL_SECURITY_EVENT_COUNT && (
                 <button
                   type="button"
-                  className="bg-grey-10 border-2 border-grey-100 mt-2 px-4 py-2 rounded hover:bg-grey-50 hover:border-grey-10"
+                  className="bg-grey-10 border-2 border-grey-100 mt-2 px-4 py-2 rounded-sm hover:bg-grey-50 hover:border-grey-10"
                   onClick={() => setShowAllSecurityEvents(true)}
                 >
                   Show more

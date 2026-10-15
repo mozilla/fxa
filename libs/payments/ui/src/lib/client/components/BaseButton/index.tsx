@@ -39,15 +39,15 @@ export const BaseButton = forwardRef(function BaseButton(
       break;
     case ButtonVariant.SubscriptionManagementPrimary:
       variantStyles =
-        'bg-blue-500 border border-blue-600 box-border font-header hover:bg-blue-700 inline-block rounded text-center text-white w-full py-2 px-5 tablet:w-auto';
+        'bg-blue-500 border border-blue-600 box-border font-header hover:bg-blue-700 inline-block rounded-sm text-center text-white w-full py-2 px-5 tablet:w-auto';
       break;
     case ButtonVariant.SubscriptionManagementSecondary:
       variantStyles =
-        'bg-grey-10 border border-grey-200 box-border font-header hover:bg-grey-50 inline-block rounded text-center w-full py-2 px-5 tablet:w-auto';
+        'bg-grey-10 border border-grey-200 box-border font-header hover:bg-grey-50 inline-block rounded-sm text-center w-full py-2 px-5 tablet:w-auto';
       break;
     case ButtonVariant.SubscriptionManagementError:
       variantStyles =
-        'bg-red-600 border box-border font-header hover:bg-red-700 inline-block rounded text-center text-white w-full py-2 px-5';
+        'bg-red-600 border box-border font-header hover:bg-red-700 inline-block rounded-sm text-center text-white w-full py-2 px-5';
       break;
   }
 

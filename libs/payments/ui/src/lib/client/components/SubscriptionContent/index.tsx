@@ -132,7 +132,7 @@ export const SubscriptionContent = ({
             {currentInvoiceUrl && (
               <LinkExternal
                 href={currentInvoiceUrl}
-                className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 shrink-0 overflow-hidden text-ellipsis whitespace-nowrap"
                 data-testid="link-external-view-invoice"
                 aria-label={l10n.getString(
                   'subscription-management-link-view-invoice-aria',

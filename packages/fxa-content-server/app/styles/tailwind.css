@@ -2,20 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@import 'tailwindcss' source(none);
 
-@import 'fxa-react/styles/index';
+@import '../../../fxa-react/styles/index.css';
 
 /* REACT NOTE: when we refactor to React it's going to be nicer to create reusable
  * components and ditch some of these custom component classes. */
 
-@import './tailwind/state';
-@import './tailwind/ctas';
-@import './tailwind/inputs';
-@import './tailwind/images';
-@import './tailwind/tooltips';
+@import './tailwind/state.css';
+@import './tailwind/ctas.css';
+@import './tailwind/inputs.css';
+@import './tailwind/images.css';
+@import './tailwind/tooltips.css';
+
+@config '../../tailwind.config.js';
 
 body {
   @apply min-h-screen mobileLandscape:pt-12 text-black dark:text-grey-10 bg-grey-10 dark:bg-grey-900 flex flex-col justify-center;

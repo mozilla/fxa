@@ -49,7 +49,7 @@ export default async function LoyaltyDiscountCancelErrorPage({
       subscriptionId,
       acceptLanguage
     );
-  } catch (error) {
+  } catch {
     pageContent = null;
   }
 
@@ -137,7 +137,7 @@ export default async function LoyaltyDiscountCancelErrorPage({
               <div className="flex flex-col gap-3 w-full">
                 <Link
                   href={`/${locale}/subscriptions/${subscriptionId}/cancel`}
-                  className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-blue-500 border-blue-600 hover:bg-blue-700 text-white"
+                  className="border box-border flex font-bold font-header h-12 items-center justify-center rounded-sm text-center py-2 px-5 bg-blue-500 border-blue-600 hover:bg-blue-700 text-white"
                 >
                   {l10n.getString(
                     'churn-cancel-flow-error-button-continue-to-cancel',
@@ -146,7 +146,7 @@ export default async function LoyaltyDiscountCancelErrorPage({
                 </Link>
                 <Link
                   href={`/${locale}/subscriptions/landing`}
-                  className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
+                  className="border box-border flex font-bold font-header h-12 items-center justify-center rounded-sm text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
                 >
                   {l10n.getString(
                     'churn-cancel-flow-error-page-button-back-to-subscriptions',

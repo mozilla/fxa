@@ -403,7 +403,7 @@ export function CheckoutForm({
         className={
           formEnabled
             ? 'mt-10'
-            : 'mt-10 cursor-not-allowed relative focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10'
+            : 'mt-10 cursor-not-allowed relative focus:border-blue-400 focus:outline-hidden focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10'
         }
         onClick={() => setShowConsentError(true)}
       >

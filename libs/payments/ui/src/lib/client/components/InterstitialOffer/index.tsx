@@ -255,7 +255,7 @@ export function InterstitialOffer({
 
             <div className="flex flex-col gap-3 w-full">
               <Link
-                className="border box-border flex font-bold font-header h-14 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
+                className="border box-border flex font-bold font-header h-14 items-center justify-center rounded-sm text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
                 href={`/${locale}/subscriptions/landing`}
               >
                 <Localized id="interstitial-offer-button-back-to-subscriptions">

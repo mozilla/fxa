@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const plugin = require('tailwindcss/plugin');
-const tailwindcssDir = require('tailwindcss-dir');
 
 module.exports = {
   theme: {
@@ -99,9 +98,9 @@ module.exports = {
         circle: 'circle',
       },
     },
+    // tablet has a height condition, so styles/index.css declares it with @custom-variant
     screens: {
       mobileLandscape: '480px',
-      tablet: { raw: '(min-width: 768px) and (min-height: 481px)' },
       desktop: '1024px',
       desktopXl: '1441px',
     },
@@ -320,6 +319,5 @@ module.exports = {
       };
       addComponents(carets);
     }),
-    tailwindcssDir(),
   ],
 };

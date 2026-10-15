@@ -16,12 +16,12 @@
   &::before {
     @apply h-16 mobileLandscape:h-20 left-0 block absolute bg-center bg-no-repeat w-full bg-contain top-8 mobileLandscape:-top-10 content-[''];
   }
+}
 
-  &-header {
-    @apply font-header text-xl font-bold;
-  }
+.card-header {
+  @apply font-header text-xl font-bold;
+}
 
-  &-subheader {
-    @apply font-body font-normal text-sm block mt-1;
-  }
+.card-subheader {
+  @apply font-body font-normal text-sm block mt-1;
 }

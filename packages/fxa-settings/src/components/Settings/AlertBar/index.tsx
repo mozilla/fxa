@@ -85,13 +85,13 @@ export const AlertBar = () => {
           tabIndex={0}
           ref={tabFenceRef}
           data-testid="alert-bar-tab-fence"
-          className="outline-none"
+          className="outline-hidden"
         >
           <div
             ref={alertBarInnerRef}
             data-testid="alert-bar-inner"
             className={classNames(
-              'max-w-full desktop:max-w-2xl w-full desktop:min-w-sm flex shadow-md rounded-sm text-sm font-medium text-grey-700 border border-transparent',
+              'max-w-full desktop:max-w-2xl w-full desktop:min-w-sm flex shadow-md rounded-xs text-sm font-medium text-grey-700 border border-transparent',
               {
                 'bg-red-100 error': type === 'error',
                 'bg-blue-50 info': type === 'info',
@@ -112,7 +112,7 @@ export const AlertBar = () => {
             </p>
             <button
               className={classNames(
-                'shrink-0 items-stretch justify-center py-2 px-3 focus-visible:rounded-sm focus-visible-default',
+                'shrink-0 items-stretch justify-center py-2 px-3 focus-visible:rounded-xs focus-visible-default',
                 {
                   'hover:bg-red-200 focus:bg-red-300': type === 'error',
                   'hover:bg-blue-100 focus:bg-blue-200': type === 'info',

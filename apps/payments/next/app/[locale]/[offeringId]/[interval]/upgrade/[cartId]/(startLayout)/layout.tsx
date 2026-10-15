@@ -58,12 +58,17 @@ export default async function UpgradeLayout({
   let currentPurchaseDetails;
   if (cart.state === CartState.START) {
     if (!cart.fromOfferingConfigId) {
-      throw new UpgradeCartFromOfferingConfigIdMissingError(resolvedParams.cartId);
+      throw new UpgradeCartFromOfferingConfigIdMissingError(
+        resolvedParams.cartId
+      );
     }
     if (!cart.fromPrice) {
       throw new UpgradeCartFromPriceMissingError(resolvedParams.cartId);
     }
-    const currentCmsDataPromise = fetchCMSData(cart.fromOfferingConfigId, locale);
+    const currentCmsDataPromise = fetchCMSData(
+      cart.fromOfferingConfigId,
+      locale
+    );
     const currentCms = await currentCmsDataPromise;
     currentPurchaseDetails =
       currentCms.defaultPurchase.purchaseDetails.localizations.at(0) ||
@@ -93,8 +98,7 @@ export default async function UpgradeLayout({
           <SubscriptionTitle cart={cart} l10n={l10n} />
 
           <div className="mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:row-start-1 tablet:row-span-3">
-            {cart.fromPrice &&
-              currentPurchaseDetails && (
+            {cart.fromPrice && currentPurchaseDetails && (
               <UpgradePurchaseDetails
                 l10n={l10n}
                 interval={cart.interval}
@@ -108,7 +112,7 @@ export default async function UpgradeLayout({
             )}
           </div>
 
-          <div className="bg-white rounded-b-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:clip-shadow tablet:rounded-t-none desktop:px-12 desktop:pb-12">
+          <div className="bg-white rounded-b-lg shadow-xs shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:clip-shadow tablet:rounded-t-none desktop:px-12 desktop:pb-12">
             {children}
             <TermsAndPrivacy
               l10n={l10n}

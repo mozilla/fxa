@@ -47,7 +47,7 @@ const DangerZoneAction = ({
         <p className="mt-2">{hiddenButtonContent}</p>
       ) : (
         <button
-          className="bg-grey-10 border-2 border-grey-100 font-medium h-12 mt-4 rounded text-red-700 w-40 hover:border-2 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
+          className="bg-grey-10 border-2 border-grey-100 font-medium h-12 mt-4 rounded-sm text-red-700 w-40 hover:border-2 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
           onClick={buttonHandler}
           data-testid={buttonTestId}
         >
@@ -202,7 +202,7 @@ export const DangerZone = ({
           AdminPanelFeature.RemovePasskeys,
         ]}
       >
-        <h3 className="mt-0 mb-1 bg-red-600 font-medium h-8 pb-8 pl-2 pt-1 rounded-sm text-lg text-white">
+        <h3 className="mt-0 mb-1 bg-red-600 font-medium h-8 pb-8 pl-2 pt-1 rounded-xs text-lg text-white">
           Danger Zone
         </h3>
         <p className="my-4">

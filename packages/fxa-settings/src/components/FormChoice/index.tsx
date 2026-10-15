@@ -79,7 +79,7 @@ const FormChoice = ({
                   {choice.localizedChoiceTitle}
                 </strong>
                 {choice.localizedChoiceBadge && (
-                  <span className="h-6 px-2 py-1 mb-1 flex w-fit bg-blue-50 rounded items-center text-sm text-blue-900 font-semibold">
+                  <span className="h-6 px-2 py-1 mb-1 flex w-fit bg-blue-50 rounded-sm items-center text-sm text-blue-900 font-semibold">
                     {choice.localizedChoiceBadge}
                   </span>
                 )}

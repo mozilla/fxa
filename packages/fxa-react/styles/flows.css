@@ -13,16 +13,16 @@
   &.card-xl {
     @apply mobileLandscape:w-184;
   }
+}
 
-  &-header {
-    @apply font-header text-xl font-bold;
-  }
+.card-header {
+  @apply font-header text-xl font-bold;
+}
 
-  &-header-cms {
-    @apply font-header font-bold;
-  }
+.card-header-cms {
+  @apply font-header font-bold;
+}
 
-  &-subheader {
-    @apply font-body font-normal text-sm block mt-1;
-  }
+.card-subheader {
+  @apply font-body font-normal text-sm block mt-1;
 }

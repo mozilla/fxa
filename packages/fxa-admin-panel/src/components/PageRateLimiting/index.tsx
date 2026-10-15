@@ -119,7 +119,7 @@ export const PageRateLimiting = () => {
           id={`rate-limit-${id}`}
           type={type}
           placeholder={label}
-          className="bg-grey-50 rounded w-full py-2 px-3 placeholder-grey-500"
+          className="bg-grey-50 rounded-sm w-full py-2 px-3 placeholder-grey-500"
           {...register(id)}
         />
       </div>
@@ -145,7 +145,7 @@ export const PageRateLimiting = () => {
         <div className="flex gap-3">
           <button
             type="submit"
-            className="bg-grey-100 hover:bg-grey-200 text-black px-4 py-2 rounded flex items-center gap-2"
+            className="bg-grey-100 hover:bg-grey-200 text-black px-4 py-2 rounded-sm flex items-center gap-2"
           >
             <img className="w-4 h-4" src={iconSearch} alt="search icon" />
             Search Rate Limits
@@ -154,7 +154,7 @@ export const PageRateLimiting = () => {
           <button
             type="button"
             onClick={handleClear}
-            className="bg-red-100 hover:bg-red-200 text-black px-4 py-2 rounded"
+            className="bg-red-100 hover:bg-red-200 text-black px-4 py-2 rounded-sm"
           >
             Clear Rate Limits
           </button>

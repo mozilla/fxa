@@ -163,7 +163,7 @@ export const InputText = ({
   return (
     <label
       className={classNames(
-        'flex text-start rounded transition-all duration-100 ease-in-out border relative outline-none',
+        'flex text-start rounded-sm transition-all duration-100 ease-in-out border relative outline-hidden',
         hasErrors || errorText ? 'border-red-700 shadow-input-red-focus' : '',
         !hasErrors && focused
           ? 'border-blue-400 shadow-input-blue-focus'
@@ -195,12 +195,12 @@ export const InputText = ({
           defaultValue={value === undefined ? defaultValue : undefined}
           className={classNames(
             inputOnlyClassName,
-            'pb-1 pt-5 px-3 font-body rounded text-start bg-transparent dark:text-grey-10',
+            'pb-1 pt-5 px-3 font-body rounded-sm text-start bg-transparent dark:text-grey-10',
             // password specific width is to accomodate password manager icons
             // that are otherwise hidden and inaccessible under the visibility icon
             isPasswordInput ? 'w-[90%]' : 'w-full',
             focused
-              ? 'outline-none border-none placeholder-grey-500 dark:placeholder-grey-400'
+              ? 'outline-hidden border-none placeholder-grey-500 dark:placeholder-grey-400'
               : '',
             disabled
               ? 'bg-grey-10 dark:bg-grey-800 placeholder-transparent cursor-default'

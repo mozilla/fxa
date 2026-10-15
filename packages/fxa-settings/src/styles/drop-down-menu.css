@@ -2,25 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* `@layer components` allows us to use classes like `mobileLandscape:drop-down-menu` */
-@layer components {
-  .drop-down-menu {
-    @apply w-64 bg-white dark:bg-grey-700 text-black dark:text-grey-100 absolute shadow-md rounded-lg;
+/* `@utility` allows us to use classes like `mobileLandscape:drop-down-menu` */
+@utility drop-down-menu {
+  @apply w-64 bg-white dark:bg-grey-700 text-black dark:text-grey-100 absolute shadow-md rounded-lg;
 
-    &::before {
-      content: '';
-      @apply caret-top absolute -top-3;
-      .dark & {
-        border-bottom-color: #15141a;
-      }
+  &::before {
+    content: '';
+    @apply caret-top absolute -top-3;
+    .dark & {
+      border-bottom-color: #15141a;
+    }
 
-      [dir='ltr'] & {
-        @apply left-55;
-      }
+    [dir='ltr'] & {
+      @apply left-55;
+    }
 
-      [dir='rtl'] & {
-        @apply right-55;
-      }
+    [dir='rtl'] & {
+      @apply right-55;
     }
   }
 }

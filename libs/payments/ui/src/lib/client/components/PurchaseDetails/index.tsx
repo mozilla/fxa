@@ -102,8 +102,7 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
   );
   const freeTrial =
     !!stableTrialEndDate ||
-    (!!stableFreeTrialOffer &&
-      stableFreeTrialOffer.trialLengthDays > 0);
+    (!!stableFreeTrialOffer && stableFreeTrialOffer.trialLengthDays > 0);
   const trialDayLength =
     stableTrialStartDate && stableTrialEndDate
       ? Math.round((stableTrialEndDate - stableTrialStartDate) / 86400)
@@ -154,7 +153,7 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
   return (
     <section
       aria-labelledby="product-details-heading"
-      className="bg-white rounded-b-lg shadow-sm shadow-grey-300 text-sm px-4 pb-2 rounded-t-none clip-shadow tablet:rounded-t-lg"
+      className="bg-white rounded-b-lg shadow-xs shadow-grey-300 text-sm px-4 pb-2 rounded-t-none clip-shadow tablet:rounded-t-lg"
     >
       <div className="flex gap-4 my-0 py-4">
         <Image
@@ -374,7 +373,7 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
                   <Localized id="purchase-details-credit-applied-label">
                     <p>Credit applied</p>
                   </Localized>
-                  <p className="flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap">
+                  <p className="shrink-0 overflow-hidden text-ellipsis whitespace-nowrap">
                     {getLocalizedCurrencyString(
                       creditApplied,
                       currency,

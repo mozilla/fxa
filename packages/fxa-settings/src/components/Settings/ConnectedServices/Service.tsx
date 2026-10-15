@@ -147,9 +147,9 @@ export function Service({
       data-testid="settings-connected-service"
       data-name={name}
     >
-      <div className="border-2 border-solid border-grey-100 dark:border-grey-700 rounded">
+      <div className="border-2 border-solid border-grey-100 dark:border-grey-700 rounded-sm">
         <div className="p-4 flex mobileLandscape:justify-around items-center flex-col mobileLandscape:flex-row">
-          <div className="flex flex-grow w-full mobileLandscape:flex-2">
+          <div className="flex grow w-full mobileLandscape:flex-2">
             <span className={classNames(iconClasses, 'px-2')}>{Icon}</span>
             <div className="flex flex-col flex-5 mobileLandscape:items-center mobileLandscape:flex-row">
               <div className="flex flex-col mobileLandscape:flex-2">
@@ -183,7 +183,7 @@ export function Service({
             </div>
           </div>
 
-          <div className="flex flex-grow w-full mobileLandscape:justify-end mobileLandscape:flex-1">
+          <div className="flex grow w-full mobileLandscape:justify-end mobileLandscape:flex-1">
             <Localized id="cs-sign-out-button">
               <button
                 className="cta-neutral cta-base cta-base-p disabled:cursor-wait whitespace-nowrap mobileLandscape:w-auto"

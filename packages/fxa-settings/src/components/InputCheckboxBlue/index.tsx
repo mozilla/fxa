@@ -33,7 +33,7 @@ export const InputCheckboxBlue = ({
   );
 
   const checkboxBaseClassNames =
-    'flex-shrink-0 appearance-none border w-4 h-4 transition-standard rounded-sm focus:outline-2 focus:outline-offset-2 focus:outline focus-visible:outline focus:outline-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 active:outline-2 active:outline-offset-2 active:outline active:outline-blue-500 ltr:mr-3 rtl:ml-3';
+    'shrink-0 appearance-none border w-4 h-4 transition-standard rounded-xs focus:outline-2 focus:outline-offset-2 focus:outline focus-visible:outline focus:outline-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 active:outline-2 active:outline-offset-2 active:outline active:outline-blue-500 ltr:mr-3 rtl:ml-3';
 
   return (
     <label className="my-2 flex items-start hover:cursor-pointer">

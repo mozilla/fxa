@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Snippet = ({ moarClasses = '', children }) => (
-  <code className={`bg-grey-100 text-sm px-1 rounded-sm ${moarClasses}`}>
+  <code className={`bg-grey-100 text-sm px-1 rounded-xs ${moarClasses}`}>
     {children}
   </code>
 );

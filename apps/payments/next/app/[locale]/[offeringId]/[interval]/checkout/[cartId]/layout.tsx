@@ -70,11 +70,8 @@ export default async function CheckoutLayout({
     cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
     cms.defaultPurchase.purchaseDetails;
   const showFreeTrialOffer =
-    !!cart.freeTrialOffer &&
-    (!session?.user || !!cart.freeTrialUserEligible);
-  const freeTrialOffer = showFreeTrialOffer
-    ? cart.freeTrialOffer
-    : null;
+    !!cart.freeTrialOffer && (!session?.user || !!cart.freeTrialUserEligible);
+  const freeTrialOffer = showFreeTrialOffer ? cart.freeTrialOffer : null;
   return (
     <MetricsWrapper cart={cart}>
       <CartMutationProvider>
@@ -144,7 +141,7 @@ export default async function CheckoutLayout({
               {cart.state === CartState.START && (
                 <section
                   aria-labelledby="location-heading"
-                  className="bg-white rounded-b-lg shadow-sm shadow-grey-300 mt-6 p-4 rounded-t-lg text-base tablet:my-8"
+                  className="bg-white rounded-b-lg shadow-xs shadow-grey-300 mt-6 p-4 rounded-t-lg text-base tablet:my-8"
                 >
                   <h2
                     id="location-heading"
@@ -202,13 +199,14 @@ export default async function CheckoutLayout({
               )}
             </div>
 
-            <div className="bg-white rounded-b-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:clip-shadow tablet:rounded-t-none desktop:px-12 desktop:pb-12">
+            <div className="bg-white rounded-b-lg shadow-xs shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:clip-shadow tablet:rounded-t-none desktop:px-12 desktop:pb-12">
               {children}
               <TermsAndPrivacy
                 l10n={l10n}
                 {...cart}
                 {...purchaseDetails}
-                {...(cms.commonContent.localizations.at(0) || cms.commonContent)}
+                {...(cms.commonContent.localizations.at(0) ||
+                  cms.commonContent)}
                 showFXALinks={true}
               />
             </div>

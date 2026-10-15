@@ -114,7 +114,7 @@ export const BentoMenu = () => {
         aria-label={bentoMenuTitle}
         aria-expanded={!!isRevealed}
         aria-haspopup="menu"
-        className="rounded p-2 mx-2 border-transparent hover:bg-grey-100 dark:hover:bg-grey-700 transition-standard desktop:mx-8 focus-visible-default"
+        className="rounded-sm p-2 mx-2 border-transparent hover:bg-grey-100 dark:hover:bg-grey-700 transition-standard desktop:mx-8 focus-visible-default"
       >
         <BentoIcon className="w-5 text-violet-900 dark:text-grey-100" />
       </button>
@@ -135,7 +135,7 @@ export const BentoMenu = () => {
                 /* Clicking the bento icon again closes the menu, so
                    there is no need to display the close button for non-mobile
                    devices, even for screen readers. */
-                className="absolute top-5 end-5 mobileLandscape:hidden rounded-sm focus-visible-default outline-offset-2"
+                className="absolute top-5 end-5 mobileLandscape:hidden rounded-xs focus-visible-default outline-offset-2"
               >
                 <CloseIcon width="16" height="16" className="fill-current" />
               </button>
@@ -150,7 +150,7 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="desktop-link"
                       href={desktopLink}
-                      className="block p-2 ps-6 hover:bg-grey-100 dark:hover:bg-grey-600 focus-visible:rounded-sm focus-visible-default"
+                      className="block p-2 ps-6 hover:bg-grey-100 dark:hover:bg-grey-600 focus-visible:rounded-xs focus-visible-default"
                       onClick={() =>
                         GleanMetrics.accountPref.bentoFirefoxDesktop()
                       }
@@ -167,7 +167,7 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="mobile-link"
                       href={mobileLink}
-                      className="block p-2 ps-6 hover:bg-grey-100 dark:hover:bg-grey-600 focus-visible:rounded-sm focus-visible-default"
+                      className="block p-2 ps-6 hover:bg-grey-100 dark:hover:bg-grey-600 focus-visible:rounded-xs focus-visible-default"
                       onClick={() =>
                         GleanMetrics.accountPref.bentoFirefoxMobile()
                       }
@@ -184,7 +184,7 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="monitor-link"
                       href={monitorLink}
-                      className="block p-2 ps-6 hover:bg-grey-100 dark:hover:bg-grey-600 focus-visible:rounded-sm focus-visible-default"
+                      className="block p-2 ps-6 hover:bg-grey-100 dark:hover:bg-grey-600 focus-visible:rounded-xs focus-visible-default"
                       onClick={() => GleanMetrics.accountPref.bentoMonitor()}
                     >
                       <div className={iconClassNames}>
@@ -197,7 +197,7 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="relay-link"
                       href={relayLink}
-                      className="block p-2 ps-6 hover:bg-grey-100 dark:hover:bg-grey-600 focus-visible:rounded-sm focus-visible-default"
+                      className="block p-2 ps-6 hover:bg-grey-100 dark:hover:bg-grey-600 focus-visible:rounded-xs focus-visible-default"
                       onClick={() => GleanMetrics.accountPref.bentoRelay()}
                     >
                       <div className={iconClassNames}>
@@ -212,7 +212,7 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="vpn-link"
                       href={vpnLink}
-                      className="block p-2 ps-6 hover:bg-grey-100 dark:hover:bg-grey-600 focus-visible:rounded-sm focus-visible-default"
+                      className="block p-2 ps-6 hover:bg-grey-100 dark:hover:bg-grey-600 focus-visible:rounded-xs focus-visible-default"
                       onClick={() => GleanMetrics.accountPref.bentoVpn()}
                     >
                       <div className={iconInvertedClassNames}>

@@ -16,7 +16,7 @@ Whenever content-server is converted to Tailwind we can consider extending the `
 
 ## Component classes
 
-Component classes should live in this `tailwind` directory for organization purposes but when we're no longer using SCSS we can move these styles out of the directory. **Don't use SCSS in component class files** because while we have to keep the build step at the moment for old SCSS files, we'll want to remove it later, and we can use `postcss-import` and `tailwind/nesting` which uses `postcss-nested` under the hood instead.
+Component classes should live in this `tailwind` directory for organization purposes but when we're no longer using SCSS we can move these styles out of the directory. **Don't use SCSS in component class files** because while we have to keep the build step at the moment for old SCSS files, we'll want to remove it later, and Tailwind supports `@import` and CSS nesting instead.
 
 Component classes (custom `.css`) can usually be avoided by creating reusable _new components/partials_ and applying TW classes on and within that component, [see the TW docs on this](https://tailwindcss.com/docs/reusing-styles#extracting-components-and-partials). This is something to keep in mind when we convert to React since **we should favor new components over [basically writing CSS again](https://tailwindcss.com/docs/reusing-styles#avoiding-premature-abstraction)** - we can remove a lot of the currently existing component classes following that philosophy.
 

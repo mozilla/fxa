@@ -141,7 +141,7 @@ export const DropDownAvatarMenu = () => {
                 <div className="bg-gradient-to-r from-blue-500 via-pink-700 to-yellow-500 h-px" />
                 <div className="px-4 py-5">
                   <button
-                    className="ml-3 group rounded-sm focus-visible-default outline-offset-2"
+                    className="ml-3 group rounded-xs focus-visible-default outline-offset-2"
                     onClick={signOut}
                     data-testid="avatar-menu-sign-out"
                   >

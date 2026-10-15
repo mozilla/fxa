@@ -290,7 +290,7 @@ export const PagePasskeyAdd = () => {
 
   return (
     <div
-      className="max-w-lg mx-auto mt-6 p-10 tablet:my-10 flex flex-col items-center bg-white dark:bg-grey-700 shadow tablet:rounded-xl border border-transparent text-center"
+      className="max-w-lg mx-auto mt-6 p-10 tablet:my-10 flex flex-col items-center bg-white dark:bg-grey-700 shadow-sm tablet:rounded-xl border border-transparent text-center"
       data-testid="page-passkey-add"
     >
       <LoadingSpinner className="flex justify-center mb-6" />

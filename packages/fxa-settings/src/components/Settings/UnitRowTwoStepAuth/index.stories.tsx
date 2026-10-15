@@ -17,7 +17,7 @@ export default {
     (Story) => (
       <MemoryRouter>
         {/* Added to represent the section in which rows are nested */}
-        <div className="bg-white dark:bg-grey-900 tablet:rounded-xl shadow">
+        <div className="bg-white dark:bg-grey-900 tablet:rounded-xl shadow-sm">
           <Story />
         </div>
       </MemoryRouter>

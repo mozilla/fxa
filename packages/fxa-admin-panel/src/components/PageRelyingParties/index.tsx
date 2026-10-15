@@ -88,7 +88,7 @@ const RelyingPartyForm = ({
       >
         <label>Name:</label>
         <input
-          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          className="bg-grey-50 rounded-l-sm w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
           placeholder="name"
           type="text"
           name="name"
@@ -97,7 +97,7 @@ const RelyingPartyForm = ({
 
         <label>Image URL:</label>
         <input
-          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          className="bg-grey-50 rounded-l-sm w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
           placeholder="http://mozilla.com/rp/logo.png"
           type="text"
           name="imageUri"
@@ -106,7 +106,7 @@ const RelyingPartyForm = ({
 
         <label>Redirect URL:</label>
         <input
-          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          className="bg-grey-50 rounded-l-sm w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
           placeholder="http://mozilla.com/rp/login"
           type="text"
           name="redirectUri"
@@ -115,7 +115,7 @@ const RelyingPartyForm = ({
 
         <label>Can Grant:</label>
         <select
-          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          className="bg-grey-50 rounded-l-sm w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
           name="canGrant"
           defaultValue={data?.canGrant?.toString() || 'true'}
         >
@@ -125,7 +125,7 @@ const RelyingPartyForm = ({
 
         <label>Public Client: </label>
         <select
-          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          className="bg-grey-50 rounded-l-sm w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
           name="publicClient"
           defaultValue={data?.publicClient?.toString() || 'true'}
         >
@@ -135,7 +135,7 @@ const RelyingPartyForm = ({
 
         <label>Trusted: </label>
         <select
-          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          className="bg-grey-50 rounded-l-sm w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
           name="trusted"
           defaultValue={data?.trusted?.toString() || 'true'}
         >
@@ -145,7 +145,7 @@ const RelyingPartyForm = ({
 
         <label>Allowed Scopes:</label>
         <input
-          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          className="bg-grey-50 rounded-l-sm w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
           placeholder="profile"
           type="text"
           name="allowedScopes"
@@ -154,14 +154,14 @@ const RelyingPartyForm = ({
 
         <label>Notes:</label>
         <textarea
-          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          className="bg-grey-50 rounded-l-sm w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
           placeholder="Enter notes about RP."
           name="notes"
           defaultValue={data?.notes || ''}
         ></textarea>
 
         <button
-          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded-sm m-1"
           type="submit"
           data-testid="rp-update"
           hidden={status === 'pending'}
@@ -169,7 +169,7 @@ const RelyingPartyForm = ({
           Submit
         </button>
         <button
-          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded-sm m-1"
           hidden={status === 'pending'}
           onClick={() => {
             onExit();
@@ -269,7 +269,7 @@ const CreateRelyingParty = ({ onExit }: { onExit: () => void }) => {
           <p className="mb-2">
             <button
               onClick={onExit}
-              className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+              className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded-sm m-1"
             >
               Got it!
             </button>
@@ -377,7 +377,7 @@ const DeletePreviousRelyingPartySecret = ({
 
       <form className="p-4" onSubmit={handleSubmit}>
         <input
-          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          className="bg-grey-50 rounded-l-sm w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
           placeholder="Enter Relying Party Name"
           type="text"
           name="confirmName"
@@ -385,13 +385,13 @@ const DeletePreviousRelyingPartySecret = ({
         <>
           <button
             type="submit"
-            className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+            className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded-sm m-1"
             data-testid="rp-delete"
           >
             Submit
           </button>
           <button
-            className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+            className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded-sm m-1"
             onClick={onExit}
           >
             Cancel
@@ -464,7 +464,7 @@ const RotateRelyingPartySecret = ({
       </p>
 
       {hasPreviousSecret && (
-        <p className="p-4 m-2 rounded bg-yellow-50">
+        <p className="p-4 m-2 rounded-sm bg-yellow-50">
           <b>Warning!</b> This RP currently has a 'previous' secret active.
           Going forward with this operation will overwrite it. Be certain the
           previous secret is not still in use before you proceed!
@@ -473,7 +473,7 @@ const RotateRelyingPartySecret = ({
 
       <form className="pl-4" onSubmit={handleSubmit}>
         <input
-          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          className="bg-grey-50 rounded-l-sm w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
           placeholder="Enter Relying Party Name"
           type="text"
           name="confirmName"
@@ -481,13 +481,13 @@ const RotateRelyingPartySecret = ({
 
         <button
           type="submit"
-          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded-sm m-1"
           data-testid="rp-delete"
         >
           Submit
         </button>
         <button
-          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded-sm m-1"
           onClick={onExit}
         >
           Cancel
@@ -517,7 +517,7 @@ const RotateRelyingPartySecret = ({
           </p>
           <pre className="p-4 mb-2 mt-2">client_secret: {secret}</pre>
           <button
-            className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+            className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded-sm m-1"
             onClick={onExit}
           >
             Got it!
@@ -567,7 +567,7 @@ const DeleteRelyingParty = ({
         Deleting Relying Party: {data.name}
       </h3>
       {wafToken && (
-        <p className="p-4 m-2 rounded bg-yellow-50">
+        <p className="p-4 m-2 rounded-sm bg-yellow-50">
           <b>⚠️ This RP has a linked WAF bypass token.</b> It will be removed
           from the database automatically, but you must also remove it from the{' '}
           <code>fxa_ci_bypass_tokens</code> list in{' '}
@@ -580,21 +580,21 @@ const DeleteRelyingParty = ({
           type name below:
         </label>
         <input
-          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          className="bg-grey-50 rounded-l-sm w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
           placeholder="Enter Relying Party Name"
           type="text"
           name="confirmName"
         ></input>
         <button
           type="submit"
-          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded-sm m-1"
           data-testid="rp-delete"
         >
           Submit
         </button>
 
         <button
-          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded-sm m-1"
           onClick={onExit}
         >
           Cancel
@@ -651,7 +651,7 @@ const RelyingPartyRow = ({
         <h3 className="header-lg font-bold float-left mt-1">{name}</h3>
         {hasPreviousSecret && (
           <button
-            className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded float-right m-1 mt-5"
+            className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded-sm float-right m-1 mt-5"
             onClick={() => setMode('deletePreviousSecret')}
           >
             ❌ Revoke Previous Secret
@@ -659,14 +659,14 @@ const RelyingPartyRow = ({
         )}
 
         <button
-          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded float-right m-1 mt-5"
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded-sm float-right m-1 mt-5"
           onClick={() => setMode('rotateSecret')}
         >
           🔑 Rotate Secret
         </button>
 
         <button
-          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded float-right m-1 mt-5"
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded-sm float-right m-1 mt-5"
           onClick={() => {
             setMode('delete');
           }}
@@ -674,7 +674,7 @@ const RelyingPartyRow = ({
           🗑️ Delete
         </button>
         <button
-          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded float-right m-1 mt-5"
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded-sm float-right m-1 mt-5"
           onClick={() => setMode('update')}
         >
           🖊️ Edit
@@ -936,7 +936,7 @@ export const PageRelyingParties = () => {
             <h3 className="header-page font-bold">Add New RP</h3>
             <p>Create an configure an new relying party.</p>
             <button
-              className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded mt-4"
+              className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded-sm mt-4"
               onClick={() => {
                 setShowAddRp(true);
               }}
@@ -951,13 +951,13 @@ export const PageRelyingParties = () => {
               type="text"
               name="rpFilter"
               placeholder="Filter by relying party name or ID."
-              className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+              className="bg-grey-50 rounded-l-sm w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
               defaultValue={filter}
             ></input>
             <button
               type="submit"
               data-testid="rp-filter"
-              className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded"
+              className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded-sm"
             >
               Filter
             </button>

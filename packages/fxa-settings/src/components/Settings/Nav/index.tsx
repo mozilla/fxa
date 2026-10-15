@@ -19,7 +19,7 @@ export interface NavRefProps {
 
 const navActiveClass = 'nav-active';
 const navItemClasses =
-  'inline-block py-1 px-2 hover:bg-grey-100 dark:hover:bg-grey-600 rounded-sm focus-visible-default';
+  'inline-block py-1 px-2 hover:bg-grey-100 dark:hover:bg-grey-600 rounded-xs focus-visible-default';
 
 // Update the active nav class when this percentage of a section is shown on screen
 const STANDARD_SECTION_THRESHOLD = 0.8;
@@ -221,7 +221,7 @@ export const Nav = ({
         {hasSubscription && (
           <li className="mb-5">
             <LinkExternal
-              className="font-bold focus-visible-default rounded-sm outline-offset-2"
+              className="font-bold focus-visible-default rounded-xs outline-offset-2"
               data-testid="nav-link-subscriptions"
               href={subscriptionLink}
             >
@@ -237,7 +237,7 @@ export const Nav = ({
         {marketingCommPrefLink && (
           <li>
             <LinkExternal
-              className="font-bold focus-visible-default rounded-sm outline-offset-2"
+              className="font-bold focus-visible-default rounded-xs outline-offset-2"
               data-testid="nav-link-newsletters"
               href={marketingCommPrefLink}
             >

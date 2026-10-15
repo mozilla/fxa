@@ -14,3 +14,5 @@
 @import './tooltips.css';
 @import './inputs.css';
 @import './focus.css';
+
+@custom-variant tablet (@media (min-width: 768px) and (min-height: 481px));

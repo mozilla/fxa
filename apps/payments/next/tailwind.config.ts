@@ -4,16 +4,16 @@
 
 import { createGlobPatternsForDependencies } from '@nx/react/tailwind';
 import { join } from 'path';
-import type { Config } from 'tailwindcss';
 
-export default <Partial<Config>>{
+export default {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   presets: [require('../../../libs/shared/assets/src/configs/tailwind.config')],
+  // Tailwind 4 ignores extglob negations such as !(*.stories|*.spec).
   content: [
-    join(
-      __dirname,
-      '{src,pages,components,app}/**/*!(*.stories|*.spec).{ts,tsx,html}'
+    join(__dirname, '{src,pages,components,app}/**/*.{ts,tsx,html}'),
+    ...createGlobPatternsForDependencies(__dirname).map((glob) =>
+      glob.replace('!(*.stories|*.spec)', '*')
     ),
-    ...createGlobPatternsForDependencies(__dirname),
   ],
   theme: {
     extend: {

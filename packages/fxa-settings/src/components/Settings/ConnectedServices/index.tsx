@@ -221,7 +221,7 @@ export const ConnectedServices = forwardRef<
         <span id="connected-services" className="nav-anchor"></span>
         <Localized id="cs-heading">Connected Services</Localized>
       </h2>
-      <div className="bg-white dark:bg-grey-700 tablet:rounded-xl shadow px-4 tablet:px-6 pt-7 pb-8">
+      <div className="bg-white dark:bg-grey-700 tablet:rounded-xl shadow-sm px-4 tablet:px-6 pt-7 pb-8">
         <div className="flex justify-between items-center gap-4 mb-4">
           <Localized id="cs-description">
             <p>Everything you are using and signed into.</p>

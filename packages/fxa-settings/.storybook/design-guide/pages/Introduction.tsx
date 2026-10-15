@@ -62,8 +62,8 @@ export const Introduction = () => (
         </p>
       </div>
       <div className="max-w-lg">
-        <div className="shadow-md border border-black/25 rounded bg-white mb-4">
-          <div className="p-3 bg-grey-50 text-sm font-bold rounded-t">
+        <div className="shadow-md border border-black/25 rounded-sm bg-white mb-4">
+          <div className="p-3 bg-grey-50 text-sm font-bold rounded-t-sm">
             <img
               src="assets/copy-icon.svg"
               className="inline-block w-6 h-6 mr-1"

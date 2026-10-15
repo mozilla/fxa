@@ -747,7 +747,7 @@ export const PasskeySubRow = ({ passkey }: PasskeySubRowProps) => {
           // dialog; the accessible name conveys the action.
           <button
             type="button"
-            className="group flex items-center gap-2 text-start rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+            className="group flex items-center gap-2 text-start rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
             onClick={revealRenameModal}
             data-testid="passkey-rename-button"
           >

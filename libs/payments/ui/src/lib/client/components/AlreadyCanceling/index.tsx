@@ -63,7 +63,7 @@ export function AlreadyCanceling({
         <div className="flex flex-col gap-3 w-full">
           <Link
             href={`/${locale}/subscriptions/landing`}
-            className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-blue-500 border-blue-600 hover:bg-blue-700 text-white"
+            className="border box-border flex font-bold font-header h-12 items-center justify-center rounded-sm text-center py-2 px-5 bg-blue-500 border-blue-600 hover:bg-blue-700 text-white"
           >
             <Localized id="already-canceling-button-back-to-subscriptions">
               <span>Back to subscriptions</span>

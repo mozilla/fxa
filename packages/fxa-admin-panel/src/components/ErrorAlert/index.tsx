@@ -9,7 +9,7 @@ export const ErrorAlert = ({ error }: { error: Error | unknown }) => {
 
   return (
     <div
-      className="border border-red-400 text-red-700 px-4 py-3 my-4 rounded relative"
+      className="border border-red-400 text-red-700 px-4 py-3 my-4 rounded-sm relative"
       role="alert"
       data-testid="error-alert"
     >

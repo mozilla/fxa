@@ -74,7 +74,7 @@ export const PageAccountDelete = () => {
 
   const saveButtonClass = () => {
     const base =
-      'bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded';
+      'bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded-sm';
     const active =
       'text-red-700 hover:text-red-700 hover:border-2 hover:border-grey-10 hover:bg-grey-50';
     const inactive = 'text-grey-700 cursor-not-allowed';

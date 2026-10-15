@@ -14,7 +14,7 @@ import type {
 } from 'fxa-admin-server/src/types';
 
 const btnClass =
-  'bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1';
+  'bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded-sm m-1';
 
 const WafTokenRow = ({
   token,
@@ -146,14 +146,14 @@ const CreateTokenForm = ({
 
   if (createdToken) {
     return (
-      <div className="p-4 border border-grey-100 rounded mt-4">
+      <div className="p-4 border border-grey-100 rounded-sm mt-4">
         <p className="font-bold mb-2">Token created.</p>
         <p className="mb-1">
           Add this value to <code>fxa_ci_bypass_tokens</code> in{' '}
           <code>{getWafTfPath()}</code> (webservices-infra), then run{' '}
           <code>terraform apply</code>:
         </p>
-        <pre className="p-3 bg-grey-50 rounded mb-3">{createdToken}</pre>
+        <pre className="p-3 bg-grey-50 rounded-sm mb-3">{createdToken}</pre>
         <button className={btnClass} onClick={onCancel}>
           Done
         </button>
@@ -164,7 +164,7 @@ const CreateTokenForm = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className="p-4 border border-grey-100 rounded mt-4"
+      className="p-4 border border-grey-100 rounded-sm mt-4"
     >
       <h3 className="font-bold mb-3">Generate new token</h3>
 
@@ -173,7 +173,7 @@ const CreateTokenForm = ({
       </label>
       <input
         id="waf-token-name"
-        className="bg-grey-50 rounded w-full py-2 px-3 mb-3"
+        className="bg-grey-50 rounded-sm w-full py-2 px-3 mb-3"
         type="text"
         name="name"
         placeholder="e.g. FxA Functional Tests, Mozilla VPN"
@@ -186,7 +186,7 @@ const CreateTokenForm = ({
       </label>
       <select
         id="waf-token-client-id"
-        className="bg-grey-50 rounded w-full py-2 px-3 mb-3"
+        className="bg-grey-50 rounded-sm w-full py-2 px-3 mb-3"
         name="clientId"
         defaultValue={
           initial?.clientId &&
@@ -325,7 +325,7 @@ export const PageWafTokens = () => {
           Stored in plaintext so values can be copied directly to Terraform
         </li>
       </ul>
-      <p className="mb-4 p-3 rounded bg-yellow-50 text-sm">
+      <p className="mb-4 p-3 rounded-sm bg-yellow-50 text-sm">
         <b>Reminder:</b> Changes here do <b>not</b> automatically update the
         WAF. After generating or rotating a token, update{' '}
         <code>fxa_ci_bypass_tokens</code> in <code>{getWafTfPath()}</code>{' '}

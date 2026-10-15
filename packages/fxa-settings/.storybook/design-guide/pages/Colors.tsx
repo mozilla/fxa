@@ -21,7 +21,7 @@ const Swatch = ({
   }
 
   return (
-    <div className="w-32 text-center mr-2 shadow-md rounded border border-black/25 bg-white">
+    <div className="w-32 text-center mr-2 shadow-md rounded-sm border border-black/25 bg-white">
       <div className="p-2">
         {shade && (
           <Copiable value={copyValue}>
@@ -33,7 +33,7 @@ const Swatch = ({
         </Copiable>
       </div>
       <span
-        className="block rounded-b w-full h-6 border-t border-black/25"
+        className="block rounded-b-sm w-full h-6 border-t border-black/25"
         style={{ backgroundColor: hex }}
       />
     </div>
@@ -66,9 +66,9 @@ const Colors = ({ config }) => {
         color) with the name of the color and optionally the shade. Some
         examples:
       </p>
-      <div className="leading-6 flex flex-wrap shadow-md border border-black/25 rounded max-w-2xl p-3 pt-1 mb-8 bg-white gap-3">
+      <div className="leading-6 flex flex-wrap shadow-md border border-black/25 rounded-sm max-w-2xl p-3 pt-1 mb-8 bg-white gap-3">
         <Copiable value="bg-blue-100">
-          <code className="mt-2 inline-block rounded-sm px-1 bg-blue-100 text-sm mr-2">
+          <code className="mt-2 inline-block rounded-xs px-1 bg-blue-100 text-sm mr-2">
             bg-blue-100
           </code>
         </Copiable>
@@ -76,7 +76,7 @@ const Colors = ({ config }) => {
           <code className="mt-2 inline-block text-sm mr-2">
             <a
               href="#top"
-              className="px-1 inline-block tablet:focus:bg-violet-300 rounded-sm"
+              className="px-1 inline-block tablet:focus:bg-violet-300 rounded-xs"
               target="_self"
             >
               tablet:focus:bg-violet-300
@@ -84,27 +84,27 @@ const Colors = ({ config }) => {
           </code>
         </Copiable>
         <Copiable value="text-green-800">
-          <code className="mt-2 inline-block text-green-800 text-sm rounded-sm mr-2">
+          <code className="mt-2 inline-block text-green-800 text-sm rounded-xs mr-2">
             text-green-800
           </code>
         </Copiable>
         <Copiable value="bg-black">
-          <code className="mt-2 inline-block rounded-sm px-1 bg-black text-sm mr-2 text-white">
+          <code className="mt-2 inline-block rounded-xs px-1 bg-black text-sm mr-2 text-white">
             bg-black
           </code>
         </Copiable>
         <Copiable value="border-red-400">
-          <code className="mt-2 inline-block text-sm border rounded-sm px-1 border-red-400 mr-2">
+          <code className="mt-2 inline-block text-sm border rounded-xs px-1 border-red-400 mr-2">
             border-red-400
           </code>
         </Copiable>
         <Copiable value="hover:text-pink-500">
-          <code className="mt-2 inline-block text-sm rounded-sm mr-2 hover:text-pink-500">
+          <code className="mt-2 inline-block text-sm rounded-xs mr-2 hover:text-pink-500">
             hover:text-pink-500
           </code>
         </Copiable>
         <Copiable value="desktopXl:text-orange-700">
-          <code className="mt-2 inline-block text-sm rounded-sm mr-2 desktopXl:text-orange-700">
+          <code className="mt-2 inline-block text-sm rounded-xs mr-2 desktopXl:text-orange-700">
             desktopXl:text-orange-700
           </code>
         </Copiable>

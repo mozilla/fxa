@@ -8,3 +8,5 @@
 @import './links.css';
 @import './portal.css';
 @import './tooltips.css';
+
+@custom-variant tablet (@media (min-width: 768px) and (min-height: 481px));

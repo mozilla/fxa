@@ -13,19 +13,22 @@
 /* REACT NOTE: This should be done with components, these are purely
  * convenience classes in the meantime */
 .password-strength {
-  &-unmet {
-    @apply before:text-center before:content-['•'];
-  }
-  &-met {
-    @apply before:content-check-blue;
-  }
-  &-fail {
-    @apply before:content-alert;
-  }
+}
 
-  &-unmet,
-  &-met,
-  &-fail {
-    @apply flex before:w-4 before:h-4;
-  }
+.password-strength-unmet {
+  @apply before:text-center before:content-['•'];
+}
+
+.password-strength-met {
+  @apply before:content-check-blue;
+}
+
+.password-strength-fail {
+  @apply before:content-alert;
+}
+
+.password-strength-unmet,
+.password-strength-met,
+.password-strength-fail {
+  @apply flex before:w-4 before:h-4;
 }

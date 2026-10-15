@@ -75,14 +75,14 @@ export const Modal = ({
             tabIndex={0}
             ref={tabFenceRef}
             data-testid="modal-tab-fence"
-            className="outline-none"
+            className="outline-hidden"
           >
             <div className="flex justify-end pe-2 py-2">
               <button
                 data-testid="modal-dismiss"
                 onClick={(event) => onDismiss()}
                 title={ftlMsgResolver.getMsg('modal-close-title', 'Close')}
-                className="rounded focus-visible-default"
+                className="rounded-sm focus-visible-default"
               >
                 <CloseIcon className="w-4 h-4 m-3 fill-current" />
               </button>

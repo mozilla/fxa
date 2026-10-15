@@ -414,7 +414,9 @@ export default async function Manage({
               )}
 
             {isStripeCustomer &&
-              (defaultPaymentMethod || subscriptions.length > 0 || trialSubscriptions.length > 0) && (
+              (defaultPaymentMethod ||
+                subscriptions.length > 0 ||
+                trialSubscriptions.length > 0) && (
                 <>
                   <div
                     className="border-none h-px bg-grey-100 my-5 tablet:my-8"
@@ -442,7 +444,7 @@ export default async function Manage({
                           )}
                         </p>
                         <LinkExternal
-                          className="bg-blue-500 border border-blue-600 box-border font-bold font-header inline-block rounded text-center text-white w-full py-2 px-5 hover:bg-blue-700 tablet:w-auto"
+                          className="bg-blue-500 border border-blue-600 box-border font-bold font-header inline-block rounded-sm text-center text-white w-full py-2 px-5 hover:bg-blue-700 tablet:w-auto"
                           href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`}
                           aria-label={l10n.getString(
                             'subscription-management-button-add-payment-method-aria',
@@ -551,7 +553,7 @@ export default async function Manage({
                         >
                           <LinkExternal
                             className={classNames(
-                              'border box-border font-bold font-header rounded text-center py-2 px-5',
+                              'border box-border font-bold font-header rounded-sm text-center py-2 px-5',
                               {
                                 'bg-grey-10 border-grey-200 w-auto':
                                   !(
@@ -745,7 +747,7 @@ export default async function Manage({
                               </h3>
                               <LinkExternal
                                 href={purchase.supportUrl}
-                                className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 flex-shrink-0 overflow-hidden text-ellipsis underline whitespace-nowrap"
+                                className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 shrink-0 overflow-hidden text-ellipsis underline whitespace-nowrap"
                                 aria-label={l10n.getString(
                                   'subscription-management-button-support-aria',
                                   { productName: purchase.productName },
@@ -807,7 +809,7 @@ export default async function Manage({
                             </div>
                             <div className="flex justify-end w-full tablet:w-auto">
                               <LinkExternal
-                                className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 flex-shrink-0 overflow-hidden text-ellipsis underline whitespace-nowrap"
+                                className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 shrink-0 overflow-hidden text-ellipsis underline whitespace-nowrap"
                                 href={`https://apps.apple.com/account/subscriptions`}
                                 aria-label={l10n.getString(
                                   'subscription-management-button-manage-subscription-aria',
@@ -880,7 +882,7 @@ export default async function Manage({
                               </h3>
                               <LinkExternal
                                 href={purchase.supportUrl}
-                                className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 flex-shrink-0 overflow-hidden text-ellipsis underline whitespace-nowrap"
+                                className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 shrink-0 overflow-hidden text-ellipsis underline whitespace-nowrap"
                                 aria-label={l10n.getString(
                                   'subscription-management-button-support-aria',
                                   { productName: purchase.productName },
@@ -927,7 +929,9 @@ export default async function Manage({
                                         {
                                           vars: { date: nextBillDate },
                                         },
-                                        <span>Next bill &bull; {nextBillDate}</span>
+                                        <span>
+                                          Next bill &bull; {nextBillDate}
+                                        </span>
                                       )}
                                     </p>
                                   ) : (
@@ -955,7 +959,7 @@ export default async function Manage({
                             </div>
                             <div className="flex justify-end w-full tablet:w-auto">
                               <LinkExternal
-                                className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 flex-shrink-0 overflow-hidden text-ellipsis underline whitespace-nowrap"
+                                className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 shrink-0 overflow-hidden text-ellipsis underline whitespace-nowrap"
                                 href={`https://play.google.com/store/account/subscriptions?sku=${encodeURIComponent(
                                   purchase.sku
                                 )}&package=${encodeURIComponent(purchase.packageName)}`}

@@ -205,7 +205,7 @@ export function StaySubscribed({
             </Localized>
 
             <Link
-              className="border box-border font-bold font-header h-14 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full"
+              className="border box-border font-bold font-header h-14 items-center justify-center rounded-sm text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full"
               href={`/${locale}/subscriptions/landing`}
               onClick={(e) => {
                 e.preventDefault();

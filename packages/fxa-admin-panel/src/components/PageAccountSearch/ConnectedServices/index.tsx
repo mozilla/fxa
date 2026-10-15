@@ -78,7 +78,7 @@ const ConnectedService = ({
           <>
             {format.client(name, clientId)}{' '}
             <span
-              className={`inline-block px-2 py-0.5 rounded text-xs ${kind.color}`}
+              className={`inline-block px-2 py-0.5 rounded-sm text-xs ${kind.color}`}
             >
               {kind.label}
             </span>

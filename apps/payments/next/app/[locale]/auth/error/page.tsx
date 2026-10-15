@@ -39,7 +39,7 @@ export default async function AuthErrorPage({
   return (
     <>
       <header
-        className="bg-white fixed flex justify-between items-center shadow h-16 left-0 top-0 mx-auto my-0 px-4 py-0 w-full z-40 tablet:h-20"
+        className="bg-white fixed flex justify-between items-center shadow-sm h-16 left-0 top-0 mx-auto my-0 px-4 py-0 w-full z-40 tablet:h-20"
         role="banner"
       >
         <div className="flex items-center">
@@ -52,7 +52,7 @@ export default async function AuthErrorPage({
         </div>
       </header>
       <section
-        className="flex flex-col items-center text-center max-w-lg mx-auto mt-6 p-16 tablet:my-10 gap-16 bg-white shadow tablet:rounded-xl border border-transparent"
+        className="flex flex-col items-center text-center max-w-lg mx-auto mt-6 p-16 tablet:my-10 gap-16 bg-white shadow-sm tablet:rounded-xl border border-transparent"
         aria-labelledby="unable-to-signin-heading"
       >
         <h1 id="unable-to-signin-heading" className="text-xl font-bold">

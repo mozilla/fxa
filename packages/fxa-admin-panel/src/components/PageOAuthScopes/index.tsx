@@ -9,7 +9,7 @@ import Guard from '../Guard';
 import type { OAuthScopeDto } from 'fxa-admin-server/src/types';
 
 const submitBtnClass =
-  'bg-green-50 border-2 p-1 border-green-300 font-small leading-6 rounded disabled:opacity-40 disabled:cursor-not-allowed';
+  'bg-green-50 border-2 p-1 border-green-300 font-small leading-6 rounded-sm disabled:opacity-40 disabled:cursor-not-allowed';
 
 const byScopeAsc = (a: OAuthScopeDto, b: OAuthScopeDto) =>
   a.scope.localeCompare(b.scope);

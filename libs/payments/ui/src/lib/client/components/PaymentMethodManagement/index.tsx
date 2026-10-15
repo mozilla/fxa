@@ -71,7 +71,7 @@ export function PaymentMethodManagement({
     setError(null);
     setHasPaymentMethod(
       !!event.value.payment_method ||
-      (event.value.type === 'link' && defaultPaymentMethod?.type === 'link')
+        (event.value.type === 'link' && defaultPaymentMethod?.type === 'link')
     );
 
     if (event.value.type !== 'card') {
@@ -221,7 +221,7 @@ export function PaymentMethodManagement({
       </h1>
       <div className="w-full py-6 text-grey-600 bg-white rounded-xl border border-grey-200 opacity-100 shadow-[0_0_16px_0_rgba(0,0,0,0.08)] tablet:px-6 tablet:py-8">
         {!isReady && (
-          <div className="w-full flex bg-white bg-opacity-75 items-center justify-center">
+          <div className="w-full flex bg-white/75 items-center justify-center">
             <LoadingSpinner className="h-10 w-10" />
           </div>
         )}
@@ -259,31 +259,31 @@ export function PaymentMethodManagement({
           </Form.Field>
           {(isInputNewCardDetails ||
             (isNonCardSelected && !hasPaymentMethod) ||
-             linkInterruptedCard) && (
-              <div className="flex flex-row justify-center pt-4">
-                <Form.Submit asChild>
-                  <BaseButton
-                    className="h-10 mt-10 w-full"
-                    type="submit"
-                    variant={ButtonVariant.Primary}
-                    aria-disabled={!stripe || !isComplete || isLoading}
-                    disabled={!stripe || !isComplete || isLoading}
-                  >
-                    {isLoading ? (
-                      <Image
-                        src={spinnerWhiteImage}
-                        alt=""
-                        className="absolute animate-spin h-8 w-8"
-                      />
-                    ) : (
-                      <Localized id="payment-method-management-save-method">
-                        Save payment method
-                      </Localized>
-                    )}
-                  </BaseButton>
-                </Form.Submit>
-              </div>
-            )}
+            linkInterruptedCard) && (
+            <div className="flex flex-row justify-center pt-4">
+              <Form.Submit asChild>
+                <BaseButton
+                  className="h-10 mt-10 w-full"
+                  type="submit"
+                  variant={ButtonVariant.Primary}
+                  aria-disabled={!stripe || !isComplete || isLoading}
+                  disabled={!stripe || !isComplete || isLoading}
+                >
+                  {isLoading ? (
+                    <Image
+                      src={spinnerWhiteImage}
+                      alt=""
+                      className="absolute animate-spin h-8 w-8"
+                    />
+                  ) : (
+                    <Localized id="payment-method-management-save-method">
+                      Save payment method
+                    </Localized>
+                  )}
+                </BaseButton>
+              </Form.Submit>
+            </div>
+          )}
           {isNonDefaultCardSelected && !isInputNewCardDetails && (
             <div className="flex flex-row justify-center pt-4">
               <Form.Submit asChild>

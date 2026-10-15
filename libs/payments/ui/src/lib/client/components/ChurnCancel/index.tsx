@@ -324,7 +324,7 @@ export function ChurnCancel({
             </div>
             <div className="flex flex-col gap-3 w-full">
               <Link
-                className="border box-border flex font-bold font-header h-14 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
+                className="border box-border flex font-bold font-header h-14 items-center justify-center rounded-sm text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
                 href={`/${locale}/subscriptions/landing`}
               >
                 <Localized id="churn-cancel-flow-button-back-to-subscriptions">
@@ -373,7 +373,7 @@ export function ChurnCancel({
 
             <div className="flex flex-col gap-3 w-full">
               <Link
-                className="border box-border flex font-bold font-header h-14 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
+                className="border box-border flex font-bold font-header h-14 items-center justify-center rounded-sm text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
                 href={`/${locale}/subscriptions/landing`}
               >
                 <Localized id="churn-cancel-flow-button-back-to-subscriptions">
@@ -471,7 +471,7 @@ export function ChurnCancel({
               </BaseButton>
             </Form.Submit>
             <BaseButton
-              className="border box-border font-bold font-header h-14 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full tablet:w-full"
+              className="border box-border font-bold font-header h-14 items-center justify-center rounded-sm text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50 flex w-full tablet:w-full"
               variant={ButtonVariant.SubscriptionManagementSecondary}
               onClick={cancelSubscriptionAtPeriodEnd}
               disabled={cancelLoading}
@@ -533,7 +533,7 @@ export function ChurnCancel({
               <div className="flex flex-col gap-3 w-full">
                 <Link
                   href={`/${locale}/subscriptions/landing`}
-                  className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-blue-500 border-blue-600 hover:bg-blue-700 text-white"
+                  className="border box-border flex font-bold font-header h-12 items-center justify-center rounded-sm text-center py-2 px-5 bg-blue-500 border-blue-600 hover:bg-blue-700 text-white"
                 >
                   <Localized id="churn-cancel-flow-button-manage-subscriptions">
                     <span>Manage subscriptions</span>
@@ -541,7 +541,7 @@ export function ChurnCancel({
                 </Link>
                 <LinkExternal
                   href={cancelContent.supportUrl}
-                  className="box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 border-2 border-blue-600 hover:bg-grey-50 text-blue-600"
+                  className="box-border flex font-bold font-header h-12 items-center justify-center rounded-sm text-center py-2 px-5 border-2 border-blue-600 hover:bg-grey-50 text-blue-600"
                 >
                   <Localized id="churn-cancel-flow-button-contact-support">
                     <span>Contact Support</span>
@@ -580,7 +580,7 @@ export function ChurnCancel({
               {goToProductUrl && (
                 <LinkExternal
                   href={goToProductUrl}
-                  className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
+                  className="border box-border flex font-bold font-header h-12 items-center justify-center rounded-sm text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
                 >
                   <Localized
                     id="churn-cancel-flow-button-go-to-product-page"
@@ -592,7 +592,7 @@ export function ChurnCancel({
               )}
               <Link
                 href={`/${locale}/subscriptions/landing`}
-                className="border box-border flex font-bold font-header h-12 items-center justify-center rounded text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
+                className="border box-border flex font-bold font-header h-12 items-center justify-center rounded-sm text-center py-2 px-5 bg-grey-10 border-grey-200 hover:bg-grey-50"
               >
                 <Localized id="churn-cancel-flow-button-manage-subscriptions">
                   <span>Manage subscriptions</span>

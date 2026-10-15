@@ -76,7 +76,7 @@ const AppErrorDialog = ({
                 Error details
               </summary>
             </Localized>
-            <pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-words rounded bg-grey-10 dark:bg-grey-800 p-3 text-start text-xs text-grey-500 dark:text-grey-200">
+            <pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-words rounded-sm bg-grey-10 dark:bg-grey-800 p-3 text-start text-xs text-grey-500 dark:text-grey-200">
               {errorDetails}
             </pre>
           </details>

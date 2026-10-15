@@ -218,10 +218,10 @@ export const AccountSearch = () => {
             onChange={handleChange}
             placeholder="Email, recovery phone, or UID"
             data-testid="email-input"
-            className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500"
+            className="bg-grey-50 rounded-l-sm w-full py-2 px-3 placeholder-grey-500"
           />
           <button
-            className="bg-grey-100 px-3 rounded-r flex flex-row items-center"
+            className="bg-grey-100 px-3 rounded-r-sm flex flex-row items-center"
             title="search"
             data-testid="search-button"
           >
@@ -233,7 +233,7 @@ export const AccountSearch = () => {
           </button>
           {showSuggestion && suggestions.length > 0 && (
             <div
-              className="suggestions-list absolute top-full w-full bg-white border border-grey-100 mt-3 shadow-sm rounded overflow-hidden z-50"
+              className="suggestions-list absolute top-full w-full bg-white border border-grey-100 mt-3 shadow-xs rounded-sm overflow-hidden z-50"
               data-testid="email-suggestions"
             >
               {renderSuggestions()}
@@ -322,7 +322,7 @@ const AccountSearchResult = ({
         {data.accountByRecoveryPhone.map((account, index) => (
           <details
             key={account.uid}
-            className="mb-2 border border-grey-100 rounded overflow-hidden"
+            className="mb-2 border border-grey-100 rounded-sm overflow-hidden"
           >
             <summary className="bg-grey-50 px-4 py-2 cursor-pointer hover:bg-grey-100">
               {`${index + 1}. ${account.email}`}
