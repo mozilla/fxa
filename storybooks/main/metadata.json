@@ -1,8 +1,8 @@
 {
-  "commit": "b4a5854adfd3918c9768fe48c77a9127744cb3e0",
-  "summary": "Merge pull request #21527 from mozilla/fxa-11990",
-  "description": "chore(deps): remove @types/react resolution",
-  "timestamp": 1792094723000,
+  "commit": "5b124247c387fdf21a46f131aba8d4f5503ebb39",
+  "summary": "Merge pull request #21525 from mozilla/fxa-8591",
+  "description": "chore(deps): upgrade base32-encode to v2 in fxa-settings",
+  "timestamp": 1792095175000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
