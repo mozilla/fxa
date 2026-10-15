@@ -1,0 +1,8 @@
+automated-email-reset-pwd-plaintext-v3 = "If you didnʼt take this action, then reset your password right away at:"
+<%- resetLink %>
+
+automated-email-reset-two-factor-plaintext = "Also, reset two-step authentication at:"
+<%- twoFactorSettingsLink %>
+
+automated-email-support-plaintext = "For more info, visit Mozilla Support:"
+<%- supportUrl %>
