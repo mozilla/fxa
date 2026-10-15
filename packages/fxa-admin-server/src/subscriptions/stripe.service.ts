@@ -10,13 +10,13 @@ import {
   deleteAccountCustomer,
   getAccountCustomerByUid,
 } from '@fxa/shared/db/mysql/legacy/models/auth';
-import { PaymentConfigManager } from 'fxa-shared/payments/configuration/manager';
+import { PaymentConfigManager } from '@fxa/accounts/subscriptions-legacy/payments/configuration/manager';
 import {
   determineIapIdentifiers,
   STRIPE_PRICE_METADATA,
   StripeHelper,
-} from 'fxa-shared/payments/stripe';
-import { StripeFirestore } from 'fxa-shared/payments/stripe-firestore';
+} from '@fxa/accounts/subscriptions-legacy/payments/stripe';
+import { StripeFirestore } from '@fxa/accounts/subscriptions-legacy/payments/stripe-firestore';
 import {
   AbbrevPlan,
   MozillaSubscriptionTypes,

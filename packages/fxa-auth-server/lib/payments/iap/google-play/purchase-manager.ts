@@ -20,7 +20,7 @@ import { CollectionReference } from '@google-cloud/firestore';
 import { androidpublisher_v3 } from 'googleapis';
 import Container from 'typedi';
 import { AuthLogger } from '../../../types';
-import { PurchaseManager as PurchaseManagerBase } from 'fxa-shared/payments/iap/google-play/purchase-manager';
+import { PurchaseManager as PurchaseManagerBase } from '@fxa/accounts/subscriptions-legacy/payments/iap/google-play/purchase-manager';
 import {
   DeveloperNotification,
   NotificationType,

@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { AppStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/apple-app-store/subscription-purchase';
-import { PlayStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/google-play/subscription-purchase';
-import { PaymentState } from 'fxa-shared/payments/iap/google-play/types';
+import { AppStoreSubscriptionPurchase } from '@fxa/accounts/subscriptions-legacy/payments/iap/apple-app-store/subscription-purchase';
+import { PlayStoreSubscriptionPurchase } from '@fxa/accounts/subscriptions-legacy/payments/iap/google-play/subscription-purchase';
+import { PaymentState } from '@fxa/accounts/subscriptions-legacy/payments/iap/google-play/types';
 import { AbbrevPlan } from '@fxa/accounts/subscriptions-legacy/subscriptions/types';
 import { Stripe } from 'stripe';
 import { MozSubscription } from '../rest/model/moz-subscription.model';

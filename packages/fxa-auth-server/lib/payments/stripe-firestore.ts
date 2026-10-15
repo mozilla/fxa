@@ -5,7 +5,7 @@ import { BaseError, BaseMultiError } from '@fxa/shared/error';
 import { CollectionReference, Firestore } from '@google-cloud/firestore';
 import { StatsD } from 'hot-shots';
 import type { ILogger } from '@fxa/shared/log';
-import { StripeFirestore as StripeFirestoreBase } from 'fxa-shared/payments/stripe-firestore';
+import { StripeFirestore as StripeFirestoreBase } from '@fxa/accounts/subscriptions-legacy/payments/stripe-firestore';
 import { Stripe } from 'stripe';
 
 export enum FirestoreStripeError {

@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Firestore } from '@google-cloud/firestore';
-import { PurchaseManager } from 'fxa-shared/payments/iap/apple-app-store/purchase-manager';
-import { AppStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/apple-app-store/subscription-purchase';
+import { PurchaseManager } from '@fxa/accounts/subscriptions-legacy/payments/iap/apple-app-store/purchase-manager';
+import { AppStoreSubscriptionPurchase } from '@fxa/accounts/subscriptions-legacy/payments/iap/apple-app-store/subscription-purchase';
 import PQueue from 'p-queue';
 import Container from 'typedi';
 

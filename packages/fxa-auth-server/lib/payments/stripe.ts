@@ -22,7 +22,7 @@ import {
   getIapPurchaseType,
   isAppStoreSubscriptionPurchase,
   isPlayStoreSubscriptionPurchase,
-} from 'fxa-shared/payments/iap/util';
+} from '@fxa/accounts/subscriptions-legacy/payments/iap/util';
 import {
   CHARGES_RESOURCE,
   CUSTOMER_RESOURCE,
@@ -36,7 +36,7 @@ import {
   STRIPE_PRODUCTS_CACHE_KEY,
   StripeHelper as StripeHelperBase,
   SUBSCRIPTIONS_RESOURCE,
-} from 'fxa-shared/payments/stripe';
+} from '@fxa/accounts/subscriptions-legacy/payments/stripe';
 import { PlanConfig } from '@fxa/accounts/subscriptions-legacy/subscriptions/configuration/plan';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
@@ -75,8 +75,8 @@ import { StripeMapperService } from '@fxa/payments/legacy';
 import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 import { STRIPE_API_VERSION, StripeResponse } from '@fxa/payments/stripe';
 
-// Maintains backwards compatibility. Some type defs hoisted to fxa-shared/payments/stripe
-export * from 'fxa-shared/payments/stripe';
+// Maintains backwards compatibility. Some type defs hoisted to @fxa/accounts/subscriptions-legacy/payments/stripe
+export * from '@fxa/accounts/subscriptions-legacy/payments/stripe';
 
 export const MOZILLA_TAX_ID = 'Tax ID';
 export const STRIPE_TAX_RATES_CACHE_KEY = 'listStripeTaxRates';

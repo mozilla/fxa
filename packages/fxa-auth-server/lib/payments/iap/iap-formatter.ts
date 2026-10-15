@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import * as iapSubscriptionDTO from '@fxa/accounts/subscriptions-legacy/dto/auth/payments/iap-subscription';
-import { AppendedAppStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/apple-app-store/types';
+import { AppendedAppStoreSubscriptionPurchase } from '@fxa/accounts/subscriptions-legacy/payments/iap/apple-app-store/types';
 import { MozillaSubscriptionTypes } from '@fxa/accounts/subscriptions-legacy/subscriptions/types';
 
 import { AppendedPlayStoreSubscriptionPurchase } from './google-play/types';

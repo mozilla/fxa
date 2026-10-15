@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { PaymentState } from 'fxa-shared/payments/iap/google-play/types';
+import { PaymentState } from '@fxa/accounts/subscriptions-legacy/payments/iap/google-play/types';
 import {
   AppStoreFormatter,
   MozPlaySubscriptionStatusType,
