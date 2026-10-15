@@ -146,7 +146,7 @@
     "jws": "^4.0.1",
     "keypair": "1.0.4",
     "load-grunt-tasks": "^5.1.0",
-    "mailparser": "0.6.1",
+    "mailparser": "^3.9.39",
     "mjml-browser": "^4.15.3",
     "moment": "^2.31.0",
     "nock": "^13.5.1",
