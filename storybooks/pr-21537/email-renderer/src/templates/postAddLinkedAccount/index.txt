@@ -1,0 +1,9 @@
+postAddLinkedAccount-title-2 = "Your <%- providerName %> account has been linked to your Mozilla account"
+
+<%- include('/partials/userInfo/index.txt') %>
+
+<%- include('/partials/manageAccount/index.txt') %>
+
+<%- include('/partials/automatedEmailNotAuthorized/index.txt') %>
+
+<%- include('/partials/support/index.txt') %>
