@@ -62,6 +62,7 @@ async function assertCmsCustomization(
 
 test.describe('severity-1 #smoke', () => {
   test.describe.configure({ mode: 'parallel' });
+
   test.describe('CMS customization with 2FA flows', () => {
     let config: any;
 

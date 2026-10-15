@@ -304,18 +304,16 @@ export abstract class BaseLayout {
   }
 
   async denormalizeStoredEmail(email: string) {
-    return this.page.evaluate((uid) => {
+    return this.page.evaluate((email) => {
       const accounts = JSON.parse(
         localStorage.getItem('__fxa_storage.accounts') || '{}'
       );
 
       for (const accountId in accounts) {
-        if (accountId === uid) {
-          const account = accounts[accountId];
+        const account = accounts[accountId];
 
-          if (account.email === email) {
-            account.email = email.toUpperCase();
-          }
+        if (account.email === email) {
+          account.email = email.toUpperCase();
         }
       }
 

@@ -29445,18 +29445,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-playwright@npm:^0.22.2":
-  version: 0.22.2
-  resolution: "eslint-plugin-playwright@npm:0.22.2"
+"eslint-plugin-playwright@npm:^2.12.1":
+  version: 2.12.1
+  resolution: "eslint-plugin-playwright@npm:2.12.1"
   dependencies:
-    globals: "npm:^13.23.0"
+    globals: "npm:^17.3.0"
   peerDependencies:
-    eslint: ">=7"
-    eslint-plugin-jest: ">=25"
-  peerDependenciesMeta:
-    eslint-plugin-jest:
-      optional: true
-  checksum: 10c0/5bbc172eed795490a37b9aad473d4ce09279391bb165dba79644dc76e74bc8b1ebe017c6cceb5251461abdce6f2ce8199de416fcbcd637b614073b6073a1e755
+    eslint: ">=8.40.0"
+  checksum: 10c0/498699568260e14b7c5258e714c75504d9abf5e6d36d32500e78dea33c5a072fa643ef826dc528248fd50d1936b12c4f47df8d18ad93d0c6b27c3bf1825e0e83
   languageName: node
   linkType: hard
 
@@ -31819,7 +31815,7 @@ __metadata:
     "@types/eslint": "npm:^8"
     "@types/upng-js": "npm:^2"
     eslint: "npm:^8.56.0"
-    eslint-plugin-playwright: "npm:^0.22.2"
+    eslint-plugin-playwright: "npm:^2.12.1"
     fxa-auth-client: "workspace:*"
     fxa-content-server: "workspace:*"
     fxa-settings: "workspace:*"
@@ -33280,7 +33276,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"globals@npm:^13.19.0, globals@npm:^13.23.0, globals@npm:^13.6.0, globals@npm:^13.9.0":
+"globals@npm:^13.19.0, globals@npm:^13.6.0, globals@npm:^13.9.0":
   version: 13.24.0
   resolution: "globals@npm:13.24.0"
   dependencies:
@@ -33300,6 +33296,13 @@ __metadata:
   version: 17.6.0
   resolution: "globals@npm:17.6.0"
   checksum: 10c0/cf94fb4329cc5c68cf81018fd68324f413181ee169f0235b0b33b82bc93fe7825a21beea951f83a80e8e4bbdad9c0c80515a145b5fd4b5cb52f2a80db899a93f
+  languageName: node
+  linkType: hard
+
+"globals@npm:^17.3.0":
+  version: 17.13.0
+  resolution: "globals@npm:17.13.0"
+  checksum: 10c0/8371d9e4e5581640141b5cce70a098edd765d2e3ab063b14998e590698071e0afb4a4a6739ccfbdcbdeb2565c5553697ba07d95703c51039912cf341a7dba7a7
   languageName: node
   linkType: hard
 
