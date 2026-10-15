@@ -1,8 +1,8 @@
 {
-  "commit": "10b520485cccd4684b9c71f0f11d3e9513e7a025",
+  "commit": "9f6cc08eb6b40ca77f26d6e84d424baedb202b10",
   "summary": "chore(shared): move Glean YAML and generated web code out of fxa-shared",
-  "description": "Because:\n\n* The FxA Glean YAML now lives in libs/shared/metrics/glean/src/registry\n* fxa-settings is the only consumer of the generated glean/web code\n\nThis commit:\n\n* Removes the FxA Glean YAML and unused pair-reasons.ts from fxa-shared\n* Moves the generated glean/web code into fxa-settings src/lib/glean/web\n* Points the glean-generate and glean-lint scripts at the registry\n\nCloses FXA-14711",
-  "timestamp": 1792094904000,
+  "description": "Because:\n\n* The FxA Glean YAML already lives in libs/shared/metrics/glean\n* Only fxa-settings uses the generated Glean web code\n\nThis commit:\n\n* Removes the Glean YAML and pair-reasons.ts from fxa-shared\n* Moves the generated web code into fxa-settings src/lib/glean/web\n* Points the glean scripts of auth, content and settings at the registry\n* Runs glean-lint in the fxa-settings lint script\n\nCloses FXA-14711",
+  "timestamp": 1792096474000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",
