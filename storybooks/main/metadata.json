@@ -1,8 +1,8 @@
 {
-  "commit": "1ecf8bf6296ac6ddb96d160d8e032a4e48125d80",
-  "summary": "Merge pull request #21519 from mozilla/fxa-10668",
-  "description": "refactor(shared): move fxa-shared payments to the subscriptions-legacy lib",
-  "timestamp": 1792084014000,
+  "commit": "153a47089b7b5aebe9cd13875baf98d6693c11c3",
+  "summary": "Merge pull request #21520 from mozilla/fxa-14714",
+  "description": "refactor(auth): move senders/email.js imports off fxa-shared",
+  "timestamp": 1792086430000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
