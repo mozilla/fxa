@@ -1,0 +1,13 @@
+{
+  "commit": "f7b25cb7f2938a2b2c0d13a7e55da061391bd139",
+  "summary": "chore(123done): upgrade express to v5",
+  "description": "Because:\n\n- 123done uses Express 4 res.send(status, body) forms that Express 5 removes.\n\nThis commit:\n\n- Upgrades express to ^5.2.1 in 123done and updates yarn.lock.\n- Uses res.status(n).send() and res.sendStatus() for status responses.\n- Falls back to {} when req.body is undefined in the webhook and todo save routes.\n\nCloses FXA-14785",
+  "timestamp": 1792099013000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
