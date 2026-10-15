@@ -1002,6 +1002,30 @@ describe('Signin component', () => {
         });
       });
 
+      it.each([
+        ['406', AuthUiErrors.REQUEST_BLOCKED, /blocked for security reasons/],
+        ['429', AuthUiErrors.THROTTLED, /tried too many times/],
+      ])(
+        'shows a banner instead of the unblock flow for a WAF %s',
+        async (_, authUiError, bannerText) => {
+          const { error } = createBeginSigninResponseError({
+            errno: authUiError.errno,
+          });
+          const beginSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce({ error: { ...error, error: 'WAF blocked' } });
+          const sendUnblockEmailHandler = jest.fn();
+          render({ beginSigninHandler, sendUnblockEmailHandler });
+
+          await enterPasswordAndSubmit();
+          await waitFor(() => {
+            expect(screen.getByText(bannerText)).toBeInTheDocument();
+          });
+          expect(sendUnblockEmailHandler).not.toHaveBeenCalled();
+          expect(mockNavigate).not.toHaveBeenCalled();
+        }
+      );
+
       it('handles error on request to send unblock email', async () => {
         const beginSigninHandler = jest.fn().mockReturnValueOnce(
           createBeginSigninResponseError({

@@ -380,6 +380,17 @@ function cleanStringify(value: any) {
   return JSON.stringify(value, (_, v) => (v == null ? undefined : v));
 }
 
+const WAF_BLOCKED_ERROR = 'WAF blocked';
+
+/**
+ * True when the error came from a Fastly WAF block rather than the auth server.
+ * WAF blocks reuse errnos 125/114, but the auth server's unblock flow can't
+ * clear them.
+ */
+export function isWafBlockedError(error: unknown): boolean {
+  return (error as AuthServerError | undefined)?.error === WAF_BLOCKED_ERROR;
+}
+
 export class AuthClientError extends Error {
   code: number;
   errno: number;
@@ -557,7 +568,7 @@ export default class AuthClient {
           },
         });
         throw new AuthClientError(
-          'WAF blocked',
+          WAF_BLOCKED_ERROR,
           'Request blocked by WAF',
           errno,
           response.status
