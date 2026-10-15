@@ -1,8 +1,8 @@
 {
-  "commit": "ee569bc2acfb139e030e2c4081ee114812843c23",
-  "summary": "Merge pull request #21518 from mozilla/fxa-14781",
-  "description": "fix(settings): ask 2FA accounts for TOTP before v1 pairing starts",
-  "timestamp": 1792083157000,
+  "commit": "1ecf8bf6296ac6ddb96d160d8e032a4e48125d80",
+  "summary": "Merge pull request #21519 from mozilla/fxa-10668",
+  "description": "refactor(shared): move fxa-shared payments to the subscriptions-legacy lib",
+  "timestamp": 1792084014000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
