@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 3309a564ff1bb22765803e6b2e8ef63cdc5f1a18</title>
+  <title>Storybooks for commit 88a93c3292fa25f5e6550760e27aa0ddd904e302</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 3309a564ff1bb22765803e6b2e8ef63cdc5f1a18</h1>
+  <h1>Storybooks for commit 88a93c3292fa25f5e6550760e27aa0ddd904e302</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
@@ -32,19 +32,19 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/15/2026, 9:25:13 PM UTC</dd>
+    <dd>10/15/2026, 10:05:29 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>chore(deps): update tailwindcss to version 4</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 - Tailwind 3 is outdated, and all packages must move to v4 together.
+- Tailwind v4 does not support raw screens, so the tablet screen broke the payments-next build.
 
 This commit:
 - Updates tailwindcss to 4.3.3 with @tailwindcss/postcss and @tailwindcss/cli.
 - Removes plugins and PostCSS deps that v4 makes redundant.
-- Loads the JS configs with @config and renames v3 utilities.
-- Converts @apply targets to @utility, @screen to @variant, flattens &amp;-suffix nesting.
-- Inlines SVGs in the configs because the v4 CLI runs no PostCSS.
+- Loads the JS configs with @config and converts v3 utilities and directives.
+- Declares the tablet breakpoint with @custom-variant to keep its height condition.
 
 Closes FXA-11093</pre></dd>
   </dl>
