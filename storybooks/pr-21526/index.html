@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 3c324ece2aa147e842b8dd6fa5c82441cb199c76</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 3c324ece2aa147e842b8dd6fa5c82441cb199c76</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/15/2026, 6:10:10 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(deps): upgrade find-up to 6.3.0</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- The root package.json pinned find-up to ^5.0.0.
+- find-up 6 is ESM only, so the code and Jest must load it as ESM.
+
+This commit:
+
+- Upgrades find-up to ^6.3.0 and removes the unused entry from fxa-shared.
+- Uses findUpSync in the nest-health version helper.
+- Adds find-up and its ESM deps to transformIgnorePatterns in jest.preset.js.
+
+Closes FXA-5409</pre></dd>
+  </dl>
+</body>
+</html>

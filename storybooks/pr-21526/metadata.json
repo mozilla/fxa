@@ -1,0 +1,13 @@
+{
+  "commit": "3c324ece2aa147e842b8dd6fa5c82441cb199c76",
+  "summary": "chore(deps): upgrade find-up to 6.3.0",
+  "description": "Because:\n\n- The root package.json pinned find-up to ^5.0.0.\n- find-up 6 is ESM only, so the code and Jest must load it as ESM.\n\nThis commit:\n\n- Upgrades find-up to ^6.3.0 and removes the unused entry from fxa-shared.\n- Uses findUpSync in the nest-health version helper.\n- Adds find-up and its ESM deps to transformIgnorePatterns in jest.preset.js.\n\nCloses FXA-5409",
+  "timestamp": 1792087810000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
