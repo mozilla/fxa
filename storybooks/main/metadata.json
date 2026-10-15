@@ -1,8 +1,8 @@
 {
-  "commit": "e031f28babb135c82bc5cff02c94d4ce555057b5",
-  "summary": "Merge pull request #21523 from mozilla/fxa-14713",
-  "description": "test(subscriptions): port fxa-shared subscriptions tests to jest",
-  "timestamp": 1792086603000,
+  "commit": "2489d709475638d40a744d424f50afc9294b4c36",
+  "summary": "Merge pull request #21524 from mozilla/fxa-5371",
+  "description": "chore(deps): bump @types/dateformat to ^5.0.0 in admin-panel",
+  "timestamp": 1792093031000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
