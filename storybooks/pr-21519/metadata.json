@@ -1,0 +1,13 @@
+{
+  "commit": "eae396e17328a708e144ea7b0006637778004f87",
+  "summary": "refactor(shared): move fxa-shared payments to the subscriptions-legacy lib",
+  "description": "Because:\n\n* fxa-shared/payments must leave fxa-shared so the package can go.\n* Callers use instanceof on the moved classes, so they move with no shim.\n\nThis commit:\n\n* Moves fxa-shared/payments to libs/accounts/subscriptions-legacy.\n* Adds the fxa-shared ILogger to the lib as log.ts.\n* Points the 28 auth-server and admin-server importers at the lib.\n* Removes the fxa-shared payments exports and ports the iap util test.\n* Adds googleapis to the root dependencies.\n\nCloses FXA-10668",
+  "timestamp": 1792082537000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
