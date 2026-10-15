@@ -117,6 +117,19 @@ describe('Sentry', () => {
     });
   });
 
+  it('redacts WebAuthn PRF output and passkey wrap secrets', () => {
+    expect(
+      filterExtras({
+        response: {
+          clientExtensionResults: { prf: { results: { first: 'AAAA' } } },
+        },
+      })
+    ).toEqual({ response: { clientExtensionResults: { prf: '[Filtered]' } } });
+    expect(filterExtras({ hpkeEncapsulatedSecret: 'AAAA' })).toEqual({
+      hpkeEncapsulatedSecret: '[Filtered]',
+    });
+  });
+
   it('redacts prefixed bearer token values regardless of key', () => {
     const hex = 'a'.repeat(64);
     expect(filterExtras({ harmlessLabel: `fxs_${hex}` })).toEqual({

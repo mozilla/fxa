@@ -984,8 +984,19 @@ export const passkeyRoutes = (
                   })
                   .unknown(true)
                   .required(),
+                authenticatorAttachment: isA.string().optional(),
+                // Enumerated rather than `.unknown(true)` so the global
+                // `stripUnknown` drops `prf.results`: the PRF output is the
+                // client-side kB wrapping key and must never reach
+                // request.payload, which lib/sentry.js attaches to events.
+                clientExtensionResults: isA
+                  .object({
+                    prf: isA
+                      .object({ enabled: isA.boolean().optional() })
+                      .optional(),
+                  })
+                  .optional(),
               })
-              .unknown(true)
               .required(),
             challenge: base64urlChallenge().required(),
           }),
