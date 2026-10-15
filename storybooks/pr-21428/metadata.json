@@ -1,0 +1,10 @@
+{
+  "commit": "1bbe296182a9fe3e2d296a837194a60120671df9",
+  "summary": "fix(payments-cart): prevent crash when previewing a redeemed promo code",
+  "description": "Because:\n- Checkout redeemed promotion code, and Stripe can reject it when previewing invoice\n- getCart then threw once the cart's subscription existed, crashing the page\n\nThis commit:\n- Adds previewUpcomingForCart to CartService for getCart's invoice previews\n- Previews active cart subscription instead of resending coupon code\n- Uses latest invoices for incomplete/canceled cart subscriptions\n- Updates tests for each subscription state for getCart\n\nCloses: PAY-3933",
+  "timestamp": 1792085443000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
