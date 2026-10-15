@@ -1,0 +1,13 @@
+{
+  "commit": "73fbd70033d670b57d1ce926a6717e3acfca059b",
+  "summary": "chore(admin-panel): upgrade express to v5",
+  "description": "Because:\n\n- The admin panel server runs on Express 4 and should move to Express 5.\n- Express 5 passes app.listen errors to the callback instead of crashing.\n\nThis commit:\n\n- Updates express to ^5.2.1 and @types/express to ^5.0.6.\n- Gives the heartbeat and version handlers void block bodies.\n- Rethrows the app.listen callback error so a failed bind still crashes.\n- Adds a test for the rethrown listen error.\n\nCloses FXA-14786",
+  "timestamp": 1792098894000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
