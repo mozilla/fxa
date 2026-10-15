@@ -1,0 +1,10 @@
+{
+  "commit": "8c72c6c9b55ab5e3004df870aa9af73a2e48eaf6",
+  "summary": "fix(settings): skip passkey registration on a challenge mismatch",
+  "description": "Because:\n\n- On Firefox for Android, create() can return a credential signed over\n  another challenge, so registration/finish fails and the device keeps an\n  orphan passkey.\n\nThis commit:\n\n- Compares the clientDataJSON challenge with the registration/start one.\n- On a mismatch, skips registration/finish and shows the add-passkey error.\n- Records the frontend error event with reason challenge_mismatch.\n- Adds unit tests and a functional test for the mismatch path.\n\nCloses FXA-14286",
+  "timestamp": 1792085369000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
