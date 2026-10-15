@@ -1,0 +1,13 @@
+{
+  "commit": "49cd554cba8d8cef22aa944178eb580170cff9e8",
+  "summary": "chore(deps): upgrade ioredis from 4 to 5",
+  "description": "Because:\n\n- FxA used ioredis 4 with community types; ioredis 5 ships its own types.\n\nThis commit:\n\n- Bumps ioredis to ^5.11.1 in root, auth-server and fxa-shared; drops @types/ioredis.\n- Replaces the Redis.Redis and Redis.RedisOptions namespace types.\n- Lets the metering DedupePipeline.exec type return null and throws DedupeError on null.\n- Quits the Redis client in two lib integration specs so Jest exits.\n\nCloses FXA-5410",
+  "timestamp": 1792089005000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

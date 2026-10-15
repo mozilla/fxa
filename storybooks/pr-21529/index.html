@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 49cd554cba8d8cef22aa944178eb580170cff9e8</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 49cd554cba8d8cef22aa944178eb580170cff9e8</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/15/2026, 6:30:05 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(deps): upgrade ioredis from 4 to 5</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- FxA used ioredis 4 with community types; ioredis 5 ships its own types.
+
+This commit:
+
+- Bumps ioredis to ^5.11.1 in root, auth-server and fxa-shared; drops @types/ioredis.
+- Replaces the Redis.Redis and Redis.RedisOptions namespace types.
+- Lets the metering DedupePipeline.exec type return null and throws DedupeError on null.
+- Quits the Redis client in two lib integration specs so Jest exits.
+
+Closes FXA-5410</pre></dd>
+  </dl>
+</body>
+</html>
