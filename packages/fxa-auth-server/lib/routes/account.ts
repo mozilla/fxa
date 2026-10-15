@@ -1633,6 +1633,8 @@ export class AccountHandler {
       // db.resetAccount() deletes all the devices saved in the account,
       // so grab the list to notify before we call it.
       const devicesToNotify = await request.app.devices;
+      // Fail if the token is already gone.
+      await this.db.consumeAccountResetToken(accountResetToken);
       // Reset the account, and delete any other outstanding account-related tokens.
       await this.db.resetAccount(accountResetToken, {
         authSalt,

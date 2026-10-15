@@ -11,10 +11,9 @@ import EnterTotpContainer from './container';
 import {
   MOCK_NON_PAIRING_INTEGRATION,
   MockAuthorityIntegration,
-  emitState,
   mockAuthorityIntegration,
 } from '../ContinueOnMobile/mocks';
-import { AuthorityState, Integration } from '../../../../models';
+import { Integration } from '../../../../models';
 import { AppContext } from '../../../../models/contexts/AppContext';
 import { mockAppContext } from '../../../../models/mocks';
 import { navigateWithQuery } from '../../../../lib/utilities';
@@ -32,23 +31,21 @@ jest.mock('../../../../lib/metrics', () => ({
 const MOCK_SESSION_TOKEN = 'a'.repeat(64);
 jest.mock('../../../../lib/account-storage', () => ({
   getBasicAccountData: jest.fn(),
+  recordTotpVerified: jest.fn(),
 }));
 const { getBasicAccountData: mockGetBasicAccountData } = jest.requireMock(
   '../../../../lib/account-storage'
 );
 
-// The desktop's TOTP re-prompt sits between the phone confirming and the
-// approval screen. It owns two transitions: a verified code goes forward to
-// approve_signin, and the pairing dying underneath it goes to the dead-end.
+// The desktop's TOTP prompt sits between entering the flow and the QR. A
+// verified code goes forward to scan_qr, which then opens the channel.
 describe('Pair2/Authority/EnterTotp container', () => {
-  let integration: MockAuthorityIntegration & { hasChannel: jest.Mock };
+  let integration: MockAuthorityIntegration;
   let verifyTotpCode: jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    integration = mockAuthorityIntegration({
-      hasChannel: jest.fn().mockReturnValue(true),
-    }) as MockAuthorityIntegration & { hasChannel: jest.Mock };
+    integration = mockAuthorityIntegration();
     verifyTotpCode = jest.fn().mockResolvedValue({ success: true });
     mockGetBasicAccountData.mockReturnValue({
       sessionToken: MOCK_SESSION_TOKEN,
@@ -96,21 +93,17 @@ describe('Pair2/Authority/EnterTotp container', () => {
     );
   });
 
-  // The approval screen uses the timestamp to re-prompt if the user lingers
-  // there past the re-prompt window.
-  it('returns to the approval screen with the verification time once the code is verified', async () => {
-    const MOCK_NOW = 1_700_000_000_000;
-    jest.spyOn(Date, 'now').mockReturnValue(MOCK_NOW);
+  it('returns to the QR screen once the code is verified', async () => {
     renderContainer();
 
     await submitCode('123456');
 
     await waitFor(() =>
       expect(navigateWithQuery).toHaveBeenCalledWith(
-        '/pair/authority/approve_signin',
+        '/pair/authority/scan_qr',
         {
           replace: true,
-          state: { totpComplete: true, totpVerifiedAt: MOCK_NOW },
+          state: { totpComplete: true },
         }
       )
     );
@@ -126,64 +119,9 @@ describe('Pair2/Authority/EnterTotp container', () => {
     expect(navigateWithQuery).not.toHaveBeenCalled();
   });
 
-  // The phone can cancel while the user is still typing; without this the
-  // authority would verify a code for a pairing that no longer exists.
-  it('navigates to the cancel screen when the flow fails', () => {
-    renderContainer();
-
-    emitState(integration, AuthorityState.Failed);
-
-    expect(navigateWithQuery).toHaveBeenCalledWith(
-      '/pair/authority/timeout_and_cancel',
-      {},
-      true
-    );
-  });
-
-  // The cancel screen destroys the channel, so a code that finishes verifying
-  // after the failure must not route back to approve_signin.
-  it('ignores a code verified after the flow has failed', async () => {
-    let finishVerify!: (value: { success: boolean }) => void;
-    verifyTotpCode.mockReturnValue(
-      new Promise((resolve) => {
-        finishVerify = resolve;
-      })
-    );
-    renderContainer();
-    await submitCode('123456');
-    await waitFor(() => expect(verifyTotpCode).toHaveBeenCalled());
-
-    emitState(integration, AuthorityState.Failed);
-    finishVerify({ success: true });
-    await waitFor(() => expect(navigateWithQuery).toHaveBeenCalledTimes(1));
-
-    expect(navigateWithQuery).toHaveBeenCalledWith(
-      '/pair/authority/timeout_and_cancel',
-      {},
-      true
-    );
-  });
-
-  it('stops routing state changes once unmounted', async () => {
-    const { unmount } = renderContainer();
-    await waitFor(() => expect(integration.onStateChange).toBeTruthy());
-
-    unmount();
-
-    expect(integration.onStateChange).toBeNull();
-    emitState(integration, AuthorityState.Failed);
-    expect(navigateWithQuery).not.toHaveBeenCalled();
-  });
-
   it('throws when handed an integration that is not the pairing authority', () => {
     expect(() => renderContainer(MOCK_NON_PAIRING_INTEGRATION)).toThrow(
       'Invalid integration type.'
     );
-  });
-
-  it('throws before the pairing channel exists', () => {
-    integration.hasChannel.mockReturnValue(false);
-
-    expect(() => renderContainer()).toThrow('Pairing channel missing!');
   });
 });

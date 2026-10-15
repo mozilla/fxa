@@ -6,24 +6,12 @@ import AuthClient from 'fxa-auth-client/browser';
 import AuthenticationMethods from '../../constants/authentication-methods';
 
 /**
- * How long a verified code is treated as good for approving a pairing. The
- * approval screen stays up for as long as the pairing channel does, so a code
- * entered and then left alone is asked for again rather than trusted.
- */
-export const PAIRING_SECOND_FACTOR_REPROMPT_MS = 4 * 60 * 1000;
-
-/** True when a code verified at `verifiedAt` should be re-entered before approving. */
-export function isSecondFactorStale(
-  verifiedAt: number,
-  now: number = Date.now()
-): boolean {
-  return now - verifiedAt > PAIRING_SECOND_FACTOR_REPROMPT_MS;
-}
-
-/**
- * Whether the authority must enter a fresh TOTP code before approving a
- * pairing. `otp` appears in the profile's authentication methods only when
- * TOTP is both set up and verified on the account.
+ * Whether the authority must enter a TOTP code before approving a pairing.
+ * `otp` appears in the profile's authentication methods only when TOTP is
+ * both set up and verified on the account. A code this browser verified
+ * within `maxAgeMs`, at sign-in or on an earlier prompt, is not asked again.
+ * Pairing hands the account's Sync keys to a new device, so a signed-in
+ * browser left unattended should not be enough. See `pairing.totp_max_age_minutes`.
  *
  * A failed profile lookup counts as "not required": the session was already
  * verified at sign-in, and a transient auth-server error must not strand the
@@ -31,8 +19,16 @@ export function isSecondFactorStale(
  */
 export async function pairingRequiresTotp(
   authClient: Pick<AuthClient, 'accountProfile'>,
-  sessionToken: string
+  sessionToken: string,
+  recentCode: { verifiedAt?: number; maxAgeMs: number },
+  now: number = Date.now()
 ): Promise<boolean> {
+  if (
+    recentCode.verifiedAt !== undefined &&
+    now - recentCode.verifiedAt <= recentCode.maxAgeMs
+  ) {
+    return false;
+  }
   try {
     const { authenticationMethods } =
       await authClient.accountProfile(sessionToken);
