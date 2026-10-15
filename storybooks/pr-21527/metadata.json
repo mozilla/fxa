@@ -1,0 +1,13 @@
+{
+  "commit": "1e784aee447be9e610af73d0f4788755389408fb",
+  "summary": "chore(deps): remove @types/react resolution",
+  "description": "Because:\n\n- The root resolutions entry for @types/react is tech debt; the root\n  devDependency already pins 19.2.18.\n- @types/react-helmet asks for @types/react@*, which resolved to a\n  second, newer copy without the resolution.\n\nThis commit:\n\n- Removes @types/react from the root resolutions.\n- Locks the @types/react@* descriptor to the 19.2.18 yarn.lock entry.\n\nCloses FXA-11990",
+  "timestamp": 1792088084000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
