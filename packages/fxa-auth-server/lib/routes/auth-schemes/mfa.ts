@@ -106,11 +106,12 @@ export const strategy = (
         throw AppError.invalidMfaToken();
       }
 
-      // Verify and decode the jwt
+      // Verify and decode the jwt. `algorithms` is the verify-side option;
+      // `algorithm`/`expiresIn` are sign-side and ignored by jwt.verify.
+      // Pinning HS256 keeps the token's own `alg` header from choosing.
       const key = config.mfa.jwt.secretKey;
-      const opts = {
-        algorithm: 'HS256' as jwt.Algorithm,
-        expiresIn: config.mfa.jwt.expiresInSec,
+      const opts: jwt.VerifyOptions = {
+        algorithms: ['HS256'],
         audience: config.mfa.jwt.audience,
         issuer: config.mfa.jwt.issuer,
       };

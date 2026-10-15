@@ -27,13 +27,11 @@ describe('Config', () => {
       }
     });
 
-    it('errors when secret settings have their default values', () => {
-      expect(() => {
-        require('./index');
-      }).toThrow(/Config '[a-zA-Z._]+' must be set in production/);
-    });
+    const MFA_JWT_KEY = 'production secret here, 32+ bytes long';
 
-    it('succeeds when secret settings have all been configured', () => {
+    // Every guarded production secret except MFA__JWT__KEY, so the MFA key
+    // can be exercised on its own below.
+    function mockOtherProductionSecrets() {
       mockEnv('FLOW_ID_KEY', 'production secret here');
       mockEnv('OAUTH_SERVER_SECRET_KEY', 'production secret here');
       mockEnv(
@@ -41,21 +39,44 @@ describe('Config', () => {
         'production secret here'
       );
       mockEnv('SESSION_TOKEN_HANDLE_KEY', 'production secret here');
+    }
+
+    it('errors when secret settings have their default values', () => {
+      expect(() => {
+        require('./index');
+      }).toThrow(/Config '[a-zA-Z._]+' must be set in production/);
+    });
+
+    it('succeeds when secret settings have all been configured', () => {
+      mockOtherProductionSecrets();
+      mockEnv('MFA__JWT__KEY', MFA_JWT_KEY);
       expect(() => {
         require('./index');
       }).not.toThrow();
     });
 
+    it('errors when MFA__JWT__KEY is left at its default', () => {
+      mockOtherProductionSecrets();
+      expect(() => {
+        require('./index');
+      }).toThrow(/Config 'mfa\.jwt\.secretKey' must be set in production/);
+    });
+
+    it('errors when MFA__JWT__KEY is shorter than 32 bytes', () => {
+      mockOtherProductionSecrets();
+      mockEnv('MFA__JWT__KEY', 'short-but-not-the-default');
+      expect(() => {
+        require('./index');
+      }).toThrow(
+        /Config 'mfa\.jwt\.secretKey' must be at least 32 bytes in production/
+      );
+    });
+
     it.each(['GOOGLE_AUTH_JWKS_URI', 'APPLE_AUTH_JWKS_URI'])(
       'errors when %s is set outside NODE_ENV=dev',
       (envVar) => {
-        mockEnv('FLOW_ID_KEY', 'production secret here');
-        mockEnv('OAUTH_SERVER_SECRET_KEY', 'production secret here');
-        mockEnv(
-          'PROFILE_SERVER_AUTH_SECRET_BEARER_TOKEN',
-          'production secret here'
-        );
-        mockEnv('SESSION_TOKEN_HANDLE_KEY', 'production secret here');
+        mockOtherProductionSecrets();
+        mockEnv('MFA__JWT__KEY', MFA_JWT_KEY);
         mockEnv(envVar, 'http://localhost:9300/jwks');
         expect(() => {
           require('./index');
