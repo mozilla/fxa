@@ -4,7 +4,7 @@
 
 import type { Features } from '@fxa/payments/experiments';
 import type { NimbusEnrollment } from '@fxa/shared/experiments';
-import { IsArray, IsDefined } from 'class-validator';
+import { IsArray, IsDefined, IsObject, IsOptional } from 'class-validator';
 
 class Experiments {
   @IsDefined()
@@ -15,5 +15,7 @@ class Experiments {
 }
 
 export class GetExperimentsActionResult {
+  @IsOptional()
+  @IsObject()
   experiments?: Experiments;
 }
