@@ -1,8 +1,8 @@
 {
-  "commit": "56cdc61883a39cf1a459e405f35a38f5e0ed3782",
+  "commit": "a1add8dfa4b4be11244e31853807b338ea2082f7",
   "summary": "fix(settings): report readable Glean reasons for passkey errors",
-  "description": "Because:\n- Passkey frontend-error Glean reasons hid which error occurred.\n- Add-passkey used its own map and reported auth_error_<n> and not_supported.\n\nThis commit:\n- Gives each WebAuthn error name a distinct gleanReason, used by both flows.\n- Names known errnos and reports already_registered on add-passkey.\n- Picks the sign-in banner from errorType so banners stay the same.\n- Documents every reason value in fxa-ui-metrics.yaml.\n- Deletes the unused fxa-shared pair-reasons.ts duplicate.\n\nCloses FXA-14005",
-  "timestamp": 1792087090000,
+  "description": "Because:\n- Passkey frontend-error Glean reasons hid which error occurred.\n- Add-passkey used its own map and reported auth_error_<n> and not_supported.\n\nThis commit:\n- Gives each WebAuthn error a distinct gleanReason, documented in the yaml.\n- Names known errnos on add-passkey and reports duplicates as not_allowed.\n- Treats only errors from the add-passkey prompt as WebAuthn errors.\n- Picks the sign-in banner from errorType so banners stay the same.\n- Deletes the unused fxa-shared pair-reasons.ts duplicate.\n\nCloses FXA-14005",
+  "timestamp": 1792092278000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",

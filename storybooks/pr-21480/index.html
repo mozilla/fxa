@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 56cdc61883a39cf1a459e405f35a38f5e0ed3782</title>
+  <title>Storybooks for commit a1add8dfa4b4be11244e31853807b338ea2082f7</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 56cdc61883a39cf1a459e405f35a38f5e0ed3782</h1>
+  <h1>Storybooks for commit a1add8dfa4b4be11244e31853807b338ea2082f7</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,7 +31,7 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/15/2026, 5:58:10 PM UTC</dd>
+    <dd>10/15/2026, 7:24:38 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): report readable Glean reasons for passkey errors</pre></dd>
     <dt>Description</dt>
@@ -40,10 +40,10 @@
 - Add-passkey used its own map and reported auth_error_&lt;n&gt; and not_supported.
 
 This commit:
-- Gives each WebAuthn error name a distinct gleanReason, used by both flows.
-- Names known errnos and reports already_registered on add-passkey.
+- Gives each WebAuthn error a distinct gleanReason, documented in the yaml.
+- Names known errnos on add-passkey and reports duplicates as not_allowed.
+- Treats only errors from the add-passkey prompt as WebAuthn errors.
 - Picks the sign-in banner from errorType so banners stay the same.
-- Documents every reason value in fxa-ui-metrics.yaml.
 - Deletes the unused fxa-shared pair-reasons.ts duplicate.
 
 Closes FXA-14005</pre></dd>
