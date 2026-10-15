@@ -11,7 +11,7 @@ import { AppConfig, AuthFirestore, AuthLogger } from '../../types';
 import {
   PaymentConfigManager as PaymentConfigManagerBase,
   PaymentConfigManagerError,
-} from 'fxa-shared/payments/configuration/manager';
+} from '@fxa/accounts/subscriptions-legacy/payments/configuration/manager';
 import { PlanConfig } from '@fxa/accounts/subscriptions-legacy/subscriptions/configuration/plan';
 import { ProductConfig } from '@fxa/accounts/subscriptions-legacy/subscriptions/configuration/product';
 

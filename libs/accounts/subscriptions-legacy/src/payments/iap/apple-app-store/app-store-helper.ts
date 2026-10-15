@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+/* eslint-disable @typescript-eslint/ban-types */
 import {
   AppStoreServerAPI,
   Environment,
@@ -25,7 +26,10 @@ export class AppStoreHelper {
   protected credentialsByBundleId: any;
   protected environment: Environment;
 
-  constructor(protected config: AppStoreHelperConfig, protected log: Logger) {
+  constructor(
+    protected config: AppStoreHelperConfig,
+    protected log: Logger
+  ) {
     const {
       subscriptions: { appStore },
     } = config;

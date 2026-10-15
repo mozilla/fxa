@@ -5,7 +5,7 @@
 'use strict';
 
 import { assert } from 'chai';
-import { STRIPE_PRICE_METADATA as PAYMENTS_STRIPE_PRICE_METADATA } from '../../../payments/stripe';
+import { STRIPE_PRICE_METADATA as PAYMENTS_STRIPE_PRICE_METADATA } from '@fxa/accounts/subscriptions-legacy/payments/stripe';
 import {
   PlanConfig,
   planConfigJoiKeys,

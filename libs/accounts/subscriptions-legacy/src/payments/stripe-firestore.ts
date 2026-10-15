@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+/* eslint-disable @typescript-eslint/no-inferrable-types, @typescript-eslint/no-non-null-assertion */
 import {
   CollectionReference,
   DocumentReference,
@@ -130,7 +131,7 @@ export class StripeFirestore {
         return this.legacyFetchAndInsertCustomer(customerId, ignoreErrors);
       }
       this.statsd?.increment(
-        'subscriptions.stripe_firestore.retrieve_and_fetch_customer.error',
+        'subscriptions.stripe_firestore.retrieve_and_fetch_customer.error'
       );
       throw err;
     }
@@ -149,9 +150,8 @@ export class StripeFirestore {
       return subscription;
     } catch (err) {
       if (err.name === FirestoreStripeError.FIRESTORE_SUBSCRIPTION_NOT_FOUND) {
-        const subscription = await this.stripe.subscriptions.retrieve(
-          subscriptionId
-        );
+        const subscription =
+          await this.stripe.subscriptions.retrieve(subscriptionId);
         await this.legacyFetchAndInsertCustomer(
           subscription.customer as string,
           ignoreErrors
@@ -213,7 +213,7 @@ export class StripeFirestore {
       this.stripe.subscriptions
         .list({
           customer: customerId,
-          status: "all",
+          status: 'all',
           limit: 100,
         })
         .autoPagingToArray({ limit: 10000 }),
@@ -242,21 +242,25 @@ export class StripeFirestore {
 
     await this.firestore.runTransaction(async (tx) => {
       const storedCustomer = await tx.get(
-        this.customerCollectionDbRef
-          .doc(customerUid)
-      )
+        this.customerCollectionDbRef.doc(customerUid)
+      );
 
       const subscriptionsToUpdate: Stripe.Subscription[] = [];
       for (const subscription of subscriptions) {
         const storedSubscription = await tx.get(
-          this.customerCollectionDbRef.doc(customerUid)
+          this.customerCollectionDbRef
+            .doc(customerUid)
             .collection(this.subscriptionCollection)
-            .doc(subscription.id),
+            .doc(subscription.id)
         );
 
-        const storedSubscriptionEventTime: number | undefined = storedSubscription.data()?.stripeEventCreatedTime;
+        const storedSubscriptionEventTime: number | undefined =
+          storedSubscription.data()?.stripeEventCreatedTime;
         // stripeEventCreatedTime can be missing since we didn't previously write this value
-        if (!storedSubscriptionEventTime || storedSubscriptionEventTime < eventTime) {
+        if (
+          !storedSubscriptionEventTime ||
+          storedSubscriptionEventTime < eventTime
+        ) {
           // If we've already stored a newer record from a more recent Stripe
           // webhook event we don't need to do this write.
           // In the event of a collision, Firestore transactions are re-run multiple times
@@ -266,7 +270,8 @@ export class StripeFirestore {
         }
       }
 
-      const storedCustomerEventTime: number | undefined = storedCustomer.data()?.stripeEventCreatedTime;
+      const storedCustomerEventTime: number | undefined =
+        storedCustomer.data()?.stripeEventCreatedTime;
       // stripeEventCreatedTime can be missing since we didn't previously write this value
       if (!storedCustomerEventTime || storedCustomerEventTime < eventTime) {
         // If we've already stored a newer record from a more recent Stripe
@@ -276,8 +281,8 @@ export class StripeFirestore {
         // an event newer.
         const customerRecord = {
           ...customer,
-          stripeEventCreatedTime: eventTime
-        }
+          stripeEventCreatedTime: eventTime,
+        };
         tx.set(
           this.customerCollectionDbRef.doc(customerUid),
           toFirestoreObject(customerRecord)
@@ -288,8 +293,8 @@ export class StripeFirestore {
       for (const subscriptionToUpdate of subscriptionsToUpdate) {
         const subscriptionRecord = {
           ...subscriptionToUpdate,
-          stripeEventCreatedTime: eventTime
-        }
+          stripeEventCreatedTime: eventTime,
+        };
         tx.set(
           this.customerCollectionDbRef
             .doc(customerUid)
@@ -315,9 +320,12 @@ export class StripeFirestore {
     customerId: string,
     ignoreErrors: boolean = false
   ) {
-    const customerWithSubscriptions = await this.stripe.customers.retrieve(customerId, {
-      expand: ["subscriptions"]
-    });
+    const customerWithSubscriptions = await this.stripe.customers.retrieve(
+      customerId,
+      {
+        expand: ['subscriptions'],
+      }
+    );
 
     // DS: Same qeustion as before, what triggers this state?
     if (customerWithSubscriptions.deleted) {
@@ -345,7 +353,8 @@ export class StripeFirestore {
     }
 
     // DS: What is this exactly?
-    const customerWithSubscriptionsUid = customerWithSubscriptions.metadata.userid;
+    const customerWithSubscriptionsUid =
+      customerWithSubscriptions.metadata.userid;
     if (!customerWithSubscriptionsUid) {
       if (ignoreErrors) {
         const droppedSubscriptionCount =
@@ -403,7 +412,7 @@ export class StripeFirestore {
         this.stripe.subscriptions
           .list({
             customer: customerId,
-            status: "all",
+            status: 'all',
             limit: 100,
           })
           .autoPagingToArray({ limit: 10000 }),
@@ -512,7 +521,9 @@ export class StripeFirestore {
     uid: string,
     customer: Partial<Stripe.Customer | Stripe.DeletedCustomer>
   ) {
-    return this.customerCollectionDbRef.doc(uid).set(toFirestoreObject(customer));
+    return this.customerCollectionDbRef
+      .doc(uid)
+      .set(toFirestoreObject(customer));
   }
 
   /**
@@ -561,7 +572,7 @@ export class StripeFirestore {
   async fetchAndInsertInvoice(
     invoiceId: string,
     eventTime: number,
-    ignoreErrors: boolean = false,
+    ignoreErrors: boolean = false
   ) {
     const invoice = await this.stripe.invoices.retrieve(invoiceId, {
       expand: ['discounts.source.coupon'],
@@ -574,12 +585,12 @@ export class StripeFirestore {
       return invoice;
     }
     if (typeof subscriptionId !== 'string') {
-      throw new Error("subscriptionId must be of type string");
+      throw new Error('subscriptionId must be of type string');
     }
 
     const customerId = invoice.customer;
     if (typeof customerId !== 'string') {
-      throw new Error("customerId must be of type string");
+      throw new Error('customerId must be of type string');
     }
 
     const customerSnap = await this.customerCollectionDbRef
@@ -616,9 +627,10 @@ export class StripeFirestore {
           .doc(subscriptionId)
           .collection(this.invoiceCollection)
           .doc(invoiceId)
-      )
+      );
 
-      const storedEventTime: number | undefined = storedInvoice.data()?.stripeEventCreatedTime;
+      const storedEventTime: number | undefined =
+        storedInvoice.data()?.stripeEventCreatedTime;
       // stripeEventCreatedTime can be missing since we didn't previously write this value
       if (storedEventTime && storedEventTime >= eventTime) {
         // We've already stored a newer record from a more recent Stripe
@@ -631,8 +643,8 @@ export class StripeFirestore {
 
       const record = {
         ...invoice,
-        stripeEventCreatedTime: eventTime
-      }
+        stripeEventCreatedTime: eventTime,
+      };
       tx.set(
         this.customerCollectionDbRef
           .doc(customerUid)
@@ -685,9 +697,8 @@ export class StripeFirestore {
     eventTime: number,
     ignoreErrors: boolean = false
   ) {
-    const paymentMethod = await this.stripe.paymentMethods.retrieve(
-      paymentMethodId
-    );
+    const paymentMethod =
+      await this.stripe.paymentMethods.retrieve(paymentMethodId);
     // If this payment method is not attached, we can't store it in firestore as
     // the customer may not exist. It is possible that a payment_method.detached
     // event has already been processed, detaching the payment method.
@@ -728,7 +739,8 @@ export class StripeFirestore {
           .doc(paymentMethod.id)
       );
 
-      const storedEventTime: number | undefined = storedPaymentMethod.data()?.stripeEventCreatedTime;
+      const storedEventTime: number | undefined =
+        storedPaymentMethod.data()?.stripeEventCreatedTime;
       // stripeEventCreatedTime can be missing since we didn't previously write this value
       if (eventTime && storedEventTime && storedEventTime >= eventTime) {
         // We've already stored a newer record from a more recent Stripe
@@ -741,15 +753,15 @@ export class StripeFirestore {
 
       const record = {
         ...paymentMethod,
-        stripeEventCreatedTime: eventTime
-      }
+        stripeEventCreatedTime: eventTime,
+      };
 
       tx.set(
         this.customerCollectionDbRef
           .doc(customerUid)
           .collection(this.paymentMethodCollection)
           .doc(paymentMethodId),
-        record,
+        record
       );
 
       return paymentMethod;

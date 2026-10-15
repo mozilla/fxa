@@ -16,7 +16,7 @@ import { PurchaseQueryError, PurchaseUpdateError } from './types';
 // Get the real AppStoreSubscriptionPurchase (not the mocked version) for
 // queryCurrentSubscriptionPurchases tests that need actual class behavior.
 const { AppStoreSubscriptionPurchase } = jest.requireActual(
-  'fxa-shared/payments/iap/apple-app-store/subscription-purchase'
+  '@fxa/accounts/subscriptions-legacy/payments/iap/apple-app-store/subscription-purchase'
 );
 
 const mockBundleId = 'testBundleId';
@@ -76,7 +76,7 @@ jest.mock('app-store-server-api', () => ({
 // Use getters so the factory (hoisted by Jest) can reference variables
 // defined later without hitting temporal dead zone.
 jest.mock(
-  'fxa-shared/payments/iap/apple-app-store/subscription-purchase',
+  '@fxa/accounts/subscriptions-legacy/payments/iap/apple-app-store/subscription-purchase',
   () => ({
     get AppStoreSubscriptionPurchase() {
       return mockSubscriptionPurchase;

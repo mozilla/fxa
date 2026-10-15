@@ -4,7 +4,7 @@
 
 import { Container } from 'typedi';
 import { AppConfig, AuthLogger } from '../../../types';
-import { AppStoreHelper as AppStoreHelperBase } from 'fxa-shared/payments/iap/apple-app-store/app-store-helper';
+import { AppStoreHelper as AppStoreHelperBase } from '@fxa/accounts/subscriptions-legacy/payments/iap/apple-app-store/app-store-helper';
 
 export class AppStoreHelper extends AppStoreHelperBase {
   constructor() {

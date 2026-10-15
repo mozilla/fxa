@@ -52,7 +52,7 @@ const { RefundType } = require('@fxa/payments/paypal');
 const {
   FirestoreStripeErrorBuilder,
   FirestoreStripeError,
-} = require('fxa-shared/payments/stripe-firestore');
+} = require('@fxa/accounts/subscriptions-legacy/payments/stripe-firestore');
 
 let config: any,
   log: any,

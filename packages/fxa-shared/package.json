@@ -53,34 +53,6 @@
       "import": "./dist/esm/packages/fxa-shared/oauth/*.js",
       "require": "./dist/cjs/packages/fxa-shared/oauth/*.js"
     },
-    "./payments/*": {
-      "import": "./dist/esm/packages/fxa-shared/payments/*.js",
-      "require": "./dist/cjs/packages/fxa-shared/payments/*.js"
-    },
-    "./payments/configuration/*": {
-      "import": "./dist/esm/packages/fxa-shared/payments/configuration/*.js",
-      "require": "./dist/cjs/packages/fxa-shared/payments/configuration/*.js"
-    },
-    "./payments/iap/*": {
-      "import": "./dist/esm/packages/fxa-shared/payments/iap/*.js",
-      "require": "./dist/cjs/packages/fxa-shared/payments/iap/*.js"
-    },
-    "./payments/iap/apple-app-store/types": {
-      "import": "./dist/esm/packages/fxa-shared/payments/iap/apple-app-store/types/index.js",
-      "require": "./dist/cjs/packages/fxa-shared/payments/iap/apple-app-store/types/index.js"
-    },
-    "./payments/iap/google-play/types": {
-      "import": "./dist/esm/packages/fxa-shared/payments/iap/google-play/types/index.js",
-      "require": "./dist/cjs/packages/fxa-shared/payments/iap/google-play/types/index.js"
-    },
-    "./payments/stripe": {
-      "import": "./dist/esm/packages/fxa-shared/payments/stripe.js",
-      "require": "./dist/cjs/packages/fxa-shared/payments/stripe.js"
-    },
-    "./payments/stripe-firestore": {
-      "import": "./dist/esm/packages/fxa-shared/payments/stripe-firestore.js",
-      "require": "./dist/cjs/packages/fxa-shared/payments/stripe-firestore.js"
-    },
     "./scripts/*": {
       "import": "./dist/esm/packages/fxa-shared/scripts/*.js",
       "require": "./dist/cjs/packages/fxa-shared/scripts/*.js"
