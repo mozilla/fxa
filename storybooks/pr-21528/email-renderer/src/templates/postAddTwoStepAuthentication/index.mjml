@@ -1,0 +1,54 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="postAddTwoStepAuthentication-title-2">You turned on two-step authentication</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="postAddTwoStepAuthentication-code-required-v4">Security codes from your authenticator app are now required every time you sign in.</span>
+    </mj-text>
+
+    <% if (locals.recoveryMethod === 'codes') { %>
+      <mj-text css-class="text-body-no-margin">
+        <span data-l10n-id="postAddTwoStepAuthentication-recovery-method-codes">
+          You also added backup authentication codes as your recovery method.
+        </span>
+      </mj-text>
+    <% } %>
+
+    <% if (locals.recoveryMethod === 'phone' && locals.maskedPhoneNumber) { %>
+      <mj-text css-class="text-body-no-margin">
+        <span dir="ltr" data-l10n-id="postAddTwoStepAuthentication-recovery-method-phone" data-l10n-args="<%= JSON.stringify({ maskedPhoneNumber }) %>">You also added <%- maskedPhoneNumber %> as your recovery phone number.</span>
+      </mj-text>
+    <% } %>
+
+    <mj-text css-class="text-body">
+      <a class="link-blue" href="<%- twoFactorSupportLink %>">
+        <span data-l10n-id="postAddTwoStepAuthentication-how-protects-link">How this protects your account</span>
+      </a>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="postAddTwoStepAuthentication-device-sign-out-message">
+        To protect all your connected devices, you should sign out everywhere youʼre using this account, and then sign back in using two-step authentication.
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body-no-margin">
+      <span data-l10n-id="postAddTwoStepAuthentication-from-device-v2">You requested this from:</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include('/partials/userInfo/index.mjml') %>
+
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "postAddTwoStepAuthentication-action",
+  buttonText: "Manage account"
+}) %>
+
+<%- include('/partials/automatedEmailChangePassword/index.mjml') %>
