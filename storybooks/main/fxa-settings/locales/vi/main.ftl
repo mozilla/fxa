@@ -151,6 +151,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Xác nhận mật khẩu
 form-password-with-inline-criteria-reset-submit-button = Tạo mật khẩu mới
+form-password-with-inline-criteria-old-password-label =
+    .label = Mật khẩu cũ
+form-password-with-inline-criteria-change-password-submit-button = Thay đổi mật khẩu
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Mật khẩu
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -910,6 +913,7 @@ passkey-sub-row-created-date = Đã tạo: { $createdDate }
 passkey-sub-row-last-used-date = Sử dụng lần cuối: { $lastUsedDate }
 passkey-sub-row-delete-title = Xoá passkey
 passkey-delete-modal-heading = Xoá passkey của bạn?
+passkey-delete-modal-content-v3 = Passkey này sẽ bị xoá khỏi tài khoản của bạn. Bạn sẽ cần đăng nhập bằng mật khẩu, passkey khác hoặc tài khoản được liên kết.
 passkey-delete-modal-cancel-button = Hủy bỏ
 passkey-delete-modal-confirm-button = Xoá passkey
 passkey-delete-success = Đã xoá passkey
@@ -1064,6 +1068,7 @@ auth-error-228 = Đăng ký passkey không thành công
 auth-error-233 = Để tạo passkey, hãy thiết lập khóa màn hình, mã PIN, vân tay hoặc nhận diện khuôn mặt trên thiết bị hoặc khóa bảo mật của bạn. Sau đó thử lại.
 auth-error-238 = Xác thực passkey thất bại
 auth-error-239 = Rất tiếc, chúng tôi không thể xóa tài khoản của bạn. Vui lòng thử lại hoặc liên hệ với bộ phận hỗ trợ nếu sự cố vẫn tiếp diễn.
+auth-error-240 = Tài khoản này đã bị vô hiệu hoá
 auth-error-999 = Lỗi không xác định
 auth-error-1001 = Đã hủy đăng nhập
 auth-error-1002 = Phiên đã hết hạn. Đăng nhập để tiếp tục.
@@ -1147,6 +1152,19 @@ index-email-input =
     .label = Nhập email của bạn
 index-account-delete-success = Đã xóa tài khoản thành công
 index-email-bounced = Email xác minh của bạn vừa được trả lại. Bạn đã nhập sai địa chỉ email?
+
+
+inline-passwordless-sync-setup-page-title = Bỏ qua việc nhập mật khẩu về sau?
+inline-passwordless-sync-setup-success-banner-v2 = Bạn đã đăng nhập và tính năng đồng bộ hóa đang hoạt động
+inline-passwordless-sync-setup-heading = Bỏ qua việc nhập mật khẩu về sau?
+inline-passwordless-sync-setup-description = Sử dụng passkey này để đăng nhập nhanh hơn.
+inline-passwordless-sync-setup-enable-button = Bật passkey
+inline-passwordless-sync-setup-enabling = Đang bật…
+inline-passwordless-sync-setup-not-now-button = Để sau
+inline-passwordless-sync-setup-success-alert-v2 = Passkey này được kích hoạt cho tính năng đăng nhập đồng bộ
+inline-passwordless-sync-setup-error-cancelled = Quá trình xác nhận passkey chưa hoàn tất
+inline-passwordless-sync-setup-error-cancelled-description = Xác nhận với passkey của bạn để bỏ qua mật khảu vào lần sau.
+inline-passwordless-sync-setup-error-generic-v2 = Chúng tôi không thể kích hoạt passkey này để đăng nhập đồng bộ hoá. Lần sau bạn sẽ cần mật khẩu của mình.
 
 
 inline-recovery-key-setup-create-error = Rất tiếc! Chúng tôi không thể tạo khóa khôi phục tài khoản của bạn. Vui lòng thử lại sau.
