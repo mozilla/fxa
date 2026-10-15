@@ -155,7 +155,6 @@
     "cldr-localenames-full": "46.0.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "find-up": "^5.0.0",
     "graphql": "^16.10.0",
     "hot-shots": "^10.2.1",
     "ioredis": "^4.28.2",
