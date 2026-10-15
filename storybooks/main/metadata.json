@@ -1,8 +1,8 @@
 {
-  "commit": "a515315fddfc60349fa00e0e9655715151087807",
-  "summary": "Merge pull request #21492 from mozilla/FXA-14758",
-  "description": "fix(settings): show a banner for WAF blocks instead of the unblock flow",
-  "timestamp": 1792100370000,
+  "commit": "51ea17f0790df5d202e9a9d00565f33809ef0096",
+  "summary": "Merge pull request #21512 from mozilla/fxa-14762",
+  "description": "fix(settings): wait for a fresh fxa_status after sign-in reaches /pair",
+  "timestamp": 1792103722000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
