@@ -1,8 +1,8 @@
 {
-  "commit": "7920c4ac57c27d1e42ed0732b0e9b0c4cc56692e",
+  "commit": "de2ef65a2960dac3388fe92353afe7ed4dc9838c",
   "summary": "refactor(shared): move fxa-shared subscriptions to a legacy lib",
-  "description": "Because:\n\n* fxa-shared subscriptions and dto/auth/payments code belongs in an nx lib.\n\nThis commit:\n\n* Moves the 13 files to libs/accounts/subscriptions-legacy.\n* Leaves one-line re-export shims in fxa-shared, with a shim spec.\n* Repoints 34 auth-server and admin-server importers to the new alias.\n* Adds the alias to the tsconfig and jest configs.\n* Adds accept-language-parser to the root package.json.\n\nCloses FXA-10672",
-  "timestamp": 1792068402000,
+  "description": "Because:\n\n* fxa-shared subscriptions and dto/auth/payments must move to a lib\n  so that later tickets can remove fxa-shared\n\nThis commit:\n\n* Moves them to libs/accounts/subscriptions-legacy\n* Keeps re-export shims at the old fxa-shared paths\n* Points auth-server and admin-server importers at the lib alias\n* Removes fxa-shared files that main deleted and a rebase restored\n\nCloses FXA-10672",
+  "timestamp": 1792071252000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

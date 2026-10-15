@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 7920c4ac57c27d1e42ed0732b0e9b0c4cc56692e</title>
+  <title>Storybooks for commit de2ef65a2960dac3388fe92353afe7ed4dc9838c</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 7920c4ac57c27d1e42ed0732b0e9b0c4cc56692e</h1>
+  <h1>Storybooks for commit de2ef65a2960dac3388fe92353afe7ed4dc9838c</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
@@ -32,21 +32,21 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/15/2026, 12:46:42 PM UTC</dd>
+    <dd>10/15/2026, 1:34:12 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>refactor(shared): move fxa-shared subscriptions to a legacy lib</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-* fxa-shared subscriptions and dto/auth/payments code belongs in an nx lib.
+* fxa-shared subscriptions and dto/auth/payments must move to a lib
+  so that later tickets can remove fxa-shared
 
 This commit:
 
-* Moves the 13 files to libs/accounts/subscriptions-legacy.
-* Leaves one-line re-export shims in fxa-shared, with a shim spec.
-* Repoints 34 auth-server and admin-server importers to the new alias.
-* Adds the alias to the tsconfig and jest configs.
-* Adds accept-language-parser to the root package.json.
+* Moves them to libs/accounts/subscriptions-legacy
+* Keeps re-export shims at the old fxa-shared paths
+* Points auth-server and admin-server importers at the lib alias
+* Removes fxa-shared files that main deleted and a rebase restored
 
 Closes FXA-10672</pre></dd>
   </dl>
