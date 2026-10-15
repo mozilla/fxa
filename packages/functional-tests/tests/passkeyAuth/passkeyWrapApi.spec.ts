@@ -170,6 +170,22 @@ async function signInWithPasskey(
 }
 
 /**
+ * Verifies the password on a passkey session. A wrap write refuses a session
+ * that has not, since the passkey assertion proves nothing about `kB`.
+ */
+async function reauthWithPassword(
+  target: BaseTarget,
+  sessionToken: string,
+  account: PasskeyAccount
+): Promise<void> {
+  await target.authClient.sessionReauth(
+    sessionToken,
+    account.credentials.email,
+    account.credentials.password
+  );
+}
+
+/**
  * Creates a tracked, verified account with a registered passkey, and reads
  * `kB` out of a password sign-in.
  */
@@ -215,10 +231,11 @@ test.describe('passkey wrap round-trip', () => {
     apiAccountTracker,
   }) => {
     const account = await setUpAccountWithPasskey(target, apiAccountTracker);
-    const { uid, mfaToken, prfOut } = await signInWithPasskey(
+    const { uid, sessionToken, mfaToken, prfOut } = await signInWithPasskey(
       target,
       account.credential
     );
+    await reauthWithPassword(target, sessionToken, account);
     const envelope = await createWrapEnvelope({
       kB: Uint8Array.from(Buffer.from(account.passwordKb, 'hex')),
       prfOut: required(prfOut, 'prfOut'),
@@ -253,6 +270,7 @@ test.describe('passkey wrap round-trip', () => {
   }) => {
     const account = await setUpAccountWithPasskey(target, apiAccountTracker);
     const enrollment = await signInWithPasskey(target, account.credential);
+    await reauthWithPassword(target, enrollment.sessionToken, account);
     await target.authClient.createPasskeyWrap(
       required(enrollment.mfaToken, 'mfaToken'),
       account.credentialId,

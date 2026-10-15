@@ -253,6 +253,10 @@ const PASSKEYS_API_DOCS = {
         does when \`/start\` asks for the \`passkey\` scope. A token minted any other way
         carries no binding and is rejected.
 
+        The token's session must also have verified the password since it was
+        created (\`/session/reauth\`). The assertion that minted the token proves
+        the passkey, not \`kB\`, so a sign-in alone cannot write a wrap.
+
         **Request body:**
         - \`credentialId\` (string, required) — base64url credential ID
         - \`pkR\` (string, required) — base64url, 133 bytes
