@@ -1,7 +1,12 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { CollectionReference, Firestore } from '@google-cloud/firestore';
+import {
+  CollectionReference,
+  DocumentReference,
+  DocumentSnapshot,
+  Firestore,
+} from '@google-cloud/firestore';
 import { StatsD } from 'hot-shots';
 import { ILogger } from '../log';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from '../subscriptions/stripe';
@@ -40,6 +45,17 @@ export class FirestoreStripeErrorBuilder extends Error {
  */
 function toFirestoreObject<T>(doc: T): T {
   return JSON.parse(JSON.stringify(doc));
+}
+
+function withStoredEventTime<T extends object>(
+  record: T,
+  stored: DocumentSnapshot | undefined
+): T & { stripeEventCreatedTime?: number } {
+  const stripeEventCreatedTime: number | undefined =
+    stored?.data()?.stripeEventCreatedTime;
+  return stripeEventCreatedTime
+    ? { ...record, stripeEventCreatedTime }
+    : record;
 }
 
 /**
@@ -149,29 +165,35 @@ export class StripeFirestore {
   async fetchAndInsertSubscription(
     subscriptionId: string,
     uid: string,
+    eventTime: number
   ) {
+    const subscription =
+      await this.stripe.subscriptions.retrieve(subscriptionId);
+    const subscriptionRef = this.customerCollectionDbRef
+      .doc(uid)
+      .collection(this.subscriptionCollection)
+      .doc(subscription.id);
+
     return this.firestore.runTransaction(async (tx) => {
-      // We read the subscription we plan to write to lock them via a Firestore transaction.
-      // If any other transaction runs that reads the subscription overlapping with our read+write operation,
-      // the transaction will fail and be retried. This ensures serialization of our updates, and no race condition
-      // based on the speed at which the Stripe API responds.
-      await tx.get(
-        this.customerCollectionDbRef.doc(uid)
-          .collection(this.subscriptionCollection)
-          .doc(subscriptionId),
-      );
-
-      const subscription = await this.stripe.subscriptions.retrieve(subscriptionId);
-
+      const storedSubscription = await tx.get(subscriptionRef);
+      const storedEventTime: number | undefined =
+        storedSubscription.data()?.stripeEventCreatedTime;
+      if (storedEventTime && storedEventTime > eventTime) {
+        return subscription;
+      }
+      // Event times have 1-second precision, so on a tie only a read taken under the lock is known to be current.
+      const latestSubscription =
+        storedEventTime === eventTime
+          ? await this.stripe.subscriptions.retrieve(subscriptionId)
+          : subscription;
       tx.set(
-        this.customerCollectionDbRef
-          .doc(uid)
-          .collection(this.subscriptionCollection)
-          .doc(subscription.id),
-        toFirestoreObject(subscription)
+        subscriptionRef,
+        toFirestoreObject({
+          ...latestSubscription,
+          stripeEventCreatedTime: eventTime,
+        })
       );
-
-      return subscription;
+      return latestSubscription;
     });
   }
 
@@ -359,13 +381,21 @@ export class StripeFirestore {
       // If any other transaction runs that reads these documents overlapping with our read+write operation,
       // the transaction will fail and be retried. This ensures serialization of our updates, and no race condition
       // based on the speed at which the Stripe API responds.
-      await tx.get(this.customerCollectionDbRef.doc(customerWithSubscriptionsUid));
-      for (const subscription of customerWithSubscriptions.subscriptions?.data || []) {
-        await tx.get(
-          this.customerCollectionDbRef.doc(customerWithSubscriptionsUid)
-            .collection(this.subscriptionCollection)
-            .doc(subscription.id),
-        );
+      const storedSnapshots = new Map<string, DocumentSnapshot>();
+      const lockedCustomerRef = this.customerCollectionDbRef.doc(
+        customerWithSubscriptionsUid
+      );
+      const lockedRefs: DocumentReference[] = [
+        lockedCustomerRef,
+        ...(customerWithSubscriptions.subscriptions?.data || []).map(
+          (subscription) =>
+            lockedCustomerRef
+              .collection(this.subscriptionCollection)
+              .doc(subscription.id)
+        ),
+      ];
+      for (const ref of lockedRefs) {
+        storedSnapshots.set(ref.path, await tx.get(ref));
       }
 
       const [customer, subscriptions] = await Promise.all([
@@ -425,21 +455,40 @@ export class StripeFirestore {
         );
       }
 
+      const customerRef = this.customerCollectionDbRef.doc(uid);
+      const subscriptionRefs = (subscriptions ?? []).map((subscription) =>
+        customerRef.collection(this.subscriptionCollection).doc(subscription.id)
+      );
+      const unreadRefs = [customerRef, ...subscriptionRefs].filter(
+        (ref) => !storedSnapshots.has(ref.path)
+      );
+      if (unreadRefs.length > 0) {
+        const unreadSnapshots = await tx.getAll(...unreadRefs);
+        unreadRefs.forEach((ref, i) =>
+          storedSnapshots.set(ref.path, unreadSnapshots[i])
+        );
+      }
+
+      // Keep the stored event time so a delayed older webhook can't overwrite this fresher data.
       tx.set(
-        this.customerCollectionDbRef.doc(uid),
-        toFirestoreObject(customer)
+        customerRef,
+        toFirestoreObject(
+          withStoredEventTime(customer, storedSnapshots.get(customerRef.path))
+        )
       );
       if (subscriptions) {
         // DS: Does this update the subscriptions for the customer's collection and also the customer object?
-        for (const subscription of subscriptions) {
+        subscriptions.forEach((subscription, i) => {
           tx.set(
-            this.customerCollectionDbRef
-              .doc(uid)
-              .collection(this.subscriptionCollection)
-              .doc(subscription.id),
-            toFirestoreObject(subscription)
+            subscriptionRefs[i],
+            toFirestoreObject(
+              withStoredEventTime(
+                subscription,
+                storedSnapshots.get(subscriptionRefs[i].path)
+              )
+            )
           );
-        }
+        });
       }
 
       this.statsd?.increment(
