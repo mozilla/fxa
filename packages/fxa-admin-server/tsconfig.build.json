@@ -11,6 +11,9 @@
         "libs/accounts/email-renderer/src/index"
       ],
       "@fxa/accounts/errors": ["libs/accounts/errors/src/index"],
+      "@fxa/accounts/subscriptions-legacy/*": [
+        "libs/accounts/subscriptions-legacy/src/*"
+      ],
       "@fxa/accounts/oauth": ["libs/accounts/oauth/src/index"],
       "@fxa/payments/legacy": ["libs/payments/legacy/src/index"],
       "@fxa/payments/stripe": ["libs/payments/stripe/src/index"],

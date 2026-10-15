@@ -35,6 +35,8 @@ const base = {
     // otherwise map them to `libs/accounts/<pkg>/<entry>/src`.
     '^@fxa/accounts/passkey/testing$':
       '<rootDir>/../../libs/accounts/passkey/src/testing',
+    '^@fxa/accounts/subscriptions-legacy/(.*)$':
+      '<rootDir>/../../libs/accounts/subscriptions-legacy/src/$1',
     '^@fxa/accounts/(.*)$': '<rootDir>/../../libs/accounts/$1/src',
     '^@fxa/payments/(.*)$': '<rootDir>/../../libs/payments/$1/src',
     '^@fxa/profile/(.*)$': '<rootDir>/../../libs/profile/$1/src',

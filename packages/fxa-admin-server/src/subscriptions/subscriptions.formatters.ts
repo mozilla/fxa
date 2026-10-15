@@ -5,7 +5,7 @@
 import { AppStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/apple-app-store/subscription-purchase';
 import { PlayStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/google-play/subscription-purchase';
 import { PaymentState } from 'fxa-shared/payments/iap/google-play/types';
-import { AbbrevPlan } from 'fxa-shared/subscriptions/types';
+import { AbbrevPlan } from '@fxa/accounts/subscriptions-legacy/subscriptions/types';
 import { Stripe } from 'stripe';
 import { MozSubscription } from '../rest/model/moz-subscription.model';
 

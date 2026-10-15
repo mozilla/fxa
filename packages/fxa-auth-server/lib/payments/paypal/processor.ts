@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { getMinimumAmount } from 'fxa-shared/subscriptions/stripe';
+import { getMinimumAmount } from '@fxa/accounts/subscriptions-legacy/subscriptions/stripe';
 import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
 import { Container } from 'typedi';

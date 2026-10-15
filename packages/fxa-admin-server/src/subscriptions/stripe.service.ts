@@ -21,7 +21,7 @@ import {
   AbbrevPlan,
   MozillaSubscriptionTypes,
   SubscriptionType,
-} from 'fxa-shared/subscriptions/types';
+} from '@fxa/accounts/subscriptions-legacy/subscriptions/types';
 import { StatsD } from 'hot-shots';
 import Stripe from 'stripe';
 import { FirestoreService } from '../backend/firestore.service';
