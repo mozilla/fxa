@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 29dc2f230c1fd21809bae7e55043662582988d45</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 29dc2f230c1fd21809bae7e55043662582988d45</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/15/2026, 9:10:05 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(deps): remove nest-typed-config/class-validator resolution</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- The nest-typed-config/class-validator resolution held class-validator at 0.14.1.
+- From 0.14.2, validate() without options rejects classes that have no decorators.
+
+This commit:
+- Removes the resolution and moves root class-validator to ^0.15.1.
+- Adds top-level decorators to GetExperimentsActionResult and GetCMSChurnInterventionActionResult.
+- Adds NextIOValidator specs for both result classes.
+
+Closes FXA-11987</pre></dd>
+  </dl>
+</body>
+</html>

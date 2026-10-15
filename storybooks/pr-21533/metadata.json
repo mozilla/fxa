@@ -1,0 +1,13 @@
+{
+  "commit": "29dc2f230c1fd21809bae7e55043662582988d45",
+  "summary": "chore(deps): remove nest-typed-config/class-validator resolution",
+  "description": "Because:\n- The nest-typed-config/class-validator resolution held class-validator at 0.14.1.\n- From 0.14.2, validate() without options rejects classes that have no decorators.\n\nThis commit:\n- Removes the resolution and moves root class-validator to ^0.15.1.\n- Adds top-level decorators to GetExperimentsActionResult and GetCMSChurnInterventionActionResult.\n- Adds NextIOValidator specs for both result classes.\n\nCloses FXA-11987",
+  "timestamp": 1792098605000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
