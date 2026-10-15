@@ -3184,6 +3184,7 @@ if (convictConf.get('oauthServer.openid.oldKeyFile')) {
 if (convictConf.get('isProduction')) {
   const SECRET_SETTINGS = [
     'metrics.flow_id_key',
+    'mfa.jwt.secretKey',
     'oauth.jwtSecretKeys',
     'oauth.secretKey',
     'profileServer.secretBearerToken',
@@ -3193,6 +3194,19 @@ if (convictConf.get('isProduction')) {
     if (convictConf.get(key) === convictConf.default(key)) {
       throw new Error(`Config '${key}' must be set in production`);
     }
+  }
+}
+
+// Sole root of trust for every `strategy: 'mfa'` route. An HS256 key shorter
+// than its 256-bit MAC can be brute-forced offline from any captured token.
+// Stage is held to the same bar so a weak key fails there first.
+if (['prod', 'stage'].includes(convictConf.get('env'))) {
+  const MFA_JWT_KEY_MIN_BYTES = 32;
+  const mfaJwtKey = convictConf.get('mfa.jwt.secretKey');
+  if (Buffer.byteLength(mfaJwtKey, 'utf8') < MFA_JWT_KEY_MIN_BYTES) {
+    throw new Error(
+      `Config 'mfa.jwt.secretKey' must be at least ${MFA_JWT_KEY_MIN_BYTES} bytes in production and stage`
+    );
   }
 }
 
