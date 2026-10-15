@@ -1,0 +1,12 @@
+{
+  "commit": "8a5a9d4042d1c10aa4156a5e6282a7c73c379861",
+  "summary": "test(subscriptions): port fxa-shared subscriptions tests to jest",
+  "description": "Because:\n- The fxa-shared subscriptions specs still used mocha and chai, but the code is in libs/accounts/subscriptions-legacy.\n\nThis commit:\n- Ports the 7 specs to co-located jest specs in the lib (103 cases, same per-file counts).\n- Moves shared plan constants to src/subscriptions/fixtures/plans.ts.\n- Moves 4 stripe fixtures into the lib and product1.json to the auth server as product_123done_pro.json.\n- Deletes the unread fixtures and the old test and fixture folders.\n\nCloses FXA-14713",
+  "timestamp": 1792085513000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
