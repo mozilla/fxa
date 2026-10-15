@@ -1,8 +1,8 @@
 {
-  "commit": "153a47089b7b5aebe9cd13875baf98d6693c11c3",
-  "summary": "Merge pull request #21520 from mozilla/fxa-14714",
-  "description": "refactor(auth): move senders/email.js imports off fxa-shared",
-  "timestamp": 1792086430000,
+  "commit": "e031f28babb135c82bc5cff02c94d4ce555057b5",
+  "summary": "Merge pull request #21523 from mozilla/fxa-14713",
+  "description": "test(subscriptions): port fxa-shared subscriptions tests to jest",
+  "timestamp": 1792086603000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
