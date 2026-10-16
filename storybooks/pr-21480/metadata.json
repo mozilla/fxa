@@ -1,8 +1,8 @@
 {
-  "commit": "a1add8dfa4b4be11244e31853807b338ea2082f7",
-  "summary": "fix(settings): report readable Glean reasons for passkey errors",
-  "description": "Because:\n- Passkey frontend-error Glean reasons hid which error occurred.\n- Add-passkey used its own map and reported auth_error_<n> and not_supported.\n\nThis commit:\n- Gives each WebAuthn error a distinct gleanReason, documented in the yaml.\n- Names known errnos on add-passkey and reports duplicates as not_allowed.\n- Treats only errors from the add-passkey prompt as WebAuthn errors.\n- Picks the sign-in banner from errorType so banners stay the same.\n- Deletes the unused fxa-shared pair-reasons.ts duplicate.\n\nCloses FXA-14005",
-  "timestamp": 1792092278000,
+  "commit": "16f84123cb5e96c013951f15ca666a0f94b3940a",
+  "summary": "fix(settings): report shared Glean reasons for passkey creation errors",
+  "description": "Because:\n- Add-passkey kept its own reason map, reporting webauthn_unknown and auth_error_<n>.\n- Glean reasons should cover only errors that could drive a product change.\n\nThis commit:\n- Makes add-passkey report the shared WebAuthn gleanReason.\n- Reports server errors as server_error, except errnos 226 and 233.\n- Reports a duplicate passkey as not_allowed instead of not_supported.\n- Treats only errors from the add-passkey prompt as WebAuthn errors.\n- Sends every error that reports 'unexpected' to Sentry.\n\nCloses FXA-14005",
+  "timestamp": 1792115873000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",
