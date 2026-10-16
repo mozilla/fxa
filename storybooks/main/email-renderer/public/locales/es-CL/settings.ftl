@@ -2034,6 +2034,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Para conectar tu dispo
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Para conectar un dispositivo en cualquier momento, visita <b>firefox.com/pair</b> desde tu computador.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Este dispositivo ya está conectado
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Para conectarte a tu cuenta de escritorio, cierra sesión en { -brand-firefox } en este dispositivo y luego visita <b>firefox.com/pair</b> en tu computador para completar la conexión.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a

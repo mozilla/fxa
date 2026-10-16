@@ -1,8 +1,8 @@
 {
-  "commit": "ae314ecd211f339b6ed6ecebbd4a800e5af2115c",
-  "summary": "Merge pull request #21548 from mozilla/fxa-14802",
-  "description": "chore(settings, content-server): remove leftover Pocket code",
-  "timestamp": 1792184385000,
+  "commit": "2a3777220bf61db42ee8faab360b7efa4efceb45",
+  "summary": "Merge pull request #21551 from mozilla/FXA-14798",
+  "description": "fix(settings): Fix app store fallback on deep link failure",
+  "timestamp": 1792192673000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
