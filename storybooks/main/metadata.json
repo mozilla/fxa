@@ -1,8 +1,8 @@
 {
-  "commit": "b214d1b3b58e136e19f392b6c75f2c41111a2e56",
-  "summary": "Merge pull request #21535 from mozilla/fxa-2961",
-  "description": "chore(deps): bump sinon to 22.1.0 in every package",
-  "timestamp": 1792160997000,
+  "commit": "4fc2efa5b08106f5756f2715272464824a927e63",
+  "summary": "Merge pull request #21534 from mozilla/fxa-14786",
+  "description": "chore(admin-panel): upgrade express to v5",
+  "timestamp": 1792161173000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
