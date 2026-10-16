@@ -1,8 +1,8 @@
 {
-  "commit": "4fc2efa5b08106f5756f2715272464824a927e63",
-  "summary": "Merge pull request #21534 from mozilla/fxa-14786",
-  "description": "chore(admin-panel): upgrade express to v5",
-  "timestamp": 1792161173000,
+  "commit": "1115dc9dd1230c28f957fba50e6895f31528ba6f",
+  "summary": "Merge pull request #21536 from mozilla/fxa-14785",
+  "description": "chore(123done): upgrade express to v5",
+  "timestamp": 1792162303000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
