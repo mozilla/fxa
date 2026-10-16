@@ -139,8 +139,8 @@ Output JSON array with fields: severity, category ("Test Quality"), subcategory,
 
 Tell this agent it is a senior architect who knows FXA's monorepo structure and migration directions. It should:
 
-- Check if new shared/reusable code belongs in `libs/*` or `fxa-shared` instead of app-local — search the monorepo for existing helpers before flagging. Note: `fxa-shared` is migrating to `libs/`, check both locations.
-- Detect duplication: search `libs/**`, `fxa-shared/**`, and `packages/**` for functions/types with the same name or purpose
+- Check if new shared/reusable code belongs in `libs/*` instead of app-local — search the monorepo for existing helpers before flagging.
+- Detect duplication: search `libs/**` and `packages/**` for functions/types with the same name or purpose
 - Flag new code in legacy packages:
   - `fxa-content-server` — should be in `fxa-settings`
   - No new GraphQL — `fxa-graphql-api` was removed, `admin-server` GraphQL is legacy. Exception: CMS-related GraphQL.
@@ -160,7 +160,6 @@ Tell this agent it is a senior architect who knows FXA's monorepo structure and 
 - Mocha → Jest (no new Mocha tests)
 - `proxyquire` → `jest.mock()`
 - Callbacks → `async/await`
-- `fxa-shared` → `libs/*` (in progress)
 
 Output JSON array with fields: severity, category ("Architecture"), subcategory, file, line, issue, recommendation.
 

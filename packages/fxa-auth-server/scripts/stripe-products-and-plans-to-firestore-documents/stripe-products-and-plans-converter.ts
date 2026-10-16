@@ -21,7 +21,7 @@ import { Container } from 'typedi';
 
 import { PaymentConfigManager } from '../../lib/payments/configuration/manager';
 import { StripeHelper } from '../../lib/payments/stripe';
-import { commaSeparatedListToArray } from 'fxa-shared/lib/utils';
+import { commaSeparatedListToArray } from '@fxa/accounts/errors';
 import {
   PLAN_EN_LANG_ERROR,
   getLanguageTagFromPlanMetadata,

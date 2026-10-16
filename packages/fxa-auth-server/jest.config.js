@@ -19,7 +19,7 @@ const base = {
     '^.+\\.[tj]sx?$': ['ts-jest', { tsconfig: { isolatedModules: true } }],
   },
   transformIgnorePatterns: [
-    '/node_modules/(?!(@fxa|fxa-shared|p-queue|p-timeout|eventemitter3|@faker-js/faker|uuid|app-store-server-api|jose)/)',
+    '/node_modules/(?!(@fxa|p-queue|p-timeout|eventemitter3|@faker-js/faker|uuid|app-store-server-api|jose)/)',
   ],
   clearMocks: true,
   workerIdleMemoryLimit: '512MB',
@@ -40,7 +40,6 @@ const base = {
     '^@fxa/accounts/(.*)$': '<rootDir>/../../libs/accounts/$1/src',
     '^@fxa/payments/(.*)$': '<rootDir>/../../libs/payments/$1/src',
     '^@fxa/profile/(.*)$': '<rootDir>/../../libs/profile/$1/src',
-    '^fxa-shared/(.*)$': '<rootDir>/../fxa-shared/$1',
   },
 };
 
@@ -56,10 +55,6 @@ const integrationBase = {
   moduleNameMapper: {
     ...base.moduleNameMapper,
     '^@fxa/vendored/(.*)$': '<rootDir>/../../libs/vendored/$1/src',
-    // Map bare 'fxa-shared' to source to avoid class identity mismatches
-    // between dist/cjs and source modules (e.g., ScopeSet loaded via
-    // require('fxa-shared').oauth.scopes vs fxa-shared/oauth/scopes).
-    '^fxa-shared$': '<rootDir>/../fxa-shared/index',
   },
   // testTimeout and maxWorkers are global options, ignored per-project under
   // `projects`: the infra timeout is set via jest.setTimeout() in
