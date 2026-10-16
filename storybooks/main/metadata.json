@@ -1,8 +1,8 @@
 {
-  "commit": "e5ead03da4b18e26f3e9bc022680e081e38a4a85",
-  "summary": "Merge pull request #21528 from mozilla/fxa-11367",
-  "description": "chore(functional-tests): upgrade eslint-plugin-playwright to 2.x",
-  "timestamp": 1792183382000,
+  "commit": "ae314ecd211f339b6ed6ecebbd4a800e5af2115c",
+  "summary": "Merge pull request #21548 from mozilla/fxa-14802",
+  "description": "chore(settings, content-server): remove leftover Pocket code",
+  "timestamp": 1792184385000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
