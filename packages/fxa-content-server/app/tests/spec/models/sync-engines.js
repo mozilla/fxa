@@ -28,7 +28,7 @@ describe('models/sync-engines', () => {
   let windowMock;
 
   beforeEach(() => {
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
 
     windowMock = new WindowMock();
 

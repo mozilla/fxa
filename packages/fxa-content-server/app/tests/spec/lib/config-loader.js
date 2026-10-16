@@ -105,7 +105,7 @@ describe('lib/config-loader', () => {
         origLang = $html.attr('lang');
         $html.attr('lang', 'db_LB');
 
-        sandbox = sinon.sandbox;
+        sandbox = sinon.createSandbox();
         sandbox.spy(configLoader, '_readConfigFromHTML');
         sandbox.spy(configLoader, '_parseHTMLConfig');
       });

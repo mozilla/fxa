@@ -617,13 +617,17 @@ function trim(str) {
           })
           .then(function (sessionData) {
             assert.isTrue(
-              realClient.signIn.calledWith({ original: trim(email), primary: trim(email) }, password, {
-                keys: true,
-                reason: SignInReasons.SIGN_IN,
-                redirectTo: REDIRECT_TO,
-                resume: resumeToken,
-                service: SYNC_SERVICE,
-              })
+              realClient.signIn.calledWith(
+                { original: trim(email), primary: trim(email) },
+                password,
+                {
+                  keys: true,
+                  reason: SignInReasons.SIGN_IN,
+                  redirectTo: REDIRECT_TO,
+                  resume: resumeToken,
+                  service: SYNC_SERVICE,
+                }
+              )
             );
 
             assert.equal(sessionData.keyFetchToken, 'keyFetchToken');
@@ -650,12 +654,16 @@ function trim(str) {
           .signIn(email, password, relier)
           .then(function (sessionData) {
             assert.isTrue(
-              realClient.signIn.calledWith({ original: trim(email), primary: trim(email) }, password, {
-                keys: false,
-                reason: SignInReasons.SIGN_IN,
-                redirectTo: REDIRECT_TO,
-                service: NON_SYNC_SERVICE,
-              })
+              realClient.signIn.calledWith(
+                { original: trim(email), primary: trim(email) },
+                password,
+                {
+                  keys: false,
+                  reason: SignInReasons.SIGN_IN,
+                  redirectTo: REDIRECT_TO,
+                  service: NON_SYNC_SERVICE,
+                }
+              )
             );
 
             // These should not be returned by default
@@ -679,12 +687,16 @@ function trim(str) {
           })
           .then(function () {
             assert.isTrue(
-              realClient.signIn.calledWith({ original: trim(email), primary: trim(email) }, password, {
-                keys: true,
-                reason: SignInReasons.PASSWORD_CHANGE,
-                redirectTo: REDIRECT_TO,
-                service: SYNC_SERVICE,
-              })
+              realClient.signIn.calledWith(
+                { original: trim(email), primary: trim(email) },
+                password,
+                {
+                  keys: true,
+                  reason: SignInReasons.PASSWORD_CHANGE,
+                  redirectTo: REDIRECT_TO,
+                  service: SYNC_SERVICE,
+                }
+              )
             );
           });
       });
@@ -698,13 +710,17 @@ function trim(str) {
           .signIn(email, password, relier, { resume: 'resume token' })
           .then(function () {
             assert.isTrue(
-              realClient.signIn.calledWith({ original: trim(email), primary: trim(email) }, password, {
-                keys: false,
-                reason: SignInReasons.SIGN_IN,
-                redirectTo: REDIRECT_TO,
-                resume: 'resume token',
-                service: SYNC_SERVICE,
-              })
+              realClient.signIn.calledWith(
+                { original: trim(email), primary: trim(email) },
+                password,
+                {
+                  keys: false,
+                  reason: SignInReasons.SIGN_IN,
+                  redirectTo: REDIRECT_TO,
+                  resume: 'resume token',
+                  service: SYNC_SERVICE,
+                }
+              )
             );
           });
       });
@@ -721,12 +737,18 @@ function trim(str) {
             metricsContext: { foo: 'bar' },
           })
           .then(function () {
-            assert.isTrue(realClient.signIn.calledWith({ original: trim(email), primary: trim(email) }, password), {
-              keys: false,
-              metricsContext: { foo: 'bar' },
-              reason: SignInReasons.SIGN_IN,
-              service: NON_SYNC_SERVICE,
-            });
+            assert.isTrue(
+              realClient.signIn.calledWith(
+                { original: trim(email), primary: trim(email) },
+                password
+              ),
+              {
+                keys: false,
+                metricsContext: { foo: 'bar' },
+                reason: SignInReasons.SIGN_IN,
+                service: NON_SYNC_SERVICE,
+              }
+            );
           });
       });
 
@@ -739,13 +761,17 @@ function trim(str) {
           })
           .then(() => {
             assert.isTrue(
-              realClient.signIn.calledWith({ original: trim(email), primary: trim(email) }, password, {
-                keys: false,
-                reason: SignInReasons.SIGN_IN,
-                redirectTo: REDIRECT_TO,
-                service: SYNC_SERVICE,
-                skipCaseError: true,
-              })
+              realClient.signIn.calledWith(
+                { original: trim(email), primary: trim(email) },
+                password,
+                {
+                  keys: false,
+                  reason: SignInReasons.SIGN_IN,
+                  redirectTo: REDIRECT_TO,
+                  service: SYNC_SERVICE,
+                  skipCaseError: true,
+                }
+              )
             );
           });
       });
@@ -1728,7 +1754,7 @@ function trim(str) {
       let sandbox;
 
       beforeEach(() => {
-        sandbox = sinon.sandbox.create();
+        sandbox = sinon.createSandbox();
       });
 
       afterEach(() => {
