@@ -255,6 +255,16 @@ describe('lib/glean', () => {
       sinon.assert.calledOnce(setEventNameStub);
     });
 
+    // Callers navigate only once isDone() resolves, so a single failed ping
+    // must not leave the queue locked.
+    it('keeps submitting after a ping throws', async () => {
+      setOauthClientIdStub.onFirstCall().throws(new Error('boom'));
+      GleanMetrics.registration.view();
+      GleanMetrics.registration.view();
+      await GleanMetrics.isDone();
+      sinon.assert.calledOnce(setEventNameStub);
+    });
+
     it('sets empty strings as defaults', async () => {
       mockIntegration.data = {} as WebIntegrationData;
 
