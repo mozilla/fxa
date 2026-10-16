@@ -1,0 +1,10 @@
+{
+  "commit": "e1068c90ffa8a983514d7297264d53ce5b3c199b",
+  "summary": "fix(settings): Fix app store fallback on deep link failure",
+  "description": "Because:\n\n- On iOS, if a user clicked 'Continue in Firefox' but didn't actually have Firefox, they'd hit a dead end.\n- In this case we want the user to be sent to app store, so they can download Firefox.\n\nThis commit:\n\n- Routes the Safari deep link through onAttempt so a timeout sends the user to the app store\n- Ignores a focus event in store-fallback that no blur preceded\n- Catches per-ping errors in submitPing so the mutex is released\n\nFixes: FXA-14798",
+  "timestamp": 1792188797000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
