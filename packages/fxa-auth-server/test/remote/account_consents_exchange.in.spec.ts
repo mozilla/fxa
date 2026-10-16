@@ -16,6 +16,7 @@ const IOS = '1b1a3e44c54fbb58';
 const RELAY_SCOPE = 'https://identity.mozilla.com/apps/relay';
 const SMARTWINDOW_SCOPE = 'https://identity.mozilla.com/apps/smartwindow';
 const VPN_SCOPE = 'https://identity.mozilla.com/apps/vpn';
+const MONITOR_SCOPE = 'https://identity.mozilla.com/apps/monitor';
 const UNCONFIGURED_SCOPE = 'https://identity.mozilla.com/apps/never-seen';
 
 const GRANT_TOKEN_EXCHANGE = 'urn:ietf:params:oauth:grant-type:token-exchange';
@@ -99,6 +100,19 @@ describe('#integration - /oauth/token exchange honors accountAuthorizations', ()
     const result = await exchange(SMARTWINDOW_SCOPE);
     expect(result.access_token).toBeTruthy();
     expect(result.scope).toContain(SMARTWINDOW_SCOPE);
+  });
+
+  it('Monitor without consent rejects', async () => {
+    await expect(exchange(MONITOR_SCOPE)).rejects.toMatchObject({
+      errno: 112,
+    });
+  });
+
+  it('Monitor with matching consent grants', async () => {
+    await seed(MONITOR_SCOPE, 'monitor');
+    const result = await exchange(MONITOR_SCOPE);
+    expect(result.access_token).toBeTruthy();
+    expect(result.scope).toContain(MONITOR_SCOPE);
   });
 
   it('cross-scope: a consent row under service=vpn for a different scope does NOT authorize a VPN exchange', async () => {

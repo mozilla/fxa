@@ -8,6 +8,7 @@ export const OLDSYNC_SCOPE = 'https://identity.mozilla.com/apps/oldsync';
 export const SMARTWINDOW_SCOPE =
   'https://identity.mozilla.com/apps/smartwindow';
 export const VPN_SCOPE = 'https://identity.mozilla.com/apps/vpn';
+export const MONITOR_SCOPE = 'https://identity.mozilla.com/apps/monitor';
 export const PROFILE_SCOPE = 'profile';
 export const PROFILE_UID_SCOPE = 'profile:uid';
 export const SESSION_TOKEN_SCOPE =
