@@ -1,8 +1,8 @@
 {
-  "commit": "79481f184597a683870f86926492e7a84a75382b",
-  "summary": "Merge pull request #21522 from mozilla/fxa-14286",
-  "description": "fix(settings): skip passkey registration on a challenge mismatch",
-  "timestamp": 1792116717000,
+  "commit": "1ebdb9af375cf2e578f0aaca2ef294fbfad4abeb",
+  "summary": "Merge pull request #21541 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-266b9e0a6581b2770535ddb81febd7632030b198",
+  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from 98bfb86af8d6bf2d694f645397c77ed2217eaa25 to 266b9e0a6581b2770535ddb81febd7632030b198",
+  "timestamp": 1792156141000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
