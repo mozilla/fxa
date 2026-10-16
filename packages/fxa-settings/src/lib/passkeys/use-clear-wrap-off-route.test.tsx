@@ -16,6 +16,7 @@ function stashWrapData(sensitiveDataClient: SensitiveDataClient) {
     mfaToken: 'mfa-token',
     prfOut: new Uint8Array(32).fill(3),
     kB: new Uint8Array(32).fill(7),
+    surface: 'signin' as const,
   };
   sensitiveDataClient.PasskeyWrapData = held;
   return held;

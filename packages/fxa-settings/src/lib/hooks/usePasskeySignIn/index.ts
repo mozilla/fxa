@@ -253,6 +253,7 @@ export function usePasskeySignIn({
             // performNavigation:false hands sign-in off to WebChannel first.
             offerOptIn: !integration.isFirefoxMobileClient(),
             sensitiveDataClient,
+            surface: toPasskeyMetricsSurface(surface),
           });
           // Spent: zeroed now rather than after the sign-in round-trip below.
           prfOut?.fill(0);

@@ -195,6 +195,11 @@ jest.mock('./server_events', () => ({
     recordPasskeyVerificationSuccess: mockFn(
       'recordPasskeyVerificationSuccess'
     ),
+    recordPasskeyWrapCreateSuccess: mockFn('recordPasskeyWrapCreateSuccess'),
+    recordPasskeyWrapRetrieveSuccess: mockFn(
+      'recordPasskeyWrapRetrieveSuccess'
+    ),
+    recordPasskeyWrapRetrieveError: mockFn('recordPasskeyWrapRetrieveError'),
   }),
 }));
 
@@ -589,6 +594,35 @@ describe('Glean server side events', () => {
       expect(gleanMocks['recordStepUpAuthRejected']).toHaveBeenCalledWith(
         expect.objectContaining({ reason: 'max_age_stale' })
       );
+    });
+  });
+
+  describe('passkey wraps', () => {
+    let glean: GleanMetricsType;
+
+    beforeEach(() => {
+      glean = gleanMetrics(config);
+    });
+
+    it('logs a "passkey_wrap_create_success" event', async () => {
+      await glean.passkey.wrapCreateSuccess(request);
+      expect(
+        gleanMocks['recordPasskeyWrapCreateSuccess']
+      ).toHaveBeenCalledTimes(1);
+    });
+
+    it('logs a "passkey_wrap_retrieve_success" event', async () => {
+      await glean.passkey.wrapRetrieveSuccess(request);
+      expect(
+        gleanMocks['recordPasskeyWrapRetrieveSuccess']
+      ).toHaveBeenCalledTimes(1);
+    });
+
+    it('logs a "passkey_wrap_retrieve_error" event', async () => {
+      await glean.passkey.wrapRetrieveError(request);
+      expect(
+        gleanMocks['recordPasskeyWrapRetrieveError']
+      ).toHaveBeenCalledTimes(1);
     });
   });
 

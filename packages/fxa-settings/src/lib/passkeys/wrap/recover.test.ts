@@ -57,6 +57,7 @@ const args = (
   mounted: { current: overrides.mounted ?? true },
   offerOptIn: overrides.offerOptIn ?? true,
   sensitiveDataClient: new SensitiveDataClient(),
+  surface: 'signin' as const,
 });
 
 beforeEach(() => {
@@ -114,6 +115,7 @@ describe('recoverPasswordlessKb', () => {
         credentialId: 'cred',
         mfaToken: MFA_TOKEN,
         prfOut: new Uint8Array(32).fill(PRF_FILL),
+        surface: 'signin',
       });
     }
   );

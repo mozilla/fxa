@@ -13,6 +13,7 @@ import { AppError, ERRNO } from '@fxa/accounts/errors';
 import { recordSecurityEvent } from './utils/security-event';
 import { passkeyWrapsRoutes } from './passkey-wraps';
 import { ConfigType } from '../../config';
+import type { GleanMetricsType } from '../metrics/glean';
 
 jest.mock('./utils/security-event', () => ({
   recordSecurityEvent: jest.fn(),
@@ -81,9 +82,10 @@ describe('passkey wraps routes', () => {
   let db: DeepMocked<DB>;
   let customs: DeepMocked<Customs>;
   let service: DeepMocked<PasskeyService>;
+  let glean: DeepMocked<GleanMetricsType>;
 
   const buildRoute = (cfg: ConfigType = config) =>
-    passkeyWrapsRoutes(customs, db, cfg, log).find(
+    passkeyWrapsRoutes(customs, db, cfg, log, glean).find(
       (r) => r.path === '/passkey/wraps' && r.method === 'POST'
     ) as Route;
 
@@ -127,6 +129,13 @@ describe('passkey wraps routes', () => {
       keysChangedAt: KEYS_CHANGED_AT,
     } as Awaited<ReturnType<DB['account']>>);
     customs = createMock<Customs>();
+    glean = createMock<GleanMetricsType>({
+      passkey: {
+        wrapCreateSuccess: jest.fn(),
+        wrapRetrieveSuccess: jest.fn(),
+        wrapRetrieveError: jest.fn(),
+      },
+    });
     service = createMock<PasskeyService>();
     service.storePasskeyWrap.mockResolvedValue('created');
     service.getPasskeyWrap.mockResolvedValue(
@@ -170,6 +179,12 @@ describe('passkey wraps routes', () => {
         'account.passkey.wrap_created',
         expect.objectContaining({ db, request: expect.any(Object) })
       );
+    });
+
+    it('emits wrap_create_success on a new wrap', async () => {
+      await run();
+
+      expect(glean.passkey.wrapCreateSuccess).toHaveBeenCalledTimes(1);
     });
 
     it('records only wrap_created on a plain insert', async () => {
@@ -221,6 +236,7 @@ describe('passkey wraps routes', () => {
       expect(
         jest.mocked(recordSecurityEvent).mock.calls.map(([name]) => name)
       ).toEqual(['account.passkey.wrap_invalidated']);
+      expect(glean.passkey.wrapCreateSuccess).not.toHaveBeenCalled();
     });
 
     // Returned bare rather than through the toolkit, so Hapi's default 200
@@ -232,6 +248,7 @@ describe('passkey wraps routes', () => {
 
       expect(result).toEqual({ created: false });
       expect(recordSecurityEvent).not.toHaveBeenCalled();
+      expect(glean.passkey.wrapCreateSuccess).not.toHaveBeenCalled();
     });
 
     // A passkey sign-in, or a step-up on that session, mints a bound token
@@ -350,7 +367,7 @@ describe('passkey wraps routes', () => {
 
   describe('GET /passkey/wraps/{credentialId}', () => {
     const buildGetRoute = (cfg: ConfigType = config) =>
-      passkeyWrapsRoutes(customs, db, cfg, log).find(
+      passkeyWrapsRoutes(customs, db, cfg, log, glean).find(
         (r) => r.path === '/passkey/wraps/{credentialId}' && r.method === 'GET'
       ) as Route;
 
@@ -427,6 +444,35 @@ describe('passkey wraps routes', () => {
       );
     });
 
+    it('emits wrap_retrieve_success on a returned envelope', async () => {
+      await runGet();
+
+      expect(glean.passkey.wrapRetrieveSuccess).toHaveBeenCalledTimes(1);
+      expect(glean.passkey.wrapRetrieveError).not.toHaveBeenCalled();
+    });
+
+    it('does not emit wrap_retrieve_error when the passkey has no wrap', async () => {
+      service.getPasskeyWrap.mockRejectedValue(AppError.passkeyWrapNotFound());
+
+      await expect(runGet()).rejects.toMatchObject({
+        errno: ERRNO.PASSKEY_WRAP_NOT_FOUND,
+      });
+      expect(glean.passkey.wrapRetrieveError).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['an unknown passkey', AppError.passkeyNotFound()],
+      ['an unexpected error', new Error('db down')],
+    ])(
+      'emits wrap_retrieve_error when the fetch throws %s',
+      async (_case, err) => {
+        service.getPasskeyWrap.mockRejectedValue(err);
+
+        await expect(runGet()).rejects.toBe(err);
+        expect(glean.passkey.wrapRetrieveError).toHaveBeenCalledTimes(1);
+      }
+    );
+
     it('records a wrap_retrieval_failure event when the fetch throws', async () => {
       service.getPasskeyWrap.mockRejectedValue(AppError.passkeyWrapNotFound());
 
@@ -452,6 +498,8 @@ describe('passkey wraps routes', () => {
         'account.passkey.wrap_retrieval_failure',
         expect.objectContaining({ db, request: expect.any(Object) })
       );
+      expect(glean.passkey.wrapRetrieveError).toHaveBeenCalledTimes(1);
+      expect(glean.passkey.wrapRetrieveSuccess).not.toHaveBeenCalled();
     });
 
     it('records a wrap_retrieval_failure event for an unbound token', async () => {
@@ -463,6 +511,7 @@ describe('passkey wraps routes', () => {
         'account.passkey.wrap_retrieval_failure',
         expect.objectContaining({ db, request: expect.any(Object) })
       );
+      expect(glean.passkey.wrapRetrieveError).toHaveBeenCalledTimes(1);
     });
 
     it('surfaces the fetch error even when the audit write fails', async () => {
@@ -576,7 +625,7 @@ describe('passkey wraps routes', () => {
 
   describe('DELETE /passkey/wraps/{credentialId}', () => {
     const buildDeleteRoute = (cfg: ConfigType = config) =>
-      passkeyWrapsRoutes(customs, db, cfg, log).find(
+      passkeyWrapsRoutes(customs, db, cfg, log, glean).find(
         (r) =>
           r.path === '/passkey/wraps/{credentialId}' && r.method === 'DELETE'
       ) as Route;
@@ -735,7 +784,13 @@ describe('passkey wraps routes', () => {
     });
 
     it('refuses to serve when the passwordless sync flag is off', () => {
-      const routes = passkeyWrapsRoutes(customs, db, disabledConfig, log);
+      const routes = passkeyWrapsRoutes(
+        customs,
+        db,
+        disabledConfig,
+        log,
+        glean
+      );
       const route = routes.find(
         (r) => r.path === '/passkey/wraps' && r.method === 'POST'
       ) as Route;
