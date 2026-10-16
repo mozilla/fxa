@@ -272,6 +272,12 @@ describe('OAuthNativeIntegration', function () {
       model.data.service = OAuthNativeServices.SmartWindow;
       expect(model.getServiceName()).toBe('Firefox Smart Window');
     });
+
+    it('returns Monitor service name for monitor service', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Monitor;
+      expect(model.getServiceName()).toBe('Mozilla Monitor');
+    });
   });
 
   describe('isFirefoxClientServiceRelay', () => {
@@ -334,6 +340,26 @@ describe('OAuthNativeIntegration', function () {
     });
   });
 
+  describe('isFirefoxClientServiceMonitor', () => {
+    it('returns true when service is monitor', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Monitor;
+      expect(model.isFirefoxClientServiceMonitor()).toBe(true);
+    });
+
+    it('returns false when service is sync', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Sync;
+      expect(model.isFirefoxClientServiceMonitor()).toBe(false);
+    });
+
+    it('returns false when the client is not a Firefox client', () => {
+      model.clientInfo = mockClientInfo('dcdb5ae7add825d2');
+      model.data.service = OAuthNativeServices.Monitor;
+      expect(model.isFirefoxClientServiceMonitor()).toBe(false);
+    });
+  });
+
   describe('isOAuthIntegration', () => {
     it('returns true for PairingAuthority', () => {
       expect(
@@ -383,6 +409,12 @@ describe('OAuthNativeIntegration', function () {
       model.data.service = OAuthNativeServices.Vpn;
       expect(model.isFirefoxNonSync()).toBe(true);
     });
+
+    it('returns true when service is monitor', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Monitor;
+      expect(model.isFirefoxNonSync()).toBe(true);
+    });
   });
 
   describe('getWebChannelServices', () => {
@@ -417,6 +449,12 @@ describe('OAuthNativeIntegration', function () {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
       model.data.service = OAuthNativeServices.Vpn;
       expect(model.getWebChannelServices()).toEqual({ vpn: {} });
+    });
+
+    it('returns monitor services when service is monitor', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Monitor;
+      expect(model.getWebChannelServices()).toEqual({ monitor: {} });
     });
   });
 
@@ -525,6 +563,15 @@ describe('OAuthNativeIntegration', function () {
         });
         expect(relay.wantsKeysIfPasswordEntered()).toBe(true);
         expect(sw.wantsKeysIfPasswordEntered()).toBe(true);
+      });
+
+      it('Monitor without URL scope wants keys opportunistically but does not require them', () => {
+        const m = buildModel({
+          service: OAuthNativeServices.Monitor,
+          keysJwk: 'mock',
+        });
+        expect(m.wantsKeysIfPasswordEntered()).toBe(true);
+        expect(m.requiresKeys()).toBe(false);
       });
 
       it('returns false without keysJwk (no wrapped keys → no Sync grant possible)', () => {
