@@ -10,6 +10,7 @@ import { MemoryRouter } from 'react-router';
 import { ERRNO } from '@fxa/accounts/errors';
 import InlinePasswordlessSyncSetupContainer from './container';
 import { SensitiveDataClient } from '../../lib/sensitive-data-client';
+import GleanMetrics from '../../lib/glean';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router', () => ({
@@ -40,6 +41,19 @@ jest.mock('../../lib/cache', () => ({
   sessionToken: () => 'session-token',
 }));
 
+jest.mock('../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    passkey: {
+      upgradePromptView: jest.fn(),
+      upgradePromptSubmit: jest.fn(),
+      upgradePromptSuccess: jest.fn(),
+      upgradePromptNotnow: jest.fn(),
+      upgradePromptFrontendError: jest.fn(),
+    },
+  },
+}));
+
 const mockCaptureException = jest.fn();
 jest.mock('@sentry/browser', () => ({
   ...jest.requireActual('@sentry/browser'),
@@ -54,6 +68,7 @@ const wrapData = () => ({
   mfaToken: 'mfa-token',
   prfOut: new Uint8Array(32).fill(9),
   kB: new Uint8Array(32).fill(7),
+  surface: 'signin' as const,
 });
 
 // The re-render button stands in for any parent update landing while the
@@ -450,5 +465,134 @@ describe('InlinePasswordlessSyncSetupContainer', () => {
       );
       expect(mockAlertBar.error).toHaveBeenCalledWith(GENERIC);
     });
+  });
+
+  describe('Glean', () => {
+    const glean = GleanMetrics.passkey;
+    const clickEnable = (user: ReturnType<typeof userEvent.setup>) =>
+      user.click(screen.getByRole('button', { name: 'Enable passkey' }));
+
+    it('records one view tagged with the sign-in surface', async () => {
+      const user = userEvent.setup();
+      render();
+
+      await user.click(screen.getByRole('button', { name: 're-render' }));
+
+      expect(glean.upgradePromptView).toHaveBeenCalledTimes(1);
+      expect(glean.upgradePromptView).toHaveBeenCalledWith({
+        event: { reason: 'signin' },
+      });
+    });
+
+    it('records no view when the material is gone', async () => {
+      mockSensitiveDataClient.PasskeyWrapData = undefined;
+      render();
+
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith(...SETTINGS_NAV)
+      );
+      expect(glean.upgradePromptView).not.toHaveBeenCalled();
+    });
+
+    it('records "Not now" with the surface', async () => {
+      const user = userEvent.setup();
+      render();
+
+      await user.click(screen.getByRole('button', { name: 'Not now' }));
+
+      expect(glean.upgradePromptNotnow).toHaveBeenCalledWith({
+        event: { reason: 'signin' },
+      });
+    });
+
+    it('records submit then success when the wrap is stored', async () => {
+      const user = userEvent.setup();
+      render();
+
+      await clickEnable(user);
+
+      await waitFor(() =>
+        expect(glean.upgradePromptSuccess).toHaveBeenCalledWith({
+          event: { reason: 'signin' },
+        })
+      );
+      expect(glean.upgradePromptSubmit).toHaveBeenCalledWith({
+        event: { reason: 'signin' },
+      });
+      expect(glean.upgradePromptFrontendError).not.toHaveBeenCalled();
+    });
+
+    it('records success for a differing wrap already stored', async () => {
+      const user = userEvent.setup();
+      mockCreateWrap.mockResolvedValue({
+        ok: false,
+        error: serverError(ERRNO.PASSKEY_WRAP_CONFLICT),
+      });
+      render();
+
+      await clickEnable(user);
+
+      await waitFor(() =>
+        expect(glean.upgradePromptSuccess).toHaveBeenCalledWith({
+          event: { reason: 'signin' },
+        })
+      );
+      expect(glean.upgradePromptFrontendError).not.toHaveBeenCalled();
+    });
+
+    const envelope = { pkR: Uint8Array.of(1) };
+    it.each<[string, string, () => void]>([
+      [
+        'signin_cancelled',
+        'the prompt is dismissed',
+        () =>
+          mockCreateWrap.mockResolvedValue({
+            ok: false,
+            retryable: true,
+            envelope,
+          }),
+      ],
+      [
+        'signin_throttled',
+        'the store is rate limited',
+        () =>
+          mockCreateWrap.mockResolvedValue({
+            ok: false,
+            retryable: true,
+            envelope,
+            error: serverError(ERRNO.THROTTLED),
+          }),
+      ],
+      [
+        'signin_unexpected',
+        'the store is refused',
+        () =>
+          mockCreateWrap.mockResolvedValue({
+            ok: false,
+            error: serverError(ERRNO.PASSKEY_NOT_FOUND),
+          }),
+      ],
+      [
+        'signin_unexpected',
+        'the store throws',
+        () => mockCreateWrap.mockRejectedValue(new Error('boom')),
+      ],
+    ])(
+      'records a frontend error with reason %s when %s',
+      async (reason, _when, arrange) => {
+        const user = userEvent.setup();
+        arrange();
+        render();
+
+        await clickEnable(user);
+
+        await waitFor(() =>
+          expect(glean.upgradePromptFrontendError).toHaveBeenCalledWith({
+            event: { reason },
+          })
+        );
+        expect(glean.upgradePromptSuccess).not.toHaveBeenCalled();
+      }
+    );
   });
 });

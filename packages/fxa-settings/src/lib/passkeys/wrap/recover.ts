@@ -9,6 +9,7 @@ import type { SensitiveDataClient } from '../../sensitive-data-client';
 import type AuthClient from 'fxa-auth-client/browser';
 import { uidFromMfaToken } from '../../mfa-guard-utils';
 import type { UnwrapPasskeyKbResult } from './consumption';
+import type { PasskeyMetricsSurface } from '../signin-flow';
 
 export type RecoverPasswordlessKbResult =
   /** `kB` is in hand; the sign-in can finish without a password. */
@@ -33,6 +34,7 @@ export async function recoverPasswordlessKb({
   mounted,
   offerOptIn,
   sensitiveDataClient,
+  surface,
 }: {
   authClient: Pick<AuthClient, 'getPasskeyWrap'>;
   /** The account the sign-in session belongs to. */
@@ -43,6 +45,7 @@ export async function recoverPasswordlessKb({
   mounted: RefObject<boolean>;
   offerOptIn: boolean;
   sensitiveDataClient: SensitiveDataClient;
+  surface: PasskeyMetricsSurface;
 }): Promise<RecoverPasswordlessKbResult> {
   // The proof must name the session's account: the wrap is opened with that
   // uid, and the kB it yields goes into this session's OAuth flow. The server
@@ -99,6 +102,7 @@ export async function recoverPasswordlessKb({
       mfaToken,
       // A copy: the caller zeroes its own once the ceremony ends.
       prfOut: new Uint8Array(prfOut),
+      surface,
     };
   }
   return { outcome: 'needs_password' };
