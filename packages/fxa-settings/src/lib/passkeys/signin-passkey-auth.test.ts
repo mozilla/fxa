@@ -204,21 +204,35 @@ describe('authenticateWithPasskey', () => {
         'NotSupportedError',
         'passkey-authentication-error-not-supported-v2',
         'support passkeys',
+        'not_supported',
       ],
-      ['SecurityError', 'passkey-authentication-error-security', 'this page'],
+      [
+        'SecurityError',
+        'passkey-authentication-error-security',
+        'this page',
+        'security',
+      ],
       [
         'InvalidStateError',
         'passkey-authentication-error-invalid-state',
         'wrong with your passkey',
+        'unexpected',
       ],
       [
         'NotReadableError',
         'passkey-authentication-error-not-readable',
         'access the authenticator',
+        'unexpected',
+      ],
+      [
+        'UnknownError',
+        'passkey-authentication-error-unexpected',
+        'Something went wrong',
+        'unexpected',
       ],
     ])(
       'returns the error banner for %s (%s)',
-      async (errorName, expectedFtlId, fallbackSubstring) => {
+      async (errorName, expectedFtlId, fallbackSubstring, expectedReason) => {
         (getCredential as jest.Mock).mockRejectedValue(
           new DOMException('failed', errorName)
         );
@@ -233,12 +247,18 @@ describe('authenticateWithPasskey', () => {
           expectedFtlId,
           expect.stringContaining(fallbackSubstring)
         );
+        expect(
+          GleanMetrics.emailFirst.passkeySubmitFrontendError
+        ).toHaveBeenCalledWith({ event: { reason: expectedReason } });
       }
     );
 
-    it.each([['NotAllowedError'], ['AbortError']])(
+    it.each([
+      ['NotAllowedError', 'not_allowed'],
+      ['AbortError', 'not_allowed'],
+    ])(
       'returns the neutral warning banner for a cancelled ceremony (%s) without reporting to Sentry',
-      async (errorName) => {
+      async (errorName, expectedReason) => {
         (getCredential as jest.Mock).mockRejectedValue(
           new DOMException('cancelled', errorName)
         );
@@ -262,7 +282,7 @@ describe('authenticateWithPasskey', () => {
         );
         expect(
           GleanMetrics.emailFirst.passkeySubmitFrontendError
-        ).toHaveBeenCalledWith({ event: { reason: 'not_allowed' } });
+        ).toHaveBeenCalledWith({ event: { reason: expectedReason } });
         expect(Sentry.captureException).not.toHaveBeenCalled();
       }
     );

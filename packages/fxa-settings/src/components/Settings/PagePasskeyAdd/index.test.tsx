@@ -20,6 +20,7 @@ import {
 } from '../../../lib/passkeys/webauthn-errors';
 import GleanMetrics from '../../../lib/glean';
 import { bytesToBase64url } from '../../../lib/base64url';
+import { sessionToken } from '../../../lib/cache';
 
 // Mock navigate
 const mockNavigateWithQuery = jest.fn();
@@ -280,6 +281,7 @@ describe('PagePasskeyAdd', () => {
       fallbackText:
         'Passkey setup failed or is unavailable. Try again or choose another method.',
       logToSentry: false,
+      gleanReason: 'not_allowed',
     });
 
     renderPage();
@@ -344,6 +346,7 @@ describe('PagePasskeyAdd', () => {
       ftlId: 'passkey-registration-error-not-supported-v2',
       fallbackText: 'Your browser or device doesn’t support passkeys.',
       logToSentry: false,
+      gleanReason: 'not_supported',
     });
 
     renderPage();
@@ -371,6 +374,7 @@ describe('PagePasskeyAdd', () => {
       ftlId: 'passkey-registration-error-timeout',
       fallbackText: 'Passkey setup was canceled. Try again.',
       logToSentry: false,
+      gleanReason: 'timeout',
     });
 
     renderPage();
@@ -416,6 +420,51 @@ describe('PagePasskeyAdd', () => {
     }
   );
 
+  describe('with the real WebAuthn categorizer', () => {
+    beforeEach(() => {
+      mockHandleWebAuthnError.mockImplementation(
+        jest.requireActual('../../../lib/passkeys/webauthn-errors')
+          .handleWebAuthnError
+      );
+    });
+
+    afterEach(() => {
+      mockHandleWebAuthnError.mockReset();
+    });
+
+    it('reports the shared gleanReason for a WebAuthn error', async () => {
+      mockCreateCredential.mockRejectedValue(
+        new DOMException('invalid state', 'InvalidStateError')
+      );
+
+      renderPage();
+      await waitFor(() => {
+        expect(
+          GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+        ).toHaveBeenCalledWith({ event: { reason: 'unexpected' } });
+      });
+    });
+
+    it('reports not_allowed when the ceremony fails with existing passkeys', async () => {
+      mockBeginPasskeyRegistration.mockResolvedValueOnce({
+        ...mockCreationOptions,
+        excludeCredentials: [
+          { id: 'Y3JlZDE', type: 'public-key', transports: ['internal'] },
+        ],
+      });
+      mockCreateCredential.mockRejectedValue(
+        new DOMException('not allowed', 'NotAllowedError')
+      );
+
+      renderPage();
+      await waitFor(() => {
+        expect(
+          GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+        ).toHaveBeenCalledWith({ event: { reason: 'not_allowed' } });
+      });
+    });
+  });
+
   it('handles server error on beginPasskeyRegistration', async () => {
     const serverError = new Error('Server error');
     mockBeginPasskeyRegistration.mockRejectedValue(serverError);
@@ -436,6 +485,36 @@ describe('PagePasskeyAdd', () => {
       replace: true,
     });
   });
+
+  it.each([
+    {
+      call: 'beginPasskeyRegistration',
+      kind: 'a network TypeError',
+      mock: mockBeginPasskeyRegistration,
+      error: new TypeError('Failed to fetch'),
+    },
+    {
+      call: 'completePasskeyRegistration',
+      kind: 'a timeout AbortError',
+      mock: mockCompletePasskeyRegistration,
+      error: new DOMException('The operation was aborted.', 'AbortError'),
+    },
+  ])(
+    'reports server_error, not a WebAuthn reason, when $call fails with $kind',
+    async ({ mock, error }) => {
+      mock.mockRejectedValue(error);
+
+      renderPage();
+      await waitFor(() => {
+        expect(
+          GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+        ).toHaveBeenCalledWith({
+          event: { reason: 'server_error' },
+        });
+      });
+      expect(mockHandleWebAuthnError).not.toHaveBeenCalled();
+    }
+  );
 
   it('handles server error on completePasskeyRegistration', async () => {
     const serverError = new Error('Completion failed');
@@ -465,7 +544,7 @@ describe('PagePasskeyAdd', () => {
     expect(
       GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
     ).toHaveBeenCalledWith({
-      event: { reason: 'auth_error_226' },
+      event: { reason: 'passkey_limit_reached' },
     });
     expect(mockCaptureException).not.toHaveBeenCalled();
     expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
@@ -490,8 +569,34 @@ describe('PagePasskeyAdd', () => {
     expect(
       GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
     ).toHaveBeenCalledWith({
-      event: { reason: 'auth_error_233' },
+      event: { reason: 'user_verification_required' },
     });
+    expect(mockCaptureException).not.toHaveBeenCalled();
+    expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
+      replace: true,
+    });
+  });
+
+  it('reports server_error when completePasskeyRegistration returns errno 110 and the MFA handler skips it', async () => {
+    // With a session token, the MFA handler treats errno 110 as a stale JWT and returns first.
+    (sessionToken as jest.Mock).mockReturnValueOnce(undefined);
+    mockCompletePasskeyRegistration.mockRejectedValue({
+      errno: 110,
+      message: 'Invalid token',
+      code: 401,
+    });
+
+    renderPage();
+    await waitFor(() => {
+      expect(
+        GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+      ).toHaveBeenCalledWith({
+        event: { reason: 'server_error' },
+      });
+    });
+    expect(mockAlertError).toHaveBeenCalledWith(
+      expect.stringMatching(/Invalid token/)
+    );
     expect(mockCaptureException).not.toHaveBeenCalled();
     expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
       replace: true,
@@ -513,7 +618,7 @@ describe('PagePasskeyAdd', () => {
     expect(
       GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
     ).toHaveBeenCalledWith({
-      event: { reason: 'auth_error_226' },
+      event: { reason: 'passkey_limit_reached' },
     });
     expect(mockCaptureException).not.toHaveBeenCalled();
     expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
@@ -539,7 +644,7 @@ describe('PagePasskeyAdd', () => {
     expect(
       GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
     ).toHaveBeenCalledWith({
-      event: { reason: 'auth_error_114' },
+      event: { reason: 'server_error' },
     });
     expect(mockCaptureException).not.toHaveBeenCalled();
     expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
@@ -563,28 +668,28 @@ describe('PagePasskeyAdd', () => {
     expect(
       GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
     ).toHaveBeenCalledWith({
-      event: { reason: 'auth_error_114' },
+      event: { reason: 'server_error' },
     });
     expect(mockCaptureException).not.toHaveBeenCalled();
   });
 
   it('shows localized message for a known non-throttle auth error', async () => {
-    // errno 226 (PASSKEY_LIMIT_REACHED) is a known auth error.
+    // errno 238 (PASSKEY_CHALLENGE_EXPIRED) is known but has no named reason.
     mockBeginPasskeyRegistration.mockRejectedValue({
-      errno: 226,
-      message: 'Passkey limit reached',
+      errno: 238,
+      message: 'Passkey challenge expired',
     });
 
     renderPage();
     await waitFor(() => {
       expect(mockAlertError).toHaveBeenCalledWith(
-        expect.stringMatching(/Passkey limit reached/)
+        expect.stringMatching(/Passkey challenge failed/)
       );
     });
     expect(
       GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
     ).toHaveBeenCalledWith({
-      event: { reason: 'auth_error_226' },
+      event: { reason: 'server_error' },
     });
     expect(mockCaptureException).not.toHaveBeenCalled();
     expect(mockAlertError).not.toHaveBeenCalledWith(
