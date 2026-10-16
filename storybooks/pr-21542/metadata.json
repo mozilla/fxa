@@ -1,8 +1,8 @@
 {
-  "commit": "836094a59eab8cadd19ef28ff187f59c9d37872c",
+  "commit": "a338e9f18465ddc66864e0814b7b717cc0158dea",
   "summary": "fix(settings): read pairing state when v2 supplicant ApproveSignIn mounts",
-  "description": "Because:\n\n- In v2 pairing, a fast authority approval sets the supplicant state to\n  Complete before ApproveSignIn subscribes, so the page stays on approve_signin.\n\nThis commit:\n\n- Routes Complete or Failed from integration.state when ApproveSignIn mounts.\n- Handles the mount-time state once, so StrictMode does not navigate twice.\n- Adds tests for each state at mount, and under StrictMode.\n\nCloses FXA-14793",
-  "timestamp": 1792157110000,
+  "description": "Because:\n\n- A fast v2 approval sets the supplicant state to Complete before\n  ApproveSignIn subscribes, so the page stays on approve_signin.\n- Under StrictMode the mount-time routing ran twice in development.\n\nThis commit:\n\n- Routes Complete or Failed from integration.state when ApproveSignIn mounts.\n- Runs that routing once with a useRef flag.\n- Adds tests for each state at mount and a StrictMode regression test.\n\nCloses FXA-14793",
+  "timestamp": 1792157052000,
   "storybooks": [
     "fxa-settings"
   ],
