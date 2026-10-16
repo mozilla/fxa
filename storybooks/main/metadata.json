@@ -1,8 +1,8 @@
 {
-  "commit": "5e0b1e832faf2633b1c382ad3a26c470b64e9aed",
-  "summary": "Merge pull request #21531 from mozilla/fxa-14711",
-  "description": "chore(shared): move Glean YAML and generated web code out of fxa-shared",
-  "timestamp": 1792158140000,
+  "commit": "bccded8ba343abce356013e0906981dad418696b",
+  "summary": "Merge pull request #21542 from mozilla/fxa-14793",
+  "description": "fix(settings): read pairing state when v2 supplicant ApproveSignIn mounts",
+  "timestamp": 1792159593000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
