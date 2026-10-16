@@ -1,8 +1,8 @@
 {
-  "commit": "4ed43a3c458785c8ba7d615fdc8525acab883350",
-  "summary": "Merge pull request #21544 from mozilla/fxa-14718",
-  "description": "chore(shared): remove packages/fxa-shared and its tooling references",
-  "timestamp": 1792167308000,
+  "commit": "69452223d6f092c61e56e12deaa88b53c3c84d51",
+  "summary": "Merge pull request #21428 from mozilla/PAY-3933",
+  "description": "fix(payments-cart): Prevent page crash when creating subscription with single-use code",
+  "timestamp": 1792179789000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
