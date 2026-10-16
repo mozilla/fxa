@@ -1,8 +1,8 @@
 {
-  "commit": "2113416bb5ff6972aa1b6af0697f984b0c7a848f",
-  "summary": "Merge pull request #21530 from mozilla/fxa-14784",
-  "description": "feat(settings): add utm_content to the v2 pairing QR URL",
-  "timestamp": 1792108052000,
+  "commit": "79481f184597a683870f86926492e7a84a75382b",
+  "summary": "Merge pull request #21522 from mozilla/fxa-14286",
+  "description": "fix(settings): skip passkey registration on a challenge mismatch",
+  "timestamp": 1792116717000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
