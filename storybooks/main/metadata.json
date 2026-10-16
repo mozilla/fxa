@@ -1,8 +1,8 @@
 {
-  "commit": "1115dc9dd1230c28f957fba50e6895f31528ba6f",
-  "summary": "Merge pull request #21536 from mozilla/fxa-14785",
-  "description": "chore(123done): upgrade express to v5",
-  "timestamp": 1792162303000,
+  "commit": "abc1082d3438411abe379f8c0e6879f3ae917c85",
+  "summary": "Merge pull request #21543 from mozilla/fxa-14794",
+  "description": "fix(functional-tests): select Fenix device and use byte length prefix",
+  "timestamp": 1792166626000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
