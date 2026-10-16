@@ -1,8 +1,8 @@
 {
-  "commit": "9674fc323386c7bb89b01e6496155fc7ccc4647d",
-  "summary": "Merge pull request #21538 from mozilla/fxa-5351",
-  "description": "chore(deps): upgrade mailparser to 3.x in auth-server test mail helper",
-  "timestamp": 1792182597000,
+  "commit": "7d26d68f4384e0bbac8bd0589192812a488c61aa",
+  "summary": "Merge pull request #21547 from mozilla/FXA-14801",
+  "description": "chore(scripts): docker-push repo from the git remote",
+  "timestamp": 1792182569000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
