@@ -1106,6 +1106,7 @@ export default class AuthClient {
     email: string,
     code: string,
     options: {
+      service?: string;
       metricsContext?: MetricsContext;
     } = {},
     headers?: Headers

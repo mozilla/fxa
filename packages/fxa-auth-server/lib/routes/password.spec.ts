@@ -164,12 +164,7 @@ describe('/password', () => {
           1
         );
 
-        expect(mockMetricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(
-          1
-        );
-        expect(
-          mockMetricsContext.setFlowCompleteSignal
-        ).toHaveBeenNthCalledWith(1, 'account.reset');
+        expect(mockMetricsContext.setFlowCompleteSignal).not.toHaveBeenCalled();
 
         expect(mockLog.flowEvent).toHaveBeenCalledTimes(2);
         expect(mockLog.flowEvent).toHaveBeenNthCalledWith(
@@ -361,6 +356,16 @@ describe('/password', () => {
         expect(response.token).toMatch(/^(?:[a-fA-F0-9]{2}){32}$/);
         expect(response.code).toBe('486008');
 
+        expect(mockMetricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
+          'account.reset',
+          'login',
+          'reset'
+        );
+        expect(mockMetricsContext.stash).toHaveBeenCalledTimes(1);
+        expect(
+          mockMetricsContext.setFlowCompleteSignal.mock.invocationCallOrder[0]
+        ).toBeLessThan(mockMetricsContext.stash.mock.invocationCallOrder[0]);
+
         expect(glean.resetPassword.otpVerified).toHaveBeenCalledTimes(1);
         expect(glean.resetPassword.otpVerified).toHaveBeenCalledWith(
           mockRequest
@@ -378,6 +383,37 @@ describe('/password', () => {
           })
         );
       });
+    });
+
+    it('stashes an account.signed login signal for a Sync reset', async () => {
+      const passwordRoutes = makeRoutes({
+        config: mockConfig,
+        customs: mockCustoms,
+        db: mockDB,
+        mailer: mockMailer,
+        metricsContext: mockMetricsContext,
+        log: mockLog,
+        authServerCacheRedis: mockRedis,
+        statsd: mockStatsd,
+      });
+      const syncRequest = mocks.mockRequest({
+        log: mockLog,
+        payload: { ...mockRequest.payload, service: 'sync' },
+        query: {},
+        metricsContext: mockMetricsContext,
+      });
+
+      await runRoute(
+        passwordRoutes,
+        '/password/forgot/verify_otp',
+        syncRequest
+      );
+
+      expect(mockMetricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
+        'account.signed',
+        'login',
+        'reset'
+      );
     });
 
     describe('passkey signals', () => {

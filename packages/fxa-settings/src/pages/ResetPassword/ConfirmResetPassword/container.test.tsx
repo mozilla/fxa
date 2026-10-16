@@ -72,10 +72,10 @@ const mockIntegration: ResetPasswordIntegration = {
   getCmsInfo: () => undefined,
 };
 
-async function renderComponent() {
+async function renderComponent(integration = mockIntegration) {
   renderWithLocalizationProvider(
     <MemoryRouter>
-      <ConfirmResetPasswordContainer integration={mockIntegration} />
+      <ConfirmResetPasswordContainer integration={integration} />
     </MemoryRouter>
   );
 }
@@ -119,6 +119,24 @@ describe('ConfirmResetPasswordContainer', () => {
       replace: true,
     });
   });
+
+  it.each([
+    [true, 'sync'],
+    [false, undefined],
+  ])(
+    'sends the Sync service to verify_otp when isSync is %s',
+    async (isSync, service) => {
+      mockVerifyOtp.mockRejectedValueOnce('Some error');
+
+      await renderComponent({ ...mockIntegration, isSync: () => isSync });
+
+      await act(async () => {
+        await capturedProps!.verifyCode('12345678');
+      });
+
+      expect(mockVerifyOtp.mock.calls[0][2].service).toBe(service);
+    }
+  );
 
   it('surfaces a localized error and does not navigate when verify_otp rejects', async () => {
     mockVerifyOtp.mockRejectedValueOnce('Some error');

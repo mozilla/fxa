@@ -1008,14 +1008,6 @@ module.exports = function (
           throw error.unknownAccount();
         }
 
-        let flowCompleteSignal;
-        if (requestHelper.wantsKeys(request)) {
-          flowCompleteSignal = 'account.signed';
-        } else {
-          flowCompleteSignal = 'account.reset';
-        }
-        request.setMetricsFlowCompleteSignal(flowCompleteSignal);
-
         const code = await otpManager.create(account.uid);
         const service = payload.service || request.query.service;
 
@@ -1062,6 +1054,9 @@ module.exports = function (
               .string()
               .length(config.passwordForgotOtp.digits)
               .regex(validators.DIGITS),
+            service: validators.service
+              .optional()
+              .description(DESCRIPTION.serviceRP),
             metricsContext: METRICS_CONTEXT_SCHEMA,
           }),
         },
@@ -1084,7 +1079,7 @@ module.exports = function (
           getClientServiceTags(request)
         );
 
-        const { email, code } = request.payload;
+        const { email, code, service } = request.payload;
 
         // Typical 10 minute window limit
         await customs.check(request, email, 'passwordForgotVerifyOtp');
@@ -1105,6 +1100,14 @@ module.exports = function (
         }
 
         const passwordForgotToken = await db.createPasswordForgotToken(account);
+        // A reset signs the user in. The stash follows the reset tokens to the
+        // new session, so a Sync reset completes at /oauth/token.
+        request.setMetricsFlowCompleteSignal(
+          service === 'sync' ? 'account.signed' : 'account.reset',
+          'login',
+          'reset'
+        );
+        await request.stashMetricsContext(passwordForgotToken);
 
         await otpManager.delete(account.uid);
         glean.resetPassword.otpVerified(request);
