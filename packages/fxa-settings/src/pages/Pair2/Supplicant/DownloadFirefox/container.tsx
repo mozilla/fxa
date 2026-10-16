@@ -8,7 +8,11 @@ import { usePageViewEvent } from '../../../../lib/metrics';
 import GleanMetrics from '../../../../lib/glean';
 import { REACT_ENTRYPOINT } from '../../../../constants';
 import config from '../../../../lib/config';
-import { detectDevice, isIosSafari } from '../../../../lib/utilities';
+import {
+  detectDevice,
+  getBrowserFamily,
+  isIosSafari,
+} from '../../../../lib/utilities';
 import {
   buildConnectHintUrl,
   buildPairUrl,
@@ -42,7 +46,9 @@ export const DownloadFirefoxContainer = () => {
   const location = useLocation();
 
   useEffect(() => {
-    GleanMetrics.cadFireFox.downloadFirefoxView();
+    GleanMetrics.cadFireFox.downloadFirefoxView({
+      event: { browser_family: getBrowserFamily() },
+    });
   }, []);
 
   const plan = useMemo(() => {

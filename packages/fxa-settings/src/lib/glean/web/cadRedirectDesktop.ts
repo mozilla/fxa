@@ -12,7 +12,9 @@ import EventMetricType from '@mozilla/glean/private/metrics/event';
  *
  * Generated from `cad_redirect_desktop.default_view`.
  */
-export const defaultView = new EventMetricType(
+export const defaultView = new EventMetricType<{
+  browser_family?: string;
+}>(
   {
     category: 'cad_redirect_desktop',
     name: 'default_view',
@@ -20,7 +22,7 @@ export const defaultView = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['browser_family']
 );
 
 /**
@@ -45,7 +47,9 @@ export const download = new EventMetricType(
  *
  * Generated from `cad_redirect_desktop.view`.
  */
-export const view = new EventMetricType(
+export const view = new EventMetricType<{
+  browser_family?: string;
+}>(
   {
     category: 'cad_redirect_desktop',
     name: 'view',
@@ -53,5 +57,5 @@ export const view = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['browser_family']
 );

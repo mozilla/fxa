@@ -2282,12 +2282,18 @@ cad_firefox:
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-9593
       - https://mozilla-hub.atlassian.net/browse/FXA-14459
+      - https://mozilla-hub.atlassian.net/browse/FXA-14796
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      browser_family:
+        description: |
+          The browser that opened the page, from the user agent in the browser: firefox, safari, chrome, edge or other. On iOS, Firefox, Chrome and Edge report their own family, not safari.
+        type: string
 
 cad_approve_device:
   view:
@@ -2373,12 +2379,18 @@ cad_mobile_pair_use_app:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-9786
+      - https://mozilla-hub.atlassian.net/browse/FXA-14796
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      browser_family:
+        description: |
+          The browser that opened the page, from the user agent in the browser: firefox, safari, chrome, edge or other. On iOS, Firefox, Chrome and Edge report their own family, not safari.
+        type: string
 
 cad_redirect_mobile:
   view:
@@ -2392,12 +2404,18 @@ cad_redirect_mobile:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-10136
+      - https://mozilla-hub.atlassian.net/browse/FXA-14796
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      browser_family:
+        description: |
+          The browser that opened the page, from the user agent in the browser: firefox, safari, chrome, edge or other. On iOS, Firefox, Chrome and Edge report their own family, not safari.
+        type: string
 
 cad_redirect_desktop:
   default_view:
@@ -2411,12 +2429,18 @@ cad_redirect_desktop:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-10136
+      - https://mozilla-hub.atlassian.net/browse/FXA-14796
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      browser_family:
+        description: |
+          The browser that opened the page, from the user agent in the browser: firefox, safari, chrome, edge or other. On iOS, Firefox, Chrome and Edge report their own family, not safari.
+        type: string
   view:
     type: event
     description: |
@@ -2428,12 +2452,18 @@ cad_redirect_desktop:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-10008
+      - https://mozilla-hub.atlassian.net/browse/FXA-14796
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      browser_family:
+        description: |
+          The browser that opened the page, from the user agent in the browser: firefox, safari, chrome, edge or other. On iOS, Firefox, Chrome and Edge report their own family, not safari.
+        type: string
   download:
     type: event
     description: |

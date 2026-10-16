@@ -87,10 +87,14 @@ describe('Pair2/Supplicant/DownloadFirefox container', () => {
     resetConfig();
   });
 
-  it('records the page view', () => {
+  it('records the page view with the browser family', () => {
+    jest.spyOn(utilities, 'getBrowserFamily').mockReturnValue('chrome');
     renderWithLocalizationProvider(<DownloadFirefoxContainer />);
 
     expect(mockDownloadFirefoxView).toHaveBeenCalledTimes(1);
+    expect(mockDownloadFirefoxView).toHaveBeenCalledWith({
+      event: { browser_family: 'chrome' },
+    });
   });
 
   describe('with a valid pairing channel in router state', () => {

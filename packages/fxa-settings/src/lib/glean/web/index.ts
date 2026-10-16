@@ -26,6 +26,7 @@ export const stringEventExtraPropertyNames = [
   'supported',
   'has_passkey_option',
   'branch',
+  'browser_family',
 ] as const;
 
 export type PropertyNameStringT = typeof stringEventPropertyNames;
