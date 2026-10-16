@@ -1389,6 +1389,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = It liket derop dat der in 
 pair2-supplicant-timeout-and-cancel-timeout-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om jo mobile apparaat te ferbinen en jo { -brand-firefox }-gegevens te syngronisearjen.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulearre
 pair2-supplicant-timeout-and-cancel-canceled-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om op elk winske momint in apparaat te ferbinen.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Dit apparaat is al oanmeld
+pair2-supplicant-timeout-and-cancel-signed-in-description = Meld jo ôf by { -brand-firefox } op dit apparaat en gean dernei op jo kompjûter nei <b>firefox.com/pair</b> om de oanmelding te foltôgjen en ferbining te meitsjen mei jo desktopaccount.
 
 
 permissions-heading = { $serviceName } wol tagong ta:

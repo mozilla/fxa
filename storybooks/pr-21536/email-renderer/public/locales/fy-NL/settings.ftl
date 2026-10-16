@@ -2042,6 +2042,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Besykje <b>firefox.com
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulearre
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om op elk winske momint in apparaat te ferbinen.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Dit apparaat is al oanmeld
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Meld jo ôf by { -brand-firefox } op dit apparaat en gean dernei op jo kompjûter nei <b>firefox.com/pair</b> om de oanmelding te foltôgjen en ferbining te meitsjen mei jo desktopaccount.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
