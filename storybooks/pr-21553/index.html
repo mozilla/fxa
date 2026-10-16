@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 45986d4e70abee013f3a65e0c2438b8b8ef91d80</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 45986d4e70abee013f3a65e0c2438b8b8ef91d80</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/16/2026, 10:11:20 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(passkeys): add Glean events for passwordless Sync opt-in and wraps</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* Product needs to measure the passwordless Sync opt-in funnel, including declines, which nothing else records
+* Wrap create and retrieve outcomes had security events but no Glean signal
+
+This commit:
+
+* Adds passkey.upgrade_prompt_* events to the opt-in page, tagged with the sign-in surface
+* Carries the surface on PasskeyWrapData from the passkey sign-in to the opt-in page
+* Adds passkey.wrap_create_success, wrap_retrieve_success and wrap_retrieve_error {reason}
+* Passes Glean into the passkey wrap routes
+
+Closes #FXA-13266</pre></dd>
+  </dl>
+</body>
+</html>
