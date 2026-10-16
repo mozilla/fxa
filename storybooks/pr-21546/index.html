@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 4f7642ac4c26c4fd1e6d30a1b3aec967169fa3d7</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 4f7642ac4c26c4fd1e6d30a1b3aec967169fa3d7</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/16/2026, 5:17:32 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(metrics): record browser_family on pairing view events</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- The pairing view events did not record the browser, and the
+  pipeline user agent label shows iOS Firefox and Chrome as Safari.
+
+This commit:
+- Adds a browser_family extra to the five pairing view events.
+- Adds getBrowserFamily(), which uses the existing UAParser.
+- Sends it from the Pair/Unsupported page and DownloadFirefox container.
+- Asserts the real Glean ping in pairingUnsupported.spec.ts.
+
+Closes FXA-14796</pre></dd>
+  </dl>
+</body>
+</html>

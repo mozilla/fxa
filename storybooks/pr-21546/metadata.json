@@ -1,0 +1,11 @@
+{
+  "commit": "4f7642ac4c26c4fd1e6d30a1b3aec967169fa3d7",
+  "summary": "feat(metrics): record browser_family on pairing view events",
+  "description": "Because:\n- The pairing view events did not record the browser, and the\n  pipeline user agent label shows iOS Firefox and Chrome as Safari.\n\nThis commit:\n- Adds a browser_family extra to the five pairing view events.\n- Adds getBrowserFamily(), which uses the existing UAParser.\n- Sends it from the Pair/Unsupported page and DownloadFirefox container.\n- Asserts the real Glean ping in pairingUnsupported.spec.ts.\n\nCloses FXA-14796",
+  "timestamp": 1792171052000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
