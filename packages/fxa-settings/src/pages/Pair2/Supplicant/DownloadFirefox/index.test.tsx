@@ -432,10 +432,9 @@ describe('Pair2/Supplicant/DownloadFirefox page', () => {
       ).not.toBeInTheDocument();
     });
 
-    // A user who does not have Firefox sees Safari's alert and taps OK; a
-    // spinner or an automatic store redirect would then fight the store CTA
-    // sitting right above.
-    it('leaves the deep link at rest when tapped', async () => {
+    // The store CTA sits right above, so the secondary link keeps its label
+    // rather than swapping to a spinner while the attempt is in flight.
+    it('keeps the deep link label when tapped', async () => {
       const user = userEvent.setup();
       renderWithLocalizationProvider(<Subject plan={MOCK_IOS_SAFARI_PLAN} />);
 
@@ -445,7 +444,7 @@ describe('Pair2/Supplicant/DownloadFirefox page', () => {
       expect(getOpenCta()).toBeInTheDocument();
     });
 
-    it('never navigates from script after the deep link is tapped', async () => {
+    it('records the store redirect before sending the user to the store', async () => {
       jest.useFakeTimers();
       try {
         const assign = jest.fn();
@@ -457,10 +456,15 @@ describe('Pair2/Supplicant/DownloadFirefox page', () => {
         );
 
         await user.click(getOpenCta());
-        jest.advanceTimersByTime(STORE_FALLBACK_TIMEOUT_MS * 3);
+        jest.advanceTimersByTime(STORE_FALLBACK_TIMEOUT_MS);
 
+        expect(mockDeeplinkStoreRedirect).toHaveBeenCalledWith({
+          event: { reason: 'timeout' },
+        });
         expect(assign).not.toHaveBeenCalled();
-        expect(mockDeeplinkStoreRedirect).not.toHaveBeenCalled();
+        await waitFor(() =>
+          expect(assign).toHaveBeenCalledWith(MOCK_IOS_SAFARI_PLAN.storeUrl)
+        );
       } finally {
         jest.useRealTimers();
       }
