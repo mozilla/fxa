@@ -17,6 +17,7 @@ const withPendingWrap = (uid = UID) => {
     credentialId: 'cred',
     mfaToken: 'jwt',
     prfOut: new Uint8Array(32).fill(9),
+    surface: 'signin',
   };
   client.PasskeyWrapData = wrap;
   return { client, wrap };

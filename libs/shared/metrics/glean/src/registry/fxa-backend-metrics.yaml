@@ -1819,6 +1819,70 @@ passkey:
     expires: never
     data_sensitivity:
       - interaction
+  wrap_create_success:
+    type: event
+    description: |
+      A passkey wrap was stored, so the passkey can supply Sync keys without
+      a password. Fires alongside the account.passkey.wrap_created security
+      event; not for a resubmission of a wrap already stored.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13266
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  wrap_retrieve_success:
+    type: event
+    description: |
+      A passkey wrap was returned to the client for a passwordless Sync
+      sign-in. Fires alongside the account.passkey.wrap_retrieved security
+      event.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13266
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  wrap_retrieve_error:
+    type: event
+    description: |
+      A passkey wrap could not be returned to the client. Fires alongside the
+      account.passkey.wrap_retrieval_failure security event.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13266
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Why. 'no_wrap' (the passkey has no wrap stored), 'stale' (the wrap
+          predates the account's last key change), 'not_found' (the passkey
+          is not registered to the account), or 'failed' (anything else,
+          including an MFA token bound to a different passkey).
+        type: string
 
 step_up_auth:
   requested:

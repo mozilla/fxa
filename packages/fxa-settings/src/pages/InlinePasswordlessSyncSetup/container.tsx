@@ -6,6 +6,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import * as Sentry from '@sentry/browser';
 import { useLocation, useNavigate } from 'react-router';
 import { useMounted } from '../../lib/hooks/useMounted';
+import GleanMetrics from '../../lib/glean';
+import { useGleanView } from '../../lib/glean/useGleanView';
 import InlinePasswordlessSyncSetup from '.';
 import AppLayout from '../../components/AppLayout';
 import { ERRNO } from '@fxa/accounts/errors';
@@ -75,6 +77,13 @@ const InlinePasswordlessSyncSetupContainer = () => {
   }, [location.search, navigate]);
 
   const isMissingWrapData = !pendingWrap?.kB;
+  const surface = pendingWrap?.surface;
+
+  useGleanView(
+    () =>
+      GleanMetrics.passkey.upgradePromptView({ event: { reason: surface } }),
+    !isMissingWrapData
+  );
 
   useEffect(() => {
     if (isMissingWrapData) {
@@ -93,6 +102,7 @@ const InlinePasswordlessSyncSetupContainer = () => {
       continueToSettings();
       return;
     }
+    GleanMetrics.passkey.upgradePromptSubmit({ event: { reason: surface } });
     setError(undefined);
     inFlight.current = true;
     setIsEnabling(true);
@@ -141,6 +151,11 @@ const InlinePasswordlessSyncSetupContainer = () => {
       // nothing else will zero it until the user leaves.
       pendingWrap.kB.fill(0);
       pendingWrap.prfOut.fill(0);
+      GleanMetrics.passkey.upgradePromptFrontendError({
+        event: {
+          reason: `${surface}_${result.error ? 'throttled' : 'cancelled'}`,
+        },
+      });
       setError(
         result.error
           ? // A server refusal says when to come back, which is only useful
@@ -190,6 +205,7 @@ const InlinePasswordlessSyncSetupContainer = () => {
       'error' in result &&
       result.error.errno === ERRNO.PASSKEY_WRAP_CONFLICT;
     if (result.ok || alreadyStored) {
+      GleanMetrics.passkey.upgradePromptSuccess({ event: { reason: surface } });
       alertBar.success(
         ftlMsgResolver.getMsg(
           'inline-passwordless-sync-setup-success-alert-v2',
@@ -197,6 +213,9 @@ const InlinePasswordlessSyncSetupContainer = () => {
         )
       );
     } else {
+      GleanMetrics.passkey.upgradePromptFrontendError({
+        event: { reason: `${surface}_unexpected` },
+      });
       // Sign-in already completed, and nothing was stored, so the next Sync
       // sign-in finds no wrap and offers again — whatever the cause was.
       alertBar.error(
@@ -209,12 +228,18 @@ const InlinePasswordlessSyncSetupContainer = () => {
     continueToSettings();
   }, [
     pendingWrap,
+    surface,
     mounted,
     continueToSettings,
     authClient,
     ftlMsgResolver,
     alertBar,
   ]);
+
+  const onNotNow = useCallback(() => {
+    GleanMetrics.passkey.upgradePromptNotnow({ event: { reason: surface } });
+    continueToSettings();
+  }, [surface, continueToSettings]);
 
   if (isMissingWrapData) {
     return <AppLayout loading />;
@@ -223,7 +248,7 @@ const InlinePasswordlessSyncSetupContainer = () => {
   return (
     <InlinePasswordlessSyncSetup
       onEnable={onEnable}
-      onNotNow={continueToSettings}
+      onNotNow={onNotNow}
       isEnabling={isEnabling}
       error={error}
     />

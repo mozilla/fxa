@@ -190,6 +190,11 @@ export const eventsMap = {
     getHelpLinkClick: 'passkey_get_help_link_click',
     signinPrfSupport: 'passkey_signin_prf_support',
     signinRetryWithoutPrfRequest: 'passkey_signin_retry_without_prf_request',
+    upgradePromptView: 'passkey_upgrade_prompt_view',
+    upgradePromptSubmit: 'passkey_upgrade_prompt_submit',
+    upgradePromptSuccess: 'passkey_upgrade_prompt_success',
+    upgradePromptNotnow: 'passkey_upgrade_prompt_notnow',
+    upgradePromptFrontendError: 'passkey_upgrade_prompt_frontend_error',
   },
 
   cad: {

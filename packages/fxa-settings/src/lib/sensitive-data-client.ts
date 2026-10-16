@@ -5,6 +5,7 @@
 import { hexToUint8 } from 'fxa-auth-client/lib/utils';
 import { DecryptedRecoveryKeyData } from 'fxa-auth-client/lib/recoveryKey';
 import { V1Credentials, V2Credentials } from './auth-key-stretch-upgrade';
+import type { PasskeyMetricsSurface } from './passkeys/signin-flow';
 
 export namespace SensitiveData {
   export type AuthData = {
@@ -40,6 +41,7 @@ export namespace SensitiveData {
     mfaToken: string;
     prfOut: Uint8Array;
     kB?: Uint8Array;
+    surface: PasskeyMetricsSurface;
   };
 }
 

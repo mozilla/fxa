@@ -114,3 +114,99 @@ export const signinRetryWithoutPrfRequest = new EventMetricType<{
   },
   ['outcome', 'reason']
 );
+
+/**
+ * The passwordless Sync opt-in failed to store a passkey wrap.
+ *
+ * Generated from `passkey.upgrade_prompt_frontend_error`.
+ */
+export const upgradePromptFrontendError = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'passkey',
+    name: 'upgrade_prompt_frontend_error',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
+ * The user declined the passwordless Sync opt-in with "Not now". Declining
+ * is not persisted anywhere else, so this is the only record of it.
+ *
+ * Generated from `passkey.upgrade_prompt_notnow`.
+ */
+export const upgradePromptNotnow = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'passkey',
+    name: 'upgrade_prompt_notnow',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
+ * The user clicked "Enable passkey" on the passwordless Sync opt-in. Fires
+ * on every click, including retries after a dismissed prompt.
+ *
+ * Generated from `passkey.upgrade_prompt_submit`.
+ */
+export const upgradePromptSubmit = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'passkey',
+    name: 'upgrade_prompt_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
+ * The passwordless Sync opt-in stored a passkey wrap. Also fires when a
+ * live wrap was already stored (errno 235), since that wrap opens with the
+ * current keys and the user sees the same confirmation.
+ *
+ * Generated from `passkey.upgrade_prompt_success`.
+ */
+export const upgradePromptSuccess = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'passkey',
+    name: 'upgrade_prompt_success',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
+ * The passwordless Sync opt-in was shown after a desktop passkey sign-in
+ * that also needed the password, offering to store a passkey wrap so the
+ * next Sync sign-in skips the password.
+ *
+ * Generated from `passkey.upgrade_prompt_view`.
+ */
+export const upgradePromptView = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'passkey',
+    name: 'upgrade_prompt_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
