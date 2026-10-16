@@ -1,0 +1,11 @@
+{
+  "commit": "f2213469b3bc289b9102bdea7297acbed036e22b",
+  "summary": "feat(settings): explain unusable passkey wraps on the password fallback",
+  "description": "Because:\n\n* A Sync passkey with a wrap could fall back to the password page\n  with no explanation\n* Nothing recorded why a passkey sign-in fell back to the password page\n\nThis commit:\n\n* Fetches the wrap even without PRF output, so no_prf is told apart from no_wrap\n* Passes the fallback cause to the password page in router state\n* Shows a banner with a Learn more link for no_prf and unwrap_failed\n* Adds a cause extra to passkey_enter_password.view and a banner view event\n* Stashes opt-in material only when the PRF output is usable\n\nCloses #FXA-14797",
+  "timestamp": 1792184459000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
