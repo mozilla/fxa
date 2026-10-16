@@ -1,8 +1,8 @@
 {
-  "commit": "69452223d6f092c61e56e12deaa88b53c3c84d51",
-  "summary": "Merge pull request #21428 from mozilla/PAY-3933",
-  "description": "fix(payments-cart): Prevent page crash when creating subscription with single-use code",
-  "timestamp": 1792179789000,
+  "commit": "9674fc323386c7bb89b01e6496155fc7ccc4647d",
+  "summary": "Merge pull request #21538 from mozilla/fxa-5351",
+  "description": "chore(deps): upgrade mailparser to 3.x in auth-server test mail helper",
+  "timestamp": 1792182597000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
