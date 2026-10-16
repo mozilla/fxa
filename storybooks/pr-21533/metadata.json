@@ -1,8 +1,8 @@
 {
-  "commit": "f4d859d7be8cd5195ff1537968405af7712b4140",
+  "commit": "821f14f5f69bd5d243290447a05e3e4d94ab5ccb",
   "summary": "chore(deps): remove nest-typed-config/class-validator resolution",
   "description": "Because:\n\n* A resolution pinned class-validator to 0.14.1.\n* From 0.14.2, validate() without options rejects undecorated classes.\n\nThis commit:\n\n* Removes the resolution and moves root class-validator to ^0.15.1.\n* Adds top-level decorators to two payments result classes.\n* Skips the unknownValue check in ModelDataProvider.validate().\n\nCloses FXA-11987",
-  "timestamp": 1792100741000,
+  "timestamp": 1792159741000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

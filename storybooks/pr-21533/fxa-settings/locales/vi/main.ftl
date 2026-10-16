@@ -151,6 +151,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Xác nhận mật khẩu
 form-password-with-inline-criteria-reset-submit-button = Tạo mật khẩu mới
+form-password-with-inline-criteria-old-password-label =
+    .label = Mật khẩu cũ
+form-password-with-inline-criteria-change-password-submit-button = Thay đổi mật khẩu
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Mật khẩu
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -910,6 +913,7 @@ passkey-sub-row-created-date = Đã tạo: { $createdDate }
 passkey-sub-row-last-used-date = Sử dụng lần cuối: { $lastUsedDate }
 passkey-sub-row-delete-title = Xoá passkey
 passkey-delete-modal-heading = Xoá passkey của bạn?
+passkey-delete-modal-content-v3 = Passkey này sẽ bị xoá khỏi tài khoản của bạn. Bạn sẽ cần đăng nhập bằng mật khẩu, passkey khác hoặc tài khoản được liên kết.
 passkey-delete-modal-cancel-button = Hủy bỏ
 passkey-delete-modal-confirm-button = Xoá passkey
 passkey-delete-success = Đã xoá passkey
@@ -1064,6 +1068,7 @@ auth-error-228 = Đăng ký passkey không thành công
 auth-error-233 = Để tạo passkey, hãy thiết lập khóa màn hình, mã PIN, vân tay hoặc nhận diện khuôn mặt trên thiết bị hoặc khóa bảo mật của bạn. Sau đó thử lại.
 auth-error-238 = Xác thực passkey thất bại
 auth-error-239 = Rất tiếc, chúng tôi không thể xóa tài khoản của bạn. Vui lòng thử lại hoặc liên hệ với bộ phận hỗ trợ nếu sự cố vẫn tiếp diễn.
+auth-error-240 = Tài khoản này đã bị vô hiệu hoá
 auth-error-999 = Lỗi không xác định
 auth-error-1001 = Đã hủy đăng nhập
 auth-error-1002 = Phiên đã hết hạn. Đăng nhập để tiếp tục.
@@ -1147,6 +1152,19 @@ index-email-input =
     .label = Nhập email của bạn
 index-account-delete-success = Đã xóa tài khoản thành công
 index-email-bounced = Email xác minh của bạn vừa được trả lại. Bạn đã nhập sai địa chỉ email?
+
+
+inline-passwordless-sync-setup-page-title = Bỏ qua việc nhập mật khẩu về sau?
+inline-passwordless-sync-setup-success-banner-v2 = Bạn đã đăng nhập và tính năng đồng bộ hóa đang hoạt động
+inline-passwordless-sync-setup-heading = Bỏ qua việc nhập mật khẩu về sau?
+inline-passwordless-sync-setup-description = Sử dụng passkey này để đăng nhập nhanh hơn.
+inline-passwordless-sync-setup-enable-button = Bật passkey
+inline-passwordless-sync-setup-enabling = Đang bật…
+inline-passwordless-sync-setup-not-now-button = Để sau
+inline-passwordless-sync-setup-success-alert-v2 = Passkey này được kích hoạt cho tính năng đăng nhập đồng bộ
+inline-passwordless-sync-setup-error-cancelled = Quá trình xác nhận passkey chưa hoàn tất
+inline-passwordless-sync-setup-error-cancelled-description = Xác nhận với passkey của bạn để bỏ qua mật khảu vào lần sau.
+inline-passwordless-sync-setup-error-generic-v2 = Chúng tôi không thể kích hoạt passkey này để đăng nhập đồng bộ hoá. Lần sau bạn sẽ cần mật khẩu của mình.
 
 
 inline-recovery-key-setup-create-error = Rất tiếc! Chúng tôi không thể tạo khóa khôi phục tài khoản của bạn. Vui lòng thử lại sau.
@@ -1285,10 +1303,18 @@ pair2-authority-download-firefox-cta = Tải xuống { -brand-firefox }
 pair2-authority-scan-qr-heading = Quét để kết nối thiết bị di động của bạn
 pair2-authority-scan-qr-instruction = Quét mã QR bằng điện thoại hoặc máy tính bảng của bạn để đồng bộ hoá dấu trang, thẻ và nhiều nội dung khác của { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = Mã QR để kết nối thiết bị di động của bạn
+pair2-authority-scan-qr-other-ways-link = Các cách khác để đăng nhập
+pair2-authority-scan-qr-skip-button = Tạm thời bỏ qua
+
+
+pair2-authority-sync-success-heading-v2 = Thiết bị của bạn đã được kết nối
+pair2-authority-sync-success-description-v2 = Quá trình đồng bộ đang diễn ra. Có thể mất một lúc để dữ liệu được đồng bộ hiển thị. Hãy thoải mái tiếp tục duyệt web.Quá trình đồng bộ đang diễn ra. Có thể mất một lúc để dữ liệu được đồng bộ hiển thị. Hãy thoải mái tiếp tục duyệt web.
+pair2-authority-sync-success-sync-settings-button-v2 = Quản lý cài đặt đồng bộ hoá
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Bạn vẫn muốn kết nối thiết bị chứ?
 pair2-authority-timeout-and-cancel-timeout-description = Có vẻ như đã hết thời gian chờ. Hãy thử lại nếu bạn vẫn muốn kết nối thiết bị di động và đồng bộ hoá dữ liệu { -brand-firefox } của mình.
+pair2-authority-timeout-and-cancel-cancelled-heading = Đã huỷ bỏ
 pair2-authority-timeout-and-cancel-canceled-description = Nếu bạn đổi ý hoặc muốn kết nối thiết bị khác, hãy thử lại.
 pair2-authority-timeout-and-cancel-try-again-button = Thử lại
 pair2-authority-timeout-and-cancel-sync-settings-button = Cài đặt đồng bộ hoá
@@ -1304,8 +1330,19 @@ pair2-supplicant-connect-this-device-connect-button = Kết nối
 pair2-supplicant-connect-this-device-cancel-button = Huỷ bỏ
 
 
+pair2-supplicant-download-firefox-heading-v2 = Mở { -brand-firefox } trên thiết bị này
+pair2-supplicant-download-firefox-description-v2 = Tải xuống { -brand-firefox } để đồng bộ dấu trang, lịch sử và nhiều hơn nữa trên các thiết bị.
 pair2-supplicant-download-firefox-continue-button = Tiếp tục trong { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Đang mở { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Tải xuống { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = Tôi đã có { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Tìm hiểu thêm
+
+
+pair2-supplicant-connect-hint-heading-v2 = Hoàn tất thiết lập trong ứng dụng
+pair2-supplicant-connect-hint-step-app-menu = Nhấn vào <b>menu ứng dụng</b> trên thanh công cụ
+pair2-supplicant-connect-hint-step-sign-in = Nhấn vào <b>đăng nhập</b>, sau đó quét mã
+pair2-supplicant-connect-hint-learn-more-link = Tìm hiểu thêm
 
 
 pair2-supplicant-ready-to-scan-heading = Để kết nối thiết bị
@@ -1314,11 +1351,28 @@ pair2-supplicant-ready-to-scan-learn-more-link = Tìm hiểu thêm
 
 
 pair2-supplicant-sync-success-heading = Thiết bị của bạn đã được kết nối
+pair2-supplicant-sync-success-description-v2 = Quá trình đồng bộ đang diễn ra. Có thể mất một lúc để dữ liệu được đồng bộ hiển thị. Hãy thoải mái tiếp tục duyệt web.
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Có vẻ như đã hết thời gian chờ
 pair2-supplicant-timeout-and-cancel-timeout-description = Để kết nối thiết bị di động và đồng bộ hoá dữ liệu { -brand-firefox } của bạn, hãy truy cập <b>firefox.com/pair</b> trên máy tính của bạn.
+pair2-supplicant-timeout-and-cancel-cancelled-heading = Đã huỷ bỏ
 pair2-supplicant-timeout-and-cancel-canceled-description = Để kết nối thiết bị bất cứ lúc nào, hãy truy cập <b>firefox.com/pair</b> trên máy tính của bạn.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Thiết bị này đã đăng nhập trước đó
+pair2-supplicant-timeout-and-cancel-signed-in-description = Để kết nối với tài khoản máy tính để bàn của bạn, hãy đăng xuất khỏi { -brand-firefox } trên thiết bị này, sau đó truy cập <b>firefox.com/pair</b> trên máy tính của bạn để hoàn tất đăng nhập.
+
+
+permissions-heading = { $serviceName } muốn truy cập vào:
+permissions-label-email = Địa chỉ email
+permissions-label-display-name = Tên hiển thị
+permissions-label-avatar = Ảnh tài khoản
+permissions-continue-button = Tiếp tục
+permissions-cancel-button = Huỷ bỏ
+
+
+force-password-change-heading = Vui lòng thay đổi mật khẩu của bạn
+force-password-change-info = Chúng tôi đã phát hiện hành vi đáng ngờ trên { -product-mozilla-account } của bạn. Để bảo vệ tài khoản của bạn, vui lòng tạo một mật khẩu mới. Bạn sẽ sử dụng mật khẩu này để đăng nhập lại vào tất cả các dịch vụ { -product-mozilla-account } của bạn.
+force-password-change-data-info = Lịch sử được đồng bộ hóa, dấu trang, đăng nhập và dữ liệu cá nhân khác sẽ không bị mất.
 
 
 service-welcome-signup-success-banner = Đã xác nhận { -product-mozilla-account }
@@ -1378,9 +1432,12 @@ confirm-totp-reset-password-use-different-account = Sử dụng một tài kho�
 
 
 password-reset-flow-heading = Đặt lại mật khẩu của bạn
+password-reset-forgot-heading = Bạn đã quên mật khẩu?
+password-reset-alternatives-body = <signInLink>Thử đăng nhập bằng { -brand-google }, { -brand-apple } hoặc passkey.</signInLink> Hoặc nhập email của bạn và chúng tôi sẽ gửi cho bạn mã để đặt lại mật khẩu.
 password-reset-email-input =
     .label = Nhập email của bạn
 password-reset-submit-button-2 = Tiếp tục
+password-reset-data-recovery-warning = Việc đặt lại mật khẩu có thể ảnh hưởng đến khả năng khôi phục dữ liệu trình duyệt đã đồng bộ hóa của bạn. <learnMoreLink>Tìm hiểu thêm</learnMoreLink>
 
 
 reset-password-complete-header = Mật khẩu của bạn đã được đặt lại
@@ -1592,3 +1649,8 @@ signup-confirmed-sync-description-v2 = Mật khẩu, địa chỉ, dấu trang, 
 signup-confirmed-sync-add-device-link = Thêm thiết bị khác
 signup-confirmed-sync-manage-sync-button = Quản lý đồng bộ hoá
 signup-confirmed-sync-set-password-success-banner = Đã tạo mật khẩu đồng bộ hoá
+
+
+update-firefox-heading = Yêu cầu cập nhật { -brand-firefox }
+update-firefox-description = { -product-mozilla-account } của bạn sử dụng các tính năng không được hỗ trợ trong phiên bản { -brand-firefox } hiện tại. Vui lòng tải xuống và cài đặt phiên bản { -brand-firefox } mới nhất để tiếp tục.
+update-firefox-download-button = Tải xuống bản mới nhất
