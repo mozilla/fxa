@@ -31,12 +31,13 @@ export function PaymentStateObserver({ cartId }: { cartId: string }) {
         SupportedPages.PROCESSING,
         pathname,
         searchParamsRecord,
-        false,
+        false
       );
 
       if (redirectResponse?.state && redirectResponse?.redirectToUrl) {
         isPolling = false;
         router.push(redirectResponse.redirectToUrl);
+        router.refresh();
 
         return;
       }
@@ -59,5 +60,5 @@ export function PaymentStateObserver({ cartId }: { cartId: string }) {
     };
   }, []);
 
-  return <>{ }</>;
+  return <>{}</>;
 }
