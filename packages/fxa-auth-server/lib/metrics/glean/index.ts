@@ -5,11 +5,11 @@
 import { ConfigType } from '../../../config';
 import { createEventsServerEventLogger } from './server_events';
 import { version } from '../../../package.json';
-import { createHash } from 'crypto';
 import { AuthRequest } from '../../types';
 import { AppError } from '@fxa/accounts/errors';
 import { clientId as clientIdValidator } from '../../oauth/validators';
 import { MetricsContext } from '@fxa/shared/metrics/glean';
+import { sha256HashUid } from './server-deletion-request';
 
 // According to @types/hapi, request.auth.credentials.user is of type
 // UserCredentials, which is just {}. That's not actually the case and it
@@ -59,9 +59,6 @@ const findUid = (request: MetricsRequest, metricsData?: MetricsData): string =>
   request.auth?.credentials?.uid ||
   request.auth?.credentials?.user ||
   '';
-
-const sha256HashUid = (uid: string) =>
-  createHash('sha256').update(uid).digest('hex');
 
 const isClientIdShaped = (value?: string): value is string =>
   !!value && !clientIdValidator.validate(value).error;
