@@ -1,5 +1,6 @@
 ---
 $schema: moz://mozilla.org/schemas/glean/pings/2-0-0
-# No custom pings. All metrics are sent in the built-in `events` ping.
+# No custom pings. Metrics are sent in the built-in `events` and
+# `server-deletion-request` pings.
 # probe-scraper still fetches this file, so it stays until the pipeline
 # configuration is updated.
