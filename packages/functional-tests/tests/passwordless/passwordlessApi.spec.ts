@@ -37,6 +37,7 @@ async function getPasswordlessSession(
 
 test.describe('severity-2', () => {
   test.describe.configure({ mode: 'parallel' });
+
   test.describe('Passwordless API', () => {
     test.describe('POST /passwordless/send_code', () => {
       test('sends code to new email', async ({
