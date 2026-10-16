@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit a338e9f18465ddc66864e0814b7b717cc0158dea</title>
+  <title>Storybooks for commit 836094a59eab8cadd19ef28ff187f59c9d37872c</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,27 +23,26 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit a338e9f18465ddc66864e0814b7b717cc0158dea</h1>
+  <h1>Storybooks for commit 836094a59eab8cadd19ef28ff187f59c9d37872c</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/16/2026, 1:24:12 PM UTC</dd>
+    <dd>10/16/2026, 1:25:10 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): read pairing state when v2 supplicant ApproveSignIn mounts</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- A fast v2 approval sets the supplicant state to Complete before
-  ApproveSignIn subscribes, so the page stays on approve_signin.
-- Under StrictMode the mount-time routing ran twice in development.
+- In v2 pairing, a fast authority approval sets the supplicant state to
+  Complete before ApproveSignIn subscribes, so the page stays on approve_signin.
 
 This commit:
 
 - Routes Complete or Failed from integration.state when ApproveSignIn mounts.
-- Runs that routing once with a useRef flag.
-- Adds tests for each state at mount and a StrictMode regression test.
+- Handles the mount-time state once, so StrictMode does not navigate twice.
+- Adds tests for each state at mount, and under StrictMode.
 
 Closes FXA-14793</pre></dd>
   </dl>
