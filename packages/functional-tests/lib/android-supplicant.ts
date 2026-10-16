@@ -52,7 +52,6 @@ const debug = (msg: string) =>
 
 /** Default Fenix debug application id. */
 const DEFAULT_PACKAGE = 'org.mozilla.fenix.debug';
-const HOME_ACTIVITY = 'org.mozilla.fenix.HomeActivity';
 /**
  * Deep-link scheme for the debug build (BuildConfig.DEEP_LINK_SCHEME defaults to
  * "fenix-dev"). `fenix-dev://settings` jumps straight to Settings, which is far
@@ -226,11 +225,19 @@ export class AndroidSupplicant {
       }
     }
 
-    // Launch once so the prefs files are created, then stop before editing.
+    // Open a tab, not just HomeActivity: after `pm clear`, Fenix reinstalls the
+    // FxA web channel extension only when a browser tab opens.
     this.adb(['logcat', '-c']);
-    this.launchHome();
+    this.adb([
+      'shell',
+      `am start -a android.intent.action.VIEW -d ${shellQuote(contentServerUrl)} ${this.pkg}`,
+    ]);
     await this.waitForProcess(30_000);
-    await sleep(3_000);
+    try {
+      await this.waitForLog(/Installed extension: fxa@mozac\.org/, 45_000);
+    } catch {
+      debug('Web channel extension install not seen in logcat; continuing');
+    }
     await this.assertSignedOut();
     this.forceStop();
 
@@ -263,7 +270,10 @@ export class AndroidSupplicant {
       if (lastState.endsWith('$Disconnected')) {
         return;
       }
-      if (lastState.endsWith('$AuthIssues') || lastState.endsWith('$Connected')) {
+      if (
+        lastState.endsWith('$AuthIssues') ||
+        lastState.endsWith('$Connected')
+      ) {
         throw new Error(
           `${this.pkg} still holds an account (${lastState}). ` +
             'A signed-in supplicant takes a re-auth flow instead of pairing. ' +
@@ -472,10 +482,6 @@ export class AndroidSupplicant {
     // base64 over stdin avoids adb-shell CRLF translation corrupting the XML.
     const b64 = Buffer.from(xml, 'utf8').toString('base64');
     this.runAs(`base64 -d > ${remote}`, b64);
-  }
-
-  private launchHome(): void {
-    this.adb(['shell', 'am', 'start', '-n', `${this.pkg}/${HOME_ACTIVITY}`]);
   }
 
   private async waitForProcess(timeoutMs: number): Promise<void> {

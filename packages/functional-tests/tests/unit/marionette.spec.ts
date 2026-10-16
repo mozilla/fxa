@@ -170,6 +170,25 @@ test.describe('MarionetteClient', () => {
     expect(id).toBe('elem-123');
   });
 
+  test('findElement sends a non-ASCII selector with a byte-length prefix', async () => {
+    let packet = '';
+    ({ client, server } = await setupTest(() => ({
+      value: { [W3C_ELEMENT_KEY]: 'elem-123' },
+    })));
+    server.on('connection', (sock) =>
+      sock.on('data', (chunk) => {
+        if (chunk.includes('WebDriver:FindElement')) packet = chunk.toString();
+      })
+    );
+    await connectAndSession(client);
+
+    await client.findElement('css selector', '[title="user’s Nightly"]');
+    expect(packet).toContain('user’s Nightly');
+    const [prefix] = packet.split(':', 1);
+    const body = packet.slice(prefix.length + 1);
+    expect(Number(prefix)).toBe(Buffer.byteLength(body, 'utf-8'));
+  });
+
   test('findElements returns array of element IDs', async () => {
     ({ client, server } = await setupTest((cmd) => {
       if (cmd === 'WebDriver:FindElements') {

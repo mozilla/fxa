@@ -60,7 +60,7 @@ const ELIGIBLE_ENTRYPOINT_QS =
  * registers.
  */
 function isMobileDevice(d: { type?: string; name?: string }): boolean {
-  return d.type === 'mobile' || /Android|Fenix/i.test(d.name || '');
+  return d.type ? d.type === 'mobile' : /Android|Fenix/i.test(d.name || '');
 }
 
 type PairedDevice = { id: string; name?: string; type?: string };
