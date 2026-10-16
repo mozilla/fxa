@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import * as Sentry from '@sentry/browser';
 import ApproveSignIn from '.';
 import {
@@ -28,8 +28,10 @@ export const ApproveSignInContainer = ({
     );
   }
 
+  const routedInitialState = useRef(false);
+
   useEffect(() => {
-    integration.onStateChange = (state) => {
+    const onStateChange = (state: SupplicantState) => {
       switch (state) {
         case SupplicantState.Complete:
           navigateWithQuery('/pair/supplicant/sync_success', {}, true);
@@ -53,6 +55,18 @@ export const ApproveSignInContainer = ({
           break;
       }
     };
+    integration.onStateChange = onStateChange;
+
+    // A fast v2 approval can end the flow before this page subscribes. The ref
+    // stops a second navigation when StrictMode runs this effect again.
+    if (
+      !routedInitialState.current &&
+      (integration.state === SupplicantState.Complete ||
+        integration.state === SupplicantState.Failed)
+    ) {
+      routedInitialState.current = true;
+      onStateChange(integration.state);
+    }
 
     return () => {
       // Unsubscribe only — the channel outlives this page for sync_success.
