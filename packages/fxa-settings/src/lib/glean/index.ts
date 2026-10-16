@@ -88,7 +88,12 @@ const submitPing = async (fn: SubmitPingFn) => {
   let f: SubmitPingFn | undefined;
 
   while ((f = lambdas.shift())) {
-    await f();
+    try {
+      await f();
+    } catch (e) {
+      // A failed ping must not hold the mutex: isDone() polls it, and callers
+      // navigate only once it resolves.
+    }
   }
 
   EXEC_MUTEX = false;

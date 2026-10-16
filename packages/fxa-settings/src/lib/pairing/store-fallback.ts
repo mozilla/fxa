@@ -134,7 +134,11 @@ export function armStoreFallback({
   };
 
   const onFocus = () => {
-    if (appOpened) {
+    // A focus with no blur before it is the tap giving the page DOM focus (a
+    // page reached from the Camera hand-off starts without it), not a dialog
+    // closing. Counting it would make the dialog's own blur read as the app
+    // taking the foreground.
+    if (appOpened || !sawBlur) {
       return;
     }
     sawFocus = true;
