@@ -37,7 +37,6 @@ const UpdateFirefox = ({
 }: {
   metricsFlow: MetricsFlow | null;
 }) => {
-  // get-update-firefox.js logs these events only when the server renders this page
   useViewEvent('flow', 'begin');
   useViewEvent('flow.update-firefox', 'view');
   const location = useLocation();

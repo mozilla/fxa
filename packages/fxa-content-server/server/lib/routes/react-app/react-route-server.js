@@ -5,14 +5,12 @@
 const {
   FRONTEND_ROUTES,
   OAUTH_SUCCESS_ROUTES,
-  UPDATE_FIREFOX_ROUTES,
 } = require('./content-server-routes');
 const {
   getFrontEndRouteDefinition,
   getOAuthSuccessRouteDefinition,
 } = require('./route-definitions');
 const { getIndexRouteDefinition } = require('./route-definition-index');
-const getUpdateFirefoxRouteDefinition = require('../get-update-firefox');
 
 /**
  * Returns a route object with the `name` of the route and the route `definition`.
@@ -36,12 +34,6 @@ class ReactRouteServer {
       }
       if (OAUTH_SUCCESS_ROUTES.includes(name)) {
         return this.getOAuthSuccess(name);
-      }
-      if (UPDATE_FIREFOX_ROUTES.includes(name)) {
-        return this.getRouteObject(
-          name,
-          getUpdateFirefoxRouteDefinition(this.config)
-        );
       }
     }
 
