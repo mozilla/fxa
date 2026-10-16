@@ -12,7 +12,9 @@ import EventMetricType from '@mozilla/glean/private/metrics/event';
  *
  * Generated from `cad_redirect_mobile.view`.
  */
-export const view = new EventMetricType(
+export const view = new EventMetricType<{
+  browser_family?: string;
+}>(
   {
     category: 'cad_redirect_mobile',
     name: 'view',
@@ -20,5 +22,5 @@ export const view = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['browser_family']
 );

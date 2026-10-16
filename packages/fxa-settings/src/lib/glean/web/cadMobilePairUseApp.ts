@@ -12,7 +12,9 @@ import EventMetricType from '@mozilla/glean/private/metrics/event';
  *
  * Generated from `cad_mobile_pair_use_app.view`.
  */
-export const view = new EventMetricType(
+export const view = new EventMetricType<{
+  browser_family?: string;
+}>(
   {
     category: 'cad_mobile_pair_use_app',
     name: 'view',
@@ -20,5 +22,5 @@ export const view = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['browser_family']
 );

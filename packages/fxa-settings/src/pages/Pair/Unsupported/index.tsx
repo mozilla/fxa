@@ -17,6 +17,7 @@ import Banner from '../../../components/Banner';
 import GleanMetrics from '../../../lib/glean';
 import { useGleanView } from '../../../lib/glean/useGleanView';
 import { hasPairingChannelParams } from '../../../lib/pairing-channel-params';
+import { getBrowserFamily } from '../../../lib/utilities';
 
 type PairUnsupportedProps = { error?: string };
 export const viewName = 'pair-unsupported';
@@ -78,14 +79,15 @@ const PairUnsupported = ({ error }: PairUnsupportedProps) => {
 
   // Emit Glean view events per device context (matches Backbone unsupported.js logView).
   useGleanView(() => {
+    const metrics = { event: { browser_family: getBrowserFamily() } };
     if (isDesktopNonFirefox) {
-      GleanMetrics.cadRedirectDesktop.view();
+      GleanMetrics.cadRedirectDesktop.view(metrics);
     } else if (isMobileWithSystemCamera) {
-      GleanMetrics.cadMobilePairUseApp.view();
+      GleanMetrics.cadMobilePairUseApp.view(metrics);
     } else if (isMobileNoSystemCamera) {
-      GleanMetrics.cadRedirectMobile.view();
+      GleanMetrics.cadRedirectMobile.view(metrics);
     } else {
-      GleanMetrics.cadRedirectDesktop.defaultView();
+      GleanMetrics.cadRedirectDesktop.defaultView(metrics);
     }
   });
 

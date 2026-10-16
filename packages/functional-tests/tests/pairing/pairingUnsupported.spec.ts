@@ -19,6 +19,7 @@
  */
 
 import { test, expect } from '../../lib/fixtures/standard';
+import { GleanEventsHelper } from '../../lib/glean';
 
 const CHROME_DESKTOP_UA =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) ' +
@@ -49,6 +50,9 @@ test.describe('severity-2 #smoke', () => {
       target,
       page,
     }) => {
+      const gleanEventsHelper = new GleanEventsHelper(page);
+      await gleanEventsHelper.start();
+
       // Sanity check — the spoofed UA must actually reach the page.
       await page.goto(`${target.contentServerUrl}/pair`, {
         waitUntil: 'load',
@@ -78,6 +82,11 @@ test.describe('severity-2 #smoke', () => {
         'href',
         /mozilla\.org\/firefox\/new/
       );
+
+      const ping = await gleanEventsHelper.waitForEvent(
+        'cad_redirect_desktop_view'
+      );
+      expect(ping.extras.browser_family).toBe('chrome');
     });
   });
 
@@ -92,6 +101,9 @@ test.describe('severity-2 #smoke', () => {
       target,
       page,
     }) => {
+      const gleanEventsHelper = new GleanEventsHelper(page);
+      await gleanEventsHelper.start();
+
       await page.goto(`${target.contentServerUrl}/pair${PAIRING_HASH}`, {
         waitUntil: 'load',
       });
@@ -116,6 +128,11 @@ test.describe('severity-2 #smoke', () => {
       expect(opened.searchParams.get('url')).toBe(
         `${target.contentServerUrl}/pair/supplicant/connect_hint`
       );
+
+      const ping = await gleanEventsHelper.waitForEvent(
+        'cad_firefox_download_firefox_view'
+      );
+      expect(ping.extras.browser_family).toBe('safari');
     });
   });
 
@@ -125,6 +142,9 @@ test.describe('severity-2 #smoke', () => {
     test.use({ userAgent: IOS_CHROME_UA });
 
     test('offers a single Firefox deep link', async ({ target, page }) => {
+      const gleanEventsHelper = new GleanEventsHelper(page);
+      await gleanEventsHelper.start();
+
       await page.goto(`${target.contentServerUrl}/pair${PAIRING_HASH}`, {
         waitUntil: 'load',
       });
@@ -135,6 +155,11 @@ test.describe('severity-2 #smoke', () => {
 
       await expect(page.locator(DEEP_LINK)).toHaveCount(1);
       await expect(page.locator(APP_STORE_LINK)).toHaveCount(0);
+
+      const ping = await gleanEventsHelper.waitForEvent(
+        'cad_firefox_download_firefox_view'
+      );
+      expect(ping.extras.browser_family).toBe('chrome');
     });
   });
 });
