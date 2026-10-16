@@ -13,7 +13,6 @@ import { ReactComponent as MobileIcon } from './mobile.svg';
 import { ReactComponent as SyncIcon } from './sync.svg';
 import { ReactComponent as TabletIcon } from './tablet.svg';
 import { ReactComponent as MonitorIcon } from './monitor.svg';
-import { ReactComponent as PocketIcon } from '@fxa/shared/assets/images/pocket.svg';
 import { ReactComponent as LockwiseIcon } from './lockwise.svg';
 import { ReactComponent as RelayIcon } from './relay.svg';
 import { ReactComponent as AddonIcon } from './addon.svg';
@@ -89,10 +88,6 @@ export function Service({
     case 'Add-ons':
       serviceLink = 'https://addons.mozilla.org/';
       Icon = <AddonIcon data-testid="addon-icon" />;
-      break;
-    case 'Pocket':
-      serviceLink = 'https://getpocket.com/';
-      Icon = <PocketIcon data-testid="pocket-icon" />;
       break;
     case 'Firefox Monitor':
     case 'Mozilla Monitor':
