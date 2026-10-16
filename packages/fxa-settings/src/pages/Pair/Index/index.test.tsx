@@ -4,7 +4,11 @@
 
 import React from 'react';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
-import { mockAppContext, renderWithRouter } from '../../../models/mocks';
+import {
+  mockAppContext,
+  mockSession,
+  renderWithRouter,
+} from '../../../models/mocks';
 import userEvent from '@testing-library/user-event';
 import { readPairingAttribution } from '../../../lib/pairing-attribution';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -69,6 +73,8 @@ jest.mock('../../../lib/channels/firefox', () => ({
   },
   buildSyncOAuthSearch: jest.requireActual('../../../lib/channels/firefox')
     .buildSyncOAuthSearch,
+  canPairFromBrowser: jest.requireActual('../../../lib/channels/firefox')
+    .canPairFromBrowser,
   FirefoxCommand: {
     PairPreferences: 'fxaccounts:pair_preferences',
   },
@@ -202,7 +208,11 @@ describe('Pair', () => {
   async function renderPair(
     props: Partial<React.ComponentProps<typeof Pair>> = {}
   ): Promise<void> {
-    renderWithRouter(<Pair {...defaultProps} {...props} />);
+    renderWithRouter(
+      <Pair {...defaultProps} {...props} />,
+      {},
+      mockAppContext()
+    );
     await screen.findByLabelText(/I already have Firefox for mobile/);
   }
 
@@ -607,11 +617,15 @@ describe('Pair', () => {
           verified: false,
         },
       ],
+      [
+        'SignedInUser without the Sync key',
+        { ...MOCK_SYNC_SIGNED_IN_USER, hasSyncKey: false },
+      ],
     ])(
       'starts an OAuth flow when fxa_status returns %s on every attempt',
       async (_, response) => {
         requestSignedInUserMock.mockResolvedValue(response);
-        renderWithRouter(<Pair {...defaultProps} />);
+        renderWithRouter(<Pair {...defaultProps} />, {}, mockAppContext());
         await waitFor(() =>
           expect(fxaOAuthFlowBeginMock).toHaveBeenCalledWith([
             'profile',
@@ -620,6 +634,32 @@ describe('Pair', () => {
         );
       }
     );
+
+    it('starts an OAuth flow when the browser session is no longer valid on the server', async () => {
+      const session = mockSession();
+      jest.mocked(session.isValid).mockResolvedValue(false);
+      renderWithRouter(
+        <Pair {...defaultProps} />,
+        {},
+        mockAppContext({ session })
+      );
+      await waitFor(() => expect(fxaOAuthFlowBeginMock).toHaveBeenCalled());
+      expect(session.isValid).toHaveBeenCalledWith(
+        MOCK_SYNC_SIGNED_IN_USER.sessionToken
+      );
+    });
+
+    // Arriving from sign-in with Firefox still reporting no key: another
+    // sign-in cannot help, so the choice screen shows and no OAuth flow starts.
+    it('does not start another sign-in when Firefox still reports no key right after one', async () => {
+      mockLocationState = { origin: 'signin' };
+      requestSignedInUserMock.mockResolvedValue({
+        ...MOCK_SYNC_SIGNED_IN_USER,
+        hasSyncKey: false,
+      });
+      await renderPair();
+      expect(fxaOAuthFlowBeginMock).not.toHaveBeenCalled();
+    });
 
     it('retries fxa_status once when the first reply is empty, then reveals on success', async () => {
       requestSignedInUserMock
@@ -637,12 +677,33 @@ describe('Pair', () => {
 
     it('caps fxa_status at two asks before falling through to OAuth', async () => {
       requestSignedInUserMock.mockResolvedValue(undefined);
-      renderWithRouter(<Pair {...defaultProps} />);
+      renderWithRouter(<Pair {...defaultProps} />, {}, mockAppContext());
       await waitFor(() => expect(fxaOAuthFlowBeginMock).toHaveBeenCalled());
       expect(requestSignedInUserMock).toHaveBeenCalledTimes(2);
     });
 
-    it('hard-navigates to / with the OAuth params Firefox returned', async () => {
+    it('hard-navigates a browser signed in without the Sync key to set_password', async () => {
+      const hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      try {
+        requestSignedInUserMock.mockResolvedValue({
+          ...MOCK_SYNC_SIGNED_IN_USER,
+          hasSyncKey: false,
+        });
+        fxaOAuthFlowBeginMock.mockResolvedValueOnce(MOCK_OAUTH_PARAMS);
+        renderWithRouter(<Pair {...defaultProps} />, {}, mockAppContext());
+        await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalled());
+        const [target] = hardNavigateSpy.mock.calls[0];
+        expect(new URL(target, 'http://localhost').pathname).toBe(
+          '/post_verify/set_password'
+        );
+      } finally {
+        hardNavigateSpy.mockRestore();
+      }
+    });
+
+    it('hard-navigates a signed-out browser to / with the OAuth params Firefox returned', async () => {
       const hardNavigateSpy = jest
         .spyOn(ReactUtils, 'hardNavigate')
         .mockImplementation(() => {});
@@ -658,7 +719,7 @@ describe('Pair', () => {
           code_challenge: 'cc',
           code_challenge_method: 'S256',
         });
-        renderWithRouter(<Pair {...defaultProps} />);
+        renderWithRouter(<Pair {...defaultProps} />, {}, mockAppContext());
         await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalled());
         const [target] = hardNavigateSpy.mock.calls[0];
         const url = new URL(target, 'http://localhost');
@@ -1306,6 +1367,35 @@ describe('Pair', () => {
       }
     });
 
+    // The fast path jumps to the scanner on the fxa_status user alone; without
+    // the key it must fall through to the bootstrap, which asks Firefox itself.
+    it('skips the scanner fast path when the fxa_status user lacks the Sync key', async () => {
+      const hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      try {
+        const result = withSignedInUser(v2Props.fxaStatusResult);
+        result.fxaStatus.signedInUser = {
+          ...MOCK_SYNC_SIGNED_IN_USER,
+          hasSyncKey: false,
+        };
+        renderWithRouter(<Pair fxaStatusResult={result} />, {}, v2AppContext());
+
+        // The bootstrap's own ask (default mock: a user with the key) is what
+        // reaches the scanner, not the fxa_status user.
+        await waitFor(() =>
+          expect(hardNavigateSpy).toHaveBeenCalledWith(
+            '/pair/authority/scan_qr',
+            {},
+            true
+          )
+        );
+        expect(firefox.requestSignedInUser).toHaveBeenCalled();
+      } finally {
+        hardNavigateSpy.mockRestore();
+      }
+    });
+
     it('sends a signed-out desktop to sign-in instead of the QR scanner', async () => {
       const hardNavigateSpy = jest
         .spyOn(ReactUtils, 'hardNavigate')
@@ -1842,7 +1932,9 @@ describe('device prop', () => {
 
   it('reaches the choice screen when a supported device is supplied', async () => {
     renderWithRouter(
-      <Pair {...defaultProps} device={Devices.FIREFOX_DESKTOP} />
+      <Pair {...defaultProps} device={Devices.FIREFOX_DESKTOP} />,
+      {},
+      mockAppContext()
     );
 
     expect(

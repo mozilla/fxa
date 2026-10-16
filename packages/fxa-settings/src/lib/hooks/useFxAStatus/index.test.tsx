@@ -225,7 +225,7 @@ describe('useFxAStatus', () => {
       (firefox.fxaStatus as jest.Mock).mockResolvedValue({ capabilities });
     };
 
-    // pairingEnabled/pairingVersion/hasSyncKeys start at false/1/undefined,
+    // pairingEnabled/pairingVersion start at false/1,
     // which several cases below also expect as their result. Waiting on those
     // values directly would pass before the response was ever applied, so wait
     // on supportsCanLinkAccountUid instead: it starts undefined and is set on
@@ -276,32 +276,6 @@ describe('useFxAStatus', () => {
       const result = await renderSettled();
 
       expect(result.current.fxaStatus?.capabilities.pairingVersion).toBe(1);
-    });
-
-    it('returns the hasSyncKeys when browser reports true', async () => {
-      mockCapabilities({ engines: [], hasSyncKeys: true });
-
-      const result = await renderSettled();
-
-      expect(result.current.fxaStatus?.capabilities.hasSyncKeys).toBe(true);
-    });
-
-    it('returns the hasSyncKeys when browser reports false', async () => {
-      mockCapabilities({ engines: [], hasSyncKeys: false });
-
-      const result = await renderSettled();
-
-      expect(result.current.fxaStatus?.capabilities.hasSyncKeys).toBe(false);
-    });
-
-    it('returns the hasSyncKeys when browser does not report', async () => {
-      mockCapabilities({ engines: [] });
-
-      const result = await renderSettled();
-
-      expect(result.current.fxaStatus?.capabilities.hasSyncKeys).toBe(
-        undefined
-      );
     });
 
     // Very old versions of Firefox iOS omit `capabilities` entirely.

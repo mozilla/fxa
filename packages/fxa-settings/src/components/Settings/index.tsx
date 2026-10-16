@@ -59,9 +59,11 @@ const SettingsError = ({ error }: { error: Error }) => {
 export const Settings = ({
   integration,
   isSignedIntoFirefox = false,
+  browserHasSyncKey,
 }: {
   integration: SettingsIntegration;
   isSignedIntoFirefox?: boolean;
+  browserHasSyncKey?: boolean;
 }) => {
   const session = useSession();
   const authClient = useAuthClient();
@@ -233,7 +235,11 @@ export const Settings = ({
       <Routes>
         <Route
           index
-          element={<PageSettings {...{ integration, isSignedIntoFirefox }} />}
+          element={
+            <PageSettings
+              {...{ integration, isSignedIntoFirefox, browserHasSyncKey }}
+            />
+          }
         />
         <Route path="display_name" element={<PageDisplayName />} />
         <Route path="avatar" element={<PageAvatar />} />
