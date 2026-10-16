@@ -111,7 +111,6 @@ Apply the FXA testing rules in `.claude/rules/testing/base.md` and (for `*.test.
 - Mocha → Jest (no new Mocha tests)
 - `proxyquire` → `jest.mock()`
 - Callbacks → `async/await`
-- `fxa-shared` → `libs/*` (migration in progress, check both locations for existing code before adding new)
 
 **7. AI Slop Detection**
 - Overly verbose or obvious comments that describe what the code does, not why

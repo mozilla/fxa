@@ -84,6 +84,10 @@ const webpackConfig = {
         __dirname,
         '../../libs/shared/email/src/index.ts'
       ),
+      '@fxa/shared/sentry-utils': path.resolve(
+        __dirname,
+        '../../libs/shared/sentry-utils/src/index.ts'
+      ),
       '@fxa/shared/url-allow-list': path.resolve(
         __dirname,
         '../../libs/shared/url-allow-list/src/index.ts'

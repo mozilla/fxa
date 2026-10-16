@@ -5,7 +5,7 @@ Usage: npm test [all|<package-name>*]
 
 examples:
 
-npm test fxa-shared
+npm test fxa-auth-server
 npm test all
 "
 

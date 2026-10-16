@@ -45,7 +45,6 @@
     "async-wait-until": "^2.0.12",
     "classnames": "^2.5.1",
     "fetch-mock": "^9.11.0",
-    "fxa-shared": "workspace:*",
     "react-helmet": "^6.1.0",
     "sinon": "^22.1.0",
     "tailwindcss-dir": "^4.0.0"

@@ -33,7 +33,7 @@ export interface AuthorizationRow {
   lastAuthorizedTosAt: number;
 }
 
-/** The part of fxa-shared's ScopeSet the rule needs. */
+/** The part of ScopeSet the rule needs. */
 export interface ScopeSetLike {
   contains(scope: string): boolean;
 }

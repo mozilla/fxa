@@ -19236,13 +19236,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/chai@npm:^4.3.17":
-  version: 4.3.20
-  resolution: "@types/chai@npm:4.3.20"
-  checksum: 10c0/4601189d611752e65018f1ecadac82e94eed29f348e1d5430e5681a60b01e1ecf855d9bcc74ae43b07394751f184f6970fac2b5561fc57a1f36e93a0f5ffb6e8
-  languageName: node
-  linkType: hard
-
 "@types/chance@npm:^1.1.2":
   version: 1.1.7
   resolution: "@types/chance@npm:1.1.7"
@@ -19583,15 +19576,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/i18n-abide@npm:^0":
-  version: 0.0.5
-  resolution: "@types/i18n-abide@npm:0.0.5"
-  dependencies:
-    "@types/express": "npm:*"
-  checksum: 10c0/1fe9533e381c518838607db1c6d6510f8a23f15606f2b95fb38ca2c2c0fad0f8a359c25805dcbb5df90135c3fbcd9a3baf982eb353b260929ea2d60cb761b5c0
-  languageName: node
-  linkType: hard
-
 "@types/ioredis@npm:^4.26.4":
   version: 4.28.10
   resolution: "@types/ioredis@npm:4.28.10"
@@ -19894,7 +19878,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mocha@npm:^10, @types/mocha@npm:^10.0.6":
+"@types/mocha@npm:^10":
   version: 10.0.10
   resolution: "@types/mocha@npm:10.0.10"
   checksum: 10c0/d2b8c48138cde6923493e42b38e839695eb42edd04629abe480a8f34c0e3f50dd82a55832c2e8d2b6e6f9e4deb492d7d733e600fbbdd5a0ceccbcfc6844ff9d5
@@ -20082,13 +20066,6 @@ __metadata:
   version: 15.7.15
   resolution: "@types/prop-types@npm:15.7.15"
   checksum: 10c0/b59aad1ad19bf1733cf524fd4e618196c6c7690f48ee70a327eb450a42aab8e8a063fbe59ca0a5701aebe2d92d582292c0fb845ea57474f6a15f6994b0e260b2
-  languageName: node
-  linkType: hard
-
-"@types/proxyquire@npm:^1.3.28":
-  version: 1.3.31
-  resolution: "@types/proxyquire@npm:1.3.31"
-  checksum: 10c0/bfcdd3bf39a33ac973109d8026dabed9a624d67218f48723b3ebc5045094b081c546b37595900ae9cbf3476f12725a0a93b9ad561f4a7df394a847e31b49f672
   languageName: node
   linkType: hard
 
@@ -27244,7 +27221,6 @@ __metadata:
   resolution: "db-migrations@workspace:packages/db-migrations"
   dependencies:
     convict: "npm:^6.2.5"
-    fxa-shared: "workspace:*"
     mysql: "npm:^2.18.1"
   bin:
     db-migrations: ./bin/patcher.mjs
@@ -31750,7 +31726,6 @@ __metadata:
     file-loader: "npm:^6.2.0"
     fxa-admin-server: "workspace:*"
     fxa-react: "workspace:*"
-    fxa-shared: "workspace:*"
     helmet: "npm:^8.0.0"
     html-webpack-plugin: "npm:^5.6.0"
     identity-obj-proxy: "npm:^3.0.0"
@@ -31805,7 +31780,6 @@ __metadata:
     eslint-plugin-prettier: "npm:^5.2.3"
     express: "npm:^4.21.2"
     fxa-auth-client: "workspace:*"
-    fxa-shared: "workspace:*"
     googleapis: "npm:^144.0.0"
     helmet: "npm:^8.0.0"
     hot-shots: "npm:^10.2.1"
@@ -31880,7 +31854,6 @@ __metadata:
     emittery: "npm:^0.13.1"
     eslint: "npm:^8.57.1"
     fxa-geodb: "workspace:*"
-    fxa-shared: "workspace:*"
     google-auth-library: "npm:^9.14.0"
     googleapis: "npm:^144.0.0"
     grunt: "npm:^1.6.1"
@@ -31998,7 +31971,6 @@ __metadata:
     fxa-profile-server: "workspace:*"
     fxa-react: "workspace:*"
     fxa-settings: "workspace:*"
-    fxa-shared: "workspace:*"
     got: "npm:11.8.5"
     grunt: "npm:^1.6.1"
     grunt-babel: "npm:8.0.0"
@@ -32123,7 +32095,6 @@ __metadata:
     eslint-plugin-import: "npm:^2.30.0"
     express: "npm:^4.21.2"
     factory-bot-ts: "npm:^0.1.5"
-    fxa-shared: "workspace:*"
     hot-shots: "npm:^10.2.1"
     jest: "npm:27.5.1"
     joi: "npm:^17.13.8"
@@ -32149,7 +32120,6 @@ __metadata:
     chai: "npm:^5.3.3"
     cron: "npm:4.1.3"
     eslint: "npm:^8.19.0"
-    fxa-shared: "workspace:*"
     mocha: "npm:^10.4.0"
     mozlog: "npm:^3.0.2"
     nyc: "npm:^17.1.0"
@@ -32196,7 +32166,6 @@ __metadata:
     convict-format-with-moment: "npm:^6.2.0"
     convict-format-with-validator: "npm:^6.2.0"
     eslint: "npm:^8.18.0"
-    fxa-shared: "workspace:*"
     jest-junit: "npm:^16.0.0"
     joi: "npm:^17.13.8"
     mozlog: "npm:^3.0.2"
@@ -32239,7 +32208,6 @@ __metadata:
     eslint: "npm:^7.32.0"
     fetch-mock: "npm:^9.11.0"
     file-loader: "npm:^6.2.0"
-    fxa-shared: "workspace:*"
     grunt: "npm:^1.6.1"
     grunt-cli: "npm:^1.4.3"
     grunt-contrib-concat: "npm:^2.1.0"
@@ -32313,7 +32281,6 @@ __metadata:
     fxa-auth-client: "workspace:*"
     fxa-pairing-channel: "npm:1.0.2"
     fxa-react: "workspace:*"
-    fxa-shared: "workspace:*"
     grunt: "npm:^1.6.1"
     grunt-cli: "npm:^1.4.3"
     grunt-contrib-concat: "npm:^2.1.0"
@@ -32366,63 +32333,6 @@ __metadata:
     webpack-dev-server: "npm:^6.0.0"
     webpack-manifest-plugin: "npm:^5.0.0"
     workbox-webpack-plugin: "npm:^7.1.0"
-  languageName: unknown
-  linkType: soft
-
-"fxa-shared@workspace:*, fxa-shared@workspace:packages/fxa-shared":
-  version: 0.0.0-use.local
-  resolution: "fxa-shared@workspace:packages/fxa-shared"
-  dependencies:
-    "@fluent/langneg": "npm:^0.7.0"
-    "@types/accept-language-parser": "npm:^1.5.3"
-    "@types/chai": "npm:^4.3.17"
-    "@types/chance": "npm:^1.1.2"
-    "@types/cors": "npm:^2.8.14"
-    "@types/express": "npm:^4.17.12"
-    "@types/i18n-abide": "npm:^0"
-    "@types/ioredis": "npm:^4.26.4"
-    "@types/ip": "npm:^1"
-    "@types/jest": "npm:26.0.23"
-    "@types/mocha": "npm:^10.0.6"
-    "@types/mysql": "npm:^2"
-    "@types/node": "npm:^22.13.5"
-    "@types/proxyquire": "npm:^1.3.28"
-    "@types/sinon": "npm:^22.0.0"
-    accept-language-parser: "npm:^1.5.0"
-    ajv: "npm:^8.20.0"
-    celebrate: "npm:^15.0.1"
-    chai: "npm:^5.3.3"
-    chance: "npm:^1.1.8"
-    cldr-localenames-full: "npm:46.0.0"
-    cors: "npm:^2.8.5"
-    eslint: "npm:^7.32.0"
-    express: "npm:^4.21.2"
-    graphql: "npm:^16.10.0"
-    hot-shots: "npm:^10.2.1"
-    ioredis: "npm:^4.28.2"
-    ip: "npm:^2.0.1"
-    jest: "npm:27.5.1"
-    jest-junit: "npm:^16.0.0"
-    joi: "npm:^17.13.8"
-    jsdom-global: "npm:3.0.2"
-    knex: "npm:^3.3.0"
-    mocha: "npm:^10.4.0"
-    moment: "npm:^2.31.0"
-    mozlog: "npm:^3.0.2"
-    mysql: "npm:^2.18.1"
-    node-uap: "https://github.com/mozilla-fxa/node-uap.git#494714db3e65a4dbfae772f536c8697269174574"
-    nyc: "npm:^17.1.0"
-    objection: "npm:^3.1.3"
-    pm2: "npm:^7.0.0"
-    prettier: "npm:^3.5.3"
-    proxyquire: "npm:^2.1.3"
-    sinon: "npm:^22.1.0"
-    ts-jest: "npm:^29.2.3"
-    ts-loader: "npm:^9.6.2"
-    tsc-alias: "npm:^1.8.8"
-    tsconfig-paths: "npm:^4.2.0"
-    typescript: "npm:5.5.3"
-    underscore: "npm:^1.13.8"
   languageName: unknown
   linkType: soft
 
@@ -32527,6 +32437,7 @@ __metadata:
     "@types/cors": "npm:^2.8.14"
     "@types/hapi": "npm:^18.0.15"
     "@types/ioredis": "npm:^4.26.4"
+    "@types/ip": "npm:^1"
     "@types/jest": "npm:30.0.0"
     "@types/jsdom": "npm:^21"
     "@types/jsonwebtoken": "npm:8.5.1"
@@ -32596,6 +32507,7 @@ __metadata:
     joi: "npm:^17.13.8"
     jose: "npm:^5.9.6"
     jsdom: "npm:^26.0.0"
+    jsdom-global: "npm:3.0.2"
     json: "npm:^11.0.0"
     jsonc-eslint-parser: "npm:^2.1.0"
     jsonwebtoken: "npm:^9.0.3"
@@ -32608,6 +32520,7 @@ __metadata:
     mocha-junit-reporter: "npm:^2.2.0"
     mocha-multi: "npm:^1.1.7"
     module-alias: "npm:^2.2.3"
+    moment: "npm:^2.31.0"
     mozlog: "npm:^3.0.2"
     mysql: "npm:^2.18.1"
     mysql2: "npm:^3.23.1"
@@ -32639,6 +32552,7 @@ __metadata:
     semver: "npm:^7.7.1"
     server-only: "npm:^0.0.1"
     set-value: "npm:^4.1.0"
+    sinon: "npm:^22.1.0"
     sms-segments-calculator: "npm:^1.2.0"
     storybook: "npm:^8.0.0"
     stripe: "npm:22.3.1"
