@@ -1,8 +1,8 @@
 {
-  "commit": "5af972f54c1caee60fecd4d3eb0e2b2fb29cfaf5",
+  "commit": "850b0a914a7e189fe823b57795131cd36d7536a5",
   "summary": "chore(shared): remove packages/fxa-shared and its tooling references",
-  "description": "Because:\n\n- Every module in fxa-shared now lives in libs/ or in the package that uses it.\n\nThis commit:\n\n- Moves the last two imports to @fxa/shared/sentry-utils and @fxa/accounts/errors.\n- Deletes packages/fxa-shared and every workspace dependency on it.\n- Removes fxa-shared from CI, scripts, codecov, lint-staged, jest and docs.\n- Adds @types/ip to the root, which fxa-shared supplied for the legacy db lib.\n- Aliases @fxa/shared/sentry-utils in the content-server webpack config.\n\nFixes FXA-14718",
-  "timestamp": 1792159965000,
+  "description": "Because:\n\n- Every module in fxa-shared now lives in libs/ or in the package that uses it.\n- Some libs imported moment, jsdom-global and sinon that only fxa-shared declared.\n\nThis commit:\n\n- Moves the last two imports to @fxa/shared/sentry-utils and @fxa/accounts/errors.\n- Deletes packages/fxa-shared and every workspace dependency on it.\n- Removes fxa-shared from CI, scripts, codecov, lint-staged, jest and docs.\n- Declares moment, @types/ip, jsdom-global and sinon in the root package.json.\n- Aliases @fxa/shared/sentry-utils in the content-server webpack config.\n\nFixes FXA-14718",
+  "timestamp": 1792161607000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
