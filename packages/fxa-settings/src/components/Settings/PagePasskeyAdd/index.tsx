@@ -15,7 +15,11 @@ import {
   useAuthClient,
   useFtlMsgResolver,
 } from '../../../models';
-import { isWebAuthnSupported } from '../../../lib/passkeys/webauthn';
+import {
+  isWebAuthnSupported,
+  type PublicKeyCredentialJSON,
+} from '../../../lib/passkeys/webauthn';
+import { base64urlToBytes } from '../../../lib/base64url';
 import {
   createCredentialWithPrfFallback,
   stripPrfResults,
@@ -40,6 +44,22 @@ import {
   passkeyCouldNotCompleteMessage,
   unsupportedPasskeyMessage,
 } from '../../../lib/passkeys/unsupported-message';
+
+// Undefined when unreadable; swallow the parse error so clientDataJSON never reaches Sentry.
+function signedChallenge(
+  credential: PublicKeyCredentialJSON
+): string | undefined {
+  try {
+    const clientData = JSON.parse(
+      new TextDecoder().decode(
+        base64urlToBytes(credential.response.clientDataJSON)
+      )
+    );
+    return clientData.challenge;
+  } catch {
+    return undefined;
+  }
+}
 
 export const MfaGuardPagePasskeyAdd = () => {
   const alertBar = useAlertBar();
@@ -160,6 +180,23 @@ export const PagePasskeyAdd = () => {
         // if the user has clicked Cancel by this point, skip the server call
         // so we don't create a passkey the user thinks they canceled.
         if (stale()) return;
+
+        // Firefox for Android can resolve create() with a credential signed over a
+        // challenge other than ours, and leave that passkey on the device. The
+        // server rejects that registration, so show the error without the call.
+        if (signedChallenge(credential) !== challenge) {
+          GleanMetrics.accountPref.passkeyCreateSubmitFrontendError({
+            event: { reason: 'challenge_mismatch' },
+          });
+          latest.current.alertBar.error(
+            latest.current.ftlMsgResolver.getMsg(
+              'page-passkey-add-error-system-v2',
+              'There was a problem creating your passkey. Try again later.'
+            )
+          );
+          latest.current.navigateToSettings();
+          return;
+        }
 
         // Step 3: Complete registration with server
         await latest.current.authClient.completePasskeyRegistration(
