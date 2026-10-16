@@ -43,13 +43,17 @@ const args = (
     offerOptIn?: boolean;
     mounted?: boolean;
     mfaToken?: string;
+    prfOut?: Uint8Array | null;
   } = {}
 ) => ({
   authClient,
   uid: UID,
   mfaToken: overrides.mfaToken ?? MFA_TOKEN,
   credentialId: 'cred',
-  prfOut: new Uint8Array(32).fill(PRF_FILL),
+  prfOut:
+    overrides.prfOut === null
+      ? undefined
+      : (overrides.prfOut ?? new Uint8Array(32).fill(PRF_FILL)),
   mounted: { current: overrides.mounted ?? true },
   offerOptIn: overrides.offerOptIn ?? true,
   sensitiveDataClient: new SensitiveDataClient(),
@@ -81,6 +85,7 @@ describe('recoverPasswordlessKb', () => {
 
     await expect(recoverPasswordlessKb(a)).resolves.toEqual({
       outcome: 'needs_password',
+      cause: 'fetch_failed',
     });
     expect(unwrapMock).not.toHaveBeenCalled();
   });
@@ -101,6 +106,7 @@ describe('recoverPasswordlessKb', () => {
 
       await expect(recoverPasswordlessKb(a)).resolves.toEqual({
         outcome: 'needs_password',
+        cause: reason,
       });
 
       expect(a.sensitiveDataClient.PasskeyWrapData).toEqual({
@@ -118,16 +124,52 @@ describe('recoverPasswordlessKb', () => {
 
     await expect(recoverPasswordlessKb(a)).resolves.toEqual({
       outcome: 'needs_password',
+      cause: 'no_wrap',
     });
     expect(a.sensitiveDataClient.PasskeyWrapData).toBeUndefined();
   });
 
-  it('makes no offer when the wrap is unusable for a reason a store cannot fix', async () => {
-    unwrapMock.mockResolvedValue({ ok: false, reason: 'failed' });
-    const a = args();
+  it.each(['no_prf', 'unwrap_failed', 'fetch_failed'] as const)(
+    'passes on %s and makes no offer, since a store cannot fix it',
+    async (reason) => {
+      unwrapMock.mockResolvedValue({ ok: false, reason });
+      const a = args();
+
+      await expect(recoverPasswordlessKb(a)).resolves.toEqual({
+        outcome: 'needs_password',
+        cause: reason,
+      });
+      expect(a.sensitiveDataClient.PasskeyWrapData).toBeUndefined();
+    }
+  );
+
+  it.each([
+    ['short', new Uint8Array(4).fill(PRF_FILL)],
+    ['spent', new Uint8Array(32)],
+  ])('makes no offer when prfOut is %s', async (_, prfOut) => {
+    unwrapMock.mockResolvedValue({ ok: false, reason: 'no_wrap' });
+    const a = args({ prfOut });
 
     await expect(recoverPasswordlessKb(a)).resolves.toEqual({
       outcome: 'needs_password',
+      cause: 'no_wrap',
+    });
+    expect(a.sensitiveDataClient.PasskeyWrapData).toBeUndefined();
+  });
+
+  it('checks for a wrap without PRF output but cannot stash an offer', async () => {
+    unwrapMock.mockResolvedValue({ ok: false, reason: 'no_wrap' });
+    const a = args({ prfOut: null });
+
+    await expect(recoverPasswordlessKb(a)).resolves.toEqual({
+      outcome: 'needs_password',
+      cause: 'no_wrap',
+    });
+    expect(unwrapMock).toHaveBeenCalledWith(authClient, {
+      mfaToken: MFA_TOKEN,
+      uid: UID,
+      credentialId: 'cred',
+      prfOut: undefined,
     });
     expect(a.sensitiveDataClient.PasskeyWrapData).toBeUndefined();
   });
@@ -164,6 +206,7 @@ describe('recoverPasswordlessKb', () => {
 
     await expect(recoverPasswordlessKb(a)).resolves.toEqual({
       outcome: 'needs_password',
+      cause: 'fetch_failed',
     });
     // A failure says nothing about whether a wrap exists, so offering the
     // opt-in here could overwrite one that does.

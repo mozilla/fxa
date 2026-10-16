@@ -11,12 +11,17 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppLayout from '../../../components/AppLayout';
 import Avatar from '../../../components/Settings/Avatar';
 import { Banner } from '../../../components/Banner';
+import type { BannerProps } from '../../../components/Banner/interfaces';
 import InputPassword from '../../../components/InputPassword';
 import GleanMetrics from '../../../lib/glean';
 import { useGleanView } from '../../../lib/glean/useGleanView';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { AccountAvatar } from '../../../lib/interfaces';
-import { PasskeyMetricsSurface } from '../../../lib/passkeys/signin-flow';
+import type {
+  PasskeyFallbackCause,
+  PasskeyMetricsSurface,
+} from '../../../lib/passkeys/signin-flow';
+import { PASSKEY_TROUBLESHOOT_URL } from '../../../lib/passkeys/constants';
 import { useFtlMsgResolver } from '../../../models';
 
 export type SigninPasskeyFallbackContinueError = {
@@ -32,6 +37,7 @@ export type SigninPasskeyFallbackProps = {
   avatarData?: { account: { avatar: AccountAvatar } };
   avatarLoading?: boolean;
   passkeySurface?: PasskeyMetricsSurface;
+  passkeyFallbackCause?: PasskeyFallbackCause;
 };
 
 type FormData = {
@@ -46,6 +52,7 @@ const SigninPasskeyFallback = ({
   avatarData,
   avatarLoading,
   passkeySurface = 'emailfirst',
+  passkeyFallbackCause,
 }: SigninPasskeyFallbackProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const [passwordTooltipErrorText, setPasswordTooltipErrorText] = useState('');
@@ -67,8 +74,17 @@ const SigninPasskeyFallback = ({
 
   useGleanView(() =>
     GleanMetrics.passkeyEnterPassword.view({
-      event: { reason: passkeySurface },
+      event: { reason: passkeySurface, cause: passkeyFallbackCause ?? '' },
     })
+  );
+
+  const wrapUnusableBanner = getWrapUnusableBanner(passkeyFallbackCause);
+  useGleanView(
+    () =>
+      GleanMetrics.passkeyEnterPassword.wrapUnusableBannerView({
+        event: { reason: passkeyFallbackCause },
+      }),
+    !!wrapUnusableBanner
   );
 
   // Fire engage on the first keystroke into the password field. Mirrors the
@@ -121,6 +137,7 @@ const SigninPasskeyFallback = ({
 
   return (
     <AppLayout>
+      {wrapUnusableBanner && <Banner {...wrapUnusableBanner} />}
       {bannerErrorText && (
         <Banner type="error" content={{ localizedHeading: bannerErrorText }} />
       )}
@@ -213,3 +230,39 @@ const SigninPasskeyFallback = ({
 };
 
 export default SigninPasskeyFallback;
+
+// Shown when the passkey has a wrap that couldn't be used on this device.
+// TODO: replace the placeholder copy and banner types once UX review lands,
+// then move the strings to en.ftl and resolve them with ftlMsgResolver.
+function getWrapUnusableBanner(
+  cause?: PasskeyFallbackCause
+): BannerProps | undefined {
+  const link = {
+    url: PASSKEY_TROUBLESHOOT_URL,
+    localizedText: 'Learn more',
+    gleanId: 'signin_passkey_fallback_wrap_unusable_learn_more',
+  };
+  if (cause === 'no_prf') {
+    return {
+      type: 'warning',
+      content: {
+        localizedHeading: 'Password needed on this device',
+        localizedDescription:
+          'This browser or device can’t use your passkey to sign in to sync on its own.',
+      },
+      link,
+    };
+  }
+  if (cause === 'unwrap_failed') {
+    return {
+      type: 'error',
+      content: {
+        localizedHeading: 'Your passkey couldn’t unlock sync',
+        localizedDescription:
+          'Something went wrong, so you’ll need your password this time.',
+      },
+      link,
+    };
+  }
+  return undefined;
+}

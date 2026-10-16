@@ -29,6 +29,7 @@ jest.mock('../../../lib/glean', () => ({
       submit: jest.fn(),
       submitFrontendError: jest.fn(),
       success: jest.fn(),
+      wrapUnusableBannerView: jest.fn(),
     },
     passkey: {
       authSuccess: jest.fn(),
@@ -366,11 +367,27 @@ describe('SigninPasskeyFallback container', () => {
       });
     });
 
+    it('passes the router-state fallback cause to the page', async () => {
+      mockLocationState = {
+        passkeySurface: 'signin',
+        passkeyFallbackCause: 'no_prf',
+      };
+      render();
+      await waitFor(() => {
+        expect(GleanMetrics.passkeyEnterPassword.view).toHaveBeenCalledWith({
+          event: { reason: 'signin', cause: 'no_prf' },
+        });
+      });
+      expect(
+        GleanMetrics.passkeyEnterPassword.wrapUnusableBannerView
+      ).toHaveBeenCalledWith({ event: { reason: 'no_prf' } });
+    });
+
     it('tags the enter-password view and success events with the router-state surface', async () => {
       const { getByTestId } = render();
       await waitFor(() => {
         expect(GleanMetrics.passkeyEnterPassword.view).toHaveBeenCalledWith({
-          event: { reason: 'signin' },
+          event: { reason: 'signin', cause: '' },
         });
       });
       submitPassword(getByTestId);
