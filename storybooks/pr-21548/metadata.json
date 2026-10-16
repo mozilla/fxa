@@ -1,0 +1,12 @@
+{
+  "commit": "47f72d476cbc5608fe21537425dfb17acdd8915f",
+  "summary": "chore(settings, content-server): remove leftover Pocket code",
+  "description": "Because:\n\n* Pocket is discontinued, and its Terms of Service strings are gone.\n* Dead Pocket product code stayed in content-server, settings and dev-launcher.\n\nThis commit:\n\n* Deletes the unused Pocket migration mixin, experiment, link and logo map\n* Removes the Pocket style and unreferenced Pocket SVG files\n* Removes the Pocket case from Connected Services, so it uses the default icon\n* Removes the browser.pocket.enabled pref from fxa-dev-launcher\n\nCloses FXA-14802",
+  "timestamp": 1792183170000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
