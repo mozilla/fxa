@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 7c464ec38e0dbe5c0fa87de53f6ac98dc0815e5c</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 7c464ec38e0dbe5c0fa87de53f6ac98dc0815e5c</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/16/2026, 4:34:48 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(settings): gate pairing on the browser holding the Sync key</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- A Firefox session without the Sync key (VPN/Relay/Smart Window cached
+  sign-in, third-party auth) passed every &quot;signed in&quot; check, so pairing
+  started and failed in the browser with &quot;No keyFetchToken&quot;
+- Firefox now reports `signedInUser.hasSyncKey` in `fxa_status`
+  (Bug 2080354); `undefined` from older Firefox keeps today&#039;s path
+- The Sync sign-in /pair fell back to landed on email-first, which showed
+  a cached sign-in step first and could not tell a passwordless account
+  from one that has a password
+
+This commit:
+- Adds `canPairFromBrowser` and uses it on /pair and
+  /connect_another_device; a key-less session is sent to
+  /post_verify/set_password, which creates a password or hands an
+  account that has one to /signin
+- Makes set_password verify the session first (code or TOTP page, then
+  back), since Firefox deep-links there and /password/create needs a
+  verified session
+- Labels the /signin submit &quot;Start syncing&quot; when sent from set_password
+- Hides the Connect-a-device promo and Connected Services button in
+  Settings when the browser reports no key
+- Drops the unused `capabilities.hasSyncKeys` type and adds Playwright
+  password → /pair and password → 2FA → /pair flow tests
+
+Closes FXA-14357
+Closes FXA-14738</pre></dd>
+  </dl>
+</body>
+</html>
