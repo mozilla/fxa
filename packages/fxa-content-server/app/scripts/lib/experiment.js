@@ -25,7 +25,6 @@ const STARTUP_EXPERIMENTS = {
 const MANUAL_EXPERIMENTS = {
   emailMxValidation: BaseExperiment,
   qrCodeCad: BaseExperiment,
-  pocketMigration: BaseExperiment,
 };
 
 const ALL_EXPERIMENTS = _.extend({}, STARTUP_EXPERIMENTS, MANUAL_EXPERIMENTS);
