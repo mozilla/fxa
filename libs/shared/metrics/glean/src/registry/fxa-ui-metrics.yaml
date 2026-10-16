@@ -2742,6 +2742,42 @@ passkey_enter_password:
           (email-first page) or 'signin' (login page). Only these two surfaces
           reach the existing-password page (no-password surfaces never do).
         type: string
+      # TODO: data review for `cause` (account state) before the passwordless
+      # Sync flag is enabled in production.
+      cause:
+        description: |
+          Why the Sync passkey sign-in needed a password: 'no_wrap' (passkey
+          not set up for sync), 'stale' (wrap older than the current keys),
+          'no_prf' (wrap exists, no PRF output on this device),
+          'unwrap_failed' (wrap exists but could not be opened),
+          'fetch_failed' (wrap could not be checked), or 'sync_v3' (legacy
+          desktop Sync, which cannot use a wrap). Empty when the wrap was not
+          requested.
+        type: string
+  wrap_unusable_banner_view:
+    type: event
+    description: |
+      User was shown the banner on the enter-password page explaining that the
+      passkey they used is set up for sync but couldn't be used on this device.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14797
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Why the wrap couldn't be used: 'no_prf' (no PRF output from this
+          browser or device) or 'unwrap_failed' (the wrap could not be opened).
+        type: string
   engage:
     type: event
     description: |

@@ -26,6 +26,7 @@ export const stringEventExtraPropertyNames = [
   'supported',
   'has_passkey_option',
   'branch',
+  'cause',
 ] as const;
 
 export type PropertyNameStringT = typeof stringEventPropertyNames;
@@ -350,6 +351,7 @@ export const eventsMap = {
     submit: 'passkey_enter_password_submit',
     submitFrontendError: 'passkey_enter_password_submit_frontend_error',
     success: 'passkey_enter_password_success',
+    wrapUnusableBannerView: 'passkey_enter_password_wrap_unusable_banner_view',
   },
 
   error: {

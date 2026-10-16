@@ -8,13 +8,16 @@ import { uint8ToHex } from 'fxa-auth-client/lib/utils';
 import type { SensitiveDataClient } from '../../sensitive-data-client';
 import type AuthClient from 'fxa-auth-client/browser';
 import { uidFromMfaToken } from '../../mfa-guard-utils';
+import { isZeroed } from '../../passkey-crypto/assert';
+import { PRF_OUT_BYTES } from '../../passkey-crypto/constants';
 import type { UnwrapPasskeyKbResult } from './consumption';
+import type { PasskeyFallbackCause } from '../signin-flow';
 
 export type RecoverPasswordlessKbResult =
   /** `kB` is in hand; the sign-in can finish without a password. */
   | { outcome: 'recovered'; kB: hexstring }
   /** The password step has to supply `kB`. */
-  | { outcome: 'needs_password' }
+  | { outcome: 'needs_password'; cause: PasskeyFallbackCause }
   /** The user navigated away mid-fetch; nothing may act on their behalf. */
   | { outcome: 'left' };
 
@@ -39,7 +42,8 @@ export async function recoverPasswordlessKb({
   uid: string;
   mfaToken: string;
   credentialId: string;
-  prfOut: Uint8Array;
+  /** Absent when the authenticator returned no PRF output. */
+  prfOut?: Uint8Array;
   mounted: RefObject<boolean>;
   offerOptIn: boolean;
   sensitiveDataClient: SensitiveDataClient;
@@ -49,7 +53,7 @@ export async function recoverPasswordlessKb({
   // returns both together, so a mismatch is a server bug.
   if (uidFromMfaToken(mfaToken) !== uid) {
     Sentry.captureException(new Error('passkey-wrap uid mismatch'));
-    return { outcome: 'needs_password' };
+    return { outcome: 'needs_password', cause: 'fetch_failed' };
   }
   let unwrapped: UnwrapPasskeyKbResult;
   try {
@@ -65,7 +69,7 @@ export async function recoverPasswordlessKb({
   } catch {
     // A rejected chunk load (e.g. offline) must fall back like any other
     // unwrap failure, not surface as the generic error banner.
-    unwrapped = { ok: false, reason: 'failed' };
+    unwrapped = { ok: false, reason: 'fetch_failed' };
   }
 
   if (!mounted.current) {
@@ -86,10 +90,13 @@ export async function recoverPasswordlessKb({
   }
 
   // A passkey with nothing stored gets the offer, as does one whose wrap
-  // predates the key rotation: the store replaces it.
+  // predates the key rotation: the store replaces it. Storing needs a usable
+  // `prfOut`, which `creation.ts` would refuse otherwise.
   if (
     (unwrapped.reason === 'no_wrap' || unwrapped.reason === 'stale') &&
-    offerOptIn
+    offerOptIn &&
+    prfOut?.length === PRF_OUT_BYTES &&
+    !isZeroed(prfOut)
   ) {
     // Zeroes whatever it replaces rather than dropping the reference.
     sensitiveDataClient.clearPasskeyWrapData();
@@ -101,5 +108,5 @@ export async function recoverPasswordlessKb({
       prfOut: new Uint8Array(prfOut),
     };
   }
-  return { outcome: 'needs_password' };
+  return { outcome: 'needs_password', cause: unwrapped.reason };
 }
