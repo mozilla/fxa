@@ -179,20 +179,20 @@ inactiveAccountSecondWarning-preview = Hasi saioa zure kontua mantentzeko
 # followed by link to sign in
 inactiveAccountSecondWarning-action-plaintext = Hasi saioa zure kontua mantentzeko:
 # The user has a low number of valid recovery codes remaining for use
-codes-reminder-title-zero = Babes-kopiarako autentikazio-koderik gabe gelditu zara!
+codes-reminder-title-zero = Segurtasuneko autentifikazio-koderik gabe gelditu zara!
 codes-reminder-title-one = Zure azkeneko babes-kopiarako autentikazio-kodean zaude
-codes-reminder-title-two = Babeskopiako autentifikazio-kode gehiago sortzeko garaia
-codes-reminder-description-part-one = Babeskopiako autentifikazio-kodeek zure informazioa leheneratzen laguntzen dizute pasahitza ahazten duzunean.
+codes-reminder-title-two = Segurtasuneko autentifikazio-kode gehiago sortzeko garaia da
+codes-reminder-description-part-one = Segurtasuneko autentifikazio-kodeek zure informazioa leheneratzen laguntzen dizute pasahitza ahazten duzunean.
 codes-reminder-description-part-two = Zure datuak aurrerago ez galtzeko, sor itzazu kode berriak orain.
 codes-reminder-description-two-left = Bakarrik bi kode gelditzen zaizkizu.
-codes-reminder-description-create-codes = Sortu babeskopiko autentifikazio-kode berriak, blokeatuta bazaude zure kontua itzultzen laguntzeko.
+codes-reminder-description-create-codes = Sortu segurtasuneko autentifikazio-kode berriak, blokeatuta bazaude zure kontua itzultzen laguntzeko.
 lowRecoveryCodes-action-2 = Kodeak sortu
 codes-create-plaintext = { lowRecoveryCodes-action-2 }
 lowRecoveryCodes-subject-2 =
     { $numberRemaining ->
-        [0] Ez da ordezko autentifikazio-koderik geratzen
-        [one] autentifikazio-kode bakarra geldintzen da
-       *[other] { $numberRemaining } autentifikazio-kode bakarrik gelditzen dira!
+        [0] Ez da segurtasuneko autentifikazio-koderik geratzen
+        [one] Segurtasuneko autentifikazio-kode bakarra gelditzen da
+       *[other] Segurtasuneko { $numberRemaining } autentifikazio-kode bakarrik gelditzen dira!
     }
 # Variables:
 # $clientName (String) - A client the user hasn't signed into before (e.g. Firefox, Sync)
@@ -291,7 +291,7 @@ postAddTwoStepAuthentication-title-2 = Bi urratseko autentifikazioa aktibatu duz
 postAddTwoStepAuthentication-from-device-v2 = Hemendik eskatu duzu hau:
 postAddTwoStepAuthentication-action = Kudeatu kontua
 postAddTwoStepAuthentication-code-required-v4 = Zure autentifikazio-aplikazioko segurtasun-kodeak behar dira orain saioa hasten duzun bakoitzean.
-postAddTwoStepAuthentication-recovery-method-codes = Autentifikazio-kodeen babeskopia ere gehitu duzu berreskuratzeko metodo gisa.
+postAddTwoStepAuthentication-recovery-method-codes = Segurtasuneko autentifikazio-kodeak ere gehitu dituzu berreskuratzeko metodo gisa.
 # Variables:
 #  $maskedPhoneNumber (String) - A bullet point mask with the last four digits of the user's phone number, e.g. ••••••1234
 postAddTwoStepAuthentication-recovery-method-phone = { $maskedPhoneNumber } ere gehitu duzu berreskuratze-telefono gisa.
@@ -324,15 +324,15 @@ postChangeTwoStepAuthentication-action = Kudeatu kontua
 postChangeTwoStepAuthentication-how-protects-link = Honek nola babesten duen zure kontua
 postChangeTwoStepAuthentication-how-protects-plaintext = Honek nola babesten duen zure kontua:
 postChangeTwoStepAuthentication-device-sign-out-message = Konektatutako zure gailu guztiak babesteko, kontu hau darabilzun gailu guztietan saioa amaitu behar zenuke eta gero saioa berriro hasi bi urratseko autentifikazio berria erabiliz.
-postConsumeRecoveryCode-title-3 = Zure autentifikazio-kodearen babeskopia erabili da pasahitz-berrezartzea berresteko
+postConsumeRecoveryCode-title-3 = Zure segurtasuneko autentifikazio-kodea erabili da pasahitz-berrezartzea berresteko
 # After the colon, there is description of the device that the backup authentication code was used on
 # E.g., Firefox Nightly on Mac OSX, Thursday Sept 2, 2024
 postConsumeRecoveryCode-description-3 = Kodea hemendik erabilita:
 postConsumeRecoveryCode-action = Kudeatu kontua
-postConsumeRecoveryCode-subject-v3 = Autentifikazio-kodearen babeskopia erabilita
+postConsumeRecoveryCode-subject-v3 = Segurtasuneko autentifikazio-kodea erabilita
 postConsumeRecoveryCode-preview = Egiaztatu ziurtatzeko zu izan zarela
-postNewRecoveryCodes-subject-2 = Sortu dira babeskopiko autentifikazio-kode berriak
-postNewRecoveryCodes-title-2 = Babeskopiarako autentifikazio-kodea berriak sortu dituzu
+postNewRecoveryCodes-subject-2 = Segurtasuneko autentifikazio-kode berriak sortuta
+postNewRecoveryCodes-title-2 = Segurtasuneko autentifikazio-kode berriak sortu dituzu
 # After the colon, there is information about the device that the authentication codes were created on
 postNewRecoveryCodes-description-2 = Data honetan sortu ziren:
 postNewRecoveryCodes-action = Kudeatu kontua
@@ -351,7 +351,7 @@ postRemoveRecoveryPhone-subject = Berreskuratze telefonoa kendu da
 postRemoveRecoveryPhone-preview = Bi urratseko autentifikazioaren bidez babestuta dagoen kontua
 postRemoveRecoveryPhone-title = Berreskuratze telefonoa kendu da
 postRemoveRecoveryPhone-description-v2 = Zure berreskuratze-telefonoa bi urratseko autentifikazio-ezarpenetatik kendu da.
-postRemoveRecoveryPhone-description-extra = Zure autentifikazio aplikazioa erabili ezin baduzu ere, zure babeskopiako autentifikazio-kodeak erabil ditzakezu saioa hasteko.
+postRemoveRecoveryPhone-description-extra = Zure autentifikazio aplikazioa erabili ezin baduzu ere, segurtasuneko autentifikazio-kodeak erabil ditzakezu saioa hasteko.
 postRemoveRecoveryPhone-requested-device = Honi eskatu diozu:
 postRemoveSecondary-subject = Helbide elektronikoa alternatiboa kenduta
 postRemoveSecondary-title = Helbide elektronikoa alternatiboa kenduta
@@ -365,9 +365,9 @@ postRemoveTwoStepAuthentication-title-2 = Bi urratseko autentifikazioa desaktiba
 postRemoveTwoStepAuthentication-from-device = Hemendik desgaitu duzu:
 postRemoveTwoStepAuthentication-action = Kudeatu kontua
 postRemoveTwoStepAuthentication-not-required-2 = Jada ez duzu zure autentifikazio-aplikazioko segurtasun-koderik behar saioa hasten duzunean.
-postSigninRecoveryCode-subject = Saioa hasteko autentifikazio-kodearen babeskopia erabili da
+postSigninRecoveryCode-subject = Segurtasuneko autentifikazio-kodea erabili da saioa hasteko
 postSigninRecoveryCode-preview = Berretsi kontuaren jarduera
-postSigninRecoveryCode-title = Zure autentifikazio-kodearen babeskopia erabili da saioa hasteko
+postSigninRecoveryCode-title = Segurtasuneko autentifikazio-kodea erabili da saioa hasteko
 postSigninRecoveryCode-description = Hau egin ez baduzu, pasahitza berehala aldatu beharko zenuke kontua seguru mantentzeko.
 postSigninRecoveryCode-device = Hemendik hasi duzu saioa:
 postSigninRecoveryCode-action = Kudeatu kontua
