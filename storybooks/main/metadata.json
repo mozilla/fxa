@@ -1,8 +1,8 @@
 {
-  "commit": "7d26d68f4384e0bbac8bd0589192812a488c61aa",
-  "summary": "Merge pull request #21547 from mozilla/FXA-14801",
-  "description": "chore(scripts): docker-push repo from the git remote",
-  "timestamp": 1792182569000,
+  "commit": "e5ead03da4b18e26f3e9bc022680e081e38a4a85",
+  "summary": "Merge pull request #21528 from mozilla/fxa-11367",
+  "description": "chore(functional-tests): upgrade eslint-plugin-playwright to 2.x",
+  "timestamp": 1792183382000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
