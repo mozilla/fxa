@@ -45,7 +45,7 @@ let db: AccountDatabase;
 let manager: PasskeyManager;
 let accountManager: AccountManager;
 
-let redis: Redis.Redis;
+let redis: Redis;
 let challengeManager: PasskeyChallengeManager;
 
 describe('Passkey Security Tests', () => {

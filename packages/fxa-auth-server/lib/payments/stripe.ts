@@ -49,7 +49,7 @@ import {
   WebSubscription,
 } from '@fxa/accounts/subscriptions-legacy/subscriptions/types';
 import { StatsD } from 'hot-shots';
-import ioredis from 'ioredis';
+import type { Redis as IORedis } from 'ioredis';
 import { Logger } from 'mozlog';
 import Stripe from 'stripe';
 import { Container } from 'typedi';
@@ -175,7 +175,7 @@ export class StripeHelper extends StripeHelperBase {
   public override readonly stripe: Stripe;
   protected override readonly stripeFirestore: StripeFirestore;
   protected override readonly paymentConfigManager?: PaymentConfigManager;
-  protected override readonly redis?: ioredis.Redis;
+  protected override readonly redis?: IORedis;
   protected override readonly productConfigurationManager?:
     | ProductConfigurationManager
     | undefined;

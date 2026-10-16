@@ -36,7 +36,7 @@ export const RateLimitRedisProvider: Provider = {
 export const RateLimitClient = Symbol('RATE_LIMIT_CLIENT');
 export const RateLimitProvider = {
   provide: RateLimitClient,
-  useFactory: (config: ConfigService, redis: Redis.Redis, statsd: StatsD) => {
+  useFactory: (config: ConfigService, redis: Redis, statsd: StatsD) => {
     const rateLimitConfig = config.get<RateLimitConfig>('rateLimit');
     if (rateLimitConfig == null) {
       throw new Error('Missing rateLimit config');

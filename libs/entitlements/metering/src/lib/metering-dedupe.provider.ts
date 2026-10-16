@@ -9,7 +9,7 @@ import { MeteringRedisConfig } from './metering-redis.config';
 
 export const MeteringDedupeRedisClient = Symbol('METERING_DEDUPE_REDIS_CLIENT');
 
-export const MeteringDedupeRedisClientProvider: Provider<Redis.Redis> = {
+export const MeteringDedupeRedisClientProvider: Provider<Redis> = {
   provide: MeteringDedupeRedisClient,
   useFactory: (config: MeteringRedisConfig) => {
     return new Redis({

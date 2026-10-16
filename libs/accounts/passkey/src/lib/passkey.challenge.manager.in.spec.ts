@@ -20,12 +20,12 @@ const mockLogger = {
 
 const mockStatsd = { increment: jest.fn() };
 
-let redis: Redis.Redis;
+let redis: Redis;
 let manager: PasskeyChallengeManager;
 let config: PasskeyConfig;
 
 const buildTestModule = async (
-  redis: Redis.Redis,
+  redis: Redis,
   config: PasskeyConfig,
   logger: typeof mockLogger
 ) => {
