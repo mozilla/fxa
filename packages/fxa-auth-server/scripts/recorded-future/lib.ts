@@ -34,6 +34,48 @@ export const createRecordedFutureRespError = (error) =>
     { cause: error }
   );
 
+// Retry-After is either delay-seconds or an HTTP-date (RFC 9110 10.2.3)
+export const parseRetryAfterMs = (
+  value: string | null,
+  now = Date.now()
+): number | undefined => {
+  if (!value) {
+    return;
+  }
+  if (/^\d+$/.test(value.trim())) {
+    return Number(value.trim()) * 1000;
+  }
+  const date = Date.parse(value);
+  return Number.isNaN(date) ? undefined : Math.max(0, date - now);
+};
+
+export const createRetryAfterFetch =
+  ({
+    fetchFn = global.fetch,
+    maxRetries = 3,
+    maxWaitMs = 5 * 60 * 1000,
+    sleep = (ms: number) => new Promise((r) => setTimeout(r, ms)),
+  }: {
+    fetchFn?: typeof fetch;
+    maxRetries?: number;
+    maxWaitMs?: number;
+    sleep?: (ms: number) => Promise<unknown>;
+  } = {}) =>
+  async (input: Request): Promise<Response> => {
+    for (let attempt = 0; ; attempt++) {
+      // a Request body can be read once, so send a copy and keep the original
+      const res = await fetchFn(input.clone());
+      if (attempt >= maxRetries || (res.status !== 429 && res.status !== 503)) {
+        return res;
+      }
+      const waitMs = parseRetryAfterMs(res.headers.get('retry-after'));
+      if (waitMs === undefined || waitMs > maxWaitMs) {
+        return res;
+      }
+      await sleep(waitMs);
+    }
+  };
+
 export const createCredentialsSearchFn =
   (client: ReturnType<typeof createClient<paths>>) =>
   async (payload: components['schemas']['CredentialsSearchRequest']) => {
@@ -106,6 +148,19 @@ export const createHasTotp2faFn =
     return false;
   };
 
+// the API response is not validated, so drop any entry we can't safely use
+const isUsableCleartextCredential = (
+  x: components['schemas']['Credentials'] | null | undefined
+): x is components['schemas']['Credentials'] & {
+  subject: string;
+  exposed_secret: { type: 'clear'; details: { clear_text_value: string } };
+} =>
+  typeof x?.subject === 'string' &&
+  x.subject.length > 0 &&
+  x.exposed_secret?.type === 'clear' &&
+  typeof x.exposed_secret.details?.clear_text_value === 'string' &&
+  x.exposed_secret.details.clear_text_value.length > 0;
+
 export const createCredentialsLookupFn =
   (client: ReturnType<typeof createClient<paths>>) =>
   async (
@@ -141,19 +196,21 @@ export const createCredentialsLookupFn =
         throw createRecordedFutureRespError(error);
       }
 
-      for (const identity of data.identities || []) {
-        const cleartextSecretCreds = identity.credentials?.filter(
-          (id) =>
-            id.exposed_secret?.type === 'clear' &&
-            id.exposed_secret?.details?.clear_text_value != null
-        );
+      const identities = Array.isArray(data?.identities) ? data.identities : [];
+      for (const identity of identities) {
+        const cleartextSecretCreds = Array.isArray(identity?.credentials)
+          ? identity.credentials.filter(isUsableCleartextCredential)
+          : [];
 
         // the same combination of login and password could show up due to
         // different leak sources
         const creds = new Map();
-        cleartextSecretCreds?.forEach((x) =>
+        cleartextSecretCreds.forEach((x) =>
           creds.set(
-            `${x.subject}${x.exposed_secret?.details?.clear_text_value}`,
+            JSON.stringify([
+              x.subject,
+              x.exposed_secret.details.clear_text_value,
+            ]),
             x
           )
         );
