@@ -156,7 +156,7 @@ export class MarionetteClient {
     this.msgId++;
     const expectedId = this.msgId;
     const msg = JSON.stringify([0, expectedId, name, params]);
-    const packet = `${msg.length}:${msg}`;
+    const packet = `${Buffer.byteLength(msg, 'utf-8')}:${msg}`;
     this.sock.write(packet, 'utf-8');
 
     const raw = await this.recvPacket();
