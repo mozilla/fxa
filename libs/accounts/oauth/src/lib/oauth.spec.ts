@@ -46,5 +46,6 @@ describe('OAuthNativeServices', () => {
     expect(OAuthNativeServices.Relay).toEqual('relay');
     expect(OAuthNativeServices.Vpn).toEqual('vpn');
     expect(OAuthNativeServices.SmartWindow).toEqual('smartwindow');
+    expect(OAuthNativeServices.Monitor).toEqual('monitor');
   });
 });

@@ -20,6 +20,7 @@ export enum OAuthNativeServices {
   Sync = 'sync',
   Relay = 'relay',
   SmartWindow = 'smartwindow',
+  Monitor = 'monitor',
   Vpn = 'vpn',
 }
 

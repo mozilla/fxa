@@ -84,7 +84,7 @@ describe('resolveServiceOrClientId', () => {
   it('returns the client id for an OAuth integration when getService() is not a Firefox service', () => {
     expect(
       resolveServiceOrClientId(
-        makeIntegration(IntegrationType.OAuthWeb, 'monitor', 'client-id')
+        makeIntegration(IntegrationType.OAuthWeb, '123done', 'client-id')
       )
     ).toBe('client-id');
   });
