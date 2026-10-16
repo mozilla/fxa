@@ -1,0 +1,10 @@
+{
+  "commit": "5bec092ffe022b871d8f066f8b297e79935bb682",
+  "summary": "fix(settings): read pairing state when v2 supplicant ApproveSignIn mounts",
+  "description": "Because:\n\n- In v2 pairing, a fast authority approval sets the supplicant state to\n  Complete before ApproveSignIn subscribes, so the page stays on approve_signin.\n\nThis commit:\n\n- Routes Complete or Failed from integration.state when ApproveSignIn mounts.\n- Adds tests for each state at mount.\n\nCloses FXA-14793",
+  "timestamp": 1792149699000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
