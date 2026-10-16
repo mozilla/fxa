@@ -62,6 +62,7 @@ describe('Signin utils', () => {
         credentialId: 'cred',
         mfaToken: 'mfa-token',
         prfOut: new Uint8Array(32).fill(3),
+        surface: 'signin' as const,
       };
       sensitiveDataClient.PasskeyWrapData = held;
       return { sensitiveDataClient, held };

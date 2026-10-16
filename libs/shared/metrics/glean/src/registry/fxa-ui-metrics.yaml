@@ -2989,6 +2989,125 @@ passkey:
         description: |
           Whether the retry without PRF succeeded: "success" or "failure".
         type: string
+  upgrade_prompt_view:
+    type: event
+    description: |
+      The passwordless Sync opt-in was shown after a desktop passkey sign-in
+      that also needed the password, offering to store a passkey wrap so the
+      next Sync sign-in skips the password.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13266
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          The surface the passkey sign-in started on: 'emailfirst' or
+          'signin'.
+        type: string
+  upgrade_prompt_submit:
+    type: event
+    description: |
+      The user clicked "Enable passkey" on the passwordless Sync opt-in. Fires
+      on every click, including retries after a dismissed prompt.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13266
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          The surface the passkey sign-in started on: 'emailfirst' or
+          'signin'.
+        type: string
+  upgrade_prompt_success:
+    type: event
+    description: |
+      The passwordless Sync opt-in stored a passkey wrap. Also fires when a
+      live wrap was already stored (errno 235), since that wrap opens with the
+      current keys and the user sees the same confirmation.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13266
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          The surface the passkey sign-in started on: 'emailfirst' or
+          'signin'.
+        type: string
+  upgrade_prompt_notnow:
+    type: event
+    description: |
+      The user declined the passwordless Sync opt-in with "Not now". Declining
+      is not persisted anywhere else, so this is the only record of it.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13266
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          The surface the passkey sign-in started on: 'emailfirst' or
+          'signin'.
+        type: string
+  upgrade_prompt_frontend_error:
+    type: event
+    description: |
+      The passwordless Sync opt-in failed to store a passkey wrap.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13266
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          `<surface>_<error>`. Surface: 'emailfirst' or 'signin'. Error:
+          'cancelled' (the authenticator prompt was dismissed or timed out;
+          the offer stays up), 'throttled' (rate limited; the offer stays up),
+          or 'unexpected' (any other failure; the page continues to Settings).
+          E.g. 'signin_cancelled'.
+        type: string
 
 account_pref:
   view:

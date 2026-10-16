@@ -42,6 +42,7 @@ const args = (authClient: Pick<AuthClient, 'getPasskeyWrap'>) => ({
   mounted: { current: true },
   offerOptIn: true,
   sensitiveDataClient: new SensitiveDataClient(),
+  surface: 'signin' as const,
 });
 
 describe('recoverPasswordlessKb through the real wrap module', () => {

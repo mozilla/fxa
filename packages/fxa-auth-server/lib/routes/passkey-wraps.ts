@@ -12,13 +12,14 @@ import {
   sameCredentialId,
   type NewPasskeyWrapData,
 } from '@fxa/accounts/passkey';
-import { AppError } from '@fxa/accounts/errors';
+import { AppError, ERRNO } from '@fxa/accounts/errors';
 import { AuthRequest } from '../types';
 import { ConfigType } from '../../config';
 import { isPasskeyPasswordlessSyncEnabled } from '../passkey-utils';
 import { recordSecurityEvent } from './utils/security-event';
 import type { SecurityEventNames } from '@fxa/shared/db/mysql/legacy/models/auth/security-event';
 import { reportSentryError } from '../sentry';
+import type { GleanMetricsType } from '../metrics/glean';
 import { base64urlCredentialId, base64urlString } from './passkeys';
 import type { Customs, DB } from './passkeys';
 import PASSKEYS_API_DOCS from '../../docs/swagger/passkeys-api';
@@ -61,6 +62,11 @@ function isBoundTo(cid: string | undefined, credentialId: string): boolean {
   return !!cid && sameCredentialId(cid, credentialId);
 }
 
+const RETRIEVAL_FAILURE_REASONS: Record<number, string> = {
+  [ERRNO.PASSKEY_WRAP_NOT_FOUND]: 'no_wrap',
+  [ERRNO.PASSKEY_NOT_FOUND]: 'not_found',
+};
+
 /**
  * Handlers for the passkey wrap endpoints. The envelopes that let a passkey
  * unlock `kB`.
@@ -69,7 +75,8 @@ export class PasskeyWrapsHandler {
   constructor(
     private readonly service: PasskeyService,
     private readonly db: DB,
-    private readonly customs: Customs
+    private readonly customs: Customs,
+    private readonly glean: GleanMetricsType
   ) {}
 
   /**
@@ -143,6 +150,7 @@ export class PasskeyWrapsHandler {
       await this.recordEvent(request, 'account.passkey.wrap_invalidated');
     }
     await this.recordEvent(request, 'account.passkey.wrap_created');
+    this.glean.passkey.wrapCreateSuccess(request);
 
     return { created: true };
   }
@@ -179,7 +187,7 @@ export class PasskeyWrapsHandler {
     );
 
     if (!isBoundTo(cid, credentialId)) {
-      await this.recordEvent(request, 'account.passkey.wrap_retrieval_failure');
+      await this.recordRetrievalFailure(request, 'failed');
       throw AppError.invalidMfaToken();
     }
 
@@ -189,16 +197,20 @@ export class PasskeyWrapsHandler {
     try {
       wrap = await this.service.getPasskeyWrap(uid, credentialId);
     } catch (err) {
-      await this.recordEvent(request, 'account.passkey.wrap_retrieval_failure');
+      await this.recordRetrievalFailure(
+        request,
+        RETRIEVAL_FAILURE_REASONS[err?.errno] ?? 'failed'
+      );
       throw err;
     }
 
     if (isWrapStale(wrap.createdAt, account.keysChangedAt)) {
-      await this.recordEvent(request, 'account.passkey.wrap_retrieval_failure');
+      await this.recordRetrievalFailure(request, 'stale');
       throw AppError.passkeyWrapStale();
     }
 
     await this.recordEvent(request, 'account.passkey.wrap_retrieved');
+    this.glean.passkey.wrapRetrieveSuccess(request);
 
     return {
       ...encodePasskeyWrapEnvelope(wrap),
@@ -249,6 +261,11 @@ export class PasskeyWrapsHandler {
     return { deleted: true };
   }
 
+  private async recordRetrievalFailure(request: AuthRequest, reason: string) {
+    await this.recordEvent(request, 'account.passkey.wrap_retrieval_failure');
+    this.glean.passkey.wrapRetrieveError(request, { reason });
+  }
+
   /**
    * Records a security event without letting its failure escape.
    *
@@ -277,7 +294,8 @@ export const passkeyWrapsRoutes = (
   customs: Customs,
   db: DB,
   config: ConfigType,
-  log: any
+  log: any,
+  glean: GleanMetricsType
 ) => {
   const passwordlessSyncEnabledCheck = () =>
     isPasskeyPasswordlessSyncEnabled(config);
@@ -290,7 +308,8 @@ export const passkeyWrapsRoutes = (
   const handler = new PasskeyWrapsHandler(
     Container.get(PasskeyService),
     db,
-    customs
+    customs,
+    glean
   );
 
   return [

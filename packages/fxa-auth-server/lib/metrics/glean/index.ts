@@ -457,6 +457,11 @@ export function gleanMetrics(config: ConfigType) {
       renameSuccess: createEventFn('passkey_rename_success'),
       verificationStarted: createEventFn('passkey_verification_started'),
       verificationSuccess: createEventFn('passkey_verification_success'),
+      wrapCreateSuccess: createEventFn('passkey_wrap_create_success'),
+      wrapRetrieveSuccess: createEventFn('passkey_wrap_retrieve_success'),
+      wrapRetrieveError: createEventFn('passkey_wrap_retrieve_error', {
+        additionalMetrics: extraKeyReasonCb,
+      }),
     },
     pairing: {
       success: createEventFn('dtm_backend_pair_success'),
