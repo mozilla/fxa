@@ -96,11 +96,19 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     );
   }
 
+  isFirefoxClientServiceMonitor() {
+    return (
+      this.isFirefoxClient() &&
+      this.data.service === OAuthNativeServices.Monitor
+    );
+  }
+
   isFirefoxNonSync() {
     return (
       this.isFirefoxClientServiceRelay() ||
       this.isFirefoxClientServiceSmartWindow() ||
-      this.isFirefoxClientServiceVpn()
+      this.isFirefoxClientServiceVpn() ||
+      this.isFirefoxClientServiceMonitor()
     );
   }
 
@@ -127,7 +135,7 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     return this.isSync() && this._scopeRequestsKeys();
   }
 
-  // Non-Sync browser services (Relay, VPN, SmartWindow) want keys
+  // Non-Sync browser services (Relay, VPN, SmartWindow, Monitor) want keys
   // opportunistically if the user enters a password for another reason,
   // so they can turn Sync on without being bounced back to FxA.
   wantsKeysIfPasswordEntered(): boolean {
@@ -188,6 +196,9 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     if (this.isFirefoxClientServiceVpn()) {
       return { vpn: {} };
     }
+    if (this.isFirefoxClientServiceMonitor()) {
+      return { monitor: {} };
+    }
     if (this.isDefaultSyncService()) {
       return { sync: syncEngines || {} };
     }
@@ -206,6 +217,9 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     }
     if (this.isFirefoxClientServiceVpn()) {
       return Constants.RELIER_FF_CLIENT_VPN_SERVICE_NAME;
+    }
+    if (this.isFirefoxClientServiceMonitor()) {
+      return Constants.RELIER_FF_CLIENT_MONITOR_SERVICE_NAME;
     }
     // TODO: handle Thunderbird case better? FXA-10848
     return 'Firefox';

@@ -1508,6 +1508,7 @@ const convictConf = convict({
           relay: 'https://identity.mozilla.com/apps/relay',
           smartwindow: 'https://identity.mozilla.com/apps/smartwindow',
           vpn: 'https://identity.mozilla.com/apps/vpn',
+          monitor: 'https://identity.mozilla.com/apps/monitor',
         },
         env: 'OAUTH_EXCHANGE_SERVICE_SCOPES',
       },
@@ -1544,6 +1545,7 @@ const convictConf = convict({
             '9ebfe2c2f9ea3c58',
           ],
           smartwindow: ['5882386c6d801776'],
+          monitor: ['5882386c6d801776', '946bfd23df91404c', '802d56ef2a9af9fa'],
           sync: [
             '5882386c6d801776',
             '1b1a3e44c54fbb58',
@@ -1567,6 +1569,7 @@ const convictConf = convict({
             'profile:uid',
           ],
           vpn: ['https://identity.mozilla.com/apps/vpn', 'profile'],
+          monitor: ['https://identity.mozilla.com/apps/monitor', 'profile'],
         },
         env: 'OAUTH_AUTHORIZATION_SERVICE_SCOPES',
       },
