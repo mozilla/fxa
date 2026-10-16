@@ -26,6 +26,8 @@ import {
   capturePairingChannelParams,
   resetPairingChannelParamsForTest,
 } from '../../../lib/pairing-channel-params';
+import { getBasicAccountData } from '../../../lib/account-storage';
+import { pairingRequiresTotp } from '../../../lib/pairing/totp-gate';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -70,6 +72,22 @@ jest.mock('../../../lib/channels/firefox', () => ({
   FirefoxCommand: {
     PairPreferences: 'fxaccounts:pair_preferences',
   },
+}));
+
+// Most renders here pass no AppContext; the TOTP gate only needs a client.
+const mockAuthClient = {};
+jest.mock('../../../models', () => ({
+  ...jest.requireActual('../../../models'),
+  useAuthClient: () => mockAuthClient,
+}));
+
+jest.mock('../../../lib/account-storage', () => ({
+  ...jest.requireActual('../../../lib/account-storage'),
+  getBasicAccountData: jest.fn(),
+}));
+
+jest.mock('../../../lib/pairing/totp-gate', () => ({
+  pairingRequiresTotp: jest.fn(),
 }));
 
 jest.mock('../../../lib/glean', () => ({
@@ -169,6 +187,8 @@ describe('Pair', () => {
       .mocked(firefox.requestSignedInUser)
       .mockResolvedValue(MOCK_SYNC_SIGNED_IN_USER);
     jest.mocked(firefox.fxaOAuthFlowBegin).mockResolvedValue(null);
+    jest.mocked(getBasicAccountData).mockReset().mockReturnValue(null);
+    jest.mocked(pairingRequiresTotp).mockReset().mockResolvedValue(false);
   });
 
   afterEach(() => {
@@ -397,6 +417,147 @@ describe('Pair', () => {
           screen.getByText('Select an option to continue:')
         ).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('TOTP gate before pairing', () => {
+    const TOTP_VERIFIED_AT = 1_700_000_000_000;
+    const TOTP_ROUTE_CALL = [
+      '/pair/auth/totp',
+      { state: { returnToPair: true } },
+    ] as const;
+
+    beforeEach(() => {
+      jest.mocked(getBasicAccountData).mockReturnValue({
+        uid: 'sync-uid',
+        email: 'sync@example.com',
+        metricsEnabled: true,
+        verified: true,
+        sessionToken: 'session-token',
+        sessionVerified: true,
+        totpVerifiedAt: TOTP_VERIFIED_AT,
+      });
+    });
+
+    async function goToDownloadScreen() {
+      const user = userEvent.setup();
+      await renderPair();
+      await user.click(
+        screen.getByLabelText(/I don’t have Firefox for mobile/)
+      );
+      await user.click(screen.getByRole('button', { name: 'Continue' }));
+      await screen.findByText('Download Firefox for mobile');
+      return user;
+    }
+
+    it('sends a 2FA account to /pair/auth/totp on Continue instead of pairing', async () => {
+      jest.mocked(pairingRequiresTotp).mockResolvedValue(true);
+      const user = userEvent.setup();
+      await renderPair();
+      await user.click(
+        screen.getByLabelText(/I already have Firefox for mobile/)
+      );
+      await user.click(screen.getByRole('button', { name: 'Continue' }));
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith(...TOTP_ROUTE_CALL)
+      );
+      expect(pairingRequiresTotp).toHaveBeenCalledWith(
+        mockAuthClient,
+        'session-token',
+        {
+          verifiedAt: TOTP_VERIFIED_AT,
+          maxAgeMs: getDefault().pairing.totpMaxAgeMinutes * 60 * 1000,
+        }
+      );
+      expect(firefox.send).not.toHaveBeenCalled();
+    });
+
+    it('sends a 2FA account to /pair/auth/totp on "Continue to sync"', async () => {
+      jest.mocked(pairingRequiresTotp).mockResolvedValue(true);
+      const user = await goToDownloadScreen();
+      await user.click(
+        screen.getByRole('button', { name: 'Continue to sync' })
+      );
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith(...TOTP_ROUTE_CALL)
+      );
+      expect(firefox.send).not.toHaveBeenCalled();
+    });
+
+    it('sends pair_preferences at once when no code is required', async () => {
+      const user = userEvent.setup();
+      await renderPair();
+      await user.click(
+        screen.getByLabelText(/I already have Firefox for mobile/)
+      );
+      await user.click(screen.getByRole('button', { name: 'Continue' }));
+      await waitFor(() =>
+        expect(firefox.send).toHaveBeenCalledWith(
+          'fxaccounts:pair_preferences',
+          {}
+        )
+      );
+      expect(pairingRequiresTotp).toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalledWith(...TOTP_ROUTE_CALL);
+    });
+
+    it('skips the gate when this page has no session token', async () => {
+      jest.mocked(getBasicAccountData).mockReturnValue(null);
+      const user = userEvent.setup();
+      await renderPair();
+      await user.click(
+        screen.getByLabelText(/I already have Firefox for mobile/)
+      );
+      await user.click(screen.getByRole('button', { name: 'Continue' }));
+      await waitFor(() => expect(firefox.send).toHaveBeenCalledTimes(1));
+      expect(pairingRequiresTotp).not.toHaveBeenCalled();
+    });
+
+    it('does not call the gate for "needs mobile" or its "Not now"', async () => {
+      const user = await goToDownloadScreen();
+      await user.click(screen.getByText('Not now'));
+      expect(GleanMetrics.cadFireFox.notnowSubmit).toHaveBeenCalled();
+      expect(pairingRequiresTotp).not.toHaveBeenCalled();
+      expect(firefox.send).not.toHaveBeenCalled();
+    });
+
+    it('does not call the gate for "Not now" on the choice screen', async () => {
+      const user = userEvent.setup();
+      await renderPair();
+      await user.click(screen.getByText('Not now'));
+      expect(GleanMetrics.cadFireFox.choiceNotnowSubmit).toHaveBeenCalled();
+      expect(pairingRequiresTotp).not.toHaveBeenCalled();
+      expect(firefox.send).not.toHaveBeenCalled();
+    });
+
+    it('resumes pairing once, with no click, on return from /pair/auth/totp', async () => {
+      // A stale gate answer must not bounce the user back to the code page.
+      jest.mocked(pairingRequiresTotp).mockResolvedValue(true);
+      mockLocationState = { totpComplete: true };
+      await renderPair();
+      await waitFor(() =>
+        expect(firefox.send).toHaveBeenCalledWith(
+          'fxaccounts:pair_preferences',
+          {}
+        )
+      );
+      expect(mockNavigate).toHaveBeenCalledWith('/pair', { replace: true });
+      expect(mockNavigate).not.toHaveBeenCalledWith(...TOTP_ROUTE_CALL);
+      // A later Continue goes through the gate; the resume does not run again.
+      await userEvent.click(
+        screen.getByLabelText(/I already have Firefox for mobile/)
+      );
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith(...TOTP_ROUTE_CALL)
+      );
+      expect(firefox.send).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not resume pairing without totpComplete', async () => {
+      await renderPair();
+      expect(pairingRequiresTotp).not.toHaveBeenCalled();
+      expect(firefox.send).not.toHaveBeenCalled();
     });
   });
 
