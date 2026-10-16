@@ -532,29 +532,6 @@ function trim(str) {
       });
     });
 
-    describe('sessions', () => {
-      it('can successfully complete', () => {
-        sinon.stub(realClient, 'sessions').callsFake(() => {
-          return Promise.resolve({});
-        });
-
-        return client.sessions('sessionToken').then(() => {
-          assert.isTrue(realClient.sessions.calledWith('sessionToken'));
-        });
-      });
-
-      it('throws any errors', () => {
-        sinon.stub(realClient, 'sessions').callsFake(() => {
-          return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
-        });
-
-        return client.sessions('session').then(assert.fail, (err) => {
-          assert.isTrue(realClient.sessions.calledWith('session'));
-          assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
-        });
-      });
-    });
-
     describe('signIn', function () {
       it('signin with unknown user should fail', function () {
         sinon.stub(realClient, 'signIn').callsFake(function () {

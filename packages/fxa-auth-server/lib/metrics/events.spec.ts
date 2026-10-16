@@ -1078,7 +1078,6 @@ describe('metrics/events', () => {
   it.each([
     '/account/devices',
     '/account/profile',
-    '/account/sessions',
     '/password/forgot/status',
     '/recovery_email/status',
     '/recoveryKey/0123456789abcdef0123456789ABCDEF',
