@@ -9,4 +9,4 @@ permissions: {}
 
 jobs:
   glean-probe-scraper:
-    uses: mozilla/probe-scraper/.github/workflows/glean.yaml@98bfb86af8d6bf2d694f645397c77ed2217eaa25 # main
+    uses: mozilla/probe-scraper/.github/workflows/glean.yaml@266b9e0a6581b2770535ddb81febd7632030b198 # main
