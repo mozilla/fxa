@@ -74,8 +74,10 @@ const ctaClassName =
  * raises an "address is invalid" alert there that no API reports, so the
  * inferred fallback cannot tell "not installed" from "still deciding"
  * (`store-fallback.ts`, finding 2). Safari therefore gets the store as an
- * explicit primary CTA and the deep link as a secondary one, with no spinner
- * and no watchdog.
+ * explicit primary CTA and the deep link as a secondary one. The deep link
+ * still arms the watchdog, so a dismissed alert lands on the store too; the
+ * cost is that cancelling "Open in Firefox?" does as well, which assign()
+ * keeps one Back tap from.
  *
  * Without a `plan` there is nothing to hand off, so the CTA is the shared
  * mobile download target rather than a per-platform App Store / Play Store
@@ -90,7 +92,6 @@ const DownloadFirefox = ({
   const isAndroid = plan?.kind === 'android';
   const isSafari = plan?.kind === 'ios' && plan.browser === 'safari';
   const willAutoAttempt = plan?.kind === 'android' && plan.autoAttempt;
-
   const [attempting, setAttempting] = useState(willAutoAttempt);
 
   // Holds the teardown for the in-flight iOS watch so we can clean up on unmount.
@@ -151,12 +152,6 @@ const DownloadFirefox = ({
     });
   };
 
-  // Safari's deep link has no spinner or watchdog to arm, so the tap only
-  // needs recording as an attempt.
-  const onSafariAttempt = () => {
-    GleanMetrics.dtmMobile.deeplinkAttempt({ event: { reason: 'ios' } });
-  };
-
   const ctaLabel = attempting ? (
     <>
       {/* Hidden from the accessibility tree because the label beside it
@@ -197,7 +192,7 @@ const DownloadFirefox = ({
         </a>
         <a
           href={plan.deepLink}
-          onClick={onSafariAttempt}
+          onClick={onAttempt}
           className="cta-neutral cta-xl flex items-center justify-center"
           data-glean-id="dtm_mobile_download_open_firefox"
         >

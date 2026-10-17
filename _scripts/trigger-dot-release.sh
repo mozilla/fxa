@@ -76,4 +76,4 @@ git push "${remote}" "${tag}"
 
 echo
 echo "Tagged ${tag}. Kick off the docker build with:"
-echo "  yarn trigger:docker-push ${tag}"
+echo "  FXA_REMOTE=${remote} yarn trigger:docker-push ${tag}"
