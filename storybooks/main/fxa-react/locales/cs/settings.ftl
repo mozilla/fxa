@@ -1903,7 +1903,7 @@ pair2-authority-continue-on-mobile-cancel-button = Zrušit
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Otevřete { -brand-firefox(case: "acc") } pro synchronizaci
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Pro nastavení synchronizace mezi zařízeními otevřete { -brand-firefox } na tomto zařízení a navštivte <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Pro nastavení synchronizace mezi zařízeními otevřete { -brand-firefox } na tomto zařízení a navštivte <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Stáhnout { -brand-firefox }
 

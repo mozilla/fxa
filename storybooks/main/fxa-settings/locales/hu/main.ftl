@@ -1364,7 +1364,7 @@ pair2-authority-continue-on-mobile-cancel-button = Mégse
 
 
 pair2-authority-download-firefox-heading = A { -brand-firefox } megnyitása a szinkronizáláshoz
-pair2-authority-download-firefox-instruction = Az eszközök közti szinkronizálás beállításához nyissa meg a { -brand-firefox } böngészőt ezen az eszközön, és keresse fel a <b>firefox.com/pair</b> oldalt
+pair2-authority-download-firefox-instruction-v2 = Az eszközök közti szinkronizálás beállításához nyissa meg a(z) { -brand-firefox } böngészőt ezen az eszközön, és keresse fel a <b>firefox.com/pair</b> oldalt.
 pair2-authority-download-firefox-cta = A { -brand-firefox } letöltése
 
 

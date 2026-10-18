@@ -1896,7 +1896,7 @@ pair2-authority-continue-on-mobile-cancel-button = Cancelar
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Abre { -brand-firefox } para sincronizar
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Para configurar la sincronización entre dispositivos, abre { -brand-firefox } en este dispositivo y visita <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Para configurar la sincronización entre dispositivos, abre { -brand-firefox } en este dispositivo y visita <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Descarga { -brand-firefox }
 

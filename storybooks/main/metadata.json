@@ -1,8 +1,8 @@
 {
-  "commit": "2a3777220bf61db42ee8faab360b7efa4efceb45",
-  "summary": "Merge pull request #21551 from mozilla/FXA-14798",
-  "description": "fix(settings): Fix app store fallback on deep link failure",
-  "timestamp": 1792192673000,
+  "commit": "3e2cb676f8c561e7c293d44ec979c3be88eb81cb",
+  "summary": "Merge pull request #21517 from mozilla/FXA-14779",
+  "description": "fix(auth): allow CORS credentials on /account/credentials/status",
+  "timestamp": 1792348640000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

@@ -1870,7 +1870,7 @@ pair2-authority-continue-on-mobile-cancel-button = 취소
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = 동기화를 위해 { -brand-firefox } 열기
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = 기기 간 동기화를 설정하려면 이 기기에서 { -brand-firefox }를 열고 <b>firefox.com/pair</b>를 방문하세요.
+pair2-authority-download-firefox-instruction-v2 = 기기 간 동기화를 설정하려면 이 기기에서 { -brand-firefox }를 열고 <b>firefox.com/pair</b>를 방문하세요.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = { -brand-firefox } 다운로드
 
@@ -2008,6 +2008,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = 모바일 기기를 �
 pair2-supplicant-timeout-and-cancel-cancelled-heading = 취소됨
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = 언제든 기기에 연결하려면, 컴퓨터에서 <b>firefox.com/pair</b>에 접속하세요.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = 이 기기는 이미 로그인되어 있습니다
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = 데스크톱 계정에 연결하려면, 이 기기에서 { -brand-firefox }를 로그아웃한 다음 컴퓨터에서 <b>firefox.com/pair</b>를 방문하여 로그인을 완료하세요.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a

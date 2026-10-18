@@ -1323,7 +1323,6 @@ pair2-authority-continue-on-mobile-cancel-button = Annuleren
 
 
 pair2-authority-download-firefox-heading = Open { -brand-firefox } om te synchroniseren
-pair2-authority-download-firefox-instruction = Open { -brand-firefox } op dit apparaat en bezoek <b>firefox.com/pair</b> om synchronisatie tussen apparaten in te stellen
 pair2-authority-download-firefox-cta = { -brand-firefox } downloaden
 
 

@@ -1901,7 +1901,7 @@ pair2-authority-continue-on-mobile-cancel-button = Ακύρωση
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Ανοίξτε το { -brand-firefox } για συγχρονισμό
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Για να ρυθμίσετε τον συγχρονισμό μεταξύ των συσκευών, ανοίξτε το { -brand-firefox } σε αυτήν τη συσκευή και επισκεφθείτε το <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Για να ρυθμίσετε τον συγχρονισμό μεταξύ των συσκευών, ανοίξτε το { -brand-firefox } σε αυτήν τη συσκευή και επισκεφθείτε το <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Λήψη του { -brand-firefox }
 

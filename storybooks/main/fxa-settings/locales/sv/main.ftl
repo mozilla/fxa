@@ -1384,6 +1384,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Vi gjorde timeout
 pair2-supplicant-timeout-and-cancel-timeout-description = För att ansluta din mobila enhet och synkronisera din { -brand-firefox }-data, besök <b>firefox.com/pair</b> på din dator.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Avbruten
 pair2-supplicant-timeout-and-cancel-canceled-description = När du vill ansluta en enhet besöker du <b>firefox.com/pair</b> på din dator.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Den här enheten är redan inloggad
+pair2-supplicant-timeout-and-cancel-signed-in-description = För att ansluta till din dators konto, logga ut från { -brand-firefox } på den här enheten och besök sedan <b>firefox.com/pair</b> på din dator för att slutföra inloggningen.
 
 
 permissions-heading = { $serviceName } vill ha tillgång till:

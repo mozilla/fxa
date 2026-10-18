@@ -1777,8 +1777,6 @@ pair2-authority-continue-on-mobile-cancel-button = Vazgeç
 
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Eşitlemek için { -brand-firefox } tarayıcısını açın
-# "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Cihazlar arasında eşitlemeyi kurmak için bu cihazda { -brand-firefox }’u açıp <b>firefox.com/pair</b> adresine gidin
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = { -brand-firefox }’u indir
 

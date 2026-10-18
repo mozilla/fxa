@@ -1904,7 +1904,7 @@ pair2-authority-continue-on-mobile-cancel-button = Mégse
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = A { -brand-firefox } megnyitása a szinkronizáláshoz
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Az eszközök közti szinkronizálás beállításához nyissa meg a { -brand-firefox } böngészőt ezen az eszközön, és keresse fel a <b>firefox.com/pair</b> oldalt
+pair2-authority-download-firefox-instruction-v2 = Az eszközök közti szinkronizálás beállításához nyissa meg a(z) { -brand-firefox } böngészőt ezen az eszközön, és keresse fel a <b>firefox.com/pair</b> oldalt.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = A { -brand-firefox } letöltése
 

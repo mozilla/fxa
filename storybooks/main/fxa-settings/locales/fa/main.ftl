@@ -1312,7 +1312,6 @@ pair2-authority-continue-on-mobile-cancel-button = انصراف
 
 
 pair2-authority-download-firefox-heading = برای همگام‌سازی، { -brand-firefox } را باز کنید
-pair2-authority-download-firefox-instruction = برای راه‌اندازی همگام‌سازی بین دستگاه‌ها، { -brand-firefox } را روی این دستگاه باز کنید و به <b>firefox.com/pair</b> بروید
 pair2-authority-download-firefox-cta = بارگیری { -brand-firefox }
 
 

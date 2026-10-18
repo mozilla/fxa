@@ -1901,7 +1901,7 @@ pair2-authority-continue-on-mobile-cancel-button = Бас тарту
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Синхрондау үшін { -brand-firefox } ашыңыз
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Құрылғылар арасында синхрондауды баптау үшін осы құрылғыда { -brand-firefox } ашып, <b>firefox.com/pair</b> сайтына кіріңіз.
+pair2-authority-download-firefox-instruction-v2 = Құрылғылар арасында синхрондауды баптау үшін осы құрылғыда { -brand-firefox } ашып, <b>firefox.com/pair</b> сайтына кіріңіз.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = { -brand-firefox } жүктеп алу
 
