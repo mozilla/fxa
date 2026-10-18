@@ -2723,6 +2723,11 @@ export const accountRoutes = (
       path: '/account/credentials/status',
       options: {
         ...ACCOUNT_DOCS.ACCOUNT_CREDENTIALS_STATUS,
+        ...(enableCredentials && {
+          cors: {
+            credentials: true,
+          },
+        }),
         validate: {
           payload: isA.object({
             email: validators.email().description(DESCRIPTION.email),
