@@ -8,7 +8,7 @@
  * Exercises failure modes that should land the user on /pair/failure:
  *
  *   1. Supplicant clicks "Cancel" on /pair/supp/allow
- *   2. Channel server WebSocket disconnects mid-flow
+ *   2. Channel server ends the channel mid-flow (close code 4000)
  *
  * Shares the happy-path setup from pairingFlow.spec.ts (Marionette authority
  * plus Playwright supplicant) but stops short of completing the approval.
@@ -96,7 +96,7 @@ test.describe('severity-2 #smoke', () => {
       });
     });
 
-    test('channel WebSocket disconnect routes supplicant to /pair/failure', async ({
+    test('channel server ending the channel routes supplicant to /pair/failure', async ({
       target,
       syncOAuthBrowserPages: { page },
       testAccountTracker,
@@ -104,16 +104,17 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       const client = marionetteAuthority.client;
 
-      // To simulate a channel-server disconnect, we need to forcibly close
-      // the supplicant's WebSocket mid-flow and verify the supplicant
-      // integration handles the close by routing to /pair/failure. Playwright
-      // 1.44.1 (the version pinned by this package) has no `routeWebSocket`
-      // API, so we cannot intercept the WS at the network layer.
+      // To simulate the channel server ending the channel, we need to fire a
+      // close event on the supplicant's WebSocket mid-flow and verify the
+      // supplicant integration handles the close by routing to /pair/failure.
+      // Playwright 1.44.1 (the version pinned by this package) has no
+      // `routeWebSocket` API, so we cannot intercept the WS at the network
+      // layer.
       //
       // Instead, before any page JS runs, we wrap `window.WebSocket` to track
       // every constructed instance on `window.__fxaTestWebSockets`. Later we
-      // call `page.evaluate(() => sockets.forEach(ws => ws.close()))` from
-      // the test to trigger the close path.
+      // dispatch a close event on each tracked socket to trigger the close
+      // path.
       //
       // The wrapper subclasses the native WebSocket so the static constants
       // (CONNECTING/OPEN/CLOSING/CLOSED) and prototype methods are inherited
@@ -166,18 +167,17 @@ test.describe('severity-2 #smoke', () => {
         });
       });
 
-      await test.step('Force-close the channel WebSocket', async () => {
-        // Calling `ws.close()` with no arguments triggers an abnormal close
-        // on the server side because no graceful close handshake completes.
-        // The pairing channel client surfaces this as a CONNECTION_CLOSED
-        // error, which the supplicant integration handles by transitioning
-        // to the Failed terminal state and routing to /pair/failure.
+      await test.step('Fire the channel-closed event', async () => {
+        // Fire the close event the channel server sends when it ends a channel
+        // (code 4000), which the supplicant handles without a resume. A plain
+        // drop resumes (resumable-websocket.ts); resumable-websocket.test.ts
+        // covers the resume and its give-up.
         const closed = await page.evaluate(() => {
           const sockets = window.__fxaTestWebSockets || [];
           let n = 0;
           for (const ws of sockets) {
             try {
-              ws.close();
+              ws.dispatchEvent(new CloseEvent('close', { code: 4000 }));
               n++;
             } catch {
               /* ignore */
@@ -187,7 +187,7 @@ test.describe('severity-2 #smoke', () => {
         });
         expect(
           closed,
-          'Expected at least one tracked WebSocket to close'
+          'Expected at least one tracked WebSocket to get the close event'
         ).toBeGreaterThan(0);
       });
 
