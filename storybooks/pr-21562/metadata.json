@@ -1,8 +1,8 @@
 {
-  "commit": "273a8195e27593c709d038b1f4da76dcff61b57c",
+  "commit": "dde4a61fd5a736441559c427f04241571e96c257",
   "summary": "fix(admin-panel): return every account matching an email search",
   "description": "Because:\n\n- An address can be one account's current email and another account's\n  sign-up email that was removed and later reused, for example a school\n  address recycled years later.\n- Search returned only the current holder, so the original account was\n  unreachable by its sign-up address.\n\nThis commit:\n\n- Run the emails and accounts.normalizedEmail lookups together and\n  return an array, current-email match first.\n- Render email results with the recovery-phone list and label each\n  with how it holds the address (primary, secondary, sign-up only).\n- Pass the submitted query to results so labels and highlights do not\n  follow the input while typing.\n- Update the admin API functional test for the array response.\n\nFixes FXA-14753",
-  "timestamp": 1792437907000,
+  "timestamp": 1792449190000,
   "storybooks": [
     "fxa-admin-panel"
   ],
