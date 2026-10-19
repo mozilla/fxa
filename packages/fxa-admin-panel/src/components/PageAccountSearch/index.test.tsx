@@ -5,7 +5,7 @@
 import React from 'react';
 import Chance from 'chance';
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
-import { AccountSearch } from './index';
+import { AccountSearch, emailMatchLabel } from './index';
 import { GuardEnv, AdminPanelGroup, AdminPanelGuard } from '@fxa/shared/guards';
 import { adminApi } from '../../lib/api';
 
@@ -193,9 +193,9 @@ it('renders without imploding', () => {
 });
 
 it('calls account search by email', async () => {
-  (adminApi.getAccountByEmail as jest.Mock).mockResolvedValue(
-    makeMinimalAccount(testEmail)
-  );
+  (adminApi.getAccountByEmail as jest.Mock).mockResolvedValue([
+    makeMinimalAccount(testEmail),
+  ]);
 
   render(<AccountSearch />);
   fireEvent.change(screen.getByTestId('email-input'), {
@@ -205,6 +205,99 @@ it('calls account search by email', async () => {
 
   await waitFor(() => screen.getByTestId('account-section'));
   expect(adminApi.getAccountByEmail).toHaveBeenCalled();
+});
+
+it('lists every account matched by email with how each one holds the address', async () => {
+  const current = { ...makeMinimalAccount(testEmail), uid: 'aaa' };
+  const former = {
+    ...makeMinimalAccount('new-primary@example.com'),
+    uid: 'bbb',
+    email: testEmail,
+  };
+  (adminApi.getAccountByEmail as jest.Mock).mockResolvedValue([
+    current,
+    former,
+  ]);
+
+  render(<AccountSearch />);
+  fireEvent.change(screen.getByTestId('email-input'), {
+    target: { value: testEmail },
+  });
+  fireEvent.click(screen.getByTestId('search-button'));
+
+  expect(await screen.findByText('2 accounts found:')).toBeInTheDocument();
+  expect(
+    screen.getAllByTestId('email-match-label').map((el) => el.textContent)
+  ).toEqual(['Primary email', 'Sign-up email (no longer on account)']);
+});
+
+it('shows the match label on a single email result', async () => {
+  (adminApi.getAccountByEmail as jest.Mock).mockResolvedValue([
+    makeMinimalAccount(testEmail),
+  ]);
+
+  render(<AccountSearch />);
+  fireEvent.change(screen.getByTestId('email-input'), {
+    target: { value: testEmail },
+  });
+  fireEvent.click(screen.getByTestId('search-button'));
+
+  await screen.findByTestId('account-section');
+  expect(screen.getByTestId('email-match-label')).toHaveTextContent(
+    'Primary email'
+  );
+  expect(screen.queryByText(/accounts found/)).not.toBeInTheDocument();
+});
+
+it('keeps the match label on the submitted query while the input changes', async () => {
+  (adminApi.getAccountByEmail as jest.Mock).mockResolvedValue([
+    makeMinimalAccount(testEmail),
+  ]);
+
+  render(<AccountSearch />);
+  fireEvent.change(screen.getByTestId('email-input'), {
+    target: { value: testEmail },
+  });
+  fireEvent.click(screen.getByTestId('search-button'));
+  await screen.findByTestId('account-section');
+
+  fireEvent.change(screen.getByTestId('email-input'), {
+    target: { value: 'someone-else@example.com' },
+  });
+
+  expect(screen.getByTestId('email-match-label')).toHaveTextContent(
+    'Primary email'
+  );
+});
+
+it('shows "Account not found." when no account matches the email', async () => {
+  (adminApi.getAccountByEmail as jest.Mock).mockResolvedValue([]);
+
+  render(<AccountSearch />);
+  fireEvent.change(screen.getByTestId('email-input'), {
+    target: { value: testEmail },
+  });
+  fireEvent.click(screen.getByTestId('search-button'));
+
+  expect(await screen.findByTestId('no-account-message')).toHaveTextContent(
+    'Account not found.'
+  );
+});
+
+it('lists multiple recovery phone matches without match labels', async () => {
+  (adminApi.getAccountByPhone as jest.Mock).mockResolvedValue([
+    { ...makePhoneAccount(testEmail, testPhone), uid: 'aaa' },
+    { ...makePhoneAccount('other@example.com', testPhone), uid: 'bbb' },
+  ]);
+
+  render(<AccountSearch />);
+  fireEvent.change(screen.getByTestId('email-input'), {
+    target: { value: testPhone },
+  });
+  fireEvent.click(screen.getByTestId('search-button'));
+
+  expect(await screen.findByText('2 accounts found:')).toBeInTheDocument();
+  expect(screen.queryAllByTestId('email-match-label')).toHaveLength(0);
 });
 
 it('calls account search by recovery phone', async () => {
@@ -228,9 +321,9 @@ it('auto completes email suggestions', async () => {
     { email: testEmail },
   ]);
   (adminApi.getPhonesLike as jest.Mock).mockResolvedValue([]);
-  (adminApi.getAccountByEmail as jest.Mock).mockResolvedValue(
-    makeMinimalAccount(testEmail)
-  );
+  (adminApi.getAccountByEmail as jest.Mock).mockResolvedValue([
+    makeMinimalAccount(testEmail),
+  ]);
 
   render(<AccountSearch />);
   fireEvent.change(screen.getByTestId('email-input'), {
@@ -281,8 +374,8 @@ it('auto completes recovery phone suggestions', async () => {
 
 it('displays the account email bounces, and can clear them', async () => {
   (adminApi.getAccountByEmail as jest.Mock)
-    .mockResolvedValueOnce(makeRichAccount(testEmail))
-    .mockResolvedValueOnce(makeMinimalAccount(testEmail));
+    .mockResolvedValueOnce([makeRichAccount(testEmail)])
+    .mockResolvedValueOnce([makeMinimalAccount(testEmail)]);
 
   render(<AccountSearch />);
   fireEvent.change(screen.getByTestId('email-input'), {
@@ -326,8 +419,8 @@ describe('Editing user locale', () => {
       newLocale && success && newLocale !== 'NA' ? newLocale : 'en-US';
 
     (adminApi.getAccountByEmail as jest.Mock)
-      .mockResolvedValueOnce(makeMinimalAccount(testEmail, 'en-US'))
-      .mockResolvedValueOnce(makeMinimalAccount(testEmail, secondLocale));
+      .mockResolvedValueOnce([makeMinimalAccount(testEmail, 'en-US')])
+      .mockResolvedValueOnce([makeMinimalAccount(testEmail, secondLocale)]);
 
     if (newLocale === 'NA') {
       (adminApi.editLocale as jest.Mock).mockRejectedValue(
@@ -401,13 +494,31 @@ describe('Editing user locale', () => {
   });
 });
 
+describe('emailMatchLabel', () => {
+  const account = {
+    emails: [
+      { email: 'primary@example.com', isPrimary: true },
+      { email: 'second@example.com', isPrimary: false },
+    ],
+  } as Parameters<typeof emailMatchLabel>[0];
+
+  it.each([
+    ['Primary@Example.com', 'Primary email'],
+    ['  primary@example.com ', 'Primary email'],
+    ['second@example.com', 'Secondary email'],
+    ['gone@example.com', 'Sign-up email (no longer on account)'],
+  ])('labels "%s" as "%s"', (query, expected) => {
+    expect(emailMatchLabel(account, query)).toBe(expected);
+  });
+});
+
 describe('unsubscribe from mailing lists', () => {
   let alertSpy: jest.SpyInstance;
 
   async function renderAndClickUnSubscribe(success: boolean) {
-    (adminApi.getAccountByEmail as jest.Mock).mockResolvedValue(
-      makeMinimalAccount(testEmail)
-    );
+    (adminApi.getAccountByEmail as jest.Mock).mockResolvedValue([
+      makeMinimalAccount(testEmail),
+    ]);
     (adminApi.unsubscribeFromMailingLists as jest.Mock).mockResolvedValue(
       success
     );
