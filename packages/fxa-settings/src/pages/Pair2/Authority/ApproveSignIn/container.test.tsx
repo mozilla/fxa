@@ -128,6 +128,19 @@ describe('Pair2/Authority/ApproveSignIn container', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('centers the loading spinner on the page while it waits for the device details', () => {
+    integration = mockAuthorityIntegration({ remoteMetadata: null });
+
+    renderContainer();
+
+    // Layout has no semantic query; these classes center the spinner on the page.
+    expect(screen.getByTestId('loading-spinner')).toHaveClass(
+      'h-screen',
+      'items-center',
+      'justify-center'
+    );
+  });
+
   it('authorizes when the user approves', async () => {
     renderContainer();
 
