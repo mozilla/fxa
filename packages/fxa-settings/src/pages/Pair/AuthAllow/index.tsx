@@ -17,10 +17,11 @@ import Banner from '../../../components/Banner';
 import { PairingAuthorityIntegration } from '../../../models/integrations/pairing-authority-integration';
 import { Integration, useAuthClient, useConfig } from '../../../models';
 import { firefox } from '../../../lib/channels/firefox';
+import type { UseFxAStatusResult } from '../../../lib/hooks';
 import { useNavigateWithQuery } from '../../../lib/hooks';
-import { getBasicAccountData } from '../../../lib/account-storage';
 import { getPairingErrorMessage } from '../../../lib/utilities';
 import { pairingRequiresTotp } from '../../../lib/pairing/totp-gate';
+import { getPairingAccount } from '../../../lib/pairing/pairing-account';
 
 // pair/auth/allow is the authority approval page.
 // When the user clicks "Yes, approve device", it sends the PAIR_AUTHORIZE
@@ -33,6 +34,7 @@ export type AuthAllowProps = {
   email?: string;
   integration?: Integration;
   error?: string;
+  fxaStatusResult?: UseFxAStatusResult;
 };
 
 export const viewName = 'pair.auth.allow';
@@ -46,6 +48,7 @@ const AuthAllow = ({
   email: emailProp,
   integration,
   error: errorProp,
+  fxaStatusResult,
 }: AuthAllowProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   useGleanView(() => GleanMetrics.cadApproveDevice.view());
@@ -68,23 +71,24 @@ const AuthAllow = ({
   // Skip the check if we're returning from a successful TOTP verification.
   const totpComplete = (location.state as Record<string, unknown>)
     ?.totpComplete;
+  const fxaStatusState = fxaStatusResult?.fxaStatusState;
+  const signedInUser = fxaStatusResult?.fxaStatus?.signedInUser;
   useEffect(() => {
-    if (totpComplete || isTotpCheckStarted.current) {
+    if (totpComplete) {
       setTotpChecked(true);
+      return;
+    }
+    // The gate checks the Sync account, which only fxa_status names. A re-run
+    // while the check is in flight waits for its result.
+    if (fxaStatusState === 'pending' || isTotpCheckStarted.current) {
       return;
     }
     isTotpCheckStarted.current = true;
 
-    const accountData = getBasicAccountData();
-    const sessionToken = accountData?.sessionToken;
-    if (!sessionToken) {
-      setTotpChecked(true);
-      return;
-    }
-
+    const { sessionToken, totpVerifiedAt } = getPairingAccount(signedInUser);
     (async () => {
       const required = await pairingRequiresTotp(authClient, sessionToken, {
-        verifiedAt: accountData?.totpVerifiedAt,
+        verifiedAt: totpVerifiedAt,
         maxAgeMs: config.pairing.totpMaxAgeMinutes * 60 * 1000,
       });
       if (required) {
@@ -93,7 +97,14 @@ const AuthAllow = ({
       }
       setTotpChecked(true);
     })();
-  }, [authClient, config, navigateWithQuery, totpComplete]);
+  }, [
+    authClient,
+    config,
+    navigateWithQuery,
+    totpComplete,
+    fxaStatusState,
+    signedInUser,
+  ]);
 
   // Validate client_id against pairing allowlist (matching Backbone behavior)
   useEffect(() => {

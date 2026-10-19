@@ -14,6 +14,8 @@ import { MozServices } from '../../../lib/types';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { AppContext } from '../../../models/contexts/AppContext';
 import AuthClient from 'fxa-auth-client/browser';
+import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
+import { recordTotpVerified } from '../../../lib/account-storage';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -124,6 +126,47 @@ describe('Sign in with TOTP code page', () => {
         state: { totpComplete: true },
       });
     });
+
+    it('verifies the code for the Firefox Sync account, not the current local account', async () => {
+      const verifyTotpCode = jest.fn().mockResolvedValue({ success: true });
+      renderWithAppContext(
+        <AuthTotp
+          email={MOCK_ACCOUNT.primaryEmail.email}
+          fxaStatusResult={mockUseFxAStatus({
+            signedInUser: {
+              uid: 'sync-uid',
+              email: 'sync@example.com',
+              sessionToken: 'sync-token',
+              verified: true,
+            },
+          })}
+        />,
+        mockAppContext({
+          authClient: { verifyTotpCode } as unknown as AuthClient,
+        })
+      );
+      const user = userEvent.setup();
+      await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
+      expect(verifyTotpCode).toHaveBeenCalledWith('sync-token', '123456', {
+        service: 'pair',
+      });
+      expect(recordTotpVerified).toHaveBeenCalledWith('sync-uid');
+    });
+  });
+
+  it('waits for fxa_status before it shows the code form', () => {
+    renderWithAppContext(
+      <AuthTotp
+        email={MOCK_ACCOUNT.primaryEmail.email}
+        fxaStatusResult={mockUseFxAStatus({ fxaStatusState: 'pending' })}
+      />
+    );
+    expect(
+      screen.queryByLabelText('Enter 6-digit code')
+    ).not.toBeInTheDocument();
   });
 
   it('emits a metrics event on render', () => {

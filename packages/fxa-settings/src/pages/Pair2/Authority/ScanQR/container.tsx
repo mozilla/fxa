@@ -22,7 +22,7 @@ import firefox from '../../../../lib/channels/firefox';
 import { Constants } from '../../../../lib/constants';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { getBasicAccountData } from '../../../../lib/account-storage';
+import { getPairingAccount } from '../../../../lib/pairing/pairing-account';
 import { pairingRequiresTotp } from '../../../../lib/pairing/totp-gate';
 
 export const SIGNED_IN_POLL_MS = 5_000;
@@ -75,16 +75,10 @@ const ScanQRContainer = ({
     if (fxaStatusState === 'pending' || !isSignedIn || totpChecked) {
       return;
     }
-    const accountData = getBasicAccountData();
-    const sessionToken = accountData?.sessionToken;
-    if (!sessionToken) {
-      setTotpChecked(true);
-      return;
-    }
-
+    const { sessionToken, totpVerifiedAt } = getPairingAccount(signedInUser);
     let cancelled = false;
     pairingRequiresTotp(authClient, sessionToken, {
-      verifiedAt: accountData?.totpVerifiedAt,
+      verifiedAt: totpVerifiedAt,
       maxAgeMs: config.pairing.totpMaxAgeMinutes * 60 * 1000,
     }).then((required) => {
       if (cancelled) {
@@ -106,6 +100,7 @@ const ScanQRContainer = ({
     navigateWithQuery,
     fxaStatusState,
     isSignedIn,
+    signedInUser,
     totpChecked,
   ]);
 

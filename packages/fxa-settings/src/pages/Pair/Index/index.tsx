@@ -64,7 +64,7 @@ import {
   pickPairingAttributionFromData,
   stashPairingAttribution,
 } from '../../../lib/pairing-attribution';
-import { getBasicAccountData } from '../../../lib/account-storage';
+import { getPairingAccount } from '../../../lib/pairing/pairing-account';
 import { pairingRequiresTotp } from '../../../lib/pairing/totp-gate';
 import type { PairOrigin } from '../../Signin/utils';
 import type { SigninLocationState } from '../../Signin/interfaces';
@@ -232,6 +232,8 @@ const Pair = ({
   const abortBootstrapRef = useRef(false);
   // Read when the bootstrap settles; a late fxa_status answer can change it.
   const pairingV2Ref = useRef(false);
+  // fxa_status can answer before Firefox names the user; the retry below finds it.
+  const bootstrapUserRef = useRef<SignedInUser | undefined>(undefined);
   const fxaStatusStateRef = useRef(fxaStatusResult.fxaStatusState);
   fxaStatusStateRef.current = fxaStatusResult.fxaStatusState;
   useEffect(() => {
@@ -390,6 +392,7 @@ const Pair = ({
       if (abortBootstrapRef.current) return;
 
       if (isVerifiedUser(signedInUser)) {
+        bootstrapUserRef.current = signedInUser;
         if (pairingV2Ref.current) {
           goToScanQr();
         } else {
@@ -488,23 +491,30 @@ const Pair = ({
     firefox.send(FirefoxCommand.PairPreferences, {});
   }, [pairingAttribution]);
 
+  const signedInUser = fxaStatusResult.fxaStatus?.signedInUser;
   // Ask for the TOTP code before Firefox opens the channel; Pair/AuthAllow
   // keeps the same check for pairings started from about:preferences.
   const startPairing = useCallback(async () => {
-    const accountData = getBasicAccountData();
-    const sessionToken = accountData?.sessionToken;
+    const { sessionToken, totpVerifiedAt } = getPairingAccount(
+      signedInUser ?? bootstrapUserRef.current
+    );
     if (
-      sessionToken &&
-      (await pairingRequiresTotp(authClient, sessionToken, {
-        verifiedAt: accountData?.totpVerifiedAt,
+      await pairingRequiresTotp(authClient, sessionToken, {
+        verifiedAt: totpVerifiedAt,
         maxAgeMs: config.pairing.totpMaxAgeMinutes * 60 * 1000,
-      }))
+      })
     ) {
       navigateWithQuery('/pair/auth/totp', { state: { returnToPair: true } });
       return;
     }
     openPairPreferences();
-  }, [authClient, config, navigateWithQuery, openPairPreferences]);
+  }, [
+    authClient,
+    config,
+    signedInUser,
+    navigateWithQuery,
+    openPairPreferences,
+  ]);
 
   // Back from /pair/auth/totp with a good code: resume the pairing the user
   // already started. Like AuthAllow, trust `totpComplete` rather than ask again.

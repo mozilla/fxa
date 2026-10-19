@@ -120,10 +120,11 @@ test.describe('severity-2 #smoke', () => {
         })
       );
 
-      await expect(
-        page.getByRole('heading', { name: /Did you just sign in to/ })
-      ).toBeVisible();
-      await expect(page).toHaveURL(/entrypoint=preferences/);
+      // This browser holds no session, so the 2FA gate fails closed and sends
+      // the user to the code prompt. The query, entrypoint included, goes along.
+      await expect(page).toHaveURL(
+        /\/pair\/auth\/totp\?.*entrypoint=preferences/
+      );
     });
   });
 });

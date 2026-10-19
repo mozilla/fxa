@@ -13,16 +13,18 @@ import AuthenticationMethods from '../../constants/authentication-methods';
  * Pairing hands the account's Sync keys to a new device, so a signed-in
  * browser left unattended should not be enough. See `pairing.totp_max_age_minutes`.
  *
- * A failed profile lookup counts as "not required": the session was already
- * verified at sign-in, and a transient auth-server error must not strand the
- * user on a spinner.
+ * Fails closed: with no session token, or when the profile lookup fails, the
+ * code is required, because the gate cannot confirm the account has no 2FA.
  */
 export async function pairingRequiresTotp(
   authClient: Pick<AuthClient, 'accountProfile'>,
-  sessionToken: string,
+  sessionToken: string | undefined,
   recentCode: { verifiedAt?: number; maxAgeMs: number },
   now: number = Date.now()
 ): Promise<boolean> {
+  if (!sessionToken) {
+    return true;
+  }
   if (
     recentCode.verifiedAt !== undefined &&
     now - recentCode.verifiedAt <= recentCode.maxAgeMs
@@ -37,6 +39,6 @@ export async function pairingRequiresTotp(
       authenticationMethods.includes(AuthenticationMethods.OTP)
     );
   } catch {
-    return false;
+    return true;
   }
 }

@@ -7,9 +7,11 @@ import { Integration, PairingAuthorityIntegration } from '../../../../models';
 import AuthTotp from '../../../Pair/AuthTotp';
 import { MozServices } from '../../../../lib/types';
 import { navigateWithQuery } from '../../../../lib/utilities';
+import type { UseFxAStatusResult } from '../../../../lib/hooks';
 
 export type EnterTotpContainerProps = {
   integration?: Integration | PairingAuthorityIntegration;
+  fxaStatusResult?: UseFxAStatusResult;
 };
 
 /**
@@ -17,7 +19,10 @@ export type EnterTotpContainerProps = {
  * shown on entry to the flow before any pairing channel exists. A verified
  * code returns to scan_qr with `totpComplete` set so the check is not repeated.
  */
-const EnterTotpContainer = ({ integration }: EnterTotpContainerProps) => {
+const EnterTotpContainer = ({
+  integration,
+  fxaStatusResult,
+}: EnterTotpContainerProps) => {
   if (!(integration instanceof PairingAuthorityIntegration)) {
     throw new Error('Invalid integration type.');
   }
@@ -29,7 +34,12 @@ const EnterTotpContainer = ({ integration }: EnterTotpContainerProps) => {
     });
   };
 
-  return <AuthTotp serviceName={MozServices.FirefoxSync} {...{ onVerified }} />;
+  return (
+    <AuthTotp
+      serviceName={MozServices.FirefoxSync}
+      {...{ onVerified, fxaStatusResult }}
+    />
+  );
 };
 
 export default EnterTotpContainer;

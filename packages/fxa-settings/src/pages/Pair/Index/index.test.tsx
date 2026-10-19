@@ -322,9 +322,11 @@ describe('Pair', () => {
       expect(GleanMetrics.cadFireFox.choiceSubmit).toHaveBeenCalledWith({
         event: { reason: 'has mobile' },
       });
-      expect(firefox.send).toHaveBeenCalledWith(
-        'fxaccounts:pair_preferences',
-        {}
+      await waitFor(() =>
+        expect(firefox.send).toHaveBeenCalledWith(
+          'fxaccounts:pair_preferences',
+          {}
+        )
       );
     });
 
@@ -396,9 +398,11 @@ describe('Pair', () => {
       await renderAndNavigateToDownload();
       fireEvent.click(screen.getByRole('button', { name: 'Continue to sync' }));
       expect(GleanMetrics.cadFireFox.syncDeviceSubmit).toHaveBeenCalled();
-      expect(firefox.send).toHaveBeenCalledWith(
-        'fxaccounts:pair_preferences',
-        {}
+      await waitFor(() =>
+        expect(firefox.send).toHaveBeenCalledWith(
+          'fxaccounts:pair_preferences',
+          {}
+        )
       );
     });
 
@@ -463,7 +467,7 @@ describe('Pair', () => {
       );
       expect(pairingRequiresTotp).toHaveBeenCalledWith(
         mockAuthClient,
-        'session-token',
+        MOCK_SYNC_SIGNED_IN_USER.sessionToken,
         {
           verifiedAt: TOTP_VERIFIED_AT,
           maxAgeMs: getDefault().pairing.totpMaxAgeMinutes * 60 * 1000,
@@ -501,16 +505,116 @@ describe('Pair', () => {
       expect(mockNavigate).not.toHaveBeenCalledWith(...TOTP_ROUTE_CALL);
     });
 
-    it('skips the gate when this page has no session token', async () => {
-      jest.mocked(getBasicAccountData).mockReturnValue(null);
+    describe('with the real gate', () => {
+      const { pairingRequiresTotp: actualGate } = jest.requireActual(
+        '../../../lib/pairing/totp-gate'
+      );
+      const accountProfile = jest.fn();
+
+      beforeEach(() => {
+        accountProfile.mockReset();
+        jest
+          .mocked(pairingRequiresTotp)
+          .mockImplementation((_authClient, sessionToken, recentCode) =>
+            actualGate({ accountProfile }, sessionToken, recentCode)
+          );
+      });
+
+      async function clickContinue() {
+        const user = userEvent.setup();
+        await renderPair();
+        await user.click(
+          screen.getByLabelText(/I already have Firefox for mobile/)
+        );
+        await user.click(screen.getByRole('button', { name: 'Continue' }));
+      }
+
+      it('sends an account with no session token to /pair/auth/totp', async () => {
+        jest.mocked(getBasicAccountData).mockReturnValue(null);
+        jest.mocked(firefox.requestSignedInUser).mockResolvedValue(undefined);
+        await clickContinue();
+        await waitFor(() =>
+          expect(mockNavigate).toHaveBeenCalledWith(...TOTP_ROUTE_CALL)
+        );
+        expect(accountProfile).not.toHaveBeenCalled();
+        expect(firefox.send).not.toHaveBeenCalled();
+      });
+
+      it('sends the user to /pair/auth/totp when the profile lookup fails', async () => {
+        accountProfile.mockRejectedValue(new Error('Backend service failure'));
+        await clickContinue();
+        await waitFor(() =>
+          expect(mockNavigate).toHaveBeenCalledWith(...TOTP_ROUTE_CALL)
+        );
+        expect(accountProfile).toHaveBeenCalledWith(
+          MOCK_SYNC_SIGNED_IN_USER.sessionToken
+        );
+        expect(firefox.send).not.toHaveBeenCalled();
+      });
+    });
+
+    it('checks the Firefox Sync account, not the current local account', async () => {
+      jest.mocked(getBasicAccountData).mockImplementation((uid?: string) =>
+        uid === 'sync-uid'
+          ? null
+          : {
+              uid: 'local-uid',
+              email: 'local@example.com',
+              metricsEnabled: true,
+              verified: true,
+              sessionToken: 'local-token',
+              sessionVerified: true,
+            }
+      );
+      jest.mocked(pairingRequiresTotp).mockResolvedValue(true);
+      const user = userEvent.setup();
+      await renderPair({
+        fxaStatusResult: mockUseFxAStatus({
+          signedInUser: MOCK_SYNC_SIGNED_IN_USER,
+        }),
+      });
+      await user.click(
+        screen.getByLabelText(/I already have Firefox for mobile/)
+      );
+      await user.click(screen.getByRole('button', { name: 'Continue' }));
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith(...TOTP_ROUTE_CALL)
+      );
+      expect(pairingRequiresTotp).toHaveBeenCalledWith(
+        mockAuthClient,
+        'token',
+        expect.objectContaining({ verifiedAt: undefined })
+      );
+    });
+
+    it('checks the Sync user Firefox named at bootstrap when fxa_status had none', async () => {
+      jest.mocked(getBasicAccountData).mockImplementation((uid?: string) =>
+        uid === 'sync-uid'
+          ? null
+          : {
+              uid: 'local-uid',
+              email: 'local@example.com',
+              metricsEnabled: true,
+              verified: true,
+              sessionToken: 'local-token',
+              sessionVerified: true,
+            }
+      );
+      jest.mocked(pairingRequiresTotp).mockResolvedValue(true);
       const user = userEvent.setup();
       await renderPair();
       await user.click(
         screen.getByLabelText(/I already have Firefox for mobile/)
       );
       await user.click(screen.getByRole('button', { name: 'Continue' }));
-      await waitFor(() => expect(firefox.send).toHaveBeenCalledTimes(1));
-      expect(pairingRequiresTotp).not.toHaveBeenCalled();
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith(...TOTP_ROUTE_CALL)
+      );
+      expect(pairingRequiresTotp).toHaveBeenCalledWith(
+        mockAuthClient,
+        'token',
+        expect.objectContaining({ verifiedAt: undefined })
+      );
     });
 
     it('does not call the gate for "needs mobile" or its "Not now"', async () => {
