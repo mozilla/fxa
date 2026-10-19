@@ -1,8 +1,8 @@
 {
-  "commit": "b1a459b0fb4729fb66fee8fe6c446759a024f4ac",
-  "summary": "Merge pull request #21546 from mozilla/fxa-14796",
-  "description": "feat(metrics): record browser_family on pairing view events",
-  "timestamp": 1792442143000,
+  "commit": "dc2ff6d0857cf80501f1afc3e085d74a35788a31",
+  "summary": "Merge pull request #21566 from mozilla/fxa-14809",
+  "description": "fix(functional-tests): fire close code 4000 in pairing disconnect test",
+  "timestamp": 1792445841000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
