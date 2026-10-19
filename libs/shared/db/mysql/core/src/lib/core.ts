@@ -80,18 +80,30 @@ export function createKnex(
   log: Logger = logger,
   metrics: StatsD = localStatsD()
 ): Knex {
+  // The pool settings are for knex; mysql2 warns about options it does not know.
+  const {
+    connectionLimitMin,
+    connectionLimitMax,
+    acquireTimeoutMillis,
+    ...driverOpts
+  } = opts as MySQLConfig & { idleLimitMs?: number };
+  delete driverOpts.idleLimitMs;
+  // JSON columns as strings and DECIMAL as numbers, as the callers expect.
+  const connection = {
+    typeCast: typeCasting,
+    charset: 'UTF8MB4_BIN',
+    jsonStrings: true,
+    decimalNumbers: true,
+    ...driverOpts,
+  };
   const db = knex({
-    connection: {
-      typeCast: typeCasting,
-      charset: 'UTF8MB4_BIN',
-      ...opts,
-    },
-    client: 'mysql',
+    connection,
+    client: 'mysql2',
     pool: {
       afterCreate: setupConnection,
-      min: opts.connectionLimitMin,
-      max: opts.connectionLimitMax,
-      acquireTimeoutMillis: opts.acquireTimeoutMillis,
+      min: connectionLimitMin,
+      max: connectionLimitMax,
+      acquireTimeoutMillis,
     },
   });
 

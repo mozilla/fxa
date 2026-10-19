@@ -14,6 +14,28 @@ export interface MySQLConfig {
   multipleStatements?: boolean;
 }
 
+const NON_DRIVER_OPTIONS = [
+  'connectionLimitMin',
+  'connectionLimitMax',
+  'acquireTimeoutMillis',
+  'idleLimitMs',
+  'createSchema',
+];
+
+/**
+ * Options for the mysql2 driver from one of our MySQL configs. The pool
+ * settings are for knex or MysqlStoreShared, and mysql2 warns about options it
+ * does not know. JSON columns are returned as strings and DECIMAL as numbers,
+ * which is what the code reading them expects.
+ */
+export function mysqlConnectionOptions(opts: object): Record<string, any> {
+  const driverOpts: Record<string, any> = { ...opts };
+  for (const key of NON_DRIVER_OPTIONS) {
+    delete driverOpts[key];
+  }
+  return { jsonStrings: true, decimalNumbers: true, ...driverOpts };
+}
+
 export function makeMySQLConfig(envPrefix: string, database: string) {
   return {
     database: {

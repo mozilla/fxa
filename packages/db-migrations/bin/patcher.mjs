@@ -4,7 +4,7 @@
 
 import fs from 'fs/promises';
 import path from 'path';
-import mysql from 'mysql';
+import mysql from 'mysql2';
 import Patcher from '../lib/mysql-patcher.js';
 import convict from 'convict';
 import { makeMySQLConfig } from '../lib/mysql-config.js';

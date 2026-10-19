@@ -55,9 +55,16 @@ function Patcher(options) {
 }
 
 Patcher.prototype.connect = async function connect() {
-  const { database, ...opts } = this.options;
+  const { database, host, port, user, password, multipleStatements } =
+    this.options;
 
-  const rawConn = this.options.mysql.createConnection(opts);
+  const rawConn = this.options.mysql.createConnection({
+    host,
+    port,
+    user,
+    password,
+    multipleStatements,
+  });
   this.connection = promisifyConnection(rawConn);
 
   try {
@@ -92,8 +99,10 @@ Patcher.prototype.connect = async function connect() {
     }
   } catch (err) {
     if (this.connection) {
+      // destroy(), not end(): after a refused handshake (e.g. a wrong password)
+      // mysql2 never calls end()'s callback, so awaiting it would never settle
       try {
-        await this.connection.end();
+        this.connection.raw.destroy();
       } catch (_) {}
       this.connection = null;
     }
