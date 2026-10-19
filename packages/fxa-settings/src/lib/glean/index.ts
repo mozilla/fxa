@@ -517,7 +517,9 @@ const recordEventMetric = (
       cadFirefox.notnowSubmit.record();
       break;
     case 'cad_firefox_download_firefox_view':
-      cadFirefox.downloadFirefoxView.record();
+      cadFirefox.downloadFirefoxView.record({
+        browser_family: gleanPingMetrics?.event?.['browser_family'] || '',
+      });
       break;
     case 'cad_approve_device_view':
       cadApproveDevice.view.record();
@@ -532,19 +534,27 @@ const recordEventMetric = (
       cadMobilePair.submit.record();
       break;
     case 'cad_mobile_pair_use_app_view':
-      cadMobilePairUseApp.view.record();
+      cadMobilePairUseApp.view.record({
+        browser_family: gleanPingMetrics?.event?.['browser_family'] || '',
+      });
       break;
     case 'cad_redirect_desktop_view':
-      cadRedirectDesktop.view.record();
+      cadRedirectDesktop.view.record({
+        browser_family: gleanPingMetrics?.event?.['browser_family'] || '',
+      });
       break;
     case 'cad_redirect_desktop_default_view':
-      cadRedirectDesktop.defaultView.record();
+      cadRedirectDesktop.defaultView.record({
+        browser_family: gleanPingMetrics?.event?.['browser_family'] || '',
+      });
       break;
     case 'cad_redirect_desktop_download':
       cadRedirectDesktop.download.record();
       break;
     case 'cad_redirect_mobile_view':
-      cadRedirectMobile.view.record();
+      cadRedirectMobile.view.record({
+        browser_family: gleanPingMetrics?.event?.['browser_family'] || '',
+      });
       break;
     case 'account_pref_view':
       accountPref.view.record();

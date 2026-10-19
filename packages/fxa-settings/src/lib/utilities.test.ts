@@ -10,6 +10,7 @@ import {
   formatSecret,
   isBase32Crockford,
   isIosSafari,
+  getBrowserFamily,
   isMobileDevice,
   isMobileOrTabletDevice,
   isValidCmsUrl,
@@ -389,6 +390,64 @@ describe('isIosSafari', () => {
         Object.defineProperty(navigator, 'userAgent', original);
       }
     }
+  });
+});
+
+describe('getBrowserFamily', () => {
+  it.each([
+    [
+      'Safari on an iPhone',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1',
+      'safari',
+    ],
+    [
+      'Chrome on iOS',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/124.0.6367.88 Mobile/15E148 Safari/604.1',
+      'chrome',
+    ],
+    [
+      'Firefox on iOS',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/125.0 Mobile/15E148 Safari/605.1.15',
+      'firefox',
+    ],
+    [
+      'Edge on iOS',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 EdgiOS/124.0.2478.89 Mobile/15E148 Safari/605.1.15',
+      'edge',
+    ],
+    [
+      'the Facebook in-app browser on iOS',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 [FBAN/FBIOS;FBAV/460.0.0.36.107;FBBV/588032860;FBDV/iPhone15,2;FBMD/iPhone;FBSN/iOS;FBSV/17.4;FBSS/3;FBID/phone;FBLC/en_US;FBOP/5]',
+      'other',
+    ],
+    [
+      'Edge on Windows',
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.2478.80',
+      'edge',
+    ],
+    [
+      'Edge on Android',
+      'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36 EdgA/124.0.2478.64',
+      'edge',
+    ],
+    [
+      'Chrome on Android',
+      'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
+      'chrome',
+    ],
+    [
+      'Firefox on Android',
+      'Mozilla/5.0 (Android 14; Mobile; rv:125.0) Gecko/125.0 Firefox/125.0',
+      'firefox',
+    ],
+    [
+      'Safari on macOS',
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15',
+      'safari',
+    ],
+    ['an unknown user agent', 'curl/8.5.0', 'other'],
+  ])('reports %s', (_label, userAgent, family) => {
+    expect(getBrowserFamily(userAgent)).toBe(family);
   });
 });
 

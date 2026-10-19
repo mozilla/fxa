@@ -87,7 +87,9 @@ export const choiceView = new EventMetricType<{
  *
  * Generated from `cad_firefox.download_firefox_view`.
  */
-export const downloadFirefoxView = new EventMetricType(
+export const downloadFirefoxView = new EventMetricType<{
+  browser_family?: string;
+}>(
   {
     category: 'cad_firefox',
     name: 'download_firefox_view',
@@ -95,7 +97,7 @@ export const downloadFirefoxView = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['browser_family']
 );
 
 /**

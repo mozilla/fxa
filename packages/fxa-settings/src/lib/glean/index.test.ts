@@ -20,6 +20,10 @@ import * as thirdPartyAuth from './web/thirdPartyAuth';
 import * as postVerifySetPassword from './web/postVerifySetPassword';
 import * as dtmDesktop from './web/dtmDesktop';
 import * as dtmMobile from './web/dtmMobile';
+import * as cadFirefox from './web/cadFirefox';
+import * as cadMobilePairUseApp from './web/cadMobilePairUseApp';
+import * as cadRedirectDesktop from './web/cadRedirectDesktop';
+import * as cadRedirectMobile from './web/cadRedirectMobile';
 import { userIdSha256, userId } from './web/account';
 import { oauthClientId, service } from './web/relyingParty';
 import {
@@ -937,6 +941,42 @@ describe('lib/glean', () => {
           branch: '',
           nimbus_user_id: '',
         });
+      });
+    });
+
+    describe('pairing view browser_family', () => {
+      it.each([
+        [
+          'cad_firefox_download_firefox_view',
+          GleanMetrics.cadFireFox.downloadFirefoxView,
+          cadFirefox.downloadFirefoxView,
+        ],
+        [
+          'cad_mobile_pair_use_app_view',
+          GleanMetrics.cadMobilePairUseApp.view,
+          cadMobilePairUseApp.view,
+        ],
+        [
+          'cad_redirect_desktop_view',
+          GleanMetrics.cadRedirectDesktop.view,
+          cadRedirectDesktop.view,
+        ],
+        [
+          'cad_redirect_desktop_default_view',
+          GleanMetrics.cadRedirectDesktop.defaultView,
+          cadRedirectDesktop.defaultView,
+        ],
+        [
+          'cad_redirect_mobile_view',
+          GleanMetrics.cadRedirectMobile.view,
+          cadRedirectMobile.view,
+        ],
+      ])('submits %s with browser_family', async (eventName, fn, metric) => {
+        const spy = sandbox.spy(metric, 'record');
+        fn({ event: { browser_family: 'safari' } });
+        await GleanMetrics.isDone();
+        sinon.assert.calledWith(setEventNameStub, eventName);
+        sinon.assert.calledOnceWithExactly(spy, { browser_family: 'safari' });
       });
     });
 
