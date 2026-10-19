@@ -1903,6 +1903,8 @@ pair2-authority-continue-on-mobile-cancel-button = Annulearje
 
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Iepenje { -brand-firefox } om te syngronisearjen
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction-v2 = Iepenje { -brand-firefox } op dit apparaat en besykje <b>firefox.com/pair</b> om syngronisaasje tusken apparaten yn te stellen.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = { -brand-firefox } downloade
 

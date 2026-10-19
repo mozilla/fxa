@@ -1,8 +1,8 @@
 {
-  "commit": "3e2cb676f8c561e7c293d44ec979c3be88eb81cb",
-  "summary": "Merge pull request #21517 from mozilla/FXA-14779",
-  "description": "fix(auth): allow CORS credentials on /account/credentials/status",
-  "timestamp": 1792348640000,
+  "commit": "089c90bcf570440be481f1439bcf7905aec08e89",
+  "summary": "Merge pull request #21555 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-810c0270ed63292ac961ff2c35307fd2078ebbd5",
+  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from 266b9e0a6581b2770535ddb81febd7632030b198 to 810c0270ed63292ac961ff2c35307fd2078ebbd5",
+  "timestamp": 1792431302000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

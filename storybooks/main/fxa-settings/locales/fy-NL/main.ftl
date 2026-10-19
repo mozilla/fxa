@@ -1327,6 +1327,7 @@ pair2-authority-continue-on-mobile-cancel-button = Annulearje
 
 
 pair2-authority-download-firefox-heading = Iepenje { -brand-firefox } om te syngronisearjen
+pair2-authority-download-firefox-instruction-v2 = Iepenje { -brand-firefox } op dit apparaat en besykje <b>firefox.com/pair</b> om syngronisaasje tusken apparaten yn te stellen.
 pair2-authority-download-firefox-cta = { -brand-firefox } downloade
 
 
