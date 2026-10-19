@@ -14,9 +14,7 @@ export const remoteAddress =
     let ipAddresses = ((request.headers['x-forwarded-for'] as string) || '')
       .split(',')
       .map((address) => address.trim());
-    ipAddresses.push(
-      request.ip || (request.connection.remoteAddress as string)
-    );
+    ipAddresses.push(request.ip || (request.socket.remoteAddress as string));
     ipAddresses = ipAddresses.filter(
       (ipAddress) => !IP_ADDRESS.validate(ipAddress).error
     );

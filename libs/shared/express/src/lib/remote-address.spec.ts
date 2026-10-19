@@ -16,7 +16,7 @@ describe('remote-address', () => {
 
   it('returns correct result with three forwarded addresses', () => {
     const result = call({
-      connection: {},
+      socket: {},
       headers: {
         'x-forwarded-for': ' 194.12.187.0 , 127.0.0.1,wibble,127.0.0.1',
       },
@@ -29,7 +29,7 @@ describe('remote-address', () => {
 
   it('returns correct result with two forwarded addresses', () => {
     const result = call({
-      connection: {},
+      socket: {},
       headers: {
         'x-forwarded-for': '63.245.221.32, 127.0.0.1',
       },
@@ -42,7 +42,7 @@ describe('remote-address', () => {
 
   it('returns correct result with four forwarded addresses', () => {
     const result = call({
-      connection: {},
+      socket: {},
       headers: {
         'x-forwarded-for': '127.0.0.1, 194.12.187.1, 127.0.0.1, 127.0.0.1',
       },
@@ -66,9 +66,9 @@ describe('remote-address', () => {
     });
   });
 
-  it('returns correct result with three forwarded addresses and request.connection.remoteAddress', () => {
+  it('returns correct result with three forwarded addresses and request.socket.remoteAddress', () => {
     const result = call({
-      connection: {
+      socket: {
         remoteAddress: '127.0.0.1',
       },
       headers: {
@@ -81,9 +81,9 @@ describe('remote-address', () => {
     });
   });
 
-  it('returns correct result with three forwarded addresses and request.ip and request.connection.remoteAddress', () => {
+  it('returns correct result with three forwarded addresses and request.ip and request.socket.remoteAddress', () => {
     const result = call({
-      connection: {
+      socket: {
         remoteAddress: '127.0.0.1',
       },
       headers: {
@@ -97,9 +97,9 @@ describe('remote-address', () => {
     });
   });
 
-  it('ignores bad request.connection.remoteAddress', () => {
+  it('ignores bad request.socket.remoteAddress', () => {
     const result = call({
-      connection: {
+      socket: {
         remoteAddress: 'wibble',
       },
       headers: {
