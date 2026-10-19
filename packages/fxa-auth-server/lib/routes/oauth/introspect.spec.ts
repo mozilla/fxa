@@ -66,6 +66,21 @@ describe('/introspect POST', () => {
     });
   });
 
+  describe('response schema', () => {
+    it('accepts a scope string over 256 chars', () => {
+      const scope = Array.from(
+        { length: 12 },
+        (_, i) => `https://identity.mozilla.com/apps/test-${i}`
+      ).join(' ');
+      expect(scope.length).toBeGreaterThan(256);
+      const { error } = route.config.response.schema.validate({
+        active: true,
+        scope,
+      });
+      expect(error).toBeUndefined();
+    });
+  });
+
   describe('handler', () => {
     function handle(req: any) {
       return route.config.handler({ headers: {}, ...req });
