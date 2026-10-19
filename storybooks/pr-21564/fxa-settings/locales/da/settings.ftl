@@ -167,6 +167,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Bekræft adgangskode
 form-password-with-inline-criteria-reset-submit-button = Opret ny adgangskode
+form-password-with-inline-criteria-old-password-label =
+    .label = Gammel adgangskode
+form-password-with-inline-criteria-change-password-submit-button = Skift adgangskode
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Adgangskode
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -1270,6 +1273,7 @@ passkey-sub-row-created-date = Oprettet: { $createdDate }
 passkey-sub-row-last-used-date = Senest anvendt: { $lastUsedDate }
 passkey-sub-row-delete-title = Slet adgangsnøgle
 passkey-delete-modal-heading = Slet din adgangsnøgle?
+passkey-delete-modal-content-v3 = Denne adgangsnøgle vil blive fjernet fra din konto. Du skal logge ind med en adgangskode, en anden adgangsnøgle eller en tilknyttet konto.
 passkey-delete-modal-cancel-button = Annuller
 passkey-delete-modal-confirm-button = Slet adgangsnøgle
 passkey-delete-success = Adgangsnøgle slettet
@@ -1479,6 +1483,7 @@ auth-error-228 = Registrering af adgangsnøgle mislykkedes
 auth-error-233 = For at oprette en adgangsnøgle skal du oprette en skærmlås, pinkode, fingeraftryk eller ansigtsgenkendelse på din enhed eller sikkerhedsnøgle. Prøv derefter igen.
 auth-error-238 = Adgangsnøgleudfordring mislykkedes
 auth-error-239 = Vi kunne desværre ikke slette din konto. Prøv igen, eller kontakt support, hvis problemet fortsætter.
+auth-error-240 = Denne konto er blevet deaktiveret
 auth-error-999 = Uventet fejl
 auth-error-1001 = Login-forsøg annulleret
 auth-error-1002 = Sessionen udløb. Log ind for at fortsætte.
@@ -1631,12 +1636,23 @@ index-email-bounced = Din bekræftelsesmail kom retur. Forkert indtastet mailadr
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Spring adgangskoden over næste gang?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner-v2 = Du er logget ind, og synkronisering er slået til
 inline-passwordless-sync-setup-heading = Spring adgangskoden over næste gang?
 inline-passwordless-sync-setup-description = Brug denne adgangsnøgle til at logge ind hurtigere.
 inline-passwordless-sync-setup-enable-button = Aktiver adgangsnøgle
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Aktiverer…
 inline-passwordless-sync-setup-not-now-button = Ikke nu
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = Denne adgangsnøgle er aktiveret til login og synkronisering
+# Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
+inline-passwordless-sync-setup-error-cancelled = Bekræftelse af adgangsnøgle blev ikke afsluttet
+inline-passwordless-sync-setup-error-cancelled-description = Bekræft med din adgangsnøgle for at springe adgangskoden over næste gang.
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = Vi kunne ikke aktivere denne adgangsnøgle til login og synkronisering. Du skal bruge din adgangskode næste gang.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1882,6 +1898,8 @@ pair2-authority-continue-on-mobile-cancel-button = Annuller
 
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Åbn { -brand-firefox } for at synkronisere
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction-v2 = For at opsætte synkronisering på tværs af enheder, åbn { -brand-firefox } på denne enhed og besøg <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Hent { -brand-firefox }
 
@@ -1894,6 +1912,8 @@ pair2-authority-scan-qr-heading = Skan for at forbinde din mobile enhed
 pair2-authority-scan-qr-instruction = Skan QR-koden med din telefon eller tablet for at synkronisere bogmærker, faneblade med mere i { -brand-firefox }.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR-kode til at forbinde din mobile enhed
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Andre måder at logge ind på
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Hop over indtil videre
 
@@ -1953,11 +1973,35 @@ pair2-supplicant-connect-this-device-cancel-button = Annuller
 ## not Firefox. It offers to open the Firefox app to finish pairing, and to
 ## install it first when the user does not have it yet.
 
+pair2-supplicant-download-firefox-heading-v2 = Åbn { -brand-firefox } på denne enhed
+# "sync" is a verb here, referring to syncing data between the user's devices.
+pair2-supplicant-download-firefox-description-v2 = Hent { -brand-firefox } for at synkronisere bogmærker, historik med mere på tværs af enheder.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Fortsæt i { -brand-firefox }
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = Åbner { -brand-firefox }…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = Hent { -brand-firefox }
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = Jeg har allerede { -brand-firefox }
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = Læs mere
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+pair2-supplicant-connect-hint-heading-v2 = Afslut parring i appen
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = Tryk på <b>programmenuen</b> på værktøjslinjen
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair2-supplicant-connect-hint-step-sign-in = Tryk på <b>Log ind</b>,  og skan derefter koden
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = Læs mere
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -1993,6 +2037,31 @@ pair2-supplicant-timeout-and-cancel-timeout-description = For at forbinde din mo
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulleret
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = For at forbinde en enhed når som helst, besøg <b>firefox.com/pair</b> på din computer.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Denne enhed er allerede logget ind
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = For at oprette forbindelse til din konto på din computer, skal du logge ud af { -brand-firefox } på denne enhed, og besøge <b>firefox.com/pair</b> på din computer for at færdiggøre log ind.
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } ønsker adgang til:
+permissions-label-email = Mailadresse
+permissions-label-display-name = Vist navn
+permissions-label-avatar = Kontobillede
+permissions-continue-button = Fortsæt
+permissions-cancel-button = Annuller
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Skift din adgangskode
+force-password-change-info = Vi har konstateret mistænkelig adfærd på din { -product-mozilla-account }. Opret en ny adgangskode for at beskytte din konto. Du skal bruge adgangskoden til at logge ind på alle dine { -product-mozilla-account }-tjenester.
+force-password-change-data-info = Synkroniseret historik, bogmærker, logins og andre personlige data vil ikke gå tabt.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2092,9 +2161,14 @@ confirm-totp-reset-password-use-different-account = Brug en anden konto
 ## ResetPassword start page
 
 password-reset-flow-heading = Nulstil din adgangskode
+password-reset-forgot-heading = Glemt din adgangskode?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Prøv at logge ind med { -brand-google }, { -brand-apple } eller en adgangsnøgle i stedet.</signInLink> Eller indtast din mailadresse, så sender vi dig en kode til at nulstille din adgangskode.
 password-reset-email-input =
     .label = Indtast din mailadresse
 password-reset-submit-button-2 = Fortsæt
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Nulstilling af din adgangskode kan påvirke, om du kan gendanne synkroniserede browserdata. <learnMoreLink>Læs mere</learnMoreLink>
 
 ## ResetPasswordConfirmed
 
@@ -2459,3 +2533,10 @@ signup-confirmed-sync-description-v2 = Dine adgangskoder, adresser, bogmærker, 
 signup-confirmed-sync-add-device-link = Tilføj en ny enhed
 signup-confirmed-sync-manage-sync-button = Håndter synkronisering
 signup-confirmed-sync-set-password-success-banner = Adgangskode til synkronisering oprettet
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = { -brand-firefox }-opdatering påkrævet
+update-firefox-description = Din { -product-mozilla-account } gør brug af funktioner, der ikke understøttes i din version af { -brand-firefox }. Hent og installer den seneste version af { -brand-firefox } for at fortsætte.
+update-firefox-download-button = Hent seneste

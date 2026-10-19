@@ -1,8 +1,8 @@
 {
-  "commit": "617b08310a3b0975f002fccc5da532340968ff5e",
+  "commit": "eb98f43dacbfb7eaee4cece4be484b26d2f5c3b9",
   "summary": "fix(settings): center the loading spinner on v2 pair approve_signin",
   "description": "Because:\n\n- In pairing v2 on desktop, the spinner on /pair/authority/approve_signin\n  showed in the page corner, not in the center.\n\nThis commit:\n\n- Passes fullScreen to LoadingSpinner in the ApproveSignIn container.\n- Adds a container test for the full-screen spinner layout.\n\nCloses FXA-14772",
-  "timestamp": 1792441429000,
+  "timestamp": 1792447983000,
   "storybooks": [
     "fxa-settings"
   ],
