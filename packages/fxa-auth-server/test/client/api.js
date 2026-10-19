@@ -1081,12 +1081,6 @@ module.exports = (config) => {
     });
   };
 
-  ClientApi.prototype.sessions = function (sessionTokenHex) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
-      return this.doRequest('GET', `${this.baseURL}/account/sessions`, token);
-    });
-  };
-
   ClientApi.prototype.attachedClients = function (sessionTokenHex) {
     return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest(

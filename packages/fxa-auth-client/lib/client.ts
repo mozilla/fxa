@@ -2279,10 +2279,6 @@ export default class AuthClient {
     return this.sessionGet('/account/devices', sessionToken, headers);
   }
 
-  async sessions(sessionToken: hexstring, headers?: Headers) {
-    return this.sessionGet('/account/sessions', sessionToken, headers);
-  }
-
   async securityEvents(
     sessionToken: hexstring,
     headers?: Headers
