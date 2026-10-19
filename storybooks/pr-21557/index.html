@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit bf60057e1f46d408aa0a3ea802b89c54f5d36b0f</title>
+  <title>Storybooks for commit 993410850f4a2ec4950f0aa6b6dbc4e3010cdb01</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit bf60057e1f46d408aa0a3ea802b89c54f5d36b0f</h1>
+  <h1>Storybooks for commit 993410850f4a2ec4950f0aa6b6dbc4e3010cdb01</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/19/2026, 5:09:39 PM UTC</dd>
+    <dd>10/19/2026, 6:30:51 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): check the Sync account for the pairing TOTP gate</pre></dd>
     <dt>Description</dt>
@@ -37,15 +37,14 @@
 
 * The pairing TOTP gate checked the current localStorage account,
   not the account Firefox Sync is signed in to
-* The gate skipped the check with no session token or a failed
-  profile lookup
+* The gate skipped the check with no session token, a failed
+  profile lookup, or a cached recent code with no token
 
 This commit:
 
 * Gates pairing on the Sync account from fxa_status
 * Verifies the pairing TOTP code with the Sync account token
-* Makes AuthAllow and AuthTotp wait for fxa_status
-* Makes the gate fail closed and stops the no-token skip in callers
+* Makes the gate fail closed before it honours a recent code
 
 Closes FXA-14808</pre></dd>
   </dl>
