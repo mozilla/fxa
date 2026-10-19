@@ -1,8 +1,8 @@
 {
-  "commit": "36697aa539981caf0860274f0b3483b250b73be1",
-  "summary": "Merge pull request #21564 from mozilla/fxa-14772",
-  "description": "fix(settings): center the loading spinner on v2 pair approve_signin",
-  "timestamp": 1792450863000,
+  "commit": "5a4c4081b8916740f145f1c774eb7f004432ad90",
+  "summary": "Merge pull request #21565 from mozilla/fxa-14790",
+  "description": "fix(shared): read the client socket address for Express 5",
+  "timestamp": 1792452471000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
