@@ -1,8 +1,8 @@
 {
-  "commit": "f074d7786dade9a0a5a7093399dd3954956a0056",
+  "commit": "bf5756dac9a72d8ef5dbe9c43447aa30e1b87352",
   "summary": "fix(settings): check the Sync account for the pairing TOTP gate",
-  "description": "Because:\n\n* The pairing TOTP gate checked the current localStorage account,\n  not the account Firefox Sync is signed in to\n* The gate skipped the check with no session token, a failed\n  profile lookup, or a cached recent code with no token\n\nThis commit:\n\n* Gates pairing on the Sync account from fxa_status\n* Verifies the pairing TOTP code with the Sync account token\n* Makes AuthAllow and AuthTotp wait for fxa_status\n* Makes the gate fail closed before it honours a recent code\n* Uses the Sync user from the Pair bootstrap, and keeps an AuthAllow\n  re-run from passing the check early\n\nCloses FXA-14808",
-  "timestamp": 1792435773000,
+  "description": "Because:\n\n- Pairing checked 2FA on the current local account, not the Sync account.\n- A second local account without 2FA let pairing skip the TOTP code.\n\nThis commit:\n\n- Checks the Sync account from fxa_status in the pairing TOTP gate.\n- Verifies the pairing TOTP code with the Sync account's session token.\n- Fails the gate closed on a missing token or a profile lookup error.\n- Keeps the approval page when fxa_status names no Sync account.\n\nCloses FXA-14808",
+  "timestamp": 1792439451000,
   "storybooks": [
     "fxa-settings"
   ],
