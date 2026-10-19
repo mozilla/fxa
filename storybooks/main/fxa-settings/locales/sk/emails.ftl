@@ -480,7 +480,7 @@ verifyPrimary-action-plaintext-2 = { verifyPrimary-action-2 }:
 verifyPrimary-post-verify-2 = Po potvrdení budú k dispozícii zmeny v účte, napríklad pridanie alternatívnej e‑mailovej adresy.
 # Variables:
 #  $code (String) - The confirmation code for secondary email
-verifySecondaryCode-subject-2 = Na potvrdenie vášho sekundárneho e‑mailu použite kód { $code }
+verifySecondaryCode-subject-2 = Na potvrdenie vášho alternatívneho e‑mailu použite kód { $code }
 verifySecondaryCode-preview = Platnosť tohto kódu vyprší o 5 minút.
 verifySecondaryCode-title-2 = Potvrdenie alternatívnej e‑mailovej adresy
 verifySecondaryCode-action-2 = Potvrdiť e‑mailovú adresu

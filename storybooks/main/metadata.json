@@ -1,8 +1,8 @@
 {
-  "commit": "e66347119a7ca868fa47f8e14d726cc09a339d57",
-  "summary": "Merge pull request #21552 from mozilla/fxa-14625",
-  "description": "chore(auth): remove deprecated GET /account/sessions route",
-  "timestamp": 1792431650000,
+  "commit": "b1a459b0fb4729fb66fee8fe6c446759a024f4ac",
+  "summary": "Merge pull request #21546 from mozilla/fxa-14796",
+  "description": "feat(metrics): record browser_family on pairing view events",
+  "timestamp": 1792442143000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
