@@ -13,6 +13,7 @@ import * as reg from './web/reg';
 import * as login from './web/login';
 import * as accountPref from './web/accountPref';
 import * as passkey from './web/passkey';
+import * as passkeyEnterPassword from './web/passkeyEnterPassword';
 import * as promoQrMobile from './web/promoQrMobile';
 import * as accountBanner from './web/accountBanner';
 import * as deleteAccount from './web/deleteAccount';
@@ -847,6 +848,35 @@ describe('lib/glean', () => {
           setEventNameStub,
           'passkey_enter_password_success'
         );
+      });
+
+      it('records passkey_enter_password_view with the reason and cause extras', async () => {
+        const spy = sandbox.spy(passkeyEnterPassword.view, 'record');
+        GleanMetrics.passkeyEnterPassword.view({
+          event: { reason: 'signin', cause: 'no_prf' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnceWithExactly(spy, {
+          reason: 'signin',
+          cause: 'no_prf',
+        });
+      });
+
+      it('records passkey_enter_password_wrap_unusable_banner_view with the reason', async () => {
+        const spy = sandbox.spy(
+          passkeyEnterPassword.wrapUnusableBannerView,
+          'record'
+        );
+        GleanMetrics.passkeyEnterPassword.wrapUnusableBannerView({
+          event: { reason: 'unwrap_failed' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'passkey_enter_password_wrap_unusable_banner_view'
+        );
+        sinon.assert.calledOnceWithExactly(spy, { reason: 'unwrap_failed' });
       });
     });
 

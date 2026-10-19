@@ -55,6 +55,7 @@ const SigninPasskeyFallbackContainer = ({
   const email = signinState?.email;
   const uid = signinState?.uid;
   const passkeySurface = location.state?.passkeySurface ?? 'emailfirst';
+  const passkeyFallbackCause = location.state?.passkeyFallbackCause;
   const metricsContext = useMemo(
     () => queryParamsToMetricsContext(flowQueryParams),
     [flowQueryParams]
@@ -191,6 +192,7 @@ const SigninPasskeyFallbackContainer = ({
         avatarData,
         avatarLoading,
         passkeySurface,
+        passkeyFallbackCause,
       }}
     />
   );

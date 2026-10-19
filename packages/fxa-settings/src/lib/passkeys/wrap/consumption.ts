@@ -10,18 +10,20 @@ import { isAuthUiError } from '../../auth-errors/auth-errors';
 import { openWrapEnvelope } from '../../passkey-crypto';
 import { isZeroed } from '../../passkey-crypto/assert';
 import { KB_BYTES, PRF_OUT_BYTES } from '../../passkey-crypto/constants';
+import type { PasskeyFallbackCause } from '../signin-flow';
 
 type UnwrapPasskeyKbArgs = {
   mfaToken: string;
   /** The account the envelope is bound to, derived from `mfaToken` by the caller. */
   uid: string;
   credentialId: string;
-  prfOut: Uint8Array;
+  /** Absent when the authenticator returned no PRF output. */
+  prfOut?: Uint8Array;
 };
 export type UnwrapPasskeyKbResult =
   | { ok: true; kB: Uint8Array }
   /** `no_wrap` and `stale` are the cases a new store fixes. */
-  | { ok: false; reason: 'no_wrap' | 'stale' | 'failed' };
+  | { ok: false; reason: Exclude<PasskeyFallbackCause, 'sync_v3'> };
 
 // Refusals that need no engineering fix, so not reported: the passkey deleted
 // elsewhere, or a rate limit or block from customs or the WAF. A refused proof
@@ -45,12 +47,6 @@ export async function unwrapPasskeyKb(
   authClient: Pick<AuthClient, 'getPasskeyWrap'>,
   { mfaToken, uid, credentialId, prfOut }: UnwrapPasskeyKbArgs
 ): Promise<UnwrapPasskeyKbResult> {
-  // A short or spent buffer can never open the wrap, and trying would
-  // report a healthy wrap as broken; `creation.ts` refuses the same input.
-  if (prfOut.length !== PRF_OUT_BYTES || isZeroed(prfOut)) {
-    return { ok: false, reason: 'failed' };
-  }
-
   let envelope: StoredPasskeyWrap;
   try {
     envelope = await authClient.getPasskeyWrap(mfaToken, credentialId);
@@ -81,14 +77,24 @@ export async function unwrapPasskeyKb(
         },
       });
     }
-    return { ok: false, reason: 'failed' };
+    return { ok: false, reason: 'fetch_failed' };
+  }
+
+  // Fetched even without PRF output, so the caller learns a wrap exists.
+  if (!prfOut) {
+    return { ok: false, reason: 'no_prf' };
+  }
+  // A short or spent buffer can never open the wrap, and trying would
+  // report a healthy wrap as broken; `creation.ts` refuses the same input.
+  if (prfOut.length !== PRF_OUT_BYTES || isZeroed(prfOut)) {
+    return { ok: false, reason: 'unwrap_failed' };
   }
 
   // Every stored wrap opened once when it was sealed, so a current one that
   // no longer yields a usable kB is a bug. The password step supplies kB.
   const undecryptable = (): UnwrapPasskeyKbResult => {
     Sentry.captureException(new Error('passkey-wrap-decrypt error'));
-    return { ok: false, reason: 'failed' };
+    return { ok: false, reason: 'unwrap_failed' };
   };
   let kB: Uint8Array;
   try {
