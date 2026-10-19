@@ -1,8 +1,8 @@
 {
-  "commit": "dc2ff6d0857cf80501f1afc3e085d74a35788a31",
-  "summary": "Merge pull request #21566 from mozilla/fxa-14809",
-  "description": "fix(functional-tests): fire close code 4000 in pairing disconnect test",
-  "timestamp": 1792445841000,
+  "commit": "36697aa539981caf0860274f0b3483b250b73be1",
+  "summary": "Merge pull request #21564 from mozilla/fxa-14772",
+  "description": "fix(settings): center the loading spinner on v2 pair approve_signin",
+  "timestamp": 1792450863000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
