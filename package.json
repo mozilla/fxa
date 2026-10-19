@@ -130,7 +130,7 @@
     "mysql2": "^3.23.1",
     "nest-typed-config": "^2.9.2",
     "nest-winston": "^1.10.0",
-    "next": "16.4.0",
+    "next": "16.4.2",
     "next-auth": "5.0.0-beta.32",
     "node-jose": "^2.2.0",
     "node-uap": "https://github.com/mozilla-fxa/node-uap.git#494714db3e65a4dbfae772f536c8697269174574",
