@@ -1406,8 +1406,6 @@ pair2-authority-continue-on-mobile-cancel-button = ਰੱਦ ਕਰੋ
 
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = ਸਿੰਕ ਲਈ { -brand-firefox } ਨੂੰ ਖੋਲ੍ਹੋ
-# "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = ਡਿਵਾਈਸ ਵਿਚਾਲੇ ਸਿੰਕ ਨੂੰ ਸੈਟਅੱਪ ਕਰਨ ਲਈ, ਇਸ ਡਿਵਾਈਸ ਉੱਤੇ { -brand-firefox } ਨੂੰ ਖੋਲ੍ਹੋ ਅਤੇ <b>firefox.com/pair</b> ਨੂੰ ਖੋਲ੍ਹੋ
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = { -brand-firefox } ਨੂੰ ਡਾਊਨਲੋਡ ਕਰੋ
 

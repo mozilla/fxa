@@ -1319,7 +1319,7 @@ pair2-authority-continue-on-mobile-cancel-button = Cancelar
 
 
 pair2-authority-download-firefox-heading = Abre { -brand-firefox } para sincronizar
-pair2-authority-download-firefox-instruction = Para configurar la sincronización entre dispositivos, abre { -brand-firefox } en este dispositivo y visita <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Para configurar la sincronización entre dispositivos, abre { -brand-firefox } en este dispositivo y visita <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Descarga { -brand-firefox }
 
 
@@ -1381,6 +1381,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que se nos acabó e
 pair2-supplicant-timeout-and-cancel-timeout-description = Para conectar tu dispositivo móvil y sincronizar tus datos de { -brand-firefox }, visita <b>firefox.com/pair</b> en tu computador.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 pair2-supplicant-timeout-and-cancel-canceled-description = Para conectar un dispositivo en cualquier momento, visita <b>firefox.com/pair</b> desde tu computador.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Este dispositivo ya está conectado
+pair2-supplicant-timeout-and-cancel-signed-in-description = Para conectarte a tu cuenta de escritorio, cierra sesión en { -brand-firefox } en este dispositivo y luego visita <b>firefox.com/pair</b> en tu computador para completar la conexión.
 
 
 permissions-heading = { $serviceName } quiere acceso a:

@@ -1281,7 +1281,7 @@ pair2-authority-continue-on-mobile-cancel-button = 取消
 
 
 pair2-authority-download-firefox-heading = 開啟 { -brand-firefox } 即可同步
-pair2-authority-download-firefox-instruction = 若要與其他裝置同步，請在此裝置開啟 { -brand-firefox }，然後造訪 <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = 若要與其他裝置同步，請在此裝置開啟 { -brand-firefox }，然後造訪 <b>firefox.com/pair</b>。
 pair2-authority-download-firefox-cta = 下載 { -brand-firefox }
 
 

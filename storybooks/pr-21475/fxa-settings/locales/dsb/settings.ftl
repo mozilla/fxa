@@ -1914,7 +1914,7 @@ pair2-authority-continue-on-mobile-cancel-button = Pśetergnuś
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = { -brand-firefox } za synchronizaciju wócyniś
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Aby synchronizaciju na rědach konfigurěrował, wócyńśo { -brand-firefox } na toś tom rěźe a woglědajśo se k <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Aby synchronizaciju na rědach konfigurěrował, wócyńśo { -brand-firefox } na toś tom rěźe a woglědajśo se k <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = { -brand-firefox } ześěgnuś
 

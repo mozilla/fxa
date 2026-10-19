@@ -1257,7 +1257,6 @@ pair2-authority-continue-on-mobile-cancel-button = Vazgeç
 
 
 pair2-authority-download-firefox-heading = Eşitlemek için { -brand-firefox } tarayıcısını açın
-pair2-authority-download-firefox-instruction = Cihazlar arasında eşitlemeyi kurmak için bu cihazda { -brand-firefox }’u açıp <b>firefox.com/pair</b> adresine gidin
 pair2-authority-download-firefox-cta = { -brand-firefox }’u indir
 
 

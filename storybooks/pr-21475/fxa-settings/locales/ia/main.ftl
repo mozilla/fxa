@@ -1326,7 +1326,7 @@ pair2-authority-continue-on-mobile-cancel-button = Cancellar
 
 
 pair2-authority-download-firefox-heading = Aperi { -brand-firefox } pro synchronisar
-pair2-authority-download-firefox-instruction = Pro configurar synchronisation a transverso apparatos, aperi { -brand-firefox } sur iste apparato e visita <b>firefox.com/par</b>
+pair2-authority-download-firefox-instruction-v2 = Pro configurar synchronisation a transverso apparatos, aperi { -brand-firefox } sur iste apparato e visita <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Discarga { -brand-firefox }
 
 
