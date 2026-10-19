@@ -90,7 +90,7 @@ export const ApproveSignInContainer = ({
   };
 
   if (!remoteMetadata) {
-    return <LoadingSpinner />;
+    return <LoadingSpinner fullScreen />;
   }
 
   return (
