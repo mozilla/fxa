@@ -1,8 +1,8 @@
 {
-  "commit": "896d651eb17fe118459761a775d73bd77886e93f",
+  "commit": "902ff6bf3bd6139cf365a1abeac930a9179a3698",
   "summary": "fix(settings): check the Sync account for the pairing TOTP gate",
-  "description": "Because:\n\n- Pairing checked 2FA on the current local account, not the Sync account.\n- A second local account without 2FA let pairing skip the TOTP code.\n\nThis commit:\n\n- Checks the Sync account from fxa_status in the pairing TOTP gate.\n- Verifies the pairing TOTP code with the Sync account's session token.\n- Fails the gate closed on a missing token or a profile lookup error.\n\nCloses FXA-14808",
-  "timestamp": 1792442602000,
+  "description": "Because:\n\n- Pairing checked 2FA on the current local account, not the Sync account.\n- A second local account without 2FA let pairing skip the TOTP code.\n\nThis commit:\n\n- Checks the Sync account from fxa_status in the pairing TOTP gate.\n- Verifies the pairing TOTP code with the Sync account's session token.\n- Keeps the fxa_status answer from /pair when the flow moves to /pair/auth/totp.\n- Fails the gate closed on a missing token or a profile lookup error.\n\nCloses FXA-14808",
+  "timestamp": 1792450947000,
   "storybooks": [
     "fxa-settings"
   ],
