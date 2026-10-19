@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 993410850f4a2ec4950f0aa6b6dbc4e3010cdb01</title>
+  <title>Storybooks for commit f074d7786dade9a0a5a7093399dd3954956a0056</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 993410850f4a2ec4950f0aa6b6dbc4e3010cdb01</h1>
+  <h1>Storybooks for commit f074d7786dade9a0a5a7093399dd3954956a0056</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/19/2026, 6:30:51 PM UTC</dd>
+    <dd>10/19/2026, 6:49:33 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): check the Sync account for the pairing TOTP gate</pre></dd>
     <dt>Description</dt>
@@ -44,7 +44,10 @@ This commit:
 
 * Gates pairing on the Sync account from fxa_status
 * Verifies the pairing TOTP code with the Sync account token
+* Makes AuthAllow and AuthTotp wait for fxa_status
 * Makes the gate fail closed before it honours a recent code
+* Uses the Sync user from the Pair bootstrap, and keeps an AuthAllow
+  re-run from passing the check early
 
 Closes FXA-14808</pre></dd>
   </dl>
