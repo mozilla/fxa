@@ -386,11 +386,9 @@ describe('db', () => {
       it('should not allow duplicates', async () => {
         const email = 'email' + randomString(10) + '@mozilla.com';
         await db.activateDeveloper(email);
-        await expect(db.activateDeveloper(email)).rejects.toThrow(
-          expect.objectContaining({
-            message: expect.stringContaining('ER_DUP_ENTRY'),
-          })
-        );
+        await expect(db.activateDeveloper(email)).rejects.toMatchObject({
+          code: 'ER_DUP_ENTRY',
+        });
       });
 
       it('should throw on empty email', async () => {
