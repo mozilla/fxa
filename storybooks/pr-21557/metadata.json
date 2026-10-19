@@ -1,0 +1,10 @@
+{
+  "commit": "f5ab2e109a9486a8f9896915b4302551375177c2",
+  "summary": "fix(settings): check the Sync account for the pairing TOTP gate",
+  "description": "Because:\n\n* The pairing TOTP gate checked the current localStorage account,\n  not the account Firefox Sync is signed in to\n\nThis commit:\n\n* Gates pairing on the Sync account from fxa_status\n* Verifies the pairing TOTP code with the Sync account token\n* Makes AuthAllow and AuthTotp wait for fxa_status\n\nCloses FXA-14808",
+  "timestamp": 1792423649000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
