@@ -1296,6 +1296,7 @@ pair2-authority-continue-on-mobile-cancel-button = Hủy bỏ
 
 
 pair2-authority-download-firefox-heading = Mở { -brand-firefox } để đồng bộ hoá
+pair2-authority-download-firefox-instruction-v2 = Để thiết lập đồng bộ hoá trên các thiết bị, hãy mở { -brand-firefox } trên thiết bị này và truy cập <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Tải xuống { -brand-firefox }
 
 

@@ -392,7 +392,9 @@ password-reset-chevron-expanded = Tolestu abisua
 password-reset-chevron-collapsed = Zabaldu abisua
 password-reset-warning-have-key = Kontua berreskuratzeko gakoa baduzu?
 password-reset-warning-signed-in-device = Beste gailu batean saioa hasita duzu oraindik?
+password-reset-warning-restore-data-link = Ikasi nola berreskuratu nabigatzailearen datuak saioa hasita duen gailu batetik
 password-reset-warning-new-device = Gailu berria darabilzu baina ez duzu gailu zaharretarako sarbiderik?
+password-reset-warning-new-device-description = Zure pasahitza berrezarri ondoren, { -brand-firefox } zerbitzarietan zifratuta dauden nabigatzailearen datuak ez dira erabilgarri egongo gailu honetan.
 
 
 alert-bar-close-message = Itxi mezua
@@ -509,6 +511,8 @@ flow-recovery-key-info-cancel-link = Utzi
 
 flow-setup-2fa-qr-heading = Konektatu zure autentifikazio-aplikaziora
 flow-setup-2a-qr-instruction = <strong>1. urratsa:</strong> eskaneatu QR kode hau edozein autentifikazio-aplikazio erabiliz, adibidez Duo edo Google Authenticator.
+flow-setup-2fa-qr-alt-text =
+    .alt = Bi urratseko autentifikazioa konfiguratzeko QR kodea. Eskanea ezazu hau, edo aukeratu "Ezin duzu QR kodea eskaneatu?" horren ordez konfiguraziorako gako sekretu bat jasotzeko.
 flow-setup-2fa-cant-scan-qr-button = Ezin duzu QR kodea eskaneatu?
 flow-setup-2fa-manual-key-heading = Idatzi kodea eskuz
 flow-setup-2fa-manual-key-instruction = <strong>1. urratsa:</strong> idatzi kodea hau zuk hobetsitako autentifikazio-aplikazioa erabiliz.
@@ -521,10 +525,12 @@ flow-setup-2fa-code-error = Kodea baliogabea da edo iraungita dago. Egiaztatu zu
 
 
 flow-setup-2fa-backup-choice-heading = Aukeratu berreskuratzeko metodoa
+flow-setup-2fa-backup-choice-description = Honen bitartez saioa has dezakezu zure gailu mugikor edo autentifikazio-aplikaziorako sarbiderik ez baduzu.
 flow-setup-2fa-backup-choice-phone-title = Berreskuratze-telefonoa
 flow-setup-2fa-backup-choice-phone-badge = Errazena
 flow-setup-2fa-backup-choice-phone-info = Jaso berreskuratze-kodea testu-mezu bidez. Une honetan AEBtan eta Kanadan erabilgarri soilik.
 flow-setup-2fa-backup-choice-code-title = Segurtasuneko autentifikazio-kodeak
+flow-setup-2fa-backup-choice-code-badge = Seguruena
 flow-setup-2fa-backup-choice-code-info = Sortu eta gorde erabilpen bakarreko autentifikazio-kodeak.
 
 
@@ -540,6 +546,7 @@ flow-setup-2fa-backup-code-dl-button-continue = Jarraitu
 
 
 flow-setup-2fa-inline-complete-success-banner = Bi urratseko autentifikazioa gaituta
+flow-setup-2fa-inline-complete-success-banner-description = Konektatutako zure gailu guztiak babesteko, kontu hau darabilzun gailu guztietan saioa amaitu behar zenuke eta gero saioa berriro hasi bi urratseko autentifikazio berria erabiliz.
 flow-setup-2fa-inline-complete-backup-code = Segurtasuneko autentifikazio-kodeak
 flow-setup-2fa-inline-complete-backup-phone = Berreskuratze-telefonoa
 flow-setup-2fa-inline-complete-backup-code-info =
@@ -552,7 +559,10 @@ flow-setup-2fa-inline-complete-backup-phone-description = Hau da berreskuratzeko
 flow-setup-2fa-inline-complete-learn-more-link = Honek nola babesten duen zure kontua
 flow-setup-2fa-inline-complete-continue-button = Jarraitu { $serviceName } zerbitzura
 flow-setup-2fa-prompt-heading = Konfiguratu bi urratseko autentifikazioa
+flow-setup-2fa-prompt-description = { $serviceName } zerbitzuak bi urratseko autentifikazioa konfiguratzea eskatzen du zure kontua seguru mantentzeko.
 flow-setup-2fa-prompt-passkey-success-banner = Sarbide-gako bidez saioa ondo hasita
+flow-setup-2fa-prompt-passkey-description = { $serviceName } zerbitzuak bi urratseko autentifikazioa eskatzen du zure { -product-mozilla-account } konturako ere. Konfiguratu ondoren, ez duzu gehiago beharko sarbide-gakoarekin saioa hastean.
+flow-setup-2fa-prompt-use-authenticator-apps = <authenticationAppsLink>Autentifikazio-aplikazio hauetako edozein</authenticationAppsLink> erabil dezakezu jarraitzeko.
 flow-setup-2fa-prompt-continue-button = Jarraitu
 
 
@@ -599,6 +609,12 @@ modal-default-confirm-button = Berretsi
 
 
 modal-mfa-protected-title = Idatzi berrespen-kodea
+modal-mfa-protected-subtitle = Lagun gaitzazu egiaztatzen zu zeu ari zarela kontuaren informazioa aldatzen
+modal-mfa-protected-instruction =
+    { $expirationTime ->
+        [one] Idatzi <email>{ $email }</email> helbidera bidali den kodea minutu { $expirationTime }eko epean.
+       *[other] Idatzi <email>{ $email }</email> helbidera bidali den kodea { $expirationTime } minutuko epean.
+    }
 modal-mfa-protected-input-label = Idatzi 6 digituko kodea
 modal-mfa-protected-cancel-button = Utzi
 modal-mfa-protected-confirm-button = Berretsi
@@ -624,6 +640,8 @@ nav-email-comm = Posta bidezko komunikazioak
 
 page-2fa-change-title = Aldatu bi urratseko autentifikazioa
 page-2fa-change-success = Bi urratseko autentifikazioa eguneratu egin da
+page-2fa-change-success-additional-message = Konektatutako zure gailu guztiak babesteko, kontu hau darabilzun gailu guztietan saioa amaitu behar zenuke eta gero saioa berriro hasi bi urratseko autentifikazio berria erabiliz.
+page-2fa-change-totpinfo-error = Errorea gertatu da zure bi urratseko autentifikazio-aplikazioa ordezkatzean. Saiatu berriro geroago.
 page-2fa-change-qr-instruction = <strong>1. urratsa:</strong> eskaneatu QR kode hau edozein autentifikazio-aplikazio erabiliz, adibidez Duo edo Google Authenticator. Honek konexio berri bat sortzen du eta konexio zaharrek ez dute gehiago funtzionatuko.
 
 
@@ -632,12 +650,16 @@ tfa-replace-code-error-3 = Arazo bat gertatu da zure segurtasuneko autentifikazi
 tfa-create-code-error = Arazo bat gertatu da zure segurtasuneko autentifikazio-kodeak sortzean
 tfa-replace-code-success-alert-4 = Segurtasuneko autentifikazio-kodeak eguneratuta
 tfa-create-code-success-alert = Segurtasuneko autentifikazio-kodeak sortuta
+tfa-replace-code-download-description = Gorde hauek gogoratzeko moduko leku batean. Zure kode zaharrak ordezkatu egingo dira hurrengo urratsa amaitu ondoren.
+tfa-replace-code-confirm-description = Berretsi kodeak gorde dituzula bat eskuz sartuz. Zure segurtasuneko autentifikazio-kodeak desgaitu egingo dira urrats hau burutu ondoren.
 tfa-incorrect-recovery-code-1 = Segurtasuneko autentifikazio-kode okerra
 
 
 page-2fa-setup-title = Bi urratseko autentifikazioa
+page-2fa-setup-totpinfo-error = Errorea gertatu da zure bi urratseko autentifikazioa konfiguratzean. Saiatu berriro geroago.
 page-2fa-setup-incorrect-backup-code-error = Kodea ez da zuzena. Saiatu berriro.
 page-2fa-setup-success = Bi urratseko autentifikazioa gaitu da
+page-2fa-setup-success-additional-message = Konektatutako zure gailu guztiak babesteko, kontu hau darabilzun gailu guztietan saioa amaitu behar zenuke eta gero saioa berriro hasi bi urratseko autentifikazioa erabiliz.
 
 
 avatar-page-title =
@@ -740,6 +762,7 @@ page-passkey-add-cancel = Utzi
 
 
 page-passkey-add-success = Sarbide-gakoa sortuta
+page-passkey-add-error-system-v2 = Arazo bat egon da zure sarbide-gakoa sortzean. Saiatu berriro geroago.
 
 
 recent-activity-title = Kontuaren azken jarduerak
@@ -780,6 +803,12 @@ recent-activity-password-reset-otp-sent = Pasahitza berrezartzeko berrespen-kode
 recent-activity-password-reset-otp-verified = Pasahitza berrezartzeko berrespen-kodea egiaztatuta
 recent-activity-must-reset-password = Pasahitz-berrezartzea behar da
 recent-activity-account-recovery-phone-replace-complete = Berreskuratze-telefonoa ordezkatuta
+recent-activity-account-recovery-phone-replace-failure = Berreskuratze-telefonoa ordezkatzeak huts egin du
+recent-activity-account-two-factor-replace-success = Bi urratseko autentifikazioa ordezkatuta
+recent-activity-account-two-factor-replace-failure = Bi urratseko autentifikazioa ordezkatzeak huts egin du
+recent-activity-account-recovery-phone-setup-failed = Berreskuratze-telefonoaren konfigurazioak huts egin du
+recent-activity-account-recovery-phone-reset-password-complete = Pasahitz-berrezartzea berreskuratze-telefonoa erabiliz burututa
+recent-activity-account-recovery-phone-reset-password-failed = Pasahitz-berrezartzeak berreskuratze-telefonoa erabiliz huts egin du
 recent-activity-account-passkey-registration-success = Sarbide-gakoa gehituta
 recent-activity-account-passkey-removed = Sarbide-gakoa kenduta
 recent-activity-unknown = Beste kontuaren jarduera

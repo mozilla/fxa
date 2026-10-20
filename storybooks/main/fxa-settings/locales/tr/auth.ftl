@@ -237,6 +237,10 @@ freeTrialEndingReminder-content-account-link-plaintext = Ödeme yönteminizi ve 
 #   $serviceLastActiveDateOnly (String) - The date the trial ends, e.g. January 20, 2016
 freeTrialEndingReminder-content-cancel-link = Ücret ödememek için <strong>{ $serviceLastActiveDateOnly }</strong> tarihinden önce iptal edin: <a data-l10n-name="freeTrialEndingReminder-cancel-subscription">Aboneliği iptal et</a>
 freeTrialEndingReminder-content-cancel-link-plaintext = Ücret ödemek istemiyorsanız { $serviceLastActiveDateOnly } tarihinden önce iptal edin:
+# Variables:
+#   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+freeTrialEndingReminder-content-thanks = { $productName } ürününü denediğiniz için teşekkür ederiz. Deneme süreniz veya aboneliğinizle ilgili herhangi bir sorunuz olursa lütfen <a data-l10n-name="freeTrialEndingReminder-contact-support">bizimle iletişime geçin</a>.
+freeTrialEndingReminder-content-thanks-plaintext = { $productName } ürününü denediğiniz için teşekkür ederiz. Deneme süreniz veya aboneliğinizle ilgili herhangi bir sorunuz olursa lütfen bizimle iletişime geçin.
 freeTrialEndingReminder-content-closing = Saygılarımızla,
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
@@ -309,8 +313,13 @@ subscriptionDowngrade-content-auto-renew = İptal etmediğiniz sürece aboneliğ
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionEndingReminder-subject = { $productName } aboneliğiniz yakında bitecek
 subscriptionEndingReminder-title = { $productName } aboneliğiniz yakında bitecek
+# Variables:
+#   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+#   $serviceLastActiveDateOnly (String) - The date of last active service, e.g. 01/20/2016
+subscriptionEndingReminder-content-line1 = { $productName } erişiminiz <strong>{ $serviceLastActiveDateOnly }</strong> tarihinde sona erecektir.
 subscriptionEndingReminder-content-line1-plaintext = { $productName } erişiminiz { $serviceLastActiveDateOnly } tarihinde sona erecektir.
 subscriptionEndingReminder-content-closing = Abone olduğunuz için teşekkürler!
+subscriptionEndingReminder-churn-title = Erişiminizi sürdürmek ister misiniz?
 # Variables:
 #  $subscriptionSupportUrlWithUtm (String) - URL to the subscription products support page
 subscriptionEndingReminder-content-support-plaintext = Destek ekibimizle iletişime geçin: { $subscriptionSupportUrlWithUtm }
@@ -333,9 +342,15 @@ subscriptionFirstInvoice-content-processing = Ödemeniz işleme alındı. Tamaml
 subscriptionFirstInvoice-content-install-2 = { $productName } ürününü kullanmaya nasıl başlayacağınız konusunda ayrı bir e-posta alacaksınız.
 subscriptionFirstInvoice-content-auto-renew = İptal etmediğiniz sürece aboneliğiniz her fatura döneminde otomatik olarak yenilenir.
 # Variables:
+#  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
+subscriptionFirstInvoice-content-your-next-invoice = Bir sonraki faturanız { $nextInvoiceDateOnly } tarihinde düzenlenecektir.
+# Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionPaymentExpired-subject-2 = { $productName } için ödeme yönteminizin süresi doldu veya yakında dolacak
 subscriptionPaymentExpired-title-2 = Ödeme yönteminizin kullanım süresi dolmuş veya dolmak üzere
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionPaymentExpired-content-2 = { $productName } için kullandığınız ödeme yönteminin süresi doldu veya dolmak üzere.
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionPaymentFailed-subject = { $productName } ödemesi başarısız oldu
@@ -355,7 +370,13 @@ subscriptionPaymentProviderCancelled-content-detect = { $productName } ödeme y�
 subscriptionReactivation-subject-2 = { $productName } aboneliğiniz yeniden etkinleştirildi
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-free-trial-subject = { $productName } ücretsiz denemeniz yeniden etkinleştirildi
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = { $productName } aboneliğinizi yeniden etkinleştirdiğiniz için teşekkür ederiz!
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-free-trial-title = { $productName } ücretsiz denemenizi yeniden etkinleştirdiğiniz için teşekkür ederiz!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20

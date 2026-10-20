@@ -1,8 +1,8 @@
 {
-  "commit": "5a4c4081b8916740f145f1c774eb7f004432ad90",
-  "summary": "Merge pull request #21565 from mozilla/fxa-14790",
-  "description": "fix(shared): read the client socket address for Express 5",
-  "timestamp": 1792452471000,
+  "commit": "d3d0e0a9465a755e0007effb63fa7206b5f3b473",
+  "summary": "Merge pull request #21567 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-4db2e3e3e3e4fc51d581b790483e1f0c6cdf4853",
+  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from 810c0270ed63292ac961ff2c35307fd2078ebbd5 to 4db2e3e3e3e4fc51d581b790483e1f0c6cdf4853",
+  "timestamp": 1792500398000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
