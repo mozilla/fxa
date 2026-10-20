@@ -152,6 +152,7 @@ device-info-ip-address = IP adresi: { $ipAddress }
 firefox-promo-banner-mobile-heading = Nerede olursanız olun { -brand-firefox } yanınızda
 firefox-promo-banner-mobile-description = Sekmelerinizi, yer imlerinizi ve parolalarınızı tüm cihazlarınız arasında eşitleyin. Üstelik tüm verileriniz güvenle şifrelenmiş olarak saklanır.
 firefox-promo-banner-mobile-cta = Cihaz bağlayın
+firefox-promo-banner-switch-heading = Hızlıca geçiş yapın, kolayca alışın.
 firefox-promo-banner-switch-description = { -brand-firefox }’a geçtiğinizde yer imlerinizi, parolalarınızı, geçmişinizi ve diğer verilerinizi aktararak hiç ara vermeden gezinmeye devam edebilirsiniz.
 firefox-promo-banner-switch-cta = { -brand-firefox }’a geçin
 
@@ -166,6 +167,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Parolayı onaylayın
 form-password-with-inline-criteria-reset-submit-button = Yeni parola oluştur
+form-password-with-inline-criteria-old-password-label =
+    .label = Eski parola
+form-password-with-inline-criteria-change-password-submit-button = Parolayı değiştir
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Parola
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -272,6 +276,10 @@ sync-clouds-image-aria-label =
     .aria-label = Eşitleme simgesi olan bulutlar
 confetti-falling-image-aria-label =
     .aria-label = Düşen konfeti animasyonu
+vpn-welcome-image-aria-label =
+    .aria-label = VPN’in etkin olduğunu gösteren “VPN” yazısını ve yeşil onay işaretli dairesel bir rozet içeren { -brand-firefox } penceresi.
+sync-devices-image-aria-label =
+    .aria-label = Eşitleme yapan bir masaüstü tarayıcı penceresi ve cep telefonu, yanlarında { -brand-firefox } maskotu
 firefox-wordmark-image-aria-label =
     .aria-label = { -brand-firefox } logosu
 password-success-image-aria-label =
@@ -342,6 +350,10 @@ promo-qr-mobile-heading-treatment-a = Nereye giderseniz gidin, kaldığınız ye
 promo-qr-mobile-heading-treatment-b = Sekmeleriniz ve diğer verileriniz telefonunuzda sizi bekliyor
 promo-qr-mobile-heading-treatment-c = Güvendiğiniz tarayıcı artık telefonunuzda
 promo-qr-mobile-heading-treatment-d = Aynı { -brand-firefox }, başka ekran.
+promo-qr-mobile-heading-treatment-e = Gizliliğiniz burada sona ermemeli
+promo-qr-mobile-heading-treatment-f = İnternette yaptıklarınız size özel kalsın
+promo-qr-mobile-heading-treatment-g = Telefonunuzda dikkat dağıtıcı unsurları azaltın
+promo-qr-mobile-heading-treatment-h = Daha sakin bir gezinme deneyimini yanınızda taşıyın
 promo-qr-mobile-description-v2 = Mobil uygulamayı indirmek için okutun
 promo-qr-mobile-qr-alt =
     .alt = { -brand-firefox } mobil uygulamasını indirmek için QR kodu. Kodu okutmak için telefonunuzun kamerasını ekranınızın sağ alt köşesine doğrultun.
@@ -388,8 +400,11 @@ flow-recovery-key-hint-unsafe-char-error = İpucu güvensiz unicode karakterler 
 password-reset-warning-icon = Uyarı
 password-reset-chevron-expanded = Uyarıyı daralt
 password-reset-chevron-collapsed = Uyarıyı genişlet
+password-reset-warning-review-sign-in-options = Tarayıcı verilerinizi korumak için giriş seçeneklerini inceleyin
 password-reset-warning-have-key = Hesap kurtarma anahtarınız var mı?
+password-reset-warning-use-key-link-v2 = Parolanızı sıfırlarken tarayıcı verilerinizi korumak için kurtarma anahtarınızı kullanın
 password-reset-warning-signed-in-device = Hâlâ başka bir cihazdan giriş yapmış durumda mısınız?
+password-reset-warning-signed-in-device-description = Tarayıcı verilerinize erişebilirsiniz. Parolanızı sıfırladıktan sonra verilerinizi geri yükleyip eşitlemek için o cihazdan giriş yapın.
 password-reset-warning-restore-data-link = Giriş yapmış bir cihazdan tarayıcı verilerinizi geri yüklemeyi öğrenin
 password-reset-warning-new-device = Yeni bir cihaza geçtiniz ama eskilerine artık erişemiyor musunuz?
 password-reset-warning-new-device-description = Parolanızı sıfırladıktan sonra { -brand-firefox } sunucularındaki şifrelenmiş tarayıcı verilerinizi bu cihazda kullanamazsınız.
@@ -554,6 +569,7 @@ flow-setup-2fa-inline-complete-continue-button = { $serviceName } hizmetine deva
 flow-setup-2fa-prompt-heading = İki aşamalı kimlik doğrulamayı ayarla
 flow-setup-2fa-prompt-description = { $serviceName }, hesabınızı güvende tutmak için iki aşamalı kimlik doğrulamasını ayarlamanızı gerektiriyor.
 flow-setup-2fa-prompt-passkey-success-banner = Geçiş anahtarıyla başarıyla giriş yapıldı
+flow-setup-2fa-prompt-passkey-description = { $serviceName }, { -product-mozilla-account }nız için ayrıca iki aşamalı kimlik doğrulama gerektirir. Kurulumdan sonra geçiş anahtarıyla giriş yaptığınızda iki aşamalı kimlik doğrulamaya artık ihtiyacınız olmayacak.
 flow-setup-2fa-prompt-use-authenticator-apps = Devam etmek için <authenticationAppsLink>bu kimlik doğrulama uygulamalarından</authenticationAppsLink> herhangi birini kullanabilirsiniz.
 flow-setup-2fa-prompt-continue-button = Devam et
 
@@ -601,6 +617,7 @@ modal-default-confirm-button = Onayla
 
 
 modal-mfa-protected-title = Onay kodunu girin
+modal-mfa-protected-subtitle = Hesap bilgilerinizi değiştirenin siz olduğunuzu kontrol etmeliyiz
 modal-mfa-protected-instruction =
     { $expirationTime ->
         [one] <email>{ $email }</email> adresine gönderdiğimiz kodu { $expirationTime } dakika içinde girin.
@@ -631,6 +648,7 @@ nav-email-comm = E-posta iletişimi
 
 page-2fa-change-title = İki aşamalı doğrulamayı değiştir
 page-2fa-change-success = İki aşamalı kimlik doğrulama güncellendi
+page-2fa-change-success-additional-message = Bağlı cihazlarınızın hepsini korumak için bu hesabı kullandığınız her yerde oturumunuzu kapatmalı ve ardından yeni iki aşamalı kimlik doğrulamanızla yeniden giriş yapmalısınız.
 page-2fa-change-totpinfo-error = İki aşamalı kimlik doğrulama uygulamanız değiştirilirken bir hata oluştu. Daha sonra yeniden deneyin.
 page-2fa-change-qr-instruction = <strong>1. adım:</strong> Bu QR kodunu Duo veya Google Authenticator gibi bir kimlik doğrulama uygulamasıyla tarayın. Bu işlem yeni bir bağlantı oluşturur. Eski bağlantılar artık çalışmayacaktır.
 
@@ -649,6 +667,7 @@ page-2fa-setup-title = İki aşamalı doğrulama
 page-2fa-setup-totpinfo-error = İki aşamalı doğrulama ayarlanırken bir hata oluştu. Daha sonra yeniden deneyin.
 page-2fa-setup-incorrect-backup-code-error = Bu kod doğru değil. Yeniden deneyin.
 page-2fa-setup-success = İki aşamalı kimlik doğrulama etkinleştirildi
+page-2fa-setup-success-additional-message = Bağlı cihazlarınızın hepsini korumak için bu hesabı kullandığınız her yerde oturumunuzu kapatmalı ve ardından iki aşamalı kimlik doğrulamayla yeniden giriş yapmalısınız.
 
 
 avatar-page-title =
@@ -931,6 +950,9 @@ passkey-rename-cancel-button = Vazgeç
 passkey-rename-error-empty = Bu geçiş anahtarına bir ad verin
 passkey-rename-error-too-long = Ad 256 karakterden kısa olmalıdır.
 passkey-rename-error-invalid = Yalnızca harfler, rakamlar, noktalama işaretleri ve simgeler kullanılabilir.
+passkey-rename-error-duplicate = Bu adı kullanan bir geçiş anahtarı zaten mevcut
+passkey-rename-success = Geçiş anahtarının adı değiştirildi
+passkey-rename-error = Geçiş anahtarınız yeniden adlandırılırken bir sorun oluştu. Birkaç dakika sonra yeniden deneyin.
 
 
 switch-turn-off = Kapat
@@ -950,7 +972,13 @@ passkey-row-header = Geçiş anahtarları
 passkey-row-enabled = Etkin
 passkey-row-not-set = Ayarlanmamış
 passkey-row-action-create = Oluştur
+passkey-row-description = Telefonunuzu veya desteklenen başka bir cihazı kullanarak hesabınıza daha kolay ve güvenli giriş yapın.
 passkey-row-info-link-2 = Daha fazla bilgi alın
+passkey-row-max-limit-banner =
+    { $count ->
+        [one] { $count } geçiş anahtarı sınırına ulaştınız. Yeni bir geçiş anahtarı oluşturmak için mevcut anahtarlardan birini silin.
+       *[other] { $count } geçiş anahtarı sınırına ulaştınız. Yeni bir geçiş anahtarı oluşturmak için mevcut anahtarlardan birini silin.
+    }
 passkey-row-max-limit-disabled-reason = Maksimum geçiş anahtarı sayısına ulaştınız.
 
 
@@ -1055,6 +1083,9 @@ auth-error-225 = Geçiş anahtarı zaten kayıtlı
 auth-error-226 = Geçiş anahtarı sınırına ulaşıldı
 auth-error-227 = Geçiş anahtarı doğrulaması başarısız oldu
 auth-error-228 = Geçiş anahtarı kaydı başarısız
+auth-error-233 = Geçiş anahtarı oluşturmak için cihazınızda veya güvenlik anahtarınızda ekran kilidi, PIN, parmak izi ya da yüz tanıma özelliğini ayarlayın. Ardından tekrar deneyin.
+auth-error-238 = Geçiş anahtarı doğrulaması başarısız oldu
+auth-error-239 = Üzgünüz, hesabınız silinemedi. Lütfen yeniden deneyin veya sorun devam ederse destek ekibiyle iletişime geçin.
 auth-error-240 = Bu hesap devre dışı bırakıldı
 auth-error-999 = Beklenmeyen hata
 auth-error-1001 = Giriş denemesi iptal edildi
@@ -1078,11 +1109,19 @@ oauth-error-1000 = Bir şeyler yanlış gitti. Lütfen bu sekmeyi kapatıp yenid
 
 
 passkey-registration-error-timeout = Geçiş anahtarı kurulumu iptal edildi. Yeniden deneyin.
+passkey-registration-canceled-v2 = Geçiş anahtarı kurulumu zaman aşımına uğradı veya iptal edildi.
 passkey-registration-canceled-link = Daha fazla bilgi alın
 passkey-registration-error-not-supported-v2 = Tarayıcınız veya cihazınız geçiş anahtarlarını desteklemiyor.
 passkey-registration-error-not-supported-link = Daha fazla bilgi al
+passkey-registration-error-could-not-complete = Geçiş anahtarı kurulumu tamamlanamadı. Başka bir yöntem veya cihaz deneyin.
 passkey-registration-error-could-not-complete-link = Daha fazla bilgi alın
+passkey-registration-error-security = Bu sayfada geçiş anahtarı oluşturulamaz. Güvenli siteyi kullanarak tekrar deneyin.
+passkey-registration-error-invalid-state = Bu geçiş anahtarı zaten kayıtlı. Giriş yapmak için bu anahtarı kullanın veya farklı bir geçiş anahtarı ekleyin.
+passkey-authentication-trouble-heading = Geçiş anahtarıyla giriş yapılamadı
+passkey-authentication-trouble-description = Yeniden deneyin veya farklı bir giriş yöntemi kullanın.
+passkey-authentication-trouble-link = Geçiş anahtarları nasıl kullanılır?
 passkey-authentication-error-timeout = Geçiş anahtarı isteği zaman aşımına uğradı. Lütfen yeniden deneyin.
+passkey-authentication-error-timeout-v2 = Geçiş anahtarıyla giriş zaman aşımına uğradı. Yeniden deneyin.
 passkey-authentication-error-not-supported-v2 = Tarayıcınız veya cihazınız geçiş anahtarlarını desteklemiyor.
 
 
@@ -1577,3 +1616,7 @@ signup-confirmed-sync-description-v2 = Parolalarınız, adresleriniz, yer imleri
 signup-confirmed-sync-add-device-link = Başka bir cihaz ekle
 signup-confirmed-sync-manage-sync-button = Eşitlemeyi yönet
 signup-confirmed-sync-set-password-success-banner = Sync parolası oluşturuldu
+
+
+update-firefox-heading = { -brand-firefox } güncellemesi gerekiyor
+update-firefox-download-button = Son sürümü indir

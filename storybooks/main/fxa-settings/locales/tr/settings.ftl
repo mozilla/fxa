@@ -151,6 +151,7 @@ device-info-ip-address = IP adresi: { $ipAddress }
 firefox-promo-banner-mobile-heading = Nerede olursanız olun { -brand-firefox } yanınızda
 firefox-promo-banner-mobile-description = Sekmelerinizi, yer imlerinizi ve parolalarınızı tüm cihazlarınız arasında eşitleyin. Üstelik tüm verileriniz güvenle şifrelenmiş olarak saklanır.
 firefox-promo-banner-mobile-cta = Cihaz bağlayın
+firefox-promo-banner-switch-heading = Hızlıca geçiş yapın, kolayca alışın.
 firefox-promo-banner-switch-description = { -brand-firefox }’a geçtiğinizde yer imlerinizi, parolalarınızı, geçmişinizi ve diğer verilerinizi aktararak hiç ara vermeden gezinmeye devam edebilirsiniz.
 firefox-promo-banner-switch-cta = { -brand-firefox }’a geçin
 
@@ -166,6 +167,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Parolayı onaylayın
 form-password-with-inline-criteria-reset-submit-button = Yeni parola oluştur
+form-password-with-inline-criteria-old-password-label =
+    .label = Eski parola
+form-password-with-inline-criteria-change-password-submit-button = Parolayı değiştir
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Parola
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -306,6 +310,11 @@ sync-clouds-image-aria-label =
     .aria-label = Eşitleme simgesi olan bulutlar
 confetti-falling-image-aria-label =
     .aria-label = Düşen konfeti animasyonu
+# In this context, “VPN” is a VPN service built into the Firefox browser, and generally isn't localized differently than “VPN”
+vpn-welcome-image-aria-label =
+    .aria-label = VPN’in etkin olduğunu gösteren “VPN” yazısını ve yeşil onay işaretli dairesel bir rozet içeren { -brand-firefox } penceresi.
+sync-devices-image-aria-label =
+    .aria-label = Eşitleme yapan bir masaüstü tarayıcı penceresi ve cep telefonu, yanlarında { -brand-firefox } maskotu
 # Aria label for the Firefox logo and wordmark shown together as a brand lockup
 firefox-wordmark-image-aria-label =
     .aria-label = { -brand-firefox } logosu
@@ -422,6 +431,14 @@ promo-qr-mobile-heading-treatment-b = Sekmeleriniz ve diğer verileriniz telefon
 promo-qr-mobile-heading-treatment-c = Güvendiğiniz tarayıcı artık telefonunuzda
 # Value proposition variant. "Different screen" refers to the phone rather than the desktop.
 promo-qr-mobile-heading-treatment-d = Aynı { -brand-firefox }, başka ekran.
+# Value proposition variant. "stop here" means privacy protection should continue onto the phone.
+promo-qr-mobile-heading-treatment-e = Gizliliğiniz burada sona ermemeli
+# Value proposition variant. Refers to keeping browsing activity private.
+promo-qr-mobile-heading-treatment-f = İnternette yaptıklarınız size özel kalsın
+# Value proposition variant. "noise" refers to distractions and clutter.
+promo-qr-mobile-heading-treatment-g = Telefonunuzda dikkat dağıtıcı unsurları azaltın
+# Value proposition variant. Refers to a calmer browsing experience on the phone.
+promo-qr-mobile-heading-treatment-h = Daha sakin bir gezinme deneyimini yanınızda taşıyın
 # Appears below a QR code that a user can scan to download the Firefox mobile app
 promo-qr-mobile-description-v2 = Mobil uygulamayı indirmek için okutun
 # Note that for RTL languages, this should be translated as "the lower-left corner of your screen," instead of "the lower-right corner."
@@ -499,8 +516,12 @@ flow-recovery-key-hint-unsafe-char-error = İpucu güvensiz unicode karakterler 
 password-reset-warning-icon = Uyarı
 password-reset-chevron-expanded = Uyarıyı daralt
 password-reset-chevron-collapsed = Uyarıyı genişlet
+password-reset-warning-review-sign-in-options = Tarayıcı verilerinizi korumak için giriş seçeneklerini inceleyin
 password-reset-warning-have-key = Hesap kurtarma anahtarınız var mı?
+# "it" refers to the user's account recovery key.
+password-reset-warning-use-key-link-v2 = Parolanızı sıfırlarken tarayıcı verilerinizi korumak için kurtarma anahtarınızı kullanın
 password-reset-warning-signed-in-device = Hâlâ başka bir cihazdan giriş yapmış durumda mısınız?
+password-reset-warning-signed-in-device-description = Tarayıcı verilerinize erişebilirsiniz. Parolanızı sıfırladıktan sonra verilerinizi geri yükleyip eşitlemek için o cihazdan giriş yapın.
 password-reset-warning-restore-data-link = Giriş yapmış bir cihazdan tarayıcı verilerinizi geri yüklemeyi öğrenin
 password-reset-warning-new-device = Yeni bir cihaza geçtiniz ama eskilerine artık erişemiyor musunuz?
 password-reset-warning-new-device-description = Parolanızı sıfırladıktan sonra { -brand-firefox } sunucularındaki şifrelenmiş tarayıcı verilerinizi bu cihazda kullanamazsınız.
@@ -744,6 +765,11 @@ flow-setup-2fa-prompt-heading = İki aşamalı kimlik doğrulamayı ayarla
 flow-setup-2fa-prompt-description = { $serviceName }, hesabınızı güvende tutmak için iki aşamalı kimlik doğrulamasını ayarlamanızı gerektiriyor.
 # Success banner shown at the top of the page when the user signed in with a passkey.
 flow-setup-2fa-prompt-passkey-success-banner = Geçiş anahtarıyla başarıyla giriş yapıldı
+# Body copy shown when the user signed in with a passkey and the service still
+# requires two-step authentication setup.
+# Variable { $serviceName } is the name of the product (e.g. Firefox Add-ons)
+# that requests two-step authentication setup.
+flow-setup-2fa-prompt-passkey-description = { $serviceName }, { -product-mozilla-account }nız için ayrıca iki aşamalı kimlik doğrulama gerektirir. Kurulumdan sonra geçiş anahtarıyla giriş yaptığınızda iki aşamalı kimlik doğrulamaya artık ihtiyacınız olmayacak.
 # "these authenticator apps" links to https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication
 flow-setup-2fa-prompt-use-authenticator-apps = Devam etmek için <authenticationAppsLink>bu kimlik doğrulama uygulamalarından</authenticationAppsLink> herhangi birini kullanabilirsiniz.
 flow-setup-2fa-prompt-continue-button = Devam et
@@ -809,6 +835,7 @@ modal-default-confirm-button = Onayla
 ## ModalMfaProtected
 
 modal-mfa-protected-title = Onay kodunu girin
+modal-mfa-protected-subtitle = Hesap bilgilerinizi değiştirenin siz olduğunuzu kontrol etmeliyiz
 # This string is used to show a notification to the user for them to enter
 # email confirmation code to update their multi-factor-authentication-protected
 # account settings
@@ -852,6 +879,7 @@ nav-email-comm = E-posta iletişimi
 
 page-2fa-change-title = İki aşamalı doğrulamayı değiştir
 page-2fa-change-success = İki aşamalı kimlik doğrulama güncellendi
+page-2fa-change-success-additional-message = Bağlı cihazlarınızın hepsini korumak için bu hesabı kullandığınız her yerde oturumunuzu kapatmalı ve ardından yeni iki aşamalı kimlik doğrulamanızla yeniden giriş yapmalısınız.
 page-2fa-change-totpinfo-error = İki aşamalı kimlik doğrulama uygulamanız değiştirilirken bir hata oluştu. Daha sonra yeniden deneyin.
 page-2fa-change-qr-instruction = <strong>1. adım:</strong> Bu QR kodunu Duo veya Google Authenticator gibi bir kimlik doğrulama uygulamasıyla tarayın. Bu işlem yeni bir bağlantı oluşturur. Eski bağlantılar artık çalışmayacaktır.
 
@@ -883,6 +911,7 @@ page-2fa-setup-totpinfo-error = İki aşamalı doğrulama ayarlanırken bir hata
 # code here refers to "backup authentication code"
 page-2fa-setup-incorrect-backup-code-error = Bu kod doğru değil. Yeniden deneyin.
 page-2fa-setup-success = İki aşamalı kimlik doğrulama etkinleştirildi
+page-2fa-setup-success-additional-message = Bağlı cihazlarınızın hepsini korumak için bu hesabı kullandığınız her yerde oturumunuzu kapatmalı ve ardından iki aşamalı kimlik doğrulamayla yeniden giriş yapmalısınız.
 
 ## Avatar change page
 
@@ -1250,6 +1279,9 @@ passkey-rename-cancel-button = Vazgeç
 passkey-rename-error-empty = Bu geçiş anahtarına bir ad verin
 passkey-rename-error-too-long = Ad 256 karakterden kısa olmalıdır.
 passkey-rename-error-invalid = Yalnızca harfler, rakamlar, noktalama işaretleri ve simgeler kullanılabilir.
+passkey-rename-error-duplicate = Bu adı kullanan bir geçiş anahtarı zaten mevcut
+passkey-rename-success = Geçiş anahtarının adı değiştirildi
+passkey-rename-error = Geçiş anahtarınız yeniden adlandırılırken bir sorun oluştu. Birkaç dakika sonra yeniden deneyin.
 
 ## Switch component
 
@@ -1275,8 +1307,17 @@ passkey-row-header = Geçiş anahtarları
 passkey-row-enabled = Etkin
 passkey-row-not-set = Ayarlanmamış
 passkey-row-action-create = Oluştur
+passkey-row-description = Telefonunuzu veya desteklenen başka bir cihazı kullanarak hesabınıza daha kolay ve güvenli giriş yapın.
 # External link to a support article about passkeys.
 passkey-row-info-link-2 = Daha fazla bilgi alın
+# Shown as a warning banner when the user has registered the maximum number of passkeys.
+# Variables:
+#   $count (Number) - the maximum number of passkeys allowed (defaults to 10 allowed)
+passkey-row-max-limit-banner =
+    { $count ->
+        [one] { $count } geçiş anahtarı sınırına ulaştınız. Yeni bir geçiş anahtarı oluşturmak için mevcut anahtarlardan birini silin.
+       *[other] { $count } geçiş anahtarı sınırına ulaştınız. Yeni bir geçiş anahtarı oluşturmak için mevcut anahtarlardan birini silin.
+    }
 # Tooltip shown on the disabled Create button when the passkey limit is reached
 passkey-row-max-limit-disabled-reason = Maksimum geçiş anahtarı sayısına ulaştınız.
 
@@ -1424,6 +1465,9 @@ auth-error-225 = Geçiş anahtarı zaten kayıtlı
 auth-error-226 = Geçiş anahtarı sınırına ulaşıldı
 auth-error-227 = Geçiş anahtarı doğrulaması başarısız oldu
 auth-error-228 = Geçiş anahtarı kaydı başarısız
+auth-error-233 = Geçiş anahtarı oluşturmak için cihazınızda veya güvenlik anahtarınızda ekran kilidi, PIN, parmak izi ya da yüz tanıma özelliğini ayarlayın. Ardından tekrar deneyin.
+auth-error-238 = Geçiş anahtarı doğrulaması başarısız oldu
+auth-error-239 = Üzgünüz, hesabınız silinemedi. Lütfen yeniden deneyin veya sorun devam ederse destek ekibiyle iletişime geçin.
 auth-error-240 = Bu hesap devre dışı bırakıldı
 auth-error-999 = Beklenmeyen hata
 auth-error-1001 = Giriş denemesi iptal edildi
@@ -1455,16 +1499,37 @@ oauth-error-1000 = Bir şeyler yanlış gitti. Lütfen bu sekmeyi kapatıp yenid
 
 # The ceremony timed out before the user responded
 passkey-registration-error-timeout = Geçiş anahtarı kurulumu iptal edildi. Yeniden deneyin.
+passkey-registration-canceled-v2 = Geçiş anahtarı kurulumu zaman aşımına uğradı veya iptal edildi.
 # Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
 passkey-registration-canceled-link = Daha fazla bilgi alın
 # Browser or platform does not support passkeys or the requested options (e.g., user verification, discoverable credential).
 passkey-registration-error-not-supported-v2 = Tarayıcınız veya cihazınız geçiş anahtarlarını desteklemiyor.
 # Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
 passkey-registration-error-not-supported-link = Daha fazla bilgi al
+# Generic fallback shown when passkey setup fails for an indeterminate reason.
+# Keep the tone neutral; do not imply the device is unsupported or that the user cancelled.
+# "method" here means an alternative way to create the passkey (e.g. another password manager or security key), not a different account or sign-in option.
+passkey-registration-error-could-not-complete = Geçiş anahtarı kurulumu tamamlanamadı. Başka bir yöntem veya cihaz deneyin.
 # Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
 passkey-registration-error-could-not-complete-link = Daha fazla bilgi alın
+# RP ID / origin mismatch, or insecure context (e.g., embedded iframe, wrong domain)
+passkey-registration-error-security = Bu sayfada geçiş anahtarı oluşturulamaz. Güvenli siteyi kullanarak tekrar deneyin.
+# A credential for this RP already exists on the authenticator (excludeCredentials match)
+passkey-registration-error-invalid-state = Bu geçiş anahtarı zaten kayıtlı. Giriş yapmak için bu anahtarı kullanın veya farklı bir geçiş anahtarı ekleyin.
+# Shown as a warning (not error) banner when a passkey sign-in is cancelled, no passkey is
+# available on this device, or the authenticator can't satisfy the request. Copy stays neutral and
+# points the user to another way to sign in.
+passkey-authentication-trouble-heading = Geçiş anahtarıyla giriş yapılamadı
+# Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
+# passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
+passkey-authentication-trouble-description = Yeniden deneyin veya farklı bir giriş yöntemi kullanın.
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Geçiş anahtarları nasıl kullanılır?
 # The ceremony timed out before the user responded
 passkey-authentication-error-timeout = Geçiş anahtarı isteği zaman aşımına uğradı. Lütfen yeniden deneyin.
+# Shown in a warning (not error) banner when the passkey sign-in ceremony times out.
+passkey-authentication-error-timeout-v2 = Geçiş anahtarıyla giriş zaman aşımına uğradı. Yeniden deneyin.
 # Browser or platform does not support passkeys
 passkey-authentication-error-not-supported-v2 = Tarayıcınız veya cihazınız geçiş anahtarlarını desteklemiyor.
 
@@ -2317,3 +2382,9 @@ signup-confirmed-sync-description-v2 = Parolalarınız, adresleriniz, yer imleri
 signup-confirmed-sync-add-device-link = Başka bir cihaz ekle
 signup-confirmed-sync-manage-sync-button = Eşitlemeyi yönet
 signup-confirmed-sync-set-password-success-banner = Sync parolası oluşturuldu
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = { -brand-firefox } güncellemesi gerekiyor
+update-firefox-download-button = Son sürümü indir

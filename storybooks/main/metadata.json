@@ -1,8 +1,8 @@
 {
-  "commit": "8f0cb4e8568d75c1a031a387873e0d44800efb0a",
-  "summary": "Merge pull request #21442 from mozilla/PAY-3908",
-  "description": "fix(payments): fix Link payments being logged as Card in metrics",
-  "timestamp": 1792503852000,
+  "commit": "c54e45ca2b972ca42e94639a6a20a04d3973c654",
+  "summary": "Merge pull request #21563 from mozilla/fxa-14756",
+  "description": "fix(auth): accept long stored scopes in introspect response",
+  "timestamp": 1792516116000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

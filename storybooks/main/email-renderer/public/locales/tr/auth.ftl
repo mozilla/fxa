@@ -320,6 +320,10 @@ subscriptionEndingReminder-content-line1 = { $productName } erişiminiz <strong>
 subscriptionEndingReminder-content-line1-plaintext = { $productName } erişiminiz { $serviceLastActiveDateOnly } tarihinde sona erecektir.
 subscriptionEndingReminder-content-closing = Abone olduğunuz için teşekkürler!
 subscriptionEndingReminder-churn-title = Erişiminizi sürdürmek ister misiniz?
+subscriptionEndingReminder-churn-terms = <a data-l10n-name="subscriptionEndingReminder-churn-terms">Bu teklife özel koşullar ve kısıtlamalar geçerlidir</a>
+# Variables:
+#  $churnTermsUrlWithUtm (String) - URL to the terms and restrictions page applied to this promotion
+subscriptionEndingReminder-churn-terms-plaintext = Bu teklife özel koşullar ve kısıtlamalar geçerlidir: { $churnTermsUrlWithUtm }
 # Variables:
 #  $subscriptionSupportUrlWithUtm (String) - URL to the subscription products support page
 subscriptionEndingReminder-content-support-plaintext = Destek ekibimizle iletişime geçin: { $subscriptionSupportUrlWithUtm }
@@ -358,6 +362,7 @@ subscriptionPaymentFailed-title = Ödemenizle ilgili bir sorun yaşıyoruz
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionPaymentFailed-content-problem = { $productName } için son ödemenizle ilgili bir sorun yaşadık.
+subscriptionPaymentFailed-content-outdated-1 = Ödeme yönteminizin süresi dolmuş ya da mevcut ödeme bilgileriniz güncelliğini yitirmiş olabilir.
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionPaymentProviderCancelled-subject = { $productName } için ödeme bilgilerinizi güncellemeniz gerekiyor
@@ -365,6 +370,7 @@ subscriptionPaymentProviderCancelled-title = Ödeme yönteminizle ilgili bir sor
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionPaymentProviderCancelled-content-detect = { $productName } ödeme yönteminizle ilgili bir sorun tespit ettik.
+subscriptionPaymentProviderCancelled-content-reason-1 = Ödeme yönteminizin süresi dolmuş ya da mevcut ödeme bilgileriniz güncelliğini yitirmiş olabilir.
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-subject-2 = { $productName } aboneliğiniz yeniden etkinleştirildi
@@ -388,6 +394,9 @@ subscriptionRenewalReminder-title = Aboneliğiniz yakında yenilenecek
 # Variables
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionRenewalReminder-content-greeting = Değerli { $productName } müşterisi,
+# Variables
+#   $reminderLength (String) - The number of days until the current subscription is set to automatically renew, e.g. 14
+subscriptionRenewalReminder-content-intro = Mevcut aboneliğiniz { $reminderLength } gün sonra otomatik olarak yenilenecek.
 subscriptionRenewalReminder-content-closing = Saygılarımızla,
 # Variables
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
