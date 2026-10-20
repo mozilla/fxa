@@ -815,7 +815,9 @@ module.exports = ({
             ),
             id_token: validators.assertion.description(DESCRIPTION.idToken),
             session_token_id: validators.sessionTokenId.optional(),
-            scope: validators.scope.required().description(DESCRIPTION.scope),
+            scope: validators.storedScopeString
+              .required()
+              .description(DESCRIPTION.scope),
             token_type: Joi.string()
               .valid('bearer')
               .required()
@@ -950,7 +952,9 @@ module.exports = ({
                 .optional()
                 .description(DESCRIPTION.idToken),
               session_token: validators.sessionToken.optional(),
-              scope: validators.scope.required().description(DESCRIPTION.scope),
+              scope: validators.storedScopeString
+                .required()
+                .description(DESCRIPTION.scope),
               token_type: Joi.string()
                 .valid('bearer')
                 .required()
@@ -965,7 +969,7 @@ module.exports = ({
             Joi.object({
               access_token: validators.accessToken.required(),
               id_token: validators.assertion.optional(),
-              scope: validators.scope.required(),
+              scope: validators.storedScopeString.required(),
               token_type: Joi.string().valid('bearer').required(),
               expires_in: Joi.number().required(),
             }),
@@ -974,7 +978,7 @@ module.exports = ({
               access_token: validators.accessToken.required(),
               refresh_token: validators.refreshToken.optional(),
               id_token: validators.assertion.optional(),
-              scope: validators.scope.required(),
+              scope: validators.storedScopeString.required(),
               auth_at: Joi.number().required(),
               token_type: Joi.string().valid('bearer').required(),
               expires_in: Joi.number().required(),
@@ -984,7 +988,7 @@ module.exports = ({
             Joi.object({
               access_token: validators.accessToken.required(),
               refresh_token: validators.refreshToken.required(),
-              scope: validators.scope.required(),
+              scope: validators.storedScopeString.required(),
               token_type: Joi.string().valid('bearer').required(),
               expires_in: Joi.number().required(),
             })

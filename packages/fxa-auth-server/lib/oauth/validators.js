@@ -56,6 +56,9 @@ exports.scope = Joi.extend({
   },
 }).scope();
 
+// For responses only: a stored scope string can be longer than the request cap.
+exports.storedScopeString = Joi.string().allow('');
+
 exports.redirectUri = Joi.string()
   .max(256)
   .regex(/^[a-zA-Z0-9\-_\/.:?=&]+$/);
