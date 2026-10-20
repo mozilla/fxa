@@ -1,8 +1,8 @@
 {
-  "commit": "234142dbc5f277e00a3efea69da280a5c93cf433",
-  "summary": "Merge pull request #21562 from mozilla/FXA-14753",
-  "description": "fix(admin-panel): return every account matching an email search",
-  "timestamp": 1792521298000,
+  "commit": "19aa8ba1a6bd38ac4d95ca0331612753eb4ae9eb",
+  "summary": "Merge pull request #21560 from mozilla/FXA-14744",
+  "description": "fix(auth): keep WebAuthn PRF output off the registration payload",
+  "timestamp": 1792521518000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
