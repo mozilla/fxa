@@ -1,8 +1,8 @@
 {
-  "commit": "d3d0e0a9465a755e0007effb63fa7206b5f3b473",
-  "summary": "Merge pull request #21567 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-4db2e3e3e3e4fc51d581b790483e1f0c6cdf4853",
-  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from 810c0270ed63292ac961ff2c35307fd2078ebbd5 to 4db2e3e3e3e4fc51d581b790483e1f0c6cdf4853",
-  "timestamp": 1792500398000,
+  "commit": "8f0cb4e8568d75c1a031a387873e0d44800efb0a",
+  "summary": "Merge pull request #21442 from mozilla/PAY-3908",
+  "description": "fix(payments): fix Link payments being logged as Card in metrics",
+  "timestamp": 1792503852000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
