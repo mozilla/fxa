@@ -1368,7 +1368,7 @@ pair2-authority-continue-on-mobile-cancel-button = Anulează
 
 
 pair2-authority-download-firefox-heading = Deschide { -brand-firefox } pentru sincronizare
-pair2-authority-download-firefox-instruction = Pentru a configura sincronizarea pe toate dispozitivele, deschide { -brand-firefox } pe acest dispozitiv și accesează<b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Pentru a configura sincronizarea pe toate dispozitivele, deschide { -brand-firefox } pe acest dispozitiv și accesează<b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Descarcă { -brand-firefox }
 
 

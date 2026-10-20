@@ -1884,8 +1884,6 @@ pair2-authority-continue-on-mobile-cancel-button = Eheja
 
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Embojuruja { -brand-firefox } embojuehe hag̃ua
-# "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Emboheko hag̃ua ñembojuehe mba’e’oka pa’ũme, embojuruja { -brand-firefox } ko mba’e’okápe ha eike <b>firefox.com/pair</b>-pe
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Emboguejy { -brand-firefox }
 

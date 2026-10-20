@@ -140,6 +140,8 @@ interstitial-offer-error-subscription-not-found-heading = Ezin izan dugu harpide
 interstitial-offer-error-subscription-not-found-message = Badirudi harpidetza hau ez dagoela aktibo jada.
 interstitial-offer-error-customer-mismatch-heading = Harpidetza hau ez dago zure kontuarekin lotuta
 interstitial-offer-error-customer-mismatch-message = Ziurtatu kontu egokiarekin hasi duzula saioa, edo laguntza behar baduzu, jarri gurekin harremanetan.
+interstitial-offer-error-general-heading = Eskaintza ez dago erabilgarri
+interstitial-offer-error-general-message = Badirudi eskaintza hau ez dagoela erabilgarri une honetan.
 interstitial-offer-error-button-back-to-subscriptions = Itzuli harpidetzetara
 interstitial-offer-error-button-cancel-subscription = Jarraitu bertan behera uzteko
 interstitial-offer-error-button-sign-in = Hasi saioa
@@ -165,6 +167,10 @@ subscription-management-button-add-payment-method = Gehitu
 subscription-management-page-warning-message-no-payment-method = Gehitu ordainketa-metodoa zure harpidetzetan etenaldia ekiditeko.
 subscription-management-button-manage-payment-method-aria = Kudeatu ordainketa-metodoa
 subscription-management-button-manage-payment-method = Kudeatu
+# $last4 (String) - Last four numbers of credit card
+subscription-management-card-ending-in = { $last4 }-z amaitzen den txartela
+# $expirationDate (Date) - Payment card's expiration date
+subscription-management-card-expires-date = Iraungitzea { $expirationDate }
 subscription-management-active-subscriptions-heading = Harpidetza aktiboak
 subscription-management-you-have-no-active-subscriptions = Ez duzu harpidetza aktiborik
 subscription-management-new-subs-will-appear-here = Harpidetza berriak hemen agertuko dira.
@@ -370,11 +376,27 @@ interstitial-offer-button-back-to-subscriptions = Itzuli harpidetzetara
 interstitial-offer-action-error = Espero gabeko errorea gertatu da. Saiatu berriro geroago.
 interstitial-offer-cancel-subscription-button = Utzi harpidetza
 
+## Daily/Weekly/Monthly refers to the user's current subscription interval
+
+interstitial-offer-button-keep-current-interval-daily = Mantendu eguneko harpidetza
+interstitial-offer-button-keep-current-interval-weekly = Mantendu asteko harpidetza
+interstitial-offer-button-keep-current-interval-halfyearly = Mantendu sei hilabeteko harpidetza
+interstitial-offer-button-keep-current-interval-monthly = Mantendu hileko harpidetza
+interstitial-offer-button-keep-subscription = Mantendu harpidetza
+
 ##
 
 payments-client-loading-spinner =
     .alt = Kargatzen…
     .aria-label = Kargatzen…
+
+## Payment method management page - Stripe
+
+# Save button for changing which payment method will be used
+payment-method-management-save-default = Ezarri ordainketa-metodo lehenetsi gisa
+# Save button for saving a new payment method
+payment-method-management-save-method = Gorde ordainketa-metodoa
+manage-stripe-payments-title = Kudeatu ordainketa-metodoak
 
 ## Component - PurchaseDetails
 
@@ -449,6 +471,10 @@ subscription-management-link-view-invoice-aria = Ikusi { $productName } produktu
 subscription-content-next-bill = Hurrengo faktura • { $billedOnDate }
 subscription-content-next-bill-with-tax-1 = { $nextInvoiceTotal } + zergetako { $taxDue }
 subscription-content-next-bill-no-tax-1 = { $nextInvoiceTotal }
+subscription-content-button-stay-subscribed = Jarraitu harpidetua
+    .aria-label = Jarraitu { $productName }(r)a harpidetua
+subscription-content-button-cancel-subscription = Utzi harpidetza
+    .aria-label = Utzi { $productName }(e)ko zure harpidetza
 
 ##
 

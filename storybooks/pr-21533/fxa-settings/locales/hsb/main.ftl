@@ -1337,7 +1337,7 @@ pair2-authority-continue-on-mobile-cancel-button = Přetorhnyć
 
 
 pair2-authority-download-firefox-heading = { -brand-firefox } za synchronizaciju wočinić
-pair2-authority-download-firefox-instruction = Zo byšće synchronizaciju na gratach konfigurował, wočińće { -brand-firefox } na tutym graće a wopytajće <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Zo byšće synchronizaciju na gratach konfigurował, wočińće { -brand-firefox } na tutym graće a wopytajće <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = { -brand-firefox } scahnyć
 
 

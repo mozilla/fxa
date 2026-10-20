@@ -1324,7 +1324,7 @@ pair2-authority-continue-on-mobile-cancel-button = Бас тарту
 
 
 pair2-authority-download-firefox-heading = Синхрондау үшін { -brand-firefox } ашыңыз
-pair2-authority-download-firefox-instruction = Құрылғылар арасында синхрондауды баптау үшін осы құрылғыда { -brand-firefox } ашып, <b>firefox.com/pair</b> сайтына кіріңіз.
+pair2-authority-download-firefox-instruction-v2 = Құрылғылар арасында синхрондауды баптау үшін осы құрылғыда { -brand-firefox } ашып, <b>firefox.com/pair</b> сайтына кіріңіз.
 pair2-authority-download-firefox-cta = { -brand-firefox } жүктеп алу
 
 

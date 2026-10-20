@@ -1858,7 +1858,7 @@ pair2-authority-continue-on-mobile-cancel-button = 取消
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = 開啟 { -brand-firefox } 即可同步
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = 若要與其他裝置同步，請在此裝置開啟 { -brand-firefox }，然後造訪 <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = 若要與其他裝置同步，請在此裝置開啟 { -brand-firefox }，然後造訪 <b>firefox.com/pair</b>。
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = 下載 { -brand-firefox }
 

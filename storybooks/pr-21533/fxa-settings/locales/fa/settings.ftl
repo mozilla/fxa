@@ -1884,8 +1884,6 @@ pair2-authority-continue-on-mobile-cancel-button = انصراف
 
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = برای همگام‌سازی، { -brand-firefox } را باز کنید
-# "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = برای راه‌اندازی همگام‌سازی بین دستگاه‌ها، { -brand-firefox } را روی این دستگاه باز کنید و به <b>firefox.com/pair</b> بروید
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = بارگیری { -brand-firefox }
 
