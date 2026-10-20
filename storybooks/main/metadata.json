@@ -1,8 +1,8 @@
 {
-  "commit": "c54e45ca2b972ca42e94639a6a20a04d3973c654",
-  "summary": "Merge pull request #21563 from mozilla/fxa-14756",
-  "description": "fix(auth): accept long stored scopes in introspect response",
-  "timestamp": 1792516116000,
+  "commit": "234142dbc5f277e00a3efea69da280a5c93cf433",
+  "summary": "Merge pull request #21562 from mozilla/FXA-14753",
+  "description": "fix(admin-panel): return every account matching an email search",
+  "timestamp": 1792521298000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
