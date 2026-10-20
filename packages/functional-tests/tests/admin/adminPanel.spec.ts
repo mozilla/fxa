@@ -47,7 +47,8 @@ test.describe('Admin Panel', () => {
     );
     expect(res.status).toBe(200);
     const data = await res.json();
-    expect(data.email).toBe(credentials.email);
+    expect(data).toHaveLength(1);
+    expect(data[0].email).toBe(credentials.email);
   });
 
   test('account search from UI shows results', async ({
