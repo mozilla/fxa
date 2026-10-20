@@ -1345,7 +1345,7 @@ pair2-authority-continue-on-mobile-cancel-button = Diddymu
 
 
 pair2-authority-download-firefox-heading = Agor { -brand-firefox } i gydweddu
-pair2-authority-download-firefox-instruction = I allu cydweddu ar draws dyfeisiau, agorwch { -brand-firefox } ar y ddyfais hon ac ewch i <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = I osod cydweddu ar draws dyfeisiau, agorwch { -brand-firefox } ar y ddyfais hon ac ewch i <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Llwytho { -brand-firefox } i lawr
 
 

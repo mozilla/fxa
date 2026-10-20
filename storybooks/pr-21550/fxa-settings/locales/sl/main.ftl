@@ -1457,7 +1457,7 @@ pair2-authority-continue-on-mobile-cancel-button = Prekliči
 
 
 pair2-authority-download-firefox-heading = Odprite { -brand-firefox } za sinhronizacijo
-pair2-authority-download-firefox-instruction = Če želite nastaviti sinhronizacijo med napravami, v tej napravi odprite { -brand-firefox } in obiščite <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Če želite nastaviti sinhronizacijo med napravami, v tej napravi odprite { -brand-firefox } in obiščite <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Prenesi { -brand-firefox(sklon: "tozilnik") }
 
 

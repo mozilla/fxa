@@ -1323,7 +1323,6 @@ pair2-authority-continue-on-mobile-cancel-button = Avbryt
 
 
 pair2-authority-download-firefox-heading = Opne { -brand-firefox } for å synkronisere
-pair2-authority-download-firefox-instruction = For å setje opp synkronisering på tvers av einingar, opne { -brand-firefox } på denne eininga og gå til <b>firefox.com/pair</b>
 pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
 
 

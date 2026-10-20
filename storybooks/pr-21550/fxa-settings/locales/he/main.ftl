@@ -1276,7 +1276,7 @@ pair2-authority-continue-on-mobile-cancel-button = ביטול
 
 
 pair2-authority-download-firefox-heading = יש לפתוח את { -brand-firefox } כדי לסנכרן
-pair2-authority-download-firefox-instruction = כדי להגדיר סנכרון בין מכשירים, יש לפתוח את { -brand-firefox } במכשיר זה ולבקר באתר <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = כדי להגדיר סנכרון בין מכשירים, יש לפתוח את { -brand-firefox } במכשיר זה ולבקר באתר <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = הורדת { -brand-firefox }
 
 

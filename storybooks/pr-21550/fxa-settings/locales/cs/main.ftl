@@ -1612,7 +1612,7 @@ pair2-authority-continue-on-mobile-cancel-button = Zrušit
 
 
 pair2-authority-download-firefox-heading = Otevřete { -brand-firefox(case: "acc") } pro synchronizaci
-pair2-authority-download-firefox-instruction = Pro nastavení synchronizace mezi zařízeními otevřete { -brand-firefox } na tomto zařízení a navštivte <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Pro nastavení synchronizace mezi zařízeními otevřete { -brand-firefox } na tomto zařízení a navštivte <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Stáhnout { -brand-firefox }
 
 

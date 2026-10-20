@@ -1359,7 +1359,6 @@ pair2-authority-continue-on-mobile-cancel-button = გაუქმება
 
 
 pair2-authority-download-firefox-heading = გახსენით { -brand-firefox } დასინქრონებისთვის
-pair2-authority-download-firefox-instruction = მოწყობილობებს შორის სინქრონიზაციისთვის გახსენით { -brand-firefox } ამ მოწყობილობაზე და ინახულეთ გვერდი <b>firefox.com/pair</b>
 pair2-authority-download-firefox-cta = ჩამოტვირთეთ { -brand-firefox }
 
 
