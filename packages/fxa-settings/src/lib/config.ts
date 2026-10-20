@@ -145,6 +145,8 @@ export interface Config {
     l10nEnabled: boolean;
   };
   servicesWithEmailVerification: string[];
+  // Set by the content-server 500 handler
+  serverError?: boolean;
 }
 
 export function getDefault() {

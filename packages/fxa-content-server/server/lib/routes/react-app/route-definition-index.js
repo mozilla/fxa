@@ -167,22 +167,11 @@ function getIndexRouteDefinition(config) {
     },
   };
 
-  const NO_LONGER_SUPPORTED_CONTEXTS = new Set([
-    'fx_desktop_v1',
-    'fx_desktop_v2',
-    'fx_firstrun_v2',
-    'iframe',
-  ]);
-
   return {
     method: 'get',
     path: '/',
     process: async function (req, res) {
       const flowEventData = flowMetrics.create(FLOW_ID_KEY);
-
-      if (NO_LONGER_SUPPORTED_CONTEXTS.has(req.query.context)) {
-        return res.redirect(`/update_firefox?${req.originalUrl.split('?')[1]}`);
-      }
 
       let flags;
       try {

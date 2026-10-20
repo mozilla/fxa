@@ -161,6 +161,13 @@ const settingsConfig = {
   servicesWithEmailVerification: config.get('servicesWithEmailVerification'),
 };
 
+// The 500 handler sets res.locals.serverError so React renders its error page
+function getServerConfig(res) {
+  return res.locals.serverError
+    ? { ...settingsConfig, serverError: true }
+    : settingsConfig;
+}
+
 // Inject Settings content into the index HTML
 // This used to inject the configs and flow metrics values.
 function swapBetaMeta(html, tmplContent = {}) {
@@ -230,7 +237,7 @@ function modifyProxyRes(proxyRes, req, res) {
     const body = Buffer.concat(bodyChunks);
 
     // forward existing response data
-    res.status(proxyRes.statusCode);
+    res.status(res.locals.serverError ? 500 : proxyRes.statusCode);
     Object.keys(proxyRes.headers).forEach((key) => {
       res.append(key, proxyRes.headers[key]);
     });
@@ -243,7 +250,7 @@ function modifyProxyRes(proxyRes, req, res) {
       let html = body.toString();
       const flowEventData = flowMetrics.create(FLOW_ID_KEY);
       html = swapBetaMeta(html, {
-        __SERVER_CONFIG__: settingsConfig,
+        __SERVER_CONFIG__: getServerConfig(res),
         __FLOW_ID__: flowEventData.flowId,
         __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
         ...resolvePreConnectDirectives(settingsConfig),
@@ -292,7 +299,7 @@ const modifySettingsStatic = function (req, res) {
   const flowEventData = flowMetrics.create(FLOW_ID_KEY);
   return res.send(
     swapBetaMeta(indexFile, {
-      __SERVER_CONFIG__: settingsConfig,
+      __SERVER_CONFIG__: getServerConfig(res),
       __FLOW_ID__: flowEventData.flowId,
       __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
       ...resolvePreConnectDirectives(settingsConfig),
