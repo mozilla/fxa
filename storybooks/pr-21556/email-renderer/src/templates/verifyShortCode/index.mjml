@@ -1,0 +1,32 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="verifyShortCode-title-3">Open the internet with Mozilla</span>
+    </mj-text>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="verifyShortCode-title-subtext-2">Confirm your account and get the most out of Mozilla everywhere you sign in starting with:</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include('/partials/userInfo/index.mjml') %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="verifyShortCode-prompt-3">Use this confirmation code:</span>
+    </mj-text>
+
+    <mj-text css-class="code-large"><%- code %></mj-text>
+
+    <mj-text css-class="text-body-no-margin">
+      <span data-l10n-id="verifyShortCode-expiry-notice">It expires in 5 minutes.</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include('/partials/automatedEmailNoAction/index.mjml') %>
