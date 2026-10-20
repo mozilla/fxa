@@ -1,0 +1,12 @@
+{
+  "commit": "2da7d6348c1974ed20af32b7855e1a1cbe7d35a0",
+  "summary": "fix(payments): retry only open invoices of active subscriptions",
+  "description": "Because:\n- Saving a new payment method charged open invoices left on canceled\n  subscriptions, so customers were charged twice.\n\nThis commit:\n- Pays an open invoice only when its subscription is active, past_due, or trialing.\n- Skips open invoices that have no subscription.\n\nFixes PAY-3951",
+  "timestamp": 1792477731000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
