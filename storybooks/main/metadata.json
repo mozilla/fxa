@@ -1,8 +1,8 @@
 {
-  "commit": "d49a8e88d43e48919690c2ac8b7e564ccfc76ff0",
-  "summary": "Merge pull request #21545 from mozilla/pay-3810-zendesk-auth",
-  "description": "feat(auth): support Zendesk OAuth access token auth",
-  "timestamp": 1792601938000,
+  "commit": "293a24964b3eeeaa3598cf8af6bb91ffd8e4b1bf",
+  "summary": "Merge pull request #21556 from mozilla/fix-next-turbo-dev",
+  "description": "fix(payments): new page resets in nextjs dev turbo",
+  "timestamp": 1792602007000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
