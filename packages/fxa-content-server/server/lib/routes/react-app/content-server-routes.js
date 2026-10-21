@@ -94,7 +94,6 @@ const FRONTEND_ROUTES = [
   'signup_permissions',
   'signup_verified',
   'subscriptions',
-  'subscriptions/products/[\\w_]+',
   'update_firefox',
   'would_you_like_to_sync',
   'web_channel_example',

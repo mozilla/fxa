@@ -169,7 +169,6 @@ require('./spec/views/password_strength/password_with_strength_balloon');
 require('./spec/views/post_verify/password/force_password_change');
 require('./spec/views/progress_indicator');
 require('./spec/views/subscriptions_management_redirect');
-require('./spec/views/subscriptions_product_redirect');
 require('./spec/views/tooltip');
 
 const runTests = function () {

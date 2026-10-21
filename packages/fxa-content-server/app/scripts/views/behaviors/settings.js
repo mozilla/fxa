@@ -45,8 +45,6 @@ export default function (defaultBehavior, options = {}) {
               redirectTo.indexOf('/settings/two_step_authentication') >= 0
             ) {
               endpoint = '/settings/two_step_authentication';
-            } else if (redirectTo.indexOf('/subscriptions/products') === 0) {
-              endpoint = redirectTo;
             }
           }
         }
