@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 544b71ea86cbc1216a6d815e0efe89638b43aa12</title>
+  <title>Storybooks for commit b3755cea7cbffa73266a1830ca9cf8efb99ef949</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,14 +23,14 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 544b71ea86cbc1216a6d815e0efe89638b43aa12</h1>
+  <h1>Storybooks for commit b3755cea7cbffa73266a1830ca9cf8efb99ef949</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/21/2026, 1:33:30 PM UTC</dd>
+    <dd>10/21/2026, 2:03:49 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(passkeys): add Glean events for passwordless Sync opt-in and wraps</pre></dd>
     <dt>Description</dt>
@@ -43,7 +43,8 @@ This commit:
 
 * Adds passkey.upgrade_prompt_* events to the opt-in page, tagged with the sign-in surface
 * Carries the surface on PasskeyWrapData from the passkey sign-in to the opt-in page
-* Adds passkey.wrap_create_success, wrap_retrieve_success and wrap_retrieve_error {reason}
+* Adds passkey.wrap_create_success, wrap_retrieve_success and wrap_retrieve_error
+* Skips wrap_retrieve_error when the passkey has no wrap stored
 * Passes Glean into the passkey wrap routes
 
 Closes #FXA-13266</pre></dd>
