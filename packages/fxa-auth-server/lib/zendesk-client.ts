@@ -4,9 +4,11 @@
 import zendesk from 'node-zendesk';
 
 export const createZendeskClient = (config: Record<string, any>) => {
+  const useOAuth = !!config.zendesk.useOAuth;
   const zendeskClient = zendesk.createClient({
     username: config.zendesk.username,
-    token: config.zendesk.token,
+    token: useOAuth ? config.zendesk.oauthToken : config.zendesk.token,
+    oauth: useOAuth,
     remoteUri: `https://${config.zendesk.subdomain}.zendesk.com/api/v2`,
     disableGlobalState: true,
   });
