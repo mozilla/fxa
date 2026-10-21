@@ -1,8 +1,8 @@
 {
-  "commit": "dde4ac60c5e10a631005d3a6260d13d1951e0de3",
-  "summary": "Merge pull request #21475 from mozilla/contrib/pr-21436-glean-deletion-ping",
-  "description": "feat(auth): send Glean server-deletion-request ping on account deletion",
-  "timestamp": 1792594889000,
+  "commit": "d206c09e680fff7cf5bcc604f1c37812963d8adc",
+  "summary": "Merge pull request #21573 from mozilla/agent-43963c",
+  "description": "test(auth): remove a duplicate test and dead setup in cms.spec.ts",
+  "timestamp": 1792596214000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
