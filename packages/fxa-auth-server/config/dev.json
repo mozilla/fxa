@@ -478,6 +478,9 @@
     "rpId": "localhost",
     "allowedOrigins": ["http://localhost:3030"]
   },
+  "vapidAccounts": {
+    "enabled": true
+  },
   "passwordlessOtp": {
     "enabled": true,
     "allowedClientServices": {

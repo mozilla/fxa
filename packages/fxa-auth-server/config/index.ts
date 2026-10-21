@@ -2331,6 +2331,14 @@ const convictConf = convict({
       env: 'OTP_SIGNUP_DIGIT',
     },
   },
+  vapidAccounts: {
+    enabled: {
+      doc: 'Create accounts whose email matches vapid-<32 hex>@restmail.net with a verified email and session, and skip sign-in confirmation for them.',
+      default: false,
+      format: Boolean,
+      env: 'VAPID_ACCOUNTS_ENABLED',
+    },
+  },
   passwordlessOtp: {
     enabled: {
       doc: 'Enable passwordless authentication feature',
