@@ -129,13 +129,14 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       fullProdRollout: true,
     },
 
+    // These routes have no Backbone views, so React must serve them.
     postVerifyOtherRoutes: {
-      featureFlagOn: showReactApp.postVerifyOtherRoutes,
+      featureFlagOn: true,
       routes: reactRoute.getRoutes([
         'post_verify/password/force_password_change',
         'subscriptions',
       ]),
-      fullProdRollout: false,
+      fullProdRollout: true,
     },
 
     // These routes have no Backbone views, so React must serve them.

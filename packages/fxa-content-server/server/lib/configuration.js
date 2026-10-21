@@ -326,12 +326,6 @@ const conf = (module.exports = convict({
     },
   },
   showReactApp: {
-    postVerifyOtherRoutes: {
-      default: false,
-      doc: 'Enable users to visit the React version of any other "post verify" routes',
-      format: Boolean,
-      env: 'REACT_CONVERSION_POST_VERIFY_OTHER_ROUTES',
-    },
     webChannelExampleRoutes: {
       default: false,
       doc: 'Enable users to visit the React version of "web channel example" routes',

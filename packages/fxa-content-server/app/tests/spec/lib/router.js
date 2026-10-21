@@ -7,7 +7,6 @@ import AuthBroker from 'models/auth_brokers/base';
 import Backbone from 'backbone';
 import BaseView from 'views/base';
 import Constants from 'lib/constants';
-import ForcePasswordChangeView from 'views/post_verify/password/force_password_change';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
@@ -464,24 +463,6 @@ describe('lib/router', () => {
         assert.isTrue(router.showView.calledWith(View, viewConstructorOptions));
       });
     });
-
-    it('handles module names for the view', () => {
-      var routeHandler = router.createViewHandler(
-        'post_verify/password/force_password_change',
-        viewConstructorOptions
-      );
-      assert.isFunction(routeHandler);
-      assert.isFalse(router.showView.called);
-
-      return routeHandler.call(router).then(() => {
-        assert.isTrue(
-          router.showView.calledWith(
-            ForcePasswordChangeView,
-            viewConstructorOptions
-          )
-        );
-      });
-    });
   });
 
   describe('createChildViewHandler', () => {
@@ -508,26 +489,6 @@ describe('lib/router', () => {
         assert.isTrue(
           router.showChildView.calledWith(
             ChildView,
-            ParentView,
-            viewConstructorOptions
-          )
-        );
-      });
-    });
-
-    it('handles module names for the view', () => {
-      var routeHandler = router.createChildViewHandler(
-        'post_verify/password/force_password_change',
-        ParentView,
-        viewConstructorOptions
-      );
-      assert.isFunction(routeHandler);
-      assert.isFalse(router.showChildView.called);
-
-      return routeHandler.call(router).then(() => {
-        assert.isTrue(
-          router.showChildView.calledWith(
-            ForcePasswordChangeView,
             ParentView,
             viewConstructorOptions
           )

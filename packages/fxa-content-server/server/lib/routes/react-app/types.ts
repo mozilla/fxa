@@ -43,7 +43,6 @@ export interface AddRoutes {
 }
 
 type ShowReactApp = {
-  postVerifyOtherRoutes: boolean;
   webChannelExampleRoutes: boolean;
   pocPairingRoutes: boolean;
   pair2Routes: boolean;
