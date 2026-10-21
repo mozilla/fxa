@@ -1,8 +1,8 @@
 {
-  "commit": "f111173187246d6fec8cccb7270db3cdf042af1d",
-  "summary": "Merge pull request #21557 from mozilla/fxa-14808",
-  "description": "fix(settings): check the Sync account for the pairing TOTP gate",
-  "timestamp": 1792598234000,
+  "commit": "09b07963ef1add6ac181b538a3f0266cda41e890",
+  "summary": "Merge pull request #21574 from mozilla/fxa-14815",
+  "description": "chore(content-server): serve password change and subscriptions in React",
+  "timestamp": 1792599201000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
