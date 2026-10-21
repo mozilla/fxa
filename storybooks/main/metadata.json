@@ -1,8 +1,8 @@
 {
-  "commit": "046063bd8b3277faae35eb104073cb2e932a6526",
-  "summary": "Merge pull request #21571 from mozilla/fxa-14814",
-  "description": "chore(content-server): remove the subscriptions/products redirect",
-  "timestamp": 1792590382000,
+  "commit": "dde4ac60c5e10a631005d3a6260d13d1951e0de3",
+  "summary": "Merge pull request #21475 from mozilla/contrib/pr-21436-glean-deletion-ping",
+  "description": "feat(auth): send Glean server-deletion-request ping on account deletion",
+  "timestamp": 1792594889000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
