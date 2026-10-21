@@ -16,7 +16,7 @@ import {
   uninstallMockFxaMailer,
 } from '../../test/fixtures/fxa-mailer';
 
-// Mock fxa-shared/db/models/auth with real exports plus mock EmailBounce for chaining.
+// Mock @fxa/shared/db/mysql/legacy/models/auth with real exports plus mock EmailBounce for chaining.
 // Must be before any require() that pulls this module (including test/mocks.js).
 const _mockEmailBounce: any = {};
 function resetEmailBounceMock() {
@@ -26,8 +26,8 @@ function resetEmailBounceMock() {
   _mockEmailBounce.distinct = jest.fn().mockResolvedValue([]);
 }
 resetEmailBounceMock();
-jest.mock('fxa-shared/db/models/auth', () => {
-  const actual = jest.requireActual('fxa-shared/db/models/auth');
+jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => {
+  const actual = jest.requireActual('@fxa/shared/db/mysql/legacy/models/auth');
   return {
     ...actual,
     Account: {
@@ -107,7 +107,7 @@ const mockEmailTasks = {
 };
 mockEmailTasksRef.current = mockEmailTasks;
 
-const authModels = require('fxa-shared/db/models/auth');
+const authModels = require('@fxa/shared/db/mysql/legacy/models/auth');
 const EmailBounce = authModels.EmailBounce;
 
 const { InactiveAccountsManager } = require('../inactive-accounts');

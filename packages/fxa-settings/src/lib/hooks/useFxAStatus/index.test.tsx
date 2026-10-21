@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { useEffect } from 'react';
+import { act, render, renderHook, waitFor } from '@testing-library/react';
 import {
   PAIRING_FXA_STATUS_TIMEOUT_MS,
   isPairingEntryPathname,
@@ -384,6 +385,37 @@ describe('useFxAStatus', () => {
     });
   });
 
+  // A page's effects run before the hook's, so a page reached by sign-in must
+  // not see the pre-sign-in answer.
+  it('reports pending before a page acts on a move to /pair', async () => {
+    (firefox.fxaStatus as jest.Mock)
+      .mockResolvedValueOnce({ capabilities: { engines: [] } })
+      .mockReturnValueOnce(new Promise(() => {}));
+    const integration = {
+      type: IntegrationType.OAuthNative,
+      isSync: () => true,
+      isFirefoxNonSync: () => false,
+      isPairing: () => false,
+    };
+    const statesOnPair: string[] = [];
+    const Page = ({ state, onPair }: { state: string; onPair: boolean }) => {
+      useEffect(() => {
+        if (onPair) statesOnPair.push(state);
+      });
+      return null;
+    };
+    const App = ({ pathname }: { pathname: string }) => {
+      const { fxaStatusState } = useFxAStatus(integration, { pathname });
+      return <Page state={fxaStatusState} onPair={pathname === '/pair'} />;
+    };
+
+    const { rerender } = render(<App pathname="/" />);
+    await waitFor(() => expect(firefox.fxaStatus).toHaveBeenCalledTimes(1));
+    rerender(<App pathname="/pair" />);
+
+    expect(statesOnPair[0]).toBe('pending');
+  });
+
   // A plain /pair with no context builds a Web integration, but the page still
   // has to negotiate the pairing version with the browser.
   describe('Web integration on a pairing entry page', () => {
@@ -414,6 +446,26 @@ describe('useFxAStatus', () => {
       expect(result.current.fxaStatus?.capabilities.pairingVersion).toBe(2);
     });
 
+    it('keeps the Sync user when /pair moves to /pair/auth/totp', async () => {
+      const signedInUser = { uid: 'sync-uid', sessionToken: 'sync-token' };
+      (firefox.fxaStatus as jest.Mock).mockResolvedValue({
+        capabilities: { engines: [] },
+        signedInUser,
+      });
+
+      const { result, rerender } = renderHook(
+        ({ pathname }) => useFxAStatus(integration, { pathname }),
+        { initialProps: { pathname: '/pair' } }
+      );
+      await waitFor(() => {
+        expect(result.current.fxaStatusState).toBe('answered');
+      });
+      rerender({ pathname: '/pair/auth/totp' });
+
+      expect(result.current.fxaStatusState).toBe('answered');
+      expect(result.current.fxaStatus?.signedInUser).toEqual(signedInUser);
+    });
+
     it('gives up on a browser that never answers', () => {
       jest.useFakeTimers();
       (firefox.fxaStatus as jest.Mock).mockReturnValue(new Promise(() => {}));
@@ -431,7 +483,7 @@ describe('useFxAStatus', () => {
   });
 
   describe('isPairingEntryPathname', () => {
-    it.each(['/pair', '/pair/', '/connect_another_device'])(
+    it.each(['/pair', '/pair/', '/pair/auth/totp', '/connect_another_device'])(
       'matches %s',
       (pathname) => {
         expect(isPairingEntryPathname(pathname)).toBe(true);

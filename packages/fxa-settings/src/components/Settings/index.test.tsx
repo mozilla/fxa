@@ -15,6 +15,7 @@ import {
 import { Config } from '../../lib/config';
 import { SETTINGS_PATH } from '../../constants';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
+import * as utils from 'fxa-react/lib/utils';
 import { Subject } from './mocks';
 
 const mockSessionStatus = jest.fn();
@@ -469,6 +470,25 @@ describe('Settings App', () => {
     await router.navigate(SETTINGS_PATH + '/avatar/change');
 
     expect(router.state.location.pathname).toBe('/settings/avatar/');
+  });
+
+  it('leaves the app for the 404 page on an unknown route', async () => {
+    const hardNavigateSpy = jest
+      .spyOn(utils, 'hardNavigate')
+      .mockImplementation(() => {});
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext()}>
+        <Subject />
+      </AppContext.Provider>,
+      {
+        route: SETTINGS_PATH + '/no-such-route',
+      }
+    );
+
+    await waitFor(() =>
+      expect(hardNavigateSpy).toHaveBeenCalledWith('/404', {}, false, true)
+    );
+    hardNavigateSpy.mockRestore();
   });
 
   describe('guarded routes render MFA guard', () => {

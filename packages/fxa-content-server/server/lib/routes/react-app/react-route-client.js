@@ -5,7 +5,6 @@
 const {
   FRONTEND_ROUTES,
   OAUTH_SUCCESS_ROUTES,
-  UPDATE_FIREFOX_ROUTES,
 } = require('./content-server-routes');
 
 /**
@@ -18,8 +17,7 @@ const reactRouteClient = {
       typeof name === 'string' &&
       (name === '/' ||
         FRONTEND_ROUTES.includes(name) ||
-        OAUTH_SUCCESS_ROUTES.includes(name) ||
-        UPDATE_FIREFOX_ROUTES.includes(name))
+        OAUTH_SUCCESS_ROUTES.includes(name))
     ) {
       return name;
     }

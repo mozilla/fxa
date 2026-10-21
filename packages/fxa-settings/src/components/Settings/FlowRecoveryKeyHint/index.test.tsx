@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import AuthClient from 'fxa-auth-client/browser';
 import { logViewEvent } from '../../../lib/metrics';
 import { Account, AppContext } from '../../../models';
 import FlowRecoveryKeyHint from '.';
@@ -12,11 +14,15 @@ import {
   MOCK_ACCOUNT,
   mockAppContext,
 } from '../../../models/mocks';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
-const accountWithSuccess = {
-  ...MOCK_ACCOUNT,
-  updateRecoveryKeyHint: jest.fn().mockResolvedValue(true),
-} as unknown as Account;
+const MOCK_SESSION_TOKEN = 'sessionToken';
+jest.mock('../../../lib/cache', () => ({
+  ...jest.requireActual('../../../lib/cache'),
+  sessionToken: () => 'sessionToken',
+}));
+
+const mockAuthClient = { updateRecoveryKeyHint: jest.fn() };
 
 const navigateForward = jest.fn();
 const navigateBackward = jest.fn();
@@ -30,9 +36,14 @@ jest.mock('../../../lib/metrics', () => ({
 
 jest.mock('../../../models/AlertBarInfo');
 
-const renderWithContext = (account: Account) => {
+const renderWithContext = () => {
   renderWithRouter(
-    <AppContext.Provider value={mockAppContext({ account })}>
+    <AppContext.Provider
+      value={mockAppContext({
+        account: MOCK_ACCOUNT as unknown as Account,
+        authClient: mockAuthClient as unknown as AuthClient,
+      })}
+    >
       <FlowRecoveryKeyHint
         {...{
           localizedBackButtonTitle,
@@ -52,7 +63,7 @@ describe('FlowRecoveryKeyHint', () => {
   });
 
   it('renders as expected', async () => {
-    renderWithContext(accountWithSuccess);
+    renderWithContext();
 
     screen.getByRole('heading', { level: 1, name: 'Account Recovery Key' });
     screen.getByRole('progressbar', { name: 'Step 4 of 4.' });
@@ -64,8 +75,43 @@ describe('FlowRecoveryKeyHint', () => {
     });
   });
 
+  it('saves the hint with the session token', async () => {
+    mockAuthClient.updateRecoveryKeyHint.mockResolvedValue({});
+    renderWithContext();
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByRole('textbox', { name: 'Enter a hint (optional)' }),
+      'area 51'
+    );
+    await user.click(screen.getByRole('button', { name: 'Finish' }));
+
+    await waitFor(() => expect(navigateForward).toHaveBeenCalledTimes(1));
+    expect(mockAuthClient.updateRecoveryKeyHint).toHaveBeenCalledWith(
+      MOCK_SESSION_TOKEN,
+      'area 51'
+    );
+  });
+
+  it('stays on the page when saving the hint fails', async () => {
+    mockAuthClient.updateRecoveryKeyHint.mockRejectedValue(
+      AuthUiErrors.UNEXPECTED_ERROR
+    );
+    renderWithContext();
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByRole('textbox', { name: 'Enter a hint (optional)' }),
+      'area 51'
+    );
+    await user.click(screen.getByRole('button', { name: 'Finish' }));
+
+    expect(
+      await screen.findByText(AuthUiErrors.UNEXPECTED_ERROR.message)
+    ).toBeInTheDocument();
+    expect(navigateForward).not.toHaveBeenCalled();
+  });
+
   it('emits the expected metrics when user navigates back', () => {
-    renderWithContext(accountWithSuccess);
+    renderWithContext();
     fireEvent.click(screen.getByTitle('Back to settings'));
     expect(navigateBackward).toHaveBeenCalledTimes(1);
     expect(logViewEvent).toHaveBeenCalledWith(

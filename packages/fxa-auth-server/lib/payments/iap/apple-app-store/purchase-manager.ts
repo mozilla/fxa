@@ -9,8 +9,8 @@ import {
   NotificationSubtype,
   NotificationType,
 } from 'app-store-server-api';
-import { PurchaseManager as PurchaseManagerBase } from 'fxa-shared/payments/iap/apple-app-store/purchase-manager';
-import { PurchaseUpdateError } from 'fxa-shared/payments/iap/apple-app-store/types/errors';
+import { PurchaseManager as PurchaseManagerBase } from '@fxa/accounts/subscriptions-legacy/payments/iap/apple-app-store/purchase-manager';
+import { PurchaseUpdateError } from '@fxa/accounts/subscriptions-legacy/payments/iap/apple-app-store/types/errors';
 import Container from 'typedi';
 
 import { AuthLogger } from '../../../types';

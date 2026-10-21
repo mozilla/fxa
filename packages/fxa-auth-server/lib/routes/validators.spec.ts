@@ -6,7 +6,9 @@ const isA = require('joi');
 const validators = require('./validators');
 const plan1 = require('../../test/local/payments/fixtures/stripe/plan1.json');
 const validProductMetadata = plan1.product.metadata;
-const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
+const {
+  MozillaSubscriptionTypes,
+} = require('@fxa/accounts/subscriptions-legacy/subscriptions/types');
 const { deepCopy } = require('../../test/local/payments/util');
 const { ReasonForDeletion } = require('@fxa/shared/cloud-tasks');
 

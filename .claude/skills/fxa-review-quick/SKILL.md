@@ -101,7 +101,7 @@ Apply the FXA testing rules in `.claude/rules/testing/base.md` and (for `*.test.
 **5. Database Migrations**
 - Edits to existing published migration files — CRITICAL, never allowed
 - New migration without corresponding rollback file
-- Verify test DB patches are aligned with current test DB state (`/fxa-shared/test/db/models/**/*.sql`)
+- Verify test DB patches are aligned with current test DB state (`libs/shared/db/mysql/legacy/src/lib/testing/models/**/*.sql`)
 - `DELETE`/`UPDATE` without `WHERE` clause
 - `ALTER TABLE` on large tables without online DDL consideration
 - Index changes bundled with schema changes — should be separate migrations
@@ -111,7 +111,6 @@ Apply the FXA testing rules in `.claude/rules/testing/base.md` and (for `*.test.
 - Mocha → Jest (no new Mocha tests)
 - `proxyquire` → `jest.mock()`
 - Callbacks → `async/await`
-- `fxa-shared` → `libs/*` (migration in progress, check both locations for existing code before adding new)
 
 **7. AI Slop Detection**
 - Overly verbose or obvious comments that describe what the code does, not why

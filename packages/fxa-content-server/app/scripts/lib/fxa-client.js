@@ -895,14 +895,6 @@ FxaClientWrapper.prototype = {
   deviceList: createClientDelegate('deviceList'),
 
   /**
-   * Get user's sessions
-   *
-   * @param {String} sessionToken
-   * @returns {Promise} resolves with response when complete.
-   */
-  sessions: createClientDelegate('sessions'),
-
-  /**
    * Get user's security events
    *
    * @param {String} sessionToken

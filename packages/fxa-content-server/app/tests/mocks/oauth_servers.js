@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import sinon from 'sinon';
+import { fakeServer } from 'nise';
 
 /**
  * Create a fake set of OAuth servers through instantiation.
@@ -12,7 +12,7 @@ import sinon from 'sinon';
  * To destroy the fakeServer, call fakeServer.destroy();
  */
 function MockOAuthServers() {
-  this.fakeServer = sinon.fakeServer.create();
+  this.fakeServer = fakeServer.create();
   this.fakeServer.autoRespond = true;
 
   // not strictly an OAuth server, but needed to complete.

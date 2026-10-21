@@ -2,13 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getSharedTestServer, TestServerInstance } from '../support/helpers/test-server';
+import {
+  getSharedTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
 
 const Client = require('../client')();
 const {
   OAUTH_SCOPE_SESSION_TOKEN,
   OAUTH_SCOPE_OLD_SYNC,
-} = require('fxa-shared/oauth/constants');
+} = require('@fxa/accounts/oauth');
 const { AppError: error } = require('@fxa/accounts/errors');
 
 const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';
@@ -43,7 +46,11 @@ describe.each(testVersions)(
       email = server.uniqueEmail();
       password = 'test password';
       client = await Client.createAndVerify(
-        server.publicUrl, email, password, server.mailbox, testOptions
+        server.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        testOptions
       );
     });
 
@@ -102,7 +109,9 @@ describe.each(testVersions)(
       expect(allClients[1].sessionTokenHandle).toBeTruthy();
       expect(allClients[0].isCurrentSession).toBe(false);
       expect(allClients[1].isCurrentSession).toBe(true);
-      expect(allClients[0].sessionTokenHandle).not.toBe(allClients[1].sessionTokenHandle);
+      expect(allClients[0].sessionTokenHandle).not.toBe(
+        allClients[1].sessionTokenHandle
+      );
     });
 
     it('rejects invalid sessionToken', async () => {

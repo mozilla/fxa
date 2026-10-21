@@ -8,6 +8,7 @@ import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { MOCK_ERROR } from './mock';
 import PairUnsupported, { viewName } from '.';
+import GleanMetrics from '../../../lib/glean';
 import {
   capturePairingChannelParams,
   resetPairingChannelParamsForTest,
@@ -75,6 +76,8 @@ const UA_CHROME_ANDROID =
   'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36';
 const UA_SAFARI_IOS =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1';
+const UA_CHROME_DESKTOP =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 
 describe('PairUnsupported', () => {
   describe('desktop non-Firefox (default UA)', () => {
@@ -263,5 +266,57 @@ describe('PairUnsupported', () => {
         restore();
       }
     });
+  });
+
+  describe('Glean view event', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it.each([
+      [
+        'cadRedirectDesktop.view',
+        GleanMetrics.cadRedirectDesktop.view,
+        UA_CHROME_DESKTOP,
+        '',
+        'chrome',
+      ],
+      [
+        'cadMobilePairUseApp.view',
+        GleanMetrics.cadMobilePairUseApp.view,
+        UA_SAFARI_IOS,
+        '#channel_id=abc&channel_key=def',
+        'safari',
+      ],
+      [
+        'cadRedirectMobile.view',
+        GleanMetrics.cadRedirectMobile.view,
+        UA_CHROME_ANDROID,
+        '',
+        'chrome',
+      ],
+      [
+        'cadRedirectDesktop.defaultView',
+        GleanMetrics.cadRedirectDesktop.defaultView,
+        UA_FIREFOX_DESKTOP,
+        '',
+        'firefox',
+      ],
+    ])(
+      'records %s with browser_family',
+      (_name, viewEvent, ua, hash, browserFamily) => {
+        const restore = spoofUserAgent(ua, hash);
+        try {
+          renderWithLocalizationProvider(<PairUnsupported />);
+
+          expect(viewEvent).toHaveBeenCalledTimes(1);
+          expect(viewEvent).toHaveBeenCalledWith({
+            event: { browser_family: browserFamily },
+          });
+        } finally {
+          restore();
+        }
+      }
+    );
   });
 });

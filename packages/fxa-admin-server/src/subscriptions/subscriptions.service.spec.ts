@@ -4,9 +4,9 @@
 
 import { Provider } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/apple-app-store/subscription-purchase';
-import { PlayStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/google-play/subscription-purchase';
-import { STRIPE_PRICE_METADATA } from 'fxa-shared/payments/stripe';
+import { AppStoreSubscriptionPurchase } from '@fxa/accounts/subscriptions-legacy/payments/iap/apple-app-store/subscription-purchase';
+import { PlayStoreSubscriptionPurchase } from '@fxa/accounts/subscriptions-legacy/payments/iap/google-play/subscription-purchase';
+import { STRIPE_PRICE_METADATA } from '@fxa/accounts/subscriptions-legacy/payments/stripe';
 import {
   MockConfig,
   mockConfigOverrides,

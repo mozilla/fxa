@@ -645,6 +645,35 @@ test.describe('severity-1 #smoke', () => {
       );
     });
 
+    for (const { status, message } of [
+      { status: 429, message: /tried too many times/i },
+      { status: 406, message: /blocked for security reasons/i },
+    ]) {
+      test(`shows the localized error banner when the WAF returns ${status}`, async ({
+        target,
+        pages: { page, settings, settingsPasskeyAdd, signin },
+        testAccountTracker,
+      }) => {
+        await setUpAccountWithPasskey({
+          target,
+          page,
+          settings,
+          settingsPasskeyAdd,
+          signin,
+          testAccountTracker,
+        });
+        await clearSession(page);
+        // The WAF answers with a non-JSON body, which auth-client maps to an errno.
+        await page.route('**/v1/passkey/authentication/start', (route) =>
+          route.fulfill({ status, body: 'blocked' })
+        );
+        await page.goto(target.contentServerUrl);
+
+        await signin.passkeySigninButton.click();
+        await expect(page.getByRole('alert')).toContainText(message);
+      });
+    }
+
     test('forces /inline_totp_setup when password sign-in on an account with a passkey enrolled hits an AAL2 RP', async ({
       target,
       pages: { page, relier, settings, settingsPasskeyAdd, signin, inlineTotpSetup },

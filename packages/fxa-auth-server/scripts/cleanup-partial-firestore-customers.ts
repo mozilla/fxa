@@ -12,14 +12,14 @@ import { ConfigType } from '../config';
 import { StatsD } from 'hot-shots';
 import { setupAccountDatabase } from '@fxa/shared/db/mysql/account';
 import { AccountManager } from '@fxa/shared/account/account';
-import { uuidTransformer } from 'packages/fxa-shared/db/transformers';
+import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
 import * as pckg from '../package.json';
 import {
   DeleteAccountTasks,
   ReasonForDeletion,
   DeleteAccountTasksFactory,
 } from '@fxa/shared/cloud-tasks';
-import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
+import { getAccountCustomerByUid } from '@fxa/shared/db/mysql/legacy/models/auth';
 
 class CleanupFirestoreHelper {
   private firestore: Firestore;
@@ -28,7 +28,10 @@ class CleanupFirestoreHelper {
   private accountTasks: DeleteAccountTasks;
   private accountManager: AccountManager;
 
-  constructor(private batchSize: number, private dryRun: boolean) {
+  constructor(
+    private batchSize: number,
+    private dryRun: boolean
+  ) {
     this.firestore = Container.get<Firestore>(AuthFirestore);
     this.log = Container.get(AuthLogger);
     this.config = Container.get(AppConfig);

@@ -5,7 +5,9 @@
 import React, { useEffect } from 'react';
 import { FlowContainer } from '../FlowContainer';
 import { ProgressBar } from '../ProgressBar';
-import { useFtlMsgResolver, useAccount, useAlertBar } from '../../../models';
+import { useFtlMsgResolver, useAuthClient, useAlertBar } from '../../../models';
+import { sessionToken } from '../../../lib/cache';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { logViewEvent } from '../../../lib/metrics';
 import RecoveryKeySetupHint from '../../RecoveryKeySetupHint';
 
@@ -24,7 +26,7 @@ export const FlowRecoveryKeyHint = ({
   localizedPageTitle,
   viewName,
 }: FlowRecoveryKeyHintProps) => {
-  const account = useAccount();
+  const authClient = useAuthClient();
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
 
@@ -43,10 +45,10 @@ export const FlowRecoveryKeyHint = ({
   };
 
   const updateRecoveryKeyHint = async (hint: string) => {
-    // The try/catch for this is in RecoveryKeySetupHint. This
-    // is just a wrapper because sending in `account.updateRecoveryKeyHint`
-    // for this handler didn't have context for "this" from Account.ts
-    account.updateRecoveryKeyHint(hint);
+    // The try/catch for this is in RecoveryKeySetupHint.
+    const token = sessionToken();
+    if (!token) throw AuthUiErrors.INVALID_TOKEN;
+    await authClient.updateRecoveryKeyHint(token, hint);
   };
 
   return (

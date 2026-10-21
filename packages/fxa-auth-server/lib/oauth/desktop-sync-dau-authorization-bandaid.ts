@@ -27,8 +27,11 @@
 // Desktop-only: Fenix sends `profile + oldsync + vpn` with `service=vpn`, but
 // while Sync is not decoupled on Android that genuinely is a Sync signup.
 
-import { OAuthNativeClients, OAuthNativeServices } from '@fxa/accounts/oauth';
-import { OAUTH_SCOPE_OLD_SYNC } from 'fxa-shared/oauth/constants';
+import {
+  OAuthNativeClients,
+  OAuthNativeServices,
+  OAUTH_SCOPE_OLD_SYNC,
+} from '@fxa/accounts/oauth';
 
 /**
  * Redis key for the pending exclude-DAU decision, keyed on the code's hash

@@ -23,7 +23,7 @@ describe('lib/error-utils', function () {
   var windowMock;
 
   beforeEach(function () {
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
 
     sandbox.spy(domWriter, 'write');
 

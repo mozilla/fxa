@@ -14,7 +14,7 @@
 'use strict';
 
 const redis = require('./redis');
-const { props } = require('fxa-shared/lib/promise-extras');
+const { props } = require('./promise-extras');
 
 // The config file determines the number of intervals. Ex `firstInterval` is stored
 // in set called `first`.

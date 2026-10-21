@@ -1,18 +1,26 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Account, getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
+import {
+  Account,
+  getAccountCustomerByUid,
+} from '@fxa/shared/db/mysql/legacy/models/auth';
 import {
   AppStoreSubscription,
   PlayStoreSubscription,
-} from 'fxa-shared/dto/auth/payments/iap-subscription';
-import { WrappedErrorCodes } from 'fxa-shared/email/emailValidatorErrors';
-import TopEmailDomains from 'fxa-shared/email/topEmailDomains';
-import { tryResolveIpv4, tryResolveMx } from 'fxa-shared/email/validateEmail';
-import ScopeSet from 'fxa-shared/oauth/scopes';
-import { OAUTH_SCOPE_OLD_SYNC } from 'fxa-shared/oauth/constants';
+} from '@fxa/accounts/subscriptions-legacy/dto/auth/payments/iap-subscription';
+import {
+  WrappedErrorCodes,
+  tryResolveIpv4,
+  tryResolveMx,
+} from '@fxa/shared/email/server';
+import { TopEmailDomains, normalizeEmail } from '@fxa/shared/email';
+import {
+  OAUTH_SCOPE_OLD_SYNC,
+  scopeSetHelpers as ScopeSet,
+} from '@fxa/accounts/oauth';
 import { list as listAuthorizedClients } from '../oauth/authorized_clients';
-import { WebSubscription } from 'fxa-shared/subscriptions/types';
+import { WebSubscription } from '@fxa/accounts/subscriptions-legacy/subscriptions/types';
 import isA from 'joi';
 import { Container } from 'typedi';
 
@@ -48,8 +56,6 @@ import validators from './validators';
 import { AccountEventsManager } from '../account-events';
 import { gleanMetrics } from '../metrics/glean';
 import { AccountDeleteManager } from '../account-delete';
-import { normalizeEmail } from 'fxa-shared/email/helpers';
-import { EmailNormalization } from 'fxa-shared/email/email-normalization';
 import { DeleteAccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { ProfileClient } from '@fxa/profile/client';
 import { DB } from '../db';
@@ -71,6 +77,7 @@ import { RecoveryPhoneService } from '@fxa/accounts/recovery-phone';
 import { PasskeyService, PasskeyWithWrapState } from '@fxa/accounts/passkey';
 import {
   BOUNCE_TYPE_HARD,
+  EmailNormalization,
   escapeLikePattern,
 } from '@fxa/accounts/email-sender';
 import { getClientServiceTags } from '../metrics/client-tags';
@@ -1630,6 +1637,18 @@ export class AccountHandler {
           keysHaveChanged = true;
         }
       }
+      // db.resetAccount() deletes every passkey wrap, so look for them first.
+      // A failed lookup must not block the reset.
+      let hadPasskeyWraps = false;
+      if (keysHaveChanged) {
+        try {
+          hadPasskeyWraps = await Container.get(PasskeyService).hasPasskeyWraps(
+            accountResetToken.uid
+          );
+        } catch (err) {
+          this.log.error('Account.reset.hasPasskeyWraps', { err });
+        }
+      }
       // db.resetAccount() deletes all the devices saved in the account,
       // so grab the list to notify before we call it.
       const devicesToNotify = await request.app.devices;
@@ -1646,9 +1665,20 @@ export class AccountHandler {
         verifierVersion: password.version,
         keysHaveChanged,
       });
+      account = await this.db.account(accountResetToken.uid);
+      if (hadPasskeyWraps) {
+        try {
+          await recordSecurityEvent('account.passkey.wrap_invalidated', {
+            db: this.db,
+            account,
+            request,
+          });
+        } catch (err) {
+          this.log.error('Account.reset.wrapInvalidated', { err });
+        }
+      }
       // Notify various interested parties about this password reset.
       // These can all safely happen in parallel.
-      account = await this.db.account(accountResetToken.uid);
       await Promise.all([
         this.push.notifyPasswordReset(account.uid, devicesToNotify),
         request.emitMetricsEvent('account.reset', {
@@ -2695,6 +2725,11 @@ export const accountRoutes = (
       path: '/account/credentials/status',
       options: {
         ...ACCOUNT_DOCS.ACCOUNT_CREDENTIALS_STATUS,
+        ...(enableCredentials && {
+          cors: {
+            credentials: true,
+          },
+        }),
         validate: {
           payload: isA.object({
             email: validators.email().description(DESCRIPTION.email),

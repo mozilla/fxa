@@ -89,9 +89,6 @@ export interface Config {
     debugViewTag: string;
   };
   redirectAllowlist: string[];
-  showReactApp: {
-    emailFirstRoutes: boolean;
-  };
   pairing: {
     browserBuild: 'firefox' | 'fenix';
     /** iOS URL scheme the pairing hand-off opens. See `pairing.ios_url_scheme`. */
@@ -99,6 +96,11 @@ export interface Config {
     clients: string[];
     serverBaseUri: string;
     version: number;
+    /**
+     * Minutes within which a TOTP code this browser verified lets a 2FA
+     * account start a pairing without entering one again.
+     */
+    totpMaxAgeMinutes: number;
     /**
      * Lowest Firefox major version, per platform, that takes the v2 flow. A
      * platform left out defers to the `pairingVersion` the browser reports in
@@ -143,6 +145,8 @@ export interface Config {
     l10nEnabled: boolean;
   };
   servicesWithEmailVerification: string[];
+  // Set by the content-server 500 handler
+  serverError?: boolean;
 }
 
 export function getDefault() {
@@ -226,15 +230,13 @@ export function getDefault() {
       debugViewTag: '',
     },
     redirectAllowlist: ['localhost'],
-    showReactApp: {
-      emailFirstRoutes: false,
-    },
     pairing: {
       browserBuild: 'firefox',
       iosUrlScheme: 'firefox',
       clients: [],
       serverBaseUri: 'wss://channelserver.services.mozilla.com',
       version: 1,
+      totpMaxAgeMinutes: 5,
       v2MinVersion: {},
     },
     mobileStoreLinks: {

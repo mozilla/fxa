@@ -182,25 +182,6 @@ const ACCOUNT_DEVICES_GET = {
   ],
 };
 
-const ACCOUNT_SESSIONS_GET = {
-  ...TAGS_DEVICES_AND_SESSIONS,
-  description: '/account/sessions',
-  notes: [
-    swaggerText`
-      [**DEPRECATED**]: Please use [/account/attached_clients](#tag/Devices-and-Sessions/operation/getAccountAttached_clients) instead.
-
-      🔒 Authenticated with session token.
-
-      Returns an array of session objects for the authenticated user.
-    `,
-  ],
-  plugins: {
-    'hapi-swagger': {
-      deprecated: true,
-    },
-  },
-};
-
 const ACCOUNT_DEVICE_DESTROY_POST = {
   ...TAGS_DEVICES_AND_SESSIONS,
   description: '/account/device/destroy',
@@ -223,7 +204,6 @@ const API_DOCS = {
   ACCOUNT_DEVICES_GET,
   ACCOUNT_DEVICES_INVOKE_COMMAND_POST,
   ACCOUNT_DEVICES_NOTIFY_POST,
-  ACCOUNT_SESSIONS_GET,
 };
 
 export default API_DOCS;

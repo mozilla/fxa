@@ -1054,7 +1054,7 @@ describe('views/base', function () {
     var sandbox;
 
     beforeEach(function () {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       sandbox.spy(ErrorUtils, 'fatalError');
 
       err = AuthErrors.toError('UNEXPECTED_ERROR');

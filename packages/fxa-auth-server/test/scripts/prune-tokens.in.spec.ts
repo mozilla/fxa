@@ -14,18 +14,27 @@ const UnblockCode = require('../../lib/crypto/random').base32(
   config.signinUnblock.codeLength
 );
 
-const { Account } = require('fxa-shared/db/models/auth/account');
-const { SessionToken } = require('fxa-shared/db/models/auth/session-token');
+const { Account } = require('@fxa/shared/db/mysql/legacy/models/auth/account');
+const {
+  SessionToken,
+} = require('@fxa/shared/db/mysql/legacy/models/auth/session-token');
 const {
   PasswordChangeToken,
-} = require('fxa-shared/db/models/auth/password-change-token');
+} = require('@fxa/shared/db/mysql/legacy/models/auth/password-change-token');
 const {
   PasswordForgotToken,
-} = require('fxa-shared/db/models/auth/password-forgot-token');
-const { AccountResetToken, Device } = require('fxa-shared/db/models/auth');
-const { UnblockCodes } = require('fxa-shared/db/models/auth/unblock-codes');
-const { SignInCodes } = require('fxa-shared/db/models/auth/sign-in-codes');
-const { uuidTransformer } = require('fxa-shared/db/transformers');
+} = require('@fxa/shared/db/mysql/legacy/models/auth/password-forgot-token');
+const {
+  AccountResetToken,
+  Device,
+} = require('@fxa/shared/db/mysql/legacy/models/auth');
+const {
+  UnblockCodes,
+} = require('@fxa/shared/db/mysql/legacy/models/auth/unblock-codes');
+const {
+  SignInCodes,
+} = require('@fxa/shared/db/mysql/legacy/models/auth/sign-in-codes');
+const { uuidTransformer } = require('@fxa/shared/db/mysql/legacy/transformers');
 
 const log = mocks.mockLog();
 const Token = require('../../lib/tokens')(log, config);

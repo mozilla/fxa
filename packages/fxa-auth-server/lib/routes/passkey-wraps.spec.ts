@@ -5,9 +5,10 @@
 import type { Schema } from 'joi';
 import { Container } from 'typedi';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
+import type { PartialFuncReturn } from '@golevelup/ts-jest';
 import { PasskeyService, V1_WIDTHS } from '@fxa/accounts/passkey';
 import type { Customs, DB } from './passkeys';
-import { AuthLogger } from '../types';
+import { AuthLogger, AuthRequest } from '../types';
 import { AppError, ERRNO } from '@fxa/accounts/errors';
 import { recordSecurityEvent } from './utils/security-event';
 import { passkeyWrapsRoutes } from './passkey-wraps';
@@ -61,6 +62,11 @@ const storedWrap = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
+type Route = ReturnType<typeof passkeyWrapsRoutes>[number];
+
+const asRequest = (r: PartialFuncReturn<AuthRequest>) =>
+  r as object as AuthRequest;
+
 const config = {
   passkeys: { enabled: true, passwordlessSyncEnabled: true },
 } as unknown as ConfigType;
@@ -78,7 +84,7 @@ describe('passkey wraps routes', () => {
   const buildRoute = (cfg: ConfigType = config) =>
     passkeyWrapsRoutes(customs, db, cfg, log).find(
       (r) => r.path === '/passkey/wraps' && r.method === 'POST'
-    ) as any;
+    ) as Route;
 
   async function run(
     payload: Record<string, unknown> = validPayload(),
@@ -87,7 +93,7 @@ describe('passkey wraps routes', () => {
     { cid }: { cid?: string } = { cid: CREDENTIAL_ID }
   ) {
     const route = buildRoute();
-    const request = {
+    const request = asRequest({
       headers: { 'user-agent': 'test-agent' },
       auth: { credentials: { uid: UID, id: 'session-token-id', cid } },
       payload,
@@ -95,7 +101,7 @@ describe('passkey wraps routes', () => {
         clientAddress: '127.0.0.1',
         geo: { location: { country: 'United States', countryCode: 'US' } },
       },
-    };
+    });
     return route.handler(request);
   }
 
@@ -153,6 +159,57 @@ describe('passkey wraps routes', () => {
       );
     });
 
+    it('records only wrap_created on a plain insert', async () => {
+      await run();
+
+      expect(recordSecurityEvent).not.toHaveBeenCalledWith(
+        'account.passkey.wrap_invalidated',
+        expect.anything()
+      );
+    });
+
+    it('records wrap_invalidated then wrap_created when a stale wrap is replaced', async () => {
+      service.storePasskeyWrap.mockResolvedValue('replaced');
+
+      const result = await run();
+
+      expect(result).toEqual({ created: true });
+      expect(
+        jest.mocked(recordSecurityEvent).mock.calls.map(([name]) => name)
+      ).toEqual([
+        'account.passkey.wrap_invalidated',
+        'account.passkey.wrap_created',
+      ]);
+    });
+
+    it('still records wrap_created and reports created when the wrap_invalidated write fails', async () => {
+      service.storePasskeyWrap.mockResolvedValue('replaced');
+      jest
+        .mocked(recordSecurityEvent)
+        .mockRejectedValueOnce(new Error('db is down'));
+
+      const result = await run();
+
+      expect(result).toEqual({ created: true });
+      expect(
+        jest.mocked(recordSecurityEvent).mock.calls.map(([name]) => name)
+      ).toEqual([
+        'account.passkey.wrap_invalidated',
+        'account.passkey.wrap_created',
+      ]);
+    });
+
+    it('records only wrap_invalidated and reports not created when a concurrent request inserted the wrap', async () => {
+      service.storePasskeyWrap.mockResolvedValue('invalidated');
+
+      const result = await run();
+
+      expect(result).toEqual({ created: false });
+      expect(
+        jest.mocked(recordSecurityEvent).mock.calls.map(([name]) => name)
+      ).toEqual(['account.passkey.wrap_invalidated']);
+    });
+
     // Returned bare rather than through the toolkit, so Hapi's default 200
     // applies; only the 201 needs an explicit code.
     it('reports an unchanged wrap without re-emitting the event', async () => {
@@ -161,10 +218,7 @@ describe('passkey wraps routes', () => {
       const result = await run();
 
       expect(result).toEqual({ created: false });
-      expect(recordSecurityEvent).not.toHaveBeenCalledWith(
-        'account.passkey.wrap_created',
-        expect.anything()
-      );
+      expect(recordSecurityEvent).not.toHaveBeenCalled();
     });
 
     it('refuses a token minted for a different credential', async () => {
@@ -276,18 +330,20 @@ describe('passkey wraps routes', () => {
     const buildGetRoute = (cfg: ConfigType = config) =>
       passkeyWrapsRoutes(customs, db, cfg, log).find(
         (r) => r.path === '/passkey/wraps/{credentialId}' && r.method === 'GET'
-      ) as any;
+      ) as Route;
 
     const runGet = (
       params = { credentialId: CREDENTIAL_ID },
       { cid }: { cid?: string } = { cid: CREDENTIAL_ID }
     ) =>
-      buildGetRoute().handler({
-        headers: { 'user-agent': 'test-agent' },
-        auth: { credentials: { uid: UID, id: 'session-token-id', cid } },
-        params,
-        app: { clientAddress: '127.0.0.1' },
-      });
+      buildGetRoute().handler(
+        asRequest({
+          headers: { 'user-agent': 'test-agent' },
+          auth: { credentials: { uid: UID, id: 'session-token-id', cid } },
+          params,
+          app: { clientAddress: '127.0.0.1' },
+        })
+      );
 
     it('returns the envelope base64url-encoded, with its createdAt', async () => {
       await expect(runGet()).resolves.toEqual({
@@ -475,7 +531,7 @@ describe('passkey wraps routes', () => {
       let schema: Schema;
 
       beforeEach(() => {
-        schema = buildGetRoute().options.validate.params;
+        schema = buildGetRoute().options.validate.params as Schema;
       });
 
       it('accepts a base64url credential id', () => {
@@ -501,21 +557,23 @@ describe('passkey wraps routes', () => {
       passkeyWrapsRoutes(customs, db, cfg, log).find(
         (r) =>
           r.path === '/passkey/wraps/{credentialId}' && r.method === 'DELETE'
-      ) as any;
+      ) as Route;
 
     const runDelete = (
       params = { credentialId: CREDENTIAL_ID },
       { cid }: { cid?: string } = { cid: CREDENTIAL_ID }
     ) =>
-      buildDeleteRoute().handler({
-        headers: { 'user-agent': 'test-agent' },
-        auth: { credentials: { uid: UID, id: 'session-token-id', cid } },
-        params,
-        app: {
-          clientAddress: '127.0.0.1',
-          geo: { location: { country: 'United States', countryCode: 'US' } },
-        },
-      });
+      buildDeleteRoute().handler(
+        asRequest({
+          headers: { 'user-agent': 'test-agent' },
+          auth: { credentials: { uid: UID, id: 'session-token-id', cid } },
+          params,
+          app: {
+            clientAddress: '127.0.0.1',
+            geo: { location: { country: 'United States', countryCode: 'US' } },
+          },
+        })
+      );
 
     it('removes the wrap and reports it as deleted', async () => {
       await expect(runDelete()).resolves.toEqual({ deleted: true });
@@ -655,15 +713,10 @@ describe('passkey wraps routes', () => {
     });
 
     it('refuses to serve when the passwordless sync flag is off', () => {
-      const routes = passkeyWrapsRoutes(
-        customs,
-        db as any,
-        disabledConfig,
-        log
-      );
+      const routes = passkeyWrapsRoutes(customs, db, disabledConfig, log);
       const route = routes.find(
         (r) => r.path === '/passkey/wraps' && r.method === 'POST'
-      ) as any;
+      ) as Route;
 
       expect(() => route.options.pre[0].method()).toThrow();
     });
@@ -673,7 +726,7 @@ describe('passkey wraps routes', () => {
     let schema: Schema;
 
     beforeEach(() => {
-      schema = buildRoute().options.validate.payload;
+      schema = buildRoute().options.validate.payload as Schema;
     });
 
     it('accepts a well-formed payload', () => {

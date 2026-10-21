@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { AuthUiErrors } from './auth-errors/auth-errors';
-import topEmailDomains from 'fxa-shared/email/topEmailDomains';
+import { TopEmailDomains as topEmailDomains } from '@fxa/shared/email';
 import {
   resolveDomain,
   DomainValidationError,

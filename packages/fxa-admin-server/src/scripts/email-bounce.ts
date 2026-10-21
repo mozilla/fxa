@@ -7,14 +7,18 @@ import { Model } from 'objection';
 import yargs from 'yargs';
 
 import Config from '../config';
-import { Account, Email, EmailBounce } from 'fxa-shared/db/models/auth';
+import {
+  Account,
+  Email,
+  EmailBounce,
+} from '@fxa/shared/db/mysql/legacy/models/auth';
 import {
   AccountIsh,
   BounceIsh,
   randomAccount,
   randomEmail,
   randomEmailBounce,
-} from 'fxa-shared/test/db/models/auth/helpers';
+} from '@fxa/shared/db/mysql/legacy/testing/models/auth/helpers';
 
 const config = Config.getProperties();
 

@@ -101,7 +101,7 @@ jest.mock('./utils/account', () => {
 // Its constructor opens a Redis connection, which a unit test must not do.
 jest.mock('../metricsCache', () => ({ MetricsRedis: jest.fn() }));
 
-jest.mock('fxa-shared/db/models/auth', () => ({
+jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => ({
   EmailBlocklist: {
     findMatchingRegex: jest.fn().mockResolvedValue(null),
   },
@@ -269,7 +269,9 @@ describe('/account/passwordless/send_code', () => {
   });
 
   it('blocks new account registration when domain matches regex blocklist', async () => {
-    const { EmailBlocklist } = require('fxa-shared/db/models/auth');
+    const {
+      EmailBlocklist,
+    } = require('@fxa/shared/db/mysql/legacy/models/auth');
     mockDB.accountRecord = jest.fn(() =>
       Promise.reject(error.unknownAccount())
     );
@@ -284,7 +286,9 @@ describe('/account/passwordless/send_code', () => {
   });
 
   it('blocks new account registration when domain matches domain blocklist', async () => {
-    const { DomainBlocklist } = require('fxa-shared/db/models/auth');
+    const {
+      DomainBlocklist,
+    } = require('@fxa/shared/db/mysql/legacy/models/auth');
     mockDB.accountRecord = jest.fn(() =>
       Promise.reject(error.unknownAccount())
     );
@@ -518,7 +522,9 @@ describe('/account/passwordless/confirm_code', () => {
   });
 
   it('does not create a new account when the email matches the regex blocklist', async () => {
-    const { EmailBlocklist } = require('fxa-shared/db/models/auth');
+    const {
+      EmailBlocklist,
+    } = require('@fxa/shared/db/mysql/legacy/models/auth');
     mockDB.accountRecord = jest.fn(() =>
       Promise.reject(error.unknownAccount())
     );
@@ -535,7 +541,9 @@ describe('/account/passwordless/confirm_code', () => {
   });
 
   it('does not create a new account when the domain matches the domain blocklist', async () => {
-    const { DomainBlocklist } = require('fxa-shared/db/models/auth');
+    const {
+      DomainBlocklist,
+    } = require('@fxa/shared/db/mysql/legacy/models/auth');
     mockDB.accountRecord = jest.fn(() =>
       Promise.reject(error.unknownAccount())
     );
@@ -1806,7 +1814,9 @@ describe('/account/passwordless/resend_code', () => {
   });
 
   it('blocks resend for a new account when the email matches the regex blocklist', async () => {
-    const { EmailBlocklist } = require('fxa-shared/db/models/auth');
+    const {
+      EmailBlocklist,
+    } = require('@fxa/shared/db/mysql/legacy/models/auth');
     mockDB.accountRecord = jest.fn(() =>
       Promise.reject(error.unknownAccount())
     );
@@ -1824,7 +1834,9 @@ describe('/account/passwordless/resend_code', () => {
   });
 
   it('blocks resend for a new account when the domain matches the domain blocklist', async () => {
-    const { DomainBlocklist } = require('fxa-shared/db/models/auth');
+    const {
+      DomainBlocklist,
+    } = require('@fxa/shared/db/mysql/legacy/models/auth');
     mockDB.accountRecord = jest.fn(() =>
       Promise.reject(error.unknownAccount())
     );
@@ -1841,7 +1853,9 @@ describe('/account/passwordless/resend_code', () => {
   });
 
   it('does not check the blocklist when resending for an existing account', async () => {
-    const { DomainBlocklist } = require('fxa-shared/db/models/auth');
+    const {
+      DomainBlocklist,
+    } = require('@fxa/shared/db/mysql/legacy/models/auth');
     mockDB.accountRecord = jest.fn(() =>
       Promise.resolve({
         uid,

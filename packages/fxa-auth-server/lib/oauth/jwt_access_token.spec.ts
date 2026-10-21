@@ -7,10 +7,9 @@ jest.mock('./jwt', () => ({
   verify: jest.fn(),
 }));
 
-import fxaShared from 'fxa-shared';
-import { OAUTH_SCOPE_OLD_SYNC } from 'fxa-shared/oauth/constants';
+import { scopeSetHelpers as ScopeSet } from '@fxa/accounts/oauth';
+import { OAUTH_SCOPE_OLD_SYNC } from '@fxa/accounts/oauth';
 
-const ScopeSet = (fxaShared as any).oauth.scopes;
 import config from '../../config';
 import * as JWT from './jwt';
 import * as JWTAccessToken from './jwt_access_token';

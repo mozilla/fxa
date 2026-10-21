@@ -754,6 +754,74 @@ describe('usePasskeySignIn', () => {
     expect(Sentry.captureException as jest.Mock).not.toHaveBeenCalled();
   });
 
+  it.each([
+    [
+      'THROTTLED with retry-after',
+      {
+        errno: AuthUiErrors.THROTTLED.errno,
+        retryAfterLocalized: 'in 15 minutes',
+      },
+      'throttled',
+      [
+        'auth-error-114',
+        AuthUiErrors.THROTTLED.message,
+        { retryAfter: 'in 15 minutes' },
+      ],
+    ],
+    [
+      'THROTTLED without retry-after',
+      { errno: AuthUiErrors.THROTTLED.errno },
+      'throttled',
+      ['auth-error-114-generic', AuthUiErrors.THROTTLED.message],
+    ],
+    [
+      'REQUEST_BLOCKED',
+      { errno: AuthUiErrors.REQUEST_BLOCKED.errno },
+      'request_blocked',
+      ['auth-error-125', AuthUiErrors.REQUEST_BLOCKED.message],
+    ],
+    [
+      'PASSKEY_AUHENTICATION_FAILED',
+      { errno: AuthUiErrors.PASSKEY_AUHENTICATION_FAILED.errno },
+      'authentication_failed',
+      [
+        'passkey-authentication-error-unexpected',
+        'Something went wrong. Try again or choose another sign-in method.',
+      ],
+    ],
+    [
+      'PASSKEY_CHALLENGE_EXPIRED',
+      { errno: AuthUiErrors.PASSKEY_CHALLENGE_EXPIRED.errno },
+      'challenge_expired',
+      [
+        'passkey-authentication-error-unexpected',
+        'Something went wrong. Try again or choose another sign-in method.',
+      ],
+    ],
+  ])(
+    'on %s reports its reason, shows its banner and skips Sentry',
+    async (_name, error, reason, getMsgArgs) => {
+      const { args, spies } = buildArgs({ surface: 'login' });
+      spies.completePasskeyAuthentication.mockRejectedValueOnce(error);
+
+      const { result } = renderHook(() => usePasskeySignIn(args), { wrapper });
+      await act(async () => {
+        await result.current.onClick();
+      });
+
+      expect(
+        GleanMetrics.login.passkeySubmitFrontendError
+      ).toHaveBeenCalledWith({ event: { reason } });
+      expect(spies.ftlMsgResolver.getMsg).toHaveBeenCalledWith(...getMsgArgs);
+      // The getMsg mock returns its fallback, so the heading is that fallback.
+      expect(result.current.banner).toEqual({
+        type: 'error',
+        content: { localizedHeading: getMsgArgs[1] },
+      });
+      expect(Sentry.captureException as jest.Mock).not.toHaveBeenCalled();
+    }
+  );
+
   describe('metricsContext flow identity', () => {
     it('builds metricsContext from flowQueryParams, not the live location.search', async () => {
       // location.search carries a different flow; it must be ignored so the

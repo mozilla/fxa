@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { STRIPE_PRICE_METADATA } from 'fxa-shared/payments/stripe';
+import { STRIPE_PRICE_METADATA } from '@fxa/accounts/subscriptions-legacy/payments/stripe';
 import {
   CapabilityConfig,
   StyleConfig,
@@ -12,16 +12,16 @@ import {
   UiContentConfigKeys,
   UrlConfig,
   UrlConfigKeys,
-} from 'fxa-shared/subscriptions/configuration/base';
-import { PlanConfig } from 'fxa-shared/subscriptions/configuration/plan';
-import { ProductConfig } from 'fxa-shared/subscriptions/configuration/product';
+} from '@fxa/accounts/subscriptions-legacy/subscriptions/configuration/base';
+import { PlanConfig } from '@fxa/accounts/subscriptions-legacy/subscriptions/configuration/plan';
+import { ProductConfig } from '@fxa/accounts/subscriptions-legacy/subscriptions/configuration/product';
 import { Logger } from 'mozlog';
 import Stripe from 'stripe';
 import { Container } from 'typedi';
 
 import { PaymentConfigManager } from '../../lib/payments/configuration/manager';
 import { StripeHelper } from '../../lib/payments/stripe';
-import { commaSeparatedListToArray } from 'fxa-shared/lib/utils';
+import { commaSeparatedListToArray } from '@fxa/accounts/errors';
 import {
   PLAN_EN_LANG_ERROR,
   getLanguageTagFromPlanMetadata,

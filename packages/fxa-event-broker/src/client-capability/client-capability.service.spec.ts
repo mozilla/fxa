@@ -6,7 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as Sentry from '@sentry/node';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 import { ClientCapabilityService } from './client-capability.service';
 
@@ -113,8 +113,8 @@ describe('ClientCapabilityService', () => {
     it('logs and reports to Sentry when the request rejects', async () => {
       global.fetch = jest.fn().mockRejectedValue(new Error('ECONNREFUSED'));
       await service.updateCapabilities();
-      expect(log.error).toBeCalledTimes(1);
-      expect(Sentry.captureException).toBeCalledTimes(1);
+      expect(log.error).toHaveBeenCalledTimes(1);
+      expect(Sentry.captureException).toHaveBeenCalledTimes(1);
     });
 
     it('logs the status and reports to Sentry on a non-ok HTTP response', async () => {
@@ -127,7 +127,7 @@ describe('ClientCapabilityService', () => {
         status: 500,
         message: 'Error fetching client capabilities.',
       });
-      expect(Sentry.captureException).toBeCalledTimes(1);
+      expect(Sentry.captureException).toHaveBeenCalledTimes(1);
     });
   });
 });

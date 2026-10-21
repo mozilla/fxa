@@ -9,6 +9,7 @@ import { StatsD } from 'hot-shots';
 import { MockLoggerProvider } from '@fxa/shared/log';
 
 import {
+  ACTIVE_SUBSCRIPTION_STATUSES,
   StripeClient,
   MockStripeConfigProvider,
   StripeApiListFactory,
@@ -23,6 +24,7 @@ import {
   StripeUpcomingInvoiceFactory,
   StripeAddressFactory,
   StripeSubscriptionItemFactory,
+  StripeSubscription,
 } from '@fxa/payments/stripe';
 import { TaxAddressFactory } from './factories/tax-address.factory';
 import { InvoicePreviewFactory } from './invoice.factories';
@@ -1088,15 +1090,46 @@ describe('InvoiceManager', () => {
   describe('retryPaymentForOpenInvoices', () => {
     const mockCustomerId = 'cus_retry123';
     const mockPaymentMethodId = 'pm_retry123';
+    const inactiveSubscriptionStatuses: StripeSubscription['status'][] = [
+      'canceled',
+      'incomplete',
+      'incomplete_expired',
+      'paused',
+      'unpaid',
+    ];
 
-    const openInvoice = () =>
-      StripeInvoiceFactory({ status: 'open', customer: mockCustomerId });
-
+    let subscription: StripeSubscription;
     let invoicesPaySpy: jest.SpyInstance;
     let incrementSpy: jest.SpyInstance;
     let warnSpy: jest.SpyInstance;
 
+    const openInvoice = (subscriptionId: string | null = subscription.id) =>
+      StripeInvoiceFactory({
+        status: 'open',
+        customer: mockCustomerId,
+        parent: subscriptionId
+          ? {
+              quote_details: null,
+              subscription_details: {
+                metadata: null,
+                subscription: subscriptionId,
+              },
+              type: 'subscription_details',
+            }
+          : null,
+      });
+
+    const stubSubscriptions = (subscriptions: StripeSubscription[]) =>
+      jest
+        .spyOn(stripeClient, 'subscriptionsList')
+        .mockResolvedValue(StripeApiListFactory(subscriptions));
+
     beforeEach(() => {
+      subscription = StripeSubscriptionFactory({
+        customer: mockCustomerId,
+        status: 'past_due',
+      });
+      stubSubscriptions([subscription]);
       invoicesPaySpy = jest
         .spyOn(stripeClient, 'invoicesPay')
         .mockImplementation((invoiceId) =>
@@ -1126,6 +1159,97 @@ describe('InvoiceManager', () => {
         status: 'open',
         collection_method: 'charge_automatically',
       });
+    });
+
+    it('lists the subscriptions for the customer', async () => {
+      stubOpenInvoices([]);
+
+      await invoiceManager.retryPaymentForOpenInvoices(
+        mockCustomerId,
+        mockPaymentMethodId
+      );
+
+      expect(stripeClient.subscriptionsList).toHaveBeenCalledWith({
+        customer: mockCustomerId,
+      });
+    });
+
+    it.each(ACTIVE_SUBSCRIPTION_STATUSES)(
+      'attempts payment on an open invoice whose subscription is %s',
+      async (status) => {
+        subscription = StripeSubscriptionFactory({
+          customer: mockCustomerId,
+          status,
+        });
+        stubSubscriptions([subscription]);
+        const invoice = openInvoice();
+        stubOpenInvoices([invoice]);
+
+        await invoiceManager.retryPaymentForOpenInvoices(
+          mockCustomerId,
+          mockPaymentMethodId
+        );
+
+        expect(invoicesPaySpy).toHaveBeenCalledWith(invoice.id, {
+          off_session: true,
+          payment_method: mockPaymentMethodId,
+        });
+      }
+    );
+
+    it.each(inactiveSubscriptionStatuses)(
+      'does not attempt payment on an open invoice whose subscription is %s',
+      async (status) => {
+        subscription = StripeSubscriptionFactory({
+          customer: mockCustomerId,
+          status,
+        });
+        stubSubscriptions([subscription]);
+        stubOpenInvoices([openInvoice()]);
+
+        await invoiceManager.retryPaymentForOpenInvoices(
+          mockCustomerId,
+          mockPaymentMethodId
+        );
+
+        expect(invoicesPaySpy).not.toHaveBeenCalled();
+      }
+    );
+
+    it('attempts payment only on the invoice of the active subscription when a canceled subscription also has an open invoice', async () => {
+      const canceledSubscriptionInvoice = openInvoice(
+        'sub_canceledNotListed123'
+      );
+      const activeSubscriptionInvoice = openInvoice();
+      stubOpenInvoices([
+        canceledSubscriptionInvoice,
+        activeSubscriptionInvoice,
+      ]);
+
+      await invoiceManager.retryPaymentForOpenInvoices(
+        mockCustomerId,
+        mockPaymentMethodId
+      );
+
+      expect(invoicesPaySpy).toHaveBeenCalledTimes(1);
+      expect(invoicesPaySpy).toHaveBeenCalledWith(
+        activeSubscriptionInvoice.id,
+        {
+          off_session: true,
+          payment_method: mockPaymentMethodId,
+        }
+      );
+    });
+
+    it('does not attempt payment on an open invoice that has no subscription', async () => {
+      stubOpenInvoices([openInvoice(null)]);
+
+      await invoiceManager.retryPaymentForOpenInvoices(
+        mockCustomerId,
+        mockPaymentMethodId
+      );
+
+      expect(invoicesPaySpy).not.toHaveBeenCalled();
     });
 
     it('attempts payment on each open invoice with the supplied payment method', async () => {
@@ -1207,6 +1331,21 @@ describe('InvoiceManager', () => {
     it('does not reject when listing invoices fails', async () => {
       jest
         .spyOn(stripeClient, 'invoicesList')
+        .mockRejectedValue(new Error('Stripe API error'));
+
+      await expect(
+        invoiceManager.retryPaymentForOpenInvoices(
+          mockCustomerId,
+          mockPaymentMethodId
+        )
+      ).resolves.toBeUndefined();
+      expect(invoicesPaySpy).not.toHaveBeenCalled();
+    });
+
+    it('does not reject when listing subscriptions fails', async () => {
+      stubOpenInvoices([openInvoice()]);
+      jest
+        .spyOn(stripeClient, 'subscriptionsList')
         .mockRejectedValue(new Error('Stripe API error'));
 
       await expect(

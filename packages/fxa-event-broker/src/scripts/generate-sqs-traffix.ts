@@ -11,7 +11,7 @@
  */
 import { NestFactory } from '@nestjs/core';
 import { Chance } from 'chance';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 import { SendMessageCommand } from '@aws-sdk/client-sqs';
 

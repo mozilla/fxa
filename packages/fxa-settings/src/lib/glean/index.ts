@@ -12,44 +12,41 @@ import {
   EventMapKeys,
   EventsMap,
   GleanPingMetrics,
-} from 'fxa-shared/metrics/glean/web/index';
-import * as email from 'fxa-shared/metrics/glean/web/email';
-import * as error from 'fxa-shared/metrics/glean/web/error';
-import * as promoQrMobile from 'fxa-shared/metrics/glean/web/promoQrMobile';
-import * as dtmDesktop from 'fxa-shared/metrics/glean/web/dtmDesktop';
-import * as dtmMobile from 'fxa-shared/metrics/glean/web/dtmMobile';
-import * as reg from 'fxa-shared/metrics/glean/web/reg';
-import * as login from 'fxa-shared/metrics/glean/web/login';
-import * as cachedLogin from 'fxa-shared/metrics/glean/web/cachedLogin';
-import * as passwordReset from 'fxa-shared/metrics/glean/web/passwordReset';
-import * as cad from 'fxa-shared/metrics/glean/web/cad';
-import * as cadFirefox from 'fxa-shared/metrics/glean/web/cadFirefox';
-import * as cadApproveDevice from 'fxa-shared/metrics/glean/web/cadApproveDevice';
-import * as cadMobilePair from 'fxa-shared/metrics/glean/web/cadMobilePair';
-import * as cadMobilePairUseApp from 'fxa-shared/metrics/glean/web/cadMobilePairUseApp';
-import * as cadRedirectDesktop from 'fxa-shared/metrics/glean/web/cadRedirectDesktop';
-import * as cadRedirectMobile from 'fxa-shared/metrics/glean/web/cadRedirectMobile';
-import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
-import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
-import * as firefoxPromo from 'fxa-shared/metrics/glean/web/firefoxPromo';
-import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
-import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
-import * as postVerifySetPassword from 'fxa-shared/metrics/glean/web/postVerifySetPassword';
-import * as passkeyEnterPassword from 'fxa-shared/metrics/glean/web/passkeyEnterPassword';
-import * as passkey from 'fxa-shared/metrics/glean/web/passkey';
-import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
-import {
-  oauthClientId,
-  service,
-} from 'fxa-shared/metrics/glean/web/relyingParty';
+} from './web/index';
+import * as email from './web/email';
+import * as error from './web/error';
+import * as promoQrMobile from './web/promoQrMobile';
+import * as dtmDesktop from './web/dtmDesktop';
+import * as dtmMobile from './web/dtmMobile';
+import * as reg from './web/reg';
+import * as login from './web/login';
+import * as cachedLogin from './web/cachedLogin';
+import * as passwordReset from './web/passwordReset';
+import * as cad from './web/cad';
+import * as cadFirefox from './web/cadFirefox';
+import * as cadApproveDevice from './web/cadApproveDevice';
+import * as cadMobilePair from './web/cadMobilePair';
+import * as cadMobilePairUseApp from './web/cadMobilePairUseApp';
+import * as cadRedirectDesktop from './web/cadRedirectDesktop';
+import * as cadRedirectMobile from './web/cadRedirectMobile';
+import * as accountPref from './web/accountPref';
+import * as accountBanner from './web/accountBanner';
+import * as firefoxPromo from './web/firefoxPromo';
+import * as deleteAccount from './web/deleteAccount';
+import * as thirdPartyAuth from './web/thirdPartyAuth';
+import * as postVerifySetPassword from './web/postVerifySetPassword';
+import * as passkeyEnterPassword from './web/passkeyEnterPassword';
+import * as passkey from './web/passkey';
+import { userIdSha256, userId } from './web/account';
+import { oauthClientId, service } from './web/relyingParty';
 import {
   deviceType,
   entrypoint,
   flowId,
   pairingChannelHash,
-} from 'fxa-shared/metrics/glean/web/session';
-import * as utm from 'fxa-shared/metrics/glean/web/utm';
-import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
+} from './web/session';
+import * as utm from './web/utm';
+import * as entrypointQuery from './web/entrypoint';
 import { Integration } from '../../models';
 import { MetricsFlow } from '../metrics-flow';
 import { currentAccount } from '../../lib/cache';
@@ -91,7 +88,12 @@ const submitPing = async (fn: SubmitPingFn) => {
   let f: SubmitPingFn | undefined;
 
   while ((f = lambdas.shift())) {
-    await f();
+    try {
+      await f();
+    } catch (e) {
+      // A failed ping must not hold the mutex: isDone() polls it, and callers
+      // navigate only once it resolves.
+    }
   }
 
   EXEC_MUTEX = false;
@@ -515,7 +517,9 @@ const recordEventMetric = (
       cadFirefox.notnowSubmit.record();
       break;
     case 'cad_firefox_download_firefox_view':
-      cadFirefox.downloadFirefoxView.record();
+      cadFirefox.downloadFirefoxView.record({
+        browser_family: gleanPingMetrics?.event?.['browser_family'] || '',
+      });
       break;
     case 'cad_approve_device_view':
       cadApproveDevice.view.record();
@@ -530,19 +534,27 @@ const recordEventMetric = (
       cadMobilePair.submit.record();
       break;
     case 'cad_mobile_pair_use_app_view':
-      cadMobilePairUseApp.view.record();
+      cadMobilePairUseApp.view.record({
+        browser_family: gleanPingMetrics?.event?.['browser_family'] || '',
+      });
       break;
     case 'cad_redirect_desktop_view':
-      cadRedirectDesktop.view.record();
+      cadRedirectDesktop.view.record({
+        browser_family: gleanPingMetrics?.event?.['browser_family'] || '',
+      });
       break;
     case 'cad_redirect_desktop_default_view':
-      cadRedirectDesktop.defaultView.record();
+      cadRedirectDesktop.defaultView.record({
+        browser_family: gleanPingMetrics?.event?.['browser_family'] || '',
+      });
       break;
     case 'cad_redirect_desktop_download':
       cadRedirectDesktop.download.record();
       break;
     case 'cad_redirect_mobile_view':
-      cadRedirectMobile.view.record();
+      cadRedirectMobile.view.record({
+        browser_family: gleanPingMetrics?.event?.['browser_family'] || '',
+      });
       break;
     case 'account_pref_view':
       accountPref.view.record();

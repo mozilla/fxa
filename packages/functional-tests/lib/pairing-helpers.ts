@@ -419,7 +419,9 @@ export function extractChannelId(pairUrl: string): string {
 
 /**
  * Drive a signed-in Marionette authority through the v2 entrypoint to the
- * scan_qr page and return the encoded pairing URL from the rendered QR.
+ * scan_qr page and return the encoded pairing URL from the rendered QR. For a
+ * 2FA account, call {@link openPairingV2Entrypoint}, enter the code, then
+ * {@link readV2QrFromScanQr}.
  *
  * v2 has no chrome-side pairing flow (contrast v1 `startPairingFlow`, which calls
  * `FxAccountsPairingFlow.start()`). The authority mints the channel in web
@@ -439,10 +441,26 @@ export async function startPairingFlowV2(
   contentServerUrl: string,
   eligibleEntrypointQs: string
 ): Promise<string> {
+  await openPairingV2Entrypoint(client, contentServerUrl, eligibleEntrypointQs);
+  return readV2QrFromScanQr(client);
+}
+
+/** Navigate a signed-in Marionette authority to the v2 pairing entrypoint. */
+export async function openPairingV2Entrypoint(
+  client: MarionetteClient,
+  contentServerUrl: string,
+  eligibleEntrypointQs: string
+): Promise<void> {
   await client.setContext('content');
   await client.navigate(
     `${contentServerUrl}/connect_another_device?${eligibleEntrypointQs}&v=2`
   );
+}
+
+/** Wait for scan_qr and return the pairing URL decoded from its QR. */
+export async function readV2QrFromScanQr(
+  client: MarionetteClient
+): Promise<string> {
   await waitForUrlContaining(client, '/pair/authority/scan_qr');
 
   // Decode the QR the page actually renders, rather than reading the value
@@ -638,6 +656,27 @@ export async function enableTotpOnAccount(
   await authClient.verifyTotpSetupCodeWithJwt(jwt, code);
   await authClient.completeTotpSetupWithJwt(jwt);
   return secret;
+}
+
+/**
+ * Drop the record of when this browser last verified a TOTP code, so the
+ * pairing authority asks for one again. Signing in with TOTP records that
+ * moment, and a code verified within `pairing.totp_max_age_minutes` skips the
+ * pairing prompt, so a spec that signs in and then expects the prompt has to
+ * age the record first. Runs against the content-server origin.
+ */
+export async function forgetTotpVerification(
+  client: MarionetteClient
+): Promise<void> {
+  await client.setContext('content');
+  await client.executeScript(`
+    var key = '__fxa_storage.accounts';
+    var accounts = JSON.parse(localStorage.getItem(key) || '{}');
+    Object.keys(accounts).forEach(function (uid) {
+      delete accounts[uid].totpVerifiedAt;
+    });
+    localStorage.setItem(key, JSON.stringify(accounts));
+  `);
 }
 
 /**

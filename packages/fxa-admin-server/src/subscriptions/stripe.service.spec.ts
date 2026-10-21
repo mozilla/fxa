@@ -4,8 +4,8 @@
 
 import { Provider } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { STRIPE_PRICE_METADATA } from 'fxa-shared/payments/stripe';
-import { AbbrevPlan } from 'fxa-shared/subscriptions/types';
+import { STRIPE_PRICE_METADATA } from '@fxa/accounts/subscriptions-legacy/payments/stripe';
+import { AbbrevPlan } from '@fxa/accounts/subscriptions-legacy/subscriptions/types';
 import Stripe from 'stripe';
 import {
   MockConfig,

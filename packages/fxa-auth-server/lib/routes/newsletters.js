@@ -6,11 +6,11 @@
 
 const MISC_DOCS = require('../../docs/swagger/misc-api').default;
 const validators = require('./validators');
-const ScopeSet = require('fxa-shared/oauth/scopes').scopeSetHelpers;
+const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
 const { AppError } = require('@fxa/accounts/errors');
 const Joi = require('joi');
 
-const { OAUTH_SCOPE_NEWSLETTERS } = require('fxa-shared/oauth/constants');
+const { OAUTH_SCOPE_NEWSLETTERS } = require('@fxa/accounts/oauth');
 
 module.exports = (log, db) => {
   return [

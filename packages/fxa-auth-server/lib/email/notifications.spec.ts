@@ -140,7 +140,7 @@ describe('lib/email/notifications:', () => {
           },
         },
         complaint: {
-          complainedRecipients: ['foo@example.com', 'pmbooth@gmail.com'],
+          complainedRecipients: ['foo@example.com', 'foo@gmail.com'],
         },
       });
     });
@@ -190,7 +190,7 @@ describe('lib/email/notifications:', () => {
     it('did not delete the accounts', () => {
       expect(db.accountRecord).toHaveBeenCalledTimes(2);
       expect(db.accountRecord).toHaveBeenNthCalledWith(1, 'foo@example.com');
-      expect(db.accountRecord).toHaveBeenNthCalledWith(2, 'pmbooth@gmail.com');
+      expect(db.accountRecord).toHaveBeenNthCalledWith(2, 'foo@gmail.com');
 
       expect(db.deleteAccount).toHaveBeenCalledTimes(0);
     });

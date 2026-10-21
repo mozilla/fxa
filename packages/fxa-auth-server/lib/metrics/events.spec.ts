@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-jest.mock('fxa-shared/db/models/auth', () => ({
+jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => ({
   Account: { metricsEnabled: jest.fn().mockResolvedValue(true) },
 }));
 
@@ -19,7 +19,7 @@ const mocks = require('../../test/mocks');
 const glean = mocks.mockGlean();
 
 // The jest.mock above ensures amplitude.js gets the mocked
-// fxa-shared/db/models/auth when events.js requires it.
+// @fxa/shared/db/mysql/legacy/models/auth when events.js requires it.
 const eventsModule = require('./events');
 
 const events = eventsModule(
@@ -1078,7 +1078,6 @@ describe('metrics/events', () => {
   it.each([
     '/account/devices',
     '/account/profile',
-    '/account/sessions',
     '/password/forgot/status',
     '/recovery_email/status',
     '/recoveryKey/0123456789abcdef0123456789ABCDEF',

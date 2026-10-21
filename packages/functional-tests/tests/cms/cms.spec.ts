@@ -13,6 +13,7 @@ const CLIENTID_SYNC = '5882386c6d801776';
 
 test.describe('severity-1 #smoke', () => {
   test.describe.configure({ mode: 'parallel' });
+
   test.describe('CMS customization', () => {
     async function assertCmsCustomization(
       page: Page,

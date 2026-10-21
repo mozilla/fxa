@@ -10,6 +10,7 @@ import QRCode from '../../../../components/QRCode';
 import { QrPhoneFrameImage } from '../../../../components/images';
 import { useFtlMsgResolver } from '../../../../models';
 import { Constants } from '../../../../lib/constants';
+import firefoxLogo from '../../../Pair/Index/firefox-logo-bw.svg';
 
 export type ScanQRProps = {
   /**
@@ -79,6 +80,7 @@ const ScanQR = ({ qrCodeValue, onSkip }: ScanQRProps) => {
                 value={qrCodeValue ?? ''}
                 loading={!qrCodeValue}
                 localizedLabel={localizedQrCodeLabel}
+                logoSrc={firefoxLogo}
                 className="w-full border-none [&_svg]:h-auto [&_svg]:w-full"
               />
             </div>

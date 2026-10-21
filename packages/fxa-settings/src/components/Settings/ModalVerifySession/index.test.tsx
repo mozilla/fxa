@@ -16,7 +16,7 @@ import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 const account = {
   primaryEmail: {
-    email: 'jgruen@mozilla.com',
+    email: 'user@example.com',
   },
 } as unknown as Account;
 

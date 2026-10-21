@@ -17,7 +17,7 @@ const getRoute = require('../../test/routes_helpers').getRoute;
 const knownIpLocation = require('../../test/known-ip-location');
 const mocks = require('../../test/mocks');
 const nock = require('nock');
-const { normalizeEmail } = require('fxa-shared').email.helpers;
+const { normalizeEmail } = require('@fxa/shared/email');
 const { gleanMetrics } = require('../metrics/glean');
 const gleanConfig = {
   enabled: false,

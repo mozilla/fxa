@@ -7,7 +7,7 @@ import path from 'path';
 import mysql from 'mysql';
 import Patcher from '../lib/mysql-patcher.js';
 import convict from 'convict';
-import { makeMySQLConfig } from 'fxa-shared/db/config';
+import { makeMySQLConfig } from '../lib/mysql-config.js';
 
 const conf = convict({
   fxa: makeMySQLConfig('AUTH', 'fxa'),

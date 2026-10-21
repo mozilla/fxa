@@ -66,9 +66,11 @@ const DEFAULT_FXA_STATUS: FxAStatusResponse = {
  * capabilities. Their integration is whatever the URL built — a plain /pair
  * with no context is a Web integration — so the pathname, not the integration,
  * says the browser has to be asked. Guessing a version instead sends a v2
- * browser down the v1 flow.
+ * browser down the v1 flow. /pair/auth/totp keeps the answer /pair got, so it
+ * verifies the code for the Sync account that /pair checked.
  */
-const PAIRING_ENTRY_PATHNAME = /^\/(pair|connect_another_device)\/?$/;
+const PAIRING_ENTRY_PATHNAME =
+  /^\/(pair(\/auth\/totp)?|connect_another_device)\/?$/;
 
 export function isPairingEntryPathname(pathname: string | undefined) {
   return !!pathname && PAIRING_ENTRY_PATHNAME.test(pathname);
@@ -91,8 +93,7 @@ export function useFxAStatus(
   const isSyncOAuth = isOAuthIntegration(integration) && integration.isSync();
   const isSyncDesktopV3 = isSyncDesktopV3Integration(integration);
   const isSync = integration.isSync();
-  const isPairing =
-    integration.isPairing() || isPairingEntryPathname(pathname);
+  const isPairing = integration.isPairing() || isPairingEntryPathname(pathname);
   const hasPairingDeadline =
     isPairing && detectDevice() !== Devices.FIREFOX_DESKTOP;
   const isOAuthNative = isOAuthNativeIntegration(integration);
@@ -112,6 +113,14 @@ export function useFxAStatus(
   const [fxaStatus, setFxaStatus] = useState<FxAStatusResponse>();
   const [fxaStatusState, setFxaStatusState] =
     useState<FxAStatusState>('pending');
+
+  // Reset during render, not in the effect: pages' effects run before this
+  // hook's and would otherwise read an answer from before sign-in.
+  const [askedForPairing, setAskedForPairing] = useState(isPairing);
+  if (askedForPairing !== isPairing) {
+    setAskedForPairing(isPairing);
+    setFxaStatusState('pending');
+  }
 
   useEffect(() => {
     // This sends a web channel message to the browser to prompt a response

@@ -23,14 +23,11 @@ import Duration from 'duration';
 import Environment from './environment';
 import FlowModel from '../models/flow';
 import NotifierMixin from './channels/notifier-mixin';
-import speedTrap from 'fxa-shared/speed-trap';
+import speedTrap from './speed-trap';
 import Strings from './strings';
 import SubscriptionModel from 'models/subscription';
 import xhr from './xhr';
-import {
-  MetricValidator,
-  MetricErrorReporter,
-} from 'fxa-shared/metrics/validate';
+import { MetricValidator, MetricErrorReporter } from './metric-validator';
 import Validate from '../lib/validate';
 
 // Speed trap is a singleton, convert it

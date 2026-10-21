@@ -12,7 +12,7 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 
 import AppLayout from '../../../components/AppLayout';
 import { InputText } from '../../../components/InputText';
-import { isEmailValid } from 'fxa-shared/email/helpers';
+import { isEmailValid } from '@fxa/shared/email';
 import { ResetPasswordFormData, ResetPasswordProps } from './interfaces';
 import GleanMetrics from '../../../lib/glean';
 import { useGleanView } from '../../../lib/glean/useGleanView';

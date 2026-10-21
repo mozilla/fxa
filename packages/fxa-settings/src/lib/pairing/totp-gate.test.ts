@@ -2,13 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  PAIRING_SECOND_FACTOR_REPROMPT_MS,
-  isSecondFactorStale,
-  pairingRequiresTotp,
-} from './totp-gate';
+import { pairingRequiresTotp } from './totp-gate';
 
 const MOCK_SESSION_TOKEN = 'a'.repeat(64);
+const MAX_AGE_MS = 5 * 60 * 1000;
+const NO_RECENT_CODE = { maxAgeMs: MAX_AGE_MS };
 
 describe('pairingRequiresTotp', () => {
   const accountProfile = jest.fn();
@@ -21,7 +19,7 @@ describe('pairingRequiresTotp', () => {
   it('looks up the profile for the given session', async () => {
     accountProfile.mockResolvedValue({ authenticationMethods: ['pwd'] });
 
-    await pairingRequiresTotp(authClient, MOCK_SESSION_TOKEN);
+    await pairingRequiresTotp(authClient, MOCK_SESSION_TOKEN, NO_RECENT_CODE);
 
     expect(accountProfile).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
   });
@@ -32,7 +30,7 @@ describe('pairingRequiresTotp', () => {
     });
 
     await expect(
-      pairingRequiresTotp(authClient, MOCK_SESSION_TOKEN)
+      pairingRequiresTotp(authClient, MOCK_SESSION_TOKEN, NO_RECENT_CODE)
     ).resolves.toBe(true);
   });
 
@@ -42,7 +40,7 @@ describe('pairingRequiresTotp', () => {
     });
 
     await expect(
-      pairingRequiresTotp(authClient, MOCK_SESSION_TOKEN)
+      pairingRequiresTotp(authClient, MOCK_SESSION_TOKEN, NO_RECENT_CODE)
     ).resolves.toBe(false);
   });
 
@@ -50,43 +48,81 @@ describe('pairingRequiresTotp', () => {
     accountProfile.mockResolvedValue({});
 
     await expect(
-      pairingRequiresTotp(authClient, MOCK_SESSION_TOKEN)
+      pairingRequiresTotp(authClient, MOCK_SESSION_TOKEN, NO_RECENT_CODE)
     ).resolves.toBe(false);
   });
 
-  // A profile outage must not block a session that was already verified at
-  // sign-in from finishing the pairing.
-  it('is false when the profile lookup fails', async () => {
+  // Pairing hands over the Sync keys, so an unknown 2FA status asks for a code.
+  it('is true when the profile lookup fails', async () => {
     accountProfile.mockRejectedValue(new Error('Backend service failure'));
 
     await expect(
-      pairingRequiresTotp(authClient, MOCK_SESSION_TOKEN)
-    ).resolves.toBe(false);
+      pairingRequiresTotp(authClient, MOCK_SESSION_TOKEN, NO_RECENT_CODE)
+    ).resolves.toBe(true);
+  });
+
+  it('is true, without a profile lookup, when there is no session token', async () => {
+    await expect(
+      pairingRequiresTotp(authClient, undefined, NO_RECENT_CODE)
+    ).resolves.toBe(true);
+    expect(accountProfile).not.toHaveBeenCalled();
   });
 });
 
-describe('isSecondFactorStale', () => {
+describe('pairingRequiresTotp with a code verified in this browser', () => {
   const MOCK_NOW = 1_700_000_000_000;
+  const accountProfile = jest.fn();
+  const authClient = { accountProfile };
 
-  it('is fresh right after the code was verified', () => {
-    expect(isSecondFactorStale(MOCK_NOW, MOCK_NOW)).toBe(false);
+  beforeEach(() => {
+    accountProfile.mockReset();
+    accountProfile.mockResolvedValue({
+      authenticationMethods: ['pwd', 'email', 'otp'],
+    });
   });
 
-  it('is fresh up to the re-prompt window', () => {
-    expect(
-      isSecondFactorStale(
-        MOCK_NOW - PAIRING_SECOND_FACTOR_REPROMPT_MS,
+  it('is false, without a profile lookup, when the code is within the max age', async () => {
+    await expect(
+      pairingRequiresTotp(
+        authClient,
+        MOCK_SESSION_TOKEN,
+        { verifiedAt: MOCK_NOW - MAX_AGE_MS, maxAgeMs: MAX_AGE_MS },
         MOCK_NOW
       )
-    ).toBe(false);
+    ).resolves.toBe(false);
+    expect(accountProfile).not.toHaveBeenCalled();
   });
 
-  it('is stale once the re-prompt window has passed', () => {
-    expect(
-      isSecondFactorStale(
-        MOCK_NOW - PAIRING_SECOND_FACTOR_REPROMPT_MS - 1,
+  it('is true when there is no session token, even with a code within the max age', async () => {
+    await expect(
+      pairingRequiresTotp(
+        authClient,
+        undefined,
+        { verifiedAt: MOCK_NOW, maxAgeMs: MAX_AGE_MS },
         MOCK_NOW
       )
-    ).toBe(true);
+    ).resolves.toBe(true);
+  });
+
+  it('is true for a 2FA account when the code is older than the max age', async () => {
+    await expect(
+      pairingRequiresTotp(
+        authClient,
+        MOCK_SESSION_TOKEN,
+        { verifiedAt: MOCK_NOW - MAX_AGE_MS - 1, maxAgeMs: MAX_AGE_MS },
+        MOCK_NOW
+      )
+    ).resolves.toBe(true);
+  });
+
+  it('is true for a 2FA account when no code was ever verified here', async () => {
+    await expect(
+      pairingRequiresTotp(
+        authClient,
+        MOCK_SESSION_TOKEN,
+        NO_RECENT_CODE,
+        MOCK_NOW
+      )
+    ).resolves.toBe(true);
   });
 });

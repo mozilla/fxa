@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
-const ScopeSet = require('fxa-shared').oauth.scopes;
-const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
+const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
+const { OAUTH_SCOPE_OLD_SYNC } = require('@fxa/accounts/oauth');
 const { Container } = require('typedi');
 const { FxaMailer } = require('../../senders/fxa-mailer');
 const { FxaMailerFormat } = require('../../senders/fxa-mailer-format');

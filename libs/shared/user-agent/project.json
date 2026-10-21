@@ -1,0 +1,40 @@
+{
+  "name": "shared-user-agent",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/user-agent/src",
+  "projectType": "library",
+  "tags": ["scope:shared:lib"],
+  "targets": {
+    "build": {
+      "dependsOn": ["build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo Build complete"
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "main": "libs/shared/user-agent/src/index.ts",
+        "outputPath": "dist/libs/shared/user-agent",
+        "tsConfig": "libs/shared/user-agent/tsconfig.lib.json",
+        "assets": [
+          {
+            "glob": "libs/shared/user-agent/README.md",
+            "input": ".",
+            "output": "."
+          }
+        ]
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/shared/user-agent/jest.config.ts",
+        "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
+      }
+    }
+  }
+}

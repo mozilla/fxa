@@ -42,7 +42,7 @@
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
     "dateformat": "^4.6.3",
-    "express": "^4.21.2",
+    "express": "^5.2.1",
     "express-http-proxy": "^2.0.0",
     "fxa-admin-server": "workspace:*",
     "fxa-react": "workspace:*",
@@ -64,8 +64,8 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@types/chance": "^1.1.2",
     "@types/convict": "^6.1.1",
-    "@types/dateformat": "^3.0.1",
-    "@types/express": "^4.17.12",
+    "@types/dateformat": "^5.0.0",
+    "@types/express": "^5.0.6",
     "@types/on-headers": "^2.1.30",
     "@types/postcss-import": "^14",
     "@types/serve-static": "1.13.9",
@@ -85,7 +85,6 @@
     "eslint-plugin-jest": "^27.6.0",
     "eslint-plugin-react": "^7.32.2",
     "file-loader": "^6.2.0",
-    "fxa-shared": "workspace:*",
     "html-webpack-plugin": "^5.6.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
@@ -124,10 +123,36 @@
           "build-ts-server"
         ]
       },
+      "build-css": {
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production",
+          {
+            "env": "NODE_ENV"
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/src/styles/tailwind.out.css"
+        ]
+      },
       "build-react": {
         "dependsOn": [
           "^build",
           "build-css"
+        ],
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production",
+          {
+            "env": "NODE_ENV"
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/build/index.html",
+          "{projectRoot}/build/favicon.ico",
+          "{projectRoot}/build/static"
         ]
       },
       "build-storybook": {
@@ -136,11 +161,26 @@
       "build-ts-client": {
         "dependsOn": [
           "^build"
-        ]
+        ],
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": []
       },
       "build-ts-server": {
         "dependsOn": [
           "^build"
+        ],
+        "cache": true,
+        "inputs": [
+          "production",
+          "^production"
+        ],
+        "outputs": [
+          "{projectRoot}/build/libs",
+          "{projectRoot}/build/packages"
         ]
       }
     }

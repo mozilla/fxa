@@ -21,7 +21,7 @@ export async function initSentryForNextjsClient(
   }
 
   if (!config?.sentry?.dsn) {
-    log.error('No Sentry dsn provided');
+    log.info('No Sentry dsn provided');
     return;
   }
 

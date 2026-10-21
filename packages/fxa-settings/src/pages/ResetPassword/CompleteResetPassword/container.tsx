@@ -11,7 +11,6 @@ import {
 import {
   Integration,
   isOAuthIntegration,
-  useAccount,
   useAlertBar,
   useAuthClient,
   useConfig,
@@ -30,6 +29,13 @@ import firefox from '../../../lib/channels/firefox';
 import { useEffect, useState } from 'react';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { storeAccountData } from '../../../lib/storage-utils';
+import { sessionToken } from '../../../lib/cache';
+import {
+  updateBasicAccountData,
+  updateExtendedAccountState,
+} from '../../../lib/account-storage';
+import { createRecoveryKeyWithReauth } from '../../../lib/recovery-key';
+import { getNewPasswordCredentials } from '../../../lib/crypto/password-credentials';
 import { SETTINGS_PATH } from '../../../constants';
 import { LocationState } from '../../Signin/interfaces';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
@@ -46,7 +52,6 @@ const CompleteResetPasswordContainer = ({
 }) => {
   const keyStretchExperiment = useValidatedQueryParams(KeyStretchExperiment);
 
-  const account = useAccount();
   const alertBar = useAlertBar();
   const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -205,19 +210,26 @@ const CompleteResetPasswordContainer = ({
     kB: string,
     newPassword: string,
     recoveryKeyId: string
-  ) => {
-    const options = {
+  ): Promise<AccountResetData> => {
+    const accountResetData = await authClient.resetPasswordWithRecoveryKey(
       accountResetToken,
-      emailToHashWith: emailToUse,
-      password: newPassword,
+      { primary: emailToUse, original: emailToUse },
+      newPassword,
       recoveryKeyId,
-      kB,
-      isFirefoxMobileClient: integration.isFirefoxMobileClient(),
-    };
+      { kB },
+      {
+        sessionToken: true,
+        keys: true,
+        isFirefoxMobileClient: integration.isFirefoxMobileClient(),
+      }
+    );
 
-    // TODO in FXA-9672: do not use Account model in reset password pages
-    const accountResetData =
-      await account.resetPasswordWithRecoveryKey(options);
+    if (accountResetData.sessionToken) {
+      sessionToken(accountResetData.sessionToken);
+      updateBasicAccountData({
+        sessionVerified: accountResetData.sessionVerified,
+      });
+    }
 
     return accountResetData;
   };
@@ -228,20 +240,28 @@ const CompleteResetPasswordContainer = ({
     newPassword: string,
     token: string,
     includeRecoveryKeyPrompt: boolean
-  ) => {
-    // TODO in FXA-9672: do not use Account model in reset password pages
-    const accountResetData: AccountResetData =
-      await account.completeResetPassword(
-        keyStretchExperiment.queryParamModel.isV2(config),
-        token,
-        code,
-        emailToUse,
-        newPassword,
-        undefined,
-        undefined,
-        includeRecoveryKeyPrompt
-      );
-    return accountResetData;
+  ): Promise<AccountResetData> => {
+    const { accountResetToken } = await authClient.passwordForgotVerifyCode(
+      code,
+      token,
+      { accountResetWithRecoveryKey: false, includeRecoveryKeyPrompt }
+    );
+    const { v1, v2Payload } = await getNewPasswordCredentials(
+      emailToUse,
+      newPassword,
+      keyStretchExperiment.queryParamModel.isV2(config)
+    );
+    const accountReset = await authClient.accountResetAuthPW(
+      v1.authPW,
+      accountResetToken,
+      v2Payload,
+      { sessionToken: true, keys: true }
+    );
+
+    return {
+      ...accountReset,
+      unwrapBKey: v1.unwrapBKey,
+    };
   };
 
   const notifyClientOfSignin = async (accountResetData: AccountResetData) => {
@@ -340,13 +360,30 @@ const CompleteResetPasswordContainer = ({
 
           // we cannot create a new recovery key if the session is not verified
           if (accountResetData.sessionVerified) {
-            await account.refresh('account');
-            const recoveryKey = await account.createRecoveryKey(
-              newPassword,
-              false,
-              false
+            let recoveryKey: Uint8Array | undefined;
+            try {
+              recoveryKey = await createRecoveryKeyWithReauth(authClient, {
+                uid: accountResetData.uid,
+                sessionToken: accountResetData.sessionToken,
+                credentials: { password: newPassword },
+              });
+            } catch {
+              // The password is already reset; continue without a new key.
+            }
+            // Without NewRecoveryKeyData the next page skips the new-key step.
+            sensitiveDataClient.NewRecoveryKeyData = recoveryKey && {
+              recoveryKey,
+            };
+            // The reset deleted the key it used, so only a new key can exist.
+            updateExtendedAccountState(
+              {
+                recoveryKey: {
+                  exists: !!recoveryKey,
+                  estimatedSyncDeviceCount,
+                },
+              },
+              accountResetData.uid
             );
-            sensitiveDataClient.NewRecoveryKeyData = { recoveryKey };
           }
 
           handleNavigationWithRecoveryKey(

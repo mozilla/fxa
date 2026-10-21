@@ -139,6 +139,7 @@ describe('PasskeyService', () => {
       | 'listPasskeysForUser'
       | 'listPasskeysWithWrapStateForUser'
       | 'countPasskeys'
+      | 'countPasskeyWraps'
       | 'findPasskeyByCredentialId'
       | 'findPasskeyByUidAndCredentialId'
       | 'updatePasskeyAfterAuth'
@@ -155,6 +156,7 @@ describe('PasskeyService', () => {
     listPasskeysForUser: jest.fn(),
     listPasskeysWithWrapStateForUser: jest.fn(),
     countPasskeys: jest.fn(),
+    countPasskeyWraps: jest.fn(),
     findPasskeyByCredentialId: jest.fn(),
     findPasskeyByUidAndCredentialId: jest.fn(),
     updatePasskeyAfterAuth: jest.fn(),
@@ -913,6 +915,17 @@ describe('PasskeyService', () => {
       ).rejects.toMatchObject({ errno: 224 });
     });
 
+    it('consumes the challenge when the credential is not registered', async () => {
+      mockManager.findPasskeyByCredentialId.mockResolvedValue(undefined);
+
+      await expect(
+        service.verifyAuthenticationResponse(mockResponse, MOCK_CHALLENGE)
+      ).rejects.toMatchObject({ errno: 224 });
+      expect(
+        mockChallengeManager.consumeAuthenticationChallenge
+      ).toHaveBeenCalledWith(MOCK_CHALLENGE);
+    });
+
     it('throws a passkeyChallengeNotFound AppError when the challenge is not found or expired', async () => {
       mockChallengeManager.consumeAuthenticationChallenge.mockResolvedValue(
         null
@@ -953,11 +966,9 @@ describe('PasskeyService', () => {
           wrongUid
         )
       ).rejects.toMatchObject({ errno: 227 });
-
-      // do not consumeAuthenticationChallenge when uid does not match, so the challenge is not burned.
       expect(
         mockChallengeManager.consumeAuthenticationChallenge
-      ).not.toHaveBeenCalled();
+      ).toHaveBeenCalledWith(MOCK_CHALLENGE);
     });
 
     it('logs a signCount rollback warning when simplewebauthn throws a counter error', async () => {
@@ -1166,6 +1177,28 @@ describe('PasskeyService', () => {
     it('propagates manager rejections', async () => {
       mockManager.countPasskeys.mockRejectedValue(new Error('db down'));
       await expect(service.hasPasskey(MOCK_UID)).rejects.toThrow('db down');
+    });
+  });
+
+  describe('hasPasskeyWraps', () => {
+    it('returns true when the manager reports one or more wraps', async () => {
+      mockManager.countPasskeyWraps.mockResolvedValue(1);
+      const result = await service.hasPasskeyWraps(MOCK_UID);
+      expect(result).toBe(true);
+      expect(mockManager.countPasskeyWraps).toHaveBeenCalledWith(MOCK_UID);
+    });
+
+    it('returns false when the manager reports zero wraps', async () => {
+      mockManager.countPasskeyWraps.mockResolvedValue(0);
+      const result = await service.hasPasskeyWraps(MOCK_UID);
+      expect(result).toBe(false);
+    });
+
+    it('propagates manager rejections', async () => {
+      mockManager.countPasskeyWraps.mockRejectedValue(new Error('db down'));
+      await expect(service.hasPasskeyWraps(MOCK_UID)).rejects.toThrow(
+        'db down'
+      );
     });
   });
 
@@ -1567,7 +1600,7 @@ describe('PasskeyService', () => {
         KEYS_CHANGED_AT
       );
 
-      expect(result).toBe('created');
+      expect(result).toBe('replaced');
       // The staleness test travels with the delete rather than being decided here.
       expect(mockManager.deletePasskeyWrap).toHaveBeenCalledWith(
         MOCK_UID,
@@ -1643,6 +1676,32 @@ describe('PasskeyService', () => {
       ).resolves.toBe('created');
       expect(mockMetrics.increment).not.toHaveBeenCalledWith(
         'passkey.wrap.store.replaced_stale'
+      );
+    });
+
+    it('reports invalidated when its delete removed the stale wrap but a concurrent identical insert won', async () => {
+      mockManager.deletePasskeyWrap.mockResolvedValue(true);
+      mockManager.createPasskeyWrap.mockRejectedValue({ code: 'ER_DUP_ENTRY' });
+      mockManager.findPasskeyWrap
+        .mockResolvedValueOnce(
+          storedWrap({ hpkeSealedKb: Buffer.alloc(48, 0xff) })
+        )
+        .mockResolvedValueOnce(storedWrap());
+
+      await expect(
+        service.storePasskeyWrap(
+          MOCK_UID,
+          MOCK_CREDENTIAL_ID,
+          MOCK_ENVELOPE,
+          MOCK_NOW,
+          MOCK_NOW + 1
+        )
+      ).resolves.toBe('invalidated');
+      expect(mockMetrics.increment).toHaveBeenCalledWith(
+        'passkey.wrap.store.replaced_stale'
+      );
+      expect(mockMetrics.increment).not.toHaveBeenCalledWith(
+        'passkey.wrap.store.unchanged'
       );
     });
 
@@ -1996,6 +2055,9 @@ describe('PasskeyService', () => {
           MOCK_UID
         )
       ).rejects.toThrow(AppError.passkeyNotFound());
+      expect(
+        mockChallengeManager.consumeVerificationChallenge
+      ).toHaveBeenCalledWith(MOCK_CHALLENGE, MOCK_UID);
     });
 
     it('throws passkeyChallengeNotFound when the challenge is unknown or expired', async () => {

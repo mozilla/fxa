@@ -12,7 +12,7 @@ import {
   NextFunction,
   RequestHandler,
 } from 'express';
-import { RouteDefinition } from 'fxa-shared/express/routing';
+import { RouteDefinition } from '@fxa/shared/express';
 
 export interface ReactRouteGroup {
   featureFlagOn: boolean;
@@ -43,9 +43,6 @@ export interface AddRoutes {
 }
 
 type ShowReactApp = {
-  emailFirstRoutes: boolean;
-  simpleRoutes: boolean;
-  postVerifyOtherRoutes: boolean;
   webChannelExampleRoutes: boolean;
   pocPairingRoutes: boolean;
   pair2Routes: boolean;

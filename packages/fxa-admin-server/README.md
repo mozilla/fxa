@@ -30,7 +30,7 @@ Hit the "play" button and the schema and docs will populate.
 
 The `remote-groups` header will ultimately limit access to certain data in the graphql schema. This is controlled via a nestjs guard. The guard is applied by tagging methods in our resolvers with an `@feature(AdminPanelFeature.$FEATURE_NAME)`. Once this is applied, access is restricted based on the feature’s configuration.
 
-The underlying configuration for features is shared between the admin-panel and the admin-server and therefore resides in `fxa-shared/guard/AdminPanelGuard`. Currently these permissions are hardcoded since there is no compelling reason for them to change.
+The underlying configuration for features is shared between the admin-panel and the admin-server and therefore resides in `libs/shared/guards`. Currently these permissions are hardcoded since there is no compelling reason for them to change.
 
 During development a remote-group with admin permissions is typically used so that all parts of the graphql schema are accessible. However, it might still be useful to test with a remote group with fewer permissions. This can be accomplished by simply using a different `remote-groups` header value.
 

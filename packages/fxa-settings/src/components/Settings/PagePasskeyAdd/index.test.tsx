@@ -19,6 +19,7 @@ import {
   WebAuthnErrorType,
 } from '../../../lib/passkeys/webauthn-errors';
 import GleanMetrics from '../../../lib/glean';
+import { bytesToBase64url } from '../../../lib/base64url';
 
 // Mock navigate
 const mockNavigateWithQuery = jest.fn();
@@ -104,12 +105,19 @@ const mockCreationOptions = {
   pubKeyCredParams: [{ alg: -7, type: 'public-key' as const }],
 };
 
+const encodeClientData = (challenge: string) =>
+  bytesToBase64url(
+    new TextEncoder().encode(
+      JSON.stringify({ type: 'webauthn.create', challenge })
+    )
+  );
+
 const mockCredential = {
   id: 'Y3JlZA',
   rawId: 'Y3JlZA',
   type: 'public-key' as const,
   response: {
-    clientDataJSON: 'ZXlK',
+    clientDataJSON: encodeClientData(mockCreationOptions.challenge),
     attestationObject: 'bzJO',
   },
   clientExtensionResults: {},
@@ -380,6 +388,33 @@ describe('PagePasskeyAdd', () => {
       replace: true,
     });
   });
+
+  it.each([
+    ['signs a different challenge', encodeClientData('b3RoZXI')],
+    ['has unreadable clientDataJSON', 'ZXlK'],
+  ])(
+    'skips completePasskeyRegistration and shows the system error when the credential %s',
+    async (_label, clientDataJSON) => {
+      mockCreateCredential.mockResolvedValue({
+        ...mockCredential,
+        response: { ...mockCredential.response, clientDataJSON },
+      });
+      renderPage();
+      await waitFor(() => {
+        expect(mockAlertError).toHaveBeenCalledWith(
+          'There was a problem creating your passkey. Try again later.'
+        );
+      });
+      expect(mockCompletePasskeyRegistration).not.toHaveBeenCalled();
+      expect(
+        GleanMetrics.accountPref.passkeyCreateSubmitFrontendError
+      ).toHaveBeenCalledWith({ event: { reason: 'challenge_mismatch' } });
+      expect(mockCaptureException).not.toHaveBeenCalled();
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
+        replace: true,
+      });
+    }
+  );
 
   it('handles server error on beginPasskeyRegistration', async () => {
     const serverError = new Error('Server error');

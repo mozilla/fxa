@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { MemoryRouter } from 'react-router';
 import * as Sentry from '@sentry/react';
-import ScanQRContainer from './container';
+import ScanQRContainer, { SIGNED_IN_POLL_MS } from './container';
+import firefox from '../../../../lib/channels/firefox';
 import {
   MOCK_NON_PAIRING_INTEGRATION,
   MOCK_PAIR_URL,
@@ -16,12 +17,45 @@ import {
   mockAuthorityIntegration,
 } from './mocks';
 import { AuthorityState, Integration } from '../../../../models';
+import * as ReactUtils from 'fxa-react/lib/utils';
+import { mockUseFxAStatus } from '../../../../lib/hooks/useFxAStatus/mocks';
+import type { UseFxAStatusResult } from '../../../../lib/hooks';
+import type { SignedInUser } from '../../../../lib/channels/firefox';
+
+const MOCK_SESSION_TOKEN = 'a'.repeat(64);
+const MOCK_SIGNED_IN_USER: SignedInUser = {
+  uid: 'sync-uid',
+  email: 'sync@example.com',
+  sessionToken: MOCK_SESSION_TOKEN,
+  verified: true,
+};
+
+/** What Firefox answers on fxa_status for the given account, if any. */
+const signedInStatus = (
+  signedInUser: SignedInUser | undefined
+): UseFxAStatusResult => {
+  const result = mockUseFxAStatus({ pairingVersion: 2 });
+  return { ...result, fxaStatus: { ...result.fxaStatus, signedInUser } };
+};
 
 const mockNavigate = jest.fn();
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
 }));
+
+const mockAccountProfile = jest.fn();
+jest.mock('../../../../models', () => ({
+  ...jest.requireActual('../../../../models'),
+  useAuthClient: () => ({ accountProfile: mockAccountProfile }),
+}));
+
+jest.mock('../../../../lib/account-storage', () => ({
+  getBasicAccountData: jest.fn(),
+}));
+const { getBasicAccountData: mockGetBasicAccountData } = jest.requireMock(
+  '../../../../lib/account-storage'
+);
 
 const mockQrSkip = jest.fn();
 jest.mock('../../../../lib/glean', () => ({
@@ -66,6 +100,13 @@ describe('Pair2/Authority/ScanQR container', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     integration = mockAuthorityIntegration();
+    // Default to an account without 2FA so the channel opens straight away.
+    mockGetBasicAccountData.mockReturnValue({
+      sessionToken: MOCK_SESSION_TOKEN,
+    });
+    mockAccountProfile.mockResolvedValue({
+      authenticationMethods: ['pwd', 'email'],
+    });
     captureException = jest
       .spyOn(Sentry, 'captureException')
       .mockImplementation(() => '');
@@ -75,17 +116,135 @@ describe('Pair2/Authority/ScanQR container', () => {
     jest.restoreAllMocks();
   });
 
-  const renderContainer = (i: Integration = integration) =>
+  const renderContainer = (
+    i: Integration = integration,
+    fxaStatusResult: UseFxAStatusResult = signedInStatus(MOCK_SIGNED_IN_USER),
+    locationState?: Record<string, unknown>
+  ) =>
     renderWithLocalizationProvider(
-      <MemoryRouter>
-        <ScanQRContainer integration={i} />
+      <MemoryRouter
+        initialEntries={[
+          { pathname: '/pair/authority/scan_qr', state: locationState },
+        ]}
+      >
+        <ScanQRContainer integration={i} {...{ fxaStatusResult }} />
       </MemoryRouter>
     );
 
-  it('renders the ScanQR page', () => {
+  // The QR is only useful while the browser can approve the sign-in it leads
+  // to, so the channel is gated on fxa_status.
+  describe('browser sign-in status', () => {
+    let hardNavigate: jest.SpyInstance;
+
+    beforeEach(() => {
+      hardNavigate = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+    });
+
+    it('waits for fxa_status before opening a channel', () => {
+      renderContainer(
+        integration,
+        mockUseFxAStatus({ fxaStatusState: 'pending' })
+      );
+
+      expect(integration.createChannel).not.toHaveBeenCalled();
+      expect(hardNavigate).not.toHaveBeenCalled();
+      expect(mockAccountProfile).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['no signed-in user', undefined],
+      ['an unverified user', { ...MOCK_SIGNED_IN_USER, verified: false }],
+      [
+        'a disconnected user',
+        { ...MOCK_SIGNED_IN_USER, sessionToken: undefined },
+      ],
+    ])(
+      'sends the browser back to /pair without a channel when it reports %s',
+      (_, signedInUser) => {
+        renderContainer(integration, signedInStatus(signedInUser));
+
+        expect(hardNavigate).toHaveBeenCalledWith('/pair', {}, true);
+        expect(integration.createChannel).not.toHaveBeenCalled();
+        expect(mockAccountProfile).not.toHaveBeenCalled();
+      }
+    );
+
+    it('sends a browser that did not answer back to /pair', () => {
+      renderContainer(
+        integration,
+        mockUseFxAStatus({ fxaStatusState: 'unanswered' })
+      );
+
+      expect(hardNavigate).toHaveBeenCalledWith('/pair', {}, true);
+      expect(integration.createChannel).not.toHaveBeenCalled();
+      expect(mockAccountProfile).not.toHaveBeenCalled();
+    });
+
+    describe('while the QR is on screen', () => {
+      let fxaStatus: jest.SpyInstance;
+
+      beforeEach(() => {
+        jest.useFakeTimers();
+        fxaStatus = jest.spyOn(firefox, 'fxaStatus');
+      });
+
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      const poll = () =>
+        act(() => jest.advanceTimersByTimeAsync(SIGNED_IN_POLL_MS));
+
+      it('asks the browser again and stays while it is signed in', async () => {
+        fxaStatus.mockResolvedValue({ signedInUser: MOCK_SIGNED_IN_USER });
+        renderContainer();
+
+        await poll();
+        await poll();
+
+        expect(fxaStatus).toHaveBeenCalledTimes(2);
+        expect(hardNavigate).not.toHaveBeenCalled();
+        expect(integration.destroy).not.toHaveBeenCalled();
+      });
+
+      it('closes the channel and sends a browser that signed out back to /pair', async () => {
+        fxaStatus.mockResolvedValue({ signedInUser: undefined });
+        renderContainer();
+
+        await poll();
+
+        expect(integration.destroy).toHaveBeenCalled();
+        expect(hardNavigate).toHaveBeenCalledWith('/pair', {}, true);
+      });
+
+      it('sends a browser that stopped answering back to /pair', async () => {
+        fxaStatus.mockResolvedValue(undefined);
+        renderContainer();
+
+        await poll();
+
+        expect(integration.destroy).toHaveBeenCalled();
+        expect(hardNavigate).toHaveBeenCalledWith('/pair', {}, true);
+      });
+
+      it('stops asking once the page unmounts', async () => {
+        fxaStatus.mockResolvedValue({ signedInUser: MOCK_SIGNED_IN_USER });
+        const { unmount } = renderContainer();
+        unmount();
+
+        await poll();
+
+        expect(fxaStatus).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  it('renders the ScanQR page', async () => {
     renderContainer();
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
       'Scan to connect your mobile device'
     );
   });
@@ -102,12 +261,19 @@ describe('Pair2/Authority/ScanQR container', () => {
   });
 
   it('shows the QR as loading until the channel is created', async () => {
+    let channelCreated = () => {};
+    integration.createChannel.mockReturnValue(
+      new Promise<void>((resolve) => {
+        channelCreated = resolve;
+      })
+    );
     renderContainer();
 
-    expect(screen.getByTestId('scan-qr-code')).toHaveAttribute(
+    expect(await screen.findByTestId('scan-qr-code')).toHaveAttribute(
       'data-loading',
       'true'
     );
+    channelCreated();
     await waitFor(() =>
       expect(screen.getByTestId('scan-qr-code')).toHaveAttribute(
         'data-loading',
@@ -171,9 +337,10 @@ describe('Pair2/Authority/ScanQR container', () => {
 
   // The handler is assigned before the channel is awaited, so a state change
   // arriving mid-creation still routes.
-  it('routes a state change that arrives before the channel is created', () => {
+  it('routes a state change that arrives before the channel is created', async () => {
     integration.createChannel.mockReturnValue(new Promise(() => {}));
     renderContainer();
+    await waitFor(() => expect(integration.onStateChange).toBeTruthy());
 
     emitState(integration, AuthorityState.WaitingForAuthorizations);
 
@@ -294,6 +461,112 @@ describe('Pair2/Authority/ScanQR container', () => {
 
       expect(mockNavigate).toHaveBeenCalledWith('/settings');
       await waitFor(() => expect(captureException).toHaveBeenCalledWith(err));
+    });
+  });
+
+  // The code is asked for before the channel exists, so switching apps to read
+  // it cannot kill a live pairing.
+  describe('two-step authentication', () => {
+    it('sends a 2FA account to the TOTP screen without opening a channel', async () => {
+      mockAccountProfile.mockResolvedValue({
+        authenticationMethods: ['pwd', 'email', 'otp'],
+      });
+
+      renderContainer();
+
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('/pair/authority/totp', {
+          replace: true,
+        })
+      );
+      expect(mockAccountProfile).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
+      expect(integration.createChannel).not.toHaveBeenCalled();
+    });
+
+    it('opens the channel without a profile lookup when returning from a verified code', async () => {
+      mockAccountProfile.mockResolvedValue({
+        authenticationMethods: ['pwd', 'email', 'otp'],
+      });
+
+      renderContainer(integration, signedInStatus(MOCK_SIGNED_IN_USER), {
+        totpComplete: true,
+      });
+
+      await waitFor(() => expect(integration.createChannel).toHaveBeenCalled());
+      expect(mockAccountProfile).not.toHaveBeenCalled();
+    });
+
+    it('opens the channel without a profile lookup when this browser verified a code just now', async () => {
+      mockGetBasicAccountData.mockReturnValue({
+        sessionToken: MOCK_SESSION_TOKEN,
+        totpVerifiedAt: Date.now(),
+      });
+
+      renderContainer();
+
+      await waitFor(() => expect(integration.createChannel).toHaveBeenCalled());
+      expect(mockAccountProfile).not.toHaveBeenCalled();
+    });
+
+    it('opens the channel for an account without 2FA', async () => {
+      renderContainer();
+
+      await waitFor(() => expect(integration.createChannel).toHaveBeenCalled());
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    it('checks the Sync account when no local account is stored', async () => {
+      mockGetBasicAccountData.mockReturnValue(null);
+
+      renderContainer();
+
+      await waitFor(() => expect(integration.createChannel).toHaveBeenCalled());
+      expect(mockAccountProfile).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
+    });
+
+    it('asks for the Sync account code when the current local account has no 2FA', async () => {
+      mockGetBasicAccountData.mockImplementation((uid?: string) =>
+        uid ? null : { uid: 'local-uid', sessionToken: 'local-token' }
+      );
+      mockAccountProfile.mockImplementation(async (token: string) => ({
+        authenticationMethods:
+          token === MOCK_SESSION_TOKEN ? ['pwd', 'otp'] : ['pwd'],
+      }));
+
+      renderContainer();
+
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('/pair/authority/totp', {
+          replace: true,
+        })
+      );
+      expect(mockAccountProfile).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
+      expect(integration.createChannel).not.toHaveBeenCalled();
+    });
+
+    it('sends the user to the TOTP screen when the profile lookup fails', async () => {
+      mockAccountProfile.mockRejectedValue(
+        new Error('Backend service failure')
+      );
+
+      renderContainer();
+
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('/pair/authority/totp', {
+          replace: true,
+        })
+      );
+      expect(integration.createChannel).not.toHaveBeenCalled();
+    });
+
+    it('shows a spinner, not the QR card, while the check is pending', () => {
+      mockAccountProfile.mockReturnValue(new Promise(() => {}));
+
+      renderContainer();
+
+      expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
+      expect(screen.queryByTestId('scan-qr-code')).not.toBeInTheDocument();
+      expect(integration.createChannel).not.toHaveBeenCalled();
     });
   });
 

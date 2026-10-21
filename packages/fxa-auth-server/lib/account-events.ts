@@ -10,7 +10,7 @@ import * as Sentry from '@sentry/node';
 import {
   EVENT_NAMES,
   SecurityEventNames,
-} from 'fxa-shared/db/models/auth/security-event';
+} from '@fxa/shared/db/mysql/legacy/models/auth/security-event';
 
 type BaseEvent = {
   // General metric properties

@@ -10,7 +10,7 @@ import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { SETTINGS_PATH } from '../../../constants';
 import InputText from '../../InputText';
 import FlowContainer from '../FlowContainer';
-import { isEmailMask, isEmailValid } from 'fxa-shared/email/helpers';
+import { isEmailMask, isEmailValid } from '@fxa/shared/email';
 import { useAccount, useAlertBar } from 'fxa-settings/src/models';
 import { MfaGuard } from '../MfaGuard';
 import { useMfaErrorHandler } from '../../../lib/hooks';

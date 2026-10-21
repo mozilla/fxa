@@ -18,7 +18,7 @@ const config = require('../../config').default.getProperties();
 const logger = require('../log')(config.log.level, 'amplitude');
 
 const { GROUPS, initialize } =
-  require('fxa-shared/metrics/amplitude').amplitude;
+  require('@fxa/shared/metrics/amplitude').amplitude;
 const { version: VERSION } = require('../../package.json');
 
 // Maps template name to email type

@@ -4,14 +4,14 @@
 
 'use strict';
 
-const encrypt = require('fxa-shared/auth/encrypt');
+const encrypt = require('@fxa/shared/crypto');
 const client = require('../../oauth/client');
 const {
   OAUTH_SCOPE_OLD_SYNC,
   MAX_NEW_ACCOUNT_AGE,
-} = require('fxa-shared/oauth/constants');
+} = require('@fxa/accounts/oauth');
 const token = require('../../oauth/token');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
 const { Container } = require('typedi');
 const { FxaMailer } = require('../../senders/fxa-mailer');
 const { FxaMailerFormat } = require('../../senders/fxa-mailer-format');

@@ -10,7 +10,7 @@ import Nav from '.';
 
 const account = {
   primaryEmail: {
-    email: 'stomlinson@mozilla.com',
+    email: 'user@example.com',
   },
   subscriptions: [],
   linkedAccounts: [],
@@ -61,7 +61,7 @@ describe('Nav', () => {
     expect(screen.getByTestId('nav-link-newsletters')).toHaveAttribute(
       'href',
       `https://basket.mozilla.org/fxa/?email=${encodeURIComponent(
-        'stomlinson@mozilla.com'
+        'user@example.com'
       )}`
     );
 
@@ -78,7 +78,7 @@ describe('Nav', () => {
 
   it('shows the subscriptions link when subscriptions are unknown', () => {
     const account = {
-      primaryEmail: { email: 'stomlinson@mozilla.com' },
+      primaryEmail: { email: 'user@example.com' },
       subscriptions: null,
       linkedAccounts: [],
     } as unknown as Account;
@@ -96,7 +96,7 @@ describe('Nav', () => {
   it('renders as expected with subscriptions link', () => {
     const account = {
       primaryEmail: {
-        email: 'stomlinson@mozilla.com',
+        email: 'user@example.com',
       },
       subscriptions: [{ created: 1, productName: 'x' }],
       linkedAccounts: [],
@@ -133,7 +133,7 @@ describe('Nav', () => {
   it('renders as expected with linkedAccounts link', () => {
     const account = {
       primaryEmail: {
-        email: 'stomlinson@mozilla.com',
+        email: 'user@example.com',
       },
       subscriptions: [{ created: 1, productName: 'x' }],
       linkedAccounts: [

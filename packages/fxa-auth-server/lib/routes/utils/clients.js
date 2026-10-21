@@ -4,7 +4,7 @@
 
 'use strict';
 
-const { ClientFormatter } = require('fxa-shared/connected-services');
+const { ClientFormatter } = require('@fxa/accounts/connected-services');
 
 module.exports = (log, config) => {
   return new ClientFormatter(config, () => log);

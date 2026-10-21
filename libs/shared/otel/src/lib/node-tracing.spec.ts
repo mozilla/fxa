@@ -12,7 +12,12 @@ import {
 } from './node-tracing';
 import * as otelApi from '@opentelemetry/api';
 import { logType, TracingOpts } from './config';
-import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
+import {
+  BatchSpanProcessor,
+  NodeTracerProvider,
+  SimpleSpanProcessor,
+  SpanExporter,
+} from '@opentelemetry/sdk-trace-node';
 import { checkServiceName, checkSampleRate } from './config';
 
 jest.mock('./config', () => ({
@@ -154,6 +159,27 @@ describe('NodeTracingInitializer', () => {
 
     expect(traceId).toBeNull();
   });
+
+  it.each([
+    [true, BatchSpanProcessor],
+    [false, SimpleSpanProcessor],
+  ])(
+    'creates the span processor for batchProcessor %s',
+    (batchProcessor, expected) => {
+      const initializer = new NodeTracingInitializer(
+        { ...defaultEnabledTracingOpts, batchProcessor },
+        mockLogger
+      );
+      const exporter: SpanExporter = {
+        export: jest.fn(),
+        shutdown: () => Promise.resolve(),
+      };
+
+      expect(initializer['makeSpanProcessor'](exporter)).toBeInstanceOf(
+        expected
+      );
+    }
+  );
 });
 
 describe('initTracing', () => {

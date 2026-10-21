@@ -5,7 +5,7 @@ import { Provider } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as Sentry from '@sentry/node';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';
 import { JwtsetService } from '../jwtset/jwtset.service';
@@ -115,7 +115,7 @@ describe('PubsubProxy Controller', () => {
       generateProfileSET: jest.fn().mockResolvedValue(TEST_TOKEN),
       generateSubscriptionSET: jest.fn().mockResolvedValue(TEST_TOKEN),
     };
-    logger = { debug: jest.fn(), error: jest.fn() };
+    logger = { debug: jest.fn(), error: jest.fn(), setContext: jest.fn() };
     mockMetricValue = { timing: jest.fn(), increment: jest.fn() };
     const MockMetrics: Provider = {
       provide: 'METRICS',
@@ -169,6 +169,10 @@ describe('PubsubProxy Controller', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  it('keeps the default logger name', () => {
+    expect(logger.setContext).toHaveBeenCalledWith('default');
   });
 
   it('notifies successfully on subscription state change', async () => {

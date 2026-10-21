@@ -253,17 +253,32 @@ describe('StripeFirestore', () => {
   });
 
   describe('fetchAndInsertSubscription', () => {
+    const eventTime = 1790736975;
     let tx: any;
+
+    function mockStoredEventTime(stripeEventCreatedTime?: number) {
+      tx.get.mockResolvedValue({
+        data: () =>
+          stripeEventCreatedTime === undefined
+            ? undefined
+            : { stripeEventCreatedTime },
+      });
+    }
 
     beforeEach(() => {
       tx = {
-        get: jest.fn().mockResolvedValue({}),
+        get: jest.fn(),
         set: jest.fn(),
       };
+      mockStoredEventTime(undefined);
 
       firestore.runTransaction = jest
         .fn()
         .mockImplementation((fn: any) => fn(tx));
+
+      stripe.subscriptions = {
+        retrieve: jest.fn().mockResolvedValue(subscription1),
+      };
 
       stripeFirestore.customerCollectionDbRef = {
         doc: jest.fn().mockImplementation((uid: any) => ({
@@ -276,28 +291,111 @@ describe('StripeFirestore', () => {
       };
     });
 
-    it('fetches and inserts the subscription', async () => {
-      stripe.subscriptions = {
-        retrieve: jest.fn().mockResolvedValue(subscription1),
-      };
+    it('inserts the subscription with the event time when none is stored', async () => {
+      const result = await stripeFirestore.fetchAndInsertSubscription(
+        subscription1.id,
+        customer.metadata.userid,
+        eventTime
+      );
+
+      expect(result).toEqual(subscription1);
+      expect(stripe.subscriptions.retrieve).toHaveBeenCalledWith(
+        subscription1.id
+      );
+      expect(tx.set).toHaveBeenCalledWith(
+        { id: subscription1.id },
+        { ...subscription1, stripeEventCreatedTime: eventTime }
+      );
+    });
+
+    it('overwrites a record stored for an older event', async () => {
+      mockStoredEventTime(eventTime - 1);
+
+      await stripeFirestore.fetchAndInsertSubscription(
+        subscription1.id,
+        customer.metadata.userid,
+        eventTime
+      );
+
+      expect(tx.set).toHaveBeenCalledTimes(1);
+    });
+
+    it('skips the write without calling Stripe again when a newer event time is stored', async () => {
+      mockStoredEventTime(eventTime + 1);
 
       const result = await stripeFirestore.fetchAndInsertSubscription(
         subscription1.id,
-        customer.metadata.userid
+        customer.metadata.userid,
+        eventTime
       );
 
       expect(result).toEqual(subscription1);
       expect(stripe.subscriptions.retrieve).toHaveBeenCalledTimes(1);
-      expect(stripe.subscriptions.retrieve).toHaveBeenCalledWith(
-        subscription1.id
+      expect(tx.set).not.toHaveBeenCalled();
+    });
+
+    it('re-reads Stripe under the lock and writes that copy when the same event time is stored', async () => {
+      const staleSubscription = { ...subscription1, status: 'incomplete' };
+      const latestSubscription = { ...subscription1, status: 'active' };
+      stripe.subscriptions.retrieve = jest
+        .fn()
+        .mockResolvedValueOnce(staleSubscription)
+        .mockResolvedValueOnce(latestSubscription);
+      mockStoredEventTime(eventTime);
+
+      const result = await stripeFirestore.fetchAndInsertSubscription(
+        subscription1.id,
+        customer.metadata.userid,
+        eventTime
       );
-      expect(tx.get).toHaveBeenCalledTimes(1);
-      expect(tx.set).toHaveBeenCalledTimes(1);
+
+      expect(result).toEqual(latestSubscription);
+      expect(stripe.subscriptions.retrieve).toHaveBeenCalledTimes(2);
+      expect(
+        stripe.subscriptions.retrieve.mock.invocationCallOrder[1]
+      ).toBeGreaterThan(tx.get.mock.invocationCallOrder[0]);
+      expect(tx.set).toHaveBeenCalledWith(
+        { id: subscription1.id },
+        { ...latestSubscription, stripeEventCreatedTime: eventTime }
+      );
+    });
+
+    it('reads Stripe once, before the transaction, even when the transaction retries', async () => {
+      firestore.runTransaction = jest
+        .fn()
+        .mockImplementation(async (fn: any) => {
+          await fn(tx);
+          return fn(tx);
+        });
+
+      await stripeFirestore.fetchAndInsertSubscription(
+        subscription1.id,
+        customer.metadata.userid,
+        eventTime
+      );
+
+      expect(stripe.subscriptions.retrieve).toHaveBeenCalledTimes(1);
+      expect(
+        stripe.subscriptions.retrieve.mock.invocationCallOrder[0]
+      ).toBeLessThan(firestore.runTransaction.mock.invocationCallOrder[0]);
     });
   });
 
   describe('legacyFetchAndInsertCustomer', () => {
+    const uid = customer1.metadata.userid;
+    const customerPath = `customers/${uid}`;
+    const subscriptionPath = (id: string) =>
+      `${customerPath}/subscriptions/${id}`;
     let tx: any;
+
+    function storedSnapshot(stripeEventCreatedTime?: number) {
+      return {
+        data: () =>
+          stripeEventCreatedTime === undefined
+            ? undefined
+            : { stripeEventCreatedTime },
+      };
+    }
 
     beforeEach(() => {
       stripe.subscriptions = {
@@ -307,7 +405,12 @@ describe('StripeFirestore', () => {
       };
 
       tx = {
-        get: jest.fn().mockResolvedValue({}),
+        get: jest.fn().mockResolvedValue(storedSnapshot()),
+        getAll: jest
+          .fn()
+          .mockImplementation(async (...refs: any[]) =>
+            refs.map(() => storedSnapshot())
+          ),
         set: jest.fn(),
       };
 
@@ -316,10 +419,12 @@ describe('StripeFirestore', () => {
         .mockImplementation((fn: any) => fn(tx));
 
       stripeFirestore.customerCollectionDbRef = {
-        doc: jest.fn().mockImplementation((uid: any) => ({
+        doc: jest.fn().mockImplementation((docUid: any) => ({
+          path: `customers/${docUid}`,
           collection: jest.fn().mockImplementation(() => ({
             doc: jest.fn().mockImplementation((id: any) => ({
               id,
+              path: `customers/${docUid}/subscriptions/${id}`,
             })),
           })),
         })),
@@ -351,6 +456,73 @@ describe('StripeFirestore', () => {
       });
       expect(tx.set).toHaveBeenCalledTimes(2); // customer + subscription
       expect(tx.get).toHaveBeenCalledTimes(2); // customer + subscription
+    });
+
+    describe('when rewriting stored records', () => {
+      const newSubscription = { ...subscription1, id: 'sub_new' };
+
+      beforeEach(() => {
+        stripe.customers = {
+          retrieve: jest
+            .fn()
+            .mockResolvedValueOnce({
+              ...customer,
+              subscriptions: { data: [subscription1] },
+            })
+            .mockResolvedValueOnce(customer),
+        };
+      });
+
+      it('keeps the stored stripeEventCreatedTime from the lock reads without reading again', async () => {
+        tx.get.mockImplementation(async (ref: any) =>
+          storedSnapshot(ref.path === customerPath ? 100 : 200)
+        );
+
+        await stripeFirestore.legacyFetchAndInsertCustomer(customer.id);
+
+        expect(tx.get).toHaveBeenCalledTimes(2);
+        expect(tx.getAll).not.toHaveBeenCalled();
+        expect(tx.set).toHaveBeenNthCalledWith(1, expect.anything(), {
+          ...customer,
+          stripeEventCreatedTime: 100,
+        });
+        expect(tx.set).toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({ id: subscription1.id }),
+          { ...subscription1, stripeEventCreatedTime: 200 }
+        );
+      });
+
+      it('reads only the docs the lock reads missed', async () => {
+        stripe.subscriptions.list = jest.fn().mockReturnValue({
+          autoPagingToArray: jest
+            .fn()
+            .mockResolvedValue([subscription1, newSubscription]),
+        });
+        tx.getAll.mockResolvedValue([storedSnapshot(300)]);
+
+        await stripeFirestore.legacyFetchAndInsertCustomer(customer.id);
+
+        expect(tx.getAll).toHaveBeenCalledTimes(1);
+        expect(tx.getAll).toHaveBeenCalledWith(
+          expect.objectContaining({ path: subscriptionPath('sub_new') })
+        );
+        expect(tx.set).toHaveBeenLastCalledWith(
+          expect.objectContaining({ id: 'sub_new' }),
+          { ...newSubscription, stripeEventCreatedTime: 300 }
+        );
+      });
+
+      it('writes the Stripe records as-is when no stripeEventCreatedTime is stored', async () => {
+        await stripeFirestore.legacyFetchAndInsertCustomer(customer.id);
+
+        expect(tx.set).toHaveBeenNthCalledWith(1, expect.anything(), customer);
+        expect(tx.set).toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({ id: subscription1.id }),
+          subscription1
+        );
+      });
     });
 
     it('errors on customer deleted', async () => {

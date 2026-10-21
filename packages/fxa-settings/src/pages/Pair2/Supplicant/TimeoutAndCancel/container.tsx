@@ -12,6 +12,12 @@ export type TimeoutAndCancelContainerProps = {
   integration?: Integration;
 };
 
+const KNOWN_REASONS = new Set<PairingInterruptionReason>([
+  'timeout',
+  'canceled',
+  'signed_in',
+]);
+
 /**
  * The mobile dead-end screen shown once pairing stops without succeeding.
  *
@@ -27,9 +33,12 @@ const TimeoutAndCancelContainer = ({
   integration,
 }: TimeoutAndCancelContainerProps) => {
   const location = useLocation();
-  // Anything but an explicit cancel is a timeout, including no state at all.
-  const reason: PairingInterruptionReason =
-    location.state?.reason === 'canceled' ? 'canceled' : 'timeout';
+  // Anything unrecognised is a timeout, including no state at all.
+  const reason: PairingInterruptionReason = KNOWN_REASONS.has(
+    location.state?.reason
+  )
+    ? location.state.reason
+    : 'timeout';
 
   useEffect(() => {
     if (!(integration instanceof PairingSupplicantIntegration)) {

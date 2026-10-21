@@ -9,12 +9,12 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { isPairGleanReason } from 'fxa-shared/metrics/glean/pair-reasons';
+import { isPairGleanReason } from '../../../lib/glean/pair-reasons';
 import { Link, useLocation } from 'react-router';
 import { UseFxAStatusResult, useNavigateWithQuery } from '../../../lib/hooks';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { usePageViewEvent } from '../../../lib/metrics';
-import { useFtlMsgResolver } from '../../../models';
+import { useAuthClient, useFtlMsgResolver } from '../../../models';
 import { useCmsInfoState, useConfig } from '../../../models/hooks';
 import { RelierCmsInfo } from '../../../models/integrations';
 import AppLayout from '../../../components/AppLayout';
@@ -64,6 +64,8 @@ import {
   pickPairingAttributionFromData,
   stashPairingAttribution,
 } from '../../../lib/pairing-attribution';
+import { getPairingAccount } from '../../../lib/pairing/pairing-account';
+import { pairingRequiresTotp } from '../../../lib/pairing/totp-gate';
 import type { PairOrigin } from '../../Signin/utils';
 import type { SigninLocationState } from '../../Signin/interfaces';
 import type { Integration } from '../../../models';
@@ -136,6 +138,7 @@ const Pair = ({
     'QR code'
   );
   const config = useConfig();
+  const authClient = useAuthClient();
   const navigateWithQuery = useNavigateWithQuery();
   const location = useLocation();
 
@@ -229,6 +232,10 @@ const Pair = ({
   const abortBootstrapRef = useRef(false);
   // Read when the bootstrap settles; a late fxa_status answer can change it.
   const pairingV2Ref = useRef(false);
+  // fxa_status can answer before Firefox names the user; the retry below finds it.
+  const bootstrapUserRef = useRef<SignedInUser | undefined>(undefined);
+  const fxaStatusStateRef = useRef(fxaStatusResult.fxaStatusState);
+  fxaStatusStateRef.current = fxaStatusResult.fxaStatusState;
   useEffect(() => {
     return () => {
       abortBootstrapRef.current = true;
@@ -286,6 +293,17 @@ const Pair = ({
     });
 
     if (pairingV2 && pairingChannelInfo?.version === '2') {
+      // Pairing signs a device in to Sync, so a browser that already holds a
+      // verified account has nothing to pair. Decided here, before the channel
+      // opens, so the user is never shown a Connect card they cannot use.
+      if (isVerifiedUser(fxaStatusResult.fxaStatus?.signedInUser)) {
+        navigateWithQuery(
+          '/pair/supplicant/timeout_and_cancel',
+          { replace: true, state: { reason: 'signed_in' } },
+          false
+        );
+        return;
+      }
       navigateWithQuery(
         '/pair/supplicant/connect_this_device',
         { state: pairingChannelInfo },
@@ -374,6 +392,7 @@ const Pair = ({
       if (abortBootstrapRef.current) return;
 
       if (isVerifiedUser(signedInUser)) {
+        bootstrapUserRef.current = signedInUser;
         if (pairingV2Ref.current) {
           goToScanQr();
         } else {
@@ -396,7 +415,15 @@ const Pair = ({
         hardNavigate(`/?${search}`);
         return;
       }
-      // WebChannel didn't reply; reveal the page so the user isn't stuck.
+      if (fxaStatusStateRef.current === 'unanswered') {
+        // Nothing has reached Firefox, so there is no WebChannel to carry a
+        // Sync sign-in or the choice screen's pair_preferences. Sign-in is the
+        // one page left that can still do something for the user.
+        navigateWithQuery('/');
+        return;
+      }
+      // Firefox answered fxa_status but not oauth_flow_begin, so pair_preferences
+      // still reaches it: reveal the page rather than strand the user.
       setBootstrapping(false);
     })();
     // `pairingAttribution` is captured at mount on purpose; re-running on a new
@@ -464,6 +491,44 @@ const Pair = ({
     firefox.send(FirefoxCommand.PairPreferences, {});
   }, [pairingAttribution]);
 
+  const signedInUser = fxaStatusResult.fxaStatus?.signedInUser;
+  // Ask for the TOTP code before Firefox opens the channel; Pair/AuthAllow
+  // keeps the same check for pairings started from about:preferences.
+  const startPairing = useCallback(async () => {
+    const { sessionToken, totpVerifiedAt } = getPairingAccount(
+      signedInUser ?? bootstrapUserRef.current
+    );
+    if (
+      await pairingRequiresTotp(authClient, sessionToken, {
+        verifiedAt: totpVerifiedAt,
+        maxAgeMs: config.pairing.totpMaxAgeMinutes * 60 * 1000,
+      })
+    ) {
+      navigateWithQuery('/pair/auth/totp', { state: { returnToPair: true } });
+      return;
+    }
+    openPairPreferences();
+  }, [
+    authClient,
+    config,
+    signedInUser,
+    navigateWithQuery,
+    openPairPreferences,
+  ]);
+
+  // Back from /pair/auth/totp with a good code: resume the pairing the user
+  // already started. Like AuthAllow, trust `totpComplete` rather than ask again.
+  const totpComplete = !!(location.state as { totpComplete?: unknown } | null)
+    ?.totpComplete;
+  const resumedPairingRef = useRef(false);
+  useEffect(() => {
+    if (bootstrapping || !totpComplete || resumedPairingRef.current) return;
+    resumedPairingRef.current = true;
+    // Drop the router state so Back or a reload does not start pairing again.
+    navigateWithQuery('/pair', { replace: true });
+    openPairPreferences();
+  }, [bootstrapping, totpComplete, navigateWithQuery, openPairPreferences]);
+
   const handleRadioChange = useCallback((value: MobileChoice) => {
     setSelectedRadio(value);
     GleanMetrics.cadFireFox.choiceEngage({
@@ -483,8 +548,8 @@ const Pair = ({
       setCurrentView('download');
       return;
     }
-    openPairPreferences();
-  }, [selectedRadio, openPairPreferences]);
+    startPairing();
+  }, [selectedRadio, startPairing]);
 
   const handleBackButton = useCallback(() => {
     setCurrentView('choice');
@@ -495,8 +560,8 @@ const Pair = ({
 
   const handleSyncDeviceSubmit = useCallback(() => {
     GleanMetrics.cadFireFox.syncDeviceSubmit();
-    openPairPreferences();
-  }, [openPairPreferences]);
+    startPairing();
+  }, [startPairing]);
 
   if (bootstrapping || fxaStatusResult.fxaStatusState === 'pending') {
     return <LoadingSpinner fullScreen />;

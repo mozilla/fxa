@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import request from 'supertest';
-import app from './server';
+import app, { createServer } from './server';
 import pkg from '../../package.json';
 
 function expectValueNotToBeUnknown(value: string) {
@@ -74,5 +74,18 @@ describe('Test client routes', () => {
       'text/html; charset=utf-8'
     );
     expect(response.text).toContain('<div id="root">');
+  });
+});
+
+describe('createServer', () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  it('rethrows the error passed to the listen callback', async () => {
+    const error = new Error('listen EADDRINUSE');
+    jest
+      .spyOn(app, 'listen')
+      .mockImplementation(((...args: Array<(err?: Error) => void>) =>
+        args[args.length - 1](error)) as unknown as typeof app.listen);
+    await expect(createServer()).rejects.toBe(error);
   });
 });

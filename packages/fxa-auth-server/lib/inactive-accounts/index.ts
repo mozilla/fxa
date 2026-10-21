@@ -31,8 +31,8 @@ import { Logger } from 'mozlog';
 import {
   EmailBounce,
   getAccountCustomerByUid,
-} from 'fxa-shared/db/models/auth';
-import { BOUNCE_TYPES } from 'fxa-shared/db/models/auth/email-bounce';
+} from '@fxa/shared/db/mysql/legacy/models/auth';
+import { BOUNCE_TYPES } from '@fxa/shared/db/mysql/legacy/models/auth/email-bounce';
 import { FxaMailer } from '../senders/fxa-mailer';
 import { FxaMailerFormat } from '../senders/fxa-mailer-format';
 

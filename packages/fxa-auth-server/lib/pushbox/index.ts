@@ -14,7 +14,7 @@
  * oauth-authenticated service, once we get more experience with using it.
  */
 
-import { ILogger } from 'fxa-shared/log';
+import type { ILogger } from '@fxa/shared/log';
 import { StatsD } from 'hot-shots';
 import { performance } from 'perf_hooks';
 

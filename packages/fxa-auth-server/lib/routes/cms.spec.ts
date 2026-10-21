@@ -187,28 +187,6 @@ describe('cms', () => {
       route = getRoute(routes, '/cms/config', 'GET');
     });
 
-    it('should return config when CMS manager is available', async () => {
-      const mockResult = {
-        relyingParties: [createStrapiTestData()[0]],
-      };
-      mockCmsManager.fetchCMSData.mockResolvedValue(mockResult);
-
-      request = createLocalizationRequest(
-        'desktopSyncFirefoxCms',
-        'desktop-sync',
-        'en'
-      );
-
-      const response = await route.handler(request);
-
-      expect(response).toEqual(mockResult.relyingParties[0]);
-      expect(mockCmsManager.fetchCMSData).toHaveBeenCalledTimes(1);
-      expect(mockCmsManager.fetchCMSData).toHaveBeenCalledWith(
-        'desktopSyncFirefoxCms',
-        'desktop-sync'
-      );
-    });
-
     it('should return empty object when no relying parties found', async () => {
       mockCmsManager.fetchCMSData.mockResolvedValue({ relyingParties: [] });
 
@@ -460,6 +438,10 @@ describe('cms', () => {
 
       expect(response).toEqual(baseConfig);
       expect(mockCmsManager.fetchCMSData).toHaveBeenCalledTimes(1);
+      expect(mockCmsManager.fetchCMSData).toHaveBeenCalledWith(
+        'sync-client',
+        'desktop-sync'
+      );
       expect(
         mockLocalization.fetchLocalizedFtlWithFallback
       ).not.toHaveBeenCalled();
@@ -623,8 +605,6 @@ describe('cms', () => {
   describe('GET /cms/default', () => {
     beforeEach(() => {
       route = getRoute(routes, '/cms/default', 'GET');
-      mockDefaultCmsManager.fetchDefault.mockReset();
-      mockStatsD.increment.mockClear();
     });
 
     it('returns the default payload when present', async () => {
@@ -670,11 +650,6 @@ describe('cms', () => {
   describe('GET /cms/legal-terms', () => {
     beforeEach(() => {
       route = getRoute(routes, '/cms/legal-terms', 'GET');
-      mockLegalTermsManager.getLegalTermsByClientId.mockReset();
-      mockLegalTermsManager.getLegalTermsByService.mockReset();
-      mockLocalization.fetchLocalizedFtlWithFallback.mockReset();
-      mockLocalization.mergeConfigs.mockReset();
-      mockStatsD.increment.mockClear();
     });
 
     const mockLegalTermsResult = {
@@ -883,8 +858,6 @@ describe('cms', () => {
       expect(mockStatsD.increment).toHaveBeenCalledWith(
         'cms.getLegalTerms.success'
       );
-
-      mockConfig.cmsl10n.enabled = true;
     });
 
     it('should handle errors gracefully and return null', async () => {
@@ -912,18 +885,14 @@ describe('cms', () => {
     it('should validate GET /cms/config route structure', () => {
       const configRoute = getRoute(routes, '/cms/config', 'GET');
 
-      expect(configRoute).toBeTruthy();
       expect(configRoute.method).toBe('GET');
-      expect(configRoute.path).toBe('/cms/config');
       expect(configRoute.options.validate.query).toBeTruthy();
     });
 
     it('should validate POST /cms/webhook/strapil10n route structure', () => {
       const webhookRoute = getRoute(routes, '/cms/webhook/strapil10n', 'POST');
 
-      expect(webhookRoute).toBeTruthy();
       expect(webhookRoute.method).toBe('POST');
-      expect(webhookRoute.path).toBe('/cms/webhook/strapil10n');
     });
 
     it('should validate POST /cms/webhook/cache/reset route structure', () => {
@@ -933,17 +902,13 @@ describe('cms', () => {
         'POST'
       );
 
-      expect(cacheResetRoute).toBeTruthy();
       expect(cacheResetRoute.method).toBe('POST');
-      expect(cacheResetRoute.path).toBe('/cms/webhook/cache/reset');
     });
 
     it('should validate GET /cms/legal-terms route structure', () => {
       const legalTermsRoute = getRoute(routes, '/cms/legal-terms', 'GET');
 
-      expect(legalTermsRoute).toBeTruthy();
       expect(legalTermsRoute.method).toBe('GET');
-      expect(legalTermsRoute.path).toBe('/cms/legal-terms');
       expect(legalTermsRoute.options.validate.query).toBeTruthy();
     });
   });

@@ -9,8 +9,8 @@ import { STRIPE_API_VERSION } from '@fxa/payments/stripe';
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { promises as fs } from 'fs';
 import { AppConfig, AuthLogger } from '../lib/types';
-import { Account } from 'fxa-shared/db/models/auth';
-import { uuidTransformer } from 'fxa-shared/db/transformers';
+import { Account } from '@fxa/shared/db/mysql/legacy/models/auth';
+import { uuidTransformer } from '@fxa/shared/db/mysql/legacy/transformers';
 import { Knex } from 'knex';
 
 type CustomerData = {

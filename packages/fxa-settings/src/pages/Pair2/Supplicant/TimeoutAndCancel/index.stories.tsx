@@ -19,3 +19,6 @@ export const TimedOut = () => <Subject />;
 
 // The user cancelled pairing, on either device.
 export const Canceled = () => <Subject reason="canceled" />;
+
+// The mobile browser already holds a verified account, so there is nothing to pair.
+export const SignedIn = () => <Subject reason="signed_in" />;

@@ -6,7 +6,7 @@
 
 'use strict';
 const { spawn } = require('child_process');
-const MailParser = require('mailparser').MailParser;
+const { simpleParser } = require('mailparser');
 const simplesmtp = require('simplesmtp');
 const Redis = require('ioredis');
 const config = require('../config').default.getProperties();
@@ -101,6 +101,24 @@ async function printMatchingKeys(startUp = false) {
 // SMTP half
 
 const users = {};
+let stored = Promise.resolve();
+
+// Mailbox clients read the mailparser 0.x shape: string headers, a cc array.
+function toLegacyShape(mail) {
+  return {
+    headers: Object.fromEntries(
+      [...mail.headers].map(([key, value]) => [
+        key,
+        value.text ?? value.value ?? value,
+      ])
+    ),
+    messageId: mail.messageId,
+    subject: mail.subject,
+    text: mail.text,
+    html: mail.html || undefined,
+    cc: mail.cc?.value,
+  };
+}
 
 function emailName(emailAddress) {
   const utf8Address = Buffer.from(emailAddress, 'binary').toString('utf-8');
@@ -121,8 +139,18 @@ module.exports = (printLogs) => {
         SMTPBanner: 'FXATEST',
       },
       (req) => {
-        const mp = new MailParser({ defaultCharset: 'utf-8' });
-        mp.on('end', (mail) => {
+        // Parse now (req does not buffer); time out if the client drops.
+        const parsed = Promise.race([
+          simpleParser(req),
+          new Promise((resolve, reject) =>
+            setTimeout(reject, 5000, new Error('Mail parse timed out')).unref()
+          ),
+        ]);
+        // The chain reports it; this stops an early unhandled rejection.
+        parsed.catch(() => {});
+        // Store in arrival order; accept after the store, so 250 = stored.
+        stored = stored.then(async () => {
+          const mail = toLegacyShape(await parsed);
           const link = mail.headers['x-link'];
           const rc = mail.headers['x-recovery-code'];
           const rul = mail.headers['x-report-signin-link'];
@@ -164,10 +192,18 @@ module.exports = (printLogs) => {
             console.log('\x1B[36mMfa code:', mfa, '\x1B[39m');
             copyToClipboard(mfa);
           } else if (plSignup) {
-            console.log('\x1B[35mPasswordless signup code:', plSignup, '\x1B[39m');
+            console.log(
+              '\x1B[35mPasswordless signup code:',
+              plSignup,
+              '\x1B[39m'
+            );
             copyToClipboard(plSignup);
           } else if (plSignin) {
-            console.log('\x1B[35mPasswordless signin code:', plSignin, '\x1B[39m');
+            console.log(
+              '\x1B[35mPasswordless signin code:',
+              plSignin,
+              '\x1B[39m'
+            );
             copyToClipboard(plSignin);
           } else if (TEMPLATES_WITH_NO_CODE.has(template)) {
             console.log(`Notification email: ${template}`);
@@ -192,9 +228,13 @@ module.exports = (printLogs) => {
               users[ccName] = [mail];
             }
           }
+          req.accept();
         });
-        req.pipe(mp);
-        req.accept();
+        // Keep the chain alive when one mail fails to parse or store.
+        stored = stored.catch((err) => {
+          console.error('Failed to store mail', err);
+          req.reject();
+        });
       }
     );
 

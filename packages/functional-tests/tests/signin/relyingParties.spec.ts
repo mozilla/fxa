@@ -46,7 +46,7 @@ test.describe('severity-1 #smoke', () => {
     await settings.goto();
     let services = await settings.connectedServices.services();
 
-    expect(services.length).toEqual(3);
+    expect(services).toHaveLength(3);
 
     // Sign out of 123Done
     const rp = services.find((service) => service.name.includes('123'));
@@ -56,6 +56,6 @@ test.describe('severity-1 #smoke', () => {
 
     services = await settings.connectedServices.services();
 
-    expect(services.length).toEqual(2);
+    expect(services).toHaveLength(2);
   });
 });

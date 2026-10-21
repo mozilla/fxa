@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
 import isA from 'joi';
-import { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } from 'fxa-shared/oauth/constants';
+import { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } from '@fxa/accounts/oauth';
 import { Container } from 'typedi';
 
 import { AppError as error } from '@fxa/accounts/errors';

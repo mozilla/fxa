@@ -5,7 +5,7 @@
 import { assert } from 'chai';
 import ProfileClient from 'lib/profile-client';
 import Session from 'lib/session';
-import sinon from 'sinon';
+import { fakeServer } from 'nise';
 
 var PROFILE_URL = 'http://localhost:1111';
 var client;
@@ -17,7 +17,7 @@ var token = 'deadbeef';
 
 describe('lib/profile-client', function () {
   beforeEach(function () {
-    server = sinon.fakeServer.create();
+    server = fakeServer.create();
     server.autoRespond = true;
     Session.clear();
 

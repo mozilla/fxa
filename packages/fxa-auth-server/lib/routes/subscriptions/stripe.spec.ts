@@ -18,7 +18,7 @@ const { handleAuth } = require('.');
 // Import the real buildTaxAddress for direct tests (not through the mock)
 const { buildTaxAddress: realBuildTaxAddress } = jest.requireActual('./utils');
 
-jest.mock('fxa-shared/db/models/auth', () => ({
+jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => ({
   getAccountCustomerByUid: jest.fn(),
 }));
 
@@ -58,10 +58,10 @@ let config: any,
   mailer: any,
   profile: any;
 
-const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
+const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('@fxa/accounts/oauth');
 const {
   SubscriptionEligibilityResult,
-} = require('fxa-shared/subscriptions/types');
+} = require('@fxa/accounts/subscriptions-legacy/subscriptions/types');
 
 const ACCOUNT_LOCALE = 'en-US';
 const TEST_EMAIL = 'test@email.com';

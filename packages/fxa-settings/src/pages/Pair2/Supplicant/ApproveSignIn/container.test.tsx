@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen, waitFor } from '@testing-library/react';
+import { configure, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { MemoryRouter } from 'react-router';
@@ -34,18 +34,20 @@ type MockSupplicantIntegration = PairingSupplicantIntegration & {
 function mockSupplicantIntegration({
   remoteMetadata = MOCK_METADATA_WITH_DEVICE_NAME as RemoteMetadata | null,
   canceledByAuthority = false,
+  state = SupplicantState.WaitingForAuthority,
 } = {}): MockSupplicantIntegration {
   const integration = Object.create(
     PairingSupplicantIntegration.prototype
   ) as MockSupplicantIntegration;
 
-  // Both are getters on the prototype, so they cannot be assigned.
+  // These are getters on the prototype, so they cannot be assigned.
   Object.defineProperty(integration, 'remoteMetadata', {
     get: () => remoteMetadata,
   });
   Object.defineProperty(integration, 'canceledByAuthority', {
     get: () => canceledByAuthority,
   });
+  Object.defineProperty(integration, 'state', { get: () => state });
 
   return Object.assign(integration, {
     cancel: jest.fn().mockResolvedValue(undefined),
@@ -121,6 +123,66 @@ describe('Pair2/Supplicant/ApproveSignIn container', () => {
       { state: { reason: 'canceled' } },
       true
     );
+  });
+
+  // In v2 the authority can approve before this page subscribes.
+  it('navigates to the success screen when pairing completed before it mounted', () => {
+    integration = mockSupplicantIntegration({
+      state: SupplicantState.Complete,
+    });
+    renderContainer();
+
+    expect(navigateWithQuery).toHaveBeenCalledWith(
+      '/pair/supplicant/sync_success',
+      {},
+      true
+    );
+  });
+
+  it('leaves for the timeout screen when pairing failed before it mounted', () => {
+    integration = mockSupplicantIntegration({ state: SupplicantState.Failed });
+    renderContainer();
+
+    expect(navigateWithQuery).toHaveBeenCalledWith(
+      '/pair/supplicant/timeout_and_cancel',
+      { state: { reason: 'timeout' } },
+      true
+    );
+  });
+
+  it('names the cancel when the authority cancelled before it mounted', () => {
+    integration = mockSupplicantIntegration({
+      state: SupplicantState.Failed,
+      canceledByAuthority: true,
+    });
+    renderContainer();
+
+    expect(navigateWithQuery).toHaveBeenCalledWith(
+      '/pair/supplicant/timeout_and_cancel',
+      { state: { reason: 'canceled' } },
+      true
+    );
+  });
+
+  // The app root is StrictMode, which runs the mount effect twice in development.
+  it('navigates once under StrictMode when pairing completed before it mounted', () => {
+    integration = mockSupplicantIntegration({
+      state: SupplicantState.Complete,
+    });
+    configure({ reactStrictMode: true });
+    try {
+      renderContainer();
+    } finally {
+      configure({ reactStrictMode: false });
+    }
+
+    expect(navigateWithQuery).toHaveBeenCalledTimes(1);
+  });
+
+  it('waits for the authority when it has not approved yet', () => {
+    renderContainer();
+
+    expect(navigateWithQuery).not.toHaveBeenCalled();
   });
 
   describe('cancel', () => {

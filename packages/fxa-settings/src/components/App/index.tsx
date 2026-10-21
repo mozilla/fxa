@@ -42,7 +42,7 @@ import {
 } from '../../models/contexts/SettingsContext';
 import { AccountStateProvider } from '../../models/contexts/AccountStateContext';
 
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import sentryMetrics from '@fxa/shared/sentry-browser';
 import { flushL10nErrorReports } from '../../lib/l10n-error-reporter';
 // Components
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -144,9 +144,6 @@ const SignupConfirmed = lazy(
   () => import('../../pages/Signup/SignupConfirmed')
 );
 const WebChannelExample = lazy(() => import('../../pages/WebChannelExample'));
-const PocDeepLink = lazy(() => import('../../pages/PocDeepLink'));
-const PocPairInit = lazy(() => import('../../pages/PocPairInit'));
-const PocPairStart = lazy(() => import('../../pages/PocPairStart'));
 const SignoutSync = lazy(() => import('../Settings/SignoutSync'));
 const InlineRecoveryKeySetupContainer = lazy(
   () => import('../../pages/InlineRecoveryKeySetup/container')
@@ -678,12 +675,6 @@ const AuthAndAccountSetupRoutes = ({
         {/* Other */}
         <Route path="/clear/*" element={<Clear />} />
         <Route path="/web_channel_example/*" element={<WebChannelExample />} />
-        <Route path="/poc_deep_link/*" element={<PocDeepLink />} />
-        <Route path="/poc_pair_init/*" element={<PocPairInit />} />
-        <Route
-          path="/poc_pair_start/*"
-          element={<PocPairStart {...{ integration }} />}
-        />
         <Route path="/cookies_disabled" element={<CookiesDisabled />} />
         <Route path="/subscriptions" element={<SubscriptionsRedirect />} />
 
@@ -1112,7 +1103,11 @@ const AuthAndAccountSetupRoutes = ({
         />
         <Route
           path="/pair/auth/allow/*"
-          element={<PairAuthAllow integration={integration} />}
+          element={
+            <PairAuthAllow
+              {...{ integration, fxaStatusResult: useFxAStatusResult }}
+            />
+          }
         />
         <Route
           path="/pair/auth/wait_for_supp/*"
@@ -1124,7 +1119,11 @@ const AuthAndAccountSetupRoutes = ({
         />
         <Route
           path="/pair/auth/totp/*"
-          element={<PairAuthTotp integration={integration} />}
+          element={
+            <PairAuthTotp
+              {...{ integration, fxaStatusResult: useFxAStatusResult }}
+            />
+          }
         />
         <Route path="/pair/failure/*" element={<PairFailure />} />
         <Route path="/pair/unsupported/*" element={<PairUnsupported />} />
@@ -1150,11 +1149,19 @@ const AuthAndAccountSetupRoutes = ({
         />
         <Route
           path="/pair/authority/totp/*"
-          element={<PairAuthorityEnterTotp {...{ integration }} />}
+          element={
+            <PairAuthorityEnterTotp
+              {...{ integration, fxaStatusResult: useFxAStatusResult }}
+            />
+          }
         />
         <Route
           path="/pair/authority/scan_qr/*"
-          element={<PairAuthorityScanQR integration={integration} />}
+          element={
+            <PairAuthorityScanQR
+              {...{ integration, fxaStatusResult: useFxAStatusResult }}
+            />
+          }
         />
         <Route
           path="/pair/authority/sync_success/*"

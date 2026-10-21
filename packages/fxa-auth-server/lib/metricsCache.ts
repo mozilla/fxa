@@ -4,7 +4,10 @@
 
 'use strict';
 
-import { RedisShared, Config as RedisSharedConfig } from 'fxa-shared/db/redis';
+import {
+  RedisShared,
+  Config as RedisSharedConfig,
+} from '@fxa/shared/db/mysql/legacy/redis';
 import { Container } from 'typedi';
 import { AuthLogger } from './types';
 import { StatsD } from 'hot-shots';

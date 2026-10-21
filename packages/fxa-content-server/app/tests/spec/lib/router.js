@@ -9,7 +9,6 @@ import BaseView from 'views/base';
 import Constants from 'lib/constants';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
-import ReadyView from 'views/ready';
 import Relier from 'models/reliers/relier';
 import Router from 'lib/router';
 import sinon from 'sinon';
@@ -464,21 +463,6 @@ describe('lib/router', () => {
         assert.isTrue(router.showView.calledWith(View, viewConstructorOptions));
       });
     });
-
-    it('handles module names for the view', () => {
-      var routeHandler = router.createViewHandler(
-        'ready',
-        viewConstructorOptions
-      );
-      assert.isFunction(routeHandler);
-      assert.isFalse(router.showView.called);
-
-      return routeHandler.call(router).then(() => {
-        assert.isTrue(
-          router.showView.calledWith(ReadyView, viewConstructorOptions)
-        );
-      });
-    });
   });
 
   describe('createChildViewHandler', () => {
@@ -505,26 +489,6 @@ describe('lib/router', () => {
         assert.isTrue(
           router.showChildView.calledWith(
             ChildView,
-            ParentView,
-            viewConstructorOptions
-          )
-        );
-      });
-    });
-
-    it('handles module names for the view', () => {
-      var routeHandler = router.createChildViewHandler(
-        'ready',
-        ParentView,
-        viewConstructorOptions
-      );
-      assert.isFunction(routeHandler);
-      assert.isFalse(router.showChildView.called);
-
-      return routeHandler.call(router).then(() => {
-        assert.isTrue(
-          router.showChildView.calledWith(
-            ReadyView,
             ParentView,
             viewConstructorOptions
           )
@@ -639,6 +603,21 @@ describe('lib/router', () => {
             router.showView.calledWith(View, viewConstructorOptions)
           );
         });
+      });
+    });
+
+    describe('oauth route', () => {
+      it('navigates away with the original query params', () => {
+        windowMock.location.search = '?channel_id=test123&client_id=abc';
+        sinon.spy(router, 'navigateAway');
+
+        router.routes['oauth(/)'].call(router);
+
+        assert.equal(router.navigateAway.callCount, 1);
+        const link = router.navigateAway.args[0][0];
+        assert.match(link, /^\/oauth\?/);
+        assert.include(link, 'channel_id=test123');
+        assert.include(link, 'client_id=abc');
       });
     });
   });

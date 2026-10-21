@@ -15,7 +15,7 @@ import {
   OnApplicationShutdown,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 import { StatsD } from 'hot-shots';
 import { Consumer } from 'sqs-consumer';
 import * as Sentry from '@sentry/node';
@@ -69,6 +69,8 @@ export class QueueworkerService
     private clientCapability: ClientCapabilityService,
     private clientWebhooks: ClientWebhooksService
   ) {
+    // Keeps the existing mozlog type prefix.
+    this.log.setContext('default');
     this.queueName = configService.get('serviceNotificationQueueUrl') as string;
     this.disableQueueWorker =
       this.configService.get<boolean>('disableQueueWorker') ?? false;

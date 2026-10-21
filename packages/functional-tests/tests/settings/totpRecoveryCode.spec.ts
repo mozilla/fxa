@@ -194,7 +194,7 @@ test.describe('severity-1 #smoke', () => {
       await page.goto(link);
       await settings.confirmMfaGuard(credentials.email);
       const newCodes = await totp.getRecoveryCodes();
-      expect(newCodes.length).toEqual(recoveryCodes.length);
+      expect(newCodes).toHaveLength(recoveryCodes.length);
 
       // abort without completing the flow,
       // we just want to verify that email was sent

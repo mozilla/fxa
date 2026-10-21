@@ -11,8 +11,8 @@
 
 const joi = require('joi');
 const VError = require('verror');
-const emailValidator = require('fxa-shared/email/validateEmail');
-const emailValidatorErrors = require('fxa-shared/email/emailValidatorErrors');
+const emailValidator = require('@fxa/shared/email/server');
+const emailValidatorErrors = require('@fxa/shared/email/server');
 const tryResolveMx = emailValidator.tryResolveMx;
 const tryResolveIpv4 = emailValidator.tryResolveIpv4;
 const WrappedErrorCodes = emailValidatorErrors.WrappedErrorCodes;

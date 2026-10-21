@@ -4,11 +4,11 @@
 
 import { ServerRoute } from '@hapi/hapi';
 import isA from 'joi';
-import { AbbrevPlan } from 'fxa-shared/subscriptions/types';
+import { AbbrevPlan } from '@fxa/accounts/subscriptions-legacy/subscriptions/types';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
   singlePlan,
-} from 'fxa-shared/subscriptions/stripe';
+} from '@fxa/accounts/subscriptions-legacy/subscriptions/stripe';
 import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
 

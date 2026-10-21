@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { SessionToken } from 'fxa-shared/connected-services/models/SessionToken';
-import { Email, SecurityEvent } from 'fxa-shared/db/models/auth';
-import { EVENT_NAMES } from 'fxa-shared/db/models/auth/security-event';
+import { SessionToken } from '@fxa/accounts/connected-services';
+import { Email, SecurityEvent } from '@fxa/shared/db/mysql/legacy/models/auth';
+import { EVENT_NAMES } from '@fxa/shared/db/mysql/legacy/models/auth/security-event';
 
 export type GetTokensFn<T> = (uid: string) => Promise<T[]>;
 export type ActiveConditionFn = (

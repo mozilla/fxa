@@ -9,7 +9,12 @@ import { strategy } from './mfa';
 
 const CREDENTIAL_ID = 'test-credential-id';
 
-function makeJwt(account: any, sessionToken: any, config: any) {
+function makeJwt(
+  account: any,
+  sessionToken: any,
+  config: any,
+  algorithm: jwt.Algorithm = 'HS256'
+) {
   const now = Math.floor(Date.now() / 1000);
   const claims = {
     sub: account.uid,
@@ -20,12 +25,13 @@ function makeJwt(account: any, sessionToken: any, config: any) {
     cid: CREDENTIAL_ID,
   };
   const opts: jwt.SignOptions = {
-    algorithm: 'HS256',
+    algorithm,
     expiresIn: config.mfa.jwt.expiresInSec,
     audience: config.mfa.jwt.audience,
     issuer: config.mfa.jwt.issuer,
   };
-  const key = config.mfa.jwt.secretKey;
+  // `none` is unsigned; jsonwebtoken refuses a key for it.
+  const key = algorithm === 'none' ? '' : config.mfa.jwt.secretKey;
   return jwt.sign(claims, key, opts);
 }
 
@@ -156,6 +162,24 @@ describe('lib/routes/auth-schemes/mfa', () => {
       jest.useRealTimers();
     }
   });
+
+  it.each(['HS384', 'HS512', 'none'] as const)(
+    'rejects a token whose alg header is %s',
+    async (algorithm) => {
+      const authStrategy = strategy(config, getCredentialsFunc, db, statsd)();
+      request.headers.authorization = `Bearer ${makeJwt(
+        account,
+        sessionToken,
+        config,
+        algorithm
+      )}`;
+
+      await expect(authStrategy.authenticate(request, h)).rejects.toMatchObject(
+        { errno: AppError.ERRNO.INVALID_MFA_TOKEN }
+      );
+      expect(h.authenticated).not.toHaveBeenCalled();
+    }
+  );
 
   it('increments bad_state and throws when the jwt is missing required claims', async () => {
     const now = Math.floor(Date.now() / 1000);

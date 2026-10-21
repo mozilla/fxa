@@ -17,12 +17,12 @@ import {
   getAccountCustomerByUid,
   getUidAndEmailByStripeCustomerId,
   updatePayPalBA,
-} from 'fxa-shared/db/models/auth';
+} from '@fxa/shared/db/mysql/legacy/models/auth';
 import {
   getIapPurchaseType,
   isAppStoreSubscriptionPurchase,
   isPlayStoreSubscriptionPurchase,
-} from 'fxa-shared/payments/iap/util';
+} from '@fxa/accounts/subscriptions-legacy/payments/iap/util';
 import {
   CHARGES_RESOURCE,
   CUSTOMER_RESOURCE,
@@ -36,18 +36,18 @@ import {
   STRIPE_PRODUCTS_CACHE_KEY,
   StripeHelper as StripeHelperBase,
   SUBSCRIPTIONS_RESOURCE,
-} from 'fxa-shared/payments/stripe';
-import { PlanConfig } from 'fxa-shared/subscriptions/configuration/plan';
+} from '@fxa/accounts/subscriptions-legacy/payments/stripe';
+import { PlanConfig } from '@fxa/accounts/subscriptions-legacy/subscriptions/configuration/plan';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
   singlePlan,
-} from 'fxa-shared/subscriptions/stripe';
+} from '@fxa/accounts/subscriptions-legacy/subscriptions/stripe';
 import {
   AbbrevPlan,
   AbbrevProduct,
   MozillaSubscriptionTypes,
   WebSubscription,
-} from 'fxa-shared/subscriptions/types';
+} from '@fxa/accounts/subscriptions-legacy/subscriptions/types';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
 import { Logger } from 'mozlog';
@@ -75,8 +75,8 @@ import { StripeMapperService } from '@fxa/payments/legacy';
 import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 import { STRIPE_API_VERSION, StripeResponse } from '@fxa/payments/stripe';
 
-// Maintains backwards compatibility. Some type defs hoisted to fxa-shared/payments/stripe
-export * from 'fxa-shared/payments/stripe';
+// Maintains backwards compatibility. Some type defs hoisted to @fxa/accounts/subscriptions-legacy/payments/stripe
+export * from '@fxa/accounts/subscriptions-legacy/payments/stripe';
 
 export const MOZILLA_TAX_ID = 'Tax ID';
 export const STRIPE_TAX_RATES_CACHE_KEY = 'listStripeTaxRates';
@@ -265,6 +265,14 @@ export class StripeHelper extends StripeHelperBase {
 
     // Listens to stripe events
     this.initStripe();
+  }
+
+  protected override getAccountCustomerByUid(uid: string) {
+    return getAccountCustomerByUid(uid);
+  }
+
+  protected override deleteAccountCustomer(uid: string) {
+    return deleteAccountCustomer(uid);
   }
 
   async checkStripeAPIKey() {
@@ -2758,7 +2766,8 @@ export class StripeHelper extends StripeHelperBase {
 
     return this.stripeFirestore.fetchAndInsertSubscription(
       subscriptionId,
-      customerSnap.metadata.userid
+      customerSnap.metadata.userid,
+      event.created
     );
   }
 

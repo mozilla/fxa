@@ -20,9 +20,13 @@ const DownloadFirefox = () => (
       <FtlMsg id="pair2-authority-download-firefox-heading">
         <h1 className="card-header">Open Firefox to sync</h1>
       </FtlMsg>
-      <FtlMsg id="pair2-authority-download-firefox-instruction">
+      <FtlMsg
+        id="pair2-authority-download-firefox-instruction-v2"
+        elems={{ b: <b /> }}
+      >
         <p className="mt-1 text-base">
-          To set up syncing across devices, open Firefox on this device and visit <b>firefox.com/pair</b>
+          To set up syncing across devices, open Firefox on this device and
+          visit <b>firefox.com/pair</b>.
         </p>
       </FtlMsg>
 

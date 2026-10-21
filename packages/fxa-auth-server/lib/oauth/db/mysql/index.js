@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const encrypt = require('fxa-shared/auth/encrypt');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const encrypt = require('@fxa/shared/crypto');
+const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
 const unique = require('../../unique');
 const { ScopeIdCache } = require('../../scopes-cache');
 
 // Shared base class
-const { MysqlOAuthShared } = require('fxa-shared/db/mysql');
+const { MysqlOAuthShared } = require('@fxa/shared/db/mysql/legacy/mysql');
 const { Container } = require('typedi');
 const { AuthLogger } = require('../../../types');
 const { StatsD } = require('hot-shots');

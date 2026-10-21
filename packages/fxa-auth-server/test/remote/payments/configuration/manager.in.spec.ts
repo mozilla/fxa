@@ -7,7 +7,7 @@ const retry = require('async-retry');
 const { deleteCollection } = require('../../../local/payments/util');
 const {
   mergeConfigs,
-} = require('fxa-shared/subscriptions/configuration/utils');
+} = require('@fxa/accounts/subscriptions-legacy/subscriptions/configuration/utils');
 
 const {
   AuthFirestore,
@@ -22,8 +22,10 @@ const { randomUUID } = require('crypto');
 const { AppError: errors } = require('@fxa/accounts/errors');
 const {
   ProductConfig,
-} = require('fxa-shared/subscriptions/configuration/product');
-const { PlanConfig } = require('fxa-shared/subscriptions/configuration/plan');
+} = require('@fxa/accounts/subscriptions-legacy/subscriptions/configuration/product');
+const {
+  PlanConfig,
+} = require('@fxa/accounts/subscriptions-legacy/subscriptions/configuration/plan');
 
 const mockConfig = {
   authFirestore: {

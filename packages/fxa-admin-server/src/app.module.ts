@@ -2,11 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
 import { MozLoggerModule } from '@fxa/shared/mozlog';
-import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
-import { getVersionInfo } from 'fxa-shared/nestjs/version';
-import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
+import { getVersionInfo, HealthModule } from '@fxa/shared/nest-health';
+import {
+  LegacyMetricsProvider,
+  LegacyStatsDProvider,
+} from '@fxa/shared/metrics/statsd';
 import {
   LegacyNotifierServiceProvider,
   LegacyNotifierSnsFactory,
@@ -57,7 +58,7 @@ const version = getVersionInfo(__dirname);
       provide: APP_FILTER,
       useClass: SentryGlobalFilter,
     },
-    MetricsFactory,
+    LegacyMetricsProvider,
     {
       provide: APP_GUARD,
       useClass: UserGroupGuard,

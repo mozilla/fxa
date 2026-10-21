@@ -10,9 +10,7 @@ const flowMetricsRequest = require('../flow-event').metricsRequest;
 const joi = require('joi');
 const logger = require('../logging/log')('server.post-metrics');
 const validation = require('../validation');
-const {
-  overrideJoiMessages,
-} = require('fxa-shared/sentry/joi-message-overrides');
+const { overrideJoiMessages } = require('@fxa/shared/sentry-node');
 
 const MAX_EVENT_OFFSET = config.get('client_metrics.max_event_offset');
 
