@@ -1,8 +1,8 @@
 {
-  "commit": "022f1af20a9813f12a7805295d692c72df5ff97e",
-  "summary": "Merge pull request #21532 from mozilla/fxa-6656",
-  "description": "feat(settings): render the 500 error page in React",
-  "timestamp": 1792528816000,
+  "commit": "6bcf2f4629146a880e9a599103e32cf83d8fe345",
+  "summary": "Merge pull request #21570 from mozilla/fxa-13040",
+  "description": "fix(settings): show the 404 page for unknown /settings routes",
+  "timestamp": 1792546619000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
