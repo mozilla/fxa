@@ -52,6 +52,13 @@ export class SettingsPage extends SettingsLayout {
     return this.page.getByTestId('error-loading-app');
   }
 
+  // Connected Services "Connect a device" CTA; the promo CTA shares its name.
+  get connectDeviceButton() {
+    return this.page.locator(
+      '[data-glean-id="account_pref_connect_device_submit"]'
+    );
+  }
+
   get secondaryEmail() {
     return this.lazyRow('secondary-email', SecondaryEmailRow);
   }

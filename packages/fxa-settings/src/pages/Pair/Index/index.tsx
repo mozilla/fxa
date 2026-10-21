@@ -15,7 +15,7 @@ import { UseFxAStatusResult, useNavigateWithQuery } from '../../../lib/hooks';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { useAuthClient, useFtlMsgResolver } from '../../../models';
-import { useCmsInfoState, useConfig } from '../../../models/hooks';
+import { useCmsInfoState, useConfig, useSession } from '../../../models/hooks';
 import { RelierCmsInfo } from '../../../models/integrations';
 import AppLayout from '../../../components/AppLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -27,6 +27,7 @@ import ButtonBack from '../../../components/ButtonBack';
 import { Constants } from '../../../lib/constants';
 import firefox, {
   buildSyncOAuthSearch,
+  canPairFromBrowser,
   FirefoxCommand,
   SignedInUser,
 } from '../../../lib/channels/firefox';
@@ -117,6 +118,8 @@ type PairProps = {
 };
 export const viewName = 'pair';
 
+// A supplicant that already holds an account has nothing to pair; the Sync
+// key is irrelevant there, unlike `canPairFromBrowser` for the authority.
 const isVerifiedUser = (user?: SignedInUser) =>
   !!(user?.sessionToken && user.verified);
 
@@ -139,6 +142,7 @@ const Pair = ({
   );
   const config = useConfig();
   const authClient = useAuthClient();
+  const session = useSession();
   const navigateWithQuery = useNavigateWithQuery();
   const location = useLocation();
 
@@ -240,6 +244,13 @@ const Pair = ({
     };
   }, []);
 
+  // Set by getSyncNavigate when a completed Sync sign-in lands here; drives
+  // the banner variant, and tells the bootstrap not to send the user back.
+  const { origin: pairOrigin } = (location.state ?? {}) as Pick<
+    SigninLocationState,
+    'origin'
+  >;
+
   useEffect(() => {
     // Lowered again below, after the last branch that routes elsewhere, so
     // such a branch leaves an in-flight bootstrap standing down.
@@ -336,11 +347,13 @@ const Pair = ({
 
     pairingV2Ref.current = pairingV2;
     // The authority channel needs no account, but approving a sign-in does, so
-    // a signed-out desktop takes the sign-in bootstrap below first.
+    // a signed-out desktop takes the sign-in bootstrap below first. The token
+    // is not checked server-side here: the authority has to mint the OAuth
+    // code with it, which fails on a dead session anyway.
     if (
       isFirefoxDesktop &&
       pairingV2 &&
-      isVerifiedUser(fxaStatusResult.fxaStatus.signedInUser)
+      canPairFromBrowser(fxaStatusResult.fxaStatus.signedInUser)
     ) {
       goToScanQr();
       return;
@@ -382,19 +395,31 @@ const Pair = ({
         let attempt = 0;
         !abortBootstrapRef.current &&
         attempt < MAX_RETRIES &&
-        !isVerifiedUser(signedInUser);
+        !canPairFromBrowser(signedInUser);
         attempt++
       ) {
         signedInUser = await askFirefox();
       }
       if (abortBootstrapRef.current) return;
 
-      if (isVerifiedUser(signedInUser)) {
+      const sessionIsValid =
+        canPairFromBrowser(signedInUser) &&
+        (await session.isValid(signedInUser.sessionToken));
+      if (abortBootstrapRef.current) return;
+
+      if (sessionIsValid) {
         if (pairingV2Ref.current) {
           goToScanQr();
         } else {
           setBootstrapping(false);
         }
+        return;
+      }
+      // Sign-in just happened and Firefox still reports no key (it could not
+      // store or read it): another sign-in won't change that, and redirecting
+      // would loop. Reveal the page instead.
+      if (pairOrigin && signedInUser?.hasSyncKey === false) {
+        setBootstrapping(false);
         return;
       }
       const oauthParams = await firefox
@@ -409,7 +434,13 @@ const Pair = ({
         for (const [key, value] of Object.entries(pairingAttribution)) {
           search.set(key, value);
         }
-        hardNavigate(`/?${search}`);
+        // A browser signed in without a usable key goes to set_password, which
+        // creates a password for a passwordless account and sends everyone
+        // else to /signin. A signed-out browser picks its account at /.
+        const target = isVerifiedUser(signedInUser)
+          ? '/post_verify/set_password'
+          : '/';
+        hardNavigate(`${target}?${search}`);
         return;
       }
       if (fxaStatusStateRef.current === 'unanswered') {
@@ -423,8 +454,8 @@ const Pair = ({
       // still reaches it: reveal the page rather than strand the user.
       setBootstrapping(false);
     })();
-    // `pairingAttribution` is captured at mount on purpose; re-running on a new
-    // attribution value would re-ask the WebChannel.
+    // `pairingAttribution` and `pairOrigin` are captured at mount on purpose;
+    // re-running on a new value would re-ask the WebChannel.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     pairingChannelInfo,
@@ -433,12 +464,6 @@ const Pair = ({
     handoffPlan,
     navigateWithQuery,
   ]);
-
-  // Banner variant is driven by router state from getSyncNavigate.
-  const { origin: pairOrigin } = (location.state ?? {}) as Pick<
-    SigninLocationState,
-    'origin'
-  >;
 
   // Router state is the primary channel, but flows that stop at an interstitial
   // (/signup_confirmed_sync, /inline_recovery_key_setup) reach here through a
