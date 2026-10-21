@@ -1,8 +1,8 @@
 {
-  "commit": "9b6a6d6c6c564a5933e2f70ded2b7e75d986fdd0",
-  "summary": "Merge pull request #21568 from mozilla/pay-3951-retry-active-subscription-invoices",
-  "description": "fix(payments): retry only open invoices of active subscriptions",
-  "timestamp": 1792601466000,
+  "commit": "d49a8e88d43e48919690c2ac8b7e564ccfc76ff0",
+  "summary": "Merge pull request #21545 from mozilla/pay-3810-zendesk-auth",
+  "description": "feat(auth): support Zendesk OAuth access token auth",
+  "timestamp": 1792601938000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
