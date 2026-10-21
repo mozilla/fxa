@@ -1,8 +1,8 @@
 {
-  "commit": "d206c09e680fff7cf5bcc604f1c37812963d8adc",
-  "summary": "Merge pull request #21573 from mozilla/agent-43963c",
-  "description": "test(auth): remove a duplicate test and dead setup in cms.spec.ts",
-  "timestamp": 1792596214000,
+  "commit": "f111173187246d6fec8cccb7270db3cdf042af1d",
+  "summary": "Merge pull request #21557 from mozilla/fxa-14808",
+  "description": "fix(settings): check the Sync account for the pairing TOTP gate",
+  "timestamp": 1792598234000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
