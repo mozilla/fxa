@@ -20,7 +20,7 @@ echo "checking for affected services..."
 ORIGINAL_IFS=$IFS
 IFS=$'\n'
 # We don't need to worry about front-end services that use TS, since they must build successfully for CI to pass.
-BACKEND_PACKAGES=( "fxa-admin-server" "fxa-auth-server" "fxa-event-broker" "fxa-shared" "fxa-auth-client" )
+BACKEND_PACKAGES=( "fxa-admin-server" "fxa-auth-server" "fxa-event-broker" "fxa-auth-client" )
 INCLUDE_ARGS=''
 AFFECTED_PACKAGES=''
 for package_modified in $PACKAGES_MODIFIED; do
@@ -39,7 +39,6 @@ echo -e "$AFFECTED_PACKAGES" | sed '1d'
 
 # 4. Compile all back-end TS services in the list
 echo "compiling all modified and dependent backend TS services..."
-echo -e "\nNote: if fxa-shared was modified and has any TS errors, the script will exit before compiling other services, since all other backend TS services depend on fxa-shared."
 INCLUDE_ARGS=`echo "$INCLUDE_ARGS" | xargs` # trim whitespace at beginning of string
 
 # We don't need to write files to disk, so `compile` uses `tsc --noEmit` here instead of `tsc --build` for speed.

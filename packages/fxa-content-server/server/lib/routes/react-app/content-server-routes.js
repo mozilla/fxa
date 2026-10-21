@@ -95,17 +95,14 @@ const FRONTEND_ROUTES = [
   'signup_verified',
   'subscriptions',
   'subscriptions/products/[\\w_]+',
+  'update_firefox',
   'would_you_like_to_sync',
   'web_channel_example',
 ];
 
 const OAUTH_SUCCESS_ROUTES = ['/oauth/success/:clientId'];
 
-// Server-rendered by get-update-firefox.js when React does not serve it
-const UPDATE_FIREFOX_ROUTES = ['update_firefox'];
-
 module.exports = {
   FRONTEND_ROUTES,
   OAUTH_SUCCESS_ROUTES,
-  UPDATE_FIREFOX_ROUTES,
 };

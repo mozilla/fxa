@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
+import {
+  createTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
 
 const Client = require('../client')();
 
@@ -37,7 +40,11 @@ describe.each(testVersions)(
         const email = server.uniqueEmail();
         const password = 'foobar';
         const client = await Client.createAndVerify(
-          server.publicUrl, email, password, server.mailbox, testOptions
+          server.publicUrl,
+          email,
+          password,
+          server.mailbox,
+          testOptions
         );
 
         await client.sessionStatus();
@@ -58,12 +65,18 @@ describe.each(testVersions)(
         const email = server.uniqueEmail();
         const password = 'foobar';
         const client = await Client.createAndVerify(
-          server.publicUrl, email, password, server.mailbox, testOptions
+          server.publicUrl,
+          email,
+          password,
+          server.mailbox,
+          testOptions
         );
 
         const sessionTokenCreate = client.sessionToken;
-        const sessions = await client.api.sessions(sessionTokenCreate);
-        const handle = sessions[0].sessionTokenHandle;
+        const clients = await client.api.attachedClients(sessionTokenCreate);
+        const handle = clients.find(
+          (c: any) => c.isCurrentSession
+        ).sessionTokenHandle;
 
         const c = await client.login();
         const sessionTokenLogin = c.sessionToken;
@@ -87,7 +100,12 @@ describe.each(testVersions)(
       it('fails with a bad custom token', async () => {
         const email = server.uniqueEmail();
         const password = 'foobar';
-        const client = await Client.create(server.publicUrl, email, password, testOptions);
+        const client = await Client.create(
+          server.publicUrl,
+          email,
+          password,
+          testOptions
+        );
 
         const sessionTokenCreate = client.sessionToken;
         const c = await client.login();
@@ -119,7 +137,11 @@ describe.each(testVersions)(
         const email = server.uniqueEmail();
         const password = 'foobar';
         const client1 = await Client.createAndVerify(
-          server.publicUrl, email, password, server.mailbox, testOptions
+          server.publicUrl,
+          email,
+          password,
+          server.mailbox,
+          testOptions
         );
 
         const client2 = await client1.duplicate();
@@ -152,7 +174,12 @@ describe.each(testVersions)(
       it('creates independent verification state for the new token', async () => {
         const email = server.uniqueEmail();
         const password = 'foobar';
-        const client1 = await Client.create(server.publicUrl, email, password, testOptions);
+        const client1 = await Client.create(
+          server.publicUrl,
+          email,
+          password,
+          testOptions
+        );
         const client2 = await client1.duplicate();
 
         expect(client1.verified).toBeFalsy();
@@ -185,7 +212,10 @@ describe.each(testVersions)(
         const email = server.uniqueEmail();
         const password = 'foobar';
         const client = await Client.createAndVerify(
-          server.publicUrl, email, password, server.mailbox,
+          server.publicUrl,
+          email,
+          password,
+          server.mailbox,
           { ...testOptions, keys: true }
         );
 
@@ -207,7 +237,11 @@ describe.each(testVersions)(
         const email = server.uniqueEmail();
         const password = 'foobar';
         const client = await Client.createAndVerify(
-          server.publicUrl, email, password, server.mailbox, testOptions
+          server.publicUrl,
+          email,
+          password,
+          server.mailbox,
+          testOptions
         );
 
         await client.setupCredentials(email, 'fiibar');
@@ -227,7 +261,12 @@ describe.each(testVersions)(
       it('has sane account-verification behaviour', async () => {
         const email = server.uniqueEmail();
         const password = 'foobar';
-        const client = await Client.create(server.publicUrl, email, password, testOptions);
+        const client = await Client.create(
+          server.publicUrl,
+          email,
+          password,
+          testOptions
+        );
         expect(client.verified).toBeFalsy();
 
         // Clear the verification email, without verifying.
@@ -249,7 +288,10 @@ describe.each(testVersions)(
         const email = server.uniqueEmail();
         const password = 'foobar';
         await Client.createAndVerify(
-          server.publicUrl, email, password, server.mailbox,
+          server.publicUrl,
+          email,
+          password,
+          server.mailbox,
           { ...testOptions, keys: false }
         );
 
@@ -290,7 +332,10 @@ describe.each(testVersions)(
         const email = server.uniqueEmail();
         const password = 'foobar';
         const client = await Client.createAndVerify(
-          server.publicUrl, email, password, server.mailbox,
+          server.publicUrl,
+          email,
+          password,
+          server.mailbox,
           { ...testOptions, keys: true }
         );
 
@@ -309,7 +354,11 @@ describe.each(testVersions)(
         const email = server.uniqueEmail();
         const password = 'testx';
         const c = await Client.createAndVerify(
-          server.publicUrl, email, password, server.mailbox, testOptions
+          server.publicUrl,
+          email,
+          password,
+          server.mailbox,
+          testOptions
         );
         const uid = c.uid;
         await c.login();

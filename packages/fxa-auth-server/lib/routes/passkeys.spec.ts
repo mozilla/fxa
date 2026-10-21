@@ -2451,6 +2451,24 @@ describe('passkeys routes', () => {
         expect(error).toBeUndefined();
       });
 
+      // Mirrors `stripUnknown: true` in lib/server.js: the PRF output must not
+      // survive validation, while `prf.enabled`, the one extension field the
+      // server reads, must.
+      it('strips clientExtensionResults.prf.results but keeps prf.enabled', () => {
+        const { error, value } = schema.validate(
+          regPayload({
+            clientExtensionResults: {
+              prf: { enabled: true, results: { first: 'AAAA' } },
+            },
+          }),
+          { stripUnknown: true }
+        );
+        expect(error).toBeUndefined();
+        expect(value.response.clientExtensionResults).toEqual({
+          prf: { enabled: true },
+        });
+      });
+
       it('rejects a non-base64url response.id', () => {
         const { error } = schema.validate(regPayload({ id: 'has/slash' }));
         expect(error?.details).toEqual([

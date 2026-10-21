@@ -5,6 +5,7 @@
 import * as assert from 'assert';
 import AuthClient from '../server';
 import * as crypto from '../lib/crypto';
+import { isWafBlockedError } from '../lib/client';
 
 // TODO: Use proper mocks when we move to jest. Not going to add sinon dep just for this...
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -436,6 +437,7 @@ describe('lib/client', () => {
         }
         assert.equal(caught?.errno, 125);
         assert.equal(caught?.code, 406);
+        assert.ok(isWafBlockedError(caught));
       });
 
       it('throws errno 114 with status 429 when body is not JSON', async () => {
@@ -449,6 +451,7 @@ describe('lib/client', () => {
         }
         assert.equal(caught?.errno, 114);
         assert.equal(caught?.code, 429);
+        assert.ok(isWafBlockedError(caught));
       });
 
       it('still rethrows the parse error on non-2xx with non-JSON body and a non-WAF status', async () => {
@@ -485,6 +488,7 @@ describe('lib/client', () => {
         }
         assert.equal(caught?.errno, 114);
         assert.equal(caught?.retryAfter, 30);
+        assert.ok(!isWafBlockedError(caught));
       });
     });
   });

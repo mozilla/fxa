@@ -17,10 +17,32 @@ function validateUID(uid: string) {
 type SearchType = 'email' | 'uid' | 'recoveryPhone';
 
 type SearchData = {
-  accountByEmail?: AccountType | null;
+  accountByEmail?: AccountType[];
   accountByUid?: AccountType | null;
   accountByRecoveryPhone?: AccountType[];
 };
+
+/**
+ * Describes how a searched address relates to an account, so support can
+ * tell apart an account that currently holds the address from one that
+ * only had it as its sign-up email before it was removed and reused.
+ */
+export function emailMatchLabel(
+  account: Pick<AccountType, 'emails'>,
+  query: string
+):
+  | 'Primary email'
+  | 'Secondary email'
+  | 'Sign-up email (no longer on account)' {
+  const normalized = query.trim().toLowerCase();
+  const match = account.emails.find(
+    (e) => e.email.toLowerCase() === normalized
+  );
+  if (match) {
+    return match.isPrimary ? 'Primary email' : 'Secondary email';
+  }
+  return 'Sign-up email (no longer on account)';
+}
 
 export const AccountSearch = () => {
   const [showResult, setShowResult] = useState<boolean>(false);
@@ -50,11 +72,11 @@ export const AccountSearch = () => {
           const account = await adminApi.getAccountByUid(query);
           setSearchData({ accountByUid: account });
         } else if (type === 'email') {
-          const account = await adminApi.getAccountByEmail(
+          const accounts = await adminApi.getAccountByEmail(
             query,
             autoCompleted
           );
-          setSearchData({ accountByEmail: account });
+          setSearchData({ accountByEmail: accounts });
         } else if (type === 'recoveryPhone') {
           const accounts = await adminApi.getAccountByPhone(
             query,
@@ -249,7 +271,7 @@ export const AccountSearch = () => {
             loading,
             error,
             data: searchData,
-            query: searchInput.trim(),
+            query: lastQuery,
           }}
         />
       ) : null}
@@ -283,15 +305,6 @@ const AccountSearchResult = ({
     return <ErrorAlert {...{ error }}></ErrorAlert>;
   }
 
-  if (data?.accountByEmail) {
-    return (
-      <>
-        <hr />
-        <Account {...{ query, onCleared }} {...data.accountByEmail} />
-      </>
-    );
-  }
-
   if (data?.accountByUid) {
     return (
       <>
@@ -301,31 +314,42 @@ const AccountSearchResult = ({
     );
   }
 
-  if (data?.accountByRecoveryPhone && data.accountByRecoveryPhone.length > 0) {
-    if (data.accountByRecoveryPhone.length === 1) {
-      return (
-        <>
-          <hr />
-          <Account
-            {...{ query, onCleared }}
-            {...data.accountByRecoveryPhone[0]}
-          />
-        </>
-      );
-    }
+  const accounts = data?.accountByEmail ?? data?.accountByRecoveryPhone ?? [];
+  const isEmailSearch = !!data?.accountByEmail;
+  const matchChip = (account: AccountType) => (
+    <span
+      data-testid="email-match-label"
+      className="ml-2 px-2 py-0.5 rounded-full text-xs bg-grey-100 text-grey-600"
+    >
+      {emailMatchLabel(account, query)}
+    </span>
+  );
+
+  if (accounts.length === 1) {
     return (
       <>
         <hr />
-        <p className="mb-1">
-          {data.accountByRecoveryPhone.length} accounts found:
-        </p>
-        {data.accountByRecoveryPhone.map((account, index) => (
+        {isEmailSearch && (
+          <p className="mb-1">Matched by{matchChip(accounts[0])}</p>
+        )}
+        <Account {...{ query, onCleared }} {...accounts[0]} />
+      </>
+    );
+  }
+
+  if (accounts.length > 1) {
+    return (
+      <>
+        <hr />
+        <p className="mb-1">{accounts.length} accounts found:</p>
+        {accounts.map((account, index) => (
           <details
             key={account.uid}
             className="mb-2 border border-grey-100 rounded overflow-hidden"
           >
             <summary className="bg-grey-50 px-4 py-2 cursor-pointer hover:bg-grey-100">
               {`${index + 1}. ${account.email}`}
+              {isEmailSearch && matchChip(account)}
             </summary>
             <div className="px-4 bg-white">
               <Account {...{ query, onCleared }} {...account} />

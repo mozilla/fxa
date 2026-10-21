@@ -91,8 +91,7 @@ export function useFxAStatus(
   const isSyncOAuth = isOAuthIntegration(integration) && integration.isSync();
   const isSyncDesktopV3 = isSyncDesktopV3Integration(integration);
   const isSync = integration.isSync();
-  const isPairing =
-    integration.isPairing() || isPairingEntryPathname(pathname);
+  const isPairing = integration.isPairing() || isPairingEntryPathname(pathname);
   const hasPairingDeadline =
     isPairing && detectDevice() !== Devices.FIREFOX_DESKTOP;
   const isOAuthNative = isOAuthNativeIntegration(integration);
@@ -112,6 +111,14 @@ export function useFxAStatus(
   const [fxaStatus, setFxaStatus] = useState<FxAStatusResponse>();
   const [fxaStatusState, setFxaStatusState] =
     useState<FxAStatusState>('pending');
+
+  // Reset during render, not in the effect: pages' effects run before this
+  // hook's and would otherwise read an answer from before sign-in.
+  const [askedForPairing, setAskedForPairing] = useState(isPairing);
+  if (askedForPairing !== isPairing) {
+    setAskedForPairing(isPairing);
+    setFxaStatusState('pending');
+  }
 
   useEffect(() => {
     // This sends a web channel message to the browser to prompt a response

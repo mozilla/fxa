@@ -124,6 +124,7 @@
     "maxmind": "^4.3.22",
     "mjml-browser": "^4.16.1",
     "module-alias": "^2.2.3",
+    "moment": "^2.31.0",
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
     "mysql2": "^3.23.1",
@@ -167,7 +168,7 @@
     "*": [
       "yarn check:frozen"
     ],
-    "packages/!(fxa-shared)/**/*.{ts,tsx}": [
+    "packages/**/*.{ts,tsx}": [
       "prettier --config _dev/.prettierrc --write",
       "eslint"
     ],
@@ -235,6 +236,7 @@
     "@types/cors": "^2.8.14",
     "@types/hapi": "^18.0.15",
     "@types/ioredis": "^4.26.4",
+    "@types/ip": "^1",
     "@types/jest": "30.0.0",
     "@types/jsdom": "^21",
     "@types/jsonwebtoken": "8.5.1",
@@ -280,6 +282,7 @@
     "jest-environment-jsdom": "29.7.0",
     "jest-environment-node": "^29.7.0",
     "jest-util": "30.0.5",
+    "jsdom-global": "3.0.2",
     "json": "^11.0.0",
     "jsonc-eslint-parser": "^2.1.0",
     "mocha-junit-reporter": "^2.2.0",
@@ -289,6 +292,7 @@
     "postcss": "8.5.12",
     "reflect-metadata": "^0.2.1",
     "server-only": "^0.0.1",
+    "sinon": "^22.1.0",
     "storybook": "^8.0.0",
     "stylelint": "^17.13.0",
     "stylelint-config-recommended-scss": "^17.0.1",

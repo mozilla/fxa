@@ -153,8 +153,7 @@ test.describe('severity-1 #smoke', () => {
     await resetPassword.page.waitForURL(/reset_password/);
 
     //The email shouldn't be pre-filled
-    const emailInput = await resetPassword.emailTextbox.inputValue();
-    expect(emailInput).toEqual('');
+    await expect(resetPassword.emailTextbox).toHaveValue('');
 
     await resetPassword.fillOutEmailForm(credentials.email);
 

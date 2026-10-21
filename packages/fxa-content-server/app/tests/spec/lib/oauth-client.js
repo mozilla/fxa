@@ -5,6 +5,7 @@
 import { assert } from 'chai';
 import OAuthClient from 'lib/oauth-client';
 import OAuthErrors from 'lib/oauth-errors';
+import { fakeServer } from 'nise';
 import sinon from 'sinon';
 import Xhr from 'lib/xhr';
 
@@ -15,7 +16,7 @@ var xhr;
 
 describe('lib/oauth-client', function () {
   beforeEach(function () {
-    server = sinon.fakeServer.create();
+    server = fakeServer.create();
     server.autoRespond = true;
 
     // Xhr does not have a constructor, so use Object.create.

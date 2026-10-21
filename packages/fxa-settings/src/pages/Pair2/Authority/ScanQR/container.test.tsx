@@ -241,10 +241,10 @@ describe('Pair2/Authority/ScanQR container', () => {
     });
   });
 
-  it('renders the ScanQR page', () => {
+  it('renders the ScanQR page', async () => {
     renderContainer();
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
       'Scan to connect your mobile device'
     );
   });
@@ -261,12 +261,19 @@ describe('Pair2/Authority/ScanQR container', () => {
   });
 
   it('shows the QR as loading until the channel is created', async () => {
+    let channelCreated = () => {};
+    integration.createChannel.mockReturnValue(
+      new Promise<void>((resolve) => {
+        channelCreated = resolve;
+      })
+    );
     renderContainer();
 
-    expect(screen.getByTestId('scan-qr-code')).toHaveAttribute(
+    expect(await screen.findByTestId('scan-qr-code')).toHaveAttribute(
       'data-loading',
       'true'
     );
+    channelCreated();
     await waitFor(() =>
       expect(screen.getByTestId('scan-qr-code')).toHaveAttribute(
         'data-loading',
@@ -528,14 +535,13 @@ describe('Pair2/Authority/ScanQR container', () => {
       expect(mockNavigate).not.toHaveBeenCalled();
     });
 
-    it('still skips to settings while the check is pending', async () => {
+    it('shows a spinner, not the QR card, while the check is pending', () => {
       mockAccountProfile.mockReturnValue(new Promise(() => {}));
-      const user = userEvent.setup();
+
       renderContainer();
 
-      await user.click(screen.getByRole('button', { name: 'Skip for now' }));
-
-      expect(mockNavigate).toHaveBeenCalledWith('/settings');
+      expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
+      expect(screen.queryByTestId('scan-qr-code')).not.toBeInTheDocument();
       expect(integration.createChannel).not.toHaveBeenCalled();
     });
   });

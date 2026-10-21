@@ -59,10 +59,7 @@ function buildQs(params: Record<string, string | undefined>): string {
 export const adminApi = {
   // ---- Account ----
 
-  getAccountByEmail(
-    email: string,
-    autoCompleted = false
-  ): Promise<Account | null> {
+  getAccountByEmail(email: string, autoCompleted = false): Promise<Account[]> {
     return apiFetch(
       `/api/account/by-email?email=${encodeURIComponent(email)}&autoCompleted=${autoCompleted}`
     );

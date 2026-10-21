@@ -13,9 +13,6 @@ const fs = require('fs');
 const isA = require('joi');
 const path = require('path');
 const validators = require('./validators');
-const {
-  computeSessionTokenHandle,
-} = require('./utils/session-token-handle');
 
 const DEVICES_AND_SERVICES_DOCS =
   require('../../docs/swagger/devices-and-sessions-api').default;
@@ -44,7 +41,6 @@ module.exports = (
   clientUtils,
   redis
 ) => {
-  const sessionTokenHandleKey = config.sessionTokenHandle.key;
   // Loads and compiles a json validator for the payloads received
   // in /account/devices/notify
   const validatePushSchema = JSON.parse(
@@ -714,119 +710,6 @@ module.exports = (
           });
         }
         return responseDevices;
-      },
-    },
-    {
-      method: 'GET',
-      // N.B. This route is deprecated in favour of /account/attached_clients
-      path: '/account/sessions',
-      options: {
-        ...DEVICES_AND_SERVICES_DOCS.ACCOUNT_SESSIONS_GET,
-        auth: {
-          strategies: [
-            'verifiedSessionTokenBearer',
-            'verifiedSessionToken',
-            // no refreshToken access here
-          ],
-        },
-        response: {
-          schema: isA.array().items(
-            isA.object({
-              sessionTokenHandle: isA.string().regex(HEX_STRING).required(),
-              lastAccessTime: isA.number().min(0).required().allow(null),
-              lastAccessTimeFormatted: isA.string().optional().allow(''),
-              approximateLastAccessTime: isA.number().min(0).optional(),
-              approximateLastAccessTimeFormatted: isA
-                .string()
-                .optional()
-                .allow(''),
-              createdTime: isA.number().min(0).required().allow(null),
-              createdTimeFormatted: isA.string().optional().allow(''),
-              location: DEVICES_SCHEMA.location,
-              userAgent: isA.string().max(255).required().allow(''),
-              os: isA.string().max(255).allow('').allow(null),
-              deviceId: DEVICES_SCHEMA.id.allow(null).required(),
-              deviceName: DEVICES_SCHEMA.nameResponse
-                .allow('')
-                .allow(null)
-                .required(),
-              deviceAvailableCommands: DEVICES_SCHEMA.availableCommands
-                .allow(null)
-                .required(),
-              deviceType: DEVICES_SCHEMA.type.allow(null).required(),
-              deviceCallbackURL: DEVICES_SCHEMA.pushCallback
-                .allow(null)
-                .required(),
-              deviceCallbackPublicKey: DEVICES_SCHEMA.pushPublicKey
-                .allow(null)
-                .required(),
-              deviceCallbackAuthKey: DEVICES_SCHEMA.pushAuthKey
-                .allow(null)
-                .required(),
-              deviceCallbackIsExpired: DEVICES_SCHEMA.pushEndpointExpired
-                .allow(null)
-                .required(),
-              isDevice: isA.boolean().required(),
-              isCurrentDevice: isA.boolean().required(),
-            })
-          ),
-        },
-      },
-      handler: async function (request) {
-        log.begin('Account.sessions', request);
-
-        const sessionToken = request.auth.credentials;
-        const uid = sessionToken.uid;
-
-        const sessions = await db.sessions(uid);
-
-        return sessions.map((session) => {
-          const deviceId = session.deviceId;
-          const isDevice = !!deviceId;
-
-          let deviceName = session.deviceName;
-          if (!deviceName) {
-            deviceName = devices.synthesizeName(session);
-          }
-
-          let userAgent;
-          if (!session.uaBrowser) {
-            userAgent = '';
-          } else if (!session.uaBrowserVersion) {
-            userAgent = session.uaBrowser;
-          } else {
-            const { uaBrowser: browser, uaBrowserVersion: version } = session;
-            userAgent = `${browser} ${version.split('.')[0]}`;
-          }
-
-          const formattedSession = {
-            deviceId,
-            deviceName,
-            deviceType: session.uaDeviceType || 'desktop',
-            deviceAvailableCommands: session.deviceAvailableCommands || null,
-            deviceCallbackURL: session.deviceCallbackURL,
-            deviceCallbackPublicKey: session.deviceCallbackPublicKey,
-            deviceCallbackAuthKey: session.deviceCallbackAuthKey,
-            deviceCallbackIsExpired: !!session.deviceCallbackIsExpired,
-            sessionTokenHandle: computeSessionTokenHandle(
-              sessionTokenHandleKey,
-              uid,
-              session.id
-            ),
-            isCurrentDevice: session.id === sessionToken.id,
-            isDevice,
-            lastAccessTime: session.lastAccessTime,
-            location: session.location,
-            createdTime: session.createdAt,
-            os: session.uaOS,
-            userAgent,
-          };
-
-          clientUtils.formatTimestamps(formattedSession, request);
-          clientUtils.formatLocation(formattedSession, request);
-
-          return formattedSession;
-        });
       },
     },
     {

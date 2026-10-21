@@ -73,7 +73,7 @@ const webpackConfig = {
       'js-md5': require.resolve('js-md5/src/md5'),
       mocha: 'mocha/mocha',
       modal: require.resolve('jquery-modal/jquery.modal'),
-      sinon: require.resolve('sinon/pkg/sinon'),
+      sinon: require.resolve('sinon/pkg/sinon-esm.js'),
       'touch-punch': require.resolve(
         'jquery-ui-touch-punch-amd/jquery.ui.touch-punch'
       ),
@@ -83,6 +83,10 @@ const webpackConfig = {
       '@fxa/shared/email': path.resolve(
         __dirname,
         '../../libs/shared/email/src/index.ts'
+      ),
+      '@fxa/shared/sentry-utils': path.resolve(
+        __dirname,
+        '../../libs/shared/sentry-utils/src/index.ts'
       ),
       '@fxa/shared/url-allow-list': path.resolve(
         __dirname,

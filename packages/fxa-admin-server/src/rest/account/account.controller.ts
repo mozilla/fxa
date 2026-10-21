@@ -266,25 +266,29 @@ export class AccountController {
     this.eventLogging.onAccountSearch('email', autoCompleted === 'true');
     this.log.info('accountByEmail', { email, user });
 
-    let account = await this.db.account
-      .query()
-      .select(ACCOUNT_COLUMNS.map((c) => 'accounts.' + c))
-      .innerJoin('emails', 'emails.uid', 'accounts.uid')
-      .where('emails.normalizedEmail', email.toLocaleLowerCase())
-      .first();
-
-    if (!account) {
-      account = await this.db.account
+    // The address can be a current email of one account and the signup
+    // email of another (removed, then reused). Return both.
+    const normalizedEmail = email.toLocaleLowerCase();
+    const [byCurrentEmail, bySignupEmail] = await Promise.all([
+      this.db.account
         .query()
         .select(ACCOUNT_COLUMNS.map((c) => 'accounts.' + c))
-        .where('accounts.normalizedEmail', email.toLocaleLowerCase())
-        .first();
+        .innerJoin('emails', 'emails.uid', 'accounts.uid')
+        .where('emails.normalizedEmail', normalizedEmail)
+        .first(),
+      this.db.account
+        .query()
+        .select(ACCOUNT_COLUMNS.map((c) => 'accounts.' + c))
+        .where('accounts.normalizedEmail', normalizedEmail)
+        .first(),
+    ]);
+
+    const accounts: Account[] = byCurrentEmail ? [byCurrentEmail] : [];
+    if (bySignupEmail && bySignupEmail.uid !== byCurrentEmail?.uid) {
+      accounts.push(bySignupEmail);
     }
 
-    if (!account) {
-      return false;
-    }
-    return this.resolveAccountData(account);
+    return Promise.all(accounts.map((a) => this.resolveAccountData(a)));
   }
 
   @Features(AdminPanelFeature.AccountSearch)

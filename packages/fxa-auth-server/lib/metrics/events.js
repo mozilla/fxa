@@ -58,7 +58,6 @@ const IGNORE_ROUTE_FLOW_EVENTS_FOR_PATHS = new Set([
   '/__lbheartbeat__',
   '/account/devices',
   '/account/profile',
-  '/account/sessions',
   '/password/forgot/status',
   '/recovery_email/status',
   '/jwks',

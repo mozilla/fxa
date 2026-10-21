@@ -78,7 +78,7 @@ describe('models/reliers/pairing/authority', () => {
       sinon.spy(relier, 'importSearchParamsUsingSchema');
       return relier.fetch().then(() => {
         assert.isTrue(
-          relier.importSearchParamsUsingSchema.firstCall.calledWith({
+          relier.importSearchParamsUsingSchema.firstCall.calledWithMatch({
             channel_id: { _renameTo: 'channelId' }, // eslint-disable-line camelcase
           })
         );

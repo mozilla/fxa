@@ -12,7 +12,18 @@ const { reportValidationError } = require('@fxa/shared/sentry-node');
 // before reaching Sentry. Covers `authorization`, `set-cookie`, `authPW`,
 // `kB`, `keyFetchToken`, `tokenId`, etc. `tokenid` is used rather than a bare
 // `id` so it does not over-redact `uid`/`rid`/`deviceId`.
-const REDACTED_KEY_FRAGMENTS = ['auth', 'cookie', 'pw', 'kb', 'key', 'tokenid'];
+const REDACTED_KEY_FRAGMENTS = [
+  'auth',
+  'cookie',
+  'pw',
+  'kb',
+  'key',
+  'tokenid',
+  // WebAuthn PRF output (`clientExtensionResults.prf.results`) and the wrap
+  // envelope fields `prfWrappedSkR` / `hpkeEncapsulatedSecret`.
+  'prf',
+  'secret',
+];
 
 // Unanchored so a token id embedded in a larger string (stack frame, URL,
 // error message) is still redacted. Under Bearer the raw id is a replay

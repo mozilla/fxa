@@ -265,6 +265,13 @@ describe('Connected Services', () => {
     });
   });
 
+  it('should show the default icon and no link for Pocket', async () => {
+    await getIconAndServiceLink('Pocket', 'web-icon').then((result) => {
+      expect(result.icon).toBeTruthy();
+      expect(result.link).not.toHaveAttribute('href');
+    });
+  });
+
   it('should show the sync icon and link', async () => {
     await getIconAndServiceLink('Firefox Sync', 'sync-icon').then((result) => {
       expect(result.icon).toBeTruthy();

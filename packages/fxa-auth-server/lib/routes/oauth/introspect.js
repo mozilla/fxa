@@ -33,7 +33,8 @@ module.exports = ({ oauthDB, customs }) => ({
       schema: Joi.object().keys({
         // https://tools.ietf.org/html/rfc7662#section-2.2
         active: Joi.boolean().required().description(DESCRIPTION.active),
-        scope: validators.scope.optional().description(DESCRIPTION.scope),
+        // Response only: the 256-char request cap does not apply to stored scopes.
+        scope: Joi.string().allow('').optional().description(DESCRIPTION.scope),
         client_id: validators.clientId
           .optional()
           .description(DESCRIPTION.clientId),
@@ -57,7 +58,10 @@ module.exports = ({ oauthDB, customs }) => ({
         // RPs that already parse iat/exp as milliseconds.
         acr: Joi.string().optional().description(DESCRIPTION.acr),
         auth_time: Joi.number().optional().description(DESCRIPTION.authTime),
-        amr: Joi.array().items(Joi.string()).optional().description(DESCRIPTION.amr),
+        amr: Joi.array()
+          .items(Joi.string())
+          .optional()
+          .description(DESCRIPTION.amr),
       }),
     },
     handler: async function introspectEndpoint(req) {

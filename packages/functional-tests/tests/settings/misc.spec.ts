@@ -51,6 +51,20 @@ test.describe('severity-2 #smoke', () => {
 
     await expect(settings.bentoDropDownMenu).toBeHidden();
   });
+
+  test('unknown settings route shows the 404 page', async ({
+    target,
+    page,
+    pages: { signin, settings, fourOhFour },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+    await signInAccount(target, page, settings, signin, credentials);
+
+    await page.goto(`${target.contentServerUrl}/settings/no-such-route`);
+
+    await expect(fourOhFour.header).toBeVisible();
+  });
 });
 
 async function signInAccount(

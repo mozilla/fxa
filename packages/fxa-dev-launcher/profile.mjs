@@ -116,8 +116,6 @@ const fxaProfile = {
   'xpinstall.whitelist.required': false,
   'services.sync.prefs.sync.xpinstall.whitelist.required': false,
   'extensions.checkCompatibility.nightly': false,
-  // enable pocket
-  'browser.pocket.enabled': true,
   // identity logs
   'identity.fxaccounts.log.appender.dump': 'Debug',
   'identity.fxaccounts.loglevel': 'Debug',

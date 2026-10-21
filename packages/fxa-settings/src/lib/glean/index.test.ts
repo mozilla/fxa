@@ -9,30 +9,31 @@ import { InternalEventMetricType } from '@mozilla/glean/private/metrics/event';
 import sinon, { SinonStub } from 'sinon';
 
 import GleanMetrics, { GleanMetricsContext } from './index';
-import * as reg from 'fxa-shared/metrics/glean/web/reg';
-import * as login from 'fxa-shared/metrics/glean/web/login';
-import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
-import * as passkey from 'fxa-shared/metrics/glean/web/passkey';
-import * as promoQrMobile from 'fxa-shared/metrics/glean/web/promoQrMobile';
-import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
-import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
-import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
-import * as postVerifySetPassword from 'fxa-shared/metrics/glean/web/postVerifySetPassword';
-import * as dtmDesktop from 'fxa-shared/metrics/glean/web/dtmDesktop';
-import * as dtmMobile from 'fxa-shared/metrics/glean/web/dtmMobile';
-import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
-import {
-  oauthClientId,
-  service,
-} from 'fxa-shared/metrics/glean/web/relyingParty';
+import * as reg from './web/reg';
+import * as login from './web/login';
+import * as accountPref from './web/accountPref';
+import * as passkey from './web/passkey';
+import * as promoQrMobile from './web/promoQrMobile';
+import * as accountBanner from './web/accountBanner';
+import * as deleteAccount from './web/deleteAccount';
+import * as thirdPartyAuth from './web/thirdPartyAuth';
+import * as postVerifySetPassword from './web/postVerifySetPassword';
+import * as dtmDesktop from './web/dtmDesktop';
+import * as dtmMobile from './web/dtmMobile';
+import * as cadFirefox from './web/cadFirefox';
+import * as cadMobilePairUseApp from './web/cadMobilePairUseApp';
+import * as cadRedirectDesktop from './web/cadRedirectDesktop';
+import * as cadRedirectMobile from './web/cadRedirectMobile';
+import { userIdSha256, userId } from './web/account';
+import { oauthClientId, service } from './web/relyingParty';
 import {
   deviceType,
   entrypoint,
   flowId,
   pairingChannelHash,
-} from 'fxa-shared/metrics/glean/web/session';
-import * as utm from 'fxa-shared/metrics/glean/web/utm';
-import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
+} from './web/session';
+import * as utm from './web/utm';
+import * as entrypointQuery from './web/entrypoint';
 import { Config } from '../config';
 import { WebIntegration, useAccount, WebIntegrationData } from '../../models';
 import { MetricsFlow } from '../metrics-flow';
@@ -253,6 +254,16 @@ describe('lib/glean', () => {
     });
 
     it('submits a ping on an event', async () => {
+      GleanMetrics.registration.view();
+      await GleanMetrics.isDone();
+      sinon.assert.calledOnce(setEventNameStub);
+    });
+
+    // Callers navigate only once isDone() resolves, so a single failed ping
+    // must not leave the queue locked.
+    it('keeps submitting after a ping throws', async () => {
+      setOauthClientIdStub.onFirstCall().throws(new Error('boom'));
+      GleanMetrics.registration.view();
       GleanMetrics.registration.view();
       await GleanMetrics.isDone();
       sinon.assert.calledOnce(setEventNameStub);
@@ -930,6 +941,42 @@ describe('lib/glean', () => {
           branch: '',
           nimbus_user_id: '',
         });
+      });
+    });
+
+    describe('pairing view browser_family', () => {
+      it.each([
+        [
+          'cad_firefox_download_firefox_view',
+          GleanMetrics.cadFireFox.downloadFirefoxView,
+          cadFirefox.downloadFirefoxView,
+        ],
+        [
+          'cad_mobile_pair_use_app_view',
+          GleanMetrics.cadMobilePairUseApp.view,
+          cadMobilePairUseApp.view,
+        ],
+        [
+          'cad_redirect_desktop_view',
+          GleanMetrics.cadRedirectDesktop.view,
+          cadRedirectDesktop.view,
+        ],
+        [
+          'cad_redirect_desktop_default_view',
+          GleanMetrics.cadRedirectDesktop.defaultView,
+          cadRedirectDesktop.defaultView,
+        ],
+        [
+          'cad_redirect_mobile_view',
+          GleanMetrics.cadRedirectMobile.view,
+          cadRedirectMobile.view,
+        ],
+      ])('submits %s with browser_family', async (eventName, fn, metric) => {
+        const spy = sandbox.spy(metric, 'record');
+        fn({ event: { browser_family: 'safari' } });
+        await GleanMetrics.isDone();
+        sinon.assert.calledWith(setEventNameStub, eventName);
+        sinon.assert.calledOnceWithExactly(spy, { browser_family: 'safari' });
       });
     });
 

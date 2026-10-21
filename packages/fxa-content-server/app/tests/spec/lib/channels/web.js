@@ -168,7 +168,7 @@ describe('lib/channels/web', () => {
     let sandbox;
 
     beforeEach(() => {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
 
       channel = new WebChannel('MyChannel');
       channel.initialize({

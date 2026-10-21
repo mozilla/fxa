@@ -410,3 +410,17 @@ export function isIosSafari(userAgent: string = navigator.userAgent): boolean {
   const { browser, os } = new UAParser(userAgent).getResult();
   return os.name === 'iOS' && browser.name === 'Mobile Safari';
 }
+
+export type BrowserFamily = 'firefox' | 'safari' | 'chrome' | 'edge' | 'other';
+
+/**
+ * The browser family for telemetry. The parser reads the iOS tokens (FxiOS,
+ * CriOS, EdgiOS) before `Safari/`, so only Safari itself reports `safari`.
+ */
+export function getBrowserFamily(
+  userAgent: string = navigator.userAgent
+): BrowserFamily {
+  const name = new UAParser(userAgent).getBrowser().name ?? '';
+  const match = /Firefox|Edge|Chrome|Safari/.exec(name);
+  return match ? (match[0].toLowerCase() as BrowserFamily) : 'other';
+}
