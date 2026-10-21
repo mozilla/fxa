@@ -1,8 +1,8 @@
 {
-  "commit": "293a24964b3eeeaa3598cf8af6bb91ffd8e4b1bf",
-  "summary": "Merge pull request #21556 from mozilla/fix-next-turbo-dev",
-  "description": "fix(payments): new page resets in nextjs dev turbo",
-  "timestamp": 1792602007000,
+  "commit": "23f99c42273fe7bd052ca0d7e495bb28b335eea0",
+  "summary": "Merge pull request #21558 from mozilla/FXA-14741",
+  "description": "fix(auth): fail closed on a default or short MFA JWT secret in prod",
+  "timestamp": 1792604625000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
