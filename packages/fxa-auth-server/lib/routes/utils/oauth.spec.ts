@@ -151,6 +151,46 @@ describe('newTokenNotification', () => {
     expect(devices.upsert).toHaveBeenCalledTimes(1);
   });
 
+  describe('fresh sign-in', () => {
+    const MOCK_NOW = 1_700_000_000_000;
+    const MOCK_NOW_SECONDS = MOCK_NOW / 1000;
+
+    beforeEach(() => {
+      jest.useFakeTimers({ now: MOCK_NOW });
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('skips sending email when the grant authenticated within the window', async () => {
+      grant.auth_at = MOCK_NOW_SECONDS - 60;
+      await oauthUtils.newTokenNotification(
+        db,
+        mailer,
+        devices,
+        request,
+        grant
+      );
+
+      expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(0);
+      expect(devices.upsert).toHaveBeenCalledTimes(1);
+    });
+
+    it('sends email when the grant authenticated before the window', async () => {
+      grant.auth_at = MOCK_NOW_SECONDS - 16 * 60;
+      await oauthUtils.newTokenNotification(
+        db,
+        mailer,
+        devices,
+        request,
+        grant
+      );
+
+      expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it('resolves the uid from the uid option when credentials has none', async () => {
     const MOCK_UID_FROM_OPTION = '11d4847823f24b0f95e1524987cb0391';
     credentials = {};

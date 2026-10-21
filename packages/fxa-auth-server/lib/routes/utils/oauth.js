@@ -23,6 +23,11 @@ const {
 // if not a match, then we don't notify
 const NOTIFICATION_SCOPES = ScopeSet.fromArray([OAUTH_SCOPE_OLD_SYNC]);
 
+// A grant whose session authenticated this recently came from a sign-in flow
+// that already sent the new-device email (session verify_code, TOTP verify,
+// passkey finish, or a pre-verified login).
+const FRESH_SIGNIN_WINDOW_MS = 15 * 60 * 1000;
+
 module.exports = {
   newTokenNotification: async function newTokenNotification(
     db,
@@ -99,7 +104,15 @@ module.exports = {
 
     // Email the user about their new device connection
     // (but don't send anything if it was an existing device, new account, or skipEmail is set)
-    if (!credentials.deviceId && !skipEmail) {
+    //
+    // `auth_at` is a time heuristic for "the sign-in flow already emailed". The
+    // exact alternative is to carry the code's sessionTokenId through
+    // /oauth/token and check the session's verifiedAt; switch to that if this
+    // window ever misfires.
+    const freshSignin =
+      !!grant.auth_at &&
+      Date.now() - grant.auth_at * 1000 < FRESH_SIGNIN_WINDOW_MS;
+    if (!credentials.deviceId && !skipEmail && !freshSignin) {
       const account = await db.account(credentials.uid);
       const isNewAccount = Date.now() - account.createdAt < MAX_NEW_ACCOUNT_AGE;
 
