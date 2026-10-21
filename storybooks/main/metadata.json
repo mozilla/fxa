@@ -1,8 +1,8 @@
 {
-  "commit": "6bcf2f4629146a880e9a599103e32cf83d8fe345",
-  "summary": "Merge pull request #21570 from mozilla/fxa-13040",
-  "description": "fix(settings): show the 404 page for unknown /settings routes",
-  "timestamp": 1792546619000,
+  "commit": "62721513fec1f1bccbd1c784efa6a4f05a0ff3d8",
+  "summary": "Merge pull request #21572 from mozilla/fxa-14817",
+  "description": "chore(content-server): remove 19 unused dependencies",
+  "timestamp": 1792587708000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
