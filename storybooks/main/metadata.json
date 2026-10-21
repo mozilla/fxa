@@ -1,8 +1,8 @@
 {
-  "commit": "62721513fec1f1bccbd1c784efa6a4f05a0ff3d8",
-  "summary": "Merge pull request #21572 from mozilla/fxa-14817",
-  "description": "chore(content-server): remove 19 unused dependencies",
-  "timestamp": 1792587708000,
+  "commit": "046063bd8b3277faae35eb104073cb2e932a6526",
+  "summary": "Merge pull request #21571 from mozilla/fxa-14814",
+  "description": "chore(content-server): remove the subscriptions/products redirect",
+  "timestamp": 1792590382000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
