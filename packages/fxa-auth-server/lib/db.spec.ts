@@ -5,13 +5,13 @@
 import { createMock } from '@golevelup/ts-jest';
 import { AuthLogger } from './types';
 
-// Mock fxa-shared/db to prevent real DB connections
-jest.mock('fxa-shared/db', () => ({
+// Mock @fxa/shared/db/mysql/legacy to prevent real DB connections
+jest.mock('@fxa/shared/db/mysql/legacy', () => ({
   setupAuthDatabase: jest.fn(),
 }));
 
-// Mock fxa-shared/db/models/auth - defined inline to avoid TDZ issues with jest.mock hoisting
-jest.mock('fxa-shared/db/models/auth', () => ({
+// Mock @fxa/shared/db/mysql/legacy/models/auth - defined inline to avoid TDZ issues with jest.mock hoisting
+jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => ({
   Device: {
     delete: jest
       .fn()
@@ -41,6 +41,11 @@ jest.mock('fxa-shared/db/models/auth', () => ({
   },
 }));
 
+const mockSubmitServerDeletionRequest = jest.fn();
+jest.mock('./metrics/glean/server-deletion-request', () => ({
+  createServerDeletionRequestPing: () => mockSubmitServerDeletionRequest,
+}));
+
 // Configurable redis mock - default returns undefined (disabled)
 let redisMockFactory: any = () => undefined;
 jest.mock('./redis', () => {
@@ -58,10 +63,10 @@ jest.mock('./features', () => {
 
 // Configurable connected-services mock
 const actualConnectedServices = jest.requireActual(
-  'fxa-shared/connected-services'
+  '@fxa/accounts/connected-services'
 );
 let connectedServicesMock: any = actualConnectedServices;
-jest.mock('fxa-shared/connected-services', () => {
+jest.mock('@fxa/accounts/connected-services', () => {
   return new Proxy(
     {},
     {
@@ -72,7 +77,7 @@ jest.mock('fxa-shared/connected-services', () => {
 
 // Import after mocks
 const config = require('../config').default.getProperties();
-const models: any = require('fxa-shared/db/models/auth');
+const models: any = require('@fxa/shared/db/mysql/legacy/models/auth');
 const { createDB } = require('./db');
 const { ERRNO } = require('@fxa/accounts/errors');
 
@@ -237,6 +242,23 @@ describe('db with redis disabled:', () => {
     it('returns null when the account does not exist', async () => {
       givenAccountRow(undefined);
       expect(await db.accountDisabledAt(MOCK_UID)).toBeNull();
+    });
+  });
+
+  describe('db.deleteAccount', () => {
+    it('submits a server-deletion-request ping for the uid', async () => {
+      await db.deleteAccount({ uid: 'wibble' });
+
+      expect(mockSubmitServerDeletionRequest).toHaveBeenCalledTimes(1);
+      expect(mockSubmitServerDeletionRequest).toHaveBeenCalledWith('wibble');
+    });
+
+    it('still submits the ping when the delete fails', async () => {
+      models.Account.delete.mockRejectedValueOnce(new Error('boom'));
+
+      await expect(db.deleteAccount({ uid: 'wibble' })).rejects.toThrow('boom');
+
+      expect(mockSubmitServerDeletionRequest).toHaveBeenCalledWith('wibble');
     });
   });
 

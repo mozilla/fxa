@@ -9,8 +9,8 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Request } from 'express';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
-import * as authDb from 'fxa-shared/db/models/auth';
-import { Account, Email } from 'fxa-shared/db/models/auth';
+import * as authDb from '@fxa/shared/db/mysql/legacy/models/auth';
+import { Account, Email } from '@fxa/shared/db/mysql/legacy/models/auth';
 import { CartManager } from '@fxa/payments/cart';
 import { ProfileClient } from '@fxa/profile/client';
 import { NotifierService } from '@fxa/shared/notifier';
@@ -179,6 +179,83 @@ describe('AccountController', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  describe('accountByEmail', () => {
+    const otherAccount = {
+      uid: 'a4c3e0b2d8f94f6e9b7d1c2a3e4f5061',
+      email: 'other@example.com',
+    } as Account;
+    let resolveAccountData: jest.SpyInstance;
+
+    beforeEach(() => {
+      // Hydration fans out to a dozen tables; this test is about which
+      // accounts are looked up, not what hangs off them.
+      resolveAccountData = jest
+        .spyOn(controller as any, 'resolveAccountData')
+        .mockImplementation(async (account) => account);
+    });
+
+    it('returns an empty list when neither emails nor accounts match', async () => {
+      await expect(
+        controller.accountByEmail(NO_ACCOUNT_LOCATOR, 'false', MOCK_USER)
+      ).resolves.toEqual([]);
+    });
+
+    it('returns the current-email account first and the signup-only account second', async () => {
+      accountQuery.first
+        .mockResolvedValueOnce(mockAccount)
+        .mockResolvedValueOnce(otherAccount);
+
+      await expect(
+        controller.accountByEmail(EMAIL_LOCATOR, 'false', MOCK_USER)
+      ).resolves.toEqual([mockAccount, otherAccount]);
+    });
+
+    it('returns a single account when both lookups resolve to the same uid', async () => {
+      // Distinct row objects, as the two queries return in production.
+      accountQuery.first
+        .mockResolvedValueOnce({ ...mockAccount })
+        .mockResolvedValueOnce({ ...mockAccount });
+
+      await expect(
+        controller.accountByEmail(EMAIL_LOCATOR, 'false', MOCK_USER)
+      ).resolves.toEqual([mockAccount]);
+      expect(resolveAccountData).toHaveBeenCalledTimes(1);
+    });
+
+    it('rejects when either lookup fails', async () => {
+      accountQuery.first
+        .mockResolvedValueOnce(mockAccount)
+        .mockRejectedValueOnce(new Error('ECONNREFUSED'));
+
+      await expect(
+        controller.accountByEmail(EMAIL_LOCATOR, 'false', MOCK_USER)
+      ).rejects.toThrow('ECONNREFUSED');
+    });
+
+    it('returns the signup-only account when the address is no longer in emails', async () => {
+      accountQuery.first
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce(otherAccount);
+
+      await expect(
+        controller.accountByEmail(EMAIL_LOCATOR, 'false', MOCK_USER)
+      ).resolves.toEqual([otherAccount]);
+    });
+
+    it('looks the address up lower-cased in both tables', async () => {
+      await controller.accountByEmail('User@Example.com', 'false', MOCK_USER);
+
+      expect(accountQuery.where).toHaveBeenCalledWith(
+        'emails.normalizedEmail',
+        'user@example.com'
+      );
+      expect(accountQuery.where).toHaveBeenCalledWith(
+        'accounts.normalizedEmail',
+        'user@example.com'
+      );
+    });
   });
 
   describe('resetAccounts', () => {

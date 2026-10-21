@@ -9,6 +9,7 @@ import { Stripe } from 'stripe';
 
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import {
+  ACTIVE_SUBSCRIPTION_STATUSES,
   StripeClient,
   StripeCustomer,
   StripeInvoice,
@@ -365,21 +366,37 @@ export class InvoiceManager {
   }
 
   /**
-   * Attempt immediate payment on a customer's open invoices, so someone who
-   * fixes their card does not wait for Stripe's automatic retry (24h+).
+   * Attempt immediate payment on the open invoices of a customer's active
+   * subscriptions, so someone who fixes their card does not wait for Stripe's
+   * automatic retry (24h+).
    */
   async retryPaymentForOpenInvoices(
     customerId: string,
     paymentMethodId: string
   ): Promise<void> {
     try {
-      const invoices = await this.stripeClient.invoicesList({
-        customer: customerId,
-        status: 'open',
-        collection_method: 'charge_automatically',
-      });
+      const [invoices, subscriptions] = await Promise.all([
+        this.stripeClient.invoicesList({
+          customer: customerId,
+          status: 'open',
+          collection_method: 'charge_automatically',
+        }),
+        this.stripeClient.subscriptionsList({ customer: customerId }),
+      ]);
+
+      const activeSubscriptionIds = new Set(
+        subscriptions.data
+          .filter((sub) => ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status))
+          .map((sub) => sub.id)
+      );
 
       for (const invoice of invoices.data) {
+        const subscriptionId =
+          invoice.parent?.subscription_details?.subscription;
+        if (!subscriptionId || !activeSubscriptionIds.has(subscriptionId)) {
+          continue;
+        }
+
         await this.stripeClient.invoicesPay(invoice.id, {
           off_session: true,
           payment_method: paymentMethodId,

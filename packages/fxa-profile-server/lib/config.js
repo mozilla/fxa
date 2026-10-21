@@ -5,14 +5,45 @@
 const fs = require('fs');
 const path = require('path');
 
-const tracing = require('fxa-shared/tracing/config');
+// Every profile-server process loads this file first, so register the @fxa/*
+// aliases here. They resolve to the compiled libs in the repo root dist/.
+{
+  const root = path.resolve(__dirname, '../../..');
+  const { paths } = require(
+    path.join(root, 'tsconfig.base.json')
+  ).compilerOptions;
+  require('tsconfig-paths').register({
+    baseUrl: root,
+    addMatchAll: false,
+    paths: Object.fromEntries(
+      Object.entries(paths).map(([alias, targets]) => [
+        alias,
+        targets.map((t) =>
+          t.replace(/^\.\/libs\//, './dist/libs/').replace(/\.tsx?$/, '.js')
+        ),
+      ])
+    ),
+  });
+}
+
+const tracing = require('@fxa/shared/otel');
 const convict = require('convict');
 const convict_format_with_validator = require('convict-format-with-validator');
 const convict_format_with_moment = require('convict-format-with-moment');
 convict.addFormats(convict_format_with_validator);
 convict.addFormats(convict_format_with_moment);
 
-const tracingConfig = tracing.tracingConfig;
+// Profile-server uses a concurrencyLimit default of 10; the otel lib default is 100.
+const tracingConfig = {
+  ...tracing.tracingConfig,
+  otel: {
+    ...tracing.tracingConfig.otel,
+    concurrencyLimit: {
+      ...tracing.tracingConfig.otel.concurrencyLimit,
+      default: 10,
+    },
+  },
+};
 
 const conf = convict({
   api: {

@@ -3,28 +3,57 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import * as Sentry from '@sentry/react';
 import ScanQR from '.';
 import {
   AuthorityState,
   Integration,
   PairingAuthorityIntegration,
+  useAuthClient,
+  useConfig,
 } from '../../../../models';
-import { useNavigateWithQuery } from '../../../../lib/hooks';
+import {
+  UseFxAStatusResult,
+  useNavigateWithQuery,
+} from '../../../../lib/hooks';
 import GleanMetrics from '../../../../lib/glean';
+import firefox from '../../../../lib/channels/firefox';
+import { Constants } from '../../../../lib/constants';
+import { hardNavigate } from 'fxa-react/lib/utils';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { getPairingAccount } from '../../../../lib/pairing/pairing-account';
+import { pairingRequiresTotp } from '../../../../lib/pairing/totp-gate';
+
+export const SIGNED_IN_POLL_MS = 5_000;
 
 /**
- * Owns the pairing channel for the authority. Mints a channel on mount so the
- * QR always scans to one that exists on the channel server. The channel then
- * outlives this page — the authority moves on while the supplicant is still
- * joining — so it is only torn down when creation itself fails or the user
- * skips pairing.
+ * Owns the pairing channel for the authority. Mints a channel once any TOTP
+ * check passes, so the QR always scans to one that exists on the channel
+ * server. The channel then outlives this page — the authority moves on while
+ * the supplicant is still joining — so it is only torn down when creation
+ * itself fails or the user skips pairing.
  */
-const ScanQRContainer = ({ integration }: { integration: Integration }) => {
+const ScanQRContainer = ({
+  integration,
+  fxaStatusResult,
+}: {
+  integration: Integration;
+  fxaStatusResult: UseFxAStatusResult;
+}) => {
   const navigateWithQuery = useNavigateWithQuery();
   const navigate = useNavigate();
+  const location = useLocation();
+  const authClient = useAuthClient();
+  const config = useConfig();
   const [qrCodeValue, setQrCodeValue] = useState('');
+  // A 2FA account enters its code before the channel opens, so no TOTP prompt
+  // can send the user to another app while the channel is live. The TOTP page
+  // returns here with `totpComplete` so the check is not repeated.
+  const totpComplete =
+    (location.state as { totpComplete?: boolean } | null)?.totpComplete ===
+    true;
+  const [totpChecked, setTotpChecked] = useState(totpComplete);
 
   if (!(integration instanceof PairingAuthorityIntegration)) {
     throw new Error(
@@ -35,7 +64,61 @@ const ScanQRContainer = ({ integration }: { integration: Integration }) => {
     throw new Error('Mobile to desktop not supported!');
   }
 
+  // Approving a sign-in needs a signed-in browser, and Firefox does not tell
+  // the page when the user signs out of sync. A reload, or the retry from the
+  // timeout page, is where that shows up, so the channel waits on fxa_status.
+  const { fxaStatusState } = fxaStatusResult;
+  const signedInUser = fxaStatusResult.fxaStatus?.signedInUser;
+  const isSignedIn = !!(signedInUser?.sessionToken && signedInUser.verified);
+
   useEffect(() => {
+    if (fxaStatusState === 'pending' || !isSignedIn || totpChecked) {
+      return;
+    }
+    const { sessionToken, totpVerifiedAt } = getPairingAccount(signedInUser);
+    let cancelled = false;
+    pairingRequiresTotp(authClient, sessionToken, {
+      verifiedAt: totpVerifiedAt,
+      maxAgeMs: config.pairing.totpMaxAgeMinutes * 60 * 1000,
+    }).then((required) => {
+      if (cancelled) {
+        return;
+      }
+      if (required) {
+        navigateWithQuery('/pair/authority/totp', { replace: true });
+        return;
+      }
+      setTotpChecked(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    authClient,
+    config,
+    navigateWithQuery,
+    fxaStatusState,
+    isSignedIn,
+    signedInUser,
+    totpChecked,
+  ]);
+
+  useEffect(() => {
+    if (fxaStatusState === 'pending') {
+      return;
+    }
+    if (!isSignedIn) {
+      // /pair owns the signed-out desktop: it starts the sync sign-in and
+      // comes back here once the browser has an account again. Full reload,
+      // because `useIntegration` is not keyed on location.
+      hardNavigate('/pair', {}, true);
+      return;
+    }
+    if (!totpChecked) {
+      return;
+    }
+
     // This exit ends the flow, so the channel goes with it. Leave either way:
     // a channel that will not close must not strand the user here.
     const giveUp = async () => {
@@ -81,7 +164,40 @@ const ScanQRContainer = ({ integration }: { integration: Integration }) => {
       // Unsubscribe only — the channel outlives this page for continue_on_mobile.
       integration.onStateChange = null;
     };
-  }, [integration, navigateWithQuery]);
+  }, [integration, navigateWithQuery, fxaStatusState, isSignedIn, totpChecked]);
+
+  useEffect(() => {
+    if (!isSignedIn) {
+      return;
+    }
+    // Firefox sends nothing to the page on a sync sign-out, so a QR already on
+    // screen only learns of one by asking again.
+    let active = true;
+    const timer = window.setInterval(async () => {
+      const status = await firefox.fxaStatus({
+        context: Constants.OAUTH_CONTEXT,
+        isPairing: true,
+        service: Constants.SYNC_SERVICE,
+      });
+      if (!active) {
+        return;
+      }
+      // Silence counts as signed out: a sign-out resets Firefox's FxA root
+      // pref, so a page on a non-production FxA loses its channel entirely.
+      const user = status?.signedInUser;
+      if (user?.sessionToken && user.verified) {
+        return;
+      }
+      window.clearInterval(timer);
+      // Nobody is left to approve a scan of this QR, so the channel goes too.
+      integration.destroy().catch((err) => Sentry.captureException(err));
+      hardNavigate('/pair', {}, true);
+    }, SIGNED_IN_POLL_MS);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, [integration, isSignedIn]);
 
   const onSkip = () => {
     GleanMetrics.dtmDesktop.qrSkip();
@@ -93,6 +209,12 @@ const ScanQRContainer = ({ integration }: { integration: Integration }) => {
     // parameters stop here rather than following the user there.
     navigate('/settings');
   };
+
+  // Nothing of the QR card shows until the TOTP check settles, so a 2FA
+  // account is not shown a code it is about to be routed away from.
+  if (!totpChecked) {
+    return <LoadingSpinner fullScreen />;
+  }
 
   return <ScanQR {...{ qrCodeValue, onSkip }} />;
 };

@@ -22,7 +22,7 @@ import {
   DeleteAccountTasksFactory,
   ReasonForDeletion,
 } from '@fxa/shared/cloud-tasks';
-import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
+import { getAccountCustomerByUid } from '@fxa/shared/db/mysql/legacy/models/auth';
 
 const collect = () => (val: string, xs: string[]) => {
   xs.push(val);

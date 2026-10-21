@@ -58,7 +58,6 @@ const FRONTEND_ROUTES = [
   'pair/supplicant/ready_to_scan',
   'pair/supplicant/sync_success',
   'pair/supplicant/timeout_and_cancel',
-  'post_verify/newsletters/add_newsletters',
   'post_verify/password/force_password_change',
   'post_verify/service_welcome',
   'post_verify/set_password',
@@ -95,21 +94,14 @@ const FRONTEND_ROUTES = [
   'signup_permissions',
   'signup_verified',
   'subscriptions',
-  'subscriptions/products/[\\w_]+',
+  'update_firefox',
   'would_you_like_to_sync',
   'web_channel_example',
-  'poc_deep_link', // FXA-13863 throwaway deep-link POC test page
-  'poc_pair_init', // FXA-13863 throwaway open-or-store interstitial
-  'poc_pair_start', // FXA-13863 throwaway pairing-start placeholder
 ];
 
 const OAUTH_SUCCESS_ROUTES = ['/oauth/success/:clientId'];
 
-// Server-rendered by get-update-firefox.js when React does not serve it
-const UPDATE_FIREFOX_ROUTES = ['update_firefox'];
-
 module.exports = {
   FRONTEND_ROUTES,
   OAUTH_SUCCESS_ROUTES,
-  UPDATE_FIREFOX_ROUTES,
 };

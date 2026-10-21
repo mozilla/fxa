@@ -45,9 +45,9 @@ test.describe('severity-1 #smoke', () => {
 
     // Invalid code
     await resetPassword.fillOutTotpForm('123123');
-    resetPassword.page.getByText('Valid code required', {
-      exact: true,
-    });
+    await expect(
+      resetPassword.page.getByText('Valid code required', { exact: true })
+    ).toBeVisible();
 
     // Fill out the TOTP form
     const totpCode = await getTotpCode(secret);
@@ -564,6 +564,7 @@ test.describe('severity-1 #smoke', () => {
 
 test.describe('reset password with recovery phone', () => {
   test.describe.configure({ mode: 'serial' });
+
   test.beforeAll(async ({ target }) => {
     target.smsClient.guardTestPhoneNumber();
   });

@@ -3,11 +3,17 @@
   "compilerOptions": {
     "paths": {
       "@fxa/shared/log": ["libs/shared/log/src/index"],
+      "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index"],
+      "@fxa/shared/mozlog": ["libs/shared/mozlog/src/index"],
+      "@fxa/shared/nest-health": ["libs/shared/nest-health/src/index"],
       "@fxa/shared/otel": ["libs/shared/otel/src/index"],
       "@fxa/shared/pem-jwk": ["libs/shared/pem-jwk/src/index"],
+      "@fxa/shared/sentry-node": ["libs/shared/sentry-node/src/index"],
       "@fxa/shared/sentry-utils": ["libs/shared/sentry-utils/src/index"],
       "@fxa/vendored/jwtool": ["libs/vendored/jwtool/src/index"],
-      "@fxa/vendored/typesafe-node-firestore": ["libs/vendored/typesafe-node-firestore/src/index"]
+      "@fxa/vendored/typesafe-node-firestore": [
+        "libs/vendored/typesafe-node-firestore/src/index"
+      ]
     }
   },
   "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]

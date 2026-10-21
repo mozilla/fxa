@@ -28,6 +28,7 @@ import { shouldShowPasskeySignin } from '../../lib/passkeys';
 import { isWebAuthnSupported } from '../../lib/passkeys/webauthn';
 import { SigninFormData, SigninProps } from './interfaces';
 import { handleNavigation } from './utils';
+import { isWafBlockedError } from 'fxa-auth-client/browser';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import Banner from '../../components/Banner';
 import { BannerLinkProps } from '../../components/Banner/interfaces';
@@ -220,6 +221,13 @@ const Signin = ({
             switch (errno) {
               case AuthUiErrors.THROTTLED.errno:
               case AuthUiErrors.REQUEST_BLOCKED.errno:
+                if (isWafBlockedError(error)) {
+                  setLocalizedBannerError(
+                    getLocalizedErrorMessage(ftlMsgResolver, error)
+                  );
+                  setSigninLoading(false);
+                  break;
+                }
                 const { localizedErrorMessage } =
                   await sendUnblockEmailHandler(email);
                 if (localizedErrorMessage) {

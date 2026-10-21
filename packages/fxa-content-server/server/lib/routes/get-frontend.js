@@ -40,5 +40,4 @@ function getFrontEnd(reactRouteGroups, routeNames = FRONTEND_ROUTES) {
 
 module.exports = {
   default: getFrontEnd,
-  getRoutesExcludingAllReact, // exported for testing
 };

@@ -9,7 +9,7 @@ const { config } = require('../../config');
 const { OauthError, AppError } = require('@fxa/accounts/errors');
 const db = require('./db');
 const util = require('./util');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
 const JWTAccessToken = require('./jwt_access_token');
 const sub = require('./jwt_sub');
 
@@ -26,7 +26,7 @@ const MAX_AGE_LEEWAY_SECONDS = 5;
 module.exports.MAX_AGE_LEEWAY_SECONDS = MAX_AGE_LEEWAY_SECONDS;
 
 const SCOPE_OPENID = ScopeSet.fromArray(['openid']);
-const { OAUTH_SCOPE_SESSION_TOKEN } = require('fxa-shared/oauth/constants');
+const { OAUTH_SCOPE_SESSION_TOKEN } = require('@fxa/accounts/oauth');
 
 const ID_TOKEN_EXPIRATION = Math.floor(
   config.get('oauthServer.openid.ttl') / 1000

@@ -32,7 +32,7 @@ const testServer = require('../lib/server');
 const { decodeJWT } = require('../lib/util');
 
 const db = require('../../lib/oauth/db');
-const encrypt = require('fxa-shared/auth/encrypt');
+const encrypt = require('@fxa/shared/crypto');
 const config = testServer.config;
 const util2 = require('util');
 

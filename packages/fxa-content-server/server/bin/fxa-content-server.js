@@ -35,13 +35,13 @@ const path = require('path');
 const serveStatic = require('serve-static');
 
 const statsd = require('../lib/statsd');
-const { cors, routing } = require('fxa-shared/express').express();
+const { cors, routing } = require('@fxa/shared/express').express();
 const {
   createSettingsProxy,
   modifySettingsStatic,
 } = require('../lib/beta-settings');
 
-const userAgent = require('fxa-shared/lib/user-agent').default;
+const userAgent = require('@fxa/shared/user-agent').userAgent;
 if (!userAgent.isToVersionStringSupported()) {
   // npm@3 installs the incorrect version of node-uap, one without `toVersionString`.
   // To ensure the correct version is installed, check toVersionString is available.

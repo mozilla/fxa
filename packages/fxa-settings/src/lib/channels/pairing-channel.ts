@@ -11,7 +11,7 @@
  * Ported from: fxa-content-server/app/scripts/lib/pairing-channel-client.js
  */
 
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import sentryMetrics from '@fxa/shared/sentry-browser';
 import { RemoteMetadata } from '../types';
 import UAParser from 'ua-parser-js';
 import { toGenericOSName } from '../utilities';

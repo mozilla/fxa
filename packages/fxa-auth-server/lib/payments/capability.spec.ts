@@ -33,14 +33,14 @@ const {
   PlayStoreSubscriptionPurchase,
 } = require('./iap/google-play/subscription-purchase');
 
-const authDbModule = require('fxa-shared/db/models/auth');
+const authDbModule = require('@fxa/shared/db/mysql/legacy/models/auth');
 const { PurchaseQueryError } = require('./iap/google-play/types');
 const { CapabilityManager } = require('@fxa/payments/capability');
 const { FreeAccessProgramService } = require('@fxa/free-access-program');
 const { EligibilityManager } = require('@fxa/payments/eligibility');
 const {
   SubscriptionEligibilityResult,
-} = require('fxa-shared/subscriptions/types');
+} = require('@fxa/accounts/subscriptions-legacy/subscriptions/types');
 
 const VALID_SUB_API_RESPONSE = {
   kind: 'androidpublisher#subscriptionPurchase',

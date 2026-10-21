@@ -52,7 +52,7 @@ jest.mock('./utils/third-party-events', () => {
 });
 
 // Default to "not blocked" so happy paths run without a DB.
-jest.mock('fxa-shared/db/models/auth', () => ({
+jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => ({
   EmailBlocklist: {
     findMatchingRegex: jest.fn().mockResolvedValue(null),
   },
@@ -284,7 +284,9 @@ describe('/linked_account', () => {
       });
 
       it('does not create a new account when the domain is blocklisted', async () => {
-        const { DomainBlocklist } = require('fxa-shared/db/models/auth');
+        const {
+          DomainBlocklist,
+        } = require('@fxa/shared/db/mysql/legacy/models/auth');
         mockDB.accountRecord = jest.fn(() =>
           Promise.reject(error.unknownAccount(mockGoogleUser.email))
         );

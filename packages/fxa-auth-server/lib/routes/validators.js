@@ -8,30 +8,32 @@
 const { URL } = require('url');
 const punycode = require('punycode.js');
 const isA = require('joi');
-const { VALID_SCOPE_VALUE } = require('fxa-shared/oauth/scopes');
-const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
+const { VALID_SCOPE_VALUE } = require('@fxa/accounts/oauth');
+const {
+  MozillaSubscriptionTypes,
+} = require('@fxa/accounts/subscriptions-legacy/subscriptions/types');
 const {
   minimalConfigSchema,
-} = require('fxa-shared/subscriptions/configuration/base');
+} = require('@fxa/accounts/subscriptions-legacy/subscriptions/configuration/base');
 const {
   productConfigJoiKeys,
-} = require('fxa-shared/subscriptions/configuration/product');
+} = require('@fxa/accounts/subscriptions-legacy/subscriptions/configuration/product');
 const {
   planConfigJoiKeys,
-} = require('fxa-shared/subscriptions/configuration/plan');
+} = require('@fxa/accounts/subscriptions-legacy/subscriptions/configuration/plan');
 const {
   appStoreSubscriptionSchema,
   playStoreSubscriptionSchema,
-} = require('fxa-shared/dto/auth/payments/iap-subscription');
+} = require('@fxa/accounts/subscriptions-legacy/dto/auth/payments/iap-subscription');
 const {
   latestInvoiceItemsSchema,
-} = require('fxa-shared/dto/auth/payments/invoice');
+} = require('@fxa/accounts/subscriptions-legacy/dto/auth/payments/invoice');
 const {
   default: DESCRIPTIONS,
 } = require('../../docs/swagger/shared/descriptions');
 const {
   subscriptionProductMetadataBaseValidator,
-} = require('fxa-shared/subscriptions/validation');
+} = require('@fxa/accounts/subscriptions-legacy/subscriptions/validation');
 const {
   VX_REGEX: CLIENT_SALT_STRING,
 } = require('../../lib/routes/utils/client-key-stretch');

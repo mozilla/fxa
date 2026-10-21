@@ -18,7 +18,7 @@ const {
   SUBSCRIPTIONS_RESOURCE,
 } = require('../../payments/stripe');
 const moment = require('moment');
-const authDbModule = require('fxa-shared/db/models/auth');
+const authDbModule = require('@fxa/shared/db/mysql/legacy/models/auth');
 
 const { StripeWebhookHandler } = require('./stripe-webhook');
 
@@ -52,7 +52,7 @@ const { RefundType } = require('@fxa/payments/paypal');
 const {
   FirestoreStripeErrorBuilder,
   FirestoreStripeError,
-} = require('fxa-shared/payments/stripe-firestore');
+} = require('@fxa/accounts/subscriptions-legacy/payments/stripe-firestore');
 
 let config: any,
   log: any,
@@ -685,7 +685,7 @@ describe('StripeWebhookHandler', () => {
 
     describe('handleCustomerUpdatedEvent', () => {
       it('removes the customer if the account exists', async () => {
-        const authDb = require('fxa-shared/db/models/auth');
+        const authDb = require('@fxa/shared/db/mysql/legacy/models/auth');
         const account = { email: customerFixture.email };
         jest.spyOn(authDb.Account, 'findByUid').mockResolvedValue(account);
         await StripeWebhookHandlerInstance.handleCustomerUpdatedEvent(
@@ -703,7 +703,7 @@ describe('StripeWebhookHandler', () => {
       });
 
       it('reports sentry error with no customer found', async () => {
-        const authDb = require('fxa-shared/db/models/auth');
+        const authDb = require('@fxa/shared/db/mysql/legacy/models/auth');
         const sentryMod = require('../../sentry');
         jest.spyOn(sentryMod, 'reportSentryError').mockReturnValue({});
         jest.spyOn(authDb.Account, 'findByUid').mockResolvedValue(null);
@@ -719,7 +719,7 @@ describe('StripeWebhookHandler', () => {
       });
 
       it('does not report error with no customer if the customer was deleted', async () => {
-        const authDb = require('fxa-shared/db/models/auth');
+        const authDb = require('@fxa/shared/db/mysql/legacy/models/auth');
         const sentryMod = require('../../sentry');
         jest.spyOn(sentryMod, 'reportSentryError').mockReturnValue({});
         jest.spyOn(authDb.Account, 'findByUid').mockResolvedValue(null);
@@ -736,7 +736,7 @@ describe('StripeWebhookHandler', () => {
       });
 
       it('does not report error with no customer if the account does not exist but it was an api call', async () => {
-        const authDb = require('fxa-shared/db/models/auth');
+        const authDb = require('@fxa/shared/db/mysql/legacy/models/auth');
         jest.spyOn(sentryModule, 'reportSentryError').mockReturnValue({});
         jest.spyOn(authDb.Account, 'findByUid').mockResolvedValue(null);
         const customer = deepCopy(customerFixture);

@@ -7,7 +7,7 @@ import { AuthLogger } from '../types';
 
 const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
-const ScopeSet = require('fxa-shared/oauth/scopes').scopeSetHelpers;
+const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
 const { AppError: error } = require('@fxa/accounts/errors');
 
 const { INVALID_PARAMETER, MISSING_PARAMETER } = error.ERRNO;

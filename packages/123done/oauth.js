@@ -114,7 +114,7 @@ module.exports = function (app, db, checkAuth) {
   app.get('/api/login', function (req, res) {
     setupOAuthFlow(req, 'signin', {}, function (err, params, oauthConfig) {
       if (err) {
-        return res.send(400, err);
+        return res.status(400).send(err);
       }
       return res.redirect(redirectUrl(params, oauthConfig));
     });
@@ -124,7 +124,7 @@ module.exports = function (app, db, checkAuth) {
   app.get('/api/signup', function (req, res) {
     setupOAuthFlow(req, 'signup', {}, function (err, params, oauthConfig) {
       if (err) {
-        return res.send(400, err);
+        return res.status(400).send(err);
       }
       return res.redirect(redirectUrl(params, oauthConfig));
     });
@@ -134,7 +134,7 @@ module.exports = function (app, db, checkAuth) {
   app.get('/api/best_choice', function (req, res) {
     setupOAuthFlow(req, null, {}, function (err, params, oauthConfig) {
       if (err) {
-        return res.send(400, err);
+        return res.status(400).send(err);
       }
       return res.redirect(redirectUrl(params, oauthConfig));
     });
@@ -144,7 +144,7 @@ module.exports = function (app, db, checkAuth) {
   app.get('/api/email_first', function (req, res) {
     setupOAuthFlow(req, 'email', {}, function (err, params, oauthConfig) {
       if (err) {
-        return res.send(400, err);
+        return res.status(400).send(err);
       }
       return res.redirect(redirectUrl(params, oauthConfig));
     });
@@ -157,7 +157,7 @@ module.exports = function (app, db, checkAuth) {
       { acrValues: 'AAL2' },
       function (err, params, oauthConfig) {
         if (err) {
-          return res.send(400, err);
+          return res.status(400).send(err);
         }
         return res.redirect(redirectUrl(params, oauthConfig));
       }
@@ -178,7 +178,7 @@ module.exports = function (app, db, checkAuth) {
     }
     setupOAuthFlow(req, 'email', opts, function (err, params, oauthConfig) {
       if (err) {
-        return res.send(400, err);
+        return res.status(400).send(err);
       }
       req.session.profileAal2Required = true;
       // Restore the bounce flag that setupOAuthFlow cleared, to cap at one pass.
@@ -191,7 +191,7 @@ module.exports = function (app, db, checkAuth) {
   app.get('/api/force_auth', function (req, res) {
     setupOAuthFlow(req, 'force_auth', {}, function (err, params, oauthConfig) {
       if (err) {
-        return res.send(400, err);
+        return res.status(400).send(err);
       }
       return res.redirect(redirectUrl(params, oauthConfig));
     });
@@ -204,7 +204,7 @@ module.exports = function (app, db, checkAuth) {
       { prompt: 'none' },
       function (err, params, oauthConfig) {
         if (err) {
-          return res.send(400, err);
+          return res.status(400).send(err);
         }
         // If there is an email specified on the query params,
         // save it in case FxA returns an error code saying
@@ -254,7 +254,7 @@ module.exports = function (app, db, checkAuth) {
 
         if (err) {
           console.log('err', err);
-          return res.send(400, err);
+          return res.status(400).send(err);
         }
         return res.redirect(redirectUrl(params, oauthConfig));
       }
@@ -279,7 +279,7 @@ module.exports = function (app, db, checkAuth) {
       }
       return res.redirect(redirectURI);
     } else if (req.query.error) {
-      return res.send(400, req.query.error);
+      return res.status(400).send(req.query.error);
     }
 
     // If this wasn't already done above, do it now.
@@ -314,12 +314,12 @@ module.exports = function (app, db, checkAuth) {
           body = text;
         }
       } catch (err) {
-        return res.send(r ? r.status : 400, err);
+        return res.status(r ? r.status : 400).send(err);
       }
 
       console.log(body); //eslint-disable-line no-console
       if (r.status >= 400) {
-        return res.send(r.status, body);
+        return res.status(r.status).send(body);
       }
 
       req.session.scopes = body.scopes;
@@ -351,7 +351,7 @@ module.exports = function (app, db, checkAuth) {
         var profileBody = await profileRes.text();
         console.log(profileBody); //eslint-disable-line no-console
         if (profileRes.status >= 400) {
-          return res.send(profileRes.status, profileBody);
+          return res.status(profileRes.status).send(profileBody);
         }
 
         var profile = JSON.parse(profileBody);
@@ -392,7 +392,7 @@ module.exports = function (app, db, checkAuth) {
               'Error: Client secret mismatch, please verify secret or obtain from an Admin.'
             );
         }
-        return res.send(400, err);
+        return res.status(400).send(err);
       }
     } else if (req.session.email) {
       // already logged in
@@ -415,7 +415,7 @@ module.exports = function (app, db, checkAuth) {
           req.session.state;
       }
 
-      res.send(400, msg);
+      res.status(400).send(msg);
     }
   });
 };

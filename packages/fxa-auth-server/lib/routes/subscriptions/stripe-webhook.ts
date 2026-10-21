@@ -7,8 +7,8 @@ import { SeverityLevel } from '@sentry/core';
 import {
   Account,
   getUidAndEmailByStripeCustomerId,
-} from 'fxa-shared/db/models/auth';
-import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
+} from '@fxa/shared/db/mysql/legacy/models/auth';
+import { ACTIVE_SUBSCRIPTION_STATUSES } from '@fxa/accounts/subscriptions-legacy/subscriptions/stripe';
 import isA from 'joi';
 import { Stripe } from 'stripe';
 import Container from 'typedi';
@@ -33,7 +33,7 @@ import {
 } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import { StripeHandler } from './stripe';
-import { FirestoreStripeErrorBuilder } from 'fxa-shared/payments/stripe-firestore';
+import { FirestoreStripeErrorBuilder } from '@fxa/accounts/subscriptions-legacy/payments/stripe-firestore';
 
 // ALLOWED_EXPAND_RESOURCE_TYPES is a map of "types" of Stripe objects that we
 // will fetch the latest of for the webhook event, _instead of_ using the

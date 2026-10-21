@@ -6,18 +6,22 @@ import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { Firestore } from '@google-cloud/firestore';
 import { Inject, Injectable, OnModuleDestroy, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PaymentConfigManager } from 'fxa-shared/payments/configuration/manager';
+import {
+  deleteAccountCustomer,
+  getAccountCustomerByUid,
+} from '@fxa/shared/db/mysql/legacy/models/auth';
+import { PaymentConfigManager } from '@fxa/accounts/subscriptions-legacy/payments/configuration/manager';
 import {
   determineIapIdentifiers,
   STRIPE_PRICE_METADATA,
   StripeHelper,
-} from 'fxa-shared/payments/stripe';
-import { StripeFirestore } from 'fxa-shared/payments/stripe-firestore';
+} from '@fxa/accounts/subscriptions-legacy/payments/stripe';
+import { StripeFirestore } from '@fxa/accounts/subscriptions-legacy/payments/stripe-firestore';
 import {
   AbbrevPlan,
   MozillaSubscriptionTypes,
   SubscriptionType,
-} from 'fxa-shared/subscriptions/types';
+} from '@fxa/accounts/subscriptions-legacy/subscriptions/types';
 import { StatsD } from 'hot-shots';
 import Stripe from 'stripe';
 import { FirestoreService } from '../backend/firestore.service';
@@ -146,6 +150,14 @@ export class StripeService extends StripeHelper {
     this.initStripe();
   }
 
+  protected override getAccountCustomerByUid(uid: string) {
+    return getAccountCustomerByUid(uid);
+  }
+
+  protected override deleteAccountCustomer(uid: string) {
+    return deleteAccountCustomer(uid);
+  }
+
   /**
    * Resolves the latest stripe invoice.
    * @param invoice - an invoice id
@@ -188,4 +200,3 @@ export function iapPurchaseToPlan(
     return identifiers.some((id) => id === purchaseId.toLowerCase());
   });
 }
-

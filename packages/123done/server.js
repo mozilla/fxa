@@ -54,7 +54,7 @@ oauth(app, db, checkAuth);
 // a function to verify that the current user is authenticated
 function checkAuth(req, res, next) {
   if (!req.session.email) {
-    res.send('authentication required\n', 401);
+    res.status(401).send('authentication required\n');
   } else {
     next();
   }
@@ -208,20 +208,20 @@ app.post('/api/refresh_token', checkAuth, async function (req, res) {
 // logout clears the current authenticated user
 app.post('/api/logout', checkAuth, function (req, res) {
   req.session = null;
-  res.send(200);
+  res.sendStatus(200);
 });
 
 // the 'todo/save' api saves a todo list
 app.post('/api/todos/save', checkAuth, function (req, res) {
   if (db) {
-    db.set(req.session.user, JSON.stringify(req.body));
+    db.set(req.session.user, JSON.stringify(req.body || {}));
   }
-  res.send(200);
+  res.sendStatus(200);
 });
 
 app.post('/api/webhook', function (req, res) {
   res.set('Content-Type', 'application/json');
-  res.send(req.body);
+  res.send(req.body || {});
 });
 
 // the 'todo/get' api gets the current version of the todo list
@@ -230,21 +230,17 @@ app.get('/api/todos/get', checkAuth, function (req, res) {
   if (db) {
     db.get(req.session.user, function (err, reply) {
       if (err) {
-        res.send(err.toString(), { 'Content-Type': 'text/plain' }, 500);
+        res.status(500).type('text/plain').send(err.toString());
       } else {
-        res.send(
-          reply ? reply : '[]',
-          { 'Content-Type': 'application/json' },
-          200
-        );
+        res.type('application/json').send(reply ? reply : '[]');
       }
     });
   } else {
-    res.send(
-      '[{"v": "Install redis locally for persistent storage, if I want to"}]',
-      { 'Content-Type': 'application/json' },
-      200
-    );
+    res
+      .type('application/json')
+      .send(
+        '[{"v": "Install redis locally for persistent storage, if I want to"}]'
+      );
   }
 });
 

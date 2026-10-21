@@ -11,7 +11,7 @@ import PQueue from 'p-queue';
 import { AppConfig, AuthFirestore } from '../../lib/types';
 import { ConfigType } from '../../config';
 import { StripeHelper } from '../../lib/payments/stripe';
-import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
+import { ACTIVE_SUBSCRIPTION_STATUSES } from '@fxa/accounts/subscriptions-legacy/subscriptions/stripe';
 
 /**
  * Firestore subscriptions contain additional expanded information

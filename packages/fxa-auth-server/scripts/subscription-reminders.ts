@@ -6,7 +6,7 @@ import { StatsD } from 'hot-shots';
 import Container from 'typedi';
 import { promisify } from 'util';
 import * as Sentry from '@sentry/node';
-import { initSentry } from 'fxa-shared/sentry/node';
+import { initSentry } from '@fxa/shared/sentry-node';
 
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { SubscriptionReminders } from '../lib/payments/subscription-reminders';

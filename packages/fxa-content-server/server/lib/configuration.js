@@ -8,16 +8,38 @@ const convict = require('convict');
 const fs = require('fs');
 const path = require('path');
 
+// Every content-server process (server, grunt, webpack) loads this file
+// first, so register the @fxa/* aliases here. They resolve to the compiled
+// libs in the repo root dist/.
+{
+  const root = path.resolve(__dirname, '../../../..');
+  const { paths } = require(
+    path.join(root, 'tsconfig.base.json')
+  ).compilerOptions;
+  require('tsconfig-paths').register({
+    baseUrl: root,
+    addMatchAll: false,
+    paths: Object.fromEntries(
+      Object.entries(paths).map(([alias, targets]) => [
+        alias,
+        targets.map((t) =>
+          t.replace(/^\.\/libs\//, './dist/libs/').replace(/\.tsx?$/, '.js')
+        ),
+      ])
+    ),
+  });
+}
+
 const versionInfo = require('./version');
 
-const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
-const DEFAULT_SUPPORTED_LANGUAGES = require('../../../../libs/shared/l10n/src/lib/supported-languages.json');
+const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('@fxa/accounts/oauth');
+const {
+  supportedLanguages: DEFAULT_SUPPORTED_LANGUAGES,
+} = require('@fxa/shared/l10n');
 
 convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
-convict.addFormats(
-  require('fxa-shared/configuration/convict-format-allow-list').format
-);
+convict.addFormats(require('@fxa/shared/url-allow-list').format);
 
 const conf = (module.exports = convict({
   allowed_iframe_contexts: {
@@ -304,24 +326,6 @@ const conf = (module.exports = convict({
     },
   },
   showReactApp: {
-    emailFirstRoutes: {
-      default: false,
-      doc: 'Enable users to visit the React version of "email first" routes',
-      format: Boolean,
-      env: 'REACT_CONVERSION_EMAIL_FIRST_ROUTES',
-    },
-    simpleRoutes: {
-      default: false,
-      doc: 'Enable users to visit the React version of "simple" routes',
-      format: Boolean,
-      env: 'REACT_CONVERSION_SIMPLE_ROUTES',
-    },
-    postVerifyOtherRoutes: {
-      default: false,
-      doc: 'Enable users to visit the React version of any other "post verify" routes',
-      format: Boolean,
-      env: 'REACT_CONVERSION_POST_VERIFY_OTHER_ROUTES',
-    },
     webChannelExampleRoutes: {
       default: false,
       doc: 'Enable users to visit the React version of "web channel example" routes',
@@ -769,6 +773,12 @@ const conf = (module.exports = convict({
       default: 1,
       doc: 'The pairing flow version to use. 1 is the legacy content-server flow, 2 is the React "pair2" rewrite.',
       env: 'PAIRING_VERSION',
+      format: Number,
+    },
+    totp_max_age_minutes: {
+      default: 5,
+      doc: 'How recently the browser must have verified a TOTP code for a 2FA account to start a pairing without entering one again.',
+      env: 'PAIRING_TOTP_MAX_AGE_MINUTES',
       format: Number,
     },
     v2_min_version: {

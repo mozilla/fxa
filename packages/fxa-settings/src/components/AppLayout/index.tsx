@@ -83,6 +83,11 @@ export const AppLayout = ({
   const showLocaleToggle = config.featureFlags?.showLocaleToggle;
   const showDarkModeToggle = config.darkMode?.enabled;
 
+  // The mobile pairing screens carry their own Firefox lockup instead of the
+  // Mozilla logo header, and their loading states match.
+  const isMobilePairingScreen =
+    window.location.pathname?.startsWith('/pair/supplicant') ?? false;
+
   return (
     <>
       <Head {...{ title: overrideTitle, favicon }} />
@@ -104,46 +109,48 @@ export const AppLayout = ({
         data-testid="app"
       >
         <div id="body-top" className="w-full hidden mobileLandscape:block" />
-        <header
-          className={classNames(
-            'w-full px-6 py-4 mobileLandscape:py-6',
-            cmsBackgrounds?.header &&
-              'mobileLandscape:[background:var(--cms-header-bg)]',
-            // Absolute position so the background-image can optionally show through.
-            splitLayout && !cmsBackgrounds?.header && 'desktop:absolute'
-          )}
-          style={
-            cmsBackgrounds?.header
-              ? ({
-                  '--cms-header-bg': cmsBackgrounds.header,
-                } as React.CSSProperties)
-              : undefined
-          }
-        >
-          <LinkExternal
-            rel="author"
-            href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
-            className="mobileLandscape:inline-block"
-          >
-            {cmsHeaderLogoUrl ? (
-              <img
-                src={cmsHeaderLogoUrl}
-                alt={cmsHeaderLogoAltText || 'logo'}
-                className="h-auto w-[140px] mx-0"
-              />
-            ) : (
-              <img
-                src={mozLogo}
-                alt={l10n.getString(
-                  'app-footer-mozilla-logo-label',
-                  null,
-                  'Mozilla logo'
-                )}
-                className="h-auto w-[140px] mx-0 dark:invert"
-              />
+        {!isMobilePairingScreen && (
+          <header
+            className={classNames(
+              'w-full px-6 py-4 mobileLandscape:py-6',
+              cmsBackgrounds?.header &&
+                'mobileLandscape:[background:var(--cms-header-bg)]',
+              // Absolute position so the background-image can optionally show through.
+              splitLayout && !cmsBackgrounds?.header && 'desktop:absolute'
             )}
-          </LinkExternal>
-        </header>
+            style={
+              cmsBackgrounds?.header
+                ? ({
+                    '--cms-header-bg': cmsBackgrounds.header,
+                  } as React.CSSProperties)
+                : undefined
+            }
+          >
+            <LinkExternal
+              rel="author"
+              href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
+              className="mobileLandscape:inline-block"
+            >
+              {cmsHeaderLogoUrl ? (
+                <img
+                  src={cmsHeaderLogoUrl}
+                  alt={cmsHeaderLogoAltText || 'logo'}
+                  className="h-auto w-[140px] mx-0"
+                />
+              ) : (
+                <img
+                  src={mozLogo}
+                  alt={l10n.getString(
+                    'app-footer-mozilla-logo-label',
+                    null,
+                    'Mozilla logo'
+                  )}
+                  className="h-auto w-[140px] mx-0 dark:invert"
+                />
+              )}
+            </LinkExternal>
+          </header>
+        )}
 
         {!splitLayout ? (
           <>

@@ -5,8 +5,8 @@
 import { Firestore } from '@google-cloud/firestore';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PurchaseManager } from 'fxa-shared/payments/iap/google-play/purchase-manager';
-import { UserManager } from 'fxa-shared/payments/iap/google-play/user-manager';
+import { PurchaseManager } from '@fxa/accounts/subscriptions-legacy/payments/iap/google-play/purchase-manager';
+import { UserManager } from '@fxa/accounts/subscriptions-legacy/payments/iap/google-play/user-manager';
 import { Auth, google } from 'googleapis';
 import { FirestoreService } from '../backend/firestore.service';
 import { MozLoggerService } from '@fxa/shared/mozlog';

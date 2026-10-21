@@ -109,6 +109,9 @@ test.describe('severity-1 #smoke', () => {
       await expect(page).toHaveURL(/confirm_signup_code/);
       await confirmSignupCode.resendCodeButton.click();
       await expect(page).toHaveURL(/confirm_signup_code/);
+      await expect(
+        page.getByText(/A new code was sent to your email./)
+      ).toBeVisible();
       const code = await target.emailClient.getVerifyShortCode(
         credentials.email
       );

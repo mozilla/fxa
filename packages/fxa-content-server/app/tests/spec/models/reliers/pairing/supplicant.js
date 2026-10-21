@@ -108,7 +108,7 @@ describe('models/reliers/pairing/supplicant', () => {
           8
         );
         assert.isTrue(
-          relier.importHashParamsUsingSchema.firstCall.calledWith({
+          relier.importHashParamsUsingSchema.firstCall.calledWithMatch({
             channel_id: { _renameTo: 'channelId' }, // eslint-disable-line camelcase
             channel_key: { _renameTo: 'channelKey' }, // eslint-disable-line camelcase
           })
@@ -156,8 +156,7 @@ describe('models/reliers/pairing/supplicant', () => {
       relier.set('state', 'one');
       try {
         relier.validateApprovalData({
-          code:
-            'fc46f44802b2a2ce979f39b2187aa1c0fc46f44802b2a2ce979f39b2187aa1c0',
+          code: 'fc46f44802b2a2ce979f39b2187aa1c0fc46f44802b2a2ce979f39b2187aa1c0',
           state: 'one',
         });
       } catch (err) {

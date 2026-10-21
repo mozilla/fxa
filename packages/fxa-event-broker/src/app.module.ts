@@ -6,10 +6,9 @@ import { APP_FILTER } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
-import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
-import { LoggerModule } from 'fxa-shared/nestjs/logger/logger.module';
-import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
-import { getVersionInfo } from 'fxa-shared/nestjs/version';
+import { MozLoggerModule } from '@fxa/shared/mozlog';
+import { LegacyMetricsProvider } from '@fxa/shared/metrics/statsd';
+import { getVersionInfo, HealthModule } from '@fxa/shared/nest-health';
 
 import { AuthModule } from './auth/auth.module';
 import { ClientCapabilityModule } from './client-capability/client-capability.module';
@@ -35,7 +34,7 @@ const version = getVersionInfo(__dirname);
     FirestoreModule,
     HealthModule.register({ version }),
     JwtsetModule,
-    LoggerModule,
+    MozLoggerModule,
     ScheduleModule.forRoot(),
     QueueworkerModule,
     PubsubProxyModule,
@@ -46,7 +45,7 @@ const version = getVersionInfo(__dirname);
       provide: APP_FILTER,
       useClass: SentryGlobalFilter,
     },
-    MetricsFactory,
+    LegacyMetricsProvider,
   ],
 })
 export class AppModule {}

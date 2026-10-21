@@ -3,6 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Container } from 'typedi';
+import { createMock } from '@golevelup/ts-jest';
+import type { LoggerService } from '@nestjs/common';
+import type { StatsD } from '@fxa/shared/metrics/statsd';
 import Redis from 'ioredis';
 import { setupAccountDatabase } from '@fxa/shared/db/mysql/account';
 import {
@@ -30,13 +33,8 @@ let passkeyOrigin: string;
 
 beforeAll(async () => {
   redis = new Redis({ host: 'localhost' });
-  const mockStatsD = { increment: jest.fn() };
-  const mockLog = {
-    error: jest.fn(),
-    warn: jest.fn(),
-    debug: jest.fn(),
-    log: jest.fn(),
-  };
+  const mockStatsD = createMock<StatsD>();
+  const mockLog = createMock<LoggerService>();
   const config = Config.getProperties();
   db = await setupAccountDatabase(config.database.mysql.auth);
 
@@ -47,21 +45,21 @@ beforeAll(async () => {
   const passkeyManager = new PasskeyManager(
     db,
     passkeyConfig,
-    mockStatsD as any,
-    mockLog as any
+    mockStatsD,
+    mockLog
   );
   const passkeyChallengeManager = new PasskeyChallengeManager(
     redis,
     passkeyConfig,
-    mockLog as any,
-    mockStatsD as any
+    mockLog,
+    mockStatsD
   );
   const passkeyService = new PasskeyService(
     passkeyManager,
     passkeyChallengeManager,
     passkeyConfig,
-    mockStatsD as any,
-    mockLog as any
+    mockStatsD,
+    mockLog
   );
 
   // Register the PasskeyService instance before the server starts so that the

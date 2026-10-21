@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { initTracing } = require('@fxa/shared/otel');
-const { initSentry } = require('fxa-shared/sentry/node');
+const { initSentry } = require('@fxa/shared/sentry-node');
 const Sentry = require('@sentry/node');
 const { config: convictConfig } = require('../config');
 const config = convictConfig.getProperties();

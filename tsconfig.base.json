@@ -29,6 +29,9 @@
     "useUnknownInCatchVariables": false,
     "baseUrl": ".",
     "paths": {
+      "@fxa/accounts/connected-services": [
+        "./libs/accounts/connected-services/src/index.ts"
+      ],
       "@fxa/accounts/email-renderer": [
         "./libs/accounts/email-renderer/src/index.ts"
       ],
@@ -42,6 +45,9 @@
       "@fxa/accounts/rate-limit": ["./libs/accounts/rate-limit/src/index.ts"],
       "@fxa/accounts/recovery-phone": [
         "./libs/accounts/recovery-phone/src/index.ts"
+      ],
+      "@fxa/accounts/subscriptions-legacy/*": [
+        "./libs/accounts/subscriptions-legacy/src/*"
       ],
       "@fxa/accounts/two-factor": ["./libs/accounts/two-factor/src/index.ts"],
       "@fxa/entitlements/metering": ["./libs/entitlements/metering/src/index.ts"],
@@ -111,12 +117,21 @@
         "./libs/shared/db/mysql/account/src/lib/*"
       ],
       "@fxa/shared/db/mysql/core": ["./libs/shared/db/mysql/core/src/index.ts"],
+      "@fxa/shared/db/mysql/legacy": [
+        "./libs/shared/db/mysql/legacy/src/index.ts"
+      ],
+      "@fxa/shared/db/mysql/legacy/*": [
+        "./libs/shared/db/mysql/legacy/src/lib/*"
+      ],
       "@fxa/shared/db/type-cacheable": [
         "./libs/shared/db/type-cacheable/src/index.ts"
       ],
+      "@fxa/shared/email": ["./libs/shared/email/src/index.ts"],
+      "@fxa/shared/email/server": ["./libs/shared/email/src/server.ts"],
       "@fxa/shared/error": ["./libs/shared/error/src/index.ts"],
       "@fxa/shared/error/error": ["./libs/shared/error/src/lib/error.ts"],
       "@fxa/shared/experiments": ["./libs/shared/experiments/src/index.ts"],
+      "@fxa/shared/express": ["./libs/shared/express/src/index.ts"],
       "@fxa/shared/geodb": ["./libs/shared/geodb/src/index.ts"],
       "@fxa/shared/glean": ["./libs/shared/metrics/glean/src/index.ts"],
       "@fxa/shared/guards": ["./libs/shared/guards/src/index.ts"],
@@ -124,9 +139,11 @@
       "@fxa/shared/l10n/client": ["./libs/shared/l10n/src/client.ts"],
       "@fxa/shared/l10n/server": ["./libs/shared/l10n/src/server.ts"],
       "@fxa/shared/log": ["./libs/shared/log/src/index.ts"],
+      "@fxa/shared/metrics/amplitude": ["./libs/shared/metrics/amplitude/src/index.ts"],
       "@fxa/shared/metrics/glean": ["./libs/shared/metrics/glean/src/index.ts"],
       "@fxa/shared/metrics/statsd": ["./libs/shared/metrics/statsd/src/index.ts"],
       "@fxa/shared/mozlog": ["./libs/shared/mozlog/src/index.ts"],
+      "@fxa/shared/nest-health": ["./libs/shared/nest-health/src/index.ts"],
       "@fxa/shared/nestjs/customs": ["./libs/shared/nestjs/customs/src/index.ts"],
       "@fxa/shared/notifier": ["./libs/shared/notifier/src/index.ts"],
       "@fxa/shared/otel": ["./libs/shared/otel/src/index.ts"],
@@ -140,6 +157,8 @@
       "@fxa/shared/sentry-node": ["./libs/shared/sentry-node/src/index.ts"],
       "@fxa/shared/sentry-utils": ["./libs/shared/sentry-utils/src/index.ts"],
       "@fxa/shared/sentry/client": ["./libs/shared/sentry/src/client.ts"],
+      "@fxa/shared/url-allow-list": ["./libs/shared/url-allow-list/src/index.ts"],
+      "@fxa/shared/user-agent": ["./libs/shared/user-agent/src/index.ts"],
       "@fxa/vendored/common-password-list": [
         "./libs/vendored/common-password-list/src/index.ts"
       ],

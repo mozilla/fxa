@@ -6,7 +6,7 @@ import { Module } from '@nestjs/common';
 import { AuthClientFactory, AuthClientService } from './auth-client.service';
 import { FirestoreFactory, FirestoreService } from './firestore.service';
 import { CloudTasksFactory, CloudTasksService } from './cloud-tasks.service';
-import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
+import { LegacyMetricsProvider } from '@fxa/shared/metrics/statsd';
 import { ProfileClient } from '@fxa/profile/client';
 import { ProfileClientFactory } from './profile-client.service';
 import {
@@ -25,7 +25,7 @@ import { FidoMdsService } from './fido-mds.service';
     FirestoreFactory,
     CloudTasksFactory,
     DatabaseService,
-    MetricsFactory,
+    LegacyMetricsProvider,
     ProfileClientFactory,
     EmailLinkBuilderFactory,
     FxaEmailRendererFactory,

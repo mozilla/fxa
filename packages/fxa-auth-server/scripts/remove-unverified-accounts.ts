@@ -2,8 +2,8 @@
 //import {
 //deleteAllPayPalBAs,
 //getAllPayPalBAByUid,
-//} from 'fxa-shared/db/models/auth';
-//import { Account } from 'fxa-shared/db/models/auth/account';
+//} from '@fxa/shared/db/mysql/legacy/models/auth';
+//import { Account } from '@fxa/shared/db/mysql/legacy/models/auth/account';
 //import Stripe from 'stripe';
 //import Container from 'typedi';
 //import { promisify } from 'util';

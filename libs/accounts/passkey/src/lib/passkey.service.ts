@@ -317,6 +317,17 @@ export class PasskeyService {
   }
 
   /**
+   * Returns whether the user has at least one passkey set up for passwordless
+   * Sync, i.e. holding a wrap.
+   *
+   * @param uid - User ID as a hex string
+   * @returns true if the user holds one or more wraps
+   */
+  async hasPasskeyWraps(uid: string): Promise<boolean> {
+    return (await this.passkeyManager.countPasskeyWraps(uid)) > 0;
+  }
+
+  /**
    * Updates the friendly name for a passkey, ensuring the passkey belongs to the user.
    * The name is trimmed before validation and storage.
    *
@@ -656,6 +667,24 @@ export class PasskeyService {
     const failed = `passkey.${type}.failed`;
     const credentialId = response.id;
 
+    // Consumed first so a failed attempt, even with an unknown credential,
+    // cannot leave the challenge live for a retry.
+    const storedChallenge =
+      type === 'verification'
+        ? await this.challengeManager.consumeVerificationChallenge(
+            challenge,
+            // verifyVerificationResponse always passes the session uid.
+            expectedUid as string
+          )
+        : await this.challengeManager.consumeAuthenticationChallenge(challenge);
+    if (!storedChallenge) {
+      this.metrics.increment(failed, {
+        reason: 'challengeNotFound',
+      });
+      this.log?.warn('passkey.challengeNotFound', { credentialId, type });
+      throw AppError.passkeyChallengeNotFound();
+    }
+
     const passkey =
       await this.passkeyManager.findPasskeyByCredentialId(credentialId);
     if (!passkey) {
@@ -671,21 +700,6 @@ export class PasskeyService {
         reason: 'uidMismatch',
       });
       throw AppError.passkeyAuthenticationFailed();
-    }
-
-    const storedChallenge =
-      type === 'verification'
-        ? await this.challengeManager.consumeVerificationChallenge(
-            challenge,
-            uid
-          )
-        : await this.challengeManager.consumeAuthenticationChallenge(challenge);
-    if (!storedChallenge) {
-      this.metrics.increment(failed, {
-        reason: 'challengeNotFound',
-      });
-      this.log?.warn('passkey.challengeNotFound', { credentialId, type });
-      throw AppError.passkeyChallengeNotFound();
     }
 
     // `allowCredentials` already narrowed the browser's prompt, but the finish
@@ -808,8 +822,10 @@ export class PasskeyService {
    *
    * @param keysChangedAt - When the account's `kB` last changed; a stored wrap
    *   older than this is replaced rather than defended
-   * @returns `created` when a row was inserted, `unchanged` when one already
-   *   matched
+   * @returns `created` when a row was inserted, `replaced` when it took the
+   *   place of a stale wrap, `invalidated` when it removed a stale wrap but a
+   *   concurrent identical request inserted the row, `unchanged` when one
+   *   already matched
    */
   async storePasskeyWrap(
     uid: string,
@@ -817,7 +833,7 @@ export class PasskeyService {
     envelope: PasskeyWrapEnvelope,
     now: number,
     keysChangedAt: number
-  ): Promise<'created' | 'unchanged'> {
+  ): Promise<'created' | 'replaced' | 'invalidated' | 'unchanged'> {
     await this.requireOwnedPasskey(uid, credentialId, 'store');
 
     const existing = await this.passkeyManager.findPasskeyWrap(
@@ -862,12 +878,17 @@ export class PasskeyService {
 
       // Two requests can both read no wrap before either commits, and the loser
       // lands here. Re-read so an identical payload still reports `unchanged`,
-      // the same answer it would have got a moment earlier.
+      // or `invalidated` if our delete removed a stale wrap. The winner
+      // reports the insert.
       const winner = await this.passkeyManager.findPasskeyWrap(
         uid,
         credentialId
       );
       if (winner && isSameEnvelope(winner, envelope)) {
+        if (replacedStale) {
+          this.metrics.increment('passkey.wrap.store.replaced_stale');
+          return 'invalidated';
+        }
         this.metrics.increment('passkey.wrap.store.unchanged');
         return 'unchanged';
       }
@@ -885,7 +906,7 @@ export class PasskeyService {
     this.metrics.increment('passkey.wrap.store.success');
     this.log?.log('passkey.wrap.stored', { uid });
 
-    return 'created';
+    return replacedStale ? 'replaced' : 'created';
   }
 
   /**

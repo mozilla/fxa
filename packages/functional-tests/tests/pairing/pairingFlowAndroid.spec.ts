@@ -55,7 +55,9 @@ const debug = (msg: string) => DEBUG && console.log(`[android-PAIRING] ${msg}`);
 
 /** True for the Fenix supplicant device registered on the account. */
 function isMobileDevice(d: any): boolean {
-  return d.type === 'mobile' || /Android|Fenix|Firefox/i.test(d.name || '');
+  return d.type
+    ? d.type === 'mobile'
+    : /Android|Fenix|Firefox/i.test(d.name || '');
 }
 
 /** One-line device summary for the run log, showing connection flags. */

@@ -5,6 +5,8 @@
 // Important! Must be required first to get proper hooks in place.
 require('../lib/monitoring');
 
+// Proves @fxa/* resolves at runtime. Remove once a real @fxa import lands.
+require('@fxa/shared/l10n');
 const configuration = require('../lib/config');
 const db = require('../lib/db');
 const logger = require('../lib/logging')('bin.server');

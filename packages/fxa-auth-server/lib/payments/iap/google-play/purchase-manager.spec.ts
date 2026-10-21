@@ -25,14 +25,17 @@ jest.mock('./subscription-purchase', () => ({
   },
 }));
 
-jest.mock('fxa-shared/payments/iap/google-play/subscription-purchase', () => ({
-  get PlayStoreSubscriptionPurchase() {
-    return mockSubscriptionPurchase;
-  },
-  get mergePurchaseWithFirestorePurchaseRecord() {
-    return mockMergePurchase;
-  },
-}));
+jest.mock(
+  '@fxa/accounts/subscriptions-legacy/payments/iap/google-play/subscription-purchase',
+  () => ({
+    get PlayStoreSubscriptionPurchase() {
+      return mockSubscriptionPurchase;
+    },
+    get mergePurchaseWithFirestorePurchaseRecord() {
+      return mockMergePurchase;
+    },
+  })
+);
 
 // Must require after jest.mock
 const { PurchaseManager } = require('./purchase-manager');

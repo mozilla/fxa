@@ -13,7 +13,7 @@ const config = require('../config').default.getProperties();
 const crypto = require('crypto');
 const { AppError: error } = require('@fxa/accounts/errors');
 const knownIpLocation = require('./known-ip-location');
-const { normalizeEmail } = require('fxa-shared').email.helpers;
+const { normalizeEmail } = require('@fxa/shared/email');
 const { Container } = require('typedi');
 const { AccountEventsManager } = require('../lib/account-events');
 const { gleanMetrics } = require('../lib/metrics/glean');
@@ -21,8 +21,8 @@ const { ProductConfigurationManager } = require('@fxa/shared/cms');
 
 // Patch Account.metricsEnabled before loading amplitude (replicates what
 // proxyquire used to do without replacing the entire auth models module).
-// Guard: some test files mock 'fxa-shared/db/models/auth' as {} before this runs.
-const _authModels = require('fxa-shared/db/models/auth');
+// Guard: some test files mock '@fxa/shared/db/mysql/legacy/models/auth' as {} before this runs.
+const _authModels = require('@fxa/shared/db/mysql/legacy/models/auth');
 const _Account = _authModels.Account;
 let _origMetricsEnabled;
 if (_Account) {

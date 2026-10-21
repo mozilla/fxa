@@ -54,17 +54,6 @@ export default {
     return this.model.get('typeDefault') === true;
   },
 
-  /**
-   * Is a primary email being verified?
-   *
-   * @returns {Boolean}
-   */
-  isPrimaryEmail() {
-    return (
-      this.model.get('type') === VerificationReasons.PRIMARY_EMAIL_VERIFIED
-    );
-  },
-
   isForcePasswordChange(account) {
     return (
       account.get('verificationReason') === VerificationReasons.CHANGE_PASSWORD

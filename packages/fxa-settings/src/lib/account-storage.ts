@@ -25,6 +25,8 @@ export interface UnifiedAccountData {
   verified: boolean;
   metricsEnabled: boolean;
   sessionVerified: boolean;
+  /** When this browser last verified a TOTP code for the account, in ms. */
+  totpVerifiedAt?: number;
 
   // Profile data
   displayName: string | null;
@@ -217,6 +219,7 @@ export function getBasicAccountData(uid?: string): {
   verified: boolean;
   sessionToken?: string;
   sessionVerified: boolean;
+  totpVerifiedAt?: number;
 } | null {
   const account = getAccountData(uid);
   if (!account) return null;
@@ -228,6 +231,7 @@ export function getBasicAccountData(uid?: string): {
     verified: account.verified,
     sessionToken: account.sessionToken,
     sessionVerified: account.sessionVerified,
+    totpVerifiedAt: account.totpVerifiedAt,
   };
 }
 
@@ -243,6 +247,10 @@ export function getSessionVerified(uid?: string): boolean {
 
 export function setSessionVerified(verified: boolean, uid?: string): void {
   updateAccountData({ sessionVerified: verified }, uid);
+}
+
+export function recordTotpVerified(uid?: string): void {
+  updateAccountData({ totpVerifiedAt: Date.now() }, uid);
 }
 
 export function getExtendedAccountState(uid?: string): ExtendedAccountState {

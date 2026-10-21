@@ -7,10 +7,6 @@
 const {
   getServerReactRouteGroups,
 } = require('./routes/react-app/route-groups-server');
-const { getRoutesExcludingAllReact } = require('./routes/get-frontend');
-const {
-  UPDATE_FIREFOX_ROUTES,
-} = require('./routes/react-app/content-server-routes');
 
 module.exports = function (config, i18n, statsd, glean) {
   const redirectVersionedToUnversioned = require('./routes/redirect-versioned-to-unversioned');
@@ -31,10 +27,6 @@ module.exports = function (config, i18n, statsd, glean) {
     require('./routes/get-assetlinks-json')(),
     require('./routes/get-frontend').default(reactRouteGroups),
     require('./routes/get-oauth-success').default(reactRouteGroups),
-    // With the React flag on, add-routes.js registers it after the React handler
-    getRoutesExcludingAllReact(reactRouteGroups, UPDATE_FIREFOX_ROUTES).length
-      ? require('./routes/get-update-firefox')(config)
-      : null,
     require('./routes/get-index').default(reactRouteGroups, config),
     require('./routes/get-ver.json'),
     require('./routes/get-client.json')(i18n),
@@ -49,7 +41,6 @@ module.exports = function (config, i18n, statsd, glean) {
     require('./routes/post-metrics')(statsd),
     require('./routes/redirect-download-firefox')(config),
     require('./routes/post-third-party-auth-redirect')(config),
-    require('./routes/get-500')(config),
     require('./routes/validate-email-domain')(config),
     require('./routes/post-nimbus-experiments')(config, statsd),
   ].filter((routeDefinition) => routeDefinition); // get rid of null values
@@ -73,8 +64,6 @@ module.exports = function (config, i18n, statsd, glean) {
   }
 
   if (config.get('env') === 'development') {
-    routes.push(require('./routes/get-502')(config));
-    routes.push(require('./routes/get-503')(config));
     // Add a route in dev mode to test 500 errors
     routes.push(require('./routes/get-boom')());
     // front end mocha tests

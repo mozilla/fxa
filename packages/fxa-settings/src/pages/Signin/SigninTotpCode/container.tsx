@@ -32,6 +32,7 @@ import { getHandledError, HandledError } from '../../../lib/error-utils';
 import { tryFinalizeUpgrade } from '../../../lib/auth-key-stretch-upgrade';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import AppLayout from '../../../components/AppLayout';
+import { recordTotpVerified } from '../../../lib/account-storage';
 
 export type SigninTotpCodeContainerProps = {
   integration: Integration;
@@ -99,6 +100,7 @@ export const SigninTotpCodeContainer = ({
       if (!result.success) {
         return { error: AuthUiErrors.INVALID_TOTP_CODE as HandledError };
       }
+      recordTotpVerified(signinState.uid);
 
       // Attempt to finish any pending key stretching upgrade. We cannot finalize
       // a key stretching upgrade until the session is verified, which the process

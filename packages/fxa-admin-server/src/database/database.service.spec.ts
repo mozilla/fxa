@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Path } from 'convict';
 
-import { testDatabaseSetup } from 'fxa-shared/test/db/helpers';
+import { testDatabaseSetup } from '@fxa/shared/db/mysql/legacy/testing/helpers';
 import { Knex } from 'knex';
 import config, { AppConfig } from '../config';
 import { DatabaseService, typeCasting } from './database.service';

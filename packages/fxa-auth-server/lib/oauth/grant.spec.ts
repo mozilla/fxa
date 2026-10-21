@@ -47,10 +47,9 @@ jest.mock('./jwt', () => ({
   },
 }));
 
-import fxaShared from 'fxa-shared';
+import { scopeSetHelpers as ScopeSet } from '@fxa/accounts/oauth';
 import { Container } from 'typedi';
 
-const ScopeSet = (fxaShared as any).oauth.scopes;
 import * as grantModule from './grant';
 import * as mockDBModule from './db';
 import * as mockJWTAccessTokenModule from './jwt_access_token';

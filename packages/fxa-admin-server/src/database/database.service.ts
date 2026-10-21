@@ -9,8 +9,8 @@ import {
   ConnectedServicesDb,
   mergeCachedSessionTokens,
   mergeDevicesAndSessionTokens,
-} from 'fxa-shared/connected-services';
-import { monitorKnexConnectionPool } from 'fxa-shared/db';
+} from '@fxa/accounts/connected-services';
+import { monitorKnexConnectionPool } from '@fxa/shared/db/mysql/legacy';
 import {
   Account,
   BaseAuthModel,
@@ -27,9 +27,9 @@ import {
   SessionToken,
   TotpToken,
   WafBypassToken,
-} from 'fxa-shared/db/models/auth';
-import { MysqlOAuthShared } from 'fxa-shared/db/mysql';
-import { RedisShared } from 'fxa-shared/db/redis';
+} from '@fxa/shared/db/mysql/legacy/models/auth';
+import { MysqlOAuthShared } from '@fxa/shared/db/mysql/legacy/mysql';
+import { RedisShared } from '@fxa/shared/db/mysql/legacy/redis';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { StatsD } from 'hot-shots';
 import { Knex, knex } from 'knex';

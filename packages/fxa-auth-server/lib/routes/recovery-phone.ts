@@ -37,7 +37,7 @@ import RECOVERY_PHONE_DOCS from '../../docs/swagger/recovery-phone-api';
 
 import { Container } from 'typedi';
 import { ConfigType } from '../../config';
-import { PasswordForgotToken } from 'fxa-shared/db/models/auth';
+import { PasswordForgotToken } from '@fxa/shared/db/mysql/legacy/models/auth';
 import { OtpUtils } from './utils/otp';
 import { FxaMailer } from '../senders/fxa-mailer';
 import { FxaMailerFormat } from '../senders/fxa-mailer-format';

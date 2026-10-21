@@ -15,7 +15,6 @@ const importPaths = [
 ];
 const additionalJSImports = {
   'fxa-react': resolve(__dirname, '../'),
-  'fxa-shared': resolve(__dirname, '../../fxa-shared'),
 };
 
 const customizeWebpackConfig = ({ config }) => ({

@@ -14,12 +14,7 @@ import { SignupQueryParams } from '../../models/pages/signup';
 import { BeginSignupHandler, SignupIntegration } from './interfaces';
 import { useCallback, useEffect, useRef } from 'react';
 import { handleAuthClientError } from './utils';
-import {
-  getCredentials,
-  getCredentialsV2,
-  getKeysV2,
-} from 'fxa-auth-client/lib/crypto';
-import { createSaltV2 } from 'fxa-auth-client/lib/salt';
+import { getNewPasswordCredentials } from '../../lib/crypto/password-credentials';
 import { SignUpOptions } from 'fxa-auth-client/lib/client';
 import { KeyStretchExperiment } from '../../models/experiments/key-stretch-experiment';
 import VerificationMethods from '../../constants/verification-methods';
@@ -148,39 +143,15 @@ const SignupContainer = ({
       };
 
       try {
-        const credentialsV1 = await getCredentials(email, password);
-
-        let credentialsV2 = undefined;
-        let v2Payload:
-          | {
-              wrapKb: string;
-              authPWVersion2: string;
-              wrapKbVersion2: string;
-              clientSalt: string;
-            }
-          | {} = {};
-
-        if (keyStretchExp.queryParamModel.isV2(config)) {
-          credentialsV2 = await getCredentialsV2({
-            password,
-            clientSalt: createSaltV2(),
-          });
-          const { wrapKb, wrapKbVersion2 } = await getKeysV2({
-            v1: credentialsV1,
-            v2: credentialsV2,
-          });
-
-          v2Payload = {
-            wrapKb,
-            wrapKbVersion2,
-            authPWVersion2: credentialsV2.authPW,
-            clientSalt: credentialsV2.clientSalt,
-          };
-        }
+        const { v1, v2, v2Payload } = await getNewPasswordCredentials(
+          email,
+          password,
+          keyStretchExp.queryParamModel.isV2(config)
+        );
 
         const result = await authClient.signUpWithAuthPW(
           email,
-          credentialsV1.authPW,
+          v1.authPW,
           v2Payload,
           options
         );
@@ -194,9 +165,7 @@ const SignupContainer = ({
               keyFetchToken: result.keyFetchToken,
             },
             ...(wantsKeys && {
-              unwrapBKey: credentialsV2
-                ? credentialsV2.unwrapBKey
-                : credentialsV1.unwrapBKey,
+              unwrapBKey: (v2 ?? v1).unwrapBKey,
             }),
           },
         };

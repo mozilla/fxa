@@ -2,11 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getSharedTestServer, TestServerInstance } from '../support/helpers/test-server';
+import {
+  getSharedTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
 
 const Client = require('../client')();
-const ScopeSet = require('fxa-shared').oauth.scopes;
-const hashRefreshToken = require('fxa-shared/auth/encrypt').hash;
+const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
+const hashRefreshToken = require('@fxa/shared/crypto').hash;
 const unique = require('../../lib/oauth/unique');
 
 const buf = (v: any) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
@@ -42,7 +45,11 @@ describe.each(testVersions)(
       const email = server.uniqueEmail();
       const password = 'test password';
       const client = await Client.createAndVerify(
-        server.publicUrl, email, password, server.mailbox, testOptions
+        server.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        testOptions
       );
       const mySessionTokenId = (
         await tokens.SessionToken.fromHex(client.sessionToken)
@@ -83,7 +90,9 @@ describe.each(testVersions)(
           'https://identity.mozilla.com/apps/oldsync',
         ]),
       });
-      const refreshTokenId = hashRefreshToken(refreshToken.token).toString('hex');
+      const refreshTokenId = hashRefreshToken(refreshToken.token).toString(
+        'hex'
+      );
 
       allClients = await client.attachedClients();
       expect(allClients.length).toBe(2);
@@ -113,14 +122,26 @@ describe.each(testVersions)(
       const email = server.uniqueEmail();
       const password = 'test password';
       const client = await Client.createAndVerify(
-        server.publicUrl, email, password, server.mailbox, testOptions
+        server.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        testOptions
       );
       const mySessionTokenId = (
         await tokens.SessionToken.fromHex(client.sessionToken)
       ).id;
 
-      const client2 = await Client.login(server.publicUrl, email, password, testOptions);
-      const device = await client2.updateDevice({ name: 'test', type: 'desktop' });
+      const client2 = await Client.login(
+        server.publicUrl,
+        email,
+        password,
+        testOptions
+      );
+      const device = await client2.updateDevice({
+        name: 'test',
+        type: 'desktop',
+      });
 
       let allClients = await client.attachedClients();
       expect(allClients.length).toBe(2);
@@ -137,7 +158,11 @@ describe.each(testVersions)(
       const email = server.uniqueEmail();
       const password = 'test password';
       const client = await Client.createAndVerify(
-        server.publicUrl, email, password, server.mailbox, testOptions
+        server.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        testOptions
       );
 
       await Client.login(server.publicUrl, email, password, testOptions);
@@ -162,7 +187,11 @@ describe.each(testVersions)(
       const email = server.uniqueEmail();
       const password = 'test password';
       const client = await Client.createAndVerify(
-        server.publicUrl, email, password, server.mailbox, testOptions
+        server.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        testOptions
       );
       const mySessionTokenId = (
         await tokens.SessionToken.fromHex(client.sessionToken)
@@ -177,7 +206,9 @@ describe.each(testVersions)(
           'https://identity.mozilla.com/apps/oldsync',
         ]),
       });
-      const refreshTokenId = hashRefreshToken(refreshToken.token).toString('hex');
+      const refreshTokenId = hashRefreshToken(refreshToken.token).toString(
+        'hex'
+      );
 
       let allClients = await client.attachedClients();
       expect(allClients.length).toBe(2);
@@ -198,7 +229,11 @@ describe.each(testVersions)(
       const email = server.uniqueEmail();
       const password = 'test password';
       const client = await Client.createAndVerify(
-        server.publicUrl, email, password, server.mailbox, testOptions
+        server.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        testOptions
       );
 
       let oauthClients = await client.attachedOAuthClients();
@@ -212,11 +247,17 @@ describe.each(testVersions)(
       ]);
 
       await oauthServerDb.generateRefreshToken({
-        clientId, userId, email: client.email, scope,
+        clientId,
+        userId,
+        email: client.email,
+        scope,
       });
 
       const refreshToken2 = await oauthServerDb.generateRefreshToken({
-        clientId, userId, email: client.email, scope,
+        clientId,
+        userId,
+        email: client.email,
+        scope,
       });
 
       await new Promise((resolve) => setTimeout(resolve, 100));

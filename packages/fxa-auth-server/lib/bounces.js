@@ -5,8 +5,10 @@
 'use strict';
 
 const { AppError: error } = require('@fxa/accounts/errors');
-const { escapeLikePattern } = require('@fxa/accounts/email-sender');
-const { EmailNormalization } = require('fxa-shared/email/email-normalization');
+const {
+  EmailNormalization,
+  escapeLikePattern,
+} = require('@fxa/accounts/email-sender');
 
 module.exports = (config, db) => {
   const configBounces = (config.smtp && config.smtp.bounces) || {};

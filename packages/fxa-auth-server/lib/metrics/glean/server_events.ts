@@ -21,6 +21,102 @@ type Event = {
 
 let _logger: Logger;
 
+class ServerDeletionRequestServerEvent {
+  _applicationId: string;
+  _appDisplayVersion: string;
+  _channel: string;
+  /**
+   * Create ServerDeletionRequestServerEvent instance.
+   *
+   * @param {string} applicationId - The application ID.
+   * @param {string} appDisplayVersion - The application display version.
+   * @param {string} channel - The channel.
+   * @param {LoggerOptions} logger_options - The logger options.
+   */
+  constructor(
+    applicationId: string,
+    appDisplayVersion: string,
+    channel: string,
+    logger_options: LoggerOptions
+  ) {
+    this._applicationId = applicationId;
+    this._appDisplayVersion = appDisplayVersion;
+    this._channel = channel;
+
+    if (!_logger) {
+      // append '-glean' to `logger_options.app` to avoid collision with other loggers and double logging
+      logger_options.app = logger_options.app + '-glean';
+      // set the format to `heka` so messages are properly ingested and decoded
+      logger_options.fmt = 'heka';
+      // mozlog types declaration requires a typePrefix to be passed when creating a logger
+      // we don't want a typePrefix, so we pass `undefined`
+      _logger = mozlog(logger_options)(undefined);
+    }
+  }
+  /**
+   * Record and submit a server event object.
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id - The firefox/mozilla account id.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   */
+  record({
+    user_agent,
+    ip_address,
+    account_user_id,
+    account_user_id_sha256,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id: string;
+    account_user_id_sha256: string;
+  }) {
+    const now = new Date();
+    const timestamp = now.toISOString();
+    const eventPayload = {
+      metrics: {
+        string: {
+          'account.user_id': account_user_id,
+          'account.user_id_sha256': account_user_id_sha256,
+        },
+      },
+      ping_info: {
+        seq: 0, // this is required, however doesn't seem to be useful in server context
+        start_time: timestamp,
+        end_time: timestamp,
+      },
+      // `Unknown` fields below are required in the Glean schema, however they are not useful in server context
+      client_info: {
+        telemetry_sdk_build: 'glean_parser v19.2.0',
+        first_run_date: 'Unknown',
+        os: 'Unknown',
+        os_version: 'Unknown',
+        architecture: 'Unknown',
+        app_build: 'Unknown',
+        app_display_version: this._appDisplayVersion,
+        app_channel: this._channel,
+      },
+    };
+    const eventPayloadSerialized = JSON.stringify(eventPayload);
+
+    // This is the message structure that Decoder expects: https://github.com/mozilla/gcp-ingestion/pull/2400
+    const ping = {
+      document_namespace: this._applicationId,
+      document_type: 'server-deletion-request',
+      document_version: '1',
+      document_id: uuidv4(),
+      user_agent: user_agent,
+      ip_address: ip_address,
+      payload: eventPayloadSerialized,
+    };
+
+    // this is similar to how FxA currently logs with mozlog: https://github.com/mozilla/fxa/blob/4c5c702a7fcbf6f8c6b1f175e9172cdd21471eac/packages/fxa-auth-server/lib/log.js#L289
+    _logger.info(GLEAN_EVENT_MOZLOG_TYPE, ping);
+  }
+}
 class EventsServerEventLogger {
   _applicationId: string;
   _appDisplayVersion: string;
@@ -7094,6 +7190,34 @@ class EventsServerEventLogger {
     });
   }
 }
+
+/**
+ * Factory function that creates an instance of Glean Server Event Logger to
+ * record `server-deletion-request` ping events.
+ * @param {string} applicationId - The application ID.
+ * @param {string} appDisplayVersion - The application display version.
+ * @param {string} channel - The channel.
+ * @param {Object} logger_options - The logger options.
+ * @returns {EventsServerEventLogger} An instance of EventsServerEventLogger.
+ */
+export const createServerDeletionRequestEvent = function ({
+  applicationId,
+  appDisplayVersion,
+  channel,
+  logger_options,
+}: {
+  applicationId: string;
+  appDisplayVersion: string;
+  channel: string;
+  logger_options: LoggerOptions;
+}) {
+  return new ServerDeletionRequestServerEvent(
+    applicationId,
+    appDisplayVersion,
+    channel,
+    logger_options
+  );
+};
 
 /**
  * Factory function that creates an instance of Glean Server Event Logger to

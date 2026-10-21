@@ -8,7 +8,7 @@ import {
 } from '../support/helpers/test-server';
 
 const Client = require('../client')();
-const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
+const { OAUTH_SCOPE_OLD_SYNC } = require('@fxa/accounts/oauth');
 const { AppError: error } = require('@fxa/accounts/errors');
 const testUtils = require('../lib/util');
 

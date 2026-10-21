@@ -7,6 +7,7 @@ import * as Sentry from '@sentry/browser';
 import SettingsLayout from './SettingsLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
+import { hardNavigate } from 'fxa-react/lib/utils';
 import { useAccount, useAuthClient, useConfig, useSession } from '../../models';
 import {
   useAccountData,
@@ -54,6 +55,14 @@ const SettingsError = ({ error }: { error: Error }) => {
   }, [error]);
 
   return <AppErrorDialog {...{ error, sentryEventId }} />;
+};
+
+// Content-server serves this app for every /settings/* path, so leave it for the 404 page.
+const NotFoundRedirect = () => {
+  useEffect(() => {
+    hardNavigate('/404', {}, false, true);
+  }, []);
+  return <LoadingSpinner fullScreen />;
 };
 
 export const Settings = ({
@@ -304,6 +313,7 @@ export const Settings = ({
           config.featureFlags?.passkeyRegistrationEnabled && (
             <Route path="passkeys/add" element={<MfaGuardPagePasskeyAdd />} />
           )}
+        <Route path="*" element={<NotFoundRedirect />} />
       </Routes>
     </SettingsLayout>
   );

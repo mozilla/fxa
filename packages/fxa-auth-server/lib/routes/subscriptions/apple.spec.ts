@@ -13,7 +13,7 @@ const {
 const { AppError: error } = require('@fxa/accounts/errors');
 const { AppleIAP } = require('../../payments/iap/apple-app-store/apple-iap');
 const { IAPConfig } = require('../../payments/iap/iap-config');
-const { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } = require('fxa-shared/oauth/constants');
+const { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } = require('@fxa/accounts/oauth');
 const { CapabilityService } = require('../../payments/capability');
 const { CertificateValidationError } = require('app-store-server-api');
 

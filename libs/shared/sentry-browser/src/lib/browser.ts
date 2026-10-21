@@ -9,6 +9,7 @@ import {
   Logger,
   beforeSendBrowser,
   disableSentry,
+  enableSentry,
   isSentryEnabled,
 } from '@fxa/shared/sentry-utils';
 
@@ -61,8 +62,19 @@ export function initSentry(config: SentryConfigOpts, log?: Logger) {
       beforeSend: function (event: Sentry.ErrorEvent, hint: Sentry.EventHint) {
         return beforeSendBrowser(opts, event, hint);
       },
+      integrations:
+        opts.tracesSampleRate || opts.tracesSampler
+          ? [Sentry.browserTracingIntegration()]
+          : [],
     });
   } catch (e) {
     log.error(e);
   }
 }
+
+export default {
+  configure: initSentry,
+  captureException,
+  enable: enableSentry,
+  disable: disableSentry,
+};

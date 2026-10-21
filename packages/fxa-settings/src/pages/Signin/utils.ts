@@ -6,7 +6,7 @@ import type { NavigateFunction } from 'react-router';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { NavigationOptions, SigninLocationState } from './interfaces';
-import type { PairGleanReason } from 'fxa-shared/metrics/glean/pair-reasons';
+import type { PairGleanReason } from '../../lib/glean/pair-reasons';
 import type {
   PasswordCreationReason,
   SetPasswordLocationState,

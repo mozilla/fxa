@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
+import { MozillaSubscriptionTypes } from '@fxa/accounts/subscriptions-legacy/subscriptions/types';
 
 import {
   appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO,

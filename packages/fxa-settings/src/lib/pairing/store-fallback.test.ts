@@ -120,6 +120,20 @@ describe('armStoreFallback', () => {
     expect(onFallback).toHaveBeenCalledWith('focus_grace');
   });
 
+  // The page often has no DOM focus until the first tap, so a focus can arrive
+  // before any dialog's blur. It must not count as "regained".
+  it('ignores a focus that no blur preceded', () => {
+    arm(host, onFallback);
+
+    host.fire('focus');
+    host.fire('blur');
+    host.fire('focus');
+    jest.advanceTimersByTime(STORE_FALLBACK_GRACE_MS);
+
+    expect(onFallback).toHaveBeenCalledTimes(1);
+    expect(onFallback).toHaveBeenCalledWith('focus_grace');
+  });
+
   it('does not fall back while the grace window is still open', () => {
     arm(host, onFallback);
 

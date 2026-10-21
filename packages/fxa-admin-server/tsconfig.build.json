@@ -3,9 +3,18 @@
   "exclude": ["node_modules", "test", "dist", "**/*spec.ts"],
   "compilerOptions": {
     "paths": {
+      "@fxa/accounts/connected-services": [
+        "libs/accounts/connected-services/src/index"
+      ],
       "@fxa/accounts/email-sender": ["libs/accounts/email-sender/src/index"],
-      "@fxa/accounts/email-renderer": ["libs/accounts/email-renderer/src/index"],
+      "@fxa/accounts/email-renderer": [
+        "libs/accounts/email-renderer/src/index"
+      ],
       "@fxa/accounts/errors": ["libs/accounts/errors/src/index"],
+      "@fxa/accounts/subscriptions-legacy/*": [
+        "libs/accounts/subscriptions-legacy/src/*"
+      ],
+      "@fxa/accounts/oauth": ["libs/accounts/oauth/src/index"],
       "@fxa/payments/legacy": ["libs/payments/legacy/src/index"],
       "@fxa/payments/stripe": ["libs/payments/stripe/src/index"],
       "@fxa/payments/paypal": ["libs/payments/paypal/src/index"],
@@ -29,6 +38,10 @@
         "libs/shared/db/mysql/account/src/index"
       ],
       "@fxa/shared/db/mysql/core": ["libs/shared/db/mysql/core/src/index"],
+      "@fxa/shared/db/mysql/legacy": ["libs/shared/db/mysql/legacy/src/index"],
+      "@fxa/shared/db/mysql/legacy/*": [
+        "libs/shared/db/mysql/legacy/src/lib/*"
+      ],
       "@fxa/shared/db/type-cacheable": [
         "libs/shared/db/type-cacheable/src/index"
       ],
@@ -39,6 +52,7 @@
       "@fxa/shared/l10n": ["libs/shared/l10n/src/index"],
       "@fxa/shared/log": ["libs/shared/log/src/index"],
       "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index"],
+      "@fxa/shared/nest-health": ["libs/shared/nest-health/src/index"],
       "@fxa/shared/otel": ["libs/shared/otel/src/index"],
       "@fxa/shared/pem-jwk": ["libs/shared/pem-jwk/src/index"],
       "@fxa/vendored/typesafe-node-firestore": [
@@ -47,6 +61,7 @@
       "@fxa/shared/notifier": ["libs/shared/notifier/src/index"],
       "@fxa/shared/mozlog": ["libs/shared/mozlog/src/index"],
       "@fxa/shared/sentry-nest": ["libs/shared/sentry-nest/src/index"],
+      "@fxa/shared/sentry-node": ["libs/shared/sentry-node/src/index"],
       "@fxa/shared/sentry-utils": ["libs/shared/sentry-utils/src/index"],
       "@fxa/accounts/rate-limit": ["libs/accounts/rate-limit/src/index"]
     }

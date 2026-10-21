@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import fxaShared from 'fxa-shared';
+import { scopeSetHelpers } from '@fxa/accounts/oauth';
 
 import {
   shouldExcludeFromDau,
@@ -12,9 +12,7 @@ import {
   VpnInDesktopDauBandaidRedis,
 } from './vpn-in-desktop-dau-bandaid';
 
-const ScopeSet = (
-  fxaShared as { oauth: { scopes: { fromArray(v: string[]): ScopeSetLike } } }
-).oauth.scopes;
+const ScopeSet = scopeSetHelpers as { fromArray(v: string[]): ScopeSetLike };
 
 const VPN_SCOPE = 'https://identity.mozilla.com/apps/vpn';
 const DESKTOP_CLIENT_ID = '5882386c6d801776';

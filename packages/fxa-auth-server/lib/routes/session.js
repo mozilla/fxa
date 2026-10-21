@@ -13,11 +13,9 @@ const SESSION_DOCS = require('../../docs/swagger/session-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const HEX_STRING = validators.HEX_STRING;
 const { recordSecurityEvent } = require('./utils/security-event');
-const { platformFromOS } = require('fxa-shared/lib/user-agent');
+const { platformFromOS } = require('@fxa/shared/user-agent');
 const { getOptionalCmsEmailConfig } = require('./utils/account');
-const {
-  computeSessionTokenHandle,
-} = require('./utils/session-token-handle');
+const { computeSessionTokenHandle } = require('./utils/session-token-handle');
 const { Container } = require('typedi');
 const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
 const authMethods = require('../authMethods');

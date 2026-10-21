@@ -266,7 +266,7 @@ export interface IQuery {
   accountByEmail(
     email: string,
     autoCompleted: boolean
-  ): Nullable<Account> | Promise<Nullable<Account>>;
+  ): Account[] | Promise<Account[]>;
   accountByRecoveryPhone(
     phoneNumber: string,
     autoCompleted: boolean

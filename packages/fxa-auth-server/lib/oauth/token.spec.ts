@@ -7,7 +7,7 @@ jest.mock('./db', () => mockDb);
 
 const token = require('./token');
 const JWTAccessToken = require('./jwt_access_token');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
 const { config } = require('../../config');
 
 const OAUTH_ERRNO_INVALID_TOKEN = 108;

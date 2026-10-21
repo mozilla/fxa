@@ -3,8 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import 'jsdom-global/register';
 import * as Sentry from '@sentry/browser';
-import { enableSentry, SentryConfigOpts } from '@fxa/shared/sentry-utils';
-import { captureException, initSentry } from './browser';
+import {
+  disableSentry,
+  enableSentry,
+  SentryConfigOpts,
+} from '@fxa/shared/sentry-utils';
+import sentryMetrics, { captureException, initSentry } from './browser';
+import packageDefault from '../index';
 
 jest.mock('@sentry/browser', () => {
   const actual = jest.requireActual('@sentry/browser');
@@ -27,6 +32,7 @@ const config: SentryConfigOpts = {
 
 describe('sentry/browser', () => {
   beforeEach(() => {
+    jest.clearAllMocks();
     enableSentry();
   });
 
@@ -38,6 +44,48 @@ describe('sentry/browser', () => {
 
       spy.mockReset();
       spy.mockRestore();
+    });
+
+    it('adds no integrations when tracing is not configured', () => {
+      initSentry(config);
+      expect(jest.mocked(Sentry.init).mock.calls[0][0]?.integrations).toEqual(
+        []
+      );
+    });
+
+    it('adds browser tracing when tracesSampleRate is set', () => {
+      initSentry({
+        ...config,
+        sentry: { ...config.sentry, tracesSampleRate: 0.5 },
+      });
+      expect(jest.mocked(Sentry.init).mock.calls[0][0]?.integrations).toEqual([
+        expect.objectContaining({ name: 'BrowserTracing' }),
+      ]);
+    });
+
+    it('adds browser tracing when tracesSampler is set', () => {
+      initSentry({
+        ...config,
+        sentry: { ...config.sentry, tracesSampler: () => 1 },
+      });
+      expect(jest.mocked(Sentry.init).mock.calls[0][0]?.integrations).toEqual([
+        expect.objectContaining({ name: 'BrowserTracing' }),
+      ]);
+    });
+  });
+
+  describe('default export', () => {
+    it('maps the legacy API', () => {
+      expect(sentryMetrics).toEqual({
+        configure: initSentry,
+        captureException,
+        enable: enableSentry,
+        disable: disableSentry,
+      });
+    });
+
+    it('is re-exported from the package entrypoint', () => {
+      expect(packageDefault).toBe(sentryMetrics);
     });
   });
 

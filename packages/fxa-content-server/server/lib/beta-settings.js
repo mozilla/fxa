@@ -105,15 +105,13 @@ const settingsConfig = {
   brandMessagingMode: config.get('brandMessagingMode'),
   glean: { ...config.get('glean'), appDisplayVersion: config.get('version') },
   redirectAllowlist: config.get('redirect_check.allow_list'),
-  showReactApp: {
-    emailFirstRoutes: config.get('showReactApp.emailFirstRoutes'),
-  },
   pairing: {
     browserBuild: config.get('pairing.browser_build'),
     iosUrlScheme: config.get('pairing.ios_url_scheme'),
     clients: config.get('pairing.clients'),
     serverBaseUri: config.get('pairing.server_base_uri'),
     version: config.get('pairing.version'),
+    totpMaxAgeMinutes: config.get('pairing.totp_max_age_minutes'),
     v2MinVersion: {
       ios: config.get('pairing.v2_min_version.ios'),
       android: config.get('pairing.v2_min_version.android'),
@@ -162,6 +160,13 @@ const settingsConfig = {
   },
   servicesWithEmailVerification: config.get('servicesWithEmailVerification'),
 };
+
+// The 500 handler sets res.locals.serverError so React renders its error page
+function getServerConfig(res) {
+  return res.locals.serverError
+    ? { ...settingsConfig, serverError: true }
+    : settingsConfig;
+}
 
 // Inject Settings content into the index HTML
 // This used to inject the configs and flow metrics values.
@@ -232,7 +237,7 @@ function modifyProxyRes(proxyRes, req, res) {
     const body = Buffer.concat(bodyChunks);
 
     // forward existing response data
-    res.status(proxyRes.statusCode);
+    res.status(res.locals.serverError ? 500 : proxyRes.statusCode);
     Object.keys(proxyRes.headers).forEach((key) => {
       res.append(key, proxyRes.headers[key]);
     });
@@ -245,7 +250,7 @@ function modifyProxyRes(proxyRes, req, res) {
       let html = body.toString();
       const flowEventData = flowMetrics.create(FLOW_ID_KEY);
       html = swapBetaMeta(html, {
-        __SERVER_CONFIG__: settingsConfig,
+        __SERVER_CONFIG__: getServerConfig(res),
         __FLOW_ID__: flowEventData.flowId,
         __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
         ...resolvePreConnectDirectives(settingsConfig),
@@ -294,7 +299,7 @@ const modifySettingsStatic = function (req, res) {
   const flowEventData = flowMetrics.create(FLOW_ID_KEY);
   return res.send(
     swapBetaMeta(indexFile, {
-      __SERVER_CONFIG__: settingsConfig,
+      __SERVER_CONFIG__: getServerConfig(res),
       __FLOW_ID__: flowEventData.flowId,
       __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
       ...resolvePreConnectDirectives(settingsConfig),

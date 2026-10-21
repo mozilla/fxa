@@ -185,22 +185,20 @@ export async function deletePasskeyWrap(
 }
 
 /**
- * Delete every wrap for a user, leaving their passkeys in place.
+ * Count the wraps a user holds. Every wrap belongs to a registered passkey, so
+ * this is also the number of passkeys set up for passwordless Sync.
  *
- * For the password-reset path: a reset invalidates `kB`, so every sealed envelope
- * becomes undecryptable while the credentials stay usable for re-enrolment.
- * Deleting a passkey needs no counterpart — the foreign key cascades.
- *
- * @returns Number of wraps deleted
+ * @returns Number of wraps for the user
  */
-export async function deleteAllPasskeyWrapsForUser(
+export async function countPasskeyWrapsByUid(
   db: AccountDatabase,
   uid: string
 ): Promise<number> {
   const result = await db
-    .deleteFrom('passkeyWraps')
+    .selectFrom('passkeyWraps')
+    .select(db.fn.count('credentialId').as('count'))
     .where('uid', '=', uuidTransformer.to(uid))
     .executeTakeFirst();
 
-  return Number(result.numDeletedRows);
+  return Number(result?.count ?? 0);
 }

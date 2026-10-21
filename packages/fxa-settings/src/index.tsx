@@ -7,7 +7,7 @@ import './styles/tailwind.out.css';
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import sentryMetrics from '@fxa/shared/sentry-browser';
 import { AppErrorBoundary } from './components/ErrorBoundaries';
 import App from './components/App';
 import { NimbusProvider } from './models/contexts/NimbusContext';
@@ -19,6 +19,7 @@ import { ThemeProvider } from './models/contexts/ThemeContext';
 import Storage from './lib/storage';
 import { restorePairingAttribution } from './lib/pairing-attribution';
 import CookiesDisabled from './pages/CookiesDisabled';
+import ServerError from './pages/ServerError';
 import { BrowserRouter } from 'react-router';
 import { DynamicLocalizationProvider } from './contexts/DynamicLocalizationContext';
 import { reportL10nError } from './lib/l10n-error-reporter';
@@ -94,6 +95,7 @@ try {
   // a browser with genuinely disabled storage from replacing onto this route in
   // a loop.
   if (
+    !config.serverError &&
     !localStorageEnabled &&
     window.location.pathname !== '/cookies_disabled'
   ) {
@@ -103,9 +105,11 @@ try {
     window.location.replace('/cookies_disabled' + window.location.search);
   }
 
-  const View = localStorageEnabled
-    ? () => <App {...{ flowQueryParams }} />
-    : () => <CookiesDisabled />;
+  const View = config.serverError
+    ? () => <ServerError />
+    : localStorageEnabled
+      ? () => <App {...{ flowQueryParams }} />
+      : () => <CookiesDisabled />;
 
   const root = createRoot(document.getElementById('root') as HTMLElement);
   root.render(

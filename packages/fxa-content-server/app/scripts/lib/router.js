@@ -5,16 +5,11 @@
 import _ from 'underscore';
 import Backbone from 'backbone';
 import Cocktail from 'cocktail';
-import IndexView from '../views/index';
-import PermissionsView from '../views/permissions';
-import RedirectAuthView from '../views/authorization';
 import Storage from './storage';
-import SubscriptionsProductRedirectView from '../views/subscriptions_product_redirect';
-import SubscriptionsManagementRedirectView from '../views/subscriptions_management_redirect';
 import Url from './url';
 import UserAgent from './user-agent';
 import VerificationReasons from './verification-reasons';
-import { isAllowed } from 'fxa-shared/configuration/convict-format-allow-list';
+import { isAllowed } from '@fxa/shared/url-allow-list';
 import ReactExperimentMixin from './generalized-react-app-experiment-mixin';
 import { getClientReactRouteGroups } from '../../../server/lib/routes/react-app/route-groups-client';
 
@@ -96,14 +91,14 @@ Cocktail.mixin(Router, ReactExperimentMixin);
 Router = Router.extend({
   routes: {
     '(/)': function () {
-      this.createReactOrBackboneViewHandler('/', IndexView, {
+      this.createReactViewHandler('/', {
         ...(this.relier.get('redirectTo') && {
           redirect_to: this.relier.get('redirectTo'),
         }),
       });
     },
     'authorization(/)': function () {
-      this.createReactOrBackboneViewHandler('authorization', RedirectAuthView);
+      this.createReactViewHandler('authorization');
     },
     'clear(/)': function () {
       this.createReactViewHandler('clear');
@@ -161,7 +156,9 @@ Router = Router.extend({
       this.createReactViewHandler('inline_totp_setup');
     },
     'oauth(/)': function () {
-      this.createReactOrBackboneViewHandler('oauth', IndexView);
+      this.createReactViewHandler('oauth', {
+        ...Url.searchParams(this.window.location.search),
+      });
     },
     'oauth/force_auth(/)': function () {
       this.createReactViewHandler('oauth/force_auth', {
@@ -205,13 +202,9 @@ Router = Router.extend({
         Url.searchParams(this.window.location.search)
       );
     },
-    'post_verify/newsletters/add_newsletters': createViewHandler(
-      'post_verify/newsletters/add_newsletters'
-    ),
     // Forward the OAuth and Sync params; the React page completes sign-in.
     'post_verify/password/force_password_change': function () {
-      this.createReactOrBackboneViewHandler(
-        'post_verify/password/force_password_change',
+      this.createReactViewHandler(
         'post_verify/password/force_password_change',
         Url.searchParams(this.window.location.search)
       );
@@ -298,9 +291,6 @@ Router = Router.extend({
     'signin_confirmed(/)': function () {
       this.createReactViewHandler('signin_confirmed');
     },
-    'signin_permissions(/)': createViewHandler(PermissionsView, {
-      type: VerificationReasons.SIGN_IN,
-    }),
     'signin_token_code(/)': function () {
       this.createReactViewHandler('signin_token_code', {
         ...Url.searchParams(this.window.location.search),
@@ -351,14 +341,8 @@ Router = Router.extend({
     'signup_verified(/)': function () {
       this.createReactViewHandler('signup_verified');
     },
-    'subscriptions/products/:productId': createViewHandler(
-      SubscriptionsProductRedirectView
-    ),
     'subscriptions(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'subscriptions',
-        SubscriptionsManagementRedirectView
-      );
+      this.createReactViewHandler('subscriptions');
     },
   },
 

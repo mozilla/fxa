@@ -73,13 +73,25 @@ const webpackConfig = {
       'js-md5': require.resolve('js-md5/src/md5'),
       mocha: 'mocha/mocha',
       modal: require.resolve('jquery-modal/jquery.modal'),
-      sinon: require.resolve('sinon/pkg/sinon'),
+      sinon: require.resolve('sinon/pkg/sinon-esm.js'),
       'touch-punch': require.resolve(
         'jquery-ui-touch-punch-amd/jquery.ui.touch-punch'
       ),
       'ua-parser-js': require.resolve('ua-parser-js/src/ua-parser'),
       vat: require.resolve('node-vat/vat'),
       'fxa-auth-client/browser': require.resolve('fxa-auth-client/browser'),
+      '@fxa/shared/email': path.resolve(
+        __dirname,
+        '../../libs/shared/email/src/index.ts'
+      ),
+      '@fxa/shared/sentry-utils': path.resolve(
+        __dirname,
+        '../../libs/shared/sentry-utils/src/index.ts'
+      ),
+      '@fxa/shared/url-allow-list': path.resolve(
+        __dirname,
+        '../../libs/shared/url-allow-list/src/index.ts'
+      ),
       '@fxa/vendored/common-password-list': path.resolve(
         __dirname,
         '../../libs/vendored/common-password-list/src/index.ts'

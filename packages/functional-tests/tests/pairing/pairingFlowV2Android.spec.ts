@@ -45,6 +45,7 @@ import {
   extractChannelIdV2,
   waitForUrlContaining,
   redactChannelKey,
+  getServedPairingVersion,
 } from '../../lib/pairing-helpers';
 import { AndroidSupplicant } from '../../lib/android-supplicant';
 
@@ -59,7 +60,7 @@ const ELIGIBLE_ENTRYPOINT_QS =
  * registers.
  */
 function isMobileDevice(d: { type?: string; name?: string }): boolean {
-  return d.type === 'mobile' || /Android|Fenix/i.test(d.name || '');
+  return d.type ? d.type === 'mobile' : /Android|Fenix/i.test(d.name || '');
 }
 
 type PairedDevice = { id: string; name?: string; type?: string };
@@ -104,7 +105,7 @@ test.describe.serial('v2 Android pairing flow', () => {
 
   let supplicant: AndroidSupplicant | undefined;
 
-  test.beforeEach(async ({}, testInfo) => {
+  test.beforeEach(async ({ browser, target }, testInfo) => {
     if (!process.env.ANDROID_PAIRING_V2_ENABLED) {
       testInfo.skip(
         true,
@@ -115,6 +116,13 @@ test.describe.serial('v2 Android pairing flow', () => {
       testInfo.skip(
         true,
         'Firefox Nightly not found — install it, or set FIREFOX_BINARY to a v2-capable build'
+      );
+    }
+    const servedVersion = await getServedPairingVersion(browser, target);
+    if (servedVersion !== 2) {
+      testInfo.skip(
+        true,
+        `Needs the stack to serve config.pairing.version=2 (serving ${servedVersion})`
       );
     }
     supplicant = new AndroidSupplicant();

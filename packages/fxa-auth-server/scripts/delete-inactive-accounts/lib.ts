@@ -10,9 +10,9 @@ import {
   Email,
   SecurityEvent,
   SessionToken as SessionTokenOrm,
-} from 'fxa-shared/db/models/auth';
-import { SessionToken } from 'fxa-shared/connected-services/models/SessionToken';
-import { EVENT_NAMES } from 'fxa-shared/db/models/auth/security-event';
+} from '@fxa/shared/db/mysql/legacy/models/auth';
+import { SessionToken } from '@fxa/accounts/connected-services';
+import { EVENT_NAMES } from '@fxa/shared/db/mysql/legacy/models/auth/security-event';
 
 export const setDateToUTC = (someDate: number) => {
   const utcDate = new Date(someDate);

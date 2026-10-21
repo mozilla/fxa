@@ -3,24 +3,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
-const pick = (obj, keys) => Object.fromEntries(keys.filter(k => k in obj).map(k => [k, obj[k]]));
+const pick = (obj, keys) =>
+  Object.fromEntries(keys.filter((k) => k in obj).map((k) => [k, obj[k]]));
 const amplitude = require('./amplitude');
 const config = require('./configuration');
 const flowMetrics = require('./flow-metrics');
 const log = require('./logging/log')('server.flow-event');
 const geodbConfig = config.get('geodb');
 const geodb = require('fxa-geodb')(geodbConfig);
-const remoteAddress =
-  require('fxa-shared/express/remote-address').remoteAddress(
-    config.get('clientAddressDepth')
-  );
-const geolocate = require('fxa-shared/express/geo-locate').geolocate(geodb)(
+const remoteAddress = require('@fxa/shared/express').remoteAddress(
+  config.get('clientAddressDepth')
+);
+const geolocate = require('@fxa/shared/express').geolocate(geodb)(
   remoteAddress
 )(log);
 const os = require('os');
 const statsd = require('./statsd');
-const { VERSION, PERFORMANCE_TIMINGS, limitLength, isValidTime } =
-  require('fxa-shared').metrics.flowPerformance;
+const {
+  VERSION,
+  PERFORMANCE_TIMINGS,
+  limitLength,
+  isValidTime,
+} = require('./flow-performance');
 
 const VALIDATION_PATTERNS = require('./validation').PATTERNS;
 const DNT_ALLOWED_DATA = ['context', 'entrypoint', 'service'];
@@ -158,7 +162,12 @@ function logFlowEvent(event, data, request) {
       userAgent: request.headers['user-agent'],
       v: VERSION,
     },
-    Object.fromEntries(Object.entries(pickFlowData(data, request)).map(([k, v]) => [k, sanitiseData(v)]))
+    Object.fromEntries(
+      Object.entries(pickFlowData(data, request)).map(([k, v]) => [
+        k,
+        sanitiseData(v),
+      ])
+    )
   );
 
   optionallySetFallbackData(eventData, 'service', data.client_id);
@@ -192,14 +201,16 @@ function pickFlowData(data, request) {
 
   const pickedData = pick(data, NO_DNT_ALLOWED_DATA);
 
-  return Object.fromEntries(Object.entries(pickedData).filter(([key, value]) => {
-    if (key.indexOf('utm_') === 0) {
-      // Silently drop utm_ properties that contain unexpected characters.
-      return UTM_PATTERN.test(value);
-    }
+  return Object.fromEntries(
+    Object.entries(pickedData).filter(([key, value]) => {
+      if (key.indexOf('utm_') === 0) {
+        // Silently drop utm_ properties that contain unexpected characters.
+        return UTM_PATTERN.test(value);
+      }
 
-    return true;
-  }));
+      return true;
+    })
+  );
 }
 
 function isDNT(request) {

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { createMock } from '@golevelup/ts-jest';
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { PasskeyService } from '@fxa/accounts/passkey';
 import type { Schema } from 'joi';
 import { StatsD } from 'hot-shots';
@@ -20,6 +20,7 @@ const {
 } = require('@fxa/shared/cloud-tasks');
 
 const crypto = require('crypto');
+const dns = require('dns');
 const { AppError: error } = require('@fxa/accounts/errors');
 const log = require('../log');
 const otplib = require('otplib');
@@ -27,8 +28,10 @@ const { Container } = require('typedi');
 const { CapabilityService } = require('../payments/capability');
 const { AccountEventsManager } = require('../account-events');
 const { AccountDeleteManager } = require('../account-delete');
-const { normalizeEmail } = require('fxa-shared').email.helpers;
-const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
+const { normalizeEmail } = require('@fxa/shared/email');
+const {
+  MozillaSubscriptionTypes,
+} = require('@fxa/accounts/subscriptions-legacy/subscriptions/types');
 const {
   PlaySubscriptions,
 } = require('../payments/iap/google-play/subscriptions');
@@ -46,11 +49,11 @@ const { FxaMailer } = require('../senders/fxa-mailer');
 const { RecoveryPhoneService } = require('@fxa/accounts/recovery-phone');
 const { BackupCodeManager } = require('@fxa/accounts/two-factor');
 
-// Dynamic mock for fxa-shared/db/models/auth — changed per-test via makeRoutes
+// Dynamic mock for @fxa/shared/db/mysql/legacy/models/auth — changed per-test via makeRoutes
 // eslint-disable-next-line no-var
 var fxaSharedDbModelsOverride: any = {};
-jest.mock('fxa-shared/db/models/auth', () => {
-  const actual = jest.requireActual('fxa-shared/db/models/auth');
+jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => {
+  const actual = jest.requireActual('@fxa/shared/db/mysql/legacy/models/auth');
   return new Proxy(actual, {
     get: (target: any, prop: string) =>
       fxaSharedDbModelsOverride && prop in fxaSharedDbModelsOverride
@@ -146,12 +149,12 @@ const makeRoutes = function (options: any = {}, requireMocks: any = {}) {
     check: () => Promise.resolve(true),
     checkAuthenticated: () => Promise.resolve(true),
   };
-  // Set up fxa-shared/db/models/auth mock with per-call overrides
+  // Set up @fxa/shared/db/mysql/legacy/models/auth mock with per-call overrides
   fxaSharedDbModelsOverride = {
     getAccountCustomerByUid: mockGetAccountCustomerByUid,
     EmailBlocklist: { findMatchingRegex: jest.fn().mockResolvedValue(null) },
     DomainBlocklist: { findMatchingDomain: jest.fn().mockResolvedValue(null) },
-    ...((requireMocks || {})['fxa-shared/db/models/auth'] || {}),
+    ...((requireMocks || {})['@fxa/shared/db/mysql/legacy/models/auth'] || {}),
   };
 
   const signinUtils =
@@ -273,10 +276,14 @@ describe('/account/reset', () => {
     clientAddress: any,
     mailer: any,
     fxaMailer: any,
-    oauth: any;
+    oauth: any,
+    mockPasskeyService: DeepMocked<PasskeyService>;
 
   beforeEach(() => {
     uid = crypto.randomBytes(16).toString('hex');
+    mockPasskeyService = createMock<PasskeyService>();
+    mockPasskeyService.hasPasskeyWraps.mockResolvedValue(false);
+    Container.set(PasskeyService, mockPasskeyService);
     mockLog = createMock<AuthLoggerType>();
     mockMetricsContext = mocks.mockMetricsContext();
     mockRequest = mocks.mockRequest({
@@ -337,6 +344,10 @@ describe('/account/reset', () => {
     glean.resetPassword.accountReset.mockReset();
     glean.resetPassword.createNewSuccess.mockReset();
     glean.resetPassword.recoveryKeyCreatePasswordSuccess.mockReset();
+  });
+
+  afterEach(() => {
+    Container.remove(PasskeyService);
   });
 
   describe('reset account with account recovery key', () => {
@@ -444,6 +455,80 @@ describe('/account/reset', () => {
 
       // Token is not verified with TOTP-2FA method (AAL2) if account does not have TOTP
       expect(mockDB.verifyTokensWithMethod).toHaveBeenCalledTimes(0);
+    });
+  });
+
+  describe('passkey wraps', () => {
+    const securityEventNames = () =>
+      mockDB.securityEvent.mock.calls.map(([event]: any) => event.name);
+
+    beforeEach(() => {
+      mockPasskeyService.hasPasskeyWraps.mockResolvedValue(true);
+    });
+
+    it('records no wrap_invalidated when a recovery key keeps kB', async () => {
+      mockRequest.payload.wrapKb = hexString(32);
+      mockRequest.payload.recoveryKeyId = hexString(16);
+
+      await runTest(route, mockRequest);
+
+      expect(mockPasskeyService.hasPasskeyWraps).not.toHaveBeenCalled();
+      expect(securityEventNames()).toEqual(['account.reset']);
+    });
+
+    it('records no wrap_invalidated when no passkey has a wrap', async () => {
+      mockPasskeyService.hasPasskeyWraps.mockResolvedValue(false);
+
+      await runTest(route, mockRequest);
+
+      expect(securityEventNames()).toEqual(['account.reset']);
+    });
+
+    it('records wrap_invalidated when kB changes and a passkey had a wrap', async () => {
+      await runTest(route, mockRequest);
+
+      expect(mockPasskeyService.hasPasskeyWraps).toHaveBeenCalledWith(uid);
+      expect(securityEventNames()).toEqual([
+        'account.passkey.wrap_invalidated',
+        'account.reset',
+      ]);
+    });
+
+    it('still resets, logging the error, when the passkey lookup fails', async () => {
+      const err = new Error('db is down');
+      mockPasskeyService.hasPasskeyWraps.mockRejectedValue(err);
+
+      const res: any = await runTest(route, mockRequest);
+
+      expect(res.sessionToken).toBeTruthy();
+      expect(mockDB.resetAccount).toHaveBeenCalledTimes(1);
+      expect(mockLog.error).toHaveBeenCalledWith(
+        'Account.reset.hasPasskeyWraps',
+        { err }
+      );
+      expect(securityEventNames()).toEqual(['account.reset']);
+    });
+
+    it('still resets, logging the error, when the wrap_invalidated write fails', async () => {
+      const err = new Error('statsd is down');
+      const recordSecurityEvent = jest.fn((_db: any, { name }: any) =>
+        name === 'account.passkey.wrap_invalidated'
+          ? Promise.reject(err)
+          : Promise.resolve()
+      );
+      Container.set(AccountEventsManager, { recordSecurityEvent });
+
+      const res: any = await runTest(route, mockRequest);
+
+      expect(res.sessionToken).toBeTruthy();
+      expect(mockLog.error).toHaveBeenCalledWith(
+        'Account.reset.wrapInvalidated',
+        { err }
+      );
+      expect(recordSecurityEvent.mock.calls.map(([, e]) => e.name)).toEqual([
+        'account.passkey.wrap_invalidated',
+        'account.reset',
+      ]);
     });
   });
 
@@ -1349,7 +1434,7 @@ describe('/account/create', () => {
     const accountRoutes = makeRoutes(
       { log: mockLog, db: mockDB },
       {
-        'fxa-shared/db/models/auth': {
+        '@fxa/shared/db/mysql/legacy/models/auth': {
           EmailBlocklist: {
             findMatchingRegex: jest.fn().mockResolvedValue(blockedRegex),
           },
@@ -1389,7 +1474,7 @@ describe('/account/create', () => {
     const accountRoutes = makeRoutes(
       { log: mockLog, db: mockDB },
       {
-        'fxa-shared/db/models/auth': {
+        '@fxa/shared/db/mysql/legacy/models/auth': {
           EmailBlocklist: {
             findMatchingRegex: jest.fn().mockResolvedValue(null),
           },
@@ -1548,13 +1633,62 @@ describe('/account/status', () => {
     });
   });
 
-  it('returns invalid for an invalid email domain', async () => {
-    const { route, mockRequest } = setup();
-    mockRequest.payload.email = 'test@bad.domain';
+  describe('email domain check', () => {
+    const dnsError = (code: string) => Object.assign(new Error(code), { code });
+    const mockResolver = (
+      method: 'resolveMx' | 'resolve4',
+      result: unknown[] | Error
+    ) => {
+      const spy = jest.spyOn(dns.promises.Resolver.prototype, method);
+      if (result instanceof Error) {
+        spy.mockRejectedValue(result);
+      } else {
+        spy.mockResolvedValue(result as never);
+      }
+    };
 
-    return runTest(route, mockRequest, (response: any) => {
-      expect(response.invalidDomain).toBe(true);
+    afterEach(() => {
+      jest.restoreAllMocks();
     });
+
+    it.each([
+      {
+        name: 'an MX record is found',
+        mx: [{ exchange: 'mx.bad.domain', priority: 10 }],
+        a: ['192.0.2.1'],
+        invalidDomain: false,
+      },
+      {
+        name: 'only an A record is found',
+        mx: dnsError(dns.NOTFOUND),
+        a: ['192.0.2.1'],
+        invalidDomain: false,
+      },
+      {
+        name: 'no record is found',
+        mx: dnsError(dns.NOTFOUND),
+        a: dnsError(dns.NODATA),
+        invalidDomain: true,
+      },
+      {
+        name: 'the DNS query fails',
+        mx: dnsError(dns.SERVFAIL),
+        a: [],
+        invalidDomain: false,
+      },
+    ])(
+      'returns invalidDomain $invalidDomain when $name',
+      async ({ mx, a, invalidDomain }) => {
+        mockResolver('resolveMx', mx);
+        mockResolver('resolve4', a);
+        const { route, mockRequest } = setup();
+        mockRequest.payload.email = 'test@bad.domain';
+
+        return runTest(route, mockRequest, (response: any) => {
+          expect(response.invalidDomain).toBe(invalidDomain);
+        });
+      }
+    );
   });
 
   it('does not check domain if not requested to do so', async () => {
@@ -4893,7 +5027,7 @@ describe('/account/metrics_opt', () => {
         customs: mockCustoms,
       },
       {
-        'fxa-shared/db/models/auth': {
+        '@fxa/shared/db/mysql/legacy/models/auth': {
           Account: { setMetricsOpt: setMetricsOptStub },
           getAccountCustomerByUid: mockGetAccountCustomerByUid,
         },

@@ -63,10 +63,6 @@
       "expiresInMinutes": 5
     }
   },
-  "showReactApp": {
-    "simpleRoutes": true,
-    "emailFirstRoutes": true
-  },
   "featureFlags": {
     "recoveryCodeSetupOnSyncSignIn": true,
     "showLocaleToggle": true,

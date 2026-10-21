@@ -4,7 +4,7 @@
 
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AbbrevPlan } from 'fxa-shared/subscriptions/types';
+import { AbbrevPlan } from '@fxa/accounts/subscriptions-legacy/subscriptions/types';
 import Stripe from 'stripe';
 import { MozSubscription } from '../rest/model/moz-subscription.model';
 import { AppStoreService } from './appstore.service';

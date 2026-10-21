@@ -12,7 +12,7 @@ const Client = require('../client')();
 const jwt = require('jsonwebtoken');
 const tokens = require('../../lib/tokens')({ trace: function () {} });
 const { setupAccountDatabase } = require('@fxa/shared/db/mysql/account');
-const { email: emailHelper } = require('fxa-shared');
+const { normalizeEmail } = require('@fxa/shared/email');
 const baseConfig = require('../../config').default.getProperties();
 
 async function generateMfaJwt(client: any) {
@@ -182,7 +182,7 @@ describe.each(testVersions)(
             .insertInto('emails')
             .values({
               email: someEmail,
-              normalizedEmail: emailHelper.helpers.normalizeEmail(someEmail),
+              normalizedEmail: normalizeEmail(someEmail),
               uid: Buffer.from(client.uid, 'hex'),
               emailCode: Buffer.from(
                 crypto.randomBytes(16).toString('hex'),

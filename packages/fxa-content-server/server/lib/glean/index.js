@@ -3,9 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const serverGleanEvents = require('./server_events');
-const ua = require('fxa-shared/lib/user-agent').default;
-const remoteAddress =
-  require('fxa-shared/express/remote-address').remoteAddress;
+const ua = require('@fxa/shared/user-agent').userAgent;
+const remoteAddress = require('@fxa/shared/express').remoteAddress;
 const { CLIENT_ID } = require('../validation').PATTERNS;
 
 let appConfig;

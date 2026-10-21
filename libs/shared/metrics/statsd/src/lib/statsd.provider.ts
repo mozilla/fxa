@@ -46,3 +46,8 @@ export const LegacyStatsDProvider: Provider<StatsD> = {
   },
   inject: [ConfigService],
 };
+
+export const LegacyMetricsProvider: Provider<StatsD> = {
+  ...LegacyStatsDProvider,
+  provide: 'METRICS',
+};

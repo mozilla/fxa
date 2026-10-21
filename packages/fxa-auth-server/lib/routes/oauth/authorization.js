@@ -12,18 +12,19 @@ const {
   OAUTH_NATIVE_CLIENT_IDS,
   OAuthNativeClients,
 } = require('@fxa/accounts/oauth');
-const ScopeSet = require('fxa-shared').oauth.scopes;
+const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
 const validators = require('../../oauth/validators');
 const { validateRequestedGrant, generateTokens } = require('../../oauth/grant');
 const { recordStepUpMetrics } = require('../../metrics/step-up');
 const { makeAssertionJWT } = require('../../oauth/util');
 const verifyAssertion = require('../../oauth/assertion');
 const { isFirstAuthorization } = require('../../oauth/first-authorization');
-const encrypt = require('fxa-shared/auth/encrypt');
+const encrypt = require('@fxa/shared/crypto');
 const {
   dropUnconsentedSyncScope,
   excludeDauCacheKey,
 } = require('../../oauth/desktop-sync-dau-authorization-bandaid');
+const { pairingCodeCacheKey } = require('../../oauth/pairing-code');
 const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
 const OAUTH_SERVER_DOCS =
   require('../../../docs/swagger/oauth-server-api').default;
@@ -168,6 +169,26 @@ module.exports = ({
       log.warn('accountAuthorization.exclude_dau_write_failed', {
         err: err?.message,
       });
+    }
+  }
+
+  // Hand the pairing verdict to /oauth/token, which sees neither the session
+  // nor the user agent that identify one. Same carry as rememberExcludeDau.
+  async function rememberPairing(code) {
+    if (!authServerCacheRedis) {
+      return;
+    }
+    try {
+      const codeId = encrypt.hash(code).toString('hex');
+      await authServerCacheRedis.set(
+        pairingCodeCacheKey(codeId),
+        '1',
+        'EX',
+        CODE_EXPIRATION_S
+      );
+    } catch (err) {
+      statsd?.increment('oauth.pairing.write_failed');
+      log.warn('oauth.pairing.write_failed', { err: err?.message });
     }
   }
 
@@ -783,6 +804,12 @@ module.exports = ({
         // metrics failure must not fail the authorization.
         if (isPairing) {
           glean.pairing.success(req);
+          statsd?.increment('oauth.pairing.code_issued', {
+            clientId: clientId.toLowerCase(),
+          });
+          // Awaited: the phone redeems the code as soon as it crosses the
+          // pairing channel, and the read side must find the flag by then.
+          await rememberPairing(result.code);
         }
 
         const geoData = req.app.geo;

@@ -7,12 +7,16 @@ import { usePageViewEvent } from '../../../lib/metrics';
 import { PageRecoveryKeyCreate } from '.';
 import {
   mockAppContext,
-  MOCK_ACCOUNT,
   renderWithRouter,
   mockSession,
 } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
 import { MfaContext } from '../../../lib/hooks';
+import {
+  mockAccountWithoutRecoveryKey,
+  mockAccountWithRecoveryKey,
+  mockRecoveryKeyAuthClient,
+} from '../FlowRecoveryKeyConfirmPwd/mocks';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -29,23 +33,22 @@ jest.mock('base32-encode', () =>
   jest.fn().mockReturnValue('00000000000000000000000000000000')
 );
 
-const accountWithoutKey = {
-  ...MOCK_ACCOUNT,
-  recoveryKey: { exists: false },
-  createRecoveryKey: jest.fn().mockResolvedValue(new Uint8Array(20)),
-} as unknown as Account;
+jest.mock('../../../lib/cache', () => ({
+  ...jest.requireActual('../../../lib/cache'),
+  sessionToken: () => 'sessionToken',
+}));
 
-const accountWithKey = {
-  ...MOCK_ACCOUNT,
-  recoveryKey: { exists: true },
-  createRecoveryKey: jest.fn().mockResolvedValue(new Uint8Array(20)),
-  deleteRecoveryKey: jest.fn().mockResolvedValue(true),
-} as unknown as Account;
+const accountWithoutKey = mockAccountWithoutRecoveryKey;
+const accountWithKey = mockAccountWithRecoveryKey;
 
 const renderPageWithContext = (account: Account) => {
   renderWithRouter(
     <AppContext.Provider
-      value={mockAppContext({ account, session: mockSession(true, false) })}
+      value={mockAppContext({
+        account,
+        authClient: mockRecoveryKeyAuthClient(),
+        session: mockSession(true, false),
+      })}
     >
       <MfaContext.Provider value="recovery_key">
         <PageRecoveryKeyCreate />

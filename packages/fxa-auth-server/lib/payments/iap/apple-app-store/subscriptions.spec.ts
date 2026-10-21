@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Container } from 'typedi';
-import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
+import { MozillaSubscriptionTypes } from '@fxa/accounts/subscriptions-legacy/subscriptions/types';
 
 import { AppConfig } from '../../../types';
 import { AppleIAP } from './apple-iap';

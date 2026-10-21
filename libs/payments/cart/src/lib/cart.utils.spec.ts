@@ -110,6 +110,16 @@ describe('utils', () => {
       );
     });
 
+    it('returns Link for a card with link wallet', () => {
+      const pm = {
+        type: 'card',
+        card: { wallet: { type: 'link' } },
+      } as unknown as Stripe.PaymentMethod;
+      expect(convertStripePaymentMethodTypeToSubPlat(pm)).toBe(
+        SubPlatPaymentMethodType.Link
+      );
+    });
+
     it('returns Stripe for an unmapped payment method type', () => {
       const pm = {
         type: 'sepa_debit',

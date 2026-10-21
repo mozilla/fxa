@@ -77,11 +77,13 @@ if (hstsEnabled) {
   );
 }
 
-app.get('/__lbheartbeat__', (_, res) => res.type('txt').send('Ok'));
+app.get('/__lbheartbeat__', (_, res) => {
+  res.type('txt').send('Ok');
+});
 
-app.get('/__version__', (_, res) =>
-  res.type('application/json').send(JSON.stringify(version))
-);
+app.get('/__version__', (_, res) => {
+  res.type('application/json').send(JSON.stringify(version));
+});
 
 // Note - the static route handlers must come last
 // because the proxyUrl handler's app.use('/') captures
@@ -157,7 +159,11 @@ export async function createServer() {
   const port = config.get('listen.port');
   const host = config.get('listen.host');
   logger.info('server.starting', { port });
-  app.listen(port, host, () => {
+  app.listen(port, host, (error) => {
+    // Express 5 hands listen errors to this callback instead of throwing them.
+    if (error) {
+      throw error;
+    }
     logger.info('server.started', { port });
     Sentry.captureMessage('Admin panel server started', {
       level: 'info',

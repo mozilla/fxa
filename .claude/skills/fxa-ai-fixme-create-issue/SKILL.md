@@ -67,7 +67,7 @@ and network access.
    For each other item that applies, either remove it from scope or get the engineer's explicit
    sign-off and quote it in the ticket:
    - a path listed in `_scripts/check-frozen.ts` on origin/main
-   - an API that another repo consumes, such as exported `fxa-shared` code. `fxa-auth-client` is
+   - an API that another repo consumes, such as a published npm package. `fxa-auth-client` is
      internal to this repo, so its methods may change
    - a new DB migration: a forward patch plus its rollback. Never allow an edit to a published
      migration file, even with sign-off; `CLAUDE.md` forbids it

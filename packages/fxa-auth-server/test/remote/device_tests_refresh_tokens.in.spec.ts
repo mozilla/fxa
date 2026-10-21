@@ -9,7 +9,7 @@ import {
 } from '../support/helpers/test-server';
 
 const Client = require('../client')();
-const encrypt = require('fxa-shared/auth/encrypt');
+const encrypt = require('@fxa/shared/crypto');
 
 const buf = (v: any) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
 

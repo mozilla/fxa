@@ -2,7 +2,7 @@
 paths:
   - "packages/fxa-auth-server/lib/routes/**"
   - "packages/fxa-auth-server/lib/senders/**"
-  - "packages/fxa-shared/db/models/auth/account.ts"
+  - "libs/shared/db/mysql/legacy/src/lib/models/auth/account.ts"
   - "libs/shared/account/**"
 ---
 

@@ -26,7 +26,7 @@ import {
   PlayStoreSubscriptionPurchase,
 } from './subscription-purchase';
 import { PurchaseQueryError, SkuType } from './types';
-import { UserManager as UserManagerBase } from 'fxa-shared/payments/iap/google-play/user-manager';
+import { UserManager as UserManagerBase } from '@fxa/accounts/subscriptions-legacy/payments/iap/google-play/user-manager';
 import { StatsD } from 'hot-shots';
 import { CaptureTimingWithStatsD } from '@fxa/shared/metrics/statsd';
 
@@ -105,7 +105,7 @@ export class UserManager extends UserManagerBase {
               purchase.sku,
               purchase.purchaseToken
             );
-          } catch(e) {
+          } catch (e) {
             if (e.name === PurchaseQueryError.INVALID_TOKEN) {
               this.log.error('queryCurrentSubscriptions.invalidPurchaseToken', {
                 purchaseToken: purchase.purchaseToken,

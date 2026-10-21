@@ -19,7 +19,7 @@
 // * https://redis.io/topics/data-types#sorted-sets
 // * https://redis.io/topics/data-types-intro#redis-sorted-sets
 
-const { props } = require('fxa-shared/lib/promise-extras');
+const { props } = require('./promise-extras');
 
 const INTERVAL_PATTERN = /^([a-z]+)Interval$/;
 const METADATA_KEY = 'metadata';

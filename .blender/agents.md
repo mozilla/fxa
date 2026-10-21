@@ -1,4 +1,5 @@
 <!-- blender:start — auto-generated, do not hand-edit -->
+
 # BLEnder — mozilla/fxa notes
 
 This file supplements the existing `CLAUDE.md` at the repo root. It only
@@ -55,7 +56,7 @@ To reproduce a single project's checks locally: `nx lint <pkg>`,
 `.husky/pre-commit` runs `npx lint-staged`. The `lint-staged` config in
 `package.json` **rewrites staged files** on commit:
 
-- `packages/!(fxa-shared)/**/*.{ts,tsx}` and `libs/**/*.{ts,tsx}`:
+- `packages/**/*.{ts,tsx}` and `libs/**/*.{ts,tsx}`:
   `prettier --config _dev/.prettierrc --write` then `eslint`
 - `*.css` / `*.md`: `prettier --config _dev/.prettierrc --write`
 - `*.scss`: `stylelint --config _dev/.stylelintrc`
@@ -88,5 +89,5 @@ files, **re-run the generator** rather than hand-editing the output:
   `packages/db-migrations/databases/fxa/patches/`; add a new forward migration
   (`nx run db-migrations:migrate`).
 - Respect the do-not-touch paths in root `CLAUDE.md` (secrets, generated
-  artifacts, `node_modules`, `.yarn`, etc.).
+artifacts, `node_modules`, `.yarn`, etc.).
 <!-- blender:end -->

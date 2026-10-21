@@ -10,7 +10,7 @@ import {
   NodeRendererBindings,
 } from '@fxa/accounts/email-renderer';
 import { AppConfig } from '../config';
-import { Account } from 'fxa-shared/db/models/auth';
+import { Account } from '@fxa/shared/db/mysql/legacy/models/auth';
 import { ConfigService } from '@nestjs/config';
 import { DatabaseService } from '../database/database.service';
 import { StatsD } from 'hot-shots';

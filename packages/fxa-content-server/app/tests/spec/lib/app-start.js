@@ -188,7 +188,7 @@ describe('lib/app-start', () => {
     var sandbox;
 
     beforeEach(() => {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
 
       sandbox.spy(appStart, 'enableSentryMetrics');
       sandbox.stub(ErrorUtils, 'fatalError').callsFake(() => {});
@@ -214,7 +214,7 @@ describe('lib/app-start', () => {
     var sandbox;
 
     beforeEach(() => {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       sandbox.stub(Storage, 'isLocalStorageEnabled').callsFake(() => {
         return false;
       });
@@ -428,7 +428,7 @@ describe('lib/app-start', () => {
 
     beforeEach(() => {
       // sandbox is used because stubs are added to User.prototype.
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
 
       appStart = new AppStart({});
 
@@ -834,7 +834,7 @@ describe('lib/app-start', () => {
     let sandbox;
 
     before(() => {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       appStart = new AppStart({
         broker: {},
         relier: {},
@@ -875,7 +875,7 @@ describe('lib/app-start', () => {
     let sandbox;
 
     before(() => {
-      sandbox = sinon.sandbox.create();
+      sandbox = sinon.createSandbox();
       appStart = new AppStart({
         broker: {},
         relier: {},

@@ -11,7 +11,7 @@ import { ConfigType } from '../../config';
 import { PaymentConfigManager } from '../../lib/payments/configuration/manager';
 
 const plan = require('fxa-auth-server/test/local/payments/fixtures/stripe/plan2.json');
-const product = require('fxa-shared/test/fixtures/stripe/product1.json');
+const product = require('../local/payments/fixtures/stripe/product_123done_pro.json');
 const { mockLog, mockStripeHelper } = require('../mocks');
 
 const PLAN_EN_LANG_ERROR = 'Plan specific en metadata';

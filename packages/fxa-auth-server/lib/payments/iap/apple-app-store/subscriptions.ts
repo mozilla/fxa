@@ -1,8 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { AppendedAppStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/apple-app-store/types';
-import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
+import { AppendedAppStoreSubscriptionPurchase } from '@fxa/accounts/subscriptions-legacy/payments/iap/apple-app-store/types';
+import { MozillaSubscriptionTypes } from '@fxa/accounts/subscriptions-legacy/subscriptions/types';
 import Container from 'typedi';
 
 import { AppError } from '@fxa/accounts/errors';

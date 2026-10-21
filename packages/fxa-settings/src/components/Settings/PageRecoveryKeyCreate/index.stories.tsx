@@ -6,9 +6,15 @@ import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { PageRecoveryKeyCreate } from '.';
 import { Account, AppContext } from '../../../models';
-import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
+import { mockAppContext } from '../../../models/mocks';
 import { MemoryRouter } from 'react-router';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import AuthClient from 'fxa-auth-client/browser';
+import {
+  mockAccountWithoutRecoveryKey as accountWithoutKey,
+  mockAccountWithRecoveryKey as accountWithKey,
+  mockRecoveryKeyAuthClient,
+} from '../FlowRecoveryKeyConfirmPwd/mocks';
 
 export default {
   title: 'Pages/Settings/RecoveryKeyCreate',
@@ -16,46 +22,10 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const recoveryKeyRaw = new Uint8Array(20);
-
-const accountWithSuccess = {
-  ...MOCK_ACCOUNT,
-  recoveryKey: { exists: false },
-  createRecoveryKey: () => recoveryKeyRaw,
-} as unknown as Account;
-
-const accountWithPasswordError = {
-  ...MOCK_ACCOUNT,
-  createRecoveryKey: () => {
-    throw AuthUiErrors.INCORRECT_PASSWORD;
-  },
-} as unknown as Account;
-
-const accountWithThrottledError = {
-  ...MOCK_ACCOUNT,
-  createRecoveryKey: () => {
-    throw AuthUiErrors.THROTTLED;
-  },
-} as unknown as Account;
-
-const accountWithUnexpectedError = {
-  ...MOCK_ACCOUNT,
-  createRecoveryKey: () => {
-    throw AuthUiErrors.UNEXPECTED_ERROR;
-  },
-} as unknown as Account;
-
-const accountWithKeyEnabled = {
-  ...MOCK_ACCOUNT,
-  recoveryKey: { exists: true },
-  createRecoveryKey: () => recoveryKeyRaw,
-  deleteRecoveryKey: () => true,
-} as unknown as Account;
-
-const storyWithContext = (account: Account) => {
+const storyWithContext = (account: Account, authClient: AuthClient) => {
   const story = () => (
     <MemoryRouter>
-      <AppContext.Provider value={mockAppContext({ account })}>
+      <AppContext.Provider value={mockAppContext({ account, authClient })}>
         <PageRecoveryKeyCreate />
       </AppContext.Provider>
     </MemoryRouter>
@@ -63,12 +33,27 @@ const storyWithContext = (account: Account) => {
   return story;
 };
 
-export const CreateKeyWithSuccess = storyWithContext(accountWithSuccess);
+export const CreateKeyWithSuccess = storyWithContext(
+  accountWithoutKey,
+  mockRecoveryKeyAuthClient()
+);
 
-export const WithPasswordError = storyWithContext(accountWithPasswordError);
+export const WithPasswordError = storyWithContext(
+  accountWithoutKey,
+  mockRecoveryKeyAuthClient(AuthUiErrors.INCORRECT_PASSWORD)
+);
 
-export const WithThrottledError = storyWithContext(accountWithThrottledError);
+export const WithThrottledError = storyWithContext(
+  accountWithoutKey,
+  mockRecoveryKeyAuthClient(AuthUiErrors.THROTTLED)
+);
 
-export const WithUnexpectedError = storyWithContext(accountWithUnexpectedError);
+export const WithUnexpectedError = storyWithContext(
+  accountWithoutKey,
+  mockRecoveryKeyAuthClient(AuthUiErrors.UNEXPECTED_ERROR)
+);
 
-export const ChangeKeyWithSuccess = storyWithContext(accountWithKeyEnabled);
+export const ChangeKeyWithSuccess = storyWithContext(
+  accountWithKey,
+  mockRecoveryKeyAuthClient()
+);

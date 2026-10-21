@@ -58,6 +58,22 @@ describe('QRCode', () => {
     expect(container.querySelector('img')).toHaveAttribute('src', 'logo.svg');
   });
 
+  // A fixed pixel size would drift off-center and out of scale when the SVG scales down.
+  it('sizes the logo chip as a share of the code so it scales with the SVG', () => {
+    const { container } = renderWithLocalizationProvider(
+      <QRCode
+        value={VALUE}
+        localizedLabel={LABEL}
+        logoSrc="logo.svg"
+        size={200}
+      />
+    );
+    expect(container.querySelector('img')?.parentElement).toHaveStyle({
+      width: '32%',
+      padding: '6%',
+    });
+  });
+
   it('renders no logo when logoSrc is omitted', () => {
     const { container } = renderWithLocalizationProvider(
       <QRCode value={VALUE} localizedLabel={LABEL} />

@@ -4,12 +4,14 @@
 
 import Config from '../config';
 import mozLog from 'mozlog';
+import type { ILogger } from '@fxa/shared/log';
 import { TracingOpts, initTracing } from '@fxa/shared/otel';
-import { InitSentryOpts, initSentry } from 'fxa-shared/sentry/node';
+import { initSentry } from '@fxa/shared/sentry-node';
+import { InitSentryOpts } from '@fxa/shared/sentry-utils';
 import { version } from '../../package.json';
 
 const properties = Config.getProperties();
-const log = mozLog(properties.logging)(properties.logging.app);
+const log: ILogger = mozLog(properties.logging)(properties.logging.app);
 
 const config: InitSentryOpts & { tracing: TracingOpts } = {
   ...properties,

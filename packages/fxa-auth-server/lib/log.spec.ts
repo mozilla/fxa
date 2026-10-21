@@ -54,8 +54,8 @@ jest.mock('./sentry', () => ({
 jest.mock('./oauth/validators', () => ({
   HEX_STRING: /^(?:[0-9a-f]{2})+$/,
 }));
-jest.mock('fxa-shared', () => ({
-  metrics: { amplitude: { validate: mockValidate } },
+jest.mock('@fxa/shared/metrics/amplitude', () => ({
+  amplitude: { validate: mockValidate },
 }));
 
 import logModule from './log';

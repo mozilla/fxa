@@ -4,7 +4,7 @@
 
 import { checkEmailDomain } from './email-domain-validator';
 import { AuthUiErrors } from './auth-errors/auth-errors';
-import topEmailDomains from 'fxa-shared/email/topEmailDomains';
+import { TopEmailDomains as topEmailDomains } from '@fxa/shared/email';
 import {
   resolveDomain,
   DomainValidationError,
@@ -79,7 +79,10 @@ describe('checkEmailDomain', () => {
 
   it('should allow submission on non-400 HTTP errors', async () => {
     (resolveDomain as jest.Mock).mockRejectedValueOnce(
-      new DomainValidationError('Failed to check domain: 500 Internal Server Error', 500)
+      new DomainValidationError(
+        'Failed to check domain: 500 Internal Server Error',
+        500
+      )
     );
     await expect(
       checkEmailDomain('user@server-error.com')

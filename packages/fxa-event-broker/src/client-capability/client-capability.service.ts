@@ -10,8 +10,8 @@ import { ConfigService } from '@nestjs/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import * as Sentry from '@sentry/node';
 
-import { ExtendedError } from 'fxa-shared/nestjs/error';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { ExtendedError } from '../extended-error';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 import { AppConfig } from '../config';
 

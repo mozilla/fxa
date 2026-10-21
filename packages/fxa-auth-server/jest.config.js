@@ -19,22 +19,27 @@ const base = {
     '^.+\\.[tj]sx?$': ['ts-jest', { tsconfig: { isolatedModules: true } }],
   },
   transformIgnorePatterns: [
-    '/node_modules/(?!(@fxa|fxa-shared|p-queue|p-timeout|eventemitter3|@faker-js/faker|uuid|app-store-server-api|jose)/)',
+    '/node_modules/(?!(@fxa|p-queue|p-timeout|eventemitter3|@faker-js/faker|uuid|app-store-server-api|jose)/)',
   ],
   clearMocks: true,
   workerIdleMemoryLimit: '512MB',
   moduleNameMapper: {
     '^@fxa/free-access-program$':
       '<rootDir>/../../libs/free-access-program/src',
+    '^@fxa/shared/db/mysql/legacy/(.*)$':
+      '<rootDir>/../../libs/shared/db/mysql/legacy/src/lib/$1',
+    '^@fxa/shared/email/server$':
+      '<rootDir>/../../libs/shared/email/src/server',
     '^@fxa/shared/(.*)$': '<rootDir>/../../libs/shared/$1/src',
     // Secondary entry points must precede the greedy pattern below, which would
     // otherwise map them to `libs/accounts/<pkg>/<entry>/src`.
     '^@fxa/accounts/passkey/testing$':
       '<rootDir>/../../libs/accounts/passkey/src/testing',
+    '^@fxa/accounts/subscriptions-legacy/(.*)$':
+      '<rootDir>/../../libs/accounts/subscriptions-legacy/src/$1',
     '^@fxa/accounts/(.*)$': '<rootDir>/../../libs/accounts/$1/src',
     '^@fxa/payments/(.*)$': '<rootDir>/../../libs/payments/$1/src',
     '^@fxa/profile/(.*)$': '<rootDir>/../../libs/profile/$1/src',
-    '^fxa-shared/(.*)$': '<rootDir>/../fxa-shared/$1',
   },
 };
 
@@ -50,10 +55,6 @@ const integrationBase = {
   moduleNameMapper: {
     ...base.moduleNameMapper,
     '^@fxa/vendored/(.*)$': '<rootDir>/../../libs/vendored/$1/src',
-    // Map bare 'fxa-shared' to source to avoid class identity mismatches
-    // between dist/cjs and source modules (e.g., ScopeSet loaded via
-    // require('fxa-shared').oauth.scopes vs fxa-shared/oauth/scopes).
-    '^fxa-shared$': '<rootDir>/../fxa-shared/index',
   },
   // testTimeout and maxWorkers are global options, ignored per-project under
   // `projects`: the infra timeout is set via jest.setTimeout() in

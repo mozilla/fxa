@@ -13,7 +13,7 @@ import {
 
 const mocks = require('../../test/mocks');
 const getRoute = require('../../test/routes_helpers').getRoute;
-const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
+const { OAUTH_SCOPE_OLD_SYNC } = require('@fxa/accounts/oauth');
 
 let log: any,
   db: any,

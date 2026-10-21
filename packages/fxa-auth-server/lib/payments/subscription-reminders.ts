@@ -7,12 +7,15 @@ import { Stripe } from 'stripe';
 import { DateTime, Duration, Interval } from 'luxon';
 
 import { reportSentryError } from '../sentry';
-import { SentEmailParams, Plan } from 'fxa-shared/subscriptions/types';
+import {
+  SentEmailParams,
+  Plan,
+} from '@fxa/accounts/subscriptions-legacy/subscriptions/types';
 import { StripeHelper } from './stripe';
 import {
   getUidAndEmailByStripeCustomerId,
   SentEmail,
-} from 'fxa-shared/db/models/auth';
+} from '@fxa/shared/db/mysql/legacy/models/auth';
 import {
   getSubplatIntervalFromSubscription,
   SubplatInterval,

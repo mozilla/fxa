@@ -22,7 +22,7 @@ export default meta;
 type Story = StoryObj<typeof AccountSearch>;
 
 const stubs = {
-  getAccountByEmail: async () => mockAccount,
+  getAccountByEmail: async () => [mockAccount],
   getAccountByUid: async () => mockAccount,
   getAccountByPhone: async () => [mockAccount],
   getEmailsLike: async () => mockAccount.emails,

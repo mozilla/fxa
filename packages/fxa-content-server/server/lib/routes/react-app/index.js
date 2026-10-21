@@ -24,14 +24,14 @@ const { OAUTH_SUCCESS_ROUTES } = require('./content-server-routes');
 const getReactRouteGroups = (showReactApp, reactRoute) => {
   return {
     emailFirstRoutes: {
-      featureFlagOn: showReactApp.emailFirstRoutes,
+      featureFlagOn: true,
       // the order of the routes in the array is important.  do not put '/'
       // first.
       routes: reactRoute.getRoutes(['authorization', 'oauth', '/']),
       fullProdRollout: true,
     },
     simpleRoutes: {
-      featureFlagOn: showReactApp.simpleRoutes,
+      featureFlagOn: true,
       routes: reactRoute.getRoutes(['clear', 'cookies_disabled']),
       fullProdRollout: true,
     },
@@ -129,14 +129,14 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       fullProdRollout: true,
     },
 
+    // These routes have no Backbone views, so React must serve them.
     postVerifyOtherRoutes: {
-      featureFlagOn: showReactApp.postVerifyOtherRoutes,
+      featureFlagOn: true,
       routes: reactRoute.getRoutes([
         'post_verify/password/force_password_change',
         'subscriptions',
-        'update_firefox',
       ]),
-      fullProdRollout: false,
+      fullProdRollout: true,
     },
 
     // These routes have no Backbone views, so React must serve them.
@@ -156,24 +156,17 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       fullProdRollout: true,
     },
 
+    // Backbone has no route for update_firefox, so React is the only option.
+    updateFirefoxRoutes: {
+      featureFlagOn: true,
+      routes: reactRoute.getRoutes(['update_firefox']),
+      fullProdRollout: true,
+    },
+
     webChannelExampleRoutes: {
       featureFlagOn: showReactApp.webChannelExampleRoutes,
       routes: reactRoute.getRoutes(['web_channel_example']),
       fullProdRollout: false,
-    },
-
-    // FXA-13863 throwaway deep-link pairing POC pages. Gated behind
-    // `showReactApp.pocPairingRoutes`; served only when that flag is on
-    // (fullProdRollout: true means flag-on serves React for everyone, no
-    // `?showReactApp=true` needed).
-    pocPairingRoutes: {
-      featureFlagOn: showReactApp.pocPairingRoutes,
-      routes: reactRoute.getRoutes([
-        'poc_deep_link',
-        'poc_pair_init',
-        'poc_pair_start',
-      ]),
-      fullProdRollout: true,
     },
     pair2Routes: {
       featureFlagOn: showReactApp.pair2Routes,

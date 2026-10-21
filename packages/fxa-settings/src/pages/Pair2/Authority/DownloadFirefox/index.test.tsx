@@ -32,8 +32,10 @@ describe('Pair2/Authority/DownloadFirefox page', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
       'Open Firefox to sync'
     );
-    screen.getByText(
-      `To set up syncing across devices, open Firefox on this device and visit`
+    const url = screen.getByText('firefox.com/pair');
+    expect(url.tagName).toBe('B');
+    expect(url.parentElement).toHaveTextContent(
+      'To set up syncing across devices, open Firefox on this device and visit firefox.com/pair.'
     );
   });
 

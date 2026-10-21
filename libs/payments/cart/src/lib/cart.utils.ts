@@ -78,6 +78,7 @@ export const stripeWalletToSubPlatPaymentType: Partial<
 > = {
   apple_pay: SubPlatPaymentMethodType.ApplePay,
   google_pay: SubPlatPaymentMethodType.GooglePay,
+  link: SubPlatPaymentMethodType.Link,
 };
 
 export const stripePaymentElementTypeToSubPlatPaymentType: Partial<

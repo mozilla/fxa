@@ -36,6 +36,8 @@ import {
 import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
+  type StripeCustomer,
+  type StripeSubscription,
 } from '@fxa/payments/stripe';
 import {
   FreeTrial,
@@ -124,6 +126,10 @@ import { AsyncLocalStorageCart } from './cart-als.provider';
 import type { CartStore } from './cart-als.types';
 
 type Constructor<T> = new (...args: any[]) => T;
+type ResultCartWithTaxAddressAndCurrency = ResultCart & {
+  taxAddress: TaxAddress;
+  currency: string;
+};
 interface WrapWithCartCatchOptions {
   errorAllowList?: Constructor<Error>[];
   // Invoked after the cart is finalized to FAIL. Only the submit-attempt call
@@ -644,7 +650,9 @@ export class CartService {
         isFreeTrial: oldCart.isFreeTrial,
       };
 
-      if (eligibility.subscriptionEligibilityResult === EligibilityStatus.SAME) {
+      if (
+        eligibility.subscriptionEligibilityResult === EligibilityStatus.SAME
+      ) {
         return this.cartManager.createErrorCart(
           createCartParams,
           CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME
@@ -1004,6 +1012,48 @@ export class CartService {
     };
   }
 
+  private async previewInvoiceForCart(
+    cart: ResultCartWithTaxAddressAndCurrency,
+    priceId: string,
+    customer?: StripeCustomer,
+    subscription?: StripeSubscription,
+    latestInvoicePreview?: InvoicePreview
+  ): Promise<InvoicePreview> {
+    // Once subscription is created, preview from it as it keeps any discount.
+    // Resending a redeemed code (e.g. single-use) can be rejected by Stripe.
+    if (customer && cart.stripeSubscriptionId) {
+      const cartSubscription =
+        subscription ??
+        (await this.subscriptionManager.retrieve(cart.stripeSubscriptionId));
+
+      // A trial's latest invoice is $0, so preview the first charge after it.
+      if (cartSubscription.status === 'trialing') {
+        return this.invoiceManager.previewUpcomingSubscription({
+          customer,
+          subscription: cartSubscription,
+        });
+      }
+
+      // Otherwise use the invoice checkout created, which has the discount.
+      if (latestInvoicePreview) {
+        return latestInvoicePreview;
+      }
+      assert(
+        cartSubscription.latest_invoice,
+        new GetCartSubscriptionIdCartError(cart.id)
+      );
+      return this.invoiceManager.preview(cartSubscription.latest_invoice);
+    }
+
+    return this.invoiceManager.previewUpcoming({
+      priceId,
+      currency: cart.currency,
+      customer,
+      taxAddress: cart.taxAddress,
+      couponCode: cart.couponCode || undefined,
+    });
+  }
+
   /**
    * Fetch a cart from the database by ID
    */
@@ -1011,7 +1061,7 @@ export class CartService {
   async getCart(cartId: string): Promise<CartDTO> {
     const cart = (await this.cartManager.fetchCartById(
       cartId
-    )) as ResultCart & { taxAddress: TaxAddress; currency: string };
+    )) as ResultCartWithTaxAddressAndCurrency;
 
     assert(cart.taxAddress !== null, new GetCartMissingTaxAddressError(cartId));
     const [
@@ -1094,6 +1144,30 @@ export class CartService {
       );
     }
 
+    // Cart latest invoice data
+    let latestInvoicePreview: InvoicePreview | undefined;
+    if (
+      customer &&
+      cart.stripeSubscriptionId &&
+      subscriptions &&
+      cart.state !== CartState.FAIL
+    ) {
+      const subscription =
+        subscriptions.find(
+          (subscription) => subscription.id === cart.stripeSubscriptionId
+        ) ||
+        (await this.subscriptionManager.retrieve(cart.stripeSubscriptionId));
+
+      // fetch latest payment info from subscription
+      assert(
+        subscription?.latest_invoice,
+        new GetCartSubscriptionIdCartError(cartId)
+      );
+      latestInvoicePreview = await this.invoiceManager.preview(
+        subscription.latest_invoice
+      );
+    }
+
     let upcomingInvoicePreview: InvoicePreview | undefined;
     let isUpgradeFromTrial: boolean | undefined;
     if (
@@ -1116,13 +1190,13 @@ export class CartService {
       const hasPaymentMethod =
         !!customer.invoice_settings.default_payment_method;
       if (isUpgradeFromTrial && !hasPaymentMethod) {
-        upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
-          priceId: price.id,
-          currency: cart.currency,
+        upcomingInvoicePreview = await this.previewInvoiceForCart(
+          cart,
+          price.id,
           customer,
-          taxAddress: cart.taxAddress,
-          couponCode: cart.couponCode || undefined,
-        });
+          trialSubscription,
+          latestInvoicePreview
+        );
       } else {
         upcomingInvoicePreview =
           await this.invoiceManager.previewUpcomingForUpgrade({
@@ -1135,13 +1209,13 @@ export class CartService {
           });
       }
     } else {
-      upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
-        priceId: price.id,
-        currency: cart.currency,
+      upcomingInvoicePreview = await this.previewInvoiceForCart(
+        cart,
+        price.id,
         customer,
-        taxAddress: cart.taxAddress,
-        couponCode: cart.couponCode || undefined,
-      });
+        trialSubscription,
+        latestInvoicePreview
+      );
     }
 
     let paymentInfo: PaymentInfo | undefined;
@@ -1174,30 +1248,6 @@ export class CartService {
         };
         break;
       }
-    }
-
-    // Cart latest invoice data
-    let latestInvoicePreview: InvoicePreview | undefined;
-    if (
-      customer &&
-      cart.stripeSubscriptionId &&
-      subscriptions &&
-      cart.state !== CartState.FAIL
-    ) {
-      const subscription =
-        subscriptions.find(
-          (subscription) => subscription.id === cart.stripeSubscriptionId
-        ) ||
-        (await this.subscriptionManager.retrieve(cart.stripeSubscriptionId));
-
-      // fetch latest payment info from subscription
-      assert(
-        subscription?.latest_invoice,
-        new GetCartSubscriptionIdCartError(cartId)
-      );
-      latestInvoicePreview = await this.invoiceManager.preview(
-        subscription.latest_invoice
-      );
     }
 
     if (cart.state === CartState.SUCCESS) {

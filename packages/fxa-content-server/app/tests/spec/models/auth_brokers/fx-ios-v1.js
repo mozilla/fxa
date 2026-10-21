@@ -51,7 +51,7 @@ describe('models/auth_brokers/fx-ios-v1', () => {
     channel = new NullChannel();
     relier = new Relier();
     windowMock = new WindowMock();
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
     initializeBroker(IMMEDIATE_UNVERIFIED_LOGIN_UA_STRING);
   });
 

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import convict from 'convict';
 import fs from 'fs';
-import { makeRedisConfig } from 'fxa-shared/db/config';
+import { makeRedisConfig } from '@fxa/shared/db/mysql/legacy/config';
 import { tracingConfig } from '@fxa/shared/otel';
 import { CloudTasksConvictConfigFactory } from '@fxa/shared/cloud-tasks';
 import path from 'path';
@@ -1400,7 +1400,7 @@ const convictConf = convict({
         // Warning: here be dragons. 365 minutes is 6 hours plus 5 minutes.
         // This value is intended to be just slightly larger than the constant
         // that determines if a JWT is stored in the database or not,
-        // SHORT_ACCESS_TTL_TOKEN_IN_MS (found in fxa-shared/oauth/constants), currently
+        // SHORT_ACCESS_TTL_TOKEN_IN_MS (found in @fxa/accounts/oauth), currently
         // 6 hours. We want to keep this FXA_EXPIRATION_ACCESS_TOKEN default
         // value greater than 6 hours, because tokens not backed by the
         // database are validated slightly differently (see lib/oauth/token).
@@ -2248,6 +2248,18 @@ const convictConf = convict({
       doc: 'Zendesk Token for support interaction',
       default: '',
       env: 'ZENDESK_TOKEN',
+      format: String,
+    },
+    useOAuth: {
+      doc: 'Authenticate to Zendesk with zendesk.oauthToken instead of username and API token',
+      default: false,
+      env: 'ZENDESK_USE_OAUTH',
+      format: Boolean,
+    },
+    oauthToken: {
+      doc: 'Zendesk OAuth access token for support interaction, used when zendesk.useOAuth is true',
+      default: '',
+      env: 'ZENDESK_OAUTH_TOKEN',
       format: String,
     },
     subdomain: {
@@ -3190,6 +3202,7 @@ if (convictConf.get('oauthServer.openid.oldKeyFile')) {
 if (convictConf.get('isProduction')) {
   const SECRET_SETTINGS = [
     'metrics.flow_id_key',
+    'mfa.jwt.secretKey',
     'oauth.jwtSecretKeys',
     'oauth.secretKey',
     'profileServer.secretBearerToken',
@@ -3199,6 +3212,19 @@ if (convictConf.get('isProduction')) {
     if (convictConf.get(key) === convictConf.default(key)) {
       throw new Error(`Config '${key}' must be set in production`);
     }
+  }
+}
+
+// Sole root of trust for every `strategy: 'mfa'` route. An HS256 key shorter
+// than its 256-bit MAC can be brute-forced offline from any captured token.
+// Stage is held to the same bar so a weak key fails there first.
+if (['prod', 'stage'].includes(convictConf.get('env'))) {
+  const MFA_JWT_KEY_MIN_BYTES = 32;
+  const mfaJwtKey = convictConf.get('mfa.jwt.secretKey');
+  if (Buffer.byteLength(mfaJwtKey, 'utf8') < MFA_JWT_KEY_MIN_BYTES) {
+    throw new Error(
+      `Config 'mfa.jwt.secretKey' must be at least ${MFA_JWT_KEY_MIN_BYTES} bytes in production and stage`
+    );
   }
 }
 

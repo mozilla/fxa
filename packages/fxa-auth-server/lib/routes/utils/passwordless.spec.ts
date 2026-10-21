@@ -6,6 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import { parseConfigRules } from '@fxa/accounts/rate-limit';
 import {
+  formatGeoData,
   isPasswordlessEligible,
   isClientAllowedForPasswordless,
   AllowedClientServices,
@@ -104,9 +105,9 @@ describe('isClientAllowedForPasswordless', () => {
     });
 
     it('returns false when clientId is in config but no service specified and no wildcard', () => {
-      expect(isClientAllowedForPasswordless(allowedClientServices, 'abc123')).toBe(
-        false
-      );
+      expect(
+        isClientAllowedForPasswordless(allowedClientServices, 'abc123')
+      ).toBe(false);
     });
   });
 
@@ -156,11 +157,7 @@ describe('isClientAllowedForPasswordless', () => {
   describe('with invalid inputs', () => {
     it('returns false when clientId is not in the config', () => {
       expect(
-        isClientAllowedForPasswordless(
-          allowedClientServices,
-          'unknown',
-          'sync'
-        )
+        isClientAllowedForPasswordless(allowedClientServices, 'unknown', 'sync')
       ).toBe(false);
     });
 
@@ -227,5 +224,25 @@ describe('passwordless rate limit actions', () => {
     for (const rule of signin) {
       expect(rule.blockPolicy).toBe('report');
     }
+  });
+});
+
+describe('formatGeoData', () => {
+  it('maps state to stateCode', () => {
+    expect(
+      formatGeoData({
+        city: 'Portland',
+        state: 'Oregon',
+        country: 'United States',
+      })
+    ).toEqual({
+      city: 'Portland',
+      country: 'United States',
+      stateCode: 'Oregon',
+    });
+  });
+
+  it('returns empty strings when there is no geo data', () => {
+    expect(formatGeoData()).toEqual({ city: '', country: '', stateCode: '' });
   });
 });

@@ -15,8 +15,8 @@ const { DISPLAY_SAFE_UNICODE_WITH_NON_BMP, HEX_STRING, URL_SAFE_BASE_64 } =
 const PUSH_SERVER_REGEX = require('../config').default.get(
   'push.allowedServerRegex'
 );
-const { synthesizeClientName } = require('fxa-shared/connected-services');
-const { platformFromOS } = require('fxa-shared/lib/user-agent');
+const { synthesizeClientName } = require('@fxa/accounts/connected-services');
+const { platformFromOS } = require('@fxa/shared/user-agent');
 const { reportSentryError } = require('./sentry');
 const {
   deauthorizeOnDisconnect,

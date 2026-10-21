@@ -21,7 +21,7 @@ const mockLinkedErrorsIntegration = jest
 jest.mock('@fxa/shared/otel', () => ({
   initTracing: mockInitTracing,
 }));
-jest.mock('fxa-shared/sentry/node', () => ({
+jest.mock('@fxa/shared/sentry-node', () => ({
   initSentry: mockInitSentry,
 }));
 jest.mock('../config', () => ({

@@ -20,7 +20,7 @@ function addAllReactRoutesConditionally(
    * `?showReactApp=true` or `fullProdRollout` is set to `true`. If true, use the
    * middleware passed ('createSettingsProxy' in dev, else 'modifySettingsStatic') for
    * that route, allowing `fxa-settings` to serve the page. If false, skip the middleware
-   * and use the default routing middleware from `fxa-shared/express/routing.ts` to
+   * and use the default routing middleware from `@fxa/shared/express` to
    * serve the Backbone app.
    * @param {import("./types").ReactRouteGroup}
    */
