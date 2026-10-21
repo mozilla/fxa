@@ -1119,7 +1119,6 @@ pair2-authority-continue-on-mobile-cancel-button = Peruuta
 
 
 pair2-authority-download-firefox-heading = Avaa { -brand-firefox } synkronointia varten
-pair2-authority-download-firefox-instruction = Määritä synkronointi laitteiden välillä avaamalla { -brand-firefox } tällä laitteella, ja siirry osoitteeseen <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Lataa { -brand-firefox }
 
 
