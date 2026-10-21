@@ -495,7 +495,7 @@ export class EmailLinkBuilder {
   }
 }
 
-// PORTED FROM fxa-shared/subscriptions/configuration/utils.ts
+// PORTED FROM libs/accounts/subscriptions-legacy/src/subscriptions/configuration/utils.ts
 const DEFAULT_LOCALE = 'en';
 export const localizedPlanConfig = (
   planConfig: Readonly<{

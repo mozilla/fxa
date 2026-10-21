@@ -1392,7 +1392,7 @@ pair2-authority-continue-on-mobile-cancel-button = Ακύρωση
 
 
 pair2-authority-download-firefox-heading = Ανοίξτε το { -brand-firefox } για συγχρονισμό
-pair2-authority-download-firefox-instruction = Για να ρυθμίσετε τον συγχρονισμό μεταξύ των συσκευών, ανοίξτε το { -brand-firefox } σε αυτήν τη συσκευή και επισκεφθείτε το <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Για να ρυθμίσετε τον συγχρονισμό μεταξύ των συσκευών, ανοίξτε το { -brand-firefox } σε αυτήν τη συσκευή και επισκεφθείτε το <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Λήψη του { -brand-firefox }
 
 

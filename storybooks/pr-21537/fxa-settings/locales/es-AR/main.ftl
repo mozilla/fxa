@@ -1321,7 +1321,7 @@ pair2-authority-continue-on-mobile-cancel-button = Cancelar
 
 
 pair2-authority-download-firefox-heading = Abrir { -brand-firefox } para sincronizar
-pair2-authority-download-firefox-instruction = Para configurar la sincronización entre dispositivos, abrí { -brand-firefox } en este dispositivo y visitá <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Para configurar la sincronización entre dispositivos, abrí { -brand-firefox } en este dispositivo y visitá <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Descargar { -brand-firefox }
 
 

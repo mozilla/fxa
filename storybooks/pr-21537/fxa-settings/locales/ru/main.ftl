@@ -1362,7 +1362,7 @@ pair2-authority-continue-on-mobile-cancel-button = Отмена
 
 
 pair2-authority-download-firefox-heading = Откройте { -brand-firefox } для синхронизации
-pair2-authority-download-firefox-instruction = Чтобы настроить синхронизацию между устройствами, откройте { -brand-firefox } на этом устройстве и посетите <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Чтобы настроить синхронизацию между устройствами, откройте { -brand-firefox } на этом устройстве и посетите <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Скачать { -brand-firefox }
 
 

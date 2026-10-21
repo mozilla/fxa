@@ -1900,7 +1900,7 @@ pair2-authority-continue-on-mobile-cancel-button = გაუქმება
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = გახსენით { -brand-firefox } დასინქრონებისთვის
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = მოწყობილობებს შორის სინქრონიზაციისთვის გახსენით { -brand-firefox } ამ მოწყობილობაზე და ინახულეთ გვერდი <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = მოწყობილობებს შორის სინქრონიზაციისთვის გახსენით { -brand-firefox } ამ მოწყობილობაზე და ინახულეთ გვერდი <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = ჩამოტვირთეთ { -brand-firefox }
 
@@ -2038,6 +2038,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = მობილურ�
 pair2-supplicant-timeout-and-cancel-cancelled-heading = გაუქმებულია
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = მოწყობილობის დასაკავშირებლად ნებისმიერ დროს, ინახულეთ გვერდი <b>firefox.com/pair</b> თქვენს კომპიუტერში.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = ეს მოწყობილობა უკვე შესულია
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = თქვენი კომპიუტერის ანგარიშთან დასაკავშირებლად ჯერ არსებული ანგარიშიდან უნდა გამოვიდეს { -brand-firefox } ამ მოწყობილობაზე, შემდეგ კი კომპიუტერიდან უნდა გაიხსნას <b>firefox.com/pair</b> შესვლის დასასრულებლად.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2057,6 +2061,7 @@ permissions-cancel-button = გაუქმება
 ## Users are sent here when suspicious activity on the account requires a new password before they can continue.
 
 force-password-change-heading = გთხოვთ, შეცვალოთ თქვენი პაროლი
+force-password-change-info = თქვენს { -product-mozilla-account(case: "loc") } საეჭვო მოქმედება შევნიშნეთ. თქვენი ანგარიშის დასაცავად გთხოვთ, შექმნათ ახალი პაროლი. ამ პაროლით შეძლებთ დაიბრუნოთ თქვენი { -product-mozilla-account(case: "gen") } ყველა მოქმედი მომსახურება.
 force-password-change-data-info = დასინქრონებული ისტორია, სანიშნები, ანგარიშები და სხვა პირადი მონაცემები არ დაიკარგება.
 
 ## ServiceWelcome page
@@ -2534,4 +2539,5 @@ signup-confirmed-sync-set-password-success-banner = დასინქრონ�
 ## Shown when the browser is too old to use a Mozilla account
 
 update-firefox-heading = { -brand-firefox } საჭიროებს განახლებას
+update-firefox-description = { -product-mozilla-account } იყენებს შესაძლებლობებს, რომლებთანაც შეუთავსებელია თქვენი { -brand-firefox }. გთხოვთ, ჩამოტვირთოთ და დააყენოთ უახლესი { -brand-firefox }, რომ განაგრძოთ.
 update-firefox-download-button = უახლესის ჩამოტვირთვა
