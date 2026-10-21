@@ -1,8 +1,8 @@
 {
-  "commit": "09b07963ef1add6ac181b538a3f0266cda41e890",
-  "summary": "Merge pull request #21574 from mozilla/fxa-14815",
-  "description": "chore(content-server): serve password change and subscriptions in React",
-  "timestamp": 1792599201000,
+  "commit": "9b6a6d6c6c564a5933e2f70ded2b7e75d986fdd0",
+  "summary": "Merge pull request #21568 from mozilla/pay-3951-retry-active-subscription-invoices",
+  "description": "fix(payments): retry only open invoices of active subscriptions",
+  "timestamp": 1792601466000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
