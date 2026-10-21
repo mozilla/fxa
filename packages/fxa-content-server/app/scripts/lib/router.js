@@ -6,7 +6,6 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import Cocktail from 'cocktail';
 import Storage from './storage';
-import SubscriptionsProductRedirectView from '../views/subscriptions_product_redirect';
 import SubscriptionsManagementRedirectView from '../views/subscriptions_management_redirect';
 import Url from './url';
 import UserAgent from './user-agent';
@@ -344,9 +343,6 @@ Router = Router.extend({
     'signup_verified(/)': function () {
       this.createReactViewHandler('signup_verified');
     },
-    'subscriptions/products/:productId': createViewHandler(
-      SubscriptionsProductRedirectView
-    ),
     'subscriptions(/)': function () {
       this.createReactOrBackboneViewHandler(
         'subscriptions',

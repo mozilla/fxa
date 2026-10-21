@@ -14,13 +14,6 @@ $(document).ready(function () {
   window.loggedInEmail = null;
   window.loggedInSubscriptions = [];
 
-  const paymentURL = {
-    local: 'http://localhost:3030/subscriptions/products/',
-    dev: 'https://latest.dev.lcip.org/subscriptions/products/',
-    stage: 'https://accounts.stage.mozaws.net/subscriptions/products/',
-    prod: 'https://accounts.firefox.com/subscriptions/products',
-  };
-
   const sp3URL = {
     local: 'http://localhost:3035/',
     dev: '',
