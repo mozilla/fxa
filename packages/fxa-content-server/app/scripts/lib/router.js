@@ -6,7 +6,6 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import Cocktail from 'cocktail';
 import Storage from './storage';
-import SubscriptionsManagementRedirectView from '../views/subscriptions_management_redirect';
 import Url from './url';
 import UserAgent from './user-agent';
 import VerificationReasons from './verification-reasons';
@@ -205,8 +204,7 @@ Router = Router.extend({
     },
     // Forward the OAuth and Sync params; the React page completes sign-in.
     'post_verify/password/force_password_change': function () {
-      this.createReactOrBackboneViewHandler(
-        'post_verify/password/force_password_change',
+      this.createReactViewHandler(
         'post_verify/password/force_password_change',
         Url.searchParams(this.window.location.search)
       );
@@ -344,10 +342,7 @@ Router = Router.extend({
       this.createReactViewHandler('signup_verified');
     },
     'subscriptions(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'subscriptions',
-        SubscriptionsManagementRedirectView
-      );
+      this.createReactViewHandler('subscriptions');
     },
   },
 
