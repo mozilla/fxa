@@ -66,9 +66,11 @@ const DEFAULT_FXA_STATUS: FxAStatusResponse = {
  * capabilities. Their integration is whatever the URL built — a plain /pair
  * with no context is a Web integration — so the pathname, not the integration,
  * says the browser has to be asked. Guessing a version instead sends a v2
- * browser down the v1 flow.
+ * browser down the v1 flow. /pair/auth/totp keeps the answer /pair got, so it
+ * verifies the code for the Sync account that /pair checked.
  */
-const PAIRING_ENTRY_PATHNAME = /^\/(pair|connect_another_device)\/?$/;
+const PAIRING_ENTRY_PATHNAME =
+  /^\/(pair(\/auth\/totp)?|connect_another_device)\/?$/;
 
 export function isPairingEntryPathname(pathname: string | undefined) {
   return !!pathname && PAIRING_ENTRY_PATHNAME.test(pathname);

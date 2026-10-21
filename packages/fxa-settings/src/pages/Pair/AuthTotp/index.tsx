@@ -6,6 +6,7 @@ import React, { useState, useCallback } from 'react';
 import { useLocation } from 'react-router';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useFtlMsgResolver, useAuthClient } from '../../../models';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { TwoFactorAuthImage } from '../../../components/images';
@@ -15,12 +16,11 @@ import FormVerifyCode, {
 } from '../../../components/FormVerifyCode';
 import { MozServices } from '../../../lib/types';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import type { UseFxAStatusResult } from '../../../lib/hooks';
 import { useNavigateWithQuery } from '../../../lib/hooks';
 import { Integration } from '../../../models';
-import {
-  getBasicAccountData,
-  recordTotpVerified,
-} from '../../../lib/account-storage';
+import { recordTotpVerified } from '../../../lib/account-storage';
+import { getPairingAccount } from '../../../lib/pairing/pairing-account';
 import AppLayout from '../../../components/AppLayout';
 
 export type AuthTotpProps = {
@@ -28,16 +28,23 @@ export type AuthTotpProps = {
   serviceName?: MozServices;
   onVerified?: () => void;
   integration?: Integration;
+  fxaStatusResult?: UseFxAStatusResult;
 };
 
 export const viewName = 'pair.auth.totp';
 
-const AuthTotp = ({ email, serviceName, onVerified }: AuthTotpProps) => {
+const AuthTotp = ({
+  email,
+  serviceName,
+  onVerified,
+  fxaStatusResult,
+}: AuthTotpProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const navigateWithQuery = useNavigateWithQuery();
   const location = useLocation();
   const authClient = useAuthClient();
   const [codeErrorMessage, setCodeErrorMessage] = useState('');
+  const signedInUser = fxaStatusResult?.fxaStatus?.signedInUser;
 
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
@@ -57,17 +64,15 @@ const AuthTotp = ({ email, serviceName, onVerified }: AuthTotpProps) => {
   const onSubmit = useCallback(
     async (code: string) => {
       try {
-        const accountData = getBasicAccountData();
-        if (!accountData?.sessionToken) {
+        const { uid, sessionToken } = getPairingAccount(signedInUser);
+        if (!sessionToken) {
           navigateWithQuery('/signin');
           return;
         }
 
-        const result = await authClient.verifyTotpCode(
-          accountData.sessionToken,
-          code,
-          { service: 'pair' }
-        );
+        const result = await authClient.verifyTotpCode(sessionToken, code, {
+          service: 'pair',
+        });
 
         if (!result.success) {
           setCodeErrorMessage(
@@ -79,7 +84,7 @@ const AuthTotp = ({ email, serviceName, onVerified }: AuthTotpProps) => {
           return;
         }
 
-        recordTotpVerified(accountData.uid);
+        recordTotpVerified(uid);
 
         // /pair sends here before it starts pairing, and resumes on return.
         const state = location.state as { returnToPair?: boolean } | null;
@@ -98,8 +103,20 @@ const AuthTotp = ({ email, serviceName, onVerified }: AuthTotpProps) => {
         setCodeErrorMessage(message);
       }
     },
-    [authClient, ftlMsgResolver, location.state, navigateWithQuery, onVerified]
+    [
+      authClient,
+      ftlMsgResolver,
+      location.state,
+      navigateWithQuery,
+      onVerified,
+      signedInUser,
+    ]
   );
+
+  // The code is verified for the Sync account, which only fxa_status names.
+  if (fxaStatusResult?.fxaStatusState === 'pending') {
+    return <LoadingSpinner fullScreen />;
+  }
 
   return (
     <AppLayout>

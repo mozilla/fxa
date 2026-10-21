@@ -17,6 +17,8 @@ import { Integration } from '../../../../models';
 import { AppContext } from '../../../../models/contexts/AppContext';
 import { mockAppContext } from '../../../../models/mocks';
 import { navigateWithQuery } from '../../../../lib/utilities';
+import { mockUseFxAStatus } from '../../../../lib/hooks/useFxAStatus/mocks';
+import type { UseFxAStatusResult } from '../../../../lib/hooks';
 
 jest.mock('../../../../lib/utilities', () => ({
   ...jest.requireActual('../../../../lib/utilities'),
@@ -52,13 +54,16 @@ describe('Pair2/Authority/EnterTotp container', () => {
     });
   });
 
-  const renderContainer = (i: Integration = integration) => {
+  const renderContainer = (
+    i: Integration = integration,
+    fxaStatusResult?: UseFxAStatusResult
+  ) => {
     const appCtx = mockAppContext();
     Object.assign(appCtx.authClient as object, { verifyTotpCode });
     return renderWithLocalizationProvider(
       <AppContext.Provider value={appCtx}>
         <MemoryRouter initialEntries={['/pair/authority/totp']}>
-          <EnterTotpContainer integration={i} />
+          <EnterTotpContainer integration={i} {...{ fxaStatusResult }} />
         </MemoryRouter>
       </AppContext.Provider>
     );
@@ -90,6 +95,28 @@ describe('Pair2/Authority/EnterTotp container', () => {
         '123456',
         { service: 'pair' }
       )
+    );
+  });
+
+  it('verifies the code for the Firefox Sync account, not the current local account', async () => {
+    renderContainer(
+      integration,
+      mockUseFxAStatus({
+        signedInUser: {
+          uid: 'sync-uid',
+          email: 'sync@example.com',
+          sessionToken: 'sync-token',
+          verified: true,
+        },
+      })
+    );
+
+    await submitCode('123456');
+
+    await waitFor(() =>
+      expect(verifyTotpCode).toHaveBeenCalledWith('sync-token', '123456', {
+        service: 'pair',
+      })
     );
   });
 

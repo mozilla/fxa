@@ -446,6 +446,26 @@ describe('useFxAStatus', () => {
       expect(result.current.fxaStatus?.capabilities.pairingVersion).toBe(2);
     });
 
+    it('keeps the Sync user when /pair moves to /pair/auth/totp', async () => {
+      const signedInUser = { uid: 'sync-uid', sessionToken: 'sync-token' };
+      (firefox.fxaStatus as jest.Mock).mockResolvedValue({
+        capabilities: { engines: [] },
+        signedInUser,
+      });
+
+      const { result, rerender } = renderHook(
+        ({ pathname }) => useFxAStatus(integration, { pathname }),
+        { initialProps: { pathname: '/pair' } }
+      );
+      await waitFor(() => {
+        expect(result.current.fxaStatusState).toBe('answered');
+      });
+      rerender({ pathname: '/pair/auth/totp' });
+
+      expect(result.current.fxaStatusState).toBe('answered');
+      expect(result.current.fxaStatus?.signedInUser).toEqual(signedInUser);
+    });
+
     it('gives up on a browser that never answers', () => {
       jest.useFakeTimers();
       (firefox.fxaStatus as jest.Mock).mockReturnValue(new Promise(() => {}));
@@ -463,7 +483,7 @@ describe('useFxAStatus', () => {
   });
 
   describe('isPairingEntryPathname', () => {
-    it.each(['/pair', '/pair/', '/connect_another_device'])(
+    it.each(['/pair', '/pair/', '/pair/auth/totp', '/connect_another_device'])(
       'matches %s',
       (pathname) => {
         expect(isPairingEntryPathname(pathname)).toBe(true);

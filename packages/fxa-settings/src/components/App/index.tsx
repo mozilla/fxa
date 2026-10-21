@@ -1103,7 +1103,11 @@ const AuthAndAccountSetupRoutes = ({
         />
         <Route
           path="/pair/auth/allow/*"
-          element={<PairAuthAllow integration={integration} />}
+          element={
+            <PairAuthAllow
+              {...{ integration, fxaStatusResult: useFxAStatusResult }}
+            />
+          }
         />
         <Route
           path="/pair/auth/wait_for_supp/*"
@@ -1115,7 +1119,11 @@ const AuthAndAccountSetupRoutes = ({
         />
         <Route
           path="/pair/auth/totp/*"
-          element={<PairAuthTotp integration={integration} />}
+          element={
+            <PairAuthTotp
+              {...{ integration, fxaStatusResult: useFxAStatusResult }}
+            />
+          }
         />
         <Route path="/pair/failure/*" element={<PairFailure />} />
         <Route path="/pair/unsupported/*" element={<PairUnsupported />} />
@@ -1141,7 +1149,11 @@ const AuthAndAccountSetupRoutes = ({
         />
         <Route
           path="/pair/authority/totp/*"
-          element={<PairAuthorityEnterTotp {...{ integration }} />}
+          element={
+            <PairAuthorityEnterTotp
+              {...{ integration, fxaStatusResult: useFxAStatusResult }}
+            />
+          }
         />
         <Route
           path="/pair/authority/scan_qr/*"

@@ -22,10 +22,11 @@ import { mockUseFxAStatus } from '../../../../lib/hooks/useFxAStatus/mocks';
 import type { UseFxAStatusResult } from '../../../../lib/hooks';
 import type { SignedInUser } from '../../../../lib/channels/firefox';
 
+const MOCK_SESSION_TOKEN = 'a'.repeat(64);
 const MOCK_SIGNED_IN_USER: SignedInUser = {
   uid: 'sync-uid',
   email: 'sync@example.com',
-  sessionToken: 'token',
+  sessionToken: MOCK_SESSION_TOKEN,
   verified: true,
 };
 
@@ -49,7 +50,6 @@ jest.mock('../../../../models', () => ({
   useAuthClient: () => ({ accountProfile: mockAccountProfile }),
 }));
 
-const MOCK_SESSION_TOKEN = 'a'.repeat(64);
 jest.mock('../../../../lib/account-storage', () => ({
   getBasicAccountData: jest.fn(),
 }));
@@ -515,24 +515,48 @@ describe('Pair2/Authority/ScanQR container', () => {
       expect(mockNavigate).not.toHaveBeenCalled();
     });
 
-    it('opens the channel when no session token is stored', async () => {
+    it('checks the Sync account when no local account is stored', async () => {
       mockGetBasicAccountData.mockReturnValue(null);
 
       renderContainer();
 
       await waitFor(() => expect(integration.createChannel).toHaveBeenCalled());
-      expect(mockAccountProfile).not.toHaveBeenCalled();
+      expect(mockAccountProfile).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
     });
 
-    it('opens the channel when the profile lookup fails', async () => {
+    it('asks for the Sync account code when the current local account has no 2FA', async () => {
+      mockGetBasicAccountData.mockImplementation((uid?: string) =>
+        uid ? null : { uid: 'local-uid', sessionToken: 'local-token' }
+      );
+      mockAccountProfile.mockImplementation(async (token: string) => ({
+        authenticationMethods:
+          token === MOCK_SESSION_TOKEN ? ['pwd', 'otp'] : ['pwd'],
+      }));
+
+      renderContainer();
+
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('/pair/authority/totp', {
+          replace: true,
+        })
+      );
+      expect(mockAccountProfile).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
+      expect(integration.createChannel).not.toHaveBeenCalled();
+    });
+
+    it('sends the user to the TOTP screen when the profile lookup fails', async () => {
       mockAccountProfile.mockRejectedValue(
         new Error('Backend service failure')
       );
 
       renderContainer();
 
-      await waitFor(() => expect(integration.createChannel).toHaveBeenCalled());
-      expect(mockNavigate).not.toHaveBeenCalled();
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('/pair/authority/totp', {
+          replace: true,
+        })
+      );
+      expect(integration.createChannel).not.toHaveBeenCalled();
     });
 
     it('shows a spinner, not the QR card, while the check is pending', () => {

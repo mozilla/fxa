@@ -52,14 +52,20 @@ describe('pairingRequiresTotp', () => {
     ).resolves.toBe(false);
   });
 
-  // A profile outage must not block a session that was already verified at
-  // sign-in from finishing the pairing.
-  it('is false when the profile lookup fails', async () => {
+  // Pairing hands over the Sync keys, so an unknown 2FA status asks for a code.
+  it('is true when the profile lookup fails', async () => {
     accountProfile.mockRejectedValue(new Error('Backend service failure'));
 
     await expect(
       pairingRequiresTotp(authClient, MOCK_SESSION_TOKEN, NO_RECENT_CODE)
-    ).resolves.toBe(false);
+    ).resolves.toBe(true);
+  });
+
+  it('is true, without a profile lookup, when there is no session token', async () => {
+    await expect(
+      pairingRequiresTotp(authClient, undefined, NO_RECENT_CODE)
+    ).resolves.toBe(true);
+    expect(accountProfile).not.toHaveBeenCalled();
   });
 });
 
@@ -87,6 +93,17 @@ describe('pairingRequiresTotp with a code verified in this browser', () => {
     expect(accountProfile).not.toHaveBeenCalled();
   });
 
+  it('is true when there is no session token, even with a code within the max age', async () => {
+    await expect(
+      pairingRequiresTotp(
+        authClient,
+        undefined,
+        { verifiedAt: MOCK_NOW, maxAgeMs: MAX_AGE_MS },
+        MOCK_NOW
+      )
+    ).resolves.toBe(true);
+  });
+
   it('is true for a 2FA account when the code is older than the max age', async () => {
     await expect(
       pairingRequiresTotp(
@@ -100,7 +117,12 @@ describe('pairingRequiresTotp with a code verified in this browser', () => {
 
   it('is true for a 2FA account when no code was ever verified here', async () => {
     await expect(
-      pairingRequiresTotp(authClient, MOCK_SESSION_TOKEN, NO_RECENT_CODE, MOCK_NOW)
+      pairingRequiresTotp(
+        authClient,
+        MOCK_SESSION_TOKEN,
+        NO_RECENT_CODE,
+        MOCK_NOW
+      )
     ).resolves.toBe(true);
   });
 });
