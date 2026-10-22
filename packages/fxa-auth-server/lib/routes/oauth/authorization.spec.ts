@@ -7,7 +7,7 @@ import { OAuthNativeClients } from '@fxa/accounts/oauth';
 import { AuthLogger } from '../../types';
 
 import { AppError } from '@fxa/accounts/errors';
-import { parseToScalars } from 'fxa-shared/lib/user-agent';
+import { parseToScalars } from '@fxa/shared/user-agent';
 
 const Joi = require('joi');
 const ScopeSet = require('@fxa/accounts/oauth').scopeSetHelpers;
@@ -1178,6 +1178,11 @@ describe('/authorization POST consent write', () => {
           glean: mockGlean,
           log: mockLog,
           oauthDB,
+          db: {
+            totpToken: jest
+              .fn()
+              .mockRejectedValue(AppError.totpTokenNotFound()),
+          },
           config: baseConfig,
           statsd: opts.statsd,
           authServerCacheRedis: opts.authServerCacheRedis,
