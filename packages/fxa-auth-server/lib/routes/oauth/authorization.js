@@ -773,6 +773,34 @@ module.exports = ({
           await rememberPairing(result.code);
         }
 
+        // A keys-required mobile Sync passkey sign-in stashes account.login at
+        // passkey finish and completes here, the first request every path makes
+        // once the browser has keys.
+        if (
+          req.payload.keys_jwe != null &&
+          sessionToken.verificationMethodValue === 'passkey'
+        ) {
+          try {
+            const stashed = await req.getStashedMetricsContext(sessionToken);
+            // `missing` is a completed, expired or never-stashed flow.
+            statsd?.increment('passkeys.signin.authorization_stash', {
+              stash: stashed.flowCompleteSignal || 'missing',
+            });
+            if (stashed.flowCompleteSignal === 'account.login') {
+              await req.emitMetricsEvent('account.login', {
+                uid: sessionToken.uid,
+              });
+            }
+          } catch (err) {
+            statsd?.increment('passkeys.signin.authorization_stash', {
+              stash: 'error',
+            });
+            log.warn('oauth.authorization.passkeyLoginComplete.error', {
+              err: err.message,
+            });
+          }
+        }
+
         const geoData = req.app.geo;
         const country = geoData.location && geoData.location.country;
         const countryCode = geoData.location && geoData.location.countryCode;
