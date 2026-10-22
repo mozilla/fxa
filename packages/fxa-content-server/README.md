@@ -72,10 +72,6 @@ to run with. After installing `xvfb-run` the functional tests can be run with:
 xvfb-run -s "-screen 0 1920x1200x16" yarn test-functional
 ```
 
-### Unit Tests
-
-If you'd like to run only unit tests you can do so in your browser by navigating to <http://localhost:3030/tests/index.html>. You can also grep for specific tests by specifying the `grep` URL parameter (e.g. <http://localhost:3030/tests/index.html?grep=fxa-client>).
-
 ---
 
 ## Grunt Commands

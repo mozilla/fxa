@@ -7,9 +7,15 @@
  */
 
 const joi = require('joi');
-const {
-  EXPERIMENT_NAMES,
-} = require('../../app/scripts/lib/experiments/grouping-rules');
+
+// Experiment names that metrics events may still carry.
+const EXPERIMENT_NAMES = [
+  'communicationPrefsVisible',
+  'isSampledUser',
+  'sentryEnabled',
+  'generalizedReactApp',
+  'keyStretchV2',
+];
 
 const PATTERNS = {
   ACTION: /^(email|signin|signup)$/,

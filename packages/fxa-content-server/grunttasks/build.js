@@ -10,8 +10,6 @@ module.exports = function (grunt) {
     // Select 'dist' configuration files for the running environment.
     'selectconfig:dist',
 
-    'webpack',
-
     // l10n-generate-pages needs to be run before useminPrepare to seed
     // the list of resources to minimize. Generated pages are placed into
     // `server/templates/pages/dist` where they will be post-processed
@@ -24,7 +22,7 @@ module.exports = function (grunt) {
 
     'copy:styles',
 
-    // concatenate the CSS & JS not processed by webpack. Must be before cssmin or else
+    // concatenate the CSS. Must be before cssmin or else
     // cssmin creates empty output.
     'concat',
 
@@ -33,12 +31,6 @@ module.exports = function (grunt) {
 
     // copy all static resources from 'app' to 'dist'
     'copy:dist',
-
-    // generate localized js bundles. Done after the uglification step
-    // to drastically shorten the build time. If translations are inserted
-    // and then uglify is run, uglify has to run 40+ times, whereas this way
-    // uglify only runs once.
-    'l10n-localize-js',
 
     // rev leaf nodes in the dependency tree. Leaf nodes are revved first
     // so the URLs to leaf nodes in internal nodes can be updated. Internal
@@ -61,9 +53,6 @@ module.exports = function (grunt) {
     // and SRI hashes added to the main JS bundle. These files
     // are in their final state and can now be revved.
     'rev:with_children',
-
-    // update the HTML pages to request localized JavaScript
-    'l10n-use-localized-js',
 
     // replaces blocks in the HTML by the final rev of the inodes.
     'usemin:html',

@@ -116,8 +116,7 @@ module.exports = function (config, glean) {
 
     metricsData.flowId = flowId;
     metricsData.location = geodbConfig.enabled ? geolocate(req) : {};
-    // Amplitude-specific device id, like the client-side equivalent
-    // created in app/scripts/lib/app-start.js. Transient for now,
+    // Amplitude-specific device id. Transient for now,
     // but will become persistent in due course.
     const deviceId = (metricsData.deviceId = uuidv4().replace(/-/g, ''));
 

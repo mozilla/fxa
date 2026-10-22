@@ -80,12 +80,12 @@ module.exports = function (grunt) {
 
     // only worry about html files. Things like .swp files
     // for editors should be ignored.
-    // Ignore the mocha and style-guide templates, they are only used for testing
+    // Ignore the style-guide template, it is only used for testing
     var templates = grunt.file.expand(
       {
         cwd: templateSrc,
       },
-      ['**/*.html', '!style-guide.html', '!mocha.html']
+      ['**/*.html', '!style-guide.html']
     );
     templates.forEach(function (fileName) {
       var srcPath = path.join(templateSrc, fileName);

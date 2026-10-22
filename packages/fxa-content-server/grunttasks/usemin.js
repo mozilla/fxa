@@ -26,7 +26,6 @@ module.exports = function (grunt) {
       src: [
         // Use the already generated locale specific pages as the source.
         '<%= yeoman.page_template_dist %>/{,*/}*.html',
-        '!<%= yeoman.page_template_dist %>/{,*/}mocha.html',
       ],
     },
   });
@@ -36,7 +35,6 @@ module.exports = function (grunt) {
     html: [
       '<%= yeoman.dist %>/{,*/}*.html',
       '<%= yeoman.page_template_dist %>/{,*/}*.html',
-      '!<%= yeoman.page_template_dist %>/{,*/}mocha.html',
     ],
     options: { assetsDirs: ['<%= yeoman.dist %>'] },
   });

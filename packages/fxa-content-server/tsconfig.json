@@ -3,13 +3,6 @@
   "include": ["./**/*.ts"],
   "compilerOptions": {
     "outDir": "./.tscompiled/",
-    "rootDirs": ["./app/scripts/", "./server/lib/routes/react-app"],
-    "baseUrl": "./app/scripts",
-    "noImplicitAny": false,
-    // baseUrl above breaks the root @fxa/* paths, so map the server's here.
-    "paths": {
-      "@fxa/shared/express": ["../../../../libs/shared/express/src/index.ts"],
-      "@fxa/shared/log": ["../../../../libs/shared/log/src/index.ts"]
-    }
+    "noImplicitAny": false
   }
 }

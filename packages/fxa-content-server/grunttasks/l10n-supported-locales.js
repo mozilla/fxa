@@ -17,16 +17,10 @@ module.exports = function (grunt) {
     'l10n-locale-counts',
   ]);
 
-  var getCount = function (clientKeys, serverKeys, src) {
-    var clientJson = require(path.resolve(src, 'client.json'));
+  var getCount = function (serverKeys, src) {
     var messagesJson = require(path.resolve(src, 'messages.json'));
     var count = 0;
 
-    clientKeys.forEach(function (key) {
-      if (key in clientJson && clientJson[key] !== '') {
-        count++;
-      }
-    });
     serverKeys.forEach(function (key) {
       if (key in messagesJson && messagesJson[key] !== '') {
         count++;
@@ -36,16 +30,10 @@ module.exports = function (grunt) {
     return count;
   };
 
-  var getMissingStrings = function (clientKeys, serverKeys, src) {
-    var clientJson = require(path.resolve(src, 'client.json'));
+  var getMissingStrings = function (serverKeys, src) {
     var messagesJson = require(path.resolve(src, 'messages.json'));
     var missing = [];
 
-    clientKeys.forEach(function (key) {
-      if (!clientJson[key]) {
-        missing.push('client.json: ' + key);
-      }
-    });
     serverKeys.forEach(function (key) {
       if (!messagesJson[key]) {
         missing.push('messages.json: ' + key);
@@ -81,18 +69,15 @@ module.exports = function (grunt) {
         'i18n',
         'templates'
       );
-      var templateClientKeys = Object.keys(
-        require(path.join(templateDir, 'client.pot.json'))
-      );
       var templateServerKeys = Object.keys(
         require(path.join(templateDir, 'server.pot.json'))
       );
-      var totalStrings = templateClientKeys.length + templateServerKeys.length;
+      var totalStrings = templateServerKeys.length;
 
       this.files.forEach(function (file) {
         var src = file.src[0];
         var locale = path.basename(src);
-        var count = getCount(templateClientKeys, templateServerKeys, src);
+        var count = getCount(templateServerKeys, src);
         var percent = (count / totalStrings) * 100;
 
         if (percent >= supportedThreshold) {
@@ -104,11 +89,7 @@ module.exports = function (grunt) {
             grunt.log.writeln('- Missing strings:');
             grunt.log.writeln(
               '    ' +
-                getMissingStrings(
-                  templateClientKeys,
-                  templateServerKeys,
-                  src
-                ).join('\n    ') +
+                getMissingStrings(templateServerKeys, src).join('\n    ') +
                 '\n'
             );
           }
@@ -119,11 +100,7 @@ module.exports = function (grunt) {
           grunt.verbose.writeln('- Missing strings:');
           grunt.verbose.writeln(
             '    ' +
-              getMissingStrings(
-                templateClientKeys,
-                templateServerKeys,
-                src
-              ).join('\n    ') +
+              getMissingStrings(templateServerKeys, src).join('\n    ') +
               '\n'
           );
         } else {
