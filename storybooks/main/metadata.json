@@ -1,8 +1,8 @@
 {
-  "commit": "371bdaf12a000213abffc272c811491c16ad35bf",
-  "summary": "Merge pull request #21579 from mozilla/blender/security-bump-@opentelemetry/instrumentation-knex",
-  "description": "chore(deps): bump @opentelemetry/instrumentation-knex to >=0.65.0",
-  "timestamp": 1792687055000,
+  "commit": "db618141258fbfcddc69b3767ba47c8ef6634df9",
+  "summary": "Merge pull request #21581 from mozilla/dependabot/npm_and_yarn/nodemailer-10.0.10",
+  "description": "chore(deps): bump nodemailer from 10.0.9 to 10.0.10",
+  "timestamp": 1792689730000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

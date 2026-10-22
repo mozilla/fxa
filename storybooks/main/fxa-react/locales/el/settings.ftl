@@ -1554,7 +1554,7 @@ passkey-authentication-trouble-heading = Αδυναμία σύνδεσης με 
 passkey-authentication-trouble-description = Δοκιμάστε ξανά ή χρησιμοποιήστε κάποια άλλη επιλογή σύνδεσης.
 # Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
 # using passkeys.
-passkey-authentication-trouble-link = Τρόπος χρήσης των κλειδιών πρόσβασης
+passkey-authentication-trouble-link = Οδηγίες χρήσης των κλειδιών πρόσβασης
 # User cancelled or dismissed the browser prompt, or no passkey is available / verification failed
 passkey-authentication-error-not-allowed = Η σύνδεση με κλειδί πρόσβασης απέτυχε ή δεν είναι διαθέσιμη. Δοκιμάστε ξανά ή επιλέξτε άλλη μέθοδο.
 # User already registered a device
