@@ -17727,12 +17727,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/core-server@npm:^8.0.0":
-  version: 8.6.18
-  resolution: "@storybook/core-server@npm:8.6.18"
+"@storybook/core-server@npm:^8.6.19":
+  version: 8.6.19
+  resolution: "@storybook/core-server@npm:8.6.19"
   peerDependencies:
     storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
-  checksum: 10c0/ed3aef1d0f1613b7fb0b40ed66e09c37b5ed3bf8356432718d6b6464da2f4df646317f927dfa4c23300b89a7d3b96fbbaf2593ae0055c8983d109790097837eb
+  checksum: 10c0/68ba8fccaa98d5ed2955abb0ec63e272581f4dd15a139d641e4775eeb1fc40b6780d3f4a9cd016e5b9f22a3a52f0c540a88e314d613b152082e9499bf2f403ba
   languageName: node
   linkType: hard
 
@@ -31856,7 +31856,7 @@ __metadata:
     "@storybook/addon-links": "npm:^8.0.0"
     "@storybook/blocks": "npm:^8.0.0"
     "@storybook/core-common": "npm:^8.0.0"
-    "@storybook/core-server": "npm:^8.0.0"
+    "@storybook/core-server": "npm:^8.6.19"
     "@storybook/html-webpack5": "npm:^8.0.0"
     "@storybook/manager-api": "npm:^8.0.0"
     "@storybook/react": "npm:^8.0.0"
