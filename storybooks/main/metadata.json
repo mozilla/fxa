@@ -1,8 +1,8 @@
 {
-  "commit": "db618141258fbfcddc69b3767ba47c8ef6634df9",
-  "summary": "Merge pull request #21581 from mozilla/dependabot/npm_and_yarn/nodemailer-10.0.10",
-  "description": "chore(deps): bump nodemailer from 10.0.9 to 10.0.10",
-  "timestamp": 1792689730000,
+  "commit": "d4d91559e9c629eacb4fb56c9eeb32af77a253d6",
+  "summary": "Merge pull request #21580 from mozilla/dependabot/npm_and_yarn/storybook/core-server-8.6.19",
+  "description": "chore(deps-dev): bump @storybook/core-server from 8.6.18 to 8.6.19",
+  "timestamp": 1792690468000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
