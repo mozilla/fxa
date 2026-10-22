@@ -1,8 +1,8 @@
 {
-  "commit": "7375f5fa636dd3fe42600be2e107e5c337dc3508",
-  "summary": "Merge pull request #21578 from mozilla/dependabot/github_actions/codeql-action-da882c3ad8",
-  "description": "chore(deps): bump the codeql-action group with 3 updates",
-  "timestamp": 1792687023000,
+  "commit": "371bdaf12a000213abffc272c811491c16ad35bf",
+  "summary": "Merge pull request #21579 from mozilla/blender/security-bump-@opentelemetry/instrumentation-knex",
+  "description": "chore(deps): bump @opentelemetry/instrumentation-knex to >=0.65.0",
+  "timestamp": 1792687055000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
