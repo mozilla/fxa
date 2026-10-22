@@ -1,8 +1,8 @@
 {
-  "commit": "23f99c42273fe7bd052ca0d7e495bb28b335eea0",
-  "summary": "Merge pull request #21558 from mozilla/FXA-14741",
-  "description": "fix(auth): fail closed on a default or short MFA JWT secret in prod",
-  "timestamp": 1792604625000,
+  "commit": "aa161686860df75efafb26383bc827606c393d88",
+  "summary": "Merge pull request #21576 from mozilla/fxa-14819",
+  "description": "fix(functional-tests): match pairing smoke test to iOS v2 rollout",
+  "timestamp": 1792686913000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
