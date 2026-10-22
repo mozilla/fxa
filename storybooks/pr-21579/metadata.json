@@ -1,0 +1,13 @@
+{
+  "commit": "1948dbf57e486ae19b127b3b2d38514688b5dc36",
+  "summary": "chore(deps): bump @opentelemetry/instrumentation-knex to >=0.65.0",
+  "description": "Resolves Dependabot alert #999. The bump installs the highest\nversion satisfying the dependency range; the title uses >=<min> when the\nadvisory provides a minimum patched version — see the lockfile diff for the exact resolved version.\nCreated by BLEnder (https://github.com/mozilla/blender)",
+  "timestamp": 1792684820000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
