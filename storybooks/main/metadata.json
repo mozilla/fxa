@@ -1,8 +1,8 @@
 {
-  "commit": "aa161686860df75efafb26383bc827606c393d88",
-  "summary": "Merge pull request #21576 from mozilla/fxa-14819",
-  "description": "fix(functional-tests): match pairing smoke test to iOS v2 rollout",
-  "timestamp": 1792686913000,
+  "commit": "7375f5fa636dd3fe42600be2e107e5c337dc3508",
+  "summary": "Merge pull request #21578 from mozilla/dependabot/github_actions/codeql-action-da882c3ad8",
+  "description": "chore(deps): bump the codeql-action group with 3 updates",
+  "timestamp": 1792687023000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
