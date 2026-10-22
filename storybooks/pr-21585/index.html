@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 9213a910957a644f8dec9f3e0877367c4cc98e04</title>
+  <title>Storybooks for commit ae4bc52511aea4cb0bfba9c5ad4ffe5aa514cf08</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 9213a910957a644f8dec9f3e0877367c4cc98e04</h1>
+  <h1>Storybooks for commit ae4bc52511aea4cb0bfba9c5ad4ffe5aa514cf08</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
@@ -32,21 +32,20 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/22/2026, 7:49:46 PM UTC</dd>
+    <dd>10/22/2026, 8:18:37 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>chore(content-server): delete the Backbone client app</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- The content server serves every user route with React.
-- The Backbone app, its mocha tests and its webpack build have no use.
-- The route gate only had a Backbone fallback.
+
+- The React app serves every content-server page, so the Backbone client app had no use.
 
 This commit:
-- Deletes app/scripts, app/tests, webpack config and the Backbone route modules.
-- Serves React for each route group whose flag is on, with no gate.
-- Fixes the consumers: validation, l10n-extract, tsconfig, tailwind, eslint, scripts.
-- Removes the mocha test in misc.spec.ts.
-- Returns the 404 page for paths with no React group.
+
+- Deletes the Backbone app, its tests, webpack config and client l10n grunt tasks.
+- Replaces the react-app route classes with a small reactRouteServer.
+- Updates the package.json scripts that used the client bundle.
+- Makes the l10n grunt tasks read only server.pot.
 
 Closes FXA-14816</pre></dd>
   </dl>
