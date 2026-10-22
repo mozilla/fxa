@@ -1,0 +1,13 @@
+{
+  "commit": "16a0a2c2623572f054b63a131c7d9889881de4b7",
+  "summary": "chore(deps): bump @storybook/core to >=8.6.19",
+  "description": "Resolves Dependabot alert #1037. The bump installs the highest\nversion satisfying the dependency range; the title uses >=<min> when the\nadvisory provides a minimum patched version — see the lockfile diff for the exact resolved version.\nCreated by BLEnder (https://github.com/mozilla/blender)",
+  "timestamp": 1792691534000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
