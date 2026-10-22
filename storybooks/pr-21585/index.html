@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 9213a910957a644f8dec9f3e0877367c4cc98e04</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 9213a910957a644f8dec9f3e0877367c4cc98e04</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/22/2026, 7:49:46 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(content-server): delete the Backbone client app</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- The content server serves every user route with React.
+- The Backbone app, its mocha tests and its webpack build have no use.
+- The route gate only had a Backbone fallback.
+
+This commit:
+- Deletes app/scripts, app/tests, webpack config and the Backbone route modules.
+- Serves React for each route group whose flag is on, with no gate.
+- Fixes the consumers: validation, l10n-extract, tsconfig, tailwind, eslint, scripts.
+- Removes the mocha test in misc.spec.ts.
+- Returns the 404 page for paths with no React group.
+
+Closes FXA-14816</pre></dd>
+  </dl>
+</body>
+</html>

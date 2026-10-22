@@ -1,0 +1,13 @@
+{
+  "commit": "9213a910957a644f8dec9f3e0877367c4cc98e04",
+  "summary": "chore(content-server): delete the Backbone client app",
+  "description": "Because:\n- The content server serves every user route with React.\n- The Backbone app, its mocha tests and its webpack build have no use.\n- The route gate only had a Backbone fallback.\n\nThis commit:\n- Deletes app/scripts, app/tests, webpack config and the Backbone route modules.\n- Serves React for each route group whose flag is on, with no gate.\n- Fixes the consumers: validation, l10n-extract, tsconfig, tailwind, eslint, scripts.\n- Removes the mocha test in misc.spec.ts.\n- Returns the 404 page for paths with no React group.\n\nCloses FXA-14816",
+  "timestamp": 1792698586000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
