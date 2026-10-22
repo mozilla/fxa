@@ -17747,11 +17747,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/core@npm:8.6.18":
-  version: 8.6.18
-  resolution: "@storybook/core@npm:8.6.18"
+"@storybook/core@npm:8.6.19":
+  version: 8.6.19
+  resolution: "@storybook/core@npm:8.6.19"
   dependencies:
-    "@storybook/theming": "npm:8.6.18"
+    "@storybook/theming": "npm:8.6.19"
     better-opn: "npm:^3.0.2"
     browser-assert: "npm:^1.2.1"
     esbuild: "npm:^0.18.0 || ^0.19.0 || ^0.20.0 || ^0.21.0 || ^0.22.0 || ^0.23.0 || ^0.24.0 || ^0.25.0"
@@ -17767,7 +17767,7 @@ __metadata:
   peerDependenciesMeta:
     prettier:
       optional: true
-  checksum: 10c0/830b8806a35f8b6a448efe5d0df47a148d6111295b0e7027bf307232f25542015fc15e9b9c3489921f614fc6695323d74194c90da97837b0df0a72eb73ec6220
+  checksum: 10c0/e856f5576168dd4eda986d672fa8ae4d24f5d5bb60f7c0e70fea47ca5207b3e60ab0c7f69fc0821ac1ce65478564ffa68c9d4f3ea340c53e12c7f471f455abef
   languageName: node
   linkType: hard
 
@@ -17994,6 +17994,15 @@ __metadata:
   peerDependencies:
     storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
   checksum: 10c0/30667a5ed7b70ac4a19f0d4baff53f065bd6f921934d21165dbff52add118b2fe1872c7f25ff8c8a1c768a0344f5db461a5bdf2838533069b3d760b3727b52d0
+  languageName: node
+  linkType: hard
+
+"@storybook/theming@npm:8.6.19":
+  version: 8.6.19
+  resolution: "@storybook/theming@npm:8.6.19"
+  peerDependencies:
+    storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
+  checksum: 10c0/97831821ffbb7c044e30fc14b87afcc97f4df51952fe204cfbfd79c3ca947da8139a5fba6d800119a0f3c93049ecf86343bb5f679af656429958eaf90e092122
   languageName: node
   linkType: hard
 
