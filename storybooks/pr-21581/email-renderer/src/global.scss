@@ -1,0 +1,197 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+// Fonts
+$font-sans: sans-serif;
+
+// Colors
+$blue-500: #0060df;
+$white: #fff;
+$black: #000;
+$grey-50: #f0f0f4;
+$grey-100: #e7e7e7;
+$grey-400: #6d6d6e;
+$grey-500: #4b5563;
+$grey-600: #464646;
+$purple-600: #7542e5;
+
+// Spacing values for margin and padding
+$s-0: 0px;
+$s-1: 4px;
+$s-2: 8px;
+$s-3: 12px;
+$s-4: 16px;
+$s-5: 20px;
+$s-6: 24px;
+$s-8: 32px;
+$s-10: 40px;
+
+// Font-size and line-height
+.text {
+  &-xs {
+    font-size: 12px !important;
+    line-height: 20px !important;
+  }
+  &-sm {
+    font-size: 14px !important;
+    line-height: 22px !important;
+  }
+  &-md {
+    font-size: 16px !important;
+    line-height: 24px !important;
+  }
+  &-lg {
+    font-size: 18px !important;
+    line-height: 26px !important;
+  }
+  &-xl {
+    font-size: 20px !important;
+    line-height: 28px !important;
+  }
+  &-2xl {
+    font-size: 22px !important;
+    line-height: 30px !important;
+  }
+  &-3xl {
+    font-size: 32px !important;
+    line-height: 36px !important;
+  }
+}
+
+// Utility classes
+.font-sans {
+  font-family: $font-sans !important;
+}
+
+.text-blue-500 {
+  color: $blue-500;
+}
+
+.mt {
+  &-2 {
+    margin-top: $s-2 !important;
+  }
+  &-4 {
+    margin-top: $s-4 !important;
+  }
+  &-5 {
+    margin-top: $s-5 !important;
+  }
+  &-6 {
+    margin-top: $s-6 !important;
+  }
+  &-8 {
+    margin-top: $s-8 !important;
+  }
+  &-10 {
+    margin-top: $s-10 !important;
+  }
+}
+
+.mb {
+  &-0 {
+    margin-bottom: $s-0 !important;
+  }
+  &-2 {
+    margin-bottom: $s-2 !important;
+  }
+  &-3 {
+    margin-bottom: $s-3 !important;
+  }
+  &-4 {
+    margin-bottom: $s-4 !important;
+  }
+  &-5 {
+    margin-bottom: $s-5 !important;
+  }
+  &-6 {
+    margin-bottom: $s-6 !important;
+  }
+  &-8 {
+    margin-bottom: $s-8 !important;
+  }
+}
+
+.px {
+  &-6 {
+    padding-left: $s-6 !important;
+    padding-right: $s-6 !important;
+  }
+}
+
+.p {
+  &-4 {
+    padding: $s-4 !important;
+  }
+  &b-1 {
+    padding-bottom: $s-1 !important;
+  }
+  &b-2 {
+    padding-bottom: $s-2 !important;
+  }
+}
+// Global styles
+tbody > td:first-child,
+tr > td:first-child {
+  padding: $s-0 !important;
+}
+
+.link-blue {
+  @extend .text-blue-500;
+  text-decoration: underline;
+  font-family: $font-sans;
+}
+
+%text-header-common {
+  @extend .font-sans;
+  text-align: center !important;
+}
+
+%text-body-common {
+  @extend .font-sans;
+}
+
+%banner-common {
+  max-width: 640px !important;
+  width: 100% !important;
+}
+
+%text-banner-common {
+  @extend %text-header-common;
+  @extend .text-xs;
+  @extend .p-4;
+  color: $black !important;
+  font-weight: 700 !important;
+}
+
+%link-banner-common {
+  color: $black !important;
+  text-decoration: underline !important;
+}
+.align-left div {
+  text-align: left !important;
+}
+
+.hidden {
+  display: none;
+  width: 0;
+  height: 0;
+  max-height: 0;
+  line-height: 0;
+  overflow: hidden;
+}
+
+.text-footer div {
+  @extend .font-sans;
+  text-align: center !important;
+  color: $grey-400 !important;
+}
+
+.text-footer-automatedEmail {
+  @extend .text-footer;
+  div {
+    @extend .mb-3;
+    @extend .mt-10;
+  }
+}
