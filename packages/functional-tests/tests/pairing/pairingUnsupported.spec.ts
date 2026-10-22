@@ -18,6 +18,7 @@
  * match on "Download Firefox" would not resolve.
  */
 
+import { Page } from '@playwright/test';
 import { test, expect } from '../../lib/fixtures/standard';
 import { GleanEventsHelper } from '../../lib/glean';
 
@@ -92,19 +93,29 @@ test.describe('severity-2 #smoke', () => {
 
   // A phone that scanned the QR with its system camera. Safari cannot infer a
   // failed launch of firefox://, so it gets the App Store as its own CTA next
-  // to the deep link. With no iOS minimum served, the deep link opens the
-  // connect hint page rather than the pair URL.
+  // to the deep link. The deep link opens the pair URL once iOS v2 is rolled
+  // out (version 2 and an iOS minimum served), else the connect hint page.
   test.describe('pairing from the iOS system camera in Safari', () => {
     test.use({ userAgent: IOS_SAFARI_UA });
 
-    test('offers the App Store and a Firefox deep link to the connect hint', async ({
-      target,
-      page,
-    }) => {
+    let iosV2RolledOut: boolean;
+
+    test.beforeEach(async ({ pages: { configPage } }) => {
+      const { pairing } = await configPage.getConfig();
+      const iosMinVersion = pairing?.v2MinVersion?.ios;
+      // Same rule as isPairingV2RolledOut in fxa-settings.
+      iosV2RolledOut =
+        pairing?.version === 2 &&
+        typeof iosMinVersion === 'number' &&
+        Number.isFinite(iosMinVersion);
+    });
+
+    // Asserts the download page and returns the url the deep link opens.
+    async function openDownloadPage(page: Page, contentServerUrl: string) {
       const gleanEventsHelper = new GleanEventsHelper(page);
       await gleanEventsHelper.start();
 
-      await page.goto(`${target.contentServerUrl}/pair${PAIRING_HASH}`, {
+      await page.goto(`${contentServerUrl}/pair${PAIRING_HASH}`, {
         waitUntil: 'load',
       });
 
@@ -125,14 +136,33 @@ test.describe('severity-2 #smoke', () => {
       await expect(deepLink).toBeVisible();
       const href = (await deepLink.getAttribute('href')) ?? '';
       const opened = new URL(href.replace('firefox://', 'https://'));
-      expect(opened.searchParams.get('url')).toBe(
-        `${target.contentServerUrl}/pair/supplicant/connect_hint`
-      );
 
       const ping = await gleanEventsHelper.waitForEvent(
         'cad_firefox_download_firefox_view'
       );
       expect(ping.extras.browser_family).toBe('safari');
+
+      return opened.searchParams.get('url');
+    }
+
+    test('offers the App Store and a Firefox deep link to the connect hint', async ({
+      target,
+      page,
+    }) => {
+      test.skip(iosV2RolledOut, 'iOS pairing v2 is rolled out');
+      expect(await openDownloadPage(page, target.contentServerUrl)).toBe(
+        `${target.contentServerUrl}/pair/supplicant/connect_hint`
+      );
+    });
+
+    test('offers the App Store and a Firefox deep link to the pair URL', async ({
+      target,
+      page,
+    }) => {
+      test.skip(!iosV2RolledOut, 'iOS pairing v2 is not rolled out');
+      expect(await openDownloadPage(page, target.contentServerUrl)).toBe(
+        `${target.contentServerUrl}/pair${PAIRING_HASH}`
+      );
     });
   });
 
