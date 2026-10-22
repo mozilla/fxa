@@ -1,8 +1,8 @@
 {
-  "commit": "d4d91559e9c629eacb4fb56c9eeb32af77a253d6",
-  "summary": "Merge pull request #21580 from mozilla/dependabot/npm_and_yarn/storybook/core-server-8.6.19",
-  "description": "chore(deps-dev): bump @storybook/core-server from 8.6.18 to 8.6.19",
-  "timestamp": 1792690468000,
+  "commit": "e253c98aec55a641b1292402006dfcbe5880169c",
+  "summary": "Merge pull request #21584 from mozilla/blender/security-bump-@storybook/core",
+  "description": "chore(deps): bump @storybook/core to >=8.6.19",
+  "timestamp": 1792699541000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
