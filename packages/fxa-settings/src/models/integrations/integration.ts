@@ -100,6 +100,10 @@ export class GenericIntegration<
     return false;
   }
 
+  isFirefoxClientServiceMonitor() {
+    return false;
+  }
+
   isFirefoxNonSync() {
     return false;
   }
