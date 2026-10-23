@@ -376,6 +376,7 @@ describe('/authorization POST consent write', () => {
         s === 'sync' ? SYNC_SCOPE : undefined
       ),
       getServiceForCanonicalScope: jest.fn(() => undefined),
+      getFallbackServiceForClient: jest.fn(() => undefined),
       recordSignInConsents: jest.fn().mockResolvedValue(undefined),
       hasConsentForService: jest.fn().mockResolvedValue(false),
       hasConsentForClient: jest.fn().mockResolvedValue(false),
@@ -749,6 +750,48 @@ describe('/authorization POST consent write', () => {
     );
     expect(oauthDB.recordSignInConsents).toHaveBeenCalledWith(
       expect.objectContaining({ scopes: [VPN_SCOPE], service: 'vpn' })
+    );
+  });
+
+  it('falls back to the client_id → service mapping when no scope is canonical', async () => {
+    // Monitor web signs in with profile + subscriptions only. The bandaid
+    // attributes the sign-in to monitor and writes the canonical row.
+    const MONITOR_SCOPE = 'https://identity.mozilla.com/apps/monitor';
+    const oauthDB = buildOauthDB({
+      isKnownService: jest.fn(() => false),
+      getCanonicalScopeForService: jest.fn((s: string) =>
+        s === 'monitor' ? MONITOR_SCOPE : undefined
+      ),
+      getFallbackServiceForClient: jest.fn((c: string) =>
+        c === CLIENT_ID ? 'monitor' : undefined
+      ),
+    });
+
+    await runHandler({ oauthDB, payload: { scope: 'profile' } });
+
+    expect(oauthDB.recordSignInConsents).toHaveBeenCalledWith({
+      uid: UID_HEX,
+      scopes: ['profile', MONITOR_SCOPE],
+      service: 'monitor',
+      clientId: CLIENT_ID,
+      now: expect.any(Number),
+    });
+  });
+
+  it('does not consult the client_id mapping when a canonical scope is requested', async () => {
+    const oauthDB = buildOauthDB({
+      isKnownService: jest.fn(() => false),
+      getServiceForCanonicalScope: jest.fn((s: string) =>
+        s === VPN_SCOPE ? 'vpn' : undefined
+      ),
+      getFallbackServiceForClient: jest.fn(() => 'monitor'),
+    });
+
+    await runHandler({ oauthDB, payload: { scope: VPN_SCOPE } });
+
+    expect(oauthDB.getFallbackServiceForClient).not.toHaveBeenCalled();
+    expect(oauthDB.recordSignInConsents).toHaveBeenCalledWith(
+      expect.objectContaining({ service: 'vpn' })
     );
   });
 

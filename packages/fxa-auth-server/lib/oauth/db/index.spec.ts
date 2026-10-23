@@ -187,3 +187,18 @@ describe('lib/oauth/db - access tokens', () => {
     });
   });
 });
+
+describe('lib/oauth/db - getFallbackServiceForClient', () => {
+  // Runs against the shipped config defaults: the VPN app maps to vpn, which
+  // is a configured service; monitor is mapped but not yet in serviceScopes.
+  it.each([
+    ['e6eb0d1e856335fc', 'vpn'],
+    ['E6EB0D1E856335FC', 'vpn'],
+    ['802d56ef2a9af9fa', undefined],
+    ['0000000000000000', undefined],
+    [undefined, undefined],
+    [null, undefined],
+  ])('maps client %s to %s', (clientId, expected) => {
+    expect(oauthDb.getFallbackServiceForClient(clientId)).toBe(expected);
+  });
+});
