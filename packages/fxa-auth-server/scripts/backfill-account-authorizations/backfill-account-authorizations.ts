@@ -8,21 +8,14 @@
  * Walks the refreshTokens table in cursor order and writes one consent row
  * per (uid, scope, service, clientId) tuple for every scope on every token,
  * plus the service's canonical scope when the token lacks it. Each token's
- * `service` column is inferred ONCE (mirroring
- * lib/routes/oauth/authorization.js:recordAuthorizationRows): if exactly one
- * of the token's scopes is a configured service's scope URL, that's the
- * service; failing that, the token's clientId is looked up in
- * oauthServer.exchange.serviceForClient (Monitor web, the VPN app — clients
- * that don't request their canonical scope); otherwise service=''. Every row
- * written for that token then carries that same service value — a VPN
- * sign-in with scope='<vpn-scope-url> profile' lands as two rows both with
- * service='vpn', and a 123done sign-in with scope='openid profile' lands as
- * two rows both with service=''. Backfilled rows look identical to organic
- * ones, including the service='' rows that future ToS-rejection logic on
- * /authorization will read for non-browser RPs.
+ * `service` column is inferred ONCE from its scopes and clientId (see
+ * inferServiceForToken, which mirrors lib/routes/oauth/authorization.js).
+ * Every row written for that token carries that same service value, so
+ * backfilled rows look identical to organic ones, including the service=''
+ * rows that future ToS-rejection logic on /authorization will read for
+ * non-browser RPs.
  *
- * The upsert never touches deauthorizedAt: a backfill is not a ToS view, so
- * a row the user has deauthorized stays deauthorized.
+ * The upsert never touches deauthorizedAt: a backfill is not a ToS view.
  *
  * Per service notes:
  *   - relay rows are written even though token-exchange currently bypasses
@@ -41,9 +34,8 @@
  * Prerequisites:
  *   - accountAuthorizations table at the new (clientId, firstAuthorizedTosAt,
  *     lastAuthorizedTosAt) shape.
- *   - oauthServer.exchange.serviceScopes + allowedClientsForService populated
- *     in config. serviceForClient supplies the clientId → service mapping;
- *     --client-service adds to or overrides it per run.
+ *   - oauthServer.exchange.serviceScopes, allowedClientsForService and
+ *     serviceForClient populated in config.
  *
  * Usage (from packages/fxa-auth-server):
  *
@@ -56,17 +48,12 @@
  *   # touched; tokens that infer to other services or to '' are skipped.
  *   node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/backfill-account-authorizations/backfill-account-authorizations.ts --service vpn
  *
- *   # Attribute a client's tokens to a service they don't request the scope for
- *   node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/backfill-account-authorizations/backfill-account-authorizations.ts --service monitor --client-service 802d56ef2a9af9fa=monitor
+ *   # Override the clientId → service map, skip rows for some scopes
+ *   node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/backfill-account-authorizations/backfill-account-authorizations.ts --client-service 802d56ef2a9af9fa=monitor --omit-scope profile
  *
- *   # Skip rows for scopes that aren't worth a consent row (e.g. profile)
- *   node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/backfill-account-authorizations/backfill-account-authorizations.ts --omit-scope profile --omit-scope email
- *
- * Each `backfill.batch` log line carries the batch's last token (`cursor`,
- * hex). If the process dies (e.g. the pod is evicted), pass that value as
- * --start-cursor to resume after it. Resuming from an earlier cursor, or from
- * the start, is also safe — `INSERT … ON DUPLICATE KEY UPDATE
- * LEAST(first…)/GREATEST(last…)` is idempotent, so re-running converges.
+ * To resume after a crash, pass the `cursor` from the last `backfill.batch`
+ * log line as --start-cursor. Re-running from anywhere earlier is also safe:
+ * the upsert is idempotent.
  *
  * Execution plan:
  *   1. --dry-run on stage           → verify per-service counts

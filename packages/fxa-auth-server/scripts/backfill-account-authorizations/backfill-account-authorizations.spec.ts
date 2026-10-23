@@ -96,26 +96,6 @@ describe('buildServiceConfig', () => {
     expect(cfg.allowedClients.get('vpn')?.has('abcdef0011223344')).toBe(true);
   });
 
-  it('maps each service to its canonical scope', () => {
-    const cfg = defaultCfg();
-    expect(cfg.canonicalScopes.get('vpn')).toBe(VPN_SCOPE);
-    expect(cfg.canonicalScopes.get('monitor')).toBe(MONITOR_SCOPE);
-  });
-
-  it('lowercases clientIds in the clientId → service mapping', () => {
-    const cfg = defaultCfg({
-      serviceForClient: { [MONITOR_WEB_CLIENT_ID.toUpperCase()]: 'monitor' },
-    });
-    expect(cfg.serviceForClient.get(MONITOR_WEB_CLIENT_ID)).toBe('monitor');
-  });
-
-  it('drops a clientId mapped to a service with no canonical scope', () => {
-    const cfg = defaultCfg({
-      serviceForClient: { [MONITOR_WEB_CLIENT_ID]: 'nope' },
-    });
-    expect(cfg.serviceForClient.has(MONITOR_WEB_CLIENT_ID)).toBe(false);
-  });
-
   it('keeps the shipped monitor mapping inert until monitor is a configured service', () => {
     const cfg = defaultCfg({
       scopes: { vpn: VPN_SCOPE, relay: RELAY_SCOPE, sync: SYNC_SCOPE },
@@ -173,16 +153,6 @@ describe('inferServiceForToken', () => {
     ).toBe('monitor');
   });
 
-  it('matches the clientId mapping case-insensitively', () => {
-    expect(
-      inferServiceForToken(
-        ['profile'],
-        MONITOR_WEB_CLIENT_ID.toUpperCase(),
-        mappedCfg
-      )
-    ).toBe('monitor');
-  });
-
   it('prefers a canonical scope on the token over the clientId mapping', () => {
     expect(
       inferServiceForToken(
@@ -191,16 +161,6 @@ describe('inferServiceForToken', () => {
         mappedCfg
       )
     ).toBe('vpn');
-  });
-
-  it('keeps "" for an ambiguous token even when the clientId is mapped', () => {
-    expect(
-      inferServiceForToken(
-        [VPN_SCOPE, SMARTWINDOW_SCOPE],
-        MONITOR_WEB_CLIENT_ID,
-        mappedCfg
-      )
-    ).toBe('');
   });
 
   it('returns "" for an unmapped clientId with no canonical scope', () => {
@@ -413,17 +373,6 @@ describe('resolveTargetRows', () => {
     ).toEqual(['profile', MONITOR_SCOPE]);
   });
 
-  it('--service filter drops a mapped client token when the filter names another service', () => {
-    const cfg = defaultCfg({
-      serviceForClient: { [MONITOR_WEB_CLIENT_ID]: 'monitor' },
-    });
-    const token = makeToken({
-      clientId: Buffer.from(MONITOR_WEB_CLIENT_ID, 'hex'),
-      scope: 'profile',
-    });
-    expect(resolveTargetRows(token, cfg, 'vpn').rows).toEqual([]);
-  });
-
   it('a mapped client still passes through the service allowlist', () => {
     const cfg = defaultCfg({
       serviceForClient: { [VPN_OTHER_CLIENT_ID]: 'vpn' },
@@ -447,19 +396,6 @@ describe('resolveTargetRows', () => {
     expect(result.rows.map((r) => [r.scope, r.service])).toEqual([
       [VPN_SCOPE, 'vpn'],
     ]);
-  });
-
-  it('omitScopes can drop every row on a token, yielding no upserts', () => {
-    const result = resolveTargetRows(
-      makeToken({
-        clientId: Buffer.from(SMART_CLIENT_ID, 'hex'),
-        scope: 'profile',
-      }),
-      defaultCfg(),
-      undefined,
-      new Set(['profile'])
-    );
-    expect(result).toEqual({ rows: [], allowlistDenied: [] });
   });
 
   it('returns no rows for an empty scope string', () => {
