@@ -201,6 +201,20 @@ export class TestAccountTracker {
   }
 
   /**
+   * Creates placeholder credentials in the `vapid-<32 hex>` form the auth
+   * server pre-verifies (see auth-server config `vapidAccounts`).
+   * @returns AccountDetails
+   */
+  generateVapidAccountDetails(): AccountDetails {
+    const account = {
+      email: `vapid-${crypto.randomBytes(16).toString('hex')}@restmail.net`,
+      password: `vapid-${crypto.randomBytes(16).toString('hex')}`,
+    };
+    this.accounts.push(account);
+    return account;
+  }
+
+  /**
    * Creates a new email with the 'passwordless' prefix
    * @returns email
    */

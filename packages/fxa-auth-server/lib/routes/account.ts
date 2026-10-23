@@ -91,6 +91,8 @@ const MS_ONE_HOUR = 1000 * 60 * 60;
 const MS_ONE_DAY = MS_ONE_HOUR * 24;
 const MS_ONE_WEEK = MS_ONE_DAY * 7;
 const MS_ONE_MONTH = MS_ONE_DAY * 30;
+// Placeholder accounts created with throwaway credentials; see config.vapidAccounts.
+const VAPID_EMAIL_REGEX = /^vapid-[a-f0-9]{32}@restmail\.net$/;
 
 export class AccountHandler {
   private OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS: Set<string>;
@@ -172,6 +174,7 @@ export class AccountHandler {
     authSalt: string;
     email: string;
     emailCode: string;
+    emailVerified: boolean;
     request: AuthRequest;
     service?: string;
     userAgentString: string;
@@ -185,6 +188,7 @@ export class AccountHandler {
       authSalt,
       email,
       emailCode,
+      emailVerified,
       request,
       service,
       userAgentString,
@@ -232,7 +236,7 @@ export class AccountHandler {
       createdAt: Date.now(),
       email: email,
       emailCode: emailCode,
-      emailVerified: false,
+      emailVerified,
       kA,
       wrapWrapKb,
       wrapWrapKbVersion2,
@@ -258,6 +262,19 @@ export class AccountHandler {
     const geoData = request.app.geo;
     const country = geoData.location && geoData.location.country;
     const countryCode = geoData.location && geoData.location.countryCode;
+    if (account.emailVerified) {
+      const { clientId } = getClientServiceTags(request);
+      await this.log.notifyAttachedServices('verified', request, {
+        email: account.email,
+        locale: account.locale,
+        service,
+        uid: account.uid,
+        userAgent: userAgentString,
+        country,
+        countryCode,
+        ...(clientId && { clientId }),
+      });
+    }
 
     await this.log.notifyAttachedServices('login', request, {
       deviceCount: 1,
@@ -340,6 +357,10 @@ export class AccountHandler {
     const { flowId, flowBeginTime } = await request.app.metricsContext;
     const form = request.payload as any;
     const query = request.query;
+
+    if (account.emailVerified) {
+      return;
+    }
 
     try {
       switch (verificationMethod) {
@@ -486,6 +507,12 @@ export class AccountHandler {
     return response;
   }
 
+  private isVapidAccount(email: string): boolean {
+    return (
+      !!this.config.vapidAccounts?.enabled && VAPID_EMAIL_REGEX.test(email)
+    );
+  }
+
   private async checkBlocklists(normalizedEmail: string): Promise<void> {
     await checkBlocklists(normalizedEmail, this.log, this.statsd);
   }
@@ -570,8 +597,10 @@ export class AccountHandler {
     const { hex16: emailCode, hex32: authSalt } =
       await this.generateRandomValues();
 
-    // The session stays unverified until the account is confirmed with this code.
-    const tokenVerificationId = emailCode;
+    // The session stays unverified until the account is confirmed with this
+    // code, except for vapid accounts, which start out verified.
+    const vapid = this.isVapidAccount(normalizedEmail);
+    const tokenVerificationId = vapid ? undefined : emailCode;
 
     this.setMetricsFlowCompleteSignal(request, service);
 
@@ -584,6 +613,7 @@ export class AccountHandler {
       authSalt,
       email,
       emailCode,
+      emailVerified: vapid,
       request,
       service,
       userAgentString,
@@ -928,6 +958,16 @@ export class AccountHandler {
       // regardless of account age or device. This is for internal use where we need
       // to guarantee the login experience.
       const lowerCaseEmail = account.primaryEmail.normalizedEmail.toLowerCase();
+      if (this.isVapidAccount(lowerCaseEmail)) {
+        this.log.info('account.signin.confirm.bypass.vapid', {
+          uid: account.uid,
+        });
+        this.statsd.increment(
+          'account.signin.confirm.bypass.vapid',
+          getClientServiceTags(request)
+        );
+        return true;
+      }
       const alwaysSkip =
         this.skipConfirmationForEmailRegex?.test(lowerCaseEmail);
       if (alwaysSkip) {

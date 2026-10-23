@@ -1284,6 +1284,91 @@ describe('/account/create', () => {
     }).finally(() => jest.useRealTimers());
   });
 
+  describe('vapid account', () => {
+    const VAPID_EMAIL = `vapid-${'a'.repeat(32)}@restmail.net`;
+
+    function setupVapid(enabled = true, email = VAPID_EMAIL) {
+      const result = setup({ vapidAccounts: { enabled } }, (opts: any) => ({
+        ...opts,
+        payload: { ...opts.payload, email },
+      }));
+      // Like the real db, hand back the record that was passed in.
+      result.mockDB.createAccount.mockImplementation((data: any) =>
+        Promise.resolve({ ...data, primaryEmail: { email: data.email } })
+      );
+      return result;
+    }
+
+    it('creates the account with a verified email', () => {
+      const { mockDB, mockRequest, route } = setupVapid();
+
+      return runTest(route, mockRequest, () => {
+        expect(mockDB.createAccount.mock.calls[0][0].emailVerified).toBe(true);
+      });
+    });
+
+    it('creates a verified session and key fetch token', () => {
+      const { mockDB, mockRequest, route } = setupVapid();
+
+      return runTest(route, mockRequest, () => {
+        expect(
+          mockDB.createSessionToken.mock.calls[0][0].tokenVerificationId
+        ).toBeUndefined();
+        expect(
+          mockDB.createKeyFetchToken.mock.calls[0][0].tokenVerificationId
+        ).toBeUndefined();
+      });
+    });
+
+    it('sends no verification email and schedules no reminder', () => {
+      const { mockFxaMailer, mockRequest, route, verificationReminders } =
+        setupVapid();
+
+      return runTest(route, mockRequest, () => {
+        expect(mockFxaMailer.sendVerifyEmail).not.toHaveBeenCalled();
+        expect(mockFxaMailer.sendVerifyShortCodeEmail).not.toHaveBeenCalled();
+        expect(verificationReminders.create).not.toHaveBeenCalled();
+      });
+    });
+
+    it('notifies attached services that the account is verified', () => {
+      const { mockDB, mockLog, mockRequest, route } = setupVapid();
+
+      return runTest(route, mockRequest, () => {
+        const events = mockLog.notifier.send.mock.calls.map(
+          (call: any) => call[0].event
+        );
+        expect(events).toEqual(['verified', 'login', 'profileDataChange']);
+        expect(mockLog.notifier.send.mock.calls[0][0].data).toEqual(
+          expect.objectContaining({
+            uid: mockDB.createAccount.mock.calls[0][0].uid,
+            email: VAPID_EMAIL,
+            service: 'sync',
+          })
+        );
+      });
+    });
+
+    it.each([
+      { name: 'the flag is disabled', enabled: false, email: VAPID_EMAIL },
+      { name: 'the email is not vapid', enabled: true, email: TEST_EMAIL },
+    ])('requires confirmation when $name', ({ enabled, email }) => {
+      const { mockDB, mockFxaMailer, mockRequest, route } = setupVapid(
+        enabled,
+        email
+      );
+
+      return runTest(route, mockRequest, () => {
+        const accountArgs = mockDB.createAccount.mock.calls[0][0];
+        expect(accountArgs.emailVerified).toBe(false);
+        expect(
+          mockDB.createSessionToken.mock.calls[0][0].tokenVerificationId
+        ).toBe(accountArgs.emailCode);
+        expect(mockFxaMailer.sendVerifyEmail).toHaveBeenCalledTimes(1);
+      });
+    });
+  });
+
   describe('should accept `verficationMethod`', () => {
     describe('email-otp', () => {
       it('should send sign-up code from `email-otp` method', async () => {
@@ -3103,6 +3188,75 @@ describe('/account/login', () => {
             { clientId: 'test-client-id' }
           );
           mockRequest.app.clientIdTag = undefined;
+        });
+      });
+    });
+
+    describe('vapid account', () => {
+      const VAPID_EMAIL = `vapid-${'a'.repeat(32)}@restmail.net`;
+
+      function setupVapid(enabled: boolean) {
+        config.securityHistory.ipProfiling.allowedRecency = 0;
+        config.signinConfirmation.skipForNewAccounts = { enabled: false };
+        config.vapidAccounts = { enabled };
+
+        mockDB.verifiedLoginSecurityEvents = jest.fn(() => Promise.resolve([]));
+        mockRequest.payload.email = VAPID_EMAIL;
+        mockDB.accountRecord = () =>
+          Promise.resolve({
+            authSalt: hexString(32),
+            data: hexString(32),
+            email: VAPID_EMAIL,
+            emailVerified: true,
+            primaryEmail: {
+              normalizedEmail: normalizeEmail(VAPID_EMAIL),
+              email: VAPID_EMAIL,
+              isVerified: true,
+              isPrimary: true,
+            },
+            kA: hexString(32),
+            lastAuthAt: () => Date.now(),
+            uid,
+            wrapWrapKb: hexString(32),
+          });
+
+        route = getRoute(
+          makeRoutes({
+            checkPassword: () => Promise.resolve(true),
+            config,
+            customs: mockCustoms,
+            db: mockDB,
+            log: mockLog,
+            mailer: mockMailer,
+            push: mockPush,
+          }),
+          '/account/login'
+        );
+      }
+
+      afterEach(() => {
+        config.securityHistory.ipProfiling.allowedRecency =
+          defaultConfig.securityHistory.ipProfiling.allowedRecency;
+        delete config.vapidAccounts;
+      });
+
+      it('creates a verified session without sign-in confirmation', () => {
+        setupVapid(true);
+
+        return runTest(route, mockRequest, (response: any) => {
+          const tokenData = mockDB.createSessionToken.mock.calls[0][0];
+          expect(tokenData.tokenVerificationId).toBeUndefined();
+          expect(response.verified).toBe(true);
+        });
+      });
+
+      it('requires sign-in confirmation when the flag is disabled', () => {
+        setupVapid(false);
+
+        return runTest(route, mockRequest, (response: any) => {
+          const tokenData = mockDB.createSessionToken.mock.calls[0][0];
+          expect(tokenData.tokenVerificationId).toBeTruthy();
+          expect(response.verified).toBe(false);
         });
       });
     });
