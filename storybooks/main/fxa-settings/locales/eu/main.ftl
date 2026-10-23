@@ -278,6 +278,8 @@ confetti-falling-image-aria-label =
     .aria-label = Konfeti biziduna erortzen
 firefox-wordmark-image-aria-label =
     .aria-label = { -brand-firefox } logoa
+password-success-image-aria-label =
+    .aria-label = Pasahitza ondo aldatu dela irudikatzen duen ilustrazioa.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = { -brand-firefox } saioa hasi duzu.
@@ -312,6 +314,7 @@ link-expired-new-link-button = Jaso lotura berria
 
 
 remember-password-text = Gogoratu pasahitza?
+remember-password-passkey-text = Sarbide-gakoa duzu edo pasahitza gogoratzen duzu?
 remember-password-signin-link = Hasi saioa
 
 
@@ -329,6 +332,7 @@ password-info-balloon-why-password-info = Pasahitz hau behar duzu gurekin gordet
 password-info-balloon-reset-risk-info = Berrezartze batek pasahitzak eta laster-markak bezalako datuak galdu ahal izatea esan nahi du.
 
 
+password-strength-long-instruction = Hautatu aurretik beste guneetan erabili ez duzun pasahitz sendo bat. Ziurtatu segurtasun-eskakizunak betetzen dituela:
 password-strength-short-instruction = Hautatu pasahitz sendoa:
 password-strength-inline-min-length = Gutxienez 8 karaktere
 password-strength-inline-not-email = Ezin da zure helbide elektronikoa izan
@@ -356,6 +360,8 @@ account-recovery-notification-header-value = Ez galdu zure datuak pasahitza ahaz
 account-recovery-notification-header-description = Sortu kontua berreskuratzeko gako bat, zure sinkronizazioaren arakatze-datuak leheneratu ahal izateko pasahitza ahazten baduzu.
 recovery-phone-promo-cta = Gehitu berreskuratze-telefonoa
 recovery-phone-promo-heading = Gehitu aparteko babesa zure kontuan berreskuratze-telefonoa erabilita
+recovery-phone-promo-description = Orain SMS bidez aldi bakarreko pasahitzarekin has dezakezu saioa ezin baduzu zure bi urratseko autentifikazio-aplikazioa erabili.
+recovery-phone-promo-info-link = Berreskuratzeari eta SIM swap arriskuari buruzko argibide gehiago
 promo-banner-dismiss-button =
     .aria-label = Baztertu iragarki-banda
 
@@ -532,6 +538,7 @@ flow-setup-2fa-backup-choice-phone-info = Jaso berreskuratze-kodea testu-mezu bi
 flow-setup-2fa-backup-choice-code-title = Segurtasuneko autentifikazio-kodeak
 flow-setup-2fa-backup-choice-code-badge = Seguruena
 flow-setup-2fa-backup-choice-code-info = Sortu eta gorde erabilpen bakarreko autentifikazio-kodeak.
+flow-setup-2fa-backup-choice-learn-more-link = Berreskuratzeari eta SIM swap arriskuari buruzko argibide gehiago
 
 
 flow-setup-2fa-backup-code-confirm-heading = Idatzi segurtasuneko autentifikazio-kodea
@@ -809,8 +816,24 @@ recent-activity-account-two-factor-replace-failure = Bi urratseko autentifikazio
 recent-activity-account-recovery-phone-setup-failed = Berreskuratze-telefonoaren konfigurazioak huts egin du
 recent-activity-account-recovery-phone-reset-password-complete = Pasahitz-berrezartzea berreskuratze-telefonoa erabiliz burututa
 recent-activity-account-recovery-phone-reset-password-failed = Pasahitz-berrezartzeak berreskuratze-telefonoa erabiliz huts egin du
+recent-activity-account-mfa-otp-sent = Kontu-aldaketarako baimena eskatuta
+recent-activity-account-mfa-otp-verified = Kontu-aldaketa baimenduta
+recent-activity-account-mfa-otp-failed = Kontu-aldaketarako baimena emateak huts egin du
 recent-activity-account-passkey-registration-success = Sarbide-gakoa gehituta
+recent-activity-account-passkey-registration-failure = Sarbide-gakoa erregistratzeak huts egin du
 recent-activity-account-passkey-removed = Sarbide-gakoa kenduta
+recent-activity-account-passkey-authentication-success = Sarbide-gako bidezko saio-hasiera burututa
+recent-activity-account-passkey-authentication-failure = Sarbide-gako bidezko saio-hasierak huts egin du
+recent-activity-account-passwordless-login-otp-sent = Pasahitz gabeko saio-hasierarako kodea bidalita
+recent-activity-account-passwordless-login-otp-failed = Pasahitz gabeko saio-hasierarako kodeak huts egin du
+recent-activity-account-passwordless-login-otp-verified = Pasahitz gabeko saio-hasierarako kodea egiaztatuta
+recent-activity-account-passwordless-registration-complete = Pasahitz gabeko kontuaren erregistroa burututa
+recent-activity-account-recovery-codes-set = Berreskuratze-kodeak ezarrita
+recent-activity-account-passkey-wrap-created = Sarbide-gakoa sinkronizaziorako gaituta
+recent-activity-account-passkey-wrap-creation-failure = Sarbide-gako bidezko sinkronizazioaren konfigurazioak huts egin du
+recent-activity-account-passkey-wrap-deleted = Sarbide-gako bidezko sinkronizaziorako sarbidea kenduta
+recent-activity-account-passkey-wrap-deletion-failure = Sarbide-gako bidezko sinkronizaziorako sarbidea kentzeak huts egin du
+recent-activity-account-passkey-wrap-invalidated = Sarbide-gako bidezko sinkronizaziorako sarbidea kenduta pasahitza berrezarri ondoren
 recent-activity-unknown = Beste kontuaren jarduera
 
 
@@ -862,6 +885,7 @@ inactive-update-status-success-alert = Behar bezala hasi da saioa. Zure { -produ
 
 product-promo-monitor =
     .alt = { -product-mozilla-monitor }
+product-promo-monitor-description-v2 = Aurkitu zure informazio pribatua non agertzen den eta hartu kontrola
 product-promo-monitor-cta = Lortu eskaneatzea doan
 product-promo-vpn =
     .alt = { -product-mozilla-vpn }
@@ -1083,13 +1107,24 @@ recovery-phone-number-ending-digits = { $lastFourPhoneNumber }z amaitzen den zen
 oauth-error-1000 = Zerbait gaizki joan da. Itxi fitxa hau eta saiatu berriro.
 
 
+passkey-registration-error-timeout = Sarbide-gakoaren konfigurazioa utzi egin da. Saiatu berriro.
 passkey-registration-canceled-v2 = Sarbide-gakoaren konfigurazioa denboraz kanpo edo bertan behera utzi da.
 passkey-registration-canceled-link = Argibide gehiago
 passkey-registration-error-not-supported-v2 = Zure nabigatzaile edo gailuak ez ditu sarbide-gakoak onartzen.
 passkey-registration-error-not-supported-link = Argibide gehiago
 passkey-registration-error-could-not-complete = Sarbide-gakoen konfigurazioa ezin da burutu. Saiatu beste metodo edo gailu batekin.
 passkey-registration-error-could-not-complete-link = Argibide gehiago
+passkey-registration-error-security = Sarbide-gakoak ezin dira orri honetan konfiguratu. Erabili gune segurua eta saiatu berriro.
+passkey-registration-error-invalid-state = Sarbide-gako hau erregistratuta dago jada. Erabil ezazu saioa hasteko edo gehitu beste sarbide-gako bat.
+passkey-registration-error-constraint = Sarbide-gakoaren konfigurazioa ez dago gailu honetarako erabilgarri. Probatu beste metodo edo gailu bat.
+passkey-registration-error-unexpected = Sarbide-gakoaren konfigurazioak huts egin du. Saiatu berriro edo aukeratu beste metodo bat.
+passkey-authentication-trouble-heading = Ezin izan da sarbide-gako bidez saioa hasi
+passkey-authentication-trouble-description = Saiatu berriro edo erabili saioa hasteko beste aukera bat.
 passkey-authentication-trouble-link = Nola erabili sarbide-gakoak
+passkey-authentication-error-not-allowed-existing = Sarbide-gakoaren konfigurazioa ez dago gailu honetarako erabilgarri. Saiatu berriro edo aukeratu beste metodo bat.
+passkey-authentication-error-timeout = Sarbide-gakoaren eskaeraren denbora-muga gaindituta. Saiatu berriro mesedez.
+passkey-authentication-error-timeout-v2 = Sarbide-gako bidezko saio-hasieraren denbora-muga gaindituta. Saiatu berriro.
+passkey-authentication-error-not-supported-v2 = Zure nabigatzaile edo gailuak ez ditu sarbide-gakoak onartzen.
 
 
 connect-another-device-signed-in-header = { -brand-firefox } saioa hasi duzu
@@ -1268,14 +1303,19 @@ pair2-authority-sync-success-description-v2 = Sinkronizazioa lanean ari da. Denb
 pair2-authority-sync-success-sync-settings-button-v2 = Kudeatu sinkronizazio-ezarpenak
 
 
+pair2-authority-timeout-and-cancel-timeout-description = Badirudi denbora-muga gainditu dugula. Saiatu berriro oraindik ere zure gailu mugikorra konektatu eta zure { -brand-firefox } datuak sinkronizatu nahi badituzu.
 pair2-authority-timeout-and-cancel-cancelled-heading = Bertan behera utzita
+pair2-authority-timeout-and-cancel-canceled-description = Iritziz aldatzen baduzu edo beste gailu bat konektatu nahi baduzu, saiatu berriro.
 pair2-authority-timeout-and-cancel-try-again-button = Saiatu berriro
 pair2-authority-timeout-and-cancel-sync-settings-button = Sinkronizazio-ezarpenak
 
 
+pair2-supplicant-approve-sign-in-heading = Sinkronizatzeko azken urrats bat
+pair2-supplicant-approve-sign-in-instruction = Onartu saio-hasiera zure ordenagailuan.
 pair2-supplicant-approve-sign-in-cancel-button = Utzi
 
 
+pair2-supplicant-connect-this-device-heading = Konektatu gailu hau zure kontura?
 pair2-supplicant-connect-this-device-connect-button = Konektatu
 pair2-supplicant-connect-this-device-cancel-button = Utzi
 
@@ -1296,6 +1336,7 @@ pair2-supplicant-connect-hint-learn-more-link = Argibide gehiago
 
 
 pair2-supplicant-ready-to-scan-heading = Gailu bat konektatzeko
+pair2-supplicant-ready-to-scan-instruction = Zure ordenagailuan, ireki { -brand-firefox }, zoaz <b>firefox.com/pair</b> helbidera, eta jarraitu gailu mugikor hau konektatzeko pantailako argibideak.
 pair2-supplicant-ready-to-scan-learn-more-link = Argibide gehiago
 
 
@@ -1303,6 +1344,7 @@ pair2-supplicant-sync-success-heading = Zure gailua konektatuta dago
 pair2-supplicant-sync-success-description-v2 = Sinkronizazioa lanean ari da. Denbora pixka bat har lezake sinkronizatutako datuak agertu arte. Jarraitu nabigatzen lasai.
 
 
+pair2-supplicant-timeout-and-cancel-timeout-heading = Badirudi denbora-muga gainditu dugula
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Bertan behera utzita
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Gailuak saioa hasita du jada
 pair2-supplicant-timeout-and-cancel-signed-in-description = Mahaigaineko zure kontua lotzeko, amaitu saioa gailu honetako { -brand-firefox }(e)n, gero joan <b>firefox.com/pair</b> helbidera eta hasi saioa zure ordenagailuan.
@@ -1321,7 +1363,10 @@ force-password-change-info = Portaera susmagarria antzeman dugu zure { -product-
 force-password-change-data-info = Sinkronizatutako historia, laster-markak, saio-hasierak eta bestelako datuak ez dira galduko.
 
 
+service-welcome-signup-success-banner = { -product-mozilla-account } berretsita
 service-welcome-signin-success-banner = Saioa ondo hasi da!
+service-welcome-vpn-heading = Hurrengoa: aktibatu VPNa
+service-welcome-vpn-description = Urrats bat gehiago zure nabigatzailearen pribatutasunari bultzada emateko. Zoaz irekita dagoen panelera eta aktiba ezazu.
 
 
 set-password-passwordless-info = Pasahitz honek sinkronizatutako zure datuak zifratu eta seguru mantentzen ditu.
@@ -1418,6 +1463,11 @@ reset-password-complete-recovery-key-download-info =
     modu seguruan orain, ezin izango baikara orri honetara berriro sartu geroago</b>
 
 
+server-error-heading = 500 errorea
+server-error-description = Ai ene, zerbait gaizki joan da. Jaso dugu abisua eta arazoa konpontzen saiatuko gara.
+server-error-home-button = Hasiera
+
+
 error-label = Errorea:
 validating-signin = Saio hasiera balioztatzen…
 complete-signin-error-header = Berrespen-errorea
@@ -1459,11 +1509,17 @@ signin-passkey-fallback-forgot-password-link = Pasahitza ahaztu duzu?
 
 
 signin-passwordless-code-heading = Idatzi berrespen-kodea
+signin-passwordless-code-instruction =
+    { $expirationMinutes ->
+        [one] Idatzi <email>{ $email }</email> helbidera bidali den kodea minutu bateko epean.
+       *[other] Idatzi <email>{ $email }</email> helbidera bidali den kodea { $expirationMinutes } minutuko epean.
+    }
 signin-passwordless-code-input-label-v2 = Idatzi 6 digituko kodea
 signin-passwordless-code-confirm-button = Berretsi
 signin-passwordless-code-required-error = Berrespen-kodea behar da
 signin-passwordless-code-expired = Kodea iraungita?
 signin-passwordless-code-resend-link = Bidali kode berria posta elektronikora.
+signin-passwordless-code-resend-error = Zerbait gaizki joan da. Ezin izan da kode berri bat bidali.
 signin-passwordless-code-other-account-link = Erabili beste kontu bat
 
 
@@ -1527,6 +1583,7 @@ signin-totp-code-header = Hasi saioa
 signin-totp-code-subheader-v2 = Sartu bi urratseko autentifikazio kodea
 signin-totp-code-instruction-v4 = Egiaztatu zure <strong>autentifikazio-aplikazioa</strong> saioa hastea berresteko.
 signin-totp-code-input-label-v4 = Sartu 6 digituko kodea
+signin-totp-code-aal-banner-header = Zergatik eskatzen zaizu autentifikatzea?
 signin-totp-code-aal-sign-out = Amaitu gailu honetako saioa
 signin-totp-code-aal-sign-out-error = Barkatu, arazo bat gertatu da zure saioa amaitzean
 signin-totp-code-confirm-button = Berretsi
@@ -1562,11 +1619,16 @@ confirm-signup-code-desktop-relay = { -brand-firefox } saioa hasi ondoren posta 
 
 signup-heading-v2 = Sortu pasahitza
 signup-relay-info = Pasahitz bat behar da maskaratutako mezu elektronikoak modu seguruan kudeatzeko eta { -brand-mozilla }-ren segurtasun-tresnetara atzitzeko.
+signup-sync-info = Sinkronizatu zure pasahitzak, laster-markak eta gehiago { -brand-firefox } erabiltzen duzun toki guztietan.
+signup-sync-info-with-payment = Sinkronizatu zure pasahitzak, ordainketa-metodoak, laster-markak eta gehiago { -brand-firefox } erabiltzen duzun toki guztietan.
 signup-change-email-link = Aldatu helbide elektronikoa
 
 
 signup-confirmed-sync-header = Sinkronizazioa aktibo dago
+signup-confirmed-sync-success-banner = { -product-mozilla-account } berretsita
 signup-confirmed-sync-button = Hasi nabigatzen
+signup-confirmed-sync-description-with-payment-v2 = Zure pasahitzak, ordainketa-metodoak, helbideak, laster-markak, historia eta gehiago { -brand-firefox } erabiltzen duzun toki guztietan sinkroniza daiteke.
+signup-confirmed-sync-description-v2 = Zure pasahitzak, helbideak, laster-markak, historia eta gehiago { -brand-firefox } erabiltzen duzun toki guztietan sinkroniza daiteke.
 signup-confirmed-sync-add-device-link = Gehitu beste gailu bat
 signup-confirmed-sync-manage-sync-button = Kudeatu sinkronizazioa
 signup-confirmed-sync-set-password-success-banner = Sinkronizatzeko pasahitza sortuta

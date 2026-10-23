@@ -2225,6 +2225,12 @@ reset-password-complete-recovery-key-download-info =
     σας εάν ξεχάσετε τον κωδικό πρόσβασής σας. <b>Αποθηκεύστε το σε ένα ασφαλές μέρος
     τώρα, καθώς δεν θα μπορέσετε να αποκτήσετε ξανά πρόσβαση σε αυτήν τη σελίδα αργότερα.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Σφάλμα 500
+server-error-home-button = Αρχική
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin

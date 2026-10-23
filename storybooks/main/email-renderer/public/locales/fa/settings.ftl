@@ -2204,6 +2204,13 @@ reset-password-complete-new-password-saved = گذرواژهٔ جدید ذخیر�
 reset-password-complete-recovery-key-created = کلید بازیابی حساب جدید ساخته شد. همین حالا آن را بارگیری و نگهداری کنید.
 reset-password-complete-recovery-key-download-info = اگر گذرواژه‌تان را فراموش کنید، این کلید برای بازیابی داده‌ها ضروری است. <b>همین حالا آن را بارگیری کنید و جای امنی نگه دارید، چون بعداً دیگر به این صفحه دسترسی نخواهید داشت.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = خطا ۵۰۰
+server-error-description = اوه عزیزم، یک مشکلی پیش آمد. ما مطلع شده‌ایم و روی رفع مشکل کار خواهیم کرد.
+server-error-home-button = خانه
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin

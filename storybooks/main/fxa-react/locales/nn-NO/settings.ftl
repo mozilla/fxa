@@ -2206,6 +2206,12 @@ reset-password-complete-recovery-key-download-info =
     datagjenoppretting viss du gløymer passordet ditt. <b>Last ned og lagre han sikkert
     no, sidan du ikkje vil få tilgang til denne sida igjen seinare.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Feil 500
+server-error-home-button = Heim
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin

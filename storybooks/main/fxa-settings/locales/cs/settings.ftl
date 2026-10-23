@@ -2225,6 +2225,13 @@ reset-password-complete-new-password-saved = Nové heslo uloženo!
 reset-password-complete-recovery-key-created = Nový obnovovací klíč k účtu byl vytvořen. Stáhněte si ho a uložte.
 reset-password-complete-recovery-key-download-info = Tento klíč je nezbytný pro obnovu dat v případě, že zapomenete své heslo. <b>Hned si ho stáhněte a bezpečně uložte, později už k němu nebudete moci přistupovat.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Chyba 500
+server-error-description = Jejda, něco se pokazilo. Byli jsme upozorněni a pracujeme na opravě.
+server-error-home-button = Domů
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin

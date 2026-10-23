@@ -1523,6 +1523,11 @@ reset-password-complete-recovery-key-download-info =
     dokulaž pózdźej k toś tomu bokoju wěcej pśistup njamaśo.</b>
 
 
+server-error-heading = Zmólka 500
+server-error-description = Mój Bog, něco jo kśiwje šło. Smy se informěrowali a dajomy se do wótwónoźowanja problema.
+server-error-home-button = Startowy bok
+
+
 error-label = Zmólka:
 validating-signin = Pśizjawjenje se wobkšuśijo…
 complete-signin-error-header = Wobkšuśeńska zmólka

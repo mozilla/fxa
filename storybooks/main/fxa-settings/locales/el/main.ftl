@@ -1576,6 +1576,10 @@ reset-password-complete-recovery-key-download-info =
     τώρα, καθώς δεν θα μπορέσετε να αποκτήσετε ξανά πρόσβαση σε αυτήν τη σελίδα αργότερα.</b>
 
 
+server-error-heading = Σφάλμα 500
+server-error-home-button = Αρχική
+
+
 error-label = Σφάλμα:
 validating-signin = Επικύρωση σύνδεσης…
 complete-signin-error-header = Σφάλμα επιβεβαίωσης

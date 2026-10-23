@@ -1547,6 +1547,11 @@ reset-password-complete-recovery-key-download-info =
     сейчас, так как вы не сможете получить доступ к этой странице позже.</b>
 
 
+server-error-heading = Ошибка 500
+server-error-description = О боже мой, что-то пошло не так. Мы уведомлены об этом и начнём работу над исправлением.
+server-error-home-button = Главная страница
+
+
 error-label = Ошибка:
 validating-signin = Проверка входа…
 complete-signin-error-header = Ошибка подтверждения

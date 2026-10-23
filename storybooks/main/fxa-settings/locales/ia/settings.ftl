@@ -2224,6 +2224,13 @@ reset-password-complete-new-password-saved = Nove contrasigno salvate!
 reset-password-complete-recovery-key-created = Un nove clave de recuperation del conto ha essite create. Discarga lo e conserva lo ora.
 reset-password-complete-recovery-key-download-info = Iste clave es essential pro le recuperation de tu datos si tu oblida tu contrasigno. <b>Discarga lo e conserva lo de modo secur ora mesmo, perque tu non potera acceder a iste pagina de novo plus tarde.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Error 500
+server-error-description = Guai, qualcosa ha fallite hic. Nos ha recipite notification e va reparar le problema.
+server-error-home-button = Initio
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin

@@ -1663,6 +1663,11 @@ reset-password-complete-recovery-key-download-info =
     obnovu dát v prípade zabudnutia hesla. <b>Stiahnite ho a bezpečne uložte, pretože neskôr už nebudete mať prístup k tejto stránke.</b>
 
 
+server-error-heading = Chyba 500
+server-error-description = Ľutujeme, niečo sa pokazilo. O probléme už vieme a pracujeme na jeho odstránení.
+server-error-home-button = Domov
+
+
 error-label = Chyba:
 validating-signin = Overuje sa prihlásenie…
 complete-signin-error-header = Chyba potvrdenia

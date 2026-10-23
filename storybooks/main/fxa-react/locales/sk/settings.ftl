@@ -2234,6 +2234,13 @@ reset-password-complete-recovery-key-download-info =
     Tento kľúč je nevyhnutný pre
     obnovu dát v prípade zabudnutia hesla. <b>Stiahnite ho a bezpečne uložte, pretože neskôr už nebudete mať prístup k tejto stránke.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Chyba 500
+server-error-description = Ľutujeme, niečo sa pokazilo. O probléme už vieme a pracujeme na jeho odstránení.
+server-error-home-button = Domov
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin

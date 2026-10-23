@@ -1,8 +1,8 @@
 {
-  "commit": "e253c98aec55a641b1292402006dfcbe5880169c",
-  "summary": "Merge pull request #21584 from mozilla/blender/security-bump-@storybook/core",
-  "description": "chore(deps): bump @storybook/core to >=8.6.19",
-  "timestamp": 1792699541000,
+  "commit": "5c5b8df73c2baaa855858e36a5d280eef7c4687a",
+  "summary": "Merge pull request #21550 from mozilla/FXA-14746",
+  "description": "",
+  "timestamp": 1792791038000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
