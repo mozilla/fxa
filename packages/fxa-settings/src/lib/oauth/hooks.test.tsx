@@ -61,6 +61,7 @@ const pendingWrap = (uid = UID) => ({
   credentialId: 'credential',
   mfaToken: 'mfa-token',
   prfOut: new Uint8Array(32).fill(3),
+  surface: 'signin' as const,
 });
 
 const finish = async (knownKb?: string) => {
