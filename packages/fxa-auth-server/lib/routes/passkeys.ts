@@ -1068,6 +1068,8 @@ export const passkeyRoutes = (
             keysRequired: isA.boolean().optional(),
             // The action this sign-in should also authorize. Committed to the
             // challenge here, so /finish cannot be asked for a different one.
+            // Any mfa action is accepted on purpose: a user-verified assertion
+            // is a step-up factor on par with an emailed OTP (see swagger).
             scope: isA
               .string()
               .valid(...config.mfa.actions)
