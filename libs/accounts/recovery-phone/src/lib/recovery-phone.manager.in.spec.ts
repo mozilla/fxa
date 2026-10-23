@@ -16,7 +16,7 @@ import Redis from 'ioredis';
 describe('RecoveryPhoneManager', () => {
   let recoveryPhoneManager: RecoveryPhoneManager;
   let db: AccountDatabase;
-  let redis: Redis.Redis;
+  let redis: Redis;
   const dateMock = jest.spyOn(global.Date, 'now');
 
   // Taken from: https://www.twilio.com/docs/lookup/v2-api#code-lookup-with-data-packages
@@ -87,6 +87,7 @@ describe('RecoveryPhoneManager', () => {
     // Drop the schema first, so a failed Redis cleanup cannot leak it.
     await testAccountDatabaseTeardown(db);
     await clearRedisSmsKeys();
+    await redis.quit();
   });
 
   it('should get a recovery phone', async () => {

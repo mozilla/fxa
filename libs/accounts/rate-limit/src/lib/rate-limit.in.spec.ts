@@ -11,7 +11,7 @@ import { StatsD } from 'hot-shots';
 describe('rate-limit', () => {
   let mockIncrement: jest.Mock;
   let statsd: StatsD;
-  let redis: Redis.Redis;
+  let redis: Redis;
   let rateLimit: RateLimit;
 
   beforeAll(() => {
@@ -20,6 +20,10 @@ describe('rate-limit', () => {
     statsd = {
       increment: mockIncrement,
     } as unknown as StatsD;
+  });
+
+  afterAll(async () => {
+    await redis.quit();
   });
 
   beforeEach(async () => {
