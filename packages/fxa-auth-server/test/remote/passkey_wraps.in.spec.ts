@@ -154,10 +154,12 @@ describe('#integration - remote passkey wrap storage', () => {
 
   /**
    * Signs in with the passkey, asking for the passkey scope, and returns the
-   * token that mints.
+   * token that mints. The session verifies the password first unless
+   * `reauth` is false, since a wrap write refuses a session that has not.
    */
   async function mintWrapToken(
-    assertWith: VirtualCredential = credential
+    assertWith: VirtualCredential = credential,
+    { reauth = true } = {}
   ): Promise<string> {
     const { challenge } = await client.api.doRequest(
       'POST',
@@ -170,12 +172,19 @@ describe('#integration - remote passkey wrap storage', () => {
       origin: passkeyOrigin,
       rpId: passkeyRpId,
     });
-    const { mfaToken } = await client.api.doRequest(
+    const { mfaToken, sessionToken } = await client.api.doRequest(
       'POST',
       `${client.api.baseURL}/passkey/authentication/finish`,
       null,
       { response, challenge, keysRequired: true }
     );
+    if (reauth) {
+      await client.api.sessionReauth(
+        sessionToken,
+        client.email,
+        client.authPWVersion2 || client.authPW
+      );
+    }
     return mfaToken;
   }
 
@@ -326,6 +335,14 @@ describe('#integration - remote passkey wrap storage', () => {
     await expect(
       storeWrap({ credentialId, ...envelope() }, token)
     ).rejects.toMatchObject({ code: 401 });
+  });
+
+  it('refuses a token whose session has not verified the password', async () => {
+    const token = await mintWrapToken(credential, { reauth: false });
+
+    await expect(
+      storeWrap({ credentialId, ...envelope() }, token)
+    ).rejects.toMatchObject({ code: 401, errno: ERRNO.INVALID_MFA_TOKEN });
   });
 
   describe('GET /passkey/wraps/{credentialId}', () => {
