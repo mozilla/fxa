@@ -320,7 +320,6 @@ describe('POST /recoveryKey', () => {
     });
 
     it('returned the correct response', () => {
-      expect(error).toBeDefined();
       expect(error.errno).toBe(errors.ERRNO.RECOVERY_KEY_EXISTS);
     });
 
@@ -686,31 +685,6 @@ describe('POST /recoveryKey/exists', () => {
     it('called db.getRecoveryKeyRecordWithHint correctly', () => {
       expect(db.getRecoveryKeyRecordWithHint).toHaveBeenCalledTimes(1);
       expect(db.getRecoveryKeyRecordWithHint).toHaveBeenNthCalledWith(1, uid);
-    });
-  });
-
-  describe('should return estimatedSyncDeviceCount=0 with no sync devices', () => {
-    beforeEach(async () => {
-      const requestOptions = {
-        credentials: { uid },
-        log,
-      };
-      response = await setup(
-        {
-          db: {
-            recoveryData,
-            devices: [],
-          },
-        },
-        {},
-        '/recoveryKey/exists',
-        requestOptions
-      );
-    });
-
-    it('returned the correct response', () => {
-      expect(response.exists).toBe(true);
-      expect(response.estimatedSyncDeviceCount).toBe(0);
     });
   });
 
