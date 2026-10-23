@@ -5,6 +5,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 
 import * as Sentry from '@sentry/browser';
+import { ERRNO } from '@fxa/accounts/errors';
 
 import { SETTINGS_PATH } from '../../../constants';
 import { useNavigateWithQuery } from '../../../lib/hooks';
@@ -60,6 +61,11 @@ function signedChallenge(
     return undefined;
   }
 }
+
+const AUTH_ERROR_GLEAN_REASONS: Record<number, string> = {
+  [ERRNO.PASSKEY_LIMIT_REACHED]: 'passkey_limit_reached',
+  [ERRNO.PASSKEY_USER_VERIFICATION_REQUIRED]: 'user_verification_required',
+};
 
 export const MfaGuardPagePasskeyAdd = () => {
   const alertBar = useAlertBar();
@@ -151,6 +157,9 @@ export const PagePasskeyAdd = () => {
       // "duplicate authenticator" interpretation on Firefox, which collapses
       // that case and user-cancel into the same DOMException.
       let hadExcludeCredentials = false;
+      // auth-client rethrows fetch's TypeError and timeout AbortError, so only
+      // errors thrown during the WebAuthn prompt are categorized as WebAuthn.
+      let inCeremony = false;
       try {
         // Step 1: Get registration options from server
         const jwt = latest.current.account.getCachedJwtByScope('passkey');
@@ -166,6 +175,7 @@ export const PagePasskeyAdd = () => {
         // (e.g. Windows Hello UnknownError, FXA-13991). The retry emits a
         // dedicated metric so we can track how often PRF must be dropped and
         // decide when the retry can be removed.
+        inCeremony = true;
         const credential = await createCredentialWithPrfFallback(
           creationOptions,
           undefined,
@@ -175,6 +185,7 @@ export const PagePasskeyAdd = () => {
               event: { reason, outcome },
             })
         );
+        inCeremony = false;
 
         // After the WebAuthn prompt resolves we're past the abortable window;
         // if the user has clicked Cancel by this point, skip the server call
@@ -226,24 +237,18 @@ export const PagePasskeyAdd = () => {
         if (latest.current.handleMfaError(error)) return;
 
         // Check if WebAuthn error
-        if (error instanceof DOMException || error instanceof TypeError) {
+        if (
+          inCeremony &&
+          (error instanceof DOMException || error instanceof TypeError)
+        ) {
           const categorized = handleWebAuthnError(
             error,
             'registration',
             Sentry.captureException,
             { hadExcludeCredentials }
           );
-          const reasonMap: Record<string, string> = {
-            [WebAuthnErrorType.NotAllowed]: 'not_allowed',
-            [WebAuthnErrorType.Abort]: 'abort',
-            [WebAuthnErrorType.Timeout]: 'timeout',
-            [WebAuthnErrorType.NotSupported]: 'not_supported',
-            [WebAuthnErrorType.Security]: 'security',
-          };
           GleanMetrics.accountPref.passkeyCreateSubmitFrontendError({
-            event: {
-              reason: reasonMap[categorized.errorType] || 'webauthn_unknown',
-            },
+            event: { reason: categorized.gleanReason },
           });
           if (categorized.errorType === WebAuthnErrorType.NotSupported) {
             // NotSupportedError at this stage means the ceremony was refused
@@ -279,16 +284,13 @@ export const PagePasskeyAdd = () => {
         // password-manager extensions (e.g. Bitwarden)
         // throw on cancel instead of a DOMException — those bypass
         // the WebAuthn branch above.
-        const handledError = error as HandledError;
-        const isKnownAuthError = !!(
-          handledError?.errno && AuthUiErrorNos[handledError.errno]
-        );
+        const errno = (error as HandledError)?.errno;
+        const isKnownAuthError = !!(errno && AuthUiErrorNos[errno]);
 
         GleanMetrics.accountPref.passkeyCreateSubmitFrontendError({
           event: {
-            reason: isKnownAuthError
-              ? `auth_error_${handledError.errno}`
-              : 'server_error',
+            reason:
+              (errno && AUTH_ERROR_GLEAN_REASONS[errno]) || 'server_error',
           },
         });
 

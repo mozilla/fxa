@@ -3842,7 +3842,14 @@ account_pref:
       - interaction
     extra_keys:
       reason:
-        description: Error type - not_allowed, not_supported, security, timeout, webauthn_unknown, challenge_mismatch, auth_error_{errno}, or server_error
+        description: |
+          Error type. WebAuthn errors: 'not_allowed', 'not_supported',
+          'security', 'timeout', or 'unexpected' (any other WebAuthn error),
+          as defined for first_passkey_submit_frontend_error. Server errors:
+          'passkey_limit_reached' (errno 226), 'user_verification_required'
+          (errno 233), or 'server_error' (any other error).
+          'challenge_mismatch' when the new credential signs a challenge other
+          than the one from registration/start.
         type: string
   passkey_create_success_view:
     type: event

@@ -108,6 +108,40 @@ test.describe('severity-1 #smoke', () => {
       expect(credentials).toHaveLength(0);
     });
 
+    test('reports not_allowed when adding a passkey fails on an account that has one', async ({
+      target,
+      pages: { page, settings, settingsPasskeyAdd, signin },
+      testAccountTracker,
+      gleanEventsHelper,
+    }) => {
+      const { email } = await signInAccount(
+        target,
+        page,
+        settings,
+        signin,
+        testAccountTracker
+      );
+      await settingsPasskeyAdd.registerNewPasskey(settings, email);
+
+      // With a passkey on the account, the server sends excludeCredentials.
+      // The reason must not reveal that, so it matches a plain cancel.
+      await settingsPasskeyAdd.passkeyAuth.fail(
+        async () => {
+          await settings.passkey.createButton.click();
+          await settings.confirmMfaGuardIfVisible(email);
+        },
+        async () => {
+          const ping = await gleanEventsHelper.waitForEvent(
+            'account_pref_passkey_create_submit_frontend_error'
+          );
+          expect(ping.extras.reason).toBe('not_allowed');
+        }
+      );
+
+      await expect(settings.settingsHeading).toBeVisible();
+      expect(settingsPasskeyAdd.passkeyAuth.getCredentials()).toHaveLength(1);
+    });
+
     test('shows error when WebAuthn is not supported', async ({
       target,
       pages: { page, settings, signin },
