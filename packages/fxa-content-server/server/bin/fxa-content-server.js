@@ -90,20 +90,6 @@ function makeApp() {
   const app = express();
   const settingsPath = '/settings';
 
-  if (config.get('env') === 'development') {
-    const webpack = require('webpack');
-    const webpackConfig = require('../../webpack.config.js');
-    const webpackMiddleware = require('webpack-dev-middleware');
-    const webpackCompiler = webpack(webpackConfig);
-
-    app.use(
-      webpackMiddleware(webpackCompiler, {
-        publicPath: '/bundle/',
-        writeToDisk: true,
-      })
-    );
-  }
-
   app.engine('html', consolidate.handlebars);
   app.set('view engine', 'html');
   app.set('views', PAGE_TEMPLATE_DIRECTORY);
@@ -194,18 +180,8 @@ function makeApp() {
   const routeHelpers = routing(app, routeLogger);
 
   function addNonSettingsRoutes(middleware) {
-    /* This creates `app.whatever('/path' ...` handlers for every content-server route and
-     * excludes routes in `react-app.js` if corresponding feature flags are on. We manually add
-     * these excluded routes for content-server to serve in checks above if the feature flag is
-     * set to false or if the request does not contain `showReactApp=true`. Adding these routes
-     * must come after React-related route modifications so that `next('route')` skips to these
-     * route implementations. */
     routes.forEach(routeHelpers.addRoute);
-
-    // Adding React routes should come _after_ adding Backbone routes above because the Index
-    // page ('/'), which will get added to Backbone routing too in this function if conditions
-    // are not met for React, must come _after_ at least some of the frontend Backbone routing.
-    addAllReactRoutesConditionally(app, routeHelpers, middleware, i18n, config);
+    addAllReactRoutesConditionally(app, middleware, config);
 
     // must come after route handling but before wildcard routes
     app.use(

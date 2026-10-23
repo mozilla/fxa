@@ -4,18 +4,9 @@
 
 'use strict';
 
-const {
-  getServerReactRouteGroups,
-} = require('./routes/react-app/route-groups-server');
-
 module.exports = function (config, i18n, statsd, glean) {
   const redirectVersionedToUnversioned = require('./routes/redirect-versioned-to-unversioned');
   const redirectWithQuery = require('./routes/redirect-with-query');
-  const reactRouteGroups = getServerReactRouteGroups(
-    config.get('showReactApp'),
-    i18n,
-    config
-  );
 
   const routes = [
     redirectVersionedToUnversioned('complete_reset_password'),
@@ -25,9 +16,6 @@ module.exports = function (config, i18n, statsd, glean) {
     redirectWithQuery('verify_primary_email', 'settings'),
     require('./routes/get-apple-app-site-association')(),
     require('./routes/get-assetlinks-json')(),
-    require('./routes/get-frontend').default(reactRouteGroups),
-    require('./routes/get-oauth-success').default(reactRouteGroups),
-    require('./routes/get-index').default(reactRouteGroups, config),
     require('./routes/get-ver.json'),
     require('./routes/get-client.json')(i18n),
     require('./routes/get-config')(i18n),
@@ -66,8 +54,6 @@ module.exports = function (config, i18n, statsd, glean) {
   if (config.get('env') === 'development') {
     // Add a route in dev mode to test 500 errors
     routes.push(require('./routes/get-boom')());
-    // front end mocha tests
-    routes.push(require('./routes/get-test-index')(config));
     routes.push(require('./routes/get-test-style-guide')(config));
   }
 

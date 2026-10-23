@@ -8,7 +8,6 @@ metadata:
     - javascript
     - typescript
     - node
-    - backbone
   annotations:
     sentry.io/project-slug: mozilla/fxa-content-server
     circleci.com/project-slug: github/mozilla/fxa

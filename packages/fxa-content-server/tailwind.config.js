@@ -6,16 +6,7 @@
 
 const config = require('fxa-react/configs/tailwind');
 
-config.content = [
-  './app/scripts/templates/**/*.mustache',
-  './app/server/templates/pages/**/*.html',
-  // for 'invalid' class
-  './app/scripts/views/form.js',
-  // for 'opacity-0 opacity-100' classes
-  './app/scripts/views/password_strength/password_strength_balloon.js',
-  // for 'bg-close-white' class
-  './app/scripts/views/tooltip.js',
-];
+config.content = ['./server/templates/pages/src/**/*.html'];
 
 config.theme.extend = {
   ...config.theme.extend,

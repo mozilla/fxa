@@ -15,14 +15,14 @@
 //
 // 0. Runs each of the /app/i18n/**/.json files through JSONLint.
 //
-// 1. Converts the `/locale/templates/LC_MESSAGES/{client,server}.pot` files to
-// `/.tmp/i18n/templates/{client,server}.pot.json` (via the existing po2json task).
+// 1. Converts the `/locale/templates/LC_MESSAGES/server.pot` file to
+// `/.tmp/i18n/templates/server.pot.json` (via the existing po2json task).
 //
-// 2. Converts the `{client,server}.pot.json` files to z-schema happy schemas
+// 2. Converts the `server.pot.json` file to a z-schema happy schema
 // (via the new localeschema Grunt task).
 //
-// 3. Lints the `/app/i18n/**/{client,server}.json` files against the proper
-// schemas created in step 2 (via the new zschema task and grunt-z-schema module).
+// 3. Lints the `/app/i18n/**/server.json` files against the
+// schema created in step 2 (via the new zschema task and grunt-z-schema module).
 
 module.exports = function (grunt) {
   grunt.registerTask('polint', [
