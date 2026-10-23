@@ -6,17 +6,16 @@
  * Backfill script for the accountAuthorizations consent ledger.
  *
  * Walks the refreshTokens table in cursor order and writes one consent row
- * per (uid, scope, service, clientId) tuple for every scope on every token.
- * Each token's `service` column is inferred ONCE from its scopes (mirroring
- * lib/routes/oauth/authorization.js:recordAuthorizationRows): if exactly one
- * of the token's scopes is a configured service's scope URL, that's the
- * service; otherwise service=''. Every row written for that token then
- * carries that same service value — a VPN sign-in with
- * scope='<vpn-scope-url> profile' lands as two rows both with service='vpn',
- * and a 123done sign-in with scope='openid profile' lands as two rows both
- * with service=''. Backfilled rows look identical to organic ones, including
- * the service='' rows that future ToS-rejection logic on /authorization will
- * read for non-browser RPs.
+ * per (uid, scope, service, clientId) tuple for every scope on every token,
+ * plus the service's canonical scope when the token lacks it. Each token's
+ * `service` column is inferred ONCE from its scopes and clientId (see
+ * inferServiceForToken, which mirrors lib/routes/oauth/authorization.js).
+ * Every row written for that token carries that same service value, so
+ * backfilled rows look identical to organic ones, including the service=''
+ * rows that future ToS-rejection logic on /authorization will read for
+ * non-browser RPs.
+ *
+ * The upsert never touches deauthorizedAt: a backfill is not a ToS view.
  *
  * Per service notes:
  *   - relay rows are written even though token-exchange currently bypasses
@@ -35,8 +34,8 @@
  * Prerequisites:
  *   - accountAuthorizations table at the new (clientId, firstAuthorizedTosAt,
  *     lastAuthorizedTosAt) shape.
- *   - oauthServer.exchange.serviceScopes + allowedClientsForService populated
- *     in config.
+ *   - oauthServer.exchange.serviceScopes, allowedClientsForService and
+ *     serviceForClient populated in config.
  *
  * Usage (from packages/fxa-auth-server):
  *
@@ -49,9 +48,12 @@
  *   # touched; tokens that infer to other services or to '' are skipped.
  *   node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/backfill-account-authorizations/backfill-account-authorizations.ts --service vpn
  *
- * The script always scans the full refreshTokens table from the start.
- * On failure: restart the script — `INSERT … ON DUPLICATE KEY UPDATE
- * LEAST(first…)/GREATEST(last…)` is idempotent, so re-running converges.
+ *   # Override the clientId → service map, skip rows for some scopes
+ *   node -r ts-node/register/transpile-only -r tsconfig-paths/register scripts/backfill-account-authorizations/backfill-account-authorizations.ts --client-service 802d56ef2a9af9fa=monitor --omit-scope profile
+ *
+ * To resume after a crash, pass the `cursor` from the last `backfill.batch`
+ * log line as --start-cursor. Re-running from anywhere earlier is also safe:
+ * the upsert is idempotent.
  *
  * Execution plan:
  *   1. --dry-run on stage           → verify per-service counts
@@ -66,6 +68,7 @@ import * as mysql from 'mysql';
 import { program } from 'commander';
 import { StatsD } from 'hot-shots';
 import pckg from '../../package.json';
+import type { ConfigType } from '../../config';
 
 export interface ServiceConfig {
   // Inverse map: service scope URL → service name. Drives scope matching.
@@ -75,6 +78,11 @@ export interface ServiceConfig {
   // a non-empty set require clientId membership. Mirrors the runtime
   // isClientAllowedForService gate.
   allowedClients: Map<string, Set<string>>;
+  // service → its canonical scope URL. Added to a token's row set when the
+  // token doesn't carry it, as the runtime writer does.
+  canonicalScopes: Map<string, string>;
+  // lowercased clientId hex → service, for tokens with no canonical scope.
+  serviceForClient: Map<string, string>;
 }
 
 export interface UpsertRow {
@@ -133,11 +141,24 @@ function humanDuration(ms: number): string {
 
 function buildServiceConfig(
   serviceScopes: Record<string, string>,
-  allowedClientsForService: Record<string, string[]>
+  allowedClientsForService: Record<string, string[]>,
+  serviceForClientInput: Record<string, string> = {}
 ): ServiceConfig {
   const scopeToService = new Map<string, string>();
+  const canonicalScopes = new Map<string, string>();
   for (const [service, scope] of Object.entries(serviceScopes)) {
     scopeToService.set(scope, service);
+    canonicalScopes.set(service, scope);
+  }
+
+  // Entries for services absent from serviceScopes are dropped, as at runtime
+  // (OauthDB.getFallbackServiceForClient), so a mapping that lands ahead of
+  // its service config is inert rather than fatal.
+  const serviceForClient = new Map<string, string>();
+  for (const [clientId, service] of Object.entries(serviceForClientInput)) {
+    if (canonicalScopes.has(service)) {
+      serviceForClient.set(clientId.toLowerCase(), service);
+    }
   }
 
   const allowedClients = new Map<string, Set<string>>();
@@ -152,7 +173,7 @@ function buildServiceConfig(
     }
   }
 
-  return { scopeToService, allowedClients };
+  return { scopeToService, allowedClients, canonicalScopes, serviceForClient };
 }
 
 // Per-token service inference. Mirrors the runtime path
@@ -160,17 +181,25 @@ function buildServiceConfig(
 // ?service= param is the source of truth in runtime but isn't preserved on
 // the refreshToken, so we fall back to runtime's inference branch — if
 // exactly one of the token's scopes is a configured service's scope URL,
-// that's the service; otherwise service=''. Two or more service-scope URLs
-// are ambiguous and resolve to '' (matches runtime's `inferred.length === 1`
-// guard).
+// that's the service. No match falls back to the clientId mapping (runtime's
+// getFallbackServiceForClient); otherwise service=''. Two or more
+// service-scope URLs are ambiguous and resolve to '' (matches runtime's
+// `inferred.length === 1` guard).
 function inferServiceForToken(
   scopes: string[],
-  scopeToService: Map<string, string>
+  clientHex: string,
+  cfg: Pick<ServiceConfig, 'scopeToService' | 'serviceForClient'>
 ): string {
   const matchedServices = scopes
-    .map((s) => scopeToService.get(s))
+    .map((s) => cfg.scopeToService.get(s))
     .filter((s): s is string => Boolean(s));
-  return matchedServices.length === 1 ? matchedServices[0] : '';
+  if (matchedServices.length === 1) {
+    return matchedServices[0];
+  }
+  if (matchedServices.length > 1) {
+    return '';
+  }
+  return cfg.serviceForClient.get(clientHex.toLowerCase()) ?? '';
 }
 
 // Mirrors lib/routes/oauth/authorization.js:recordAuthorizationRows semantics
@@ -205,20 +234,21 @@ function resolveTargetRows(
     createdAt: Date;
   },
   cfg: ServiceConfig,
-  serviceFilter?: string
+  serviceFilter?: string,
+  omitScopes?: ReadonlySet<string>
 ): ResolveResult {
   const scopes = token.scope.split(/\s+/).filter(Boolean);
   if (scopes.length === 0) {
     return { rows: [], allowlistDenied: [] };
   }
 
-  const serviceValue = inferServiceForToken(scopes, cfg.scopeToService);
+  const clientHex = token.clientId.toString('hex');
+  const serviceValue = inferServiceForToken(scopes, clientHex, cfg);
 
   if (serviceFilter !== undefined && serviceValue !== serviceFilter) {
     return { rows: [], allowlistDenied: [] };
   }
 
-  const clientHex = token.clientId.toString('hex').toLowerCase();
   const allowlist = cfg.allowedClients.get(serviceValue);
   if (allowlist && !allowlist.has(clientHex)) {
     return { rows: [], allowlistDenied: [serviceValue] };
@@ -226,8 +256,15 @@ function resolveTargetRows(
 
   const tsMs = token.createdAt.getTime();
   const uniqueScopes = new Set(scopes);
+  const canonical = cfg.canonicalScopes.get(serviceValue);
+  if (canonical) {
+    uniqueScopes.add(canonical);
+  }
   const rows: UpsertRow[] = [];
   for (const scope of uniqueScopes) {
+    if (omitScopes?.has(scope)) {
+      continue;
+    }
     rows.push({
       uid: token.userId,
       scope,
@@ -372,6 +409,8 @@ async function run(
     batchSize: number;
     batchDelayMs: number;
     serviceFilter?: string;
+    omitScopes?: ReadonlySet<string>;
+    startCursor?: Buffer;
     statsd?: StatsD;
     retryAttempts?: number;
     retryInitialDelayMs?: number;
@@ -405,14 +444,16 @@ async function run(
     estimatedTokens: estimated,
     services: allServiceNames,
     serviceFilter: serviceFilter ?? null,
+    omitScopes: opts.omitScopes ? [...opts.omitScopes] : [],
+    startCursor: opts.startCursor?.toString('hex') ?? null,
     batchSize,
     batchDelayMs,
     dryRun,
   });
 
-  // Internal pagination cursor. Starts at all-zeros (before any token in
-  // sort order) and advances to the last token of each batch.
-  let cursor = Buffer.alloc(32);
+  // Pagination cursor. All-zeros sorts before any token; advances to the last
+  // token of each batch.
+  let cursor = opts.startCursor ?? Buffer.alloc(32);
   let batchNum = 0;
   let totalTokensProcessed = 0;
   let totalUpsertsAttempted = 0;
@@ -442,7 +483,8 @@ async function run(
       const { rows: resolved, allowlistDenied } = resolveTargetRows(
         row,
         cfg,
-        serviceFilter
+        serviceFilter,
+        opts.omitScopes
       );
 
       if (allowlistDenied.length > 0) {
@@ -517,6 +559,7 @@ async function run(
         : null;
     log.info('backfill.batch', {
       batchNum,
+      cursor: cursor.toString('hex'),
       tokensProcessed: totalTokensProcessed,
       percent,
       upsertsAttempted: totalUpsertsAttempted,
@@ -569,7 +612,7 @@ export {
 export async function init() {
   // require() (not import) so the module's env-driven config validation
   // doesn't fire when this file is imported by the spec.
-  const config = require('../../config').default.getProperties();
+  const config: ConfigType = require('../../config').default.getProperties();
   const statsd = new StatsD({ ...config.statsd, maxBufferSize: 0 });
   const log = require('../../lib/log')(
     config.log.level,
@@ -595,6 +638,30 @@ export async function init() {
       'Only backfill a single service (e.g. vpn). Omit to backfill all configured services.'
     )
     .option(
+      '--client-service <clientId=service>',
+      'Attribute tokens from clientId to service when no canonical scope is on the token. Repeatable; adds to or overrides oauthServer.exchange.serviceForClient.',
+      (value: string, prev: Record<string, string>) => {
+        const [clientId, service, ...rest] = value.split('=');
+        if (!/^[0-9a-f]{16}$/i.test(clientId) || !service || rest.length > 0) {
+          throw new Error(
+            `--client-service expects <16-hex clientId>=<service>, got '${value}'`
+          );
+        }
+        return { ...prev, [clientId]: service };
+      },
+      {}
+    )
+    .option(
+      '--omit-scope <scope>',
+      'Do not write rows for this scope (e.g. profile). Repeatable. Service inference still sees the full token scope.',
+      (value: string, prev: string[]) => [...prev, value],
+      [] as string[]
+    )
+    .option(
+      '--start-cursor <hex>',
+      'Resume after this refreshToken (the `cursor` field of the last backfill.batch log line)'
+    )
+    .option(
       '--retry-attempts <number>',
       'Total attempts (incl. first) for transient DB errors before giving up',
       '3'
@@ -613,15 +680,30 @@ export async function init() {
   const retryAttempts = parseInt(options.retryAttempts, 10) || 3;
   const retryInitialDelayMs = parseInt(options.retryInitialDelayMs, 10) || 500;
   const serviceFilter: string | undefined = options.service;
+  const clientServiceOverrides: Record<string, string> = options.clientService;
+  const omitScopes = new Set<string>(options.omitScope);
 
   const dbConfig = config.oauthServer.mysql;
-  const exchangeCfg = config.oauthServer.exchange ?? {};
-  const serviceScopes: Record<string, string> = exchangeCfg.serviceScopes ?? {};
+  const exchangeCfg = config.oauthServer.exchange;
+  const serviceScopes: Record<string, string> = exchangeCfg.serviceScopes;
   const allowedClientsForService: Record<string, string[]> =
-    exchangeCfg.allowedClientsForService ?? {};
+    exchangeCfg.allowedClientsForService;
+  const configuredServiceForClient: Record<string, string> =
+    exchangeCfg.serviceForClient;
+  const serviceForClient = {
+    ...configuredServiceForClient,
+    ...clientServiceOverrides,
+  };
 
   let cfg: ServiceConfig;
+  let startCursor: Buffer | undefined;
   try {
+    if (options.startCursor !== undefined) {
+      if (!/^[0-9a-f]{64}$/i.test(options.startCursor)) {
+        throw new Error('--start-cursor must be 64 hex characters');
+      }
+      startCursor = Buffer.from(options.startCursor, 'hex');
+    }
     if (Object.keys(serviceScopes).length === 0) {
       throw new Error(
         'oauthServer.exchange.serviceScopes is empty. Add at least one ' +
@@ -634,7 +716,19 @@ export async function init() {
           `Available: ${Object.keys(serviceScopes).join(', ')}`
       );
     }
-    cfg = buildServiceConfig(serviceScopes, allowedClientsForService);
+    for (const [clientId, service] of Object.entries(clientServiceOverrides)) {
+      if (!(service in serviceScopes)) {
+        throw new Error(
+          `--client-service ${clientId}=${service}: no service '${service}' in ` +
+            `oauthServer.exchange.serviceScopes. Available: ${Object.keys(serviceScopes).join(', ')}`
+        );
+      }
+    }
+    cfg = buildServiceConfig(
+      serviceScopes,
+      allowedClientsForService,
+      serviceForClient
+    );
   } catch (err) {
     log.error('backfill.config_error', { err: errMessage(err) });
     return 1;
@@ -682,6 +776,8 @@ export async function init() {
       batchSize,
       batchDelayMs,
       serviceFilter,
+      omitScopes,
+      startCursor,
       statsd,
       retryAttempts,
       retryInitialDelayMs,
@@ -690,7 +786,7 @@ export async function init() {
     log.error('backfill.run_failed', {
       code: (err as { code?: string }).code,
       err: errMessage(err),
-      msg: 'Run aborted; re-run the script (upsert is idempotent).',
+      msg: 'Run aborted; re-run with --start-cursor set to the last logged batch cursor (upsert is idempotent).',
     });
     return 1;
   } finally {
