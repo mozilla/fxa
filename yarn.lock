@@ -10465,22 +10465,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/testing@npm:^10.3.4":
-  version: 10.4.19
-  resolution: "@nestjs/testing@npm:10.4.19"
+"@nestjs/testing@npm:^12.0.1":
+  version: 12.0.1
+  resolution: "@nestjs/testing@npm:12.0.1"
   dependencies:
     tslib: "npm:2.8.1"
   peerDependencies:
-    "@nestjs/common": ^10.0.0
-    "@nestjs/core": ^10.0.0
-    "@nestjs/microservices": ^10.0.0
-    "@nestjs/platform-express": ^10.0.0
+    "@nestjs/common": ^12.0.0
+    "@nestjs/core": ^12.0.0
+    "@nestjs/microservices": ^12.0.0
+    "@nestjs/platform-express": ^12.0.0
   peerDependenciesMeta:
     "@nestjs/microservices":
       optional: true
     "@nestjs/platform-express":
       optional: true
-  checksum: 10c0/c3ae93a1ad27cf3a1a3335b81f4803406823a5ff55d31a99af3fbd7977b65fb76a02b96206f7a733a9f706e6086644f77aac8b9f1c0be2102649183afc6d6296
+  checksum: 10c0/79efea430bd359b4d98ad20b81d9f2b589a3dbcb680dbe6e105622395ef953574e2ec6d92b4ce02e64ee45b5873efa1f16d94a27b03da72e5051accf16837711
   languageName: node
   linkType: hard
 
@@ -31827,7 +31827,7 @@ __metadata:
     "@nestjs/schedule": "npm:^4.0.1"
     "@nestjs/schematics": "npm:11.0.9"
     "@nestjs/swagger": "npm:^8.1.0"
-    "@nestjs/testing": "npm:^10.3.4"
+    "@nestjs/testing": "npm:^12.0.1"
     "@nx/eslint-plugin": "npm:22.7.5"
     "@nx/jest": "npm:22.7.5"
     "@nx/js": "npm:22.7.5"
