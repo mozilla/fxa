@@ -7,7 +7,7 @@ import { knex, Knex } from 'knex';
 import { promisify } from 'util';
 import type { ILogger } from '@fxa/shared/log';
 
-import { MySQLConfig } from './config';
+import { MySQLConfig, mysqlConnectionOptions } from './config';
 import { BaseAuthModel } from './models/auth';
 import { ProfileBaseModel } from './models/profile';
 
@@ -81,9 +81,9 @@ export function setupDatabase(
     connection: {
       typeCast: typeCasting,
       charset: 'UTF8MB4_BIN',
-      ...opts,
+      ...mysqlConnectionOptions(opts),
     },
-    client: 'mysql',
+    client: 'mysql2',
     pool: {
       afterCreate: setupConnection,
       min: opts.connectionLimitMin,

@@ -35,7 +35,7 @@ async function getKnexConnection(dbId) {
   }
 
   const options = {
-    client: 'mysql',
+    client: 'mysql2',
     connection: {
       host: process.env[`KNEX_${dbId}_HOST`],
       password: process.env[`KNEX_${dbId}_PWD`],

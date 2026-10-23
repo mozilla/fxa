@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as crypto from 'crypto';
-import * as mysql from 'mysql';
+import * as mysql from 'mysql2';
 
 import {
   buildServiceConfig,

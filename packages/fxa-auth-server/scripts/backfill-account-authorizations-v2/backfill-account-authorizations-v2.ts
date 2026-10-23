@@ -40,7 +40,7 @@
  */
 
 import { promisify } from 'util';
-import * as mysql from 'mysql';
+import * as mysql from 'mysql2';
 import { program } from 'commander';
 import { StatsD } from 'hot-shots';
 import pckg from '../../package.json';
