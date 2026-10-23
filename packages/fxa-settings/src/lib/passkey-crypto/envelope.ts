@@ -23,7 +23,7 @@ import { concat } from 'hpke';
 import { base64urlToBytes } from '../base64url';
 import { assertByteLength } from './assert';
 import { CREDENTIAL_ID_MAX_BYTES, UID_BYTES, V1_SIZES } from './constants';
-import { openKb, sealKb } from './hpke';
+import { openKb, sealKb, type SealedKb } from './hpke';
 import {
   generateRecipientKeyPair,
   unwrapRecipientPrivateKey,
@@ -127,8 +127,8 @@ function normalizeEnvelope(envelope: unknown): PasskeyWrapEnvelope {
 }
 
 /**
- * Builds the context bound into a v1 envelope, as the HPKE `info` and the `skR`
- * wrap's `aad`.
+ * Builds the context bound into a v1 envelope, as the HPKE `info` and the first
+ * part of the `skR` wrap's `aad` — see `buildKeyWrapAad`.
  *
  * FROZEN FORMAT CONTRACT. Framing is length-prefixed rather than delimited.
  * That is insurance, not a fix for a live ambiguity: `uid` is a fixed 16 bytes,
@@ -157,6 +157,29 @@ export function buildEnvelopeContext({
 }
 
 /**
+ * Builds the `aad` for the `skR` wrap: the credential context, then the HPKE
+ * fields the unwrapped key will be used against, length-framed like the
+ * context so the parts cannot shift into one another.
+ *
+ * FROZEN FORMAT CONTRACT. This is what stops a holder of the stored row from
+ * choosing the `kB` it opens to. `pkR` is stored in the clear and HPKE
+ * `mode_base` authenticates nothing a PRF holder can check, so anyone with the
+ * row could `Seal` their own `kB` to `pkR` and the genuine `skR` would open
+ * it. Binding `pkR`, `enc` and `ct` here means a substituted field fails the
+ * AES-GCM tag over `skR` before HPKE ever runs.
+ */
+function buildKeyWrapAad(
+  context: Uint8Array,
+  pkR: Uint8Array,
+  sealed: SealedKb
+): Uint8Array {
+  return concat(
+    context,
+    frame(pkR, sealed.encapsulatedSecret, sealed.ciphertext)
+  );
+}
+
+/**
  * Wraps `kB` for one passkey, returning the envelope to store.
  *
  * `kB` and `prfOut` belong to the caller and are left untouched. The recipient
@@ -176,12 +199,12 @@ export async function createWrapEnvelope({
   const { publicKey, privateKeyRaw } = await generateRecipientKeyPair();
 
   try {
+    const sealed = await sealKb(kB, publicKey, context, HPKE_AAD);
     const { wrapped, iv } = await wrapRecipientPrivateKey(
       privateKeyRaw,
       prfOut,
-      context
+      buildKeyWrapAad(context, publicKey, sealed)
     );
-    const sealed = await sealKb(kB, publicKey, context, HPKE_AAD);
 
     return {
       pkR: publicKey,
@@ -219,22 +242,20 @@ export async function openWrapEnvelope({
     hpkeSealedKb,
   } = normalizeEnvelope(envelope);
   const context = buildEnvelopeContext({ uid, credentialId });
+  const sealed = {
+    encapsulatedSecret: hpkeEncapsulatedSecret,
+    ciphertext: hpkeSealedKb,
+  };
 
   const skRRaw = await unwrapRecipientPrivateKey(
     prfWrappedSkR,
     keyWrapIv,
     prfOut,
-    context
+    buildKeyWrapAad(context, pkR, sealed)
   );
 
   try {
-    return await openKb(
-      { encapsulatedSecret: hpkeEncapsulatedSecret, ciphertext: hpkeSealedKb },
-      pkR,
-      skRRaw,
-      context,
-      HPKE_AAD
-    );
+    return await openKb(sealed, pkR, skRRaw, context, HPKE_AAD);
   } finally {
     skRRaw.fill(0);
   }
