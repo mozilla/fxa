@@ -360,7 +360,7 @@ export const getActiveAccountLists = async (
   bq: BigQuery,
   qualifiedDatasetId: string,
   maxAgeDays: number,
-  statsd: Pick<StatsD, 'increment'>
+  statsd: Pick<StatsD, 'gauge'>
 ) => {
   const [projectId, datasetId] = qualifiedDatasetId.split('.');
   const [tables] = await bq.dataset(datasetId, { projectId }).getTables();
@@ -396,9 +396,11 @@ export const getActiveAccountLists = async (
 
     for (const problem of problems) {
       hasInvalidTables = true;
-      statsd.increment(`accounts.inactive.active-account-table.${problem}`, {
-        client_id: String(table.id),
-      });
+      statsd.gauge(
+        `accounts.inactive.active-account-table.${problem}-time`,
+        Math.floor(Date.now() / 1000),
+        { client_id: String(table.id) }
+      );
       console.error(`Active account table is ${problem}: ${tablePath}`);
     }
   }

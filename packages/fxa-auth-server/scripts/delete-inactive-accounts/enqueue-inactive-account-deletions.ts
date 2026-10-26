@@ -801,6 +801,10 @@ if (require.main === module) {
         statsd.increment('accounts.inactive.enqueue-script.success', {
           exitCode: `${exitCode}`,
         });
+        statsd.gauge(
+          'accounts.inactive.enqueue-script.last-success-time',
+          Math.floor(Date.now() / 1000)
+        );
         return exitCode;
       },
       (err) => {
