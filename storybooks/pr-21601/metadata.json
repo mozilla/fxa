@@ -1,12 +1,9 @@
 {
-  "commit": "9c77106524f32604f2eba78bac1142382da9197e",
+  "commit": "47b93f0f6cb5bfee55f1a4519092933fcd506f21",
   "summary": "chore(content-server): remove React-vs-Backbone leftovers",
   "description": "Because:\n\n* React serves every route, so React-vs-Backbone code is dead.\n\nThis commit:\n\n* Merges the always-on React route groups into one group\n* Removes the generalizedReactApp rollout rate and storage flag\n* Drops Backbone params, locators and helpers from functional tests\n* Deletes stale Backbone comments\n\nCloses FXA-14827",
-  "timestamp": 1793029757000,
+  "timestamp": 1793032200000,
   "storybooks": [
-    "email-renderer",
-    "fxa-admin-panel",
-    "fxa-react",
     "fxa-settings"
   ],
   "deployDir": "deploy/"
