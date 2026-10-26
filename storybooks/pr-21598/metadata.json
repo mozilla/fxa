@@ -1,0 +1,13 @@
+{
+  "commit": "c2e1c7be3e068df091595b98c4b42d2d4771bca5",
+  "summary": "chore(content-server): remove dependencies the Backbone client used",
+  "description": "Because:\n\n* FXA-14816 deleted the Backbone client and its webpack config, so 43\n  content-server dependencies have no user.\n\nThis commit:\n\n* Removes those 43 dependencies from the content-server package.json.\n* Updates yarn.lock with one relock. It adds no new resolution.\n\nCloses FXA-10275",
+  "timestamp": 1793024751000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
