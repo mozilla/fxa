@@ -1,0 +1,13 @@
+{
+  "commit": "1d1a03e263d034bea46dc3c5934a7aa72999efae",
+  "summary": "perf(l10n): move localizeTimestamp out of the shared l10n barrel",
+  "description": "Because:\n- Settings imports from the @fxa/shared/l10n barrel, which pulled in moment.\n- l10n.utils.ts imported moment at the top level only for localizeTimestamp.\n\nThis commit:\n- Moves localizeTimestamp to l10n.timestamp.ts with entry @fxa/shared/l10n/timestamp.\n- Adds the alias to tsconfig.base.json and the admin-server tsconfig.build.json.\n- Adds a jest moduleNameMapper entry in the auth-server.\n- Updates connected-services formatters.ts and auth-server lib/customs.js.\n- Moves the tests unchanged to l10n.timestamp.spec.ts.\n\nCloses FXA-9218",
+  "timestamp": 1793024020000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
