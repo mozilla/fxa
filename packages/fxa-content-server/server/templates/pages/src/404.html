@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html dir="{{ lang_dir }}" lang="{{ lang }}">
   <head>
     <meta charset="utf-8" />
@@ -12,36 +12,36 @@
     <meta name="referrer" content="origin" />
     <meta name="robots" content="noindex,nofollow" />
 
-      <!-- build:css(.tmp) /styles/main.css -->
-      <link rel="stylesheet" href="/styles/main.css" />
-      <!-- endbuild -->
-      <!-- build:css(.tmp) /styles/tailwind.out.css -->
-      <link rel="stylesheet" href="/styles/tailwind.out.css" />
-      <!-- endbuild -->
+    <!-- build:css(.tmp) /styles/tailwind.out.css -->
+    <link rel="stylesheet" href="/styles/tailwind.out.css" />
+    <!-- endbuild -->
   </head>
-  <body class="static" data-static-resource-host="{{{staticResourceUrl}}}">
-    <header class="mozilla-header">
+  <body data-static-resource-host="{{{staticResourceUrl}}}">
+    <header class="w-full px-6 py-4 mobileLandscape:py-6">
       <a
-      id="about-mozilla"
-      rel="author"
-      target="_blank"
-      href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
-      aria-label="{{#t}}Mozilla logo{{/t}}"
+        id="about-mozilla"
+        class="block w-[140px] h-10 bg-mozilla bg-no-repeat bg-contain"
+        rel="author"
+        target="_blank"
+        href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
+        aria-label="{{#t}}Mozilla logo{{/t}}"
       ></a>
     </header>
-    <div id="stage">
+    <div id="stage" class="flex flex-1 w-full items-center justify-center">
       <div id="main-content" class="card">
         <header>
-          <h1 id="fxa-404-header" class="card-header">{{#t}}Page not found{{/t}}</h1>
+          <h1 id="fxa-404-header" class="text-xl font-header">
+            {{#t}}Page not found{{/t}}
+          </h1>
         </header>
 
-        <p class="fxa-404-p" >
+        <p class="mt-4 text-sm">
           {{#t}}The page you requested is not found. We've been notified and
           will fix any links that may be broken.{{/t}}
         </p>
 
-        <div class="button-row">
-          <a href="/" class="button primary-button" id="fxa-404-home"
+        <div class="flex mt-6">
+          <a href="/" class="cta-primary cta-xl" id="fxa-404-home"
             >{{#t}}Home{{/t}}</a
           >
         </div>

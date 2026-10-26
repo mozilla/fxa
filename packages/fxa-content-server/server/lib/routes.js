@@ -54,7 +54,6 @@ module.exports = function (config, i18n, statsd, glean) {
   if (config.get('env') === 'development') {
     // Add a route in dev mode to test 500 errors
     routes.push(require('./routes/get-boom')());
-    routes.push(require('./routes/get-test-style-guide')(config));
   }
 
   return routes;

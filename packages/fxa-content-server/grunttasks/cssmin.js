@@ -4,19 +4,6 @@
 
 module.exports = function (grunt) {
   grunt.config('cssmin', {
-    // This task is pre-configured if you do not wish to use Usemin
-    // blocks for your CSS. By default, the Usemin block from your
-    // `index.html` will take care of minification, e.g.
-    //
-    //     <!-- build:css({.tmp,app}) styles/main.css -->
-    //
-    // dist: {
-    //     files: {
-    //         '<%= yeoman.dist %>/styles/main.css': [
-    //             '.tmp/styles/{,*/}*.css',
-    //             '<%= yeoman.app %>/styles/{,*/}*.css'
-    //         ]
-    //     }
-    // }
+    // Usemin blocks in the page templates configure minification.
   });
 };

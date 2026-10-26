@@ -9,10 +9,7 @@ module.exports = function (grunt) {
       files: [
         {
           dot: true,
-          src: [
-            '<%= yeoman.tmp %>/*',
-            '!<%= yeoman.app %>/styles/fontello.css',
-          ],
+          src: ['<%= yeoman.tmp %>/*'],
         },
       ],
     },
