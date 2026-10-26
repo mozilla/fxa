@@ -1,0 +1,10 @@
+{
+  "commit": "945f1fed8515855ee770852aa768f31b6e64b873",
+  "summary": "feat(settings): enlarge Pair V2 device details text",
+  "description": "Because:\n\n* Pair V2 device details text was small, light grey and hard to read.\n\nThis commit:\n\n* Sets text-sm, text-grey-900, rounded-lg and break-word on the box on the three Pair2 screens.\n* Moves text-xs to the DeviceInfoBlock default wrapper, so V1 pages do not change.\n* Adds tests for the new box style and the default text size.\n\nCloses FXA-14832",
+  "timestamp": 1793043090000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
