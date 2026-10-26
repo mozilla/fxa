@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit c2e1c7be3e068df091595b98c4b42d2d4771bca5</title>
+  <title>Storybooks for commit 90d83d5241c27c4d518c60449186dd05a7058bba</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit c2e1c7be3e068df091595b98c4b42d2d4771bca5</h1>
+  <h1>Storybooks for commit 90d83d5241c27c4d518c60449186dd05a7058bba</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
@@ -32,7 +32,7 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/26/2026, 2:25:51 PM UTC</dd>
+    <dd>10/26/2026, 3:15:49 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>chore(content-server): remove dependencies the Backbone client used</pre></dd>
     <dt>Description</dt>
@@ -40,11 +40,14 @@
 
 * FXA-14816 deleted the Backbone client and its webpack config, so 43
   content-server dependencies have no user.
+* Other packages used some of them through root hoisting.
 
 This commit:
 
-* Removes those 43 dependencies from the content-server package.json.
-* Updates yarn.lock with one relock. It adds no new resolution.
+* Removes those dependencies from the content-server package.json.
+* Declares @types/chai at the root, the class-properties Babel plugin in
+  fxa-settings, and got in functional-tests, where each one is used.
+* Updates yarn.lock.
 
 Closes FXA-10275</pre></dd>
   </dl>

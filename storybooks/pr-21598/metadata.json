@@ -1,8 +1,8 @@
 {
-  "commit": "c2e1c7be3e068df091595b98c4b42d2d4771bca5",
+  "commit": "90d83d5241c27c4d518c60449186dd05a7058bba",
   "summary": "chore(content-server): remove dependencies the Backbone client used",
-  "description": "Because:\n\n* FXA-14816 deleted the Backbone client and its webpack config, so 43\n  content-server dependencies have no user.\n\nThis commit:\n\n* Removes those 43 dependencies from the content-server package.json.\n* Updates yarn.lock with one relock. It adds no new resolution.\n\nCloses FXA-10275",
-  "timestamp": 1793024751000,
+  "description": "Because:\n\n* FXA-14816 deleted the Backbone client and its webpack config, so 43\n  content-server dependencies have no user.\n* Other packages used some of them through root hoisting.\n\nThis commit:\n\n* Removes those dependencies from the content-server package.json.\n* Declares @types/chai at the root, the class-properties Babel plugin in\n  fxa-settings, and got in functional-tests, where each one is used.\n* Updates yarn.lock.\n\nCloses FXA-10275",
+  "timestamp": 1793027749000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
