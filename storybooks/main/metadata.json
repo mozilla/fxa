@@ -1,8 +1,8 @@
 {
-  "commit": "f36476e66a801f05c36d859cac74e13bc150673c",
-  "summary": "Merge pull request #21586 from mozilla/fxa-14823",
-  "description": "chore(payments-next): remove SP2 redirect",
-  "timestamp": 1793028735000,
+  "commit": "8f3a7653f3caade3c02f3be22b674bfa019a4216",
+  "summary": "Merge pull request #21593 from mozilla/fxa-11310",
+  "description": "refactor(settings): remove resume token logic from getUniqueUserId",
+  "timestamp": 1793028911000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
