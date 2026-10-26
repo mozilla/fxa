@@ -1,0 +1,10 @@
+{
+  "commit": "61cbc63ba93ace64680f1242a65b59214bf75d93",
+  "summary": "fix(settings): render Banner content after mount for screen readers",
+  "description": "Because:\n- Screen readers reliably announce only changes to a live region that already exists.\n- The Banner inserted its live region with its text, so the text was often not announced.\n\nThis commit:\n- Adds a `ready` state to Banner, set by one useEffect after mount.\n- Renders the live region first with only id, role, aria-live and tabIndex.\n- Adds className, onAnimationEnd and children to the same node after the effect.\n- Adds a MutationObserver test for the status and alert regions.\n- Changes five consumer specs from getByText to await findByText.\n\nCloses FXA-10912",
+  "timestamp": 1793057506000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
