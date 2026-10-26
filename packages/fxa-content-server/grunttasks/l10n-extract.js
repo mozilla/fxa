@@ -1,4 +1,3 @@
-/* eslint-disable no-useless-catch */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -8,7 +7,6 @@
 var fs = require('fs');
 var path = require('path');
 var extract = require('jsxgettext-recursive-next');
-var execSync = require('child_process').execSync;
 
 // where to place the pot files.
 var messagesOutputPath = path.join(
@@ -18,9 +16,6 @@ var messagesOutputPath = path.join(
   'templates',
   'LC_MESSAGES'
 );
-var babelCmd =
-  'NODE_OPTIONS=--openssl-legacy-provider yarn babel --plugins=@babel/plugin-syntax-dynamic-import,dynamic-import-webpack,@babel/plugin-proposal-class-properties --presets @babel/preset-react,@babel/env,@babel/preset-typescript app/scripts --out-dir .es5';
-var templateCmd = 'cp -r app/scripts/templates .es5/templates/';
 
 module.exports = function (grunt) {
   grunt.registerTask(
@@ -32,53 +27,24 @@ module.exports = function (grunt) {
       if (!fs.existsSync(messagesOutputPath)) {
         fs.mkdirSync(messagesOutputPath, { recursive: true });
       }
-      // jsxgettext does not support ES2015, only ES5. Run babel to convert
-      // then run the extractor on the ES5 files.
-      try {
-        execSync(babelCmd);
-      } catch (e) {
-        throw e;
-      }
 
-      try {
-        // babel only converts a subset of files, copy all other files
-        // where there may be strings to extract.
-        execSync(templateCmd);
-      } catch (e) {
-        throw e;
-      }
-
-      var clientWalker = extract({
-        'input-dir': path.join(__dirname, '..', '.es5'),
+      var authWalker = extract({
+        exclude: /(pages\/dist)|(lib\/glean)/,
+        'input-dir': path.join(__dirname, '..', 'server'),
         joinExisting: true,
         keyword: ['t', 'unsafeTranslate'],
-        output: 'client.pot',
+        output: 'server.pot',
         outputDir: messagesOutputPath,
         parsers: {
+          '.html': 'handlebars',
           '.js': 'javascript',
-          '.mustache': 'handlebars',
+          '.txt': 'handlebars',
         },
+        parserOptions: '{"ecmaVersion":"2018"}',
       });
 
-      clientWalker.on('end', function () {
-        var authWalker = extract({
-          exclude: /(pages\/dist)|(lib\/glean)/,
-          'input-dir': path.join(__dirname, '..', 'server'),
-          joinExisting: true,
-          keyword: ['t', 'unsafeTranslate'],
-          output: 'server.pot',
-          outputDir: messagesOutputPath,
-          parsers: {
-            '.html': 'handlebars',
-            '.js': 'javascript',
-            '.txt': 'handlebars',
-          },
-          parserOptions: '{"ecmaVersion":"2018"}',
-        });
-
-        authWalker.on('end', function () {
-          done();
-        });
+      authWalker.on('end', function () {
+        done();
       });
     }
   );

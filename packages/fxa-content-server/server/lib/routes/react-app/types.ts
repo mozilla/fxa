@@ -5,41 +5,19 @@
 // TS setup for anything outside of `app/` is complex. This file defines types we
 // import for JSDoc instead.
 
-import {
-  Express,
-  Request,
-  Response,
-  NextFunction,
-  RequestHandler,
-} from 'express';
+import { Express, RequestHandler } from 'express';
 import { RouteDefinition } from '@fxa/shared/express';
 
 export interface ReactRouteGroup {
   featureFlagOn: boolean;
   routes: {
     name: string;
-    // only server-side react route groups contain the route definition
-    definition?: RouteDefinition;
+    definition: Pick<RouteDefinition, 'method' | 'path'>;
   }[];
-  fullProdRollout: boolean;
-}
-
-export interface GetRouteDefinition {
-  (routes: string[]): RouteDefinition;
-}
-
-export interface RouteHelpers {
-  addRoute: (routeDefinition: RouteDefinition) => void;
-  validationErrorHandler: (
-    err: Error,
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => void;
 }
 
 export interface AddRoutes {
-  (app: Express, routeHelpers: RouteHelpers, middleware: RequestHandler): void;
+  (app: Express, middleware: RequestHandler, config: any): void;
 }
 
 type ShowReactApp = {
@@ -53,22 +31,8 @@ export interface ReactRouteGroups {
 }
 
 export interface GetReactRouteGroups {
-  (showReactApp: ShowReactApp, i18n: any): ReactRouteGroups;
-}
-
-export interface GetRoute {
   (
-    name: string,
-    definition: RouteDefinition
-  ): {
-    name: string;
-    definition?: RouteDefinition;
-  };
-}
-
-export interface GetBackboneRouteDefinition {
-  (
-    reactRouteGroups: ReactRouteGroups,
-    routeNames: string[]
-  ): RouteDefinition | null;
+    showReactApp: ShowReactApp,
+    reactRoute: { getRoutes(names: string[]): ReactRouteGroup['routes'] }
+  ): ReactRouteGroups;
 }

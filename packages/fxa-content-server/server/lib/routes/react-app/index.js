@@ -2,23 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { OAUTH_SUCCESS_ROUTES } = require('./content-server-routes');
-
 /**
  * When you're ready to serve the React version of a page, identify which feature flag
  * group object it should go in and add a new object in `routes` by calling `.getRoute`
  * or setting `routes` with `.getRoutes` on the react route object.
  *
- * If a routeGroup should always be rendered with React in production, set `fullProdRollout` to true.
- * These routes can still be turned off on SRE side by switching featureFlagOn to false
- * on stage or prod for the relevant route if needed. React will ALWAYS be off for the routeGroup
- * if featureFlagOn is set to false.
- *
- * NOTE however that routes that have been sunset in content-server (i.e, simple routes) can no longer
- * fall back to backbone.
- *
- * When setting a regex, the corresponding matches for `router.js` must be set in
- * `react-route-client.js`.
+ * Routes in a group with featureFlagOn set to false return the content-server 404.
  *  @type {import("./types").GetReactRouteGroups}
  */
 const getReactRouteGroups = (showReactApp, reactRoute) => {
@@ -28,12 +17,10 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       // the order of the routes in the array is important.  do not put '/'
       // first.
       routes: reactRoute.getRoutes(['authorization', 'oauth', '/']),
-      fullProdRollout: true,
     },
     simpleRoutes: {
       featureFlagOn: true,
       routes: reactRoute.getRoutes(['clear', 'cookies_disabled']),
-      fullProdRollout: true,
     },
 
     // The Backbone reset password views are gone, so React is the only option.
@@ -52,7 +39,6 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'account_recovery_confirm_key',
         'account_recovery_reset_password',
       ]),
-      fullProdRollout: true,
     },
 
     // `signin` and `force_auth` have no Backbone views, so React must serve them.
@@ -84,7 +70,6 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'signin_passwordless_code',
         'oauth/signin_passwordless_code',
       ]),
-      fullProdRollout: true,
     },
 
     signUpRoutes: {
@@ -98,7 +83,6 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'signup_confirmed_sync',
         'oauth/signup',
       ]),
-      fullProdRollout: true,
     },
 
     // The Backbone pairing views are gone, so React is the only option.
@@ -119,14 +103,12 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'pair/unsupported',
         'connect_another_device',
       ]),
-      fullProdRollout: true,
     },
 
     // Backbone has no route for oauth/success, so React is the only option.
     oauthSuccessRoutes: {
       featureFlagOn: true,
-      routes: reactRoute.getRoutes(OAUTH_SUCCESS_ROUTES),
-      fullProdRollout: true,
+      routes: reactRoute.getRoutes(['/oauth/success/:clientId']),
     },
 
     // These routes have no Backbone views, so React must serve them.
@@ -136,7 +118,6 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'post_verify/password/force_password_change',
         'subscriptions',
       ]),
-      fullProdRollout: true,
     },
 
     // These routes have no Backbone views, so React must serve them.
@@ -153,20 +134,17 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         // service_welcome sits here because it shares the post-verify React surface.
         'post_verify/service_welcome',
       ]),
-      fullProdRollout: true,
     },
 
     // Backbone has no route for update_firefox, so React is the only option.
     updateFirefoxRoutes: {
       featureFlagOn: true,
       routes: reactRoute.getRoutes(['update_firefox']),
-      fullProdRollout: true,
     },
 
     webChannelExampleRoutes: {
       featureFlagOn: showReactApp.webChannelExampleRoutes,
       routes: reactRoute.getRoutes(['web_channel_example']),
-      fullProdRollout: false,
     },
     pair2Routes: {
       featureFlagOn: showReactApp.pair2Routes,
@@ -186,7 +164,6 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'pair/supplicant/sync_success',
         'pair/supplicant/timeout_and_cancel',
       ]),
-      fullProdRollout: true,
     },
   };
 };

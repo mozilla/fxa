@@ -19,8 +19,13 @@
     "strict": "off",
     "handle-callback-err": "off"
   },
+  "overrides": [
+    {
+      "files": ["*.ts"],
+      "parser": "@typescript-eslint/parser"
+    }
+  ],
   "ignorePatterns": [
-    "app/scripts/lib/glean/*.js",
     "dist",
     "node_modules",
     "pm2.config.js"

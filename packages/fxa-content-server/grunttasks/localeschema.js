@@ -7,8 +7,6 @@ module.exports = function (grunt) {
     app: {
       files: [
         {
-          '<%= yeoman.tmp %>/i18n/schemas/client-schema.json':
-            '<%= yeoman.tmp %>/i18n/templates/client.pot.json',
           '<%= yeoman.tmp %>/i18n/schemas/server-schema.json':
             '<%= yeoman.tmp %>/i18n/templates/server.pot.json',
         },

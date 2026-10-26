@@ -17,7 +17,8 @@ apps.push({
   watch: ['server/**/*.js', 'server/**/*.html', 'server/**/*.json'],
   env: {
     NODE_ENV: 'development',
-    NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --openssl-legacy-provider --dns-result-order=ipv4first`.trim(),
+    NODE_OPTIONS:
+      `${process.env.NODE_OPTIONS || ''} --openssl-legacy-provider --dns-result-order=ipv4first`.trim(),
     CONFIG_FILES: 'server/config/local.json',
     PORT: 3030,
     // Local mock IdP (packages/fxa-auth-server/test/mock-idp); the auth-server
@@ -47,7 +48,6 @@ if (process.env.CI !== 'true') {
     watch: [
       'postcss.config.js',
       'tailwind.config.js',
-      'app/scripts/templates/**/*.mustache',
       'app/styles/tailwind.css',
       'app/styles/tailwind/**/*.css',
       require.resolve('fxa-react/configs/tailwind'),
