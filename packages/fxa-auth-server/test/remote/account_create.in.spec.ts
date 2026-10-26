@@ -4,8 +4,14 @@
 
 import crypto from 'crypto';
 
-import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
-import { AuthServerError, generateMetricsContext } from '../support/helpers/test-utils';
+import {
+  createTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
+import {
+  AuthServerError,
+  generateMetricsContext,
+} from '../support/helpers/test-utils';
 
 interface TestConfig extends Record<string, unknown> {
   smtp: { syncUrl: string };
@@ -84,7 +90,9 @@ describe.each(testVersions)(
       await client.verifyEmail(verifyCode, { service: 'sync' });
 
       const postVerifyEmail = await server.mailbox.waitForEmail(email);
-      expect(postVerifyEmail.headers['x-link']).toMatch(new RegExp(`^${config.smtp.syncUrl}`));
+      expect(postVerifyEmail.headers['x-link']).toMatch(
+        new RegExp(`^${config.smtp.syncUrl}`)
+      );
 
       status = await client.emailStatus();
       expect(status.verified).toBe(true);
@@ -174,7 +182,10 @@ describe.each(testVersions)(
       const client = new Client(server.publicUrl, testOptions);
 
       await client.setupCredentials(email, password);
-      const response = await client.api.accountCreate(client.email, client.authPW);
+      const response = await client.api.accountCreate(
+        client.email,
+        client.authPW
+      );
 
       expect(response.sessionToken).toBeTruthy();
       expect(response.keyFetchToken).toBeUndefined();
@@ -186,9 +197,13 @@ describe.each(testVersions)(
       const client = new Client(server.publicUrl, testOptions);
 
       await client.setupCredentials(email, password);
-      const response = await client.api.accountCreate(client.email, client.authPW, {
-        keys: true,
-      });
+      const response = await client.api.accountCreate(
+        client.email,
+        client.authPW,
+        {
+          keys: true,
+        }
+      );
 
       expect(response.sessionToken).toBeTruthy();
       expect(response.keyFetchToken).toBeTruthy();
@@ -288,19 +303,6 @@ describe.each(testVersions)(
           utmSource: 'wibble',
           utmTerm: 'blee',
         },
-      };
-
-      await api.accountCreate(email, authPW, options);
-    });
-
-    it('empty metricsContext', async () => {
-      const api = new Client.Api(server.publicUrl, testOptions);
-      const email = server.uniqueEmail();
-      const authPW =
-        '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
-      const options = {
-        ...testOptions,
-        metricsContext: {},
       };
 
       await api.accountCreate(email, authPW, options);
@@ -587,14 +589,15 @@ describe.each(testVersions)(
         metricsContext: generateMetricsContext(),
       };
 
-      const client = await Client.create(server.publicUrl, email, 'foo', options);
-      expect(client).toBeTruthy();
+      await Client.create(server.publicUrl, email, 'foo', options);
 
       const emailData = await server.mailbox.waitForEmail(email);
       expect(emailData.headers['x-flow-begin-time']).toBe(
         String(options.metricsContext.flowBeginTime)
       );
-      expect(emailData.headers['x-flow-id']).toBe(options.metricsContext.flowId);
+      expect(emailData.headers['x-flow-id']).toBe(
+        options.metricsContext.flowId
+      );
     });
 
     it('account creation works with empty metricsContext metadata', async () => {
@@ -650,7 +653,6 @@ describe.each(testVersions)(
         password,
         testOptions
       );
-      expect(client).toBeTruthy();
 
       const emailData = await server.mailbox.waitForEmail(email);
       expect(emailData.headers['x-template-name']).toBe('verify');
@@ -676,7 +678,6 @@ describe.each(testVersions)(
         password,
         testOptions
       );
-      expect(client).toBeTruthy();
 
       const emailData = await server.mailbox.waitForEmail(email);
       expect(emailData.headers['x-template-name']).toBe('verify');
@@ -700,7 +701,6 @@ describe.each(testVersions)(
         ...testOptions,
         service: 'sync',
       });
-      expect(client).toBeTruthy();
 
       let emailData = await server.mailbox.waitForEmail(email);
       const verifyCode = emailData.headers['x-verify-code'];
@@ -739,13 +739,22 @@ describe.each(testVersions)(
         const originalKb = client.kB;
         const clientSalt = await client.getClientSalt();
 
-        const login = async (loginEmail: string, loginPassword: string, loginVersion = '') => {
-          return await Client.login(server.publicUrl, loginEmail, loginPassword, {
-            ...testOptions,
-            version: loginVersion,
-            keys: true,
-            service: 'sync',
-          });
+        const login = async (
+          loginEmail: string,
+          loginPassword: string,
+          loginVersion = ''
+        ) => {
+          return await Client.login(
+            server.publicUrl,
+            loginEmail,
+            loginPassword,
+            {
+              ...testOptions,
+              version: loginVersion,
+              keys: true,
+              service: 'sync',
+            }
+          );
         };
 
         const clientV1 = await login(email, password, '');
@@ -784,13 +793,22 @@ describe.each(testVersions)(
         const originalKb = client.getState().kB;
         await client.upgradeCredentials(password);
 
-        const login = async (loginEmail: string, loginPassword: string, loginVersion = '') => {
-          return await Client.login(server.publicUrl, loginEmail, loginPassword, {
-            ...testOptions,
-            version: loginVersion,
-            keys: true,
-            service: 'sync',
-          });
+        const login = async (
+          loginEmail: string,
+          loginPassword: string,
+          loginVersion = ''
+        ) => {
+          return await Client.login(
+            server.publicUrl,
+            loginEmail,
+            loginPassword,
+            {
+              ...testOptions,
+              version: loginVersion,
+              keys: true,
+              service: 'sync',
+            }
+          );
         };
 
         const clientV1 = await login(email, password, '');
