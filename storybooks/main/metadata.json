@@ -1,8 +1,8 @@
 {
-  "commit": "0b99390644a4279b0e0127fccf1aed81c2d4ef6c",
-  "summary": "Merge pull request #21589 from mozilla/agent-d9eda3",
-  "description": "test(auth): prune duplicate recovery key exists test",
-  "timestamp": 1793021601000,
+  "commit": "5b4c433186c8de95e883c1243ab92bc96ebbdabe",
+  "summary": "Merge pull request #21587 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-be3b7045116c551c9ff87b57348ceb0a2c928d43",
+  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from 4db2e3e3e3e4fc51d581b790483e1f0c6cdf4853 to be3b7045116c551c9ff87b57348ceb0a2c928d43",
+  "timestamp": 1793021631000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
