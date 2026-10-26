@@ -10,6 +10,7 @@ import {
   accounts,
   currentAccount,
   getAccountByUid,
+  getUniqueUserId,
 } from './cache';
 import { AuthUiErrors } from './auth-errors/auth-errors';
 import Storage from './storage';
@@ -403,5 +404,40 @@ describe('cache', () => {
         expect(getAccountByUid(uid)).toBeUndefined();
       }
     );
+  });
+
+  describe('getUniqueUserId', () => {
+    const storage = Storage.factory('localStorage');
+    const STORED_ID = '11111111-1111-4111-8111-111111111111';
+
+    afterEach(() => {
+      window.history.replaceState({}, '', '/');
+    });
+
+    it('returns the stored id', () => {
+      storage.set('uniqueUserId', STORED_ID);
+
+      expect(getUniqueUserId()).toBe(STORED_ID);
+    });
+
+    it('generates and stores a new UUID when none is stored', () => {
+      const id = getUniqueUserId();
+
+      expect(id).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+      );
+      expect(storage.get('uniqueUserId')).toBe(id);
+    });
+
+    it('ignores a uniqueUserId in a resume token', () => {
+      storage.set('uniqueUserId', STORED_ID);
+      const resume = btoa(
+        JSON.stringify({ uniqueUserId: '22222222-2222-4222-8222-222222222222' })
+      );
+      window.history.replaceState({}, '', `/?resume=${resume}`);
+
+      expect(getUniqueUserId()).toBe(STORED_ID);
+      expect(storage.get('uniqueUserId')).toBe(STORED_ID);
+    });
   });
 });
