@@ -1144,17 +1144,6 @@ const conf = (module.exports = convict({
     default: path.resolve(__dirname, '..', 'templates'),
     doc: 'The location of server-rendered templates',
   },
-  tests: {
-    coverage: {
-      excludeFiles: [
-        '/scripts/../tests/',
-        '/scripts/vendor/',
-        'require_config',
-      ],
-      globalThreshold: 90,
-      threshold: 50,
-    },
-  },
   use_https: false,
   var_path: {
     default: path.resolve(__dirname, '..', 'var'),
