@@ -1477,6 +1477,11 @@ reset-password-complete-recovery-key-download-info =
     나중에 이 페이지에 다시 접근할 수 없습니다.</b>
 
 
+server-error-heading = 500 오류
+server-error-description = 아, 뭔가가 잘 못 되었습니다. 이 상황을 인지했으며 고치기위해 노력하겠습니다.
+server-error-home-button = 홈
+
+
 error-label = 오류:
 validating-signin = 로그인 확인 중…
 complete-signin-error-header = 인증 오류

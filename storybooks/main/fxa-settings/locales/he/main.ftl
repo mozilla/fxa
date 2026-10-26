@@ -1450,6 +1450,11 @@ reset-password-complete-recovery-key-created = מפתח חדש לשחזור הח
 reset-password-complete-recovery-key-download-info = מפתח זה חיוני עבור שחזור נתונים אם הססמה שלך תישכח. <b>יש להוריד ולאחסן אותו במקום בטוח כעת, מכיוון שלא יהיה באפשרותך לגשת לדף זה שוב מאוחר יותר.</b>
 
 
+server-error-heading = שגיאה 500
+server-error-description = שוד ושבר, משהו השתבש. אנו מודעים לבעיה ופועלים לתיקונה.
+server-error-home-button = בית
+
+
 error-label = שגיאה:
 validating-signin = בתהליך אימות התחברות…
 complete-signin-error-header = שגיאת אימות

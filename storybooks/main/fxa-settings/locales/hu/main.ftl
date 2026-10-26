@@ -1549,7 +1549,7 @@ reset-password-complete-recovery-key-download-info =
 
 
 server-error-heading = 500-as hiba
-server-error-description = Ó jaj, valami hiba történt ott. Értesítést kaptunk, és elkezdünk a javításon dolgozni.
+server-error-description = Ó jaj, valami hiba történt. Értesítést kaptunk, és elkezdünk a javításon dolgozni.
 server-error-home-button = Kezdőlap
 
 

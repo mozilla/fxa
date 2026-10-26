@@ -1795,7 +1795,7 @@ reset-password-complete-recovery-key-download-info = Tento klíč je nezbytný p
 
 
 server-error-heading = Chyba 500
-server-error-description = Jejda, něco se pokazilo. Byli jsme upozorněni a pracujeme na opravě.
+server-error-description = Ach ne, něco se tam pokazilo. Byli jsme o tom informováni a začneme pracovat na opravě.
 server-error-home-button = Domů
 
 

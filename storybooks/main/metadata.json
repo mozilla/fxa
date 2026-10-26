@@ -1,8 +1,8 @@
 {
-  "commit": "5c5b8df73c2baaa855858e36a5d280eef7c4687a",
-  "summary": "Merge pull request #21550 from mozilla/FXA-14746",
-  "description": "",
-  "timestamp": 1792791038000,
+  "commit": "0b99390644a4279b0e0127fccf1aed81c2d4ef6c",
+  "summary": "Merge pull request #21589 from mozilla/agent-d9eda3",
+  "description": "test(auth): prune duplicate recovery key exists test",
+  "timestamp": 1793021601000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

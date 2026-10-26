@@ -2141,6 +2141,13 @@ reset-password-complete-new-password-saved = הססמה החדשה נשמרה!
 reset-password-complete-recovery-key-created = מפתח חדש לשחזור החשבון נוצר. יש להוריד ולאחסן אותו כעת במקום בטוח.
 reset-password-complete-recovery-key-download-info = מפתח זה חיוני עבור שחזור נתונים אם הססמה שלך תישכח. <b>יש להוריד ולאחסן אותו במקום בטוח כעת, מכיוון שלא יהיה באפשרותך לגשת לדף זה שוב מאוחר יותר.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = שגיאה 500
+server-error-description = שוד ושבר, משהו השתבש. אנו מודעים לבעיה ופועלים לתיקונה.
+server-error-home-button = בית
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin

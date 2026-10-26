@@ -215,7 +215,7 @@ device-info-ip-address = Διεύθυνση IP: { $ipAddress }
 
 firefox-promo-banner-mobile-heading = Αποκτήστε το { -brand-firefox } σε όλες τις συσκευές σας
 firefox-promo-banner-mobile-description = Συγχρονίστε τις καρτέλες, τους σελιδοδείκτες και τους κωδικούς πρόσβασής σας με τις συσκευές σας. Επιπλέον, όλα παραμένουν κρυπτογραφημένα.
-firefox-promo-banner-mobile-cta = Συνδέστε μια συσκευή
+firefox-promo-banner-mobile-cta = Σύνδεση συσκευής
 firefox-promo-banner-switch-heading = Γρήγορη μετάβαση. Εύκολη ρύθμιση.
 firefox-promo-banner-switch-description = Όταν κάνετε τη μετάβαση στο { -brand-firefox }, μπορείτε να μεταφέρετε τους σελιδοδείκτες, τους κωδικούς πρόσβασης, το ιστορικό σας και πολλά άλλα, ώστε να κάνετε περιήγηση όπως πριν.
 firefox-promo-banner-switch-cta = Μετάβαση στο { -brand-firefox }
@@ -510,7 +510,7 @@ cs-cannot-disconnect = Η εφαρμογή πελάτη δεν βρέθηκε, �
 cs-logged-out-2 = Έγινε αποσύνδεση από το { $service }
 cs-refresh-button =
     .title = Ανανέωση συνδεδεμένων υπηρεσιών
-cs-connect-device-button = Συνδέστε μια συσκευή
+cs-connect-device-button = Σύνδεση συσκευής
 cs-missing-device-help = Απουσία ή διπλή παρουσία στοιχείων;
 cs-disconnect-sync-heading = Αποσύνδεση από το Sync
 
@@ -586,7 +586,7 @@ flow-setup-2fa-qr-heading = Συνδεθείτε στην εφαρμογή ελ�
 flow-setup-2a-qr-instruction = <strong>Βήμα 1:</strong> Σαρώστε αυτόν τον κωδικό QR με οποιαδήποτε εφαρμογή ελέγχου ταυτότητας, όπως το Duo ή τον Επαληθευτή Google.
 flow-setup-2fa-qr-alt-text =
     .alt = Κωδικός QR για τη ρύθμιση της ταυτοποίησης δύο παραγόντων. Σαρώστε τον ή επιλέξτε «Αδυναμία σάρωσης κωδικού QR;» για να αποκτήστε ένα μυστικό κλειδί ρύθμισης.
-flow-setup-2fa-cant-scan-qr-button = Αδυναμία σάρωσης κωδικού QR;
+flow-setup-2fa-cant-scan-qr-button = Δεν είναι δυνατή η σάρωση του κωδικού QR;
 flow-setup-2fa-manual-key-heading = Εισαγάγετε τον κωδικό χειροκίνητα
 flow-setup-2fa-manual-key-instruction = <strong>Βήμα 1:</strong> Εισαγάγετε αυτόν τον κωδικό στην εφαρμογή ελέγχου ταυτότητας της επιλογής σας.
 flow-setup-2fa-scan-qr-instead-button = Σάρωση κωδικού QR;
@@ -1577,6 +1577,7 @@ reset-password-complete-recovery-key-download-info =
 
 
 server-error-heading = Σφάλμα 500
+server-error-description = Ωχ, κάτι πήγε στραβά. Έχουμε ενημερωθεί και θα ξεκινήσουμε αμέσως να το διορθώνουμε.
 server-error-home-button = Αρχική
 
 

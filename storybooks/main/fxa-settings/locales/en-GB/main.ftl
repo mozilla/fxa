@@ -1506,6 +1506,11 @@ reset-password-complete-recovery-key-download-info =
     now, as you won’t be able to access this page again later.</b>
 
 
+server-error-heading = 500 Error
+server-error-description = Oh dear, something went wrong there. We’ve been notified and will get working on a fix.
+server-error-home-button = Home
+
+
 error-label = Error:
 validating-signin = Validating sign-in…
 complete-signin-error-header = Confirmation error

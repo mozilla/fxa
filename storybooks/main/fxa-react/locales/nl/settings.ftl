@@ -2221,6 +2221,13 @@ reset-password-complete-new-password-saved = Nieuw wachtwoord opgeslagen!
 reset-password-complete-recovery-key-created = Nieuwe accountherstelsleutel aangemaakt. Download en bewaar deze nu.
 reset-password-complete-recovery-key-download-info = Deze sleutel is essentieel voor gegevensherstel als u uw wachtwoord vergeet. <b>Download en bewaar het nu veilig, omdat u deze pagina later niet meer kunt openen.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Fout 500
+server-error-description = O jee, daar ging iets mis. We zijn op de hoogte gebracht en gaan aan een oplossing werken.
+server-error-home-button = Startpagina
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin
