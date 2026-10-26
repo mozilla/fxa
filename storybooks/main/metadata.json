@@ -1,8 +1,8 @@
 {
-  "commit": "54cc0d3741e23ed59da52d5df709eb2419fd5dcb",
-  "summary": "Merge pull request #21591 from mozilla/dependabot/npm_and_yarn/fast-uri-3.1.9",
-  "description": "chore(deps): bump fast-uri from 3.1.8 to 3.1.9",
-  "timestamp": 1793023973000,
+  "commit": "ce9627cc7ed7aa4ec89e50a79a57c72458bb9f6a",
+  "summary": "Merge pull request #21596 from mozilla/dependabot/npm_and_yarn/body-parser-1.20.9",
+  "description": "chore(deps): bump body-parser from 1.20.6 to 1.20.9",
+  "timestamp": 1793025662000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
