@@ -1,8 +1,8 @@
 {
-  "commit": "5ba2f93c2f5d52a391909327e7abac3762a4e61c",
-  "summary": "Merge pull request #21595 from mozilla/agent-f26a06",
-  "description": "test(auth): prune duplicate checks in account create spec",
-  "timestamp": 1793029183000,
+  "commit": "308dc1766dd3afe3cd82cb99ef949bb969789647",
+  "summary": "Merge pull request #21598 from mozilla/fxa-10275",
+  "description": "chore(content-server): remove dependencies the Backbone client used",
+  "timestamp": 1793029513000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
