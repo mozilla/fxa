@@ -21,6 +21,7 @@
     "fxa-auth-client": "workspace:*",
     "fxa-content-server": "workspace:*",
     "fxa-settings": "workspace:*",
+    "got": "^13.0.0",
     "jsqr": "^1.4.0",
     "typescript": "5.5.3",
     "upng-js": "^2.1.0"
