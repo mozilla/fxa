@@ -1,8 +1,8 @@
 {
-  "commit": "5b4c433186c8de95e883c1243ab92bc96ebbdabe",
-  "summary": "Merge pull request #21587 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-be3b7045116c551c9ff87b57348ceb0a2c928d43",
-  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from 4db2e3e3e3e4fc51d581b790483e1f0c6cdf4853 to be3b7045116c551c9ff87b57348ceb0a2c928d43",
-  "timestamp": 1793021631000,
+  "commit": "5a7826678db48d1e629db487ba0e69d3142207e1",
+  "summary": "Merge pull request #21585 from mozilla/fxa-14816",
+  "description": "chore(content-server): delete the Backbone client app",
+  "timestamp": 1793022689000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
