@@ -24,6 +24,7 @@
     "delete": "pm2 delete pm2.config.js",
     "start-production": "NODE_ENV=production grunt build && yarn build-css && CONFIG_FILES=server/config/local.json,server/config/production.json,server/config/secrets.json grunt serverproc:dist",
     "start-remote": "scripts/run_remote_dev.sh",
+    "test-unit": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-content-server-mocha-unit-results.xml NODE_ENV=test mocha 'server/lib/**/*.test.js'",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "repository": {
@@ -98,6 +99,10 @@
     "typescript": "5.5.3"
   },
   "readmeFilename": "README.md",
+  "mocha": {
+    "reporter": "mocha-multi",
+    "reporterOptions": "spec=-,mocha-junit-reporter=-"
+  },
   "nx": {
     "implicitDependencies": [
       "crypto-relier"
