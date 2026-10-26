@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 9c77106524f32604f2eba78bac1142382da9197e</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 9c77106524f32604f2eba78bac1142382da9197e</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/26/2026, 3:49:17 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(content-server): remove React-vs-Backbone leftovers</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* React serves every route, so React-vs-Backbone code is dead.
+
+This commit:
+
+* Merges the always-on React route groups into one group
+* Removes the generalizedReactApp rollout rate and storage flag
+* Drops Backbone params, locators and helpers from functional tests
+* Deletes stale Backbone comments
+
+Closes FXA-14827</pre></dd>
+  </dl>
+</body>
+</html>
