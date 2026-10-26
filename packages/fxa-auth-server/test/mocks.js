@@ -83,6 +83,7 @@ const DB_METHOD_NAMES = [
   'deleteRecoveryKey',
   'deleteTotpToken',
   'devices',
+  'deviceCount',
   'device',
   'emailBounces',
   'emailRecord',
@@ -580,6 +581,10 @@ function mockDB(data, errors) {
     devices: jest.fn((uid) => {
       assert.ok(typeof uid === 'string');
       return Promise.resolve(data.devices || []);
+    }),
+    deviceCount: jest.fn((uid) => {
+      assert.ok(typeof uid === 'string');
+      return Promise.resolve(data.deviceCount ?? 0);
     }),
     device: jest.fn((uid, deviceId) => {
       assert.ok(typeof uid === 'string');

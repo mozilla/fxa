@@ -733,6 +733,81 @@ describe('auth', () => {
       ).toBe('string');
     });
   });
+
+  describe('Device.countByUid', () => {
+    const uid = USER_1.uid;
+    const OTHER_UID = '0123456789abcdef0123456789abcdef';
+    const LIVE_SESSION_TOKEN_ID = 'aa'.repeat(32);
+    const GONE_SESSION_TOKEN_ID = 'bb'.repeat(32);
+    const REFRESH_TOKEN_ID = 'cc'.repeat(32);
+    const CREATED_AT = 1_700_000_000_000;
+
+    async function insertDevice(
+      forUid: string,
+      id: string,
+      sessionTokenId: string | null,
+      refreshTokenId: string | null
+    ) {
+      await knex.raw(
+        "INSERT INTO devices (uid, id, sessionTokenId, refreshTokenId, nameUtf8, type, createdAt) VALUES (UNHEX(?), UNHEX(?), UNHEX(?), UNHEX(?), 'Test Device', 'mobile', ?)",
+        [forUid, id, sessionTokenId, refreshTokenId, CREATED_AT]
+      );
+    }
+
+    beforeEach(async () => {
+      await knex.raw('DELETE FROM devices');
+      await knex.raw('DELETE FROM sessionTokens');
+      await knex.raw(
+        'INSERT INTO sessionTokens (tokenId, tokenData, uid, createdAt) VALUES (UNHEX(?), UNHEX(?), UNHEX(?), ?)',
+        [LIVE_SESSION_TOKEN_ID, LIVE_SESSION_TOKEN_ID, uid, CREATED_AT]
+      );
+    });
+
+    it('returns 0 when the user has no devices', async () => {
+      expect(await Device.countByUid(uid)).toBe(0);
+    });
+
+    it('counts a device backed by a live session token', async () => {
+      await insertDevice(uid, '11'.repeat(16), LIVE_SESSION_TOKEN_ID, null);
+      expect(await Device.countByUid(uid)).toBe(1);
+    });
+
+    it('counts a device backed only by a refresh token', async () => {
+      await insertDevice(uid, '22'.repeat(16), null, REFRESH_TOKEN_ID);
+      expect(await Device.countByUid(uid)).toBe(1);
+    });
+
+    it('counts a device whose session token is gone but has a refresh token', async () => {
+      await insertDevice(
+        uid,
+        '33'.repeat(16),
+        GONE_SESSION_TOKEN_ID,
+        REFRESH_TOKEN_ID
+      );
+      expect(await Device.countByUid(uid)).toBe(1);
+    });
+
+    it('excludes a zombie device with no session token row and no refresh token', async () => {
+      await insertDevice(uid, '44'.repeat(16), GONE_SESSION_TOKEN_ID, null);
+      expect(await Device.countByUid(uid)).toBe(0);
+    });
+
+    it('excludes devices belonging to other users', async () => {
+      await insertDevice(OTHER_UID, '55'.repeat(16), null, REFRESH_TOKEN_ID);
+      expect(await Device.countByUid(uid)).toBe(0);
+    });
+
+    it('matches the length of findByUid on a mixed fixture', async () => {
+      await insertDevice(uid, '11'.repeat(16), LIVE_SESSION_TOKEN_ID, null);
+      await insertDevice(uid, '22'.repeat(16), null, REFRESH_TOKEN_ID);
+      await insertDevice(uid, '44'.repeat(16), GONE_SESSION_TOKEN_ID, null);
+      await insertDevice(OTHER_UID, '55'.repeat(16), null, REFRESH_TOKEN_ID);
+
+      const count = await Device.countByUid(uid);
+      expect(count).toBe(2);
+      expect(count).toBe((await Device.findByUid(uid)).length);
+    });
+  });
 });
 
 describe('security-event', () => {

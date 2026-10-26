@@ -19,6 +19,7 @@ jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => ({
     findByPrimaryKey: jest.fn().mockResolvedValue({ id: 'fakeDeviceId' }),
     findByUid: jest.fn().mockResolvedValue([]),
     findByUidAndRefreshTokenId: jest.fn(),
+    countByUid: jest.fn(),
   },
   SessionToken: {
     create: jest.fn().mockResolvedValue(null),
@@ -864,5 +865,53 @@ describe('db.deviceFromRefreshTokenId:', () => {
     const result = await db.deviceFromRefreshTokenId(uid, refreshTokenId);
     // basically, just make sure it doesn't blow up without metrics
     expect(result).toBeNull();
+  });
+});
+
+describe('db.deviceCount:', () => {
+  let db: any, metrics: any;
+
+  beforeEach(async () => {
+    const log = createMock<AuthLogger>();
+    const tokens = require('../lib/tokens')(log, {
+      tokenLifetimes: { sessionTokenWithoutDevice: 2419200000 },
+    });
+    redisMockFactory = () => undefined;
+    const DB = createDB(
+      {
+        tokenLifetimes: { sessionTokenWithoutDevice: 2419200000 },
+        tokenPruning: {},
+        redis: { ...config.redis, enabled: false },
+      },
+      log,
+      tokens,
+      {}
+    );
+    db = await DB.connect({});
+    metrics = { increment: jest.fn() };
+    db.metrics = metrics;
+  });
+
+  it('returns the model count and increments the success metric', async () => {
+    models.Device.countByUid.mockResolvedValue(3);
+
+    const result = await db.deviceCount('test-uid');
+
+    expect(result).toBe(3);
+    expect(models.Device.countByUid).toHaveBeenCalledWith('test-uid');
+    expect(metrics.increment).toHaveBeenCalledTimes(1);
+    expect(metrics.increment).toHaveBeenCalledWith('db.deviceCount.retrieve', {
+      result: 'success',
+    });
+  });
+
+  it('rethrows and increments the error metric when the query fails', async () => {
+    const err = new Error('boom');
+    models.Device.countByUid.mockRejectedValue(err);
+
+    await expect(db.deviceCount('test-uid')).rejects.toBe(err);
+    expect(metrics.increment).toHaveBeenCalledWith('db.deviceCount.retrieve', {
+      result: 'error',
+    });
   });
 });

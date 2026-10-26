@@ -513,6 +513,22 @@ export const createDB = (
       }
     }
 
+    async deviceCount(uid: string): Promise<number> {
+      log.trace('DB.deviceCount', { uid });
+      try {
+        const count = await Device.countByUid(uid);
+        this.metrics?.increment('db.deviceCount.retrieve', {
+          result: 'success',
+        });
+        return count;
+      } catch (err) {
+        this.metrics?.increment('db.deviceCount.retrieve', {
+          result: 'error',
+        });
+        throw err;
+      }
+    }
+
     async sessionToken(id: string) {
       log.trace('DB.sessionToken');
       const data = await RawSessionToken.findByTokenId(id);

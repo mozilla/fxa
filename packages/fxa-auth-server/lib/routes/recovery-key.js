@@ -332,7 +332,7 @@ module.exports = (
         // until https://mozilla-hub.atlassian.net/browse/SYNC-4240 is implemented.
         const services = await list(uid);
         const estimatedSyncDeviceCount = Math.max(
-          (await db.devices(uid)).length,
+          await db.deviceCount(uid),
           services.filter((service) =>
             service.scope.includes(OAUTH_SCOPE_OLD_SYNC)
           ).length
