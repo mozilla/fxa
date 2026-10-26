@@ -1,0 +1,13 @@
+{
+  "commit": "82144f0e4209858c7ccbaefcac9f88f6f8ccf3cc",
+  "summary": "chore(deps): bump body-parser from 1.20.6 to 1.20.9",
+  "description": "Bumps [body-parser](https://github.com/expressjs/body-parser) from 1.20.6 to 1.20.9.\n- [Release notes](https://github.com/expressjs/body-parser/releases)\n- [Changelog](https://github.com/expressjs/body-parser/blob/1.20.9/HISTORY.md)\n- [Commits](https://github.com/expressjs/body-parser/compare/1.20.6...1.20.9)\n\n---\nupdated-dependencies:\n- dependency-name: body-parser\n  dependency-version: 1.20.9\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1793024479000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
