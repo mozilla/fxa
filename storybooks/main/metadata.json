@@ -1,8 +1,8 @@
 {
-  "commit": "8f3a7653f3caade3c02f3be22b674bfa019a4216",
-  "summary": "Merge pull request #21593 from mozilla/fxa-11310",
-  "description": "refactor(settings): remove resume token logic from getUniqueUserId",
-  "timestamp": 1793028911000,
+  "commit": "5ba2f93c2f5d52a391909327e7abac3762a4e61c",
+  "summary": "Merge pull request #21595 from mozilla/agent-f26a06",
+  "description": "test(auth): prune duplicate checks in account create spec",
+  "timestamp": 1793029183000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
