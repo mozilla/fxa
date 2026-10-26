@@ -80,7 +80,7 @@ module.exports = function (grunt) {
       dest: '<%= yeoman.tmp %>/styles/',
       dot: true,
       expand: true,
-      src: ['main.css', 'tailwind.out.css'],
+      src: ['tailwind.out.css'],
     },
     settings: {
       expand: true,

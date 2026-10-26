@@ -22,6 +22,7 @@ config.theme.extend = {
     'mobile-download': 'inline("../images/mobile-download.svg")',
     'no-ff-desktop': 'inline("../images/no-ff-desktop.svg")',
     'icon-warning': 'inline("../images/icon-warning.svg")',
+    mozilla: 'inline("../images/mozilla.svg")',
   },
   content: {
     ...config.theme.extend.content,

@@ -332,12 +332,6 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'REACT_CONVERSION_WEB_CHANNEL_EXAMPLE_ROUTES',
     },
-    pocPairingRoutes: {
-      default: true,
-      doc: 'FXA-13863: Enable the throwaway deep-link pairing POC pages (poc_deep_link, poc_pair_init, poc_pair_start)',
-      format: Boolean,
-      env: 'REACT_CONVERSION_POC_PAIRING_ROUTES',
-    },
     pair2Routes: {
       default: false,
       doc: 'Enable users to visit the in-progress React "pair2" pairing rewrite routes',
@@ -990,18 +984,6 @@ const conf = (module.exports = convict({
     format: Array,
     env: 'SERVICES_WITH_EMAIL_VERIFICATION',
   },
-  sourceMapType: {
-    default: 'source-map',
-    doc: 'Type of source maps created. See https://webpack.js.org/configuration/devtool/',
-    env: 'SOURCE_MAP_TYPE',
-    format: String,
-  },
-  webpackModeOverride: {
-    default: undefined,
-    doc: 'Tells webpack how to optimize build. See https://webpack.js.org/configuration/mode/',
-    env: 'WEBPACK_MODE_OVERRIDE',
-    format: String,
-  },
   rolloutRates: {
     keyStretchV2: {
       default: 0,
@@ -1165,10 +1147,6 @@ conf.set('process_type', path.basename(process.argv[1], '.js'));
 // Always send CSP headers in development mode
 if (conf.get('env') === 'development') {
   conf.set('csp.enabled', true);
-  // FXA-13863: enable the throwaway deep-link pairing POC pages locally so they
-  // are available for development/testing. They remain gated (default off) in
-  // stage/prod unless REACT_CONVERSION_POC_PAIRING_ROUTES is set.
-  conf.set('showReactApp.pocPairingRoutes', true);
   // Enable the in-progress React "pair2" pairing rewrite locally so it is
   // available for development/testing. It remains gated (default off) in
   // stage/prod unless REACT_CONVERSION_PAIR2_ROUTES is set.
