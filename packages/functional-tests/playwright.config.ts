@@ -8,6 +8,7 @@ import * as path from 'path';
 import { TestOptions, WorkerOptions } from './lib/fixtures/standard';
 import { TargetNames } from './lib/targets';
 import { getFirefoxUserPrefs } from './lib/targets/firefoxUserPrefs';
+import { channel } from 'diagnostics_channel';
 
 const CI = !!process.env.CI;
 
@@ -79,6 +80,7 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
               firefoxUserPrefs: getFirefoxUserPrefs(name, DEBUG),
               headless: !DEBUG,
               slowMo: SLOWMO,
+              channel: 'moz-firefox',
             },
             trace: 'retain-on-failure',
           },
@@ -104,11 +106,14 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
           testDir: 'tests-payments-next',
           fullyParallel: true,
           use: {
-            browserName: 'chromium',
+            browserName: 'firefox',
             targetName: name,
             launchOptions: {
+              args: DEBUG ? ['-start-debugger-server'] : undefined,
+              firefoxUserPrefs: getFirefoxUserPrefs(name, DEBUG),
               headless: !DEBUG,
               slowMo: SLOWMO,
+              channel: 'moz-firefox',
             },
             trace: 'retain-on-failure',
           },
