@@ -510,17 +510,21 @@ module.exports = function (
 
         request.emitMetricsEvent('session.verify_code');
 
-        // Check to see if the otp code passed matches the expected value from
-        // using the account's' `emailCode` as the secret in the otp code generation.
         const account = await db.account(uid);
-        const secret = account.primaryEmail.emailCode;
-
-        const { valid: isValidCode } = otpUtils.verifyOtpCode(
-          code,
-          secret,
-          otpOptions,
-          'session.verify_code'
+        const secret = otpUtils.getEmailOtpSecret(
+          account.primaryEmail,
+          sessionToken
         );
+
+        // A verified session has no tokenVerificationId, so no code can match.
+        const isValidCode =
+          !!secret &&
+          otpUtils.verifyOtpCode(
+            code,
+            secret,
+            otpOptions,
+            'session.verify_code'
+          ).valid;
 
         if (!isValidCode) {
           if (customs.v2Enabled()) {
@@ -619,10 +623,15 @@ module.exports = function (
           }
         }
 
-        // Generate the current otp code for the account based on the account's
-        // `emailCode` as the secret.
         const account = await db.account(sessionToken.uid);
-        const secret = account.primaryEmail.emailCode;
+        const secret = otpUtils.getEmailOtpSecret(
+          account.primaryEmail,
+          sessionToken
+        );
+        // The session is already verified, so there is nothing to confirm.
+        if (!secret) {
+          return {};
+        }
 
         await customs.checkAuthenticated(
           request,

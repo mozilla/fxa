@@ -542,7 +542,10 @@ module.exports = (
           uid: accountRecord.uid,
         });
 
-        const secret = accountRecord.primaryEmail.emailCode;
+        const secret = otpUtils.getEmailOtpSecret(
+          accountRecord.primaryEmail,
+          sessionToken
+        );
         const code = otpUtils.generateOtpCode(secret, otpOptions);
         const rpCmsConfig = await fetchRpCmsData(request, cmsManager, log);
 

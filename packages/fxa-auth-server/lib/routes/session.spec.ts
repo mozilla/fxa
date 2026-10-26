@@ -14,9 +14,7 @@ const crypto = require('crypto');
 const { getRoute } = require('../../test/routes_helpers');
 const knownIpLocation = require('../../test/known-ip-location');
 const mocks = require('../../test/mocks');
-const {
-  computeSessionTokenHandle,
-} = require('./utils/session-token-handle');
+const { computeSessionTokenHandle } = require('./utils/session-token-handle');
 const { AppError: error } = require('@fxa/accounts/errors');
 const otplib = require('otplib');
 const gleanMock = mocks.mockGlean();
@@ -1015,7 +1013,12 @@ describe('/session/verify_code', () => {
     });
     route = getRoute(routes, '/session/verify_code');
 
-    expectedCode = getExpectedOtpCode({}, signupCodeAccount.emailCode);
+    expectedCode = getExpectedOtpCode(
+      {},
+      options.emailVerified
+        ? signupCodeAccount.tokenVerificationId
+        : signupCodeAccount.emailCode
+    );
 
     request = mocks.mockRequest({
       credentials: {
@@ -1128,6 +1131,27 @@ describe('/session/verify_code', () => {
       errno: 183,
       output: { statusCode: 400 },
     });
+  });
+
+  it('rejects a code built from the account emailCode for a verified account', async () => {
+    setup({ emailVerified: true });
+    request.payload.code = getExpectedOtpCode({}, signupCodeAccount.emailCode);
+    await expect(runTest(route, request)).rejects.toMatchObject({
+      errno: 183,
+      output: { statusCode: 400 },
+    });
+    expect(db.verifyTokensWithMethod).not.toHaveBeenCalled();
+  });
+
+  it('rejects any code for a verified account when the session is already verified', async () => {
+    setup({ emailVerified: true });
+    request.auth.credentials.tokenVerificationId = null;
+    request.payload.code = getExpectedOtpCode({}, signupCodeAccount.emailCode);
+    await expect(runTest(route, request)).rejects.toMatchObject({
+      errno: 183,
+      output: { statusCode: 400 },
+    });
+    expect(db.verifyTokensWithMethod).not.toHaveBeenCalled();
   });
 
   it('should verify the account and send post verify email with old sync scope', async () => {
@@ -1310,9 +1334,22 @@ describe('/session/resend_code', () => {
 
     const expectedCode = getExpectedOtpCode(
       {},
-      verifiedAccount.primaryEmail.emailCode
+      signupCodeAccount.tokenVerificationId
     );
     const args = fxaMailer.sendVerifyLoginCodeEmail.mock.calls[0];
     expect(args[0].code).toBe(expectedCode);
+  });
+
+  it('sends no code for a verified account when the session is already verified', async () => {
+    db.account = jest.fn(() => ({
+      uid: 'foo',
+      email: 'foo@example.org',
+      primaryEmail: { isVerified: true, isPrimary: true, emailCode: 'abcdef' },
+    }));
+    request.auth.credentials.tokenVerificationId = null;
+    const response = await runTest(route, request);
+    expect(response).toEqual({});
+    expect(fxaMailer.sendVerifyLoginCodeEmail).not.toHaveBeenCalled();
+    expect(fxaMailer.sendVerifyShortCodeEmail).not.toHaveBeenCalled();
   });
 });

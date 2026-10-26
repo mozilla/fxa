@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { createTestServer, TestServerInstance } from '../support/helpers/test-server';
+import {
+  createTestServer,
+  TestServerInstance,
+} from '../support/helpers/test-server';
 import { AuthServerError } from '../support/helpers/test-utils';
 import crypto from 'crypto';
 import { AppError } from '@fxa/accounts/errors';
@@ -50,7 +53,10 @@ describe.each(testVersions)(
       });
 
       await client.resendVerifyShortCodeEmail();
-      const code = await server.mailbox.waitForEmailByHeader(email, 'x-verify-short-code');
+      const code = await server.mailbox.waitForEmailByHeader(
+        email,
+        'x-verify-short-code'
+      );
       await client.verifyShortCodeEmail(code);
 
       // Should not throw
@@ -159,7 +165,10 @@ describe.each(testVersions)(
       });
 
       await client.resendVerifyShortCodeEmail();
-      const code = await server.mailbox.waitForEmailByHeader(email, 'x-verify-short-code');
+      const code = await server.mailbox.waitForEmailByHeader(
+        email,
+        'x-verify-short-code'
+      );
       await client.verifyShortCodeEmail(code);
 
       // Add totp to account.
@@ -184,10 +193,10 @@ describe.each(testVersions)(
       const res = await client.emailStatus();
       expect(res.sessionVerified).toBe(false);
 
-      // Verifying the session with an email short code must be rejected for a
-      // TOTP account; it cannot be used to bypass 2FA.
+      // The code from the earlier session cannot verify this one, so it cannot
+      // be used to bypass 2FA.
       await expect(client.verifyShortCodeEmail(code)).rejects.toMatchObject({
-        errno: AppError.ERRNO.INSUFFICIENT_AAL,
+        errno: AppError.ERRNO.INVALID_EXPIRED_OTP_CODE,
       });
       expect((await client.emailStatus()).sessionVerified).toBe(false);
 
