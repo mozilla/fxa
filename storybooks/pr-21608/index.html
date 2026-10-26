@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 77dad1b97759647ff77303869363d6b1490bd587</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 77dad1b97759647ff77303869363d6b1490bd587</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/26/2026, 11:21:19 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(settings): derive page title from h1 and focus it in AppLayout</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* Most AppLayout pages pass no title, so the tab title stays &quot;Mozilla accounts&quot;.
+* Focus falls to body after a route change, so screen readers announce nothing.
+
+This commit:
+
+* Derives the page title from the first main h1 when no title or CMS pageTitle is set.
+* Focuses the main h1 with tabindex -1 after mount and loading, unless something has focus.
+* Hides the focus ring on that h1 and removes the TODO.
+* Adds AppLayout tests and updates Signin expectations and snapshots.
+
+Closes FXA-6803</pre></dd>
+  </dl>
+</body>
+</html>
