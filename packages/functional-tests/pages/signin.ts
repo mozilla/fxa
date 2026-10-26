@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect } from '@playwright/test';
-import { getReactFeatureFlagUrl } from '../lib/react-flag';
 import { Credentials } from '../lib/targets';
 import { PasskeyPage } from './passkey';
 
@@ -77,9 +76,7 @@ export class SigninPage extends PasskeyPage {
 
   get signinBouncedCreateAccountButton() {
     const name = 'No longer own that email? Create a new account';
-    return this.page
-      .getByRole('button', { name }) // React
-      .or(this.page.getByRole('link', { name })); // Backbone
+    return this.page.getByRole('button', { name });
   }
 
   get badRequestHeading() {
@@ -89,14 +86,10 @@ export class SigninPage extends PasskeyPage {
   }
 
   goto(route = '/', params = new URLSearchParams()) {
-    params.set('forceExperiment', 'generalizedReactApp');
-    params.set('forceExperimentGroup', 'react');
     if (!params.get('force_passwordless')) {
       params.set('force_passwordless', 'false');
     }
-    return this.page.goto(
-      getReactFeatureFlagUrl(this.target, route, params.toString())
-    );
+    return this.page.goto(`${this.target.contentServerUrl}${route}?${params}`);
   }
 
   async fillOutEmailFirstForm(email: string) {

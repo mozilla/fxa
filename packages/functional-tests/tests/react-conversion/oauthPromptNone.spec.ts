@@ -281,9 +281,7 @@ async function signInAccount(
   signin: SigninPage,
   credentials: Credentials
 ): Promise<void> {
-  await page.goto(
-    `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-  );
+  await page.goto(`${target.contentServerUrl}/`);
   await signin.fillOutEmailFirstForm(credentials.email);
   await signin.fillOutPasswordForm(credentials.password);
   await page.waitForURL(/settings/);

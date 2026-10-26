@@ -37,9 +37,7 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       const { email } = testAccountTracker.generateAccountDetails();
 
-      await relier.goto(
-        `login_hint=${email}&force_passwordless=false&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
+      await relier.goto(`login_hint=${email}&force_passwordless=false`);
       await relier.clickEmailFirst();
 
       await page.waitForURL(`${target.contentServerUrl}/oauth/signup**`);

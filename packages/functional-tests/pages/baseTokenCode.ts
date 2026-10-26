@@ -22,12 +22,7 @@ export abstract class BaseTokenCodePage extends BaseLayout {
 
   get resendCodeButton() {
     this.checkPath();
-    return (
-      this.page
-        .getByRole('button', { name: /^Email new code/ })
-        // compatibility with backbone
-        .or(this.page.getByRole('link', { name: /^Email new code/ }))
-    );
+    return this.page.getByRole('button', { name: /^Email new code/ });
   }
 
   get submitButton() {

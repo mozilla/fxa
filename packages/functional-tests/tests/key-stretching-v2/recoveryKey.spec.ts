@@ -81,7 +81,7 @@ test.describe('severity-2 #smoke', () => {
       const accountDetails = testAccountTracker.generateAccountDetails();
       const newPassword = testAccountTracker.generatePassword();
       await page.goto(
-        `${target.contentServerUrl}/?force_passwordless=false&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signupVersion.query}`
+        `${target.contentServerUrl}/?force_passwordless=false&${signupVersion.query}`
       );
       await page.waitForURL(/\//);
       await signup.fillOutEmailForm(accountDetails.email);
@@ -104,7 +104,7 @@ test.describe('severity-2 #smoke', () => {
         accountDetails.password
       );
       await page.goto(
-        `${target.contentServerUrl}/?force_passwordless=false&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${resetVersion.query}`
+        `${target.contentServerUrl}/?force_passwordless=false&${resetVersion.query}`
       );
       await page.waitForURL(/\//);
       await signin.fillOutEmailFirstForm(accountDetails.email);
@@ -152,7 +152,7 @@ test.describe('severity-2 #smoke', () => {
 
       // Attempt to signin
       await page.goto(
-        `${target.contentServerUrl}/?force_passwordless=false&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signinVersion.query}`
+        `${target.contentServerUrl}/?force_passwordless=false&${signinVersion.query}`
       );
       await page.waitForURL(/\//);
       await signin.fillOutEmailFirstForm(accountDetails.email);

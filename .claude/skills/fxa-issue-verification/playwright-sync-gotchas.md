@@ -42,7 +42,7 @@ Why Sync gets a second browser: Firefox stores `identity.fxaccounts.lastSignedIn
 
 ## Context that a hand-built browser does not get
 
-- The `storageState` fixture seeds `localStorage` with `__fxa_storage.experiment.generalizedReactApp` (not enrolled) and `__fxa_storage.disable_promo.account-recovery-do-it-later` (true) for the default context only. A context you build yourself shows the inline recovery key promo after Sync sign-in; set the item or click "Do it later".
+- The `storageState` fixture seeds `localStorage` with `__fxa_storage.disable_promo.account-recovery-do-it-later` (true) for the default context only. A context you build yourself shows the inline recovery key promo after Sync sign-in; set the item or click "Do it later".
 - `addWafBypassHeader(page, target)` is applied by `newPages`; call it yourself on stage or production, with `CI_WAF_TOKEN` set.
 - The user agent is overridden to `FxATester/1.0`, which turns off experiments and feature flags. A state gated by a flag may look different in a real Firefox.
 

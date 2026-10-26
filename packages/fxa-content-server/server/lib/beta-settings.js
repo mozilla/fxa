@@ -124,7 +124,6 @@ const settingsConfig = {
   },
   rolloutRates: {
     keyStretchV2: config.get('rolloutRates.keyStretchV2'),
-    generalizedReactApp: config.get('rolloutRates.generalizedReactApp'),
   },
   featureFlags: {
     keyStretchV2: config.get('featureFlags.keyStretchV2'),
