@@ -4,7 +4,6 @@
 
 import { expect } from '@playwright/test';
 import { BaseLayout } from './layout';
-import { getReactFeatureFlagUrl } from '../lib/react-flag';
 
 export class SignupPage extends BaseLayout {
   readonly path = 'signup';
@@ -18,21 +17,15 @@ export class SignupPage extends BaseLayout {
   }
 
   get passwordTextbox() {
-    return this.page
-      .getByLabel('Password', { exact: true }) // React
-      .or(this.page.getByPlaceholder('Password', { exact: true })); // Backbone
+    return this.page.getByLabel('Password', { exact: true });
   }
 
   get verifyPasswordTextbox() {
-    return this.page
-      .getByLabel('Repeat password', { exact: true }) // React
-      .or(this.page.getByPlaceholder('Repeat password', { exact: true })); // Backbone
+    return this.page.getByLabel('Repeat password', { exact: true });
   }
 
   get ageTextbox() {
-    return this.page
-      .getByLabel('How old are you?') // React
-      .or(this.page.getByPlaceholder('How old are you?')); // Backbone
+    return this.page.getByLabel('How old are you?');
   }
 
   get createAccountButton() {
@@ -44,14 +37,10 @@ export class SignupPage extends BaseLayout {
   }
 
   goto(route = '/', params = new URLSearchParams()) {
-    params.set('forceExperiment', 'generalizedReactApp');
-    params.set('forceExperimentGroup', 'react');
     if (!params.has('force_passwordless')) {
       params.set('force_passwordless', 'false');
     }
-    return this.page.goto(
-      getReactFeatureFlagUrl(this.target, route, params.toString())
-    );
+    return this.page.goto(`${this.target.contentServerUrl}${route}?${params}`);
   }
 
   async fillOutEmailForm(email: string) {

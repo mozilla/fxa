@@ -14,18 +14,11 @@ export class SigninTokenCodePage extends BaseTokenCodePage {
 
   get codeInput() {
     this.checkPath();
-    return this.page
-      .getByLabel('Enter 6-digit code') // React
-      .or(this.page.getByPlaceholder('Enter 6-digit code')); //Backbone
+    return this.page.getByLabel('Enter 6-digit code');
   }
 
   get resendCodeButton() {
     this.checkPath();
-    return (
-      this.page
-        .getByRole('button', { name: /^Email new code/ })
-        // compatibility with backbone
-        .or(this.page.getByRole('link', { name: /^Email new code/ }))
-    );
+    return this.page.getByRole('button', { name: /^Email new code/ });
   }
 }

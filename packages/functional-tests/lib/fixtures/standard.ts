@@ -110,12 +110,7 @@ export const test = base.extend<TestOptions, WorkerOptions>({
 
   storageState: async ({ target }, use, testInfo) => {
     // This is to store our session without logging in through the ui
-    const localStorageItems = [
-      {
-        name: '__fxa_storage.experiment.generalizedReactApp',
-        value: JSON.stringify({ enrolled: false }),
-      },
-    ];
+    const localStorageItems: { name: string; value: string }[] = [];
 
     // Temporary fix, only set this flag if the test is not a recovery key promo test
     // Once this is no longer feature flagged, we can update all our test and remove this

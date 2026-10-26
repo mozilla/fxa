@@ -49,7 +49,7 @@ test.describe('severity-2 #smoke', () => {
   ];
 
   for (const { signupVersion, changeVersion } of TestCases) {
-    test(`signs up as v${signupVersion.version} changes password from settings as v${changeVersion.version} for backbone`, async ({
+    test(`signs up as v${signupVersion.version} changes password from settings as v${changeVersion.version}`, async ({
       page,
       target,
       pages: { settings, changePassword, signup, signin, confirmSignupCode },
@@ -58,7 +58,7 @@ test.describe('severity-2 #smoke', () => {
       const { email, password } = testAccountTracker.generateAccountDetails();
       const newPassword = testAccountTracker.generatePassword();
       await page.goto(
-        `${target.contentServerUrl}/?force_passwordless=false&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signupVersion.query}`
+        `${target.contentServerUrl}/?force_passwordless=false&${signupVersion.query}`
       );
       await signup.fillOutEmailForm(email);
       await signup.fillOutSignupForm(password);
@@ -113,7 +113,7 @@ test.describe('severity-2 #smoke', () => {
       const { email, password } = testAccountTracker.generateAccountDetails();
       const newPassword = testAccountTracker.generatePassword();
       await page.goto(
-        `${target.contentServerUrl}/?force_passwordless=false&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signupVersion.query}`
+        `${target.contentServerUrl}/?force_passwordless=false&${signupVersion.query}`
       );
       await signup.fillOutEmailForm(email);
       await signup.fillOutSignupForm(password);
@@ -125,7 +125,7 @@ test.describe('severity-2 #smoke', () => {
 
       await settings.signOut();
       await page.goto(
-        `${target.contentServerUrl}/?force_passwordless=false&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signupVersion.query}`
+        `${target.contentServerUrl}/?force_passwordless=false&${signupVersion.query}`
       );
       await signin.fillOutEmailFirstForm(email);
       await signin.fillOutPasswordForm(password);

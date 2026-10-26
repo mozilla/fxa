@@ -9,9 +9,7 @@ export class SigninRecoveryPhonePage extends BaseTokenCodePage {
 
   get codeInput() {
     this.checkPath();
-    return this.page
-      .getByLabel('Enter 6-digit code') // React
-      .or(this.page.getByPlaceholder('Enter 6-digit code')); // Backbone
+    return this.page.getByLabel('Enter 6-digit code');
   }
 
   get resendCodeButton() {

@@ -11,9 +11,7 @@ export class SigninTotpCodePage extends BaseTokenCodePage {
   // (mainly the passwordless code page).
   get codeInput() {
     this.checkPath();
-    return this.page
-      .getByTestId('totp-input-field') // React
-      .or(this.page.getByPlaceholder('Enter 6-digit code')); //Backbone
+    return this.page.getByTestId('totp-input-field');
   }
 
   get useRecoveryCodeLink() {

@@ -65,7 +65,7 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       const { email, password } = testAccountTracker.generateAccountDetails();
       await page.goto(
-        `${target.contentServerUrl}/?force_passwordless=false&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signupVersion.query}`
+        `${target.contentServerUrl}/?force_passwordless=false&${signupVersion.query}`
       );
       await signup.fillOutEmailForm(email);
       await signup.fillOutSignupForm(password);
@@ -83,7 +83,7 @@ test.describe('severity-2 #smoke', () => {
         password
       );
       await page.goto(
-        `${target.contentServerUrl}/?force_passwordless=false&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${resetVersion.query}`
+        `${target.contentServerUrl}/?force_passwordless=false&${resetVersion.query}`
       );
       await signin.fillOutEmailFirstForm(email);
       await signin.fillOutPasswordForm(password);

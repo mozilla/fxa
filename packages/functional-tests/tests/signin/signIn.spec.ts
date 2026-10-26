@@ -112,8 +112,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(page).toHaveURL(/confirm_signup_code/);
       await expect(confirmSignupCode.heading).toBeVisible();
 
-      // Both backbone and react send out a login verification email
-      // on signin with password for an unverified account
+      // Signin with password for an unverified account sends a login verification email
       const code = await target.emailClient.getVerifyLoginCode(
         credentials.email
       );
@@ -303,7 +302,6 @@ test.describe('severity-2 #smoke', () => {
       await signin.signinBouncedCreateAccountButton.click();
 
       // Verify user redirected to login page
-      // in backbone, user currently redirected to /signup
       await expect(signin.emailTextbox).toBeVisible();
       await expect(signin.emailTextbox).toHaveValue('');
     });

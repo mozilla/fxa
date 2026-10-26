@@ -62,7 +62,7 @@ test.describe('severity-2 #smoke', () => {
       const credentials = await testAccountTracker.signUpForced();
       const newPassword = testAccountTracker.generatePassword();
 
-      await page.goto(`${target.contentServerUrl}/?showReactApp=true`);
+      await page.goto(target.contentServerUrl);
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
       await expect(page).toHaveURL(/signin_token_code/);

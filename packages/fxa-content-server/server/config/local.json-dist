@@ -76,7 +76,6 @@
     "enabled": true
   },
   "rolloutRates": {
-    "keyStretchV2": 1,
-    "generalizedReactApp": 0
+    "keyStretchV2": 1
   }
 }

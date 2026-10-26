@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../lib/fixtures/standard';
-import { getReactFeatureFlagUrl } from '../../lib/react-flag';
 
 test.describe('force auth react', () => {
   test('displays signin with registered email', async ({
@@ -13,13 +12,9 @@ test.describe('force auth react', () => {
   }) => {
     const credentials = await testAccountTracker.signUp();
 
-    const url = getReactFeatureFlagUrl(
-      target,
-      '/force_auth',
-      `email=${encodeURIComponent(
-        credentials.email
-      )}&context=fx_desktop_v3&entrypoint=fxa_app_menu_reverify&action=email&service=sync`
-    );
+    const url = `${target.contentServerUrl}/force_auth?email=${encodeURIComponent(
+      credentials.email
+    )}&context=fx_desktop_v3&entrypoint=fxa_app_menu_reverify&action=email&service=sync`;
     await page.goto(url);
 
     await expect(signin.passwordTextbox).toBeVisible();
@@ -32,13 +27,9 @@ test.describe('force auth react', () => {
     syncBrowserPages: { page, signup },
   }) => {
     const unregisteredEmail = `rando${Math.random()}@example.com`;
-    const url = getReactFeatureFlagUrl(
-      target,
-      '/force_auth',
-      `email=${encodeURIComponent(
-        unregisteredEmail
-      )}&context=fx_desktop_v3&entrypoint=fxa_app_menu_reverify&action=email&service=sync`
-    );
+    const url = `${target.contentServerUrl}/force_auth?email=${encodeURIComponent(
+      unregisteredEmail
+    )}&context=fx_desktop_v3&entrypoint=fxa_app_menu_reverify&action=email&service=sync`;
     await page.goto(url);
 
     // URL guard: the signin password step labels its field identically, so the

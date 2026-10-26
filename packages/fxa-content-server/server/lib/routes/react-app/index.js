@@ -3,30 +3,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * When you're ready to serve the React version of a page, identify which feature flag
- * group object it should go in and add a new object in `routes` by calling `.getRoute`
- * or setting `routes` with `.getRoutes` on the react route object.
+ * To serve a new page, add its route name to `alwaysOnRoutes`, or to a group
+ * behind a `showReactApp` flag while the page is in development.
  *
  * Routes in a group with featureFlagOn set to false return the content-server 404.
  *  @type {import("./types").GetReactRouteGroups}
  */
 const getReactRouteGroups = (showReactApp, reactRoute) => {
   return {
-    emailFirstRoutes: {
-      featureFlagOn: true,
-      // the order of the routes in the array is important.  do not put '/'
-      // first.
-      routes: reactRoute.getRoutes(['authorization', 'oauth', '/']),
-    },
-    simpleRoutes: {
-      featureFlagOn: true,
-      routes: reactRoute.getRoutes(['clear', 'cookies_disabled']),
-    },
-
-    // The Backbone reset password views are gone, so React is the only option.
-    resetPasswordRoutes: {
+    alwaysOnRoutes: {
       featureFlagOn: true,
       routes: reactRoute.getRoutes([
+        // the order of the routes in the array is important.  do not put '/'
+        // first.
+        'authorization',
+        'oauth',
+        '/',
+        'clear',
+        'cookies_disabled',
         'reset_password',
         'complete_reset_password',
         'confirm_reset_password',
@@ -38,13 +32,6 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'reset_password_with_recovery_key_verified',
         'account_recovery_confirm_key',
         'account_recovery_reset_password',
-      ]),
-    },
-
-    // `signin` and `force_auth` have no Backbone views, so React must serve them.
-    signInRoutes: {
-      featureFlagOn: true,
-      routes: reactRoute.getRoutes([
         'signin',
         'oauth/signin',
         'oauth/force_auth',
@@ -69,12 +56,6 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'inline_passwordless_sync_setup',
         'signin_passwordless_code',
         'oauth/signin_passwordless_code',
-      ]),
-    },
-
-    signUpRoutes: {
-      featureFlagOn: true,
-      routes: reactRoute.getRoutes([
         'signup',
         'confirm_signup_code',
         'primary_email_verified',
@@ -82,13 +63,6 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'signup_verified',
         'signup_confirmed_sync',
         'oauth/signup',
-      ]),
-    },
-
-    // The Backbone pairing views are gone, so React is the only option.
-    pairRoutes: {
-      featureFlagOn: true,
-      routes: reactRoute.getRoutes([
         'pair',
         'pair/supp',
         'pair/supp/allow',
@@ -102,28 +76,9 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'pair/failure',
         'pair/unsupported',
         'connect_another_device',
-      ]),
-    },
-
-    // Backbone has no route for oauth/success, so React is the only option.
-    oauthSuccessRoutes: {
-      featureFlagOn: true,
-      routes: reactRoute.getRoutes(['/oauth/success/:clientId']),
-    },
-
-    // These routes have no Backbone views, so React must serve them.
-    postVerifyOtherRoutes: {
-      featureFlagOn: true,
-      routes: reactRoute.getRoutes([
+        '/oauth/success/:clientId',
         'post_verify/password/force_password_change',
         'subscriptions',
-      ]),
-    },
-
-    // These routes have no Backbone views, so React must serve them.
-    postVerifyThirdPartyAuthRoutes: {
-      featureFlagOn: true,
-      routes: reactRoute.getRoutes([
         'post_verify/third_party_auth/callback',
         // Canonical SetPassword URL going forward (FXA-13475). The legacy
         // `post_verify/third_party_auth/set_password` URL below is kept
@@ -131,15 +86,9 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         // resolve through Express to the React app.
         'post_verify/set_password',
         'post_verify/third_party_auth/set_password',
-        // service_welcome sits here because it shares the post-verify React surface.
         'post_verify/service_welcome',
+        'update_firefox',
       ]),
-    },
-
-    // Backbone has no route for update_firefox, so React is the only option.
-    updateFirefoxRoutes: {
-      featureFlagOn: true,
-      routes: reactRoute.getRoutes(['update_firefox']),
     },
 
     webChannelExampleRoutes: {

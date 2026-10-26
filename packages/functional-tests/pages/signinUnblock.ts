@@ -14,27 +14,13 @@ export class SigninUnblockPage extends BaseTokenCodePage {
 
   get codeInput() {
     this.checkPath();
-    return (
-      this.page
-        .getByRole('textbox', { name: 'Enter authorization code' })
-        // for backbone compatibility
-        .or(this.page.getByPlaceholder('Enter authorization code'))
-    );
+    return this.page.getByRole('textbox', { name: 'Enter authorization code' });
   }
 
   get resendCodeButton() {
     this.checkPath();
-    return (
-      this.page
-        .getByRole('button', {
-          name: 'Not in inbox or spam folder? Resend',
-        })
-        // for backbone compatibility
-        .or(
-          this.page.getByRole('link', {
-            name: 'Not in inbox or spam folder? Resend',
-          })
-        )
-    );
+    return this.page.getByRole('button', {
+      name: 'Not in inbox or spam folder? Resend',
+    });
   }
 }

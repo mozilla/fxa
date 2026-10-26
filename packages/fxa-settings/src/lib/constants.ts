@@ -221,8 +221,6 @@ export const Constants = {
   FIREFOX_MOBILE_DOWNLOAD_URL:
     'https://www.mozilla.org/firefox/browsers/mobile/',
 
-  STORAGE_REACT_EXPERIMENT: 'experiment.generalizedReactApp',
-
   PAIR_WITHOUT_QR_SUMO_URL:
     'https://support.mozilla.org/kb/connect-firefox-another-device-without-qr-code',
   SYNC_SUMO_URL: 'https://support.mozilla.org/kb/how-do-i-set-sync-my-computer',
