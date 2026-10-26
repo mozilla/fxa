@@ -138,6 +138,7 @@
       "@fxa/shared/l10n": ["./libs/shared/l10n/src/index.ts"],
       "@fxa/shared/l10n/client": ["./libs/shared/l10n/src/client.ts"],
       "@fxa/shared/l10n/server": ["./libs/shared/l10n/src/server.ts"],
+      "@fxa/shared/l10n/timestamp": ["./libs/shared/l10n/src/timestamp.ts"],
       "@fxa/shared/log": ["./libs/shared/log/src/index.ts"],
       "@fxa/shared/metrics/amplitude": ["./libs/shared/metrics/amplitude/src/index.ts"],
       "@fxa/shared/metrics/glean": ["./libs/shared/metrics/glean/src/index.ts"],

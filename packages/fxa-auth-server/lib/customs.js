@@ -9,7 +9,7 @@ const { config } = require('../config');
 const { EmailNormalization } = require('@fxa/accounts/email-sender');
 
 const localizeTimestamp =
-  require('../../../libs/shared/l10n/src').localizeTimestamp({
+  require('../../../libs/shared/l10n/src/timestamp').localizeTimestamp({
     supportedLanguages: config.get('i18n').supportedLanguages,
     defaultLanguage: config.get('i18n').defaultLanguage,
   });
