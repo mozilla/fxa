@@ -1,8 +1,8 @@
 {
-  "commit": "c20b967569b814c3582b1ffb2910f9068bdd856d",
-  "summary": "Merge pull request #21606 from mozilla/fxa-14821",
-  "description": "fix(shared): parse Chromium Edge user agents as Edge",
-  "timestamp": 1793051355000,
+  "commit": "21383d338b0ce1007ee5db63ccc99dcbcc6166eb",
+  "summary": "Merge pull request #21607 from mozilla/fxa-14829",
+  "description": "chore(content-server): run server tests in nx test-unit",
+  "timestamp": 1793053798000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
