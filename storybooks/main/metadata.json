@@ -1,8 +1,8 @@
 {
-  "commit": "4dc1973f4c61392c694e687a0bc10c5e0f69df9e",
-  "summary": "Merge pull request #21599 from mozilla/agent-fa2bb9",
-  "description": "chore(content-server): remove dead mocha test leftovers",
-  "timestamp": 1793028350000,
+  "commit": "f36476e66a801f05c36d859cac74e13bc150673c",
+  "summary": "Merge pull request #21586 from mozilla/fxa-14823",
+  "description": "chore(payments-next): remove SP2 redirect",
+  "timestamp": 1793028735000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
