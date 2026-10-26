@@ -1,8 +1,8 @@
 {
-  "commit": "308dc1766dd3afe3cd82cb99ef949bb969789647",
-  "summary": "Merge pull request #21598 from mozilla/fxa-10275",
-  "description": "chore(content-server): remove dependencies the Backbone client used",
-  "timestamp": 1793029513000,
+  "commit": "281fc7e3e0569d7f4ed7fab0dacb525b8f57ac09",
+  "summary": "Merge pull request #21594 from mozilla/fxa-9218",
+  "description": "perf(l10n): move localizeTimestamp out of the shared l10n barrel",
+  "timestamp": 1793030305000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
