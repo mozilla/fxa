@@ -159,6 +159,43 @@ describe('lib/user-agent:', () => {
     });
   });
 
+  it.each([
+    [
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.2849.68',
+      'Edge',
+      '130.0.2849',
+    ],
+    [
+      'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36 EdgA/130.0.2849.64',
+      'Edge Mobile',
+      '130.0.2849',
+    ],
+    [
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 EdgiOS/130.0.2849.80 Mobile/15E148 Safari/605.1.15',
+      'Edge Mobile',
+      '130.0.2849',
+    ],
+    [
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.10136',
+      'Edge',
+      '12.10136',
+    ],
+    [
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Vivaldi/7.0.3495.11',
+      'Vivaldi',
+      '7.0.3495',
+    ],
+    [
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+      'Chrome',
+      '130.0.0',
+    ],
+  ])('parses the browser from %s', (uaString, browser, browserVersion) => {
+    const result = userAgent.parseToScalars(uaString);
+    expect(result.browser).toBe(browser);
+    expect(result.browserVersion).toBe(browserVersion);
+  });
+
   describe('scalar results with mocked parser dependency', () => {
     let uaParser: { parse: jest.Mock };
     let userAgent: ParseToScalars;

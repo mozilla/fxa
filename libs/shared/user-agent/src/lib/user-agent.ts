@@ -55,6 +55,9 @@ const VALID_VERSION = /^[\w.]{1,16}$/;
 const SYNC_USER_AGENT =
   /^(Firefox|Mobile)-(\w+)-(?:FxA(?:ccounts)?|Sync)\/([^\sb]*)(?:b\S+)? ?(?:\(([\w\s]+); [\w\s]+ ([^\s()]+)\))?(?: \((.+)\))?$/;
 
+// The pinned uap-core misses Chromium Edge and reports it as Chrome or Mobile Safari.
+const EDGE_TOKEN = /\b(Edg|EdgA|EdgiOS)\/(\d+)(?:\.(\d+))?(?:\.(\d+))?/;
+
 const MOBILE_OS_FAMILIES = new Set(['Android', 'iOS']);
 const MOBILE_UA_OS_FAMILIES = new Set(['Firefox iOS']);
 
@@ -62,6 +65,14 @@ export const parse = (
   userAgentString: string | undefined
 ): ParsedUserAgentProperties => {
   const result = ua.parse(userAgentString);
+
+  const edge = EDGE_TOKEN.exec(userAgentString || '');
+  if (edge) {
+    result.ua.family = edge[1] === 'Edg' ? 'Edge' : 'Edge Mobile';
+    result.ua.major = edge[2];
+    result.ua.minor = edge[3] ?? null;
+    result.ua.patch = edge[4] ?? null;
+  }
 
   safeFamily(result.ua);
   safeVersion(result.ua);
