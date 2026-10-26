@@ -1,0 +1,13 @@
+{
+  "commit": "1db4035f14bdac895ca839055f370ccc878c5980",
+  "summary": "chore(deps): bump nodemailer to >=10.1.4",
+  "description": "Resolves Dependabot alert #1047. The bump installs the highest\nversion satisfying the dependency range; the title uses >=<min> when the\nadvisory provides a minimum patched version — see the lockfile diff for the exact resolved version.\nCreated by BLEnder (https://github.com/mozilla/blender)",
+  "timestamp": 1793023234000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
