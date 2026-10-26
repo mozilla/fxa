@@ -1506,6 +1506,11 @@ reset-password-complete-recovery-key-created = Nova chave de recuperação da co
 reset-password-complete-recovery-key-download-info = Esta chave é essencial para a recuperação dos dados, caso se esqueça da sua palavra-passe. <b>Faça a transferência e guarde a mesma em segurança agora, pois não poderá aceder novamente a esta página mais tarde.</b>
 
 
+server-error-heading = Erro 500
+server-error-description = Oh não, algo correu mal aqui. Nós fomos notificados e iremos trabalhar numa correção.
+server-error-home-button = Início
+
+
 error-label = Erro:
 validating-signin = A validar o início de sessão…
 complete-signin-error-header = Erro de confirmação

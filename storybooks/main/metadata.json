@@ -1,8 +1,8 @@
 {
-  "commit": "5b3c68b6901e1fafa8355c007efd55dae049e7fd",
-  "summary": "Merge pull request #21601 from mozilla/fxa-14827",
-  "description": "chore(content-server): remove React-vs-Backbone leftovers",
-  "timestamp": 1793042707000,
+  "commit": "c20b967569b814c3582b1ffb2910f9068bdd856d",
+  "summary": "Merge pull request #21606 from mozilla/fxa-14821",
+  "description": "fix(shared): parse Chromium Edge user agents as Edge",
+  "timestamp": 1793051355000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
