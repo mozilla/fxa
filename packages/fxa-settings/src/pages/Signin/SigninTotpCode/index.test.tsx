@@ -276,7 +276,7 @@ describe('Sign in with TOTP code page', () => {
         error: AuthUiErrors.INVALID_TOTP_CODE,
       });
 
-      screen.getByText('Invalid two-step authentication code');
+      await screen.findByText('Invalid two-step authentication code');
       expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(0);
@@ -288,7 +288,7 @@ describe('Sign in with TOTP code page', () => {
         error: AuthUiErrors.UNEXPECTED_ERROR,
       });
 
-      screen.getByText('Unexpected error');
+      await screen.findByText('Unexpected error');
       expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(0);
