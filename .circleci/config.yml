@@ -342,6 +342,12 @@ commands:
               circleci-agent step halt
             fi
 
+  install-moz-firefox:
+    steps:
+      - run:
+          name: Install Firefox (moz-firefox channel)
+          command: cd packages/functional-tests && npx playwright install moz-firefox
+
   run-playwright-tests:
     parameters:
       project:
@@ -825,6 +831,7 @@ jobs:
       - provision
       - check-playwright-test-count:
           project: production
+      - install-moz-firefox
       - run-phone-tests-serialized:
           project: production
       - run-playwright-tests:
@@ -856,6 +863,7 @@ jobs:
       - provision
       - check-playwright-test-count:
           project: << parameters.project >>
+      - install-moz-firefox
       - run-phone-tests-serialized:
           project: << parameters.project >>
       - run-playwright-tests:
@@ -890,6 +898,7 @@ jobs:
           version: 502.0.0
       - check-playwright-test-count:
           project: local
+      - install-moz-firefox
       - run:
           name: Add localhost
           command: |
@@ -1000,6 +1009,7 @@ jobs:
             STRAPI_CLIENT_CONFIG__API_KEY: ${STRAPI_CLIENT_API_KEY_PAYMENTS}
             STRIPE_CONFIG__API_KEY: ${SUBHUB_STRIPE_APIKEY}
           no_output_timeout: 10m
+      - install-moz-firefox
       - run-playwright-tests:
           project: << parameters.project >>
           test_dir: tests-payments-next
@@ -1035,6 +1045,7 @@ jobs:
           # https://github.com/CircleCI-Public/gcp-cli-orb/issues/100
           version: 502.0.0
       - provision
+      - install-moz-firefox
       - run-playwright-tests:
           project: << parameters.project >>
           test_dir: tests-payments-next
