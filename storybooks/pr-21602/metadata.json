@@ -1,0 +1,13 @@
+{
+  "commit": "8e3cbfc7f3080c932a5eef63bda6ef17ac619783",
+  "summary": "fix(content-server): restore 404 page styles, remove dead build config",
+  "description": "Because:\n\n- FXA-14816 deleted the webpack config, the only build step for main.css.\n- The 404 page loaded main.css and showed without styles after a fresh build.\n\nThis commit:\n\n- Restyles 404.html with Tailwind utilities and shared fxa-react classes.\n- Copies only tailwind.out.css in copy:styles.\n- Deletes the SCSS sources, style-guide page and route, and jquery-modal.\n- Deletes sourceMapType, webpackModeOverride, pocPairingRoutes and two dead grunt tasks.\n\nCloses FXA-14828",
+  "timestamp": 1793033301000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
