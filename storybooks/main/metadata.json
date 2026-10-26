@@ -1,8 +1,8 @@
 {
-  "commit": "5a7826678db48d1e629db487ba0e69d3142207e1",
-  "summary": "Merge pull request #21585 from mozilla/fxa-14816",
-  "description": "chore(content-server): delete the Backbone client app",
-  "timestamp": 1793022689000,
+  "commit": "54cc0d3741e23ed59da52d5df709eb2419fd5dcb",
+  "summary": "Merge pull request #21591 from mozilla/dependabot/npm_and_yarn/fast-uri-3.1.9",
+  "description": "chore(deps): bump fast-uri from 3.1.8 to 3.1.9",
+  "timestamp": 1793023973000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
