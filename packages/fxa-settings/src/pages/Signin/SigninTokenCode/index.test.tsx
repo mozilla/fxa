@@ -178,7 +178,7 @@ describe('SigninTokenCode page', () => {
     it('on success, renders banner', async () => {
       session = mockSession();
       await renderAndResend();
-      screen.getByText(/A new code was sent to your email./);
+      await screen.findByText(/A new code was sent to your email./);
     });
     it('on throttled error, renders banner with throttled message', async () => {
       session = {
@@ -187,7 +187,9 @@ describe('SigninTokenCode page', () => {
           .mockRejectedValue(AuthUiErrors.THROTTLED),
       } as unknown as Session;
       await renderAndResend();
-      screen.getByText('You’ve tried too many times. Please try again later.');
+      await screen.findByText(
+        'You’ve tried too many times. Please try again later.'
+      );
     });
 
     it('on throttled resend, disables the submit button', async () => {
@@ -221,7 +223,9 @@ describe('SigninTokenCode page', () => {
         sendVerificationCode: jest.fn().mockRejectedValue(new Error()),
       } as unknown as Session;
       await renderAndResend();
-      screen.getByText('Something went wrong. A new code could not be sent.');
+      await screen.findByText(
+        'Something went wrong. A new code could not be sent.'
+      );
     });
 
     it('shows countdown timer after successful resend', async () => {
