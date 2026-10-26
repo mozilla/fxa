@@ -1,8 +1,8 @@
 {
-  "commit": "ce9627cc7ed7aa4ec89e50a79a57c72458bb9f6a",
-  "summary": "Merge pull request #21596 from mozilla/dependabot/npm_and_yarn/body-parser-1.20.9",
-  "description": "chore(deps): bump body-parser from 1.20.6 to 1.20.9",
-  "timestamp": 1793025662000,
+  "commit": "7a978f3b9829b925b48e6d77be54e9069167a38c",
+  "summary": "Merge pull request #21597 from mozilla/dependabot/npm_and_yarn/nodemailer-10.1.4",
+  "description": "chore(deps): bump nodemailer from 10.0.10 to 10.1.4",
+  "timestamp": 1793027467000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
