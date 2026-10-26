@@ -1884,7 +1884,7 @@ pair2-authority-continue-on-mobile-cancel-button = Annulla
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Apri { -brand-firefox } per sincronizzare
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Per configurare la sincronizzazione tra più dispositivi, apri { -brand-firefox } su questo dispositivo e visita <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Per configurare la sincronizzazione tra più dispositivi, apri { -brand-firefox } su questo dispositivo e visita <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Scarica { -brand-firefox }
 
@@ -2204,6 +2204,13 @@ reset-password-with-recovery-key-verified-page-title = Password reimpostata corr
 reset-password-complete-new-password-saved = Nuova password salvata.
 reset-password-complete-recovery-key-created = È stata creata una nuova chiave di recupero dell’account. Scaricala e salvala subito.
 reset-password-complete-recovery-key-download-info = Questa chiave è essenziale per il recupero dei dati se si dimentica la password. <b>Scaricala subito e salvala in modo sicuro, in quanto non potrai più accedere a questa pagina in seguito.</b>
+
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Errore 500
+server-error-description = Si è verificato un comportamento anomalo dell’applicazione. Ci è stata inviata la segnalazione del problema e cercheremo di risolverlo quanto prima.
+server-error-home-button = Pagina iniziale
 
 ## CompleteSignin component
 

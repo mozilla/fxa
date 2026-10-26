@@ -1914,7 +1914,7 @@ pair2-authority-continue-on-mobile-cancel-button = Prekliči
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Odprite { -brand-firefox } za sinhronizacijo
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Če želite nastaviti sinhronizacijo med napravami, v tej napravi odprite { -brand-firefox } in obiščite <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Če želite nastaviti sinhronizacijo med napravami, v tej napravi odprite { -brand-firefox } in obiščite <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Prenesi { -brand-firefox(sklon: "tozilnik") }
 
@@ -2239,6 +2239,13 @@ reset-password-complete-recovery-key-download-info =
     Ta ključ je potreben za
     obnovitev podatkov, če pozabite geslo. <b>Prenesite ga in ga varno shranite
      zdaj, saj se pozneje ne boste več mogli vrniti na to stran.</b>
+
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Napaka 500
+server-error-description = Joj, nekaj je šlo narobe. Prejeli smo obvestilo in se lotimo popravka.
+server-error-home-button = Domov
 
 ## CompleteSignin component
 

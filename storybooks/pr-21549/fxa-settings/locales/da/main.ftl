@@ -163,6 +163,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Bekræft adgangskode
 form-password-with-inline-criteria-reset-submit-button = Opret ny adgangskode
+form-password-with-inline-criteria-old-password-label =
+    .label = Gammel adgangskode
+form-password-with-inline-criteria-change-password-submit-button = Skift adgangskode
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Adgangskode
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -934,6 +937,7 @@ passkey-sub-row-created-date = Oprettet: { $createdDate }
 passkey-sub-row-last-used-date = Senest anvendt: { $lastUsedDate }
 passkey-sub-row-delete-title = Slet adgangsnøgle
 passkey-delete-modal-heading = Slet din adgangsnøgle?
+passkey-delete-modal-content-v3 = Denne adgangsnøgle vil blive fjernet fra din konto. Du skal logge ind med en adgangskode, en anden adgangsnøgle eller en tilknyttet konto.
 passkey-delete-modal-cancel-button = Annuller
 passkey-delete-modal-confirm-button = Slet adgangsnøgle
 passkey-delete-success = Adgangsnøgle slettet
@@ -1090,6 +1094,7 @@ auth-error-228 = Registrering af adgangsnøgle mislykkedes
 auth-error-233 = For at oprette en adgangsnøgle skal du oprette en skærmlås, pinkode, fingeraftryk eller ansigtsgenkendelse på din enhed eller sikkerhedsnøgle. Prøv derefter igen.
 auth-error-238 = Adgangsnøgleudfordring mislykkedes
 auth-error-239 = Vi kunne desværre ikke slette din konto. Prøv igen, eller kontakt support, hvis problemet fortsætter.
+auth-error-240 = Denne konto er blevet deaktiveret
 auth-error-999 = Uventet fejl
 auth-error-1001 = Login-forsøg annulleret
 auth-error-1002 = Sessionen udløb. Log ind for at fortsætte.
@@ -1176,11 +1181,16 @@ index-email-bounced = Din bekræftelsesmail kom retur. Forkert indtastet mailadr
 
 
 inline-passwordless-sync-setup-page-title = Spring adgangskoden over næste gang?
+inline-passwordless-sync-setup-success-banner-v2 = Du er logget ind, og synkronisering er slået til
 inline-passwordless-sync-setup-heading = Spring adgangskoden over næste gang?
 inline-passwordless-sync-setup-description = Brug denne adgangsnøgle til at logge ind hurtigere.
 inline-passwordless-sync-setup-enable-button = Aktiver adgangsnøgle
 inline-passwordless-sync-setup-enabling = Aktiverer…
 inline-passwordless-sync-setup-not-now-button = Ikke nu
+inline-passwordless-sync-setup-success-alert-v2 = Denne adgangsnøgle er aktiveret til login og synkronisering
+inline-passwordless-sync-setup-error-cancelled = Bekræftelse af adgangsnøgle blev ikke afsluttet
+inline-passwordless-sync-setup-error-cancelled-description = Bekræft med din adgangsnøgle for at springe adgangskoden over næste gang.
+inline-passwordless-sync-setup-error-generic-v2 = Vi kunne ikke aktivere denne adgangsnøgle til login og synkronisering. Du skal bruge din adgangskode næste gang.
 
 
 inline-recovery-key-setup-create-error = Vi kunne ikke oprette din genoprettelsesnøgle til kontoen. Prøv igen senere.
@@ -1312,13 +1322,14 @@ pair2-authority-continue-on-mobile-cancel-button = Annuller
 
 
 pair2-authority-download-firefox-heading = Åbn { -brand-firefox } for at synkronisere
-pair2-authority-download-firefox-instruction = For at opsætte synkronisering på tværs af enheder, åbn { -brand-firefox } på denne enhed og besøg <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = For at opsætte synkronisering på tværs af enheder, åbn { -brand-firefox } på denne enhed og besøg <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Hent { -brand-firefox }
 
 
 pair2-authority-scan-qr-heading = Skan for at forbinde din mobile enhed
 pair2-authority-scan-qr-instruction = Skan QR-koden med din telefon eller tablet for at synkronisere bogmærker, faneblade med mere i { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = QR-kode til at forbinde din mobile enhed
+pair2-authority-scan-qr-other-ways-link = Andre måder at logge ind på
 pair2-authority-scan-qr-skip-button = Hop over indtil videre
 
 
@@ -1345,8 +1356,19 @@ pair2-supplicant-connect-this-device-connect-button = Opret forbindelse
 pair2-supplicant-connect-this-device-cancel-button = Annuller
 
 
+pair2-supplicant-download-firefox-heading-v2 = Åbn { -brand-firefox } på denne enhed
+pair2-supplicant-download-firefox-description-v2 = Hent { -brand-firefox } for at synkronisere bogmærker, historik med mere på tværs af enheder.
 pair2-supplicant-download-firefox-continue-button = Fortsæt i { -brand-firefox }
 pair2-supplicant-download-firefox-opening-button = Åbner { -brand-firefox }…
+pair2-supplicant-download-firefox-download-button = Hent { -brand-firefox }
+pair2-supplicant-download-firefox-have-firefox-button = Jeg har allerede { -brand-firefox }
+pair2-supplicant-download-firefox-learn-more-link = Læs mere
+
+
+pair2-supplicant-connect-hint-heading-v2 = Afslut parring i appen
+pair2-supplicant-connect-hint-step-app-menu = Tryk på <b>programmenuen</b> på værktøjslinjen
+pair2-supplicant-connect-hint-step-sign-in = Tryk på <b>Log ind</b>,  og skan derefter koden
+pair2-supplicant-connect-hint-learn-more-link = Læs mere
 
 
 pair2-supplicant-ready-to-scan-heading = Sådan forbinder du en enhed
@@ -1362,6 +1384,21 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Det ser ud til, at tidsfri
 pair2-supplicant-timeout-and-cancel-timeout-description = For at forbinde din mobile enhed og synkronisere dine { -brand-firefox }-data, besøg <b>firefox.com/pair</b> på din computer.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulleret
 pair2-supplicant-timeout-and-cancel-canceled-description = For at forbinde en enhed når som helst, besøg <b>firefox.com/pair</b> på din computer.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Denne enhed er allerede logget ind
+pair2-supplicant-timeout-and-cancel-signed-in-description = For at oprette forbindelse til din konto på din computer, skal du logge ud af { -brand-firefox } på denne enhed, og besøge <b>firefox.com/pair</b> på din computer for at færdiggøre log ind.
+
+
+permissions-heading = { $serviceName } ønsker adgang til:
+permissions-label-email = Mailadresse
+permissions-label-display-name = Vist navn
+permissions-label-avatar = Kontobillede
+permissions-continue-button = Fortsæt
+permissions-cancel-button = Annuller
+
+
+force-password-change-heading = Skift din adgangskode
+force-password-change-info = Vi har konstateret mistænkelig adfærd på din { -product-mozilla-account }. Opret en ny adgangskode for at beskytte din konto. Du skal bruge adgangskoden til at logge ind på alle dine { -product-mozilla-account }-tjenester.
+force-password-change-data-info = Synkroniseret historik, bogmærker, logins og andre personlige data vil ikke gå tabt.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } bekræftet
@@ -1421,9 +1458,12 @@ confirm-totp-reset-password-use-different-account = Brug en anden konto
 
 
 password-reset-flow-heading = Nulstil din adgangskode
+password-reset-forgot-heading = Glemt din adgangskode?
+password-reset-alternatives-body = <signInLink>Prøv at logge ind med { -brand-google }, { -brand-apple } eller en adgangsnøgle i stedet.</signInLink> Eller indtast din mailadresse, så sender vi dig en kode til at nulstille din adgangskode.
 password-reset-email-input =
     .label = Indtast din mailadresse
 password-reset-submit-button-2 = Fortsæt
+password-reset-data-recovery-warning = Nulstilling af din adgangskode kan påvirke, om du kan gendanne synkroniserede browserdata. <learnMoreLink>Læs mere</learnMoreLink>
 
 
 reset-password-complete-header = Din adgangskode er blevet nulstillet
@@ -1659,3 +1699,8 @@ signup-confirmed-sync-description-v2 = Dine adgangskoder, adresser, bogmærker, 
 signup-confirmed-sync-add-device-link = Tilføj en ny enhed
 signup-confirmed-sync-manage-sync-button = Håndter synkronisering
 signup-confirmed-sync-set-password-success-banner = Adgangskode til synkronisering oprettet
+
+
+update-firefox-heading = { -brand-firefox }-opdatering påkrævet
+update-firefox-description = Din { -product-mozilla-account } gør brug af funktioner, der ikke understøttes i din version af { -brand-firefox }. Hent og installer den seneste version af { -brand-firefox } for at fortsætte.
+update-firefox-download-button = Hent seneste

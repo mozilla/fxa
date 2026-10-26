@@ -1323,7 +1323,6 @@ pair2-authority-continue-on-mobile-cancel-button = Avbryt
 
 
 pair2-authority-download-firefox-heading = Opne { -brand-firefox } for å synkronisere
-pair2-authority-download-firefox-instruction = For å setje opp synkronisering på tvers av einingar, opne { -brand-firefox } på denne eininga og gå til <b>firefox.com/pair</b>
 pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
 
 
@@ -1501,6 +1500,10 @@ reset-password-complete-recovery-key-download-info =
     Denne nøkkelen er viktig for
     datagjenoppretting viss du gløymer passordet ditt. <b>Last ned og lagre han sikkert
     no, sidan du ikkje vil få tilgang til denne sida igjen seinare.</b>
+
+
+server-error-heading = Feil 500
+server-error-home-button = Heim
 
 
 error-label = Feil:

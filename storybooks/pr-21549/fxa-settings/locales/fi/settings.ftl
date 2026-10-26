@@ -1579,8 +1579,6 @@ pair2-authority-continue-on-mobile-cancel-button = Peruuta
 
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Avaa { -brand-firefox } synkronointia varten
-# "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Määritä synkronointi laitteiden välillä avaamalla { -brand-firefox } tällä laitteella, ja siirry osoitteeseen <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Lataa { -brand-firefox }
 

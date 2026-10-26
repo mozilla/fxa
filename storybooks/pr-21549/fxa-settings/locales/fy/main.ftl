@@ -1327,7 +1327,7 @@ pair2-authority-continue-on-mobile-cancel-button = Annulearje
 
 
 pair2-authority-download-firefox-heading = Iepenje { -brand-firefox } om te syngronisearjen
-pair2-authority-download-firefox-instruction = Iepenje { -brand-firefox } op dit apparaat en besykje <b>firefox.com/pair</b> om syngronisaasje tusken apparaten yn te stellen
+pair2-authority-download-firefox-instruction-v2 = Iepenje { -brand-firefox } op dit apparaat en besykje <b>firefox.com/pair</b> om syngronisaasje tusken apparaten yn te stellen.
 pair2-authority-download-firefox-cta = { -brand-firefox } downloade
 
 
@@ -1389,6 +1389,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = It liket derop dat der in 
 pair2-supplicant-timeout-and-cancel-timeout-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om jo mobile apparaat te ferbinen en jo { -brand-firefox }-gegevens te syngronisearjen.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulearre
 pair2-supplicant-timeout-and-cancel-canceled-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om op elk winske momint in apparaat te ferbinen.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Dit apparaat is al oanmeld
+pair2-supplicant-timeout-and-cancel-signed-in-description = Meld jo ôf by { -brand-firefox } op dit apparaat en gean dernei op jo kompjûter nei <b>firefox.com/pair</b> om de oanmelding te foltôgjen en ferbining te meitsjen mei jo desktopaccount.
 
 
 permissions-heading = { $serviceName } wol tagong ta:
@@ -1504,6 +1506,11 @@ reset-password-with-recovery-key-verified-page-title = Wachtwurd mei sukses opni
 reset-password-complete-new-password-saved = Nij wachtwurd bewarre!
 reset-password-complete-recovery-key-created = Nije accountwerstelkaai oanmakke. Download en bewarje dizze no.
 reset-password-complete-recovery-key-download-info = Dizze kaai is essinsjeel foar gegevenswerstel as jo jo wachtwurd ferjitte. <b>Download en bewarje it no feilich, omdat jo dizze side letter net mear iepenje kinne.</b>
+
+
+server-error-heading = Flater 500
+server-error-description = Och heden, der gie wat mis. Wy binne op ’e hichte brocht en wurkje oan in oplossing.
+server-error-home-button = Startside
 
 
 error-label = Flater:

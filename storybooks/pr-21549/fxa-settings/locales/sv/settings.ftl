@@ -1899,7 +1899,7 @@ pair2-authority-continue-on-mobile-cancel-button = Avbryt
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Öppna { -brand-firefox } för att synkronisera
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = För att konfigurera synkronisering mellan enheter, öppna { -brand-firefox } på den här enheten och besök <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = För att konfigurera synkronisering mellan enheter, öppna { -brand-firefox } på den här enheten och besök <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Hämta { -brand-firefox }
 
@@ -2025,9 +2025,9 @@ pair2-supplicant-sync-success-description-v2 = Synkronisering pågår. Det kan t
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
-## either because the attempt timed out or because it was canceled. Both states
-## are informational and offer no on-screen action, so the copy points the user
-## back to their computer to start again.
+## because the attempt timed out, was canceled, or the device is already signed
+## in to an account. All states are informational and offer no on-screen action,
+## so the copy points the user back to their computer to start again.
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Vi gjorde timeout
@@ -2037,6 +2037,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = För att ansluta din m
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Avbruten
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = När du vill ansluta en enhet besöker du <b>firefox.com/pair</b> på din dator.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Den här enheten är redan inloggad
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = För att ansluta till din dators konto, logga ut från { -brand-firefox } på den här enheten och besök sedan <b>firefox.com/pair</b> på din dator för att slutföra inloggningen.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2218,6 +2222,13 @@ reset-password-complete-recovery-key-download-info =
     Den här nyckeln är viktig för
     dataåterställning om du glömmer ditt lösenord. <b>Ladda ner och lagra den säkert
     nu, eftersom du inte kommer att kunna komma åt den här sidan igen senare.</b>
+
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = 500 Fel
+server-error-description = Oj, något gick fel där. Vi har meddelats och kommer att arbeta med en lösning.
+server-error-home-button = Hem
 
 ## CompleteSignin component
 

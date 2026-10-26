@@ -1829,7 +1829,7 @@ pair2-authority-continue-on-mobile-cancel-button = ביטול
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = יש לפתוח את { -brand-firefox } כדי לסנכרן
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = כדי להגדיר סנכרון בין מכשירים, יש לפתוח את { -brand-firefox } במכשיר זה ולבקר באתר <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = כדי להגדיר סנכרון בין מכשירים, יש לפתוח את { -brand-firefox } במכשיר זה ולבקר באתר <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = הורדת { -brand-firefox }
 
@@ -2140,6 +2140,13 @@ reset-password-with-recovery-key-verified-page-title = הססמה אופסה ב�
 reset-password-complete-new-password-saved = הססמה החדשה נשמרה!
 reset-password-complete-recovery-key-created = מפתח חדש לשחזור החשבון נוצר. יש להוריד ולאחסן אותו כעת במקום בטוח.
 reset-password-complete-recovery-key-download-info = מפתח זה חיוני עבור שחזור נתונים אם הססמה שלך תישכח. <b>יש להוריד ולאחסן אותו במקום בטוח כעת, מכיוון שלא יהיה באפשרותך לגשת לדף זה שוב מאוחר יותר.</b>
+
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = שגיאה 500
+server-error-description = שוד ושבר, משהו השתבש. אנו מודעים לבעיה ופועלים לתיקונה.
+server-error-home-button = בית
 
 ## CompleteSignin component
 

@@ -1904,7 +1904,7 @@ pair2-authority-continue-on-mobile-cancel-button = Annulearje
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Iepenje { -brand-firefox } om te syngronisearjen
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Iepenje { -brand-firefox } op dit apparaat en besykje <b>firefox.com/pair</b> om syngronisaasje tusken apparaten yn te stellen
+pair2-authority-download-firefox-instruction-v2 = Iepenje { -brand-firefox } op dit apparaat en besykje <b>firefox.com/pair</b> om syngronisaasje tusken apparaten yn te stellen.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = { -brand-firefox } downloade
 
@@ -2030,9 +2030,9 @@ pair2-supplicant-sync-success-description-v2 = Syngronisaasje is start. It kin i
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
-## either because the attempt timed out or because it was canceled. Both states
-## are informational and offer no on-screen action, so the copy points the user
-## back to their computer to start again.
+## because the attempt timed out, was canceled, or the device is already signed
+## in to an account. All states are informational and offer no on-screen action,
+## so the copy points the user back to their computer to start again.
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = It liket derop dat der in time-out bard is
@@ -2042,6 +2042,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Besykje <b>firefox.com
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulearre
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Besykje <b>firefox.com/pair</b> op jo kompjûter om op elk winske momint in apparaat te ferbinen.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Dit apparaat is al oanmeld
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Meld jo ôf by { -brand-firefox } op dit apparaat en gean dernei op jo kompjûter nei <b>firefox.com/pair</b> om de oanmelding te foltôgjen en ferbining te meitsjen mei jo desktopaccount.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2220,6 +2224,13 @@ reset-password-with-recovery-key-verified-page-title = Wachtwurd mei sukses opni
 reset-password-complete-new-password-saved = Nij wachtwurd bewarre!
 reset-password-complete-recovery-key-created = Nije accountwerstelkaai oanmakke. Download en bewarje dizze no.
 reset-password-complete-recovery-key-download-info = Dizze kaai is essinsjeel foar gegevenswerstel as jo jo wachtwurd ferjitte. <b>Download en bewarje it no feilich, omdat jo dizze side letter net mear iepenje kinne.</b>
+
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Flater 500
+server-error-description = Och heden, der gie wat mis. Wy binne op ’e hichte brocht en wurkje oan in oplossing.
+server-error-home-button = Startside
 
 ## CompleteSignin component
 

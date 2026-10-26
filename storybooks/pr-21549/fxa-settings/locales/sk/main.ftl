@@ -510,8 +510,8 @@ promo-qr-mobile-qr-alt =
 account-recovery-notification-cta = Vytvoriť
 account-recovery-notification-header-value = Ak zabudnete heslo, neprídete o svoje údaje
 account-recovery-notification-header-description = Vytvorte si kľúč na obnovenie účtu na obnovenie synchronizovaných údajov prehliadania, ak niekedy zabudnete svoje heslo.
-recovery-phone-promo-cta = Pridajte obnovenie pomocou telefónu
-recovery-phone-promo-heading = Pridajte svojmu účtu dodatočnú ochranu vďaka obnoveniu pomocou telefónu
+recovery-phone-promo-cta = Pridať telefón na obnovenie prístupu
+recovery-phone-promo-heading = Pridajte svojmu účtu dodatočnú ochranu pomocou telefónu na obnovenie prístupu
 recovery-phone-promo-description = Ak nemôžete použiť overovaciu aplikáciu, teraz sa môžete prihlásiť jednorazovým heslom zaslaným cez SMS.
 recovery-phone-promo-info-link = Ďalšie informácie o obnovení a rizikách pri výmene SIM karty
 promo-banner-dismiss-button =
@@ -679,7 +679,7 @@ flow-setup-2fa-code-error = Neplatný alebo vypršaný kód. Skontrolujte overov
 
 flow-setup-2fa-backup-choice-heading = Vyberte spôsob obnovenia prístupu
 flow-setup-2fa-backup-choice-description = To vám umožní prihlásiť sa, ak nemáte prístup k mobilnému zariadeniu alebo overovacej aplikácii.
-flow-setup-2fa-backup-choice-phone-title = Obnovenie pomocou telefónu
+flow-setup-2fa-backup-choice-phone-title = Telefón na obnovenie prístupu
 flow-setup-2fa-backup-choice-phone-badge = Najjednoduchšie
 flow-setup-2fa-backup-choice-phone-info = Získajte kód na obnovenie prostredníctvom textovej správy. Momentálne k dispozícii v USA a Kanade.
 flow-setup-2fa-backup-choice-code-title = Záložné overovacie kódy
@@ -702,7 +702,7 @@ flow-setup-2fa-backup-code-dl-button-continue = Pokračovať
 flow-setup-2fa-inline-complete-success-banner = Dvojstupňové overenie bolo povolené
 flow-setup-2fa-inline-complete-success-banner-description = Ak chcete chrániť všetky pripojené zariadenia, mali by ste sa odhlásiť všade, kde používate tento účet, a potom sa znova prihlásiť pomocou nového dvojstupňového overenia.
 flow-setup-2fa-inline-complete-backup-code = Záložné overovacie kódy
-flow-setup-2fa-inline-complete-backup-phone = Obnovenie pomocou telefónu
+flow-setup-2fa-inline-complete-backup-phone = Telefón na obnovenie prístupu
 flow-setup-2fa-inline-complete-backup-code-info =
     { $count ->
         [one] { $count } zostávajúci kód
@@ -729,11 +729,11 @@ flow-setup-phone-confirm-code-button = Potvrdiť
 flow-setup-phone-confirm-code-expired = Platnosť kódu vypršala?
 flow-setup-phone-confirm-code-resend-code-button = Znova odoslať kód
 flow-setup-phone-confirm-code-resend-code-success = Kód bol odoslaný
-flow-setup-phone-confirm-code-success-message-v2 = Obnovenie pomocou telefónu bolo pridané
-flow-change-phone-confirm-code-success-message = Obnovenie pomocou telefónu bolo zmenené
+flow-setup-phone-confirm-code-success-message-v2 = Telefónne číslo na obnovenie prístupu bolo pridané
+flow-change-phone-confirm-code-success-message = Telefónne číslo na obnovenie prístupu bolo zmenené
 flow-setup-phone-submit-number-heading = Overte svoje telefónne číslo
 flow-setup-phone-verify-number-instruction = Dostanete textovú správy od { -brand-mozilla(case: "gen") } s kódom na overenie vášho čísla. S nikým tento kód nezdieľajte.
-flow-setup-phone-submit-number-info-message-v2 = Obnovenie pomocou telefónu je k dispozícii iba v Spojených štátoch a Kanade. VoIP čísla a telefónne masky sa neodporúčajú.
+flow-setup-phone-submit-number-info-message-v2 = Telefón na obnovenie prístupu je k dispozícii iba v Spojených štátoch a Kanade. Čísla VoIP a masky telefónov sa neodporúčajú.
 flow-setup-phone-submit-number-legal = Poskytnutím svojho čísla súhlasíte s jeho uložením, aby sme vám mohli posielať textové správy na overenie účtu. Môžu sa účtovať poplatky za správy a dáta.
 flow-setup-phone-submit-number-button = Odoslať kód
 
@@ -927,48 +927,48 @@ recent-activity-title = Nedávna aktivita účtu
 recent-activity-show-more-button = Zobraziť viac
 recent-activity-account-create-v2 = Účet bol vytvorený
 recent-activity-account-disable-v2 = Účet bol deaktivovaný
-recent-activity-account-enable-v2 = Účet je povolený
-recent-activity-account-login-v2 = Bolo spustené prihlásenie pomocou účtu
-recent-activity-account-reset-v2 = Bol spustený proces zmeny hesla
-recent-activity-emails-clearBounces-v2 = E‑maily o nedoručení vymazané
+recent-activity-account-enable-v2 = Účet bol povolený
+recent-activity-account-login-v2 = Prihlásenie do účtu bolo spustené
+recent-activity-account-reset-v2 = Proces zmeny hesla bol spustený
+recent-activity-emails-clearBounces-v2 = E‑maily o nedoručení boli vymazané
 recent-activity-account-login-failure = Pokus o prihlásenie do účtu zlyhal
 recent-activity-account-two-factor-added = Dvojstupňové overenie bolo povolené
-recent-activity-account-two-factor-requested = Vyžaduje sa dvojstupňové overenie
+recent-activity-account-two-factor-requested = Dvojstupňové overenie bolo vyžiadané
 recent-activity-account-two-factor-failure = Dvojstupňové overenie zlyhalo
 recent-activity-account-two-factor-success = Dvojstupňové overenie bolo úspešné
 recent-activity-account-two-factor-removed = Dvojstupňové overenie bolo odstránené
 recent-activity-account-password-reset-requested = Účet si vyžiadal zmenu hesla
 recent-activity-account-password-reset-success = Zmena hesla účtu bola úspešná
-recent-activity-account-recovery-key-added = Kľúč na obnovenie účtu je povolený
+recent-activity-account-recovery-key-added = Kľúč na obnovenie účtu bol povolený
 recent-activity-account-recovery-key-verification-failure = Overenie kľúča na obnovenie účtu zlyhalo
 recent-activity-account-recovery-key-verification-success = Overenie kľúča na obnovenie účtu bolo úspešné
 recent-activity-account-recovery-key-removed = Kľúč na obnovenie účtu bol odstránený
-recent-activity-account-password-added = Bolo pridané nové heslo
+recent-activity-account-password-added = Nové heslo bolo pridané
 recent-activity-account-password-changed = Heslo bolo zmenené
-recent-activity-account-secondary-email-added = Bola pridaná alternatívna e‑mailová adresa
+recent-activity-account-secondary-email-added = Alternatívna e‑mailová adresa bola pridaná
 recent-activity-account-secondary-email-removed = Alternatívna e‑mailová adresa bola odstránená
 recent-activity-account-emails-swapped = Hlavná a alternatívna e‑mailová adresa boli vzájomne vymenené
 recent-activity-session-destroy = Odhlásený z relácie
-recent-activity-account-recovery-phone-send-code = Kód na obnovenie bol odoslaný na telefónne číslo
-recent-activity-account-recovery-phone-setup-complete = Obnovenie pomocou telefónu bolo nastavené
-recent-activity-account-recovery-phone-signin-complete = Prihlásenie pomocou telefónu na obnovenie bolo dokončené
-recent-activity-account-recovery-phone-signin-failed = Prihlásenie pomocou telefónu na obnovenie zlyhalo
-recent-activity-account-recovery-phone-removed = Obnovenie pomocou telefónu bolo zrušené
-recent-activity-account-recovery-codes-replaced = Obnovovacie kódy boli vymenené
-recent-activity-account-recovery-codes-created = Boli vytvorené obnovovacie kódy
-recent-activity-account-recovery-codes-signin-complete = Prihláste sa pomocou obnovovacích kódov
+recent-activity-account-recovery-phone-send-code = Kód bol odoslaný na telefónne číslo na obnovenie prístupu
+recent-activity-account-recovery-phone-setup-complete = Nastavenie telefónu na obnovenie prístupu bolo dokončené
+recent-activity-account-recovery-phone-signin-complete = Prihlásenie pomocou telefónu na obnovenie prístupu bolo dokončené
+recent-activity-account-recovery-phone-signin-failed = Prihlásenie pomocou telefónu na obnovenie prístupu zlyhalo
+recent-activity-account-recovery-phone-removed = Telefónne číslo na obnovenie prístupu bolo odstránené
+recent-activity-account-recovery-codes-replaced = Kódy na obnovenie boli vymenené
+recent-activity-account-recovery-codes-created = Kódy na obnovenie boli vytvorené
+recent-activity-account-recovery-codes-signin-complete = Prihlásenie pomocou kódov na obnovenie bolo dokončené
 recent-activity-password-reset-otp-sent = Potvrdzovací kód pre zmenu hesla bol odoslaný
 recent-activity-password-reset-otp-verified = Potvrdzovací kód pre zmenu hesla bol overený
-recent-activity-must-reset-password = Vyžaduje sa zmena hesla
-recent-activity-account-recovery-phone-replace-complete = Obnovenie pomocou telefónu bolo nahradené
-recent-activity-account-recovery-phone-replace-failure = Nahradenie obnovenia pomocou telefónu zlyhalo
-recent-activity-account-two-factor-replace-success = Dvojstupňové overenie nahradené
-recent-activity-account-two-factor-replace-failure = Nahradenie dvojstupňového overenia zlyhalo
-recent-activity-account-recovery-phone-setup-failed = Obnovenie pomocou telefónu zlyhalo
-recent-activity-account-recovery-phone-reset-password-complete = Obnovenie hesla pomocou telefónu na obnovenie bolo dokončené
-recent-activity-account-recovery-phone-reset-password-failed = Obnovenie hesla pomocou telefónu na obnovenie zlyhalo
-recent-activity-account-mfa-otp-sent = Vyžiadaná autorizácia zmeny účtu
-recent-activity-account-mfa-otp-verified = Zmena účtu autorizovaná
+recent-activity-must-reset-password = Zmena hesla bola vyžiadaná
+recent-activity-account-recovery-phone-replace-complete = Telefónne číslo na obnovenie prístupu bolo vymenené
+recent-activity-account-recovery-phone-replace-failure = Výmena telefónu na obnovenie prístupu zlyhala
+recent-activity-account-two-factor-replace-success = Dvojstupňové overenie bolo vymenené
+recent-activity-account-two-factor-replace-failure = Vymenenie dvojstupňového overenia zlyhalo
+recent-activity-account-recovery-phone-setup-failed = Nastavenie telefónu na obnovenie prístupu zlyhalo
+recent-activity-account-recovery-phone-reset-password-complete = Obnovenie hesla pomocou telefónu na obnovenie prístupu bolo dokončené
+recent-activity-account-recovery-phone-reset-password-failed = Obnovenie hesla pomocou telefónu na obnovenie prístupu zlyhalo
+recent-activity-account-mfa-otp-sent = Autorizácia zmeny účtu bola vyžiadaná
+recent-activity-account-mfa-otp-verified = Zmena účtu bola autorizovaná
 recent-activity-account-mfa-otp-failed = Autorizácia zmeny účtu zlyhala
 recent-activity-account-passkey-registration-success = Prístupový kľúč bol pridaný
 recent-activity-account-passkey-registration-failure = Registrácia prístupového kľúča zlyhala
@@ -978,8 +978,8 @@ recent-activity-account-passkey-authentication-failure = Prihlásenie pomocou pr
 recent-activity-account-passwordless-login-otp-sent = Kód na prihlásenie bez hesla bol odoslaný
 recent-activity-account-passwordless-login-otp-failed = Kód na prihlásenie bez hesla zlyhal
 recent-activity-account-passwordless-login-otp-verified = Kód na prihlásenie bez hesla bol overený
-recent-activity-account-passwordless-registration-complete = Registrácia účtu bez hesla dokončená
-recent-activity-account-recovery-codes-set = Obnovovacie kódy boli vytvorené
+recent-activity-account-passwordless-registration-complete = Registrácia účtu bez hesla bola dokončená
+recent-activity-account-recovery-codes-set = Kódy na obnovenie boli vytvorené
 recent-activity-account-passkey-wrap-created = Prístupový kľúč bol povolený na synchronizáciu
 recent-activity-account-passkey-wrap-creation-failure = Nastavenie synchronizácie s prístupovým kľúčom zlyhalo
 recent-activity-account-passkey-wrap-deleted = Prístupovému kľúču bol odobratý prístup k synchronizovaným údajom
@@ -992,17 +992,17 @@ recovery-key-create-page-title = Kľúč na obnovenie účtu
 recovery-key-create-back-button-title = Späť na nastavenia
 
 
-recovery-phone-remove-header = Odstránenie možnosti obnovy pomocou telefónu
-settings-recovery-phone-remove-info = Týmto odstránite číslo <strong>{ $formattedFullPhoneNumber }</strong> ako telefónne číslo na obnovenie účtu.
+recovery-phone-remove-header = Odstránenie telefónneho čísla na obnovenie prístupu
+settings-recovery-phone-remove-info = Týmto odstránite číslo <strong>{ $formattedFullPhoneNumber }</strong> ako telefónne číslo na obnovenie prístupu k účtu.
 settings-recovery-phone-remove-recommend = Odporúčame vám ponechať si túto metódu, pretože je jednoduchšia ako ukladanie záložných overovacích kódov.
 settings-recovery-phone-remove-recovery-methods = Ak ho vymažete, uistite sa, že máte stále uložené záložné overovacie kódy. <linkExternal>Porovnať spôsoby obnovenia prístupu</linkExternal>
 settings-recovery-phone-remove-button = Odstrániť telefónne číslo
 settings-recovery-phone-remove-cancel = Zrušiť
-settings-recovery-phone-remove-success = Obnovenie pomocou telefónu bolo zrušené
+settings-recovery-phone-remove-success = Telefónne číslo na obnovenie prístupu bolo odstránené
 
 
-page-setup-recovery-phone-heading = Pridajte obnovenie pomocou telefónu
-page-change-recovery-phone = Zmeniť telefón na obnovenie účtu
+page-setup-recovery-phone-heading = Pridať telefón na obnovenie prístupu
+page-change-recovery-phone = Zmeniť telefón na obnovenie prístupu
 page-setup-recovery-phone-back-button-title = Späť na nastavenia
 page-setup-recovery-phone-step2-back-button-title = Zmeniť telefónne číslo
 
@@ -1080,13 +1080,13 @@ tfa-row-backup-codes-available-v2 =
 tfa-row-backup-codes-get-new-cta-v2 = Vytvoriť nové kódy
 tfa-row-backup-codes-add-cta = Pridať
 tfa-row-backup-codes-description-2 = Toto je najbezpečnejší spôsob obnovenia prístupu, ak nemôžete použiť svoje mobilné zariadenie alebo overovaciu aplikáciu.
-tfa-row-backup-phone-title-v2 = Obnovenie pomocou telefónu
+tfa-row-backup-phone-title-v2 = Telefón na obnovenie prístupu k účtu
 tfa-row-backup-phone-not-available-v2 = Nebolo pridané žiadne telefónne číslo
 tfa-row-backup-phone-change-cta = Zmeniť
 tfa-row-backup-phone-add-cta = Pridať
 tfa-row-backup-phone-delete-button = Odstrániť
-tfa-row-backup-phone-delete-title-v2 = Odstráni možnosť obnovy pomocou telefónu
-tfa-row-backup-phone-delete-restriction-v2 = Ak chcete odstrániť možnosť obnovy pomocou telefónu, pridajte záložné overovacie kódy alebo najskôr zakážte dvojstupňové overenie, aby ste sa vyhli zablokovaniu vášho účtu.
+tfa-row-backup-phone-delete-title-v2 = Odstrániť telefónne číslo na obnovenie prístupu
+tfa-row-backup-phone-delete-restriction-v2 = Ak chcete odstrániť telefónne číslo na obnovenie prístupu, pridajte záložné overovacie kódy alebo najprv vypnite dvojstupňové overenie, aby ste sa vyhli zablokovaniu prístupu k svojmu účtu.
 tfa-row-backup-phone-description-v2 = Toto je najjednoduchší spôsob obnovenia prístupu, ak nemôžete použiť overovaciu aplikáciu.
 tfa-row-backup-phone-sim-swap-risk-link = Prečítajte si o riziku pri výmene SIM karty
 passkey-sub-row-created-date = Vytvorený: { $createdDate }
@@ -1127,7 +1127,7 @@ row-defaults-status = Žiadne
 
 passkey-row-header = Prístupové kľúče
 passkey-row-enabled = Povolený
-passkey-row-not-set = Nenastavený
+passkey-row-not-set = Nie sú nastavené
 passkey-row-action-create = Vytvoriť
 passkey-row-description = Zjednodušte si prihlasovanie a zabezpečte ho pomocou telefónu alebo iného podporovaného zariadenia na prístup do svojho účtu.
 passkey-row-info-link-2 = Ďalšie informácie
@@ -1237,10 +1237,10 @@ auth-error-183-2 = Neplatný potvrdzovací kód alebo kód s vypršanou platnos�
 auth-error-202 = Funkcia nie je povolená
 auth-error-203 = Systém nie je dostupný, skúste to znova neskôr.
 auth-error-206 = Nie je možné vytvoriť heslo, heslo je už nastavené
-auth-error-214 = Telefónne číslo na obnovenie už existuje
-auth-error-215 = Telefónne číslo na obnovenie neexistuje
+auth-error-214 = Telefónne číslo na obnovenie prístupu už existuje
+auth-error-215 = Telefónne číslo na obnovenie prístupu neexistuje
 auth-error-216 = Bol dosiahnutý limit textových správ
-auth-error-218 = Obnovenie pomocou telefónu nie je možné odstrániť, chýbajú záložné overovacie kódy.
+auth-error-218 = Telefón na obnovenie prístupu sa nepodarilo odstrániť, chýbajú záložné overovacie kódy.
 auth-error-219 = Toto telefónne číslo bolo zaregistrované s príliš veľkým počtom účtov. Skúste iné číslo.
 auth-error-224 = Prístupový kľúč sa nenašiel
 auth-error-225 = Prístupový kľúč je už zaregistrovaný
@@ -1478,7 +1478,7 @@ pair2-authority-continue-on-mobile-cancel-button = Zrušiť
 
 
 pair2-authority-download-firefox-heading = Otvorte { -brand-firefox(case: "acc") } a synchronizujte
-pair2-authority-download-firefox-instruction = Ak chcete nastaviť synchronizáciu medzi zariadeniami, otvorte na tomto zariadení prehliadač { -brand-firefox } a navštívte stránku <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Ak chcete synchronizovať svoje zariadenia, otvorte na tomto zariadení { -brand-firefox } a prejdite na <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Stiahnuť { -brand-firefox(case: "acc") }
 
 
@@ -1629,7 +1629,7 @@ reset-password-confirmed-cta = A pokračovať do služby { $serviceName }
 password-reset-recovery-method-header = Zmena hesla
 password-reset-recovery-method-subheader = Vyberte spôsob obnovenia prístupu
 password-reset-recovery-method-details = Uistime sa, že ste to vy, kto používa spôsoby obnovenia prístupu.
-password-reset-recovery-method-phone = Obnovenie pomocou telefónu
+password-reset-recovery-method-phone = Telefón na obnovenie prístupu k účtu
 password-reset-recovery-method-code = Záložné overovacie kódy
 password-reset-recovery-method-code-info =
     { $numBackupCodes ->
@@ -1638,12 +1638,12 @@ password-reset-recovery-method-code-info =
         [many] Zostáva { $numBackupCodes } kódov
        *[other] Zostáva { $numBackupCodes } kódov
     }
-password-reset-recovery-method-send-code-error-heading = Pri odosielaní kódu na váš telefón na obnovenie sa vyskytol problém
+password-reset-recovery-method-send-code-error-heading = Pri odosielaní kódu na váš telefón na obnovenie prístupu sa vyskytol problém
 password-reset-recovery-method-send-code-error-description = Skúste to znova neskôr alebo použite záložné overovacie kódy.
 
 
 reset-password-recovery-phone-flow-heading = Zmeniť heslo
-reset-password-recovery-phone-heading = Zadajte obnovovací kód
+reset-password-recovery-phone-heading = Zadajte kód na obnovenie
 reset-password-recovery-phone-instruction-v3 = Na telefónne číslo končiace číslicami <span>{ $lastFourPhoneDigits }</span> bol prostredníctvom textovej správy odoslaný šesťmiestny kód. Platnosť tohto kódu vyprší po 5 minútach. Nezdieľajte tento kód s nikým.
 reset-password-recovery-phone-input-label = Zadajte šesťmiestny kód
 reset-password-recovery-phone-code-submit-button = Potvrdiť
@@ -1661,6 +1661,11 @@ reset-password-complete-recovery-key-created = Bol vytvorený nový kľúč na o
 reset-password-complete-recovery-key-download-info =
     Tento kľúč je nevyhnutný pre
     obnovu dát v prípade zabudnutia hesla. <b>Stiahnite ho a bezpečne uložte, pretože neskôr už nebudete mať prístup k tejto stránke.</b>
+
+
+server-error-heading = Chyba 500
+server-error-description = Ľutujeme, niečo sa pokazilo. O probléme už vieme a pracujeme na jeho odstránení.
+server-error-home-button = Domov
 
 
 error-label = Chyba:
@@ -1741,7 +1746,7 @@ signin-passwordless-totp-required = Vo vašom účte je povolené dvojstupňové
 signin-recovery-method-header = Prihlásenie
 signin-recovery-method-subheader = Vyberte spôsob obnovenia prístupu
 signin-recovery-method-details = Uistime sa, že ste to vy, kto používa spôsoby obnovenia prístupu.
-signin-recovery-method-phone = Obnovenie pomocou telefónu
+signin-recovery-method-phone = Telefón na obnovenie prístupu k účtu
 signin-recovery-method-code-v2 = Záložné overovacie kódy
 signin-recovery-method-code-info-v2 =
     { $numBackupCodes ->
@@ -1750,7 +1755,7 @@ signin-recovery-method-code-info-v2 =
         [many] Zostáva { $numBackupCodes } kódov
        *[other] Zostáva { $numBackupCodes } kódov
     }
-signin-recovery-method-send-code-error-heading = Pri odosielaní kódu na váš telefón na obnovenie sa vyskytol problém
+signin-recovery-method-send-code-error-heading = Pri odosielaní kódu na váš telefón na obnovenie prístupu sa vyskytol problém
 signin-recovery-method-send-code-error-description = Skúste to znova neskôr alebo použite záložné overovacie kódy.
 
 
@@ -1759,15 +1764,15 @@ signin-recovery-code-sub-heading = Zadajte záložný overovací kód
 signin-recovery-code-instruction-v3 = Zadajte jeden z kódov na jednorazové použitie, ktoré ste si uložili pri nastavovaní dvojstupňového overenia.
 signin-recovery-code-input-label-v2 = Zadajte 10‑miestny kód
 signin-recovery-code-confirm-button = Potvrdiť
-signin-recovery-code-phone-link = Použiť obnovenie pomocou telefónu
+signin-recovery-code-phone-link = Použiť telefón na obnovenie prístupu
 signin-recovery-code-support-link = Stratili ste prístup?
 signin-recovery-code-required-error = Vyžaduje sa záložný overovací kód
-signin-recovery-code-use-phone-failure = Pri odosielaní kódu na váš telefón na obnovenie sa vyskytol problém
+signin-recovery-code-use-phone-failure = Pri odosielaní kódu na váš telefón na obnovenie prístupu sa vyskytol problém
 signin-recovery-code-use-phone-failure-description = Skúste to znova neskôr.
 
 
 signin-recovery-phone-flow-heading = Prihlásenie
-signin-recovery-phone-heading = Zadajte obnovovací kód
+signin-recovery-phone-heading = Zadajte kód na obnovenie
 signin-recovery-phone-instruction-v3 = Na telefónne číslo končiace číslicami <span>{ $lastFourPhoneDigits }</span> bol prostredníctvom textovej správy odoslaný šesťmiestny kód. Platnosť tohto kódu vyprší po 5 minútach. Nezdieľajte tento kód s nikým.
 signin-recovery-phone-input-label = Zadajte šesťmiestny kód
 signin-recovery-phone-code-submit-button = Potvrdiť
@@ -1779,7 +1784,7 @@ signin-recovery-phone-code-verification-error-heading = Pri overovaní vášho k
 signin-recovery-phone-general-error-description = Skúste to znova neskôr.
 signin-recovery-phone-invalid-code-error-description = Kód je neplatný alebo jeho platnosť vypršala.
 signin-recovery-phone-invalid-code-error-link = Chcete namiesto toho použiť záložné overovacie kódy?
-signin-recovery-phone-success-message = Úspešne ste sa prihlásili. Ak znova použijete telefón na obnovenie, môžu platiť limity.
+signin-recovery-phone-success-message = Úspešné prihlásenie. Ak znova použijete telefón na obnovenie prístupu, môžu sa uplatňovať obmedzenia.
 
 
 signin-reported-header = Ďakujeme za vašu ostražitosť

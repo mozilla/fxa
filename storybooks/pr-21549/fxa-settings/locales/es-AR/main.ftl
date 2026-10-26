@@ -1321,7 +1321,7 @@ pair2-authority-continue-on-mobile-cancel-button = Cancelar
 
 
 pair2-authority-download-firefox-heading = Abrir { -brand-firefox } para sincronizar
-pair2-authority-download-firefox-instruction = Para configurar la sincronización entre dispositivos, abrí { -brand-firefox } en este dispositivo y visitá <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Para configurar la sincronización entre dispositivos, abrí { -brand-firefox } en este dispositivo y visitá <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Descargar { -brand-firefox }
 
 
@@ -1503,6 +1503,11 @@ reset-password-complete-recovery-key-download-info =
     Esta clave es esencial para la
     recuperación de datos si olvidás tu contraseña. <b>Descargala y guardala de forma segura
     ahora, ya que no podrás volver a acceder a esta página más adelante.</b>
+
+
+server-error-heading = Error 500
+server-error-description = ¡Ups! Algo resultó mal. Nos llegó la notificación y estamos buscando una solución.
+server-error-home-button = Inicio
 
 
 error-label = Error:

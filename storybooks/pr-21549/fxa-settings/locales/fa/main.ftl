@@ -1312,7 +1312,6 @@ pair2-authority-continue-on-mobile-cancel-button = انصراف
 
 
 pair2-authority-download-firefox-heading = برای همگام‌سازی، { -brand-firefox } را باز کنید
-pair2-authority-download-firefox-instruction = برای راه‌اندازی همگام‌سازی بین دستگاه‌ها، { -brand-firefox } را روی این دستگاه باز کنید و به <b>firefox.com/pair</b> بروید
 pair2-authority-download-firefox-cta = بارگیری { -brand-firefox }
 
 
@@ -1491,6 +1490,11 @@ reset-password-with-recovery-key-verified-page-title = گذرواژه با مو�
 reset-password-complete-new-password-saved = گذرواژهٔ جدید ذخیره شد!
 reset-password-complete-recovery-key-created = کلید بازیابی حساب جدید ساخته شد. همین حالا آن را بارگیری و نگهداری کنید.
 reset-password-complete-recovery-key-download-info = اگر گذرواژه‌تان را فراموش کنید، این کلید برای بازیابی داده‌ها ضروری است. <b>همین حالا آن را بارگیری کنید و جای امنی نگه دارید، چون بعداً دیگر به این صفحه دسترسی نخواهید داشت.</b>
+
+
+server-error-heading = خطا ۵۰۰
+server-error-description = اوه عزیزم، یک مشکلی پیش آمد. ما مطلع شده‌ایم و روی رفع مشکل کار خواهیم کرد.
+server-error-home-button = خانه
 
 
 error-label = خطا:

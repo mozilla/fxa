@@ -1914,7 +1914,7 @@ pair2-authority-continue-on-mobile-cancel-button = Přetorhnyć
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = { -brand-firefox } za synchronizaciju wočinić
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Zo byšće synchronizaciju na gratach konfigurował, wočińće { -brand-firefox } na tutym graće a wopytajće <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Zo byšće synchronizaciju na gratach konfigurował, wočińće { -brand-firefox } na tutym graće a wopytajće <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = { -brand-firefox } scahnyć
 
@@ -2239,6 +2239,13 @@ reset-password-complete-recovery-key-download-info =
     Tutón kluč je bytostny za
     datowe wobnowjenje, jeli swoje hesło zabywaće. <b>Sćehńće a składujće jón nětko wěsće
     dokelž pozdźišo k tutej stronje hižo přistup nimaće.</b>
+
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Zmylk 500
+server-error-description = Božo mój, něšto je so nimokuliło. Smy so informowali a damy so do wotstronjenja problema.
+server-error-home-button = Startowa strona
 
 ## CompleteSignin component
 

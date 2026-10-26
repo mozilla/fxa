@@ -1276,7 +1276,7 @@ pair2-authority-continue-on-mobile-cancel-button = ביטול
 
 
 pair2-authority-download-firefox-heading = יש לפתוח את { -brand-firefox } כדי לסנכרן
-pair2-authority-download-firefox-instruction = כדי להגדיר סנכרון בין מכשירים, יש לפתוח את { -brand-firefox } במכשיר זה ולבקר באתר <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = כדי להגדיר סנכרון בין מכשירים, יש לפתוח את { -brand-firefox } במכשיר זה ולבקר באתר <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = הורדת { -brand-firefox }
 
 
@@ -1448,6 +1448,11 @@ reset-password-with-recovery-key-verified-page-title = הססמה אופסה ב�
 reset-password-complete-new-password-saved = הססמה החדשה נשמרה!
 reset-password-complete-recovery-key-created = מפתח חדש לשחזור החשבון נוצר. יש להוריד ולאחסן אותו כעת במקום בטוח.
 reset-password-complete-recovery-key-download-info = מפתח זה חיוני עבור שחזור נתונים אם הססמה שלך תישכח. <b>יש להוריד ולאחסן אותו במקום בטוח כעת, מכיוון שלא יהיה באפשרותך לגשת לדף זה שוב מאוחר יותר.</b>
+
+
+server-error-heading = שגיאה 500
+server-error-description = שוד ושבר, משהו השתבש. אנו מודעים לבעיה ופועלים לתיקונה.
+server-error-home-button = בית
 
 
 error-label = שגיאה:
