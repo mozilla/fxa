@@ -1,0 +1,13 @@
+{
+  "commit": "0a257d2d829a4dd321a7d5a557194d332ffc0199",
+  "summary": "chore(deps): bump nodemailer from 10.0.10 to 10.1.4",
+  "description": "Bumps [nodemailer](https://github.com/nodemailer/nodemailer) from 10.0.10 to 10.1.4.\n- [Release notes](https://github.com/nodemailer/nodemailer/releases)\n- [Changelog](https://github.com/nodemailer/nodemailer/blob/master/CHANGELOG.md)\n- [Commits](https://github.com/nodemailer/nodemailer/compare/v10.0.10...v10.1.4)\n\n---\nupdated-dependencies:\n- dependency-name: nodemailer\n  dependency-version: 10.1.4\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1793024689000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
