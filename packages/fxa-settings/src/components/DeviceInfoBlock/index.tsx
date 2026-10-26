@@ -32,7 +32,7 @@ type DeviceInfoBlockProps = {
 
 export const DeviceInfoBlock = ({
   remoteMetadata,
-  className = 'mt-8 mb-4',
+  className = 'mt-8 mb-4 text-xs',
   deviceNameDisplay = 'heading',
 }: DeviceInfoBlockProps) => {
   const {
@@ -94,21 +94,21 @@ export const DeviceInfoBlock = ({
         >
           {/* Device names are user-chosen and need not contain a break
               opportunity, so wrap rather than overflow the block. */}
-          <p className="break-word text-xs">{`${deviceFamily} on ${deviceName}`}</p>
+          <p className="break-word">{`${deviceFamily} on ${deviceName}`}</p>
         </FtlMsg>
       ) : (
         <FtlMsg
           id="device-info-browser-os"
           vars={{ browserName: deviceFamily, genericOSName: deviceOS }}
         >
-          <p className="text-xs">{`${deviceFamily} on ${deviceOS}`}</p>
+          <p>{`${deviceFamily} on ${deviceOS}`}</p>
         </FtlMsg>
       )}
-      <p className="text-xs">
+      <p>
         <LocalizedLocation />
       </p>
       <FtlMsg id="device-info-ip-address" vars={{ ipAddress }}>
-        <p className="text-xs">{`IP address: ${ipAddress}`}</p>
+        <p>{`IP address: ${ipAddress}`}</p>
       </FtlMsg>
     </div>
   );

@@ -53,7 +53,7 @@ const ApproveSignIn = ({
       <DeviceInfoBlock
         {...{ remoteMetadata }}
         deviceNameDisplay="inline"
-        className="mt-4 w-full rounded-md border border-grey-100 px-4 py-3 text-grey-500 dark:border-grey-500 dark:text-grey-300"
+        className="mt-4 w-full rounded-lg border border-grey-100 px-4 py-3 text-sm text-grey-900 break-word dark:border-grey-500 dark:text-grey-300"
       />
 
       <FtlMsg id="pair2-authority-approve-sign-in-confirm-button">
