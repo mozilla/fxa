@@ -1,8 +1,8 @@
 {
-  "commit": "b3a1db90a8ec663a5b7f07893d9ba7fcae1d67cd",
-  "summary": "Merge pull request #21602 from mozilla/fxa-14828",
-  "description": "fix(content-server): restore 404 page styles, remove dead build config",
-  "timestamp": 1793038770000,
+  "commit": "5b3c68b6901e1fafa8355c007efd55dae049e7fd",
+  "summary": "Merge pull request #21601 from mozilla/fxa-14827",
+  "description": "chore(content-server): remove React-vs-Backbone leftovers",
+  "timestamp": 1793042707000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
