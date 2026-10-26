@@ -346,7 +346,13 @@ commands:
     steps:
       - run:
           name: Install Firefox (moz-firefox channel)
-          command: cd packages/functional-tests && npx playwright install moz-firefox
+          # On Linux, Playwright's moz-firefox channel only looks for /snap/bin/firefox.
+          command: |
+            curl -fsSL "https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US" -o /tmp/firefox.tar.xz
+            sudo mkdir -p /opt/firefox /snap/bin
+            sudo tar -xJf /tmp/firefox.tar.xz -C /opt/firefox --strip-components=1
+            sudo ln -sf /opt/firefox/firefox /snap/bin/firefox
+            /snap/bin/firefox --version
 
   run-playwright-tests:
     parameters:
