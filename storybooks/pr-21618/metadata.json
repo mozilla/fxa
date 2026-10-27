@@ -1,0 +1,10 @@
+{
+  "commit": "514a372f6c0d9c60ee9492a1f7995423cab73e1e",
+  "summary": "fix(settings): center the Delete account title in FlowContainer",
+  "description": "Because:\n\n* The Delete account title sat at the left of its card.\n\nThis commit:\n\n* Adds an opt-in centerTitle prop to FlowContainer.\n* Centers the Delete account title and subtitle with it.",
+  "timestamp": 1793110268000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
