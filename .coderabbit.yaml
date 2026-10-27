@@ -1,0 +1,126 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+inheritance: true
+
+reviews:
+  review_details: true
+  auto_review:
+    labels:
+      - "coderabbit"
+  collapse_walkthrough: true
+  high_level_summary_instructions: >
+    Begin with `Merge Confidence: <score>/5`, where 5 is very safe and 1 is very risky.
+    Base the score on potential impact — not diff size — including correctness, security,
+    operational risk, architectural scope, dependency changes, and rollback complexity.
+    Follow with a brief description of the changes.
+  path_filters:
+    - "!yarn.lock"
+    - "!.yarn/releases/**"
+    - "!.yarn/plugins/**"
+    - "!.yarn/sdks/**"
+    - "!**/*.snap"
+    - "!**/*.min.js"
+    - "!**/vendor/**"
+    - "!**/__generated__/**"
+    - "!**/*.{png,jpg,jpeg,gif,ico,webp}"
+    - "!**/*.{woff,woff2,ttf,otf,eot}"
+    - "!**/*.pdf"
+    - "!**/*.svg"
+  path_instructions:
+    - path: "**/*"
+      instructions: >
+        - Apply the repository's documented coding guidelines as review criteria, and cite the
+          specific guideline when flagging a deviation.
+        - Flag unintentional behavior changes.
+        - Review correctness, security, reliability, performance, and functionality defects.
+        - Keep comments brief and actionable; avoid subjective style feedback unless it causes bugs.
+  pre_merge_checks:
+    title:
+      mode: warning
+      requirements: >
+        Use `type(scope): subject` per CONTRIBUTING.md, where type is one of feat, fix, docs,
+        style, refactor, perf, test, chore. Subject is imperative present tense, not capitalized,
+        no trailing period, and at most 72 characters.
+    description:
+      mode: warning
+    issue_assessment:
+      mode: warning
+    docstrings:
+      mode: "off"
+    custom_checks:
+      - name: Sensitive Data Protection and Privacy
+        mode: warning
+        instructions: >
+          - Flag logging, metrics, Sentry events, or error messages that include email addresses,
+            uids, phone numbers, IP addresses, session/OAuth/refresh tokens, auth keys (kA, kB,
+            wrapKb, authPW, verifyHash), TOTP secrets, recovery codes, or payment details
+          - Flag secrets, API keys, or credentials committed to source or config defaults
+          - Flag PII sent to third parties (Stripe, PayPal, Twilio, analytics) beyond what the
+            integration requires
+          - Flag unnecessary collection, excessive retention, or missing deletion of user data,
+            including on account deletion
+          - Flag cross-account data leakage or weakened per-user isolation in queries and caches
+
+      - name: Security, Audit, and Regulatory Control Integrity
+        mode: warning
+        instructions: >
+          - Flag weakened authentication, session verification, or token validation, including
+            skipped `verified`/AAL checks, relaxed OAuth scope or redirect-URI validation, and
+            missing step-up requirements
+          - Flag removed or bypassed rate limiting (customs) on authentication, verification,
+            recovery, or SMS endpoints
+          - Flag non-constant-time secret comparison, weak randomness, or non-standard crypto
+          - Flag missing signature verification on Stripe, PayPal, Apple, or Google webhooks and
+            notifications
+          - Flag reductions in security-event logging, audit trails, or account-event emission
+          - Flag changes that weaken PCI DSS or GDPR controls for payment and user data
+
+      - name: Performance and Algorithmic Complexity Review
+        mode: warning
+        instructions: >
+          - Flag O(n^2) or worse behavior with non-trivial inputs in request handlers or loops
+          - Flag N+1 patterns against MySQL, Redis, Firestore, or Stripe requiring batching
+          - Flag unbounded growth, memory leaks, retained listeners, or accumulating buffers
+          - Flag missing guardrails: pagination, size limits, timeouts, concurrency limits
+          - Flag unnecessary React rerenders, unstable memoization, or expensive work in render
+          - Flag expensive synchronous work on hot paths that should be deferred or batched
+
+      - name: Database Migration Safety
+        mode: warning
+        instructions: >
+          - Fail if any existing file under `packages/db-migrations/databases/*/patches/` is
+            modified or deleted; published patches are immutable
+          - A schema change must add a forward `patch-N-(N+1).sql`, a reverse `patch-(N+1)-N.sql`,
+            and bump that database's `target-patch.json` level to N+1
+          - The forward patch updates `dbMetadata` last; the reverse patch undoes the forward
+            actions in reverse order, updates `dbMetadata` last, and is commented out
+          - When a stored procedure gets a new version, the old version is dropped in a later
+            patch, not the same one, because two releases run against the database concurrently
+          - Flag dropped or renamed columns, tables, or procedures that the previous release still
+            reads
+
+chat:
+  allow_non_org_members: false
+
+knowledge_base:
+  automatic_repository_linking: true
+  code_guidelines:
+    filePatterns:
+      - files: ".claude/rules/code-comments.md"
+        applyTo: "**/*.{ts,tsx,js,jsx}"
+      - files: ".claude/rules/testing/base.md"
+        applyTo: "**/*.{test.ts,test.tsx,spec.ts}"
+      - files: ".claude/rules/testing/react.md"
+        applyTo: "**/*.test.tsx"
+      - files: ".claude/rules/testing/functional-pages.md"
+        applyTo: "packages/functional-tests/{pages,tests,lib}/**"
+      - files: ".claude/rules/metrics-flow.md"
+        applyTo: "packages/fxa-settings/src/{lib/metrics.ts,lib/metrics-flow.ts,lib/glean/**,lib/passkeys/**,pages/Index/**,pages/Signin/**}"
+      - files: ".claude/rules/primary-vs-signup-email.md"
+        applyTo: "{packages/fxa-auth-server/lib/routes/**,packages/fxa-auth-server/lib/senders/**,libs/shared/db/mysql/legacy/src/lib/models/auth/account.ts,libs/shared/account/**}"
+      - files: "mozilla/ecosystem-platform:docs/reference/style-guides/node-style-guide.md"
+        applyTo: "**/*.{ts,js}"
+      - files: "mozilla/ecosystem-platform:docs/reference/style-guides/react-style-guide.md"
+        applyTo: "**/*.{tsx,jsx}"
+      - files: "mozilla/ecosystem-platform:docs/reference/localization.md"
+        applyTo: "**/*.{ftl,tsx}"
