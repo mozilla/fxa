@@ -1,8 +1,8 @@
 {
-  "commit": "d63ba4f994c02aa158050e1916e1255a0409921d",
-  "summary": "Merge pull request #21537 from mozilla/fxa-14788",
-  "description": "chore(deps): upgrade express to v5 in fxa-content-server",
-  "timestamp": 1793130762000,
+  "commit": "cc7622a9f5c6747485c7dc668728bae31f0f3fe1",
+  "summary": "Merge pull request #21613 from mozilla/fxa-14844",
+  "description": "feat(settings): add PairUnsupportedHint with view and os variants",
+  "timestamp": 1793131290000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
