@@ -464,9 +464,6 @@ pair-unsupported-hint-heading = Finish pairing in the app
 pair-unsupported-hint-step-close-page = Close this page
 # <b> emphasises the name of the button the user taps in Firefox
 pair-unsupported-hint-step-app-menu = Tap the <b>app menu</b>
-# <b> emphasises the name of the button the user taps in Firefox
-# ( ··· ) shows the three dots of the menu button in Firefox for iOS
-pair-unsupported-hint-step-app-menu-ios = Tap the <b>app menu</b> ( ··· )
 # <b> emphasises the name of the menu item the user taps in Firefox
 pair-unsupported-hint-step-sign-in = <b>Sign in</b>, then scan the code
 # Opens a Mozilla support article about connecting a device without a QR code

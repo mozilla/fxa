@@ -1,8 +1,8 @@
 {
-  "commit": "36abbd13f200f2045fbbb9b72ec4bf24ce464893",
+  "commit": "b2b633a952158a508bfa741f52b9d39b635f5f70",
   "summary": "feat(settings): add PairUnsupportedHint with view and os variants",
-  "description": "Because:\n\n* The pair unsupported page needs a hint for each view and OS.\n\nThis commit:\n\n* Adds PairUnsupportedHint with view and os props\n* Shows a \"Close this page\" step for webviews only\n* Adds decorative phone menu images for iOS and Android\n* Adds stories for each view and os pair\n\nCloses FXA-14844",
-  "timestamp": 1793100013000,
+  "description": "Because:\n\n* Pairing on a mobile browser outside Firefox needs a hint that\n  tells the user how to finish in the Firefox app.\n\nThis commit:\n\n* Adds PairUnsupportedHint with view (webview, tab) and os\n  (android, ios) variants, strings, stories and menu images.\n* Shows the same \"Tap the app menu\" step on iOS and Android.\n\nCloses FXA-14844",
+  "timestamp": 1793114967000,
   "storybooks": [
     "fxa-settings"
   ],

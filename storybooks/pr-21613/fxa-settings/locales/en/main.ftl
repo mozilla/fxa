@@ -391,7 +391,6 @@ error-bad-request = Bad Request
 pair-unsupported-hint-heading = Finish pairing in the app
 pair-unsupported-hint-step-close-page = Close this page
 pair-unsupported-hint-step-app-menu = Tap the <b>app menu</b>
-pair-unsupported-hint-step-app-menu-ios = Tap the <b>app menu</b> ( ··· )
 pair-unsupported-hint-step-sign-in = <b>Sign in</b>, then scan the code
 pair-unsupported-hint-learn-more-link = Learn more
 
