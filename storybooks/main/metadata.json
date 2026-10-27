@@ -1,8 +1,8 @@
 {
-  "commit": "2233833591460d31efd40c942248dc670c3a0cfb",
-  "summary": "Merge pull request #21616 from mozilla/feat-cr-config-thorough",
-  "description": "feat(fxa): add coderabbit thorough config",
-  "timestamp": 1793112988000,
+  "commit": "ccb61da37bc5bc20741bc139218196ee1b7dd074",
+  "summary": "Merge pull request #21619 from mozilla/fxa-14846",
+  "description": "feat(settings): add Sentry close reason and resume count to pairing socket",
+  "timestamp": 1793118829000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
