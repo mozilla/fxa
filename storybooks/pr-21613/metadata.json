@@ -1,0 +1,10 @@
+{
+  "commit": "36abbd13f200f2045fbbb9b72ec4bf24ce464893",
+  "summary": "feat(settings): add PairUnsupportedHint with view and os variants",
+  "description": "Because:\n\n* The pair unsupported page needs a hint for each view and OS.\n\nThis commit:\n\n* Adds PairUnsupportedHint with view and os props\n* Shows a \"Close this page\" step for webviews only\n* Adds decorative phone menu images for iOS and Android\n* Adds stories for each view and os pair\n\nCloses FXA-14844",
+  "timestamp": 1793100013000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
