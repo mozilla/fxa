@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+tone_instructions: >
+  - Indicate if code could cause a production outage
+  - Explain the analysis chain behind each finding
+inheritance: true
+
+reviews:
+  profile: chill
+  review_details: true
+  auto_review:
+    labels:
+      - coderabbit
+  path_instructions:
+    - path: "**/*"
+      instructions: >
+        - Apply the team's documented coding guidelines as review criteria, and cite the specific guideline when flagging a deviation.
+        - Flag deviations from documented conventions, naming, and structure.
+        - Flag unintentional behavior changes.
+        - Review correctness, security, reliability, performance, and functionality defects.
+        - Keep comments brief and actionable.
+        - Avoid style and subjective feedback unless it directly causes bugs or violates a documented guideline.
+  pre_merge_checks:
+    title:
+      mode: warning
+      requirements: >
+        Use `<type>(<scope>): <subject>` with type one of feat, fix, docs, style, refactor, perf,
+        test, chore, and an imperative present-tense subject (see CONTRIBUTING.md "Git Commit Guidelines").
+    custom_checks:
+      - name: Performance and Algorithmic Complexity Review
+        mode: warning
+        instructions: >
+          - Flag O(n^2) or worse behavior with non-trivial inputs in request handlers or loops
+          - Flag N+1 query patterns requiring batching, joins, or set-based retrieval
+          - Flag unbounded growth, memory leaks, retained listeners, accumulating buffers
+          - Flag missing guardrails: pagination, size limits, timeouts, concurrency limits, backpressure
+          - Flag expensive synchronous work that should be deferred, batched, or removed
+
+chat:
+  allow_non_org_members: false
+
+knowledge_base:
+  automatic_repository_linking: true
