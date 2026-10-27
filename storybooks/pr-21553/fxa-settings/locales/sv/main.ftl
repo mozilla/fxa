@@ -1506,6 +1506,11 @@ reset-password-complete-recovery-key-download-info =
     nu, eftersom du inte kommer att kunna komma åt den här sidan igen senare.</b>
 
 
+server-error-heading = 500 Fel
+server-error-description = Oj, något gick fel där. Vi har meddelats och kommer att arbeta med en lösning.
+server-error-home-button = Hem
+
+
 error-label = Fel:
 validating-signin = Validerar inloggning…
 complete-signin-error-header = Bekräftelsefel

@@ -2240,6 +2240,13 @@ reset-password-complete-recovery-key-download-info =
     datowe wótnowjenje, jolic swójo gronidło zabywaśo. <b>Ześěgniśo a składujśo jen něnto wěsće
     dokulaž pózdźej k toś tomu bokoju wěcej pśistup njamaśo.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Zmólka 500
+server-error-description = Mój Bog, něco jo kśiwje šło. Smy se informěrowali a dajomy se do wótwónoźowanja problema.
+server-error-home-button = Startowy bok
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin

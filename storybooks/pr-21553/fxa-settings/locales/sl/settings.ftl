@@ -2240,6 +2240,13 @@ reset-password-complete-recovery-key-download-info =
     obnovitev podatkov, če pozabite geslo. <b>Prenesite ga in ga varno shranite
      zdaj, saj se pozneje ne boste več mogli vrniti na to stran.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Napaka 500
+server-error-description = Joj, nekaj je šlo narobe. Prejeli smo obvestilo in se lotimo popravka.
+server-error-home-button = Domov
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin

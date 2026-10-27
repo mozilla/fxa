@@ -1512,6 +1512,11 @@ reset-password-complete-recovery-key-created = Nouvelle clé de récupération d
 reset-password-complete-recovery-key-download-info = Cette clé est essentielle pour la récupération des données si vous oubliez votre mot de passe. <b>Téléchargez-la et conservez-la en lieu sûr, car vous ne pourrez plus accéder à cette page plus tard.</b>
 
 
+server-error-heading = Erreur 500
+server-error-description = Une erreur s’est produite. Nous en avons été avertis et allons mettre au point un correctif.
+server-error-home-button = Accueil
+
+
 error-label = Erreur :
 validating-signin = Validation de la connexion…
 complete-signin-error-header = Erreur de confirmation

@@ -1523,6 +1523,11 @@ reset-password-complete-recovery-key-download-info =
     dokelž pozdźišo k tutej stronje hižo přistup nimaće.</b>
 
 
+server-error-heading = Zmylk 500
+server-error-description = Božo mój, něšto je so nimokuliło. Smy so informowali a damy so do wotstronjenja problema.
+server-error-home-button = Startowa strona
+
+
 error-label = Zmylk:
 validating-signin = Přizjewjenje so wobkrućuje…
 complete-signin-error-header = Wobkrućenski zmylk

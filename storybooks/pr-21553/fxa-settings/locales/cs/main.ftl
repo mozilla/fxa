@@ -1794,6 +1794,11 @@ reset-password-complete-recovery-key-created = Nový obnovovací klíč k účtu
 reset-password-complete-recovery-key-download-info = Tento klíč je nezbytný pro obnovu dat v případě, že zapomenete své heslo. <b>Hned si ho stáhněte a bezpečně uložte, později už k němu nebudete moci přistupovat.</b>
 
 
+server-error-heading = Chyba 500
+server-error-description = Ach ne, něco se tam pokazilo. Byli jsme o tom informováni a začneme pracovat na opravě.
+server-error-home-button = Domů
+
+
 error-label = Chyba:
 validating-signin = Ověřuje se přihlášení…
 complete-signin-error-header = Chyba při potvrzení

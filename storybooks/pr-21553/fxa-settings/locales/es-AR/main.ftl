@@ -1505,6 +1505,11 @@ reset-password-complete-recovery-key-download-info =
     ahora, ya que no podrás volver a acceder a esta página más adelante.</b>
 
 
+server-error-heading = Error 500
+server-error-description = ¡Ups! Algo resultó mal. Nos llegó la notificación y estamos buscando una solución.
+server-error-home-button = Inicio
+
+
 error-label = Error:
 validating-signin = Validando inicio de sesión…
 complete-signin-error-header = Error de confirmación

@@ -2219,6 +2219,13 @@ reset-password-complete-new-password-saved = Neues Passwort gespeichert!
 reset-password-complete-recovery-key-created = Neuer Kontowiederherstellungsschlüssel erstellt. Jetzt herunterladen und speichern.
 reset-password-complete-recovery-key-download-info = Dieser Schlüssel wird für die Datenwiederherstellung benötigt, wenn Sie Ihr Passwort vergessen haben. <b>Laden Sie ihn jetzt herunter und speichern Sie ihn sicher, da Sie später nicht mehr auf diese Seite zugreifen können.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Fehler 500
+server-error-description = Oje, etwas ist schiefgegangen. Wir wurden darüber informiert und arbeiten an einer Lösung.
+server-error-home-button = Startseite
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin

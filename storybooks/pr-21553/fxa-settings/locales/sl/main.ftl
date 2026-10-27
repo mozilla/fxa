@@ -1643,6 +1643,11 @@ reset-password-complete-recovery-key-download-info =
      zdaj, saj se pozneje ne boste več mogli vrniti na to stran.</b>
 
 
+server-error-heading = Napaka 500
+server-error-description = Joj, nekaj je šlo narobe. Prejeli smo obvestilo in se lotimo popravka.
+server-error-home-button = Domov
+
+
 error-label = Napaka:
 validating-signin = Potrjevanje prijave …
 complete-signin-error-header = Napaka pri potrjevanju

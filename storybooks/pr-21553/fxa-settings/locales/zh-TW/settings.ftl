@@ -2175,6 +2175,13 @@ reset-password-complete-new-password-saved = 已儲存新密碼！
 reset-password-complete-recovery-key-created = 已建立新的帳號救援金鑰，請立即下載並儲存。
 reset-password-complete-recovery-key-download-info = 萬一您忘記密碼時，必須使用這把金鑰才可以救回資料。<b>本頁面之後不會再顯示，請立即下載金鑰，並儲存在安全的地方。</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = 500 錯誤
+server-error-description = 抱歉，有些東西怪怪的，我們已經通知相關人員，將會修復此問題。
+server-error-home-button = 首頁
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin

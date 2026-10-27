@@ -1530,6 +1530,11 @@ reset-password-complete-recovery-key-created = Mae allwedd adfer cyfrif newydd w
 reset-password-complete-recovery-key-download-info = Mae'r allwedd hon yn hanfodol ar gyfer adfer data os byddwch yn anghofio eich cyfrinair. <b>Llwythwch hi i lawr a'i chadw'n ddiogel nawr, gan na fydd modd i chi allu cyrchu'r dudalen hon eto yn nes ymlaen.</b>
 
 
+server-error-heading = Gwall 500
+server-error-description = O diar, aeth rhywbeth o'i le yno. Rydym wedi cael ein hysbysu a byddwn yn dechrau gweithio ar ei drwsio.
+server-error-home-button = Cartref
+
+
 error-label = Gwall:
 validating-signin = Wrthi'n dilysu mewngofnod…
 complete-signin-error-header = Gwall cadarnhau

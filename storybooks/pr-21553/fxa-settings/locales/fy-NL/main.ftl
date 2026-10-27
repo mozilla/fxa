@@ -1508,6 +1508,11 @@ reset-password-complete-recovery-key-created = Nije accountwerstelkaai oanmakke.
 reset-password-complete-recovery-key-download-info = Dizze kaai is essinsjeel foar gegevenswerstel as jo jo wachtwurd ferjitte. <b>Download en bewarje it no feilich, omdat jo dizze side letter net mear iepenje kinne.</b>
 
 
+server-error-heading = Flater 500
+server-error-description = Och heden, der gie wat mis. Wy binne op ’e hichte brocht en wurkje oan in oplossing.
+server-error-home-button = Startside
+
+
 error-label = Flater:
 validating-signin = Oanmelding falidearje…
 complete-signin-error-header = Befêstigingsflater

@@ -1504,6 +1504,11 @@ reset-password-complete-recovery-key-created = È stata creata una nuova chiave 
 reset-password-complete-recovery-key-download-info = Questa chiave è essenziale per il recupero dei dati se si dimentica la password. <b>Scaricala subito e salvala in modo sicuro, in quanto non potrai più accedere a questa pagina in seguito.</b>
 
 
+server-error-heading = Errore 500
+server-error-description = Si è verificato un comportamento anomalo dell’applicazione. Ci è stata inviata la segnalazione del problema e cercheremo di risolverlo quanto prima.
+server-error-home-button = Pagina iniziale
+
+
 error-label = Errore:
 validating-signin = Convalida accesso…
 complete-signin-error-header = Errore nella conferma

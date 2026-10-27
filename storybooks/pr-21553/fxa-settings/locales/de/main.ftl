@@ -1502,6 +1502,11 @@ reset-password-complete-recovery-key-created = Neuer Kontowiederherstellungsschl
 reset-password-complete-recovery-key-download-info = Dieser Schlüssel wird für die Datenwiederherstellung benötigt, wenn Sie Ihr Passwort vergessen haben. <b>Laden Sie ihn jetzt herunter und speichern Sie ihn sicher, da Sie später nicht mehr auf diese Seite zugreifen können.</b>
 
 
+server-error-heading = Fehler 500
+server-error-description = Oje, etwas ist schiefgegangen. Wir wurden darüber informiert und arbeiten an einer Lösung.
+server-error-home-button = Startseite
+
+
 error-label = Fehler:
 validating-signin = Anmeldung wird bestätigt…
 complete-signin-error-header = Fehler bei der Bestätigung

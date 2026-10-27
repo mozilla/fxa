@@ -1458,6 +1458,11 @@ reset-password-complete-recovery-key-created = 已建立新的帳號救援金鑰
 reset-password-complete-recovery-key-download-info = 萬一您忘記密碼時，必須使用這把金鑰才可以救回資料。<b>本頁面之後不會再顯示，請立即下載金鑰，並儲存在安全的地方。</b>
 
 
+server-error-heading = 500 錯誤
+server-error-description = 抱歉，有些東西怪怪的，我們已經通知相關人員，將會修復此問題。
+server-error-home-button = 首頁
+
+
 error-label = 錯誤：
 validating-signin = 正在驗證登入…
 complete-signin-error-header = 確認過程發生錯誤
