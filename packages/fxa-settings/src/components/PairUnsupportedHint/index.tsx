@@ -49,7 +49,7 @@ export const PairUnsupportedHint = ({ view, os }: PairUnsupportedHintProps) => {
 
   return (
     <div className="flex flex-col items-center text-center">
-      <MenuImage className="h-[120px] w-auto" />
+      <MenuImage className="h-auto w-full" />
 
       <FtlMsg id="pair-unsupported-hint-heading">
         <h1 className="card-header mt-4">Finish pairing in the app</h1>

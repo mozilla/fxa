@@ -35,8 +35,8 @@ describe('PairUnsupportedHint', () => {
 
   // The jest SVG stub renders the file name as the element's text.
   it.each([
-    ['ios', 'graphic_pair_menu_ios.svg'],
-    ['android', 'graphic_pair_menu_android.svg'],
+    ['ios', 'graphic_pair_menu_ios.min.svg'],
+    ['android', 'graphic_pair_menu_android.min.svg'],
   ] as const)('shows the %s menu illustration', (os, file) => {
     renderWithLocalizationProvider(<PairUnsupportedHint view="tab" os={os} />);
 
