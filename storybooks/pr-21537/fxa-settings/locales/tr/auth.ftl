@@ -317,7 +317,9 @@ subscriptionEndingReminder-title = { $productName } aboneliğiniz yakında bitec
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 #   $serviceLastActiveDateOnly (String) - The date of last active service, e.g. 01/20/2016
 subscriptionEndingReminder-content-line1 = { $productName } erişiminiz <strong>{ $serviceLastActiveDateOnly }</strong> tarihinde sona erecektir.
+subscriptionEndingReminder-content-line2-v2 = { $productName } ürününü kullanmaya devam etmek isterseniz <strong>{ $serviceLastActiveDateOnly }</strong> tarihinden önce <a data-l10n-name="subscriptionEndingReminder-subscription-management">Abonelik Yönetimi</a> sayfasından aboneliğinizi sürdürebilirsiniz. Yardıma ihtiyacınız olursa <a data-l10n-name="subscriptionEndingReminder-contact-support">Destek Ekibimizle iletişime geçin</a>.
 subscriptionEndingReminder-content-line1-plaintext = { $productName } erişiminiz { $serviceLastActiveDateOnly } tarihinde sona erecektir.
+subscriptionEndingReminder-content-line2-plaintext-v2 = { $productName } ürününü kullanmaya devam etmek isterseniz { $serviceLastActiveDateOnly } tarihinden önce Abonelik Yönetimi sayfasından aboneliğinizi sürdürebilirsiniz. Yardıma ihtiyacınız olursa Destek Ekibimizle iletişime geçin.
 subscriptionEndingReminder-content-closing = Abone olduğunuz için teşekkürler!
 subscriptionEndingReminder-churn-title = Erişiminizi sürdürmek ister misiniz?
 subscriptionEndingReminder-churn-terms = <a data-l10n-name="subscriptionEndingReminder-churn-terms">Bu teklife özel koşullar ve kısıtlamalar geçerlidir</a>

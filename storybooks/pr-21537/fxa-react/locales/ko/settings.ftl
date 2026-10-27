@@ -2190,6 +2190,13 @@ reset-password-complete-recovery-key-download-info =
     데이터를 복구하는 데 필수입니다. <b>지금 다운로드하고 안전하게 저장하세요.
     나중에 이 페이지에 다시 접근할 수 없습니다.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = 500 오류
+server-error-description = 아, 뭔가가 잘 못 되었습니다. 이 상황을 인지했으며 고치기위해 노력하겠습니다.
+server-error-home-button = 홈
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin

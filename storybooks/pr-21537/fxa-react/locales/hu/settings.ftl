@@ -2228,6 +2228,13 @@ reset-password-complete-recovery-key-download-info =
     ha elfelejti a jelszavát. <b>Töltse le és tárolja biztonságosan most,
     mert később nem fogja tudni újra elérni ezt az oldalt.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = 500-as hiba
+server-error-description = Ó jaj, valami hiba történt. Értesítést kaptunk, és elkezdünk a javításon dolgozni.
+server-error-home-button = Kezdőlap
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin

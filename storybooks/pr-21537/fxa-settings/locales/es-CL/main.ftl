@@ -1503,6 +1503,11 @@ reset-password-complete-recovery-key-download-info =
     ahora mismo, ya que no podrás volver a esta página más tarde.</b>
 
 
+server-error-heading = Error 500
+server-error-description = Chuta amigo, algo falló aquí. Fuimos notificados y empezaremos a trabajar en la solución.
+server-error-home-button = Inicio
+
+
 error-label = Error:
 validating-signin = Validando conexión…
 complete-signin-error-header = Error de confirmación

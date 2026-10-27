@@ -1507,6 +1507,11 @@ reset-password-complete-recovery-key-created = Un nove clave de recuperation del
 reset-password-complete-recovery-key-download-info = Iste clave es essential pro le recuperation de tu datos si tu oblida tu contrasigno. <b>Discarga lo e conserva lo de modo secur ora mesmo, perque tu non potera acceder a iste pagina de novo plus tarde.</b>
 
 
+server-error-heading = Error 500
+server-error-description = Guai, qualcosa ha fallite hic. Nos ha recipite notification e va reparar le problema.
+server-error-home-button = Initio
+
+
 error-label = Error:
 validating-signin = Validation del accesso…
 complete-signin-error-header = Error de confirmation

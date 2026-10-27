@@ -1504,6 +1504,11 @@ reset-password-complete-recovery-key-created = Nieuwe accountherstelsleutel aang
 reset-password-complete-recovery-key-download-info = Deze sleutel is essentieel voor gegevensherstel als u uw wachtwoord vergeet. <b>Download en bewaar het nu veilig, omdat u deze pagina later niet meer kunt openen.</b>
 
 
+server-error-heading = Fout 500
+server-error-description = O jee, daar ging iets mis. We zijn op de hoogte gebracht en gaan aan een oplossing werken.
+server-error-home-button = Startpagina
+
+
 error-label = Fout:
 validating-signin = Aanmelding valideren…
 complete-signin-error-header = Bevestigingsfout

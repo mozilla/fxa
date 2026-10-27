@@ -2468,6 +2468,13 @@ reset-password-complete-recovery-key-download-info = This key is essential for
   data recovery if you forget your password. <b>Download and store it securely
   now, as you won’t be able to access this page again later.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = 500 Error
+server-error-description = Oh dear, something went wrong there. We’ve been notified and will get working on a fix.
+server-error-home-button = Home
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin

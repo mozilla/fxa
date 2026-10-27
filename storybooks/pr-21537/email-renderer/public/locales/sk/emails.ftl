@@ -239,9 +239,9 @@ passwordResetAccountRecovery-information = Odhlásili sme vás zo všetkých va�
 # After the colon there is a link to account settings
 passwordResetAccountRecovery-information-txt = Odhlásili sme vás zo všetkých vašich synchronizovaných zariadení. Vytvorili sme nový kľúč na obnovenie účtu, ktorý nahradí ten, ktorý ste používali. Môžete ho zmeniť v nastaveniach účtu:
 passwordResetAccountRecovery-action-4 = Spravovať účet
-passwordResetRecoveryPhone-subject = Bolo použité obnovenie pomocou telefónu
+passwordResetRecoveryPhone-subject = Bol použitý telefón obnovenie prístupu k účtu
 passwordResetRecoveryPhone-preview = Skontrolujte, či ste to boli vy
-passwordResetRecoveryPhone-title = Obnovenie pomocou telefónu bolo použité na potvrdenie zmeny hesla
+passwordResetRecoveryPhone-title = Na potvrdenie zmeny hesla bol použitý telefón na obnovenie prístupu k účtu
 passwordResetRecoveryPhone-device = Obnovenie pomocou telefónu bolo použité na zariadení:
 passwordResetRecoveryPhone-action = Spravovať účet
 passwordResetWithRecoveryKeyPrompt-subject = Vaše heslo bolo zmenené
@@ -274,12 +274,12 @@ postAddPasskey-sync-note = Upozorňujeme, že na prístup k synchronizačným ú
 postAddPasskey-learn-more = Ďalšie informácie
 postAddPasskey-requested-from = Požiadali ste o to z:
 postAddPasskey-action = Spravovať účet
-postAddRecoveryPhone-subject = Obnovenie pomocou telefónu bolo pridané
+postAddRecoveryPhone-subject = Telefónne číslo na obnovenie prístupu bolo pridané
 postAddRecoveryPhone-preview = Účet chránený dvojstupňovým overením
-postAddRecoveryPhone-title-v2 = Pridali ste telefónne číslo na obnovenie účtu
+postAddRecoveryPhone-title-v2 = Pridali ste telefónne číslo na obnovenie prístupu
 # Variables:
 #  $maskedLastFourPhoneNumber (String) - A bullet point mask with the last four digits of the user's phone number, e.g. ••••••1234
-postAddRecoveryPhone-description-v2 = Ako telefónne číslo na obnovenie účtu ste pridali { $maskedLastFourPhoneNumber }
+postAddRecoveryPhone-description-v2 = Ako telefónne číslo na obnovenie prístupu ste pridali { $maskedLastFourPhoneNumber }
 # Links out to a support article about two factor authentication
 postAddRecoveryPhone-how-protect = Ako to chráni váš účet
 postAddRecoveryPhone-how-protect-plaintext = Ako to chráni váš účet:
@@ -295,7 +295,7 @@ postAddTwoStepAuthentication-code-required-v4 = Pri každom prihlásení sa tera
 postAddTwoStepAuthentication-recovery-method-codes = Ako spôsob obnovenia prístupu ste tiež pridali záložné overovacie kódy.
 # Variables:
 #  $maskedPhoneNumber (String) - A bullet point mask with the last four digits of the user's phone number, e.g. ••••••1234
-postAddTwoStepAuthentication-recovery-method-phone = Taktiež ste pridali { $maskedPhoneNumber } ako svoje telefónne číslo na obnovenie účtu.
+postAddTwoStepAuthentication-recovery-method-phone = Taktiež ste pridali { $maskedPhoneNumber } ako svoje telefónne číslo na obnovenie prístupu.
 postAddTwoStepAuthentication-how-protects-link = Ako to chráni váš účet
 postAddTwoStepAuthentication-how-protects-plaintext = Ako to chráni váš účet:
 postAddTwoStepAuthentication-device-sign-out-message = Ak chcete chrániť všetky pripojené zariadenia, mali by ste sa odhlásiť všade, kde používate tento účet, a potom sa znova prihlásiť pomocou dvojstupňového overenia.
@@ -310,10 +310,10 @@ postChangePrimary-title = Nová hlavná e‑mailová adresa
 #  $email (String) - A user's email address
 postChangePrimary-description-2 = Úspešne ste zmenili svoju hlavnú e‑mailovú adresu na { $email }. Táto adresa bude odteraz slúžiť ako vaše prihlasovacie meno k { -product-mozilla-account(capitalization: "lower", case: "dat") } a na zasielanie bezpečnostných upozornení a potvrdení.
 postChangePrimary-action = Spravovať účet
-postChangeRecoveryPhone-subject = Obnovenie pomocou telefónu bolo aktualizované
+postChangeRecoveryPhone-subject = Telefónne číslo na obnovenie prístupu k účtu bolo aktualizované
 postChangeRecoveryPhone-preview = Účet chránený dvojstupňovým overením
-postChangeRecoveryPhone-title = Zmenili ste si telefón na obnovenie účtu
-postChangeRecoveryPhone-description = Teraz máte nové telefónne číslo na obnovenie účtu. Vaše predchádzajúce telefónne číslo bolo odstránené.
+postChangeRecoveryPhone-title = Zmenili ste si telefónne číslo na obnovenie prístupu
+postChangeRecoveryPhone-description = Teraz máte nové telefónne číslo na obnovenie prístupu. Vaše predchádzajúce telefónne číslo bolo odstránené.
 postChangeRecoveryPhone-requested-device = Požiadali ste o to z:
 postChangeTwoStepAuthentication-preview = Váš účet je chránený
 postChangeTwoStepAuthentication-subject = Dvojstupňové overenie aktualizované
@@ -348,10 +348,10 @@ postRemovePasskey-title = Odstránili ste svoj prístupový kľúč
 postRemovePasskey-description = Na prihlásenie budete musieť použiť iný spôsob.
 postRemovePasskey-requested-from = Požiadali ste o to z:
 postRemovePasskey-action = Spravovať účet
-postRemoveRecoveryPhone-subject = Obnovenie pomocou telefónu bolo zrušené
+postRemoveRecoveryPhone-subject = Telefónne číslo na obnovenie prístupu bolo odstránené
 postRemoveRecoveryPhone-preview = Účet chránený dvojstupňovým overením
-postRemoveRecoveryPhone-title = Obnovenie pomocou telefónu bolo zrušené
-postRemoveRecoveryPhone-description-v2 = Telefón na obnovenie účtu bol odstránený z nastavení dvojstupňového overenia.
+postRemoveRecoveryPhone-title = Telefónne číslo na obnovenie prístupu bolo odstránené
+postRemoveRecoveryPhone-description-v2 = Telefón na obnovenie prístupu bol odstránený z nastavení dvojstupňového overenia.
 postRemoveRecoveryPhone-description-extra = Ak nemôžete použiť overovaciu aplikáciu, na prihlásenie môžete použiť svoje záložné overovacie kódy.
 postRemoveRecoveryPhone-requested-device = Požiadali ste o to z:
 postRemoveSecondary-subject = Alternatívna e‑mailová adresa bola odstránená
@@ -372,9 +372,9 @@ postSigninRecoveryCode-title = Na prihlásenie bol použitý váš záložný ov
 postSigninRecoveryCode-description = Ak ste tak neurobili, mali by ste si okamžite zmeniť heslo, aby bol váš účet v bezpečí.
 postSigninRecoveryCode-device = Prihlásili ste sa z:
 postSigninRecoveryCode-action = Spravovať účet
-postSigninRecoveryPhone-subject = Na prihlásenie bol použitý telefón na obnovenie účtu
+postSigninRecoveryPhone-subject = Na prihlásenie bol použitý telefón na obnovenie prístupu
 postSigninRecoveryPhone-preview = Potvrďte aktivitu účtu
-postSigninRecoveryPhone-title = Na prihlásenie bol použitý váš telefón na obnovenie účtu
+postSigninRecoveryPhone-title = Na prihlásenie bol použitý váš telefón na obnovenie prístupu
 postSigninRecoveryPhone-description = Ak ste tak neurobili, mali by ste si okamžite zmeniť heslo, aby bol váš účet v bezpečí.
 postSigninRecoveryPhone-device = Prihlásili ste sa z:
 postSigninRecoveryPhone-action = Spravovať účet

@@ -1492,6 +1492,11 @@ reset-password-complete-recovery-key-created = کلید بازیابی حساب 
 reset-password-complete-recovery-key-download-info = اگر گذرواژه‌تان را فراموش کنید، این کلید برای بازیابی داده‌ها ضروری است. <b>همین حالا آن را بارگیری کنید و جای امنی نگه دارید، چون بعداً دیگر به این صفحه دسترسی نخواهید داشت.</b>
 
 
+server-error-heading = خطا ۵۰۰
+server-error-description = اوه عزیزم، یک مشکلی پیش آمد. ما مطلع شده‌ایم و روی رفع مشکل کار خواهیم کرد.
+server-error-home-button = خانه
+
+
 error-label = خطا:
 validating-signin = در حال بررسی ورود…
 complete-signin-error-header = خطا در تأیید

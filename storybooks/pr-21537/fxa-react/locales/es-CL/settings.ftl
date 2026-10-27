@@ -2220,6 +2220,13 @@ reset-password-complete-recovery-key-download-info =
     la recuperación de datos si olvidas tu contraseña. <b>Descárgala y guárdala de manera segura
     ahora mismo, ya que no podrás volver a esta página más tarde.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Error 500
+server-error-description = Chuta amigo, algo falló aquí. Fuimos notificados y empezaremos a trabajar en la solución.
+server-error-home-button = Inicio
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin

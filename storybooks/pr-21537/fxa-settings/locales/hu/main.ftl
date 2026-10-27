@@ -1548,6 +1548,11 @@ reset-password-complete-recovery-key-download-info =
     mert később nem fogja tudni újra elérni ezt az oldalt.</b>
 
 
+server-error-heading = 500-as hiba
+server-error-description = Ó jaj, valami hiba történt. Értesítést kaptunk, és elkezdünk a javításon dolgozni.
+server-error-home-button = Kezdőlap
+
+
 error-label = Hiba:
 validating-signin = Bejelentkezés ellenőrzése…
 complete-signin-error-header = Megerősítési hiba

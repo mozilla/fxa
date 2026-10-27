@@ -1502,6 +1502,10 @@ reset-password-complete-recovery-key-download-info =
     no, sidan du ikkje vil få tilgang til denne sida igjen seinare.</b>
 
 
+server-error-heading = Feil 500
+server-error-home-button = Heim
+
+
 error-label = Feil:
 validating-signin = Validerer innlogging…
 complete-signin-error-header = Stadfestingsfeil

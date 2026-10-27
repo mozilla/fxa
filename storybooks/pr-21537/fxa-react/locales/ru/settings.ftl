@@ -2228,6 +2228,13 @@ reset-password-complete-recovery-key-download-info =
     восстановления данных, если вы забудете свой пароль. <b>Скачайте и храните в безопасности
     сейчас, так как вы не сможете получить доступ к этой странице позже.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Ошибка 500
+server-error-description = О боже мой, что-то пошло не так. Мы уведомлены об этом и начнём работу над исправлением.
+server-error-home-button = Главная страница
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin
