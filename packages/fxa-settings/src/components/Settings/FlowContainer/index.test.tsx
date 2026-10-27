@@ -20,3 +20,37 @@ it('calls the given on back button click handler', async () => {
   });
   expect(cb).toHaveBeenCalledTimes(1);
 });
+
+it('left-aligns the title by default', () => {
+  renderWithRouter(<FlowContainer title="Title" />);
+  expect(
+    screen.getByRole('heading', { name: 'Title' }).parentElement
+  ).not.toHaveClass('justify-center');
+});
+
+it('centers the title and subtitle with centerTitle', () => {
+  renderWithRouter(
+    <FlowContainer title="Title" subtitle="Subtitle" centerTitle />
+  );
+  expect(
+    screen.getByRole('heading', { name: 'Title' }).parentElement
+  ).toHaveClass('w-full', 'justify-center');
+  expect(screen.getByRole('heading', { name: 'Subtitle' })).toHaveClass(
+    'self-center'
+  );
+});
+
+it('offsets the mobile back button width when centerTitle is set', () => {
+  renderWithRouter(<FlowContainer title="Title" centerTitle />);
+  expect(screen.getByRole('heading', { name: 'Title' })).toHaveClass(
+    'pe-14',
+    'tablet:pe-0'
+  );
+});
+
+it('does not offset the title when the back button is hidden', () => {
+  renderWithRouter(<FlowContainer title="Title" centerTitle hideBackButton />);
+  expect(screen.getByRole('heading', { name: 'Title' })).not.toHaveClass(
+    'pe-14'
+  );
+});

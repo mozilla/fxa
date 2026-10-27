@@ -193,7 +193,7 @@ export const PageDeleteAccount = () => {
 
   return (
     <Localized id="delete-account-header" attrs={{ title: true }}>
-      <FlowContainer title="Delete account" subtitle={subtitleText}>
+      <FlowContainer title="Delete account" subtitle={subtitleText} centerTitle>
         <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         {!confirmed && (
           <div className="my-4 text-sm" data-testid="delete-account-confirm">

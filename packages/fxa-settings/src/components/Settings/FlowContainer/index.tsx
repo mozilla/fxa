@@ -19,6 +19,7 @@ type FlowContainerProps = {
   ) => void;
   hideBackButton?: boolean;
   localizedBackButtonTitle?: string;
+  centerTitle?: boolean;
   children?: React.ReactNode;
 };
 
@@ -28,6 +29,7 @@ export const FlowContainer = ({
   onBackButtonClick = () => window.history.back(),
   hideBackButton = false,
   localizedBackButtonTitle,
+  centerTitle = false,
   children,
 }: FlowContainerProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
@@ -42,7 +44,11 @@ export const FlowContainer = ({
     >
       <Head title={title} />
 
-      <div className="relative flex items-center">
+      <div
+        className={classNames('relative flex items-center', {
+          'w-full justify-center': centerTitle,
+        })}
+      >
         {!hideBackButton && (
           <ButtonBack
             onClick={onBackButtonClick}
@@ -52,13 +58,24 @@ export const FlowContainer = ({
           />
         )}
         {title && (
-          <h1 className="font-header text-md text-grey-400 dark:text-grey-200">
+          <h1
+            className={classNames(
+              'font-header text-md text-grey-400 dark:text-grey-200',
+              // matches the inline mobile ButtonBack width (p-2 + w-6 + me-4)
+              { 'pe-14 tablet:pe-0': centerTitle && !hideBackButton }
+            )}
+          >
             {title}
           </h1>
         )}
       </div>
       {subtitle && (
-        <h2 className="text-xs text-grey-400 dark:text-grey-200 font-semibold uppercase mt-1">
+        <h2
+          className={classNames(
+            'text-xs text-grey-400 dark:text-grey-200 font-semibold uppercase mt-1',
+            { 'self-center': centerTitle }
+          )}
+        >
           {subtitle}
         </h2>
       )}
