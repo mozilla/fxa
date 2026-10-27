@@ -1,8 +1,8 @@
 {
-  "commit": "97cb141b0986046544cad968c9f797788e083b6a",
-  "summary": "fix(settings): tag passkey wrap unwrap failures for Sentry triage",
-  "description": "Because:\n\n* An invalid PRF output fell back to the password page with no report\n* Every decrypt failure reported the same untagged message\n\nThis commit:\n\n* Reports an invalid PRF output, tagged with its length\n* Tags decrypt failures with the stage and the error name\n\nCloses #FXA-14797",
-  "timestamp": 1793057010000,
+  "commit": "378fcf2723f18e6c331b1294006058a53ed01688",
+  "summary": "feat(settings): explain unusable passkey wraps on the password fallback",
+  "description": "Because:\n\n* A Sync passkey with a wrap could fall back to the password page\n  with no explanation\n* Unwrap failures reached Sentry untagged, or not at all\n\nThis commit:\n\n* Fetches the wrap even without PRF output, so no_prf is told apart from no_wrap\n* Shows a localized banner with a Learn more link for no_prf and unwrap_failed\n* Records a Glean event when the banner shows\n* Tags unwrap failures for Sentry triage\n* Stashes opt-in material only when the PRF output is usable\n\nCloses #FXA-14797",
+  "timestamp": 1793130580000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-settings"

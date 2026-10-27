@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 97cb141b0986046544cad968c9f797788e083b6a</title>
+  <title>Storybooks for commit 378fcf2723f18e6c331b1294006058a53ed01688</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,26 +23,30 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 97cb141b0986046544cad968c9f797788e083b6a</h1>
+  <h1>Storybooks for commit 378fcf2723f18e6c331b1294006058a53ed01688</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/26/2026, 11:23:30 PM UTC</dd>
+    <dd>10/27/2026, 7:49:40 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(settings): tag passkey wrap unwrap failures for Sentry triage</pre></dd>
+    <dd><pre>feat(settings): explain unusable passkey wraps on the password fallback</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-* An invalid PRF output fell back to the password page with no report
-* Every decrypt failure reported the same untagged message
+* A Sync passkey with a wrap could fall back to the password page
+  with no explanation
+* Unwrap failures reached Sentry untagged, or not at all
 
 This commit:
 
-* Reports an invalid PRF output, tagged with its length
-* Tags decrypt failures with the stage and the error name
+* Fetches the wrap even without PRF output, so no_prf is told apart from no_wrap
+* Shows a localized banner with a Learn more link for no_prf and unwrap_failed
+* Records a Glean event when the banner shows
+* Tags unwrap failures for Sentry triage
+* Stashes opt-in material only when the PRF output is usable
 
 Closes #FXA-14797</pre></dd>
   </dl>
