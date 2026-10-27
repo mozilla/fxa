@@ -1,8 +1,8 @@
 {
-  "commit": "cc7622a9f5c6747485c7dc668728bae31f0f3fe1",
-  "summary": "Merge pull request #21613 from mozilla/fxa-14844",
-  "description": "feat(settings): add PairUnsupportedHint with view and os variants",
-  "timestamp": 1793131290000,
+  "commit": "18310cd1dfb2572bd1382d548a2d18c88d9ce13f",
+  "summary": "Merge pull request #21480 from mozilla/fxa-14005",
+  "description": "fix(settings): report actionable Glean reasons for passkey errors",
+  "timestamp": 1793134258000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
