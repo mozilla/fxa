@@ -1320,7 +1320,6 @@ pair2-authority-continue-on-mobile-cancel-button = Anuluj
 
 
 pair2-authority-download-firefox-heading = Otwórz { -brand-firefox(case: "acc") }, aby zsynchronizować
-pair2-authority-download-firefox-instruction = Aby skonfigurować synchronizację między urządzeniami, otwórz { -brand-firefox(case: "acc") } na tym urządzeniu i przejdź na stronę <b>firefox.com/pair</b>
 pair2-authority-download-firefox-cta = Pobierz przeglądarkę { -brand-firefox }
 
 

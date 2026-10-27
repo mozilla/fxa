@@ -1904,7 +1904,7 @@ pair2-authority-continue-on-mobile-cancel-button = Mégse
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = A { -brand-firefox } megnyitása a szinkronizáláshoz
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Az eszközök közti szinkronizálás beállításához nyissa meg a { -brand-firefox } böngészőt ezen az eszközön, és keresse fel a <b>firefox.com/pair</b> oldalt
+pair2-authority-download-firefox-instruction-v2 = Az eszközök közti szinkronizálás beállításához nyissa meg a { -brand-firefox } böngészőt ezen az eszközön, és keresse fel a <b>firefox.com/pair</b> oldalt.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = A { -brand-firefox } letöltése
 
@@ -2227,6 +2227,13 @@ reset-password-complete-recovery-key-download-info =
     Ez a kulcs elengedhetetlen az adat-helyreállításhoz,
     ha elfelejti a jelszavát. <b>Töltse le és tárolja biztonságosan most,
     mert később nem fogja tudni újra elérni ezt az oldalt.</b>
+
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = 500-as hiba
+server-error-description = Ó jaj, valami hiba történt. Értesítést kaptunk, és elkezdünk a javításon dolgozni.
+server-error-home-button = Kezdőlap
 
 ## CompleteSignin component
 

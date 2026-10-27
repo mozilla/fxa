@@ -1898,7 +1898,7 @@ pair2-authority-continue-on-mobile-cancel-button = Cancelar
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Abrir { -brand-firefox } para sincronizar
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Para configurar la sincronización entre dispositivos, abrí { -brand-firefox } en este dispositivo y visitá <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Para configurar la sincronización entre dispositivos, abrí { -brand-firefox } en este dispositivo y visitá <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Descargar { -brand-firefox }
 
@@ -2221,6 +2221,13 @@ reset-password-complete-recovery-key-download-info =
     Esta clave es esencial para la
     recuperación de datos si olvidás tu contraseña. <b>Descargala y guardala de forma segura
     ahora, ya que no podrás volver a acceder a esta página más adelante.</b>
+
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Error 500
+server-error-description = ¡Ups! Algo resultó mal. Nos llegó la notificación y estamos buscando una solución.
+server-error-home-button = Inicio
 
 ## CompleteSignin component
 

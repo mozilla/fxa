@@ -1457,7 +1457,7 @@ pair2-authority-continue-on-mobile-cancel-button = Prekliči
 
 
 pair2-authority-download-firefox-heading = Odprite { -brand-firefox } za sinhronizacijo
-pair2-authority-download-firefox-instruction = Če želite nastaviti sinhronizacijo med napravami, v tej napravi odprite { -brand-firefox } in obiščite <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Če želite nastaviti sinhronizacijo med napravami, v tej napravi odprite { -brand-firefox } in obiščite <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Prenesi { -brand-firefox(sklon: "tozilnik") }
 
 
@@ -1641,6 +1641,11 @@ reset-password-complete-recovery-key-download-info =
     Ta ključ je potreben za
     obnovitev podatkov, če pozabite geslo. <b>Prenesite ga in ga varno shranite
      zdaj, saj se pozneje ne boste več mogli vrniti na to stran.</b>
+
+
+server-error-heading = Napaka 500
+server-error-description = Joj, nekaj je šlo narobe. Prejeli smo obvestilo in se lotimo popravka.
+server-error-home-button = Domov
 
 
 error-label = Napaka:

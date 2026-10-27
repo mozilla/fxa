@@ -1904,7 +1904,7 @@ pair2-authority-continue-on-mobile-cancel-button = Annulearje
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Iepenje { -brand-firefox } om te syngronisearjen
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Iepenje { -brand-firefox } op dit apparaat en besykje <b>firefox.com/pair</b> om syngronisaasje tusken apparaten yn te stellen
+pair2-authority-download-firefox-instruction-v2 = Iepenje { -brand-firefox } op dit apparaat en besykje <b>firefox.com/pair</b> om syngronisaasje tusken apparaten yn te stellen.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = { -brand-firefox } downloade
 
@@ -2224,6 +2224,13 @@ reset-password-with-recovery-key-verified-page-title = Wachtwurd mei sukses opni
 reset-password-complete-new-password-saved = Nij wachtwurd bewarre!
 reset-password-complete-recovery-key-created = Nije accountwerstelkaai oanmakke. Download en bewarje dizze no.
 reset-password-complete-recovery-key-download-info = Dizze kaai is essinsjeel foar gegevenswerstel as jo jo wachtwurd ferjitte. <b>Download en bewarje it no feilich, omdat jo dizze side letter net mear iepenje kinne.</b>
+
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Flater 500
+server-error-description = Och heden, der gie wat mis. Wy binne op ’e hichte brocht en wurkje oan in oplossing.
+server-error-home-button = Startside
 
 ## CompleteSignin component
 

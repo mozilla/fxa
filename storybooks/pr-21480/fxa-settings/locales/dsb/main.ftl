@@ -1337,7 +1337,7 @@ pair2-authority-continue-on-mobile-cancel-button = Pśetergnuś
 
 
 pair2-authority-download-firefox-heading = { -brand-firefox } za synchronizaciju wócyniś
-pair2-authority-download-firefox-instruction = Aby synchronizaciju na rědach konfigurěrował, wócyńśo { -brand-firefox } na toś tom rěźe a woglědajśo se k <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Aby synchronizaciju na rědach konfigurěrował, wócyńśo { -brand-firefox } na toś tom rěźe a woglědajśo se k <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = { -brand-firefox } ześěgnuś
 
 
@@ -1521,6 +1521,11 @@ reset-password-complete-recovery-key-download-info =
     Toś ten kluc jo bytostny za
     datowe wótnowjenje, jolic swójo gronidło zabywaśo. <b>Ześěgniśo a składujśo jen něnto wěsće
     dokulaž pózdźej k toś tomu bokoju wěcej pśistup njamaśo.</b>
+
+
+server-error-heading = Zmólka 500
+server-error-description = Mój Bog, něco jo kśiwje šło. Smy se informěrowali a dajomy se do wótwónoźowanja problema.
+server-error-home-button = Startowy bok
 
 
 error-label = Zmólka:

@@ -1362,7 +1362,7 @@ pair2-authority-continue-on-mobile-cancel-button = Отмена
 
 
 pair2-authority-download-firefox-heading = Откройте { -brand-firefox } для синхронизации
-pair2-authority-download-firefox-instruction = Чтобы настроить синхронизацию между устройствами, откройте { -brand-firefox } на этом устройстве и посетите <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Чтобы настроить синхронизацию между устройствами, откройте { -brand-firefox } на этом устройстве и посетите <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Скачать { -brand-firefox }
 
 
@@ -1545,6 +1545,11 @@ reset-password-complete-recovery-key-download-info =
     Этот ключ необходим для
     восстановления данных, если вы забудете свой пароль. <b>Скачайте и храните в безопасности
     сейчас, так как вы не сможете получить доступ к этой странице позже.</b>
+
+
+server-error-heading = Ошибка 500
+server-error-description = О боже мой, что-то пошло не так. Мы уведомлены об этом и начнём работу над исправлением.
+server-error-home-button = Главная страница
 
 
 error-label = Ошибка:

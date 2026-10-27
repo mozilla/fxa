@@ -1896,7 +1896,7 @@ pair2-authority-continue-on-mobile-cancel-button = Cancelar
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Abre { -brand-firefox } para sincronizar
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Para configurar la sincronización entre dispositivos, abre { -brand-firefox } en este dispositivo y visita <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Para configurar la sincronización entre dispositivos, abre { -brand-firefox } en este dispositivo y visita <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Descarga { -brand-firefox }
 
@@ -2034,6 +2034,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Para conectar tu dispo
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Para conectar un dispositivo en cualquier momento, visita <b>firefox.com/pair</b> desde tu computador.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Este dispositivo ya está conectado
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = Para conectarte a tu cuenta de escritorio, cierra sesión en { -brand-firefox } en este dispositivo y luego visita <b>firefox.com/pair</b> en tu computador para completar la conexión.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2215,6 +2219,13 @@ reset-password-complete-recovery-key-download-info =
     Esta clave es esencial para
     la recuperación de datos si olvidas tu contraseña. <b>Descárgala y guárdala de manera segura
     ahora mismo, ya que no podrás volver a esta página más tarde.</b>
+
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Error 500
+server-error-description = Chuta amigo, algo falló aquí. Fuimos notificados y empezaremos a trabajar en la solución.
+server-error-home-button = Inicio
 
 ## CompleteSignin component
 

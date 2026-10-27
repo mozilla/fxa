@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit dc81a8799e1e3c88397c11c7461b4ea4e9ceb6a3</title>
+  <title>Storybooks for commit 0521d1e90be39fe25f9021c38491950ab604cc12</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,29 +23,30 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit dc81a8799e1e3c88397c11c7461b4ea4e9ceb6a3</h1>
+  <h1>Storybooks for commit 0521d1e90be39fe25f9021c38491950ab604cc12</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/16/2026, 2:38:55 PM UTC</dd>
+    <dd>10/27/2026, 5:43:34 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(settings): report shared Glean reasons for passkey creation errors</pre></dd>
+    <dd><pre>fix(settings): report actionable Glean reasons for passkey errors</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
+- Passkey error metrics couldn&#039;t separate failures we can fix from ones we can&#039;t.
 - Add-passkey kept its own reason map, reporting webauthn_unknown and auth_error_&lt;n&gt;.
-- Glean reasons should cover only errors that could drive a product change.
+- Sentry received device and network errors that no engineering fix addresses.
 
 This commit:
-- Makes add-passkey report the shared WebAuthn gleanReason.
-- Reports server errors as server_error, except errnos 226 and 233.
-- Reports a duplicate passkey as not_allowed instead of not_supported.
-- Treats only errors from the add-passkey prompt as WebAuthn errors.
-- Sends every error that reports &#039;unexpected&#039; to Sentry.
+- Makes add-passkey report the shared WebAuthn gleanReason, plus network_error.
+- Names server refusals 226, 233, 114, 125 and 238; the rest report server_error.
+- Adds not_readable, and reports every duplicate passkey as not_allowed.
+- Stops sending network, device and duplicate-passkey errors to Sentry.
+- Makes sign-in choose its banner from errorType, not gleanReason.
 
-Closes FXA-14005</pre></dd>
+Closes #FXA-14005</pre></dd>
   </dl>
 </body>
 </html>

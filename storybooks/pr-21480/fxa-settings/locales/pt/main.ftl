@@ -1325,7 +1325,7 @@ pair2-authority-continue-on-mobile-cancel-button = Cancelar
 
 
 pair2-authority-download-firefox-heading = Abrir o { -brand-firefox } para sincronizar
-pair2-authority-download-firefox-instruction = Para configurar a sincronização entre dispositivos, abra o { -brand-firefox } neste dispositivo e visite <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Para configurar a sincronização entre dispositivos, abra o { -brand-firefox } neste dispositivo e visite <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Transferir { -brand-firefox }
 
 
@@ -1387,6 +1387,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que expirámos
 pair2-supplicant-timeout-and-cancel-timeout-description = Para ligar o seu dispositivo móvel e sincronizar os seus dados do { -brand-firefox }, visite <b>firefox.com/pair</b> no seu computador.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 pair2-supplicant-timeout-and-cancel-canceled-description = Para ligar um dispositivo a qualquer momento, visite <b>firefox.com/pair</b> no seu computador.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Este dispositivo já tem sessão iniciada
+pair2-supplicant-timeout-and-cancel-signed-in-description = Para ligar à sua conta de computador, termine sessão no { -brand-firefox } neste dispositivo e visite <b>firefox.com/pair</b> no seu computador para concluir o início de sessão.
 
 
 permissions-heading = { $serviceName } pretende aceder a:
@@ -1502,6 +1504,11 @@ reset-password-with-recovery-key-verified-page-title = Palavra-passe redefinida 
 reset-password-complete-new-password-saved = Nova palavra-passe guardada!
 reset-password-complete-recovery-key-created = Nova chave de recuperação da conta criada. Transferir e guardar agora.
 reset-password-complete-recovery-key-download-info = Esta chave é essencial para a recuperação dos dados, caso se esqueça da sua palavra-passe. <b>Faça a transferência e guarde a mesma em segurança agora, pois não poderá aceder novamente a esta página mais tarde.</b>
+
+
+server-error-heading = Erro 500
+server-error-description = Oh não, algo correu mal aqui. Nós fomos notificados e iremos trabalhar numa correção.
+server-error-home-button = Início
 
 
 error-label = Erro:

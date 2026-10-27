@@ -1317,7 +1317,6 @@ pair2-authority-continue-on-mobile-cancel-button = Eheja
 
 
 pair2-authority-download-firefox-heading = Embojuruja { -brand-firefox } embojuehe hag̃ua
-pair2-authority-download-firefox-instruction = Emboheko hag̃ua ñembojuehe mba’e’oka pa’ũme, embojuruja { -brand-firefox } ko mba’e’okápe ha eike <b>firefox.com/pair</b>-pe
 pair2-authority-download-firefox-cta = Emboguejy { -brand-firefox }
 
 
