@@ -1,8 +1,8 @@
 {
-  "commit": "ccb61da37bc5bc20741bc139218196ee1b7dd074",
-  "summary": "Merge pull request #21619 from mozilla/fxa-14846",
-  "description": "feat(settings): add Sentry close reason and resume count to pairing socket",
-  "timestamp": 1793118829000,
+  "commit": "1ac68298167cf155df58451a872538fbd055c687",
+  "summary": "Merge pull request #21614 from mozilla/fxa-14845",
+  "description": "chore(content-server): remove Backbone-era config, grunt tasks and assets",
+  "timestamp": 1793118904000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
