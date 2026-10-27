@@ -169,6 +169,18 @@ export function shouldRequestWrapMaterial(
   );
 }
 
+/**
+ * Why a Sync passkey sign-in fell back to the password page. `no_prf` and
+ * `unwrap_failed` mean the passkey has a wrap that couldn't be used here;
+ * `fetch_failed` means the wrap couldn't be checked at all.
+ */
+export type PasskeyFallbackCause =
+  | 'no_wrap'
+  | 'stale'
+  | 'no_prf'
+  | 'unwrap_failed'
+  | 'fetch_failed';
+
 /** Banner state the hook returns; the page renders it with `<Banner {...banner} />`. */
 export type PasskeySignInBanner = Pick<
   BannerProps,

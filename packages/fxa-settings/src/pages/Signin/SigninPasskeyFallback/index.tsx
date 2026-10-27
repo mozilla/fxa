@@ -6,18 +6,23 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import { useForm } from 'react-hook-form';
 import { Link, useLocation } from 'react-router';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import { FtlMsg, FtlMsgResolver } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppLayout from '../../../components/AppLayout';
 import CmsButtonWithFallback from '../../../components/CmsButtonWithFallback';
 import Avatar from '../../../components/Settings/Avatar';
 import { Banner } from '../../../components/Banner';
+import type { BannerProps } from '../../../components/Banner/interfaces';
 import InputPassword from '../../../components/InputPassword';
 import GleanMetrics from '../../../lib/glean';
 import { useGleanView } from '../../../lib/glean/useGleanView';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { AccountAvatar } from '../../../lib/interfaces';
-import { PasskeyMetricsSurface } from '../../../lib/passkeys/signin-flow';
+import type {
+  PasskeyFallbackCause,
+  PasskeyMetricsSurface,
+} from '../../../lib/passkeys/signin-flow';
+import { PASSKEY_TROUBLESHOOT_URL } from '../../../lib/passkeys/constants';
 import { RelierCmsInfo, useFtlMsgResolver } from '../../../models';
 
 export type SigninPasskeyFallbackContinueError = {
@@ -34,6 +39,7 @@ export type SigninPasskeyFallbackProps = {
   avatarLoading?: boolean;
   passkeySurface?: PasskeyMetricsSurface;
   cmsInfo?: RelierCmsInfo;
+  passkeyFallbackCause?: PasskeyFallbackCause;
 };
 
 type FormData = {
@@ -49,6 +55,7 @@ const SigninPasskeyFallback = ({
   avatarLoading,
   passkeySurface = 'emailfirst',
   cmsInfo,
+  passkeyFallbackCause,
 }: SigninPasskeyFallbackProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const [passwordTooltipErrorText, setPasswordTooltipErrorText] = useState('');
@@ -72,6 +79,18 @@ const SigninPasskeyFallback = ({
     GleanMetrics.passkeyEnterPassword.view({
       event: { reason: passkeySurface },
     })
+  );
+
+  const wrapUnusableBanner = getWrapUnusableBanner(
+    ftlMsgResolver,
+    passkeyFallbackCause
+  );
+  useGleanView(
+    () =>
+      GleanMetrics.passkeyEnterPassword.wrapUnusableBannerView({
+        event: { reason: passkeyFallbackCause },
+      }),
+    !!wrapUnusableBanner
   );
 
   // Fire engage on the first keystroke into the password field. Mirrors the
@@ -124,6 +143,7 @@ const SigninPasskeyFallback = ({
 
   return (
     <AppLayout cmsInfo={cmsInfo}>
+      {wrapUnusableBanner && <Banner {...wrapUnusableBanner} />}
       {bannerErrorText && (
         <Banner type="error" content={{ localizedHeading: bannerErrorText }} />
       )}
@@ -217,3 +237,51 @@ const SigninPasskeyFallback = ({
 };
 
 export default SigninPasskeyFallback;
+
+// Shown when the passkey has a wrap that couldn't be used on this device.
+function getWrapUnusableBanner(
+  ftlMsgResolver: FtlMsgResolver,
+  cause?: PasskeyFallbackCause
+): BannerProps | undefined {
+  const link = {
+    url: PASSKEY_TROUBLESHOOT_URL,
+    localizedText: ftlMsgResolver.getMsg(
+      'signin-passkey-fallback-wrap-unusable-link',
+      'Learn more'
+    ),
+    gleanId: 'signin_passkey_fallback_wrap_unusable_learn_more',
+  };
+  if (cause === 'no_prf') {
+    return {
+      type: 'warning',
+      content: {
+        localizedHeading: ftlMsgResolver.getMsg(
+          'signin-passkey-fallback-no-prf-heading',
+          'Password needed on this device'
+        ),
+        localizedDescription: ftlMsgResolver.getMsg(
+          'signin-passkey-fallback-no-prf-description',
+          'This browser or device can’t use your passkey to sign in to sync on its own.'
+        ),
+      },
+      link,
+    };
+  }
+  if (cause === 'unwrap_failed') {
+    return {
+      type: 'error',
+      content: {
+        localizedHeading: ftlMsgResolver.getMsg(
+          'signin-passkey-fallback-unwrap-failed-heading',
+          'Your passkey couldn’t unlock sync'
+        ),
+        localizedDescription: ftlMsgResolver.getMsg(
+          'signin-passkey-fallback-unwrap-failed-description',
+          'Something went wrong, so you’ll need your password this time.'
+        ),
+      },
+      link,
+    };
+  }
+  return undefined;
+}

@@ -34,6 +34,7 @@ jest.mock('../../../lib/glean', () => ({
       submit: jest.fn(),
       submitFrontendError: jest.fn(),
       success: jest.fn(),
+      wrapUnusableBannerView: jest.fn(),
     },
     passkey: {
       authSuccess: jest.fn(),
@@ -378,6 +379,19 @@ describe('SigninPasskeyFallback container', () => {
         email: MOCK_EMAIL,
         sessionToken: MOCK_SESSION_TOKEN,
         verified: true,
+      });
+    });
+
+    it('passes the router-state fallback cause to the page', async () => {
+      mockLocationState = {
+        passkeySurface: 'signin',
+        passkeyFallbackCause: 'no_prf',
+      };
+      render();
+      await waitFor(() => {
+        expect(
+          GleanMetrics.passkeyEnterPassword.wrapUnusableBannerView
+        ).toHaveBeenCalledWith({ event: { reason: 'no_prf' } });
       });
     });
 

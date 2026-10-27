@@ -931,6 +931,11 @@ const recordEventMetric = (
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
       break;
+    case 'passkey_enter_password_wrap_unusable_banner_view':
+      passkeyEnterPassword.wrapUnusableBannerView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
     case 'passkey_enter_password_engage':
       passkeyEnterPassword.engage.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',

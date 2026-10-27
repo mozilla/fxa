@@ -29,6 +29,7 @@ import {
   passkeyErrorBanner,
   passkeyUnexpectedBanner,
   shouldRequestWrapMaterial,
+  type PasskeyFallbackCause,
   type PasskeySignInAuthClient,
   type PasskeySignInBanner,
   type PasskeySignInIntegration,
@@ -233,9 +234,11 @@ export function usePasskeySignIn({
           return;
         }
 
+        let fallbackCause: PasskeyFallbackCause | undefined;
+        // Runs without PRF output too, so a wrap that exists but can't be
+        // used here is told apart from no wrap at all.
         if (
           wrapMaterialRequested &&
-          prfOut &&
           completion.verified &&
           completion.hasPassword
         ) {
@@ -252,7 +255,7 @@ export function usePasskeySignIn({
             sensitiveDataClient,
           });
           // Spent: zeroed now rather than after the sign-in round-trip below.
-          prfOut.fill(0);
+          prfOut?.fill(0);
           if (recovered.outcome === 'left') {
             return;
           }
@@ -260,6 +263,7 @@ export function usePasskeySignIn({
             await signIn(recovered.kB);
             return;
           }
+          fallbackCause = recovered.cause;
         }
 
         // A password is needed to derive scoped keys before the browser
@@ -276,7 +280,7 @@ export function usePasskeySignIn({
             state: {
               passkeySurface: toPasskeyMetricsSurface(surface),
               ...(completion.hasPassword
-                ? {}
+                ? { passkeyFallbackCause: fallbackCause }
                 : { passwordCreationReason: 'passkey' as const }),
             },
           }
