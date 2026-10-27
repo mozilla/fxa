@@ -1,8 +1,8 @@
 {
-  "commit": "13c8c9b7ec5a11733f39f8a810eb44c7c3087cfb",
-  "summary": "Merge pull request #21611 from mozilla/fxa-14834-use-statsd-gauge-inactive-accts-job",
-  "description": "fix(metrics): use statsd gauges in delete-inactive-accounts script",
-  "timestamp": 1793107713000,
+  "commit": "2233833591460d31efd40c942248dc670c3a0cfb",
+  "summary": "Merge pull request #21616 from mozilla/feat-cr-config-thorough",
+  "description": "feat(fxa): add coderabbit thorough config",
+  "timestamp": 1793112988000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
