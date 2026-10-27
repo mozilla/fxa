@@ -1,8 +1,8 @@
 {
-  "commit": "b1bf98efc75c44a34047ae6b9c36f1036e0c49d4",
-  "summary": "Merge pull request #21391 from mozilla/agent-22d438",
-  "description": "fix(auth): honor Retry-After and harden Recorded Future lookups",
-  "timestamp": 1793119442000,
+  "commit": "d63ba4f994c02aa158050e1916e1255a0409921d",
+  "summary": "Merge pull request #21537 from mozilla/fxa-14788",
+  "description": "chore(deps): upgrade express to v5 in fxa-content-server",
+  "timestamp": 1793130762000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
