@@ -1,8 +1,8 @@
 {
-  "commit": "1ac68298167cf155df58451a872538fbd055c687",
-  "summary": "Merge pull request #21614 from mozilla/fxa-14845",
-  "description": "chore(content-server): remove Backbone-era config, grunt tasks and assets",
-  "timestamp": 1793118904000,
+  "commit": "b1bf98efc75c44a34047ae6b9c36f1036e0c49d4",
+  "summary": "Merge pull request #21391 from mozilla/agent-22d438",
+  "description": "fix(auth): honor Retry-After and harden Recorded Future lookups",
+  "timestamp": 1793119442000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
