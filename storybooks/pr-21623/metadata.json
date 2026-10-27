@@ -1,0 +1,10 @@
+{
+  "commit": "7eecfaeddc94bcf180ee1735d1feccbfecba1385",
+  "summary": "feat(settings): use PairUnsupportedHint on the pair connect hint page",
+  "description": "Because:\n\n* The pair connect hint page had its own copy of the shared hint steps\n\nThis commit:\n\n* Renders PairUnsupportedHint (tab view) on the connect hint page\n* Picks the menu illustration from the device OS\n* Removes the page's duplicate steps and Fluent strings\n* Adds an optional learn more glean id to PairUnsupportedHint\n* Adds iOS and Android stories and a functional test\n\nCloses FXA-14247",
+  "timestamp": 1793134597000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
