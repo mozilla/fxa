@@ -12,6 +12,7 @@ export type PairUnsupportedHintProps = {
   // A webview belongs to another app, so the user must close it first
   view: 'webview' | 'tab';
   os: 'android' | 'ios';
+  learnMoreGleanId?: string;
 };
 
 // The <ol> gives assistive tech the order, so the number is decorative.
@@ -24,7 +25,11 @@ const StepNumber = ({ children }: { children: number }) => (
   </span>
 );
 
-export const PairUnsupportedHint = ({ view, os }: PairUnsupportedHintProps) => {
+export const PairUnsupportedHint = ({
+  view,
+  os,
+  learnMoreGleanId,
+}: PairUnsupportedHintProps) => {
   const steps = [
     ...(view === 'webview'
       ? [
@@ -66,6 +71,7 @@ export const PairUnsupportedHint = ({ view, os }: PairUnsupportedHintProps) => {
 
       <LinkExternal
         href={Constants.PAIR_WITHOUT_QR_SUMO_URL}
+        gleanDataAttrs={learnMoreGleanId ? { id: learnMoreGleanId } : undefined}
         className="link-dark-grey mt-10"
       >
         <FtlMsg id="pair-unsupported-hint-learn-more-link">Learn more</FtlMsg>

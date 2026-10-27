@@ -3,79 +3,39 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import LinkExternal from 'fxa-react/components/LinkExternal';
 import AppLayout from '../../../../components/AppLayout';
-import {
-  FirefoxWordmarkImage,
-  MobileDevicePairingImage,
-} from '../../../../components/images';
-import { Constants } from '../../../../lib/constants';
+import { FirefoxWordmarkImage } from '../../../../components/images';
+import PairUnsupportedHint, {
+  PairUnsupportedHintProps,
+} from '../../../../components/PairUnsupportedHint';
+import { detectDevice, Devices } from '../../../../lib/utilities';
 
-// The list itself carries the ordering for assistive tech, so the visible
-// number is decorative.
-const StepNumber = ({ children }: { children: string }) => (
-  <span
-    aria-hidden="true"
-    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-grey-100 text-xs"
-  >
-    {children}
-  </span>
-);
+// Only iOS reaches this page through the hand-off, so other devices get iOS.
+const detectOs = (): PairUnsupportedHintProps['os'] =>
+  [Devices.FIREFOX_ANDROID, Devices.OTHER_ANDROID].includes(detectDevice())
+    ? 'android'
+    : 'ios';
 
 /**
  * The mobile screen for a user who scanned the pairing QR code with the
  * system camera instead of Firefox, but already has Firefox installed. It
  * walks them through scanning the code again from inside Firefox.
  *
- * Presentational only: nothing here depends on pairing state, and the next
- * step happens in the Firefox app rather than on this page.
+ * The download screen opens this page in a Firefox tab, so it shows the tab
+ * variant of the hint.
  */
-const PairConnectHint = () => (
+const PairConnectHint = ({
+  os = detectOs(),
+}: Partial<Pick<PairUnsupportedHintProps, 'os'>>) => (
   <AppLayout whiteBackground>
     <div className="flex flex-col items-center text-center">
-      <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
+      <FirefoxWordmarkImage className="mb-10 h-8 w-24 text-black dark:text-white" />
 
-      <MobileDevicePairingImage className="mt-10 h-[132px] w-auto" />
-
-      <FtlMsg id="pair2-supplicant-connect-hint-heading-v2">
-        <h1 className="card-header mt-4">Finish pairing in the app</h1>
-      </FtlMsg>
-
-      <ol className="mt-4 w-full rounded-xl border border-grey-100 bg-white p-4 text-start">
-        <li className="flex items-center gap-2 p-2">
-          <StepNumber>1</StepNumber>
-          <FtlMsg
-            id="pair2-supplicant-connect-hint-step-app-menu"
-            elems={{ b: <b /> }}
-          >
-            <p className="text-base">
-              Tap the <b>app menu</b> in the toolbar
-            </p>
-          </FtlMsg>
-        </li>
-        <li className="flex items-center gap-2 p-2">
-          <StepNumber>2</StepNumber>
-          <FtlMsg
-            id="pair2-supplicant-connect-hint-step-sign-in"
-            elems={{ b: <b /> }}
-          >
-            <p className="text-base">
-              Tap <b>sign in</b>, then scan the code
-            </p>
-          </FtlMsg>
-        </li>
-      </ol>
-
-      <LinkExternal
-        href={Constants.PAIR_WITHOUT_QR_SUMO_URL}
-        gleanDataAttrs={{ id: 'dtm_mobile_connect_hint_learn_more' }}
-        className="link-dark-grey mt-10"
-      >
-        <FtlMsg id="pair2-supplicant-connect-hint-learn-more-link">
-          Learn more
-        </FtlMsg>
-      </LinkExternal>
+      <PairUnsupportedHint
+        view="tab"
+        os={os}
+        learnMoreGleanId="dtm_mobile_connect_hint_learn_more"
+      />
     </div>
   </AppLayout>
 );

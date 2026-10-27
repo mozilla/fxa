@@ -13,5 +13,5 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-// The page takes no props, so there is only one state to show.
-export const Default = () => <PairConnectHint />;
+export const Ios = () => <PairConnectHint os="ios" />;
+export const Android = () => <PairConnectHint os="android" />;
