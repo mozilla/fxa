@@ -1,8 +1,8 @@
 {
-  "commit": "878c33ff7f2eb82a9db14acc4d650277b0a5783b",
+  "commit": "94e599f87f61559a6a76b99428dc12c558c907d6",
   "summary": "perf(auth): count devices directly in recoveryKey/exists",
   "description": "Because:\n- The route fetched full device rows, Redis session tokens, and merged\n  them only to take `.length`.\n- The endpoint runs on every Settings load plus sign-in and reset flows.\n- The old length was capped by findByUid's 500 limit; the count is not.\n\nThis commit:\n- Adds Device.countByUid, a plain query with the accountDevices zombie filter.\n- Adds db.deviceCount with a db.deviceCount.retrieve StatsD counter.\n- Uses the count in recoveryKey/exists; response shape is unchanged.\n\nFixes FXA-12736",
-  "timestamp": 1793044097000,
+  "timestamp": 1793126089000,
   "storybooks": [
     "fxa-admin-panel"
   ],
