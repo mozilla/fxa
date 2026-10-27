@@ -15,6 +15,10 @@ module.exports = {
       main: './src/main.ts',
       additionalEntryPoints: [
         { entryName: 'metering-sweep', entryPath: './src/metering-sweep.ts' },
+        {
+          entryName: 'metering-metrics',
+          entryPath: './src/metering-metrics.ts',
+        },
       ],
       tsConfig: './tsconfig.app.json',
       assets: [

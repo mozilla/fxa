@@ -525,6 +525,68 @@ describe('MeteringSweepService', () => {
       ]);
     });
 
+    it('counts a delivered webhook by client, slug and threshold', async () => {
+      await service.sweep(params, NOW);
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'metering.sweep.dispatched',
+        { clientId: CLIENT_ID, slug: SLUG, threshold: '80' }
+      );
+    });
+
+    it('counts each webhook that receives the crossing', async () => {
+      meteringConfigurationManager.getMeterResultUtil.mockResolvedValue(
+        utilFor(
+          meter({
+            webhooks: [
+              StrapiMeterWebhookFactory({ signingClientId: 'wh-a' }),
+              StrapiMeterWebhookFactory({ signingClientId: 'wh-b' }),
+            ],
+          })
+        )
+      );
+
+      await service.sweep(params, NOW);
+
+      const dispatched = statsd.increment.mock.calls.filter(
+        ([metric]) => metric === 'metering.sweep.dispatched'
+      );
+      expect(dispatched).toEqual([
+        [
+          'metering.sweep.dispatched',
+          { clientId: CLIENT_ID, slug: SLUG, threshold: '80' },
+        ],
+        [
+          'metering.sweep.dispatched',
+          { clientId: CLIENT_ID, slug: SLUG, threshold: '80' },
+        ],
+      ]);
+    });
+
+    it('does not count a webhook whose delivery failed', async () => {
+      meteringWebhookManager.dispatch.mockRejectedValue(new Error('502'));
+
+      await service.sweep(params, NOW);
+
+      expect(statsd.increment).not.toHaveBeenCalledWith(
+        'metering.sweep.dispatched',
+        { clientId: CLIENT_ID, slug: SLUG, threshold: '80' }
+      );
+    });
+
+    it('does not count a delivered webhook whose notification failed to save', async () => {
+      meteringSweepManager.recordNotifications.mockRejectedValue(
+        new Error('clickhouse')
+      );
+
+      await service.sweep(params, NOW).catch(() => undefined);
+
+      expect(statsd.increment).not.toHaveBeenCalledWith(
+        'metering.sweep.dispatched',
+        { clientId: CLIENT_ID, slug: SLUG, threshold: '80' }
+      );
+    });
+
     it('records nothing when the only webhook fails, so the next sweep retries', async () => {
       meteringWebhookManager.dispatch.mockRejectedValue(new Error('502'));
 

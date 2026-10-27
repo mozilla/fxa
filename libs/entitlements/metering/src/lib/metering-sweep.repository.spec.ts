@@ -347,4 +347,38 @@ describe('MeteringSweepRepository', () => {
       );
     });
   });
+
+  describe('findSweptMeters', () => {
+    it('reads only recorded watermarks', async () => {
+      clickHouseClient.query.mockResolvedValue([]);
+
+      await repository.findSweptMeters();
+
+      const { sql } = clickHouseClient.query.mock.calls[0][0];
+      expect(sql).toContain(`FROM ${WATERMARKS_TABLE}`);
+      expect(sql).not.toContain(`FROM ${EVENTS_TABLE}`);
+    });
+
+    it('maps rows to meter keys', async () => {
+      clickHouseClient.query.mockResolvedValue([
+        { client_id: 'relay', slug: 'bandwidth' },
+        { client_id: 'vpn', slug: 'tokens' },
+      ]);
+
+      await expect(repository.findSweptMeters()).resolves.toEqual([
+        { clientId: 'relay', slug: 'bandwidth' },
+        { clientId: 'vpn', slug: 'tokens' },
+      ]);
+    });
+
+    it('propagates a ClickHouse failure', async () => {
+      clickHouseClient.query.mockRejectedValue(
+        new ClickHouseError('query', new Error('timeout'))
+      );
+
+      await expect(repository.findSweptMeters()).rejects.toThrow(
+        ClickHouseError
+      );
+    });
+  });
 });

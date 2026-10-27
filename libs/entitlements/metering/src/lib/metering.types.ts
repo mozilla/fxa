@@ -132,6 +132,29 @@ export interface SessionStartRecord extends MeterKey {
   sessionStart: Date;
 }
 
+export type MetricsReportOutcome = 'meter-not-configured' | 'reported';
+
+export interface MetricsReportAllResult {
+  total: number;
+  failed: number;
+}
+
+export interface FindActiveSubjectCountParams extends MeterKey {
+  from: Date;
+  to: Date;
+}
+
+export interface FindNotifiedSubjectCountsParams extends MeterKey {
+  from: Date;
+  to: Date;
+  thresholds: number[];
+}
+
+export interface NotifiedSubjectCount {
+  threshold: number;
+  subjectCount: number;
+}
+
 export interface WebhookDispatchParams {
   signingClientId: string;
   url: string;

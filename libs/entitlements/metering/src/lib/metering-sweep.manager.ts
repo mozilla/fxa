@@ -32,6 +32,10 @@ export class MeteringSweepManager {
     return this.meteringSweepRepository.findActiveMeters(params);
   }
 
+  async findSweptMeters(): Promise<MeterKey[]> {
+    return this.meteringSweepRepository.findSweptMeters();
+  }
+
   async findWindowCandidates(
     params: FindWindowCandidatesParams
   ): Promise<SweepCandidate[]> {

@@ -369,12 +369,124 @@ describe('MeteringConsumerService', () => {
 
       expect(statsd.increment).toHaveBeenCalledWith(
         'metering.consumer.inserted',
-        1
+        1,
+        { clientId: 'vpn', slug: 'tokens' }
       );
+    });
+
+    it('adds the inserted amounts to the amount metric', async () => {
+      service.handleMessage(messageFor(WIRE_EVENT));
+      service.handleMessage(
+        messageFor({ ...WIRE_EVENT, id: 'event-2', amount: 7 })
+      );
+      await service.flushNow();
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'metering.consumer.inserted_amount',
+        12,
+        { clientId: 'vpn', slug: 'tokens' }
+      );
+    });
+
+    it('leaves the amount of a duplicate out of the amount metric', async () => {
+      meteringDedupeManager.claim.mockResolvedValue(['claimed', 'duplicate']);
+
+      service.handleMessage(messageFor(WIRE_EVENT));
+      service.handleMessage(
+        messageFor({ ...WIRE_EVENT, id: 'event-2', amount: 7 })
+      );
+      await service.flushNow();
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'metering.consumer.inserted_amount',
+        5,
+        { clientId: 'vpn', slug: 'tokens' }
+      );
+    });
+
+    it('reports inserted counts and amounts separately for each slug', async () => {
+      service.handleMessage(messageFor(WIRE_EVENT));
+      service.handleMessage(
+        messageFor({
+          ...WIRE_EVENT,
+          id: 'event-2',
+          slug: 'bandwidth',
+          amount: 7,
+        })
+      );
+      await service.flushNow();
+
+      expect(statsd.increment.mock.calls).toEqual([
+        ['metering.consumer.received'],
+        ['metering.consumer.received'],
+        ['metering.consumer.inserted', 1, { clientId: 'vpn', slug: 'tokens' }],
+        [
+          'metering.consumer.inserted_amount',
+          5,
+          { clientId: 'vpn', slug: 'tokens' },
+        ],
+        [
+          'metering.consumer.inserted',
+          1,
+          { clientId: 'vpn', slug: 'bandwidth' },
+        ],
+        [
+          'metering.consumer.inserted_amount',
+          7,
+          { clientId: 'vpn', slug: 'bandwidth' },
+        ],
+      ]);
+    });
+
+    it('reports inserted counts and amounts separately for each client of a slug', async () => {
+      service.handleMessage(messageFor(WIRE_EVENT));
+      service.handleMessage(
+        messageFor({
+          ...WIRE_EVENT,
+          id: 'event-2',
+          clientId: 'relay',
+          amount: 7,
+        })
+      );
+      await service.flushNow();
+
+      expect(statsd.increment.mock.calls).toEqual([
+        ['metering.consumer.received'],
+        ['metering.consumer.received'],
+        ['metering.consumer.inserted', 1, { clientId: 'vpn', slug: 'tokens' }],
+        [
+          'metering.consumer.inserted_amount',
+          5,
+          { clientId: 'vpn', slug: 'tokens' },
+        ],
+        [
+          'metering.consumer.inserted',
+          1,
+          { clientId: 'relay', slug: 'tokens' },
+        ],
+        [
+          'metering.consumer.inserted_amount',
+          7,
+          { clientId: 'relay', slug: 'tokens' },
+        ],
+      ]);
     });
   });
 
   describe('insert failure', () => {
+    it('reports no inserted count or amount when the insert fails', async () => {
+      meteringEventsManager.insertEvents.mockRejectedValue(
+        new ClickHouseError('insert', new Error('down'))
+      );
+
+      service.handleMessage(messageFor(WIRE_EVENT));
+      await service.flushNow();
+
+      const metrics = statsd.increment.mock.calls.map(([metric]) => metric);
+      expect(metrics).not.toContain('metering.consumer.inserted');
+      expect(metrics).not.toContain('metering.consumer.inserted_amount');
+    });
+
     it('releases the claims and nacks the batch when the insert fails', async () => {
       meteringEventsManager.insertEvents.mockRejectedValue(
         new ClickHouseError('insert', new Error('down'))

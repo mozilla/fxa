@@ -59,6 +59,14 @@
         "cwd": "apps/payments/api"
       }
     },
+    "metering-metrics": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node ../../../dist/apps/payments/api/metering-metrics.js",
+        "cwd": "apps/payments/api"
+      }
+    },
     "serve": {
       "continuous": true,
       "executor": "@nx/js:node",
@@ -77,7 +85,7 @@
       }
     },
     "start": {
-      "command": "pm2 delete payments-api payments-metering-subscriber payments-metering-sweep >/dev/null 2>&1; pm2 start apps/payments/api/pm2.config.js && yarn check:url localhost:3037/__heartbeat__",
+      "command": "pm2 delete payments-api payments-metering-subscriber payments-metering-sweep payments-metering-metrics >/dev/null 2>&1; pm2 start apps/payments/api/pm2.config.js && yarn check:url localhost:3037/__heartbeat__",
       "dependsOn": []
     },
     "stop": {
@@ -105,6 +113,13 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "../../../_scripts/check-url.sh localhost:3037/__heartbeat__ 200 payments-api && while true; do node ../../../dist/apps/payments/api/metering-sweep.js; sleep 60; done",
+        "cwd": "apps/payments/api"
+      }
+    },
+    "metering-metrics-loop": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "../../../_scripts/check-url.sh localhost:3037/__heartbeat__ 200 payments-api && while true; do node ../../../dist/apps/payments/api/metering-metrics.js; sleep 300; done",
         "cwd": "apps/payments/api"
       }
     }
