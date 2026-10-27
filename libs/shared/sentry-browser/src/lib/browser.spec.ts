@@ -74,6 +74,87 @@ describe('sentry/browser', () => {
     });
   });
 
+  describe('user id', () => {
+    const actual = jest.requireActual('@sentry/browser');
+    let sent: Sentry.Event[];
+
+    // Runs the real SDK and records the events it would post to Sentry.
+    async function sendError() {
+      jest.mocked(Sentry.init).mockImplementationOnce((opts) =>
+        actual.init({
+          ...opts,
+          sampleRate: 1,
+          transport: (transportOpts: any) =>
+            actual.createTransport(transportOpts, async (req: any) => {
+              const item = JSON.parse(String(req.body).split('\n')[2]);
+              if (item.exception) sent.push(item);
+              return { statusCode: 200 };
+            }),
+        })
+      );
+      initSentry(config);
+      enableSentry();
+      actual.captureException(new Error('testo'));
+      await actual.flush(1000);
+    }
+
+    // jsdom-global's about:blank page has no localStorage.
+    beforeAll(() => {
+      const { window } = new (jest.requireActual('jsdom').JSDOM)('', {
+        url: 'https://localhost/',
+      });
+      Object.assign(global, {
+        localStorage: window.localStorage,
+        Storage: window.Storage,
+      });
+    });
+
+    afterAll(() => {
+      delete (global as any).localStorage;
+      delete (global as any).Storage;
+    });
+
+    beforeEach(() => {
+      sent = [];
+      localStorage.clear();
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('adds the same random user.id to each event from one browser', async () => {
+      await sendError();
+      await sendError();
+
+      expect(sent).toHaveLength(2);
+      const id = sent[0].user?.id;
+      expect(id).toMatch(/^[0-9a-f-]{36}$/);
+      expect(sent[1].user?.id).toBe(id);
+    });
+
+    it('stores no id when Sentry is disabled', async () => {
+      jest.mocked(Sentry.init).mockClear();
+      initSentry(config);
+      disableSentry();
+      const beforeSend = jest.mocked(Sentry.init).mock.calls[0][0]?.beforeSend;
+
+      expect(beforeSend?.({ type: undefined }, {})).toBeNull();
+      expect(localStorage.length).toBe(0);
+    });
+
+    it('sends the event without user.id when storage is blocked', async () => {
+      jest.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+        throw new Error('SecurityError');
+      });
+
+      await sendError();
+
+      expect(sent).toHaveLength(1);
+      expect(sent[0].user?.id).toBeUndefined();
+    });
+  });
+
   describe('default export', () => {
     it('maps the legacy API', () => {
       expect(sentryMetrics).toEqual({

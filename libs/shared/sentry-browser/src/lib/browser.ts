@@ -18,6 +18,23 @@ import {
  */
 const EXCEPTION_TAGS = ['code', 'context', 'errno', 'namespace', 'status'];
 
+const BROWSER_ID_KEY = 'fxa_sentry_browser_id';
+
+// Random id per browser, so Sentry can count affected users without a link to the account.
+function getBrowserId(): string | undefined {
+  try {
+    let id = localStorage.getItem(BROWSER_ID_KEY);
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem(BROWSER_ID_KEY, id);
+    }
+    return id;
+  } catch {
+    // Storage can be blocked; the event goes out without an id.
+    return undefined;
+  }
+}
+
 export function captureException(err: Error) {
   if (!isSentryEnabled()) {
     return;
@@ -60,7 +77,13 @@ export function initSentry(config: SentryConfigOpts, log?: Logger) {
     Sentry.init({
       ...opts,
       beforeSend: function (event: Sentry.ErrorEvent, hint: Sentry.EventHint) {
-        return beforeSendBrowser(opts, event, hint);
+        const result = beforeSendBrowser(opts, event, hint);
+        // Only create the id when an event really leaves the browser.
+        const id = result && getBrowserId();
+        if (id) {
+          result.user = { ...result.user, id };
+        }
+        return result;
       },
       integrations:
         opts.tracesSampleRate || opts.tracesSampler
