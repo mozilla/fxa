@@ -8,7 +8,6 @@ LICENSE
 *.docker
 *.json-dist
 Dockerfile*
-app/fonts/*
 app/l10n/*
 app/images/*
 locale/*

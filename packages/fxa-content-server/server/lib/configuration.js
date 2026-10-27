@@ -42,11 +42,6 @@ convict.addFormats(require('convict-format-with-validator'));
 convict.addFormats(require('@fxa/shared/url-allow-list').format);
 
 const conf = (module.exports = convict({
-  allowed_iframe_contexts: {
-    default: [],
-    doc: 'DEPRECATED - context query parameters allowed to embed FxA within an IFRAME',
-    format: Array,
-  },
   allowed_metrics_flow_cors_origins: {
     default: [null],
     doc: 'Origins that are allowed to request the /metrics-flow endpoint',
@@ -84,10 +79,6 @@ const conf = (module.exports = convict({
     doc: 'Check if the resources are under the /dist directory',
     format: Boolean,
   },
-  cachify_prefix: {
-    default: 'v',
-    doc: 'The prefix for cachify hashes in URLs',
-  },
   cert_path: {
     default: path.resolve(__dirname, '..', '..', 'cert.pem'),
     doc: 'The location of the SSL certificate in pem format',
@@ -113,14 +104,6 @@ const conf = (module.exports = convict({
     doc: 'location of the client ip address in the remote address chain',
     env: 'CLIENT_ADDRESS_DEPTH',
     format: Number,
-  },
-  coppa: {
-    enabled: {
-      default: true,
-      doc: 'Is the COPPA age check enabled?',
-      env: 'COPPA_ENABLED',
-      format: Boolean,
-    },
   },
   csp: {
     enabled: {
@@ -157,10 +140,6 @@ const conf = (module.exports = convict({
       env: 'CSP_ALLOWED_IMG_SOURCES',
       format: Array,
     },
-  },
-  disable_locale_check: {
-    default: false,
-    doc: 'Skip checking for gettext .mo files for supported locales',
   },
   disable_route_logging: {
     default: false,
@@ -571,11 +550,6 @@ const conf = (module.exports = convict({
       env: 'I18N_TRANSLATION_TYPE',
       format: String,
     },
-  },
-  jsResourcePath: {
-    default: 'bundle',
-    doc: 'The directory where the JavaScript resources are served from',
-    format: String,
   },
   key_path: {
     default: path.resolve(__dirname, '..', '..', 'key.pem'),
@@ -1116,16 +1090,7 @@ const conf = (module.exports = convict({
     env: 'SYNC_TOKENSERVER_URL',
     format: 'url',
   },
-  template_path: {
-    default: path.resolve(__dirname, '..', 'templates'),
-    doc: 'The location of server-rendered templates',
-  },
   use_https: false,
-  var_path: {
-    default: path.resolve(__dirname, '..', 'var'),
-    doc: 'The path where deployment specific resources will be sought (keys, etc), and logs will be kept.',
-    env: 'VAR_PATH',
-  },
   l10n: {
     baseUrl: {
       default: '/settings/static',
@@ -1192,11 +1157,6 @@ if (conf.has('http_proxy.host')) {
 if (conf.has('http_proxy.port')) {
   process.env.HTTP_PROXY_PORT = conf.get('http_proxy.port');
   process.env.HTTPS_PROXY_PORT = conf.get('http_proxy.port');
-}
-
-// Setup WebPack bundle path for production
-if (conf.get('env') === 'production') {
-  conf.set('jsResourcePath', `bundle-${versionInfo.commit}`);
 }
 
 // Ensure that supportedLanguages includes defaultLang.
