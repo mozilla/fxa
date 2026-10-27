@@ -10,6 +10,7 @@ import {
   handleWebAuthnError,
   WebAuthnErrorCategory,
   WebAuthnErrorType,
+  WebAuthnGleanReason,
   WebAuthnOperation,
 } from './webauthn-errors';
 
@@ -54,22 +55,22 @@ describe('categorizeWebAuthnError — user-action errors (no Sentry)', () => {
   });
 });
 
-describe('categorizeWebAuthnError — device/platform errors (no Sentry)', () => {
-  const cases: [string, WebAuthnErrorType][] = [
-    ['NotSupportedError', WebAuthnErrorType.NotSupported],
-    ['SecurityError', WebAuthnErrorType.Security],
-    ['InvalidStateError', WebAuthnErrorType.InvalidState],
-    ['NotReadableError', WebAuthnErrorType.NotReadable],
+describe('categorizeWebAuthnError — device/platform errors', () => {
+  const cases: [string, boolean, WebAuthnErrorType][] = [
+    ['NotSupportedError', false, WebAuthnErrorType.NotSupported],
+    ['SecurityError', false, WebAuthnErrorType.Security],
+    ['InvalidStateError', false, WebAuthnErrorType.InvalidState],
+    ['NotReadableError', false, WebAuthnErrorType.NotReadable],
   ];
 
   describe.each(OPERATIONS)('operation: %s', (operation) => {
     test.each(cases)(
-      '%s → DevicePlatform, logToSentry false',
-      (name, errorType) => {
+      '%s → DevicePlatform, logToSentry %s',
+      (name, logToSentry, errorType) => {
         const result = categorizeWebAuthnError(dom(name), operation);
         expect(result.category).toBe(WebAuthnErrorCategory.DevicePlatform);
         expect(result.errorType).toBe(errorType);
-        expect(result.logToSentry).toBe(false);
+        expect(result.logToSentry).toBe(logToSentry);
         expect(result.fallbackText.length).toBeGreaterThan(0);
         expect(result.fallbackText).toMatch(
           /passkey|authenticator|secure site/i
@@ -248,21 +249,16 @@ describe('handleWebAuthnError', () => {
 });
 
 describe('categorizeWebAuthnError — gleanReason taxonomy', () => {
-  // Locks the DOMException → Glean reason bucket mapping documented on
-  // first_passkey_submit_frontend_error / login.passkey_submit_frontend_error
-  // / login.otp_passkey_submit_frontend_error. Drift would mis-bucket the
-  // signal in dashboards.
-  const cases: [
-    string,
-    'not_allowed' | 'not_supported' | 'security' | 'timeout' | 'unexpected',
-  ][] = [
+  // Locks the Glean reason values documented on the passkey
+  // *_submit_frontend_error events in fxa-ui-metrics.yaml.
+  const cases: [string, WebAuthnGleanReason][] = [
     ['NotAllowedError', 'not_allowed'],
     ['AbortError', 'not_allowed'],
     ['TimeoutError', 'timeout'],
     ['NotSupportedError', 'not_supported'],
     ['SecurityError', 'security'],
-    ['InvalidStateError', 'unexpected'],
-    ['NotReadableError', 'unexpected'],
+    ['InvalidStateError', 'not_allowed'],
+    ['NotReadableError', 'not_readable'],
     ['DataError', 'unexpected'],
     ['EncodingError', 'unexpected'],
     ['ConstraintError', 'unexpected'],
@@ -275,6 +271,13 @@ describe('categorizeWebAuthnError — gleanReason taxonomy', () => {
     expect(result.gleanReason).toBe(expected);
   });
 
+  it('logs every entry reporting gleanReason=unexpected to Sentry', () => {
+    const notLogged = Object.entries(ERROR_MAP)
+      .filter(([, e]) => e.gleanReason === 'unexpected' && !e.logToSentry)
+      .map(([name]) => name);
+    expect(notLogged).toEqual([]);
+  });
+
   it('TypeError maps to gleanReason=unexpected', () => {
     const result = categorizeWebAuthnError(
       new TypeError('boom'),
@@ -283,13 +286,22 @@ describe('categorizeWebAuthnError — gleanReason taxonomy', () => {
     expect(result.gleanReason).toBe('unexpected');
   });
 
-  it('AuthenticatorAlreadyRegistered maps to gleanReason=not_supported', () => {
+  it('AuthenticatorAlreadyRegistered reports not_allowed, hiding that the account has passkeys', () => {
     const result = categorizeWebAuthnError(
       dom('NotAllowedError'),
       'registration',
       { hadExcludeCredentials: true }
     );
-    expect(result.gleanReason).toBe('not_supported');
+    expect(result.gleanReason).toBe('not_allowed');
+  });
+
+  it('does not log AuthenticatorAlreadyRegistered to Sentry', () => {
+    const result = categorizeWebAuthnError(
+      dom('NotAllowedError'),
+      'registration',
+      { hadExcludeCredentials: true }
+    );
+    expect(result.logToSentry).toBe(false);
   });
 
   it('falls back to gleanReason=unexpected for unrecognized errors', () => {
