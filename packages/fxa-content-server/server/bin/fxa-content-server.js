@@ -197,7 +197,7 @@ function makeApp() {
   } else {
     app.get(settingsPath, modifySettingsStatic);
     addNonSettingsRoutes(modifySettingsStatic);
-    app.get(settingsPath + '/*', modifySettingsStatic);
+    app.get(settingsPath + '/*splat', modifySettingsStatic);
   }
 
   // it's a four-oh-four not found.
@@ -289,8 +289,8 @@ function makeHttpRedirectApp() {
   const redirectPort = port === 443 ? '' : ':' + port;
 
   const httpApp = express();
-  httpApp.get('*', function (req, res) {
-    const redirectTo = redirectProtocol + req.host + redirectPort + req.url;
+  httpApp.get('/{*splat}', function (req, res) {
+    const redirectTo = redirectProtocol + req.hostname + redirectPort + req.url;
 
     res.redirect(301, redirectTo);
   });

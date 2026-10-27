@@ -31032,7 +31032,7 @@ __metadata:
     convict-format-with-validator: "npm:^6.2.0"
     cookie-parser: "npm:1.4.6"
     eslint: "npm:^7.32.0"
-    express: "npm:^4.21.2"
+    express: "npm:^5.2.1"
     fxa-auth-client: "workspace:*"
     fxa-auth-server: "workspace:*"
     fxa-geodb: "workspace:*"
