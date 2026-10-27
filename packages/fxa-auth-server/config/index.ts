@@ -2248,15 +2248,21 @@ const convictConf = convict({
       format: String,
     },
     useOAuth: {
-      doc: 'Authenticate to Zendesk with zendesk.oauthToken instead of username and API token',
+      doc: 'Authenticate to Zendesk with OAuth client credentials instead of username and API token',
       default: false,
       env: 'ZENDESK_USE_OAUTH',
       format: Boolean,
     },
-    oauthToken: {
-      doc: 'Zendesk OAuth access token for support interaction, used when zendesk.useOAuth is true',
+    oauthClientId: {
+      doc: 'Zendesk OAuth client identifier, used when zendesk.useOAuth is true',
       default: '',
-      env: 'ZENDESK_OAUTH_TOKEN',
+      env: 'ZENDESK_OAUTH_CLIENT_ID',
+      format: String,
+    },
+    oauthClientSecret: {
+      doc: 'Zendesk OAuth client secret, used when zendesk.useOAuth is true',
+      default: '',
+      env: 'ZENDESK_OAUTH_CLIENT_SECRET',
       format: String,
     },
     subdomain: {

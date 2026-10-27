@@ -25,11 +25,12 @@ const HEX_STRING = validators.HEX_STRING;
 const MAX_SECONDARY_EMAILS = 3;
 
 async function updateZendeskPrimaryEmail(
-  zendeskClient,
+  zendeskClientProvider,
   uid,
   currentPrimaryEmail,
   newPrimaryEmail
 ) {
+  const zendeskClient = await zendeskClientProvider.getClient();
   const searchResult = await zendeskClient.search.queryAll(
     `type:user user_id:${uid}`
   );
@@ -134,7 +135,7 @@ module.exports = (
   verificationReminders,
   cadReminders,
   signupUtils,
-  zendeskClient,
+  zendeskClientProvider,
   /** @type import('../payments/stripe').StripeHelper */
   stripeHelper,
   authServerCacheRedis,
@@ -1254,7 +1255,7 @@ module.exports = (
           };
 
           updateZendeskPrimaryEmail(
-            zendeskClient,
+            zendeskClientProvider,
             uid,
             currentEmail,
             newEmailRecord.email

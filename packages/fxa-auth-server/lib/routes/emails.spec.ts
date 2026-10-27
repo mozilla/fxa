@@ -141,6 +141,7 @@ const otpOptions = {
   digits: 6,
 };
 
+let zendeskClientProvider: any;
 let zendeskClient: any;
 let cadReminders: any;
 let db: any;
@@ -236,14 +237,16 @@ afterAll(() => uninstallMockFxaMailer());
 describe('update zendesk primary email', () => {
   let searchSpy: any, listSpy: any, updateSpy: any;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     const config = {
       zendesk: {
         subdomain: SUBDOMAIN,
         productNameFieldId: '192837465',
       },
     };
-    zendeskClient = require('../zendesk-client').createZendeskClient(config);
+    const { ZendeskClientProvider } = require('../zendesk-client');
+    zendeskClientProvider = new ZendeskClientProvider(config);
+    zendeskClient = await zendeskClientProvider.getClient();
     searchSpy = jest.spyOn(zendeskClient.search, 'queryAll');
     listSpy = jest.spyOn(zendeskClient.useridentities, 'list');
     updateSpy = jest.spyOn(zendeskClient, 'updateIdentity');
@@ -268,7 +271,7 @@ describe('update zendesk primary email', () => {
 
     try {
       await updateZendeskPrimaryEmail(
-        zendeskClient,
+        zendeskClientProvider,
         uid,
         'test@example.com',
         'updated.email@example.com'
@@ -289,7 +292,7 @@ describe('update zendesk primary email', () => {
       .reply(200, MOCK_SEARCH_USERS_SUCESS_NO_RESULTS);
     try {
       await updateZendeskPrimaryEmail(
-        zendeskClient,
+        zendeskClientProvider,
         uid,
         'test@example.com',
         'updated.email@example.com'
@@ -312,7 +315,7 @@ describe('update zendesk primary email', () => {
       .reply(200, MOCK_FETCH_USER_IDENTITIES_ALREADY_CHANGED);
     try {
       await updateZendeskPrimaryEmail(
-        zendeskClient,
+        zendeskClientProvider,
         uid,
         'test@example.com',
         'updated.email@example.com'

@@ -7,6 +7,7 @@ import nock from 'nock';
 import zendesk from 'node-zendesk';
 import { createMock } from '@golevelup/ts-jest';
 import { AuthLogger } from '../../types';
+import { ZendeskClientProvider } from '../../zendesk-client';
 
 const mocks = require('../../../test/mocks');
 const { getRoute } = require('../../../test/routes_helpers');
@@ -23,6 +24,7 @@ let config: any,
   route: any,
   request: any,
   requestOptions: any,
+  zendeskClientProvider: ZendeskClientProvider,
   zendeskClient: any;
 
 const TEST_EMAIL = 'test@email.com';
@@ -123,7 +125,7 @@ const MOCK_UPDATE_REPLY = {
 };
 
 function runTest(routePath: string, reqOptions: any) {
-  routes = supportRoutes(log, db, config, customs, zendeskClient);
+  routes = supportRoutes(log, db, config, customs, zendeskClientProvider);
   route = getRoute(routes, routePath, reqOptions.method || 'GET');
   request = mocks.mockRequest(reqOptions);
   request.emitMetricsEvent = jest.fn().mockResolvedValue({});
@@ -132,7 +134,7 @@ function runTest(routePath: string, reqOptions: any) {
 }
 
 describe('support', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     config = {
       subscriptions: {
         enabled: true,
@@ -154,7 +156,8 @@ describe('support', () => {
       email: TEST_EMAIL,
     });
 
-    zendeskClient = require('../../zendesk-client').createZendeskClient(config);
+    zendeskClientProvider = new ZendeskClientProvider(config);
+    zendeskClient = await zendeskClientProvider.getClient();
   });
 
   afterEach(() => {
@@ -213,7 +216,7 @@ describe('support', () => {
 
     it('should not set up any routes', async () => {
       config.subscriptions.enabled = false;
-      routes = supportRoutes(log, db, config, customs, zendeskClient);
+      routes = supportRoutes(log, db, config, customs, zendeskClientProvider);
       expect(routes).toEqual([]);
     });
 
@@ -392,10 +395,28 @@ describe('support', () => {
         spy.mockRestore();
       });
 
+      it('should report a zendesk getClient failure when no client is available', async () => {
+        config.subscriptions.enabled = true;
+        jest
+          .spyOn(zendeskClientProvider, 'getClient')
+          .mockRejectedValue(
+            new Error('Zendesk OAuth token request failed with status 401')
+          );
+
+        await expect(
+          runTest('/support/ticket', requestOptions)
+        ).rejects.toMatchObject({
+          errno: AppError.ERRNO.BACKEND_SERVICE_FAILURE,
+          output: {
+            payload: { service: 'zendesk', operation: 'getClient' },
+          },
+        });
+      });
+
       it('should reject a ticket with a non-integer brand_id', async () => {
         config.subscriptions.enabled = true;
         const route = getRoute(
-          supportRoutes(log, db, config, customs, zendeskClient),
+          supportRoutes(log, db, config, customs, zendeskClientProvider),
           '/support/ticket',
           'POST'
         );
