@@ -125,8 +125,32 @@ describe('ResumableWebSocket', () => {
     ]);
   });
 
+  it('dispatches resumed with the attempts of each resume after the replay', () => {
+    const { socket, first } = connect();
+    const resumed = jest.fn((e: Event) => ({
+      attempts: (e as CustomEvent).detail.attempts,
+      sent: [...FakeSocket.instances[FakeSocket.instances.length - 1].sent],
+    }));
+    socket.addEventListener('resumed', resumed);
+    first.drop();
+    socket.send('queued');
+    FakeSocket.instances[1].drop();
+    jest.advanceTimersByTime(RESUME_RETRY_MS);
+    FakeSocket.instances[2].open();
+    FakeSocket.instances[2].receive(GREETING);
+
+    FakeSocket.instances[2].drop();
+    FakeSocket.instances[3].open();
+    FakeSocket.instances[3].receive(GREETING);
+
+    expect(resumed.mock.results.map((r) => r.value)).toEqual([
+      { attempts: 2, sent: ['queued'] },
+      { attempts: 1, sent: [] },
+    ]);
+  });
+
   it('keeps retrying until the resume window runs out, then closes', () => {
-    const { first, closed } = connect();
+    const { socket, first, closed } = connect();
     first.drop();
     FakeSocket.instances[1].drop();
     jest.advanceTimersByTime(RESUME_RETRY_MS - 1);
@@ -138,6 +162,7 @@ describe('ResumableWebSocket', () => {
     FakeSocket.instances[2].drop();
     jest.advanceTimersByTime(RESUME_RETRY_MS);
     expect(closed).toHaveBeenCalledTimes(1);
+    expect(socket.closeReason).toBe('resume_expired');
   });
 
   it('closes on a drop when the server sent no resume token', () => {
@@ -153,19 +178,24 @@ describe('ResumableWebSocket', () => {
     first.drop();
     expect(closed).toHaveBeenCalledTimes(1);
     expect(FakeSocket.instances).toHaveLength(1);
+    expect(socket.closeReason).toBe('no_token');
   });
 
   it('closes without a resume when the server ends the channel', () => {
-    const { first, closed } = connect();
+    const { socket, first } = connect();
+    const closed = jest.fn(() => socket.closeReason);
+    socket.addEventListener('close', closed);
 
     first.drop(CHANNEL_CLOSED_CODE);
 
     expect(closed).toHaveBeenCalledTimes(1);
     expect(FakeSocket.instances).toHaveLength(1);
+    // Set before the close event, so a listener can read it.
+    expect(closed).toHaveReturnedWith('server_closed');
   });
 
   it('closes when the server ends the channel during a resume', () => {
-    const { first, closed } = connect();
+    const { socket, first, closed } = connect();
     first.drop();
     FakeSocket.instances[1].drop(CHANNEL_CLOSED_CODE);
 
@@ -173,6 +203,7 @@ describe('ResumableWebSocket', () => {
 
     expect(closed).toHaveBeenCalledTimes(1);
     expect(FakeSocket.instances).toHaveLength(2);
+    expect(socket.closeReason).toBe('server_closed');
   });
 
   it('does not resume after its own close', () => {
@@ -180,6 +211,7 @@ describe('ResumableWebSocket', () => {
     socket.close();
     expect(closed).toHaveBeenCalledTimes(1);
     expect(FakeSocket.instances).toHaveLength(1);
+    expect(socket.closeReason).toBe('self_closed');
   });
 
   describe('when the page becomes visible', () => {
@@ -262,5 +294,6 @@ describe('ResumableWebSocket', () => {
     expect(closed).toHaveBeenCalledTimes(1);
     expect(socket.readyState).toBe(3);
     expect(FakeSocket.instances).toHaveLength(2);
+    expect(socket.closeReason).toBe('self_closed');
   });
 });

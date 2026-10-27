@@ -17,6 +17,12 @@ export const RESUME_PROTOCOL_PREFIX = 'resume.';
 // The channel server closes with this code when it ends a channel on purpose.
 export const CHANNEL_CLOSED_CODE = 4000;
 
+export type CloseReason =
+  | 'server_closed'
+  | 'self_closed'
+  | 'no_token'
+  | 'resume_expired';
+
 const OPEN = 1;
 const CLOSED = 3;
 
@@ -30,6 +36,8 @@ export class ResumableWebSocket extends EventTarget {
   private retryTimer?: ReturnType<typeof setTimeout>;
   private selfClosed = false;
   private done = false;
+  private attempts = 0;
+  private _closeReason?: CloseReason;
 
   constructor(
     url: string,
@@ -45,6 +53,10 @@ export class ResumableWebSocket extends EventTarget {
 
   private get resuming(): boolean {
     return this.resumeDeadline > 0;
+  }
+
+  get closeReason(): CloseReason | undefined {
+    return this._closeReason;
   }
 
   get readyState(): number {
@@ -68,7 +80,7 @@ export class ResumableWebSocket extends EventTarget {
     if (this.done) return;
     this.selfClosed = true;
     // Between attempts the socket is already closed and fires no event.
-    if (this.resuming) this.finish();
+    if (this.resuming) this.finish('self_closed');
     this.socket.close();
   }
 
@@ -102,17 +114,21 @@ export class ResumableWebSocket extends EventTarget {
 
   private onClose(socket: WebSocket, code: number): void {
     if (socket !== this.socket || this.done) return;
-    if (
-      this.selfClosed ||
-      code === CHANNEL_CLOSED_CODE ||
-      !this.token ||
-      !this.channelId
-    ) {
-      this.finish();
+    if (this.selfClosed) {
+      this.finish('self_closed');
+      return;
+    }
+    if (code === CHANNEL_CLOSED_CODE) {
+      this.finish('server_closed');
+      return;
+    }
+    if (!this.token || !this.channelId) {
+      this.finish('no_token');
       return;
     }
     if (!this.resuming) {
       this.resumeDeadline = Date.now() + RESUME_WINDOW_MS;
+      this.attempts = 0;
       document.addEventListener('visibilitychange', this.onVisible);
       this.tryResume();
       return;
@@ -131,9 +147,10 @@ export class ResumableWebSocket extends EventTarget {
 
   private tryResume(): void {
     if (Date.now() > this.resumeDeadline) {
-      this.finish();
+      this.finish('resume_expired');
       return;
     }
+    this.attempts++;
     const url = new URL(`/v1/ws/${this.channelId}`, this.url);
     const previous = this.socket;
     // The token goes in the subprotocol, not the URL, which proxies tend to log.
@@ -149,6 +166,9 @@ export class ResumableWebSocket extends EventTarget {
     const queued = this.queue;
     this.queue = [];
     queued.forEach((data) => this.socket.send(data));
+    this.dispatchEvent(
+      new CustomEvent('resumed', { detail: { attempts: this.attempts } })
+    );
   }
 
   private stopResuming(): void {
@@ -157,9 +177,10 @@ export class ResumableWebSocket extends EventTarget {
     document.removeEventListener('visibilitychange', this.onVisible);
   }
 
-  private finish(): void {
+  private finish(reason: CloseReason): void {
     this.stopResuming();
     this.done = true;
+    this._closeReason = reason;
     this.dispatchEvent(new Event('close'));
   }
 }
