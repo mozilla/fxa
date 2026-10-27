@@ -114,15 +114,21 @@ export type PairingChannelErrorType = keyof typeof PairingChannelErrors;
  * fxa-pairing-channel opens its socket with the global WebSocket inside
  * create() and connect(), and takes no socket option, so swap it for that call.
  */
-function withResumableWebSocket<T>(start: () => Promise<T>): Promise<T> {
+function withResumableWebSocket<T>(start: () => Promise<T>): {
+  result: Promise<T>;
+  socket?: ResumableWebSocket;
+} {
   const NativeWebSocket = window.WebSocket;
+  let socket: ResumableWebSocket | undefined;
   window.WebSocket = class extends ResumableWebSocket {
     constructor(url: string) {
       super(url, NativeWebSocket);
+      socket = this;
     }
   } as unknown as typeof WebSocket;
   try {
-    return start();
+    const result = start();
+    return { result, socket };
   } finally {
     window.WebSocket = NativeWebSocket;
   }
@@ -181,6 +187,7 @@ type PairingChannelSocket = {
 
 export class PairingChannelClient extends EventTarget {
   private channel: PairingChannelSocket | null = null;
+  private socket?: ResumableWebSocket;
   private _opening = false;
   private unloading = false;
 
@@ -228,9 +235,11 @@ export class PairingChannelClient extends EventTarget {
         /* webpackChunkName: "fxaPairingChannel" */
         'fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js'
       );
-      const channel = await withResumableWebSocket(() =>
+      const { result, socket } = withResumableWebSocket(() =>
         PairingChannel.create(channelServerUri)
       );
+      this.attachSocket(socket);
+      const channel = await result;
       this.channel = channel;
 
       this.attachChannel(channel);
@@ -238,9 +247,11 @@ export class PairingChannelClient extends EventTarget {
       this.dispatchEvent(new CustomEvent('connected'));
     } catch (err) {
       if (!this.unloading) {
-        sentryMetrics.captureException(err);
+        this.captureWithCloseReason(err);
         this.dispatchEvent(new CustomEvent('error', { detail: err }));
       }
+      this.detachSocket();
+
       // Rethrow so the caller can tell a failed create from a successful one.
       // Without this the authority resolves as if it had a channel and encodes
       // `channel_id=null` into a QR code the supplicant cannot join.
@@ -282,13 +293,15 @@ export class PairingChannelClient extends EventTarget {
         'fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js'
       );
 
-      const channel = await withResumableWebSocket(() =>
+      const { result, socket } = withResumableWebSocket(() =>
         FxAccountsPairingChannel.PairingChannel.connect(
           channelServerUri,
           channelId,
           psk
         )
       );
+      this.attachSocket(socket);
+      const channel = await result;
 
       this.channel = channel;
 
@@ -306,7 +319,7 @@ export class PairingChannelClient extends EventTarget {
       } else if (closed) {
         console.warn('Pairing channel closed before it opened', channelId);
       } else {
-        sentryMetrics.captureException(err);
+        this.captureWithCloseReason(err);
       }
 
       // Report the closed socket under its own errno so a caller reading the
@@ -317,6 +330,8 @@ export class PairingChannelClient extends EventTarget {
       if (!this.unloading) {
         this.dispatchEvent(new CustomEvent('error', { detail }));
       }
+
+      this.detachSocket();
 
       // Rejecting is what lets the caller drop this instance; resolving leaves
       // a client that looks live and blocks every later reopen.
@@ -348,6 +363,7 @@ export class PairingChannelClient extends EventTarget {
 
   async close(): Promise<void> {
     this.unwatchPageLifecycle();
+    this.detachSocket();
     if (!this.channel) {
       return; // Already closed or never opened
     }
@@ -417,7 +433,7 @@ export class PairingChannelClient extends EventTarget {
     if (this.unloading) {
       return;
     }
-    sentryMetrics.captureException((event as CustomEvent).detail);
+    this.captureWithCloseReason((event as CustomEvent).detail);
     this.dispatchEvent(
       new CustomEvent('error', {
         detail: new PairingChannelError('UNEXPECTED_ERROR'),
@@ -431,6 +447,7 @@ export class PairingChannelClient extends EventTarget {
       this.channel = null;
       this.removeChannelListeners(ch);
     }
+    this.detachSocket();
     if (this.unloading) {
       return;
     }
@@ -447,6 +464,35 @@ export class PairingChannelClient extends EventTarget {
     ch.removeEventListener('message', this.handleMessage);
     ch.removeEventListener('error', this.handleError);
     ch.removeEventListener('close', this.handleClose);
+  }
+
+  private captureWithCloseReason(err: Error): void {
+    const reason = this.socket?.closeReason;
+    if (reason) {
+      sentryMetrics.captureException(err, { 'pairing.close_reason': reason });
+    } else {
+      sentryMetrics.captureException(err);
+    }
+  }
+
+  private handleResumed = (event: Event) => {
+    if (this.unloading) {
+      return;
+    }
+    sentryMetrics.captureMessage('Pairing socket resumed', 'info', {
+      'pairing.resume_attempts': (event as CustomEvent<{ attempts: number }>)
+        .detail.attempts,
+    });
+  };
+
+  private attachSocket(socket?: ResumableWebSocket): void {
+    this.socket = socket;
+    socket?.addEventListener('resumed', this.handleResumed);
+  }
+
+  private detachSocket(): void {
+    this.socket?.removeEventListener('resumed', this.handleResumed);
+    this.socket = undefined;
   }
 
   private handleUnload = () => {
