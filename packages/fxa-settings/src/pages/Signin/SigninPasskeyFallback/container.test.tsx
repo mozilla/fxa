@@ -13,7 +13,12 @@ import * as SigninUtilsModule from '../utils';
 import { Integration, IntegrationType } from '../../../models';
 import { MozServices } from '../../../lib/types';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { MOCK_EMAIL, MOCK_SESSION_TOKEN, MOCK_UID } from '../../mocks';
+import {
+  MOCK_CMS_INFO,
+  MOCK_EMAIL,
+  MOCK_SESSION_TOKEN,
+  MOCK_UID,
+} from '../../mocks';
 import SigninPasskeyFallbackContainer from './container';
 import GleanMetrics from '../../../lib/glean';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
@@ -164,6 +169,16 @@ describe('SigninPasskeyFallback container', () => {
           MOCK_EMAIL
         );
       });
+    });
+
+    it('passes the CMS info from the integration to the page', async () => {
+      const { findByRole } = render({
+        ...createMockSyncIntegration(),
+        getCmsInfo: () => MOCK_CMS_INFO,
+      } as unknown as Integration);
+      expect(await findByRole('button', { name: 'Continue' })).toHaveClass(
+        'cta-primary-cms'
+      );
     });
 
     it('falls back to localStorage when router state is empty', async () => {

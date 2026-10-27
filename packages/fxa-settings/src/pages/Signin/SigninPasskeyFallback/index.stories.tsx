@@ -7,6 +7,7 @@ import { MemoryRouter } from 'react-router';
 import { Meta } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { MOCK_CMS_INFO } from '../../mocks';
 
 export default {
   title: 'Pages/Signin/SigninPasskeyFallback',
@@ -23,5 +24,15 @@ const handlers = {
 export const Default = () => (
   <MemoryRouter>
     <SigninPasskeyFallback email="user@example.com" {...handlers} />
+  </MemoryRouter>
+);
+
+export const WithCms = () => (
+  <MemoryRouter>
+    <SigninPasskeyFallback
+      email="user@example.com"
+      cmsInfo={MOCK_CMS_INFO}
+      {...handlers}
+    />
   </MemoryRouter>
 );

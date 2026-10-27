@@ -8,6 +8,7 @@ import { renderWithRouter } from '../../../models/mocks';
 import SigninPasskeyFallback from '.';
 import GleanMetrics from '../../../lib/glean';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { MOCK_CMS_INFO } from '../../mocks';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
@@ -48,6 +49,22 @@ describe('SigninPasskeyFallback', () => {
     await user.type(screen.getByLabelText('Password'), 'hunter2-the-sequel');
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(onContinue).toHaveBeenCalledWith('hunter2-the-sequel');
+  });
+
+  it('renders Continue with the default style without CMS info', () => {
+    renderWithRouter(<SigninPasskeyFallback email="user@example.com" />);
+    const button = screen.getByRole('button', { name: 'Continue' });
+    expect(button).toHaveClass('cta-primary', 'cta-xl');
+    expect(button).not.toHaveClass('cta-primary-cms');
+  });
+
+  it('renders Continue with the CMS style when CMS info has a button color', () => {
+    renderWithRouter(
+      <SigninPasskeyFallback email="user@example.com" cmsInfo={MOCK_CMS_INFO} />
+    );
+    const button = screen.getByRole('button', { name: 'Continue' });
+    expect(button).toHaveClass('cta-primary-cms', 'cta-xl');
+    expect(button).not.toHaveClass('cta-primary');
   });
 
   describe('password error handling', () => {
