@@ -32,6 +32,8 @@ import { ReactComponent as PairingInterrupted } from './graphic_pairing_interrup
 import { ReactComponent as LaptopQrCode } from './graphic_laptop_qr_code.min.svg';
 import { ReactComponent as MobileDevicePairing } from './graphic_mobile_device_pairing.min.svg';
 import { ReactComponent as QrPhoneFrame } from './graphic_qr_phone_frame.min.svg';
+import { ReactComponent as PairMenuIos } from './graphic_pair_menu_ios.min.svg';
+import { ReactComponent as PairMenuAndroid } from './graphic_pair_menu_android.min.svg';
 
 function illustrationStyle(
   colors?: IllustrationsTheme
@@ -285,4 +287,12 @@ export const MobileDevicePairingImage = ({ className }: ImageProps) => (
 
 export const QrPhoneFrameImage = ({ className }: ImageProps) => (
   <PreparedImage ariaHidden Image={QrPhoneFrame} {...{ className }} />
+);
+
+export const PairMenuIosImage = ({ className }: ImageProps) => (
+  <PreparedImage ariaHidden Image={PairMenuIos} {...{ className }} />
+);
+
+export const PairMenuAndroidImage = ({ className }: ImageProps) => (
+  <PreparedImage ariaHidden Image={PairMenuAndroid} {...{ className }} />
 );

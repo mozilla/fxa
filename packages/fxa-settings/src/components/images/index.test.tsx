@@ -23,6 +23,8 @@ const imageWrappers = Object.entries(images).filter(([name]) =>
 const decorativeImageNames = new Set([
   'LaptopQrCodeImage',
   'MobileDevicePairingImage',
+  'PairMenuAndroidImage',
+  'PairMenuIosImage',
   'PairingInterruptedImage',
   'QrPhoneFrameImage',
   'SyncSuccessImage',
