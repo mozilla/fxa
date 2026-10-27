@@ -1,0 +1,9 @@
+postNewRecoveryCodes-title-2 = "You created new backup authentication codes"
+
+postNewRecoveryCodes-description-2 = "They were created on:"
+
+<%- include('/partials/userInfo/index.txt') %>
+
+<%- include('/partials/manageAccount/index.txt') %>
+
+<%- include('/partials/automatedEmailChangePassword/index.txt') %>

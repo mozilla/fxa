@@ -1,0 +1,13 @@
+{
+  "commit": "f4d9573adf08210d428159e8fe36b110647bf779",
+  "summary": "chore(content-server): remove Backbone-era config, grunt tasks and assets",
+  "description": "Because:\n\n* The Backbone app is gone, but content-server still holds config,\n  grunt tasks, plugins and assets that only it used.\n\nThis commit:\n\n* Removes 7 unused config keys and the jsResourcePath production block\n* Deletes 14 unused grunt tasks and their 7 grunt plugins\n* Deletes rpm-version.js, the fontello fonts and their build globs\n* Deletes 4 unused Tailwind CSS files, their config entries and SVGs\n\nCloses FXA-14845",
+  "timestamp": 1793100321000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

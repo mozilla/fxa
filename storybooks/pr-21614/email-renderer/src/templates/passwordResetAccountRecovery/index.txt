@@ -1,0 +1,13 @@
+passwordResetAccountRecovery-title-3 = "Your password has been reset"
+
+passwordResetAccountRecovery-description-3 = "You used your account recovery key to update your Mozilla account password on:"
+
+<%- include('/partials/userInfo/index.txt') %>
+
+passwordResetAccountRecovery-information-txt = "We logged you out of all your synced devices. We created a new account recovery key to replace the one you used. You can change it in your account settings:"
+
+<%- link %>
+
+<%- include('/partials/appBadges/index.txt') %>
+
+<%- include('/partials/automatedEmailChangePassword/index.txt') %>
