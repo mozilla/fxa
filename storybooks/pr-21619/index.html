@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 52e765c4f8a204a8ec62bd08f5015bcd671e0c47</title>
+  <title>Storybooks for commit 8504063d8dc9b982504477aaa9600aff8eac236b</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,16 +23,31 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 52e765c4f8a204a8ec62bd08f5015bcd671e0c47</h1>
+  <h1>Storybooks for commit 8504063d8dc9b982504477aaa9600aff8eac236b</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/27/2026, 4:09:52 PM UTC</dd>
+    <dd>10/27/2026, 4:23:39 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(pairing): add error close reasons and skip resume logs on unload</pre></dd>
+    <dd><pre>feat(settings): add Sentry close reason and resume count to pairing socket</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- A pairing failure in Sentry does not say why the socket closed.
+- A resumed socket leaves no trace, so resume rates are unknown.
+
+This commit:
+
+- Adds closeReason and a resumed event to ResumableWebSocket.
+- Tags pairing client captureException calls with pairing.close_reason.
+- Sends one captureMessage per resumed event, except during page unload.
+- Adds optional tags and captureMessage to sentry-browser.
+- Adds unit tests for each reason, the event and the tags.
+
+Closes FXA-14846</pre></dd>
   </dl>
 </body>
 </html>

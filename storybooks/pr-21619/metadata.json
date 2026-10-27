@@ -1,8 +1,8 @@
 {
-  "commit": "52e765c4f8a204a8ec62bd08f5015bcd671e0c47",
-  "summary": "fix(pairing): add error close reasons and skip resume logs on unload",
-  "description": "",
-  "timestamp": 1793117392000,
+  "commit": "8504063d8dc9b982504477aaa9600aff8eac236b",
+  "summary": "feat(settings): add Sentry close reason and resume count to pairing socket",
+  "description": "Because:\n\n- A pairing failure in Sentry does not say why the socket closed.\n- A resumed socket leaves no trace, so resume rates are unknown.\n\nThis commit:\n\n- Adds closeReason and a resumed event to ResumableWebSocket.\n- Tags pairing client captureException calls with pairing.close_reason.\n- Sends one captureMessage per resumed event, except during page unload.\n- Adds optional tags and captureMessage to sentry-browser.\n- Adds unit tests for each reason, the event and the tags.\n\nCloses FXA-14846",
+  "timestamp": 1793118219000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-settings"
