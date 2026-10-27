@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 878c33ff7f2eb82a9db14acc4d650277b0a5783b</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 878c33ff7f2eb82a9db14acc4d650277b0a5783b</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/26/2026, 7:48:17 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>perf(auth): count devices directly in recoveryKey/exists</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- The route fetched full device rows, Redis session tokens, and merged
+  them only to take `.length`.
+- The endpoint runs on every Settings load plus sign-in and reset flows.
+- The old length was capped by findByUid&#039;s 500 limit; the count is not.
+
+This commit:
+- Adds Device.countByUid, a plain query with the accountDevices zombie filter.
+- Adds db.deviceCount with a db.deviceCount.retrieve StatsD counter.
+- Uses the count in recoveryKey/exists; response shape is unchanged.
+
+Fixes FXA-12736</pre></dd>
+  </dl>
+</body>
+</html>
