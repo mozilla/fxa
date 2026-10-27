@@ -1,8 +1,8 @@
 {
-  "commit": "77dad1b97759647ff77303869363d6b1490bd587",
+  "commit": "b200dc091e63da42c871fc482731b788dea699dd",
   "summary": "feat(settings): derive page title from h1 and focus it in AppLayout",
-  "description": "Because:\n\n* Most AppLayout pages pass no title, so the tab title stays \"Mozilla accounts\".\n* Focus falls to body after a route change, so screen readers announce nothing.\n\nThis commit:\n\n* Derives the page title from the first main h1 when no title or CMS pageTitle is set.\n* Focuses the main h1 with tabindex -1 after mount and loading, unless something has focus.\n* Hides the focus ring on that h1 and removes the TODO.\n* Adds AppLayout tests and updates Signin expectations and snapshots.\n\nCloses FXA-6803",
-  "timestamp": 1793056879000,
+  "description": "Because:\n\n* Most AppLayout pages pass no title, so the tab title stays \"Mozilla accounts\".\n* Focus falls to body after a route change, so screen readers announce nothing.\n* CI build-react failed on an exhaustive-deps warning in the title effect.\n\nThis commit:\n\n* Derives the page title from the main h1, without .card-subheader text.\n* Focuses the main h1 after mount and loading, unless something has focus.\n* Gives the title effect the deps [children, l10n].\n* Adds AppLayout tests and updates Signin expectations and snapshots.\n\nCloses FXA-6803",
+  "timestamp": 1793072185000,
   "storybooks": [
     "fxa-settings"
   ],
