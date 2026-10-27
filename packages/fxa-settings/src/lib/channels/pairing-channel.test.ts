@@ -38,6 +38,7 @@ jest.mock(
 
 jest.mock('@fxa/shared/sentry-browser', () => ({
   captureException: jest.fn(),
+  captureMessage: jest.fn(),
 }));
 
 function getMockHandler(eventName: string) {
@@ -46,10 +47,51 @@ function getMockHandler(eventName: string) {
   )?.[1];
 }
 
+class FakeNativeSocket extends EventTarget {
+  static instances: FakeNativeSocket[] = [];
+  readyState = 1;
+  constructor() {
+    super();
+    FakeNativeSocket.instances.push(this);
+  }
+  send() {}
+  close() {}
+  greet() {
+    this.dispatchEvent(
+      new MessageEvent('message', {
+        data: JSON.stringify({ channelid: CHAN, resume: 'f'.repeat(32) }),
+      })
+    );
+  }
+  drop(code: number) {
+    this.readyState = 3;
+    this.dispatchEvent(new CloseEvent('close', { code }));
+  }
+}
+
+// Makes the bundle build its socket on a fake native one, as the real bundle does.
+function buildSocketIn(
+  call: 'create' | 'connect',
+  settle: () => Promise<unknown>
+) {
+  const {
+    PairingChannel,
+  } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
+  PairingChannel[call].mockImplementationOnce(() => {
+    new window.WebSocket(SERVER);
+    FakeNativeSocket.instances[0].greet();
+    return settle();
+  });
+}
+
 describe('PairingChannelClient', () => {
   let client: PairingChannelClient;
 
+  const nativeWebSocket = window.WebSocket;
+
   beforeEach(() => {
+    FakeNativeSocket.instances = [];
+    window.WebSocket = FakeNativeSocket as unknown as typeof WebSocket;
     mockChannel = {
       send: jest.fn().mockResolvedValue(undefined),
       close: jest.fn().mockResolvedValue(undefined),
@@ -62,6 +104,10 @@ describe('PairingChannelClient', () => {
     };
     jest.clearAllMocks();
     client = new PairingChannelClient();
+  });
+
+  afterEach(() => {
+    window.WebSocket = nativeWebSocket;
   });
 
   describe('open', () => {
@@ -204,6 +250,35 @@ describe('PairingChannelClient', () => {
       );
       expect(client.isConnected).toBe(false);
       expect(onError).toHaveBeenCalled();
+    });
+
+    it('reports a failed create without a close reason when no socket closed', async () => {
+      const {
+        PairingChannel,
+      } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
+      const sentryMetrics = require('@fxa/shared/sentry-browser');
+      const err = new Error('channel server unreachable');
+      PairingChannel.create.mockRejectedValueOnce(err);
+
+      await expect(client.create(SERVER)).rejects.toThrow(err);
+
+      expect(sentryMetrics.captureException).toHaveBeenCalledWith(err);
+      expect(sentryMetrics.captureException.mock.calls[0]).toHaveLength(1);
+    });
+
+    it('tags a failed create with the socket close reason', async () => {
+      const sentryMetrics = require('@fxa/shared/sentry-browser');
+      const err = new Error('WebSocket unexpectedly closed');
+      buildSocketIn('create', () => {
+        FakeNativeSocket.instances[0].drop(4000);
+        return Promise.reject(err);
+      });
+
+      await expect(client.create(SERVER)).rejects.toThrow(err);
+
+      expect(sentryMetrics.captureException).toHaveBeenCalledWith(err, {
+        'pairing.close_reason': 'server_closed',
+      });
     });
 
     // Firefox stops network activity before unloading the page, which rejects
@@ -502,6 +577,69 @@ describe('PairingChannelClient', () => {
       expect(onError).toHaveBeenCalled();
       const detail = onError.mock.calls[0][0].detail;
       expect(detail.errno).toBe(999);
+    });
+
+    it('reports the error without a close reason while the socket is open', async () => {
+      const sentryMetrics = require('@fxa/shared/sentry-browser');
+      buildSocketIn('connect', () => Promise.resolve(mockChannel));
+      await client.open(SERVER, CHAN, VALID_KEY);
+      const err = new Error('ws fail');
+
+      getMockHandler('error')(new CustomEvent('error', { detail: err }));
+
+      expect(sentryMetrics.captureException).toHaveBeenCalledWith(err);
+      expect(sentryMetrics.captureException.mock.calls[0]).toHaveLength(1);
+    });
+
+    it.each([
+      ['open', (c: PairingChannelClient) => c.open(SERVER, CHAN, VALID_KEY)],
+      ['create', (c: PairingChannelClient) => c.create(SERVER)],
+    ] as const)(
+      'tags a mid-flow drop after %s with the socket close reason',
+      async (method, run) => {
+        const sentryMetrics = require('@fxa/shared/sentry-browser');
+        buildSocketIn(method === 'open' ? 'connect' : 'create', () =>
+          Promise.resolve(mockChannel)
+        );
+        await run(client);
+        const err = new Error('WebSocket unexpectedly closed');
+
+        FakeNativeSocket.instances[0].drop(4000);
+        getMockHandler('error')(new CustomEvent('error', { detail: err }));
+
+        expect(sentryMetrics.captureException).toHaveBeenCalledWith(err, {
+          'pairing.close_reason': 'server_closed',
+        });
+      }
+    );
+  });
+
+  describe('resumed event from socket', () => {
+    it('reports one message with the attempt count', async () => {
+      const sentryMetrics = require('@fxa/shared/sentry-browser');
+      buildSocketIn('connect', () => Promise.resolve(mockChannel));
+      await client.open(SERVER, CHAN, VALID_KEY);
+
+      FakeNativeSocket.instances[0].drop(1006);
+      FakeNativeSocket.instances[1].greet();
+
+      expect(sentryMetrics.captureMessage.mock.calls).toEqual([
+        ['Pairing socket resumed', 'info', { 'pairing.resume_attempts': 1 }],
+      ]);
+    });
+
+    it('stops listening once the client closes', async () => {
+      const sentryMetrics = require('@fxa/shared/sentry-browser');
+      buildSocketIn('connect', () => Promise.resolve(mockChannel));
+      await client.open(SERVER, CHAN, VALID_KEY);
+      // A null _connection makes close() skip the bundle, so the socket lives on.
+      mockChannel._connection = null;
+      await client.close();
+
+      FakeNativeSocket.instances[0].drop(1006);
+      FakeNativeSocket.instances[1].greet();
+
+      expect(sentryMetrics.captureMessage).not.toHaveBeenCalled();
     });
   });
 
