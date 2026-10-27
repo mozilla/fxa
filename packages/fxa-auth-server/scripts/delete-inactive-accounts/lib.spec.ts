@@ -480,12 +480,12 @@ describe('delete inactive accounts script lib', () => {
     let bq: BigQuery;
     let dataset: Dataset;
     let tables: Table[];
-    let statsd: jest.Mocked<Pick<StatsD, 'increment'>>;
+    let statsd: jest.Mocked<Pick<StatsD, 'gauge'>>;
 
     beforeEach(() => {
       jest.spyOn(Date, 'now').mockReturnValue(now);
       jest.spyOn(console, 'error').mockImplementation(() => {});
-      statsd = { increment: jest.fn() };
+      statsd = { gauge: jest.fn() };
       bq = new BigQuery();
       dataset = bq.dataset('active_accounts', { projectId: 'fxa-testo' });
       jest.spyOn(bq, 'dataset').mockReturnValue(dataset);
@@ -520,7 +520,7 @@ describe('delete inactive accounts script lib', () => {
           `UNION DISTINCT (SELECT \`uid\` AS uid FROM \`fxa-testo.active_accounts.${clientId1}\`) ` +
           `UNION DISTINCT (SELECT \`uid\` AS uid FROM \`fxa-testo.active_accounts.${clientId2}\`) )`
       );
-      expect(statsd.increment).not.toHaveBeenCalled();
+      expect(statsd.gauge).not.toHaveBeenCalled();
       expect(console.error).not.toHaveBeenCalled();
     });
 
@@ -541,7 +541,7 @@ describe('delete inactive accounts script lib', () => {
         `fxa-testo.active_accounts.${clientId1}.uid`,
         `fxa-testo.active_accounts.${clientId2}.uid`,
       ]);
-      expect(statsd.increment).not.toHaveBeenCalled();
+      expect(statsd.gauge).not.toHaveBeenCalled();
     });
 
     it('reports every empty and stale table before rejecting the lists', async () => {
@@ -561,13 +561,15 @@ describe('delete inactive accounts script lib', () => {
           statsd
         )
       ).rejects.toThrow('Active account tables are empty or stale.');
-      expect(statsd.increment.mock.calls).toEqual([
+      expect(statsd.gauge.mock.calls).toEqual([
         [
-          'accounts.inactive.active-account-table.empty',
+          'accounts.inactive.active-account-table.empty-time',
+          Math.floor(now / 1000),
           { client_id: clientId1 },
         ],
         [
-          'accounts.inactive.active-account-table.stale',
+          'accounts.inactive.active-account-table.stale-time',
+          Math.floor(now / 1000),
           { client_id: clientId2 },
         ],
       ]);
@@ -595,13 +597,15 @@ describe('delete inactive accounts script lib', () => {
           statsd
         )
       ).rejects.toThrow('Active account tables are empty or stale.');
-      expect(statsd.increment.mock.calls).toEqual([
+      expect(statsd.gauge.mock.calls).toEqual([
         [
-          'accounts.inactive.active-account-table.empty',
+          'accounts.inactive.active-account-table.empty-time',
+          Math.floor(now / 1000),
           { client_id: clientId1 },
         ],
         [
-          'accounts.inactive.active-account-table.stale',
+          'accounts.inactive.active-account-table.stale-time',
+          Math.floor(now / 1000),
           { client_id: clientId1 },
         ],
       ]);
