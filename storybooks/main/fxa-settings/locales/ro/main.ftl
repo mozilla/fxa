@@ -1553,6 +1553,11 @@ reset-password-complete-recovery-key-download-info =
     pentru că nu vei mai avea acces mai târziu la această pagină.</b>
 
 
+server-error-heading = Eroare 500
+server-error-description = Vai, ceva nu a funcționat! Am fost anunțați și vom lucra la o soluție.
+server-error-home-button = Acasă
+
+
 error-label = Eroare:
 validating-signin = Se validează autentificarea în cont…
 complete-signin-error-header = Eroare de confirmare

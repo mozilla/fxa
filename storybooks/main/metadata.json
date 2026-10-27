@@ -1,8 +1,8 @@
 {
-  "commit": "21383d338b0ce1007ee5db63ccc99dcbcc6166eb",
-  "summary": "Merge pull request #21607 from mozilla/fxa-14829",
-  "description": "chore(content-server): run server tests in nx test-unit",
-  "timestamp": 1793053798000,
+  "commit": "13c8c9b7ec5a11733f39f8a810eb44c7c3087cfb",
+  "summary": "Merge pull request #21611 from mozilla/fxa-14834-use-statsd-gauge-inactive-accts-job",
+  "description": "fix(metrics): use statsd gauges in delete-inactive-accounts script",
+  "timestamp": 1793107713000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

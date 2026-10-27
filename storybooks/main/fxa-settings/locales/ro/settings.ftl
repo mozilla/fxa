@@ -2232,6 +2232,13 @@ reset-password-complete-recovery-key-download-info =
     recuperarea datelor în caz că uiți parola. <b>Descarc-o acum și salveaz-o în siguranță
     pentru că nu vei mai avea acces mai târziu la această pagină.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Eroare 500
+server-error-description = Vai, ceva nu a funcționat! Am fost anunțați și vom lucra la o soluție.
+server-error-home-button = Acasă
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin
