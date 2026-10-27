@@ -12,28 +12,7 @@ config.theme.extend = {
   ...config.theme.extend,
   backgroundImage: {
     ...config.theme.extend.backgroundImage,
-    'check-white': 'inline("../images/icon-check-white.svg")',
-    'show-password': 'inline("../images/icon-show-password.svg")',
-    'hide-password': 'inline("../images/icon-show-password-closed.svg")',
-    // TODO: Use 'close' SVGs from 'fxa-react' once using React
-    'close-black': 'inline("../images/close.svg")',
-    'close-white': 'inline("../images/close-white.svg")',
-    'mobile-ff': 'inline("../images/mobile-ff.svg")',
-    'mobile-download': 'inline("../images/mobile-download.svg")',
-    'no-ff-desktop': 'inline("../images/no-ff-desktop.svg")',
-    'icon-warning': 'inline("../images/icon-warning.svg")',
     mozilla: 'inline("../images/mozilla.svg")',
-  },
-  content: {
-    ...config.theme.extend.content,
-    'circle-check': "inline('../images/circle-check.svg')",
-    // Note, this is also used in fxa-settings but as an inlined SVG
-    'icon-circle-check-outline':
-      "inline('../images/icon-circle-check-outline.svg')",
-    lock: "inline('../images/icon-lock.svg')",
-    alert: "inline('../images/icon-warning-red-50.svg')",
-    'check-blue': "inline('../images/icon-check-blue-50.svg')",
-    key: "inline('../images/icon-key-grey-50.svg')",
   },
 };
 
