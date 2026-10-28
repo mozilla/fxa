@@ -1,8 +1,8 @@
 {
-  "commit": "67b20d25a78b0adb8cf199ef19f02a19320728d7",
-  "summary": "Merge pull request #21615 from mozilla/pay-3810-zendesk-client-credentials",
-  "description": "feat(auth): change zendesk auth to client creds",
-  "timestamp": 1793202147000,
+  "commit": "56ce40150ac798f71b545fc09d027f1b9909a663",
+  "summary": "Merge pull request #21628 from mozilla/fxa-14871",
+  "description": "chore(deps): bump Node from 24.21.0 to 24.22.1",
+  "timestamp": 1793206555000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
