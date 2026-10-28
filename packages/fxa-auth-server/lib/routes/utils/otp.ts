@@ -32,6 +32,17 @@ export class OtpUtils {
     return !!(result && result.verified && result.enabled);
   }
 
+  // Codes for a verified account are per session, so a code from one sign-in
+  // cannot confirm another. Signup codes stay on the account's emailCode.
+  getEmailOtpSecret(
+    primaryEmail: { isVerified: boolean; emailCode: string },
+    sessionToken: { tokenVerificationId?: string | null }
+  ): string | null {
+    return primaryEmail.isVerified
+      ? sessionToken.tokenVerificationId || null
+      : primaryEmail.emailCode;
+  }
+
   generateOtpCode(secret: string, otpOptions: OtpOptions) {
     const otpAuth = new authenticator.Authenticator();
     otpAuth.options = Object.assign({}, authenticator.options, otpOptions, {

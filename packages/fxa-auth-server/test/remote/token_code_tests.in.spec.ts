@@ -117,6 +117,43 @@ describe.each(testVersions)(
       expect(status.sessionVerified).toBe(true);
     });
 
+    it('should not accept a code sent to another session', async () => {
+      const loginOptions = {
+        ...testOptions,
+        verificationMethod: 'email-2fa',
+        keys: true,
+      };
+      const clientA = await Client.login(
+        server.publicUrl,
+        email,
+        password,
+        loginOptions
+      );
+      const codeA = (await server.mailbox.waitForEmail(email)).headers[
+        'x-signin-verify-code'
+      ];
+      const clientB = await Client.login(
+        server.publicUrl,
+        email,
+        password,
+        loginOptions
+      );
+      const codeB = (await server.mailbox.waitForEmail(email)).headers[
+        'x-signin-verify-code'
+      ];
+      expect(codeA).not.toBe(codeB);
+
+      await expect(clientB.verifyShortCodeEmail(codeA)).rejects.toMatchObject({
+        errno: 183,
+      });
+      expect((await clientB.emailStatus()).sessionVerified).toBe(false);
+
+      await clientA.verifyShortCodeEmail(codeA);
+      await clientB.verifyShortCodeEmail(codeB);
+      expect((await clientA.emailStatus()).sessionVerified).toBe(true);
+      expect((await clientB.emailStatus()).sessionVerified).toBe(true);
+    });
+
     it('should accept optional uid parameter in request body', async () => {
       client = await Client.login(server.publicUrl, email, password, {
         ...testOptions,
@@ -162,7 +199,7 @@ describe.each(testVersions)(
     });
 
     it('should resend authentication code', async () => {
-      await Client.login(server.publicUrl, email, password, {
+      client = await Client.login(server.publicUrl, email, password, {
         ...testOptions,
         verificationMethod: 'email-2fa',
         keys: true,
@@ -170,7 +207,8 @@ describe.each(testVersions)(
 
       let emailData = await server.mailbox.waitForEmail(email);
       const originalMessageId = emailData['messageId'];
-      const originalCode = emailData.headers['x-verify-short-code'];
+      const originalCode = emailData.headers['x-signin-verify-code'];
+      expect(originalCode).toBeTruthy();
 
       expect(emailData.headers['x-template-name']).toBe('verifyLoginCode');
 
@@ -180,7 +218,7 @@ describe.each(testVersions)(
       expect(emailData.headers['x-template-name']).toBe('verifyLoginCode');
 
       expect(originalMessageId).not.toBe(emailData['messageId']);
-      expect(originalCode).toBe(emailData.headers['x-verify-short-code']);
+      expect(originalCode).toBe(emailData.headers['x-signin-verify-code']);
     });
   }
 );

@@ -1029,6 +1029,29 @@ describe('sendSigninNotifications', () => {
     });
   });
 
+  describe('when signing in with an unverified account and email-otp', () => {
+    it('sends a code built from the account emailCode', async () => {
+      mocks.mockOAuthClientInfo();
+      accountRecord.primaryEmail.isVerified = false;
+      accountRecord.primaryEmail.emailCode = 'emailVerifyCode';
+      sessionToken.tokenVerified = false;
+      sessionToken.tokenVerificationId = 'tokenVerifyCode';
+
+      await sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        'email-otp'
+      );
+
+      expect(fxaMailer.sendVerifyLoginCodeEmail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: otpUtils.generateOtpCode('emailVerifyCode', otpOptions),
+        })
+      );
+    });
+  });
+
   describe('when signing in with a verified account, session already verified', () => {
     it('emits correct notifications, and sends no emails', () => {
       sessionToken.tokenVerified = true;
@@ -1188,7 +1211,7 @@ describe('sendSigninNotifications', () => {
         expect(fxaMailer.sendVerifyLoginCodeEmail).toHaveBeenCalledTimes(1);
 
         const expectedCode = otpUtils.generateOtpCode(
-          accountRecord.primaryEmail.emailCode,
+          sessionToken.tokenVerificationId,
           otpOptions
         );
         expect(fxaMailer.sendVerifyLoginCodeEmail).toHaveBeenCalledWith(
@@ -1275,6 +1298,7 @@ describe('sendSigninNotifications', () => {
     beforeEach(() => {
       mocks.mockOAuthClientInfo();
       sessionToken.tokenVerified = false;
+      sessionToken.tokenVerificationId = 'tokenVerifyCode';
     });
 
     it('passes service parameter correctly when request wantsKeys', () => {
@@ -1389,6 +1413,7 @@ describe('sendSigninNotifications', () => {
     beforeEach(() => {
       mocks.mockOAuthClientInfo();
       sessionToken.tokenVerified = false;
+      sessionToken.tokenVerificationId = 'tokenVerifyCode';
       request.payload.service = '32aaeb6f1c21316a';
     });
 
@@ -1538,7 +1563,7 @@ describe('sendSigninNotifications', () => {
           expect(fxaMailer.sendVerifyLoginCodeEmail).toHaveBeenCalledTimes(1);
 
           const expectedCode = otpUtils.generateOtpCode(
-            accountRecord.primaryEmail.emailCode,
+            sessionToken.tokenVerificationId,
             otpOptions
           );
           expect(fxaMailer.sendVerifyLoginCodeEmail).toHaveBeenCalledWith(
