@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 1d794bd4c6424eb0e15c496c261e8ee76ec8da8f</title>
+  <title>Storybooks for commit dcabc6bcb50903d093bc19a4516f0fc99b8a01a6</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,15 +23,15 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 1d794bd4c6424eb0e15c496c261e8ee76ec8da8f</h1>
+  <h1>Storybooks for commit dcabc6bcb50903d093bc19a4516f0fc99b8a01a6</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/28/2026, 3:05:54 PM UTC</dd>
+    <dd>10/28/2026, 7:37:06 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(admin-panel): show Clear Rate Limits progress and result inline</pre></dd>
+    <dd><pre>fix(admin-panel): show Clear Rate Limits status inline</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
@@ -40,8 +40,9 @@
 
 This commit:
 
-* Disables both buttons and shows &quot;Clearing...&quot; during a clear.
+* Disables both buttons and shows &quot;Clearing...&quot; until the clear request settles.
 * Shows success, failure and validation messages inline.
+* Clears the inline message when a filter field changes.
 * Shows the results list after a clear with no prior search.
 
 Closes FXA-14863</pre></dd>
