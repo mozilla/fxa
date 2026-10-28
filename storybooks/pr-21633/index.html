@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit b3c105a36ab46a1477f6f1ee7c7e9aa584b2f97c</title>
+  <title>Storybooks for commit 767fa213835432ffcfaebec300b45abd0d1ab6fa</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit b3c105a36ab46a1477f6f1ee7c7e9aa584b2f97c</h1>
+  <h1>Storybooks for commit 767fa213835432ffcfaebec300b45abd0d1ab6fa</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
@@ -32,19 +32,18 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/28/2026, 6:59:17 PM UTC</dd>
+    <dd>10/28/2026, 7:26:30 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>refactor(geodb): replace fxa-geodb package with @fxa/shared/geodb</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-
-* The repo had two geodb implementations with the same Location class and database.
+- FxA has two geodb implementations, and auth and content still use the old fxa-geodb package.
 
 This commit:
-
-* Adds createGeoDBLookup to @fxa/shared/geodb and exports Location.
-* Moves auth-server and content-server to the lib.
-* Deletes packages/fxa-geodb and types/fxa-geodb, and updates yarn.lock.</pre></dd>
+- Deletes packages/fxa-geodb and types/fxa-geodb.
+- Adds createGeoDBLookup to @fxa/shared/geodb and uses it in auth and content.
+- Points the dbPath defaults at libs/shared/geodb/db/cities-db.mmdb.
+- Copies the MMDB into the auth dist so the default resolves when compiled.</pre></dd>
   </dl>
 </body>
 </html>

@@ -1,8 +1,8 @@
 {
-  "commit": "b3c105a36ab46a1477f6f1ee7c7e9aa584b2f97c",
+  "commit": "767fa213835432ffcfaebec300b45abd0d1ab6fa",
   "summary": "refactor(geodb): replace fxa-geodb package with @fxa/shared/geodb",
-  "description": "Because:\n\n* The repo had two geodb implementations with the same Location class and database.\n\nThis commit:\n\n* Adds createGeoDBLookup to @fxa/shared/geodb and exports Location.\n* Moves auth-server and content-server to the lib.\n* Deletes packages/fxa-geodb and types/fxa-geodb, and updates yarn.lock.",
-  "timestamp": 1793213957000,
+  "description": "Because:\n- FxA has two geodb implementations, and auth and content still use the old fxa-geodb package.\n\nThis commit:\n- Deletes packages/fxa-geodb and types/fxa-geodb.\n- Adds createGeoDBLookup to @fxa/shared/geodb and uses it in auth and content.\n- Points the dbPath defaults at libs/shared/geodb/db/cities-db.mmdb.\n- Copies the MMDB into the auth dist so the default resolves when compiled.",
+  "timestamp": 1793215590000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
