@@ -1,8 +1,8 @@
 {
-  "commit": "0e503bc8c58ee8659dc31adc2649c47399d9dc6e",
-  "summary": "Merge pull request #21625 from mozilla/dependabot/github_actions/codeql-action-60a275eb76",
-  "description": "chore(deps): bump the codeql-action group with 3 updates",
-  "timestamp": 1793196511000,
+  "commit": "67b20d25a78b0adb8cf199ef19f02a19320728d7",
+  "summary": "Merge pull request #21615 from mozilla/pay-3810-zendesk-client-credentials",
+  "description": "feat(auth): change zendesk auth to client creds",
+  "timestamp": 1793202147000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
