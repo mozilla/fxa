@@ -1359,7 +1359,7 @@ pair2-authority-continue-on-mobile-cancel-button = გაუქმება
 
 
 pair2-authority-download-firefox-heading = გახსენით { -brand-firefox } დასინქრონებისთვის
-pair2-authority-download-firefox-instruction = მოწყობილობებს შორის სინქრონიზაციისთვის გახსენით { -brand-firefox } ამ მოწყობილობაზე და ინახულეთ გვერდი <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = მოწყობილობებს შორის სინქრონიზაციისთვის გახსენით { -brand-firefox } ამ მოწყობილობაზე და ინახულეთ გვერდი <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = ჩამოტვირთეთ { -brand-firefox }
 
 
@@ -1421,6 +1421,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = როგორც ჩა�
 pair2-supplicant-timeout-and-cancel-timeout-description = მობილური მოწყობილობის დასაკავშირებლად, რომ დასინქრონდეს { -brand-firefox } მონაცემებიანად, ინახულეთ გვერდი <b>firefox.com/pair</b> თქვენს კომპიუტერში.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = გაუქმებულია
 pair2-supplicant-timeout-and-cancel-canceled-description = მოწყობილობის დასაკავშირებლად ნებისმიერ დროს, ინახულეთ გვერდი <b>firefox.com/pair</b> თქვენს კომპიუტერში.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = ეს მოწყობილობა უკვე შესულია
+pair2-supplicant-timeout-and-cancel-signed-in-description = თქვენი კომპიუტერის ანგარიშთან დასაკავშირებლად ჯერ არსებული ანგარიშიდან უნდა გამოვიდეს { -brand-firefox } ამ მოწყობილობაზე, შემდეგ კი კომპიუტერიდან უნდა გაიხსნას <b>firefox.com/pair</b> შესვლის დასასრულებლად.
 
 
 permissions-heading = { $serviceName } ითხოვს წვდომას:
@@ -1432,6 +1434,7 @@ permissions-cancel-button = გაუქმება
 
 
 force-password-change-heading = გთხოვთ, შეცვალოთ თქვენი პაროლი
+force-password-change-info = თქვენს { -product-mozilla-account(case: "loc") } საეჭვო მოქმედება შევნიშნეთ. თქვენი ანგარიშის დასაცავად გთხოვთ, შექმნათ ახალი პაროლი. ამ პაროლით შეძლებთ დაიბრუნოთ თქვენი { -product-mozilla-account(case: "gen") } ყველა მოქმედი მომსახურება.
 force-password-change-data-info = დასინქრონებული ისტორია, სანიშნები, ანგარიშები და სხვა პირადი მონაცემები არ დაიკარგება.
 
 
@@ -1736,4 +1739,5 @@ signup-confirmed-sync-set-password-success-banner = დასინქრონ�
 
 
 update-firefox-heading = { -brand-firefox } საჭიროებს განახლებას
+update-firefox-description = { -product-mozilla-account } იყენებს შესაძლებლობებს, რომლებთანაც შეუთავსებელია თქვენი { -brand-firefox }. გთხოვთ, ჩამოტვირთოთ და დააყენოთ უახლესი { -brand-firefox }, რომ განაგრძოთ.
 update-firefox-download-button = უახლესის ჩამოტვირთვა

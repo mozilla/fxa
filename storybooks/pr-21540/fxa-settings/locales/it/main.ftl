@@ -1323,7 +1323,7 @@ pair2-authority-continue-on-mobile-cancel-button = Annulla
 
 
 pair2-authority-download-firefox-heading = Apri { -brand-firefox } per sincronizzare
-pair2-authority-download-firefox-instruction = Per configurare la sincronizzazione tra più dispositivi, apri { -brand-firefox } su questo dispositivo e visita <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Per configurare la sincronizzazione tra più dispositivi, apri { -brand-firefox } su questo dispositivo e visita <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Scarica { -brand-firefox }
 
 
@@ -1502,6 +1502,11 @@ reset-password-with-recovery-key-verified-page-title = Password reimpostata corr
 reset-password-complete-new-password-saved = Nuova password salvata.
 reset-password-complete-recovery-key-created = È stata creata una nuova chiave di recupero dell’account. Scaricala e salvala subito.
 reset-password-complete-recovery-key-download-info = Questa chiave è essenziale per il recupero dei dati se si dimentica la password. <b>Scaricala subito e salvala in modo sicuro, in quanto non potrai più accedere a questa pagina in seguito.</b>
+
+
+server-error-heading = Errore 500
+server-error-description = Si è verificato un comportamento anomalo dell’applicazione. Ci è stata inviata la segnalazione del problema e cercheremo di risolverlo quanto prima.
+server-error-home-button = Pagina iniziale
 
 
 error-label = Errore:

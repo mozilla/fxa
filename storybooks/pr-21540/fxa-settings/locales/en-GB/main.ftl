@@ -1322,7 +1322,7 @@ pair2-authority-continue-on-mobile-cancel-button = Cancel
 
 
 pair2-authority-download-firefox-heading = Open { -brand-firefox } to synchronise
-pair2-authority-download-firefox-instruction = To set up synchronisation across devices, open { -brand-firefox } on this device and visit <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = To set up synchronisation across devices, open { -brand-firefox } on this device and visit <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Download { -brand-firefox }
 
 
@@ -1504,6 +1504,11 @@ reset-password-complete-recovery-key-download-info =
     This key is essential for
     data recovery if you forget your password. <b>Download and store it securely
     now, as you won’t be able to access this page again later.</b>
+
+
+server-error-heading = 500 Error
+server-error-description = Oh dear, something went wrong there. We’ve been notified and will get working on a fix.
+server-error-home-button = Home
 
 
 error-label = Error:

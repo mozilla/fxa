@@ -1858,7 +1858,7 @@ pair2-authority-continue-on-mobile-cancel-button = 取消
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = 開啟 { -brand-firefox } 即可同步
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = 若要與其他裝置同步，請在此裝置開啟 { -brand-firefox }，然後造訪 <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = 若要與其他裝置同步，請在此裝置開啟 { -brand-firefox }，然後造訪 <b>firefox.com/pair</b>。
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = 下載 { -brand-firefox }
 
@@ -2174,6 +2174,13 @@ reset-password-with-recovery-key-verified-page-title = 密碼重設成功
 reset-password-complete-new-password-saved = 已儲存新密碼！
 reset-password-complete-recovery-key-created = 已建立新的帳號救援金鑰，請立即下載並儲存。
 reset-password-complete-recovery-key-download-info = 萬一您忘記密碼時，必須使用這把金鑰才可以救回資料。<b>本頁面之後不會再顯示，請立即下載金鑰，並儲存在安全的地方。</b>
+
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = 500 錯誤
+server-error-description = 抱歉，有些東西怪怪的，我們已經通知相關人員，將會修復此問題。
+server-error-home-button = 首頁
 
 ## CompleteSignin component
 

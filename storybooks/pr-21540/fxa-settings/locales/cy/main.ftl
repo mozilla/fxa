@@ -1345,7 +1345,7 @@ pair2-authority-continue-on-mobile-cancel-button = Diddymu
 
 
 pair2-authority-download-firefox-heading = Agor { -brand-firefox } i gydweddu
-pair2-authority-download-firefox-instruction = I allu cydweddu ar draws dyfeisiau, agorwch { -brand-firefox } ar y ddyfais hon ac ewch i <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = I osod cydweddu ar draws dyfeisiau, agorwch { -brand-firefox } ar y ddyfais hon ac ewch i <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Llwytho { -brand-firefox } i lawr
 
 
@@ -1528,6 +1528,11 @@ reset-password-with-recovery-key-verified-page-title = Mae'r cyfrinair wedi ei a
 reset-password-complete-new-password-saved = Cyfrinair newydd wedi'i gadw!
 reset-password-complete-recovery-key-created = Mae allwedd adfer cyfrif newydd wedi'i chreu. Llwythwch hi i lawr a'i chadw nawr.
 reset-password-complete-recovery-key-download-info = Mae'r allwedd hon yn hanfodol ar gyfer adfer data os byddwch yn anghofio eich cyfrinair. <b>Llwythwch hi i lawr a'i chadw'n ddiogel nawr, gan na fydd modd i chi allu cyrchu'r dudalen hon eto yn nes ymlaen.</b>
+
+
+server-error-heading = Gwall 500
+server-error-description = O diar, aeth rhywbeth o'i le yno. Rydym wedi cael ein hysbysu a byddwn yn dechrau gweithio ar ei drwsio.
+server-error-home-button = Cartref
 
 
 error-label = Gwall:

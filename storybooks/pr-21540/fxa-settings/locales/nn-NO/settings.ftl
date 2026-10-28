@@ -1891,8 +1891,6 @@ pair2-authority-continue-on-mobile-cancel-button = Avbryt
 
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Opne { -brand-firefox } for å synkronisere
-# "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = For å setje opp synkronisering på tvers av einingar, opne { -brand-firefox } på denne eininga og gå til <b>firefox.com/pair</b>
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
 
@@ -2207,6 +2205,12 @@ reset-password-complete-recovery-key-download-info =
     Denne nøkkelen er viktig for
     datagjenoppretting viss du gløymer passordet ditt. <b>Last ned og lagre han sikkert
     no, sidan du ikkje vil få tilgang til denne sida igjen seinare.</b>
+
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Feil 500
+server-error-home-button = Heim
 
 ## CompleteSignin component
 

@@ -1297,7 +1297,7 @@ pair2-authority-continue-on-mobile-cancel-button = 취소
 
 
 pair2-authority-download-firefox-heading = 동기화를 위해 { -brand-firefox } 열기
-pair2-authority-download-firefox-instruction = 기기 간 동기화를 설정하려면 이 기기에서 { -brand-firefox }를 열고 <b>firefox.com/pair</b>를 방문하세요.
+pair2-authority-download-firefox-instruction-v2 = 기기 간 동기화를 설정하려면 이 기기에서 { -brand-firefox }를 열고 <b>firefox.com/pair</b>를 방문하세요.
 pair2-authority-download-firefox-cta = { -brand-firefox } 다운로드
 
 
@@ -1359,6 +1359,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = 시간이 초과된 것 �
 pair2-supplicant-timeout-and-cancel-timeout-description = 모바일 기기를 연결하고 { -brand-firefox } 데이터를 동기화하려면, 컴퓨터에서 <b>firefox.com/pair</b>에 접속하세요.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = 취소됨
 pair2-supplicant-timeout-and-cancel-canceled-description = 언제든 기기에 연결하려면, 컴퓨터에서 <b>firefox.com/pair</b>에 접속하세요.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = 이 기기는 이미 로그인되어 있습니다
+pair2-supplicant-timeout-and-cancel-signed-in-description = 데스크톱 계정에 연결하려면, 이 기기에서 { -brand-firefox }를 로그아웃한 다음 컴퓨터에서 <b>firefox.com/pair</b>를 방문하여 로그인을 완료하세요.
 
 
 permissions-heading = { $serviceName } 접근 요청:
@@ -1473,6 +1475,11 @@ reset-password-complete-recovery-key-download-info =
     이 키는 비밀번호를 잊어버렸을 때
     데이터를 복구하는 데 필수입니다. <b>지금 다운로드하고 안전하게 저장하세요.
     나중에 이 페이지에 다시 접근할 수 없습니다.</b>
+
+
+server-error-heading = 500 오류
+server-error-description = 아, 뭔가가 잘 못 되었습니다. 이 상황을 인지했으며 고치기위해 노력하겠습니다.
+server-error-home-button = 홈
 
 
 error-label = 오류:

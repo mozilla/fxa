@@ -455,6 +455,20 @@ locale-toggle-browser-default = Browser default
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Bad Request
 
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+pair-unsupported-hint-heading = Finish pairing in the app
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = Close this page
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Tap the <b>app menu</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>Sign in</b>, then scan the code
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = Learn more
+
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
 
@@ -2467,6 +2481,13 @@ reset-password-complete-recovery-key-created = New account recovery key created.
 reset-password-complete-recovery-key-download-info = This key is essential for
   data recovery if you forget your password. <b>Download and store it securely
   now, as you won’t be able to access this page again later.</b>
+
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = 500 Error
+server-error-description = Oh dear, something went wrong there. We’ve been notified and will get working on a fix.
+server-error-home-button = Home
 
 ## CompleteSignin component
 

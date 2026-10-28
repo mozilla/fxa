@@ -1322,7 +1322,7 @@ pair2-authority-continue-on-mobile-cancel-button = Avbryt
 
 
 pair2-authority-download-firefox-heading = Öppna { -brand-firefox } för att synkronisera
-pair2-authority-download-firefox-instruction = För att konfigurera synkronisering mellan enheter, öppna { -brand-firefox } på den här enheten och besök <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = För att konfigurera synkronisering mellan enheter, öppna { -brand-firefox } på den här enheten och besök <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Hämta { -brand-firefox }
 
 
@@ -1504,6 +1504,11 @@ reset-password-complete-recovery-key-download-info =
     Den här nyckeln är viktig för
     dataåterställning om du glömmer ditt lösenord. <b>Ladda ner och lagra den säkert
     nu, eftersom du inte kommer att kunna komma åt den här sidan igen senare.</b>
+
+
+server-error-heading = 500 Fel
+server-error-description = Oj, något gick fel där. Vi har meddelats och kommer att arbeta med en lösning.
+server-error-home-button = Hem
 
 
 error-label = Fel:

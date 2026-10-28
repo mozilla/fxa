@@ -388,6 +388,13 @@ locale-toggle-browser-default = Browser default
 error-bad-request = Bad Request
 
 
+pair-unsupported-hint-heading = Finish pairing in the app
+pair-unsupported-hint-step-close-page = Close this page
+pair-unsupported-hint-step-app-menu = Tap the <b>app menu</b>
+pair-unsupported-hint-step-sign-in = <b>Sign in</b>, then scan the code
+pair-unsupported-hint-learn-more-link = Learn more
+
+
 password-info-balloon-why-password-info = You need this password to access any encrypted data you store with us.
 password-info-balloon-reset-risk-info = A reset means potentially losing data like passwords and bookmarks.
 
@@ -1726,6 +1733,11 @@ reset-password-complete-recovery-key-created = New account recovery key created.
 reset-password-complete-recovery-key-download-info = This key is essential for
   data recovery if you forget your password. <b>Download and store it securely
   now, as you won’t be able to access this page again later.</b>
+
+
+server-error-heading = 500 Error
+server-error-description = Oh dear, something went wrong there. We’ve been notified and will get working on a fix.
+server-error-home-button = Home
 
 
 error-label = Error:

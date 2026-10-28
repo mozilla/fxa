@@ -1326,7 +1326,7 @@ pair2-authority-continue-on-mobile-cancel-button = Cancellar
 
 
 pair2-authority-download-firefox-heading = Aperi { -brand-firefox } pro synchronisar
-pair2-authority-download-firefox-instruction = Pro configurar synchronisation a transverso apparatos, aperi { -brand-firefox } sur iste apparato e visita <b>firefox.com/par</b>
+pair2-authority-download-firefox-instruction-v2 = Pro configurar synchronisation a transverso apparatos, aperi { -brand-firefox } sur iste apparato e visita <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Discarga { -brand-firefox }
 
 
@@ -1505,6 +1505,11 @@ reset-password-with-recovery-key-verified-page-title = Contrasigno remontate con
 reset-password-complete-new-password-saved = Nove contrasigno salvate!
 reset-password-complete-recovery-key-created = Un nove clave de recuperation del conto ha essite create. Discarga lo e conserva lo ora.
 reset-password-complete-recovery-key-download-info = Iste clave es essential pro le recuperation de tu datos si tu oblida tu contrasigno. <b>Discarga lo e conserva lo de modo secur ora mesmo, perque tu non potera acceder a iste pagina de novo plus tarde.</b>
+
+
+server-error-heading = Error 500
+server-error-description = Guai, qualcosa ha fallite hic. Nos ha recipite notification e va reparar le problema.
+server-error-home-button = Initio
 
 
 error-label = Error:

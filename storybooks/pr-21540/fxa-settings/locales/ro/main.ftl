@@ -1368,7 +1368,7 @@ pair2-authority-continue-on-mobile-cancel-button = Anulează
 
 
 pair2-authority-download-firefox-heading = Deschide { -brand-firefox } pentru sincronizare
-pair2-authority-download-firefox-instruction = Pentru a configura sincronizarea pe toate dispozitivele, deschide { -brand-firefox } pe acest dispozitiv și accesează<b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Pentru a configura sincronizarea pe toate dispozitivele, deschide { -brand-firefox } pe acest dispozitiv și accesează<b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Descarcă { -brand-firefox }
 
 
@@ -1551,6 +1551,11 @@ reset-password-complete-recovery-key-download-info =
     Cheia este esențială pentru
     recuperarea datelor în caz că uiți parola. <b>Descarc-o acum și salveaz-o în siguranță
     pentru că nu vei mai avea acces mai târziu la această pagină.</b>
+
+
+server-error-heading = Eroare 500
+server-error-description = Vai, ceva nu a funcționat! Am fost anunțați și vom lucra la o soluție.
+server-error-home-button = Acasă
 
 
 error-label = Eroare:

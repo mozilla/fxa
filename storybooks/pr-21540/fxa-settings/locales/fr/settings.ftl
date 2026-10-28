@@ -1892,7 +1892,7 @@ pair2-authority-continue-on-mobile-cancel-button = Annuler
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Ouvrez { -brand-firefox } pour synchroniser vos données
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Pour configurer la synchronisation entre des appareils, ouvrez { -brand-firefox } sur cet appareil et consultez <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Pour configurer la synchronisation entre des appareils, ouvrez { -brand-firefox } sur cet appareil et consultez <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Télécharger { -brand-firefox }
 
@@ -2212,6 +2212,13 @@ reset-password-with-recovery-key-verified-page-title = Mot de passe réinitialis
 reset-password-complete-new-password-saved = Nouveau mot de passe enregistré !
 reset-password-complete-recovery-key-created = Nouvelle clé de récupération de compte créée. Téléchargez-la et stockez-la maintenant.
 reset-password-complete-recovery-key-download-info = Cette clé est essentielle pour la récupération des données si vous oubliez votre mot de passe. <b>Téléchargez-la et conservez-la en lieu sûr, car vous ne pourrez plus accéder à cette page plus tard.</b>
+
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Erreur 500
+server-error-description = Une erreur s’est produite. Nous en avons été avertis et allons mettre au point un correctif.
+server-error-home-button = Accueil
 
 ## CompleteSignin component
 

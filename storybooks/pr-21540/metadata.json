@@ -1,8 +1,8 @@
 {
-  "commit": "9d8a9c15aa8771c7732d7d94e951ee680c45fb0e",
+  "commit": "afcee3ef5b8fc40929d178c3a10ec8a3ae232155",
   "summary": "feat(settings): gate pairing on the browser holding the Sync key",
   "description": "Because:\n- A Firefox session without the Sync key (VPN/Relay/Smart Window cached\n  sign-in, third-party auth) passed every \"signed in\" check, so pairing\n  started and failed in the browser with \"No keyFetchToken\"\n- Firefox now reports `signedInUser.hasSyncKey` in `fxa_status`\n  (Bug 2080354); `undefined` from older Firefox keeps today's path\n- The Sync sign-in /pair fell back to landed on email-first, which showed\n  a cached sign-in step first and could not tell a passwordless account\n  from one that has a password\n\nThis commit:\n- Adds `canPairFromBrowser` for /pair and /connect_another_device;\n  /pair sends a key-less browser session to /post_verify/set_password,\n  which creates a password or hands an account that has one to /signin\n- Makes set_password verify the session first (code or TOTP page, then\n  back), since Firefox deep-links there and /password/create needs a\n  verified session\n- Labels the /signin submit \"Start syncing\" when sent from set_password\n- Hides the Connect-a-device promo and Connected Services button in\n  Settings when the browser reports no key\n- Drops the unused `capabilities.hasSyncKeys` type and adds Playwright\n  password → /pair and password → 2FA → /pair flow tests\n\nCloses FXA-14357\nCloses FXA-14738",
-  "timestamp": 1792174700000,
+  "timestamp": 1793199065000,
   "storybooks": [
     "fxa-settings"
   ],

@@ -1903,7 +1903,7 @@ pair2-authority-continue-on-mobile-cancel-button = Отмена
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Откройте { -brand-firefox } для синхронизации
 # "firefox.com/pair" is a URL and should not be translated
-pair2-authority-download-firefox-instruction = Чтобы настроить синхронизацию между устройствами, откройте { -brand-firefox } на этом устройстве и посетите <b>firefox.com/pair</b>
+pair2-authority-download-firefox-instruction-v2 = Чтобы настроить синхронизацию между устройствами, откройте { -brand-firefox } на этом устройстве и посетите <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Скачать { -brand-firefox }
 
@@ -2227,6 +2227,13 @@ reset-password-complete-recovery-key-download-info =
     Этот ключ необходим для
     восстановления данных, если вы забудете свой пароль. <b>Скачайте и храните в безопасности
     сейчас, так как вы не сможете получить доступ к этой странице позже.</b>
+
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Ошибка 500
+server-error-description = О боже мой, что-то пошло не так. Мы уведомлены об этом и начнём работу над исправлением.
+server-error-home-button = Главная страница
 
 ## CompleteSignin component
 
