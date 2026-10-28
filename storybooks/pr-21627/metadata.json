@@ -1,0 +1,10 @@
+{
+  "commit": "1d794bd4c6424eb0e15c496c261e8ee76ec8da8f",
+  "summary": "fix(admin-panel): show Clear Rate Limits progress and result inline",
+  "description": "Because:\n\n* Clear Rate Limits showed no feedback until the request ended.\n* Results and errors showed only in window.alert dialogs.\n\nThis commit:\n\n* Disables both buttons and shows \"Clearing...\" during a clear.\n* Shows success, failure and validation messages inline.\n* Shows the results list after a clear with no prior search.\n\nCloses FXA-14863",
+  "timestamp": 1793199954000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
