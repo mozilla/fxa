@@ -34,7 +34,7 @@ import {
   type FreeAccessForUid,
   FreeAccessProgramService,
 } from '@fxa/free-access-program';
-import { SanitizeExceptions } from '@fxa/shared/error';
+import { SanitizeExceptions } from '@fxa/shared/error/sanitize-exceptions';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 
 import type {

@@ -46,6 +46,9 @@
         "libs/shared/db/type-cacheable/src/index"
       ],
       "@fxa/shared/error": ["libs/shared/error/src/index"],
+      "@fxa/shared/error/sanitize-exceptions": [
+        "libs/shared/error/src/lib/sanitizeExceptionsDecorator"
+      ],
       "@fxa/shared/experiments": ["libs/shared/experiments/src/index"],
       "@fxa/shared/geodb": ["libs/shared/geodb/src/index"],
       "@fxa/shared/guards": ["libs/shared/guards/src/index"],

@@ -30,7 +30,7 @@ import type {
   StripePrice,
   StripeSubscription,
 } from '@fxa/payments/stripe';
-import { SanitizeExceptions } from '@fxa/shared/error';
+import { SanitizeExceptions } from '@fxa/shared/error/sanitize-exceptions';
 import { CurrencyManager } from '@fxa/payments/currency';
 import {
   AppleIapPurchaseManager,

@@ -7,7 +7,6 @@ export {
   TypeError,
   GENERIC_ERROR_MESSAGE,
 } from './lib/error';
-export {
-  SanitizeExceptions,
-  handleException,
-} from './lib/sanitizeExceptionsDecorator';
+// SanitizeExceptions and handleException live at
+// @fxa/shared/error/sanitize-exceptions: they import @sentry/nextjs, which
+// Node services importing this barrel should not load.

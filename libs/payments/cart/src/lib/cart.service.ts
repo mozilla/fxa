@@ -51,7 +51,7 @@ import {
   CartErrorReasonId,
   CartState,
 } from '@fxa/shared/db/mysql/account';
-import { SanitizeExceptions } from '@fxa/shared/error';
+import { SanitizeExceptions } from '@fxa/shared/error/sanitize-exceptions';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import {
   CHECKOUT_EVENT_EMITTER_TOKEN,
@@ -120,7 +120,7 @@ import { isPaymentIntentId } from './util/isPaymentIntentId';
 import { isPaymentIntent } from './util/isPaymentIntent';
 import { throwIntentFailedError } from './util/throwIntentFailedError';
 import type { SubscriptionAttributionParams } from './checkout.types';
-import { handleException } from '@fxa/shared/error';
+import { handleException } from '@fxa/shared/error/sanitize-exceptions';
 import type { AsyncLocalStorage } from 'async_hooks';
 import { AsyncLocalStorageCart } from './cart-als.provider';
 import type { CartStore } from './cart-als.types';
