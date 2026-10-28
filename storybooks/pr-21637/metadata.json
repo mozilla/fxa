@@ -1,0 +1,12 @@
+{
+  "commit": "1284e511e0d02eb0b02bd142e2a9b380181d0b70",
+  "summary": "fix(react): fetch only the best locale and en l10n bundles",
+  "description": "Because:\n\n* AppLocalizationProvider fetched every regional variant that\n  parseAcceptLanguage returns, so en-US loaded en, en-GB and en-CA\n\nThis commit:\n\n* Fetches only the best negotiated locale and en, duplicates removed\n* Uses the same list for the fetch and the bundle generator\n\nCloses FXA-14861",
+  "timestamp": 1793215638000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
