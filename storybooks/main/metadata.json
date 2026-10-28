@@ -1,8 +1,8 @@
 {
-  "commit": "9cda6f2d9c1bb4844e49db0140c3f58c2b83919d",
-  "summary": "Merge pull request #21631 from mozilla/ci-image-v12",
-  "description": "chore(ci): bump CI image tags to v12",
-  "timestamp": 1793209634000,
+  "commit": "2f9d9ff4ee00247002707b904b231398c73c4168",
+  "summary": "Merge pull request #21491 from mozilla/FXA-14740",
+  "description": "fix(auth): lock passkey ceremonies to a fixed mfa:passkey:wraps scope",
+  "timestamp": 1793210938000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
