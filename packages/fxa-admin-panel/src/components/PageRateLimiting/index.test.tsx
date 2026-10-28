@@ -47,6 +47,9 @@ jest.mock('../../lib/api', () => ({
 
 let alertSpy: jest.SpyInstance;
 
+const VALIDATION_MESSAGE =
+  'Please enter at least one of: IP address, email, or UID';
+
 describe('PageRateLimiting', () => {
   let user: ReturnType<typeof userEvent.setup>;
 
@@ -72,12 +75,12 @@ describe('PageRateLimiting', () => {
   });
 
   describe('Search rate limits', () => {
-    it('shows alert when searching without any input', async () => {
+    it('shows an inline error when searching without any input', async () => {
       render(<PageRateLimiting />);
       await user.click(screen.getByText('Search Rate Limits'));
-      expect(alertSpy).toHaveBeenCalledWith(
-        'Please enter at least one of: IP address, email, or UID'
-      );
+      expect(screen.getByRole('alert')).toHaveTextContent(VALIDATION_MESSAGE);
+      expect(adminApi.getRateLimits).not.toHaveBeenCalled();
+      expect(alertSpy).not.toHaveBeenCalled();
     });
 
     it('searches with IP address and shows empty results', async () => {
@@ -136,12 +139,96 @@ describe('PageRateLimiting', () => {
   });
 
   describe('Clear rate limits', () => {
-    it('shows alert when trying to clear without any input', async () => {
+    it('shows an inline error when trying to clear without any input', async () => {
       render(<PageRateLimiting />);
       await user.click(screen.getByText('Clear Rate Limits'));
-      expect(alertSpy).toHaveBeenCalledWith(
-        'Please enter at least one of: IP address, email, or UID'
+      expect(screen.getByRole('alert')).toHaveTextContent(VALIDATION_MESSAGE);
+      expect(adminApi.clearRateLimits).not.toHaveBeenCalled();
+      expect(alertSpy).not.toHaveBeenCalled();
+    });
+
+    it('disables both buttons and shows a pending label while clearing', async () => {
+      let resolveClear: (count: number) => void = () => {};
+      (adminApi.clearRateLimits as jest.Mock).mockReturnValue(
+        new Promise<number>((resolve) => {
+          resolveClear = resolve;
+        })
       );
+      (adminApi.getRateLimits as jest.Mock).mockResolvedValue([]);
+
+      render(<PageRateLimiting />);
+      await user.type(screen.getByLabelText('IP Address'), '192.168.1.1');
+      await user.click(screen.getByText('Clear Rate Limits'));
+
+      expect(
+        screen.getByRole('button', { name: 'Clearing...' })
+      ).toBeDisabled();
+      expect(
+        screen.getByRole('button', { name: /Search Rate Limits/ })
+      ).toBeDisabled();
+
+      resolveClear(2);
+
+      expect(
+        await screen.findByRole('button', { name: 'Clear Rate Limits' })
+      ).toBeEnabled();
+      expect(
+        screen.getByRole('button', { name: /Search Rate Limits/ })
+      ).toBeEnabled();
+    });
+
+    it('enables the buttons again while the refresh after a clear is pending', async () => {
+      (adminApi.clearRateLimits as jest.Mock).mockResolvedValue(1);
+      (adminApi.getRateLimits as jest.Mock).mockReturnValue(
+        new Promise(() => {})
+      );
+
+      render(<PageRateLimiting />);
+      await user.type(screen.getByLabelText('IP Address'), '192.168.1.1');
+      await user.click(screen.getByText('Clear Rate Limits'));
+
+      expect(
+        await screen.findByText('Loading rate limit information...')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Clear Rate Limits' })
+      ).toBeEnabled();
+      expect(
+        screen.getByRole('button', { name: /Search Rate Limits/ })
+      ).toBeEnabled();
+    });
+
+    it('removes the status message when a filter field changes', async () => {
+      (adminApi.clearRateLimits as jest.Mock).mockResolvedValue(1);
+      (adminApi.getRateLimits as jest.Mock).mockResolvedValue([]);
+
+      render(<PageRateLimiting />);
+      await user.type(screen.getByLabelText('IP Address'), '192.168.1.1');
+      await user.click(screen.getByText('Clear Rate Limits'));
+      expect(await screen.findByRole('status')).toBeInTheDocument();
+
+      await user.type(screen.getByLabelText('UID'), 'user123');
+
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+      expect(screen.getByLabelText('UID')).toHaveValue('user123');
+    });
+
+    it('renders the results list after a clear with no prior search', async () => {
+      (adminApi.clearRateLimits as jest.Mock).mockResolvedValue(1);
+      (adminApi.getRateLimits as jest.Mock).mockResolvedValue([
+        mockBanStatusData,
+      ]);
+
+      render(<PageRateLimiting />);
+      await user.type(screen.getByLabelText('IP Address'), '192.168.1.1');
+      await user.click(screen.getByText('Clear Rate Limits'));
+
+      expect(await screen.findByText('Active Bans (1)')).toBeInTheDocument();
+      expect(adminApi.getRateLimits).toHaveBeenCalledWith({
+        ip: '192.168.1.1',
+        email: undefined,
+        uid: undefined,
+      });
     });
 
     it('successfully clears rate limits with IP address', async () => {
@@ -154,11 +241,10 @@ describe('PageRateLimiting', () => {
       await user.type(screen.getByLabelText('IP Address'), testIp);
       await user.click(screen.getByText('Clear Rate Limits'));
 
-      await waitFor(() => {
-        expect(alertSpy).toHaveBeenCalledWith(
-          `Successfully cleared ${clearedCount} rate limit record(s)`
-        );
-      });
+      expect(await screen.findByRole('status')).toHaveTextContent(
+        `Successfully cleared ${clearedCount} rate limit record(s)`
+      );
+      expect(alertSpy).not.toHaveBeenCalled();
     });
 
     it('successfully clears rate limits with email and UID', async () => {
@@ -173,11 +259,10 @@ describe('PageRateLimiting', () => {
       await user.type(screen.getByLabelText('UID'), testUid);
       await user.click(screen.getByText('Clear Rate Limits'));
 
-      await waitFor(() => {
-        expect(alertSpy).toHaveBeenCalledWith(
-          `Successfully cleared ${clearedCount} rate limit record(s)`
-        );
-      });
+      expect(await screen.findByRole('status')).toHaveTextContent(
+        `Successfully cleared ${clearedCount} rate limit record(s)`
+      );
+      expect(alertSpy).not.toHaveBeenCalled();
     });
 
     it('shows error when clear mutation fails', async () => {
@@ -190,11 +275,13 @@ describe('PageRateLimiting', () => {
       await user.type(screen.getByLabelText('IP Address'), testIp);
       await user.click(screen.getByText('Clear Rate Limits'));
 
-      await waitFor(() => {
-        expect(alertSpy).toHaveBeenCalledWith(
-          'Failed to clear: Failed to clear rate limits'
-        );
-      });
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        'Failed to clear: Failed to clear rate limits'
+      );
+      expect(
+        screen.getByRole('button', { name: 'Clear Rate Limits' })
+      ).toBeEnabled();
+      expect(alertSpy).not.toHaveBeenCalled();
     });
   });
 });
