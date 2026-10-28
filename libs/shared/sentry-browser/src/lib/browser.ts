@@ -36,6 +36,9 @@ function getBrowserId(): string | undefined {
 }
 
 export function captureException(err: Error) {
+type Tags = Record<string, string | number>;
+
+export function captureException(err: Error, tags?: Tags) {
   if (!isSentryEnabled()) {
     return;
   }
@@ -53,7 +56,23 @@ export function captureException(err: Error) {
         );
       }
     });
+    if (tags) scope.setTags(tags);
     Sentry.captureException(err);
+  });
+}
+
+export function captureMessage(
+  message: string,
+  level: Sentry.SeverityLevel,
+  tags?: Tags
+) {
+  if (!isSentryEnabled()) {
+    return;
+  }
+
+  Sentry.withScope((scope: Sentry.Scope) => {
+    if (tags) scope.setTags(tags);
+    Sentry.captureMessage(message, level);
   });
 }
 
@@ -98,6 +117,7 @@ export function initSentry(config: SentryConfigOpts, log?: Logger) {
 export default {
   configure: initSentry,
   captureException,
+  captureMessage,
   enable: enableSentry,
   disable: disableSentry,
 };

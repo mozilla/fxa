@@ -24,6 +24,7 @@
     "delete": "pm2 delete pm2.config.js",
     "start-production": "NODE_ENV=production grunt build && yarn build-css && CONFIG_FILES=server/config/local.json,server/config/production.json,server/config/secrets.json grunt serverproc:dist",
     "start-remote": "scripts/run_remote_dev.sh",
+    "test-unit": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-content-server-mocha-unit-results.xml NODE_ENV=test mocha 'server/lib/**/*.test.js'",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "repository": {
@@ -41,7 +42,7 @@
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
     "cookie-parser": "1.4.6",
-    "express": "^4.21.2",
+    "express": "^5.2.1",
     "fxa-auth-client": "workspace:*",
     "fxa-auth-server": "workspace:*",
     "fxa-geodb": "workspace:*",
@@ -60,7 +61,6 @@
     "grunt-sri": "0.2.0",
     "grunt-text-replace": "0.4.0",
     "grunt-usemin": "3.1.1",
-    "grunt-z-schema": "0.1.0",
     "handlebars": "^4.7.10",
     "helmet": "^8.0.0",
     "hot-shots": "^10.2.1",
@@ -82,12 +82,6 @@
     "@babel/eslint-parser": "^7.27.5",
     "chai": "^5.3.3",
     "eslint": "^7.32.0",
-    "grunt-ban-word": "0.1.1",
-    "grunt-copyright": "0.3.0",
-    "grunt-htmllint": "0.3.0",
-    "grunt-jsonlint": "3.0.0",
-    "grunt-newer": "1.3.0",
-    "grunt-todo": "0.5.0",
     "pm2": "^7.0.0",
     "postcss-assets": "^6.0.0",
     "postcss-import": "^16.1.0",
@@ -98,6 +92,10 @@
     "typescript": "5.5.3"
   },
   "readmeFilename": "README.md",
+  "mocha": {
+    "reporter": "mocha-multi",
+    "reporterOptions": "spec=-,mocha-junit-reporter=-"
+  },
   "nx": {
     "implicitDependencies": [
       "crypto-relier"

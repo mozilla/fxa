@@ -82,7 +82,6 @@ xvfb-run -s "-screen 0 1920x1200x16" yarn test-functional
 | --------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `grunt build`         | build production resources. See [task source](grunttasks/build.js) for more documentation                                  |
 | `grunt clean`         | remove any built production resources.                                                                                     |
-| `grunt lint`          | run ESLint, Sass-lint, amdcheck and JSONLint on client side and testing JavaScript.                                        |
 | `grunt server`        | run a local server running on port 3030 with development resources.                                                        |
 | `grunt server:dist`   | run a local server running on port 3030 with production resources. Production resources will be built as part of the task. |
 | `grunt test`          | run local Intern tests.                                                                                                    |

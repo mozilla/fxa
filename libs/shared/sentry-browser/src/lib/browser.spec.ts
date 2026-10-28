@@ -8,8 +8,14 @@ import {
   enableSentry,
   SentryConfigOpts,
 } from '@fxa/shared/sentry-utils';
-import sentryMetrics, { captureException, initSentry } from './browser';
+import sentryMetrics, {
+  captureException,
+  captureMessage,
+  initSentry,
+} from './browser';
 import packageDefault from '../index';
+
+const mockScope = { setTag: jest.fn(), setTags: jest.fn() };
 
 jest.mock('@sentry/browser', () => {
   const actual = jest.requireActual('@sentry/browser');
@@ -17,6 +23,8 @@ jest.mock('@sentry/browser', () => {
     ...actual,
     init: jest.fn(),
     captureException: jest.fn(),
+    captureMessage: jest.fn(),
+    withScope: jest.fn((cb) => cb(mockScope)),
   };
 });
 
@@ -160,6 +168,7 @@ describe('sentry/browser', () => {
       expect(sentryMetrics).toEqual({
         configure: initSentry,
         captureException,
+        captureMessage,
         enable: enableSentry,
         disable: disableSentry,
       });
@@ -178,6 +187,40 @@ describe('sentry/browser', () => {
 
       spy.mockReset();
       spy.mockRestore();
+    });
+
+    it('sets the given tags on the scope', () => {
+      const err = new Error('testo');
+
+      captureException(err, { 'pairing.close_reason': 'server_closed' });
+
+      expect(mockScope.setTags).toHaveBeenCalledWith({
+        'pairing.close_reason': 'server_closed',
+      });
+      expect(Sentry.captureException).toHaveBeenCalledWith(err);
+    });
+
+    it('does nothing when Sentry is disabled', () => {
+      disableSentry();
+      captureException(new Error('testo'), { tag: 'value' });
+      expect(Sentry.captureException).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('captureMessage', () => {
+    it('sends the message at the level with the given tags', () => {
+      captureMessage('hello', 'info', { 'pairing.resume_attempts': 2 });
+
+      expect(mockScope.setTags).toHaveBeenCalledWith({
+        'pairing.resume_attempts': 2,
+      });
+      expect(Sentry.captureMessage).toHaveBeenCalledWith('hello', 'info');
+    });
+
+    it('does nothing when Sentry is disabled', () => {
+      disableSentry();
+      captureMessage('hello', 'info', { 'pairing.resume_attempts': 2 });
+      expect(Sentry.captureMessage).not.toHaveBeenCalled();
     });
   });
 });

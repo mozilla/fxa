@@ -10,6 +10,7 @@ import { isAuthUiError } from '../../auth-errors/auth-errors';
 import { openWrapEnvelope } from '../../passkey-crypto';
 import { isZeroed } from '../../passkey-crypto/assert';
 import { KB_BYTES, PRF_OUT_BYTES } from '../../passkey-crypto/constants';
+import { isOfflineOrTimedOut } from '../fetch-errors';
 
 type UnwrapPasskeyKbArgs = {
   mfaToken: string;
@@ -30,14 +31,6 @@ const EXPECTED_FETCH_ERRNOS = new Set<number>([
   ERRNO.PASSKEY_NOT_FOUND,
   ERRNO.THROTTLED,
   ERRNO.REQUEST_BLOCKED,
-]);
-
-// fetch rejects with a TypeError worded per engine when the network fails.
-// Any other TypeError is a bug, and so is a wording missing from this list.
-const FETCH_NETWORK_ERROR_MESSAGES = new Set([
-  'Failed to fetch', // Chromium
-  'NetworkError when attempting to fetch resource.', // Gecko
-  'Load failed', // WebKit
 ]);
 
 /** Never throws. Leaves `prfOut` for the caller to zero. */
@@ -63,13 +56,9 @@ export async function unwrapPasskeyKb(
       return { ok: false, reason: 'stale' };
     }
     // Neither a network failure nor the client's timeout is actionable.
-    const offlineOrTimedOut =
-      (err instanceof TypeError &&
-        FETCH_NETWORK_ERROR_MESSAGES.has(err.message)) ||
-      (err instanceof DOMException && err.name === 'AbortError');
     const expected =
       errno === undefined
-        ? offlineOrTimedOut
+        ? isOfflineOrTimedOut(err)
         : EXPECTED_FETCH_ERRNOS.has(errno);
     if (!expected) {
       Sentry.captureException(new Error('passkey-wrap-fetch error'), {
