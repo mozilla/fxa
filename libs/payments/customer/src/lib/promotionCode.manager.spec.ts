@@ -9,8 +9,8 @@ import Stripe from 'stripe';
 
 import { ProductManager } from './product.manager';
 import { PromotionCodeManager } from './promotionCode.manager';
+import { StripeClient } from '@fxa/payments/stripe';
 import {
-  StripeClient,
   StripeApiListFactory,
   StripeResponseFactory,
   StripeCustomerFactory,
@@ -21,7 +21,7 @@ import {
   StripeSubscriptionItemFactory,
   MockStripeConfigProvider,
   StripeCouponFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import {
   CouponErrorCannotRedeem,
   CouponErrorInvalidCurrency,
@@ -46,8 +46,14 @@ const mockedAssertPromotionCodeApplicableToPrice = jest.mocked(
 import { getPriceFromSubscription } from '../lib/util/getPriceFromSubscription';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { InvoiceManager } from './invoice.manager';
-import { CurrencyManager, MockCurrencyConfigProvider } from '@fxa/payments/currency';
-import { MockPaypalClientConfigProvider, PayPalClient } from '@fxa/payments/paypal';
+import {
+  CurrencyManager,
+  MockCurrencyConfigProvider,
+} from '@fxa/payments/currency';
+import {
+  MockPaypalClientConfigProvider,
+  PayPalClient,
+} from '@fxa/payments/paypal';
 import { InvoicePreviewFactory } from './invoice.factories';
 import { TaxAddressFactory } from './factories/tax-address.factory';
 jest.mock('../lib/util/getPriceFromSubscription');
@@ -586,9 +592,11 @@ describe('PromotionCodeManager', () => {
     beforeEach(() => {
       jest
         .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
-        .mockResolvedValue(undefined)
-      jest.spyOn(invoiceManager, 'previewUpcoming').mockResolvedValue(mockPreviewUpcoming);
-    })
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(invoiceManager, 'previewUpcoming')
+        .mockResolvedValue(mockPreviewUpcoming);
+    });
 
     it('successfully validates coupon without customer', async () => {
       await promotionCodeManager.assertValidForPriceAndCustomer(
@@ -596,17 +604,19 @@ describe('PromotionCodeManager', () => {
         mockPrice,
         mockCurrency,
         mockCustomer,
-        mockTaxAddress,
-      )
-      expect(promotionCodeManager.assertValidPromotionCodeNameForPrice).toHaveBeenCalledWith(mockPromoCodeName, mockPrice, mockCurrency)
+        mockTaxAddress
+      );
+      expect(
+        promotionCodeManager.assertValidPromotionCodeNameForPrice
+      ).toHaveBeenCalledWith(mockPromoCodeName, mockPrice, mockCurrency);
       expect(invoiceManager.previewUpcoming).toHaveBeenCalledWith({
         priceId: mockPrice.id,
         currency: mockCurrency,
         customer: mockCustomer,
         taxAddress: mockTaxAddress,
         couponCode: mockPromoCodeName,
-      })
-    })
+      });
+    });
 
     it('successfully validates coupon for customer', async () => {
       await promotionCodeManager.assertValidForPriceAndCustomer(
@@ -614,55 +624,65 @@ describe('PromotionCodeManager', () => {
         mockPrice,
         mockCurrency,
         undefined,
-        mockTaxAddress,
-      )
-      expect(promotionCodeManager.assertValidPromotionCodeNameForPrice).toHaveBeenCalledWith(mockPromoCodeName, mockPrice, mockCurrency)
-      expect(invoiceManager.previewUpcoming).not.toHaveBeenCalled()
-    })
+        mockTaxAddress
+      );
+      expect(
+        promotionCodeManager.assertValidPromotionCodeNameForPrice
+      ).toHaveBeenCalledWith(mockPromoCodeName, mockPrice, mockCurrency);
+      expect(invoiceManager.previewUpcoming).not.toHaveBeenCalled();
+    });
 
     it('rejects on assertValidPromotionCodeNameForPrice rejection', async () => {
       jest
         .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
-        .mockRejectedValue(new Error('error'))
+        .mockRejectedValue(new Error('error'));
 
-      await expect(promotionCodeManager.assertValidForPriceAndCustomer(
-        mockPromoCodeName,
-        mockPrice,
-        mockCurrency,
-        mockCustomer,
-        mockTaxAddress,
-      )).rejects.toThrow(Error);
-    })
+      await expect(
+        promotionCodeManager.assertValidForPriceAndCustomer(
+          mockPromoCodeName,
+          mockPrice,
+          mockCurrency,
+          mockCustomer,
+          mockTaxAddress
+        )
+      ).rejects.toThrow(Error);
+    });
 
     it('rejects previewUpcoming only redeem once error', async () => {
-      jest.spyOn(invoiceManager, 'previewUpcoming')
-        .mockRejectedValue(new Stripe.errors.StripeInvalidRequestError({
+      jest.spyOn(invoiceManager, 'previewUpcoming').mockRejectedValue(
+        new Stripe.errors.StripeInvalidRequestError({
           type: 'invalid_request_error',
           message:
             'This promotion code cannot be redeemed because the associated customer has prior transactions.',
-        }));
+        })
+      );
 
-      await expect(promotionCodeManager.assertValidForPriceAndCustomer(
-        mockPromoCodeName,
-        mockPrice,
-        mockCurrency,
-        mockCustomer,
-        mockTaxAddress,
-      )).rejects.toThrow(CouponErrorCannotRedeem);
-    })
+      await expect(
+        promotionCodeManager.assertValidForPriceAndCustomer(
+          mockPromoCodeName,
+          mockPrice,
+          mockCurrency,
+          mockCustomer,
+          mockTaxAddress
+        )
+      ).rejects.toThrow(CouponErrorCannotRedeem);
+    });
 
     it('rejects on unhandled previewUpcoming error', async () => {
-      jest.spyOn(invoiceManager, 'previewUpcoming')
+      jest
+        .spyOn(invoiceManager, 'previewUpcoming')
         .mockRejectedValue(new Error('Unhandled error'));
 
-      await expect(promotionCodeManager.assertValidForPriceAndCustomer(
-        mockPromoCodeName,
-        mockPrice,
-        mockCurrency,
-        mockCustomer,
-        mockTaxAddress,
-      )).rejects.toThrow(Error);
-    })
+      await expect(
+        promotionCodeManager.assertValidForPriceAndCustomer(
+          mockPromoCodeName,
+          mockPrice,
+          mockCurrency,
+          mockCustomer,
+          mockTaxAddress
+        )
+      ).rejects.toThrow(Error);
+    });
 
     it('throws CouponErrorInvalidCurrency when currency does not match', async () => {
       jest
@@ -701,5 +721,5 @@ describe('PromotionCodeManager', () => {
         )
       ).rejects.toBeInstanceOf(CouponErrorCannotRedeem);
     });
-  })
+  });
 });

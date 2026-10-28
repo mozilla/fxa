@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  ServicesWithCapabilitiesQueryFactory,
   ServicesWithCapabilitiesResult,
   ServicesWithCapabilitiesResultUtil,
 } from '.';
+import { ServicesWithCapabilitiesQueryFactory } from './factories';
 
 describe('ServicesWithCapabilitiesResultUtil', () => {
   it('should create a util from response', () => {

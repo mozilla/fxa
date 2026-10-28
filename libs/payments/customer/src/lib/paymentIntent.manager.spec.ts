@@ -6,12 +6,12 @@ import { Test } from '@nestjs/testing';
 import { MockLoggerProvider } from '@fxa/shared/log';
 
 import { PaymentIntentManager } from './paymentIntent.manager';
+import { StripeClient } from '@fxa/payments/stripe';
 import {
-  StripeClient,
   MockStripeConfigProvider,
   StripeResponseFactory,
   StripePaymentIntentFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 describe('PaymentIntentManager', () => {

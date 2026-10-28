@@ -14,7 +14,7 @@ import {
 import { FirestoreService } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { AppleIapClient } from './apple-iap.client';
-import { MockAppleIapClientConfigProvider } from './apple-iap.client.config';
+import { MockAppleIapClientConfigProvider } from './apple-iap.client.config.mock';
 import {
   AppleIapConflictError,
   AppleIapInvalidOriginalTransactionIdError,

@@ -9,7 +9,7 @@ import { AppleIapClient } from './apple-iap.client';
 import { Logger } from '@nestjs/common';
 import { FirestoreService } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
-import { MockAppleIapClientConfigProvider } from './apple-iap.client.config';
+import { MockAppleIapClientConfigProvider } from './apple-iap.client.config.mock';
 import * as repository from './apple-iap-purchase.repository';
 import { AppStoreSubscriptionPurchase } from './subscription-purchase';
 import {

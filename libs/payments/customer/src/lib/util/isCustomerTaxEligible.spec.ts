@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { isCustomerTaxEligible } from './isCustomerTaxEligible';
-import { StripeCustomerFactory } from '@fxa/payments/stripe';
+import { StripeCustomerFactory } from '@fxa/payments/stripe/testing';
 import { faker } from '@faker-js/faker';
 
 describe('isCustomerTaxEligible', () => {

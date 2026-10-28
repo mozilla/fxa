@@ -11,6 +11,9 @@ import { MockLoggerProvider } from '@fxa/shared/log';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
   StripeClient,
+  StripeSubscription,
+} from '@fxa/payments/stripe';
+import {
   MockStripeConfigProvider,
   StripeApiListFactory,
   StripeCouponFactory,
@@ -24,18 +27,14 @@ import {
   StripeUpcomingInvoiceFactory,
   StripeAddressFactory,
   StripeSubscriptionItemFactory,
-  StripeSubscription,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import { TaxAddressFactory } from './factories/tax-address.factory';
 import { InvoicePreviewFactory } from './invoice.factories';
 import { InvoiceManager } from './invoice.manager';
 import { stripeInvoiceToInvoicePreviewDTO } from './util/stripeInvoiceToFirstInvoicePreviewDTO';
 import { getMinimumChargeAmountForCurrency } from '../lib/util/getMinimumChargeAmountForCurrency';
-import {
-  ChargeResponseFactory,
-  PayPalClient,
-  PaypalClientConfig,
-} from '@fxa/payments/paypal';
+import { PayPalClient, PaypalClientConfig } from '@fxa/payments/paypal';
+import { ChargeResponseFactory } from '@fxa/payments/paypal/testing';
 import {
   CurrencyManager,
   MockCurrencyConfigProvider,

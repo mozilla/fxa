@@ -4,15 +4,6 @@
 
 export * from './lib/associated-types';
 export * from './lib/kysely-types';
-export {
-  CartFactory,
-  AccountFactory,
-  AccountCustomerFactory,
-  PaypalCustomerFactory,
-  PasskeyFactory,
-  PasskeyWrapFactory,
-  RecoveryPhoneFactory,
-} from './lib/factories';
 export { setupAccountDatabase, AccountDbProvider } from './lib/setup';
 export {
   testAccountDatabaseSetup,
@@ -20,7 +11,4 @@ export {
 } from './lib/tests';
 export type { ACCOUNT_TABLES } from './lib/tests';
 export type { AccountDatabase } from './lib/setup';
-export {
-  AccountDatabaseNestFactory,
-  MockAccountDatabaseNestFactory,
-} from './lib/account.provider';
+export { AccountDatabaseNestFactory } from './lib/account.provider';

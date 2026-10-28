@@ -15,7 +15,7 @@ import { RelyingPartyConfigurationManager } from './relying-party-configuration.
 import { StrapiClient, StrapiClientEventResponse } from './strapi.client';
 import { RelyingPartyQueryFactory } from './queries/relying-party/factories';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
-import { MockStrapiClientConfigProvider } from './strapi.client.config';
+import { MockStrapiClientConfigProvider } from './strapi.client.config.mock';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 
 jest.mock('@type-cacheable/core', () => {

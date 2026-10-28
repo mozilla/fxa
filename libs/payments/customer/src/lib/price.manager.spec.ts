@@ -5,14 +5,14 @@
 import { Test } from '@nestjs/testing';
 import { MockLoggerProvider } from '@fxa/shared/log';
 
+import { StripeClient } from '@fxa/payments/stripe';
 import {
-  StripeClient,
   StripeApiSearchResultFactory,
   StripeResponseFactory,
   StripePriceFactory,
   StripePriceRecurringFactory,
   MockStripeConfigProvider,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import {
   PlanAppleIAPMultiplePlansError,
   PlanGoogleIAPMultiplePlansError,

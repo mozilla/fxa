@@ -10,10 +10,12 @@ import {
   StrapiClient,
   StrapiClientEventResponse,
   meterBySlugQuery,
-  MeterBySlugResultFactory,
-  StrapiMeterRawFactory,
   toStrapiMeter,
 } from '@fxa/shared/cms';
+import {
+  MeterBySlugResultFactory,
+  StrapiMeterRawFactory,
+} from '@fxa/shared/cms/testing';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { MeteringConfigurationManager } from './metering-configuration.manager';
 
