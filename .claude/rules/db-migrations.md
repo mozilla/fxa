@@ -30,10 +30,10 @@ These break release N-1 code if they land in one step. Each step ships in a late
 | Change | Expand | Contract |
 | --- | --- | --- |
 | Drop a column or table | Ship code that stops reading and writing it. If it's `NOT NULL` without a default, add a default first | Drop it |
-| Rename a column, or change its type | Add the new column. Code writes both and reads the new one, falling back to the old. Backfill | Ship code that uses only the new column, then drop the old one in a later release |
+| Rename a column, or change its type | Add the new column. Code writes both and still reads the old one. Backfill | Ship code that reads the new column and still writes both. In later releases, stop writing the old column, then drop it |
 | Make a column `NOT NULL` | Code always writes it. Backfill | Add the constraint |
 | Change a stored procedure's signature or behavior | Add a new versioned procedure and call it | Drop the old version (see `packages/db-migrations/databases/README.md`) |
-| Add a unique constraint | Code stops writing duplicates. Dedupe | Add the constraint |
+| Add a unique constraint | Code stops writing duplicates | Dedupe, then add the constraint, in the same patch |
 
 Being merged to `main` is not enough for a contract step. The commit that removed the last use of the column, table, or procedure must already be in the latest train tag. When the contract step's train deploys, that earlier train is what a rollback lands on:
 
