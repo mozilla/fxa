@@ -1,8 +1,8 @@
 {
-  "commit": "f90a4bd7f13fdb2e4c9b3faa2df63ed1db989325",
+  "commit": "4a2b549797db54cacfad89e49bfa2b8761ac49e1",
   "summary": "fix(auth): lock passkey ceremonies to a fixed mfa:passkey:wraps scope",
   "description": "Because:\n\n- The passkey start routes accepted any `config.mfa.actions` scope, so a\n  passkey assertion could mint `mfa:2fa`, `mfa:email`, `mfa:password` or\n  `mfa:recovery_key` and skip the email OTP step-up (FXA-14740).\n- The only thing a passkey ceremony needs to authorize is the wrap routes.\n\nThis commit:\n\n- Drops the client-provided `scope` from `/passkey/authentication/start`\n  and `/passkey/verification/start`; both commit the challenge to a\n  hard-coded `passkey:wraps` action.\n- Signs `mfa:passkey:wraps` at both `/finish` routes; `authentication/finish`\n  always returns `mfaToken`.\n- Requires `mfa:passkey:wraps` on the `/passkey/wraps` routes, so the email\n  OTP can no longer open them.\n- Removes the `scope` option from the auth-client and settings callers.\n- Rewrites the swagger notes for the fixed scope.\n\nFixes FXA-14740",
-  "timestamp": 1793126691000,
+  "timestamp": 1793208853000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-settings"
