@@ -313,17 +313,17 @@ module.exports = function (webpackEnv) {
         ? {
             cacheGroups: {
               presentation: {
-                test: /[\\/]node_modules[\\/]react|react-dom|@reach|@fluent[\\/]/,
+                test: /[\\/]node_modules[\\/](react|react-dom|scheduler|react-router|@fluent)[\\/]/,
                 name: 'presentation-chunk',
                 chunks: 'all',
               },
               utils: {
-                test: /[\\/]node_modules[\\/]moment|lodash|ua-parser-js[\\/]/,
+                test: /[\\/]node_modules[\\/](moment|ua-parser-js)[\\/]/,
                 name: 'utils-chunk',
                 chunks: 'all',
               },
               observability: {
-                test: /([\\/]node_modules[\\/]@sentry.*[\\/])|([\\/]glean[\\/])/,
+                test: /[\\/]node_modules[\\/](@sentry|@sentry-internal|@mozilla[\\/]glean)[\\/]/,
                 name: 'observability-chunk',
                 chunks: 'all',
               },
