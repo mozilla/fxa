@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { type EligibilityContentSubgroupRankedOfferingResult } from '@fxa/shared/cms';
 import {
   EligibilityContentOfferingResultFactory,
   EligibilityContentSubgroupOfferingResultFactory,
-  type EligibilityContentSubgroupRankedOfferingResult,
   EligibilityContentSubgroupRankedOfferingResultFactory,
   EligibilityContentSubgroupResultFactory,
   EligibilityOfferingResultFactory,
   EligibilitySubgroupOfferingResultFactory,
   EligibilitySubgroupRankedOfferingResultFactory,
   EligibilitySubgroupResultFactory,
-} from '@fxa/shared/cms';
+} from '@fxa/shared/cms/testing';
 
 import { SubgroupOfferingMissingPositionError } from './eligibility.error';
 import { OfferingComparison } from './eligibility.types';
@@ -258,7 +258,6 @@ describe('offeringComparison', () => {
         OfferingComparison.UPGRADE
       );
     });
-
   });
 
   describe('multiple common subgroups', () => {

@@ -8,7 +8,7 @@ import { GoogleIapPurchaseManager } from './google-iap-purchase.manager';
 import { GoogleIapClient } from './google-iap.client';
 import { Logger } from '@nestjs/common';
 import { FirestoreService } from '@fxa/shared/db/firestore';
-import { MockGoogleIapClientConfigProvider } from './google-iap.client.config';
+import { MockGoogleIapClientConfigProvider } from './google-iap.client.config.mock';
 import * as repository from './google-iap-purchase.repository';
 import { PlayStoreSubscriptionPurchase } from './subscription-purchase';
 import { FirestoreGoogleIapPurchaseRecordFactory } from '../factories';

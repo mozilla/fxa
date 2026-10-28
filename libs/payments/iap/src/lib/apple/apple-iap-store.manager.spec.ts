@@ -12,7 +12,7 @@ import {
   Environment,
 } from 'app-store-server-api';
 import { FirestoreService } from '@fxa/shared/db/firestore';
-import { MockAppleIapClientConfigProvider } from './apple-iap.client.config';
+import { MockAppleIapClientConfigProvider } from './apple-iap.client.config.mock';
 
 jest.mock('app-store-server-api', () => {
   const actual = jest.requireActual('app-store-server-api');

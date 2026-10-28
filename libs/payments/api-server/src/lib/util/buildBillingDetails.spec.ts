@@ -8,7 +8,7 @@ import {
   StripeCustomerFactory,
   StripeResponseFactory,
   StripeSubscriptionFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 
 import {
   PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,

@@ -10,7 +10,15 @@ const config: Config = {
   preset: '../../../jest.preset.js',
   transform: {
     '^(?!.*\\.(js|jsx|ts|tsx|css|json)$)': '@nx/react/plugins/jest',
-    '^.+\\.[tj]sx?$': ['babel-jest', { presets: ['@nx/next/babel'] }],
+    '^.+\\.[tj]sx?$': [
+      'babel-jest',
+      {
+        presets: ['@nx/next/babel'],
+        // Nest libs reached through `@fxa/*/testing` use decorators on `!`
+        // fields; TS must strip those before the decorator transform runs.
+        plugins: [['@babel/plugin-transform-typescript', { isTSX: true }]],
+      },
+    ],
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   setupFilesAfterEnv: ['<rootDir>/test/jest.setup.ts'],

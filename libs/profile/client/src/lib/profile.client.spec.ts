@@ -7,7 +7,7 @@ import { ProfileClient } from './profile.client';
 import {
   MockProfileClientConfig,
   MockProfileClientConfigProvider,
-} from './profile.config';
+} from './profile.config.mock';
 import { Logger } from '@nestjs/common';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import {

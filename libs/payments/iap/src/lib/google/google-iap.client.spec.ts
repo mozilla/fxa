@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GoogleIapClient } from './google-iap.client';
 import { GoogleIapClientUnknownError } from './google-iap.error';
-import { MockGoogleIapClientConfigProvider } from './google-iap.client.config';
+import { MockGoogleIapClientConfigProvider } from './google-iap.client.config.mock';
 import { faker } from '@faker-js/faker';
 
 jest.mock('@googleapis/androidpublisher', () => ({

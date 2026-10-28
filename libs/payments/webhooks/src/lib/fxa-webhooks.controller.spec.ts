@@ -4,13 +4,10 @@
 
 import { Test } from '@nestjs/testing';
 import { MockPaymentsMetricsAggregatorServiceFactory } from '@fxa/payments/metrics-aggregator';
-import {
-  AccountCustomerManager,
-  MockStripeConfigProvider,
-  StripeClient,
-} from '@fxa/payments/stripe';
+import { AccountCustomerManager, StripeClient } from '@fxa/payments/stripe';
+import { MockStripeConfigProvider } from '@fxa/payments/stripe/testing';
 import { CustomerManager } from '@fxa/payments/customer';
-import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
+import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account/testing';
 import { MockLoggerProvider } from '@fxa/shared/log';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { FxaWebhooksController } from './fxa-webhooks.controller';
@@ -63,13 +60,11 @@ describe('FxaWebhooksController', () => {
 
     it('propagates service errors', async () => {
       const serviceError = new Error('webhook auth failed');
-      jest
-        .spyOn(service, 'handleWebhookEvent')
-        .mockRejectedValue(serviceError);
+      jest.spyOn(service, 'handleWebhookEvent').mockRejectedValue(serviceError);
 
-      await expect(
-        controller.postFxaEvent('Bearer bad-token')
-      ).rejects.toThrow(serviceError);
+      await expect(controller.postFxaEvent('Bearer bad-token')).rejects.toThrow(
+        serviceError
+      );
     });
   });
 });

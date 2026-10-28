@@ -6,8 +6,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import {
   AccountDatabase,
   AccountDbProvider,
-  PasskeyFactory,
 } from '@fxa/shared/db/mysql/account';
+import { PasskeyFactory } from '@fxa/shared/db/mysql/account/testing';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { PasskeyManager } from './passkey.manager';

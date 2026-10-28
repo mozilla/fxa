@@ -7,7 +7,7 @@ import {
   StripePriceFactory,
   StripeSubscriptionFactory,
   StripeSubscriptionItemFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import { UniqueSubscriptionItemNotFoundError } from '../customer.error';
 import { getPriceFromSubscription } from './getPriceFromSubscription';
 

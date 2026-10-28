@@ -6,11 +6,11 @@ import { faker } from '@faker-js/faker';
 import { Kysely } from 'kysely';
 
 import {
-  AccountCustomerFactory,
   DB,
   testAccountDatabaseSetup,
   testAccountDatabaseTeardown,
 } from '@fxa/shared/db/mysql/account';
+import { AccountCustomerFactory } from '@fxa/shared/db/mysql/account/testing';
 
 import { AccountCustomerUpdatedNoEffectError } from './accountCustomer.error';
 import {

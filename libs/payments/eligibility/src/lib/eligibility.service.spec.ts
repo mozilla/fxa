@@ -8,32 +8,33 @@ import {
   SubplatInterval,
   SubscriptionManager,
 } from '@fxa/payments/customer';
+import { StripeClient, StripeConfig } from '@fxa/payments/stripe';
 import {
-  StripeClient,
-  StripeConfig,
   StripeApiListFactory,
   StripeCustomerFactory,
   StripePriceFactory,
   StripeSubscriptionFactory,
   StripeSubscriptionItemFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
+import {
+  EligibilityContentByOfferingResultUtil,
+  IapOfferingsByStoreIDsResultUtil,
+  EligibilityContentOfferingNotFoundError,
+  ProductConfigurationManager,
+  StrapiClient,
+} from '@fxa/shared/cms';
 import {
   EligibilityContentByOfferingResultFactory,
-  EligibilityContentByOfferingResultUtil,
   EligibilityContentOfferingResultFactory,
   EligibilityOfferingResultFactory,
   IapOfferingByStoreIDResultFactory,
   IapOfferingResultFactory,
-  IapOfferingsByStoreIDsResultUtil,
   IapOfferingSubGroupOfferingResultFactory,
   IapOfferingSubGroupResultFactory,
   IapWithOfferingResultFactory,
   MockStrapiClientConfigProvider,
-  EligibilityContentOfferingNotFoundError,
   PageContentOfferingTransformedFactory,
-  ProductConfigurationManager,
-  StrapiClient,
-} from '@fxa/shared/cms';
+} from '@fxa/shared/cms/testing';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
@@ -53,9 +54,11 @@ import {
   AppleIapServiceUnavailableError,
   GoogleIapClient,
   GoogleIapPurchaseManager,
+} from '@fxa/payments/iap';
+import {
   MockAppleIapClientConfigProvider,
   MockGoogleIapClientConfigProvider,
-} from '@fxa/payments/iap';
+} from '@fxa/payments/iap/testing';
 import { AppStoreError } from 'app-store-server-api';
 import { faker } from '@faker-js/faker';
 import { Logger } from '@nestjs/common';

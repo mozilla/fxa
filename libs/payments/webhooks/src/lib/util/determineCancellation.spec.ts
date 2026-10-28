@@ -6,7 +6,7 @@ import { PaymentProvider } from '@fxa/payments/customer';
 import {
   StripeInvoiceFactory,
   StripeSubscriptionFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import {
   CancellationReason,
   determineCancellation,

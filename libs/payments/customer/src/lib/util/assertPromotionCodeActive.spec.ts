@@ -6,7 +6,7 @@ import {
   StripeResponseFactory,
   StripeCouponFactory,
   StripePromotionCodeFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import {
   CouponErrorExpired,
   CouponErrorGeneric,

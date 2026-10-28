@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { type PricingForCurrency } from '../types';
-import { StripePriceFactory } from '@fxa/payments/stripe';
+import { StripePriceFactory } from '@fxa/payments/stripe/testing';
 
 export const PricingForCurrencyFactory = (
   override?: Partial<PricingForCurrency>
@@ -14,6 +14,5 @@ export const PricingForCurrencyFactory = (
     unitAmountForCurrency: price.unit_amount,
     currencyOptionForCurrency: price.currency_options[0],
     ...override,
-  }
+  };
 };
-

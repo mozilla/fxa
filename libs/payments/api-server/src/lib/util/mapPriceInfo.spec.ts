@@ -5,7 +5,7 @@
 import {
   StripePriceFactory,
   StripePriceRecurringFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import { mapPriceInfo } from './mapPriceInfo';
 
 describe('mapPriceInfo', () => {

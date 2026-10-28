@@ -5,7 +5,7 @@
 import {
   StripeInvoiceFactory,
   StripeResponseFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import { STRIPE_INVOICE_METADATA } from '../types';
 import { hasOpenInvoiceWithPaymentAttempts } from './hasOpenInvoiceWithPaymentAttempts';
 

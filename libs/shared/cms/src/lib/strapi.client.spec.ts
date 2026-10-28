@@ -8,8 +8,8 @@ import { offeringQuery } from './queries/offering/query';
 import { StrapiClient } from './strapi.client';
 import { OfferingQuery } from '../__generated__/graphql';
 import { StrapiQueryError } from './cms.error';
-import { MockStrapiClientConfigProvider } from './strapi.client.config';
-import { LocalesResultFactory } from './queries/locales';
+import { MockStrapiClientConfigProvider } from './strapi.client.config.mock';
+import { LocalesResultFactory } from './queries/locales/factories';
 import { Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
@@ -217,7 +217,9 @@ describe('StrapiClient', () => {
 
     it('returns false for a mismatched-length header without throwing', () => {
       const longGarbage = 'Bearer ' + 'x'.repeat(WEBHOOK_SECRET.length + 50);
-      expect(() => strapiClient.verifyWebhookSignature(longGarbage)).not.toThrow();
+      expect(() =>
+        strapiClient.verifyWebhookSignature(longGarbage)
+      ).not.toThrow();
       expect(strapiClient.verifyWebhookSignature(longGarbage)).toBe(false);
     });
 

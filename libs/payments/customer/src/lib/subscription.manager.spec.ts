@@ -6,8 +6,8 @@ import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 import { MockLoggerProvider } from '@fxa/shared/log';
 
+import { StripeClient } from '@fxa/payments/stripe';
 import {
-  StripeClient,
   StripeApiListFactory,
   StripeCouponFactory,
   StripeDiscountFactory,
@@ -16,7 +16,7 @@ import {
   StripeSubscriptionFactory,
   MockStripeConfigProvider,
   StripeRangeQueryParamFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import { STRIPE_SUBSCRIPTION_METADATA } from './types';
 import { SubscriptionManager } from './subscription.manager';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';

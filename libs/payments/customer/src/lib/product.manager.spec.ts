@@ -5,12 +5,12 @@
 import { Test } from '@nestjs/testing';
 import { MockLoggerProvider } from '@fxa/shared/log';
 
+import { StripeClient } from '@fxa/payments/stripe';
 import {
-  StripeClient,
   StripeResponseFactory,
   StripeProductFactory,
   MockStripeConfigProvider,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import { ProductManager } from './product.manager';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 

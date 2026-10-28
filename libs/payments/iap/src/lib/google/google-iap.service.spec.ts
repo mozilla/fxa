@@ -5,7 +5,7 @@
 import { Test } from '@nestjs/testing';
 import { GoogleIapPurchaseManager } from './google-iap-purchase.manager';
 import { GoogleIapService } from './google-iap.service';
-import { MockGoogleIapClientConfigProvider } from './google-iap.client.config';
+import { MockGoogleIapClientConfigProvider } from './google-iap.client.config.mock';
 import { GoogleIapClient } from './google-iap.client';
 import { FirestoreService } from '@fxa/shared/db/firestore';
 import { Logger } from '@nestjs/common';

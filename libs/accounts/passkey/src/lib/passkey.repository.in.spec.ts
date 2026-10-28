@@ -7,8 +7,8 @@ import {
   AccountDatabase,
   testAccountDatabaseSetup,
   testAccountDatabaseTeardown,
-  PasskeyFactory,
 } from '@fxa/shared/db/mysql/account';
+import { PasskeyFactory } from '@fxa/shared/db/mysql/account/testing';
 import { AccountManager } from '@fxa/shared/account/account';
 import * as PasskeyRepository from './passkey.repository';
 import { bufferToAaguid } from './passkey.repository';

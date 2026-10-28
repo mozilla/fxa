@@ -16,37 +16,36 @@ import {
   EligibilityService,
   EligibilityStatus,
 } from '@fxa/payments/eligibility';
+import { StripeClient, AccountCustomerManager } from '@fxa/payments/stripe';
 import {
   StripeSubscriptionFactory,
   StripeResponseFactory,
   StripePriceFactory,
-  StripeClient,
   MockStripeConfigProvider,
-  AccountCustomerManager,
   ResultAccountCustomerFactory,
   StripeCustomerFactory,
   StripeSubscriptionItemFactory,
   StripeApiListFactory,
   StripePriceRecurringFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
+import { ProfileClient } from '@fxa/profile/client';
+import { MockProfileClientConfigProvider } from '@fxa/profile/client/testing';
 import {
-  MockProfileClientConfigProvider,
-  ProfileClient,
-} from '@fxa/profile/client';
+  ChurnInterventionByProductIdResultUtil,
+  ProductConfigurationManager,
+  PageContentByPriceIdsResultUtil,
+  CancelInterstitialOfferUtil,
+} from '@fxa/shared/cms';
 import {
   ChurnInterventionByProductIdResultFactory,
   ChurnInterventionByProductIdRawResultFactory,
-  ChurnInterventionByProductIdResultUtil,
   CmsOfferingContentFactory,
-  ProductConfigurationManager,
-  PageContentByPriceIdsResultUtil,
   PageContentByPriceIdsPurchaseResultFactory,
   CancelInterstitialOfferTransformedFactory,
   CancelInterstitialOfferResultFactory,
-  CancelInterstitialOfferUtil,
   PageContentByPriceIdsOfferingResultFactory,
-} from '@fxa/shared/cms';
-import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
+} from '@fxa/shared/cms/testing';
+import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account/testing';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import {

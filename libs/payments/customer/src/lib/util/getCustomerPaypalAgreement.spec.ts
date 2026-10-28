@@ -5,7 +5,7 @@
 import {
   StripeCustomerFactory,
   StripeResponseFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import { STRIPE_CUSTOMER_METADATA } from '../types';
 import { getCustomerPaypalAgreement } from './getCustomerPaypalAgreement';
 

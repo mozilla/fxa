@@ -8,7 +8,7 @@ import { FirestoreService } from '@fxa/shared/db/firestore';
 import type { FreeAccessProjection } from '@fxa/shared/cms';
 
 import { FreeAccessProgramJournalManager } from './free-access-program.journal.manager';
-import { MockFreeAccessProgramJournalManagerConfigProvider } from './free-access-program.journal.manager.config';
+import { MockFreeAccessProgramJournalManagerConfigProvider } from './free-access-program.journal.manager.config.mock';
 import * as repository from './free-access-program.repository';
 
 jest.mock('./free-access-program.repository', () => ({

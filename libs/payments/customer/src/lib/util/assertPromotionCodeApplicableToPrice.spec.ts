@@ -6,7 +6,7 @@ import {
   StripePriceFactory,
   StripeProductFactory,
   StripePromotionCodeFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import { PromotionCodePriceNotValidError } from '../customer.error';
 import { STRIPE_PRICE_METADATA, STRIPE_PRODUCT_METADATA } from '../types';
 import { assertPromotionCodeApplicableToPrice } from './assertPromotionCodeApplicableToPrice';

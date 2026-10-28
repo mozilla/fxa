@@ -119,10 +119,10 @@ const {
 
 const { CurrencyHelper } = require('./currencies');
 const { stripeInvoiceToLatestInvoiceItemsDTO } = require('./stripe-formatter');
+const { ProductConfigurationManager } = require('@fxa/shared/cms');
 const {
-  ProductConfigurationManager,
   PurchaseWithDetailsOfferingContentTransformedFactory,
-} = require('@fxa/shared/cms');
+} = require('@fxa/shared/cms/testing');
 
 const {
   MozillaSubscriptionTypes,

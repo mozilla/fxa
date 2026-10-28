@@ -14,7 +14,8 @@ import {
   PriceManager,
   SubscriptionManager,
 } from '@fxa/payments/customer';
-import { MockStripeConfigProvider, StripeClient } from '@fxa/payments/stripe';
+import { StripeClient } from '@fxa/payments/stripe';
+import { MockStripeConfigProvider } from '@fxa/payments/stripe/testing';
 import { MockStripeEventConfigProvider } from './stripe-event.config';
 import { PaymentsEmitterService } from '@fxa/payments/events';
 import {
@@ -31,16 +32,13 @@ import {
   PaymentsGleanManager,
 } from '@fxa/payments/metrics';
 import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
-import {
-  MockStrapiClientConfigProvider,
-  ProductConfigurationManager,
-  StrapiClient,
-} from '@fxa/shared/cms';
+import { ProductConfigurationManager, StrapiClient } from '@fxa/shared/cms';
+import { MockStrapiClientConfigProvider } from '@fxa/shared/cms/testing';
 import { CartManager } from '@fxa/payments/cart';
 import { AccountManager } from '@fxa/shared/account/account';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
-import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
+import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account/testing';
 import { Logger } from '@nestjs/common';
 import {
   MockNimbusClientConfigProvider,

@@ -14,7 +14,7 @@ import {
   FreeAccessProgramConfigurationManager,
 } from './free-access-program-configuration.manager';
 import { StrapiClient } from './strapi.client';
-import { MockStrapiClientConfigProvider } from './strapi.client.config';
+import { MockStrapiClientConfigProvider } from './strapi.client.config.mock';
 
 // Decorators are pass-through in unit tests: the cache layer is
 // exercised in integration, not here. Mirrors strapi.client.spec.ts.
@@ -183,9 +183,7 @@ describe('FreeAccessProgramConfigurationManager', () => {
 
     it('propagates errors from the Strapi client', async () => {
       strapiClient.queryUncached.mockRejectedValue(new Error('strapi-down'));
-      await expect(manager.getFreshProjection()).rejects.toThrow(
-        'strapi-down'
-      );
+      await expect(manager.getFreshProjection()).rejects.toThrow('strapi-down');
     });
   });
 
@@ -256,7 +254,12 @@ describe('FreeAccessProgramConfigurationManager', () => {
     it('emits a cms_free_access_request timing for a memory hit', () => {
       jest.spyOn(mockStatsd, 'timing');
 
-      manager.recordCacheTiming('freeAccessProgramProjection', 'memory', 12, 'cache');
+      manager.recordCacheTiming(
+        'freeAccessProgramProjection',
+        'memory',
+        12,
+        'cache'
+      );
 
       expect(mockStatsd.timing).toHaveBeenCalledWith(
         'cms_free_access_request',
@@ -299,7 +302,12 @@ describe('FreeAccessProgramConfigurationManager', () => {
     it('does not emit for a memory miss (recorded by the Firestore tier instead)', () => {
       jest.spyOn(mockStatsd, 'timing');
 
-      manager.recordCacheTiming('freeAccessProgramProjection', 'memory', 5, 'method');
+      manager.recordCacheTiming(
+        'freeAccessProgramProjection',
+        'memory',
+        5,
+        'method'
+      );
 
       expect(mockStatsd.timing).not.toHaveBeenCalled();
     });

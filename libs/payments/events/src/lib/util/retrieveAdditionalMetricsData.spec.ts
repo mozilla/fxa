@@ -3,18 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { CartManager, ResultCartFactory } from '@fxa/payments/cart';
 import { PriceManager } from '@fxa/payments/customer';
+import { StripeClient } from '@fxa/payments/stripe';
 import {
   MockStripeConfigProvider,
-  StripeClient,
   StripePriceFactory,
-} from '@fxa/payments/stripe';
-import {
-  MockStrapiClientConfigProvider,
-  ProductConfigurationManager,
-  StrapiClient,
-} from '@fxa/shared/cms';
+} from '@fxa/payments/stripe/testing';
+import { ProductConfigurationManager, StrapiClient } from '@fxa/shared/cms';
+import { MockStrapiClientConfigProvider } from '@fxa/shared/cms/testing';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
-import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
+import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account/testing';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { Test } from '@nestjs/testing';
 import { CheckoutParamsFactory } from '@fxa/payments/metrics';

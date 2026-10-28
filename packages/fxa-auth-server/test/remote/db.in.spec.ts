@@ -13,11 +13,13 @@ import {
 import { AuthServerError } from '../support/helpers/test-utils';
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import {
-  PasskeyFactory,
-  PasskeyWrapFactory,
   setupAccountDatabase,
   type AccountDatabase,
 } from '@fxa/shared/db/mysql/account';
+import {
+  PasskeyFactory,
+  PasskeyWrapFactory,
+} from '@fxa/shared/db/mysql/account/testing';
 import {
   bufferToAaguid,
   findPasskeyByCredentialId,

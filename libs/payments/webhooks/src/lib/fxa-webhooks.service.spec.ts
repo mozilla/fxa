@@ -7,12 +7,9 @@ import { Logger } from '@nestjs/common';
 import type { LoggerService } from '@nestjs/common';
 import * as Sentry from '@sentry/nestjs';
 import { JWTool, PrivateJWK } from '@fxa/vendored/jwtool';
-import {
-  MockStatsDProvider,
-  StatsDService,
-} from '@fxa/shared/metrics/statsd';
+import { MockStatsDProvider, StatsDService } from '@fxa/shared/metrics/statsd';
 import { MockLoggerProvider } from '@fxa/shared/log';
-import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
+import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account/testing';
 import type { StatsD } from 'hot-shots';
 import {
   MockPaymentsMetricsAggregatorServiceFactory,
@@ -21,12 +18,14 @@ import {
 import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
+  StripeClient,
+} from '@fxa/payments/stripe';
+import {
   MockStripeConfigProvider,
   ResultAccountCustomerFactory,
-  StripeClient,
   StripeCustomerFactory,
   StripeResponseFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import { CustomerManager, CustomerDeletedError } from '@fxa/payments/customer';
 import { FxaWebhookService } from './fxa-webhooks.service';
 import {
@@ -343,10 +342,9 @@ describe('FxaWebhookService', () => {
         service.handleWebhookEvent(undefined as unknown as string)
       ).rejects.toThrow(FxaWebhookAuthError);
 
-      expect(statsd.increment).toHaveBeenCalledWith(
-        'fxa.webhook.auth.error',
-        { reason: 'missing_token' }
-      );
+      expect(statsd.increment).toHaveBeenCalledWith('fxa.webhook.auth.error', {
+        reason: 'missing_token',
+      });
       expect(Sentry.captureException).toHaveBeenCalled();
     });
 
@@ -355,10 +353,9 @@ describe('FxaWebhookService', () => {
         service.handleWebhookEvent('not-a-bearer-token')
       ).rejects.toThrow(FxaWebhookAuthError);
 
-      expect(statsd.increment).toHaveBeenCalledWith(
-        'fxa.webhook.auth.error',
-        { reason: 'missing_token' }
-      );
+      expect(statsd.increment).toHaveBeenCalledWith('fxa.webhook.auth.error', {
+        reason: 'missing_token',
+      });
       expect(Sentry.captureException).toHaveBeenCalled();
     });
 
@@ -373,10 +370,9 @@ describe('FxaWebhookService', () => {
         service.handleWebhookEvent(`Bearer ${corrupted}`)
       ).rejects.toThrow(FxaWebhookAuthError);
 
-      expect(statsd.increment).toHaveBeenCalledWith(
-        'fxa.webhook.auth.error',
-        { reason: 'invalid_token' }
-      );
+      expect(statsd.increment).toHaveBeenCalledWith('fxa.webhook.auth.error', {
+        reason: 'invalid_token',
+      });
       expect(Sentry.captureException).toHaveBeenCalled();
     });
 
@@ -404,10 +400,9 @@ describe('FxaWebhookService', () => {
         service.handleWebhookEvent(`Bearer ${token}`)
       ).rejects.toThrow(FxaWebhookAuthError);
 
-      expect(statsd.increment).toHaveBeenCalledWith(
-        'fxa.webhook.auth.error',
-        { reason: 'invalid_issuer' }
-      );
+      expect(statsd.increment).toHaveBeenCalledWith('fxa.webhook.auth.error', {
+        reason: 'invalid_issuer',
+      });
       expect(Sentry.captureException).toHaveBeenCalled();
     });
 
@@ -421,10 +416,9 @@ describe('FxaWebhookService', () => {
         service.handleWebhookEvent(`Bearer ${token}`)
       ).rejects.toThrow(FxaWebhookAuthError);
 
-      expect(statsd.increment).toHaveBeenCalledWith(
-        'fxa.webhook.auth.error',
-        { reason: 'invalid_audience' }
-      );
+      expect(statsd.increment).toHaveBeenCalledWith('fxa.webhook.auth.error', {
+        reason: 'invalid_audience',
+      });
       expect(Sentry.captureException).toHaveBeenCalled();
     });
 
@@ -537,26 +531,22 @@ describe('FxaWebhookService', () => {
             stripeCustomerId: STRIPE_CUSTOMER_ID,
           })
         );
-      jest
-        .spyOn(customerManager, 'retrieve')
-        .mockResolvedValue(
-          StripeResponseFactory(
-            StripeCustomerFactory({
-              id: STRIPE_CUSTOMER_ID,
-              email: OLD_EMAIL,
-            })
-          )
-        );
-      jest
-        .spyOn(customerManager, 'update')
-        .mockResolvedValue(
-          StripeResponseFactory(
-            StripeCustomerFactory({
-              id: STRIPE_CUSTOMER_ID,
-              email: NEW_EMAIL,
-            })
-          )
-        );
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(
+        StripeResponseFactory(
+          StripeCustomerFactory({
+            id: STRIPE_CUSTOMER_ID,
+            email: OLD_EMAIL,
+          })
+        )
+      );
+      jest.spyOn(customerManager, 'update').mockResolvedValue(
+        StripeResponseFactory(
+          StripeCustomerFactory({
+            id: STRIPE_CUSTOMER_ID,
+            email: NEW_EMAIL,
+          })
+        )
+      );
     });
 
     it('does nothing when event has no email', async () => {
@@ -647,16 +637,14 @@ describe('FxaWebhookService', () => {
     });
 
     it('records no_change outcome when Stripe customer email already matches', async () => {
-      jest
-        .spyOn(customerManager, 'retrieve')
-        .mockResolvedValue(
-          StripeResponseFactory(
-            StripeCustomerFactory({
-              id: STRIPE_CUSTOMER_ID,
-              email: NEW_EMAIL,
-            })
-          )
-        );
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(
+        StripeResponseFactory(
+          StripeCustomerFactory({
+            id: STRIPE_CUSTOMER_ID,
+            email: NEW_EMAIL,
+          })
+        )
+      );
 
       const token = await signToken({
         [FXA_PROFILE_EVENT_URI]: FxaProfileChangeEventFactory({
@@ -763,9 +751,7 @@ describe('FxaWebhookService', () => {
         service.handleWebhookEvent(`Bearer ${token}`)
       ).rejects.toThrow(FxaWebhookJwksError);
 
-      expect(statsd.increment).toHaveBeenCalledWith(
-        'fxa.webhook.jwks.error'
-      );
+      expect(statsd.increment).toHaveBeenCalledWith('fxa.webhook.jwks.error');
     });
 
     it('throws FxaWebhookAuthError with unknown_kid when kid is not in JWKS', async () => {
@@ -785,10 +771,9 @@ describe('FxaWebhookService', () => {
         service.handleWebhookEvent(`Bearer ${token}`)
       ).rejects.toThrow(FxaWebhookAuthError);
 
-      expect(statsd.increment).toHaveBeenCalledWith(
-        'fxa.webhook.auth.error',
-        { reason: 'unknown_kid' }
-      );
+      expect(statsd.increment).toHaveBeenCalledWith('fxa.webhook.auth.error', {
+        reason: 'unknown_kid',
+      });
     });
   });
 });

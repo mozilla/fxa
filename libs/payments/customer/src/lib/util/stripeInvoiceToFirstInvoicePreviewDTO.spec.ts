@@ -13,7 +13,7 @@ import {
   StripeTaxRateFactory,
   StripeTotalDiscountAmountsFactory,
   StripeUpcomingInvoiceFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 
 describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
   it('formats invoice', () => {

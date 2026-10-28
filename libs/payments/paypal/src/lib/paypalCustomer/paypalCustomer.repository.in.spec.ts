@@ -14,10 +14,10 @@ import { Kysely } from 'kysely';
 
 import {
   DB,
-  PaypalCustomerFactory,
   testAccountDatabaseSetup,
   testAccountDatabaseTeardown,
 } from '@fxa/shared/db/mysql/account';
+import { PaypalCustomerFactory } from '@fxa/shared/db/mysql/account/testing';
 import { PaypalCustomerNoRowsUpdatedError } from './paypalCustomer.error';
 
 describe('PaypalCustomer Repository', () => {

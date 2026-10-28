@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+export * from './lib/invoice.factories';
 export * from './lib/factories/paymentMethod.factory';
+export * from './lib/factories/pricing-for-currency.factory';
 export * from './lib/factories/tax-address.factory';
 export * from './lib/types';

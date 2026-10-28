@@ -3,11 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  EligibilityContentByOfferingQueryFactory,
   EligibilityContentByOfferingResult,
   EligibilityContentByOfferingResultUtil,
-  EligibilityContentOfferingResultFactory,
 } from '.';
+import {
+  EligibilityContentByOfferingQueryFactory,
+  EligibilityContentOfferingResultFactory,
+} from './factories';
 import { OfferingMultipleError, OfferingNotFoundError } from '../../cms.error';
 
 describe('EligibilityByOfferingResultUtil', () => {

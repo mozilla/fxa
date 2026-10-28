@@ -6,12 +6,12 @@ import { Test } from '@nestjs/testing';
 import { MockLoggerProvider } from '@fxa/shared/log';
 
 import { SetupIntentManager } from './setupIntent.manager';
+import { StripeClient } from '@fxa/payments/stripe';
 import {
-  StripeClient,
   MockStripeConfigProvider,
   StripeResponseFactory,
   StripeSetupIntentFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { SetupIntentCancelInvalidStatusError } from './customer.error';
 
@@ -101,10 +101,7 @@ describe('SetupIntentManager', () => {
         .spyOn(stripeClient, 'setupIntentUpdate')
         .mockResolvedValue(mockResponse);
 
-      const result = await setupIntentManager.update(
-        mockSetupIntentId,
-        params
-      );
+      const result = await setupIntentManager.update(mockSetupIntentId, params);
 
       expect(stripeClient.setupIntentUpdate).toHaveBeenCalledWith(
         mockSetupIntentId,

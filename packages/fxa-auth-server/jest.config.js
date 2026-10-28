@@ -24,6 +24,9 @@ const base = {
   clearMocks: true,
   workerIdleMemoryLimit: '512MB',
   moduleNameMapper: {
+    // `testing` entry points must precede the greedy patterns below, which
+    // would otherwise map them to `libs/<domain>/<pkg>/testing/src`.
+    '^@fxa/(.+)/testing$': '<rootDir>/../../libs/$1/src/testing',
     '^@fxa/free-access-program$':
       '<rootDir>/../../libs/free-access-program/src',
     '^@fxa/shared/db/mysql/legacy/(.*)$':
@@ -31,10 +34,6 @@ const base = {
     '^@fxa/shared/email/server$':
       '<rootDir>/../../libs/shared/email/src/server',
     '^@fxa/shared/(.*)$': '<rootDir>/../../libs/shared/$1/src',
-    // Secondary entry points must precede the greedy pattern below, which would
-    // otherwise map them to `libs/accounts/<pkg>/<entry>/src`.
-    '^@fxa/accounts/passkey/testing$':
-      '<rootDir>/../../libs/accounts/passkey/src/testing',
     '^@fxa/accounts/subscriptions-legacy/(.*)$':
       '<rootDir>/../../libs/accounts/subscriptions-legacy/src/$1',
     '^@fxa/accounts/(.*)$': '<rootDir>/../../libs/accounts/$1/src',

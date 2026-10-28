@@ -9,9 +9,11 @@ import { Test } from '@nestjs/testing';
 import {
   MeterBySlugResultUtil,
   MeteringConfigurationManager,
+} from '@fxa/shared/cms';
+import {
   StrapiMeterRawFactory,
   StrapiMeterWebhookFactory,
-} from '@fxa/shared/cms';
+} from '@fxa/shared/cms/testing';
 import type { StrapiMeterRaw } from '@fxa/shared/cms';
 import { StatsDService, type StatsD } from '@fxa/shared/metrics/statsd';
 

@@ -5,9 +5,11 @@
 import {
   OfferingCommonContentResult,
   PurchaseDetailsTransformed,
+} from '@fxa/shared/cms';
+import {
   OfferingCommonContentResultFactory,
   PurchaseDetailsTransformedFactory,
-} from '@fxa/shared/cms';
+} from '@fxa/shared/cms/testing';
 import { PlanMapperUtil } from './plan-mapper.util';
 import { StripeMetadataKeysForCMS } from './types';
 

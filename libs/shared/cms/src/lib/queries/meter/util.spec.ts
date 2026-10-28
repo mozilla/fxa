@@ -5,11 +5,10 @@
 import {
   METERING_CALENDAR_PERIODS,
   METERING_MAX_WINDOW_DURATION_MINUTES,
-  MeterBySlugResultFactory,
   MeterBySlugResultUtil,
-  StrapiMeterRawFactory,
   toStrapiMeter,
 } from '.';
+import { MeterBySlugResultFactory, StrapiMeterRawFactory } from './factories';
 import {
   MeterInvalidNotificationThresholdError,
   MeterInvalidWindowError,

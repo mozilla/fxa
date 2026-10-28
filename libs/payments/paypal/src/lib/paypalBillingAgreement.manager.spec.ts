@@ -5,8 +5,9 @@ import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 import { MockLoggerProvider } from '@fxa/shared/log';
 
-import { MockStripeConfigProvider, StripeClient } from '@fxa/payments/stripe';
-import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
+import { StripeClient } from '@fxa/payments/stripe';
+import { MockStripeConfigProvider } from '@fxa/payments/stripe/testing';
+import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account/testing';
 
 import {
   NVPCreateBillingAgreementResponseFactory,

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+export * from './lib/queries/accesses/factories';
 export * from './lib/queries/cancel-interstitial-offer/factories';
 export * from './lib/queries/capability-service-by-plan-ids/factories';
 export * from './lib/queries/churn-intervention-by-product-id/factories';
@@ -19,3 +20,4 @@ export * from './lib/queries/purchase-with-details-offering-content/factories';
 export * from './lib/queries/relying-party/factories';
 export * from './lib/queries/services-with-capabilities/factories';
 export * from './lib/queries/validation/factories';
+export * from './lib/strapi.client.config.mock';

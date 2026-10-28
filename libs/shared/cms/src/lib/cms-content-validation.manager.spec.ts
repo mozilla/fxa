@@ -6,7 +6,7 @@ import { Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { CmsContentValidationManager } from './cms-content-validation.manager';
 import { StrapiClient } from './strapi.client';
-import { MockStrapiClientConfigProvider } from './strapi.client.config';
+import { MockStrapiClientConfigProvider } from './strapi.client.config.mock';
 import { CMSValidationOfferingFactory } from './queries/validation/factories';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 
@@ -87,7 +87,10 @@ describe('CmsContentValidationManager', () => {
   });
 
   it('returns errors for multiple content types', async () => {
-    const invalidOffering = { ...CMSValidationOfferingFactory(), defaultPurchase: null };
+    const invalidOffering = {
+      ...CMSValidationOfferingFactory(),
+      defaultPurchase: null,
+    };
     const invalidCapability = { slug: '', services: [] };
 
     jest.spyOn(strapiClient, 'queryUncached').mockResolvedValue({

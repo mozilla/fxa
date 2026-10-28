@@ -3,7 +3,7 @@ import {
   SubscriptionEligibilityResult,
   type SubscriptionEligibilityUpgradeDowngradeResult,
 } from './eligibility.types';
-import { StripePriceFactory } from '@fxa/payments/stripe';
+import { StripePriceFactory } from '@fxa/payments/stripe/testing';
 
 export const SubscriptionEligibilityResultFactory = (
   override?: Partial<{

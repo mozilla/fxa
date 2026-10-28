@@ -6,7 +6,7 @@ import {
   FirestoreSubscription,
   StripeAutomaticTaxConverterHelpers,
 } from './helpers';
-import { StripeTaxRateFactory } from '@fxa/payments/stripe';
+import { StripeTaxRateFactory } from '@fxa/payments/stripe/testing';
 import Stripe from 'stripe';
 
 import customer1 from '../../test/local/payments/fixtures/stripe/customer1.json';

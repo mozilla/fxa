@@ -7,7 +7,7 @@ import {
   StripePriceRecurringFactory,
   StripeSubscriptionFactory,
   StripeSubscriptionItemFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import { SubplatInterval } from '../types';
 import {
   getSubplatIntervalFromSubscription,

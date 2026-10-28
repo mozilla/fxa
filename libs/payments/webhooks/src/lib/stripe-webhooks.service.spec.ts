@@ -4,7 +4,8 @@
 
 import { Test } from '@nestjs/testing';
 
-import { MockStripeConfigProvider, StripeClient } from '@fxa/payments/stripe';
+import { StripeClient } from '@fxa/payments/stripe';
+import { MockStripeConfigProvider } from '@fxa/payments/stripe/testing';
 import { StripeEventManager } from './stripe-event.manager';
 import { StripeWebhookService } from './stripe-webhooks.service';
 import {
@@ -34,16 +35,13 @@ import {
   PaymentsGleanManager,
 } from '@fxa/payments/metrics';
 import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
-import {
-  MockStrapiClientConfigProvider,
-  ProductConfigurationManager,
-  StrapiClient,
-} from '@fxa/shared/cms';
+import { ProductConfigurationManager, StrapiClient } from '@fxa/shared/cms';
+import { MockStrapiClientConfigProvider } from '@fxa/shared/cms/testing';
 import { CartManager } from '@fxa/payments/cart';
 import { AccountManager } from '@fxa/shared/account/account';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
-import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
+import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account/testing';
 import * as Sentry from '@sentry/node';
 import { Logger } from '@nestjs/common';
 import { MockStripeEventConfigProvider } from './stripe-event.config';

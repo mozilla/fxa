@@ -17,25 +17,36 @@
       "@fxa/accounts/oauth": ["libs/accounts/oauth/src/index"],
       "@fxa/payments/legacy": ["libs/payments/legacy/src/index"],
       "@fxa/payments/stripe": ["libs/payments/stripe/src/index"],
+      "@fxa/payments/stripe/testing": ["libs/payments/stripe/src/testing"],
       "@fxa/payments/paypal": ["libs/payments/paypal/src/index"],
+      "@fxa/payments/paypal/testing": ["libs/payments/paypal/src/testing"],
       "@fxa/payments/customer": ["libs/payments/customer/src/index"],
+      "@fxa/payments/customer/testing": ["libs/payments/customer/src/testing"],
       "@fxa/payments/currency": ["libs/payments/currency/src/index"],
       "@fxa/payments/cart": ["libs/payments/cart/src/index"],
       "@fxa/payments/eligibility": ["libs/payments/eligibility/src/index"],
+      "@fxa/payments/eligibility/testing": [
+        "libs/payments/eligibility/src/testing"
+      ],
       "@fxa/payments/experiments": ["libs/payments/experiments/src/index"],
       "@fxa/payments/iap": ["libs/payments/iap/src/index"],
+      "@fxa/payments/iap/testing": ["libs/payments/iap/src/testing"],
       "@fxa/payments/metrics": ["libs/payments/metrics/src/index"],
       "@fxa/payments/metrics-aggregator": [
         "libs/payments/metrics-aggregator/src/index"
       ],
       "@fxa/shared/account/account": ["libs/shared/account/account/src/index"],
       "@fxa/profile/client": ["libs/profile/client/src/index"],
+      "@fxa/profile/client/testing": ["libs/profile/client/src/testing"],
       "@fxa/shared/cms": ["libs/shared/cms/src/index"],
       "@fxa/shared/cloud-tasks": ["libs/shared/cloud-tasks/src/index"],
       "@fxa/shared/crypto": ["libs/shared/crypto/src/index"],
       "@fxa/shared/db/firestore": ["libs/shared/db/firestore/src/index"],
       "@fxa/shared/db/mysql/account": [
         "libs/shared/db/mysql/account/src/index"
+      ],
+      "@fxa/shared/db/mysql/account/testing": [
+        "libs/shared/db/mysql/account/src/testing"
       ],
       "@fxa/shared/db/mysql/core": ["libs/shared/db/mysql/core/src/index"],
       "@fxa/shared/db/mysql/legacy": ["libs/shared/db/mysql/legacy/src/index"],

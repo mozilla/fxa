@@ -5,16 +5,18 @@ import { MockLoggerProvider } from '@fxa/shared/log';
 import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
-  MockStripeConfigProvider,
   StripeClient,
-  StripeSubscriptionFactory,
 } from '@fxa/payments/stripe';
+import {
+  MockStripeConfigProvider,
+  StripeSubscriptionFactory,
+} from '@fxa/payments/stripe/testing';
 import {
   CustomerManager,
   SubscriptionManager,
   TaxAddress,
-  TaxAddressFactory,
 } from '@fxa/payments/customer';
+import { TaxAddressFactory } from '@fxa/payments/customer/testing';
 import {
   GeoDBManager,
   GeoDBManagerConfig,
@@ -26,8 +28,8 @@ import {
   ResultAccountCustomerFactory,
   StripeCustomerFactory,
   StripeResponseFactory,
-} from '@fxa/payments/stripe';
-import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
+} from '@fxa/payments/stripe/testing';
+import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account/testing';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import {
   CurrencyManager,
@@ -141,7 +143,9 @@ describe('TaxService', () => {
 
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
-        .mockRejectedValue(new AccountCustomerNotFoundError('not found', new Error()));
+        .mockRejectedValue(
+          new AccountCustomerNotFoundError('not found', new Error())
+        );
       jest.spyOn(geodbManager, 'getTaxAddress').mockReturnValue(geoAddress);
 
       const result = await taxService.getTaxAddress(ip, uid);

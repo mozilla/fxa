@@ -24,26 +24,26 @@ import {
   EligibilityManager,
   EligibilityService,
   EligibilityStatus,
+} from '@fxa/payments/eligibility';
+import {
   SubscriptionEligibilityResultFactory,
   SubscriptionEligibilityUpgradeDowngradeResultFactory,
-} from '@fxa/payments/eligibility';
+} from '@fxa/payments/eligibility/testing';
 import {
   PaypalBillingAgreementManager,
   PayPalClient,
   PaypalClientConfig,
   PaypalCustomerManager,
-  ResultPaypalCustomerFactory,
 } from '@fxa/payments/paypal';
+import { ResultPaypalCustomerFactory } from '@fxa/payments/paypal/testing';
 import {
   ConfirmationTokenManager,
   CustomerManager,
   CustomerSessionManager,
   InvoiceManager,
-  InvoicePreviewFactory,
   PaymentIntentManager,
   PaymentMethodManager,
   PriceManager,
-  PricingForCurrencyFactory,
   ProductManager,
   PromotionCodeManager,
   SetupIntentManager,
@@ -52,13 +52,21 @@ import {
   STRIPE_SUBSCRIPTION_METADATA,
   SubplatInterval,
   SubscriptionManager,
-  TaxAddressFactory,
   SubPlatPaymentMethodType,
 } from '@fxa/payments/customer';
 import {
-  StripeApiListFactory,
+  InvoicePreviewFactory,
+  PricingForCurrencyFactory,
+  TaxAddressFactory,
+} from '@fxa/payments/customer/testing';
+import {
   StripeClient,
   StripeConfig,
+  AccountCustomerManager,
+  AccountCustomerNotFoundError,
+} from '@fxa/payments/stripe';
+import {
+  StripeApiListFactory,
   StripeCustomerFactory,
   StripeInvoiceFactory,
   StripeInvoicePaymentFactory,
@@ -70,28 +78,21 @@ import {
   StripeSubscriptionFactory,
   ResultAccountCustomerFactory,
   MockStripeConfigProvider,
-  AccountCustomerManager,
-  AccountCustomerNotFoundError,
   StripeConfirmationTokenFactory,
   StripeConfirmationTokenPaymentMethodPreviewCardFactory,
   StripeConfirmationTokenPaymentMethodPreviewFactory,
   StripeSetupIntentFactory,
-} from '@fxa/payments/stripe';
-import {
-  MockProfileClientConfigProvider,
-  ProfileClient,
-} from '@fxa/profile/client';
-import {
-  MockStrapiClientConfigProvider,
-  ProductConfigurationManager,
-  StrapiClient,
-} from '@fxa/shared/cms';
+} from '@fxa/payments/stripe/testing';
+import { ProfileClient } from '@fxa/profile/client';
+import { MockProfileClientConfigProvider } from '@fxa/profile/client/testing';
+import { ProductConfigurationManager, StrapiClient } from '@fxa/shared/cms';
+import { MockStrapiClientConfigProvider } from '@fxa/shared/cms/testing';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
+import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
 import {
   AccountFactory,
-  CartEligibilityStatus,
   MockAccountDatabaseNestFactory,
-} from '@fxa/shared/db/mysql/account';
+} from '@fxa/shared/db/mysql/account/testing';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { MockStatsDProvider, StatsDService } from '@fxa/shared/metrics/statsd';
 import {
@@ -136,9 +137,11 @@ import {
   AppleIapPurchaseManager,
   GoogleIapClient,
   GoogleIapPurchaseManager,
+} from '@fxa/payments/iap';
+import {
   MockAppleIapClientConfigProvider,
   MockGoogleIapClientConfigProvider,
-} from '@fxa/payments/iap';
+} from '@fxa/payments/iap/testing';
 import { Logger } from '@nestjs/common';
 import type { AsyncLocalStorage } from 'async_hooks';
 import type { CartStore } from './cart-als.types';
@@ -1077,13 +1080,13 @@ describe('CheckoutService', () => {
         const freeInvoice = StripeResponseFactory(
           StripeInvoiceFactory({
             payments: StripeApiListFactory([
-          StripeInvoicePaymentFactory({
-            payment: {
-              type: 'payment_intent',
-              payment_intent: mockPaymentIntent.id,
-            },
-          }),
-        ]),
+              StripeInvoicePaymentFactory({
+                payment: {
+                  type: 'payment_intent',
+                  payment_intent: mockPaymentIntent.id,
+                },
+              }),
+            ]),
             amount_due: 0,
             status: 'paid',
           })
@@ -1521,13 +1524,13 @@ describe('CheckoutService', () => {
         const mockZeroInvoice = StripeResponseFactory(
           StripeInvoiceFactory({
             payments: StripeApiListFactory([
-          StripeInvoicePaymentFactory({
-            payment: {
-              type: 'payment_intent',
-              payment_intent: mockPaymentIntent.id,
-            },
-          }),
-        ]),
+              StripeInvoicePaymentFactory({
+                payment: {
+                  type: 'payment_intent',
+                  payment_intent: mockPaymentIntent.id,
+                },
+              }),
+            ]),
             amount_due: 0,
           })
         );
@@ -2281,18 +2284,16 @@ describe('CheckoutService', () => {
     const mockRequestArgs = CommonMetricsFactory();
 
     beforeEach(() => {
-      jest
-        .spyOn(checkoutService, 'prePaySteps')
-        .mockResolvedValue(
-          PrePayStepsResultFactory({
-            uid: mockCart.uid,
-            customer: mockCustomer,
-            promotionCode: mockPromotionCode,
-            price: mockPrice,
-            version: mockCart.version + 1,
-            eligibility: mockEligibilityResult,
-          })
-        );
+      jest.spyOn(checkoutService, 'prePaySteps').mockResolvedValue(
+        PrePayStepsResultFactory({
+          uid: mockCart.uid,
+          customer: mockCustomer,
+          promotionCode: mockPromotionCode,
+          price: mockPrice,
+          version: mockCart.version + 1,
+          eligibility: mockEligibilityResult,
+        })
+      );
       jest
         .spyOn(priceManager, 'retrievePricingForCurrency')
         .mockResolvedValue(mockPricingForCurrency);

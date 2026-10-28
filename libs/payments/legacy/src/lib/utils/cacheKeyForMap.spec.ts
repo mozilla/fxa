@@ -1,4 +1,4 @@
-import { StripePlanFactory } from '@fxa/payments/stripe';
+import { StripePlanFactory } from '@fxa/payments/stripe/testing';
 import { cacheKeyForMap } from './cacheKeyForMap';
 
 describe('cacheKeyForMap', () => {

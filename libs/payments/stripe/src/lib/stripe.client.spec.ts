@@ -23,7 +23,7 @@ import { StripeSetupIntentFactory } from './factories/setup-intent.factory';
 import { StripeSubscriptionFactory } from './factories/subscription.factory';
 import { StripeUpcomingInvoiceFactory } from './factories/upcoming-invoice.factory';
 import { StripeClient } from './stripe.client';
-import { MockStripeConfigProvider } from './stripe.config';
+import { MockStripeConfigProvider } from './stripe.config.mock';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 const mockJestFnGenerator = <T extends (...args: any[]) => any>() => {

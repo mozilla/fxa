@@ -3,21 +3,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Test } from '@nestjs/testing';
 import {
-  EligibilityContentByPlanIdsQueryFactory,
   EligibilityContentByPlanIdsResult,
   EligibilityContentByPlanIdsResultUtil,
-  EligibilityOfferingResultFactory,
-  EligibilityPurchaseResultFactory,
-  MockStrapiClientConfigProvider,
   ProductConfigurationManager,
   StrapiClient,
 } from '@fxa/shared/cms';
 import {
+  EligibilityContentByPlanIdsQueryFactory,
+  EligibilityOfferingResultFactory,
+  EligibilityPurchaseResultFactory,
+  MockStrapiClientConfigProvider,
+} from '@fxa/shared/cms/testing';
+import { StripeClient } from '@fxa/payments/stripe';
+import {
   MockStripeConfigProvider,
-  StripeClient,
   StripePriceFactory,
   StripeResponseFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import {
   MockStatsDProvider,
   StatsD,
@@ -53,7 +55,7 @@ import {
 import {
   AccountFactory,
   MockAccountDatabaseNestFactory,
-} from '@fxa/shared/db/mysql/account';
+} from '@fxa/shared/db/mysql/account/testing';
 import { AccountManager } from '@fxa/shared/account/account';
 import { Logger } from '@nestjs/common';
 import { EmitterServiceHandleAuthError } from './emitter.error';

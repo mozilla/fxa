@@ -6,7 +6,7 @@ import {
   StripePriceFactory,
   StripeSubscriptionFactory,
   StripeSubscriptionItemFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import { transformToWebSubscription } from './transformToWebSubscription';
 
 describe('transformToWebSubscription', () => {
