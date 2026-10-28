@@ -1,8 +1,8 @@
 {
-  "commit": "18310cd1dfb2572bd1382d548a2d18c88d9ce13f",
-  "summary": "Merge pull request #21480 from mozilla/fxa-14005",
-  "description": "fix(settings): report actionable Glean reasons for passkey errors",
-  "timestamp": 1793134258000,
+  "commit": "65aa200c1b332f9af2ef89634b5bbfb80930689b",
+  "summary": "Merge pull request #21626 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-a5171b4fcb5312f60086175cb9936d40f98573af",
+  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from be3b7045116c551c9ff87b57348ceb0a2c928d43 to a5171b4fcb5312f60086175cb9936d40f98573af",
+  "timestamp": 1793196476000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

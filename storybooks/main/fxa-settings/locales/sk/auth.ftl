@@ -192,7 +192,7 @@ downloadSubscription-subject = Víta vás { $productName }
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 downloadSubscription-title = Víta vás { $productName }
 downloadSubscription-content-2 = Poďme sa pozrieť ako používať všetky funkcie zahrnuté vo vašom predplatnom:
-downloadSubscription-link-action-2 = Začíname
+downloadSubscription-link-action-2 = Poďme na to
 fraudulentAccountDeletion-subject-2 = Váš { -product-mozilla-account(capitalization: "lower") } bol odstránený
 fraudulentAccountDeletion-title = Váš účet bol odstránený
 fraudulentAccountDeletion-content-part1-v2 = Nedávno bol vytvorený { -product-mozilla-account(capitalization: "lower") } a pomocou tejto e‑mailovej adresy bolo účtované predplatné. Rovnako ako pri všetkých nových účtoch sme vás požiadali, aby ste potvrdili svoj účet overením tejto e‑mailovej adresy.
