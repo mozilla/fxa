@@ -1,8 +1,8 @@
 {
-  "commit": "d0233f40b54bb5a4db717e49c7432ce0614eace3",
-  "summary": "Merge pull request #21624 from mozilla/fxa-13157",
-  "description": "feat(settings): apply shared CMS styling to passkey password fallback",
-  "timestamp": 1793220381000,
+  "commit": "602e7331d24f101a7cce12eeeae1b1725e1c4400",
+  "summary": "Merge pull request #21627 from mozilla/fxa-14863",
+  "description": "fix(admin-panel): show Clear Rate Limits progress and result inline",
+  "timestamp": 1793223850000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
