@@ -157,8 +157,8 @@ import {
 } from '@fxa/shared/experiments';
 
 jest.mock('next/navigation');
-jest.mock('@fxa/shared/error', () => ({
-  ...jest.requireActual('@fxa/shared/error'),
+jest.mock('@fxa/shared/error/sanitize-exceptions', () => ({
+  ...jest.requireActual('@fxa/shared/error/sanitize-exceptions'),
   SanitizeExceptions: jest.fn(({ allowlist = [] } = {}) => {
     return function (
       target: any,
