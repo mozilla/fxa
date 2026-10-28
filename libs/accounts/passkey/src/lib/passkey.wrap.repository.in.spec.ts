@@ -5,10 +5,12 @@
 import { faker } from '@faker-js/faker';
 import {
   AccountDatabase,
-  PasskeyFactory,
-  PasskeyWrapFactory,
   testAccountDatabaseSetup,
 } from '@fxa/shared/db/mysql/account';
+import {
+  PasskeyFactory,
+  PasskeyWrapFactory,
+} from '@fxa/shared/db/mysql/account/testing';
 import { AccountManager } from '@fxa/shared/account/account';
 import {
   bufferToAaguid,

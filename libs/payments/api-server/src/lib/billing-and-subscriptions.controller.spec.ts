@@ -26,30 +26,29 @@ import {
   AppleIapPurchaseManager,
   GoogleIapClient,
   GoogleIapPurchaseManager,
+} from '@fxa/payments/iap';
+import {
   MockAppleIapClientConfigProvider,
   MockGoogleIapClientConfigProvider,
-} from '@fxa/payments/iap';
+} from '@fxa/payments/iap/testing';
 import {
   MockPaypalClientConfigProvider,
   PaypalBillingAgreementManager,
   PayPalClient,
   PaypalCustomerManager,
 } from '@fxa/payments/paypal';
-import {
-  AccountCustomerManager,
-  MockStripeConfigProvider,
-  StripeClient,
-} from '@fxa/payments/stripe';
+import { AccountCustomerManager, StripeClient } from '@fxa/payments/stripe';
+import { MockStripeConfigProvider } from '@fxa/payments/stripe/testing';
 import {
   FreeAccessProgramConfigurationManager,
-  MockStrapiClientConfigProvider,
   ProductConfigurationManager,
   StrapiClient,
 } from '@fxa/shared/cms';
+import { MockStrapiClientConfigProvider } from '@fxa/shared/cms/testing';
 import { FreeAccessProgramService } from '@fxa/free-access-program';
 import { AccountManager } from '@fxa/shared/account/account';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
-import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
+import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account/testing';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 import { BillingAndSubscriptionsController } from './billing-and-subscriptions.controller';

@@ -4,7 +4,6 @@
 
 import crypto from 'node:crypto';
 import {
-  CartFactory,
   CartState,
   testAccountDatabaseSetup,
   testAccountDatabaseTeardown,
@@ -12,6 +11,7 @@ import {
   CartUpdate,
   CartErrorReasonId,
 } from '@fxa/shared/db/mysql/account';
+import { CartFactory } from '@fxa/shared/db/mysql/account/testing';
 
 import {
   CartInvalidStateForActionError,

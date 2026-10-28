@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { faker } from '@faker-js/faker';
-import { Provider } from '@nestjs/common';
 import { Type } from 'class-transformer';
 import { IsNumber, IsOptional, IsString, IsUrl } from 'class-validator';
 
@@ -33,14 +31,3 @@ export class StrapiClientConfig {
   @IsString()
   public readonly webhookSecret?: string;
 }
-
-export const MockStrapiClientConfig = {
-  graphqlApiUri: faker.string.uuid(),
-  apiKey: faker.string.uuid(),
-  firestoreCacheCollectionName: faker.string.uuid(),
-} satisfies StrapiClientConfig;
-
-export const MockStrapiClientConfigProvider = {
-  provide: StrapiClientConfig,
-  useValue: MockStrapiClientConfig,
-} satisfies Provider<StrapiClientConfig>;

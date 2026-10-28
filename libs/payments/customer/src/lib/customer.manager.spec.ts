@@ -6,13 +6,12 @@ import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 import { MockLoggerProvider } from '@fxa/shared/log';
 
+import { StripeClient, MOZILLA_TAX_ID } from '@fxa/payments/stripe';
 import {
-  StripeClient,
   StripeResponseFactory,
   StripeCustomerFactory,
   MockStripeConfigProvider,
-  MOZILLA_TAX_ID,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import { TaxAddressFactory } from './factories/tax-address.factory';
 import { CustomerManager } from './customer.manager';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';

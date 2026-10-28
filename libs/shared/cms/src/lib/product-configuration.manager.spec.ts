@@ -10,63 +10,61 @@ import {
   PriceManager,
   SubplatInterval,
 } from '@fxa/payments/customer';
+import { StripeClient, StripeConfig } from '@fxa/payments/stripe';
 import {
-  StripeClient,
-  StripeConfig,
   StripePlanFactory,
   StripePriceFactory,
   StripeResponseFactory,
   StripeSubscriptionFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider, StatsDService } from '@fxa/shared/metrics/statsd';
 import {
   cancelInterstitialOfferQuery,
-  CancelInterstitialOfferResultFactory,
   CancelInterstitialOfferUtil,
-  CapabilityPurchaseResultFactory,
-  CapabilityServiceByPlanIdsQueryFactory,
   CapabilityServiceByPlanIdsResultUtil,
   churnInterventionByProductIdQuery,
-  ChurnInterventionByProductIdQueryFactory,
   ChurnInterventionByProductIdResultUtil,
   EligibilityContentByOfferingResultUtil,
   eligibilityContentByPlanIdsQuery,
-  EligibilityContentByPlanIdsQueryFactory,
   EligibilityContentByPlanIdsResultUtil,
-  EligibilityPurchaseResultFactory,
-  IapOfferingByStoreIDResultFactory,
   IapOfferingsByStoreIDsResultUtil,
   ProductConfigError,
-  ServicesWithCapabilitiesQueryFactory,
   ServicesWithCapabilitiesResultUtil,
 } from '../../src';
+import {
+  CancelInterstitialOfferResultFactory,
+  CapabilityPurchaseResultFactory,
+  CapabilityServiceByPlanIdsQueryFactory,
+  ChurnInterventionByProductIdQueryFactory,
+  EligibilityContentByPlanIdsQueryFactory,
+  EligibilityPurchaseResultFactory,
+  IapOfferingByStoreIDResultFactory,
+  ServicesWithCapabilitiesQueryFactory,
+} from '../testing';
 import { ProductConfigurationManager } from './product-configuration.manager';
 import {
   EligibilityContentByOfferingQueryFactory,
   EligibilityContentOfferingResultFactory,
-} from './queries/eligibility-content-by-offering';
+} from './queries/eligibility-content-by-offering/factories';
+import { PageContentForOfferingResultUtil } from './queries/page-content-for-offering';
 import {
   PageContentForOfferingQueryFactory,
-  PageContentForOfferingResultUtil,
   PageContentOfferingResultFactory,
   PageContentOfferingTransformedFactory,
-} from './queries/page-content-for-offering';
+} from './queries/page-content-for-offering/factories';
 import { PurchaseWithDetailsOfferingContentUtil } from './queries/purchase-with-details-offering-content';
 import { PurchaseWithDetailsOfferingContentByPlanIdsResultFactory } from './queries/purchase-with-details-offering-content/factories';
 import { StrapiClient } from './strapi.client';
-import { MockStrapiClientConfigProvider } from './strapi.client.config';
+import { MockStrapiClientConfigProvider } from './strapi.client.config.mock';
+import { PageContentByPriceIdsResultUtil } from './queries/page-content-by-price-ids';
 import {
   PageContentByPriceIdsPurchaseResultFactory,
   PageContentByPriceIdsQueryFactory,
-  PageContentByPriceIdsResultUtil,
-} from './queries/page-content-by-price-ids';
+} from './queries/page-content-by-price-ids/factories';
 import { faker } from '@faker-js/faker';
-import {
-  freeTrialQuery,
-  FreeTrialResultFactory,
-  FreeTrialUtil,
-} from './queries/free-trial';
+import { freeTrialQuery, FreeTrialUtil } from './queries/free-trial';
+import { FreeTrialResultFactory } from './queries/free-trial/factories';
 
 jest.mock('@type-cacheable/core', () => {
   const noopDecorator =

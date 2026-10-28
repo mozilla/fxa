@@ -7,20 +7,21 @@ import { Test } from '@nestjs/testing';
 import { Stripe } from 'stripe';
 
 import { PriceManager } from '@fxa/payments/customer';
+import { StripeClient, StripeConfig } from '@fxa/payments/stripe';
 import {
-  StripeClient,
-  StripeConfig,
   StripePlanFactory,
   StripeProductFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import {
   ProductConfigurationManager,
-  PurchaseWithDetailsOfferingContentTransformedFactory,
   PurchaseWithDetailsOfferingContentUtil,
-  PurchaseDetailsTransformedFactory,
   StrapiClient,
-  MockStrapiClientConfigProvider,
 } from '@fxa/shared/cms';
+import {
+  PurchaseWithDetailsOfferingContentTransformedFactory,
+  PurchaseDetailsTransformedFactory,
+  MockStrapiClientConfigProvider,
+} from '@fxa/shared/cms/testing';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { StripeMapperService } from './stripe-mapper.service';

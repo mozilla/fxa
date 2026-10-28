@@ -1,11 +1,11 @@
 import {
   StripeCustomerFactory,
   StripePriceFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import { PrePayStepsResult } from './checkout.types';
 import { ResultCartFactory } from './cart.factories';
 import { faker } from '@faker-js/faker';
-import { SubscriptionEligibilityResultFactory } from '@fxa/payments/eligibility';
+import { SubscriptionEligibilityResultFactory } from '@fxa/payments/eligibility/testing';
 import { EligibilityStatus } from '@fxa/payments/eligibility';
 
 export const PrePayStepsResultFactory = (
