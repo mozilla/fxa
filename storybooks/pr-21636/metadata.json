@@ -1,0 +1,10 @@
+{
+  "commit": "a53e7eeb3b5c5575c35b4d38e6a5dc07413f1e95",
+  "summary": "fix(settings): anchor splitChunks cacheGroups regexes",
+  "description": "Because:\n\n* The presentation, utils and observability splitChunks regexes had ungrouped\n  alternations, so they matched lazy-only modules and pulled them into entry chunks.\n\nThis commit:\n\n* Anchors and groups the three cacheGroups test regexes.\n* Drops lodash and the unused @reach from the named groups.\n* Keeps the networking group, the group names and chunks: 'all'.\n\nCloses FXA-14855",
+  "timestamp": 1793215580000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
