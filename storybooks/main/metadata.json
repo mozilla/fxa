@@ -1,8 +1,8 @@
 {
-  "commit": "56ce40150ac798f71b545fc09d027f1b9909a663",
-  "summary": "Merge pull request #21628 from mozilla/fxa-14871",
-  "description": "chore(deps): bump Node from 24.21.0 to 24.22.1",
-  "timestamp": 1793206555000,
+  "commit": "5fc3fb3506a09c4b20682b41a733be21a35692f3",
+  "summary": "Merge pull request #21559 from mozilla/FXA-14743",
+  "description": "fix(auth): require a password reauth before storing a passkey wrap",
+  "timestamp": 1793207370000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
