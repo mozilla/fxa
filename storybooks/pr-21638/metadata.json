@@ -1,8 +1,8 @@
 {
-  "commit": "bc8fdaa18cd066a4333ec987099925f967c8fd02",
+  "commit": "95dc177164ca03b5a987d14225df71b3469933b6",
   "summary": "perf(settings): lazy-load scoped-keys in the OAuth finish hook",
-  "description": "Because:\n\n- The scoped-keys prefetch checked keysJwk, but key construction is gated on wantsKeys(), so a request with keysJwk and a scope without scoped keys loaded the crypto chunk for no use.\n\nThis commit:\n\n- Gates the prefetch in useFinishOAuthFlowHandler on wantsKeys().\n- Replaces the Sync-without-keysJwk prefetch test with a keysJwk-without-scoped-keys case.\n\nCloses FXA-14854",
-  "timestamp": 1793220840000,
+  "description": "Because:\n\n* The static scoped-keys import shipped node-jose and node-forge with\n  every page that imports the OAuth finish hook.\n* A render-time wantsKeys() call threw on an integration without it,\n  which made React render again and broke the App test.\n\nThis commit:\n\n* Imports scoped-keys on demand in constructKeysJwe.\n* Prefetches the chunk on mount when the integration wants keys.\n* Calls wantsKeys() in the prefetch effect, in a try/catch.\n\nCloses FXA-14854",
+  "timestamp": 1793222657000,
   "storybooks": [
     "fxa-settings"
   ],
