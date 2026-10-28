@@ -476,7 +476,10 @@ const conf = (module.exports = convict({
   },
   geodb: {
     dbPath: {
-      default: path.resolve(__dirname, '../../../fxa-geodb/db/cities-db.mmdb'),
+      default: path.resolve(
+        __dirname,
+        '../../../../libs/shared/geodb/db/cities-db.mmdb'
+      ),
       doc: 'Path to maxmind database file',
       env: 'GEODB_DBPATH',
       format: String,
