@@ -1,8 +1,8 @@
 {
-  "commit": "2f9d9ff4ee00247002707b904b231398c73c4168",
-  "summary": "Merge pull request #21491 from mozilla/FXA-14740",
-  "description": "fix(auth): lock passkey ceremonies to a fixed mfa:passkey:wraps scope",
-  "timestamp": 1793210938000,
+  "commit": "165dcaf92a43bc0598585ea46d8f932b9d3733cf",
+  "summary": "Merge pull request #21629 from mozilla/ci/always-run-functional-tests",
+  "description": "chore(ci): always run functional tests on PRs",
+  "timestamp": 1793212215000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
