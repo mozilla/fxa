@@ -13,7 +13,8 @@ import {
   type NewPasskeyWrapData,
 } from '@fxa/accounts/passkey';
 import { AppError } from '@fxa/accounts/errors';
-import { AuthRequest } from '../types';
+import { AuthRequest, SessionTokenAuthCredential } from '../types';
+import { hasPasswordReauth } from '../tokens/session-reauth';
 import { ConfigType } from '../../config';
 import { isPasskeyPasswordlessSyncEnabled } from '../passkey-utils';
 import { recordSecurityEvent } from './utils/security-event';
@@ -78,16 +79,19 @@ export class PasskeyWrapsHandler {
    * Creates the wrap for a credential that has none. A stale wrap is resolved
    * by deleting the wrap, leaving the passkey registered.
    *
-   * Requires an `mfa:passkey` token bound to the credential being written.
+   * Requires an `mfa:passkey` token bound to the credential being written, on
+   * a session that has verified the password since it was created. The sealed
+   * `kB` is stored unread, so that reauth is the only proof the caller could
+   * have derived it.
    *
    * @returns `{ created: boolean }` — false when an identical wrap was already
    *   stored.
    */
   async createPasskeyWrap(request: AuthRequest) {
-    const { uid, cid } = request.auth.credentials as {
-      uid: string;
+    const session = request.auth.credentials as SessionTokenAuthCredential & {
       cid?: string;
     };
+    const { uid, cid } = session;
     const payload = request.payload as WrapPayload;
     const { credentialId } = payload;
 
@@ -101,6 +105,13 @@ export class PasskeyWrapsHandler {
 
     if (!isBoundTo(cid, credentialId)) {
       await this.recordEvent(request, 'account.passkey.wrap_creation_failure');
+      throw AppError.invalidMfaToken();
+    }
+
+    if (!hasPasswordReauth(session)) {
+      await this.recordEvent(request, 'account.passkey.wrap_creation_failure');
+      // Reuses the MFA token error; a dedicated error the client can act on
+      // is tracked in FXA-14847.
       throw AppError.invalidMfaToken();
     }
 

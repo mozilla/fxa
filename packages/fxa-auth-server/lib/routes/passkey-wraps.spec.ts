@@ -48,6 +48,7 @@ const validPayload = (overrides: Record<string, unknown> = {}) => ({
  */
 const KEYS_CHANGED_AT = 1_700_000_000_000;
 const WRAP_CREATED_AT = KEYS_CHANGED_AT + 10_000;
+const SESSION_CREATED_AT = KEYS_CHANGED_AT + 5_000;
 
 /** The stored row, binary as the repository returns it. */
 const storedWrap = (overrides: Record<string, unknown> = {}) => ({
@@ -90,12 +91,24 @@ describe('passkey wraps routes', () => {
     payload: Record<string, unknown> = validPayload(),
     // An options object so a test can pass no binding at all; a positional
     // default would swallow `undefined` and assert nothing.
-    { cid }: { cid?: string } = { cid: CREDENTIAL_ID }
+    // `reauthed` drives `authAt` relative to `createdAt`; the predicate itself
+    // is unit-tested in session-reauth.spec.ts.
+    { cid, reauthed = true }: { cid?: string; reauthed?: boolean } = {
+      cid: CREDENTIAL_ID,
+    }
   ) {
     const route = buildRoute();
     const request = asRequest({
       headers: { 'user-agent': 'test-agent' },
-      auth: { credentials: { uid: UID, id: 'session-token-id', cid } },
+      auth: {
+        credentials: {
+          uid: UID,
+          id: 'session-token-id',
+          cid,
+          createdAt: SESSION_CREATED_AT,
+          authAt: reauthed ? SESSION_CREATED_AT + 1_000 : SESSION_CREATED_AT,
+        },
+      },
       payload,
       app: {
         clientAddress: '127.0.0.1',
@@ -219,6 +232,15 @@ describe('passkey wraps routes', () => {
 
       expect(result).toEqual({ created: false });
       expect(recordSecurityEvent).not.toHaveBeenCalled();
+    });
+
+    // A passkey sign-in, or a step-up on that session, mints a bound token
+    // without ever checking the password.
+    it('refuses a session with no password reauth since creation', async () => {
+      await expect(
+        run(validPayload(), { cid: CREDENTIAL_ID, reauthed: false })
+      ).rejects.toMatchObject({ errno: ERRNO.INVALID_MFA_TOKEN });
+      expect(service.storePasskeyWrap).not.toHaveBeenCalled();
     });
 
     it('refuses a token minted for a different credential', async () => {
