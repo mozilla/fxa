@@ -1,8 +1,8 @@
 {
-  "commit": "085cdf45779240547d73b2487da5780b30736c02",
+  "commit": "bc8fdaa18cd066a4333ec987099925f967c8fd02",
   "summary": "perf(settings): lazy-load scoped-keys in the OAuth finish hook",
-  "description": "Because:\n\n- The mount prefetch of the scoped-keys chunk also ran for Sync flows without keysJwk, which never build a keys JWE.\n\nThis commit:\n\n- Gates the prefetch in useFinishOAuthFlowHandler on keysJwk only.\n- Adds a test that a Sync integration without keysJwk does not prefetch the chunk.\n\nCloses FXA-14854",
-  "timestamp": 1793219546000,
+  "description": "Because:\n\n- The scoped-keys prefetch checked keysJwk, but key construction is gated on wantsKeys(), so a request with keysJwk and a scope without scoped keys loaded the crypto chunk for no use.\n\nThis commit:\n\n- Gates the prefetch in useFinishOAuthFlowHandler on wantsKeys().\n- Replaces the Sync-without-keysJwk prefetch test with a keysJwk-without-scoped-keys case.\n\nCloses FXA-14854",
+  "timestamp": 1793220840000,
   "storybooks": [
     "fxa-settings"
   ],

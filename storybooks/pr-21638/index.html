@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 085cdf45779240547d73b2487da5780b30736c02</title>
+  <title>Storybooks for commit bc8fdaa18cd066a4333ec987099925f967c8fd02</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,24 +23,24 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 085cdf45779240547d73b2487da5780b30736c02</h1>
+  <h1>Storybooks for commit bc8fdaa18cd066a4333ec987099925f967c8fd02</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/28/2026, 8:32:26 PM UTC</dd>
+    <dd>10/28/2026, 8:54:00 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>perf(settings): lazy-load scoped-keys in the OAuth finish hook</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- The mount prefetch of the scoped-keys chunk also ran for Sync flows without keysJwk, which never build a keys JWE.
+- The scoped-keys prefetch checked keysJwk, but key construction is gated on wantsKeys(), so a request with keysJwk and a scope without scoped keys loaded the crypto chunk for no use.
 
 This commit:
 
-- Gates the prefetch in useFinishOAuthFlowHandler on keysJwk only.
-- Adds a test that a Sync integration without keysJwk does not prefetch the chunk.
+- Gates the prefetch in useFinishOAuthFlowHandler on wantsKeys().
+- Replaces the Sync-without-keysJwk prefetch test with a keysJwk-without-scoped-keys case.
 
 Closes FXA-14854</pre></dd>
   </dl>
