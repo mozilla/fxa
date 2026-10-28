@@ -1,8 +1,8 @@
 {
-  "commit": "5fc3fb3506a09c4b20682b41a733be21a35692f3",
-  "summary": "Merge pull request #21559 from mozilla/FXA-14743",
-  "description": "fix(auth): require a password reauth before storing a passkey wrap",
-  "timestamp": 1793207370000,
+  "commit": "804b7fbaa1250f0ceccbf636d9a5114dcb8a64c2",
+  "summary": "Merge pull request #21505 from mozilla/FXA-14406",
+  "description": "chore(oauth): remove accountAuthorizations v2 dual-write and read paths",
+  "timestamp": 1793208660000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
