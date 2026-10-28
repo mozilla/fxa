@@ -8,8 +8,8 @@ import {
   AccountDbProvider,
   testAccountDatabaseSetup,
   testAccountDatabaseTeardown,
-  RecoveryPhoneFactory,
 } from '@fxa/shared/db/mysql/account';
+import { RecoveryPhoneFactory } from '@fxa/shared/db/mysql/account/testing';
 import { Test } from '@nestjs/testing';
 import Redis from 'ioredis';
 

@@ -4,15 +4,15 @@
 
 import { Test } from '@nestjs/testing';
 
+import { StripeClient } from '@fxa/payments/stripe';
 import {
   MockStripeConfigProvider,
-  StripeClient,
   StripeCustomerFactory,
   StripeEventCustomerSubscriptionUpdatedFactory,
   StripeInvoiceFactory,
   StripeResponseFactory,
   StripeSubscriptionFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import { StripeEventManager } from './stripe-event.manager';
 import { StripeWebhookService } from './stripe-webhooks.service';
 import { SubscriptionEventsService } from './subscription-handler.service';
@@ -41,17 +41,14 @@ import {
   PaymentsGleanManager,
 } from '@fxa/payments/metrics';
 import { PaymentsMetricsAggregatorService } from '@fxa/payments/metrics-aggregator';
-import {
-  MockStrapiClientConfigProvider,
-  ProductConfigurationManager,
-  StrapiClient,
-} from '@fxa/shared/cms';
+import { ProductConfigurationManager, StrapiClient } from '@fxa/shared/cms';
+import { MockStrapiClientConfigProvider } from '@fxa/shared/cms/testing';
 import { CartManager } from '@fxa/payments/cart';
 import { AccountManager } from '@fxa/shared/account/account';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider, StatsDService } from '@fxa/shared/metrics/statsd';
 import { StatsD } from 'hot-shots';
-import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
+import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account/testing';
 import { CustomerSubscriptionDeletedResponseFactory } from './factories';
 import {
   CancellationReason,
@@ -330,24 +327,28 @@ describe('SubscriptionEventsService', () => {
         status: 'active',
       });
 
-      const mockUpdatedEvent =
-        StripeEventCustomerSubscriptionUpdatedFactory(
-          undefined,
-          { status: 'active' },
-          { status: 'trialing' }
-        );
+      const mockUpdatedEvent = StripeEventCustomerSubscriptionUpdatedFactory(
+        undefined,
+        { status: 'active' },
+        { status: 'trialing' }
+      );
 
       beforeEach(() => {
-        jest
-          .spyOn(customerManager, 'retrieve')
-          .mockResolvedValue(
-            StripeResponseFactory(
-              StripeCustomerFactory({
-                metadata: { userid: 'uid123' },
-                address: { country: 'US', city: '', line1: '', line2: '', postal_code: '', state: '' },
-              })
-            )
-          );
+        jest.spyOn(customerManager, 'retrieve').mockResolvedValue(
+          StripeResponseFactory(
+            StripeCustomerFactory({
+              metadata: { userid: 'uid123' },
+              address: {
+                country: 'US',
+                city: '',
+                line1: '',
+                line2: '',
+                postal_code: '',
+                state: '',
+              },
+            })
+          )
+        );
       });
 
       it('should emit trialConverted with successful status when trialing -> active', async () => {
@@ -399,12 +400,11 @@ describe('SubscriptionEventsService', () => {
       });
 
       it('should not emit when previous status is not trialing', async () => {
-        const nonTrialEvent =
-          StripeEventCustomerSubscriptionUpdatedFactory(
-            undefined,
-            { status: 'active' },
-            { status: 'incomplete' }
-          );
+        const nonTrialEvent = StripeEventCustomerSubscriptionUpdatedFactory(
+          undefined,
+          { status: 'active' },
+          { status: 'incomplete' }
+        );
 
         await subscriptionEventsService.handleCustomerSubscriptionUpdated(
           nonTrialEvent,
@@ -415,11 +415,10 @@ describe('SubscriptionEventsService', () => {
       });
 
       it('should not emit when no previous_attributes', async () => {
-        const noAttrEvent =
-          StripeEventCustomerSubscriptionUpdatedFactory(
-            undefined,
-            { status: 'active' }
-          );
+        const noAttrEvent = StripeEventCustomerSubscriptionUpdatedFactory(
+          undefined,
+          { status: 'active' }
+        );
 
         await subscriptionEventsService.handleCustomerSubscriptionUpdated(
           noAttrEvent,

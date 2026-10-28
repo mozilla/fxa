@@ -25,7 +25,6 @@ import {
   CustomerManager,
   InvoiceManager,
   InvoicePreview,
-  InvoicePreviewFactory,
   PaymentMethodManager,
   PriceManager,
   SubscriptionManager,
@@ -34,6 +33,7 @@ import {
   BannerVariant,
   SubPlatPaymentMethodType,
 } from '@fxa/payments/customer';
+import { InvoicePreviewFactory } from '@fxa/payments/customer/testing';
 import {
   EligibilityManager,
   EligibilityService,
@@ -46,9 +46,11 @@ import {
   AppStoreSubscriptionPurchase,
   GoogleIapClient,
   GoogleIapPurchaseManager,
+} from '@fxa/payments/iap';
+import {
   MockAppleIapClientConfigProvider,
   MockGoogleIapClientConfigProvider,
-} from '@fxa/payments/iap';
+} from '@fxa/payments/iap/testing';
 import {
   AppleIapPurchaseFactory,
   AppleIapPurchaseResultFactory,
@@ -63,16 +65,18 @@ import {
   PaypalBillingAgreementManager,
   PayPalClient,
   PaypalCustomerManager,
-  ResultPaypalCustomerFactory,
 } from '@fxa/payments/paypal';
+import { ResultPaypalCustomerFactory } from '@fxa/payments/paypal/testing';
 import {
   AccountCustomerManager,
+  StripeClient,
+  StripeConfig,
+} from '@fxa/payments/stripe';
+import {
   MockStripeConfigProvider,
   ResultAccountCustomerFactory,
   StripeAddressFactory,
   StripeApiListFactory,
-  StripeClient,
-  StripeConfig,
   StripeCustomerFactory,
   StripeCustomerSessionFactory,
   StripeInvoiceFactory,
@@ -82,20 +86,22 @@ import {
   StripeSetupIntentFactory,
   StripeSubscriptionFactory,
   StripeSubscriptionItemFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
+import {
+  ProductConfigurationManager,
+  PageContentByPriceIdsResultUtil,
+  StrapiClient,
+} from '@fxa/shared/cms';
 import {
   IapWithOfferingResultFactory,
   MockStrapiClientConfigProvider,
-  ProductConfigurationManager,
-  PageContentByPriceIdsResultUtil,
   PageContentByPriceIdsPurchaseResultFactory,
-  StrapiClient,
   ChurnInterventionByProductIdResultFactory,
-} from '@fxa/shared/cms';
+} from '@fxa/shared/cms/testing';
 import { ChurnInterventionService } from './churn-intervention.service';
 import { ManagePaymentMethodTaxAddressRequiredError } from './manage-payment-method.error';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
-import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
+import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account/testing';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import {
   CancelSubscriptionCustomerMismatch,
@@ -123,10 +129,8 @@ import {
   NotifierService,
   NotifierSnsProvider,
 } from '@fxa/shared/notifier';
-import {
-  MockProfileClientConfigProvider,
-  ProfileClient,
-} from '@fxa/profile/client';
+import { ProfileClient } from '@fxa/profile/client';
+import { MockProfileClientConfigProvider } from '@fxa/profile/client/testing';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 
 jest.mock('@fxa/shared/error/sanitize-exceptions', () => ({

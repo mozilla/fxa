@@ -16,16 +16,16 @@ import {
   PaymentProvider,
   SubPlatPaymentMethodType,
 } from '@fxa/payments/customer';
+import { StripeClient } from '@fxa/payments/stripe';
 import {
-  StripeClient,
   MockStripeConfigProvider,
   StripeResponseFactory,
   StripeCustomerFactory,
   StripePaymentMethodFactory,
   StripeSubscriptionFactory,
   StripeCardPaymentMethodFactory,
-} from '@fxa/payments/stripe';
-import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
+} from '@fxa/payments/stripe/testing';
+import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account/testing';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 describe('PaymentMethodManager', () => {

@@ -6,7 +6,7 @@ import {
   StripeEventCustomerSubscriptionCreatedFactory,
   StripeEventCustomerSubscriptionUpdatedFactory,
   StripeSubscriptionFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import {
   CustomerSubscriptionDeletedResponse,
   CustomerSubscriptionUpdatedResponse,

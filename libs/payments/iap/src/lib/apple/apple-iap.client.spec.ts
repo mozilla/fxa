@@ -14,10 +14,8 @@ import {
   Environment,
   StatusResponse,
 } from 'app-store-server-api';
-import {
-  AppleIapClientConfig,
-  MockAppleIapClientConfig,
-} from './apple-iap.client.config';
+import { AppleIapClientConfig } from './apple-iap.client.config';
+import { MockAppleIapClientConfig } from './apple-iap.client.config.mock';
 import assert from 'assert';
 import { faker } from '@faker-js/faker';
 

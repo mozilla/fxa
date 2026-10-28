@@ -7,7 +7,7 @@ import {
   StripePriceRecurringFactory,
   StripeProductFactory,
   StripeResponseFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 
 import {
   AppleIapPurchaseFactory,
@@ -21,7 +21,7 @@ const buildIapOfferings = (
 ) =>
   ({
     getIapPageContentByStoreId: (storeId: string) => byStoreId[storeId],
-  } as never);
+  }) as never;
 
 describe('buildIapPriceInfoMap', () => {
   it('returns an empty map when there are no purchases', () => {
