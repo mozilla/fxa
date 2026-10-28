@@ -1,8 +1,8 @@
 {
-  "commit": "165dcaf92a43bc0598585ea46d8f932b9d3733cf",
-  "summary": "Merge pull request #21629 from mozilla/ci/always-run-functional-tests",
-  "description": "chore(ci): always run functional tests on PRs",
-  "timestamp": 1793212215000,
+  "commit": "4d2644af8aab322e99f97b26239334b6853fa613",
+  "summary": "Merge pull request #21604 from mozilla/agent-e38f89",
+  "description": "fix(auth): build sign-in email code from the session token",
+  "timestamp": 1793214463000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
