@@ -79,6 +79,11 @@ describe('lib/client', () => {
       assert.equal(lastInit?.credentials, 'include');
     });
 
+    it('sets credentials=include on POST /account/credentials/status', async () => {
+      await httpsClient.getCredentialStatusV2({ primary: 'user@example.com' });
+      assert.equal(lastInit?.credentials, 'include');
+    });
+
     it('does not set credentials on /account/login/send_unblock_code', async () => {
       await httpsClient.sendUnblockCode('user@example.com');
       assert.notEqual(lastInit?.credentials, 'include');
