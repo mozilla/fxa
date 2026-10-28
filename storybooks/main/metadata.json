@@ -1,8 +1,8 @@
 {
-  "commit": "b35118cd5d2309e88c08980b5fb972009a2778f4",
-  "summary": "Merge pull request #21637 from mozilla/fxa-14861",
-  "description": "fix(react): fetch only the best locale and en l10n bundles",
-  "timestamp": 1793217994000,
+  "commit": "d0233f40b54bb5a4db717e49c7432ce0614eace3",
+  "summary": "Merge pull request #21624 from mozilla/fxa-13157",
+  "description": "feat(settings): apply shared CMS styling to passkey password fallback",
+  "timestamp": 1793220381000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
