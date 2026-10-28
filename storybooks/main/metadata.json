@@ -1,8 +1,8 @@
 {
-  "commit": "4d2644af8aab322e99f97b26239334b6853fa613",
-  "summary": "Merge pull request #21604 from mozilla/agent-e38f89",
-  "description": "fix(auth): build sign-in email code from the session token",
-  "timestamp": 1793214463000,
+  "commit": "b35118cd5d2309e88c08980b5fb972009a2778f4",
+  "summary": "Merge pull request #21637 from mozilla/fxa-14861",
+  "description": "fix(react): fetch only the best locale and en l10n bundles",
+  "timestamp": 1793217994000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
