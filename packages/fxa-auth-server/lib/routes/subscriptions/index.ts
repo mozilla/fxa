@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
 import { StatsD } from 'hot-shots';
-import zendesk from 'node-zendesk';
 import Container from 'typedi';
 
 import { FreeAccessProgramService } from '@fxa/free-access-program';
@@ -12,6 +11,7 @@ import { StrapiClient } from '@fxa/shared/cms';
 import { ConfigType } from '../../../config';
 import { StripeHelper } from '../../payments/stripe';
 import { AuthLogger } from '../../types';
+import { ZendeskClientProvider } from '../../zendesk-client';
 import { appleIapRoutes } from './apple';
 import { freeAccessProgramWebhookRoutes } from './free-access-program-webhook';
 import { googleIapRoutes } from './google';
@@ -31,7 +31,7 @@ export const createRoutes = (
   mailer: any,
   profile: any,
   stripeHelper: StripeHelper,
-  zendeskClient: zendesk.Client
+  zendeskClientProvider: ZendeskClientProvider
 ) => {
   const routes: ServerRoute[] = [];
 
@@ -76,7 +76,9 @@ export const createRoutes = (
         stripeHelper
       )
     );
-    routes.push(...supportRoutes(log, db, config, customs, zendeskClient));
+    routes.push(
+      ...supportRoutes(log, db, config, customs, zendeskClientProvider)
+    );
   }
   if (stripeHelper && config.subscriptions.paypalNvpSigCredentials.enabled) {
     routes.push(

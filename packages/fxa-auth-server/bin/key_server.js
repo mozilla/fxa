@@ -496,9 +496,8 @@ async function run(config) {
   );
   const Password = require('../lib/crypto/password')(log, config);
   const customs = new Customs(log, error, statsd, rateLimit);
-  const zendeskClient = require('../lib/zendesk-client').createZendeskClient(
-    config
-  );
+  const { ZendeskClientProvider } = require('../lib/zendesk-client');
+  const zendeskClientProvider = new ZendeskClientProvider(config);
 
   const oauthClientInfo = require('../lib/senders/oauth_client_info');
   const { OAuthClientInfoServiceName } = oauthClientInfo;
@@ -516,7 +515,7 @@ async function run(config) {
     Password,
     config,
     customs,
-    zendeskClient,
+    zendeskClientProvider,
     statsd,
     profile,
     stripeHelper,

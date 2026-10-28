@@ -9,6 +9,7 @@ import pRetry from 'p-retry';
 import { ConfigType } from '../../../config';
 import { AppError } from '@fxa/accounts/errors';
 import { AuthLogger, AuthRequest } from '../../types';
+import { ZendeskClientProvider } from '../../zendesk-client';
 import { handleAuth } from './utils';
 import { email } from '../validators';
 
@@ -19,7 +20,7 @@ export const supportRoutes = (
   db: any,
   config: ConfigType,
   customs: any,
-  zendeskClient: zendesk.Client
+  zendeskClientProvider: ZendeskClientProvider
 ): ServerRoute[] => {
   // Skip routes if the subscriptions feature is not configured & enabled
   if (!config.subscriptions || !config.subscriptions.enabled) {
@@ -156,8 +157,11 @@ export const supportRoutes = (
           },
         };
 
-        let operation = 'createRequest';
+        let operation = 'getClient';
         try {
+          const zendeskClient = await zendeskClientProvider.getClient();
+
+          operation = 'createRequest';
           // Note that this awkward TypeScript conversion exists because the
           // typings for this client fail to accomodate using the newer Promise
           // return type.

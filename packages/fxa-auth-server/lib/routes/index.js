@@ -16,7 +16,7 @@ module.exports = function (
   Password,
   config,
   customs,
-  zendeskClient,
+  zendeskClientProvider,
   statsd,
   profile,
   stripeHelper,
@@ -124,7 +124,7 @@ module.exports = function (
     verificationReminders,
     cadReminders,
     signupUtils,
-    zendeskClient,
+    zendeskClientProvider,
     stripeHelper,
     authServerCacheRedis,
     statsd,
@@ -214,7 +214,7 @@ module.exports = function (
     mailer,
     profile,
     stripeHelper,
-    zendeskClient
+    zendeskClientProvider
   );
   const newsletters = require('./newsletters')(log, db);
   const util = require('./util')(log, config, config.smtp.redirectDomain);
