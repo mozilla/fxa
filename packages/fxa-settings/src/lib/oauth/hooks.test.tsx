@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import AuthClient from 'fxa-auth-client/browser';
 import { useFinishOAuthFlowHandler, useOAuthKeysCheck } from './hooks';
 import { AppContext, IntegrationType } from '../../models';
@@ -287,6 +287,103 @@ describe('useFinishOAuthFlowHandler keys', () => {
 
     expect(result.error?.errno).toBe(OAUTH_ERRORS.TRY_AGAIN.errno);
     expect(authClient.createOAuthCode).not.toHaveBeenCalled();
+  });
+
+  describe('scoped-keys chunk', () => {
+    // Reloads the hook so its dynamic import resolves to `factory`; React
+    // stays shared with renderHook.
+    const renderWithScopedKeys = (
+      factory: () => unknown,
+      integration: Integration
+    ) => {
+      jest.resetModules();
+      jest.doMock('react', () => React);
+      jest.doMock('../crypto/scoped-keys', factory);
+      const hooks: typeof import('./hooks') = require('./hooks');
+      const models: typeof import('../../models') = require('../../models');
+      return renderHook(
+        () => hooks.useFinishOAuthFlowHandler(authClient, integration),
+        {
+          wrapper: ({ children }: { children: React.ReactNode }) =>
+            React.createElement(
+              models.AppContext.Provider,
+              { value: { sensitiveDataClient } as AppContextValue },
+              children
+            ),
+        }
+      ).result.current;
+    };
+
+    const loaded = jest.fn();
+    const trackedScopedKeys = () => {
+      loaded();
+      return { createEncryptedBundle };
+    };
+
+    afterEach(() => {
+      jest.resetModules();
+      jest.dontMock('react');
+      jest.doMock('../crypto/scoped-keys', () => ({ createEncryptedBundle }));
+    });
+
+    it('resolves to TRY_AGAIN when the chunk fails to load', async () => {
+      const { finishOAuthFlowHandler } = renderWithScopedKeys(() => {
+        throw new Error('Loading chunk failed');
+      }, syncIntegration());
+
+      const result = await finishOAuthFlowHandler(
+        UID,
+        'session-token',
+        undefined,
+        undefined,
+        KB_HEX
+      );
+
+      expect(result.error?.errno).toBe(OAUTH_ERRORS.TRY_AGAIN.errno);
+      expect(authClient.createOAuthCode).not.toHaveBeenCalled();
+    });
+
+    it('prefetches the chunk on mount for Sync', async () => {
+      renderWithScopedKeys(trackedScopedKeys, syncIntegration());
+      // Not loaded with the hook module, only by the mount effect.
+      expect(loaded).not.toHaveBeenCalled();
+
+      await waitFor(() => expect(loaded).toHaveBeenCalled());
+    });
+
+    it('does not prefetch the chunk without keys', async () => {
+      renderWithScopedKeys(trackedScopedKeys, webIntegration());
+      // Lets a mount-time import() start before the assertion.
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(loaded).not.toHaveBeenCalled();
+    });
+
+    it('does not prefetch the chunk for keysJwk without scoped keys', async () => {
+      renderWithScopedKeys(
+        trackedScopedKeys,
+        withData(webIntegration(), { keysJwk: 'jwk' })
+      );
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(loaded).not.toHaveBeenCalled();
+    });
+
+    it('renders and does not prefetch when wantsKeys throws', async () => {
+      const integration = {
+        ...syncIntegration(),
+        wantsKeys: () => {
+          throw new Error('Invalid redirect parameter');
+        },
+      } as unknown as Integration;
+
+      expect(() =>
+        renderWithScopedKeys(trackedScopedKeys, integration)
+      ).not.toThrow();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(loaded).not.toHaveBeenCalled();
+    });
   });
 });
 

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import AuthClient from 'fxa-auth-client/browser';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import {
   OAuthIntegration,
   isOAuthNativeIntegration,
@@ -13,7 +13,6 @@ import {
   Integration,
   useSensitiveDataClient,
 } from '../../models';
-import { createEncryptedBundle } from '../crypto/scoped-keys';
 import { Constants } from '../constants';
 import { AuthError, OAUTH_ERRORS, OAuthError } from './oauth-errors';
 import { AuthUiErrors } from '../auth-errors/auth-errors';
@@ -107,6 +106,9 @@ async function constructKeysJwe(
     );
 
     if (clientKeyData && Object.keys(clientKeyData).length > 0) {
+      // Loaded on demand: the module pulls in node-jose and node-forge, which
+      // would otherwise ship with every page that imports this hook.
+      const { createEncryptedBundle } = await import('../crypto/scoped-keys');
       const keys = await createEncryptedBundle(
         kB,
         accountUid,
@@ -227,6 +229,16 @@ export function useFinishOAuthFlowHandler(
   const isSyncOAuth = isOAuthNativeIntegrationSync(integration);
   const oAuthIntegration = isOAuthIntegration(integration) ? integration : null;
   const sensitiveDataClient = useSensitiveDataClient();
+
+  useEffect(() => {
+    // wantsKeys() can throw, so it stays out of render. A failed prefetch is
+    // fine: constructKeysJwe imports the module again.
+    try {
+      if (oAuthIntegration?.wantsKeys()) {
+        import('../crypto/scoped-keys').catch(() => {});
+      }
+    } catch {}
+  }, [oAuthIntegration]);
 
   const finishOAuthFlowHandler: FinishOAuthFlowHandler = useCallback(
     async (accountUid, sessionToken, keyFetchToken, unwrapBKey, knownKb) => {
