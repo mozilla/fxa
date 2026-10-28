@@ -1,0 +1,13 @@
+{
+  "commit": "b3c105a36ab46a1477f6f1ee7c7e9aa584b2f97c",
+  "summary": "refactor(geodb): replace fxa-geodb package with @fxa/shared/geodb",
+  "description": "Because:\n\n* The repo had two geodb implementations with the same Location class and database.\n\nThis commit:\n\n* Adds createGeoDBLookup to @fxa/shared/geodb and exports Location.\n* Moves auth-server and content-server to the lib.\n* Deletes packages/fxa-geodb and types/fxa-geodb, and updates yarn.lock.",
+  "timestamp": 1793213957000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
