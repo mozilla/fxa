@@ -686,7 +686,7 @@ flow-recovery-key-info-shield-bullet-point-v2 = Šifrujeme údaje prehliadania �
 # In the first view of the PageRecoveryKeyCreate flow, this is the second of two bullet points explaining why the user should create an account recovery key
 flow-recovery-key-info-key-bullet-point-v2 = Preto je vytvorenie kľúča na obnovenie účtu také dôležité – môžete ho použiť na obnovenie údajov.
 # The text of the "submit" button to start creating (or changing) an account recovery key
-flow-recovery-key-info-cta-text-v3 = Začíname
+flow-recovery-key-info-cta-text-v3 = Poďme na to
 # Link to cancel account recovery key change and return to settings
 flow-recovery-key-info-cancel-link = Zrušiť
 
@@ -1787,7 +1787,7 @@ pair-scan-to-download-message = Naskenujte QA kód a stiahnite si { -brand-firef
 pair-not-now-button = Teraz nie
 pair-take-your-data-message = Vezmite si svoje karty, záložky a heslá všade, kde používate { -brand-firefox }.
 # This initiates the pairing process, usually by directing the user to the `about:preferences` page in Firefox
-pair-get-started-button = Začíname
+pair-get-started-button = Poďme na to
 # This is the aria label on the QR code image
 pair-qr-code-aria-label = QR kód
 

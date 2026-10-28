@@ -1272,6 +1272,11 @@ pair-wait-for-auth-heading-text = Onarpena behar da <span>beste gailutik</span>
 
 pair-unsupported-header = Parekatzea aplikazioa erabiliz
 pair-unsupported-message = Sistemako kamera darabilzu? { -brand-firefox } aplikazio batetik parekatu behar duzu.
+pair-unsupported-oops-header = Ene! Badirudi ez darabilzula { -brand-firefox }.
+pair-unsupported-switch-to-firefox = Aldatu { -brand-firefox }(e)ra eta ireki orri hau beste gailu bat konektatzeko.
+pair-unsupported-oops-mobile = Ene! Badirudi ez darabilzula { -brand-firefox }.
+pair-unsupported-connecting-mobile-header-v2 = Zure gailu mugikorra zure { -product-mozilla-account }(r)ekin konektatzen
+pair-unsupported-connecting-mobile-instructions-v2 = Ireki { -brand-firefox } zure ordenagailuan, bisitatu <b>firefox.com/pair</b> eta jarraitu pantailako argibideei zure gailu mugikorra konektatzeko.
 pair-unsupported-learn-more-link-v2 = Argibide gehiago
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ene! Zerbait gaizki joan da.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Itxi fitxa hau eta saiatu berriz.
@@ -1293,6 +1298,7 @@ pair2-authority-download-firefox-cta = Deskargatu { -brand-firefox }
 
 
 pair2-authority-scan-qr-heading = Eskaneatu zure gailu mugikorra konektatzeko
+pair2-authority-scan-qr-instruction = Eskaneatu QR kodea zure telefono edo tabletarekin zure { -brand-firefox } laster-markak, fitxak eta gehiago sinkronizatzeko.
 pair2-authority-scan-qr-code-aria-label = Zure gailu mugikorra konektatzeko QR kodea
 pair2-authority-scan-qr-other-ways-link = Saioa hasteko beste modu batzuk
 pair2-authority-scan-qr-skip-button = Saltatu oraingoz
@@ -1303,6 +1309,7 @@ pair2-authority-sync-success-description-v2 = Sinkronizazioa lanean ari da. Denb
 pair2-authority-sync-success-sync-settings-button-v2 = Kudeatu sinkronizazio-ezarpenak
 
 
+pair2-authority-timeout-and-cancel-timeout-heading = Gailu bat konektatu nahi duzu oraindik?
 pair2-authority-timeout-and-cancel-timeout-description = Badirudi denbora-muga gainditu dugula. Saiatu berriro oraindik ere zure gailu mugikorra konektatu eta zure { -brand-firefox } datuak sinkronizatu nahi badituzu.
 pair2-authority-timeout-and-cancel-cancelled-heading = Bertan behera utzita
 pair2-authority-timeout-and-cancel-canceled-description = Iritziz aldatzen baduzu edo beste gailu bat konektatu nahi baduzu, saiatu berriro.
@@ -1345,7 +1352,9 @@ pair2-supplicant-sync-success-description-v2 = Sinkronizazioa lanean ari da. Den
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Badirudi denbora-muga gainditu dugula
+pair2-supplicant-timeout-and-cancel-timeout-description = Zure gailu mugikorra konektatu eta { -brand-firefox }(e)ko datuak sinkronizatzeko, bisitatu <b>firefox.com/pair</b> zure ordenagailuan.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Bertan behera utzita
+pair2-supplicant-timeout-and-cancel-canceled-description = Edonoiz gailu bat konektatzeko, bisitatu <b>firefox.com/pair</b> zure ordenagailuan.
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Gailuak saioa hasita du jada
 pair2-supplicant-timeout-and-cancel-signed-in-description = Mahaigaineko zure kontua lotzeko, amaitu saioa gailu honetako { -brand-firefox }(e)n, gero joan <b>firefox.com/pair</b> helbidera eta hasi saioa zure ordenagailuan.
 
@@ -1367,6 +1376,10 @@ service-welcome-signup-success-banner = { -product-mozilla-account } berretsita
 service-welcome-signin-success-banner = Saioa ondo hasi da!
 service-welcome-vpn-heading = Hurrengoa: aktibatu VPNa
 service-welcome-vpn-description = Urrats bat gehiago zure nabigatzailearen pribatutasunari bultzada emateko. Zoaz irekita dagoen panelera eta aktiba ezazu.
+
+
+set-password-heading-v2 = Sortu pasahitza sinkronizatzeko
+set-password-info-v2 = Honek zure datuak zifratzen ditu. Zure { -brand-google } edo { -brand-apple } kontuko pasahitzaren ezberdina izan behar du.
 
 
 set-password-passwordless-info = Pasahitz honek sinkronizatutako zure datuak zifratu eta seguru mantentzen ditu.
@@ -1444,6 +1457,7 @@ password-reset-recovery-method-send-code-error-description = Saiatu berriro gero
 
 reset-password-recovery-phone-flow-heading = Berrezarri pasahitza
 reset-password-recovery-phone-heading = Idatzi berreskuratze-kodea
+reset-password-recovery-phone-instruction-v3 = Sei digituko kodea bidali da <span>{ $lastFourPhoneDigits }</span>z amaitzen den telefono-zenbakira testu-mezu bidez. Kode hau 5 minuturen buruan iraungiko da. Ez partekatu kode hau inorekin.
 reset-password-recovery-phone-input-label = Idatzi 6 digituko kodea
 reset-password-recovery-phone-code-submit-button = Berretsi
 reset-password-recovery-phone-resend-code-button = Birbidali kodea
@@ -1487,6 +1501,8 @@ signin-desktop-relay = { -brand-firefox } saioa hasi ondoren posta elektronikoko
 signin-code-expired-error = Kodea iraungi da. Hasi saioa berriro mesedez.
 signin-recovery-error = Zerbait gaizki joan da. Hasi saioa berriro mesedez.
 signin-account-locked-banner-heading = Berrezarri pasahitza
+signin-account-locked-banner-description = Zure kontua blokeatu dugu jarduera susmagarritik seguru mantentzeko.
+signin-account-locked-banner-link = Berrezarri zure pasahitza saioa hasteko
 
 
 report-signin-link-damaged-body = Klik egin duzun loturak karaktereak falta ditu; agian zure posta-bezeroak hondatu du. Kopiatu helbidea kontuz eta saiatu berriro.
@@ -1503,6 +1519,7 @@ back = Atzera
 
 
 signin-passkey-fallback-header = Amaitu saio-hasiera
+signin-passkey-fallback-heading = Idatzi zure pasahitza sinkronizatzeko
 signin-passkey-fallback-password-label = Pasahitza
 signin-passkey-fallback-continue = Jarraitu
 signin-passkey-fallback-forgot-password-link = Pasahitza ahaztu duzu?

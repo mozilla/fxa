@@ -1790,6 +1790,18 @@ pair-wait-for-auth-heading-text = Onarpena behar da <span>beste gailutik</span>
 
 pair-unsupported-header = Parekatzea aplikazioa erabiliz
 pair-unsupported-message = Sistemako kamera darabilzu? { -brand-firefox } aplikazio batetik parekatu behar duzu.
+# Shown as heading when a desktop user visits from a non-Firefox browser
+pair-unsupported-oops-header = Ene! Badirudi ez darabilzula { -brand-firefox }.
+# Shown below the heading on desktop non-Firefox, prompting the user to switch browsers
+pair-unsupported-switch-to-firefox = Aldatu { -brand-firefox }(e)ra eta ireki orri hau beste gailu bat konektatzeko.
+# Shown inline on mobile non-Firefox browsers before the download link
+pair-unsupported-oops-mobile = Ene! Badirudi ez darabilzula { -brand-firefox }.
+# v2: Heading for the mobile instructional message, shown on all mobile devices
+# (Firefox and non-Firefox) when the URL is NOT a system camera pair URL.
+pair-unsupported-connecting-mobile-header-v2 = Zure gailu mugikorra zure { -product-mozilla-account }(r)ekin konektatzen
+# v2: Instructions shown below the mobile heading. `<b>` wraps the firefox.com/pair
+# URL so the domain does not wrap to a new line on narrow screens.
+pair-unsupported-connecting-mobile-instructions-v2 = Ireki { -brand-firefox } zure ordenagailuan, bisitatu <b>firefox.com/pair</b> eta jarraitu pantailako argibideei zure gailu mugikorra konektatzeko.
 # v2: "Learn more" link below the mobile instructions; links to a Mozilla support article.
 pair-unsupported-learn-more-link-v2 = Argibide gehiago
 # v2: Fallback shown to a desktop Firefox user who somehow reaches /pair/unsupported.
@@ -1837,6 +1849,8 @@ pair2-authority-download-firefox-cta = Deskargatu { -brand-firefox }
 ## their phone or tablet to connect the two devices and start syncing.
 
 pair2-authority-scan-qr-heading = Eskaneatu zure gailu mugikorra konektatzeko
+# "sync" is a verb here, referring to syncing data between the user's devices
+pair2-authority-scan-qr-instruction = Eskaneatu QR kodea zure telefono edo tabletarekin zure { -brand-firefox } laster-markak, fitxak eta gehiago sinkronizatzeko.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Zure gailu mugikorra konektatzeko QR kodea
 # Link to a support article on connecting a mobile device without scanning the QR code
@@ -1859,6 +1873,8 @@ pair2-authority-sync-success-sync-settings-button-v2 = Kudeatu sinkronizazio-eza
 ## either because it timed out or because it was canceled. Both cases offer to
 ## start pairing over again.
 
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = Gailu bat konektatu nahi duzu oraindik?
 pair2-authority-timeout-and-cancel-timeout-description = Badirudi denbora-muga gainditu dugula. Saiatu berriro oraindik ere zure gailu mugikorra konektatu eta zure { -brand-firefox } datuak sinkronizatu nahi badituzu.
 # Shown when the pairing attempt was canceled, on either device
 pair2-authority-timeout-and-cancel-cancelled-heading = Bertan behera utzita
@@ -1956,8 +1972,12 @@ pair2-supplicant-sync-success-description-v2 = Sinkronizazioa lanean ari da. Den
 
 # Shown when the pairing attempt expired before it completed. "we" is Firefox.
 pair2-supplicant-timeout-and-cancel-timeout-heading = Badirudi denbora-muga gainditu dugula
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-timeout-description = Zure gailu mugikorra konektatu eta { -brand-firefox }(e)ko datuak sinkronizatzeko, bisitatu <b>firefox.com/pair</b> zure ordenagailuan.
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Bertan behera utzita
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = Edonoiz gailu bat konektatzeko, bisitatu <b>firefox.com/pair</b> zure ordenagailuan.
 # Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Gailuak saioa hasita du jada
 # "firefox.com/pair" is a URL and should not be translated
@@ -1992,6 +2012,13 @@ service-welcome-signin-success-banner = Saioa ondo hasi da!
 # In this context, "VPN" is a VPN service built into the Firefox browser, and generally isn't localized differently than "VPN"
 service-welcome-vpn-heading = Hurrengoa: aktibatu VPNa
 service-welcome-vpn-description = Urrats bat gehiago zure nabigatzailearen pribatutasunari bultzada emateko. Zoaz irekita dagoen panelera eta aktiba ezazu.
+
+## SetPassword page
+## Third party auth users that do not have a password set yet are prompted for a
+
+set-password-heading-v2 = Sortu pasahitza sinkronizatzeko
+# "This" refers to the heading, "Create password to sync"
+set-password-info-v2 = Honek zure datuak zifratzen ditu. Zure { -brand-google } edo { -brand-apple } kontuko pasahitzaren ezberdina izan behar du.
 
 ## SetPassword page for passwordless flow
 ## Users who signed in via passwordless OTP and need to create a password for Sync
@@ -2114,6 +2141,9 @@ password-reset-recovery-method-send-code-error-description = Saiatu berriro gero
 reset-password-recovery-phone-flow-heading = Berrezarri pasahitza
 # A recovery code in context of this page is a one time code sent to the user's phone
 reset-password-recovery-phone-heading = Idatzi berreskuratze-kodea
+# Text that explains the user should check their phone for a recovery code
+# $maskedPhoneNumber - The users masked phone number
+reset-password-recovery-phone-instruction-v3 = Sei digituko kodea bidali da <span>{ $lastFourPhoneDigits }</span>z amaitzen den telefono-zenbakira testu-mezu bidez. Kode hau 5 minuturen buruan iraungiko da. Ez partekatu kode hau inorekin.
 reset-password-recovery-phone-input-label = Idatzi 6 digituko kodea
 reset-password-recovery-phone-code-submit-button = Berretsi
 reset-password-recovery-phone-resend-code-button = Birbidali kodea
@@ -2174,6 +2204,9 @@ signin-code-expired-error = Kodea iraungi da. Hasi saioa berriro mesedez.
 # Error message displayed when OAuth native flow recovery fails
 signin-recovery-error = Zerbait gaizki joan da. Hasi saioa berriro mesedez.
 signin-account-locked-banner-heading = Berrezarri pasahitza
+signin-account-locked-banner-description = Zure kontua blokeatu dugu jarduera susmagarritik seguru mantentzeko.
+# This link points to https://accounts.firefox.com/reset_password
+signin-account-locked-banner-link = Berrezarri zure pasahitza saioa hasteko
 
 ## ReportSignin Page
 ## When users receive an "Is this you signing in?" email with an unblock code,
@@ -2198,6 +2231,7 @@ back = Atzera
 ## Users who authenticate with a passkey to access Sync must also enter their password.
 
 signin-passkey-fallback-header = Amaitu saio-hasiera
+signin-passkey-fallback-heading = Idatzi zure pasahitza sinkronizatzeko
 signin-passkey-fallback-password-label = Pasahitza
 signin-passkey-fallback-continue = Jarraitu
 signin-passkey-fallback-forgot-password-link = Pasahitza ahaztu duzu?
