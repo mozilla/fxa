@@ -99,8 +99,8 @@ import {
 } from '@fxa/profile/client';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 
-jest.mock('@fxa/shared/error', () => ({
-  ...jest.requireActual('@fxa/shared/error'),
+jest.mock('@fxa/shared/error/sanitize-exceptions', () => ({
+  ...jest.requireActual('@fxa/shared/error/sanitize-exceptions'),
   SanitizeExceptions: jest.fn(() => {
     return function (_: any, __: string, descriptor: PropertyDescriptor) {
       return descriptor;
