@@ -2219,6 +2219,13 @@ reset-password-complete-new-password-saved = Nova palavra-passe guardada!
 reset-password-complete-recovery-key-created = Nova chave de recuperação da conta criada. Transferir e guardar agora.
 reset-password-complete-recovery-key-download-info = Esta chave é essencial para a recuperação dos dados, caso se esqueça da sua palavra-passe. <b>Faça a transferência e guarde a mesma em segurança agora, pois não poderá aceder novamente a esta página mais tarde.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Erro 500
+server-error-description = Oh não, algo correu mal aqui. Nós fomos notificados e iremos trabalhar numa correção.
+server-error-home-button = Início
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin
