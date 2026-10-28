@@ -43,6 +43,8 @@ git merge-base --is-ancestor <commit> "$(git tag --list 'v1.*.0' --sort=-v:refna
 
 If it fails, the contract step is too early.
 
+This assumes the migration deploys with its train. If it deploys ahead of the train, check against the tag running in production instead (`/__version__`).
+
 ## Data compatibility
 
 Rows outlive a rollback, and during a deploy old and new code run side by side. So:
