@@ -32,6 +32,9 @@ const validateQuery = (query: RateLimitQuery): boolean => {
   return Boolean(query.ip || query.email || query.uid);
 };
 
+const VALIDATION_MESSAGE =
+  'Please enter at least one of: IP address, email, or UID';
+
 export const PageRateLimiting = () => {
   const { register, handleSubmit, reset, getValues } =
     useForm<RateLimitSearchState>({
@@ -42,6 +45,11 @@ export const PageRateLimiting = () => {
       },
     });
   const [showResults, setShowResults] = useState<boolean>(false);
+  const [clearing, setClearing] = useState<boolean>(false);
+  const [status, setStatus] = useState<{
+    isError: boolean;
+    message: string;
+  }>();
 
   const [rateLimitsState, setRateLimitsState] = useState<{
     loading: boolean;
@@ -61,9 +69,10 @@ export const PageRateLimiting = () => {
 
   const onSubmit = (data: RateLimitSearchState) => {
     const variables = createRateLimitQuery(data);
+    setStatus(undefined);
 
     if (!validateQuery(variables)) {
-      window.alert('Please enter at least one of: IP address, email, or UID');
+      setStatus({ isError: true, message: VALIDATION_MESSAGE });
       return;
     }
 
@@ -77,25 +86,35 @@ export const PageRateLimiting = () => {
   const handleClear = async () => {
     const values = getValues();
     const variables = createRateLimitQuery(values);
+    setStatus(undefined);
 
     if (!validateQuery(variables)) {
-      window.alert('Please enter at least one of: IP address, email, or UID');
+      setStatus({ isError: true, message: VALIDATION_MESSAGE });
       return;
     }
 
+    setClearing(true);
     try {
       const count = await adminApi.clearRateLimits(variables);
-      window.alert(`Successfully cleared ${count} rate limit record(s)`);
-      // Refetch after clear
-      await fetchRateLimits(variables);
+      setStatus({
+        isError: false,
+        message: `Successfully cleared ${count} rate limit record(s)`,
+      });
     } catch (error) {
-      window.alert(
-        `Failed to clear: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
+      setStatus({
+        isError: true,
+        message: `Failed to clear: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      });
+      return;
     } finally {
+      setClearing(false);
       // keep form values after submit
       reset(values);
     }
+
+    setShowResults(true);
+    // Refetch after clear
+    fetchRateLimits(variables);
   };
 
   const SearchField = ({
@@ -120,7 +139,7 @@ export const PageRateLimiting = () => {
           type={type}
           placeholder={label}
           className="bg-grey-50 rounded w-full py-2 px-3 placeholder-grey-500"
-          {...register(id)}
+          {...register(id, { onChange: () => setStatus(undefined) })}
         />
       </div>
     );
@@ -137,15 +156,17 @@ export const PageRateLimiting = () => {
 
       <form onSubmit={handleSubmit(onSubmit)} className="mt-5">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <SearchField id="ip" label="IP Address" />
-          <SearchField id="email" label="Email" type="email" />
-          <SearchField id="uid" label="UID" />
+          {/* Plain calls, so a status change does not remount the inputs */}
+          {SearchField({ id: 'ip', label: 'IP Address' })}
+          {SearchField({ id: 'email', label: 'Email', type: 'email' })}
+          {SearchField({ id: 'uid', label: 'UID' })}
         </div>
 
         <div className="flex gap-3">
           <button
             type="submit"
-            className="bg-grey-100 hover:bg-grey-200 text-black px-4 py-2 rounded flex items-center gap-2"
+            disabled={clearing}
+            className="bg-grey-100 hover:bg-grey-200 text-black px-4 py-2 rounded flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <img className="w-4 h-4" src={iconSearch} alt="search icon" />
             Search Rate Limits
@@ -154,12 +175,22 @@ export const PageRateLimiting = () => {
           <button
             type="button"
             onClick={handleClear}
-            className="bg-red-100 hover:bg-red-200 text-black px-4 py-2 rounded"
+            disabled={clearing}
+            className="bg-red-100 hover:bg-red-200 text-black px-4 py-2 rounded disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Clear Rate Limits
+            {clearing ? 'Clearing...' : 'Clear Rate Limits'}
           </button>
         </div>
       </form>
+
+      {status && (
+        <p
+          role={status.isError ? 'alert' : 'status'}
+          className={`mt-4 ${status.isError ? 'text-red-700' : 'text-green-900'}`}
+        >
+          {status.message}
+        </p>
+      )}
 
       {showResults && <RateLimitResults rateLimitsResult={rateLimitsState} />}
     </div>
