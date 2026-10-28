@@ -1,6 +1,0 @@
-postSigninRecoveryPhone-subject = Recovery phone used to sign in
-postSigninRecoveryPhone-preview = Confirm account activity
-postSigninRecoveryPhone-title = Your recovery phone was used to sign in
-postSigninRecoveryPhone-description = If you didn’t do this, you should change your password immediately to keep your account safe.
-postSigninRecoveryPhone-device = You signed in from:
-postSigninRecoveryPhone-action = Manage account
