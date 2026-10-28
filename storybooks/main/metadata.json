@@ -1,8 +1,8 @@
 {
-  "commit": "65aa200c1b332f9af2ef89634b5bbfb80930689b",
-  "summary": "Merge pull request #21626 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-a5171b4fcb5312f60086175cb9936d40f98573af",
-  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from be3b7045116c551c9ff87b57348ceb0a2c928d43 to a5171b4fcb5312f60086175cb9936d40f98573af",
-  "timestamp": 1793196476000,
+  "commit": "0e503bc8c58ee8659dc31adc2649c47399d9dc6e",
+  "summary": "Merge pull request #21625 from mozilla/dependabot/github_actions/codeql-action-60a275eb76",
+  "description": "chore(deps): bump the codeql-action group with 3 updates",
+  "timestamp": 1793196511000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
