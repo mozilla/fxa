@@ -20,6 +20,8 @@ const JUNIT_OUTPUT_NAME = process.env.CIRCLE_NODE_INDEX
 // The DEBUG env is used to debug without the playwright inspector, like in vscode
 // see .vscode/launch.json
 const DEBUG = !!process.env.DEBUG;
+// Opt in to the local-perf project, so a bare run skips it.
+const PERF = !!process.env.PERF;
 const SLOWMO = parseInt(process.env.PLAYWRIGHT_SLOWMO || '0');
 const NUM_WORKERS = parseInt(process.env.PLAYWRIGHT_WORKERS || '4');
 const FAIL_FAST = !!process.env.PLAYWRIGHT_FAIL_FAST || true;
@@ -114,6 +116,20 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
           },
         }) as Project
     ),
+    ...(PERF
+      ? [
+          {
+            name: 'local-perf',
+            testDir: 'tests-perf',
+            retries: 0,
+            use: {
+              browserName: 'chromium',
+              targetName: 'local',
+              launchOptions: { headless: !DEBUG },
+            },
+          } as Project,
+        ]
+      : []),
   ],
   reporter: CI
     ? [
