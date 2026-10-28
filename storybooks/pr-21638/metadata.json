@@ -1,0 +1,10 @@
+{
+  "commit": "8f733f8b34b22d80e22461173d04064a27c647cd",
+  "summary": "perf(settings): lazy-load scoped-keys in the OAuth finish hook",
+  "description": "Because:\n\n- The OAuth finish hook imported scoped-keys statically, so node-jose and\n  node-forge shipped with every page that imports the hook.\n\nThis commit:\n\n- Loads createEncryptedBundle with a dynamic import in constructKeysJwe.\n- Prefetches the module on mount for Sync and for OAuth with keysJwk.\n- Adds tests for a chunk-load failure (TRY_AGAIN) and for the prefetch.\n\nCloses FXA-14854",
+  "timestamp": 1793217619000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
