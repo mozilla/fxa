@@ -168,6 +168,7 @@ const SigninPasskeyFallbackContainer = ({
   );
 
   const missingSigninState = !sessionToken || !email || !uid;
+  const cmsInfo = integration.getCmsInfo();
 
   useEffect(() => {
     if (!oAuthDataError && missingSigninState) {
@@ -180,7 +181,7 @@ const SigninPasskeyFallbackContainer = ({
   }
 
   if (missingSigninState) {
-    return <AppLayout loading />;
+    return <AppLayout loading cmsInfo={cmsInfo} />;
   }
 
   return (
@@ -191,6 +192,7 @@ const SigninPasskeyFallbackContainer = ({
         avatarData,
         avatarLoading,
         passkeySurface,
+        cmsInfo,
       }}
     />
   );

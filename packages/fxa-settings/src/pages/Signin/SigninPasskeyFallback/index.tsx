@@ -9,6 +9,7 @@ import { Link, useLocation } from 'react-router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppLayout from '../../../components/AppLayout';
+import CmsButtonWithFallback from '../../../components/CmsButtonWithFallback';
 import Avatar from '../../../components/Settings/Avatar';
 import { Banner } from '../../../components/Banner';
 import InputPassword from '../../../components/InputPassword';
@@ -17,7 +18,7 @@ import { useGleanView } from '../../../lib/glean/useGleanView';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { AccountAvatar } from '../../../lib/interfaces';
 import { PasskeyMetricsSurface } from '../../../lib/passkeys/signin-flow';
-import { useFtlMsgResolver } from '../../../models';
+import { RelierCmsInfo, useFtlMsgResolver } from '../../../models';
 
 export type SigninPasskeyFallbackContinueError = {
   errno?: number;
@@ -32,6 +33,7 @@ export type SigninPasskeyFallbackProps = {
   avatarData?: { account: { avatar: AccountAvatar } };
   avatarLoading?: boolean;
   passkeySurface?: PasskeyMetricsSurface;
+  cmsInfo?: RelierCmsInfo;
 };
 
 type FormData = {
@@ -46,6 +48,7 @@ const SigninPasskeyFallback = ({
   avatarData,
   avatarLoading,
   passkeySurface = 'emailfirst',
+  cmsInfo,
 }: SigninPasskeyFallbackProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const [passwordTooltipErrorText, setPasswordTooltipErrorText] = useState('');
@@ -120,7 +123,7 @@ const SigninPasskeyFallback = ({
   );
 
   return (
-    <AppLayout>
+    <AppLayout cmsInfo={cmsInfo}>
       {bannerErrorText && (
         <Banner type="error" content={{ localizedHeading: bannerErrorText }} />
       )}
@@ -184,14 +187,15 @@ const SigninPasskeyFallback = ({
         </FtlMsg>
 
         <FtlMsg id="signin-passkey-fallback-continue">
-          <button
+          <CmsButtonWithFallback
             type="submit"
-            className="cta-primary cta-xl w-full"
+            className="w-full"
             data-testid="continue-button"
             disabled={isSubmitting || !!passwordTooltipErrorText}
+            buttonColor={cmsInfo?.shared.buttonColor}
           >
             Continue
-          </button>
+          </CmsButtonWithFallback>
         </FtlMsg>
       </form>
 
