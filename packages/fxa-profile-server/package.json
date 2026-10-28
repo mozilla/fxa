@@ -29,7 +29,7 @@
     "convict-format-with-validator": "^6.2.0",
     "joi": "^17.13.8",
     "mozlog": "^3.0.2",
-    "mysql": "^2.18.1",
+    "mysql2": "^3.23.1",
     "poolee": "^1.0.1",
     "sharp": "^0.35.5",
     "stream-to-array": "2.3.0",

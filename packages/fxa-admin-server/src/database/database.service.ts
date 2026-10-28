@@ -10,7 +10,10 @@ import {
   mergeCachedSessionTokens,
   mergeDevicesAndSessionTokens,
 } from '@fxa/accounts/connected-services';
-import { monitorKnexConnectionPool } from '@fxa/shared/db/mysql/legacy';
+import {
+  monitorKnexConnectionPool,
+  mysqlConnectionOptions,
+} from '@fxa/shared/db/mysql/legacy';
 import {
   Account,
   BaseAuthModel,
@@ -87,19 +90,19 @@ export class DatabaseService implements OnModuleDestroy {
     this.knex = knex({
       connection: {
         typeCast: typeCasting,
-        ...dbConfig.fxa,
+        ...mysqlConnectionOptions(dbConfig.fxa),
         charset: 'UTF8MB4_BIN',
       },
-      client: 'mysql',
+      client: 'mysql2',
     });
 
     this.knexOauth = knex({
       connection: {
         typeCast: typeCasting,
-        ...dbConfig.fxa_oauth,
+        ...mysqlConnectionOptions(dbConfig.fxa_oauth),
         charset: 'UTF8MB4_BIN',
       },
-      client: 'mysql',
+      client: 'mysql2',
     });
 
     monitorKnexConnectionPool(this.knex.client.pool, metrics);

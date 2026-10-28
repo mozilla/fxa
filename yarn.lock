@@ -19373,7 +19373,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mysql@npm:2.15.27, @types/mysql@npm:^2":
+"@types/mysql@npm:2.15.27":
   version: 2.15.27
   resolution: "@types/mysql@npm:2.15.27"
   dependencies:
@@ -23322,13 +23322,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bignumber.js@npm:9.0.0":
-  version: 9.0.0
-  resolution: "bignumber.js@npm:9.0.0"
-  checksum: 10c0/a760979ca822533ad7a437a45bcac66c191554a407092baa4991e068fd4af7344ff52d9e82e0574946c831690de706cf86fbc80775b5ebc6e59c2eef7325172c
-  languageName: node
-  linkType: hard
-
 "bignumber.js@npm:^9.0.0":
   version: 9.3.0
   resolution: "bignumber.js@npm:9.3.0"
@@ -26488,7 +26481,7 @@ __metadata:
   resolution: "db-migrations@workspace:packages/db-migrations"
   dependencies:
     convict: "npm:^6.2.5"
-    mysql: "npm:^2.18.1"
+    mysql2: "npm:^3.23.1"
   bin:
     db-migrations: ./bin/patcher.mjs
   languageName: unknown
@@ -30982,7 +30975,7 @@ __metadata:
     moment: "npm:^2.31.0"
     moment-timezone: "npm:^0.5.35"
     mozlog: "npm:^3.0.2"
-    mysql: "npm:^2.18.1"
+    mysql2: "npm:^3.23.1"
     nock: "npm:^13.5.1"
     node-zendesk: "npm:^2.2.0"
     nodemailer: "npm:^10.1.4"
@@ -31185,7 +31178,7 @@ __metadata:
     jest-junit: "npm:^16.0.0"
     joi: "npm:^17.13.8"
     mozlog: "npm:^3.0.2"
-    mysql: "npm:^2.18.1"
+    mysql2: "npm:^3.23.1"
     pm2: "npm:^7.0.0"
     pngparse: "npm:2.0.1"
     poolee: "npm:^1.0.1"
@@ -31461,7 +31454,6 @@ __metadata:
     "@types/jsonwebtoken": "npm:8.5.1"
     "@types/mjml-browser": "npm:^4.15.0"
     "@types/module-alias": "npm:^2"
-    "@types/mysql": "npm:^2"
     "@types/node": "npm:^22.13.5"
     "@types/nodemailer": "npm:^7.0.4"
     "@types/passport": "npm:^1.0.6"
@@ -31540,7 +31532,6 @@ __metadata:
     module-alias: "npm:^2.2.3"
     moment: "npm:^2.31.0"
     mozlog: "npm:^3.0.2"
-    mysql: "npm:^2.18.1"
     mysql2: "npm:^3.23.1"
     nest-typed-config: "npm:^2.9.2"
     nest-winston: "npm:^1.10.0"
@@ -40122,18 +40113,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mysql@npm:^2.18.1":
-  version: 2.18.1
-  resolution: "mysql@npm:2.18.1"
-  dependencies:
-    bignumber.js: "npm:9.0.0"
-    readable-stream: "npm:2.3.7"
-    safe-buffer: "npm:5.1.2"
-    sqlstring: "npm:2.3.1"
-  checksum: 10c0/146aee0fde379e222b0a66194f61e5761123123f48729785c862e18b46531fe29bf96174ee991216f8fb49bbd278defec79bd5e6265c30af7a65a60a5e53321d
-  languageName: node
-  linkType: hard
-
 "mz@npm:^2.7.0":
   version: 2.7.0
   resolution: "mz@npm:2.7.0"
@@ -45146,21 +45125,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"readable-stream@npm:2.3.7":
-  version: 2.3.7
-  resolution: "readable-stream@npm:2.3.7"
-  dependencies:
-    core-util-is: "npm:~1.0.0"
-    inherits: "npm:~2.0.3"
-    isarray: "npm:~1.0.0"
-    process-nextick-args: "npm:~2.0.0"
-    safe-buffer: "npm:~5.1.1"
-    string_decoder: "npm:~1.1.1"
-    util-deprecate: "npm:~1.0.1"
-  checksum: 10c0/1708755e6cf9daff6ff60fa5b4575636472289c5b95d38058a91f94732b8d024a940a0d4d955639195ce42c22cab16973ee8fea8deedd24b5fec3dd596465f86
-  languageName: node
-  linkType: hard
-
 "readable-stream@npm:3.6.2, readable-stream@npm:^3.0.2, readable-stream@npm:^3.0.6, readable-stream@npm:^3.1.1, readable-stream@npm:^3.4.0, readable-stream@npm:^3.5.0, readable-stream@npm:^3.6.0, readable-stream@npm:^3.6.2":
   version: 3.6.2
   resolution: "readable-stream@npm:3.6.2"
@@ -47792,13 +47756,6 @@ __metadata:
   version: 1.5.2
   resolution: "sql-escaper@npm:1.5.2"
   checksum: 10c0/44a3dec22687b25b4f2866dbf736dbf85397475ab0ece65e0e0cd7da002cd1e9c8e45325e0e64c373278a77e23aa734f8b168e3a0b08dd824ab6675b77895aa1
-  languageName: node
-  linkType: hard
-
-"sqlstring@npm:2.3.1":
-  version: 2.3.1
-  resolution: "sqlstring@npm:2.3.1"
-  checksum: 10c0/8c188effb480ca810f5a2c74deb034b99f5831aa1acfb372fab7029172e0e1f5add19195ad82416d3fd88a0646317a4d15a31e012d7b02da20f5e7e173deee24
   languageName: node
   linkType: hard
 

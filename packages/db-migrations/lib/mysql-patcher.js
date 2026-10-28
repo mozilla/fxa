@@ -55,9 +55,16 @@ function Patcher(options) {
 }
 
 Patcher.prototype.connect = async function connect() {
-  const { database, ...opts } = this.options;
+  const { database, host, port, user, password, multipleStatements } =
+    this.options;
 
-  const rawConn = this.options.mysql.createConnection(opts);
+  const rawConn = this.options.mysql.createConnection({
+    host,
+    port,
+    user,
+    password,
+    multipleStatements,
+  });
   this.connection = promisifyConnection(rawConn);
 
   try {

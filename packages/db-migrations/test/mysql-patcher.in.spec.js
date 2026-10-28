@@ -5,7 +5,7 @@
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import mysql from 'mysql';
+import mysql from 'mysql2';
 import Patcher from '../lib/mysql-patcher.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
