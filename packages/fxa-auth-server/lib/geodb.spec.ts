@@ -2,9 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import path from 'path';
+
 // `./geodb` captures the config object by reference at module load, so
 // per-test variation must mutate properties, not reassign the variable.
-const geodbConfig: { enabled: boolean; locationOverride: any } = {
+const geodbConfig: {
+  dbPath: string;
+  enabled: boolean;
+  locationOverride: any;
+} = {
+  dbPath: path.resolve(
+    __dirname,
+    '../../../libs/shared/geodb/db/cities-db.mmdb'
+  ),
   enabled: true,
   locationOverride: {},
 };

@@ -166,7 +166,10 @@ const convictConf = convict({
   geodb: {
     dbPath: {
       doc: 'Path to the maxmind database file',
-      default: require.resolve('fxa-geodb/db/cities-db.mmdb'),
+      default: path.resolve(
+        __dirname,
+        '../../../libs/shared/geodb/db/cities-db.mmdb'
+      ),
       env: 'GEODB_DBPATH',
       format: String,
     },
