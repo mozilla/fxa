@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 8f733f8b34b22d80e22461173d04064a27c647cd</title>
+  <title>Storybooks for commit 085cdf45779240547d73b2487da5780b30736c02</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,26 +23,24 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 8f733f8b34b22d80e22461173d04064a27c647cd</h1>
+  <h1>Storybooks for commit 085cdf45779240547d73b2487da5780b30736c02</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/28/2026, 8:00:19 PM UTC</dd>
+    <dd>10/28/2026, 8:32:26 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>perf(settings): lazy-load scoped-keys in the OAuth finish hook</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- The OAuth finish hook imported scoped-keys statically, so node-jose and
-  node-forge shipped with every page that imports the hook.
+- The mount prefetch of the scoped-keys chunk also ran for Sync flows without keysJwk, which never build a keys JWE.
 
 This commit:
 
-- Loads createEncryptedBundle with a dynamic import in constructKeysJwe.
-- Prefetches the module on mount for Sync and for OAuth with keysJwk.
-- Adds tests for a chunk-load failure (TRY_AGAIN) and for the prefetch.
+- Gates the prefetch in useFinishOAuthFlowHandler on keysJwk only.
+- Adds a test that a Sync integration without keysJwk does not prefetch the chunk.
 
 Closes FXA-14854</pre></dd>
   </dl>
