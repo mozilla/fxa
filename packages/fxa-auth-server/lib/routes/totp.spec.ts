@@ -359,6 +359,12 @@ describe('totp', () => {
 
         // correct emails sent
         expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
+        expect(authServerCacheRedis.set).toHaveBeenCalledWith(
+          'newDeviceEmailSent:id',
+          '1',
+          'EX',
+          3600
+        );
         expect(
           fxaMailer.sendPostAddTwoStepAuthenticationEmail
         ).toHaveBeenCalledTimes(0);
@@ -438,6 +444,12 @@ describe('totp', () => {
 
         // correct emails sent
         expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
+        expect(authServerCacheRedis.set).toHaveBeenCalledWith(
+          'newDeviceEmailSent:id',
+          '1',
+          'EX',
+          3600
+        );
         expect(
           fxaMailer.sendPostAddTwoStepAuthenticationEmail
         ).toHaveBeenCalledTimes(0);

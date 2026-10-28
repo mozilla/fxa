@@ -14,9 +14,7 @@ const crypto = require('crypto');
 const { getRoute } = require('../../test/routes_helpers');
 const knownIpLocation = require('../../test/known-ip-location');
 const mocks = require('../../test/mocks');
-const {
-  computeSessionTokenHandle,
-} = require('./utils/session-token-handle');
+const { computeSessionTokenHandle } = require('./utils/session-token-handle');
 const { AppError: error } = require('@fxa/accounts/errors');
 const otplib = require('otplib');
 const gleanMock = mocks.mockGlean();
@@ -97,7 +95,8 @@ function makeRoutes(options: any = {}) {
     push,
     customs,
     glean,
-    statsd
+    statsd,
+    options.authServerCacheRedis
   );
 }
 
@@ -987,10 +986,12 @@ describe('/session/verify_code', () => {
     push: any,
     customs: any,
     cadReminders: any,
-    expectedCode: any;
+    expectedCode: any,
+    authServerCacheRedis: any;
 
   function setup(options: any = {}) {
     db = mocks.mockDB({ ...signupCodeAccount, ...options });
+    authServerCacheRedis = { set: jest.fn().mockResolvedValue('OK') };
     log = createMock<AuthLogger>();
     mailer = mocks.mockMailer();
     fxaMailer = installMockFxaMailer();
@@ -1012,6 +1013,7 @@ describe('/session/verify_code', () => {
       cadReminders,
       gleanMock,
       statsd,
+      authServerCacheRedis,
     });
     route = getRoute(routes, '/session/verify_code');
 
@@ -1097,6 +1099,12 @@ describe('/session/verify_code', () => {
     expect(args[1].uid).toBe(signupCodeAccount.uid);
     expect(gleanMock.login.verifyCodeConfirmed).toHaveBeenCalledTimes(1);
     expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
+    expect(authServerCacheRedis.set).toHaveBeenCalledWith(
+      'newDeviceEmailSent:sessionTokenId',
+      '1',
+      'EX',
+      3600
+    );
   });
 
   it('should succeed even if push notification fails', async () => {

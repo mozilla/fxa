@@ -16,6 +16,7 @@ const { recordSecurityEvent } = require('./utils/security-event');
 const { platformFromOS } = require('@fxa/shared/user-agent');
 const { getOptionalCmsEmailConfig } = require('./utils/account');
 const { computeSessionTokenHandle } = require('./utils/session-token-handle');
+const { markNewDeviceEmailSent } = require('./utils/new-device-email-sent');
 const { Container } = require('typedi');
 const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
 const authMethods = require('../authMethods');
@@ -35,7 +36,8 @@ module.exports = function (
   push,
   customs,
   glean,
-  statsd
+  statsd,
+  authServerCacheRedis
 ) {
   const otpUtils = require('./utils/otp').default(db, statsd);
   const sessionTokenHandleKey = config.sessionTokenHandle.key;
@@ -579,6 +581,11 @@ module.exports = function (
               clientName: clientInfo.name,
               showBannerWarning: false,
             });
+            await markNewDeviceEmailSent(
+              authServerCacheRedis,
+              log,
+              sessionToken.id
+            );
           } catch (err) {
             log.trace('Session.verify_code.sendNewDeviceLoginEmail.error', {
               error: err,

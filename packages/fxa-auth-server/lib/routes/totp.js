@@ -21,6 +21,7 @@ const {
 } = require('@fxa/accounts/recovery-phone');
 const { BackupCodeManager } = require('@fxa/accounts/two-factor');
 const { recordSecurityEvent } = require('./utils/security-event');
+const { markNewDeviceEmailSent } = require('./utils/new-device-email-sent');
 const { FxaMailer } = require('../senders/fxa-mailer');
 const { FxaMailerFormat } = require('../senders/fxa-mailer-format');
 const { OAuthClientInfoServiceName } = require('../senders/oauth_client_info');
@@ -1011,7 +1012,7 @@ module.exports = (
           const service = request.payload.service || request.query.service;
 
           const clientInfo = await oauthClientInfoService.fetch(service);
-          return await fxaMailer.sendNewDeviceLoginEmail({
+          await fxaMailer.sendNewDeviceLoginEmail({
             ...FxaMailerFormat.account(account),
             ...FxaMailerFormat.device(request),
             ...FxaMailerFormat.localTime(request),
@@ -1021,6 +1022,11 @@ module.exports = (
             clientName: clientInfo.name,
             showBannerWarning: false,
           });
+          await markNewDeviceEmailSent(
+            authServerCacheRedis,
+            log,
+            sessionToken.id
+          );
         }
       },
     },
