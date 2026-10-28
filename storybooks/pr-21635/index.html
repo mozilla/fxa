@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit f17a65e2d9d9725cd3eaeaeec0e5fb08f5f67766</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit f17a65e2d9d9725cd3eaeaeec0e5fb08f5f67766</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/28/2026, 7:26:13 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(settings): add per-route bundle size report with a budget</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* No tool turns the webpack stats.json into a size for each lazy route,
+  so a bundle size regression ships without notice.
+
+This commit:
+
+* Adds scripts/bundle-report.js, which prints raw and Brotli JS size
+  and node-jose use for each lazy route from build/prod/stats.json
+* Warns, and exits 0, when a route is more than 5% over its budget
+* Adds scripts/bundle-budget.json with the FXA-14803 Brotli budgets
+* Adds a node:test spec for the route and budget rules
+
+Closes FXA-14862</pre></dd>
+  </dl>
+</body>
+</html>
