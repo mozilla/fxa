@@ -33,6 +33,9 @@ const HASHED_ASSET_MAP = {
   'locales/en/offline.ftl': 'locales/en/offline.0f0f0f.ftl',
 };
 
+const FETCH_LIST_BASE_DIR = '/fetch-list';
+const FETCH_LIST_LOCALES = ['en', 'en-GB', 'en-CA', 'de'];
+
 describe('<AppLocalizationProvider/>', () => {
   const locales = ['en-GB', 'en-CA', 'es-ES'];
   const bundles = ['greetings', 'farewells'];
@@ -129,6 +132,13 @@ describe('<AppLocalizationProvider/>', () => {
     fetchMock.get(`${HASHED_BASE_DIR}/locales/en/offline.0f0f0f.ftl`, {
       throws: new TypeError('Load failed'),
     });
+
+    for (const locale of FETCH_LIST_LOCALES) {
+      fetchMock.get(
+        `${FETCH_LIST_BASE_DIR}/locales/${locale}/main.ftl`,
+        `hello = Hello ${locale}\n`
+      );
+    }
 
     fetchMock.get('*', { throws: new Error() });
   });
@@ -311,6 +321,38 @@ describe('<AppLocalizationProvider/>', () => {
     await waitUntilTranslated();
 
     expect(getByTestId('result')).toHaveTextContent('Hello ⁨$US123.00⁩');
+  });
+
+  describe('fetch list', () => {
+    beforeEach(() => {
+      removeL10nAssetMap();
+      fetchMock.resetHistory();
+    });
+
+    it.each([
+      ['en-US', ['en']],
+      ['en-GB', ['en-GB', 'en']],
+      ['de', ['de', 'en']],
+    ])('fetches only the %s best locale and en', async (locale, expected) => {
+      render(
+        <AppLocalizationProvider
+          baseDir={FETCH_LIST_BASE_DIR}
+          userLocales={[locale]}
+        />
+      );
+      await waitUntilTranslated();
+
+      expect(
+        fetchMock
+          .calls()
+          .map(([url]) => url)
+          .sort()
+      ).toEqual(
+        expected
+          .map((l) => `${FETCH_LIST_BASE_DIR}/locales/${l}/main.ftl`)
+          .sort()
+      );
+    });
   });
 
   describe('reportBundleError', () => {
