@@ -78,8 +78,10 @@ const PASSKEY_AUTHENTICATION_START_POST = {
 
       **Request body:**
       - \`keysRequired\` (boolean, optional) — hint for the keys-required PRF scope
-      - \`scope\` (string, optional) — an MFA action from \`config.mfa.actions\`. Stored
-        on the challenge, so \`/finish\` returns an \`mfa:<scope>\` token for it.
+
+      The caller picks no scope. The challenge is committed to \`passkey:wraps\`,
+      the one action a passkey ceremony can authorize, so \`/finish\` returns an
+      \`mfa:passkey:wraps\` token and nothing broader.
     `,
   ],
 };
@@ -108,8 +110,9 @@ const PASSKEY_AUTHENTICATION_FINISH_POST = {
         the server defers its login notifications/metrics until keys are available.
 
       **Response:** \`uid\`, \`sessionToken\`, \`verified\`, \`hasPassword\`, and
-      \`mfaToken\` when \`/start\` was given a \`scope\`. The token carries that scope
-      and the credential that signed the assertion.
+      \`mfaToken\` with scope \`mfa:passkey:wraps\`, bound to the new session and
+      the credential that signed the assertion. It opens only the
+      \`/passkey/wraps\` routes.
 
       **Security event:** \`account.passkey.authentication_success\` recorded on success.
     `,
@@ -130,10 +133,11 @@ const PASSKEY_VERIFICATION_START_POST = {
       only proves the user is present with a registered passkey.
 
       **Request body:**
-      - \`scope\` (string, required) - an MFA action from \`config.mfa.actions\`.
-        Stored on the challenge, so \`/finish\` mints an \`mfa:<scope>\` token for it.
       - \`credentialId\` (string, optional) - pins the ceremony to one of the
         account's passkeys.
+
+      The caller picks no scope. The challenge is committed to \`passkey:wraps\`,
+      so \`/finish\` mints an \`mfa:passkey:wraps\` token and nothing broader.
     `,
   ],
 };
@@ -152,9 +156,9 @@ const PASSKEY_VERIFICATION_FINISH_POST = {
       - \`response\` (object, required) - AuthenticationResponseJSON from the browser
       - \`challenge\` (string, required) - challenge from the start endpoint
 
-      **Response:** \`mfaToken\`, whose claims carry the scope the challenge
-      was created with (\`mfa:<scope>\`), the caller's session (\`stid\`), and
-      the credential that signed the assertion (\`cid\`).
+      **Response:** \`mfaToken\`, whose claims carry the scope
+      \`mfa:passkey:wraps\`, the caller's session (\`stid\`), and the credential
+      that signed the assertion (\`cid\`).
 
       **Security events:** \`account.passkey.verification_success\` or
       \`account.passkey.verification_failure\`.
@@ -241,7 +245,7 @@ const PASSKEYS_API_DOCS = {
     description: '/passkey/wraps',
     notes: [
       swaggerText`
-        🔒 Authenticated with MFA JWT (scope: mfa:passkey)
+        🔒 Authenticated with MFA JWT (scope: mfa:passkey:wraps)
 
         Stores the wrap envelope for one passkey. The envelope is produced entirely
         on the client: \`kB\` is sealed with HPKE to a per-wrap recipient key, whose
@@ -249,9 +253,9 @@ const PASSKEYS_API_DOCS = {
         PRF output. The server stores all five fields uninterpreted and never sees
         \`kB\`, the private key, or the PRF output.
 
-        The token must be bound to \`credentialId\`, which \`/passkey/authentication/finish\`
-        does when \`/start\` asks for the \`passkey\` scope. A token minted any other way
-        carries no binding and is rejected.
+        The token must be bound to \`credentialId\`, as every token from
+        \`/passkey/authentication/finish\` and \`/passkey/verification/finish\` is.
+        Only those ceremonies mint this scope; the email OTP cannot.
 
         The token's session must also have verified the password since it was
         created (\`/session/reauth\`). The assertion that minted the token proves
@@ -285,7 +289,7 @@ const PASSKEYS_API_DOCS = {
     description: '/passkey/wraps/{credentialId}',
     notes: [
       swaggerText`
-        🔒 Authenticated with MFA JWT (scope: mfa:passkey)
+        🔒 Authenticated with MFA JWT (scope: mfa:passkey:wraps)
 
         Returns the wrap envelope for one passkey, as stored. Unsealing happens
         entirely on the client and needs the credential's WebAuthn PRF output, so
@@ -327,7 +331,7 @@ const PASSKEYS_API_DOCS = {
     description: '/passkey/wraps/{credentialId}',
     notes: [
       swaggerText`
-        🔒 Authenticated with MFA JWT (scope: mfa:passkey)
+        🔒 Authenticated with MFA JWT (scope: mfa:passkey:wraps)
 
         Deletes the wrap envelope for one passkey. The passkey itself stays
         registered and usable. \`POST /passkey/wraps\` has no update path, so
@@ -336,7 +340,7 @@ const PASSKEYS_API_DOCS = {
 
         The token need not be bound to \`credentialId\`, unlike the read and the
         write — a delete is a management action, so settings can turn off
-        passwordless sign-in for one passkey from any \`mfa:passkey\` token. Only
+        passwordless sign-in for one passkey from any \`mfa:passkey:wraps\` token. Only
         the authenticated account's own wraps are reachable.
 
         Idempotent: a credential that has no wrap answers \`{ deleted: false }\`

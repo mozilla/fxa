@@ -237,7 +237,6 @@ export function usePasskeySignIn({
           wrapMaterialRequested &&
           prfOut &&
           completion.verified &&
-          completion.mfaToken &&
           completion.hasPassword
         ) {
           const recovered = await recoverPasswordlessKb({

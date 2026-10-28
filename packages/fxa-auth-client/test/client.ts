@@ -270,66 +270,38 @@ describe('lib/client', () => {
       );
     });
 
-    it('forwards scope to the assertion challenge when set', async () => {
-      responseBody = '{"challenge":"abc","userVerification":"required"}';
-
-      await httpsClient.beginPasskeyAuthentication({
-        keysRequired: true,
-        scope: 'passkey',
-      });
-
-      assert.deepEqual(JSON.parse(lastInit?.body as string), {
-        keysRequired: true,
-        scope: 'passkey',
-      });
-    });
-
-    it('omits scope from the assertion challenge when not set', async () => {
+    it('sends only the keysRequired hint to the assertion challenge', async () => {
       responseBody = '{"challenge":"abc","userVerification":"required"}';
 
       await httpsClient.beginPasskeyAuthentication({ keysRequired: true });
 
-      assert.ok(!('scope' in JSON.parse(lastInit?.body as string)));
+      assert.deepEqual(JSON.parse(lastInit?.body as string), {
+        keysRequired: true,
+      });
     });
 
-    it('posts the verification challenge to the step-up route with a scope', async () => {
+    it('posts the verification challenge to the step-up route', async () => {
       responseBody = '{"challenge":"abc","userVerification":"required"}';
 
-      await httpsClient.beginPasskeyVerification(sessionToken, {
-        scope: 'recovery_key',
-      });
+      await httpsClient.beginPasskeyVerification(sessionToken);
 
       assert.equal(
         lastUrl,
         'https://localhost:9000/v1/passkey/verification/start'
       );
-      assert.deepEqual(JSON.parse(lastInit?.body as string), {
-        scope: 'recovery_key',
-      });
+      assert.deepEqual(JSON.parse(lastInit?.body as string), {});
     });
 
     it('forwards a pinned credentialId to the verification challenge', async () => {
       responseBody = '{"challenge":"abc","userVerification":"required"}';
 
       await httpsClient.beginPasskeyVerification(sessionToken, {
-        scope: 'passkey',
         credentialId,
       });
 
       assert.deepEqual(JSON.parse(lastInit?.body as string), {
-        scope: 'passkey',
         credentialId,
       });
-    });
-
-    it('omits credentialId from the verification challenge when not set', async () => {
-      responseBody = '{"challenge":"abc","userVerification":"required"}';
-
-      await httpsClient.beginPasskeyVerification(sessionToken, {
-        scope: 'passkey',
-      });
-
-      assert.ok(!('credentialId' in JSON.parse(lastInit?.body as string)));
     });
 
     it('returns the mfaToken from the verification finish route', async () => {

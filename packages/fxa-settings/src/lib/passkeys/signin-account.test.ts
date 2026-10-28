@@ -24,6 +24,7 @@ const COMPLETION = {
   sessionToken: 'session-token',
   verified: true,
   hasPassword: true,
+  mfaToken: 'mfa-token',
 };
 const ftlMsgResolver = {} as FtlMsgResolver;
 const navigateWithQuery = jest.fn();

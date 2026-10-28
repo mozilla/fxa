@@ -150,8 +150,7 @@ export function resolvePasskeyService(
 }
 
 /**
- * Whether the assertion should ask for the material a passkey wrap needs: the
- * `mfa:passkey` scope and the PRF output.
+ * Whether the assertion should keep the PRF output a passkey wrap needs.
  *
  * Only OAuth-native Sync can take a recovered `kB` straight into the flow;
  * desktop v3 sends keyFetchToken/unwrapBKey over WebChannel. Other Firefox

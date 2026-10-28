@@ -20,7 +20,11 @@ import { isPasskeyPasswordlessSyncEnabled } from '../passkey-utils';
 import { recordSecurityEvent } from './utils/security-event';
 import type { SecurityEventNames } from '@fxa/shared/db/mysql/legacy/models/auth/security-event';
 import { reportSentryError } from '../sentry';
-import { base64urlCredentialId, base64urlString } from './passkeys';
+import {
+  base64urlCredentialId,
+  base64urlString,
+  PASSKEY_WRAPS_SCOPE,
+} from './passkeys';
 import type { Customs, DB } from './passkeys';
 import PASSKEYS_API_DOCS from '../../docs/swagger/passkeys-api';
 
@@ -79,10 +83,10 @@ export class PasskeyWrapsHandler {
    * Creates the wrap for a credential that has none. A stale wrap is resolved
    * by deleting the wrap, leaving the passkey registered.
    *
-   * Requires an `mfa:passkey` token bound to the credential being written, on
-   * a session that has verified the password since it was created. The sealed
-   * `kB` is stored unread, so that reauth is the only proof the caller could
-   * have derived it.
+   * Requires an `mfa:passkey:wraps` token bound to the credential being
+   * written, on a session that has verified the password since it was
+   * created. The sealed `kB` is stored unread, so that reauth is the only
+   * proof the caller could have derived it.
    *
    * @returns `{ created: boolean }` — false when an identical wrap was already
    *   stored.
@@ -223,7 +227,7 @@ export class PasskeyWrapsHandler {
    * Deliberately not bound to the asserted credential, unlike the read and the
    * write. Those complete a ceremony with the credential in hand, while a
    * delete is a management action settings must be able to take from any
-   * `mfa:passkey` token. `PasskeyService` scopes it to the account.
+   * `mfa:passkey:wraps` token. `PasskeyService` scopes it to the account.
    */
   async deletePasskeyWrap(request: AuthRequest) {
     const { uid } = request.auth.credentials as { uid: string };
@@ -313,7 +317,7 @@ export const passkeyWrapsRoutes = (
         pre: [{ method: passwordlessSyncEnabledCheck }],
         auth: {
           strategy: 'mfa',
-          scope: ['mfa:passkey'],
+          scope: [`mfa:${PASSKEY_WRAPS_SCOPE}`],
           payload: false,
         },
         validate: {
@@ -341,7 +345,7 @@ export const passkeyWrapsRoutes = (
         pre: [{ method: passwordlessSyncEnabledCheck }],
         auth: {
           strategy: 'mfa',
-          scope: ['mfa:passkey'],
+          scope: [`mfa:${PASSKEY_WRAPS_SCOPE}`],
           payload: false,
         },
         validate: {
@@ -369,7 +373,7 @@ export const passkeyWrapsRoutes = (
         pre: [{ method: passwordlessSyncEnabledCheck }],
         auth: {
           strategy: 'mfa',
-          scope: ['mfa:passkey'],
+          scope: [`mfa:${PASSKEY_WRAPS_SCOPE}`],
           payload: false,
         },
         validate: {

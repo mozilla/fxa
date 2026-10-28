@@ -201,7 +201,7 @@ passkeyDelete                          : ip_uid            : 100         : 15 mi
 
 #
 # Passkey Wraps
-# The envelopes that let a passkey unseal kB. Every endpoint requires an mfa:passkey JWT, so a caller
+# The envelopes that let a passkey unseal kB. Every endpoint requires an mfa:passkey:wraps JWT, so a caller
 # has already completed a WebAuthn assertion. That token is not single-use and lives for
 # mfa.jwt.expiresInSec, so one assertion can drive many wrap calls — these rules, not
 # passkeyAuthFinish, are what bound the volume.

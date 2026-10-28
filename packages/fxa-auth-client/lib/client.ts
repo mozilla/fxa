@@ -275,11 +275,8 @@ export type PasskeyAuthenticationResult = {
   sessionToken: hexstring;
   verified: boolean;
   hasPassword: boolean;
-  /**
-   * Scoped MFA token, present only when `beginPasskeyAuthentication` asked for
-   * a scope.
-   */
-  mfaToken?: string;
+  /** `mfa:passkey:wraps` token bound to this session and the credential that signed. */
+  mfaToken: string;
 };
 
 /**
@@ -3602,7 +3599,7 @@ export default class AuthClient {
    * Stores the wrap envelope that lets one passkey unlock `kB`. An identical
    * repeat reports `created: false` rather than failing.
    *
-   * @param jwt MFA JWT with scope `mfa:passkey`, minted for this credential
+   * @param jwt MFA JWT with scope `mfa:passkey:wraps`, minted for this credential
    * @param credentialId The base64url-encoded credential ID to store against
    * @param envelope The envelope bytes from `passkey-crypto`
    * @param headers Optional additional headers
@@ -3628,7 +3625,7 @@ export default class AuthClient {
    * 404 covers three conditions, so callers branch on errno: 224 no such
    * passkey, 234 no wrap stored, 236 the wrap predates the current `kB`.
    *
-   * @param jwt MFA JWT with scope `mfa:passkey`
+   * @param jwt MFA JWT with scope `mfa:passkey:wraps`
    * @param credentialId The base64url-encoded credential ID to fetch
    * @param headers Optional additional headers
    */
@@ -3652,7 +3649,7 @@ export default class AuthClient {
    * Idempotent: a passkey with no wrap reports `deleted: false` rather than
    * failing. Throws errno 224 when the account has no such passkey.
    *
-   * @param jwt MFA JWT with scope `mfa:passkey`; no credential binding needed
+   * @param jwt MFA JWT with scope `mfa:passkey:wraps`; no credential binding needed
    * @param credentialId The base64url-encoded credential ID to clear
    * @param headers Optional additional headers
    */
@@ -3678,19 +3675,16 @@ export default class AuthClient {
    *
    * @param options.keysRequired Hints that this is a keys-required (Sync)
    *   sign-in, so the server may request PRF under the keys-required scope.
-   * @param options.scope Bare action name (e.g. `passkey`) this sign-in should
-   *   also authorize; makes `/finish` return an `mfaToken`.
    * @param headers Optional additional headers
    */
   async beginPasskeyAuthentication(
-    options: { keysRequired?: boolean; scope?: string } = {},
+    options: { keysRequired?: boolean } = {},
     headers?: Headers
   ): Promise<PublicKeyCredentialRequestOptionsJSON> {
     const payload = {
       ...(options.keysRequired === undefined
         ? {}
         : { keysRequired: options.keysRequired }),
-      ...(options.scope === undefined ? {} : { scope: options.scope }),
     };
     return this.request(
       'POST',
@@ -3760,30 +3754,25 @@ export default class AuthClient {
   /**
    * Starts a passkey MFA step-up for a session that is already signed in.
    *
-   * Use this to obtain a fresh scoped token without a new sign-in — for
-   * example when the token minted at sign-in has expired.
+   * Use this to obtain a fresh `mfa:passkey:wraps` token without a new
+   * sign-in — for example when the token minted at sign-in has expired.
    *
    * @param sessionToken A verified session token
-   * @param options.scope Bare action name (e.g. `passkey`) the token minted at
-   *   `/finish` will authorize
    * @param options.credentialId Pins the ceremony to one of the account's
    *   passkeys. Omit to let any of them answer.
    * @param headers Optional additional headers
    */
   async beginPasskeyVerification(
     sessionToken: hexstring,
-    options: { scope: string; credentialId?: string },
+    options: { credentialId?: string } = {},
     headers?: Headers
   ): Promise<PublicKeyCredentialRequestOptionsJSON> {
     return this.sessionPost(
       '/passkey/verification/start',
       sessionToken,
-      {
-        scope: options.scope,
-        ...(options.credentialId === undefined
-          ? {}
-          : { credentialId: options.credentialId }),
-      },
+      options.credentialId === undefined
+        ? {}
+        : { credentialId: options.credentialId },
       headers
     );
   }

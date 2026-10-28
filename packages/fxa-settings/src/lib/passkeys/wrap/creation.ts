@@ -216,14 +216,13 @@ async function store(
   return { ok: true, created };
 }
 
-/** Mints an `mfa:passkey` token pinned to the passkey the wrap is for. */
+/** Mints an `mfa:passkey:wraps` token pinned to the passkey the wrap is for. */
 async function stepUp(
   authClient: WrapAuthClient,
   sessionToken: hexstring,
   credentialId: string
 ): Promise<string> {
   const options = await authClient.beginPasskeyVerification(sessionToken, {
-    scope: 'passkey',
     credentialId,
   });
   const response = await getCredential(options);

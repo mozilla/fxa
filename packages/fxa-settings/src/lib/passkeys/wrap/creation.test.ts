@@ -198,7 +198,6 @@ describe('createPasskeyWrap', () => {
 
       expect(outcome).toEqual({ ok: true, created: true });
       expect(beginVerificationMock).toHaveBeenCalledWith(MOCK_SESSION_TOKEN, {
-        scope: 'passkey',
         credentialId: MOCK_CREDENTIAL_ID,
       });
       expect(completeVerificationMock).toHaveBeenCalledWith(
