@@ -2,13 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+'use strict';
+const config = require('./configuration');
+const {
+  createSettingsProxy,
+  modifySettingsStatic,
+} = require('./beta-settings');
+
 // It's a 404 not found response.
 
 module.exports = function (req, res, next) {
   res.status(404);
 
   if (req.accepts('html')) {
-    return res.render('404');
+    res.locals.notFound = true;
+    return config.get('proxy_settings')
+      ? createSettingsProxy(req, res, next)
+      : modifySettingsStatic(req, res);
   }
 
   if (req.accepts('json')) {

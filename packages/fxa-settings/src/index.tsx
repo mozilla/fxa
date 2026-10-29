@@ -20,6 +20,7 @@ import Storage from './lib/storage';
 import { restorePairingAttribution } from './lib/pairing-attribution';
 import CookiesDisabled from './pages/CookiesDisabled';
 import ServerError from './pages/ServerError';
+import PageNotFound from './pages/PageNotFound';
 import { BrowserRouter } from 'react-router';
 import { DynamicLocalizationProvider } from './contexts/DynamicLocalizationContext';
 import { reportL10nError } from './lib/l10n-error-reporter';
@@ -96,6 +97,7 @@ try {
   // a loop.
   if (
     !config.serverError &&
+    !config.notFound &&
     !localStorageEnabled &&
     window.location.pathname !== '/cookies_disabled'
   ) {
@@ -107,9 +109,11 @@ try {
 
   const View = config.serverError
     ? () => <ServerError />
-    : localStorageEnabled
-      ? () => <App {...{ flowQueryParams }} />
-      : () => <CookiesDisabled />;
+    : config.notFound
+      ? () => <PageNotFound />
+      : localStorageEnabled
+        ? () => <App {...{ flowQueryParams }} />
+        : () => <CookiesDisabled />;
 
   const root = createRoot(document.getElementById('root') as HTMLElement);
   root.render(
