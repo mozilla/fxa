@@ -22,9 +22,12 @@ const SMARTWINDOW_SCOPE = 'https://identity.mozilla.com/apps/smartwindow';
 const RELAY_SCOPE = 'https://identity.mozilla.com/apps/relay';
 const SYNC_SCOPE = 'https://identity.mozilla.com/apps/oldsync';
 
+const MONITOR_SCOPE = 'https://identity.mozilla.com/apps/monitor';
+
 const VPN_ALLOWED_CLIENT_ID = '1111222233334444';
 const VPN_OTHER_CLIENT_ID = '9999888877776666';
 const SMART_CLIENT_ID = 'abababababababab';
+const MONITOR_WEB_CLIENT_ID = '802d56ef2a9af9fa';
 
 function makeLog() {
   return {
@@ -43,6 +46,7 @@ function defaultCfg(
   overrides: {
     scopes?: Record<string, string>;
     allowed?: Record<string, string[]>;
+    serviceForClient?: Record<string, string>;
   } = {}
 ): ServiceConfig {
   return buildServiceConfig(
@@ -51,8 +55,10 @@ function defaultCfg(
       smartwindow: SMARTWINDOW_SCOPE,
       relay: RELAY_SCOPE,
       sync: SYNC_SCOPE,
+      monitor: MONITOR_SCOPE,
     },
-    overrides.allowed ?? { vpn: [VPN_ALLOWED_CLIENT_ID] }
+    overrides.allowed ?? { vpn: [VPN_ALLOWED_CLIENT_ID] },
+    overrides.serviceForClient ?? {}
   );
 }
 
@@ -90,6 +96,19 @@ describe('buildServiceConfig', () => {
     expect(cfg.allowedClients.get('vpn')?.has('abcdef0011223344')).toBe(true);
   });
 
+  it('drops a mapping whose service is not in serviceScopes', () => {
+    const cfg = defaultCfg({
+      scopes: { vpn: VPN_SCOPE, relay: RELAY_SCOPE, sync: SYNC_SCOPE },
+      serviceForClient: {
+        [MONITOR_WEB_CLIENT_ID]: 'monitor',
+        [VPN_ALLOWED_CLIENT_ID]: 'vpn',
+      },
+    });
+    expect([...cfg.serviceForClient.entries()]).toEqual([
+      [VPN_ALLOWED_CLIENT_ID, 'vpn'],
+    ]);
+  });
+
   it('omits services with no allowlist entry (unrestricted)', () => {
     const cfg = defaultCfg();
     expect(cfg.allowedClients.has('smartwindow')).toBe(false);
@@ -97,24 +116,57 @@ describe('buildServiceConfig', () => {
 });
 
 describe('inferServiceForToken', () => {
-  const scopeMap = defaultCfg().scopeToService;
+  const cfg = defaultCfg();
+  const mappedCfg = defaultCfg({
+    serviceForClient: { [MONITOR_WEB_CLIENT_ID]: 'monitor' },
+  });
 
   it('returns "" when no scope matches a configured service URL', () => {
-    expect(inferServiceForToken(['openid', 'profile'], scopeMap)).toBe('');
+    expect(
+      inferServiceForToken(['openid', 'profile'], SMART_CLIENT_ID, cfg)
+    ).toBe('');
   });
 
   it('returns the service when exactly one scope matches a service URL', () => {
-    expect(inferServiceForToken([VPN_SCOPE, 'profile'], scopeMap)).toBe('vpn');
+    expect(
+      inferServiceForToken([VPN_SCOPE, 'profile'], VPN_ALLOWED_CLIENT_ID, cfg)
+    ).toBe('vpn');
   });
 
   it('returns "" when two scopes match service URLs (ambiguous)', () => {
-    expect(inferServiceForToken([VPN_SCOPE, SMARTWINDOW_SCOPE], scopeMap)).toBe(
-      ''
-    );
+    expect(
+      inferServiceForToken(
+        [VPN_SCOPE, SMARTWINDOW_SCOPE],
+        VPN_ALLOWED_CLIENT_ID,
+        cfg
+      )
+    ).toBe('');
   });
 
   it('returns "" for an empty scope list', () => {
-    expect(inferServiceForToken([], scopeMap)).toBe('');
+    expect(inferServiceForToken([], VPN_ALLOWED_CLIENT_ID, cfg)).toBe('');
+  });
+
+  it('falls back to the clientId mapping when no scope is canonical', () => {
+    expect(
+      inferServiceForToken(['profile'], MONITOR_WEB_CLIENT_ID, mappedCfg)
+    ).toBe('monitor');
+  });
+
+  it('prefers a canonical scope on the token over the clientId mapping', () => {
+    expect(
+      inferServiceForToken(
+        [VPN_SCOPE, 'profile'],
+        MONITOR_WEB_CLIENT_ID,
+        mappedCfg
+      )
+    ).toBe('vpn');
+  });
+
+  it('returns "" for an unmapped clientId with no canonical scope', () => {
+    expect(inferServiceForToken(['profile'], SMART_CLIENT_ID, mappedCfg)).toBe(
+      ''
+    );
   });
 });
 
@@ -284,6 +336,68 @@ describe('resolveTargetRows', () => {
     expect(result.rows[0].scope).toBe(`${VPN_SCOPE}-extra`);
   });
 
+  it('adds the canonical scope row for a mapped client whose token lacks it', () => {
+    const cfg = defaultCfg({
+      serviceForClient: { [MONITOR_WEB_CLIENT_ID]: 'monitor' },
+    });
+    const token = makeToken({
+      clientId: Buffer.from(MONITOR_WEB_CLIENT_ID, 'hex'),
+      scope: 'profile https://identity.mozilla.com/account/subscriptions',
+    });
+    const result = resolveTargetRows(token, cfg);
+    expect(result.rows.map((r) => [r.scope, r.service])).toEqual([
+      ['profile', 'monitor'],
+      ['https://identity.mozilla.com/account/subscriptions', 'monitor'],
+      [MONITOR_SCOPE, 'monitor'],
+    ]);
+  });
+
+  it('does not duplicate the canonical scope when the token already carries it', () => {
+    const result = resolveTargetRows(
+      makeToken({ scope: `${VPN_SCOPE} profile` }),
+      defaultCfg()
+    );
+    expect(result.rows.map((r) => r.scope)).toEqual([VPN_SCOPE, 'profile']);
+  });
+
+  it('--service filter selects a mapped client token by its inferred service', () => {
+    const cfg = defaultCfg({
+      serviceForClient: { [MONITOR_WEB_CLIENT_ID]: 'monitor' },
+    });
+    const token = makeToken({
+      clientId: Buffer.from(MONITOR_WEB_CLIENT_ID, 'hex'),
+      scope: 'profile',
+    });
+    expect(
+      resolveTargetRows(token, cfg, 'monitor').rows.map((r) => r.scope)
+    ).toEqual(['profile', MONITOR_SCOPE]);
+  });
+
+  it('a mapped client still passes through the service allowlist', () => {
+    const cfg = defaultCfg({
+      serviceForClient: { [VPN_OTHER_CLIENT_ID]: 'vpn' },
+    });
+    const token = makeToken({
+      clientId: Buffer.from(VPN_OTHER_CLIENT_ID, 'hex'),
+      scope: 'profile',
+    });
+    const result = resolveTargetRows(token, cfg);
+    expect(result.rows).toEqual([]);
+    expect(result.allowlistDenied).toEqual(['vpn']);
+  });
+
+  it('omits rows for scopes in omitScopes but still infers the service from them', () => {
+    const result = resolveTargetRows(
+      makeToken({ scope: `${VPN_SCOPE} profile email` }),
+      defaultCfg(),
+      undefined,
+      new Set(['profile', 'email'])
+    );
+    expect(result.rows.map((r) => [r.scope, r.service])).toEqual([
+      [VPN_SCOPE, 'vpn'],
+    ]);
+  });
+
   it('returns no rows for an empty scope string', () => {
     const result = resolveTargetRows(makeToken({ scope: '' }), defaultCfg());
     expect(result.rows).toHaveLength(0);
@@ -418,6 +532,21 @@ describe('batchUpsert', () => {
     const [sql, values] = query.mock.calls[0];
     expect((sql.match(/\(\?, \?, \?, \?, \?, \?\)/g) ?? []).length).toBe(2);
     expect(values).toHaveLength(12);
+  });
+
+  it('leaves deauthorizedAt untouched on conflict', async () => {
+    const query = makeQuery();
+    await batchUpsert(query, [
+      {
+        uid,
+        scope: VPN_SCOPE,
+        service: 'vpn',
+        clientId,
+        firstAuthorizedTosAt: 1000,
+        lastAuthorizedTosAt: 1000,
+      },
+    ]);
+    expect(query.mock.calls[0][0]).not.toMatch(/deauthorizedAt/);
   });
 
   it('uses LEAST for firstAuthorizedTosAt and GREATEST for lastAuthorizedTosAt', async () => {
@@ -621,6 +750,31 @@ describe('run', () => {
     expect(fetchCalls.length).toBeGreaterThanOrEqual(2);
     const secondFetchCursor = fetchCalls[1][1][0];
     expect(secondFetchCursor).toEqual(firstToken);
+  });
+
+  it('starts the scan after --start-cursor and logs each batch cursor', async () => {
+    const log = makeLog();
+    const startCursor = Buffer.alloc(32, 0x11);
+    const nextToken = Buffer.alloc(32, 0x22);
+    const query = jest
+      .fn()
+      .mockResolvedValueOnce([{ TABLE_ROWS: 2 }])
+      .mockResolvedValueOnce([makeToken({ token: nextToken })])
+      .mockResolvedValueOnce(undefined);
+    await run(query, cfg, log, { ...baseOpts, startCursor });
+
+    const fetchCalls = query.mock.calls.filter(([sql]) =>
+      sql?.includes?.('FROM refreshTokens')
+    );
+    expect(fetchCalls[0][1][0]).toEqual(startCursor);
+    expect(log.info).toHaveBeenCalledWith(
+      'backfill.start',
+      expect.objectContaining({ startCursor: startCursor.toString('hex') })
+    );
+    expect(log.info).toHaveBeenCalledWith(
+      'backfill.batch',
+      expect.objectContaining({ cursor: nextToken.toString('hex') })
+    );
   });
 
   it('propagates batchUpsert errors and logs upsert_batch_failed', async () => {

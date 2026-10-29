@@ -62,6 +62,12 @@ export interface AuthorizationRowsToDeauthorizeParams {
   allowedClientsForService?: (
     service: string
   ) => ReadonlySet<string> | undefined;
+  /**
+   * A scope a client's tokens count as covering though they don't carry it:
+   * the canonical scope /authorization writes for clients mapped in
+   * oauthServer.exchange.serviceForClient, which sign in without it.
+   */
+  impliedScopeForClient?: (clientId: string) => string | undefined;
 }
 
 /**
@@ -87,6 +93,7 @@ export function authorizationRowsToDeauthorize({
   disconnectedClientId,
   remainingTokens,
   allowedClientsForService,
+  impliedScopeForClient,
 }: AuthorizationRowsToDeauthorizeParams): AuthorizationRow[] {
   const disconnected = disconnectedClientId.toLowerCase();
   const tokens = remainingTokens.map((t) => ({
@@ -116,7 +123,8 @@ export function authorizationRowsToDeauthorize({
     return !tokens.some(
       (t) =>
         (t.clientId === owner || trusted?.has(t.clientId)) &&
-        t.scope.contains(row.scope)
+        (t.scope.contains(row.scope) ||
+          impliedScopeForClient?.(t.clientId) === row.scope)
     );
   });
 }

@@ -192,4 +192,49 @@ describe('authorizationRowsToDeauthorize', () => {
       })
     ).toEqual([unsustained]);
   });
+
+  describe('with a client whose tokens imply a scope', () => {
+    // The VPN app signs in without apps/vpn; its rows carry it anyway.
+    const impliedScopeForClient = (clientId: string) =>
+      clientId === VPN_APP ? VPN_SCOPE : undefined;
+    const canonicalRow = row({ clientId: VPN_APP });
+
+    it('keeps the implied-scope row while that client holds any token', () => {
+      expect(
+        authorizationRowsToDeauthorize({
+          rows: [canonicalRow],
+          disconnectedClientId: FENIX,
+          remainingTokens: [token(VPN_APP, ['profile'])],
+          allowedClientsForService,
+          impliedScopeForClient,
+        })
+      ).toEqual([]);
+    });
+
+    it('deauthorizes the implied-scope row once that client holds no token', () => {
+      expect(
+        authorizationRowsToDeauthorize({
+          rows: [canonicalRow],
+          disconnectedClientId: VPN_APP,
+          remainingTokens: [],
+          allowedClientsForService,
+          impliedScopeForClient,
+        })
+      ).toEqual([canonicalRow]);
+    });
+
+    it('does not let the implied scope cover a different scope', () => {
+      const otherRow = row({ scope: OLDSYNC_SCOPE, clientId: VPN_APP });
+
+      expect(
+        authorizationRowsToDeauthorize({
+          rows: [otherRow],
+          disconnectedClientId: FENIX,
+          remainingTokens: [token(VPN_APP, ['profile'])],
+          allowedClientsForService,
+          impliedScopeForClient,
+        })
+      ).toEqual([otherRow]);
+    });
+  });
 });
