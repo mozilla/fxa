@@ -179,6 +179,7 @@
       "!{projectRoot}/tsconfig.+(spec|storybook).json"
     ],
     "sharedGlobals": [
+      "{workspaceRoot}/yarn.lock",
       {
         "runtime": "node -v"
       },
