@@ -53,6 +53,19 @@ test('mocha tests', async ({ target, page }, info) => {
 });
 ```
 
+## Page-load measurement
+
+`tests-perf/` holds a Chromium-only spec that measures how fast the Index page (`/`) loads on the local stack. It runs only under the `local-perf` project. Playwright adds that project only when `PERF` is set, so the default runs and CI do not run it. It prints one JSON line with `formMs`, `lcpMs`, `jsKB` and `unusedJsPct`, and it does not fail on a measured number. It fails only when it finds no settings JS file to measure.
+
+With the local stack running:
+
+```
+PERF=1 PERF_RUNS=1 PERF_THROTTLE=0 npx playwright test --project=local-perf tests-perf/index-load.spec.ts
+```
+
+- `PERF_RUNS`: the number of timed cold runs. The default is 5. The output gives the median of each number.
+- `PERF_THROTTLE`: `0` turns off the throttle. By default, each timed run uses the DevTools Slow 4G network preset and a 4x CPU slowdown.
+
 ## Creating new tests
 
 `codegen` is a convenient way to start with when creating a new test. Using the codegen command runs the test generator followed by the URL of the website you want to generate tests for. It opens up two windows, a browser window where you interact with the website you wish to test and the Playwright Inspector window where you can record your tests and then copy them into your editor. More info on `codegen` and other options to start with a new test can be found [here](https://playwright.dev/docs/codegen#generate-tests-with-the-playwright-inspector)
