@@ -1,0 +1,10 @@
+{
+  "commit": "9805498a34b568223fea8fab0fbea3c99592f9ce",
+  "summary": "perf(settings): load Settings, CAD and DTM Glean events lazily",
+  "description": "Because:\n\n- Every route bundled the 13 Settings, CAD and DTM Glean metric modules.\n\nThis commit:\n\n- Moves their 93 recordEventMetric cases to lib/glean/lazy-events.ts.\n- Loads lazy-events with a dynamic import in the glean-lazy-events chunk.\n- Awaits recordEventMetric in the queued lambda to keep the call order.\n- Adds a table test for the moved events and a call order test.\n\nCloses FXA-14859",
+  "timestamp": 1793300693000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
