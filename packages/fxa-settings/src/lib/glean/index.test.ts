@@ -34,6 +34,7 @@ import {
 } from './web/session';
 import * as utm from './web/utm';
 import * as entrypointQuery from './web/entrypoint';
+import { eventsMap } from './web/index';
 import { Config } from '../config';
 import { WebIntegration, useAccount, WebIntegrationData } from '../../models';
 import { MetricsFlow } from '../metrics-flow';
@@ -257,6 +258,50 @@ describe('lib/glean', () => {
       GleanMetrics.registration.view();
       await GleanMetrics.isDone();
       sinon.assert.calledOnce(setEventNameStub);
+    });
+
+    it.each(
+      (
+        [
+          'cad',
+          'cadMobilePair',
+          'cadMobilePairUseApp',
+          'cadApproveDevice',
+          'cadRedirectDesktop',
+          'cadRedirectMobile',
+          'cadFireFox',
+          'accountPref',
+          'accountBanner',
+          'firefoxPromo',
+          'deleteAccount',
+          'dtmDesktop',
+          'dtmMobile',
+        ] as const
+      ).flatMap((namespace) =>
+        Object.entries(eventsMap[namespace]).map(([key, name]) => ({
+          namespace,
+          key,
+          name,
+        }))
+      )
+    )(
+      'records the lazily loaded $name event once',
+      async ({ namespace, key, name }) => {
+        const events: Record<string, () => void> = GleanMetrics[namespace];
+        events[key]();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnceWithExactly(setEventNameStub, name);
+      }
+    );
+
+    it('records a lazily loaded event and a later eager event in call order', async () => {
+      GleanMetrics.accountPref.view();
+      GleanMetrics.login.view();
+      await GleanMetrics.isDone();
+      expect(setEventNameStub.args).toEqual([
+        ['account_pref_view'],
+        ['login_view'],
+      ]);
     });
 
     // Callers navigate only once isDone() resolves, so a single failed ping
@@ -1123,6 +1168,8 @@ describe('lib/glean', () => {
 
       for (const { method, eventName } of cases) {
         for (const reason of ['otp', 'third_party_auth', 'passkey'] as const) {
+          // The stubs are read at test time, after beforeEach sets them.
+          // eslint-disable-next-line no-loop-func
           it(`submits ${eventName} with reason='${reason}'`, async () => {
             const spy = sandbox.spy(postVerifySetPassword[method], 'record');
             GleanMetrics.postVerifySetPassword[method]({
