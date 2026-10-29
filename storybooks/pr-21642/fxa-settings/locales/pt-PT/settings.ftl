@@ -401,6 +401,20 @@ locale-toggle-browser-default = Predefinição do navegador
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Pedido inválido
 
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+pair-unsupported-hint-heading = Concluir emparelhamento na aplicação
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = Fechar esta página
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Toque no <b>menu da aplicação</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>Inicie sessão</b> e digitalize o código
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = Saber mais
+
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
 
@@ -1697,6 +1711,13 @@ tfa-qr-code-alt =
     aplicações suportadas.
 inline-totp-setup-page-title = Autenticação de dois passos
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Página não encontrada
+page-not-found-description = A página solicitada não foi encontrada. Fomos notificados e iremos corrigir todos as ligações que possam estar quebradas.
+page-not-found-home-button = Início
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Acabou de iniciar a sessão no { -brand-firefox }?
@@ -2291,6 +2312,16 @@ signin-passkey-fallback-body = Para manter os seus dados seguros, tem de introdu
 signin-passkey-fallback-password-label = Palavra-passe
 signin-passkey-fallback-continue = Continuar
 signin-passkey-fallback-forgot-password-link = Esqueceu-se da palavra-passe?
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = É necessária uma palavra-passe neste dispositivo
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
+signin-passkey-fallback-no-prf-description = Este navegador ou dispositivo não pode utilizar a sua chave para iniciar sessão para sincronizar por si próprio.
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
+signin-passkey-fallback-unwrap-failed-heading = A sua chave de acesso não desbloqueou a sincronização
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = Algo correu mal, pelo que desta vez irá precisar da sua palavra-passe.
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = Saber mais
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.

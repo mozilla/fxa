@@ -328,6 +328,13 @@ locale-toggle-browser-default = Webbläsares standard
 error-bad-request = Felaktig begäran
 
 
+pair-unsupported-hint-heading = Avsluta parkoppling i appen
+pair-unsupported-hint-step-close-page = Stäng denna sida
+pair-unsupported-hint-step-app-menu = Tryck på <b>appmenyn</b>
+pair-unsupported-hint-step-sign-in = <b>Logga in</b> och skanna sedan koden
+pair-unsupported-hint-learn-more-link = Läs mer
+
+
 password-info-balloon-why-password-info = Du behöver detta lösenord för att komma åt krypterad data som du lagrar hos oss.
 password-info-balloon-reset-risk-info = En återställning innebär att data som lösenord och bokmärken kan förloras.
 
@@ -1220,6 +1227,11 @@ tfa-qr-code-alt = Använd koden { $code } för att ställa in tvåstegsautentise
 inline-totp-setup-page-title = Tvåstegsautentisering
 
 
+page-not-found-heading = Sidan hittades inte
+page-not-found-description = Sidan du begärde hittades inte. Vi har underrättats och kommer att fixa alla länkar som kan vara trasiga.
+page-not-found-home-button = Hem
+
+
 pair-auth-allow-heading-text = Loggade du precis in på { -brand-firefox }?
 pair-auth-allow-confirm-button = Ja, godkänn enhet
 pair-auth-allow-refuse-device-link = Om det inte var du, <a>ändra du ditt lösenord</a>
@@ -1553,6 +1565,11 @@ signin-passkey-fallback-body = För att skydda din data måste du ange ditt lös
 signin-passkey-fallback-password-label = Lösenord
 signin-passkey-fallback-continue = Fortsätt
 signin-passkey-fallback-forgot-password-link = Glömt lösenordet?
+signin-passkey-fallback-no-prf-heading = Lösenord behövs på den här enheten
+signin-passkey-fallback-no-prf-description = Den här webbläsaren eller enheten kan inte använda din lösenordsnyckel för att logga in för att synkronisera på egen hand.
+signin-passkey-fallback-unwrap-failed-heading = Din lösenordsnyckel kunde inte låsa upp synkronisering
+signin-passkey-fallback-unwrap-failed-description = Något gick fel, så du behöver ditt lösenord den här gången.
+signin-passkey-fallback-wrap-unusable-link = Läs mer
 
 
 signin-passwordless-code-heading = Ange bekräftelsekod

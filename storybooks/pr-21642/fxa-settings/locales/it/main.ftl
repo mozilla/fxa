@@ -344,6 +344,13 @@ locale-toggle-browser-default = Predefinita del browser
 error-bad-request = Richiesta non valida
 
 
+pair-unsupported-hint-heading = Completa l’associazione nell’app
+pair-unsupported-hint-step-close-page = Chiudi questa pagina
+pair-unsupported-hint-step-app-menu = Tocca il <b>menu dell’app</b>
+pair-unsupported-hint-step-sign-in = <b>Accedi</b>, quindi scansiona il codice
+pair-unsupported-hint-learn-more-link = Ulteriori informazioni
+
+
 password-info-balloon-why-password-info = Questa password è necessaria per accedere ai dati crittati che salviamo per te.
 password-info-balloon-reset-risk-info = Un ripristino potrebbe comportare la perdita di dati come password e segnalibri.
 
@@ -1221,6 +1228,11 @@ tfa-qr-code-alt = Utilizza il codice { $code } per impostare l’autenticazione 
 inline-totp-setup-page-title = Autenticazione in due passaggi
 
 
+page-not-found-heading = Pagina non trovata
+page-not-found-description = La pagina richiesta non è stata trovata. Siamo stati avvisati e risolveremo eventuali collegamenti non funzionanti.
+page-not-found-home-button = Pagina iniziale
+
+
 pair-auth-allow-heading-text = Hai appena effettuato l’accesso a { -brand-firefox }?
 pair-auth-allow-confirm-button = Sì, approva il dispositivo
 pair-auth-allow-refuse-device-link = Se questa operazione non è stata eseguita da te, <a>cambia la password</a>
@@ -1551,6 +1563,11 @@ signin-passkey-fallback-body = Per mantenere i tuoi dati al sicuro, devi inserir
 signin-passkey-fallback-password-label = Password
 signin-passkey-fallback-continue = Continua
 signin-passkey-fallback-forgot-password-link = Password dimenticata?
+signin-passkey-fallback-no-prf-heading = È richiesta la password per questo dispositivo
+signin-passkey-fallback-no-prf-description = Questo browser o dispositivo non può utilizzare la passkey per eseguire la sincronizzazione autonomamente.
+signin-passkey-fallback-unwrap-failed-heading = Impossibile sbloccare la sincronizzazione con la chiave di accesso
+signin-passkey-fallback-unwrap-failed-description = Si è verificato un errore, quindi questa volta avrai bisogno della password.
+signin-passkey-fallback-wrap-unusable-link = Ulteriori informazioni
 
 
 signin-passwordless-code-heading = Inserisci il codice di conferma

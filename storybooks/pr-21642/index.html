@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 99c0e5c7041b2af26d8967f8ac778c86925db05f</title>
+  <title>Storybooks for commit 511d7451e9fa59aed676237fc49465e321125d37</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,30 +23,16 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 99c0e5c7041b2af26d8967f8ac778c86925db05f</h1>
+  <h1>Storybooks for commit 511d7451e9fa59aed676237fc49465e321125d37</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/29/2026, 11:58:02 AM UTC</dd>
+    <dd>10/29/2026, 10:04:22 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>feat(settings): record passkey alert and banner views in Glean</pre></dd>
-    <dt>Description</dt>
-    <dd><pre>Because:
-- Glean had no event for a shown Settings alert or sign-in banner.
-- Passkey alerts and links had no Glean IDs.
-
-This commit:
-- Adds the events alert_bar.view and banner.view.
-- Makes AlertBar and Banner record a view through an opt-in gleanId.
-- Tags the AlertBar close button from the gleanId.
-- Adds Glean IDs to passkey alerts, Learn more links and sign-in banners.
-- Uses account_pref_passkey_create_unsupported for the unsupported row.
-- Polls for both click IDs in the unsupported passkey functional test.
-
-Closes FXA-13972</pre></dd>
+    <dd><pre>test(passkey): split unsupported WebAuthn checks into isolated tests</pre></dd>
   </dl>
 </body>
 </html>

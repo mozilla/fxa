@@ -2223,6 +2223,13 @@ reset-password-complete-recovery-key-download-info =
     gendannelse af data, hvis du glemmer din adgangskode. <b>Hent og gem den sikkert nu,
     da du ikke kan få adgang til denne side igen senere.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Fejl 500
+server-error-description = Åh nej, noget gik galt. Vi har fået besked, og vil gå i gang med at finde en løsning.
+server-error-home-button = Hjem
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin

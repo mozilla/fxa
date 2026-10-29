@@ -328,6 +328,13 @@ locale-toggle-browser-default = Browser-Standard
 error-bad-request = Fehlerhafte Anfrage
 
 
+pair-unsupported-hint-heading = Kopplung in der App abschließen
+pair-unsupported-hint-step-close-page = Diese Seite schließen
+pair-unsupported-hint-step-app-menu = Tippen Sie auf das <b>App-Menü</b>
+pair-unsupported-hint-step-sign-in = <b>Melden Sie sich an</b>, scannen Sie den Code
+pair-unsupported-hint-learn-more-link = Weitere Informationen
+
+
 password-info-balloon-why-password-info = Sie benötigen dieses Passwort, um auf alle verschlüsselten Daten zuzugreifen, die Sie bei uns speichern.
 password-info-balloon-reset-risk-info = Ein Zurücksetzen bedeutet, dass möglicherweise Daten wie Passwörter und Lesezeichen verloren gehen.
 
@@ -1219,6 +1226,11 @@ tfa-qr-code-alt = Verwenden Sie den Code { $code } zum Einrichten der Zwei-Schri
 inline-totp-setup-page-title = Zwei-Schritt-Authentifizierung
 
 
+page-not-found-heading = Seite nicht gefunden
+page-not-found-description = Die angeforderte Seite wurde nicht gefunden. Wir wurden benachrichtigt und werden alle Links reparieren, die möglicherweise defekt sind.
+page-not-found-home-button = Startseite
+
+
 pair-auth-allow-heading-text = Haben Sie sich gerade bei { -brand-firefox } angemeldet?
 pair-auth-allow-confirm-button = Ja, Gerät freischalten
 pair-auth-allow-refuse-device-link = Wenn Sie das nicht waren, <a>ändern Sie Ihr Passwort</a>
@@ -1549,6 +1561,11 @@ signin-passkey-fallback-body = Um Ihre Daten zu schützen, müssen Sie Ihr Passw
 signin-passkey-fallback-password-label = Passwort
 signin-passkey-fallback-continue = Weiter
 signin-passkey-fallback-forgot-password-link = Passwort vergessen?
+signin-passkey-fallback-no-prf-heading = Passwort auf diesem Gerät erforderlich
+signin-passkey-fallback-no-prf-description = Dieser Browser oder das Gerät kann Ihren Zugangsschlüssel nicht zur Anmeldung verwenden, um sich selbst zu synchronisieren.
+signin-passkey-fallback-unwrap-failed-heading = Der Zugangsschlüssel konnte die Synchronisierung nicht entsperren
+signin-passkey-fallback-unwrap-failed-description = Etwas ist schiefgegangen, daher benötigen Sie dieses Mal Ihr Passwort.
+signin-passkey-fallback-wrap-unusable-link = Weitere Informationen
 
 
 signin-passwordless-code-heading = Bestätigungscode eingeben

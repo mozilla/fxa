@@ -276,6 +276,10 @@ sync-clouds-image-aria-label =
     .aria-label = Hodeiak sinkronizatzeko ikono batekin
 confetti-falling-image-aria-label =
     .aria-label = Konfeti biziduna erortzen
+vpn-welcome-image-aria-label =
+    .aria-label = { -brand-firefox } leihoa bereizgarri zirkular batekin, hautamarka berde bat eta "VPN" testua erakutsiz, VPNa aktibo dagoela adieraziz.
+sync-devices-image-aria-label =
+    .aria-label = Mahaigaineko nabigatzaile baten leihoa eta telefono mugikor bat, biak sinkronizatzen, { -brand-firefox } maskota aldamenean dutela
 firefox-wordmark-image-aria-label =
     .aria-label = { -brand-firefox } logoa
 password-success-image-aria-label =
@@ -396,8 +400,11 @@ flow-recovery-key-hint-unsafe-char-error = Aholkuak ezin ditu Unicode karaktere 
 password-reset-warning-icon = Abisua
 password-reset-chevron-expanded = Tolestu abisua
 password-reset-chevron-collapsed = Zabaldu abisua
+password-reset-warning-review-sign-in-options = Berrikusi saioa hasteko aukerak nabigatzailearen datuak mantentzeko
 password-reset-warning-have-key = Kontua berreskuratzeko gakoa baduzu?
+password-reset-warning-use-key-link-v2 = Erabil ezazu zure pasahitza berrezarri eta nabigatzailearen zure datuak gordetzeko
 password-reset-warning-signed-in-device = Beste gailu batean saioa hasita duzu oraindik?
+password-reset-warning-signed-in-device-description = Baliteke zure nabigatzailearen datuak erabilgarri egotea. Berrezarri pasahitza eta ondoren hasi saioa bertan zure datuak leheneratu eta sinkronizatzeko.
 password-reset-warning-restore-data-link = Ikasi nola berreskuratu nabigatzailearen datuak saioa hasita duen gailu batetik
 password-reset-warning-new-device = Gailu berria darabilzu baina ez duzu gailu zaharretarako sarbiderik?
 password-reset-warning-new-device-description = Zure pasahitza berrezarri ondoren, { -brand-firefox } zerbitzarietan zifratuta dauden nabigatzailearen datuak ez dira erabilgarri egongo gailu honetan.
@@ -889,6 +896,7 @@ product-promo-monitor-description-v2 = Aurkitu zure informazio pribatua non ager
 product-promo-monitor-cta = Lortu eskaneatzea doan
 product-promo-vpn =
     .alt = { -product-mozilla-vpn }
+product-promo-vpn-description = Aurkitu nabigatze anonimo eta babesaren aparteko geruza bat.
 product-promo-vpn-cta = Eskuratu { -product-mozilla-vpn-short }
 
 
@@ -975,7 +983,14 @@ passkey-row-header = Sarbide-gakoak
 passkey-row-enabled = Gaituta
 passkey-row-not-set = Ezarri gabe
 passkey-row-action-create = Sortu
+passkey-row-description = Egin saio-hasiera errazago eta seguruago zure kontura sartzeko telefonoa edo onartutako beste gailu bat erabiliz.
 passkey-row-info-link-2 = Argibide gehiago
+passkey-row-max-limit-banner =
+    { $count ->
+        [one] Sarbide-gako guztiak erabili dituzu ({ $count }). Berri bat sortzeko, ezabatu lehendik dagoen sarbide-gakoetako bat.
+       *[other] Sarbide-gako guztiak erabili dituzu ({ $count }). Berri bat sortzeko, ezabatu lehendik dagoen sarbide-gakoetako bat.
+    }
+passkey-row-max-limit-disabled-reason = Sarbide-gakoen gehienezko kopurura heldu zara.
 
 
 rk-header-1 = Kontua berreskuratzeko gakoa
@@ -1275,6 +1290,8 @@ pair-password-created-now-syncing = Pasahitza sortuta. Sinkronizatzen ari zara o
 
 pair-download-subheader = Deskargatu mugikorrerako { -brand-firefox }
 pair-download-description = { -brand-firefox } zure telefono edo tabletan sinkronizatzeko, lehenik eta behin mugikorrerako { -brand-firefox } deskargatu behar duzu. Hona hemen nola:
+pair-download-step-scan-qr = <b>{ $stepNumber }. urratsa</b>: Deskargatu { -brand-firefox } QR kode hau zure gailu mugikorreko kamerarekin eskaneatuz:
+pair-download-step-continue-sync = <b>{ $stepNumber }. urratsa</b>: Hautatu "Jarraitu sinkronizatzeko" zure { -brand-firefox } esperientzia gailu mugikorrean sinkronizatzeko.
 pair-continue-to-sync-button = Jarraitu sinkronizatzeko
 
 
@@ -1558,6 +1575,11 @@ signin-passwordless-code-input-label-v2 = Idatzi 6 digituko kodea
 signin-passwordless-code-confirm-button = Berretsi
 signin-passwordless-code-required-error = Berrespen-kodea behar da
 signin-passwordless-code-expired = Kodea iraungita?
+signin-passwordless-code-resend-countdown =
+    { $seconds ->
+        [one] Bidali kodea posta elektronikoz segundo { $seconds } barru
+       *[other] Bidali kodea posta elektronikoz { $seconds } segundo barru
+    }
 signin-passwordless-code-resend-link = Bidali kode berria posta elektronikora.
 signin-passwordless-code-resend-error = Zerbait gaizki joan da. Ezin izan da kode berri bat bidali.
 signin-passwordless-code-other-account-link = Erabili beste kontu bat
@@ -1621,6 +1643,11 @@ signin-token-code-input-label-v2 = Sartu 6 digituko kodea
 signin-token-code-confirm-button = Berretsi
 signin-token-code-code-expired = Kodea iraungita?
 signin-token-code-resend-code-link = Posta elektroniko kode berria.
+signin-token-code-resend-code-countdown =
+    { $seconds ->
+        [one] Bidali kodea posta elektronikoz segundo { $seconds } barru
+       *[other] Bidali kodea posta elektronikoz { $seconds } segundo barru
+    }
 signin-token-code-required-error = Berrespen kodea beharrezkoa da
 signin-token-code-resend-error = Zerbait gaizki joan da. Ezin izan da kode berri bat bidali.
 signin-token-code-instruction-desktop-relay = { -brand-firefox } saioa hasi ondoren posta elektronikoko maskara bat erabiltzera bidaltzen saiatuko da.
@@ -1655,11 +1682,17 @@ signin-unblock-desktop-relay = { -brand-firefox } saioa hasi ondoren posta elekt
 
 confirm-signup-code-page-title = Sartu baieztapen-kodea
 confirm-signup-code-heading-2 = Sartu <span>zure { -product-mozilla-account }</span>ko  berrespen-kodea
+confirm-signup-code-instruction-v2 = Idatzi <email>{ $email }</email> helbidera bidali den kodea 5 minutuko epean.
 confirm-signup-code-input-label = Sartu 6 digituko kodea
 confirm-signup-code-confirm-button = Berretsi
 confirm-signup-code-sync-button = Hasi sinkronizatzen
 confirm-signup-code-code-expired = Kodea iraungita?
 confirm-signup-code-resend-code-link = Posta elektroniko kode berria.
+confirm-signup-code-resend-code-countdown =
+    { $seconds ->
+        [one] Bidali kodea posta elektronikoz segundo { $seconds } barru
+       *[other] Bidali kodea posta elektronikoz { $seconds } segundo barru
+    }
 confirm-signup-code-success-alert = Kontua behar bezala berretsi da
 confirm-signup-code-is-required-error = Berrespen kodea beharrezkoa da
 confirm-signup-code-desktop-relay = { -brand-firefox } saioa hasi ondoren posta elektronikoko maskara bat erabiltzera bidaltzen saiatuko da.

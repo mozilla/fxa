@@ -413,6 +413,20 @@ locale-toggle-browser-default = Rhagosodiad y porwr
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Cais Gwael
 
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+pair-unsupported-hint-heading = Gorffen paru yn yr ap
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = Cau'r dudalen hon
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Tapiwch y <b>dewislen ap</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>Mewngofnodwch</b>, yna sganiwch y cod
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = Dysgu rhagor
+
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
 
@@ -1721,6 +1735,13 @@ inline-totp-setup-code-required-error = Mae angen cod dilysu
 tfa-qr-code-alt = Defnyddiwch y cod { $code } i osod dilysiad dau gam mewn rhaglenni sy'n ei gefnogi.
 inline-totp-setup-page-title = Dilysu dau gam
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Heb ganfod y dudalen
+page-not-found-description = Nid yw'r dudalen y gofynnoch amdani wedi'i chanfod. Rydym wedi cael ein hysbysu a byddwn yn trwsio unrhyw ddolenni a allai gael eu torri.
+page-not-found-home-button = Cartref
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Ydych chi newydd fewngofnodi i { -brand-firefox }?
@@ -2319,6 +2340,16 @@ signin-passkey-fallback-body = Er mwyn cadw'ch data'n ddiogel, mae angen i chi r
 signin-passkey-fallback-password-label = Cyfrinallwedd
 signin-passkey-fallback-continue = Parhau
 signin-passkey-fallback-forgot-password-link = Wedi anghofio'r cyfrinair?
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = Mae angen cyfrinair ar y ddyfais hon
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
+signin-passkey-fallback-no-prf-description = Ni all y porwr neu ddyfais hwn ddefnyddio'ch cyfrinair i fewngofnodi i gysoni ar ei ben ei hun.
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
+signin-passkey-fallback-unwrap-failed-heading = Ni allai'ch cyfrinair ddatgloi cysoni
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = Aeth rhywbeth o'i le, felly bydd angen eich cyfrinair y tro hwn.
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = Dysgu rhagor
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
