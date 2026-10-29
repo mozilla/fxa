@@ -9,7 +9,10 @@
 #   FXA_REMOTE=<remote> ./_scripts/trigger-dot-release.sh <tag>
 #
 # Environment variables:
-#   FXA_REMOTE   Git remote to fetch/push against (default: origin).
+#   FXA_REMOTE   Git remote to fetch/push against. Must be the fxa-private
+#                remote when the branch tracks it. If unset and more than one
+#                remote exists, prompts; else origin. See
+#                resolve-release-remote.sh.
 #
 # Examples:
 #   ./_scripts/trigger-dot-release.sh v1.100.5
@@ -26,7 +29,7 @@ tag="${1:-}"
 
 if [[ -z "${tag}" ]]; then
   echo "Usage: [FXA_REMOTE=<remote>] ${0} <tag>" >&2
-  echo "  FXA_REMOTE  Git remote to fetch/push against (default: origin)." >&2
+  echo "  FXA_REMOTE  Git remote to fetch/push against (see resolve-release-remote.sh)." >&2
   exit 1
 fi
 
@@ -37,7 +40,9 @@ fi
 
 minor="${BASH_REMATCH[2]}"
 branch="train-${minor}"
-remote="${FXA_REMOTE:-origin}"
+
+source "$(dirname "$0")/resolve-release-remote.sh"
+resolve_release_remote "${branch}"
 
 echo "Fetching latest tags from ${remote}..."
 git fetch "${remote}" --tags
