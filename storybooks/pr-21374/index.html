@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit abfba1a89a6b360f91934e32cf826bd66770c2f7</title>
+  <title>Storybooks for commit 3a72841423157ec3e3423ff5e660f9265894e070</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit abfba1a89a6b360f91934e32cf826bd66770c2f7</h1>
+  <h1>Storybooks for commit 3a72841423157ec3e3423ff5e660f9265894e070</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/29/2026, 7:23:12 PM UTC</dd>
+    <dd>10/29/2026, 8:51:48 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(payments): show prorated upgrade amounts on processing and success</pre></dd>
     <dt>Description</dt>
@@ -37,8 +37,9 @@
 - PurchaseDetails reflected the higher-tier&#039;s full price on processing and success until the page was refreshed
 
 This pull request
-- Look up the upgraded subscription by its new price in getCart until checkout saves its ID
-- Updates tests
+- Looks up the upgraded subscription by its new price in getCart until checkout saves its ID
+- Passes cartState to PurchaseDetails in the upgrade layout so prices refresh on success
+- Adds getCart tests for processing upgrade carts without a saved subscription ID
 
 Closes
 PAY-3918</pre></dd>
