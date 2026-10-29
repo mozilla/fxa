@@ -1,8 +1,8 @@
 {
-  "commit": "d33cad3684cd26c6ab58d26ca6d36fd74988dc90",
-  "summary": "Merge pull request #21420 from mozilla/skill-updates-db",
-  "description": "chore(docs): require migrations to survive a code rollback",
-  "timestamp": 1793288841000,
+  "commit": "d491c2dabda033c045dd4fcc99f64d21536d6737",
+  "summary": "Merge pull request #21588 from mozilla/FXA-14724",
+  "description": "feat(auth): attribute Monitor web and VPN app sign-ins to their service",
+  "timestamp": 1793292993000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
