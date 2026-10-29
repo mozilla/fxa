@@ -15,6 +15,7 @@ Security takes **absolute precedence**. This repository handles Mozilla authenti
 - **External network:** only with explicit approval to a trusted/documented endpoint.
 - **Pipelines & contracts:** flag breaking API/contract changes; do not alter CI/CD or git hooks without explicit, reviewed justification.
 - **Published DB migrations:** **NEVER edit** existing published migration files. Always add a new forward migration and a separate rollback.
+- **Migrations must survive a code rollback:** plan for migrations shipping before the code that needs them and not being reverted if that code is rolled back. Every migration must work with the release currently in production as well as the new one. Prefer a separate PR for the migration, apart from the code that uses it. Split breaking changes into expand → contract across releases. If that isn't possible, flag it in the PR. Details: `.claude/rules/db-migrations.md`.
 - **Workspace recommendations:** the repo deliberately ships no `.vscode/extensions.json`. Do not re-add one. Useful extensions are listed in `.vscode/README.md` so contributors install at their own discretion.
 
 ## 3) Do-not-touch paths (no read, no write)
