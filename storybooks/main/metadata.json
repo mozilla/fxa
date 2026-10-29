@@ -1,8 +1,8 @@
 {
-  "commit": "c040d69e81cbc6f111fc8a0b793ff66c3d18e5cc",
-  "summary": "Merge pull request #21553 from mozilla/FXA-13266",
-  "description": "feat(passkeys): add Glean events for passwordless Sync opt-in and wraps",
-  "timestamp": 1793305670000,
+  "commit": "ae98cc8030d92464677076151f4db26a755b55b7",
+  "summary": "Merge pull request #21648 from mozilla/agent-29c142",
+  "description": "feat(settings): render the 404 page in React",
+  "timestamp": 1793307406000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

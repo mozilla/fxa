@@ -1922,6 +1922,13 @@ tfa-qr-code-alt = Use the code { $code } to set up two-step authentication in su
 
 inline-totp-setup-page-title = Two-step authentication
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Page not found
+page-not-found-description = The page you requested is not found. We’ve been notified and will fix any links that may be broken.
+page-not-found-home-button = Home
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Did you just sign in to { -brand-firefox }?

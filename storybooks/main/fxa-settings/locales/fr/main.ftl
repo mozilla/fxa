@@ -344,6 +344,13 @@ locale-toggle-browser-default = Navigateur par défaut
 error-bad-request = Requête incorrecte
 
 
+pair-unsupported-hint-heading = Terminez l’association dans l’application
+pair-unsupported-hint-step-close-page = Fermer cette page
+pair-unsupported-hint-step-app-menu = Appuyez sur le <b>menu de l’application</b>
+pair-unsupported-hint-step-sign-in = <b>Connectez-vous</b>, puis scannez le code
+pair-unsupported-hint-learn-more-link = En savoir plus
+
+
 password-info-balloon-why-password-info = Vous avez besoin de ce mot de passe pour accéder aux données chiffrées que vous stockez chez nous.
 password-info-balloon-reset-risk-info = Une réinitialisation implique potentiellement la perte de données telles que les mots de passe et les marque-pages.
 
@@ -1559,6 +1566,11 @@ signin-passkey-fallback-body = Pour protéger vos données, vous devez saisir vo
 signin-passkey-fallback-password-label = Mot de passe
 signin-passkey-fallback-continue = Continuer
 signin-passkey-fallback-forgot-password-link = Mot de passe oublié ?
+signin-passkey-fallback-no-prf-heading = Mot de passe nécessaire sur cet appareil
+signin-passkey-fallback-no-prf-description = Ce navigateur ou cet appareil ne peut pas utiliser votre clé d’accès pour se connecter et synchroniser tout seul.
+signin-passkey-fallback-unwrap-failed-heading = Votre clé d’accès n’a pas pu déverrouiller Sync
+signin-passkey-fallback-unwrap-failed-description = Une erreur s’est produite. Vous aurez donc besoin de votre mot de passe cette fois-ci.
+signin-passkey-fallback-wrap-unusable-link = En savoir plus
 
 
 signin-passwordless-code-heading = Saisissez le code de confirmation

@@ -365,6 +365,13 @@ locale-toggle-browser-default = Böngésző alapértelmezése
 error-bad-request = Hibás kérés
 
 
+pair-unsupported-hint-heading = Fejezze be a párosítást az alkalmazásban
+pair-unsupported-hint-step-close-page = Oldal bezárása
+pair-unsupported-hint-step-app-menu = Koppintson az <b>alkalmazásmenüre</b>
+pair-unsupported-hint-step-sign-in = <b>Jelentkezzen be</b>, majd olvassa le a kódot
+pair-unsupported-hint-learn-more-link = További tudnivalók
+
+
 password-info-balloon-why-password-info = Erre a jelszóra van szüksége a nálunk tárolt titkosított adatok eléréséhez.
 password-info-balloon-reset-risk-info = Az alaphelyzetbe állítás azt jelenti, hogy elvesztheti az adatait, például a jelszavait és könyvjelzőit.
 
@@ -1595,6 +1602,11 @@ signin-passkey-fallback-body = Hogy adatait biztonságban tartsa, meg kell adnia
 signin-passkey-fallback-password-label = Jelszó
 signin-passkey-fallback-continue = Folytatás
 signin-passkey-fallback-forgot-password-link = Elfelejtette a jelszót?
+signin-passkey-fallback-no-prf-heading = Jelszó szükséges ezen az eszközön
+signin-passkey-fallback-no-prf-description = Ez a böngésző vagy eszköz nem használhatja a jelkulcsot a saját maga bejelentkezéshez a szinkronizáláshoz.
+signin-passkey-fallback-unwrap-failed-heading = A jelkulcs nem tudta feloldani a szinkronizálást
+signin-passkey-fallback-unwrap-failed-description = Valami hiba történt, így most szüksége lesz a jelszavára.
+signin-passkey-fallback-wrap-unusable-link = További tudnivalók
 
 
 signin-passwordless-code-heading = Adja meg a megerősítő kódot

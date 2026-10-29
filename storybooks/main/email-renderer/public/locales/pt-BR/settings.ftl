@@ -1590,6 +1590,11 @@ signin-bounced-help = Se este for um endereço de email válido, <linkExternal>a
 signin-bounced-create-new-account = Não tem mais este email? Crie outra conta
 back = Voltar
 
+## SigninPasskeyFallback page
+## Users who authenticate with a passkey to access Sync must also enter their password.
+
+signin-passkey-fallback-body = Para manter seus dados seguros, você precisa digitar sua senha ao usar esta chave de acesso.
+
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
 ## their password, and they previously had set up an account recovery method.

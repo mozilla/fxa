@@ -454,6 +454,13 @@ locale-toggle-browser-default = Privzeti v brskalniku
 error-bad-request = Zahteva z napako
 
 
+pair-unsupported-hint-heading = Dokončajte seznanjanje v aplikaciji
+pair-unsupported-hint-step-close-page = Zapri to stran
+pair-unsupported-hint-step-app-menu = Tapnite <b>meni aplikacij</b>
+pair-unsupported-hint-step-sign-in = <b>Prijavite se</b> in preberite kodo
+pair-unsupported-hint-learn-more-link = Več o tem
+
+
 password-info-balloon-why-password-info = To geslo potrebujete za dostop do šifriranih podatkov, ki jih shranjujete pri nas.
 password-info-balloon-reset-risk-info = Ponastavitev lahko povzroči izgubo podatkov, kot so gesla in zaznamki.
 
@@ -1690,6 +1697,11 @@ signin-passkey-fallback-body = Da ohranite svoje podatke varne, morate pri upora
 signin-passkey-fallback-password-label = Geslo
 signin-passkey-fallback-continue = Nadaljuj
 signin-passkey-fallback-forgot-password-link = Ste pozabili geslo?
+signin-passkey-fallback-no-prf-heading = V tej napravi je potrebno geslo
+signin-passkey-fallback-no-prf-description = Ta brskalnik ali naprava ne moreta uporabiti gesla za prijavo v sinhronizacijo sama po sebi.
+signin-passkey-fallback-unwrap-failed-heading = Vašega gesla ni bilo mogoče odkleniti sinhronizacije
+signin-passkey-fallback-unwrap-failed-description = Nekaj je šlo narobe, zato boste tokrat potrebovali geslo.
+signin-passkey-fallback-wrap-unusable-link = Več o tem
 
 
 signin-passwordless-code-heading = Vnesite potrditveno kodo

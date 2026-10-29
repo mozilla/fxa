@@ -407,6 +407,20 @@ locale-toggle-browser-default = Privzeti v brskalniku
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Zahteva z napako
 
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+pair-unsupported-hint-heading = Dokončajte seznanjanje v aplikaciji
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = Zapri to stran
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Tapnite <b>meni aplikacij</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>Prijavite se</b> in preberite kodo
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = Več o tem
+
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
 
@@ -2312,6 +2326,16 @@ signin-passkey-fallback-body = Da ohranite svoje podatke varne, morate pri upora
 signin-passkey-fallback-password-label = Geslo
 signin-passkey-fallback-continue = Nadaljuj
 signin-passkey-fallback-forgot-password-link = Ste pozabili geslo?
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = V tej napravi je potrebno geslo
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
+signin-passkey-fallback-no-prf-description = Ta brskalnik ali naprava ne moreta uporabiti gesla za prijavo v sinhronizacijo sama po sebi.
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
+signin-passkey-fallback-unwrap-failed-heading = Vašega gesla ni bilo mogoče odkleniti sinhronizacije
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = Nekaj je šlo narobe, zato boste tokrat potrebovali geslo.
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = Več o tem
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.

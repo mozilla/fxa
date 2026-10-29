@@ -617,6 +617,13 @@ locale-toggle-browser-default = Předvolený jazyk prohlížeče
 error-bad-request = Špatný požadavek
 
 
+pair-unsupported-hint-heading = Dokončete párování v aplikaci
+pair-unsupported-hint-step-close-page = Zavřít tuto stránku
+pair-unsupported-hint-step-app-menu = Klepněte na <b>nabídku aplikace</b>
+pair-unsupported-hint-step-sign-in = <b>Přihlaste se</b> a poté naskenujte kód
+pair-unsupported-hint-learn-more-link = Zjistit více
+
+
 password-info-balloon-why-password-info = Toto heslo potřebujete pro přístup ke všem zašifrovaným datům, která u nás ukládáte.
 password-info-balloon-reset-risk-info = Reset znamená potenciální ztrátu dat, jako jsou hesla a záložky.
 
@@ -1841,6 +1848,11 @@ signin-passkey-fallback-body = Aby byla vaše data v bezpečí, musíte při pou
 signin-passkey-fallback-password-label = Heslo
 signin-passkey-fallback-continue = Pokračovat
 signin-passkey-fallback-forgot-password-link = Zapomněli jste heslo?
+signin-passkey-fallback-no-prf-heading = Na tomto zařízení je vyžadováno heslo
+signin-passkey-fallback-no-prf-description = Tento prohlížeč nebo zařízení nemůže pro přihlášení ke synchronizaci použít vlastní klíč.
+signin-passkey-fallback-unwrap-failed-heading = Váš přístupový kód nemohl odemknout synchronizaci
+signin-passkey-fallback-unwrap-failed-description = Něco se pokazilo, tentokrát budete potřebovat heslo.
+signin-passkey-fallback-wrap-unusable-link = Zjistit více
 
 
 signin-passwordless-code-heading = Zadejte potvrzovací kód

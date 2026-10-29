@@ -1143,6 +1143,9 @@ signin-bounced-create-new-account = Não tem mais este email? Crie outra conta
 back = Voltar
 
 
+signin-passkey-fallback-body = Para manter seus dados seguros, você precisa digitar sua senha ao usar esta chave de acesso.
+
+
 signin-recovery-method-header = Entrar
 signin-recovery-method-subheader = Escolha um método de recuperação
 signin-recovery-method-details = Vamos garantir que é mesmo você usando seus métodos de recuperação.

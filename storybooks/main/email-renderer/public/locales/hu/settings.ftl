@@ -401,6 +401,20 @@ locale-toggle-browser-default = Böngésző alapértelmezése
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Hibás kérés
 
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+pair-unsupported-hint-heading = Fejezze be a párosítást az alkalmazásban
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = Oldal bezárása
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Koppintson az <b>alkalmazásmenüre</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>Jelentkezzen be</b>, majd olvassa le a kódot
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = További tudnivalók
+
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
 
@@ -2300,6 +2314,16 @@ signin-passkey-fallback-body = Hogy adatait biztonságban tartsa, meg kell adnia
 signin-passkey-fallback-password-label = Jelszó
 signin-passkey-fallback-continue = Folytatás
 signin-passkey-fallback-forgot-password-link = Elfelejtette a jelszót?
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = Jelszó szükséges ezen az eszközön
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
+signin-passkey-fallback-no-prf-description = Ez a böngésző vagy eszköz nem használhatja a jelkulcsot a saját maga bejelentkezéshez a szinkronizáláshoz.
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
+signin-passkey-fallback-unwrap-failed-heading = A jelkulcs nem tudta feloldani a szinkronizálást
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = Valami hiba történt, így most szüksége lesz a jelszavára.
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = További tudnivalók
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.

@@ -340,6 +340,13 @@ locale-toggle-browser-default = Rhagosodiad y porwr
 error-bad-request = Cais Gwael
 
 
+pair-unsupported-hint-heading = Gorffen paru yn yr ap
+pair-unsupported-hint-step-close-page = Cau'r dudalen hon
+pair-unsupported-hint-step-app-menu = Tapiwch y <b>dewislen ap</b>
+pair-unsupported-hint-step-sign-in = <b>Mewngofnodwch</b>, yna sganiwch y cod
+pair-unsupported-hint-learn-more-link = Dysgu rhagor
+
+
 password-info-balloon-why-password-info = Mae angen y cyfrinair hwn arnoch i gael mynediad at unrhyw ddata wedi'i amgryptio rydych yn ei storio gyda ni.
 password-info-balloon-reset-risk-info = Mae ailosod yn golygu o bosibl golli data fel cyfrineiriau a nodau tudalen.
 
@@ -1577,6 +1584,11 @@ signin-passkey-fallback-body = Er mwyn cadw'ch data'n ddiogel, mae angen i chi r
 signin-passkey-fallback-password-label = Cyfrinallwedd
 signin-passkey-fallback-continue = Parhau
 signin-passkey-fallback-forgot-password-link = Wedi anghofio'r cyfrinair?
+signin-passkey-fallback-no-prf-heading = Mae angen cyfrinair ar y ddyfais hon
+signin-passkey-fallback-no-prf-description = Ni all y porwr neu ddyfais hwn ddefnyddio'ch cyfrinair i fewngofnodi i gysoni ar ei ben ei hun.
+signin-passkey-fallback-unwrap-failed-heading = Ni allai'ch cyfrinair ddatgloi cysoni
+signin-passkey-fallback-unwrap-failed-description = Aeth rhywbeth o'i le, felly bydd angen eich cyfrinair y tro hwn.
+signin-passkey-fallback-wrap-unusable-link = Dysgu rhagor
 
 
 signin-passwordless-code-heading = Rhowch y cod dilysu
