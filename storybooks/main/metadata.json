@@ -1,8 +1,8 @@
 {
-  "commit": "6f0829c50d359b4e97f38d4c98969b57bcca804b",
-  "summary": "Merge pull request #21639 from mozilla/PAY-3923",
-  "description": "feat(auth): add script to publish SubPlat active accounts to BigQuery",
-  "timestamp": 1793304650000,
+  "commit": "c040d69e81cbc6f111fc8a0b793ff66c3d18e5cc",
+  "summary": "Merge pull request #21553 from mozilla/FXA-13266",
+  "description": "feat(passkeys): add Glean events for passwordless Sync opt-in and wraps",
+  "timestamp": 1793305670000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

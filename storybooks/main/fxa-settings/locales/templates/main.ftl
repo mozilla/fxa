@@ -388,6 +388,13 @@ locale-toggle-browser-default = Browser default
 error-bad-request = Bad Request
 
 
+pair-unsupported-hint-heading = Finish pairing in the app
+pair-unsupported-hint-step-close-page = Close this page
+pair-unsupported-hint-step-app-menu = Tap the <b>app menu</b>
+pair-unsupported-hint-step-sign-in = <b>Sign in</b>, then scan the code
+pair-unsupported-hint-learn-more-link = Learn more
+
+
 password-info-balloon-why-password-info = You need this password to access any encrypted data you store with us.
 password-info-balloon-reset-risk-info = A reset means potentially losing data like passwords and bookmarks.
 
@@ -1782,6 +1789,12 @@ signin-passkey-fallback-body = To keep your data safe, you need to enter your pa
 signin-passkey-fallback-password-label = Password
 signin-passkey-fallback-continue = Continue
 signin-passkey-fallback-forgot-password-link = Forgot password?
+
+signin-passkey-fallback-no-prf-heading = Password needed on this device
+signin-passkey-fallback-no-prf-description = This browser or device can’t use your passkey to sign in to sync on its own.
+signin-passkey-fallback-unwrap-failed-heading = Your passkey couldn’t unlock sync
+signin-passkey-fallback-unwrap-failed-description = Something went wrong, so you’ll need your password this time.
+signin-passkey-fallback-wrap-unusable-link = Learn more
 
 
 
