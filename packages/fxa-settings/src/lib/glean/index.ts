@@ -926,6 +926,31 @@ const recordEventMetric = (
         outcome: gleanPingMetrics?.event?.['outcome'] || '',
       });
       break;
+    case 'passkey_upgrade_prompt_view':
+      passkey.upgradePromptView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'passkey_upgrade_prompt_submit':
+      passkey.upgradePromptSubmit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'passkey_upgrade_prompt_success':
+      passkey.upgradePromptSuccess.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'passkey_upgrade_prompt_notnow':
+      passkey.upgradePromptNotnow.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'passkey_upgrade_prompt_frontend_error':
+      passkey.upgradePromptFrontendError.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
     case 'passkey_enter_password_view':
       passkeyEnterPassword.view.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',

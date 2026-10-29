@@ -1121,6 +1121,7 @@ describe('usePasskeySignIn passwordless Sync', () => {
       credentialId: 'stale',
       mfaToken: 'stale',
       prfOut: stale,
+      surface: 'signin',
     };
     const { result } = renderSyncHook();
 
@@ -1294,6 +1295,7 @@ describe('usePasskeySignIn passwordless Sync', () => {
       credentialId: MOCK_CREDENTIAL.id,
       mfaToken: MFA_TOKEN,
       prfOut: PRF_OUT,
+      surface: 'emailfirst',
     });
   });
 

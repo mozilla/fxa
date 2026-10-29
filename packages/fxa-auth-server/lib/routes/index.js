@@ -259,7 +259,7 @@ module.exports = function (
   );
 
   const { passkeyWrapsRoutes } = require('./passkey-wraps');
-  const passkeyWraps = passkeyWrapsRoutes(customs, db, config, log);
+  const passkeyWraps = passkeyWrapsRoutes(customs, db, config, log, glean);
 
   const { passwordlessRoutes } = require('./passwordless');
   const passwordless = passwordlessRoutes(
