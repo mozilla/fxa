@@ -189,11 +189,11 @@ describe('lib/oauth/db - access tokens', () => {
 });
 
 describe('lib/oauth/db - getFallbackServiceForClient', () => {
-  // Runs against the shipped config defaults.
+  // Runs against the shipped config defaults. Only asserts services every
+  // supported train configures, so the spec cherry-picks cleanly.
   it.each([
     ['e6eb0d1e856335fc', 'vpn'],
     ['E6EB0D1E856335FC', 'vpn'],
-    ['802d56ef2a9af9fa', 'monitor'],
     ['0000000000000000', undefined],
     [undefined, undefined],
     [null, undefined],
