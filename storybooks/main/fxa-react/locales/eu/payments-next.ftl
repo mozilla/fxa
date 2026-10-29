@@ -259,6 +259,7 @@ next-payment-confirm-with-legal-links-static-3 = Baimena ematen diot { -brand-mo
 ## $endDate (Date) - The end date of the free trial
 
 checkbox-payment-required-no-charge = Ordainketa-metodoa beharrezkoa da zure doako proba hasteko. Ez zaizu ezer kobratuko { $endDate } egunera arte.
+checkbox-confirm-free-trial-with-legal-links = Baimena ematen diot { -brand-mozilla }(r)i nire ordainketa-metodoa erabiliz erakutsitako zenbatekoa kobratzeko behin doako proba { $endDate } egunean amaitzen denean, <termsOfServiceLink>zerbitzu-baldintzen</termsOfServiceLink> eta <privacyNoticeLink>pribatutasun-oharra</privacyNoticeLink>ren arabera, nire harpidetza bertan behera uzten dudan arte.
 next-payment-confirm-checkbox-error = Hau osatu behar duzu aurrera egin aurretik
 
 ## Checkout Form

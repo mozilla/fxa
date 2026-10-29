@@ -1,8 +1,8 @@
 {
-  "commit": "99a699890f74eae02f2b373fe06b8ebd62fd74d8",
-  "summary": "Merge pull request #21636 from mozilla/fxa-14855",
-  "description": "fix(settings): anchor splitChunks cacheGroups regexes",
-  "timestamp": 1793280781000,
+  "commit": "d33cad3684cd26c6ab58d26ca6d36fd74988dc90",
+  "summary": "Merge pull request #21420 from mozilla/skill-updates-db",
+  "description": "chore(docs): require migrations to survive a code rollback",
+  "timestamp": 1793288841000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
