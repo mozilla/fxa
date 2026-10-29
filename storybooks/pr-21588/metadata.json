@@ -1,8 +1,8 @@
 {
-  "commit": "c4dd6ff7f8a7ab0f12bebe42c1e680302d1daeb2",
-  "summary": "fix(auth): sustain the bandaid's canonical row through disconnects",
-  "description": "Because:\n- Rows written for clients in serviceForClient carry a canonical scope\n  their tokens don't hold, so no remaining token ever covered them.\n- The first disconnect of any client on the service's allowlist\n  deauthorized the row while the app was still signed in, and the next\n  token exchange for that scope failed with errno 112.\n\nThis commit:\n- Adds impliedScopeForClient to authorizationRowsToDeauthorize: a token\n  from a mapped client counts as covering that service's canonical scope.\n- Wires it from deauthorizeOnDisconnect via the same config map.\n- Covers the rule, the wiring, and the caller mocks.",
-  "timestamp": 1793215071000,
+  "commit": "34c46650582fc6f38786a8c31afa7d26c1a4ae01",
+  "summary": "feat(auth): attribute Monitor web and VPN app sign-ins to their service",
+  "description": "Because:\n- Monitor web and the Mozilla VPN app sign in without their service's\n  canonical scope, so no consent row exists for the Firefox token exchange.\n- The accountAuthorizations backfill could not recognise those tokens and\n  had no way to resume after a killed pod.\n- A disconnect of any allowlisted client deauthorized the fallback row\n  while the app was still signed in.\n\nThis commit:\n- Adds oauthServer.exchange.serviceForClient (client_id -> service), read by\n  /oauth/authorization as a last-resort fallback and by the backfill script.\n- Writes the service's canonical scope row when the token lacks it, in both\n  the sign-in path and the backfill.\n- Adds --omit-scope and --start-cursor to the backfill and logs the cursor\n  per batch.\n- Treats a mapped client's tokens as covering its service's canonical scope\n  in authorizationRowsToDeauthorize.\n- Ignores mappings for services absent from serviceScopes.\n\nRemoval tracked in FXA-14813.",
+  "timestamp": 1793292022000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-settings"
