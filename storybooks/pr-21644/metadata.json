@@ -1,0 +1,12 @@
+{
+  "commit": "876007c73a45f6f6bf5fde43d15660435cd729e5",
+  "summary": "fix(react): restore same-language l10n fallback",
+  "description": "Because:\n\n- Fetching only the best locale and en dropped same-language siblings, so es-MX, pt-BR and zh-CN users saw English strings.\n\nThis commit:\n\n- Fetches the full negotiated locale list in AppLocalizationProvider.\n- Drops en-GB and en-CA unless one is the best locale.\n- Extends the fetch list table and adds an es-MX fallback render test.\n\nCloses FXA-14879",
+  "timestamp": 1793279930000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
