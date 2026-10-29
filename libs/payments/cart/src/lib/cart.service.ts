@@ -1015,16 +1015,17 @@ export class CartService {
   private async previewInvoiceForCart(
     cart: ResultCartWithTaxAddressAndCurrency,
     priceId: string,
+    subscriptionId?: string,
     customer?: StripeCustomer,
     subscription?: StripeSubscription,
     latestInvoicePreview?: InvoicePreview
   ): Promise<InvoicePreview> {
     // Once subscription is created, preview from it as it keeps any discount.
     // Resending a redeemed code (e.g. single-use) can be rejected by Stripe.
-    if (customer && cart.stripeSubscriptionId) {
+    if (customer && subscriptionId) {
       const cartSubscription =
         subscription ??
-        (await this.subscriptionManager.retrieve(cart.stripeSubscriptionId));
+        (await this.subscriptionManager.retrieve(subscriptionId));
 
       // A trial's latest invoice is $0, so preview the first charge after it.
       if (cartSubscription.status === 'trialing') {
@@ -1098,10 +1099,22 @@ export class CartService {
     const cartEligibilityStatus =
       handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
 
+    // Checkout saves an upgrade's subscription ID only after Stripe applies it;
+    // until then, match by the new price. Stored eligibility is used because the
+    // fresh result is SAME once the upgrade is applied.
+    const cartSubscriptionId =
+      cart.stripeSubscriptionId ||
+      (cart.state === CartState.PROCESSING &&
+      cart.eligibilityStatus === CartEligibilityStatus.UPGRADE
+        ? subscriptions?.find((subscription) =>
+            subscription.items.data.some((item) => item.price.id === price.id)
+          )?.id
+        : undefined);
+
     // Use Stripe's trial dates as the source of truth if applicable
     const trialSubscription =
-      cart.stripeSubscriptionId && subscriptions
-        ? subscriptions.find((s) => s.id === cart.stripeSubscriptionId)
+      cartSubscriptionId && subscriptions
+        ? subscriptions.find((s) => s.id === cartSubscriptionId)
         : undefined;
     const trialStartDate = trialSubscription?.trial_start ?? undefined;
     const trialEndDate = trialSubscription?.trial_end ?? undefined;
@@ -1148,15 +1161,14 @@ export class CartService {
     let latestInvoicePreview: InvoicePreview | undefined;
     if (
       customer &&
-      cart.stripeSubscriptionId &&
+      cartSubscriptionId &&
       subscriptions &&
       cart.state !== CartState.FAIL
     ) {
       const subscription =
         subscriptions.find(
-          (subscription) => subscription.id === cart.stripeSubscriptionId
-        ) ||
-        (await this.subscriptionManager.retrieve(cart.stripeSubscriptionId));
+          (subscription) => subscription.id === cartSubscriptionId
+        ) || (await this.subscriptionManager.retrieve(cartSubscriptionId));
 
       // fetch latest payment info from subscription
       assert(
@@ -1193,6 +1205,7 @@ export class CartService {
         upcomingInvoicePreview = await this.previewInvoiceForCart(
           cart,
           price.id,
+          cartSubscriptionId,
           customer,
           trialSubscription,
           latestInvoicePreview
@@ -1212,6 +1225,7 @@ export class CartService {
       upcomingInvoicePreview = await this.previewInvoiceForCart(
         cart,
         price.id,
+        cartSubscriptionId,
         customer,
         trialSubscription,
         latestInvoicePreview
