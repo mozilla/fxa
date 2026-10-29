@@ -1,8 +1,8 @@
 {
-  "commit": "2ec0fbb68edc92b4e2f68ed996688adae8884981",
-  "summary": "Merge pull request #21635 from mozilla/fxa-14862",
-  "description": "feat(settings): add per-route bundle size report with a budget",
-  "timestamp": 1793293415000,
+  "commit": "18b4817ab34b2df9f6a6f09799f725b5663481d5",
+  "summary": "Merge pull request #21643 from mozilla/fxa-14660",
+  "description": "fix(auth): stop reading subscriptions in GET /v1/account",
+  "timestamp": 1793296743000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
