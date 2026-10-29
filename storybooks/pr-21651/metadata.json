@@ -1,0 +1,10 @@
+{
+  "commit": "93f1fdc6cdae2bb5a795cab75790f4141f282953",
+  "summary": "fix(settings): stop reporting Nimbus fetch network failures to Sentry",
+  "description": "Because:\n\n* Client network failures of the Nimbus experiments fetch fill Sentry\n  with a TypeError that the app code cannot fix.\n\nThis commit:\n\n* Leaves a Sentry breadcrumb, not an exception, when the fetch rejects\n  with a TypeError.\n* Keeps the Sentry report for every other error, such as a JSON parse\n  failure.\n\nCloses FXA-8385",
+  "timestamp": 1793309975000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
