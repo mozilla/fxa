@@ -52,6 +52,8 @@ export interface DeauthorizeOnDisconnectOauthDB {
   >;
   /** The /authorization write allowlist for a service, if it has one. */
   allowedClientsForService(service: string): ReadonlySet<string> | undefined;
+  getFallbackServiceForClient(clientId: string): string | undefined;
+  getCanonicalScopeForService(service: string): string | undefined;
   /** Resolves to the number of rows actually deauthorized. */
   deauthorizeAccountAuthorizations(
     uid: string,
@@ -132,6 +134,10 @@ export async function deauthorizeOnDisconnect(
         scope: t.scope,
       })),
       allowedClientsForService: (s) => deps.oauthDB.allowedClientsForService(s),
+      impliedScopeForClient: (c) => {
+        const service = deps.oauthDB.getFallbackServiceForClient(c);
+        return service && deps.oauthDB.getCanonicalScopeForService(service);
+      },
     });
 
     const deauthorized = toDeauthorize.length

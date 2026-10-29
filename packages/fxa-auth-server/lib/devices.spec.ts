@@ -18,6 +18,8 @@ jest.mock('./oauth/db', () => ({
   listAccountConsentsByUid: jest.fn(),
   getRefreshTokenScopesByUid: jest.fn(),
   allowedClientsForService: jest.fn(),
+  getFallbackServiceForClient: jest.fn(),
+  getCanonicalScopeForService: jest.fn(),
   deauthorizeAccountAuthorizations: jest.fn(),
 }));
 
