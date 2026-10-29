@@ -48,6 +48,12 @@ describe('beta-settings', () => {
       assert.strictEqual(injectedConfig(res.send.args[0][0]).serverError, true);
     });
 
+    it('adds notFound to the config when the 404 handler sets it', () => {
+      const res = mockRes({ notFound: true });
+      modifySettingsStatic({ path: '/no-such-page' }, res);
+      assert.strictEqual(injectedConfig(res.send.args[0][0]).notFound, true);
+    });
+
     it('leaves serverError out of the config otherwise', () => {
       const res = mockRes();
       modifySettingsStatic({ path: '/signin' }, res);
@@ -78,6 +84,15 @@ describe('beta-settings', () => {
       assert.ok(res.status.calledWith(500));
       assert.strictEqual(
         injectedConfig(res.send.args[0][0].toString()).serverError,
+        true
+      );
+    });
+
+    it('sets status 404 and adds notFound when the 404 handler sets it', () => {
+      const res = proxy({ notFound: true });
+      assert.ok(res.status.calledWith(404));
+      assert.strictEqual(
+        injectedConfig(res.send.args[0][0].toString()).notFound,
         true
       );
     });

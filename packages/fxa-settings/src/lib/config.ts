@@ -146,6 +146,8 @@ export interface Config {
   servicesWithEmailVerification: string[];
   // Set by the content-server 500 handler
   serverError?: boolean;
+  // Set by the content-server 404 handler
+  notFound?: boolean;
 }
 
 export function getDefault() {

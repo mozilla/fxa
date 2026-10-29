@@ -160,11 +160,15 @@ const settingsConfig = {
   servicesWithEmailVerification: config.get('servicesWithEmailVerification'),
 };
 
-// The 500 handler sets res.locals.serverError so React renders its error page
+// The 500 and 404 handlers set res.locals so React renders their pages
 function getServerConfig(res) {
-  return res.locals.serverError
-    ? { ...settingsConfig, serverError: true }
-    : settingsConfig;
+  if (res.locals.serverError) {
+    return { ...settingsConfig, serverError: true };
+  }
+  if (res.locals.notFound) {
+    return { ...settingsConfig, notFound: true };
+  }
+  return settingsConfig;
 }
 
 // Inject Settings content into the index HTML
@@ -236,7 +240,13 @@ function modifyProxyRes(proxyRes, req, res) {
     const body = Buffer.concat(bodyChunks);
 
     // forward existing response data
-    res.status(res.locals.serverError ? 500 : proxyRes.statusCode);
+    res.status(
+      res.locals.serverError
+        ? 500
+        : res.locals.notFound
+          ? 404
+          : proxyRes.statusCode
+    );
     Object.keys(proxyRes.headers).forEach((key) => {
       res.append(key, proxyRes.headers[key]);
     });
