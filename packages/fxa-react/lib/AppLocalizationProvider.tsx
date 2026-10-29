@@ -5,11 +5,7 @@
 import { FluentBundle, FluentResource } from '@fluent/bundle';
 import { LocalizationProvider, ReactLocalization } from '@fluent/react';
 import React, { Component } from 'react';
-import {
-  DEFAULT_LOCALE,
-  EN_GB_LOCALES,
-  parseAcceptLanguage,
-} from '@fxa/shared/l10n';
+import { EN_GB_LOCALES, parseAcceptLanguage } from '@fxa/shared/l10n';
 
 type ReportError = (error: Error) => void;
 
@@ -287,9 +283,11 @@ export default class AppLocalizationProvider extends Component<Props, State> {
     }
 
     const { baseDir, userLocales, bundles } = this.state;
-    // Regional variants are deep fallbacks, so fetch only the best locale and en.
-    const [bestLocale] = parseAcceptLanguage(userLocales.join(', '));
-    const currentLocales = [...new Set([bestLocale, DEFAULT_LOCALE])];
+    // Keep same-language fallbacks, but fetch en-GB and en-CA only as the best locale.
+    const negotiated = parseAcceptLanguage(userLocales.join(', '));
+    const currentLocales = negotiated.filter(
+      (l, i) => i === 0 || !['en-GB', 'en-CA'].includes(l)
+    );
     const bundleGenerator = await createFluentBundleGenerator(
       baseDir,
       currentLocales,
