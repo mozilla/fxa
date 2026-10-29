@@ -57,6 +57,14 @@ const EXCHANGE_ALLOWED_CLIENTS_FOR_SERVICE = new Map(
   ])
 );
 
+// clientId -> service for clients that sign in without their service's
+// canonical scope. Bandaid; see oauthServer.exchange.serviceForClient.
+const EXCHANGE_SERVICE_FOR_CLIENT = new Map(
+  Object.entries(config.get('oauthServer.exchange.serviceForClient') || {}).map(
+    ([clientId, service]) => [clientId.toLowerCase(), service]
+  )
+);
+
 // `/oauth/authorization` scope resolution: per-service base scope set,
 // plus a single conditional scope added when keysJwe is present.
 const AUTHORIZATION_SERVICE_SCOPES = config.get(
@@ -489,6 +497,19 @@ class OauthDB extends ConnectedServicesDb {
   // Returns undefined for scopes that no service owns.
   getServiceForCanonicalScope(scope) {
     return EXCHANGE_SCOPE_TO_SERVICE.get(scope);
+  }
+
+  // Bandaid (FXA-14724, removal FXA-14813). Service a client's sign-ins are
+  // attributed to when none of the requested scopes is canonical. Only
+  // services present in serviceScopes are returned, so a mapping to a service
+  // not yet configured is inert.
+  getFallbackServiceForClient(clientId) {
+    const service = EXCHANGE_SERVICE_FOR_CLIENT.get(
+      (clientId || '').toLowerCase()
+    );
+    return service && EXCHANGE_KNOWN_SERVICES.has(service)
+      ? service
+      : undefined;
   }
 
   // Server-side scope resolution when scope is missing, service is present,

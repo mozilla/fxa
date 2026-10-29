@@ -1540,6 +1540,15 @@ const convictConf = convict({
         },
         env: 'OAUTH_EXCHANGE_ALLOWED_CLIENTS_FOR_SERVICE',
       },
+      serviceForClient: {
+        doc: "Bandaid (FXA-14724). OAuth client_id (hex) -> service for first-party clients that sign in without their service's canonical scope (Monitor web, the Mozilla VPN app); /oauth/authorization and the accountAuthorizations backfill attribute those sign-ins to the service. Entries for services missing from serviceScopes are ignored. Remove each entry once that client requests its canonical scope (FXA-14813).",
+        format: Object,
+        default: {
+          '802d56ef2a9af9fa': 'monitor',
+          e6eb0d1e856335fc: 'vpn',
+        },
+        env: 'OAUTH_EXCHANGE_SERVICE_FOR_CLIENT',
+      },
     },
     authorization: {
       serviceScopes: {

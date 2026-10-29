@@ -281,7 +281,7 @@ module.exports = ({
   // Resolve the browser service this authorization is for. Falls back
   // to inferring from a canonical scope when the URL omits service=,
   // but only when exactly one is present — ambiguous requests resolve to ''.
-  function resolveServiceValue(req, requestedScopes) {
+  function resolveServiceValue(req, requestedScopes, clientIdHex) {
     const serviceParam = (req.payload.service || '').toLowerCase();
     if (oauthDB.isKnownService(serviceParam)) {
       return serviceParam;
@@ -289,7 +289,17 @@ module.exports = ({
     const inferred = requestedScopes
       .map((s) => oauthDB.getServiceForCanonicalScope(s))
       .filter(Boolean);
-    return inferred.length === 1 ? inferred[0] : '';
+    if (inferred.length === 1) {
+      return inferred[0];
+    }
+    if (inferred.length > 1) {
+      return '';
+    }
+    // Bandaid (FXA-14724): Monitor web and the VPN app sign in without their
+    // canonical scope, so attribute the sign-in by client_id and let the
+    // canonical row be written below. Config-driven; see
+    // oauthServer.exchange.serviceForClient.
+    return oauthDB.getFallbackServiceForClient(clientIdHex) || '';
   }
 
   // Whether this sign-in should be kept out of the Sync DAU signal. Computed
@@ -309,7 +319,7 @@ module.exports = ({
     }
     return dropUnconsentedSyncScope({
       scopes: requestedScopes,
-      serviceValue: resolveServiceValue(req, requestedScopes),
+      serviceValue: resolveServiceValue(req, requestedScopes, clientIdHex),
       clientIdHex,
     }).droppedSyncScope;
   }
@@ -326,7 +336,7 @@ module.exports = ({
       return;
     }
     const clientIdHex = hex(grant.clientId);
-    const serviceValue = resolveServiceValue(req, requestedScopes);
+    const serviceValue = resolveServiceValue(req, requestedScopes, clientIdHex);
     // Expose the resolved service for native clients so the `login` event can
     // report the browser service (matching the grain of `firstAuthorization`,
     // incl. scope-only flows like VPN cached sign-in) instead of the shared

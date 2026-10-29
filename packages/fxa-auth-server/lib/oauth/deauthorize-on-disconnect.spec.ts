@@ -18,6 +18,7 @@ import {
 const UID = 'a'.repeat(32);
 const FENIX = OAuthNativeClients.Fenix;
 const WEB_RP = '98e6508e88680e1b'; // arbitrary non-native web RP (no enum)
+const VPN_APP = 'e6eb0d1e856335fc';
 
 const VPN_SCOPE = 'https://identity.mozilla.com/apps/vpn';
 const TOS_AT = 1_700_000_000_000;
@@ -38,6 +39,8 @@ function mockDb(
     ]),
     getRefreshTokenScopesByUid: jest.fn().mockResolvedValue([]),
     allowedClientsForService: jest.fn().mockReturnValue(undefined),
+    getFallbackServiceForClient: jest.fn().mockReturnValue(undefined),
+    getCanonicalScopeForService: jest.fn().mockReturnValue(undefined),
     deauthorizeAccountAuthorizations: jest.fn().mockResolvedValue(1),
     ...over,
   } satisfies jest.Mocked<DeauthorizeOnDisconnectOauthDB>;
@@ -138,6 +141,31 @@ describe('deauthorizeOnDisconnect', () => {
       'accountAuthorization.deauthorize_noop',
       { client_type: 'native' }
     );
+  });
+
+  it('treats a mapped client’s tokens as carrying its service’s canonical scope', async () => {
+    const db = mockDb({
+      listAccountConsentsByUid: consentsOf(VPN_APP),
+      getRefreshTokenScopesByUid: jest.fn().mockResolvedValue([
+        {
+          clientId: Buffer.from(VPN_APP, 'hex'),
+          scope: { contains: () => false },
+        },
+      ]),
+      allowedClientsForService: jest
+        .fn()
+        .mockReturnValue(new Set([FENIX, VPN_APP])),
+      getFallbackServiceForClient: jest.fn((clientId: string) =>
+        clientId === VPN_APP ? 'vpn' : undefined
+      ),
+      getCanonicalScopeForService: jest.fn((service: string) =>
+        service === 'vpn' ? VPN_SCOPE : undefined
+      ),
+    });
+
+    await deauthorizeOnDisconnect(mockDeps(db), destroyed);
+
+    expect(db.deauthorizeAccountAuthorizations).not.toHaveBeenCalled();
   });
 
   it('reads the rows before the refresh tokens', async () => {
