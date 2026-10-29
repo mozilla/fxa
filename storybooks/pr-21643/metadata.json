@@ -1,0 +1,10 @@
+{
+  "commit": "1c90d60aa7c8dc6c6d86cbe79094e3eef2d04f81",
+  "summary": "fix(auth): stop reading subscriptions in GET /v1/account",
+  "description": "Because:\n\n* GET /v1/account read Stripe, Play and the App Store on every\n  Settings load, only to show or hide one nav link\n\nThis commit:\n\n* Stops GET /v1/account from reading and returning subscriptions\n* Always shows the Paid Subscriptions link in the Settings nav\n* Removes subscriptions from the Settings account model and state\n\nCloses FXA-14660",
+  "timestamp": 1793273571000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
