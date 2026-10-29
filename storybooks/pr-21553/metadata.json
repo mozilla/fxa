@@ -1,8 +1,8 @@
 {
-  "commit": "938b50857570827985ec3cb3140ef77ff442e907",
+  "commit": "a08aa13002b713c90eb6f8a144d56464482c4f2c",
   "summary": "feat(passkeys): add Glean events for passwordless Sync opt-in and wraps",
   "description": "Because:\n\n* Product needs to measure the passwordless Sync opt-in funnel, including declines, which nothing else records\n* Wrap create and retrieve outcomes had security events but no Glean signal\n\nThis commit:\n\n* Adds passkey.upgrade_prompt_* events to the opt-in page, tagged with the sign-in surface\n* Carries the surface on PasskeyWrapData from the passkey sign-in to the opt-in page\n* Adds passkey.wrap_create_success, wrap_retrieve_success and wrap_retrieve_error\n* Skips wrap_retrieve_error when the passkey has no wrap stored\n* Passes Glean into the passkey wrap routes\n\nCloses #FXA-13266",
-  "timestamp": 1793215604000,
+  "timestamp": 1793301460000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-settings"

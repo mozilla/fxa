@@ -1790,6 +1790,12 @@ signin-passkey-fallback-password-label = Password
 signin-passkey-fallback-continue = Continue
 signin-passkey-fallback-forgot-password-link = Forgot password?
 
+signin-passkey-fallback-no-prf-heading = Password needed on this device
+signin-passkey-fallback-no-prf-description = This browser or device can’t use your passkey to sign in to sync on its own.
+signin-passkey-fallback-unwrap-failed-heading = Your passkey couldn’t unlock sync
+signin-passkey-fallback-unwrap-failed-description = Something went wrong, so you’ll need your password this time.
+signin-passkey-fallback-wrap-unusable-link = Learn more
+
 
 
 signin-passwordless-code-heading = Enter confirmation code
