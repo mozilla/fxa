@@ -45,11 +45,6 @@ export interface RecoveryPhoneStatus {
   available: boolean;
 }
 
-export interface Subscription {
-  created: number;
-  productName: string;
-}
-
 export interface ExtendedAccountState {
   displayName: string | null;
   avatar: (AccountAvatar & { isDefault?: boolean }) | null;
@@ -63,7 +58,6 @@ export interface ExtendedAccountState {
   recoveryPhone: RecoveryPhoneStatus | null;
   attachedClients: AttachedClient[];
   linkedAccounts: LinkedAccount[];
-  subscriptions: Subscription[] | null;
   securityEvents: SecurityEvent[];
   passkeys: Passkey[];
 }
@@ -111,7 +105,6 @@ const defaultAccountState: AccountState = {
   recoveryPhone: null,
   attachedClients: [],
   linkedAccounts: [],
-  subscriptions: [],
   securityEvents: [],
   passkeys: [],
   isLoading: false,
@@ -165,7 +158,6 @@ function unifiedToAccountState(
     recoveryPhone: data.recoveryPhone,
     attachedClients: data.attachedClients,
     linkedAccounts: data.linkedAccounts,
-    subscriptions: data.subscriptions,
     securityEvents: data.securityEvents,
     passkeys: data.passkeys,
     isLoading: data.isLoading,

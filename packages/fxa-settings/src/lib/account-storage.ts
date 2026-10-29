@@ -60,7 +60,6 @@ export interface UnifiedAccountData {
   // Connected services
   attachedClients: AttachedClient[];
   linkedAccounts: LinkedAccount[];
-  subscriptions: { created: number; productName: string }[] | null;
   securityEvents: SecurityEvent[];
 
   // UI state (transient)
@@ -93,7 +92,6 @@ export type ExtendedAccountState = Pick<
   | 'recoveryPhone'
   | 'attachedClients'
   | 'linkedAccounts'
-  | 'subscriptions'
   | 'securityEvents'
   | 'passkeys'
   | 'isLoading'
@@ -114,7 +112,6 @@ const defaultExtendedState: ExtendedAccountState = {
   recoveryPhone: null,
   attachedClients: [],
   linkedAccounts: [],
-  subscriptions: [],
   securityEvents: [],
   passkeys: [],
   isLoading: false,
@@ -272,7 +269,6 @@ export function getExtendedAccountState(uid?: string): ExtendedAccountState {
     recoveryPhone: account.recoveryPhone,
     attachedClients: account.attachedClients,
     linkedAccounts: account.linkedAccounts,
-    subscriptions: account.subscriptions,
     securityEvents: account.securityEvents,
     passkeys: account.passkeys,
     isLoading: account.isLoading,
@@ -357,7 +353,6 @@ export function getFullAccountData(uid?: string): {
   } | null;
   attachedClients: AttachedClient[];
   linkedAccounts: LinkedAccount[];
-  subscriptions: { created: number; productName: string }[] | null;
   securityEvents: SecurityEvent[];
   passkeys: Passkey[];
 } | null {
@@ -384,7 +379,6 @@ export function getFullAccountData(uid?: string): {
     recoveryPhone: account.recoveryPhone,
     attachedClients: account.attachedClients,
     linkedAccounts: account.linkedAccounts,
-    subscriptions: account.subscriptions,
     securityEvents: account.securityEvents,
     passkeys: account.passkeys,
   };

@@ -4,10 +4,7 @@
 
 import React from 'react';
 import { renderHook, act } from '@testing-library/react';
-import {
-  AccountStateProvider,
-  useAccountState,
-} from './AccountStateContext';
+import { AccountStateProvider, useAccountState } from './AccountStateContext';
 import * as storage from '../../lib/account-storage';
 
 jest.mock('../../lib/account-storage');
@@ -24,13 +21,27 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 
 function mockAccount(overrides: Record<string, any> = {}) {
   (storage.getAccountData as jest.Mock).mockReturnValue({
-    uid: UID, email: EMAIL, verified: true, metricsEnabled: true,
-    sessionVerified: false, displayName: null, avatar: null,
-    accountCreated: null, passwordCreated: null, hasPassword: true,
-    emails: [], totp: null, backupCodes: null, recoveryKey: null,
-    recoveryPhone: null, attachedClients: [], linkedAccounts: [],
-    subscriptions: [], securityEvents: [], isLoading: false,
-    loadingFields: [], error: null,
+    uid: UID,
+    email: EMAIL,
+    verified: true,
+    metricsEnabled: true,
+    sessionVerified: false,
+    displayName: null,
+    avatar: null,
+    accountCreated: null,
+    passwordCreated: null,
+    hasPassword: true,
+    emails: [],
+    totp: null,
+    backupCodes: null,
+    recoveryKey: null,
+    recoveryPhone: null,
+    attachedClients: [],
+    linkedAccounts: [],
+    securityEvents: [],
+    isLoading: false,
+    loadingFields: [],
+    error: null,
     ...overrides,
   });
 }
@@ -70,7 +81,8 @@ describe('AccountStateContext', () => {
     const { result } = renderHook(() => useAccountState(), { wrapper });
     act(() => result.current.setAccountData({ displayName: 'New' }));
     expect(storage.updateAccountData).toHaveBeenCalledWith(
-      expect.objectContaining({ displayName: 'New' }), UID
+      expect.objectContaining({ displayName: 'New' }),
+      UID
     );
   });
 
@@ -79,5 +91,4 @@ describe('AccountStateContext', () => {
     act(() => result.current.clearAccount());
     expect(storage.clearExtendedAccountState).toHaveBeenCalledWith(UID);
   });
-
 });

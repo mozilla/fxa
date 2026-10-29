@@ -6,10 +6,6 @@ import {
   getAccountCustomerByUid,
 } from '@fxa/shared/db/mysql/legacy/models/auth';
 import {
-  AppStoreSubscription,
-  PlayStoreSubscription,
-} from '@fxa/accounts/subscriptions-legacy/dto/auth/payments/iap-subscription';
-import {
   WrappedErrorCodes,
   tryResolveIpv4,
   tryResolveMx,
@@ -20,7 +16,6 @@ import {
   scopeSetHelpers as ScopeSet,
 } from '@fxa/accounts/oauth';
 import { list as listAuthorizedClients } from '../oauth/authorized_clients';
-import { WebSubscription } from '@fxa/accounts/subscriptions-legacy/subscriptions/types';
 import isA from 'joi';
 import { Container } from 'typedi';
 
@@ -32,12 +27,6 @@ import authMethods from '../authMethods';
 import random from '../crypto/random';
 import { AppError as error } from '@fxa/accounts/errors';
 import { CapabilityService } from '../payments/capability';
-import { AppStoreSubscriptions } from '../payments/iap/apple-app-store/subscriptions';
-import { PlaySubscriptions } from '../payments/iap/google-play/subscriptions';
-import {
-  appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO,
-  playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO,
-} from '../payments/iap/iap-formatter';
 import { StripeHelper } from '../payments/stripe';
 import { AuthClientInfoService, AuthLogger, AuthRequest } from '../types';
 import {
@@ -81,7 +70,6 @@ import {
   escapeLikePattern,
 } from '@fxa/accounts/email-sender';
 import { getClientServiceTags } from '../metrics/client-tags';
-import { reportSentryError } from '../sentry';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -2234,70 +2222,6 @@ export class AccountHandler {
           )
         : [];
 
-    // Fetch subscriptions (separate block due to complexity)
-    let webSubscriptions: Awaited<WebSubscription[]> = [];
-    let iapGooglePlaySubscriptions: Awaited<PlayStoreSubscription[]> = [];
-    let iapAppStoreSubscriptions: Awaited<AppStoreSubscription[]> = [];
-    let subscriptionsReadFailed = false;
-    const onSubscriptionsError = (err: any) => {
-      if (err.errno === error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER) return;
-      subscriptionsReadFailed = true;
-      this.log.error('Account.get.subscriptions.error', { err });
-      reportSentryError(err, request);
-    };
-
-    if (this.config.subscriptions?.enabled && this.stripeHelper) {
-      const stripeHelper = this.stripeHelper;
-      await Promise.all([
-        (async () => {
-          try {
-            const customer = await stripeHelper.fetchCustomer(uid as string, [
-              'subscriptions',
-            ]);
-            if (customer && customer.subscriptions) {
-              webSubscriptions = await stripeHelper.subscriptionsToResponse(
-                customer.subscriptions
-              );
-            }
-          } catch (err) {
-            onSubscriptionsError(err);
-          }
-        })(),
-        (async () => {
-          if (!this.config.subscriptions?.playApiServiceAccount?.enabled) {
-            return;
-          }
-          try {
-            const playSubscriptions = Container.get(PlaySubscriptions);
-            iapGooglePlaySubscriptions = (
-              await playSubscriptions.getSubscriptions(uid as string)
-            ).map(playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO);
-          } catch (err) {
-            onSubscriptionsError(err);
-          }
-        })(),
-        (async () => {
-          if (!this.config.subscriptions?.appStore?.enabled) {
-            return;
-          }
-          try {
-            const appStoreSubscriptions = Container.get(AppStoreSubscriptions);
-            iapAppStoreSubscriptions = (
-              await appStoreSubscriptions.getSubscriptions(uid as string)
-            ).map(appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO);
-          } catch (err) {
-            onSubscriptionsError(err);
-          }
-        })(),
-      ]);
-    }
-
-    const subscriptions = [
-      ...iapGooglePlaySubscriptions,
-      ...iapAppStoreSubscriptions,
-      ...webSubscriptions,
-    ];
-
     return {
       createdAt: account.createdAt,
       passwordCreatedAt: account.verifierSetAt,
@@ -2311,11 +2235,6 @@ export class AccountHandler {
       recoveryPhone,
       securityEvents,
       passkeys,
-      // An empty list after a failed read would mean "none", so it's omitted
-      // and clients treat subscriptions as unknown.
-      ...((subscriptions.length > 0 || !subscriptionsReadFailed) && {
-        subscriptions,
-      }),
     };
   }
 }
@@ -2787,7 +2706,7 @@ export const accountRoutes = (
         },
         response: {
           schema: isA.object({
-            // This endpoint is evolving, it's not just for subscriptions.
+            // This endpoint is evolving.
             // Ultimately we want it to become a one-stop shop for all of
             // the account data needed by the settings screen, so that we
             // can drastically reduce how many requests are made to the
@@ -2856,13 +2775,6 @@ export const accountRoutes = (
               )
               .optional(),
             passkeys: isA.array().items(passkeyResponseSchema).optional(),
-            subscriptions: isA
-              .array()
-              .items(
-                validators.subscriptionsSubscriptionValidator,
-                validators.subscriptionsGooglePlaySubscriptionValidator,
-                validators.subscriptionsAppStoreSubscriptionValidator
-              ),
           }),
         },
       },

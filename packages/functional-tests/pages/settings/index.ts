@@ -52,6 +52,10 @@ export class SettingsPage extends SettingsLayout {
     return this.page.getByTestId('error-loading-app');
   }
 
+  get paidSubscriptionsLink() {
+    return this.page.getByRole('link', { name: /^Paid Subscriptions/ });
+  }
+
   get secondaryEmail() {
     return this.lazyRow('secondary-email', SecondaryEmailRow);
   }

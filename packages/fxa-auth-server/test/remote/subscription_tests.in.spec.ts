@@ -461,7 +461,7 @@ describe('#integration - remote subscriptions (enabled)', () => {
         expect(result).toEqual([]);
 
         result = await client.account();
-        expect(result.subscriptions).toEqual([]);
+        expect(result.subscriptions).toBeUndefined();
       });
     });
 
@@ -556,10 +556,7 @@ describe('#integration - remote subscriptions (enabled)', () => {
         expect(result[0].cancelledAt).toBeNull();
 
         result = await client.account();
-        expect(Array.isArray(result.subscriptions)).toBe(true);
-        expect(result.subscriptions).toHaveLength(1);
-        expect(result.subscriptions[0].subscription_id).toBe(subscriptionId);
-        expect(result.subscriptions[0].plan_id).toBe(PLAN_ID);
+        expect(result.subscriptions).toBeUndefined();
       });
     });
   });
@@ -628,7 +625,7 @@ describe.each(testVersions)(
 
     it('should not return subscriptions from client.account', async () => {
       const response = await client.account();
-      expect(response.subscriptions).toEqual([]);
+      expect(response.subscriptions).toBeUndefined();
     });
   }
 );

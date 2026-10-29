@@ -65,6 +65,18 @@ test.describe('severity-2 #smoke', () => {
 
     await expect(fourOhFour.header).toBeVisible();
   });
+
+  test('paid subscriptions link shows for an account with no subscriptions', async ({
+    target,
+    page,
+    pages: { signin, settings },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+    await signInAccount(target, page, settings, signin, credentials);
+
+    await expect(settings.paidSubscriptionsLink).toBeVisible();
+  });
 });
 
 async function signInAccount(
