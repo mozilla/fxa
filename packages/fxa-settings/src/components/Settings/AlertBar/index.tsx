@@ -5,11 +5,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useEscKeydownEffect, useChangeFocusEffect } from '../../../lib/hooks';
 import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
-import { alertContent, alertType, alertVisible } from '../../../models';
+import {
+  alertContent,
+  alertGleanId,
+  alertType,
+  alertVisible,
+} from '../../../models';
 import { useReactiveVar } from '../../../lib/reactive-var';
 import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import { useLocalization } from '@fluent/react';
 import classNames from 'classnames';
+import GleanMetrics from '../../../lib/glean';
 
 /**
  * AlertBar component displays an alert message at the top of the screen.
@@ -27,6 +33,7 @@ export const AlertBar = () => {
   const visible = useReactiveVar(alertVisible);
   const content = useReactiveVar(alertContent);
   const type = useReactiveVar(alertType);
+  const gleanId = useReactiveVar(alertGleanId);
   const insideRef = useClickOutsideEffect<HTMLDivElement>(() => {
     // TODO: cleanup Portal component and references, FXA-2463
     // We don't want to automatically close the alert bar if a modal
@@ -66,6 +73,15 @@ export const AlertBar = () => {
   useEffect(() => {
     checkOverflow();
   }, [alertBarInnerRef.current?.scrollHeight]);
+
+  useEffect(() => {
+    if (!visible || !gleanId) return;
+    try {
+      GleanMetrics.alertBar.view({ event: { reason: gleanId } });
+    } catch {
+      // A metrics failure must never block the alert.
+    }
+  }, [visible, content, gleanId]);
 
   const tabFenceRef = useChangeFocusEffect();
   useEscKeydownEffect(() => alertVisible(false));
@@ -121,6 +137,7 @@ export const AlertBar = () => {
                 }
               )}
               onClick={() => alertVisible(false)}
+              {...(gleanId && { 'data-glean-id': `${gleanId}_close` })}
               title={l10n.getString(
                 'alert-bar-close-message',
                 null,

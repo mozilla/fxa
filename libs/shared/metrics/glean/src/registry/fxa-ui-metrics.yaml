@@ -4522,3 +4522,53 @@ dtm_mobile:
     expires: never
     data_sensitivity:
       - interaction
+
+alert_bar:
+  view:
+    type: event
+    description: |
+      A Settings alert bar message was shown.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13972
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          The base Glean ID the caller gave for the message, such as
+          'account_pref_passkey_unsupported'.
+        type: string
+
+banner:
+  view:
+    type: event
+    description: |
+      A banner was shown.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-13972
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          The base Glean ID the caller gave for the banner, such as
+          'passkey_signin_trouble'.
+        type: string

@@ -162,7 +162,8 @@ describe('UnitRowPasskey', () => {
     const createButton = await screen.findByRole('button', { name: 'Create' });
     fireEvent.click(createButton);
     expect(alertErrorSpy).toHaveBeenCalledTimes(1);
-    const [alertContent] = alertErrorSpy.mock.calls[0];
+    const [alertContent, , gleanId] = alertErrorSpy.mock.calls[0];
+    expect(gleanId).toBe('account_pref_passkey_unsupported');
     expect(React.isValidElement(alertContent)).toBe(true);
 
     // Render the captured alert node and assert the user-visible content.
@@ -179,6 +180,31 @@ describe('UnitRowPasskey', () => {
     ).toHaveAttribute(
       'href',
       'https://support.mozilla.org/kb/troubleshoot-passkey-mozilla-account'
+    );
+    expect(
+      within(container).getByRole('link', { name: /Learn more/ })
+    ).toHaveAttribute(
+      'data-glean-id',
+      'account_pref_passkey_unsupported_learn_more'
+    );
+  });
+
+  it('tags the Create button as unsupported when WebAuthn is not supported', async () => {
+    isWebAuthnSupported.mockReturnValue(false);
+    renderUnitRowPasskey();
+    expect(
+      await screen.findByRole('button', { name: 'Create' })
+    ).toHaveAttribute(
+      'data-glean-id',
+      'account_pref_passkey_create_unsupported'
+    );
+  });
+
+  it('tags the Create link as submit when WebAuthn is supported', async () => {
+    renderUnitRowPasskey();
+    expect(await screen.findByRole('link', { name: 'Create' })).toHaveAttribute(
+      'data-glean-id',
+      'account_pref_passkey_create_submit'
     );
   });
 

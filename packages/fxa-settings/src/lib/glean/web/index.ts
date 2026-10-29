@@ -193,6 +193,14 @@ export const eventsMap = {
     signinRetryWithoutPrfRequest: 'passkey_signin_retry_without_prf_request',
   },
 
+  alertBar: {
+    view: 'alert_bar_view',
+  },
+
+  banner: {
+    view: 'banner_view',
+  },
+
   cad: {
     view: 'cad_view',
     submit: 'cad_submit',

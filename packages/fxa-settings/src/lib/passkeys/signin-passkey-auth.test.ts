@@ -306,6 +306,24 @@ describe('authenticateWithPasskey', () => {
       expect(Sentry.captureException).not.toHaveBeenCalled();
     });
 
+    it.each([
+      ['SecurityError', 'passkey_signin_error'],
+      ['NotAllowedError', 'passkey_signin_trouble'],
+      ['TimeoutError', 'passkey_signin_timeout'],
+    ])(
+      'returns a banner for %s with the gleanId %s',
+      async (errorName, expectedGleanId) => {
+        (getCredential as jest.Mock).mockRejectedValue(
+          new DOMException('failed', errorName)
+        );
+        const { args } = build();
+
+        const result = await authenticateWithPasskey(args);
+
+        expect(!result.ok && result.banner.gleanId).toBe(expectedGleanId);
+      }
+    );
+
     // Email-first sends users to the "what is a passkey" article; the other
     // surfaces (where the user already has a passkey) go to troubleshooting.
     it.each([

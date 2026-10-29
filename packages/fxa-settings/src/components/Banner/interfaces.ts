@@ -16,6 +16,7 @@ import { NotificationType } from '../../models';
  * @property {DismissButtonProps} [dismissButton] - Optional properties for a dismiss button.
  * @property {BannerLinkProps} [link] - Optional properties for a link within the banner.
  * @property {string} [className] - Optional CSS class overrides, e.g. to adjust the default vertical margin.
+ * @property {string} [gleanId] - Optional base Glean ID; when set, the banner records a view on mount.
  */
 export type BannerProps = {
   type: NotificationType;
@@ -27,6 +28,7 @@ export type BannerProps = {
   isFancy?: boolean;
   bannerId?: string;
   className?: string;
+  gleanId?: string;
   iconAlignClassName?: 'self-start' | 'self-center';
   textAlignClassName?: 'text-start' | 'text-center';
 };

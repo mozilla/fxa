@@ -172,7 +172,7 @@ export function shouldRequestWrapMaterial(
 /** Banner state the hook returns; the page renders it with `<Banner {...banner} />`. */
 export type PasskeySignInBanner = Pick<
   BannerProps,
-  'type' | 'content' | 'link'
+  'type' | 'content' | 'link' | 'gleanId'
 >;
 
 export function passkeyErrorBanner(
@@ -183,17 +183,21 @@ export function passkeyErrorBanner(
   return {
     type: 'error',
     content: { localizedHeading: ftl.getMsg(ftlId, fallback) },
+    gleanId: 'passkey_signin_error',
   };
 }
 
 export function passkeyUnexpectedBanner(
   ftl: FtlMsgResolver
 ): PasskeySignInBanner {
-  return passkeyErrorBanner(
-    ftl,
-    'passkey-authentication-error-unexpected',
-    'Something went wrong. Try again or choose another sign-in method.'
-  );
+  return {
+    ...passkeyErrorBanner(
+      ftl,
+      'passkey-authentication-error-unexpected',
+      'Something went wrong. Try again or choose another sign-in method.'
+    ),
+    gleanId: undefined,
+  };
 }
 
 // Shown when a passkey sign-in is cancelled (dismissed prompt, no passkey on
@@ -234,6 +238,7 @@ export function passkeyTroubleBanner(
         }
       },
     },
+    gleanId: 'passkey_signin_trouble',
   };
 }
 
@@ -247,5 +252,6 @@ export function passkeyTimeoutBanner(ftl: FtlMsgResolver): PasskeySignInBanner {
         'Passkey sign-in timed out. Try again.'
       ),
     },
+    gleanId: 'passkey_signin_timeout',
   };
 }

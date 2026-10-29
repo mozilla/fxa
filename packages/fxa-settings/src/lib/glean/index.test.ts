@@ -789,6 +789,33 @@ describe('lib/glean', () => {
       });
     });
 
+    describe('alertBar', () => {
+      it('submits a ping with the alert_bar_view event name and a reason', async () => {
+        GleanMetrics.alertBar.view({
+          event: { reason: 'account_pref_passkey_unsupported' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'alert_bar_view');
+        sinon.assert.calledWith(
+          setEventReasonStub,
+          'account_pref_passkey_unsupported'
+        );
+      });
+    });
+
+    describe('banner', () => {
+      it('submits a ping with the banner_view event name and a reason', async () => {
+        GleanMetrics.banner.view({
+          event: { reason: 'passkey_signin_trouble' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'banner_view');
+        sinon.assert.calledWith(setEventReasonStub, 'passkey_signin_trouble');
+      });
+    });
+
     describe('passkeyEnterPassword', () => {
       it('submits a ping with the passkey_enter_password_view event name and a reason', async () => {
         GleanMetrics.passkeyEnterPassword.view({
@@ -1123,6 +1150,8 @@ describe('lib/glean', () => {
 
       for (const { method, eventName } of cases) {
         for (const reason of ['otp', 'third_party_auth', 'passkey'] as const) {
+          // The stubs are reassigned in beforeEach, so reading them late is intended.
+          // eslint-disable-next-line no-loop-func
           it(`submits ${eventName} with reason='${reason}'`, async () => {
             const spy = sandbox.spy(postVerifySetPassword[method], 'record');
             GleanMetrics.postVerifySetPassword[method]({
