@@ -1,0 +1,10 @@
+{
+  "commit": "54a2dae31fcdaa7bdb372bfac33a4bec67737cf8",
+  "summary": "fix(payments): show prorated upgrade amounts on processing and success",
+  "description": "Because\n- PurchaseDetails reflected the higher-tier's full price on processing and success until the page was refreshed\n\nThis pull request\n- Saves stripeSubscriptionId before confirming payment so getCart previews prorated invoice\n- Passes cartState to PurchaseDetails in upgrade layout so success page displays correct info\n- Updates tests\n\nCloses\nPAY-3918",
+  "timestamp": 1793298073000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
