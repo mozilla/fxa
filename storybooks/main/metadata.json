@@ -1,8 +1,8 @@
 {
-  "commit": "9d0ccdfb7705e8523a5b75e85b81f8f23b6a1f0b",
-  "summary": "Merge pull request #21644 from mozilla/fxa-14879",
-  "description": "fix(react): restore same-language l10n fallback",
-  "timestamp": 1793303184000,
+  "commit": "6f0829c50d359b4e97f38d4c98969b57bcca804b",
+  "summary": "Merge pull request #21639 from mozilla/PAY-3923",
+  "description": "feat(auth): add script to publish SubPlat active accounts to BigQuery",
+  "timestamp": 1793304650000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
