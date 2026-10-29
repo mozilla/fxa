@@ -1,0 +1,13 @@
+{
+  "commit": "0bd3b5703ad97119f6aad8407ac9bda141e2e0f3",
+  "summary": "chore(nx): hash yarn.lock into every cached target",
+  "description": "Because:\n- Nx only hashes the npm packages a project imports, so removing a\n  type-only package such as @types/chai leaves every hash unchanged and\n  the cache replays a green result.\n- shared-guards:test-unit stayed cached and green for a week after\n  #21572 removed its chai types; the break only surfaced once the Node\n  bump changed `node -v` on train-348.\n\nThis commit:\n- Adds yarn.lock to sharedGlobals so any lockfile change invalidates\n  the cache for all targets.",
+  "timestamp": 1793300419000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
