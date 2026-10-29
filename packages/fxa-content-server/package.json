@@ -45,7 +45,6 @@
     "express": "^5.2.1",
     "fxa-auth-client": "workspace:*",
     "fxa-auth-server": "workspace:*",
-    "fxa-geodb": "workspace:*",
     "fxa-profile-server": "workspace:*",
     "fxa-react": "workspace:*",
     "fxa-settings": "workspace:*",

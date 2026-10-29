@@ -11,7 +11,9 @@ const flowMetrics = require('../flow-metrics');
 const logFlowEvent = require('../flow-event').logFlowEvent;
 const logger = require('../logging/log')('server.get-metrics-flow');
 const geodbConfig = config.get('geodb');
-const geodb = require('fxa-geodb')(geodbConfig);
+const geodb = require('@fxa/shared/geodb').createGeoDBLookup(
+  geodbConfig.dbPath
+);
 const remoteAddress = require('@fxa/shared/express').remoteAddress(
   config.get('clientAddressDepth')
 );

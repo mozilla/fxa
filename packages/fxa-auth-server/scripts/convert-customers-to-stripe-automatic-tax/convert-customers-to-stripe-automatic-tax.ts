@@ -6,7 +6,7 @@ import { Stripe } from 'stripe';
 import { Firestore } from '@google-cloud/firestore';
 import Container from 'typedi';
 import fs from 'fs';
-import GeoDB from 'fxa-geodb';
+import type { GeoDBLookup } from '@fxa/shared/geodb';
 import PQueue from 'p-queue';
 
 import { AppConfig, AuthFirestore } from '../../lib/types';
@@ -29,7 +29,7 @@ export class StripeAutomaticTaxConverter {
 
   /**
    * A converter to update all eligible customers to Stripe automatic tax
-   * @param geodb An instantiated instance of fxa-geodb for IP->location purposes
+   * @param geodb A geodb lookup for IP->location purposes
    * @param batchSize Number of subscriptions to fetch from Firestore at a time
    * @param outputFile A CSV file to output a report of affected subscriptions to
    * @param ipAddressMapFile A path to a file to write the report results out to
@@ -37,7 +37,7 @@ export class StripeAutomaticTaxConverter {
    * @param rateLimit A limit for number of stripe requests within the period of 1 second
    */
   constructor(
-    private geodb: ReturnType<typeof GeoDB>,
+    private geodb: GeoDBLookup,
     private batchSize: number,
     private outputFile: string,
     ipAddressMapFile: string,
@@ -140,9 +140,8 @@ export class StripeAutomaticTaxConverter {
     try {
       const product = await this.fetchProduct(plan.product as string);
 
-      const priorInvoicePreview = await this.fetchInvoicePreview(
-        subscriptionId
-      );
+      const priorInvoicePreview =
+        await this.fetchInvoicePreview(subscriptionId);
 
       const isExcludedProduct = this.isExcludedSubscriptionProduct(product.id);
       if (isExcludedProduct) return; // Return early if subscription is for excluded product
