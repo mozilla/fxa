@@ -12,7 +12,6 @@ const account = {
   primaryEmail: {
     email: 'user@example.com',
   },
-  subscriptions: [],
   linkedAccounts: [],
 } as unknown as Account;
 
@@ -65,7 +64,9 @@ describe('Nav', () => {
       )}`
     );
 
-    expect(screen.queryByTestId('nav-link-subscriptions')).toBeNull();
+    expect(
+      screen.getByRole('link', { name: /^Paid Subscriptions/ })
+    ).toHaveAttribute('href', '/subscriptions');
 
     expect(screen.getByTestId('nav-link-data-collection')).toHaveTextContent(
       'Data Collection and Use'
@@ -73,46 +74,6 @@ describe('Nav', () => {
     expect(screen.getByTestId('nav-link-data-collection')).toHaveAttribute(
       'href',
       '#data-collection'
-    );
-  });
-
-  it('shows the subscriptions link when subscriptions are unknown', () => {
-    const account = {
-      primaryEmail: { email: 'user@example.com' },
-      subscriptions: null,
-      linkedAccounts: [],
-    } as unknown as Account;
-    renderWithLocalizationProvider(
-      <AppContext.Provider value={{ account }}>
-        <Nav />
-      </AppContext.Provider>
-    );
-
-    expect(
-      screen.getByRole('link', { name: /^Paid Subscriptions/ })
-    ).toBeInTheDocument();
-  });
-
-  it('renders as expected with subscriptions link', () => {
-    const account = {
-      primaryEmail: {
-        email: 'user@example.com',
-      },
-      subscriptions: [{ created: 1, productName: 'x' }],
-      linkedAccounts: [],
-    } as unknown as Account;
-    renderWithLocalizationProvider(
-      <AppContext.Provider value={{ account }}>
-        <Nav />
-      </AppContext.Provider>
-    );
-
-    expect(screen.getByTestId('nav-link-subscriptions')).toHaveTextContent(
-      'Paid Subscriptions'
-    );
-    expect(screen.getByTestId('nav-link-subscriptions')).toHaveAttribute(
-      'href',
-      '/subscriptions'
     );
   });
 
@@ -135,7 +96,6 @@ describe('Nav', () => {
       primaryEmail: {
         email: 'user@example.com',
       },
-      subscriptions: [{ created: 1, productName: 'x' }],
       linkedAccounts: [
         {
           providerId: 1,

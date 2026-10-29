@@ -41,9 +41,6 @@ export const Nav = ({
   const dataCollectionLinkRef = useRef<HTMLAnchorElement>(null);
 
   const primaryEmail = account.primaryEmail.email;
-  // Unknown (null) shows the link; the subscriptions page loads its own data.
-  const hasSubscription =
-    account.subscriptions === null || account.subscriptions.length > 0;
   const hasLinkedAccounts = account.linkedAccounts.length > 0;
   const marketingCommPrefLink =
     config.marketingEmailPreferencesUrl &&
@@ -218,21 +215,19 @@ export const Nav = ({
           </ul>
         </li>
 
-        {hasSubscription && (
-          <li className="mb-5">
-            <LinkExternal
-              className="font-bold focus-visible-default rounded-sm outline-offset-2"
-              data-testid="nav-link-subscriptions"
-              href={subscriptionLink}
-            >
-              <Localized id="nav-paid-subs">Paid Subscriptions</Localized>
-              <OpenExternal
-                className="inline-block w-3 h-3 ml-1"
-                aria-hidden="true"
-              />
-            </LinkExternal>
-          </li>
-        )}
+        <li className="mb-5">
+          <LinkExternal
+            className="font-bold focus-visible-default rounded-sm outline-offset-2"
+            data-testid="nav-link-subscriptions"
+            href={subscriptionLink}
+          >
+            <Localized id="nav-paid-subs">Paid Subscriptions</Localized>
+            <OpenExternal
+              className="inline-block w-3 h-3 ml-1"
+              aria-hidden="true"
+            />
+          </LinkExternal>
+        </li>
 
         {marketingCommPrefLink && (
           <li>

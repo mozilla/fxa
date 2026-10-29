@@ -126,11 +126,6 @@ export interface AttachedClient {
   scope: string[] | null;
 }
 
-interface Subscription {
-  created: number;
-  productName: string;
-}
-
 export interface AccountData {
   uid: hexstring;
   displayName: string | null;
@@ -157,7 +152,6 @@ export interface AccountData {
     nationalFormat: string | null;
     available: boolean;
   };
-  subscriptions: Subscription[] | null;
   securityEvents: SecurityEvent[];
   passkeys: Passkey[];
 }
@@ -289,7 +283,6 @@ export class Account implements AccountData {
             nationalFormat: null,
             available: false,
           },
-          subscriptions: [],
           securityEvents: [],
           passkeys: [],
         } as AccountData;
@@ -393,10 +386,6 @@ export class Account implements AccountData {
 
   get email() {
     return this.data.primaryEmail.email;
-  }
-
-  get subscriptions() {
-    return this.data.subscriptions;
   }
 
   get totp() {

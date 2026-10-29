@@ -22,7 +22,6 @@ const account = {
   primaryEmail: {
     email: 'johndope@example.com',
   },
-  subscriptions: [{ created: 1, productName: 'x' }],
   linkedAccounts: [],
 } as unknown as Account;
 
@@ -57,11 +56,6 @@ const storyWithContext = (
 };
 
 export const Basic = storyWithContext(account);
-
-export const WithLinkToSubscriptions = storyWithContext(
-  account,
-  'with link to Subscriptions'
-);
 
 export const WithLinkedAccounts = storyWithContext(
   accountWithLinkedAccounts,

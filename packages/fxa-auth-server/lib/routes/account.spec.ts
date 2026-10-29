@@ -30,9 +30,6 @@ const { AccountEventsManager } = require('../account-events');
 const { AccountDeleteManager } = require('../account-delete');
 const { normalizeEmail } = require('@fxa/shared/email');
 const {
-  MozillaSubscriptionTypes,
-} = require('@fxa/accounts/subscriptions-legacy/subscriptions/types');
-const {
   PlaySubscriptions,
 } = require('../payments/iap/google-play/subscriptions');
 const {
@@ -4086,31 +4083,15 @@ describe('/account', () => {
   const email = 'foo@example.com';
   const uid = crypto.randomBytes(16).toString('hex');
 
-  let log: any,
-    request: any,
-    mockCustomer: any,
-    mockWebSubscriptionsResponse: any,
-    mockStripeHelper: any,
-    mockPlaySubscriptions: any,
-    mockAppStoreSubscriptions: any,
-    mockOAuthClientInfoLocal: any,
-    mockFxaMailerLocal: any;
+  let log: any, request: any, mockStripeHelper: any;
 
-  function buildRoute(
-    subscriptionsEnabled = true,
-    playSubscriptionsEnabled = false,
-    appStoreSubscriptionsEnabled = false
-  ) {
+  function buildRoute() {
     const accountRoutes = makeRoutes({
       config: {
         subscriptions: {
-          enabled: subscriptionsEnabled,
-          playApiServiceAccount: {
-            enabled: playSubscriptionsEnabled,
-          },
-          appStore: {
-            enabled: appStoreSubscriptionsEnabled,
-          },
+          enabled: true,
+          playApiServiceAccount: { enabled: true },
+          appStore: { enabled: true },
         },
       },
       log: log,
@@ -4120,43 +4101,19 @@ describe('/account', () => {
     return getRoute(accountRoutes, '/account');
   }
 
-  const webSubscription: any = {
-    current_period_end: Date.now() + 60000,
-    current_period_start: Date.now() - 60000,
-    cancel_at_period_end: true,
-    end_at: null,
-    failure_code: 'expired_card',
-    failure_message: 'The card is expired',
-    latest_invoice: '628031D-0002',
-    plan_id: 'blee',
-    status: 'ok',
-    subscription_id: 'mngh',
-  };
-
   beforeEach(() => {
     log = createMock<AuthLoggerType>();
     request = mocks.mockRequest({
       credentials: { uid, email },
       log: log,
     });
-    mockCustomer = {
-      id: 1234,
-      subscriptions: ['fake'],
-    };
-    mockWebSubscriptionsResponse = [webSubscription];
     mockStripeHelper = mocks.mockStripeHelper([
       'fetchCustomer',
-      'subscriptionsToResponse',
       'removeFirestoreCustomer',
     ]);
-    mockFxaMailerLocal = installMockFxaMailer();
-    mockOAuthClientInfoLocal = mocks.mockOAuthClientInfo();
-    mockStripeHelper.fetchCustomer = jest.fn(
-      async (uid: any, email: any) => mockCustomer
-    );
-    mockStripeHelper.subscriptionsToResponse = jest.fn(
-      async (subscriptions: any) => mockWebSubscriptionsResponse
-    );
+    installMockFxaMailer();
+    mocks.mockOAuthClientInfo();
+    mockStripeHelper.fetchCustomer = jest.fn();
     mockStripeHelper.removeFirestoreCustomer = jest
       .fn()
       .mockResolvedValue(undefined);
@@ -4165,529 +4122,22 @@ describe('/account', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+    Container.remove(PlaySubscriptions);
+    Container.remove(AppStoreSubscriptions);
   });
 
-  describe('web subscriptions', () => {
-    beforeEach(() => {
-      mockCustomer = {
-        id: 1234,
-        subscriptions: ['fake'],
-      };
-      mockWebSubscriptionsResponse = [webSubscription];
-      mockStripeHelper = mocks.mockStripeHelper([
-        'fetchCustomer',
-        'subscriptionsToResponse',
-      ]);
-      mockStripeHelper.fetchCustomer = jest.fn(
-        async (uid: any, email: any) => mockCustomer
-      );
-      mockStripeHelper.subscriptionsToResponse = jest.fn(
-        async (subscriptions: any) => mockWebSubscriptionsResponse
-      );
-      Container.set(CapabilityService, {});
-    });
+  it('does not read or return subscriptions', async () => {
+    const mockPlaySubscriptions = { getSubscriptions: jest.fn() };
+    const mockAppStoreSubscriptions = { getSubscriptions: jest.fn() };
+    Container.set(PlaySubscriptions, mockPlaySubscriptions);
+    Container.set(AppStoreSubscriptions, mockAppStoreSubscriptions);
 
-    it('should return formatted Stripe subscriptions when subscriptions are enabled', () => {
-      return runTest(buildRoute(), request, (result: any) => {
-        expect(log.begin).toHaveBeenCalledTimes(1);
-        expect(log.begin).toHaveBeenCalledWith('Account.get', request);
-        expect(mockStripeHelper.fetchCustomer).toHaveBeenCalledTimes(1);
-        expect(mockStripeHelper.fetchCustomer).toHaveBeenCalledWith(uid, [
-          'subscriptions',
-        ]);
-        expect(mockStripeHelper.subscriptionsToResponse).toHaveBeenCalledTimes(
-          1
-        );
-        expect(mockStripeHelper.subscriptionsToResponse).toHaveBeenCalledWith(
-          mockCustomer.subscriptions
-        );
-        expect(result.subscriptions).toEqual(mockWebSubscriptionsResponse);
-      });
-    });
+    const result: any = await runTest(buildRoute(), request);
 
-    it('should swallow unknownCustomer errors from stripe.customer', () => {
-      mockStripeHelper.fetchCustomer = jest.fn(() => {
-        throw error.unknownCustomer();
-      });
-
-      return runTest(buildRoute(), request, (result: any) => {
-        expect(result.subscriptions).toEqual([]);
-        expect(log.begin).toHaveBeenCalledTimes(1);
-        expect(mockStripeHelper.fetchCustomer).toHaveBeenCalledTimes(1);
-        expect(mockStripeHelper.subscriptionsToResponse).toHaveBeenCalledTimes(
-          0
-        );
-      });
-    });
-
-    it('should omit subscriptions and report other errors from stripe.customer', async () => {
-      const sentryModule = require('../sentry');
-      const reportSpy = jest
-        .spyOn(sentryModule, 'reportSentryError')
-        .mockReturnValue({});
-      const stripeError = error.unexpectedError();
-      mockStripeHelper.fetchCustomer = jest.fn(() => {
-        throw stripeError;
-      });
-
-      await runTest(buildRoute(), request, (result: any) => {
-        expect(result).not.toHaveProperty('subscriptions');
-      });
-      expect(log.error).toHaveBeenCalledWith(
-        'Account.get.subscriptions.error',
-        { err: stripeError }
-      );
-      expect(reportSpy).toHaveBeenCalledWith(stripeError, request);
-    });
-
-    it('should not log or report unknownCustomer errors', async () => {
-      const sentryModule = require('../sentry');
-      const reportSpy = jest.spyOn(sentryModule, 'reportSentryError');
-      mockStripeHelper.fetchCustomer = jest.fn(() => {
-        throw error.unknownCustomer();
-      });
-
-      await runTest(buildRoute(), request, () => {});
-      expect(log.error).not.toHaveBeenCalled();
-      expect(reportSpy).not.toHaveBeenCalled();
-    });
-
-    it('should not return stripe.customer result when subscriptions are disabled', () => {
-      return runTest(buildRoute(false), request, (result: any) => {
-        expect(result.subscriptions).toEqual([]);
-
-        expect(log.begin).toHaveBeenCalledTimes(1);
-        expect(mockStripeHelper.fetchCustomer).toHaveBeenCalledTimes(0);
-      });
-    });
-  });
-
-  describe('Google Play subscriptions', () => {
-    const mockPlayStoreSubscriptionPurchase: any = {
-      kind: 'androidpublisher#subscriptionPurchase',
-      startTimeMillis: `${Date.now() - 10000}`,
-      expiryTimeMillis: `${Date.now() + 10000}`,
-      autoRenewing: true,
-      priceCurrencyCode: 'JPY',
-      priceAmountMicros: '99000000',
-      countryCode: 'JP',
-      developerPayload: '',
-      paymentState: 1,
-      orderId: 'GPA.3313-5503-3858-32549',
-      packageName: 'testPackage',
-      purchaseToken: 'testToken',
-      sku: 'sku',
-      verifiedAt: Date.now(),
-      isEntitlementActive: jest.fn().mockReturnValue(true),
-    };
-
-    const mockExtraStripeInfo = {
-      price_id: 'price_lol',
-      product_id: 'prod_lol',
-      product_name: 'LOL Product',
-    };
-
-    const mockAppendedPlayStoreSubscriptionPurchase = {
-      ...mockPlayStoreSubscriptionPurchase,
-      ...mockExtraStripeInfo,
-      _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-    };
-
-    const mockFormattedPlayStoreSubscription = {
-      auto_renewing: mockPlayStoreSubscriptionPurchase.autoRenewing,
-      expiry_time_millis: mockPlayStoreSubscriptionPurchase.expiryTimeMillis,
-      package_name: mockPlayStoreSubscriptionPurchase.packageName,
-      sku: mockPlayStoreSubscriptionPurchase.sku,
-      ...mockExtraStripeInfo,
-      _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-    };
-
-    let subscriptionsEnabled: boolean, playSubscriptionsEnabled: boolean;
-
-    beforeEach(() => {
-      subscriptionsEnabled = true;
-      playSubscriptionsEnabled = true;
-      mockCustomer = undefined;
-      mockWebSubscriptionsResponse = [];
-      mockStripeHelper = mocks.mockStripeHelper([
-        'fetchCustomer',
-        'subscriptionsToResponse',
-      ]);
-      mockStripeHelper.fetchCustomer = jest.fn(
-        async (uid: any, email: any) => mockCustomer
-      );
-      mockStripeHelper.subscriptionsToResponse = jest.fn(
-        async (subscriptions: any) => mockWebSubscriptionsResponse
-      );
-      Container.set(OAuthClientInfoServiceName, mockOAuthClientInfoLocal);
-      Container.set(FxaMailer, mockFxaMailerLocal);
-      Container.set(CapabilityService, {});
-      mockPlaySubscriptions = mocks.mockPlaySubscriptions(['getSubscriptions']);
-      Container.set(PlaySubscriptions, mockPlaySubscriptions);
-      mockPlaySubscriptions.getSubscriptions = jest.fn(async (uid: any) => [
-        mockAppendedPlayStoreSubscriptionPurchase,
-      ]);
-    });
-
-    it('should return formatted Google Play subscriptions when Play subscriptions are enabled', () => {
-      return runTest(
-        buildRoute(subscriptionsEnabled, playSubscriptionsEnabled),
-        request,
-        (result: any) => {
-          expect(log.begin).toHaveBeenCalledTimes(1);
-          expect(mockStripeHelper.fetchCustomer).toHaveBeenCalledTimes(1);
-          expect(
-            mockStripeHelper.subscriptionsToResponse
-          ).toHaveBeenCalledTimes(0);
-          expect(mockPlaySubscriptions.getSubscriptions).toHaveBeenCalledTimes(
-            1
-          );
-          expect(mockPlaySubscriptions.getSubscriptions).toHaveBeenCalledWith(
-            uid
-          );
-          expect(result.subscriptions).toEqual([
-            mockFormattedPlayStoreSubscription,
-          ]);
-        }
-      );
-    });
-
-    it('should return formatted Google Play and web subscriptions when Play subscriptions are enabled', () => {
-      mockCustomer = {
-        id: 1234,
-        subscriptions: ['fake'],
-      };
-      mockWebSubscriptionsResponse = [webSubscription];
-      mockStripeHelper.fetchCustomer = jest.fn(
-        async (uid: any, email: any) => mockCustomer
-      );
-      mockStripeHelper.subscriptionsToResponse = jest.fn(
-        async (subscriptions: any) => mockWebSubscriptionsResponse
-      );
-
-      return runTest(
-        buildRoute(subscriptionsEnabled, playSubscriptionsEnabled),
-        request,
-        (result: any) => {
-          expect(log.begin).toHaveBeenCalledTimes(1);
-          expect(mockStripeHelper.fetchCustomer).toHaveBeenCalledTimes(1);
-          expect(mockPlaySubscriptions.getSubscriptions).toHaveBeenCalledTimes(
-            1
-          );
-          expect(result.subscriptions).toEqual([
-            ...[mockFormattedPlayStoreSubscription],
-            ...mockWebSubscriptionsResponse,
-          ]);
-        }
-      );
-    });
-
-    it('should return an empty list when no active Google Play or web subscriptions are found', () => {
-      mockPlaySubscriptions.getSubscriptions = jest.fn(async (uid: any) => []);
-
-      return runTest(
-        buildRoute(subscriptionsEnabled, playSubscriptionsEnabled),
-        request,
-        (result: any) => {
-          expect(log.begin).toHaveBeenCalledTimes(1);
-          expect(mockStripeHelper.fetchCustomer).toHaveBeenCalledTimes(1);
-          expect(mockPlaySubscriptions.getSubscriptions).toHaveBeenCalledTimes(
-            1
-          );
-          expect(result.subscriptions).toEqual([]);
-        }
-      );
-    });
-
-    it('should return web subscriptions when the Play read fails', async () => {
-      const sentryModule = require('../sentry');
-      const reportSpy = jest
-        .spyOn(sentryModule, 'reportSentryError')
-        .mockReturnValue({});
-      mockCustomer = { id: 1234, subscriptions: ['fake'] };
-      mockWebSubscriptionsResponse = [webSubscription];
-      mockStripeHelper.fetchCustomer = jest.fn(async () => mockCustomer);
-      mockStripeHelper.subscriptionsToResponse = jest.fn(
-        async () => mockWebSubscriptionsResponse
-      );
-      const playError = new Error('play unavailable');
-      mockPlaySubscriptions.getSubscriptions = jest.fn(async () => {
-        throw playError;
-      });
-
-      await runTest(
-        buildRoute(subscriptionsEnabled, playSubscriptionsEnabled),
-        request,
-        (result: any) => {
-          expect(result.subscriptions).toEqual([webSubscription]);
-        }
-      );
-      expect(reportSpy).toHaveBeenCalledWith(playError, request);
-    });
-
-    it('should return Play subscriptions when the Stripe read fails', async () => {
-      jest.spyOn(require('../sentry'), 'reportSentryError').mockReturnValue({});
-      mockStripeHelper.fetchCustomer = jest.fn(async () => {
-        throw error.unexpectedError();
-      });
-
-      await runTest(
-        buildRoute(subscriptionsEnabled, playSubscriptionsEnabled),
-        request,
-        (result: any) => {
-          expect(result.subscriptions).toEqual([
-            mockFormattedPlayStoreSubscription,
-          ]);
-        }
-      );
-    });
-
-    it('should start the Play read without waiting for the Stripe read', async () => {
-      let stripeSettled = false;
-      let stripeSettledWhenPlayStarted: boolean | undefined;
-      mockStripeHelper.fetchCustomer = jest.fn(async () => {
-        await new Promise((resolve) => setImmediate(resolve));
-        stripeSettled = true;
-        return mockCustomer;
-      });
-      mockPlaySubscriptions.getSubscriptions = jest.fn(async () => {
-        stripeSettledWhenPlayStarted = stripeSettled;
-        return [];
-      });
-
-      await runTest(
-        buildRoute(subscriptionsEnabled, playSubscriptionsEnabled),
-        request,
-        () => {}
-      );
-      expect(stripeSettledWhenPlayStarted).toBe(false);
-    });
-
-    it('should omit subscriptions when the Stripe read fails and Play has none', async () => {
-      jest.spyOn(require('../sentry'), 'reportSentryError').mockReturnValue({});
-      mockStripeHelper.fetchCustomer = jest.fn(async () => {
-        throw error.unexpectedError();
-      });
-      mockPlaySubscriptions.getSubscriptions = jest.fn(async () => []);
-
-      await runTest(
-        buildRoute(subscriptionsEnabled, playSubscriptionsEnabled),
-        request,
-        (result: any) => {
-          expect(result).not.toHaveProperty('subscriptions');
-        }
-      );
-    });
-
-    it('should not return Play subscriptions when Play subscriptions are disabled', () => {
-      playSubscriptionsEnabled = false;
-      mockCustomer = {
-        id: 1234,
-        subscriptions: ['fake'],
-      };
-      mockWebSubscriptionsResponse = [webSubscription];
-      mockStripeHelper.fetchCustomer = jest.fn(
-        async (uid: any, email: any) => mockCustomer
-      );
-      mockStripeHelper.subscriptionsToResponse = jest.fn(
-        async (subscriptions: any) => mockWebSubscriptionsResponse
-      );
-
-      return runTest(
-        buildRoute(subscriptionsEnabled, playSubscriptionsEnabled),
-        request,
-        (result: any) => {
-          expect(log.begin).toHaveBeenCalledTimes(1);
-          expect(mockStripeHelper.fetchCustomer).toHaveBeenCalledTimes(1);
-          expect(mockPlaySubscriptions.getSubscriptions).toHaveBeenCalledTimes(
-            0
-          );
-          expect(result.subscriptions).toEqual(mockWebSubscriptionsResponse);
-        }
-      );
-    });
-  });
-
-  describe('Apple App Store subscriptions', () => {
-    const mockAppStoreSubscriptionPurchase: any = {
-      productId: 'wow',
-      autoRenewing: false,
-      bundleId: 'hmm',
-      isEntitlementActive: jest.fn().mockReturnValue(true),
-    };
-
-    const mockExtraStripeInfo = {
-      price_id: 'price_lol',
-      product_id: 'prod_lol',
-      product_name: 'LOL Product',
-    };
-
-    const mockAppendedAppStoreSubscriptionPurchase = {
-      ...mockAppStoreSubscriptionPurchase,
-      ...mockExtraStripeInfo,
-      _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
-    };
-
-    const mockFormattedAppStoreSubscription = {
-      app_store_product_id: mockAppStoreSubscriptionPurchase.productId,
-      auto_renewing: mockAppStoreSubscriptionPurchase.autoRenewing,
-      bundle_id: mockAppStoreSubscriptionPurchase.bundleId,
-      ...mockExtraStripeInfo,
-      _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
-    };
-
-    let subscriptionsEnabled: boolean, appStoreSubscriptionsEnabled: boolean;
-
-    beforeEach(() => {
-      subscriptionsEnabled = true;
-      appStoreSubscriptionsEnabled = true;
-      mockCustomer = undefined;
-      mockWebSubscriptionsResponse = [];
-      mockStripeHelper = mocks.mockStripeHelper([
-        'fetchCustomer',
-        'subscriptionsToResponse',
-      ]);
-      mockStripeHelper.fetchCustomer = jest.fn(
-        async (uid: any, email: any) => mockCustomer
-      );
-      mockStripeHelper.subscriptionsToResponse = jest.fn(
-        async (subscriptions: any) => mockWebSubscriptionsResponse
-      );
-      Container.set(CapabilityService, {});
-      mockAppStoreSubscriptions = mocks.mockAppStoreSubscriptions([
-        'getSubscriptions',
-      ]);
-      Container.set(AppStoreSubscriptions, mockAppStoreSubscriptions);
-      mockAppStoreSubscriptions.getSubscriptions = jest.fn(async (uid: any) => [
-        mockAppendedAppStoreSubscriptionPurchase,
-      ]);
-    });
-
-    it('should return formatted Apple App Store subscriptions when App Store subscriptions are enabled', () => {
-      return runTest(
-        buildRoute(subscriptionsEnabled, false, appStoreSubscriptionsEnabled),
-        request,
-        (result: any) => {
-          expect(log.begin).toHaveBeenCalledTimes(1);
-          expect(mockStripeHelper.fetchCustomer).toHaveBeenCalledTimes(1);
-          expect(
-            mockStripeHelper.subscriptionsToResponse
-          ).toHaveBeenCalledTimes(0);
-          expect(
-            mockAppStoreSubscriptions.getSubscriptions
-          ).toHaveBeenCalledTimes(1);
-          expect(
-            mockAppStoreSubscriptions.getSubscriptions
-          ).toHaveBeenCalledWith(uid);
-          expect(result.subscriptions).toEqual([
-            mockFormattedAppStoreSubscription,
-          ]);
-        }
-      );
-    });
-
-    it('should return formatted Apple App Store and web subscriptions when App Store subscriptions are enabled', () => {
-      mockCustomer = {
-        id: 1234,
-        subscriptions: ['fake'],
-      };
-      mockWebSubscriptionsResponse = [webSubscription];
-      mockStripeHelper.fetchCustomer = jest.fn(
-        async (uid: any, email: any) => mockCustomer
-      );
-      mockStripeHelper.subscriptionsToResponse = jest.fn(
-        async (subscriptions: any) => mockWebSubscriptionsResponse
-      );
-
-      return runTest(
-        buildRoute(subscriptionsEnabled, false, appStoreSubscriptionsEnabled),
-        request,
-        (result: any) => {
-          expect(log.begin).toHaveBeenCalledTimes(1);
-          expect(mockStripeHelper.fetchCustomer).toHaveBeenCalledTimes(1);
-          expect(
-            mockAppStoreSubscriptions.getSubscriptions
-          ).toHaveBeenCalledTimes(1);
-          expect(result.subscriptions).toEqual([
-            ...[mockFormattedAppStoreSubscription],
-            ...mockWebSubscriptionsResponse,
-          ]);
-        }
-      );
-    });
-
-    it('should return an empty list when no active Apple App Store or web subscriptions are found', () => {
-      mockAppStoreSubscriptions.getSubscriptions = jest.fn(
-        async (uid: any) => []
-      );
-
-      return runTest(
-        buildRoute(subscriptionsEnabled, false, appStoreSubscriptionsEnabled),
-        request,
-        (result: any) => {
-          expect(log.begin).toHaveBeenCalledTimes(1);
-          expect(mockStripeHelper.fetchCustomer).toHaveBeenCalledTimes(1);
-          expect(
-            mockAppStoreSubscriptions.getSubscriptions
-          ).toHaveBeenCalledTimes(1);
-          expect(result.subscriptions).toEqual([]);
-        }
-      );
-    });
-
-    it('should return web subscriptions when the App Store read fails', async () => {
-      const sentryModule = require('../sentry');
-      const reportSpy = jest
-        .spyOn(sentryModule, 'reportSentryError')
-        .mockReturnValue({});
-      mockCustomer = { id: 1234, subscriptions: ['fake'] };
-      mockWebSubscriptionsResponse = [webSubscription];
-      mockStripeHelper.fetchCustomer = jest.fn(async () => mockCustomer);
-      mockStripeHelper.subscriptionsToResponse = jest.fn(
-        async () => mockWebSubscriptionsResponse
-      );
-      const appStoreError = new Error('app store unavailable');
-      mockAppStoreSubscriptions.getSubscriptions = jest.fn(async () => {
-        throw appStoreError;
-      });
-
-      await runTest(
-        buildRoute(subscriptionsEnabled, false, appStoreSubscriptionsEnabled),
-        request,
-        (result: any) => {
-          expect(result.subscriptions).toEqual([webSubscription]);
-        }
-      );
-      expect(reportSpy).toHaveBeenCalledWith(appStoreError, request);
-    });
-
-    it('should not return App Store subscriptions when App Store subscriptions are disabled', () => {
-      appStoreSubscriptionsEnabled = false;
-      mockCustomer = {
-        id: 1234,
-        subscriptions: ['fake'],
-      };
-      mockWebSubscriptionsResponse = [webSubscription];
-      mockStripeHelper.fetchCustomer = jest.fn(
-        async (uid: any, email: any) => mockCustomer
-      );
-      mockStripeHelper.subscriptionsToResponse = jest.fn(
-        async (subscriptions: any) => mockWebSubscriptionsResponse
-      );
-
-      return runTest(
-        buildRoute(subscriptionsEnabled, false, appStoreSubscriptionsEnabled),
-        request,
-        (result: any) => {
-          expect(log.begin).toHaveBeenCalledTimes(1);
-          expect(mockStripeHelper.fetchCustomer).toHaveBeenCalledTimes(1);
-          expect(
-            mockAppStoreSubscriptions.getSubscriptions
-          ).toHaveBeenCalledTimes(0);
-          expect(result.subscriptions).toEqual(mockWebSubscriptionsResponse);
-        }
-      );
-    });
+    expect(mockStripeHelper.fetchCustomer).not.toHaveBeenCalled();
+    expect(mockPlaySubscriptions.getSubscriptions).not.toHaveBeenCalled();
+    expect(mockAppStoreSubscriptions.getSubscriptions).not.toHaveBeenCalled();
+    expect(result).not.toHaveProperty('subscriptions');
   });
 
   describe('expanded account data fields', () => {

@@ -41,7 +41,6 @@ const mockAccountState = {
   recoveryPhone: null,
   attachedClients: [],
   linkedAccounts: [],
-  subscriptions: [],
   securityEvents: [],
   accountCreated: null,
   passwordCreated: null,

@@ -15,7 +15,7 @@ const ACCOUNT_GET = {
     swaggerText`
       🔒 Authenticated with session token
 
-      Returns account data including subscriptions.
+      Returns account data.
     `,
   ],
 };

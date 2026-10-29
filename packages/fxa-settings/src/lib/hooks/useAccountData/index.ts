@@ -73,12 +73,6 @@ interface AccountResponse {
     authAt: number;
     enabled: boolean;
   }>;
-  subscriptions?: Array<{
-    created?: number;
-    createdAt?: number;
-    productName?: string;
-    product_name?: string;
-  }>;
   totp?: { exists?: boolean; verified?: boolean };
   backupCodes?: { hasBackupCodes?: boolean; count?: number };
   recoveryKey?: { exists?: boolean; estimatedSyncDeviceCount?: number };
@@ -118,14 +112,6 @@ function transformAccountResponse(
     })
   );
 
-  // The server omits `subscriptions` when it can't read them; null keeps that
-  // distinct from "none".
-  const subscriptions =
-    response.subscriptions?.map((s) => ({
-      created: s.created ?? s.createdAt ?? 0,
-      productName: s.productName || s.product_name || '',
-    })) ?? null;
-
   const totp: AccountTotp = {
     exists: response.totp?.exists ?? false,
     verified: response.totp?.verified ?? false,
@@ -161,7 +147,6 @@ function transformAccountResponse(
   return {
     emails,
     linkedAccounts,
-    subscriptions,
     metricsEnabled: !response.metricsOptOutAt,
     accountCreated: response.createdAt ?? null,
     passwordCreated: response.passwordCreatedAt ?? null,

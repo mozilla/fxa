@@ -49,7 +49,6 @@ export const linkedAccountNoPassword = {
 
 export const completelyFilledOutAccount = {
   ...MOCK_ACCOUNT,
-  subscriptions: [{ created: 1, productName: 'x' }],
   emails: [mockEmail(), mockEmail('johndope2@example.com', false)],
   attachedClients: SERVICES_NON_MOBILE,
   linkedAccounts: MOCK_LINKED_ACCOUNTS,

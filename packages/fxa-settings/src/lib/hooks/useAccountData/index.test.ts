@@ -79,26 +79,4 @@ describe('useAccountData', () => {
       expect.objectContaining({ passwordCreated: 1234, attachedClients: [] })
     );
   });
-
-  it.each([
-    { label: 'null when omitted', response: {}, expected: null },
-    { label: 'empty when none', response: { subscriptions: [] }, expected: [] },
-    {
-      label: 'mapped when present',
-      response: { subscriptions: [{ created: 1, productName: 'VPN' }] },
-      expected: [{ created: 1, productName: 'VPN' }],
-    },
-  ])('sets subscriptions $label', async ({ response, expected }) => {
-    (getSessionToken as jest.Mock).mockReturnValue('tok');
-    authClient.account.mockResolvedValue(response);
-    authClient.attachedClients.mockResolvedValue([]);
-    authClient.createOAuthToken.mockRejectedValue(new Error('no token'));
-
-    await act(async () => {
-      renderHook(() => useAccountData({ authClient }));
-    });
-    expect(mockSetAccountData).toHaveBeenCalledWith(
-      expect.objectContaining({ subscriptions: expected })
-    );
-  });
 });

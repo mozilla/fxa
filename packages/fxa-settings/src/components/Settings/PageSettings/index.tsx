@@ -53,14 +53,7 @@ export const PageSettings = ({
   isSignedIntoFirefox?: boolean;
 }) => {
   const account = useAccount();
-  const {
-    uid,
-    recoveryKey,
-    attachedClients,
-    subscriptions,
-    totp,
-    recoveryPhone,
-  } = account;
+  const { uid, recoveryKey, attachedClients, totp, recoveryPhone } = account;
 
   const ftlMsgResolver = useFtlMsgResolver();
   const alertBar = useAlertBar();
@@ -136,7 +129,7 @@ export const PageSettings = ({
       // Keep track of this because `attachedClients` can change on disconnect
       setProductPromoGleanEventSent(true);
     }
-  }, [attachedClients, vpnPromo, subscriptions, productPromoGleanEventSent]);
+  }, [attachedClients, vpnPromo, productPromoGleanEventSent]);
 
   useEffect(() => {
     const targetEmail = (() => {
