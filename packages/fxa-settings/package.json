@@ -382,6 +382,7 @@
       },
       "build-css": {
         "cache": true,
+        "dependsOn": ["shared-design-tokens:build"],
         "inputs": [
           "production",
           "^production"

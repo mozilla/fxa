@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "@fluent/bundle": "^0.18.0",
+    "acorn-web-components": "alpha",
     "@fluent/langneg": "^0.7.0",
     "async-wait-until": "^2.0.12",
     "classnames": "^2.5.1",
@@ -172,6 +173,9 @@
         "dependsOn": [
           "build-ts"
         ]
+      },
+      "build-css": {
+        "dependsOn": ["shared-design-tokens:build"]
       }
     }
   }

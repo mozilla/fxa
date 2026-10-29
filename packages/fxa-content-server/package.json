@@ -103,6 +103,11 @@
     "tags": [
       "scope:frontend",
       "type:core"
-    ]
+    ],
+    "targets": {
+      "build-css": {
+        "dependsOn": ["shared-design-tokens:build"]
+      }
+    }
   }
 }
