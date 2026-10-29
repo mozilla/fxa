@@ -127,6 +127,9 @@ device-info-browser-os = { $browserName } em { $genericOSName }
 device-info-ip-address = Endereço IP: { $ipAddress }
 
 
+firefox-promo-banner-mobile-description = Sincronize suas abas, favoritos e senhas entre seus dispositivos. Tudo isso é protegido com criptografia.
+
+
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Senha
 form-password-with-inline-criteria-signup-confirm-password-label =

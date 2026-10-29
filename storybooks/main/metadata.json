@@ -1,8 +1,8 @@
 {
-  "commit": "d491c2dabda033c045dd4fcc99f64d21536d6737",
-  "summary": "Merge pull request #21588 from mozilla/FXA-14724",
-  "description": "feat(auth): attribute Monitor web and VPN app sign-ins to their service",
-  "timestamp": 1793292993000,
+  "commit": "2ec0fbb68edc92b4e2f68ed996688adae8884981",
+  "summary": "Merge pull request #21635 from mozilla/fxa-14862",
+  "description": "feat(settings): add per-route bundle size report with a budget",
+  "timestamp": 1793293415000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
