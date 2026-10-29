@@ -478,6 +478,37 @@ describe('ConnectAnotherDevice', () => {
       expect(hardNavigateSpy).not.toHaveBeenCalled();
     });
 
+    it('renders the page instead of redirecting to /pair when the browser lacks the Sync key', async () => {
+      requestSignedInUserMock.mockResolvedValue({
+        ...MOCK_BROWSER_SIGNED_IN_USER,
+        hasSyncKey: false,
+      });
+      renderWithRouter(<ConnectAnotherDevice fxaStatus={mockFxAStatus()} />, {
+        route: MOCK_PAIRING_ELIGIBLE_ROUTE,
+      });
+
+      expect(await screen.findByText(/complete set-up/)).toBeInTheDocument();
+      expect(mockNavigate).not.toHaveBeenCalled();
+      expect(hardNavigateSpy).not.toHaveBeenCalled();
+      expect(firefox.fxaOAuthFlowBegin).not.toHaveBeenCalled();
+    });
+
+    it('renders the page for a signed-in browser without the Sync key when the entrypoint is not a pairing entrypoint', async () => {
+      requestSignedInUserMock.mockResolvedValue({
+        ...MOCK_BROWSER_SIGNED_IN_USER,
+        hasSyncKey: false,
+      });
+      renderWithRouter(<ConnectAnotherDevice fxaStatus={mockFxAStatus()} />, {
+        route:
+          '/connect_another_device?context=oauth_webchannel_v1&entrypoint=ios_settings_manage',
+      });
+
+      await waitFor(() => expect(requestSignedInUserMock).toHaveBeenCalled());
+      expect(await screen.findByText(/complete set-up/)).toBeInTheDocument();
+      expect(firefox.fxaOAuthFlowBegin).not.toHaveBeenCalled();
+      expect(hardNavigateSpy).not.toHaveBeenCalled();
+    });
+
     it('does not redirect to /pair when the entrypoint is not a pairing entrypoint', async () => {
       renderWithRouter(<ConnectAnotherDevice fxaStatus={mockFxAStatus()} />, {
         route:
