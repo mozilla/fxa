@@ -1,0 +1,11 @@
+{
+  "commit": "7865d303feb5fd72f2c6ef7d3e36f34b1746efb3",
+  "summary": "feat(settings): record passkey alert and banner views in Glean",
+  "description": "Because:\n\n* Settings did not record passkey alert and banner views, closes or Learn more clicks.\n* The unsupported passkey row used the same click ID as the Create button.\n\nThis commit:\n\n* Adds the alert_bar.view and banner.view Glean events.\n* Lets AlertBar and Banner record a view and tag close buttons through an opt-in gleanId.\n* Gives the Settings passkey alerts, Learn more links and sign-in banners their Glean IDs.\n* Tags the unsupported Create button as account_pref_passkey_create_unsupported.\n\nCloses FXA-13972",
+  "timestamp": 1793273216000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

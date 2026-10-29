@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 7865d303feb5fd72f2c6ef7d3e36f34b1746efb3</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 7865d303feb5fd72f2c6ef7d3e36f34b1746efb3</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/29/2026, 11:26:56 AM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(settings): record passkey alert and banner views in Glean</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* Settings did not record passkey alert and banner views, closes or Learn more clicks.
+* The unsupported passkey row used the same click ID as the Create button.
+
+This commit:
+
+* Adds the alert_bar.view and banner.view Glean events.
+* Lets AlertBar and Banner record a view and tag close buttons through an opt-in gleanId.
+* Gives the Settings passkey alerts, Learn more links and sign-in banners their Glean IDs.
+* Tags the unsupported Create button as account_pref_passkey_create_unsupported.
+
+Closes FXA-13972</pre></dd>
+  </dl>
+</body>
+</html>
