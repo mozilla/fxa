@@ -1,8 +1,8 @@
 {
-  "commit": "18b4817ab34b2df9f6a6f09799f725b5663481d5",
-  "summary": "Merge pull request #21643 from mozilla/fxa-14660",
-  "description": "fix(auth): stop reading subscriptions in GET /v1/account",
-  "timestamp": 1793296743000,
+  "commit": "1241d505e0f84b1113589073a301891be5375bd1",
+  "summary": "Merge pull request #21549 from mozilla/FXA-14797",
+  "description": "feat(settings): explain unusable passkey wraps on the password fallback",
+  "timestamp": 1793300647000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
