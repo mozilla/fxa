@@ -1,8 +1,8 @@
 {
-  "commit": "602e7331d24f101a7cce12eeeae1b1725e1c4400",
-  "summary": "Merge pull request #21627 from mozilla/fxa-14863",
-  "description": "fix(admin-panel): show Clear Rate Limits progress and result inline",
-  "timestamp": 1793223850000,
+  "commit": "d3277e936808c6fb68737164b46d797bcc1c3a53",
+  "summary": "Merge pull request #21634 from mozilla/fxa-14860",
+  "description": "feat(functional-tests): add a lab page-load measurement spec",
+  "timestamp": 1793280295000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
