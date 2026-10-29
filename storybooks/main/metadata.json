@@ -1,8 +1,8 @@
 {
-  "commit": "d3277e936808c6fb68737164b46d797bcc1c3a53",
-  "summary": "Merge pull request #21634 from mozilla/fxa-14860",
-  "description": "feat(functional-tests): add a lab page-load measurement spec",
-  "timestamp": 1793280295000,
+  "commit": "99a699890f74eae02f2b373fe06b8ebd62fd74d8",
+  "summary": "Merge pull request #21636 from mozilla/fxa-14855",
+  "description": "fix(settings): anchor splitChunks cacheGroups regexes",
+  "timestamp": 1793280781000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
