@@ -1,0 +1,10 @@
+{
+  "commit": "f0c9a3043b04fd4be0db12c9597eea6428605933",
+  "summary": "fix(settings): sync html lang and dir with the saved locale",
+  "description": "Because:\n\n* The provider did not set html lang and dir from a saved locale on\n  mount or on a storage event, so a saved RTL locale showed LTR.\n\nThis commit:\n\n* Sets lang and dir in one effect on currentLocale.\n* Keeps the lang-fix.js values on first load with no saved locale.\n* Removes the duplicate writes in switchLanguage and\n  clearLanguagePreference.\n\nCloses FXA-14885",
+  "timestamp": 1793308415000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

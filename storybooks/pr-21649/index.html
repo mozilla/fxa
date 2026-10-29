@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit f0c9a3043b04fd4be0db12c9597eea6428605933</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit f0c9a3043b04fd4be0db12c9597eea6428605933</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/29/2026, 9:13:35 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): sync html lang and dir with the saved locale</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* The provider did not set html lang and dir from a saved locale on
+  mount or on a storage event, so a saved RTL locale showed LTR.
+
+This commit:
+
+* Sets lang and dir in one effect on currentLocale.
+* Keeps the lang-fix.js values on first load with no saved locale.
+* Removes the duplicate writes in switchLanguage and
+  clearLanguagePreference.
+
+Closes FXA-14885</pre></dd>
+  </dl>
+</body>
+</html>
