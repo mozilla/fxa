@@ -1269,6 +1269,11 @@ tfa-qr-code-alt = Használja a(z) { $code } kódot a kétlépcsős hitelesítés
 inline-totp-setup-page-title = Kétlépcsős hitelesítés
 
 
+page-not-found-heading = Az oldal nem található
+page-not-found-description = A kért oldal nem található. Értesítést kaptunk, és kijavítunk minden, esetleg hibás hivatkozást.
+page-not-found-home-button = Kezdőlap
+
+
 pair-auth-allow-heading-text = Most jelentkezett be a { -brand-firefox }ba?
 pair-auth-allow-confirm-button = Igen, jóváhagyom az eszközt
 pair-auth-allow-refuse-device-link = Ha nem Ön volt az, <a>változtassa meg jelszavát</a>

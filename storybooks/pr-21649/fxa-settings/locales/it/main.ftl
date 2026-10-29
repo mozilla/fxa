@@ -1228,6 +1228,11 @@ tfa-qr-code-alt = Utilizza il codice { $code } per impostare l’autenticazione 
 inline-totp-setup-page-title = Autenticazione in due passaggi
 
 
+page-not-found-heading = Pagina non trovata
+page-not-found-description = La pagina richiesta non è stata trovata. Siamo stati avvisati e risolveremo eventuali collegamenti non funzionanti.
+page-not-found-home-button = Pagina iniziale
+
+
 pair-auth-allow-heading-text = Hai appena effettuato l’accesso a { -brand-firefox }?
 pair-auth-allow-confirm-button = Sì, approva il dispositivo
 pair-auth-allow-refuse-device-link = Se questa operazione non è stata eseguita da te, <a>cambia la password</a>

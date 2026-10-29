@@ -1727,6 +1727,13 @@ inline-totp-setup-code-required-error = Zahtevana je overitvena koda
 tfa-qr-code-alt = S pomočjo kode { $code } nastavite dvostopenjsko overjanje v podprtih aplikacijah.
 inline-totp-setup-page-title = Overitev v dveh korakih
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Strani ni mogoče najti
+page-not-found-description = Zahtevane strani ni mogoče najti. Obveščeni smo bili in bomo odpravili morebitne nedelujoče povezave.
+page-not-found-home-button = Domov
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Ste se pravkar prijavili v { -brand-firefox }?

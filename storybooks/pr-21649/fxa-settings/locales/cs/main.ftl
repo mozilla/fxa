@@ -1517,6 +1517,11 @@ tfa-qr-code-alt = Pro nastavení dvoufázového ověřování v podporovaných a
 inline-totp-setup-page-title = Dvoufázové ověřování
 
 
+page-not-found-heading = Stránka nenalezena
+page-not-found-description = Požadovaná stránka nebyla nalezena. Byli jsme upozorněni a všechny odkazy, které mohou být nefunkční, opravíme.
+page-not-found-home-button = Domů
+
+
 pair-auth-allow-heading-text = Přihlásili jste se právě do { -brand-firefox(case: "gen") }?
 pair-auth-allow-confirm-button = Ano, schválit zařízení
 pair-auth-allow-refuse-device-link = Pokud jste to nebyli vy, <a>změňte si heslo</a>

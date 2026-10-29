@@ -1711,6 +1711,13 @@ tfa-qr-code-alt =
     aplicações suportadas.
 inline-totp-setup-page-title = Autenticação de dois passos
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Página não encontrada
+page-not-found-description = A página solicitada não foi encontrada. Fomos notificados e iremos corrigir todos as ligações que possam estar quebradas.
+page-not-found-home-button = Início
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Acabou de iniciar a sessão no { -brand-firefox }?

@@ -1362,6 +1362,11 @@ tfa-qr-code-alt = S pomočjo kode { $code } nastavite dvostopenjsko overjanje v 
 inline-totp-setup-page-title = Overitev v dveh korakih
 
 
+page-not-found-heading = Strani ni mogoče najti
+page-not-found-description = Zahtevane strani ni mogoče najti. Obveščeni smo bili in bomo odpravili morebitne nedelujoče povezave.
+page-not-found-home-button = Domov
+
+
 pair-auth-allow-heading-text = Ste se pravkar prijavili v { -brand-firefox }?
 pair-auth-allow-confirm-button = Da, odobri napravo
 pair-auth-allow-refuse-device-link = Če to niste bili vi, <a>spremenite geslo</a>

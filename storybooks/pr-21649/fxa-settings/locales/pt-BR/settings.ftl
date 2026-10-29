@@ -307,6 +307,15 @@ backup-authentication-codes-image-aria-label =
     .aria-label = Tela de dispositivo com códigos
 sync-clouds-image-aria-label =
     .aria-label = Nuvens com um ícone de sincronização
+confetti-falling-image-aria-label =
+    .aria-label = Animação de confetes caindo
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = Logotipo do { -brand-firefox }
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Ilustração para representar uma alteração de senha bem-sucedida.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -382,8 +391,22 @@ confirmation-link-reused-message = Esse link de confirmação já foi usado e s�
 ## Locale Toggle Component
 
 locale-toggle-select-label = Selecionar idioma
+locale-toggle-browser-default = Padrão do navegador
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Requisição inválida
+
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = Fechar esta página
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Toque no <b>menu do aplicativo</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>Entre na conta</b>, depois capture o código
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = Saiba mais
 
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
@@ -394,10 +417,25 @@ password-info-balloon-reset-risk-info = Redefinir significa potencialmente perde
 ## PasswordStrengthInline component
 ## These strings are conditions that need to be met to qualify as a strong password
 
+password-strength-long-instruction = Escolha uma senha forte que você não tenha usado em outros sites. Verifique se ela atende aos requisitos de segurança:
+password-strength-short-instruction = Escolha uma senha forte:
 password-strength-inline-min-length = Pelo menos 8 caracteres
 password-strength-inline-not-email = Não ter seu endereço de email
 password-strength-inline-not-common = Não ser uma senha comumente usada
 password-strength-inline-confirmed-must-match = A confirmação corresponde à nova senha
+password-strength-inline-passwords-match = As senhas coincidem
+
+## PromoQrMobile component
+## Promotional aside encouraging users to download the Firefox mobile app via QR code.
+
+# "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
+promo-qr-mobile-heading = Seu celular. Suas regras.
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = Continue de onde parou, onde quer que vá
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = Suas abas e muito mais, disponíveis no seu celular
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = O navegador que você confia, no seu celular
 
 ## Notification Promo Banner component
 

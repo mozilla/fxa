@@ -1230,6 +1230,11 @@ tfa-qr-code-alt =
 inline-totp-setup-page-title = Autenticação de dois passos
 
 
+page-not-found-heading = Página não encontrada
+page-not-found-description = A página solicitada não foi encontrada. Fomos notificados e iremos corrigir todos as ligações que possam estar quebradas.
+page-not-found-home-button = Início
+
+
 pair-auth-allow-heading-text = Acabou de iniciar a sessão no { -brand-firefox }?
 pair-auth-allow-confirm-button = Sim, aprovar dispositivo
 pair-auth-allow-refuse-device-link = Se não foi você, <a>altere a sua palavra-passe</a>

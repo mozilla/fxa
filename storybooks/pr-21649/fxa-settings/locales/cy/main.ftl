@@ -1250,6 +1250,11 @@ tfa-qr-code-alt = Defnyddiwch y cod { $code } i osod dilysiad dau gam mewn rhagl
 inline-totp-setup-page-title = Dilysu dau gam
 
 
+page-not-found-heading = Heb ganfod y dudalen
+page-not-found-description = Nid yw'r dudalen y gofynnoch amdani wedi'i chanfod. Rydym wedi cael ein hysbysu a byddwn yn trwsio unrhyw ddolenni a allai gael eu torri.
+page-not-found-home-button = Cartref
+
+
 pair-auth-allow-heading-text = Ydych chi newydd fewngofnodi i { -brand-firefox }?
 pair-auth-allow-confirm-button = Iawn, yn cymeradwyo'r ddyfais
 pair-auth-allow-refuse-device-link = Os nad chi oedd hwn, <a>newidiwch eich cyfrinair</a>

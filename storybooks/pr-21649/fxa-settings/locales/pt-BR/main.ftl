@@ -281,6 +281,12 @@ backup-authentication-codes-image-aria-label =
     .aria-label = Tela de dispositivo com códigos
 sync-clouds-image-aria-label =
     .aria-label = Nuvens com um ícone de sincronização
+confetti-falling-image-aria-label =
+    .aria-label = Animação de confetes caindo
+firefox-wordmark-image-aria-label =
+    .aria-label = Logotipo do { -brand-firefox }
+password-success-image-aria-label =
+    .aria-label = Ilustração para representar uma alteração de senha bem-sucedida.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Você está conectado neste { -brand-firefox }.
@@ -325,17 +331,33 @@ confirmation-link-reused-message = Esse link de confirmação já foi usado e s�
 
 
 locale-toggle-select-label = Selecionar idioma
+locale-toggle-browser-default = Padrão do navegador
 error-bad-request = Requisição inválida
+
+
+pair-unsupported-hint-step-close-page = Fechar esta página
+pair-unsupported-hint-step-app-menu = Toque no <b>menu do aplicativo</b>
+pair-unsupported-hint-step-sign-in = <b>Entre na conta</b>, depois capture o código
+pair-unsupported-hint-learn-more-link = Saiba mais
 
 
 password-info-balloon-why-password-info = Você precisa dessa senha para acessar dados criptografados armazenados conosco.
 password-info-balloon-reset-risk-info = Redefinir significa potencialmente perder dados como senhas e favoritos.
 
 
+password-strength-long-instruction = Escolha uma senha forte que você não tenha usado em outros sites. Verifique se ela atende aos requisitos de segurança:
+password-strength-short-instruction = Escolha uma senha forte:
 password-strength-inline-min-length = Pelo menos 8 caracteres
 password-strength-inline-not-email = Não ter seu endereço de email
 password-strength-inline-not-common = Não ser uma senha comumente usada
 password-strength-inline-confirmed-must-match = A confirmação corresponde à nova senha
+password-strength-inline-passwords-match = As senhas coincidem
+
+
+promo-qr-mobile-heading = Seu celular. Suas regras.
+promo-qr-mobile-heading-treatment-a = Continue de onde parou, onde quer que vá
+promo-qr-mobile-heading-treatment-b = Suas abas e muito mais, disponíveis no seu celular
+promo-qr-mobile-heading-treatment-c = O navegador que você confia, no seu celular
 
 
 account-recovery-notification-cta = Criar
