@@ -1,8 +1,8 @@
 {
-  "commit": "3a72841423157ec3e3423ff5e660f9265894e070",
+  "commit": "585e30d37f66f6021c66188e5be437945bcd6d10",
   "summary": "fix(payments): show prorated upgrade amounts on processing and success",
   "description": "Because\n- PurchaseDetails reflected the higher-tier's full price on processing and success until the page was refreshed\n\nThis pull request\n- Looks up the upgraded subscription by its new price in getCart until checkout saves its ID\n- Passes cartState to PurchaseDetails in the upgrade layout so prices refresh on success\n- Adds getCart tests for processing upgrade carts without a saved subscription ID\n\nCloses\nPAY-3918",
-  "timestamp": 1793307108000,
+  "timestamp": 1793307848000,
   "storybooks": [
     "fxa-admin-panel"
   ],
