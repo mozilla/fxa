@@ -155,7 +155,6 @@ function logFlowEvent(event, data, request) {
       flow_id: data.flowId, //eslint-disable-line camelcase
       flow_time: Math.floor(event.flowTime), //eslint-disable-line camelcase
       hostname: HOSTNAME,
-      locale: request.locale,
       op: 'flowEvent',
       pid: process.pid,
       region: location && location.state,

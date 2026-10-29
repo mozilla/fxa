@@ -4,7 +4,7 @@
 
 'use strict';
 
-module.exports = function (config, i18n, statsd, glean) {
+module.exports = function (config, statsd, glean) {
   const redirectVersionedToUnversioned = require('./routes/redirect-versioned-to-unversioned');
   const redirectWithQuery = require('./routes/redirect-with-query');
 
@@ -17,8 +17,7 @@ module.exports = function (config, i18n, statsd, glean) {
     require('./routes/get-apple-app-site-association')(),
     require('./routes/get-assetlinks-json')(),
     require('./routes/get-ver.json'),
-    require('./routes/get-client.json')(i18n),
-    require('./routes/get-config')(i18n),
+    require('./routes/get-config')(),
     require('./routes/get-fxa-client-configuration')(config),
     require('./routes/get-heartbeat')(),
     require('./routes/get-lbheartbeat')(),

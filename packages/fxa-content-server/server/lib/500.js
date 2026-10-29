@@ -26,9 +26,9 @@ module.exports = function (err, req, res, next) {
 
   if (req.accepts('json')) {
     return res.send({
-      error: req.gettext('System unavailable, try again soon'),
+      error: 'System unavailable, try again soon',
     });
   }
 
-  res.type('txt').send(req.gettext('System unavailable, try again soon'));
+  res.type('txt').send('System unavailable, try again soon');
 };

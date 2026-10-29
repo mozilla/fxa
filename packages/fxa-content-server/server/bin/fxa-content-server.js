@@ -57,15 +57,12 @@ if (isMain) {
   process.chdir(path.dirname(__dirname));
 }
 
-const i18n = require('../lib/i18n')(config.get('i18n'));
-
 // Side effect - Adds default_fxa and dev_fxa to express.logger formats
 const routeLogging = require('../lib/logging/route_logging');
 
 const noindex = require('../lib/noindex');
 const fourOhFour = require('../lib/404');
 const serverErrorHandler = require('../lib/500');
-const localizedRender = require('../lib/localized-render');
 const csp = require('../lib/csp');
 const cspRulesBlocking = require('../lib/csp/blocking')(config);
 const cspRulesReportOnly = require('../lib/csp/report-only')(config);
@@ -93,13 +90,6 @@ function makeApp() {
   app.engine('html', consolidate.handlebars);
   app.set('view engine', 'html');
   app.set('views', PAGE_TEMPLATE_DIRECTORY);
-
-  // i18n adds metadata to a request to help
-  // with translating templates on the server.
-  app.use(i18n);
-
-  // render the correct template for the locale.
-  app.use(localizedRender({ i18n: i18n }));
 
   app.use(
     helmet.frameguard({
@@ -175,7 +165,7 @@ function makeApp() {
 
   app.use(noindex);
 
-  const routes = require('../lib/routes')(config, i18n, statsd, glean);
+  const routes = require('../lib/routes')(config, statsd, glean);
   const routeLogger = loggerFactory('server.routes');
   const routeHelpers = routing(app, routeLogger);
 

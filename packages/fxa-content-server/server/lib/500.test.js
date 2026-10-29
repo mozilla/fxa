@@ -20,7 +20,6 @@ function setup({ accepts, proxySettings = false }) {
   });
   const req = {
     accepts: (type) => type === accepts,
-    gettext: (msg) => msg,
   };
   const res = {
     locals: {},
