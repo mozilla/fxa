@@ -100,3 +100,22 @@ export const view = new EventMetricType<{
   },
   ['reason']
 );
+
+/**
+ * User was shown the banner on the enter-password page explaining that the
+ * passkey they used is set up for sync but couldn't be used on this device.
+ *
+ * Generated from `passkey_enter_password.wrap_unusable_banner_view`.
+ */
+export const wrapUnusableBannerView = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'passkey_enter_password',
+    name: 'wrap_unusable_banner_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);

@@ -36,3 +36,23 @@ export const WithCms = () => (
     />
   </MemoryRouter>
 );
+
+export const WrapUnusableNoPrf = () => (
+  <MemoryRouter>
+    <SigninPasskeyFallback
+      email="user@example.com"
+      passkeyFallbackCause="no_prf"
+      {...handlers}
+    />
+  </MemoryRouter>
+);
+
+export const WrapUnusableUnwrapFailed = () => (
+  <MemoryRouter>
+    <SigninPasskeyFallback
+      email="user@example.com"
+      passkeyFallbackCause="unwrap_failed"
+      {...handlers}
+    />
+  </MemoryRouter>
+);

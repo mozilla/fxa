@@ -9,7 +9,10 @@ import { AuthUiError } from '../../lib/auth-errors/auth-errors';
 import { BeginSigninError } from '../../lib/error-utils';
 import { AccountAvatar } from '../../lib/interfaces';
 import { FinishOAuthFlowHandler } from '../../lib/oauth/hooks';
-import { PasskeyMetricsSurface } from '../../lib/passkeys/signin-flow';
+import type {
+  PasskeyFallbackCause,
+  PasskeyMetricsSurface,
+} from '../../lib/passkeys/signin-flow';
 import { MozServices } from '../../lib/types';
 import type { NavigateFunction } from 'react-router';
 import { Integration } from '../../models';
@@ -358,4 +361,9 @@ export interface SigninLocationState {
    * events.
    */
   passkeySurface?: PasskeyMetricsSurface;
+  /**
+   * Why SigninPasskeyFallback was reached. Decides whether the unusable-wrap
+   * banner shows.
+   */
+  passkeyFallbackCause?: PasskeyFallbackCause;
 }

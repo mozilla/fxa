@@ -19,6 +19,7 @@ jest.mock('../../../lib/glean', () => ({
       submit: jest.fn(),
       submitFrontendError: jest.fn(),
       success: jest.fn(),
+      wrapUnusableBannerView: jest.fn(),
     },
   },
 }));
@@ -308,5 +309,65 @@ describe('SigninPasskeyFallback', () => {
         event: { reason: 'emailfirst' },
       });
     });
+  });
+
+  describe('unusable-wrap banner', () => {
+    it.each([
+      ['no_prf', 'Password needed on this device'],
+      ['unwrap_failed', 'Your passkey couldn’t unlock sync'],
+    ] as const)(
+      'explains a %s fallback and links to troubleshooting',
+      (cause, heading) => {
+        renderWithRouter(
+          <SigninPasskeyFallback
+            email="user@example.com"
+            passkeyFallbackCause={cause}
+          />
+        );
+        expect(screen.getByText(heading)).toBeInTheDocument();
+        expect(
+          screen.getByRole('link', { name: /Learn more/ })
+        ).toHaveAttribute(
+          'href',
+          'https://support.mozilla.org/kb/troubleshoot-passkey-mozilla-account'
+        );
+      }
+    );
+
+    it.each(['no_prf', 'unwrap_failed'] as const)(
+      'records one banner view for a %s fallback',
+      (cause) => {
+        renderWithRouter(
+          <SigninPasskeyFallback
+            email="user@example.com"
+            passkeyFallbackCause={cause}
+          />
+        );
+        expect(
+          GleanMetrics.passkeyEnterPassword.wrapUnusableBannerView
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          GleanMetrics.passkeyEnterPassword.wrapUnusableBannerView
+        ).toHaveBeenCalledWith({ event: { reason: cause } });
+      }
+    );
+
+    it.each(['no_wrap', 'stale', 'fetch_failed', undefined] as const)(
+      'shows no banner and records no banner view for cause %s',
+      (cause) => {
+        renderWithRouter(
+          <SigninPasskeyFallback
+            email="user@example.com"
+            passkeyFallbackCause={cause}
+          />
+        );
+        expect(
+          screen.queryByRole('link', { name: /Learn more/ })
+        ).not.toBeInTheDocument();
+        expect(
+          GleanMetrics.passkeyEnterPassword.wrapUnusableBannerView
+        ).not.toHaveBeenCalled();
+      }
+    );
   });
 });

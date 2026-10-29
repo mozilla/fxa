@@ -31,7 +31,7 @@ const CREDENTIAL_ID = 'cred';
 const KB = new Uint8Array(32).fill(0x0b);
 const prf = () => new Uint8Array(32).fill(7);
 
-const args = (prfOut: Uint8Array) => ({
+const args = (prfOut?: Uint8Array) => ({
   mfaToken: 'mfa-token',
   uid: UID,
   credentialId: CREDENTIAL_ID,
@@ -80,28 +80,72 @@ describe('unwrapPasskeyKb', () => {
       args(prf())
     );
 
-    expect(res).toEqual({ ok: false, reason: 'failed' });
+    expect(res).toEqual({ ok: false, reason: 'unwrap_failed' });
+  });
+
+  it('reports no_prf without Sentry when a wrap exists but prfOut is absent', async () => {
+    const res = await unwrapPasskeyKb(
+      client(async () => storedWrap()),
+      args()
+    );
+
+    expect(res).toEqual({ ok: false, reason: 'no_prf' });
+    expect(mockCaptureException).not.toHaveBeenCalled();
+  });
+
+  it('reports no_wrap rather than no_prf when nothing is stored', async () => {
+    const res = await unwrapPasskeyKb(
+      client(async () => {
+        throw Object.assign(new Error('refused'), {
+          errno: ERRNO.PASSKEY_WRAP_NOT_FOUND,
+        });
+      }),
+      args()
+    );
+
+    expect(res).toEqual({ ok: false, reason: 'no_wrap' });
   });
 
   it.each([
     ['short', new Uint8Array(4)],
     ['spent', new Uint8Array(32)],
-  ])('fails without a fetch when prfOut is %s', async (_, prfOut) => {
-    const c = client(async () => storedWrap());
+  ])(
+    'reports unwrap_failed without trying to open the wrap when prfOut is %s',
+    async (_, prfOut) => {
+      const res = await unwrapPasskeyKb(
+        client(async () => storedWrap()),
+        args(prfOut)
+      );
 
-    expect(await unwrapPasskeyKb(c, args(prfOut))).toEqual({
-      ok: false,
-      reason: 'failed',
-    });
-    expect(c.getPasskeyWrap).not.toHaveBeenCalled();
-  });
+      expect(res).toEqual({ ok: false, reason: 'unwrap_failed' });
+      expect(mockOpenWrapEnvelope).not.toHaveBeenCalled();
+    }
+  );
+
+  it.each([
+    ['short', new Uint8Array(4), '4'],
+    ['spent', new Uint8Array(32), '32'],
+  ])(
+    'reports a %s prfOut to Sentry tagged with its length',
+    async (_, prfOut, length) => {
+      await unwrapPasskeyKb(
+        client(async () => storedWrap()),
+        args(prfOut)
+      );
+
+      expect(mockCaptureException).toHaveBeenCalledWith(
+        new Error('passkey-wrap invalid prf output'),
+        { tags: { length } }
+      );
+    }
+  );
 
   it.each([
     [ERRNO.PASSKEY_WRAP_NOT_FOUND, 'no_wrap'],
     [ERRNO.PASSKEY_WRAP_STALE, 'stale'],
-    [ERRNO.PASSKEY_NOT_FOUND, 'failed'],
-    [ERRNO.THROTTLED, 'failed'],
-    [ERRNO.REQUEST_BLOCKED, 'failed'],
+    [ERRNO.PASSKEY_NOT_FOUND, 'fetch_failed'],
+    [ERRNO.THROTTLED, 'fetch_failed'],
+    [ERRNO.REQUEST_BLOCKED, 'fetch_failed'],
   ])('maps errno %i to %s without Sentry', async (errno, reason) => {
     const res = await unwrapPasskeyKb(
       client(async () => {
@@ -130,7 +174,7 @@ describe('unwrapPasskeyKb', () => {
       args(prf())
     );
 
-    expect(res).toEqual({ ok: false, reason: 'failed' });
+    expect(res).toEqual({ ok: false, reason: 'fetch_failed' });
     expect(mockCaptureException).not.toHaveBeenCalled();
   });
 
@@ -146,7 +190,7 @@ describe('unwrapPasskeyKb', () => {
       args(prf())
     );
 
-    expect(res).toEqual({ ok: false, reason: 'failed' });
+    expect(res).toEqual({ ok: false, reason: 'fetch_failed' });
     expect(mockCaptureException).toHaveBeenCalledWith(
       new Error('passkey-wrap-fetch error'),
       { tags: { errno: String(errno) } }
@@ -163,7 +207,7 @@ describe('unwrapPasskeyKb', () => {
       args(prf())
     );
 
-    expect(res).toEqual({ ok: false, reason: 'failed' });
+    expect(res).toEqual({ ok: false, reason: 'fetch_failed' });
     expect(mockCaptureException).toHaveBeenCalledWith(
       new Error('passkey-wrap-fetch error'),
       { tags: { errno: 'none', name: 'TypeError' } }
@@ -178,9 +222,23 @@ describe('unwrapPasskeyKb', () => {
       args(prf())
     );
 
-    expect(res).toEqual({ ok: false, reason: 'failed' });
+    expect(res).toEqual({ ok: false, reason: 'unwrap_failed' });
     expect(mockCaptureException).toHaveBeenCalledWith(
-      new Error('passkey-wrap-decrypt error')
+      new Error('passkey-wrap-decrypt error'),
+      { tags: { stage: 'open', name: 'Error' } }
+    );
+  });
+
+  it('tags the failure name when the PRF output differs from the seal', async () => {
+    const res = await unwrapPasskeyKb(
+      client(async () => storedWrap()),
+      args(new Uint8Array(32).fill(8))
+    );
+
+    expect(res).toEqual({ ok: false, reason: 'unwrap_failed' });
+    expect(mockCaptureException).toHaveBeenCalledWith(
+      new Error('passkey-wrap-decrypt error'),
+      { tags: { stage: 'open', name: 'OperationError' } }
     );
   });
 
@@ -195,10 +253,11 @@ describe('unwrapPasskeyKb', () => {
       args(prf())
     );
 
-    expect(res).toEqual({ ok: false, reason: 'failed' });
+    expect(res).toEqual({ ok: false, reason: 'unwrap_failed' });
     expect(opened).toEqual(new Uint8Array(opened.length));
     expect(mockCaptureException).toHaveBeenCalledWith(
-      new Error('passkey-wrap-decrypt error')
+      new Error('passkey-wrap-decrypt error'),
+      { tags: { stage: 'kb' } }
     );
   });
 });

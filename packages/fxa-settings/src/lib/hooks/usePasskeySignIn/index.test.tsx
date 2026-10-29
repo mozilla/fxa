@@ -1160,18 +1160,64 @@ describe('usePasskeySignIn passwordless Sync', () => {
     expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
   });
 
-  it('sends a passkey that returned no PRF output to the password page without fetching', async () => {
+  it('checks for a wrap when the passkey returned no PRF output', async () => {
+    unwrapMock.mockResolvedValue({ ok: false, reason: 'no_prf' });
+    const { args, result } = renderSyncHook();
+    (getCredential as jest.Mock).mockResolvedValue(MOCK_CREDENTIAL);
+
+    await act(() => result.current.onClick());
+
+    expect(unwrapMock).toHaveBeenCalledWith(args.authClient, {
+      mfaToken: MFA_TOKEN,
+      uid: UID,
+      credentialId: MOCK_CREDENTIAL.id,
+      prfOut: undefined,
+    });
+  });
+
+  it('sends a passkey whose wrap needs PRF output to the password page with the cause', async () => {
+    unwrapMock.mockResolvedValue({ ok: false, reason: 'no_prf' });
     const { result, spies } = renderSyncHook();
     (getCredential as jest.Mock).mockResolvedValue(MOCK_CREDENTIAL);
+
+    await act(() => result.current.onClick());
+
+    expect(spies.navigateWithQuery).toHaveBeenCalledWith(
+      '/signin_passkey_fallback',
+      {
+        state: { passkeySurface: 'emailfirst', passkeyFallbackCause: 'no_prf' },
+      }
+    );
+    expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
+  });
+
+  it('passes no cause for a desktop v3 fallback without fetching', async () => {
+    const integration = syncIntegration();
+    (integration as { type: IntegrationType }).type =
+      IntegrationType.SyncDesktopV3;
+    const { result, spies } = renderSyncHook({ integration });
 
     await act(() => result.current.onClick());
 
     expect(unwrapMock).not.toHaveBeenCalled();
     expect(spies.navigateWithQuery).toHaveBeenCalledWith(
       '/signin_passkey_fallback',
-      { state: { passkeySurface: 'emailfirst' } }
+      {
+        state: {
+          passkeySurface: 'emailfirst',
+          passkeyFallbackCause: undefined,
+        },
+      }
     );
-    expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
+  });
+
+  it('passes no cause when the wrap was not requested', async () => {
+    const { result, spies } = renderSyncHook({ flagOn: false });
+
+    await act(() => result.current.onClick());
+
+    const [, options] = spies.navigateWithQuery.mock.calls[0];
+    expect(options.state.passkeyFallbackCause).toBeUndefined();
   });
 
   it('completes the OAuth flow with the recovered kB and no password page', async () => {
@@ -1219,8 +1265,8 @@ describe('usePasskeySignIn passwordless Sync', () => {
     expect(sensitiveDataClient.PasskeyWrapData).toBeUndefined();
   });
 
-  it('falls back to the password page when the wrap cannot supply kB', async () => {
-    unwrapMock.mockResolvedValue({ ok: false, reason: 'failed' });
+  it('falls back to the password page with the cause when the wrap cannot supply kB', async () => {
+    unwrapMock.mockResolvedValue({ ok: false, reason: 'unwrap_failed' });
     const { result, spies } = renderSyncHook();
 
     await act(() => result.current.onClick());
@@ -1228,7 +1274,12 @@ describe('usePasskeySignIn passwordless Sync', () => {
     expect(handleNavigation).not.toHaveBeenCalled();
     expect(spies.navigateWithQuery).toHaveBeenCalledWith(
       '/signin_passkey_fallback',
-      { state: { passkeySurface: 'emailfirst' } }
+      {
+        state: {
+          passkeySurface: 'emailfirst',
+          passkeyFallbackCause: 'unwrap_failed',
+        },
+      }
     );
   });
 

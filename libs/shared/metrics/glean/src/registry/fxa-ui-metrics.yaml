@@ -2774,6 +2774,30 @@ passkey_enter_password:
           (email-first page) or 'signin' (login page). Only these two surfaces
           reach the existing-password page (no-password surfaces never do).
         type: string
+  wrap_unusable_banner_view:
+    type: event
+    description: |
+      User was shown the banner on the enter-password page explaining that the
+      passkey they used is set up for sync but couldn't be used on this device.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14797
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Why the wrap couldn't be used: 'no_prf' (no PRF output from this
+          browser or device) or 'unwrap_failed' (the wrap could not be opened).
+        type: string
   engage:
     type: event
     description: |
