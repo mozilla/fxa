@@ -34,7 +34,22 @@ const HASHED_ASSET_MAP = {
 };
 
 const FETCH_LIST_BASE_DIR = '/fetch-list';
-const FETCH_LIST_LOCALES = ['en', 'en-GB', 'en-CA', 'de'];
+const FETCH_LIST_LOCALES = [
+  'en',
+  'en-GB',
+  'en-CA',
+  'de',
+  'es-MX',
+  'es',
+  'es-ES',
+  'es-AR',
+  'es-CL',
+  'pt-BR',
+  'pt',
+  'pt-PT',
+  'zh-CN',
+  'zh-TW',
+];
 
 describe('<AppLocalizationProvider/>', () => {
   const locales = ['en-GB', 'en-CA', 'es-ES'];
@@ -89,6 +104,8 @@ describe('<AppLocalizationProvider/>', () => {
       'hello = Hello { $amount }'
     );
     fetchMock.get('/locales/en-CA/greetings.ftl', 'hello = Unhashed hello\n');
+    fetchMock.get('/locales/es-MX/fallback.ftl', 'hello = Hola\n');
+    fetchMock.get('/locales/es/fallback.ftl', 'goodbye = Adiós\n');
 
     // Bundles for the reportBundleError tests, served under their own baseDir
     // so they do not collide with the fixtures above.
@@ -204,6 +221,28 @@ describe('<AppLocalizationProvider/>', () => {
 
     // Ensure we leave the string untranslated if our locale is missing it.
     expect(getByTestId('result')).toHaveTextContent('Holauntranslated');
+  });
+
+  it('translate to es-MX with es fallback', async () => {
+    const { getByTestId } = render(
+      <AppLocalizationProvider
+        bundles={['fallback']}
+        userLocales={['es-MX']}
+        reportError={reportError}
+      >
+        <main data-testid="result">
+          <Localized id="hello">
+            <div>untranslated</div>
+          </Localized>
+          <Localized id="goodbye">
+            <div>untranslated</div>
+          </Localized>
+        </main>
+      </AppLocalizationProvider>
+    );
+    await waitUntilTranslated();
+
+    expect(getByTestId('result')).toHaveTextContent('HolaAdiós');
   });
 
   it('translate to de', async () => {
@@ -330,29 +369,39 @@ describe('<AppLocalizationProvider/>', () => {
     });
 
     it.each([
-      ['en-US', ['en']],
-      ['en-GB', ['en-GB', 'en']],
-      ['de', ['de', 'en']],
-    ])('fetches only the %s best locale and en', async (locale, expected) => {
-      render(
-        <AppLocalizationProvider
-          baseDir={FETCH_LIST_BASE_DIR}
-          userLocales={[locale]}
-        />
-      );
-      await waitUntilTranslated();
+      [['en-US'], ['en']],
+      [['en-GB'], ['en-GB', 'en']],
+      [['en-NZ'], ['en-GB', 'en']],
+      [
+        ['de', 'en-US', 'en'],
+        ['de', 'en'],
+      ],
+      [
+        ['de', 'en-GB'],
+        ['de', 'en'],
+      ],
+      [
+        ['es-MX', 'es', 'en-US', 'en'],
+        ['es-MX', 'es', 'es-ES', 'es-AR', 'es-CL', 'en'],
+      ],
+      [['pt-BR'], ['pt-BR', 'pt', 'pt-PT', 'en']],
+      [['zh-CN'], ['zh-CN', 'zh-TW', 'en']],
+    ])(
+      'fetches same-language fallbacks for %j, and en-GB or en-CA only as the best locale',
+      async (userLocales, expected) => {
+        render(
+          <AppLocalizationProvider
+            baseDir={FETCH_LIST_BASE_DIR}
+            userLocales={userLocales}
+          />
+        );
+        await waitUntilTranslated();
 
-      expect(
-        fetchMock
-          .calls()
-          .map(([url]) => url)
-          .sort()
-      ).toEqual(
-        expected
-          .map((l) => `${FETCH_LIST_BASE_DIR}/locales/${l}/main.ftl`)
-          .sort()
-      );
-    });
+        expect(fetchMock.calls().map(([url]) => url)).toEqual(
+          expected.map((l) => `${FETCH_LIST_BASE_DIR}/locales/${l}/main.ftl`)
+        );
+      }
+    );
   });
 
   describe('reportBundleError', () => {
