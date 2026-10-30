@@ -14,8 +14,6 @@ import {
   StripePriceRecurringFactory,
 } from '@fxa/payments/stripe';
 import {
-  EligibilityContentByOfferingResultFactory,
-  EligibilityContentByOfferingResultUtil,
   EligibilityContentByPlanIdsResultFactory,
   EligibilityContentByPlanIdsResultUtil,
   EligibilityContentOfferingResultFactory,
@@ -220,15 +218,6 @@ describe('EligibilityManager', () => {
         new EligibilityContentByPlanIdsResultUtil({ purchases: [] });
 
       jest
-        .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
-        .mockResolvedValue(
-          new EligibilityContentByOfferingResultUtil(
-            EligibilityContentByOfferingResultFactory({
-              offerings: [targetOffering],
-            })
-          )
-        );
-      jest
         .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
         .mockResolvedValue(eligibilityContentByPlanIdsResultUtil);
       jest
@@ -245,50 +234,6 @@ describe('EligibilityManager', () => {
       ).toHaveBeenCalledWith([priceId]);
       expect(result.length).toBe(1);
       expect(result[0].comparison).toBe(OfferingComparison.SAME);
-    });
-
-    it('should return upgrade comparison for upgrade priceId', async () => {
-      const targetOfferingId = faker.string.uuid();
-      const fromOfferingId = faker.string.uuid();
-      const targetOffering = EligibilityOfferingResultFactory({
-        apiIdentifier: targetOfferingId,
-        subGroups: [
-          EligibilitySubgroupResultFactory({
-            offerings: [
-              EligibilitySubgroupOfferingResultFactory({
-                apiIdentifier: fromOfferingId,
-              }),
-              EligibilitySubgroupOfferingResultFactory({
-                apiIdentifier: targetOfferingId,
-              }),
-            ],
-          }),
-        ],
-      });
-      const fromOffering = EligibilityOfferingResultFactory({
-        apiIdentifier: fromOfferingId,
-      });
-      const eligibilityContentByPlanIdsResultUtil =
-        new EligibilityContentByPlanIdsResultUtil({ purchases: [] });
-      jest
-        .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
-        .mockResolvedValue(eligibilityContentByPlanIdsResultUtil);
-      jest
-        .spyOn(eligibilityContentByPlanIdsResultUtil, 'offeringForPlanId')
-        .mockReturnValueOnce(targetOffering)
-        .mockReturnValueOnce(fromOffering);
-
-      const targetPriceId = faker.string.uuid();
-      const fromPriceId = faker.string.uuid();
-      const result = await manager.getOfferingOverlap({
-        priceIds: [fromPriceId],
-        targetPriceId,
-      });
-      expect(
-        productConfigurationManager.getPurchaseDetailsForEligibility
-      ).toHaveBeenCalledWith([fromPriceId, targetPriceId]);
-      expect(result.length).toBe(1);
-      expect(result[0].comparison).toBe(OfferingComparison.UPGRADE);
     });
 
     it('should return upgrade comparison for upgrade - targetOffering', async () => {
@@ -315,15 +260,6 @@ describe('EligibilityManager', () => {
       const eligibilityContentByPlanIdsResultUtil =
         new EligibilityContentByPlanIdsResultUtil({ purchases: [] });
 
-      jest
-        .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
-        .mockResolvedValue(
-          new EligibilityContentByOfferingResultUtil(
-            EligibilityContentByOfferingResultFactory({
-              offerings: [targetOffering],
-            })
-          )
-        );
       jest
         .spyOn(productConfigurationManager, 'getPurchaseDetailsForEligibility')
         .mockResolvedValue(eligibilityContentByPlanIdsResultUtil);
