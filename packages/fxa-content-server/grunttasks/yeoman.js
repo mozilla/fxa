@@ -4,15 +4,11 @@
 
 module.exports = function (grunt) {
   const TEMP_DIR = '.tmp';
-  const TEMPLATE_ROOT = 'server/templates';
 
   grunt.config('yeoman', {
-    /*eslint-disable camelcase */
     app: 'app',
     dist: 'dist',
     es5: '.es5',
-    page_template_dist: TEMPLATE_ROOT + '/pages/dist',
-    page_template_src: TEMPLATE_ROOT + '/pages/src',
     server: 'server',
     tests: 'tests',
     tmp: TEMP_DIR,

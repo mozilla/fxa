@@ -33,16 +33,5 @@ module.exports = function (grunt) {
       ],
       options: minOptions,
     },
-    templates: {
-      files: [
-        {
-          cwd: '<%= yeoman.page_template_dist %>',
-          dest: '<%= yeoman.page_template_dist %>',
-          expand: true,
-          src: '**/*.html',
-        },
-      ],
-      options: minOptions,
-    },
   });
 };

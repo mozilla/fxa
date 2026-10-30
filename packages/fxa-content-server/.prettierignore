@@ -9,9 +9,7 @@ LICENSE
 *.json-dist
 Dockerfile*
 app/l10n/*
-app/images/*
 locale/*
 fxa-content-server-l10n/*
 dist/*
 tests/tools/certs/*
-server/templates/pages/dist/*

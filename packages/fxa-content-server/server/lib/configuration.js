@@ -629,16 +629,6 @@ const conf = (module.exports = convict({
     subject_types_supported: ['public'],
     token_endpoint_auth_methods_supported: ['client_secret_post'],
   },
-  page_template_root: {
-    default: path.resolve(__dirname, '..', 'templates', 'pages'),
-    doc: 'The root path of server-rendered page templates',
-  },
-  page_template_subdirectory: {
-    default: 'dist',
-    doc: 'Subdirectory of page_template_root for server-rendered page templates',
-    env: 'PAGE_TEMPLATE_SUBDIRECTORY',
-    format: ['src', 'dist'],
-  },
   nimbus: {
     enabled: {
       default: false,
