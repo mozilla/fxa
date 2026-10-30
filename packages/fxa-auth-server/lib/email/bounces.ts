@@ -2,23 +2,91 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
+import Container from 'typedi';
+import { StatsD } from 'hot-shots';
+import * as eaddrs from 'email-addresses';
+import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
+import { StripeHelper } from '../payments/stripe';
+import { ConfigType } from '../../config';
+import { DB } from '../db';
+import { AuthLogger } from '../types';
+import { isValidEmailAddress } from '../routes/validators';
+import * as utils from './utils/helpers';
+import { SESMail, SQSReceiver } from './ses-types';
 
-const { default: Container } = require('typedi');
-const { StripeHelper } = require('../../lib/payments/stripe');
-const { ReasonForDeletion } = require('@fxa/shared/cloud-tasks');
-
-const eaddrs = require('email-addresses');
-const utils = require('./utils/helpers');
-const isValidEmailAddress =
-  require('./../routes/validators').isValidEmailAddress;
 const SIX_HOURS = 1000 * 60 * 60 * 6;
 
-module.exports = function (log, error, config, statsd) {
+// https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#bounce-object
+interface BouncedRecipient {
+  emailAddress: string;
+  action?: string;
+  status?: string;
+  diagnosticCode?: string;
+}
+
+interface SESBounce {
+  bounceType: 'Undetermined' | 'Permanent' | 'Transient';
+  bounceSubType:
+    | 'Undetermined'
+    | 'General'
+    | 'NoEmail'
+    | 'Suppressed'
+    | 'OnAccountSuppressionList'
+    | 'UnsubscribedRecipient'
+    | 'MailboxFull'
+    | 'MessageTooLarge'
+    | 'ContentRejected'
+    | 'AttachmentRejected';
+  bouncedRecipients: BouncedRecipient[];
+}
+
+// https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
+interface SESComplaint {
+  complainedRecipients: Pick<BouncedRecipient, 'emailAddress'>[];
+  userAgent?: string;
+  complaintFeedbackType?:
+    | 'abuse'
+    | 'auth-failure'
+    | 'fraud'
+    | 'not-spam'
+    | 'other'
+    | 'virus';
+}
+
+interface SESBounceMessage {
+  bounce?: SESBounce;
+  complaint?: SESComplaint;
+  mail?: SESMail;
+  diagnosticCode?: string;
+  del: () => void;
+}
+
+interface BounceRecord {
+  email: string;
+  diagnosticCode?: string;
+  templateName?: string;
+  bounceType?: SESBounce['bounceType'] | 'Complaint';
+  bounceSubType?:
+    | SESBounce['bounceSubType']
+    | SESComplaint['complaintFeedbackType'];
+}
+
+type BounceDB = Pick<
+  DB,
+  'accountRecord' | 'createEmailBounce' | 'deleteAccount'
+>;
+type AccountRecord = Awaited<ReturnType<DB['accountRecord']>>;
+
+export = function (
+  log: AuthLogger,
+  error: unknown,
+  config: ConfigType,
+  statsd: StatsD
+) {
   const stripeHelper = Container.get(StripeHelper);
 
-  return function start(bounceQueue, db) {
-    function logBounceMessage(message) {
+  return function start(bounceQueue: SQSReceiver, db: BounceDB) {
+    function logBounceMessage(message: SESBounceMessage) {
       try {
         log.debug('bounceMessage', { message: JSON.stringify(message) });
       } catch {
@@ -28,21 +96,24 @@ module.exports = function (log, error, config, statsd) {
       }
     }
 
-    function gotError(email, err) {
+    function gotError(email: string, err: unknown) {
       log.error('databaseError', { email: email, err: err });
     }
 
-    function findEmailRecord(email) {
+    function findEmailRecord(email: string) {
       return db.accountRecord(email);
     }
 
-    function recordBounce(bounce) {
-      return db.createEmailBounce(bounce);
+    function recordBounce(bounce: BounceRecord) {
+      // EmailBounce.create stores a missing template or type as its default.
+      return db.createEmailBounce(
+        bounce as Parameters<DB['createEmailBounce']>[0]
+      );
     }
 
-    async function deleteAccountIfUnverifiedNew(record) {
+    async function deleteAccountIfUnverifiedNew(record: AccountRecord) {
       let success = false;
-      let error = null;
+      let error: (Error & { stackTrace?: string }) | null = null;
 
       // Checks
       const accountDeleteEnabled = config.smtp.bounces.deleteAccount;
@@ -64,7 +135,7 @@ module.exports = function (log, error, config, statsd) {
           log.info('accountDeleted', { uid: record.uid, email: record.email });
           success = true;
         } catch (err) {
-          error = err;
+          error = err as Error;
           gotError(record.email, err);
         }
       }
@@ -84,19 +155,19 @@ module.exports = function (log, error, config, statsd) {
       }
     }
 
-    async function handleBounce(message) {
+    async function handleBounce(message: SESBounceMessage) {
       logBounceMessage(message);
 
       statsd.increment('email.bounce.message', {
         bounceType: message?.bounce?.bounceType || 'none',
         bounceSubType: message?.bounce?.bounceSubType || 'none',
-        hasDiagnosticCode: !!message?.diagnosticCode,
-        hasComplaint: !!message?.complaint,
+        hasDiagnosticCode: String(!!message?.diagnosticCode),
+        hasComplaint: String(!!message?.complaint),
       });
 
       utils.logErrorIfHeadersAreWeirdOrMissing(log, message, 'bounce');
 
-      let recipients = [];
+      let recipients: BouncedRecipient[] = [];
       // According to the AWS SES docs, a notification will never
       // include multiple types, so it's fine for us to check for
       // EITHER bounce OR complaint here.
@@ -117,11 +188,11 @@ module.exports = function (log, error, config, statsd) {
         // The email address in the bounce message has been handled by an external
         // system, and depending on the system it can have had some strange things
         // done to it.  Try to normalize as best we can.
-        let email;
+        let email: string;
         let emailIsValid = true;
         const parsedAddress = eaddrs.parseOneAddress(recipient.emailAddress);
         if (parsedAddress !== null) {
-          email = parsedAddress.address;
+          email = (parsedAddress as eaddrs.ParsedMailbox).address;
         } else {
           email = recipient.emailAddress;
           if (!isValidEmailAddress(email)) {
@@ -137,7 +208,21 @@ module.exports = function (log, error, config, statsd) {
           }
         }
         const emailDomain = utils.getAnonymizedEmailDomain(email);
-        const logData = {
+        const logData: {
+          action?: string;
+          email: string;
+          domain: string;
+          bounce: boolean;
+          diagnosticCode?: string;
+          mailStatus?: string;
+          template?: string;
+          lang?: string;
+          bounceType?: SESBounce['bounceType'];
+          bounceSubType?: SESBounce['bounceSubType'];
+          complaint?: boolean;
+          complaintUserAgent?: string;
+          complaintFeedbackType?: SESComplaint['complaintFeedbackType'];
+        } = {
           action: recipient.action,
           email: email,
           domain: emailDomain,
@@ -145,7 +230,7 @@ module.exports = function (log, error, config, statsd) {
           diagnosticCode: recipient.diagnosticCode,
           mailStatus: recipient.status,
         };
-        const bounce = {
+        const bounce: BounceRecord = {
           email: email,
           diagnosticCode: recipient.diagnosticCode,
         };
@@ -200,7 +285,7 @@ module.exports = function (log, error, config, statsd) {
          * the account.
          */
         const suggestAccountDeletion = !!bounce.bounceType;
-        const work = [];
+        const work: Promise<unknown>[] = [];
 
         if (emailIsValid) {
           work.push(recordBounce(bounce).catch(gotError.bind(null, email)));
