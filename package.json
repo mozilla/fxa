@@ -334,7 +334,8 @@
     "smol-toml": "1.9.0",
     "@opentelemetry/instrumentation-pg": "0.73.0",
     "@opentelemetry/instrumentation-knex": "0.65.0",
-    "@storybook/core": "8.6.19"
+    "@storybook/core": "8.6.19",
+    "nodemailer": "10.1.4"
   },
   "resolutionComments": {
     "multer": "^2.1.1 — remove when @nestjs/platform-express is upgraded to 11.x (ships multer 2.1.1 natively)",
