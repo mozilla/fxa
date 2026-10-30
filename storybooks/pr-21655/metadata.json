@@ -1,8 +1,8 @@
 {
-  "commit": "ead63863ec5c922203b39cfa90606196521a7052",
+  "commit": "9c0a6494a4a6220595df64f890506610438e93bc",
   "summary": "feat(payments-next): add passkey sign-in and Accounts-style buttons to checkout",
   "description": "Because\n- Accounts redesigned to add passkey sign-in; checkout should offer same options\n\nThis commit\n- Adds AuthOptionButton to payments-ui, matching the Accounts BoxButton\n- Shows Sign in with passkey above Google and Apple on the checkout start page\n- Routes passkey through the Accounts login page, as passkeys only work there\n- Gates the passkey button behind FEATURE_FLAG_PASSKEY_SIGNIN (off by default)\n- Adds start page tests for button order, the flag, and signIn arguments\n\nCloses PAY-3842",
-  "timestamp": 1793375651000,
+  "timestamp": 1793376790000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",
