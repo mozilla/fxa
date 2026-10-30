@@ -198,6 +198,14 @@ export const eventsMap = {
     upgradePromptFrontendError: 'passkey_upgrade_prompt_frontend_error',
   },
 
+  alertBar: {
+    view: 'alert_bar_view',
+  },
+
+  banner: {
+    view: 'banner_view',
+  },
+
   cad: {
     view: 'cad_view',
     submit: 'cad_submit',

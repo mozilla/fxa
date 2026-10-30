@@ -112,6 +112,7 @@ test.describe('severity-1 #smoke', () => {
       target,
       pages: { page, settings, signin },
       testAccountTracker,
+      gleanEventsHelper,
     }) => {
       // Simulate a browser without WebAuthn by stubbing
       // window.PublicKeyCredential before any document loads. This must be
@@ -136,6 +137,23 @@ test.describe('severity-1 #smoke', () => {
       await settings.passkey.createButton.click();
 
       await expect(page.getByText('Your browser or device')).toBeVisible();
+      const viewPing = await gleanEventsHelper.waitForEvent('alert_bar_view');
+      expect(viewPing.extras.reason).toBe('account_pref_passkey_unsupported');
+
+      await settings.alertBarDismissButton.click();
+      await expect(settings.alertBar).toBeHidden();
+      await expect
+        .poll(() =>
+          gleanEventsHelper
+            .getEventsByName('glean_element_click')
+            .map((ping) => ping.extras.id)
+        )
+        .toEqual(
+          expect.arrayContaining([
+            'account_pref_passkey_create_unsupported',
+            'account_pref_passkey_unsupported_close',
+          ])
+        );
     });
   });
 

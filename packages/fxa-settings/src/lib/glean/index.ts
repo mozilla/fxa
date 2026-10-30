@@ -37,6 +37,8 @@ import * as thirdPartyAuth from './web/thirdPartyAuth';
 import * as postVerifySetPassword from './web/postVerifySetPassword';
 import * as passkeyEnterPassword from './web/passkeyEnterPassword';
 import * as passkey from './web/passkey';
+import * as alertBar from './web/alertBar';
+import * as banner from './web/banner';
 import { userIdSha256, userId } from './web/account';
 import { oauthClientId, service } from './web/relyingParty';
 import {
@@ -912,6 +914,16 @@ const recordEventMetric = (
       break;
     case 'passkey_get_help_link_click':
       passkey.getHelpLinkClick.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'alert_bar_view':
+      alertBar.view.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'banner_view':
+      banner.view.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
       break;

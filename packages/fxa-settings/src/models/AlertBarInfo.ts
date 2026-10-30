@@ -13,6 +13,7 @@ export const alertContent = makeVar<string | ReactNode>(
 );
 export const alertType = makeVar<NotificationType>('success');
 export const alertVisible = makeVar(!!alertContent());
+export const alertGleanId = makeVar<string | undefined>(undefined);
 
 export class AlertBarInfo {
   get visible() {
@@ -38,19 +39,22 @@ export class AlertBarInfo {
   success(message: string | ReactNode, gleanEvent?: () => void) {
     this.setType('success');
     this.setContent(message);
+    alertGleanId(undefined);
     gleanEvent && gleanEvent();
     this.show();
   }
 
-  error(message: string | ReactNode, error?: Error) {
+  error(message: string | ReactNode, error?: Error, gleanId?: string) {
     this.setType('error');
     this.setContent(message);
+    alertGleanId(gleanId);
     this.show();
   }
 
   info(message: string | ReactNode) {
     this.setType('success');
     this.setContent(message);
+    alertGleanId(undefined);
     this.show();
   }
 }
