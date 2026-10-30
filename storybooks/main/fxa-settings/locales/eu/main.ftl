@@ -332,6 +332,13 @@ locale-toggle-browser-default = Nabigatzailearen lehenetsia
 error-bad-request = Eskaera okerra
 
 
+pair-unsupported-hint-heading = Bukatu parekatze-prozesua aplikazioan
+pair-unsupported-hint-step-close-page = Itxi orri hau
+pair-unsupported-hint-step-app-menu = Sakatu <b>aplikazio-menua</b>
+pair-unsupported-hint-step-sign-in = <b>Hasi saioa</b>, gero eskaneatu kodea
+pair-unsupported-hint-learn-more-link = Argibide gehiago
+
+
 password-info-balloon-why-password-info = Pasahitz hau behar duzu gurekin gordetzen dituzun datu enkriptatuak atzitzeko.
 password-info-balloon-reset-risk-info = Berrezartze batek pasahitzak eta laster-markak bezalako datuak galdu ahal izatea esan nahi du.
 
@@ -1229,6 +1236,11 @@ tfa-qr-code-alt = Erabili { $code } kodea onartzen diren aplikazioetan bi urrats
 inline-totp-setup-page-title = Bi urratseko autentifikazioa
 
 
+page-not-found-heading = Ez da orria aurkitu
+page-not-found-description = Eskatu duzun orria ez dago. Abisua jaso dugu eta hautsita egon daitezkeen estekak konponduko ditugu.
+page-not-found-home-button = Hasiera
+
+
 pair-auth-allow-heading-text = { -brand-firefox }en saioa hasi berri duzu?
 pair-auth-allow-confirm-button = Bai, onartu gailua
 pair-auth-allow-refuse-device-link = Hau ez bazara, <a>aldatu pasahitza</a>
@@ -1562,6 +1574,11 @@ signin-passkey-fallback-body = Zure datuak seguru mantentzeko, zure pasahitza id
 signin-passkey-fallback-password-label = Pasahitza
 signin-passkey-fallback-continue = Jarraitu
 signin-passkey-fallback-forgot-password-link = Pasahitza ahaztu duzu?
+signin-passkey-fallback-no-prf-heading = Pasahitza behar da gailu honetan
+signin-passkey-fallback-no-prf-description = Nabigatzaile edo gailu honek ezin du zure sarbide-gakoa erabili saioa hasi eta bere kasa sinkronizatzeko.
+signin-passkey-fallback-unwrap-failed-heading = Zure sarbide-gakoak ezin izan du sinkronizazioa desblokeatu
+signin-passkey-fallback-unwrap-failed-description = Zerbait gaizki joan da, beraz zure pasahitza beharko duzu hurrengo aldian.
+signin-passkey-fallback-wrap-unusable-link = Argibide gehiago
 
 
 signin-passwordless-code-heading = Idatzi berrespen-kodea

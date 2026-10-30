@@ -1,8 +1,8 @@
 {
-  "commit": "7d820d64a3daa35c4dcb461999fd7ac53965f131",
-  "summary": "Merge pull request #21630 from mozilla/FXA-14780",
-  "description": "fix(auth): send WAF challenge cookie on /account/credentials/status",
-  "timestamp": 1793318412000,
+  "commit": "2601f3a4807ef5779a3c3bac2ee47e9b72229592",
+  "summary": "Merge pull request #21650 from mozilla/agent-c355b0",
+  "description": "chore(content-server): remove gettext and .po tooling",
+  "timestamp": 1793377053000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

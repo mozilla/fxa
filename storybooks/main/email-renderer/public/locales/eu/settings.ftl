@@ -401,6 +401,20 @@ locale-toggle-browser-default = Nabigatzailearen lehenetsia
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Eskaera okerra
 
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+pair-unsupported-hint-heading = Bukatu parekatze-prozesua aplikazioan
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = Itxi orri hau
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Sakatu <b>aplikazio-menua</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>Hasi saioa</b>, gero eskaneatu kodea
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = Argibide gehiago
+
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
 
@@ -1703,6 +1717,13 @@ inline-totp-setup-code-required-error = Autentifikazioa kodea beharrezkoa
 tfa-qr-code-alt = Erabili { $code } kodea onartzen diren aplikazioetan bi urratseko autentifikazioa konfiguratzeko.
 inline-totp-setup-page-title = Bi urratseko autentifikazioa
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Ez da orria aurkitu
+page-not-found-description = Eskatu duzun orria ez dago. Abisua jaso dugu eta hautsita egon daitezkeen estekak konponduko ditugu.
+page-not-found-home-button = Hasiera
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = { -brand-firefox }en saioa hasi berri duzu?
@@ -2300,6 +2321,16 @@ signin-passkey-fallback-body = Zure datuak seguru mantentzeko, zure pasahitza id
 signin-passkey-fallback-password-label = Pasahitza
 signin-passkey-fallback-continue = Jarraitu
 signin-passkey-fallback-forgot-password-link = Pasahitza ahaztu duzu?
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = Pasahitza behar da gailu honetan
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
+signin-passkey-fallback-no-prf-description = Nabigatzaile edo gailu honek ezin du zure sarbide-gakoa erabili saioa hasi eta bere kasa sinkronizatzeko.
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
+signin-passkey-fallback-unwrap-failed-heading = Zure sarbide-gakoak ezin izan du sinkronizazioa desblokeatu
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = Zerbait gaizki joan da, beraz zure pasahitza beharko duzu hurrengo aldian.
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = Argibide gehiago
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
