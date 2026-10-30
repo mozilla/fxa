@@ -1,8 +1,8 @@
 {
-  "commit": "f99b8f5c7b1e4004f0263b9956297e531ccf3b9a",
-  "summary": "Merge pull request #21621 from mozilla/FXA-12736",
-  "description": "perf(auth): count devices directly in recoveryKey/exists",
-  "timestamp": 1793382010000,
+  "commit": "3f78fe7dff13ea51635aec6d6fd5e7d5f69e1aa5",
+  "summary": "Merge pull request #21612 from mozilla/metering-metrics",
+  "description": "feat(ent): add metering metrics job",
+  "timestamp": 1793382234000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
