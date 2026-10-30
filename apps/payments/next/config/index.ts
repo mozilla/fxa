@@ -4,7 +4,7 @@
 
 import 'reflect-metadata';
 import 'server-only';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsString,
   ValidateNested,
@@ -16,6 +16,7 @@ import {
 } from 'class-validator';
 import {
   RootConfig as NestAppRootConfig,
+  parseBooleanEnv,
   validate,
 } from '@fxa/payments/ui/server';
 import { PaymentsGleanClientConfig } from '@fxa/payments/metrics';
@@ -133,6 +134,11 @@ export class PaymentsNextConfig extends NestAppRootConfig {
 
   @IsBoolean()
   featureFlagSubManage!: boolean;
+
+  @IsOptional()
+  @Transform(parseBooleanEnv)
+  @IsBoolean()
+  featureFlagPasskeySignin?: boolean;
 
   @Type(() => PaymentsGleanClientConfig)
   @ValidateNested()

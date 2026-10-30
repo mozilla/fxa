@@ -6,9 +6,8 @@ import { cookies, headers } from 'next/headers';
 import Image from 'next/image';
 import clsx from 'clsx';
 import {
-  BaseButton,
+  AuthOptionButton,
   buildRedirectUrl,
-  ButtonVariant,
   PaymentSection,
   SAW_TRIAL_OFFER_COOKIE_PREFIX,
   SignInForm,
@@ -20,8 +19,9 @@ import {
   SignedIn,
   buildPageMetadata,
 } from '@fxa/payments/ui/server';
-import AppleLogo from '@fxa/shared/assets/images/apple-logo.svg';
-import GoogleLogo from '@fxa/shared/assets/images/google-logo.svg';
+import AppleLogo from '@fxa/shared/assets/images/apple-logo-cropped-black.svg';
+import GoogleLogo from '@fxa/shared/assets/images/google-logo-viewbox.svg';
+import PasskeyIcon from '@fxa/shared/assets/images/passkey.svg';
 import { auth, signIn } from 'apps/payments/next/auth';
 import {
   fetchCMSData,
@@ -164,7 +164,31 @@ export default async function Checkout({
             <div className="flex-1 h-px bg-grey-400 divide-x"></div>
           </div>
 
-          <div className="flex flex-col gap-4 my-10">
+          <div className="flex flex-col gap-3 my-6">
+            {config.featureFlagPasskeySignin && (
+              <form
+                action={async () => {
+                  'use server';
+                  await signIn('fxa', { redirectTo });
+                }}
+              >
+                <AuthOptionButton
+                  leadingIcon={
+                    <Image
+                      src={PasskeyIcon}
+                      alt=""
+                      aria-hidden="true"
+                      className="w-5 h-5"
+                    />
+                  }
+                >
+                  {l10n.getString(
+                    'checkout-signin-with-passkey-button',
+                    'Sign in with passkey'
+                  )}
+                </AuthOptionButton>
+              </form>
+            )}
             <form
               action={async () => {
                 'use server';
@@ -175,22 +199,21 @@ export default async function Checkout({
                 );
               }}
             >
-              <BaseButton
-                className="h-12"
-                variant={ButtonVariant.ThirdParty}
-                aria-label={l10n.getString(
+              <AuthOptionButton
+                leadingIcon={
+                  <Image
+                    src={GoogleLogo}
+                    alt=""
+                    aria-hidden="true"
+                    className="w-6 h-6"
+                  />
+                }
+              >
+                {l10n.getString(
                   'continue-signin-with-google-button',
                   'Continue with Google'
                 )}
-              >
-                <Image src={GoogleLogo} alt="" aria-hidden="true" />
-                <span id="continue-with-google">
-                  {l10n.getString(
-                    'continue-signin-with-google-button',
-                    'Continue with Google'
-                  )}
-                </span>
-              </BaseButton>
+              </AuthOptionButton>
             </form>
             <form
               action={async () => {
@@ -198,22 +221,21 @@ export default async function Checkout({
                 await signIn('fxa', { redirectTo }, { deeplink: 'appleLogin' });
               }}
             >
-              <BaseButton
-                className="h-12"
-                variant={ButtonVariant.ThirdParty}
-                aria-label={l10n.getString(
+              <AuthOptionButton
+                leadingIcon={
+                  <Image
+                    src={AppleLogo}
+                    alt=""
+                    aria-hidden="true"
+                    className="w-6 h-6"
+                  />
+                }
+              >
+                {l10n.getString(
                   'continue-signin-with-apple-button',
                   'Continue with Apple'
                 )}
-              >
-                <Image src={AppleLogo} alt="" aria-hidden="true" />
-                <span id="continue-with-apple">
-                  {l10n.getString(
-                    'continue-signin-with-apple-button',
-                    'Continue with Apple'
-                  )}
-                </span>
-              </BaseButton>
+              </AuthOptionButton>
             </form>
           </div>
 
