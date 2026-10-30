@@ -834,11 +834,8 @@ export class CapabilityService {
     subscribedPrices: string[]
   ): Promise<ClientIdCapabilityMap> {
     if (!this.capabilityManager) {
-      throw error.internalValidationError(
-        'planIdsToClientCapabilities',
-        {},
-        new Error('CapabilityManager not found.')
-      );
+      // Lacking of capabilityManager should not raise error; return empty map.
+      return new ClientIdCapabilityMap();
     }
 
     try {
