@@ -331,7 +331,7 @@ error-bad-request = Fehlerhafte Anfrage
 pair-unsupported-hint-heading = Kopplung in der App abschließen
 pair-unsupported-hint-step-close-page = Diese Seite schließen
 pair-unsupported-hint-step-app-menu = Tippen Sie auf das <b>App-Menü</b>
-pair-unsupported-hint-step-sign-in = <b>Melden Sie sich an</b>, scannen Sie den Code
+pair-unsupported-hint-step-sign-in = <b>Melden Sie sich an</b> und scannen Sie anschließend den Code
 pair-unsupported-hint-learn-more-link = Weitere Informationen
 
 
@@ -1227,7 +1227,7 @@ inline-totp-setup-page-title = Zwei-Schritt-Authentifizierung
 
 
 page-not-found-heading = Seite nicht gefunden
-page-not-found-description = Die angeforderte Seite wurde nicht gefunden. Wir wurden benachrichtigt und werden alle Links reparieren, die möglicherweise defekt sind.
+page-not-found-description = Die angeforderte Seite wurde nicht gefunden. Wir wurden informiert und werden alle möglicherweise defekten Links reparieren.
 page-not-found-home-button = Startseite
 
 
@@ -1561,10 +1561,10 @@ signin-passkey-fallback-body = Um Ihre Daten zu schützen, müssen Sie Ihr Passw
 signin-passkey-fallback-password-label = Passwort
 signin-passkey-fallback-continue = Weiter
 signin-passkey-fallback-forgot-password-link = Passwort vergessen?
-signin-passkey-fallback-no-prf-heading = Passwort auf diesem Gerät erforderlich
-signin-passkey-fallback-no-prf-description = Dieser Browser oder das Gerät kann Ihren Zugangsschlüssel nicht zur Anmeldung verwenden, um sich selbst zu synchronisieren.
+signin-passkey-fallback-no-prf-heading = Auf diesem Gerät ist ein Passwort erforderlich
+signin-passkey-fallback-no-prf-description = Dieser Browser oder dieses Gerät kann Sie nicht allein mit Ihrem Zugangsschlüssel bei der Synchronisierung anmelden.
 signin-passkey-fallback-unwrap-failed-heading = Der Zugangsschlüssel konnte die Synchronisierung nicht entsperren
-signin-passkey-fallback-unwrap-failed-description = Etwas ist schiefgegangen, daher benötigen Sie dieses Mal Ihr Passwort.
+signin-passkey-fallback-unwrap-failed-description = Da etwas schiefgegangen ist, müssen Sie dieses Mal Ihr Passwort eingeben.
 signin-passkey-fallback-wrap-unusable-link = Weitere Informationen
 
 

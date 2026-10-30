@@ -1,8 +1,8 @@
 {
-  "commit": "511d7451e9fa59aed676237fc49465e321125d37",
-  "summary": "test(passkey): split unsupported WebAuthn checks into isolated tests",
-  "description": "",
-  "timestamp": 1793311462000,
+  "commit": "ca15ed34f6cf75f8fbc4c2c95a8c756a7dac2be1",
+  "summary": "feat(settings): record passkey alert and banner views in Glean",
+  "description": "Because:\n- Glean had no event for a shown Settings alert or sign-in banner.\n- Passkey alerts and links had no Glean IDs.\n\nThis commit:\n- Adds the events alert_bar.view and banner.view.\n- Makes AlertBar and Banner record a view through an opt-in gleanId.\n- Tags the AlertBar close button from the gleanId.\n- Adds Glean IDs to passkey alerts, Learn more links and sign-in banners.\n- Uses account_pref_passkey_create_unsupported for the unsupported row.\n- Polls for both click IDs in the unsupported passkey functional test.\n\nCloses FXA-13972",
+  "timestamp": 1793383026000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-settings"
