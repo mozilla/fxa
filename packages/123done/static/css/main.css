@@ -121,6 +121,14 @@ button::-moz-focus-inner {
 .step-up-data h4 {
   margin-bottom: 4px;
 }
+.capabilities-data {
+  display: none;
+}
+.logged-in .capabilities-data {
+  display: block;
+  padding: 0 40px 20px;
+  font-family: monospace;
+}
 .logged-in.is-subscribed #footer-main .subscription-buttons {
   display: none;
 }
