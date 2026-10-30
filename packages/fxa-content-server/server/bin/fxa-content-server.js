@@ -25,7 +25,6 @@ const {
 } = require('../lib/routes/react-app/add-routes');
 
 const bodyParser = require('body-parser');
-const consolidate = require('consolidate');
 const cookieParser = require('cookie-parser');
 const express = require('express');
 const fs = require('fs');
@@ -76,20 +75,9 @@ const STATIC_DIRECTORY = path.join(
   config.get('static_directory')
 );
 
-const PAGE_TEMPLATE_DIRECTORY = path.join(
-  config.get('page_template_root'),
-  config.get('page_template_subdirectory')
-);
-
-logger.info('page_template_directory: %s', PAGE_TEMPLATE_DIRECTORY);
-
 function makeApp() {
   const app = express();
   const settingsPath = '/settings';
-
-  app.engine('html', consolidate.handlebars);
-  app.set('view engine', 'html');
-  app.set('views', PAGE_TEMPLATE_DIRECTORY);
 
   app.use(
     helmet.frameguard({

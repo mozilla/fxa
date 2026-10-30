@@ -22495,7 +22495,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"async@npm:^2.0.0, async@npm:^2.5.0, async@npm:^2.6.0, async@npm:^2.6.3":
+"async@npm:^2.5.0, async@npm:^2.6.0, async@npm:^2.6.3":
   version: 2.6.4
   resolution: "async@npm:2.6.4"
   dependencies:
@@ -24593,7 +24593,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clean-css@npm:^5.2.2, clean-css@npm:^5.3.2":
+"clean-css@npm:^5.2.2":
   version: 5.3.3
   resolution: "clean-css@npm:5.3.3"
   dependencies:
@@ -25197,159 +25197,6 @@ __metadata:
   version: 1.2.0
   resolution: "console-browserify@npm:1.2.0"
   checksum: 10c0/89b99a53b7d6cee54e1e64fa6b1f7ac24b844b4019c5d39db298637e55c1f4ffa5c165457ad984864de1379df2c8e1886cbbdac85d9dbb6876a9f26c3106f226
-  languageName: node
-  linkType: hard
-
-"consolidate@npm:1.0.3":
-  version: 1.0.3
-  resolution: "consolidate@npm:1.0.3"
-  peerDependencies:
-    "@babel/core": ^7.22.5
-    arc-templates: ^0.5.3
-    atpl: ">=0.7.6"
-    bracket-template: ^1.1.5
-    coffee-script: ^1.12.7
-    dot: ^1.1.3
-    dust: ^0.3.0
-    dustjs-helpers: ^1.7.4
-    dustjs-linkedin: ^2.7.5
-    eco: ^1.1.0-rc-3
-    ect: ^0.5.9
-    ejs: ^3.1.5
-    haml-coffee: ^1.14.1
-    hamlet: ^0.3.3
-    hamljs: ^0.6.2
-    handlebars: ^4.7.6
-    hogan.js: ^3.0.2
-    htmling: ^0.0.8
-    jazz: ^0.0.18
-    jqtpl: ~1.1.0
-    just: ^0.1.8
-    liquid-node: ^3.0.1
-    liquor: ^0.0.5
-    lodash: ^4.17.20
-    mote: ^0.2.0
-    mustache: ^4.0.1
-    nunjucks: ^3.2.2
-    plates: ~0.4.11
-    pug: ^3.0.0
-    qejs: ^3.0.5
-    ractive: ^1.3.12
-    react: ">=16.13.1"
-    react-dom: ">=16.13.1"
-    slm: ^2.0.0
-    swig: ^1.4.2
-    swig-templates: ^2.0.3
-    teacup: ^2.0.0
-    templayed: ">=0.2.3"
-    then-pug: "*"
-    tinyliquid: ^0.2.34
-    toffee: ^0.3.6
-    twig: ^1.15.2
-    twing: ^5.0.2
-    underscore: ^1.11.0
-    vash: ^0.13.0
-    velocityjs: ^2.0.1
-    walrus: ^0.10.1
-    whiskers: ^0.4.0
-  peerDependenciesMeta:
-    "@babel/core":
-      optional: true
-    arc-templates:
-      optional: true
-    atpl:
-      optional: true
-    bracket-template:
-      optional: true
-    coffee-script:
-      optional: true
-    dot:
-      optional: true
-    dust:
-      optional: true
-    dustjs-helpers:
-      optional: true
-    dustjs-linkedin:
-      optional: true
-    eco:
-      optional: true
-    ect:
-      optional: true
-    ejs:
-      optional: true
-    haml-coffee:
-      optional: true
-    hamlet:
-      optional: true
-    hamljs:
-      optional: true
-    handlebars:
-      optional: true
-    hogan.js:
-      optional: true
-    htmling:
-      optional: true
-    jazz:
-      optional: true
-    jqtpl:
-      optional: true
-    just:
-      optional: true
-    liquid-node:
-      optional: true
-    liquor:
-      optional: true
-    lodash:
-      optional: true
-    mote:
-      optional: true
-    mustache:
-      optional: true
-    nunjucks:
-      optional: true
-    plates:
-      optional: true
-    pug:
-      optional: true
-    qejs:
-      optional: true
-    ractive:
-      optional: true
-    react:
-      optional: true
-    react-dom:
-      optional: true
-    slm:
-      optional: true
-    swig:
-      optional: true
-    swig-templates:
-      optional: true
-    teacup:
-      optional: true
-    templayed:
-      optional: true
-    then-pug:
-      optional: true
-    tinyliquid:
-      optional: true
-    toffee:
-      optional: true
-    twig:
-      optional: true
-    twing:
-      optional: true
-    underscore:
-      optional: true
-    vash:
-      optional: true
-    velocityjs:
-      optional: true
-    walrus:
-      optional: true
-    whiskers:
-      optional: true
-  checksum: 10c0/1782853954c4099a57ab19b4aab426c7bccdeb46ea0259c363b422b65db62035df568dea6b21d821e5c4282721e404b0dc208fc291a00caf3c0ccbfb4282400f
   languageName: node
   linkType: hard
 
@@ -26445,7 +26292,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:2.6.9, debug@npm:^2.1.3, debug@npm:^2.2.0, debug@npm:^2.3.3, debug@npm:^2.6.0":
+"debug@npm:2.6.9, debug@npm:^2.2.0, debug@npm:^2.3.3, debug@npm:^2.6.0":
   version: 2.6.9
   resolution: "debug@npm:2.6.9"
   dependencies:
@@ -27312,7 +27159,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"duplexer@npm:^0.1.1, duplexer@npm:^0.1.2, duplexer@npm:~0.1.1":
+"duplexer@npm:^0.1.2, duplexer@npm:~0.1.1":
   version: 0.1.2
   resolution: "duplexer@npm:0.1.2"
   checksum: 10c0/c57bcd4bdf7e623abab2df43a7b5b23d18152154529d166c1e0da6bee341d84c432d157d7e97b32fecb1bf3a8b8857dd85ed81a915789f550637ed25b8e64fc2
@@ -29723,7 +29570,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"figures@npm:3.2.0, figures@npm:^3.0.0, figures@npm:^3.2.0":
+"figures@npm:3.2.0, figures@npm:^3.0.0":
   version: 3.2.0
   resolution: "figures@npm:3.2.0"
   dependencies:
@@ -30948,7 +30795,6 @@ __metadata:
     "@babel/eslint-parser": "npm:^7.27.5"
     body-parser: "npm:^1.20.9"
     chai: "npm:^5.3.3"
-    consolidate: "npm:1.0.3"
     convict: "npm:^6.2.5"
     convict-format-with-moment: "npm:^6.2.0"
     convict-format-with-validator: "npm:^6.2.0"
@@ -30962,17 +30808,9 @@ __metadata:
     fxa-react: "workspace:*"
     fxa-settings: "workspace:*"
     grunt: "npm:^1.6.1"
-    grunt-cdn: "npm:0.6.5"
     grunt-contrib-clean: "npm:^2.0.1"
-    grunt-contrib-concat: "npm:2.1.0"
     grunt-contrib-copy: "npm:1.0.0"
-    grunt-contrib-cssmin: "npm:5.0.0"
     grunt-contrib-htmlmin: "npm:3.1.0"
-    grunt-file-rev: "npm:1.0.2"
-    grunt-sri: "npm:0.2.0"
-    grunt-text-replace: "npm:0.4.0"
-    grunt-usemin: "npm:3.1.1"
-    handlebars: "npm:^4.7.10"
     helmet: "npm:^8.0.0"
     hot-shots: "npm:^10.2.1"
     http-proxy-middleware: "npm:^2.0.10"
@@ -30983,13 +30821,10 @@ __metadata:
     mozlog: "npm:^3.0.2"
     on-headers: "npm:1.1.0"
     pm2: "npm:^7.0.0"
-    postcss-assets: "npm:^6.0.0"
-    postcss-import: "npm:^16.1.0"
     prettier: "npm:^3.5.3"
     proxyquire: "npm:^2.1.3"
     serve-static: "npm:^1.16.0"
     sinon: "npm:^22.1.0"
-    tailwindcss: "npm:^3.4.1"
     tsconfig-paths: "npm:^4.2.0"
     typescript: "npm:5.5.3"
     uuid: "npm:^13.0.2"
@@ -32259,13 +32094,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"grunt-cdn@npm:0.6.5":
-  version: 0.6.5
-  resolution: "grunt-cdn@npm:0.6.5"
-  checksum: 10c0/cb795839258d91809eeff4ae9f27b4b77a3519089c59adc44a0cc32b297e4a091e880dec093b7006ab63226747215524c637295ea11dcfab165cae1bdd9c206d
-  languageName: node
-  linkType: hard
-
 "grunt-cli@npm:^1.4.3":
   version: 1.5.0
   resolution: "grunt-cli@npm:1.5.0"
@@ -32322,7 +32150,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"grunt-contrib-concat@npm:2.1.0, grunt-contrib-concat@npm:^2.1.0":
+"grunt-contrib-concat@npm:^2.1.0":
   version: 2.1.0
   resolution: "grunt-contrib-concat@npm:2.1.0"
   dependencies:
@@ -32341,17 +32169,6 @@ __metadata:
     chalk: "npm:^1.1.1"
     file-sync-cmp: "npm:^0.1.0"
   checksum: 10c0/bb0b8337672c533027ddd2564dcb263cdf15765b1670d1550f09e6a11d39d35b9eb143f26283d82d7a8f1de8b79f4f0e94289e841da8fda8a0b9641ef96da6b9
-  languageName: node
-  linkType: hard
-
-"grunt-contrib-cssmin@npm:5.0.0":
-  version: 5.0.0
-  resolution: "grunt-contrib-cssmin@npm:5.0.0"
-  dependencies:
-    chalk: "npm:^4.1.2"
-    clean-css: "npm:^5.3.2"
-    maxmin: "npm:^3.0.0"
-  checksum: 10c0/b6a62ddef65c9bdeb415381e9c1b3e01af0c4bd7def13203e74341cf1519e6b66ac52f0b63a824a680b6cacb07c65ac4212c7bfe97b48a4916fd4bff33a3476e
   languageName: node
   linkType: hard
 
@@ -32396,13 +32213,6 @@ __metadata:
   peerDependencies:
     grunt: ">=1"
   checksum: 10c0/5c1e4b720a4fed1fe1ebdcc35f1bd4678a2f2bf6ea9b99bd428229ee55d9fd2afcd810cc3cd682274791cd38ac1740072025bfe5e6255ccf7166276e2aa8c883
-  languageName: node
-  linkType: hard
-
-"grunt-file-rev@npm:1.0.2":
-  version: 1.0.2
-  resolution: "grunt-file-rev@npm:1.0.2"
-  checksum: 10c0/e963af237da0f538f2a3ae3fc432f8a18976585b02159fda9142565d8315be2a5f2ac3f02aa5dd5b1a37c0d54bc7d704aa8d900a7311a6eb951349d5d6839e51
   languageName: node
   linkType: hard
 
@@ -32505,40 +32315,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"grunt-sri@npm:0.2.0":
-  version: 0.2.0
-  resolution: "grunt-sri@npm:0.2.0"
-  dependencies:
-    async: "npm:^2.0.0"
-    ramda: "npm:^0.22.1"
-    sri-toolbox: "npm:^0.2.0"
-  peerDependencies:
-    grunt: ">=0.4.0"
-  checksum: 10c0/16ba5e7fa658ca0514b97fc173f40790807e468c42c4d552b85e0a1b3714c2486ecf91f592b936eda7b031aa8381c4687c3ef3dc6d8a93edf2a0bcf909e6da04
-  languageName: node
-  linkType: hard
-
-"grunt-text-replace@npm:0.4.0":
-  version: 0.4.0
-  resolution: "grunt-text-replace@npm:0.4.0"
-  checksum: 10c0/d7dea64bbe10b57e056af82fd8121a46a96035d0ae69b86baa6529133d7dbb21c9d64a8d0539763eb5e9c129d81e6d5773ed465768a4807365b35f2f5538a757
-  languageName: node
-  linkType: hard
-
-"grunt-usemin@npm:3.1.1":
-  version: 3.1.1
-  resolution: "grunt-usemin@npm:3.1.1"
-  dependencies:
-    chalk: "npm:^1.1.1"
-    debug: "npm:^2.1.3"
-    lodash: "npm:^3.6.0"
-    path-exists: "npm:^1.0.0"
-  peerDependencies:
-    grunt: ">=0.4.0"
-  checksum: 10c0/33d089d59d88e5f5dc92214089c8c8a28583d6c507e8974537d178087cffbd443afbae3ed8d2316b0d96e65507162eb7c9ace567a6970beba36cfb1724cb8f64
-  languageName: node
-  linkType: hard
-
 "grunt@npm:^1.6.1":
   version: 1.6.1
   resolution: "grunt@npm:1.6.1"
@@ -32572,16 +32348,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"gzip-size@npm:^5.1.1":
-  version: 5.1.1
-  resolution: "gzip-size@npm:5.1.1"
-  dependencies:
-    duplexer: "npm:^0.1.1"
-    pify: "npm:^4.0.1"
-  checksum: 10c0/1c346d3ab83b85687a9aa644928250b31e0fc42cf16ca152225a09465f7465b220849b3854b39a457681fabb37ab318b2c0f73be8991ecedf2073e082d1f6dd9
-  languageName: node
-  linkType: hard
-
 "gzip-size@npm:^6.0.0":
   version: 6.0.0
   resolution: "gzip-size@npm:6.0.0"
@@ -32595,24 +32361,6 @@ __metadata:
   version: 2.0.1
   resolution: "handle-thing@npm:2.0.1"
   checksum: 10c0/7ae34ba286a3434f1993ebd1cc9c9e6b6d8ea672182db28b1afc0a7119229552fa7031e3e5f3cd32a76430ece4e94b7da6f12af2eb39d6239a7693e4bd63a998
-  languageName: node
-  linkType: hard
-
-"handlebars@npm:^4.7.10":
-  version: 4.7.10
-  resolution: "handlebars@npm:4.7.10"
-  dependencies:
-    minimist: "npm:^1.2.8"
-    neo-async: "npm:^2.6.2"
-    source-map: "npm:^0.6.1"
-    uglify-js: "npm:^3.1.4"
-    wordwrap: "npm:^1.0.0"
-  dependenciesMeta:
-    uglify-js:
-      optional: true
-  bin:
-    handlebars: bin/handlebars
-  checksum: 10c0/9b5573584ae5836172ae3f1502d9819568ba1b92ee83b81b18223beeb4c07486595e7b0fa633102beabc66ed06fe6e7da1dd9a9ea8c7072b9550b9a88809165c
   languageName: node
   linkType: hard
 
@@ -38216,13 +37964,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:^3.6.0":
-  version: 3.10.1
-  resolution: "lodash@npm:3.10.1"
-  checksum: 10c0/f5f6d3d87503c3f1db27d49b30a00bb38dc1bd9de716c5febe8970259cc7b447149a0e320452ccaf5996a7a4abd63d94df341bb91bd8d336584ad518d8eab144
-  languageName: node
-  linkType: hard
-
 "log-symbols@npm:4.1.0, log-symbols@npm:^4.0.0, log-symbols@npm:^4.1.0":
   version: 4.1.0
   resolution: "log-symbols@npm:4.1.0"
@@ -38588,18 +38329,6 @@ __metadata:
   version: 4.0.0
   resolution: "mathml-tag-names@npm:4.0.0"
   checksum: 10c0/2e928554c61b5e502ee551a23bb4157b99ffd042578e28fb4038ee67d19ea2b1a79c34a3c2ab1611437f668f6b29436e1c8f6fdc20eaf3c88d511ce5b8954fe8
-  languageName: node
-  linkType: hard
-
-"maxmin@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "maxmin@npm:3.0.0"
-  dependencies:
-    chalk: "npm:^4.1.0"
-    figures: "npm:^3.2.0"
-    gzip-size: "npm:^5.1.1"
-    pretty-bytes: "npm:^5.3.0"
-  checksum: 10c0/a869116a588f95235dfd0c7920d047fd78a44ad25cb5aaa3a1a0bbc892ff3625feb73372dc756d9f1d74de7471a893427221c636de30ff773918e6f2ee1ebd42
   languageName: node
   linkType: hard
 
@@ -42147,13 +41876,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"path-exists@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "path-exists@npm:1.0.0"
-  checksum: 10c0/8cdbd5ec829cfa4bb9e6ac16e75ad11818fd6864975045999ec226dd067525d82dd7666fd39b0c44c6b8e402d7f9caf888fb3dd185c55a436805ef3bcee56095
-  languageName: node
-  linkType: hard
-
 "path-exists@npm:^3.0.0":
   version: 3.0.0
   resolution: "path-exists@npm:3.0.0"
@@ -44460,13 +44182,6 @@ __metadata:
   version: 0.1.12
   resolution: "rai@npm:0.1.12"
   checksum: 10c0/b142fff3ff6853ff24c99510eba3987bf08590848827cc1b4f2ef4c3a7aeb93f859cd9e4a2b496b164e949d0341d63e30fbe54795e267794c3d0a8cbb64ac66c
-  languageName: node
-  linkType: hard
-
-"ramda@npm:^0.22.1":
-  version: 0.22.1
-  resolution: "ramda@npm:0.22.1"
-  checksum: 10c0/669bd677148fae323f21bf96cfead679a38d4a10d82c23959bca3d34d35bdbbff4ef6de95f828539d9bbe30013a5308b28265019f8ae7d4788d7eea00935f45d
   languageName: node
   linkType: hard
 
@@ -47555,13 +47270,6 @@ __metadata:
   peerDependencies:
     "@aws-sdk/client-sqs": ^3.723.0
   checksum: 10c0/f9cd4605b649b5272f88530db027f7698c70e4a3af87dfc5da13791b77734e7bca08b6b65bffca5fbd56b0366753475d54efb131458b89691ef5016c8f03c513
-  languageName: node
-  linkType: hard
-
-"sri-toolbox@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "sri-toolbox@npm:0.2.0"
-  checksum: 10c0/6f9656126df10e4ca35168bed053743955af867641e7bc5743161606e9a0b9e69404250a2747813a9b6c8879e9483f882a6c6f2c426b59753cd9a925a7792e55
   languageName: node
   linkType: hard
 
