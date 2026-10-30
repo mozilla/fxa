@@ -55,6 +55,7 @@ import {
   StripeInvoiceFactory,
   StripePriceRecurringFactory,
   StripeSetupIntentFactory,
+  StripeSubscriptionItemFactory,
 } from '@fxa/payments/stripe';
 import {
   MockProfileClientConfigProvider,
@@ -2878,6 +2879,99 @@ describe('CartService', () => {
         priceId: mockPrice.id,
         customer: mockCustomer,
         fromSubscriptionItem: mockSubscription.items.data[0],
+      });
+    });
+
+    describe('processing cart without a saved subscription id', () => {
+      const mockOtherSubscription = StripeSubscriptionFactory();
+      const mockUpgradedSubscription = StripeSubscriptionFactory({
+        items: StripeApiListFactory([
+          StripeSubscriptionItemFactory({ price: mockPrice }),
+        ]),
+      });
+
+      beforeEach(() => {
+        jest
+          .spyOn(subscriptionManager, 'listForCustomer')
+          .mockResolvedValue([mockOtherSubscription, mockUpgradedSubscription]);
+        jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+          subscriptionEligibilityResult: EligibilityStatus.SAME,
+        });
+      });
+
+      it('previews the latest invoice of the subscription with the new price', async () => {
+        const mockCart = ResultCartFactory({
+          state: CartState.PROCESSING,
+          stripeSubscriptionId: null,
+          eligibilityStatus: CartEligibilityStatus.UPGRADE,
+        });
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+
+        const result = await cartService.getCart(mockCart.id);
+
+        expect(invoiceManager.preview).toHaveBeenCalledWith(
+          mockUpgradedSubscription.latest_invoice
+        );
+        expect(invoiceManager.previewUpcoming).not.toHaveBeenCalled();
+        expect(result.latestInvoicePreview).toEqual(mockLatestInvoicePreview);
+        expect(result.upcomingInvoicePreview).toEqual(mockLatestInvoicePreview);
+      });
+
+      it('previews the upgrade when no subscription has the new price yet', async () => {
+        const mockCart = ResultCartFactory({
+          state: CartState.PROCESSING,
+          stripeSubscriptionId: null,
+          eligibilityStatus: CartEligibilityStatus.UPGRADE,
+        });
+        const mockFromPrice = StripePriceFactory();
+        const mockFromSubscription = StripeSubscriptionFactory({
+          items: StripeApiListFactory([
+            StripeSubscriptionItemFactory({ price: mockFromPrice }),
+          ]),
+        });
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+        jest
+          .spyOn(subscriptionManager, 'listForCustomer')
+          .mockResolvedValue([mockFromSubscription]);
+        jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+          subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
+          fromOfferingConfigId: faker.string.uuid(),
+          fromPrice: mockFromPrice,
+        });
+        jest
+          .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+          .mockResolvedValue(mockFromSubscription);
+        const mockInvoicePreviewForUpgrade = InvoicePreviewFactory();
+        jest
+          .spyOn(invoiceManager, 'previewUpcomingForUpgrade')
+          .mockResolvedValue(mockInvoicePreviewForUpgrade);
+
+        const result = await cartService.getCart(mockCart.id);
+
+        expect(invoiceManager.preview).not.toHaveBeenCalled();
+        expect(invoiceManager.previewUpcomingForUpgrade).toHaveBeenCalledWith({
+          priceId: mockPrice.id,
+          customer: mockCustomer,
+          fromSubscriptionItem: mockFromSubscription.items.data[0],
+        });
+        expect(result.latestInvoicePreview).toBeUndefined();
+        expect(result.upcomingInvoicePreview).toEqual(
+          mockInvoicePreviewForUpgrade
+        );
+      });
+
+      it('does not preview a latest invoice for a non-upgrade cart', async () => {
+        const mockCart = ResultCartFactory({
+          state: CartState.PROCESSING,
+          stripeSubscriptionId: null,
+          eligibilityStatus: CartEligibilityStatus.CREATE,
+        });
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+
+        const result = await cartService.getCart(mockCart.id);
+
+        expect(invoiceManager.preview).not.toHaveBeenCalled();
+        expect(result.latestInvoicePreview).toBeUndefined();
       });
     });
 
