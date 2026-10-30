@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { readdirSync, readFileSync } from 'fs';
-import Redis from 'ioredis';
+import Redis, { RedisOptions } from 'ioredis';
 import { basename, extname, resolve } from 'path';
 import { StatsD } from 'hot-shots';
 
@@ -23,7 +23,7 @@ export type Config = {
   recordLimit?: number;
   maxttl?: number | string;
   timeoutMs?: number;
-} & Redis.RedisOptions;
+} & RedisOptions;
 
 interface ICustomRedisCache {
   getAccessToken(uid: string): Promise<any>;
@@ -34,9 +34,7 @@ interface ICustomRedisCache {
 }
 
 // Type guard for ICustomRedisCache
-function isCustomRedisCache(
-  redis: any
-): redis is Redis.Redis & ICustomRedisCache {
+function isCustomRedisCache(redis: any): redis is Redis & ICustomRedisCache {
   if (
     'getAccessToken' in redis &&
     'getAccessTokens' in redis &&
@@ -50,7 +48,7 @@ function isCustomRedisCache(
 }
 
 export class RedisShared {
-  public readonly redis: Redis.Redis & ICustomRedisCache;
+  public readonly redis: Redis & ICustomRedisCache;
 
   protected get keyPrefix() {
     return this.config.keyPrefix;
@@ -128,7 +126,7 @@ export class RedisShared {
     }
   }
 
-  protected defineCommands(redis: Redis.Redis, directory: string) {
+  protected defineCommands(redis: Redis, directory: string) {
     this.getScriptNames(directory).forEach((name: string) =>
       this.defineCommand(redis, name, directory)
     );
@@ -159,11 +157,7 @@ export class RedisShared {
     cancel.then(() => clearTimeout(id));
   }
 
-  private defineCommand(
-    redis: Redis.Redis,
-    scriptName: string,
-    directory: string
-  ) {
+  private defineCommand(redis: Redis, scriptName: string, directory: string) {
     const [name, numberOfKeys] = scriptName.split('_');
 
     redis.defineCommand(name, {
