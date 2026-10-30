@@ -1,8 +1,8 @@
 {
-  "commit": "66f6e8d62005ac71c36fae869d44a7a496912f43",
-  "summary": "Merge pull request #21657 from mozilla/dependabot/npm_and_yarn/systeminformation-5.33.19",
-  "description": "chore(deps): bump systeminformation from 5.33.1 to 5.33.19",
-  "timestamp": 1793378854000,
+  "commit": "028a2b1f26c64edee11bb241202b0c3c0cd6577c",
+  "summary": "Merge pull request #21622 from mozilla/PAY-3953-group-malformed-auth-paths",
+  "description": "fix(payments-ui-auth): stop Auth.js log messages being printf-formatted",
+  "timestamp": 1793380302000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
