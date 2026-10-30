@@ -218,6 +218,26 @@ export class Device extends BaseAuthModel {
     return this.fromRows(rows);
   }
 
+  /**
+   * Same device filter as `accountDevices`: a device whose session token
+   * row is gone and that has no refresh token is a zombie and not counted.
+   */
+  static async countByUid(uid: string): Promise<number> {
+    return Device.query()
+      .leftJoin(
+        'sessionTokens',
+        'sessionTokens.tokenId',
+        'devices.sessionTokenId'
+      )
+      .where('devices.uid', uuidTransformer.to(uid))
+      .where((qb) =>
+        qb
+          .whereNotNull('devices.refreshTokenId')
+          .orWhereNotNull('sessionTokens.tokenId')
+      )
+      .resultSize();
+  }
+
   static async findByPrimaryKey(uid: string, id: string) {
     const { rows } = await this.callProcedure(
       Proc.Device,
