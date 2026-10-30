@@ -86,6 +86,18 @@ payment-plan-next-invoice = ਅਗਲਾ ਭੁਗਤਾਨ: { $nextInvoiceDateO
 payment-method-payment-provider = <b>ਭੁਗਤਾਨ ਦਾ ਢੰਗ:</b> { $paymentProviderName }
 payment-method-payment-provider-plaintext = ਭੁਗਤਾਨ ਦਾ ਢੰਗ: { $paymentProviderName }
 
+## This string displays when the type of credit card is known
+## https://stripe.com/docs/payments/cards/supported-card-brands
+## Variables:
+##  $cardName (String) - The brand name of the credit card, e.g. American Express
+##  $lastFour (String) - The last four digits of the credit card, e.g. 5309
+
+payment-provider-card-name-ending-in-plaintext = ਭੁਗਤਾਨ ਢੰਗ: { $cardName } ਆਖਰੀ ਅੰਕ { $lastFour }
+payment-provider-card-ending-in-plaintext = ਭੁਗਤਾਨ ਢੰਗ: ਕਾਰਡ ਦੇ ਆਖਰੀ ਅੰਕ { $lastFour }
+payment-provider-card-ending-in = <b>ਭੁਗਤਾਨ ਢੰਗ:</b> ਕਾਰਡ ਦੇ ਆਖਰੀ ਅੰਕ { $lastFour }
+payment-provider-card-ending-in-card-name = <b>ਭੁਗਤਾਨ ਢੰਗ:</b> { $cardName } ਦੇ ਆਖਰੀ ਅੰਕ { $lastFour }
+subscription-charges-invoice-summary = ਇਨ-ਵੌਈਸ ਦਾ ਸਾਰ
+
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 
@@ -94,6 +106,7 @@ subscription-charges-invoice-number-plaintext = ਇਨਵਾਇਸ ਨੰਬਰ:
 subscription-charges-invoice-date = <b>ਤਾਰੀਖ:</b> { $invoiceDateOnly }
 subscription-charges-invoice-date-plaintext = ਤਾਰੀਖ: { $invoiceDateOnly }
 subscription-charges-credit-from-unused-time = ਅਣਵਰਤੇ ਸਮੇਂ ਲਈ ਕਰੈਡਿਟ
+subscription-charges-subtotal = <b>ਕੁੱਲ-ਜੋੜ</b>
 # $invoiceSubtotal (String) - The amount, before discount, of the subscription invoice, including currency, e.g. $10.00
 subscriptionFirstInvoiceDiscount-content-subtotal = ਅਧੀਨ ਜੋੜ: { $invoiceSubtotal }
 
@@ -166,6 +179,11 @@ fraudulentAccountDeletion-contact-plaintext = ਜੇ ਤੁਹਾਨੂੰ ਕ�
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 freeTrialEndingReminder-content-greeting = ਸਤਿਕਾਰਯੋਗ { $productName } ਗਾਹਕ,
+freeTrialEndingReminder-content-charge-heading = ਖ਼ਰਚਿਆਂ ਦੇ ਵੇਰਵੇ
+# Variables:
+#   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+#   $invoiceSubtotal (String) - The subtotal amount of the subscription, e.g. $12.99
+freeTrialEndingReminder-content-charge-subscription = { $productName } ਮੈਂਬਰੀ: { $invoiceSubtotal }
 freeTrialEndingReminder-content-charge-subscription-2 = { $productName } ਮੈਂਬਰੀ
 # Variables:
 #   $invoiceDiscountAmount (String) - The discount amount, as a negative number, e.g. -$3.00
