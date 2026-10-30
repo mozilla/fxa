@@ -4,7 +4,7 @@ var config = require('./config').getProperties();
 
 var crypto = require('crypto');
 var querystring = require('querystring');
-var { JWTool } = require('./lib/jwtool');
+var { verifyJwt } = require('./lib/verify-jwt');
 
 // oauth flows are stored in memory
 var oauthFlows = {};
@@ -15,24 +15,7 @@ function toQueryString(obj) {
 }
 
 function verifyIdToken(oauthConfig, token) {
-  var jku = oauthConfig.jwks_uri;
-  var verifier = new JWTool([jku]);
-  // Little bit of a hack to find a default kid.
-  return verifier
-    .fetch(jku)
-    .catch(function () {
-      /* that preloaded the keyset, ignore inevitable failure */
-    })
-    .then(function () {
-      var defaults = {
-        jku: jku,
-      };
-      var kids = Object.keys(verifier.jwkSets[jku]);
-      if (kids.length === 1) {
-        defaults.kid = kids[0];
-      }
-      return verifier.verify(token, defaults);
-    })
+  return verifyJwt(oauthConfig.jwks_uri, token)
     .then(function (claims) {
       if (claims.aud !== config.client_id) {
         throw new Error('unexpected id_token audience: ' + claims.aud);

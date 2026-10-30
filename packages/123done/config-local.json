@@ -4,5 +4,6 @@
   "pkce_client_id": "38a6b9b3a65a1871",
   "pkce_redirect_uri": "http://localhost:8080/?oauth_pkce_redirect=1",
   "redirect_uri": "http://localhost:8080/api/oauth",
-  "scopes": "profile openid"
+  "scopes": "profile openid",
+  "webhook_jwks_uri": "http://localhost:9000/.well-known/public-keys"
 }

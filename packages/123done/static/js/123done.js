@@ -158,6 +158,21 @@ $(document).ready(function () {
       }
 
       renderStepUpClaims(email);
+      renderCapabilities(email);
+    }
+
+    function renderCapabilities(email) {
+      const list = $('#capabilities').empty();
+      if (!email) {
+        return;
+      }
+      const capabilities = loggedInSubscriptions || [];
+      if (!capabilities.length) {
+        list.append($('<li>').text('(none)'));
+      }
+      capabilities.forEach(function (capability) {
+        list.append($('<li>').text(capability));
+      });
     }
 
     // auth_time is seconds since the epoch; show the raw value and a readable one.

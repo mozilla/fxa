@@ -4,6 +4,7 @@ const path = require('path');
 const Redis = require('ioredis');
 
 const oauth = require('./oauth');
+const { verifyJwt } = require('./lib/verify-jwt');
 const config = require('./config');
 const version = require('./version');
 const cookieSession = require('cookie-session');
@@ -62,7 +63,16 @@ function checkAuth(req, res, next) {
 
 // auth status reports who the currently logged in user is on this
 // session
-app.get('/api/auth_status', function (req, res) {
+app.get('/api/auth_status', async function (req, res) {
+  if (req.session.token) {
+    req.session.subscriptions = await fetchSubscriptions(req.session.token).catch(
+      function (err) {
+        console.log('auth_status subscriptions', err.message); //eslint-disable-line no-console
+        return req.session.subscriptions;
+      }
+    );
+  }
+
   // Logged field by field rather than spreading the session: this runs on every page
   // load, and the session carries the access and refresh tokens. A list of what to
   // print cannot leak a credential added to the session later, the way a list of what
@@ -108,6 +118,16 @@ async function discoverEndpoint(name) {
     `${config.get('issuer_uri')}/.well-known/openid-configuration`
   );
   return (await response.json())[name];
+}
+
+async function fetchSubscriptions(token) {
+  const response = await fetch(await discoverEndpoint('userinfo_endpoint'), {
+    headers: { Authorization: 'Bearer ' + token },
+  });
+  if (response.status >= 400) {
+    throw new Error(`userinfo returned ${response.status}`);
+  }
+  return (await response.json()).subscriptions || [];
 }
 
 // The resource-server half of RFC 9470: introspect our own access token and report
@@ -219,9 +239,55 @@ app.post('/api/todos/save', checkAuth, function (req, res) {
   res.sendStatus(200);
 });
 
-app.post('/api/webhook', function (req, res) {
-  res.set('Content-Type', 'application/json');
-  res.send(req.body || {});
+const WEBHOOK_EVENTS_MAX = 50;
+const webhookEventsByUid = new Map();
+
+// Local event-broker signs with auth-server's secret-key.json and an empty
+// issuer, so config-local.json points at auth-server's /.well-known/public-keys
+// and the iss check is skipped while that override is set.
+async function webhookVerification() {
+  const jwksUri = config.get('webhook_jwks_uri');
+  if (jwksUri) {
+    return { jwksUri, issuer: null };
+  }
+  return {
+    jwksUri: await discoverEndpoint('jwks_uri'),
+    issuer: await discoverEndpoint('issuer'),
+  };
+}
+
+app.post('/api/webhook', async function (req, res) {
+  const match = /^Bearer (\S+)$/.exec(req.get('authorization') || '');
+  if (!match) {
+    return res.status(401).json({ error: 'missing bearer token' });
+  }
+
+  let claims, issuer;
+  try {
+    const verification = await webhookVerification();
+    issuer = verification.issuer;
+    claims = await verifyJwt(verification.jwksUri, match[1]);
+  } catch (err) {
+    console.log('webhook verification failed', err.message); //eslint-disable-line no-console
+    return res.status(401).json({ error: 'invalid token' });
+  }
+  if (claims.aud !== config.get('client_id')) {
+    return res.status(401).json({ error: 'unexpected audience' });
+  }
+  if (issuer && claims.iss !== issuer) {
+    return res.status(401).json({ error: 'unexpected issuer' });
+  }
+
+  console.log('webhook', JSON.stringify(claims)); //eslint-disable-line no-console
+
+  const events = webhookEventsByUid.get(claims.sub) || [];
+  events.unshift({ receivedAt: Date.now(), ...claims });
+  webhookEventsByUid.set(claims.sub, events.slice(0, WEBHOOK_EVENTS_MAX));
+  res.sendStatus(200);
+});
+
+app.get('/api/webhook_events', checkAuth, function (req, res) {
+  res.json(webhookEventsByUid.get(req.session.uid) || []);
 });
 
 // the 'todo/get' api gets the current version of the todo list
