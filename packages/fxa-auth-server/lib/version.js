@@ -4,6 +4,7 @@
 
 'use strict';
 
+const fs = require('fs');
 const path = require('path');
 const cp = require('child_process');
 const promisify = require('util').promisify;
@@ -21,7 +22,7 @@ const processExec = promisify(cp.exec);
 // for dev environments.
 try {
   const versionJson = path.join(__dirname, '..', 'config', 'version.json');
-  const info = require(versionJson);
+  const info = JSON.parse(fs.readFileSync(versionJson, 'utf8'));
   commitHash = info.version.hash;
   sourceRepo = info.version.source;
 } catch (e) {
