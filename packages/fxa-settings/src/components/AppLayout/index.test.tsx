@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { screen } from '@testing-library/react';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import {
+  renderWithLocalizationProvider,
+  withLocalizationProvider,
+} from 'fxa-react/lib/test-utils/localizationProvider';
 import AppLayout from '.';
 import {
   MOCK_CMS_INFO_VALID_LINEAR_BG,
@@ -54,7 +57,7 @@ describe('<AppLayout />', () => {
   it('renders with title prop', async () => {
     renderWithLocalizationProvider(
       <AppLayout title="Test Page Title">
-        <p>Hello, world!</p>
+        <h1>Hello, world!</h1>
       </AppLayout>
     );
 
@@ -210,7 +213,7 @@ describe('<AppLayout />', () => {
   it('renders with integration prop and uses cms-shared-title when title is not available', async () => {
     renderWithLocalizationProvider(
       <AppLayout cmsInfo={MOCK_CMS_INFO_WITH_PAGE_TITLE} title={undefined}>
-        <p>Hello, world!</p>
+        <h1>Hello, world!</h1>
       </AppLayout>
     );
 
@@ -434,6 +437,107 @@ describe('<AppLayout />', () => {
       ).toBeInTheDocument();
 
       screen.getByText('Split layout content');
+    });
+  });
+
+  describe('heading title and focus', () => {
+    it.each([
+      ['the default layout', {}],
+      ['splitLayout', { splitLayout: true }],
+      ['wrapInCard={false}', { wrapInCard: false }],
+    ])('derives the title from the h1 and focuses it with %s', (_, props) => {
+      renderWithLocalizationProvider(
+        <AppLayout {...props}>
+          <h1>Heading Title</h1>
+        </AppLayout>
+      );
+
+      const heading = screen.getByRole('heading', { level: 1 });
+      expect(document.title).toBe('Heading Title | Mozilla accounts');
+      expect(heading).toHaveFocus();
+      expect(heading).toHaveAttribute('tabindex', '-1');
+      expect(heading).toHaveClass('focus:outline-none');
+    });
+
+    it('keeps the default title and does not move focus without an h1', () => {
+      renderWithLocalizationProvider(
+        <AppLayout>
+          <p>Hello, world!</p>
+        </AppLayout>
+      );
+
+      expect(document.title).toBe('Mozilla accounts');
+      expect(document.body).toHaveFocus();
+    });
+
+    it('announces the heading and leaves focus on an autofocused input', () => {
+      renderWithLocalizationProvider(
+        <>
+          <div id="page-announcer" data-testid="page-announcer" />
+          <AppLayout>
+            <h1>Heading Title</h1>
+            <input aria-label="Email" autoFocus />
+          </AppLayout>
+        </>
+      );
+
+      expect(document.title).toBe('Heading Title | Mozilla accounts');
+      expect(screen.getByTestId('page-announcer')).toHaveTextContent(
+        'Heading Title'
+      );
+      expect(screen.getByLabelText('Email')).toHaveFocus();
+      expect(screen.getByRole('heading', { level: 1 })).not.toHaveFocus();
+    });
+
+    it('announces the heading and does not focus it with focusHeading={false}', () => {
+      renderWithLocalizationProvider(
+        <>
+          <div id="page-announcer" data-testid="page-announcer" />
+          <AppLayout focusHeading={false}>
+            <h1>Heading Title</h1>
+          </AppLayout>
+        </>
+      );
+
+      expect(screen.getByTestId('page-announcer')).toHaveTextContent(
+        'Heading Title'
+      );
+      expect(document.body).toHaveFocus();
+    });
+
+    it('focuses the h1 only after loading turns false', () => {
+      const { rerender } = renderWithLocalizationProvider(
+        <AppLayout loading>
+          <h1>Heading Title</h1>
+        </AppLayout>
+      );
+
+      expect(document.body).toHaveFocus();
+      expect(document.title).toBe('Mozilla accounts');
+
+      rerender(
+        withLocalizationProvider(
+          <AppLayout loading={false}>
+            <h1>Heading Title</h1>
+          </AppLayout>
+        )
+      );
+
+      expect(screen.getByRole('heading', { level: 1 })).toHaveFocus();
+      expect(document.title).toBe('Heading Title | Mozilla accounts');
+    });
+
+    it('leaves .card-subheader text out of the title', () => {
+      renderWithLocalizationProvider(
+        <AppLayout>
+          <h1>
+            Approve this device{' '}
+            <span className="card-subheader">for user@example.com</span>
+          </h1>
+        </AppLayout>
+      );
+
+      expect(document.title).toBe('Approve this device | Mozilla accounts');
     });
   });
 });

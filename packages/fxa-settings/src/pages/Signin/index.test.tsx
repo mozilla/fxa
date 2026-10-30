@@ -1848,7 +1848,7 @@ describe('Signin component', () => {
     it('sets the shared page title without CMS', () => {
       render({ integration: createMockSigninWebIntegration() });
 
-      expect(document.title).toBe('Mozilla accounts');
+      expect(document.title).toBe('Enter your password | Mozilla accounts');
     });
 
     it('renders CardHeader with CMS content when password is needed', () => {

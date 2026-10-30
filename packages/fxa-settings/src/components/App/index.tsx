@@ -497,41 +497,53 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
   const cmsInfo = integration.getCmsInfo();
 
   return (
-    <Suspense
-      fallback={
-        <AppLayout cmsInfo={cmsInfo} loading splitLayout={currentSplitLayout} />
-      }
-    >
-      <Routes>
-        <Route
-          path="/settings/*"
-          element={
-            <SettingsRoutes
-              {...{
-                isSignedIn,
-                integration,
-                isSignedIntoFirefox,
-                setCurrentSplitLayout,
-              }}
-            />
-          }
-        />
-        <Route
-          path="/*"
-          element={
-            <AuthAndAccountSetupRoutes
-              {...{
-                isSignedIn,
-                integration,
-                flowQueryParams: updatedFlowQueryParams,
-                isSignedIntoFirefox,
-                setCurrentSplitLayout,
-              }}
-            />
-          }
-        />
-      </Routes>
-    </Suspense>
+    <>
+      <Suspense
+        fallback={
+          <AppLayout
+            cmsInfo={cmsInfo}
+            loading
+            splitLayout={currentSplitLayout}
+          />
+        }
+      >
+        <Routes>
+          <Route
+            path="/settings/*"
+            element={
+              <SettingsRoutes
+                {...{
+                  isSignedIn,
+                  integration,
+                  isSignedIntoFirefox,
+                  setCurrentSplitLayout,
+                }}
+              />
+            }
+          />
+          <Route
+            path="/*"
+            element={
+              <AuthAndAccountSetupRoutes
+                {...{
+                  isSignedIn,
+                  integration,
+                  flowQueryParams: updatedFlowQueryParams,
+                  isSignedIntoFirefox,
+                  setCurrentSplitLayout,
+                }}
+              />
+            }
+          />
+        </Routes>
+      </Suspense>
+      <div
+        id="page-announcer"
+        className="sr-only"
+        aria-live="assertive"
+        aria-atomic="true"
+      />
+    </>
   );
 };
 

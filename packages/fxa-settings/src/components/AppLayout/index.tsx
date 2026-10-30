@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useLayoutEffect } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import mozLogo from '@fxa/shared/assets/images/moz-logo-bw-rgb.svg';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useLocalization } from '@fluent/react';
@@ -15,10 +15,9 @@ import { useConfig } from '../../models/hooks';
 import { CardLoadingSpinner } from '../CardLoadingSpinner';
 
 type AppLayoutProps = {
-  // TODO: FXA-6803 - the title prop should be made mandatory
-  // the string should be localized
   /**
-   * `title` takes precedence over the `cmsInfo.shared.pageTitle` if both are present.
+   * `title` takes precedence over `cmsInfo.shared.pageTitle`, which takes
+   * precedence over the page's first h1 text.
    */
   title?: string;
   children?: React.ReactNode;
@@ -45,6 +44,8 @@ type AppLayoutProps = {
    * Used to preserve layout during navigation Suspense fallback.
    */
   setCurrentSplitLayout?: (value: boolean) => void;
+  /** Whether to focus the h1; set to `false` when the page focuses an input itself. */
+  focusHeading?: boolean;
 };
 
 export const AppLayout = ({
@@ -57,6 +58,7 @@ export const AppLayout = ({
   wrapInCard = true,
   loading = false,
   setCurrentSplitLayout,
+  focusHeading = true,
 }: AppLayoutProps) => {
   const { l10n } = useLocalization();
   const config = useConfig();
@@ -76,7 +78,36 @@ export const AppLayout = ({
   const cmsHeaderLogoUrl = cmsInfo?.shared?.headerLogoUrl;
   const cmsHeaderLogoAltText = cmsInfo?.shared?.headerLogoAltText;
 
-  const overrideTitle = title ? title : cmsPageTitle;
+  const [headingTitle, setHeadingTitle] = useState<string>();
+
+  // Leave out .card-subheader text: it holds subheadings and personal data, e.g. the email.
+  useEffect(() => {
+    const h1 = document.querySelector('main h1')?.cloneNode(true) as
+      | HTMLElement
+      | undefined;
+    h1?.querySelectorAll('.card-subheader').forEach((el) => el.remove());
+    setHeadingTitle(h1?.textContent || undefined);
+  }, [children, l10n]);
+
+  // Focus the heading so screen readers read it. When something else has focus, announce it.
+  useEffect(() => {
+    if (loading || !headingTitle) return;
+    const h1 = document.querySelector<HTMLElement>('main h1');
+    if (focusHeading && h1 && document.activeElement === document.body) {
+      h1.tabIndex = -1;
+      h1.classList.add('focus:outline-none');
+      h1.focus();
+      return;
+    }
+    const announcer = document.getElementById('page-announcer');
+    if (!announcer) return;
+    announcer.textContent = headingTitle;
+    return () => {
+      announcer.textContent = '';
+    };
+  }, [headingTitle, loading, focusHeading]);
+
+  const overrideTitle = title || cmsPageTitle || headingTitle;
 
   const favicon = cmsInfo?.shared?.favicon;
 
