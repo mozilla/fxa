@@ -4,7 +4,7 @@ CREATE TABLE refreshTokens (
   token BINARY(32) PRIMARY KEY,
   clientId BINARY(8) NOT NULL,
   INDEX tokens_client_id(clientId),
-  FOREIGN KEY (clientId) REFERENCES clients(id) ON DELETE CASCADE,
+  CONSTRAINT refreshTokens_ibfk_1 FOREIGN KEY (clientId) REFERENCES clients(id) ON DELETE CASCADE,
   userId BINARY(16) NOT NULL,
   INDEX tokens_user_id(userId),
   email VARCHAR(256) NOT NULL,

@@ -10,9 +10,9 @@ CREATE TABLE developers (
 CREATE TABLE clientDevelopers (
   rowId BINARY(8) NOT NULL PRIMARY KEY,
   developerId BINARY(16) NOT NULL,
-  FOREIGN KEY (developerId) REFERENCES developers(developerId) ON DELETE CASCADE,
+  CONSTRAINT clientDevelopers_ibfk_1 FOREIGN KEY (developerId) REFERENCES developers(developerId) ON DELETE CASCADE,
   clientId BINARY(8) NOT NULL,
-  FOREIGN KEY (clientId) REFERENCES clients(id) ON DELETE CASCADE,
+  CONSTRAINT clientDevelopers_ibfk_2 FOREIGN KEY (clientId) REFERENCES clients(id) ON DELETE CASCADE,
   createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
