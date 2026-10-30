@@ -1749,6 +1749,47 @@ describe('exclude_dau carried on the authorization code', () => {
     return { glean, request };
   }
 
+  it('skips the new-device email when the sign-in flow already sent it', async () => {
+    const SESSION_TOKEN_ID = 'ab'.repeat(32);
+    const newTokenNotificationStub = jest.fn().mockResolvedValue(undefined);
+    const redis = {
+      get: jest.fn(async (key: string) =>
+        key === `newDeviceEmailSent:${SESSION_TOKEN_ID}` ? '1' : null
+      ),
+      del: jest.fn().mockResolvedValue(1),
+    };
+    resetAndMockDeps();
+    jest.doMock('../../oauth/grant', () => ({
+      ...tokenRoutesDepMocks['../../oauth/grant'],
+      generateTokens: (grant: any) => ({
+        ...grant,
+        scope: grant.scope.toString(),
+        refresh_token: '00ff',
+      }),
+    }));
+    jest.doMock('../utils/oauth', () => ({
+      newTokenNotification: newTokenNotificationStub,
+    }));
+    const routes = require('./token')({
+      ...tokenRoutesArgMocks,
+      oauthDB: buildOauthDB({ sessionTokenId: buf(SESSION_TOKEN_ID) }),
+      glean: { oauth: { tokenCreated: jest.fn() } },
+      authServerCacheRedis: redis,
+    });
+
+    const result = await routes[1].handler(codeRequest());
+
+    expect(result._sessionTokenId).toBeUndefined();
+    expect(newTokenNotificationStub).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+      expect.objectContaining({ skipEmail: true })
+    );
+  });
+
   it('tags the token created event when the code was flagged', async () => {
     const redis = { get: jest.fn().mockResolvedValue('1') };
 

@@ -41,6 +41,7 @@ const { config } = require('../../../config');
 const encrypt = require('@fxa/shared/crypto');
 const util = require('../../oauth/util');
 const oauthRouteUtils = require('../utils/oauth');
+const { wasNewDeviceEmailSent } = require('../utils/new-device-email-sent');
 const token = require('../../oauth/token');
 const validators = require('../../oauth/validators');
 const { validateRequestedGrant, generateTokens } = require('../../oauth/grant');
@@ -783,6 +784,9 @@ module.exports = ({
     // These are internal properties that get stripped before returning to the client.
     tokens._clientId = oauthClientId;
     tokens._uid = uid;
+    if (grant.sessionTokenId) {
+      tokens._sessionTokenId = hex(grant.sessionTokenId);
+    }
     if (grant.existingDeviceId) {
       tokens._existingDeviceId = grant.existingDeviceId;
     }
@@ -1103,6 +1107,15 @@ module.exports = ({
         //   request.auth.credentials.deviceId. skipEmail is a fallback for
         //   sessions without an associated device.
         if (grant.refresh_token) {
+          // A sign-in flow that already emailed about this session leaves a
+          // marker; honour it so the Sync connect doesn't email twice.
+          const alreadyEmailed =
+            scopeSet.contains(OAUTH_SCOPE_OLD_SYNC) &&
+            (await wasNewDeviceEmailSent(
+              authServerCacheRedis,
+              log,
+              grant._sessionTokenId
+            ));
           await oauthRouteUtils.newTokenNotification(
             db,
             mailer,
@@ -1110,7 +1123,7 @@ module.exports = ({
             req,
             grant,
             {
-              skipEmail: isSilentUpgrade,
+              skipEmail: isSilentUpgrade || alreadyEmailed,
               existingDeviceId: grant._existingDeviceId,
               clientId: grant._clientId,
               uid: grantUid,
@@ -1127,6 +1140,7 @@ module.exports = ({
         delete grant._clientId;
         delete grant._existingDeviceId;
         delete grant._uid;
+        delete grant._sessionTokenId;
         delete grant.session_token_id;
 
         // attempt to record metrics, but swallow the error if one is thrown.

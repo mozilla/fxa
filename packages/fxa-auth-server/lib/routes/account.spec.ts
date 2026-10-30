@@ -111,6 +111,12 @@ const mockGetAccountCustomerByUid = jest.fn().mockResolvedValue({
   stripeCustomerId: 'customer123',
 });
 
+const mockAuthServerCacheRedis = {
+  get: async () => null,
+  del: async () => 0,
+  set: jest.fn().mockResolvedValue('OK'),
+};
+
 const makeRoutes = function (options: any = {}, requireMocks: any = {}) {
   Container.set(CapabilityService, options.capabilityService || {});
   const config = options.config || {};
@@ -222,10 +228,8 @@ const makeRoutes = function (options: any = {}, requireMocks: any = {}) {
     available: jest.fn().mockResolvedValue(false),
   });
 
-  const authServerCacheRedis = options.authServerCacheRedis || {
-    get: async () => null,
-    del: async () => 0,
-  };
+  const authServerCacheRedis =
+    options.authServerCacheRedis || mockAuthServerCacheRedis;
 
   return accountRoutes(
     log,
@@ -2528,6 +2532,12 @@ describe('/account/login', () => {
           expect(token.tokenVerified).toBeTruthy();
         });
         expect(mockFxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
+        expect(mockAuthServerCacheRedis.set).toHaveBeenCalledWith(
+          expect.stringMatching(/^newDeviceEmailSent:/),
+          '1',
+          'EX',
+          3600
+        );
         expect(mockMailer.sendVerifyLoginEmail).toHaveBeenCalledTimes(0);
 
         expect(mockMetricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(

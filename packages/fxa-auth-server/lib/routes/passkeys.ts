@@ -12,6 +12,8 @@ import {
 } from '../types';
 import { signMfaToken } from './utils/mfa-token';
 import { recordSecurityEvent } from './utils/security-event';
+import { markNewDeviceEmailSent } from './utils/new-device-email-sent';
+import { Redis } from 'ioredis';
 import { notifyAttachedServicesForAccountSession } from './utils/account';
 import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
 import { ConfigType } from '../../config';
@@ -162,7 +164,8 @@ export class PasskeyHandler {
     private readonly glean: GleanMetricsType,
     private readonly mailer: any,
     private readonly oauthClientInfoService: AuthClientInfoService,
-    private readonly config: ConfigType
+    private readonly config: ConfigType,
+    private readonly authServerCacheRedis?: Redis
   ) {}
 
   /**
@@ -641,7 +644,8 @@ export class PasskeyHandler {
       request,
       account,
       service,
-      keysRequired
+      keysRequired,
+      sessionToken.id
     );
 
     const hasPassword = account.verifierSetAt > 0;
@@ -674,7 +678,8 @@ export class PasskeyHandler {
       locale?: string;
     },
     service: string | undefined,
-    keysRequired: boolean
+    keysRequired: boolean,
+    sessionTokenId: string
   ) {
     // The new-device-login email is always sent; when keys are still required
     // we drop the service so the subject stays generic — keys aren't retrieved
@@ -692,6 +697,11 @@ export class PasskeyHandler {
         clientName: clientInfo.name,
         showBannerWarning: false,
       });
+      await markNewDeviceEmailSent(
+        this.authServerCacheRedis,
+        this.log,
+        sessionTokenId
+      );
     } catch (err) {
       this.log.trace(
         'passkeys.authenticationFinish.sendNewDeviceLoginEmail.error',
@@ -803,7 +813,8 @@ export const passkeyRoutes = (
   statsd: any,
   glean: GleanMetricsType,
   log: any,
-  mailer: any
+  mailer: any,
+  authServerCacheRedis?: Redis
 ) => {
   // Passkey route flag hierarchy:
   //   passkeys.enabled (master switch)  — gates management routes (list/delete/rename)
@@ -834,7 +845,8 @@ export const passkeyRoutes = (
     glean,
     mailer,
     oauthClientInfoService,
-    config
+    config,
+    authServerCacheRedis
   );
 
   return [
