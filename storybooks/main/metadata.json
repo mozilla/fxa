@@ -1,8 +1,8 @@
 {
-  "commit": "2601f3a4807ef5779a3c3bac2ee47e9b72229592",
-  "summary": "Merge pull request #21650 from mozilla/agent-c355b0",
-  "description": "chore(content-server): remove gettext and .po tooling",
-  "timestamp": 1793377053000,
+  "commit": "66f6e8d62005ac71c36fae869d44a7a496912f43",
+  "summary": "Merge pull request #21657 from mozilla/dependabot/npm_and_yarn/systeminformation-5.33.19",
+  "description": "chore(deps): bump systeminformation from 5.33.1 to 5.33.19",
+  "timestamp": 1793378854000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
