@@ -24,12 +24,16 @@ const path = require('path');
 
 const UNKNOWN = 'unknown';
 
-const versionJsonPath = '../../config/version.json';
+const versionJsonPath = path.join(__dirname, '../../config/version.json');
+
+function readVersionJson() {
+  return JSON.parse(fs.readFileSync(versionJsonPath, 'utf8'));
+}
 
 // commitHash and sourceRepo
 function getCommitHash() {
   try {
-    const versionInfo = require(versionJsonPath);
+    const versionInfo = readVersionJson();
     const ver = versionInfo.version;
     return ver.hash;
   } catch (e) {
@@ -50,7 +54,7 @@ function getCommitHash() {
 
 function getSourceRepo() {
   try {
-    const versionInfo = require(versionJsonPath);
+    const versionInfo = readVersionJson();
     const ver = versionInfo.version;
     return ver.source;
   } catch (e) {

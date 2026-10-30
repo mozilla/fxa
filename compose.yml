@@ -1,0 +1,310 @@
+# Local FxA stack (the `yarn start mza` services): `docker compose up`
+#
+# The app services share fxa-net's network namespace, so `localhost:<port>`
+# reaches every app from the browser and from the other apps, as under pm2.
+# Infrastructure is reached by service name.
+
+x-base-build: &base-build
+  context: .
+  dockerfile: Dockerfile
+  target: fxa-base
+
+x-service-build: &service-build
+  context: .
+  target: production
+  additional_contexts:
+    fxa-base: service:migrate
+
+x-mysql-env: &mysql-env
+  DB: mysql
+  MYSQL_HOST: mysql
+  AUTH_MYSQL_HOST: mysql
+  OAUTH_MYSQL_HOST: mysql
+  PROFILE_MYSQL_HOST: mysql
+  PUSHBOX_MYSQL_HOST: mysql
+
+x-redis-env: &redis-env
+  REDIS_HOST: redis
+  ACCESS_TOKEN_REDIS_HOST: redis
+  REFRESH_TOKEN_REDIS_HOST: redis
+  AUTH_CACHE_REDIS_HOST: redis
+  CUSTOMS_REDIS_HOST: redis
+  METRICS_REDIS_HOST: redis
+  PASSKEY_REDIS_HOST: redis
+  RATELIMIT_REDIS_HOST: redis
+  RECOVERY_PHONE_REDIS_HOST: redis
+
+x-key-files: &key-files
+  SECRET_KEY_FILE: /keys/secret-key.json
+  PUBLIC_KEY_FILE: /keys/public-key.json
+  VAPID_KEYS_FILE: /keys/vapid-keys.json
+  FXA_OPENID_KEYFILE: /keys/key.json
+  FXA_OPENID_NEWKEYFILE: /keys/newKey.json
+  FXA_OPENID_OLDKEYFILE: /keys/oldKey.json
+
+services:
+  # Infrastructure. Host ports match the pm2 scripts in _scripts/, so
+  # `docker compose up mysql redis goaws firestore sync cirrus` can stand in
+  # for `yarn start infrastructure` under host-run pm2 services.
+
+  mysql:
+    image: mysql/mysql-server:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
+      MYSQL_ROOT_HOST: '%'
+      # pushbox does not create its own database.
+      MYSQL_DATABASE: pushbox
+    ports:
+      - '3306:3306'
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', '127.0.0.1', '--silent']
+      interval: 2s
+      retries: 60
+
+  redis:
+    image: redis
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 2s
+      retries: 30
+
+  firestore:
+    image: andreysenov/firebase-tools:latest
+    command: firebase emulators:start --project demo-fxa
+    volumes:
+      - ./_dev/firebase:/home/node
+    ports:
+      - '4400:4400'
+      - '4500:4500'
+      - '8085:8085' # pubsub
+      - '9090:9090' # firestore
+      - '9299:9299' # emulator UI
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:9299/api/config').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"
+      interval: 2s
+      retries: 60
+
+  goaws:
+    image: pafortin/goaws
+    volumes:
+      - ./_dev/goaws:/conf
+    ports:
+      - '4100:4100'
+
+  # Creates the sync user and databases; syncstorage creates the tables.
+  sync-db:
+    image: mysql/mysql-server:8.0
+    command:
+      - mysql
+      - -h
+      - mysql
+      - -e
+      - >-
+        CREATE USER IF NOT EXISTS 'sync'@'%' IDENTIFIED BY 'test';
+        CREATE DATABASE IF NOT EXISTS syncstorage;
+        CREATE DATABASE IF NOT EXISTS tokenserver;
+        GRANT ALL PRIVILEGES ON syncstorage.* TO 'sync'@'%';
+        GRANT ALL PRIVILEGES ON tokenserver.* TO 'sync'@'%';
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # syncstorage-rs; its config reaches MySQL and auth through
+  # host.docker.internal, i.e. the published ports.
+  sync:
+    build: ./_dev/docker/sync/sync-for-fxa
+    image: sync-for-fxa:compose
+    ports:
+      - '8000:8000'
+    healthcheck:
+      test: ['CMD', 'curl', '-fs', 'http://127.0.0.1:8000/__heartbeat__']
+      interval: 5s
+      retries: 60
+    depends_on:
+      sync-db:
+        condition: service_completed_successfully
+
+  # Registers this sync node with tokenserver once its tables exist.
+  sync-populate:
+    image: mysql/mysql-server:8.0
+    command:
+      - mysql
+      - -h
+      - mysql
+      - -e
+      - >-
+        INSERT IGNORE INTO tokenserver.services (id, service, pattern)
+        VALUES (1, 'sync-1.5', '{node}/1.5/{uid}');
+        INSERT IGNORE INTO tokenserver.nodes
+        (service, node, available, capacity, current_load, backoff, downed, id)
+        VALUES (1, 'http://localhost:8000', 100, 100, 0, 0, 0, 800);
+    depends_on:
+      sync:
+        condition: service_healthy
+
+  cirrus:
+    image: mozilla/cirrus:sha-1275f51cb
+    # NIMBUS_CIRRUS_CHANNEL and NIMBUS_FML_FILE come from the shell or .env,
+    # as they do for _scripts/cirrus.sh.
+    volumes:
+      - ./_scripts/configs/cirrus.env.${NIMBUS_CIRRUS_CHANNEL:-development}:/cirrus/.env
+      - ./${NIMBUS_FML_FILE:-configs/nimbus.yaml}:/cirrus/feature_manifest/frontend-experiments.fml.yml
+    mem_limit: 1024m
+    ports:
+      - '8001:8001'
+
+  maildev:
+    image: maildev/maildev
+    ports:
+      - '1080:1080'
+
+  # One-shot setup
+
+  migrate:
+    build: *base-build
+    image: fxa-base:compose
+    command: node packages/db-migrations/bin/patcher.mjs
+    environment: *mysql-env
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  keys:
+    image: fxa-base:compose
+    pull_policy: never
+    working_dir: /fxa/packages/fxa-auth-server
+    command: yarn gen-keys
+    environment:
+      <<: *key-files
+      NODE_ENV: dev
+    volumes:
+      - auth-keys:/keys
+
+  # Apps
+
+  fxa-net:
+    image: busybox:stable
+    command: sleep infinity
+    init: true
+    ports:
+      - '9000:9000' # auth
+      - '1111:1111' # profile
+      - '1112:1112' # profile static
+      - '3030:3030' # content
+      - '8080:8080' # 123done
+      - '10139:10139' # 321done
+
+  auth:
+    build:
+      <<: *service-build
+      dockerfile: packages/fxa-auth-server/Dockerfile
+    image: fxa-auth-server:compose
+    network_mode: service:fxa-net
+    environment:
+      <<: [*mysql-env, *redis-env, *key-files]
+      NODE_ENV: dev
+      IP_ADDRESS: 0.0.0.0
+      PORT: '9000'
+      EMAIL_CONFIG_USE_REDIS: 'false'
+      FIRESTORE_EMULATOR_HOST: firestore:9090
+      SNS_TOPIC_ENDPOINT: http://goaws:4100/
+      SMTP_HOST: maildev
+      SMTP_PORT: '1025'
+    volumes:
+      - auth-keys:/keys:ro
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      keys:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      firestore:
+        condition: service_healthy
+      goaws:
+        condition: service_started
+      maildev:
+        condition: service_started
+
+  profile:
+    build:
+      <<: *service-build
+      dockerfile: packages/fxa-profile-server/Dockerfile
+    image: fxa-profile-server:compose
+    network_mode: service:fxa-net
+    environment: &profile-env
+      <<: [*mysql-env, *redis-env]
+      NODE_ENV: development
+      HOST: 0.0.0.0
+      PORT: '1111'
+    depends_on: &profile-deps
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  profile-worker:
+    image: fxa-profile-server:compose
+    pull_policy: never
+    network_mode: service:fxa-net
+    command: node /app/worker.js
+    environment:
+      <<: *profile-env
+      WORKER_HOST: 0.0.0.0
+    depends_on: *profile-deps
+
+  profile-static:
+    image: fxa-profile-server:compose
+    pull_policy: never
+    network_mode: service:fxa-net
+    command: node /app/static.js
+    environment: *profile-env
+    depends_on: *profile-deps
+
+  content:
+    build:
+      <<: *service-build
+      dockerfile: packages/fxa-content-server/Dockerfile
+    image: fxa-content-server:compose
+    network_mode: service:fxa-net
+    environment:
+      # local.json holds the localhost URLs and OAuth settings; the rest
+      # overrides its pm2-oriented defaults to serve the built assets.
+      CONFIG_FILES: server/config/local.json
+      NODE_ENV: production
+      PROXY_SETTINGS: 'false'
+      STATIC_DIRECTORY: dist
+      PAGE_TEMPLATE_SUBDIRECTORY: dist
+      PORT: '3030'
+      FEATURE_FLAGS_REDIS_HOST: redis
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  123done:
+    build:
+      <<: *service-build
+      dockerfile: packages/123done/Dockerfile
+    image: fxa-123done:compose
+    network_mode: service:fxa-net
+    environment:
+      CONFIG_123DONE: ./config-local.json
+      PORT: '8080'
+
+  321done:
+    image: fxa-123done:compose
+    pull_policy: never
+    network_mode: service:fxa-net
+    environment:
+      CONFIG_123DONE: ./config-local-untrusted.json
+      PORT: '10139'
+
+volumes:
+  auth-keys:

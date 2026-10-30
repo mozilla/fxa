@@ -9,6 +9,7 @@
     "build-css": "NODE_ENV=production tailwindcss --postcss -i ./app/styles/tailwind.css -o ./app/styles/tailwind.out.css",
     "build-js": "NODE_ENV=production grunt build",
     "build-l10n": "yarn l10n-create-json",
+    "bundle": "webpack build --node-env=production --config webpack.server.config.js",
     "check-local-config": "node scripts/check-local-config",
     "clean": "rimraf dist",
     "compile": "tsc --noEmit",
@@ -149,6 +150,16 @@
     "tags": [
       "scope:frontend",
       "type:core"
-    ]
+    ],
+    "targets": {
+      "bundle": {
+        "dependsOn": [
+          "build"
+        ],
+        "outputs": [
+          "{workspaceRoot}/dist/packages/fxa-content-server"
+        ]
+      }
+    }
   }
 }

@@ -5,6 +5,7 @@
 'use strict';
 
 const crypto = require('crypto');
+const fs = require('fs');
 const webpush = require('web-push');
 
 const PUSH_PAYLOAD_SCHEMA_VERSION = 1;
@@ -87,7 +88,7 @@ const MAX_ACTIVE_DEVICES = 200;
 module.exports = function (log, db, config, statsd) {
   let vapid;
   if (config.vapidKeysFile) {
-    const vapidKeys = require(config.vapidKeysFile);
+    const vapidKeys = JSON.parse(fs.readFileSync(config.vapidKeysFile, 'utf8'));
     vapid = {
       privateKey: vapidKeys.privateKey,
       publicKey: vapidKeys.publicKey,

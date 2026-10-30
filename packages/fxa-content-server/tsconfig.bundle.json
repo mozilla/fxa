@@ -1,0 +1,11 @@
+{
+  // Server bundle only: tsconfig.json targets app/scripts and maps just two
+  // @fxa/* paths, while the server imports more.
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "module": "commonjs"
+  },
+  "include": ["server/**/*"]
+}
