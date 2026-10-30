@@ -1,8 +1,8 @@
 {
-  "commit": "028a2b1f26c64edee11bb241202b0c3c0cd6577c",
-  "summary": "Merge pull request #21622 from mozilla/PAY-3953-group-malformed-auth-paths",
-  "description": "fix(payments-ui-auth): stop Auth.js log messages being printf-formatted",
-  "timestamp": 1793380302000,
+  "commit": "f99b8f5c7b1e4004f0263b9956297e531ccf3b9a",
+  "summary": "Merge pull request #21621 from mozilla/FXA-12736",
+  "description": "perf(auth): count devices directly in recoveryKey/exists",
+  "timestamp": 1793382010000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
