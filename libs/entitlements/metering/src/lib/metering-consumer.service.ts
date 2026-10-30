@@ -37,6 +37,13 @@ interface ClassifiedBatch {
   pending: BufferedMessage[];
 }
 
+interface InsertedTotal {
+  clientId: string;
+  slug: string;
+  count: number;
+  amount: number;
+}
+
 @Injectable()
 export class MeteringConsumerService
   implements OnApplicationBootstrap, BeforeApplicationShutdown
@@ -214,7 +221,29 @@ export class MeteringConsumerService
     for (const { message } of fresh) {
       message.ack();
     }
-    this.statsd.increment('metering.consumer.inserted', fresh.length);
+    this.countInsertedEvents(fresh);
+  }
+
+  private countInsertedEvents(fresh: BufferedMessage[]): void {
+    const totals = new Map<string, InsertedTotal>();
+    for (const { event } of fresh) {
+      const key = JSON.stringify([event.clientId, event.slug]);
+      const total = totals.get(key) ?? {
+        clientId: event.clientId,
+        slug: event.slug,
+        count: 0,
+        amount: 0,
+      };
+      total.count += 1;
+      total.amount += event.amount;
+      totals.set(key, total);
+    }
+
+    for (const { clientId, slug, count, amount } of totals.values()) {
+      const tags = { clientId, slug };
+      this.statsd.increment('metering.consumer.inserted', count, tags);
+      this.statsd.increment('metering.consumer.inserted_amount', amount, tags);
+    }
   }
 
   private nackAll(

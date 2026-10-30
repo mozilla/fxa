@@ -68,6 +68,11 @@ FROM
 )
 ORDER BY client_id, slug`;
 
+const FIND_SWEPT_METERS_SQL = `
+SELECT DISTINCT client_id, slug
+FROM ${WATERMARKS_TABLE}
+ORDER BY client_id, slug`;
+
 const FIND_WATERMARK_SQL = `
 SELECT
     -- Slices written in one run share updated_at. The merge keeps the last one
@@ -184,6 +189,14 @@ export class MeteringSweepRepository {
       sql: FIND_ACTIVE_METERS_SQL,
       rowSchema: meterKeyRowSchema,
       params: { ingestedSince: toClickHouseDateTime(params.ingestedSince) },
+    });
+    return rows.map((row) => ({ clientId: row.client_id, slug: row.slug }));
+  }
+
+  async findSweptMeters(): Promise<MeterKey[]> {
+    const rows = await this.clickHouseClient.query({
+      sql: FIND_SWEPT_METERS_SQL,
+      rowSchema: meterKeyRowSchema,
     });
     return rows.map((row) => ({ clientId: row.client_id, slug: row.slug }));
   }

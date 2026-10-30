@@ -751,4 +751,34 @@ describeClickHouse('MeteringSweepManager against a real ClickHouse', () => {
       ]);
     });
   });
+
+  describe('findSweptMeters', () => {
+    it('returns nothing when no watermark has been recorded', async () => {
+      await events.insertEvents([event('e1', 'user-1', 1, at(-HOUR_MS))]);
+
+      await expect(manager.findSweptMeters()).resolves.toEqual([]);
+    });
+
+    it('lists each meter with a watermark once, sorted', async () => {
+      for (const watermark of [at(-2 * HOUR_MS), at(-HOUR_MS)]) {
+        await manager.advanceWatermark({
+          clientId: CLIENT_ID,
+          slug: SLUG,
+          watermark,
+          updatedAt: watermark,
+        });
+      }
+      await manager.advanceWatermark({
+        clientId: 'relay',
+        slug: 'bandwidth',
+        watermark: at(-HOUR_MS),
+        updatedAt: at(-HOUR_MS),
+      });
+
+      await expect(manager.findSweptMeters()).resolves.toEqual([
+        { clientId: 'relay', slug: 'bandwidth' },
+        { clientId: CLIENT_ID, slug: SLUG },
+      ]);
+    });
+  });
 });

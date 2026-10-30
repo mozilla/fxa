@@ -375,6 +375,13 @@ export class MeteringSweepService {
 
     if (recorded.length > 0) {
       await this.meteringSweepManager.recordNotifications(recorded);
+      for (const notification of recorded) {
+        this.statsd.increment('metering.sweep.dispatched', {
+          clientId: notification.clientId,
+          slug: notification.slug,
+          threshold: String(notification.threshold),
+        });
+      }
     }
 
     return { recorded, failed };

@@ -16,6 +16,7 @@ describe('MeteringSweepManager', () => {
     Pick<
       MeteringSweepRepository,
       | 'findActiveMeters'
+      | 'findSweptMeters'
       | 'findWindowCandidates'
       | 'findSessionCandidates'
       | 'findLastNotifications'
@@ -43,6 +44,7 @@ describe('MeteringSweepManager', () => {
   beforeEach(async () => {
     meteringSweepRepository = {
       findActiveMeters: jest.fn().mockResolvedValue([]),
+      findSweptMeters: jest.fn().mockResolvedValue([]),
       findWindowCandidates: jest.fn().mockResolvedValue([]),
       findSessionCandidates: jest.fn().mockResolvedValue([]),
       findLastNotifications: jest.fn().mockResolvedValue([]),
@@ -302,6 +304,15 @@ describe('MeteringSweepManager', () => {
           ingestedSince: new Date('2026-05-14T12:00:00.000Z'),
         })
       ).resolves.toEqual(meters);
+    });
+  });
+
+  describe('findSweptMeters', () => {
+    it('returns the swept meters from the repository', async () => {
+      const meters = [scope, { clientId: 'relay', slug: 'bandwidth' }];
+      meteringSweepRepository.findSweptMeters.mockResolvedValue(meters);
+
+      await expect(manager.findSweptMeters()).resolves.toEqual(meters);
     });
   });
 });
