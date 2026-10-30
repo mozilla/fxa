@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const exec = require('child_process').exec;
+const fs = require('fs');
 const path = require('path');
 
 const Joi = require('joi');
@@ -12,7 +13,12 @@ let commitHash, source;
 
 // See if config/version.json exists (part of rpm builds)
 try {
-  const info = require('../../config/version.json');
+  const info = JSON.parse(
+    fs.readFileSync(
+      path.join(__dirname, '..', '..', 'config', 'version.json'),
+      'utf8'
+    )
+  );
   commitHash = info.version.hash;
   source = info.version.source;
 } catch (e) {

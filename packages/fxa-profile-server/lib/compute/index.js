@@ -26,7 +26,12 @@ var imageCc;
 if (MAX_PROCESSES > 0) {
   /*jshint camelcase: false*/
   imageCc = new ComputeCluster({
-    module: path.join(__dirname, 'image-cc.js'),
+    // compute-cluster forks this file by path. A webpack bundle builds it as
+    // its own entry next to the running entry script.
+    module:
+      typeof __webpack_require__ === 'undefined'
+        ? path.join(__dirname, 'image-cc.js')
+        : path.join(path.dirname(process.argv[1]), 'image-cc.js'),
     max_backlog: config.get('img.compute.maxBacklog'),
     max_request_time: config.get('img.compute.maxRequestTime'),
     max_processes: MAX_PROCESSES,
