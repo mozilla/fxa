@@ -1,8 +1,8 @@
 {
-  "commit": "aafb33db8f44b1d9638a5919e83361b696a9c582",
+  "commit": "d0ad678b53e59e55657e2fae5b7d828fb7937d87",
   "summary": "feat(settings): derive page title from h1 and announce it in AppLayout",
-  "description": "Because:\n\n* Most AppLayout pages kept the tab title \"Mozilla accounts\".\n* Screen readers announced nothing after a route or step change.\n\nThis commit:\n\n* Derives the page title from the main h1, without .card-subheader text.\n* Focuses the h1 only when body has focus, else announces it.\n* Adds a #page-announcer aria-live region to App.\n* Adds a focusHeading prop; Index turns it off for its email focus.\n\nCloses FXA-6803",
-  "timestamp": 1793378981000,
+  "description": "Because:\n\n* Most AppLayout pages kept the tab title \"Mozilla accounts\".\n* Screen readers announced nothing after a route or step change.\n\nThis commit:\n\n* Derives the page title from the main h1, without .card-subheader text.\n* Focuses the h1 only when body has focus, else announces it.\n* Adds a #page-announcer aria-live region to App.\n* Adds a focusHeading prop; Index turns it off for its email focus.\n* Finds the relay heading by role, as the announcer repeats its text.\n\nCloses FXA-6803",
+  "timestamp": 1793381204000,
   "storybooks": [
     "fxa-settings"
   ],
