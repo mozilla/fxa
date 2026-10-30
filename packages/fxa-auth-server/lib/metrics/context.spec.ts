@@ -68,13 +68,16 @@ describe('metricsContext', () => {
 
     expect(typeof metricsContext).toBe('object');
     expect(metricsContext).not.toBeNull();
-    expect(Object.keys(metricsContext)).toHaveLength(7);
+    expect(Object.keys(metricsContext)).toHaveLength(8);
 
     expect(typeof metricsContext.stash).toBe('function');
     expect(metricsContext.stash).toHaveLength(1);
 
     expect(typeof metricsContext.get).toBe('function');
     expect(metricsContext.get).toHaveLength(1);
+
+    expect(typeof metricsContext.getStashed).toBe('function');
+    expect(metricsContext.getStashed).toHaveLength(1);
 
     expect(typeof metricsContext.gather).toBe('function');
     expect(metricsContext.gather).toHaveLength(1);
@@ -411,6 +414,34 @@ describe('metricsContext', () => {
     expect(result).toEqual({});
 
     expect(cache.get).toHaveBeenCalledTimes(1);
+  });
+
+  describe('metricsContext.getStashed', () => {
+    const token = {
+      uid: Array(64).fill('7').join(''),
+      id: 'wibble',
+    };
+
+    it('returns the metadata stashed against the token', async () => {
+      results.get = Promise.resolve({
+        flowId: 'flowId',
+        flowCompleteSignal: 'account.signed',
+      });
+
+      const result = await metricsContext.getStashed(token);
+
+      expect(result).toEqual({
+        flowId: 'flowId',
+        flowCompleteSignal: 'account.signed',
+      });
+      expect(cache.get).toHaveBeenCalledWith(hashToken(token));
+    });
+
+    it('returns an empty object when nothing is stashed', async () => {
+      results.get = Promise.resolve(null);
+
+      expect(await metricsContext.getStashed(token)).toEqual({});
+    });
   });
 
   it('metricsContext.gather with metadata', async () => {

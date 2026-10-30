@@ -206,6 +206,7 @@ const MAILER_METHOD_NAMES = [
 const METRICS_CONTEXT_METHOD_NAMES = [
   'clear',
   'gather',
+  'getStashed',
   'propagate',
   'setFlowCompleteSignal',
   'stash',
@@ -898,6 +899,8 @@ function mockMetricsContext(methods) {
         });
       }),
 
+    getStashed: methods.getStashed || jest.fn(() => Promise.resolve({})),
+
     setFlowCompleteSignal: jest.fn(function (flowCompleteSignal) {
       if (this.payload && this.payload.metricsContext) {
         this.payload.metricsContext.flowCompleteSignal = flowCompleteSignal;
@@ -1010,6 +1013,7 @@ function mockRequest(data, errors) {
     query: data.query || {},
     setMetricsFlowCompleteSignal: metricsContext.setFlowCompleteSignal,
     stashMetricsContext: metricsContext.stash,
+    getStashedMetricsContext: metricsContext.getStashed,
     validateMetricsContext: metricsContext.validate,
   };
 }

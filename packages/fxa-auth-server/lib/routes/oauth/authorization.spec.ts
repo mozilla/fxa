@@ -1213,6 +1213,173 @@ describe('/authorization POST consent write', () => {
       'accountAuthorization.sync_scope_dropped'
     );
   });
+
+  describe('completing a mobile Sync passkey sign-in', () => {
+    async function runWithStash(opts: {
+      stashed: Record<string, unknown>;
+      verificationMethodValue?: string;
+      keysJwe?: string;
+      getStashedMetricsContext?: jest.Mock;
+    }) {
+      const getStashedMetricsContext =
+        opts.getStashedMetricsContext ??
+        jest.fn().mockResolvedValue(opts.stashed);
+      const emitMetricsEvent = jest.fn().mockResolvedValue(undefined);
+      const statsd = { increment: jest.fn() };
+      const result = {
+        getStashedMetricsContext,
+        emitMetricsEvent,
+        statsd,
+        code: '',
+      };
+      await jest.isolateModulesAsync(async () => {
+        jest.doMock('../../oauth/assertion', () =>
+          jest.fn(async () => ({ uid: UID_HEX }))
+        );
+        jest.doMock('../../oauth/util', () => ({
+          makeAssertionJWT: jest.fn(async () => 'assertion.jwt'),
+        }));
+        jest.doMock('../../oauth/grant', () => ({
+          validateRequestedGrant: jest.fn(
+            async (_claims, _client, payload) => ({
+              clientId: Buffer.from(OAuthNativeClients.Fenix, 'hex'),
+              userId: Buffer.from(UID_HEX, 'hex'),
+              scope: payload.scope,
+              offline: true,
+            })
+          ),
+          generateTokens: jest.fn(async () => ({})),
+        }));
+        const routes = require('./authorization')({
+          glean: mockGlean,
+          log: mockLog,
+          oauthDB: buildOauthDB(),
+          config: baseConfig,
+          statsd,
+        });
+        ({ code: result.code } = await routes[2].handler({
+          headers: {},
+          app: { ua: {}, geo: {}, devices: Promise.resolve([]) },
+          auth: {
+            credentials: {
+              tokenVerified: true,
+              uid: UID_HEX,
+              email: 'test@example.com',
+              id: 'sessionTokenId',
+              verificationMethodValue:
+                opts.verificationMethodValue ?? 'passkey',
+            },
+          },
+          getStashedMetricsContext,
+          emitMetricsEvent,
+          payload: buildPayload({
+            client_id: OAuthNativeClients.Fenix,
+            scope: ScopeSet.fromString(`profile ${SYNC_SCOPE}`),
+            ...(opts.keysJwe !== undefined ? { keys_jwe: opts.keysJwe } : {}),
+          }),
+        }));
+      });
+      return result;
+    }
+
+    it('emits the stashed account.login once keys are sent, completing the flow', async () => {
+      const { emitMetricsEvent } = await runWithStash({
+        stashed: { flowCompleteSignal: 'account.login' },
+        keysJwe: 'mock.jwe.payload',
+      });
+
+      expect(emitMetricsEvent).toHaveBeenCalledTimes(1);
+      expect(emitMetricsEvent).toHaveBeenCalledWith('account.login', {
+        uid: UID_HEX,
+      });
+    });
+
+    it('does not emit for a desktop stash, which completes at /oauth/token', async () => {
+      const { emitMetricsEvent } = await runWithStash({
+        stashed: { flowCompleteSignal: 'account.signed' },
+        keysJwe: 'mock.jwe.payload',
+      });
+
+      expect(emitMetricsEvent).not.toHaveBeenCalled();
+    });
+
+    it('does not emit when the flow has already completed', async () => {
+      const { emitMetricsEvent } = await runWithStash({
+        stashed: {},
+        keysJwe: 'mock.jwe.payload',
+      });
+
+      expect(emitMetricsEvent).not.toHaveBeenCalled();
+    });
+
+    it('does not read the stash without keys', async () => {
+      const { getStashedMetricsContext } = await runWithStash({
+        stashed: { flowCompleteSignal: 'account.login' },
+      });
+
+      expect(getStashedMetricsContext).not.toHaveBeenCalled();
+    });
+
+    it('does not read the stash for a password session', async () => {
+      const { getStashedMetricsContext } = await runWithStash({
+        stashed: { flowCompleteSignal: 'account.login' },
+        verificationMethodValue: 'email',
+        keysJwe: 'mock.jwe.payload',
+      });
+
+      expect(getStashedMetricsContext).not.toHaveBeenCalled();
+    });
+
+    it('still returns the code when reading the stash fails', async () => {
+      const { code, emitMetricsEvent } = await runWithStash({
+        stashed: {},
+        keysJwe: 'mock.jwe.payload',
+        getStashedMetricsContext: jest
+          .fn()
+          .mockRejectedValue(new Error('redis down')),
+      });
+
+      expect(code).toBe('code-xyz');
+      expect(emitMetricsEvent).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      {
+        stashed: { flowCompleteSignal: 'account.login' },
+        stash: 'account.login',
+      },
+      {
+        stashed: { flowCompleteSignal: 'account.signed' },
+        stash: 'account.signed',
+      },
+      { stashed: {}, stash: 'missing' },
+    ])('counts a $stash stash', async ({ stashed, stash }) => {
+      const { statsd } = await runWithStash({
+        stashed,
+        keysJwe: 'mock.jwe.payload',
+      });
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'passkeys.signin.authorization_stash',
+        { stash }
+      );
+    });
+
+    it('counts a failed stash read as error', async () => {
+      const { statsd } = await runWithStash({
+        stashed: {},
+        keysJwe: 'mock.jwe.payload',
+        getStashedMetricsContext: jest
+          .fn()
+          .mockRejectedValue(new Error('redis down')),
+      });
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'passkeys.signin.authorization_stash',
+        { stash: 'error' }
+      );
+    });
+  });
 });
 
 // Server-side scope resolution from `service=` for OAuthNative (Firefox)
