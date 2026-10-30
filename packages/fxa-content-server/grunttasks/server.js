@@ -11,12 +11,7 @@ module.exports = function (grunt) {
         return grunt.task.run(['build', 'serverproc:dist']);
       }
 
-      grunt.task.run([
-        'clean:app',
-        'selectconfig:app',
-        'l10n-create-json',
-        'serverproc:app',
-      ]);
+      grunt.task.run(['clean:app', 'selectconfig:app', 'serverproc:app']);
     }
   );
 };

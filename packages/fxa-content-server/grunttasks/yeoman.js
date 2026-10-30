@@ -14,8 +14,6 @@ module.exports = function (grunt) {
     page_template_dist: TEMPLATE_ROOT + '/pages/dist',
     page_template_src: TEMPLATE_ROOT + '/pages/src',
     server: 'server',
-    strings_dist: 'locale',
-    strings_src: '../../external/l10n/locale',
     tests: 'tests',
     tmp: TEMP_DIR,
   });

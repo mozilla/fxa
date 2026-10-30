@@ -17,7 +17,6 @@ module.exports = function (grunt) {
             '*.{ico,png,txt}',
             '.htaccess',
             'images/{,*/}*.{webp,gif,svg,jpg,jpeg,png}',
-            'i18n/{,*/}{,*/}*.*',
           ],
         },
       ],
@@ -63,16 +62,6 @@ module.exports = function (grunt) {
           );
         },
       },
-    },
-    strings: {
-      files: [
-        {
-          cwd: '<%= yeoman.strings_src %>',
-          dest: '<%= yeoman.strings_dist %>',
-          expand: true,
-          src: ['**/*.po'],
-        },
-      ],
     },
     styles: {
       cwd: '<%= yeoman.app %>/styles',

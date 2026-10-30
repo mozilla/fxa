@@ -9,11 +9,9 @@
         "{projectRoot}/*/.tmp",
         "{projectRoot}/**/*.d.ts",
         "{projectRoot}/app/dist",
-        "{projectRoot}/app/i18n",
         "{projectRoot}/build",
         "{projectRoot}/dist",
         "{projectRoot}/lib/senders/emails/css",
-        "{projectRoot}/locale",
         "{projectRoot}/public",
         "{projectRoot}/src/styles/*.css",
         "{projectRoot}/test/**/*.ftl",
@@ -36,7 +34,6 @@
         "{projectRoot}/**/*.d.ts",
         "{projectRoot}/build",
         "{projectRoot}/dist",
-        "{projectRoot}/locale",
         "{projectRoot}/public",
         "{projectRoot}/src/styles/*.css",
         "{projectRoot}/test/**/*.ftl",
@@ -63,7 +60,7 @@
         "{projectRoot}/server/config/local.json",
         "{projectRoot}/var",
         "{projectRoot}/vendor/ejs.js",
-        "{workspaceRoot}/external/l10n/**/*.@(ftl|po|js|json|sh|py|json)"
+        "{workspaceRoot}/external/l10n/**/*.@(ftl|js|json|sh|py|json)"
       ],
       "cache": true
     },
@@ -168,7 +165,7 @@
     "lint": ["{projectRoot}/**/*.@(js|jsx|ts|tsx)"],
     "production": [
       "default",
-      "{workspaceRoot}/external/l10n/**/*.@(ftl|po)",
+      "{workspaceRoot}/external/l10n/**/*.ftl",
       "!{projectRoot}/.eslintrc.json",
       "!{projectRoot}/.storybook/**/*",
       "!{projectRoot}/**/test/**/*",

@@ -33,9 +33,6 @@ const path = require('path');
 const versionInfo = require('./version');
 
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('@fxa/accounts/oauth');
-const {
-  supportedLanguages: DEFAULT_SUPPORTED_LANGUAGES,
-} = require('@fxa/shared/l10n');
 
 convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
@@ -508,47 +505,6 @@ const conf = (module.exports = convict({
     port: {
       default: undefined,
       format: 'port',
-    },
-  },
-  i18n: {
-    debugLang: {
-      default: 'it-CH',
-      format: String,
-    },
-    defaultLang: {
-      default: 'en',
-      format: String,
-    },
-    fonts: {
-      unsupportedLanguages: {
-        default: [],
-        doc: 'DEPRECATED: These languages should use system fonts instead of Fira Sans',
-        format: Array,
-      },
-    },
-    localeSubdirSuffix: {
-      default: '',
-      doc: 'Enable alternative localized resources for Mozilla Online with private use subtag',
-      env: 'I18N_LOCALE_SUBDIR_SUFFIX',
-      format: ['', '_x_mococn'],
-    },
-    supportedLanguages: {
-      default: DEFAULT_SUPPORTED_LANGUAGES,
-      doc: 'List of languages this deployment should detect and display localized strings.',
-      env: 'I18N_SUPPORTED_LANGUAGES',
-      format: Array,
-    },
-    translationDirectory: {
-      default: path.resolve(__dirname, '../../app/i18n/'),
-      doc: 'The directory where per-locale .json files containing translations reside',
-      env: 'I18N_TRANSLATION_DIR',
-      format: String,
-    },
-    translationType: {
-      default: 'key-value-json',
-      doc: 'The file format used for the translations',
-      env: 'I18N_TRANSLATION_TYPE',
-      format: String,
     },
   },
   key_path: {
@@ -1157,35 +1113,6 @@ if (conf.has('http_proxy.host')) {
 if (conf.has('http_proxy.port')) {
   process.env.HTTP_PROXY_PORT = conf.get('http_proxy.port');
   process.env.HTTPS_PROXY_PORT = conf.get('http_proxy.port');
-}
-
-// Ensure that supportedLanguages includes defaultLang.
-const defaultLang = conf.get('i18n.defaultLang');
-const supportedLanguages = conf.get('i18n.supportedLanguages');
-
-if (supportedLanguages.indexOf(defaultLang) === -1) {
-  throw new Error(
-    'Configuration error: defaultLang (' +
-      defaultLang +
-      ') is missing from supportedLanguages'
-  );
-}
-
-// Ensure that static resources have been generated for each languages in the supported language list
-// Static resources are generated for each language in the default supported languages list, at least until issue #1434 is fixed
-const staticallyGeneratedLanguages = conf.default('i18n.supportedLanguages');
-const missingLangs = [];
-supportedLanguages.forEach(function (l) {
-  if (staticallyGeneratedLanguages.indexOf(l) === -1) {
-    missingLangs.push(l);
-  }
-});
-if (missingLangs.length) {
-  throw new Error(
-    'Configuration error: (' +
-      missingLangs.join(', ') +
-      ') is missing from the default list of supportedLanguages'
-  );
 }
 
 const areDistResources = conf.get('static_directory') === 'dist';
