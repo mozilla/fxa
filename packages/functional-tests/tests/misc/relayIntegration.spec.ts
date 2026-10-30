@@ -18,7 +18,9 @@ test.describe('relay integration', () => {
 
     await signup.goto('/authorization', relayDesktopOAuthQueryParams);
 
-    await expect(signup.page.getByText('Create an email mask ')).toBeVisible();
+    await expect(
+      signup.page.getByRole('heading', { name: 'Create an email mask' })
+    ).toBeVisible();
 
     await signup.emailTextbox.fill(email);
     await signup.submitButton.click();
@@ -60,7 +62,9 @@ test.describe('relay integration', () => {
 
     await signin.goto('/authorization', relayDesktopOAuthQueryParams);
 
-    await expect(signin.page.getByText('Create an email mask ')).toBeVisible();
+    await expect(
+      signin.page.getByRole('heading', { name: 'Create an email mask' })
+    ).toBeVisible();
 
     await signin.fillOutEmailFirstForm(email);
 
@@ -83,7 +87,9 @@ test.describe('relay integration', () => {
 
     await signin.goto('/authorization', relayDesktopOAuthQueryParams);
 
-    await expect(signin.page.getByText('Create an email mask ')).toBeVisible();
+    await expect(
+      signin.page.getByRole('heading', { name: 'Create an email mask' })
+    ).toBeVisible();
 
     await signin.fillOutEmailFirstForm(email);
 
@@ -125,7 +131,9 @@ test.describe('relay integration', () => {
 
     await signin.goto('/authorization', relayDesktopOAuthQueryParams);
 
-    await expect(signin.page.getByText('Create an email mask ')).toBeVisible();
+    await expect(
+      signin.page.getByRole('heading', { name: 'Create an email mask' })
+    ).toBeVisible();
 
     await signin.fillOutEmailFirstForm(email);
 
@@ -157,7 +165,9 @@ test.describe('relay integration', () => {
       relayDesktopOAuthQueryParams.toString()
     );
 
-    await expect(signin.page.getByText('Create an email mask')).toBeVisible();
+    await expect(
+      signin.page.getByRole('heading', { name: 'Create an email mask' })
+    ).toBeVisible();
 
     await signin.fillOutEmailFirstForm(email);
 

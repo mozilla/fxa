@@ -473,7 +473,7 @@ describe('AuthAndAccountSetupRoutes', () => {
   afterEach(() => {
     (useFxAStatus as jest.Mock).mockReset();
   });
-  it('calls useFxAStatus with integration', async () => {
+  it('calls useFxAStatus with integration and mounts the page announcer', async () => {
     const mockIntegration = {
       getServiceName: () => MozServices.FirefoxSync,
       isSync: () => true,
@@ -509,6 +509,10 @@ describe('AuthAndAccountSetupRoutes', () => {
     expect(useFxAStatus).toHaveBeenCalledWith(mockIntegration, {
       pathname: '/',
     });
+    expect(document.getElementById('page-announcer')).toHaveAttribute(
+      'aria-live',
+      'assertive'
+    );
   });
 });
 

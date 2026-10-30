@@ -18,7 +18,8 @@ exports[`Signin component snapshots - CMS renders CardHeader with CMS content wh
 
 exports[`Signin component snapshots - CMS renders CardHeader with CMS content when password is needed: cms headline 1`] = `
 <h1
-  class="card-header-cms text-xl"
+  class="card-header-cms text-xl focus:outline-none"
+  tabindex="-1"
 >
   CMS: Enter your password
 </h1>

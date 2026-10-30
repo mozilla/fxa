@@ -147,6 +147,7 @@ export const Index = ({
     <AppLayout
       {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}
       loading={passkey.isNavigating}
+      focusHeading={false}
     >
       {cmsInfo ? (
         <>
