@@ -1,0 +1,13 @@
+{
+  "commit": "00a993984df514e2868461c350b726a435c390d5",
+  "summary": "chore(content-server): remove dead grunt build steps, tailwind and app/images",
+  "description": "Because:\n\n* The generated 404 pages are gone, so most content-server grunt steps,\n  the view engine, tailwind and app/images have no input or user.\n\nThis commit:\n\n* Deletes the dead grunt tasks and copy, htmlmin and template config.\n* Removes the handlebars view engine and the page_template config.\n* Removes tailwind, app/styles, app/images and the build-css script.\n* Removes the unused dependencies and updates yarn.lock.\n\nCloses FXA-14887",
+  "timestamp": 1793378070000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

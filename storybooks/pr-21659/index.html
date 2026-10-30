@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 00a993984df514e2868461c350b726a435c390d5</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 00a993984df514e2868461c350b726a435c390d5</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/30/2026, 4:34:30 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(content-server): remove dead grunt build steps, tailwind and app/images</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* The generated 404 pages are gone, so most content-server grunt steps,
+  the view engine, tailwind and app/images have no input or user.
+
+This commit:
+
+* Deletes the dead grunt tasks and copy, htmlmin and template config.
+* Removes the handlebars view engine and the page_template config.
+* Removes tailwind, app/styles, app/images and the build-css script.
+* Removes the unused dependencies and updates yarn.lock.
+
+Closes FXA-14887</pre></dd>
+  </dl>
+</body>
+</html>
