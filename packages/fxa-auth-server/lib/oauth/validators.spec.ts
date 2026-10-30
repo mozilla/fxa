@@ -37,6 +37,15 @@ describe('oauth scope validator', () => {
   });
 });
 
+describe('oauth storedScopeString validator', () => {
+  it.each([
+    ['an empty string', ''],
+    ['a string over 256 characters', 'a'.repeat(257)],
+  ])('accepts %s', (_, value) => {
+    expect(validators.storedScopeString.validate(value).error).toBeUndefined();
+  });
+});
+
 describe('oauth accessToken validator', () => {
   // Shaped like a real Fenix access token: a 75-character base64url header and
   // a 342-character RS256 signature, with the payload making up the rest.

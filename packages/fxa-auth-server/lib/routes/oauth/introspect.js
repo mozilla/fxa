@@ -33,8 +33,9 @@ module.exports = ({ oauthDB, customs }) => ({
       schema: Joi.object().keys({
         // https://tools.ietf.org/html/rfc7662#section-2.2
         active: Joi.boolean().required().description(DESCRIPTION.active),
-        // Response only: the 256-char request cap does not apply to stored scopes.
-        scope: Joi.string().allow('').optional().description(DESCRIPTION.scope),
+        scope: validators.storedScopeString
+          .optional()
+          .description(DESCRIPTION.scope),
         client_id: validators.clientId
           .optional()
           .description(DESCRIPTION.clientId),

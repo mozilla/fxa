@@ -1669,6 +1669,37 @@ describe('/oauth/token POST', () => {
   });
 });
 
+describe('response schema', () => {
+  const LONG_SCOPE = Array.from(
+    { length: 12 },
+    (_, i) => `https://identity.mozilla.com/apps/test-${i}`
+  ).join(' ');
+  const BASE = {
+    access_token: CODE,
+    scope: LONG_SCOPE,
+    token_type: 'bearer',
+    expires_in: 3600,
+  };
+
+  it('/token accepts a scope string over 256 chars', () => {
+    expect(LONG_SCOPE.length).toBeGreaterThan(256);
+    const { error } = tokenRoutes[0].config.response.schema.validate(BASE);
+    expect(error).toBeUndefined();
+  });
+
+  it.each([
+    ['authorization code', { auth_at: 1 }],
+    ['refresh token', {}],
+    ['token exchange', { refresh_token: CODE }],
+  ])('/oauth/token accepts a scope string over 256 chars (%s)', (_, extra) => {
+    const { error } = tokenRoutes[1].config.response.schema.validate({
+      ...BASE,
+      ...extra,
+    });
+    expect(error).toBeUndefined();
+  });
+});
+
 // FXA-14263: /oauth/authorization is the only request that sees `service=`, so
 // it decides whether a Desktop sign-in counts toward Sync DAU and leaves the
 // answer in Redis against the code's hash. Here we assert the read side.
