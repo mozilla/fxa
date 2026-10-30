@@ -51,16 +51,23 @@ export async function initializeNimbus(
       headers: {
         'Content-Type': 'application/json',
       },
+    }).catch((err) => {
+      if (err instanceof TypeError) {
+        Sentry.addBreadcrumb({
+          category: 'nimbus-experiments',
+          level: 'warning',
+          message: 'Nimbus experiments fetch failed',
+        });
+        return null;
+      }
+      throw err;
     });
 
-    if (resp.status === 200) {
+    if (resp?.status === 200) {
       return (await resp.json()) as NimbusResult;
     }
   } catch (err) {
-    // Important, if this fails it will just show up in Sentry as a
-    // TypeError: NetworkError when attempting to fetch resource.
-    // Look at the previous fetch bread crumb to understand what
-    // request is actually failing.
+    // A fetch TypeError (network failure) only leaves a breadcrumb, so it never gets here.
     Sentry.captureException(err, {
       tags: {
         source: 'nimbus-experiments',
