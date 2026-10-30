@@ -23,7 +23,6 @@ import {
 import {
   CustomerManager,
   InvoiceManager,
-  InvoicePreviewFactory,
   PaymentMethodManager,
   PriceManager,
   SubscriptionManager,
@@ -32,6 +31,7 @@ import {
   STRIPE_CUSTOMER_METADATA,
   STRIPE_SUBSCRIPTION_METADATA,
 } from '@fxa/payments/customer';
+import { InvoicePreviewFactory } from '@fxa/payments/customer/testing';
 import {
   EligibilityManager,
   EligibilityService,
@@ -43,9 +43,11 @@ import {
   AppleIapPurchaseManager,
   GoogleIapClient,
   GoogleIapPurchaseManager,
+} from '@fxa/payments/iap';
+import {
   MockAppleIapClientConfigProvider,
   MockGoogleIapClientConfigProvider,
-} from '@fxa/payments/iap';
+} from '@fxa/payments/iap/testing';
 import { SubscriptionManagementService } from '@fxa/payments/management';
 import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 import {
@@ -53,32 +55,36 @@ import {
   PaypalBillingAgreementManager,
   PayPalClient,
   PaypalCustomerManager,
-  ResultPaypalCustomerFactory,
 } from '@fxa/payments/paypal';
+import { ResultPaypalCustomerFactory } from '@fxa/payments/paypal/testing';
 import {
   AccountCustomerManager,
+  StripeClient,
+  StripeConfig,
+} from '@fxa/payments/stripe';
+import {
   MockStripeConfigProvider,
   ResultAccountCustomerFactory,
   StripeAddressFactory,
-  StripeClient,
-  StripeConfig,
   StripeCustomerFactory,
   StripePaymentMethodFactory,
   StripeResponseFactory,
   StripeSetupIntentFactory,
   StripeSubscriptionFactory,
   StripeSubscriptionItemFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import {
-  MockStrapiClientConfigProvider,
-  PageContentByPriceIdsPurchaseResultFactory,
   PageContentByPriceIdsResultUtil,
   ProductConfigurationManager,
   StrapiClient,
 } from '@fxa/shared/cms';
+import {
+  MockStrapiClientConfigProvider,
+  PageContentByPriceIdsPurchaseResultFactory,
+} from '@fxa/shared/cms/testing';
 import { ChurnInterventionService } from './churn-intervention.service';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
-import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
+import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account/testing';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import {
   CancelSubscriptionCustomerMismatch,
@@ -93,14 +99,12 @@ import {
   NotifierService,
   NotifierSnsProvider,
 } from '@fxa/shared/notifier';
-import {
-  MockProfileClientConfigProvider,
-  ProfileClient,
-} from '@fxa/profile/client';
+import { ProfileClient } from '@fxa/profile/client';
+import { MockProfileClientConfigProvider } from '@fxa/profile/client/testing';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 
-jest.mock('@fxa/shared/error', () => ({
-  ...jest.requireActual('@fxa/shared/error'),
+jest.mock('@fxa/shared/error/sanitize-exceptions', () => ({
+  ...jest.requireActual('@fxa/shared/error/sanitize-exceptions'),
   SanitizeExceptions: jest.fn(() => {
     return function (_: any, __: string, descriptor: PropertyDescriptor) {
       return descriptor;

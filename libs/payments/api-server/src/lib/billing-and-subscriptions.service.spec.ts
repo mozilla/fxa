@@ -22,9 +22,11 @@ import {
   AppleIapPurchaseManager,
   GoogleIapClient,
   GoogleIapPurchaseManager,
+} from '@fxa/payments/iap';
+import {
   MockAppleIapClientConfigProvider,
   MockGoogleIapClientConfigProvider,
-} from '@fxa/payments/iap';
+} from '@fxa/payments/iap/testing';
 import {
   CurrencyManager,
   MockCurrencyConfigProvider,
@@ -38,9 +40,11 @@ import {
 import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
+  StripeClient,
+} from '@fxa/payments/stripe';
+import {
   MockStripeConfigProvider,
   StripeCardPaymentMethodFactory,
-  StripeClient,
   StripeCustomerFactory,
   StripePriceFactory,
   StripePriceRecurringFactory,
@@ -49,17 +53,17 @@ import {
   StripeResponseFactory,
   StripeSubscriptionFactory,
   StripeSubscriptionItemFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import {
   FreeAccessProgramConfigurationManager,
-  MockStrapiClientConfigProvider,
   ProductConfigurationManager,
   StrapiClient,
 } from '@fxa/shared/cms';
+import { MockStrapiClientConfigProvider } from '@fxa/shared/cms/testing';
 import { FreeAccessProgramService } from '@fxa/free-access-program';
 import { AccountManager } from '@fxa/shared/account/account';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
-import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
+import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account/testing';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 import {
@@ -305,11 +309,15 @@ describe('BillingAndSubscriptionsService', () => {
         product: 'prod_g',
         recurring: StripePriceRecurringFactory({ interval: 'month' }),
       });
-      jest.spyOn(productConfigurationManager, 'getIapOfferings').mockResolvedValue({
-        getIapPageContentByStoreId: (storeId: string) =>
-          IapOfferingFactory({ storeId, stripePlanChoice: iapPrice.id }),
-      } as never);
-      jest.spyOn(priceManager, 'retrieveByInterval').mockResolvedValue(iapPrice);
+      jest
+        .spyOn(productConfigurationManager, 'getIapOfferings')
+        .mockResolvedValue({
+          getIapPageContentByStoreId: (storeId: string) =>
+            IapOfferingFactory({ storeId, stripePlanChoice: iapPrice.id }),
+        } as never);
+      jest
+        .spyOn(priceManager, 'retrieveByInterval')
+        .mockResolvedValue(iapPrice);
       jest
         .spyOn(productManager, 'retrieve')
         .mockResolvedValue(
@@ -353,11 +361,15 @@ describe('BillingAndSubscriptionsService', () => {
         product: 'prod_a',
         recurring: StripePriceRecurringFactory({ interval: 'month' }),
       });
-      jest.spyOn(productConfigurationManager, 'getIapOfferings').mockResolvedValue({
-        getIapPageContentByStoreId: (storeId: string) =>
-          IapOfferingFactory({ storeId, stripePlanChoice: iapPrice.id }),
-      } as never);
-      jest.spyOn(priceManager, 'retrieveByInterval').mockResolvedValue(iapPrice);
+      jest
+        .spyOn(productConfigurationManager, 'getIapOfferings')
+        .mockResolvedValue({
+          getIapPageContentByStoreId: (storeId: string) =>
+            IapOfferingFactory({ storeId, stripePlanChoice: iapPrice.id }),
+        } as never);
+      jest
+        .spyOn(priceManager, 'retrieveByInterval')
+        .mockResolvedValue(iapPrice);
       jest
         .spyOn(productManager, 'retrieve')
         .mockResolvedValue(
@@ -586,7 +598,9 @@ describe('BillingAndSubscriptionsService', () => {
         .mockResolvedValue([visibleSub, hiddenSub]);
       jest
         .spyOn(paymentMethodManager, 'retrieve')
-        .mockResolvedValue(StripeResponseFactory(StripeCardPaymentMethodFactory()));
+        .mockResolvedValue(
+          StripeResponseFactory(StripeCardPaymentMethodFactory())
+        );
       jest
         .spyOn(capabilityManager, 'priceIdsToClientCapabilities')
         .mockImplementation(
@@ -708,9 +722,7 @@ describe('BillingAndSubscriptionsService', () => {
       jest
         .spyOn(subscriptionManager, 'listActiveForCustomer')
         .mockResolvedValue([sub]);
-      jest
-        .spyOn(invoiceManager, 'retrieve')
-        .mockResolvedValue(openInvoice);
+      jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(openInvoice);
       jest
         .spyOn(capabilityManager, 'priceIdsToClientCapabilities')
         .mockResolvedValue({ [CLIENT_ID]: ['cap'] });
@@ -872,9 +884,7 @@ describe('BillingAndSubscriptionsService', () => {
       jest
         .spyOn(subscriptionManager, 'listActiveForCustomer')
         .mockResolvedValue([sub]);
-      jest
-        .spyOn(invoiceManager, 'retrieve')
-        .mockResolvedValue(paidInvoice);
+      jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(paidInvoice);
       jest
         .spyOn(capabilityManager, 'priceIdsToClientCapabilities')
         .mockResolvedValue({ [CLIENT_ID]: ['cap'] });
@@ -895,9 +905,11 @@ describe('BillingAndSubscriptionsService', () => {
         .mockResolvedValue([
           GoogleIapPurchaseFactory({ sku: 'unknown_sku' }) as never,
         ]);
-      jest.spyOn(productConfigurationManager, 'getIapOfferings').mockResolvedValue({
-        getIapPageContentByStoreId: () => undefined,
-      } as never);
+      jest
+        .spyOn(productConfigurationManager, 'getIapOfferings')
+        .mockResolvedValue({
+          getIapPageContentByStoreId: () => undefined,
+        } as never);
 
       await expect(
         service.get({ uid: UID, clientId: CLIENT_ID })
@@ -920,10 +932,12 @@ describe('BillingAndSubscriptionsService', () => {
         .mockResolvedValue([
           GoogleIapPurchaseFactory({ sku: 'google_sku' }) as never,
         ]);
-      jest.spyOn(productConfigurationManager, 'getIapOfferings').mockResolvedValue({
-        getIapPageContentByStoreId: (storeId: string) =>
-          IapOfferingFactory({ storeId, interval: 'fortnightly' }),
-      } as never);
+      jest
+        .spyOn(productConfigurationManager, 'getIapOfferings')
+        .mockResolvedValue({
+          getIapPageContentByStoreId: (storeId: string) =>
+            IapOfferingFactory({ storeId, interval: 'fortnightly' }),
+        } as never);
 
       await expect(
         service.get({ uid: UID, clientId: CLIENT_ID })
@@ -960,7 +974,7 @@ describe('BillingAndSubscriptionsService', () => {
       const mockOffering = (stripeProductId: string) =>
         ({
           getOffering: () => ({ stripeProductId }),
-        } as never);
+        }) as never;
 
       it('emits a free_access subscription for each grant for the client', async () => {
         customerNotFound();

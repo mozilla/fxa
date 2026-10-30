@@ -10,9 +10,11 @@ import {
   EligibilityManager,
   EligibilityService,
   EligibilityStatus,
+} from '@fxa/payments/eligibility';
+import {
   SubscriptionEligibilityResultFactory,
   SubscriptionEligibilityUpgradeDowngradeResultFactory,
-} from '@fxa/payments/eligibility';
+} from '@fxa/payments/eligibility/testing';
 import {
   MockPaypalClientConfigProvider,
   PaypalBillingAgreementManager,
@@ -25,28 +27,29 @@ import {
   CustomerManager,
   CustomerSessionManager,
   InvoiceManager,
-  InvoicePreviewFactory,
   PaymentIntentManager,
   ConfirmationTokenManager,
   PaymentMethodManager,
   PriceManager,
-  PricingForCurrencyFactory,
   ProductManager,
   PromotionCodeManager,
   SetupIntentManager,
   SubplatInterval,
   SubscriptionManager,
-  TaxAddressFactory,
   SubPlatPaymentMethodType,
 } from '@fxa/payments/customer';
 import {
+  InvoicePreviewFactory,
+  PricingForCurrencyFactory,
+  TaxAddressFactory,
+} from '@fxa/payments/customer/testing';
+import { StripeClient, AccountCustomerManager } from '@fxa/payments/stripe';
+import {
   ResultAccountCustomerFactory,
-  StripeClient,
   StripeCustomerFactory,
   StripePriceFactory,
   StripeResponseFactory,
   MockStripeConfigProvider,
-  AccountCustomerManager,
   StripeSubscriptionFactory,
   StripePaymentMethodFactory,
   StripePaymentIntentFactory,
@@ -55,25 +58,24 @@ import {
   StripeInvoiceFactory,
   StripePriceRecurringFactory,
   StripeSetupIntentFactory,
-} from '@fxa/payments/stripe';
-import {
-  MockProfileClientConfigProvider,
-  ProfileClient,
-} from '@fxa/profile/client';
+} from '@fxa/payments/stripe/testing';
+import { ProfileClient } from '@fxa/profile/client';
+import { MockProfileClientConfigProvider } from '@fxa/profile/client/testing';
+import { ProductConfigurationManager, StrapiClient } from '@fxa/shared/cms';
 import {
   FreeTrialFactory,
   MockStrapiClientConfigProvider,
-  ProductConfigurationManager,
-  StrapiClient,
-} from '@fxa/shared/cms';
+} from '@fxa/shared/cms/testing';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import {
-  AccountFactory,
   CartEligibilityStatus,
   CartErrorReasonId,
   CartState,
-  MockAccountDatabaseNestFactory,
 } from '@fxa/shared/db/mysql/account';
+import {
+  AccountFactory,
+  MockAccountDatabaseNestFactory,
+} from '@fxa/shared/db/mysql/account/testing';
 import {
   GeoDBManager,
   GeoDBManagerConfig,
@@ -129,9 +131,11 @@ import {
   AppleIapPurchaseManager,
   GoogleIapClient,
   GoogleIapPurchaseManager,
+} from '@fxa/payments/iap';
+import {
   MockAppleIapClientConfigProvider,
   MockGoogleIapClientConfigProvider,
-} from '@fxa/payments/iap';
+} from '@fxa/payments/iap/testing';
 import { Logger } from '@nestjs/common';
 import type { AsyncLocalStorage } from 'async_hooks';
 import type { CartStore } from './cart-als.types';
@@ -157,8 +161,8 @@ import {
 } from '@fxa/shared/experiments';
 
 jest.mock('next/navigation');
-jest.mock('@fxa/shared/error', () => ({
-  ...jest.requireActual('@fxa/shared/error'),
+jest.mock('@fxa/shared/error/sanitize-exceptions', () => ({
+  ...jest.requireActual('@fxa/shared/error/sanitize-exceptions'),
   SanitizeExceptions: jest.fn(({ allowlist = [] } = {}) => {
     return function (
       target: any,

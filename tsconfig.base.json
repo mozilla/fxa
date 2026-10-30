@@ -55,6 +55,9 @@
         "./libs/entitlements/metering/src/testing.ts"
       ],
       "@fxa/free-access-program": ["./libs/free-access-program/src/index.ts"],
+      "@fxa/free-access-program/testing": [
+        "./libs/free-access-program/src/testing.ts"
+      ],
       "@fxa/google": ["./libs/google/src/index.ts"],
       "@fxa/payments/api-server": ["./libs/payments/api-server/src/index.ts"],
       "@fxa/payments/api-server/server-utils": [
@@ -73,9 +76,13 @@
         "./libs/payments/customer/src/testing.ts"
       ],
       "@fxa/payments/eligibility": ["./libs/payments/eligibility/src/index.ts"],
+      "@fxa/payments/eligibility/testing": [
+        "./libs/payments/eligibility/src/testing.ts"
+      ],
       "@fxa/payments/events": ["./libs/payments/events/src/index.ts"],
       "@fxa/payments/experiments": ["./libs/payments/experiments/src/index.ts"],
       "@fxa/payments/iap": ["./libs/payments/iap/src/index.ts"],
+      "@fxa/payments/iap/testing": ["./libs/payments/iap/src/testing.ts"],
       "@fxa/payments/legacy": ["./libs/payments/legacy/src/index.ts"],
       "@fxa/payments/management": ["./libs/payments/management/src/index.ts"],
       "@fxa/payments/management/testing": [
@@ -90,7 +97,9 @@
         "./libs/payments/metrics/src/provider.ts"
       ],
       "@fxa/payments/paypal": ["./libs/payments/paypal/src/index.ts"],
+      "@fxa/payments/paypal/testing": ["./libs/payments/paypal/src/testing.ts"],
       "@fxa/payments/stripe": ["./libs/payments/stripe/src/index.ts"],
+      "@fxa/payments/stripe/testing": ["./libs/payments/stripe/src/testing.ts"],
       "@fxa/payments/ui": ["./libs/payments/ui/src/index.ts"],
       "@fxa/payments/ui-auth": ["./libs/payments/ui-auth/src/index.ts"],
       "@fxa/payments/ui-auth/testing": [
@@ -101,6 +110,7 @@
       "@fxa/payments/ui/utils": ["./libs/payments/ui/src/utils.ts"],
       "@fxa/payments/webhooks": ["./libs/payments/webhooks/src/index.ts"],
       "@fxa/profile/client": ["./libs/profile/client/src/index.ts"],
+      "@fxa/profile/client/testing": ["./libs/profile/client/src/testing.ts"],
       "@fxa/shared/account/account": [
         "./libs/shared/account/account/src/index.ts"
       ],
@@ -112,6 +122,9 @@
       "@fxa/shared/db/firestore": ["./libs/shared/db/firestore/src/index.ts"],
       "@fxa/shared/db/mysql/account": [
         "./libs/shared/db/mysql/account/src/index.ts"
+      ],
+      "@fxa/shared/db/mysql/account/testing": [
+        "./libs/shared/db/mysql/account/src/testing.ts"
       ],
       "@fxa/shared/db/mysql/account/*": [
         "./libs/shared/db/mysql/account/src/lib/*"
@@ -130,6 +143,9 @@
       "@fxa/shared/email/server": ["./libs/shared/email/src/server.ts"],
       "@fxa/shared/error": ["./libs/shared/error/src/index.ts"],
       "@fxa/shared/error/error": ["./libs/shared/error/src/lib/error.ts"],
+      "@fxa/shared/error/sanitize-exceptions": [
+        "./libs/shared/error/src/lib/sanitizeExceptionsDecorator.ts"
+      ],
       "@fxa/shared/experiments": ["./libs/shared/experiments/src/index.ts"],
       "@fxa/shared/express": ["./libs/shared/express/src/index.ts"],
       "@fxa/shared/geodb": ["./libs/shared/geodb/src/index.ts"],

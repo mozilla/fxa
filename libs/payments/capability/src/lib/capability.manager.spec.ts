@@ -7,22 +7,24 @@ import { Test } from '@nestjs/testing';
 import { PriceManager } from '@fxa/payments/customer';
 import { StripeClient, StripeConfig } from '@fxa/payments/stripe';
 import {
+  CapabilityServiceByPlanIdsResultUtil,
+  CapabilityServiceByPlanIdsResult,
+  ProductConfigurationManager,
+  ServicesWithCapabilitiesResultUtil,
+  ServicesWithCapabilitiesResult,
+  StrapiClient,
+} from '@fxa/shared/cms';
+import {
   CapabilityCapabilitiesResultFactory,
   CapabilityOfferingResultFactory,
   CapabilitiesResultFactory,
-  CapabilityServiceByPlanIdsResultUtil,
   CapabilityServicesResultFactory,
   CapabilityServiceByPlanIdsQueryFactory,
-  CapabilityServiceByPlanIdsResult,
   CapabilityPurchaseResultFactory,
-  ProductConfigurationManager,
   ServiceResultFactory,
-  ServicesWithCapabilitiesResultUtil,
   ServicesWithCapabilitiesQueryFactory,
-  ServicesWithCapabilitiesResult,
-  StrapiClient,
   MockStrapiClientConfigProvider,
-} from '@fxa/shared/cms';
+} from '@fxa/shared/cms/testing';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { CapabilityManager } from './capability.manager';

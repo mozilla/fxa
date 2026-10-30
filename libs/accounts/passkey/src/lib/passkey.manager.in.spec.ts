@@ -6,10 +6,10 @@ import { faker } from '@faker-js/faker';
 import {
   AccountDatabase,
   AccountDbProvider,
-  PasskeyFactory,
   testAccountDatabaseSetup,
   testAccountDatabaseTeardown,
 } from '@fxa/shared/db/mysql/account';
+import { PasskeyFactory } from '@fxa/shared/db/mysql/account/testing';
 import { AccountManager } from '@fxa/shared/account/account';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { Test } from '@nestjs/testing';

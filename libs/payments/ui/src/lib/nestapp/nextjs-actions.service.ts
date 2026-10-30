@@ -39,7 +39,7 @@ import {
   ProductConfigurationManager,
 } from '@fxa/shared/cms';
 import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
-import { SanitizeExceptions } from '@fxa/shared/error';
+import { SanitizeExceptions } from '@fxa/shared/error/sanitize-exceptions';
 import { GeoDBManager } from '@fxa/shared/geodb';
 import { AccountCustomerNotFoundError } from '@fxa/payments/stripe';
 

@@ -13,6 +13,7 @@
     "build-copy-assets": "./scripts/copy-assets.sh",
     "build-css": "exit 0",
     "build-ts": "tsc --build tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "bundle": "webpack build --node-env=production",
     "bump-template-versions": "node scripts/template-version-bump",
     "clean": "rimraf dist",
     "clean-up-old-ci-stripe-customers": "node -r ts-node/register/transpile-only -r tsconfig-paths/register ./scripts/clean-up-old-ci-stripe-customers.js --limit 1000",
@@ -231,6 +232,17 @@
           "^build",
           "build-l10n",
           "build-copy-css-assets"
+        ]
+      },
+      "bundle": {
+        "dependsOn": [
+          "prebuild",
+          "^build",
+          "build-l10n",
+          "build-css"
+        ],
+        "outputs": [
+          "{workspaceRoot}/dist/packages/fxa-auth-server"
         ]
       }
     }

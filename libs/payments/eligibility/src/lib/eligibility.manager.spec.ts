@@ -6,18 +6,20 @@ import { Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
 import { PriceManager, SubplatInterval } from '@fxa/payments/customer';
+import { StripeClient, StripeConfig, StripePrice } from '@fxa/payments/stripe';
 import {
-  StripeClient,
-  StripeConfig,
-  StripePrice,
   StripePriceFactory,
   StripePriceRecurringFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
+import {
+  EligibilityContentByOfferingResultUtil,
+  EligibilityContentByPlanIdsResultUtil,
+  ProductConfigurationManager,
+  StrapiClient,
+} from '@fxa/shared/cms';
 import {
   EligibilityContentByOfferingResultFactory,
-  EligibilityContentByOfferingResultUtil,
   EligibilityContentByPlanIdsResultFactory,
-  EligibilityContentByPlanIdsResultUtil,
   EligibilityContentOfferingResultFactory,
   EligibilityContentSubgroupOfferingResultFactory,
   EligibilityContentSubgroupResultFactory,
@@ -25,9 +27,7 @@ import {
   EligibilitySubgroupOfferingResultFactory,
   EligibilitySubgroupResultFactory,
   MockStrapiClientConfigProvider,
-  ProductConfigurationManager,
-  StrapiClient,
-} from '@fxa/shared/cms';
+} from '@fxa/shared/cms/testing';
 
 import { EligibilityManager } from './eligibility.manager';
 import {

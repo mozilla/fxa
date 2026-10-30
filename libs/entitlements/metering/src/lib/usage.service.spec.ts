@@ -4,10 +4,8 @@
 
 import { Test } from '@nestjs/testing';
 
-import {
-  MeteringConfigurationManager,
-  StrapiMeterFactory,
-} from '@fxa/shared/cms';
+import { MeteringConfigurationManager } from '@fxa/shared/cms';
+import { StrapiMeterFactory } from '@fxa/shared/cms/testing';
 
 import {
   IngestUsageRequestFactory,

@@ -3,9 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export * from './lib/paypalCustomer/paypalCustomer.manager';
-export * from './lib/paypalCustomer/paypalCustomer.factories';
 export * from './lib/paypalCustomer/paypalCustomer.types';
-export * from './lib/factories';
 export * from './lib/checkoutToken.manager';
 export * from './lib/paypal.client';
 export * from './lib/paypal.client.config';

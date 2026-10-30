@@ -27,20 +27,21 @@ import {
   SubPlatNimbusResultFactory,
 } from '@fxa/payments/experiments';
 import {
-  MockStrapiClientConfigProvider,
-  PageContentByPriceIdByPriceIdsResultFactory,
   PageContentByPriceIdsResultUtil,
   ProductConfigurationManager,
   StrapiClient,
 } from '@fxa/shared/cms';
 import {
+  MockStrapiClientConfigProvider,
+  PageContentByPriceIdByPriceIdsResultFactory,
+} from '@fxa/shared/cms/testing';
+import {
   AccountFactory,
   MockAccountDatabaseNestFactory,
-} from '@fxa/shared/db/mysql/account';
+} from '@fxa/shared/db/mysql/account/testing';
+import { StripeClient, StripeConfig } from '@fxa/payments/stripe';
 import {
   MockStripeConfigProvider,
-  StripeClient,
-  StripeConfig,
   StripeCouponFactory,
   StripeCustomerFactory,
   StripeDiscountFactory,
@@ -48,7 +49,7 @@ import {
   StripeResponseFactory,
   StripeSubscriptionFactory,
   StripeSubscriptionItemFactory,
-} from '@fxa/payments/stripe';
+} from '@fxa/payments/stripe/testing';
 import {
   MockNimbusClientConfigProvider,
   NimbusClient,
@@ -291,9 +292,10 @@ describe('PaymentsMetricsAggregatorService', () => {
         mockUid,
         mockAccount
       );
-      expect(
-        aggregatorService.mapSubPlatCmsMetricsData
-      ).toHaveBeenCalledWith(mockSubscription, mockPageContentUtil);
+      expect(aggregatorService.mapSubPlatCmsMetricsData).toHaveBeenCalledWith(
+        mockSubscription,
+        mockPageContentUtil
+      );
       expect(aggregatorService.mapSessionMetricsData).toHaveBeenCalledWith(
         mockCommonMetrics
       );
@@ -323,9 +325,10 @@ describe('PaymentsMetricsAggregatorService', () => {
         mockUid,
         mockAccount
       );
-      expect(
-        aggregatorService.mapSubPlatCmsMetricsData
-      ).toHaveBeenCalledWith(undefined, undefined);
+      expect(aggregatorService.mapSubPlatCmsMetricsData).toHaveBeenCalledWith(
+        undefined,
+        undefined
+      );
       expect(aggregatorService.mapSessionMetricsData).toHaveBeenCalledWith(
         mockCommonMetrics
       );
@@ -353,9 +356,10 @@ describe('PaymentsMetricsAggregatorService', () => {
         mockUid,
         mockAccount
       );
-      expect(
-        aggregatorService.mapSubPlatCmsMetricsData
-      ).toHaveBeenCalledWith(mockSubscription, mockPageContentUtil);
+      expect(aggregatorService.mapSubPlatCmsMetricsData).toHaveBeenCalledWith(
+        mockSubscription,
+        mockPageContentUtil
+      );
       expect(aggregatorService.mapSessionMetricsData).toHaveBeenCalledWith(
         mockCommonMetrics
       );
@@ -384,9 +388,10 @@ describe('PaymentsMetricsAggregatorService', () => {
         mockUid,
         mockAccount
       );
-      expect(
-        aggregatorService.mapSubPlatCmsMetricsData
-      ).toHaveBeenCalledWith(mockSubscription, undefined);
+      expect(aggregatorService.mapSubPlatCmsMetricsData).toHaveBeenCalledWith(
+        mockSubscription,
+        undefined
+      );
       expect(aggregatorService.mapSessionMetricsData).toHaveBeenCalledWith(
         mockCommonMetrics
       );
@@ -415,9 +420,10 @@ describe('PaymentsMetricsAggregatorService', () => {
         mockUid,
         undefined
       );
-      expect(
-        aggregatorService.mapSubPlatCmsMetricsData
-      ).toHaveBeenCalledWith(mockSubscription, mockPageContentUtil);
+      expect(aggregatorService.mapSubPlatCmsMetricsData).toHaveBeenCalledWith(
+        mockSubscription,
+        mockPageContentUtil
+      );
       expect(aggregatorService.mapSessionMetricsData).toHaveBeenCalledWith(
         mockCommonMetrics
       );
@@ -580,8 +586,7 @@ describe('PaymentsMetricsAggregatorService', () => {
         },
       });
 
-      const result =
-        aggregatorService.mapSessionMetricsData(mockCommonMetrics);
+      const result = aggregatorService.mapSessionMetricsData(mockCommonMetrics);
       expect(result).toEqual({
         locale: 'en',
         ipAddress: mockCommonMetrics.ipAddress,
@@ -593,8 +598,7 @@ describe('PaymentsMetricsAggregatorService', () => {
     it('successfully returns undefined data', () => {
       const mockCommonMetrics = CommonMetricsFactory();
 
-      const result =
-        aggregatorService.mapSessionMetricsData(mockCommonMetrics);
+      const result = aggregatorService.mapSessionMetricsData(mockCommonMetrics);
       expect(result).toEqual({
         locale: undefined,
         ipAddress: mockCommonMetrics.ipAddress,
