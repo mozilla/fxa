@@ -322,7 +322,9 @@ describe('AuthorizationContainer', () => {
     await waitFor(() => {
       expect(screen.getByText('Bad Request')).toBeInTheDocument();
     });
-    expect(screen.getByText('Unverified user or session')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Unverified user or session')
+    ).toBeInTheDocument();
     expect(SigninUtilsModule.handleNavigation).not.toHaveBeenCalled();
   });
 

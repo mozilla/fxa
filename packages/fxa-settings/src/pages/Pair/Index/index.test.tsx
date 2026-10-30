@@ -668,7 +668,7 @@ describe('Pair', () => {
   describe('general', () => {
     it('renders any arising errors on choice screen', async () => {
       await renderPair({ error: MOCK_ERROR });
-      expect(screen.getByText(MOCK_ERROR)).toBeInTheDocument();
+      expect(await screen.findByText(MOCK_ERROR)).toBeInTheDocument();
     });
 
     it('emits expected page view metric on render', async () => {
@@ -971,14 +971,16 @@ describe('Pair', () => {
     it('renders the signed-in banner for origin=signin', async () => {
       mockLocationState = { origin: 'signin' };
       await renderPair();
-      expect(screen.getByText('Signed in successfully!')).toBeInTheDocument();
+      expect(
+        await screen.findByText('Signed in successfully!')
+      ).toBeInTheDocument();
     });
 
     it('renders the signup banner for origin=signup', async () => {
       mockLocationState = { origin: 'signup' };
       await renderPair();
       expect(
-        screen.getByText('Account created. You’re now syncing.')
+        await screen.findByText('Account created. You’re now syncing.')
       ).toBeInTheDocument();
     });
 
@@ -986,7 +988,7 @@ describe('Pair', () => {
       mockLocationState = { origin: 'post-verify-set-password' };
       await renderPair();
       expect(
-        screen.getByText('Password created. You’re now syncing.')
+        await screen.findByText('Password created. You’re now syncing.')
       ).toBeInTheDocument();
     });
 

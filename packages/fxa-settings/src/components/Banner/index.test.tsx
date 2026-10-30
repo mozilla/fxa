@@ -44,6 +44,33 @@ describe('Banner Component', () => {
     });
   });
 
+  describe('live region', () => {
+    it.each([
+      ['success', 'status'],
+      ['error', 'alert'],
+    ] as const)(
+      'inserts the %s banner empty, then adds its content',
+      (type, role) => {
+        const observer = new MutationObserver(() => {});
+        observer.observe(document.body, { childList: true, subtree: true });
+        render(<Banner {...getDefaultProps(type)} />);
+        const records = observer.takeRecords();
+        observer.disconnect();
+
+        const liveRegion = screen.getByRole(role);
+        const insertedAt = records.findIndex((r) =>
+          Array.from(r.addedNodes).includes(liveRegion)
+        );
+        const contentAddedAt = records.findIndex(
+          (r) => r.target === liveRegion && r.addedNodes.length > 0
+        );
+        expect(insertedAt).toBeGreaterThanOrEqual(0);
+        expect(contentAddedAt).toBeGreaterThan(insertedAt);
+        expect(liveRegion).toHaveTextContent('Heading');
+      }
+    );
+  });
+
   describe('dismiss button', () => {
     it('renders a close button if dismissButton is provided', () => {
       const dismissButton = { action: jest.fn() };
