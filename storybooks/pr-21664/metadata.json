@@ -1,0 +1,10 @@
+{
+  "commit": "57e0453f4f96712dcb43f3dbc05ccf64fccaffe8",
+  "summary": "fix(settings): wrap password strength bullets in translate=\"no\" spans",
+  "description": "Because:\n\n* Chrome Translate replaces the bare bullet text nodes in the password rules with <font>, and React then throws NotFoundError on the first keystroke.\n\nThis commit:\n\n* Puts each bullet in PasswordStrengthInline in a <span translate=\"no\">.\n* Replaces each bullet and icon pair with one ternary, with the same conditions.\n\nCloses FXA-14838",
+  "timestamp": 1793402783000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
