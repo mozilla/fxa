@@ -33,6 +33,7 @@
 -product-mozilla-monitor = Mozilla Monitor
 -product-mozilla-monitor-short = Monitor
 -product-firefox-relay = Firefox Relay
+-product-firefox-relay-short = Relay
 -brand-apple = Apple
 -brand-apple-pay = Apple Pay
 -brand-google = Google
@@ -94,10 +95,12 @@ button-back-aria-label = Voltar
 button-back-title = Voltar
 
 
+recovery-key-download-button-v4 = Baixar e continuar
 recovery-key-pdf-download-error = Desculpe, houve um problema ao baixar a chave de recuperação de conta.
 
 
 button-passkey-signin = Entrar com chave de acesso
+button-passkey-signin-loading = Entrando na conta com segurança…
 
 
 choose-newsletters-prompt-2 = Obtenha mais da { -brand-mozilla }:
@@ -109,12 +112,35 @@ choose-newsletters-option-reclaim-the-internet =
     .label = Avisos de ações para recuperar o controle da internet
 
 
+dark-mode-toggle-light = Claro
+dark-mode-toggle-dark = Escuro
+dark-mode-toggle-system = Sistema
+dark-mode-toggle-label = Ativar/desativar tema
+
+
 datablock-download =
     .message = Baixado
 datablock-copy =
     .message = Copiado
 datablock-print =
     .message = Impresso
+
+
+datablock-copy-success =
+    { $count ->
+        [one] Código copiado
+       *[other] Códigos copiados
+    }
+datablock-download-success =
+    { $count ->
+        [one] Código baixada
+       *[other] Códigos baixado
+    }
+datablock-print-success =
+    { $count ->
+        [one] Código impresso
+       *[other] Códigos impressos
+    }
 
 
 datablock-inline-copy =
@@ -127,11 +153,15 @@ device-info-block-location-city-country = { $city }, { $country } (estimado)
 device-info-block-location-country = { $country } (estimado)
 device-info-block-location-unknown = Local desconhecido
 device-info-browser-os = { $browserName } em { $genericOSName }
+device-info-browser-device = { $browserName } em { $deviceName }
 device-info-ip-address = Endereço IP: { $ipAddress }
 
 
+firefox-promo-banner-mobile-heading = Use o { -brand-firefox } onde quer que esteja
 firefox-promo-banner-mobile-description = Sincronize suas abas, favoritos e senhas entre seus dispositivos. Tudo isso é protegido com criptografia.
 firefox-promo-banner-mobile-cta = Conectar um dispositivo
+firefox-promo-banner-switch-heading = Rápido trocar. Fácil de se adaptar.
+firefox-promo-banner-switch-cta = Mude para o { -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -144,10 +174,14 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Confirmar senha
 form-password-with-inline-criteria-reset-submit-button = Criar nova senha
+form-password-with-inline-criteria-old-password-label =
+    .label = Senha antiga
+form-password-with-inline-criteria-change-password-submit-button = Alterar senha
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Senha
 form-password-with-inline-criteria-set-password-confirm-password-label =
     .label = Repetir senha
+form-password-with-inline-criteria-set-password-submit-button = Iniciar sincronização
 form-password-with-inline-criteria-match-error = As senhas não coincidem
 form-password-with-inline-criteria-sr-too-short-message = A senha deve ter pelo menos 8 caracteres.
 form-password-with-inline-criteria-sr-not-email-message = A senha não pode ter seu endereço de email
@@ -199,16 +233,22 @@ checkmark-success-icon-aria-label =
     .aria-label = Feito
 checkmark-enabled-icon-aria-label =
     .aria-label = Ativado
+chevron-right-icon-aria-label =
+    .aria-label = Seta para direita
 close-icon-aria-label =
     .aria-label = Fechar mensagem
 code-icon-aria-label =
     .aria-label = Código
+edit-icon-aria-label =
+    .aria-label = Editar
 error-icon-aria-label =
     .aria-label = Erro
 info-icon-aria-label =
     .aria-label = Informação
 usa-flag-icon-aria-label =
     .aria-label = Bandeira dos Estados Unidos
+icon-loading-arrow-aria-label =
+    .aria-label = Carregando
 icon-passkey-aria-label =
     .aria-label = Chave de acesso
 hearts-broken-image-aria-label =
@@ -239,6 +279,14 @@ backup-recovery-phone-image-aria-label =
     .aria-label = Dispositivo móvel com recursos de mensagens de texto SMS
 backup-authentication-codes-image-aria-label =
     .aria-label = Tela de dispositivo com códigos
+sync-clouds-image-aria-label =
+    .aria-label = Nuvens com um ícone de sincronização
+confetti-falling-image-aria-label =
+    .aria-label = Animação de confetes caindo
+firefox-wordmark-image-aria-label =
+    .aria-label = Logotipo do { -brand-firefox }
+password-success-image-aria-label =
+    .aria-label = Ilustração para representar uma alteração de senha bem-sucedida.
 
 
 inline-recovery-key-setup-signed-in-firefox-2 = Você está conectado neste { -brand-firefox }.
@@ -283,17 +331,33 @@ confirmation-link-reused-message = Esse link de confirmação já foi usado e s�
 
 
 locale-toggle-select-label = Selecionar idioma
+locale-toggle-browser-default = Padrão do navegador
 error-bad-request = Requisição inválida
+
+
+pair-unsupported-hint-step-close-page = Fechar esta página
+pair-unsupported-hint-step-app-menu = Toque no <b>menu do aplicativo</b>
+pair-unsupported-hint-step-sign-in = <b>Entre na conta</b>, depois capture o código
+pair-unsupported-hint-learn-more-link = Saiba mais
 
 
 password-info-balloon-why-password-info = Você precisa dessa senha para acessar dados criptografados armazenados conosco.
 password-info-balloon-reset-risk-info = Redefinir significa potencialmente perder dados como senhas e favoritos.
 
 
+password-strength-long-instruction = Escolha uma senha forte que você não tenha usado em outros sites. Verifique se ela atende aos requisitos de segurança:
+password-strength-short-instruction = Escolha uma senha forte:
 password-strength-inline-min-length = Pelo menos 8 caracteres
 password-strength-inline-not-email = Não ter seu endereço de email
 password-strength-inline-not-common = Não ser uma senha comumente usada
 password-strength-inline-confirmed-must-match = A confirmação corresponde à nova senha
+password-strength-inline-passwords-match = As senhas coincidem
+
+
+promo-qr-mobile-heading = Seu celular. Suas regras.
+promo-qr-mobile-heading-treatment-a = Continue de onde parou, onde quer que vá
+promo-qr-mobile-heading-treatment-b = Suas abas e muito mais, disponíveis no seu celular
+promo-qr-mobile-heading-treatment-c = O navegador que você confia, no seu celular
 
 
 account-recovery-notification-cta = Criar

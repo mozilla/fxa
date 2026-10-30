@@ -1716,6 +1716,13 @@ inline-totp-setup-code-required-error = Je vyžadován ověřovací kód
 tfa-qr-code-alt = Pro nastavení dvoufázového ověřování v podporovaných aplikacích použijte kód { $code }.
 inline-totp-setup-page-title = Dvoufázové ověřování
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Stránka nenalezena
+page-not-found-description = Požadovaná stránka nebyla nalezena. Byli jsme upozorněni a všechny odkazy, které mohou být nefunkční, opravíme.
+page-not-found-home-button = Domů
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Přihlásili jste se právě do { -brand-firefox(case: "gen") }?

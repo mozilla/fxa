@@ -1227,6 +1227,11 @@ tfa-qr-code-alt = Använd koden { $code } för att ställa in tvåstegsautentise
 inline-totp-setup-page-title = Tvåstegsautentisering
 
 
+page-not-found-heading = Sidan hittades inte
+page-not-found-description = Sidan du begärde hittades inte. Vi har underrättats och kommer att fixa alla länkar som kan vara trasiga.
+page-not-found-home-button = Hem
+
+
 pair-auth-allow-heading-text = Loggade du precis in på { -brand-firefox }?
 pair-auth-allow-confirm-button = Ja, godkänn enhet
 pair-auth-allow-refuse-device-link = Om det inte var du, <a>ändra du ditt lösenord</a>

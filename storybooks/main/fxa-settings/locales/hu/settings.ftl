@@ -1717,6 +1717,13 @@ inline-totp-setup-code-required-error = Hitelesítési kód szükséges
 tfa-qr-code-alt = Használja a(z) { $code } kódot a kétlépcsős hitelesítés beállításához a támogatott alkalmazásokban.
 inline-totp-setup-page-title = Kétlépcsős hitelesítés
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Az oldal nem található
+page-not-found-description = A kért oldal nem található. Értesítést kaptunk, és kijavítunk minden, esetleg hibás hivatkozást.
+page-not-found-home-button = Kezdőlap
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Most jelentkezett be a { -brand-firefox }ba?

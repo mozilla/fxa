@@ -1697,6 +1697,13 @@ inline-totp-setup-code-required-error = Codice di autenticazione obbligatorio
 tfa-qr-code-alt = Utilizza il codice { $code } per impostare l’autenticazione in due passaggi nelle applicazioni supportate.
 inline-totp-setup-page-title = Autenticazione in due passaggi
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Pagina non trovata
+page-not-found-description = La pagina richiesta non è stata trovata. Siamo stati avvisati e risolveremo eventuali collegamenti non funzionanti.
+page-not-found-home-button = Pagina iniziale
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Hai appena effettuato l’accesso a { -brand-firefox }?

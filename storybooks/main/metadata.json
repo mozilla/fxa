@@ -1,8 +1,8 @@
 {
-  "commit": "ae98cc8030d92464677076151f4db26a755b55b7",
-  "summary": "Merge pull request #21648 from mozilla/agent-29c142",
-  "description": "feat(settings): render the 404 page in React",
-  "timestamp": 1793307406000,
+  "commit": "7d820d64a3daa35c4dcb461999fd7ac53965f131",
+  "summary": "Merge pull request #21630 from mozilla/FXA-14780",
+  "description": "fix(auth): send WAF challenge cookie on /account/credentials/status",
+  "timestamp": 1793318412000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

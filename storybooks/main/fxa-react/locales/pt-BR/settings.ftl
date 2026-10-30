@@ -43,6 +43,9 @@ button-back-title = Voltar
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = Baixar e continuar
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Desculpe, houve um problema ao baixar a chave de recuperação de conta.
@@ -50,6 +53,11 @@ recovery-key-pdf-download-error = Desculpe, houve um problema ao baixar a chave 
 ## ButtonPasskeySignin
 
 button-passkey-signin = Entrar com chave de acesso
+# This is a loading state indicating that we are waiting for the user to
+# interact with their authenticator to approve the sign-in. They should see a
+# device prompt/pop-up with authentication options (or message indicating that
+# no passkeys are available).
+button-passkey-signin-loading = Entrando na conta com segurança…
 
 ## ChooseNewsletters component
 ## Checklist of newsletters that the user can choose to sign up to
@@ -67,6 +75,13 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = Avisos de ações para recuperar o controle da internet
 
+## Dark mode toggle
+
+dark-mode-toggle-light = Claro
+dark-mode-toggle-dark = Escuro
+dark-mode-toggle-system = Sistema
+dark-mode-toggle-label = Ativar/desativar tema
+
 ## Tooltip notifications for actions performed on account recovery keys or one-time use codes
 
 datablock-download =
@@ -75,6 +90,25 @@ datablock-copy =
     .message = Copiado
 datablock-print =
     .message = Impresso
+
+## Success banners for datablock actions.
+## $count – number of codes
+
+datablock-copy-success =
+    { $count ->
+        [one] Código copiado
+       *[other] Códigos copiados
+    }
+datablock-download-success =
+    { $count ->
+        [one] Código baixada
+       *[other] Códigos baixado
+    }
+datablock-print-success =
+    { $count ->
+        [one] Código impresso
+       *[other] Códigos impressos
+    }
 
 ##
 
@@ -103,6 +137,9 @@ device-info-block-location-unknown = Local desconhecido
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } em { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } em { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Endereço IP: { $ipAddress }
@@ -111,8 +148,11 @@ device-info-ip-address = Endereço IP: { $ipAddress }
 ## Shown at the top of settings to promote installing Firefox on mobile (when
 ## the user is on Firefox) or switching to Firefox (on other browsers).
 
+firefox-promo-banner-mobile-heading = Use o { -brand-firefox } onde quer que esteja
 firefox-promo-banner-mobile-description = Sincronize suas abas, favoritos e senhas entre seus dispositivos. Tudo isso é protegido com criptografia.
 firefox-promo-banner-mobile-cta = Conectar um dispositivo
+firefox-promo-banner-switch-heading = Rápido trocar. Fácil de se adaptar.
+firefox-promo-banner-switch-cta = Mude para o { -brand-firefox }
 
 ## FormPasswordInlineCriteria
 
@@ -126,10 +166,14 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Confirmar senha
 form-password-with-inline-criteria-reset-submit-button = Criar nova senha
+form-password-with-inline-criteria-old-password-label =
+    .label = Senha antiga
+form-password-with-inline-criteria-change-password-submit-button = Alterar senha
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Senha
 form-password-with-inline-criteria-set-password-confirm-password-label =
     .label = Repetir senha
+form-password-with-inline-criteria-set-password-submit-button = Iniciar sincronização
 form-password-with-inline-criteria-match-error = As senhas não coincidem
 form-password-with-inline-criteria-sr-too-short-message = A senha deve ter pelo menos 8 caracteres.
 form-password-with-inline-criteria-sr-not-email-message = A senha não pode ter seu endereço de email
@@ -204,12 +248,18 @@ checkmark-success-icon-aria-label =
 # Used to indicate a check mark for an enabled state/option
 checkmark-enabled-icon-aria-label =
     .aria-label = Ativado
+# Used to indicate that an action will navigate forward or open a detail view
+chevron-right-icon-aria-label =
+    .aria-label = Seta para direita
 # Used on X icon to dismiss a message such as an alert or banner
 close-icon-aria-label =
     .aria-label = Fechar mensagem
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Código
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Editar
 error-icon-aria-label =
     .aria-label = Erro
 # Used as information icon for informative messaging
@@ -218,6 +268,9 @@ info-icon-aria-label =
 # Used to select United States as a country code for phone number
 usa-flag-icon-aria-label =
     .aria-label = Bandeira dos Estados Unidos
+# Used for loading arrow icon
+icon-loading-arrow-aria-label =
+    .aria-label = Carregando
 # Used for passkey icon
 icon-passkey-aria-label =
     .aria-label = Chave de acesso
@@ -252,6 +305,17 @@ backup-recovery-phone-image-aria-label =
     .aria-label = Dispositivo móvel com recursos de mensagens de texto SMS
 backup-authentication-codes-image-aria-label =
     .aria-label = Tela de dispositivo com códigos
+sync-clouds-image-aria-label =
+    .aria-label = Nuvens com um ícone de sincronização
+confetti-falling-image-aria-label =
+    .aria-label = Animação de confetes caindo
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = Logotipo do { -brand-firefox }
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Ilustração para representar uma alteração de senha bem-sucedida.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -327,8 +391,22 @@ confirmation-link-reused-message = Esse link de confirmação já foi usado e s�
 ## Locale Toggle Component
 
 locale-toggle-select-label = Selecionar idioma
+locale-toggle-browser-default = Padrão do navegador
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Requisição inválida
+
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = Fechar esta página
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Toque no <b>menu do aplicativo</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>Entre na conta</b>, depois capture o código
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = Saiba mais
 
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
@@ -339,10 +417,25 @@ password-info-balloon-reset-risk-info = Redefinir significa potencialmente perde
 ## PasswordStrengthInline component
 ## These strings are conditions that need to be met to qualify as a strong password
 
+password-strength-long-instruction = Escolha uma senha forte que você não tenha usado em outros sites. Verifique se ela atende aos requisitos de segurança:
+password-strength-short-instruction = Escolha uma senha forte:
 password-strength-inline-min-length = Pelo menos 8 caracteres
 password-strength-inline-not-email = Não ter seu endereço de email
 password-strength-inline-not-common = Não ser uma senha comumente usada
 password-strength-inline-confirmed-must-match = A confirmação corresponde à nova senha
+password-strength-inline-passwords-match = As senhas coincidem
+
+## PromoQrMobile component
+## Promotional aside encouraging users to download the Firefox mobile app via QR code.
+
+# "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
+promo-qr-mobile-heading = Seu celular. Suas regras.
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = Continue de onde parou, onde quer que vá
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = Suas abas e muito mais, disponíveis no seu celular
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = O navegador que você confia, no seu celular
 
 ## Notification Promo Banner component
 
