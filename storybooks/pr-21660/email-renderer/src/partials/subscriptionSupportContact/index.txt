@@ -1,0 +1,2 @@
+subscriptionSupportContact-plaintext = "Thank you for subscribing to <%- productName %>. If you have any questions about your subscription or need more information about <%- productName %>, please contact us:"
+<%- subscriptionSupportUrl %>

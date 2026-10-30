@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 872cf459b7db3339c47ce78f76c13ee74ad6120f</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 872cf459b7db3339c47ce78f76c13ee74ad6120f</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>10/30/2026, 4:54:57 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(docker): add per-service base image and bundled auth-server image</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- The mono image builds every app and ships all monorepo dependencies;
+  per-service images are the first step of the Docker improvement plan.
+
+This commit:
+
+- Adds a root Dockerfile, its dockerignore and docker-bake.hcl for a shared `fxa-base` stage.
+- Adds auth-server development and production targets; production runs a webpack bundle with only the npm packages it requires.
+- Adds the auth-server webpack config and `bundle` nx target.
+- Reads the version and VAPID key JSON files with fs instead of dynamic require.</pre></dd>
+  </dl>
+</body>
+</html>

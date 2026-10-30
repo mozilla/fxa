@@ -1,0 +1,23 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="passwordResetRecoveryPhone-title">Your recovery phone was used to confirm a password reset</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="passwordResetRecoveryPhone-device">Recovery phone used from:</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+<%- include('/partials/userInfo/index.mjml') %>
+
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "passwordResetRecoveryPhone-action",
+  buttonText: "Manage account"
+}) %>
+
+<%- include('/partials/automatedEmailResetPasswordTwoFactor/index.mjml') %>

@@ -1,0 +1,13 @@
+{
+  "commit": "872cf459b7db3339c47ce78f76c13ee74ad6120f",
+  "summary": "feat(docker): add per-service base image and bundled auth-server image",
+  "description": "Because:\n\n- The mono image builds every app and ships all monorepo dependencies;\n  per-service images are the first step of the Docker improvement plan.\n\nThis commit:\n\n- Adds a root Dockerfile, its dockerignore and docker-bake.hcl for a shared `fxa-base` stage.\n- Adds auth-server development and production targets; production runs a webpack bundle with only the npm packages it requires.\n- Adds the auth-server webpack config and `bundle` nx target.\n- Reads the version and VAPID key JSON files with fs instead of dynamic require.",
+  "timestamp": 1793379297000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
