@@ -127,7 +127,7 @@ export function setupAuth(opts: UiAuthOptions) {
         getApp()
           .getLogger()
           .error(error.message, {
-            error: new AuthError(error.message, { cause: error }),
+            error: new AuthError('Auth.js error', { cause: error }),
           });
       },
     },
