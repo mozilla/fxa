@@ -10,8 +10,9 @@ const path = require('path');
 
 // Every content-server process (server, grunt, webpack) loads this file
 // first, so register the @fxa/* aliases here. They resolve to the compiled
-// libs in the repo root dist/.
-{
+// libs in the repo root dist/. A webpack bundle already resolved them at
+// build time.
+if (typeof __webpack_require__ === 'undefined') {
   const root = path.resolve(__dirname, '../../../..');
   const { paths } = require(
     path.join(root, 'tsconfig.base.json')

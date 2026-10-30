@@ -4,6 +4,8 @@
 
 var Poolee = require('poolee');
 
+var PROTOCOLS = { http: require('http'), https: require('https') };
+
 function parseUrl(url) {
   var match = /([a-zA-Z]+):\/\/(\S+)/.exec(url);
   if (match) {
@@ -18,7 +20,10 @@ function parseUrl(url) {
 function Pool(url, options) {
   options = options || {};
   var parsedUrl = parseUrl(url);
-  var protocol = require(parsedUrl.protocol);
+  var protocol = PROTOCOLS[parsedUrl.protocol];
+  if (!protocol) {
+    throw new Error('unsupported protocol: ' + parsedUrl.protocol);
+  }
   this.poolee = new Poolee(protocol, [parsedUrl.host], {
     timeout: options.timeout || 5000,
     keepAlive: true,
