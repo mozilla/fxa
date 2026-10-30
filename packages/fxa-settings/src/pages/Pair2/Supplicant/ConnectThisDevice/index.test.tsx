@@ -78,6 +78,14 @@ describe('Pair2/Supplicant/ConnectThisDevice page', () => {
     expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
   });
 
+  it('renders the device details in the larger, darker style with rounded corners', () => {
+    renderWithLocalizationProvider(<Subject />);
+
+    expect(
+      screen.getByText('IP address: XX.XX.XXX.XXX').closest('div')
+    ).toHaveClass('text-sm', 'text-grey-900', 'rounded-lg', 'break-word');
+  });
+
   it('calls onConnect when the connect button is clicked', async () => {
     const user = userEvent.setup();
     const onConnect = jest.fn();
