@@ -340,6 +340,13 @@ locale-toggle-browser-default = Rhagosodiad y porwr
 error-bad-request = Cais Gwael
 
 
+pair-unsupported-hint-heading = Gorffen paru yn yr ap
+pair-unsupported-hint-step-close-page = Cau'r dudalen hon
+pair-unsupported-hint-step-app-menu = Tapiwch y <b>dewislen ap</b>
+pair-unsupported-hint-step-sign-in = <b>Mewngofnodwch</b>, yna sganiwch y cod
+pair-unsupported-hint-learn-more-link = Dysgu rhagor
+
+
 password-info-balloon-why-password-info = Mae angen y cyfrinair hwn arnoch i gael mynediad at unrhyw ddata wedi'i amgryptio rydych yn ei storio gyda ni.
 password-info-balloon-reset-risk-info = Mae ailosod yn golygu o bosibl golli data fel cyfrineiriau a nodau tudalen.
 
@@ -1243,6 +1250,11 @@ tfa-qr-code-alt = Defnyddiwch y cod { $code } i osod dilysiad dau gam mewn rhagl
 inline-totp-setup-page-title = Dilysu dau gam
 
 
+page-not-found-heading = Heb ganfod y dudalen
+page-not-found-description = Dyw'r dudalen rydych wedi gofyn amdani heb ei chanfod. Rydym wedi cael ein hysbysu a byddwn yn trwsio unrhyw ddolenni sydd efallai wedi'u torri.
+page-not-found-home-button = Cartref
+
+
 pair-auth-allow-heading-text = Ydych chi newydd fewngofnodi i { -brand-firefox }?
 pair-auth-allow-confirm-button = Iawn, yn cymeradwyo'r ddyfais
 pair-auth-allow-refuse-device-link = Os nad chi oedd hwn, <a>newidiwch eich cyfrinair</a>
@@ -1577,6 +1589,11 @@ signin-passkey-fallback-body = Er mwyn cadw'ch data'n ddiogel, mae angen i chi r
 signin-passkey-fallback-password-label = Cyfrinallwedd
 signin-passkey-fallback-continue = Parhau
 signin-passkey-fallback-forgot-password-link = Wedi anghofio'r cyfrinair?
+signin-passkey-fallback-no-prf-heading = Mae angen cyfrinair ar y ddyfais hon
+signin-passkey-fallback-no-prf-description = Does dim modd i'r porwr neu'r ddyfais hyn ddefnyddio'ch cyfrinallwedd ei hun i fewngofnodi i gydweddu.
+signin-passkey-fallback-unwrap-failed-heading = Doedd dim modd i'ch cyfrinallwedd ddatgloi cydweddu
+signin-passkey-fallback-unwrap-failed-description = Aeth rhywbeth o'i le, felly bydd angen eich cyfrinair y tro yma.
+signin-passkey-fallback-wrap-unusable-link = Dysgu rhagor
 
 
 signin-passwordless-code-heading = Rhowch y cod dilysu

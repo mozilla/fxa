@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit b200dc091e63da42c871fc482731b788dea699dd</title>
+  <title>Storybooks for commit aafb33db8f44b1d9638a5919e83361b696a9c582</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,28 +23,27 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit b200dc091e63da42c871fc482731b788dea699dd</h1>
+  <h1>Storybooks for commit aafb33db8f44b1d9638a5919e83361b696a9c582</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/27/2026, 3:36:25 AM UTC</dd>
+    <dd>10/30/2026, 4:49:41 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>feat(settings): derive page title from h1 and focus it in AppLayout</pre></dd>
+    <dd><pre>feat(settings): derive page title from h1 and announce it in AppLayout</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-* Most AppLayout pages pass no title, so the tab title stays &quot;Mozilla accounts&quot;.
-* Focus falls to body after a route change, so screen readers announce nothing.
-* CI build-react failed on an exhaustive-deps warning in the title effect.
+* Most AppLayout pages kept the tab title &quot;Mozilla accounts&quot;.
+* Screen readers announced nothing after a route or step change.
 
 This commit:
 
 * Derives the page title from the main h1, without .card-subheader text.
-* Focuses the main h1 after mount and loading, unless something has focus.
-* Gives the title effect the deps [children, l10n].
-* Adds AppLayout tests and updates Signin expectations and snapshots.
+* Focuses the h1 only when body has focus, else announces it.
+* Adds a #page-announcer aria-live region to App.
+* Adds a focusHeading prop; Index turns it off for its email focus.
 
 Closes FXA-6803</pre></dd>
   </dl>

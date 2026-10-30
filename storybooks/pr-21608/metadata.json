@@ -1,8 +1,8 @@
 {
-  "commit": "b200dc091e63da42c871fc482731b788dea699dd",
-  "summary": "feat(settings): derive page title from h1 and focus it in AppLayout",
-  "description": "Because:\n\n* Most AppLayout pages pass no title, so the tab title stays \"Mozilla accounts\".\n* Focus falls to body after a route change, so screen readers announce nothing.\n* CI build-react failed on an exhaustive-deps warning in the title effect.\n\nThis commit:\n\n* Derives the page title from the main h1, without .card-subheader text.\n* Focuses the main h1 after mount and loading, unless something has focus.\n* Gives the title effect the deps [children, l10n].\n* Adds AppLayout tests and updates Signin expectations and snapshots.\n\nCloses FXA-6803",
-  "timestamp": 1793072185000,
+  "commit": "aafb33db8f44b1d9638a5919e83361b696a9c582",
+  "summary": "feat(settings): derive page title from h1 and announce it in AppLayout",
+  "description": "Because:\n\n* Most AppLayout pages kept the tab title \"Mozilla accounts\".\n* Screen readers announced nothing after a route or step change.\n\nThis commit:\n\n* Derives the page title from the main h1, without .card-subheader text.\n* Focuses the h1 only when body has focus, else announces it.\n* Adds a #page-announcer aria-live region to App.\n* Adds a focusHeading prop; Index turns it off for its email focus.\n\nCloses FXA-6803",
+  "timestamp": 1793378981000,
   "storybooks": [
     "fxa-settings"
   ],

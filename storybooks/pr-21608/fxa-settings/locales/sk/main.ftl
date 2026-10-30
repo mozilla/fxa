@@ -658,7 +658,7 @@ flow-recovery-key-info-header = Vytvorte si kľúč na obnovenie účtu pre prí
 flow-recovery-key-info-header-change-key = Zmeňte si kľúč na obnovenie účtu
 flow-recovery-key-info-shield-bullet-point-v2 = Šifrujeme údaje prehliadania – heslá, záložky a ďalšie. Je to skvelé pre súkromie, ale ak zabudnete heslo, môžete prísť o svoje údaje.
 flow-recovery-key-info-key-bullet-point-v2 = Preto je vytvorenie kľúča na obnovenie účtu také dôležité – môžete ho použiť na obnovenie údajov.
-flow-recovery-key-info-cta-text-v3 = Začíname
+flow-recovery-key-info-cta-text-v3 = Poďme na to
 flow-recovery-key-info-cancel-link = Zrušiť
 
 
@@ -1417,7 +1417,7 @@ pair-or-download-subheader = Alebo si stiahnite
 pair-scan-to-download-message = Naskenujte QA kód a stiahnite si { -brand-firefox } pre mobilné zariadenia alebo si pošlite <linkExternal>odkaz na stiahnutie</linkExternal>.
 pair-not-now-button = Teraz nie
 pair-take-your-data-message = Vezmite si svoje karty, záložky a heslá všade, kde používate { -brand-firefox }.
-pair-get-started-button = Začíname
+pair-get-started-button = Poďme na to
 pair-qr-code-aria-label = QR kód
 
 

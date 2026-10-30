@@ -401,6 +401,20 @@ locale-toggle-browser-default = Navigateur par défaut
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Requête incorrecte
 
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+pair-unsupported-hint-heading = Terminez l’association dans l’application
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = Fermer cette page
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Appuyez sur le <b>menu de l’application</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>Connectez-vous</b>, puis scannez le code
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = En savoir plus
+
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
 
@@ -1691,6 +1705,13 @@ inline-totp-setup-code-required-error = Code d’authentification requis
 tfa-qr-code-alt = Utilisez le code { $code } pour configurer l’authentification en deux étapes dans les applications prises en charge.
 inline-totp-setup-page-title = Authentification en deux étapes
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Page introuvable
+page-not-found-description = La page demandée est introuvable. Nous en avons été informés et nous réparerons les liens éventuellement cassés.
+page-not-found-home-button = Accueil
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Venez-vous de vous connecter à { -brand-firefox } ?
@@ -2285,6 +2306,16 @@ signin-passkey-fallback-body = Pour protéger vos données, vous devez saisir vo
 signin-passkey-fallback-password-label = Mot de passe
 signin-passkey-fallback-continue = Continuer
 signin-passkey-fallback-forgot-password-link = Mot de passe oublié ?
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = Mot de passe nécessaire sur cet appareil
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
+signin-passkey-fallback-no-prf-description = Ce navigateur ou cet appareil ne peut pas utiliser votre clé d’accès pour se connecter et synchroniser tout seul.
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
+signin-passkey-fallback-unwrap-failed-heading = Votre clé d’accès n’a pas pu déverrouiller Sync
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = Une erreur s’est produite. Vous aurez donc besoin de votre mot de passe cette fois-ci.
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = En savoir plus
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
