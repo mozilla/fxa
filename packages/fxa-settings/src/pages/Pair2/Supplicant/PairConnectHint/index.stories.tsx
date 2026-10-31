@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { Meta } from '@storybook/react';
-import { withLocalization } from 'fxa-react/lib/storybooks';
+import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
 import PairConnectHint from '.';
 
 export default {
@@ -13,5 +13,13 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-// The page takes no props, so there is only one state to show.
-export const Default = () => <PairConnectHint />;
+export const Ios = () => <PairConnectHint os="ios" />;
+Ios.decorators = [withLocation()];
+
+export const Android = () => <PairConnectHint os="android" />;
+Android.decorators = [withLocation()];
+
+export const Webview = () => <PairConnectHint os="ios" />;
+Webview.decorators = [
+  withLocation('/pair/supplicant/connect_hint?embed=customtab'),
+];

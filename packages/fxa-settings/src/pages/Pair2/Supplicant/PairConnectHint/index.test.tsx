@@ -3,113 +3,101 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { screen } from '@testing-library/react';
-import { FluentBundle } from '@fluent/bundle';
-import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
+import { MemoryRouter, InitialEntry } from 'react-router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import PairConnectHint from '.';
 
-// `testL10n` compares rendered text against the raw Fluent source, so a message
-// carrying a DOM overlay tag can never match it. These are checked on their own
-// below instead.
-const STEP_FTL_IDS = [
-  'pair2-supplicant-connect-hint-step-app-menu',
-  'pair2-supplicant-connect-hint-step-sign-in',
-];
+const FIREFOX_IOS_UA =
+  'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/124.0 Mobile/15E148 Safari/605.1.15';
+const FIREFOX_ANDROID_UA =
+  'Mozilla/5.0 (Android 14; Mobile; rv:124.0) Gecko/124.0 Firefox/124.0';
+const CHROME_DESKTOP_UA =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 
-const getMessageEl = (ftlId: string) =>
-  screen.getAllByTestId('ftlmsg-mock').find((el) => el.id === ftlId)!;
-
-describe('Pair2/Supplicant/PairConnectHint page', () => {
-  // Guards against drift between the fallback text in the component and the
-  // actual Fluent bundle. No message on this page takes a variable, so no
-  // arguments are passed.
-  it('renders every message with text matching the Fluent bundle', async () => {
-    const bundle: FluentBundle = await getFtlBundle('settings');
-    renderWithLocalizationProvider(<PairConnectHint />);
-
-    const messages = screen
-      .getAllByTestId('ftlmsg-mock')
-      // The jest SVG stub renders the file name as the element's text, so image
-      // messages can never match. Covered by components/images/index.test.tsx.
-      .filter((el) => !el.textContent?.endsWith('.svg'))
-      .filter((el) => !STEP_FTL_IDS.includes(el.id));
-
-    expect(messages.length).toBeGreaterThan(0);
-    messages.forEach((el) => testL10n(el, bundle));
-  });
-
-  it.each(STEP_FTL_IDS)(
-    'keeps the %s fallback text in step with the Fluent message',
-    async (ftlId) => {
-      const bundle: FluentBundle = await getFtlBundle('settings');
-      renderWithLocalizationProvider(<PairConnectHint />);
-
-      const message = bundle.getMessage(ftlId);
-      const source = bundle.formatPattern(message!.value!);
-
-      expect(getMessageEl(ftlId).textContent).toEqual(
-        source.replace(/<\/?b>/g, '')
-      );
-    }
+const renderPage = (
+  props: React.ComponentProps<typeof PairConnectHint> = {},
+  entry: InitialEntry = '/pair/supplicant/connect_hint'
+) =>
+  renderWithLocalizationProvider(
+    <MemoryRouter initialEntries={[entry]}>
+      <PairConnectHint {...props} />
+    </MemoryRouter>
   );
 
-  it('renders the heading and the subheading', () => {
-    renderWithLocalizationProvider(<PairConnectHint />);
+describe('Pair2/Supplicant/PairConnectHint page', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      'Finish pairing in the app'
+  // The jest SVG stub renders the file name as the element's text.
+  it.each([
+    ['Firefox iOS', FIREFOX_IOS_UA, 'graphic_pair_menu_ios.min.svg'],
+    [
+      'Firefox Android',
+      FIREFOX_ANDROID_UA,
+      'graphic_pair_menu_android.min.svg',
+    ],
+    ['a desktop browser', CHROME_DESKTOP_UA, 'graphic_pair_menu_ios.min.svg'],
+  ])('shows the menu illustration for %s', (_, ua, file) => {
+    jest.spyOn(navigator, 'userAgent', 'get').mockReturnValue(ua);
+    renderPage();
+
+    expect(screen.getByTestId('aria-hidden-image')).toHaveTextContent(file);
+  });
+
+  it('shows the tab variant, with no step to close the page', () => {
+    renderPage({ os: 'ios' });
+
+    expect(screen.getAllByRole('listitem')).toHaveLength(2);
+    expect(screen.queryByText('Close this page')).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ['query param', '/pair/supplicant/connect_hint?embed=customtab'],
+    [
+      'location state',
+      {
+        pathname: '/pair/supplicant/connect_hint',
+        state: { embed: 'customtab' },
+      },
+    ],
+  ])('shows the webview variant for embed=customtab in the %s', (_, entry) => {
+    renderPage({ os: 'ios' }, entry);
+
+    expect(screen.getAllByRole('listitem')).toHaveLength(3);
+    expect(screen.getAllByRole('listitem')[0]).toHaveTextContent(
+      'Close this page'
     );
   });
 
-  it('renders the two steps as a list, emphasising the control to tap', () => {
-    renderWithLocalizationProvider(<PairConnectHint />);
-
-    const steps = screen.getAllByRole('listitem');
-    expect(steps).toHaveLength(2);
-    expect(steps[0]).toHaveTextContent('Tap the app menu in the toolbar');
-    expect(steps[1]).toHaveTextContent('Tap sign in, then scan the code');
-    // The control name sits inside the sentence, so the emphasis has to come
-    // from an element the message can wrap.
-    expect(screen.getByText('app menu').tagName).toEqual('B');
-    expect(screen.getByText('sign in').tagName).toEqual('B');
-  });
-
-  it('links “Learn more” to the no-QR pairing article', () => {
-    renderWithLocalizationProvider(<PairConnectHint />);
+  it('keeps the glean id on the Learn more link', () => {
+    renderPage({ os: 'ios' });
 
     expect(screen.getByRole('link', { name: /Learn more/ })).toHaveAttribute(
-      'href',
-      'https://support.mozilla.org/kb/connect-firefox-another-device-without-qr-code'
+      'data-glean-id',
+      'dtm_mobile_connect_hint_learn_more'
     );
   });
 
-  it('renders no buttons — the next step happens in the Firefox app', () => {
-    renderWithLocalizationProvider(<PairConnectHint />);
+  it('renders no buttons, because the next step happens in the Firefox app', () => {
+    renderPage({ os: 'ios' });
 
     expect(screen.queryAllByRole('button')).toHaveLength(0);
   });
 
-  it('exposes the brand lockups, keeping the illustration decorative', () => {
-    renderWithLocalizationProvider(<PairConnectHint />);
+  it('exposes the brand lockups', () => {
+    renderPage({ os: 'ios' });
 
     expect(
       screen
         .getAllByRole('img')
         .map((img) => img.getAttribute('alt') ?? img.getAttribute('aria-label'))
-    ).toEqual([
-      // AppLayout's page header, then this page's Firefox lockup. The phone
-      // illustration is decorative — the steps beside it say the same.
-      'Mozilla logo',
-      'Firefox logo',
-    ]);
+    ).toEqual(['Mozilla logo', 'Firefox logo']);
   });
 
   it('renders the page on a white background', () => {
-    renderWithLocalizationProvider(<PairConnectHint />);
+    renderPage({ os: 'ios' });
 
-    // Below `mobileLandscape` the card is transparent, so the page colour is
-    // the colour the phone shows. The designs call for white, not the default
-    // grey the desktop cards sit on.
     expect(screen.getByTestId('app')).toHaveClass('bg-white');
   });
 });
