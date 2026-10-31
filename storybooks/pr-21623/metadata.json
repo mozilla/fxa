@@ -1,8 +1,8 @@
 {
-  "commit": "7eecfaeddc94bcf180ee1735d1feccbfecba1385",
-  "summary": "feat(settings): use PairUnsupportedHint on the pair connect hint page",
-  "description": "Because:\n\n* The pair connect hint page had its own copy of the shared hint steps\n\nThis commit:\n\n* Renders PairUnsupportedHint (tab view) on the connect hint page\n* Picks the menu illustration from the device OS\n* Removes the page's duplicate steps and Fluent strings\n* Adds an optional learn more glean id to PairUnsupportedHint\n* Adds iOS and Android stories and a functional test\n\nCloses FXA-14247",
-  "timestamp": 1793134597000,
+  "commit": "12adb7a1f8985941e6f47bf35998b7d480b6625a",
+  "summary": "feat(settings): show the webview pair hint for embedded custom tabs",
+  "description": "Because:\n\n* The pair connect hint page must show the webview steps in a custom tab.\n\nThis commit:\n\n* Renders the shared PairUnsupportedHint on the PairConnectHint page.\n* Passes view webview when embed=customtab is in the query or router state.\n* Adds an optional learnMoreGleanId prop to PairUnsupportedHint.\n* Removes the page en.ftl, because the shared hint owns the strings.\n\nCloses FXA-14247",
+  "timestamp": 1793445439000,
   "storybooks": [
     "fxa-settings"
   ],

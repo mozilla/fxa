@@ -259,12 +259,14 @@ next-payment-confirm-with-legal-links-static-3 = Baimena ematen diot { -brand-mo
 ## $endDate (Date) - The end date of the free trial
 
 checkbox-payment-required-no-charge = Ordainketa-metodoa beharrezkoa da zure doako proba hasteko. Ez zaizu ezer kobratuko { $endDate } egunera arte.
+checkbox-confirm-free-trial-with-legal-links = Baimena ematen diot { -brand-mozilla }(r)i nire ordainketa-metodoa erabiliz erakutsitako zenbatekoa kobratzeko behin doako proba { $endDate } egunean amaitzen denean, <termsOfServiceLink>zerbitzu-baldintzen</termsOfServiceLink> eta <privacyNoticeLink>pribatutasun-oharra</privacyNoticeLink>ren arabera, nire harpidetza bertan behera uzten dudan arte.
 next-payment-confirm-checkbox-error = Hau osatu behar duzu aurrera egin aurretik
 
 ## Checkout Form
 
 next-new-user-submit = Harpidetu orain
 next-pay-with-heading-paypal = Ordaindu { -brand-paypal } erabiliz
+free-trial-ineligible-notice = Zure kontua ez da doako probarako hautagarri. Ordainpeko harpidetzarekin jarri zenezake.
 
 ## Churn flow - cancel
 
@@ -456,6 +458,42 @@ purchase-details-total-due-label = Ordaintzeko guztira
 next-plan-details-hide-button = Ezkutatu xehetasunak
 next-plan-details-show-button = Erakutsi xehetasunak
 
+## $trialDayLength (Number) - The number of days in the free trial
+
+free-trial-start-title =
+    { $trialDayLength ->
+        [one] Hasi zure egun bateko doako proba
+       *[other] Hasi zure { $trialDayLength } eguneko doako proba
+    }
+free-trial-success-title =
+    { $trialDayLength ->
+        [one] Zure egun bateko doako proba hasi da
+       *[other] Zure { $trialDayLength } eguneko doako proba hasi da
+    }
+
+## $firstPrice (String) - The total price of the first charge for the subscription after the free trial ends
+## $endDate (String) - The date the free trial ends
+
+free-trial-start-message-daily = Ez da ezer ordaindu behar gaur. Doako proba { $endDate } egunean amaitu ondoren, eguneko { $firstPrice } kobratuko zaizu.
+free-trial-start-message-weekly = Ez da ezer ordaindu behar gaur. Doako proba { $endDate } egunean amaitu ondoren, asteko { $firstPrice } kobratuko zaizu.
+free-trial-start-message-monthly = Ez da ezer ordaindu behar gaur. Doako proba { $endDate } egunean amaitu ondoren, hilean { $firstPrice } kobratuko zaizu.
+free-trial-start-message-halfyearly = Ez da ezer ordaindu behar gaur. Doako proba { $endDate } egunean amaitu ondoren, sei hilean behin { $firstPrice } kobratuko zaizu.
+free-trial-start-message-yearly = Ez da ezer ordaindu behar gaur. Doako proba { $endDate } egunean amaitu ondoren, urtean { $firstPrice } kobratuko zaizu.
+
+##
+
+# $endDate (String) - The date of the first charge after the free trial ends
+free-trial-first-charge-title = Lehen kobrantza: { $endDate }
+
+## $firstPrice (String) - The total price of the first charge for the subscription after the free trial ends
+## $endDate (String) - The date of the first charge after the free trial ends
+
+free-trial-first-charge-message-daily = { $firstPrice } fakturatuko zaizu { $endDate } egunean, eta eguneko ondoren, harpidetza bertan behera utzi arte.
+free-trial-first-charge-message-weekly = { $firstPrice } fakturatuko zaizu { $endDate } egunean, eta asteko ondoren, harpidetza bertan behera utzi arte.
+free-trial-first-charge-message-monthly = { $firstPrice } fakturatuko zaizu { $endDate } egunean, eta hilean ondoren, harpidetza bertan behera utzi arte.
+free-trial-first-charge-message-halfyearly = { $firstPrice } fakturatuko zaizu { $endDate } egunean, eta sei hilean behin ondoren, harpidetza bertan behera utzi arte.
+free-trial-first-charge-message-yearly = { $firstPrice } fakturatuko zaizu { $endDate } egunean, eta urtean ondoren, harpidetza bertan behera utzi arte.
+
 ##
 
 next-coupon-success = Zure plana automatikoki berrituko da zerrendako prezioan.
@@ -480,6 +518,10 @@ select-tax-location-error-missing-postal-code = Mesedez sartu zure posta-kodea
 select-tax-location-error-invalid-postal-code = Idatzi baliozko posta-kodea
 select-tax-location-successfully-updated = Zure kokapena eguneratu da.
 select-tax-location-error-location-not-updated = Ezin izan da zure kokapena eguneratu. Mesedez, saiatu berriro.
+#  $currencyDisplayName (String) - The display name of a currency code, e.g. US Dollar
+select-tax-location-invalid-currency-change = Zure kontua { $currencyDisplayName } dibisan fakturatzen da. Hautatu { $currencyDisplayName } dibisa darabilen herrialde bat.
+select-tax-location-invalid-currency-change-default = Hautatu zure harpidetza aktiboen dibisarekin bat datorren herrialde bat
+select-tax-location-new-tax-rate-info = Zure kokalekua eguneratuz gero, zerga-tasa berria aplikatuko zaie zure kontuko harpidetza aktibo guztiei, hurrengo fakturazio-ziklotik hasita.
 signin-form-continue-button = Jarraitu
 signin-form-email-input = Idatzi zure helbide elektronikoa
 signin-form-email-input-missing = Idatzi zure helbide elektronikoa mesedez
@@ -497,6 +539,14 @@ subscription-content-button-resubscribe = Berritu harpidetza
     .aria-label = Berritu { $productName } produkturako harpidetza
 resubscribe-success-dialog-title = Eskerrik asko! Dena prest daukazu.
 
+## $nextInvoiceTotal (String) - The total amount of the next invoice, formatted according to the user's locale and currency.
+## $taxDue (String) - The tax amount of the next invoice, formatted according to the user's locale and currency.
+## $last4 (String) - The last four digits of the default payment method card.
+## $currentPeriodEnd (Date) - The date of the next charge.
+
+stay-subscribed-next-charge-with-tax = Zure hurrengo kobrantza { $nextInvoiceTotal } + zergetako { $taxDue } izango da { $currentPeriodEnd } egunean.
+stay-subscribed-next-charge-no-tax = Zure hurrengo kobrantza { $nextInvoiceTotal } izango da { $currentPeriodEnd } egunean.
+
 ## $billOnDate (Date) - The billing date of the current invoice (e.g., September 8, 2025)
 ## $creditApplied (Number) - The amount from account credit balance used to reduce the amount due on the invoice
 ## $currentPeriodEnd (Date) - The end date of the subscription's current billing period (e.g., September, 8, 2025)
@@ -506,12 +556,14 @@ resubscribe-success-dialog-title = Eskerrik asko! Dena prest daukazu.
 ## $promotionName (String) - The name of the promotion.
 ## $taxDue (Number) - The tax added on, not included in amount. It will be formatted as currency.
 
+subscription-content-coupon-will-be-applied = { $promotionName } deskontua aplikatuko da
 # • is acting as a separator between "Last bill" and the billing date.
 subscription-content-last-bill = Azken faktura • { $billedOnDate }
 subscription-content-last-bill-with-tax = { $invoiceTotal } + zergetako { $taxDue }
 subscription-content-last-bill-no-tax = { $invoiceTotal }
 subscription-content-view-invoice = Ikusi faktura
 subscription-management-link-view-invoice-aria = Ikusi { $productName } produkturako faktura
+subscription-content-expires-on-expiry-date = Iraungitze-data: { $date }
 # • is acting as a separator between "Next bill" and the next billing date.
 subscription-content-next-bill = Hurrengo faktura • { $billedOnDate }
 subscription-content-next-bill-with-tax-1 = { $nextInvoiceTotal } + zergetako { $taxDue }
@@ -520,11 +572,16 @@ subscription-content-button-stay-subscribed = Jarraitu harpidetua
     .aria-label = Jarraitu { $productName }(r)a harpidetua
 subscription-content-button-cancel-subscription = Utzi harpidetza
     .aria-label = Utzi { $productName }(e)ko zure harpidetza
+# Link to the terms and restrictions for a coupon offer.
+subscription-content-link-churn-intervention-terms-apply = Baldintzak aplikatzen dira
+subscription-content-link-churn-intervention-terms-aria = Ikusi kupoiaren termino eta murriztapenak
 
 ##
 
+dialog-close = Itxi elkarrizketa-koadroa
 button-back-to-subscriptions = Itzuli harpidetzetara
 subscription-content-cancel-action-error = Espero gabeko errorea gertatu da. Saiatu berriro geroago.
+paypal-unavailable-error = { -brand-paypal } ez dago erabilgarri orain. Erabili beste ordainketa-aukera bat edo saiatu berriro geroago mesedez.
 
 ## Churn flow - Error page
 
@@ -534,11 +591,15 @@ churn-error-page-message-discount-already-applied = Deskontua zure { $productNam
 churn-error-page-button-manage-subscriptions = Kudeatu harpidetzak
 churn-error-page-button-contact-support = Jarri laguntzarekin harremanetan
 churn-error-page-button-try-again = Saiatu berriro
+churn-error-page-title-customer-mismatch = Ezin da kupoia trukatu
+churn-error-page-message-customer-mismatch = Kupoi hau beste harpidetza baterako jaulki zen eta jatorrizko hartzailearekin truka daiteke soilik.
 churn-error-page-button-sign-in = Hasi saioa
 churn-error-page-title-general-error = Arazo bat gertatu da zure harpidetza berritzean
 churn-error-page-message-general-error = Jarri laguntzarekin harremanetan edo saiatu berriro.
 # $productName (String) - The name of the product associated with the subscription.
 churn-error-page-button-go-to-product-page = Joan { $productName } produktura
+# $productName (String) - The name of the product associated with the subscription.
+churn-error-page-title-subscription-not-active = Deskontua uneko { $productName } harpidedunentzat dago erabilgarri soilik
 # $productName (String) - The name of the product associated with the subscription.
 churn-error-page-title-subscription-still-active = Zure { $productName } harpidetza oraindik aktibo dago
 
@@ -559,6 +620,7 @@ next-subscription-processing-title = Harpidetza baieztatzen…
 next-subscription-error-title = Errorea harpidetza baieztatzen…
 subscription-title-sub-exists = Bazadude harpidetua
 subscription-title-plan-change-heading = Berrikusi zure aldaketa
+subscription-title-not-supported = Ez da onartzen harpidetza-planaren aldaketa hau
 next-sub-guarantee = 30 eguneko dirua itzultzeko bermea
 
 ## Component - TermsAndPrivacy
@@ -580,6 +642,9 @@ upgrade-purchase-details-current-plan-label = Uneko plana
 upgrade-purchase-details-new-plan-label = Plan berria
 upgrade-purchase-details-promo-code = Sustapen kodea
 upgrade-purchase-details-tax-label = Zergak eta Tasak
+# "Credit issued to account" refers to credit that will be added to the account balance that will be used toward future invoices
+upgrade-purchase-details-credit-to-account = Kreditua kontura jaulki da
+upgrade-purchase-details-credit-will-be-applied = Kreditua zure kontuan aplikatuko da eta etorkizuneko fakturetan erabiliko da.
 
 ## $productName (String) - Name of the upgraded product (e.g. Mozilla VPN)
 ## Daily/Weekly/Monthly/Yearly refers to the subscription interval/amount of time between billing occurrences
@@ -593,30 +658,43 @@ upgrade-purchase-details-new-plan-yearly = { $productName } (urtero)
 ## Page Metadata Information
 ## $productTitle (String) - The name of the product to create subscription, e.g. Mozilla VPN
 
+# Checkout start
+metadata-title-checkout-start = Ordainketa | { $productTitle }
+metadata-description-checkout-start = Idatzi ordainketa-xehetasunak zure erosketa burutzeko.
 # Checkout processing
 metadata-title-checkout-processing = Prozesatzen | { $productTitle }
 metadata-description-checkout-processing = Itxaron zure ordainketa prozesatzen amaitzen dugun bitartean mesedez.
 # Checkout error
 metadata-title-checkout-error = Errorea | { $productTitle }
+metadata-description-checkout-error = Errorea gertatu da zure harpidetza prozesatzean. Arazoak jarraitzen badu, jarri laguntzarekin harremanetan.
 # Checkout success
 metadata-title-checkout-success = Dena ondo | { $productTitle }
+metadata-description-checkout-success = Zorionak! Erosketa burutu berri duzu.
 # Checkout needs_input
 metadata-title-checkout-needs-input = Ekintza beharrezkoa | { $productTitle }
+metadata-description-checkout-needs-input = Burutu mesedez beharrezko ekintza zure ordainketarekin jarraitzeko.
+# Upgrade start
+metadata-title-upgrade-start = Igo mailaz | { $productTitle }
+metadata-description-upgrade-start = Idatzi ordainketa-xehetasunak zure maila igoera burutzeko.
 # Upgrade processing
 metadata-title-upgrade-processing = Prozesatzen | { $productTitle }
 metadata-description-upgrade-processing = Itxaron zure ordainketa prozesatzen amaitzen dugun bitartean mesedez.
 # Upgrade error
 metadata-title-upgrade-error = Errorea | { $productTitle }
+metadata-description-upgrade-error = Errorea gertatu da zure maila igoera prozesatzean. Arazoak jarraitzen badu, jarri laguntzarekin harremanetan.
 # Upgrade success
 metadata-title-upgrade-success = Dena ondo | { $productTitle }
+metadata-description-upgrade-success = Zorionak! Maila igoera burutu berri duzu.
 # Upgrade needs_input
 metadata-title-upgrade-needs-input = Ekintza beharrezkoa | { $productTitle }
+metadata-description-upgrade-needs-input = Burutu mesedez beharrezko ekintza zure ordainketarekin jarraitzeko.
 # Default
 metadata-title-default = Ez da orria aurkitu | { $productTitle }
 metadata-description-default = Eskatu duzun orria ez da aurkitu.
 
 ## Coupon Error Messages
 
+next-coupon-error-cannot-redeem = Idatzi duzun kodea ezin da trukatu — zure kontuak gure zerbitzuetarako aurreko harpidetza bat du.
 next-coupon-error-expired = Sartu duzun kodea iraungi egin da.
 next-coupon-error-generic = Errore bat gertatu da kodea prozesatzean. Saiatu berriro mesedez.
 next-coupon-error-invalid = Sartu duzun kodea baliogabea da.
@@ -627,6 +705,8 @@ next-coupon-error-limit-reached = Sartu duzun kodea bere mugara iritsi da.
 
 stay-subscribed-error-expired = Eskaintza hau iraungita dago.
 stay-subscribed-error-discount-used = Deskontu-kodea dagoeneko aplikatuta.
+# $productTitle (String) - The name of the product
+stay-subscribed-error-not-current-subscriber = Deskontua uneko { $productTitle } harpidedunentzat dago erabilgarri soilik.
 stay-subscribed-error-still-active = Zure { $productTitle } harpidetza oraindik aktibo dago.
 stay-subscribed-error-general = Arazo bat gertatu da zure harpidetza berritzean.
 
@@ -638,3 +718,24 @@ manage-payment-method-intent-error-try-again = Hmm. Arazo bat izan da zure ordai
 manage-payment-method-intent-error-get-in-touch = Hmm. Arazo bat izan da zure ordainketa baimentzean. Jarri harremanetan zure txartelaren jaulkitzailearekin.
 manage-payment-method-intent-error-insufficient-funds = Badirudi zure txartelak ez duela nahikoa funtsik. Probatu beste txartel batekin.
 manage-payment-method-intent-error-generic = Ustekabeko errore bat gertatu da ordainketa prozesatzean, saiatu berriro mesedez.
+manage-payment-method-tax-address-required = Ezin izan dugu zure fakturazio-kokalekua zehaztu. Egiaztatu zure ordainketa-metodoaren informazioa eta saiatu berriro mesedez.
+
+## $currentPeriodEnd (Date) - The date of the next charge.
+## $discountPercent (Number) - The discount amount between 1 and 100 as an integer (e.g. "You will save 10% on your next charge of $12.00 on December 25, 2025.", discountPercent = 10)
+## $last4 (String) - The last four digits of the default payment method card.
+## $nextInvoiceTotal (String) - The total amount of the next invoice, formatted according to the user's locale and currency.
+## $paymentMethod (String) - The name of the default payment method - "Google Pay", "Apple Pay", "PayPal", "Link".
+## $taxDue (String) - The tax amount of the next invoice, formatted according to the user's locale and currency.
+
+next-charge-with-discount-and-tax-card = %{ $discountPercent } aurreztuko duzu zure hurrengo { $nextInvoiceTotal } + zergetako { $taxDue } zenbatekoaren kobrantzan, { $last4 } digituekin amaitzen den txartelean { $currentPeriodEnd } egunean.
+next-charge-with-discount-and-tax-payment-method = %{ $discountPercent } aurreztuko duzu zure hurrengo { $nextInvoiceTotal } + zergetako { $taxDue } zenbatekoaren kobrantzan, zure { $paymentMethod } ordainketa-metodoan { $currentPeriodEnd } egunean.
+next-charge-next-charge-with-discount-and-tax = %{ $discountPercent } aurreztuko duzu zure hurrengo { $nextInvoiceTotal } + zergetako { $taxDue } zenbatekoaren kobrantzan, { $currentPeriodEnd } egunean.
+next-charge-with-discount-no-tax-card = %{ $discountPercent } aurreztuko duzu zure hurrengo { $nextInvoiceTotal } zenbatekoaren kobrantzan, { $last4 } digituekin amaitzen den txartelean { $currentPeriodEnd } egunean.
+next-charge-with-discount-no-tax-payment-method = %{ $discountPercent } aurreztuko duzu zure hurrengo { $nextInvoiceTotal } zenbatekoaren kobrantzan, zure { $paymentMethod } ordainketa-metodoan { $currentPeriodEnd } egunean.
+next-charge-with-discount-no-tax = %{ $discountPercent } aurreztuko duzu zure hurrengo { $nextInvoiceTotal } zenbatekoaren kobrantzan, { $currentPeriodEnd } egunean.
+next-charge-with-tax-card = Zure hurrengo kobrantza { $nextInvoiceTotal } + zergetako { $taxDue } izango da, { $last4 } digituekin amaitzen den txartelean { $currentPeriodEnd } egunean.
+next-charge-with-tax-payment-method = Zure hurrengo kobrantza { $nextInvoiceTotal } + zergetako { $taxDue } izango da, { $paymentMethod } ordainketa-metodoan { $currentPeriodEnd } egunean.
+next-charge-with-tax = Zure hurrengo kobrantza { $nextInvoiceTotal } + zergetako { $taxDue } izango da { $currentPeriodEnd } egunean.
+next-charge-no-tax-card = Zure hurrengo kobrantza { $nextInvoiceTotal } izango da, { $last4 } digituekin amaitzen den txartelean { $currentPeriodEnd } egunean.
+next-charge-no-tax-payment-method = Zure hurrengo kobrantza { $nextInvoiceTotal } izango da, { $paymentMethod } ordainketa-metodoan { $currentPeriodEnd } egunean.
+next-charge-no-tax = Zure hurrengo kobrantza { $nextInvoiceTotal } izango da { $currentPeriodEnd } egunean.

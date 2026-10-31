@@ -332,6 +332,13 @@ locale-toggle-browser-default = Predefinição do navegador
 error-bad-request = Pedido inválido
 
 
+pair-unsupported-hint-heading = Concluir emparelhamento na aplicação
+pair-unsupported-hint-step-close-page = Fechar esta página
+pair-unsupported-hint-step-app-menu = Toque no <b>menu da aplicação</b>
+pair-unsupported-hint-step-sign-in = <b>Inicie sessão</b> e digitalize o código
+pair-unsupported-hint-learn-more-link = Saber mais
+
+
 password-info-balloon-why-password-info = Precisa desta palavra-passe para aceder a quaisquer dados encriptados guardados connosco.
 password-info-balloon-reset-risk-info = Uma reposição significa a perda potencial de dados, tais como palavras-passe e marcadores.
 
@@ -1553,6 +1560,11 @@ signin-passkey-fallback-body = Para manter os seus dados seguros, tem de introdu
 signin-passkey-fallback-password-label = Palavra-passe
 signin-passkey-fallback-continue = Continuar
 signin-passkey-fallback-forgot-password-link = Esqueceu-se da palavra-passe?
+signin-passkey-fallback-no-prf-heading = É necessária uma palavra-passe neste dispositivo
+signin-passkey-fallback-no-prf-description = Este navegador ou dispositivo não pode utilizar a sua chave para iniciar sessão para sincronizar por si próprio.
+signin-passkey-fallback-unwrap-failed-heading = A sua chave de acesso não desbloqueou a sincronização
+signin-passkey-fallback-unwrap-failed-description = Algo correu mal, pelo que desta vez irá precisar da sua palavra-passe.
+signin-passkey-fallback-wrap-unusable-link = Saber mais
 
 
 signin-passwordless-code-heading = Insira código de confirmação

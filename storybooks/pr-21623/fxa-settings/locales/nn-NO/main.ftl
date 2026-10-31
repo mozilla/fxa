@@ -332,6 +332,10 @@ locale-toggle-browser-default = Nettlesar-standard
 error-bad-request = Ugyldig førespurnad
 
 
+pair-unsupported-hint-heading = Fullfør samankoplinga i appen
+pair-unsupported-hint-learn-more-link = Les meir
+
+
 password-info-balloon-why-password-info = Du treng dette passordet for å få tilgang til alle krypterte data du lagrar hos oss.
 password-info-balloon-reset-risk-info = Ei tilbakestilling betyr at data som passord og bokmerke kan gå tapt.
 
@@ -1221,6 +1225,10 @@ tfa-qr-code-alt = Bruk koden { $code } or å stille inn tostegs-autentisering i 
 inline-totp-setup-page-title = Tostegs-autentisering
 
 
+page-not-found-heading = Fann ikkje sida
+page-not-found-home-button = Heim
+
+
 pair-auth-allow-heading-text = Logga du nettopp på { -brand-firefox }?
 pair-auth-allow-confirm-button = Ja, godkjenn eininga
 pair-auth-allow-refuse-device-link = Viss dette ikkje var deg, <a>endre passordet ditt</a>
@@ -1548,6 +1556,7 @@ signin-passkey-fallback-body = For å halde dataa dine trygge, må du oppgi pass
 signin-passkey-fallback-password-label = Passord
 signin-passkey-fallback-continue = Hald fram
 signin-passkey-fallback-forgot-password-link = Gløymt passordet?
+signin-passkey-fallback-wrap-unusable-link = Les meir
 
 
 signin-passwordless-code-heading = Skriv inn stadfestingskode

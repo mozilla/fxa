@@ -1506,6 +1506,11 @@ reset-password-complete-recovery-key-download-info =
     da du ikke kan få adgang til denne side igen senere.</b>
 
 
+server-error-heading = Fejl 500
+server-error-description = Åh nej, noget gik galt. Vi har fået besked, og vil gå i gang med at finde en løsning.
+server-error-home-button = Hjem
+
+
 error-label = Fejl:
 validating-signin = Validerer login…
 complete-signin-error-header = Bekræftelsesfejl

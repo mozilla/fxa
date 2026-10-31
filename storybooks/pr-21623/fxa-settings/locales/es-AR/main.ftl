@@ -328,6 +328,13 @@ locale-toggle-browser-default = Predeterminado del navegador
 error-bad-request = Solicitud errónea
 
 
+pair-unsupported-hint-heading = Finalizar el emparejamiento en la aplicación
+pair-unsupported-hint-step-close-page = Cerrar esta página
+pair-unsupported-hint-step-app-menu = Tocá el <b>menú de la aplicación</b>
+pair-unsupported-hint-step-sign-in = <b>Iniciá sesión</b> y escaneá el código
+pair-unsupported-hint-learn-more-link = Conocer más
+
+
 password-info-balloon-why-password-info = Necesitás esta contraseña para acceder a cualquier dato cifrado que almacenés con nosotros.
 password-info-balloon-reset-risk-info = Un reinicio significa la posibilidad de perder datos como contraseñas y marcadores.
 
@@ -1219,6 +1226,11 @@ tfa-qr-code-alt = Usá el código { $code } para configurar la autenticación de
 inline-totp-setup-page-title = Autenticación de dos pasos
 
 
+page-not-found-heading = Página no encontrada
+page-not-found-description = La página solicitada no se encuentra. Hemos sido notificados y corregiremos cualquier enlace que pueda estar roto.
+page-not-found-home-button = Inicio
+
+
 pair-auth-allow-heading-text = ¿Recién iniciaste sesión en { -brand-firefox }?
 pair-auth-allow-confirm-button = Sí, aprobar dispositivo
 pair-auth-allow-refuse-device-link = Si no fuiste vos, <a>cambiá tu contraseña</a>
@@ -1552,6 +1564,11 @@ signin-passkey-fallback-body = Para mantener tus datos seguros, necesitás ingre
 signin-passkey-fallback-password-label = Contraseña
 signin-passkey-fallback-continue = Continuar
 signin-passkey-fallback-forgot-password-link = ¿Te olvidaste la contraseña?
+signin-passkey-fallback-no-prf-heading = Se necesita contraseña en este dispositivo
+signin-passkey-fallback-no-prf-description = Este navegador o dispositivo no puede usar tu clave de acceso para iniciar sesión y sincronizar por sí solo.
+signin-passkey-fallback-unwrap-failed-heading = La clave de acceso no pudo desbloquear la sincronización
+signin-passkey-fallback-unwrap-failed-description = Algo salió mal, así que esta vez vas a necesitar tu contraseña.
+signin-passkey-fallback-wrap-unusable-link = Conocer más
 
 
 signin-passwordless-code-heading = Ingresá el código de confirmación

@@ -401,6 +401,14 @@ locale-toggle-browser-default = Nettlesar-standard
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Ugyldig førespurnad
 
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+pair-unsupported-hint-heading = Fullfør samankoplinga i appen
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = Les meir
+
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
 
@@ -1691,6 +1699,12 @@ inline-totp-setup-code-required-error = Autentiseringskode påkravd
 tfa-qr-code-alt = Bruk koden { $code } or å stille inn tostegs-autentisering i støtta appar.
 inline-totp-setup-page-title = Tostegs-autentisering
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Fann ikkje sida
+page-not-found-home-button = Heim
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Logga du nettopp på { -brand-firefox }?
@@ -2277,6 +2291,8 @@ signin-passkey-fallback-body = For å halde dataa dine trygge, må du oppgi pass
 signin-passkey-fallback-password-label = Passord
 signin-passkey-fallback-continue = Hald fram
 signin-passkey-fallback-forgot-password-link = Gløymt passordet?
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = Les meir
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.

@@ -334,6 +334,12 @@ locale-toggle-browser-default = Standard wobhladowaka
 error-bad-request = Špatne naprašowanje
 
 
+pair-unsupported-hint-heading = Koplowanje w nałoženju dokónčić
+pair-unsupported-hint-step-close-page = Tutu stronu začinić
+pair-unsupported-hint-step-sign-in = <b>Přizjewće so</b> a skenujće potom kode
+pair-unsupported-hint-learn-more-link = Dalše informacije
+
+
 password-info-balloon-why-password-info = Trjebaće tute hesło za přistup k zaklučowanym datam, kotrež pola nas składujeće.
 password-info-balloon-reset-risk-info = Wróćostajenje rěka, zo so snano daty kaž hesła a zapołožki zhubja.
 
@@ -1235,6 +1241,11 @@ tfa-qr-code-alt = Wužiwajće kod { $code }, zo byšće dwukročelowu awtentifik
 inline-totp-setup-page-title = Dwukročelowa awtentifikacija
 
 
+page-not-found-heading = Strona njeje so namakała
+page-not-found-description = Strona, kotruž sće požadał, njeje so namakała. Smy powěsć dóstali a porjedźimy skóncowane wotkazy.
+page-not-found-home-button = Startowa strona
+
+
 pair-auth-allow-heading-text = Sće so runje pola { -brand-firefox } přizjewił?
 pair-auth-allow-confirm-button = Haj, grat schwalić
 pair-auth-allow-refuse-device-link = Jeli njejsće to był wy, <a>změńće swoje hesło</a>
@@ -1570,6 +1581,7 @@ signin-passkey-fallback-body = Zo byšće swoje daty wěste wobchował, dyrbiće
 signin-passkey-fallback-password-label = Hesło
 signin-passkey-fallback-continue = Dale
 signin-passkey-fallback-forgot-password-link = Sće hesło zabył?
+signin-passkey-fallback-wrap-unusable-link = Dalše informacije
 
 
 signin-passwordless-code-heading = Wobkrućenski kod zapodać

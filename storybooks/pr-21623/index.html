@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 7eecfaeddc94bcf180ee1735d1feccbfecba1385</title>
+  <title>Storybooks for commit 12adb7a1f8985941e6f47bf35998b7d480b6625a</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,27 +23,26 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 7eecfaeddc94bcf180ee1735d1feccbfecba1385</h1>
+  <h1>Storybooks for commit 12adb7a1f8985941e6f47bf35998b7d480b6625a</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/27/2026, 8:56:37 PM UTC</dd>
+    <dd>10/31/2026, 11:17:19 AM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>feat(settings): use PairUnsupportedHint on the pair connect hint page</pre></dd>
+    <dd><pre>feat(settings): show the webview pair hint for embedded custom tabs</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-* The pair connect hint page had its own copy of the shared hint steps
+* The pair connect hint page must show the webview steps in a custom tab.
 
 This commit:
 
-* Renders PairUnsupportedHint (tab view) on the connect hint page
-* Picks the menu illustration from the device OS
-* Removes the page&#039;s duplicate steps and Fluent strings
-* Adds an optional learn more glean id to PairUnsupportedHint
-* Adds iOS and Android stories and a functional test
+* Renders the shared PairUnsupportedHint on the PairConnectHint page.
+* Passes view webview when embed=customtab is in the query or router state.
+* Adds an optional learnMoreGleanId prop to PairUnsupportedHint.
+* Removes the page en.ftl, because the shared hint owns the strings.
 
 Closes FXA-14247</pre></dd>
   </dl>
