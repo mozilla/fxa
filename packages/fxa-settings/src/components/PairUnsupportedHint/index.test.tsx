@@ -57,6 +57,25 @@ describe('PairUnsupportedHint', () => {
     );
   });
 
+  it('sets no glean id on the learn more link by default', () => {
+    renderWithLocalizationProvider(<PairUnsupportedHint view="tab" os="ios" />);
+
+    expect(
+      screen.getByRole('link', { name: /Learn more/ })
+    ).not.toHaveAttribute('data-glean-id');
+  });
+
+  it('sets the given glean id on the learn more link', () => {
+    renderWithLocalizationProvider(
+      <PairUnsupportedHint view="tab" os="ios" learnMoreGleanId="test_id" />
+    );
+
+    expect(screen.getByRole('link', { name: /Learn more/ })).toHaveAttribute(
+      'data-glean-id',
+      'test_id'
+    );
+  });
+
   // Fallback text has no <b> tags, so compare against the source with them removed.
   it.each([
     ['webview', 'ios', 'pair-unsupported-hint-heading'],
