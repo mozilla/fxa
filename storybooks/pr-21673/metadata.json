@@ -1,0 +1,13 @@
+{
+  "commit": "8d8b82185ee90ec2213d9936fd647bfbc9379767",
+  "summary": "feat(metering): add global redis rate limit for clickhouse requests",
+  "description": "Because:\n\n- Pods can't see each other's throughput, so together they can overload ClickHouse\n\nThis commit:\n\n- Adds separate per-second read and write budgets shared across pods in Redis via rate-limiter-flexible\n- Mirrors mozilla/entitlements#2\n\nCloses #ENT-75",
+  "timestamp": 1793652264000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
