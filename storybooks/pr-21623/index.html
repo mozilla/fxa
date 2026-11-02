@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit af9494eea1bf6988d4918777853abf3b7097019f</title>
+  <title>Storybooks for commit c183abeb8ebcf6b39380d0f0ff1f6e7124f70e27</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,25 +23,24 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit af9494eea1bf6988d4918777853abf3b7097019f</h1>
+  <h1>Storybooks for commit c183abeb8ebcf6b39380d0f0ff1f6e7124f70e27</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/2/2026, 8:02:32 PM UTC</dd>
+    <dd>11/2/2026, 8:03:12 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>feat(settings): use the shared pair hint on the connect hint page</pre></dd>
+    <dd><pre>feat(settings): show webview hint on connect hint page in Custom Tabs</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-* An unused import failed the Lint and build-react CI jobs
+* A Custom Tab belongs to another app, so the user must close it first
 
 This commit:
 
-* Renders the shared PairUnsupportedHint on the pair connect hint page
-* Shows the webview steps when embed=customtab is in the URL or state
-* Removes the unused UrlQueryData import
+* Shows the webview hint when embed=customtab is in the URL or router state
+* Exports view and OS type aliases from PairUnsupportedHint
 
 Closes FXA-14247</pre></dd>
   </dl>

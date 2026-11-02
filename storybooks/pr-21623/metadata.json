@@ -1,8 +1,8 @@
 {
-  "commit": "af9494eea1bf6988d4918777853abf3b7097019f",
-  "summary": "feat(settings): use the shared pair hint on the connect hint page",
-  "description": "Because:\n\n* An unused import failed the Lint and build-react CI jobs\n\nThis commit:\n\n* Renders the shared PairUnsupportedHint on the pair connect hint page\n* Shows the webview steps when embed=customtab is in the URL or state\n* Removes the unused UrlQueryData import\n\nCloses FXA-14247",
-  "timestamp": 1793649752000,
+  "commit": "c183abeb8ebcf6b39380d0f0ff1f6e7124f70e27",
+  "summary": "feat(settings): show webview hint on connect hint page in Custom Tabs",
+  "description": "Because:\n\n* A Custom Tab belongs to another app, so the user must close it first\n\nThis commit:\n\n* Shows the webview hint when embed=customtab is in the URL or router state\n* Exports view and OS type aliases from PairUnsupportedHint\n\nCloses FXA-14247",
+  "timestamp": 1793649792000,
   "storybooks": [
     "fxa-settings"
   ],
