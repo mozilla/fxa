@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import * as ReactUtils from 'fxa-react/lib/utils';
-import FirefoxPromoBanner from './index';
+import FirefoxPromoBanner, { GLEAN_FLUSH_TIMEOUT_MS } from './index';
 import { Constants } from '../../lib/constants';
 import { isProbablyFirefox, useAccount } from '../../models';
 import { isMobileDevice, isMobileOrTabletDevice } from '../../lib/utilities';
@@ -38,6 +38,7 @@ jest.mock('../../lib/glean', () => ({
       switchToFirefoxSubmit: jest.fn(),
       switchToFirefoxDismiss: jest.fn(),
     },
+    isDone: jest.fn(() => Promise.resolve()),
   },
 }));
 
@@ -72,6 +73,7 @@ describe('FirefoxPromoBanner', () => {
   });
 
   afterEach(() => {
+    jest.useRealTimers();
     hardNavigateSpy.mockRestore();
   });
 
@@ -127,10 +129,48 @@ describe('FirefoxPromoBanner', () => {
     const user = userEvent.setup();
     mockIsFirefox.mockReturnValue(true);
     mockIsMobileOrTablet.mockReturnValue(false);
+    let flushGlean = () => {};
+    (GleanMetrics.isDone as jest.Mock).mockReturnValueOnce(
+      new Promise<void>((resolve) => (flushGlean = resolve))
+    );
     renderBanner({ isSignedIntoFirefox: true });
 
     await user.click(screen.getByRole('link', { name: 'Connect a device' }));
+    // The submit event must flush before the page unloads.
+    expect(hardNavigateSpy).not.toHaveBeenCalled();
+    flushGlean();
+    await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalledWith('/pair'));
+  });
+
+  it('hard navigates to /pair after the timeout when the Glean flush hangs', async () => {
+    jest.useFakeTimers();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    mockIsFirefox.mockReturnValue(true);
+    mockIsMobileOrTablet.mockReturnValue(false);
+    (GleanMetrics.isDone as jest.Mock).mockReturnValueOnce(
+      new Promise<void>(() => {})
+    );
+    renderBanner({ isSignedIntoFirefox: true });
+
+    await user.click(screen.getByRole('link', { name: 'Connect a device' }));
+    await act(() => jest.advanceTimersByTimeAsync(GLEAN_FLUSH_TIMEOUT_MS - 1));
+    expect(hardNavigateSpy).not.toHaveBeenCalled();
+    await act(() => jest.advanceTimersByTimeAsync(1));
+    expect(hardNavigateSpy).toHaveBeenCalledTimes(1);
     expect(hardNavigateSpy).toHaveBeenCalledWith('/pair');
+  });
+
+  it('hard navigates to /pair when the Glean flush rejects', async () => {
+    const user = userEvent.setup();
+    mockIsFirefox.mockReturnValue(true);
+    mockIsMobileOrTablet.mockReturnValue(false);
+    (GleanMetrics.isDone as jest.Mock).mockImplementationOnce(() =>
+      Promise.reject(new Error('chunk load failed'))
+    );
+    renderBanner({ isSignedIntoFirefox: true });
+
+    await user.click(screen.getByRole('link', { name: 'Connect a device' }));
+    await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalledWith('/pair'));
   });
 
   it('renders the switch variant on desktop non-Firefox with the desktop download url', () => {

@@ -35,6 +35,7 @@ import {
 } from './web/session';
 import * as utm from './web/utm';
 import * as entrypointQuery from './web/entrypoint';
+import { eventsMap } from './web/index';
 import { Config } from '../config';
 import { WebIntegration, useAccount, WebIntegrationData } from '../../models';
 import { MetricsFlow } from '../metrics-flow';
@@ -46,6 +47,14 @@ import {
 
 jest.mock('../../lib/cache', () => ({
   currentAccount: jest.fn(),
+}));
+
+let mockLazyEventsGate: Promise<void> = Promise.resolve();
+jest.mock('./load-lazy-events', () => ({
+  loadLazyEvents: async () => {
+    await mockLazyEventsGate;
+    return jest.requireActual('./load-lazy-events').loadLazyEvents();
+  },
 }));
 
 const sandbox = sinon.createSandbox();
@@ -258,6 +267,50 @@ describe('lib/glean', () => {
       GleanMetrics.registration.view();
       await GleanMetrics.isDone();
       sinon.assert.calledOnce(setEventNameStub);
+    });
+
+    it.each(
+      (
+        [
+          'cad',
+          'cadMobilePair',
+          'cadMobilePairUseApp',
+          'cadApproveDevice',
+          'cadRedirectDesktop',
+          'cadRedirectMobile',
+          'cadFireFox',
+          'accountPref',
+          'accountBanner',
+          'firefoxPromo',
+          'deleteAccount',
+          'dtmDesktop',
+          'dtmMobile',
+        ] as const
+      ).flatMap((namespace) =>
+        Object.entries(eventsMap[namespace]).map(([key, name]) => ({
+          namespace,
+          key,
+          name,
+        }))
+      )
+    )('records the $name event once', async ({ namespace, key, name }) => {
+      const events: Record<string, () => void> = GleanMetrics[namespace];
+      events[key]();
+      await GleanMetrics.isDone();
+      sinon.assert.calledOnceWithExactly(setEventNameStub, name);
+    });
+
+    it('records a lazily loaded event and a later eager event in call order', async () => {
+      // Stands in for the chunk fetch, which outlasts the next event's setup.
+      mockLazyEventsGate = new Promise((resolve) => setTimeout(resolve, 20));
+      GleanMetrics.accountPref.view();
+      GleanMetrics.login.view();
+      await GleanMetrics.isDone();
+      mockLazyEventsGate = Promise.resolve();
+      expect(setEventNameStub.args).toEqual([
+        ['account_pref_view'],
+        ['login_view'],
+      ]);
     });
 
     // Callers navigate only once isDone() resolves, so a single failed ping
@@ -1141,6 +1194,8 @@ describe('lib/glean', () => {
 
       for (const { method, eventName } of cases) {
         for (const reason of ['otp', 'third_party_auth', 'passkey'] as const) {
+          // The stubs are read at test time, after beforeEach sets them.
+          // eslint-disable-next-line no-loop-func
           it(`submits ${eventName} with reason='${reason}'`, async () => {
             const spy = sandbox.spy(postVerifySetPassword[method], 'record');
             GleanMetrics.postVerifySetPassword[method]({
