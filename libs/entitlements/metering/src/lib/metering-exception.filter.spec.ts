@@ -9,6 +9,7 @@ import { Test } from '@nestjs/testing';
 import { MeteringExceptionFilter } from './metering-exception.filter';
 import {
   ClickHouseError,
+  ClickHouseRateLimitError,
   ClickHouseTableNameError,
   MeterNotConfiguredError,
   MeteringError,
@@ -131,6 +132,24 @@ describe('MeteringExceptionFilter', () => {
         message: expect.not.stringContaining('10.0.0.9'),
       })
     );
+  });
+
+  it('maps ClickHouseRateLimitError to 503', () => {
+    filter.respond(new ClickHouseRateLimitError('query'), response);
+
+    expect(status).toHaveBeenCalledWith(HttpStatus.SERVICE_UNAVAILABLE);
+    expect(json).toHaveBeenCalledWith({
+      statusCode: HttpStatus.SERVICE_UNAVAILABLE,
+      error: 'Service Unavailable',
+      message: 'Usage data is temporarily unavailable, retry shortly',
+    });
+  });
+
+  it('does not report ClickHouseRateLimitError to the logger or Sentry', () => {
+    filter.respond(new ClickHouseRateLimitError('query'), response);
+
+    expect(logger.error).not.toHaveBeenCalled();
+    expect(mockSentryCaptureException).not.toHaveBeenCalled();
   });
 
   it('maps TimestampOutOfRangeError to 400', () => {

@@ -2,7 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import 'reflect-metadata';
+
 import { z } from 'zod';
+
+import { StatsD } from '@fxa/shared/metrics/statsd';
 
 import { ClickHouseClient } from './clickhouse.client';
 import {
@@ -10,6 +14,7 @@ import {
   DAY_MS,
   INTEGRATION_CLICKHOUSE_CONFIG,
   integrationClickHouseClient,
+  integrationClickHouseRateLimiters,
   optimizeFinal,
   truncateMeteringTables,
 } from '../testing';
@@ -248,11 +253,15 @@ describeClickHouse('MeteringEventsManager against a real ClickHouse', () => {
     ]);
     const capped = new MeteringEventsManager(
       new MeteringEventsRepository(
-        new ClickHouseClient({
-          ...INTEGRATION_CLICKHOUSE_CONFIG,
-          maxMemoryUsageBytes: 1,
-          maxBytesBeforeExternalGroupBy: 1,
-        })
+        new ClickHouseClient(
+          {
+            ...INTEGRATION_CLICKHOUSE_CONFIG,
+            maxMemoryUsageBytes: 1,
+            maxBytesBeforeExternalGroupBy: 1,
+          },
+          new StatsD({ mock: true }),
+          integrationClickHouseRateLimiters()
+        )
       )
     );
 

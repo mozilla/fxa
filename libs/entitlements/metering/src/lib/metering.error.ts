@@ -25,6 +25,13 @@ export class ClickHouseTableNameError extends MeteringError {
   }
 }
 
+export class ClickHouseRateLimitError extends MeteringError {
+  constructor(operation: string) {
+    super('ClickHouse request rate limit exceeded', { operation });
+    this.name = 'ClickHouseRateLimitError';
+  }
+}
+
 export class InvalidMeteringEventError extends MeteringError {
   constructor(issuePaths: string[]) {
     super('Metering event failed schema validation', { issuePaths });

@@ -15,6 +15,7 @@ import * as Sentry from '@sentry/nestjs';
 
 import {
   ClickHouseError,
+  ClickHouseRateLimitError,
   MeterNotConfiguredError,
   MeteringError,
   PublishError,
@@ -67,6 +68,15 @@ export class MeteringExceptionFilter implements ExceptionFilter {
         statusCode: HttpStatus.SERVICE_UNAVAILABLE,
         error: 'Service Unavailable',
         message: 'Usage event could not be accepted, retry shortly',
+      });
+      return;
+    }
+
+    if (exception instanceof ClickHouseRateLimitError) {
+      response.status(HttpStatus.SERVICE_UNAVAILABLE).json({
+        statusCode: HttpStatus.SERVICE_UNAVAILABLE,
+        error: 'Service Unavailable',
+        message: 'Usage data is temporarily unavailable, retry shortly',
       });
       return;
     }
