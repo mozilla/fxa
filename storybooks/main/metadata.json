@@ -1,8 +1,8 @@
 {
-  "commit": "590121f6d9c0e328176eb8220c30daa072d5de1f",
-  "summary": "Merge pull request #21638 from mozilla/fxa-14854",
-  "description": "perf(settings): lazy-load scoped-keys in the OAuth finish hook",
-  "timestamp": 1793634753000,
+  "commit": "aa34b38d51de50bf3f5daa3ca48cbd3db432a614",
+  "summary": "Merge pull request #21460 from mozilla/fxa-12837",
+  "description": "refactor(auth): convert email bounce handler to TypeScript",
+  "timestamp": 1793635344000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
