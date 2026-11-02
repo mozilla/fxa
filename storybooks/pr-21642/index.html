@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit ca15ed34f6cf75f8fbc4c2c95a8c756a7dac2be1</title>
+  <title>Storybooks for commit 18c121dff0a049f957590cca847d62c4dae9fb97</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,28 +23,24 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit ca15ed34f6cf75f8fbc4c2c95a8c756a7dac2be1</h1>
+  <h1>Storybooks for commit 18c121dff0a049f957590cca847d62c4dae9fb97</h1>
   <ul>
-    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
-<li><a href="./fxa-settings/">fxa-settings</a></li>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>10/30/2026, 5:57:06 PM UTC</dd>
+    <dd>11/2/2026, 9:52:11 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): record passkey alert and banner views in Glean</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- Glean had no event for a shown Settings alert or sign-in banner.
-- Passkey alerts and links had no Glean IDs.
+
+- origin/main and this branch put different comments on the same no-loop-func disable line.
 
 This commit:
-- Adds the events alert_bar.view and banner.view.
-- Makes AlertBar and Banner record a view through an opt-in gleanId.
-- Tags the AlertBar close button from the gleanId.
-- Adds Glean IDs to passkey alerts, Learn more links and sign-in banners.
-- Uses account_pref_passkey_create_unsupported for the unsupported row.
-- Polls for both click IDs in the unsupported passkey functional test.
+
+- Merges origin/main and keeps one comment above the shared disable line.
+- Keeps the alertBar and banner Glean tests.
 
 Closes FXA-13972</pre></dd>
   </dl>

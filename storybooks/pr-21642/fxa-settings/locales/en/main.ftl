@@ -1417,6 +1417,11 @@ tfa-qr-code-alt = Use the code { $code } to set up two-step authentication in su
 inline-totp-setup-page-title = Two-step authentication
 
 
+page-not-found-heading = Page not found
+page-not-found-description = The page you requested is not found. We’ve been notified and will fix any links that may be broken.
+page-not-found-home-button = Home
+
+
 pair-auth-allow-heading-text = Did you just sign in to { -brand-firefox }?
 pair-auth-allow-confirm-button = Yes, approve device
 pair-auth-allow-refuse-device-link = If this wasn’t you, <a>change your password</a>
@@ -1789,6 +1794,12 @@ signin-passkey-fallback-body = To keep your data safe, you need to enter your pa
 signin-passkey-fallback-password-label = Password
 signin-passkey-fallback-continue = Continue
 signin-passkey-fallback-forgot-password-link = Forgot password?
+
+signin-passkey-fallback-no-prf-heading = Password needed on this device
+signin-passkey-fallback-no-prf-description = This browser or device can’t use your passkey to sign in to sync on its own.
+signin-passkey-fallback-unwrap-failed-heading = Your passkey couldn’t unlock sync
+signin-passkey-fallback-unwrap-failed-description = Something went wrong, so you’ll need your password this time.
+signin-passkey-fallback-wrap-unusable-link = Learn more
 
 
 

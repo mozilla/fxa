@@ -1,10 +1,9 @@
 {
-  "commit": "ca15ed34f6cf75f8fbc4c2c95a8c756a7dac2be1",
+  "commit": "18c121dff0a049f957590cca847d62c4dae9fb97",
   "summary": "feat(settings): record passkey alert and banner views in Glean",
-  "description": "Because:\n- Glean had no event for a shown Settings alert or sign-in banner.\n- Passkey alerts and links had no Glean IDs.\n\nThis commit:\n- Adds the events alert_bar.view and banner.view.\n- Makes AlertBar and Banner record a view through an opt-in gleanId.\n- Tags the AlertBar close button from the gleanId.\n- Adds Glean IDs to passkey alerts, Learn more links and sign-in banners.\n- Uses account_pref_passkey_create_unsupported for the unsupported row.\n- Polls for both click IDs in the unsupported passkey functional test.\n\nCloses FXA-13972",
-  "timestamp": 1793383026000,
+  "description": "Because:\n\n- origin/main and this branch put different comments on the same no-loop-func disable line.\n\nThis commit:\n\n- Merges origin/main and keeps one comment above the shared disable line.\n- Keeps the alertBar and banner Glean tests.\n\nCloses FXA-13972",
+  "timestamp": 1793656331000,
   "storybooks": [
-    "fxa-admin-panel",
     "fxa-settings"
   ],
   "deployDir": "deploy/"
