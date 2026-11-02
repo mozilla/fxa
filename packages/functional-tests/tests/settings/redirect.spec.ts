@@ -133,6 +133,25 @@ test.describe('severity-2 #smoke', () => {
       await expect(page).toHaveURL(/signin/);
     });
 
+    test('redirects to email first on focus when the stored account is gone', async ({
+      target,
+      page,
+      pages: { signin, signup, settings },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUp();
+      await signInAccount(target, page, signin, settings, credentials);
+
+      // Same result as a sign-out in another tab.
+      await page.evaluate(() => {
+        localStorage.removeItem('__fxa_storage.accounts');
+        localStorage.removeItem('__fxa_storage.currentAccountUid');
+        window.dispatchEvent(new Event('focus'));
+      });
+
+      await expect(signup.emailTextbox).toBeVisible();
+    });
+
     test('redirects to settings after forced email verification', async ({
       target,
       page,

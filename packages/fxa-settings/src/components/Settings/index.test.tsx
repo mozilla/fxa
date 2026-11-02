@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ReactNode } from 'react';
-import { waitFor } from '@testing-library/react';
+import { fireEvent, waitFor } from '@testing-library/react';
+import * as Sentry from '@sentry/browser';
 import { Account, AppContext } from '../../models';
 import { useAccountState } from '../../models/contexts/AccountStateContext';
 import {
@@ -11,6 +12,7 @@ import {
   MOCK_ACCOUNT,
   renderWithRouter,
   mockSession,
+  mockAuthClient,
 } from '../../models/mocks';
 import { Config } from '../../lib/config';
 import { SETTINGS_PATH } from '../../constants';
@@ -116,6 +118,11 @@ mockMfaGuard.mockImplementation(({ children }: { children: ReactNode }) => (
 const mockNavigateWithQuery = jest.fn();
 jest.mock('../../lib/hooks/useNavigateWithQuery', () => ({
   useNavigateWithQuery: () => mockNavigateWithQuery,
+}));
+
+jest.mock('@sentry/browser', () => ({
+  ...jest.requireActual('@sentry/browser'),
+  captureException: jest.fn(),
 }));
 
 const mockCurrentAccount = jest.fn();
@@ -226,6 +233,44 @@ describe('Settings App', () => {
       'Account data unavailable, redirecting to sign-in'
     );
     warnSpy.mockRestore();
+  });
+
+  describe('window focus', () => {
+    it('redirects to root without a Sentry report when no account is stored', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      renderWithRouter(
+        <AppContext.Provider
+          value={mockAppContext({ account: new Account(mockAuthClient()) })}
+        >
+          <Subject />
+        </AppContext.Provider>,
+        { route: SETTINGS_PATH }
+      );
+      await waitFor(() => expect(mockSessionStatus).toHaveBeenCalled());
+      // The mount reads the same Account; assert only on calls from the focus event.
+      mockNavigateWithQuery.mockClear();
+      (Sentry.captureException as jest.Mock).mockClear();
+      mockCurrentAccount.mockReturnValue(undefined);
+
+      fireEvent.focus(window);
+
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+      expect(Sentry.captureException).not.toHaveBeenCalled();
+    });
+
+    it('does not navigate when an account is stored', async () => {
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext()}>
+          <Subject />
+        </AppContext.Provider>,
+        { route: SETTINGS_PATH }
+      );
+      await waitFor(() => expect(mockSessionStatus).toHaveBeenCalled());
+
+      fireEvent.focus(window);
+
+      expect(mockNavigateWithQuery).not.toHaveBeenCalled();
+    });
   });
 
   it('redirects to root if account is not verified', async () => {

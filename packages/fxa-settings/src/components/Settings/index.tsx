@@ -8,7 +8,7 @@ import SettingsLayout from './SettingsLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
 import { hardNavigate } from 'fxa-react/lib/utils';
-import { useAccount, useAuthClient, useConfig, useSession } from '../../models';
+import { useAccount, useAuthClient, useConfig } from '../../models';
 import {
   useAccountData,
   InvalidTokenError,
@@ -30,7 +30,6 @@ import PageAvatar from './PageAvatar';
 import PageRecentActivity from './PageRecentActivity';
 import { MfaGuardPageRecoveryKeyCreate } from './PageRecoveryKeyCreate';
 import { currentAccount, isSigningOut, sessionToken } from '../../lib/cache';
-import { hasAccount, setCurrentAccount } from '../../lib/storage-utils';
 import GleanMetrics from '../../lib/glean';
 import Head from 'fxa-react/components/Head';
 import { PageMfaGuardRecoveryPhoneRemove } from './PageRecoveryPhoneRemove';
@@ -72,7 +71,6 @@ export const Settings = ({
   integration: SettingsIntegration;
   isSignedIntoFirefox?: boolean;
 }) => {
-  const session = useSession();
   const authClient = useAuthClient();
   const account = useAccount();
   const config = useConfig();
@@ -85,47 +83,16 @@ export const Settings = ({
   const { isLoading: loading, error } = useAccountData({ authClient });
 
   useEffect(() => {
-    /**
-     * Handle multi-tab account state synchronization.
-     *
-     * Account state is stored in localStorage and shared between all tabs.
-     * When a user has account A signed in on tab 1, and account B signed in
-     * on tab 2, localStorage reflects whichever account was last signed in.
-     *
-     * On window focus, we sync the current account in localStorage to match
-     * the in-memory account state for this tab.
-     *
-     * See FXA-9875 for potential cleanup of this multi-tab state handling.
-     */
+    // Read the store, not account.uid: the Account.data getter reports a missing account to Sentry.
     function handleWindowFocus() {
-      const accountUidFromContext = (() => {
-        try {
-          return account.uid;
-        } catch {}
-        return undefined;
-      })();
-
-      if (accountUidFromContext === undefined) {
-        console.warn('Could not access account.uid from context!');
+      if (!currentAccount()?.uid) {
+        console.warn('Could not locate current account in local storage');
         navigateWithQuery('/');
-        return;
       }
-
-      if (currentAccount()?.uid === accountUidFromContext) {
-        return;
-      }
-
-      if (hasAccount(accountUidFromContext)) {
-        setCurrentAccount(accountUidFromContext);
-        return;
-      }
-
-      console.warn('Could not locate current account in local storage');
-      navigateWithQuery('/');
     }
     window.addEventListener('focus', handleWindowFocus);
     return () => window.removeEventListener('focus', handleWindowFocus);
-  }, [account, navigateWithQuery, session]);
+  }, [navigateWithQuery]);
 
   const { enabled: gleanEnabled } = GleanMetrics.useGlean();
 
