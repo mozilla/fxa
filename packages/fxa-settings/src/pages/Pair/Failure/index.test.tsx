@@ -1,3 +1,4 @@
+import { MemoryRouter } from 'react-router-dom';
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -22,7 +23,7 @@ describe('PairFailure', () => {
   // });
 
   it('renders the default view as expected', () => {
-    renderWithLocalizationProvider(<PairFailure />);
+    renderWithLocalizationProvider(<MemoryRouter><PairFailure /></MemoryRouter>);
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -32,10 +33,12 @@ describe('PairFailure', () => {
         'The setup couldn’t be completed. Please sign in with your email.'
       )
     ).toBeInTheDocument();
+    const tryAgainLink = screen.getByRole('link', { name: /Try again/i });
+    expect(tryAgainLink).toHaveAttribute('href', '/pair');
   });
 
   it('renders errors as expected', () => {
-    renderWithLocalizationProvider(<PairFailure error={MOCK_ERROR} />);
+    renderWithLocalizationProvider(<MemoryRouter><PairFailure error={MOCK_ERROR} /></MemoryRouter>);
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -49,7 +52,7 @@ describe('PairFailure', () => {
   });
 
   it('emits expected metrics event on render', () => {
-    renderWithLocalizationProvider(<PairFailure />);
+    renderWithLocalizationProvider(<MemoryRouter><PairFailure /></MemoryRouter>);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

@@ -169,7 +169,18 @@ const AuthAllow = ({
         <h1 className="card-header">Did you just sign in to Firefox?</h1>
       </FtlMsg>
       <p className="card-subheader mb-2">{email}</p>
-      {error && <Banner type="error" content={{ localizedHeading: error }} />}
+      {error && (
+        <>
+          <Banner type="error" content={{ localizedHeading: error }} />
+          <div className="mt-2 mb-4 text-center">
+            <Link to="/pair" className="text-sm link-blue">
+              <FtlMsg id="pair-failure-try-again-link">
+                <span>Try again</span>
+              </FtlMsg>
+            </Link>
+          </div>
+        </>
+      )}
       <LocationBalloonImage className="w-3/5 mx-auto mt-8" />
       <form noValidate onSubmit={handleSubmit}>
         {suppDeviceInfo && <DeviceInfoBlock remoteMetadata={suppDeviceInfo} />}

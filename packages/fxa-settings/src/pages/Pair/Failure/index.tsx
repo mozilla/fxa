@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Link } from 'react-router-dom';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import CardHeader from '../../../components/CardHeader';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -28,6 +29,16 @@ const PairFailure = ({ error }: PairFailureProps) => {
           The setup couldn’t be completed. Please sign in with your email.
         </p>
       </FtlMsg>
+      <div className="mt-8 flex w-full justify-center">
+        <FtlMsg id="pair-failure-try-again-link">
+          <Link
+            to="/pair"
+            className="btn-primary w-full max-w-xs text-center py-2 px-4 rounded"
+          >
+            Try again
+          </Link>
+        </FtlMsg>
+      </div>
     </AppLayout>
   );
 };

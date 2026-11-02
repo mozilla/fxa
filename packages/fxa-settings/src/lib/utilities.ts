@@ -346,7 +346,16 @@ export const DEFAULT_PAIRING_ERROR = 'An error occurred during pairing';
 
 /** Extract a human-readable error message from an unknown thrown value. */
 export function getPairingErrorMessage(err: unknown): string {
-  return err instanceof Error ? err.message : DEFAULT_PAIRING_ERROR;
+  if (err instanceof Error) {
+    if (
+      err.message.includes('Current state: Errored') ||
+      err.message.includes('pair_supplicant_metadata')
+    ) {
+      return 'The pairing session has expired or was interrupted. Please try again.';
+    }
+    return err.message;
+  }
+  return DEFAULT_PAIRING_ERROR;
 }
 
 /** Whether the given entrypoint originated from a Firefox "Send Tab" UI. */
