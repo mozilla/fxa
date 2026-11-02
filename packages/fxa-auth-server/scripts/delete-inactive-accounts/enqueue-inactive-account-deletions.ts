@@ -811,6 +811,10 @@ if (require.main === module) {
         statsd.increment('accounts.inactive.enqueue-script.error', {
           exitCode: '1',
         });
+        statsd.gauge(
+          'accounts.inactive.enqueue-script.last-error-time',
+          Math.floor(Date.now() / 1000)
+        );
         console.error(err);
         return 1;
       }
