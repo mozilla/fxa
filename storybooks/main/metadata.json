@@ -1,8 +1,8 @@
 {
-  "commit": "2f4cf54b304aa6528408aebc0052260ebf9baa8f",
-  "summary": "Merge pull request #21653 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-afd07ca2d000252a0b9dd2b8981c0db6f7f15bc1",
-  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from a5171b4fcb5312f60086175cb9936d40f98573af to afd07ca2d000252a0b9dd2b8981c0db6f7f15bc1",
-  "timestamp": 1793641831000,
+  "commit": "387469d5ee91b1f9198ecf0bb61e28dd4fcb946b",
+  "summary": "Merge pull request #21529 from mozilla/fxa-5410",
+  "description": "chore(deps): upgrade ioredis from 4 to 5",
+  "timestamp": 1793642307000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
