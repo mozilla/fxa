@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit c183abeb8ebcf6b39380d0f0ff1f6e7124f70e27</title>
+  <title>Storybooks for commit ddaef2e0e4a0c9d60a2132ab8a46c464d52ffdb9</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,24 +23,27 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit c183abeb8ebcf6b39380d0f0ff1f6e7124f70e27</h1>
+  <h1>Storybooks for commit ddaef2e0e4a0c9d60a2132ab8a46c464d52ffdb9</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/2/2026, 8:03:12 PM UTC</dd>
+    <dd>11/2/2026, 8:21:24 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>feat(settings): show webview hint on connect hint page in Custom Tabs</pre></dd>
+    <dd><pre>feat(settings): use PairUnsupportedHint on the pair connect hint page</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-* A Custom Tab belongs to another app, so the user must close it first
+- The pair connect hint page kept its own copy of the steps that the shared PairUnsupportedHint shows.
+- Firefox in a Custom Tab needs the webview steps.
 
 This commit:
 
-* Shows the webview hint when embed=customtab is in the URL or router state
-* Exports view and OS type aliases from PairUnsupportedHint
+- Renders PairUnsupportedHint on the page with the device OS and the tab or webview view.
+- Sets the webview view when embed=customtab is in the query or the router state.
+- Adds an optional learnMoreGleanId prop to PairUnsupportedHint.
+- Removes the old page strings and updates the stories, unit tests and functional spec.
 
 Closes FXA-14247</pre></dd>
   </dl>
