@@ -1,8 +1,8 @@
 {
-  "commit": "70b12044c0a2e511c4fd6421793be450a4567a23",
-  "summary": "Merge pull request #21659 from mozilla/fxa-14887",
-  "description": "chore(content-server): remove dead grunt build steps, tailwind and app/images",
-  "timestamp": 1793640319000,
+  "commit": "907aa8a7c5cb84daae1fb1db3e35ef9964b35750",
+  "summary": "Merge pull request #21668 from mozilla/fxa-14837",
+  "description": "fix(settings): stop Sentry report on window focus without account",
+  "timestamp": 1793641136000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
