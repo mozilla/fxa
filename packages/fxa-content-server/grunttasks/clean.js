@@ -22,7 +22,6 @@ module.exports = function (grunt) {
             '<%= yeoman.es5 %>/*',
             '<%= yeoman.dist %>/*',
             '!<%= yeoman.dist %>/.git*',
-            '<%= yeoman.page_template_dist %>/*',
           ],
         },
       ],

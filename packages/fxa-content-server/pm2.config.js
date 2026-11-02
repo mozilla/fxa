@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const path = require('path');
 const PATH = process.env.PATH.split(':')
   .filter((p) => !p.includes(process.env.TMPDIR))
   .join(':');
@@ -34,32 +33,6 @@ apps.push({
     TRACING_CLIENT_NAME: 'fxa-content-client',
   },
 });
-
-if (process.env.CI !== 'true') {
-  apps.push({
-    name: 'content-css',
-    script: 'yarn build-css',
-    cwd: __dirname,
-    env: {
-      PATH,
-    },
-    filter_env: ['npm_'],
-    autorestart: false,
-    watch: [
-      'postcss.config.js',
-      'tailwind.config.js',
-      'app/styles/tailwind.css',
-      'app/styles/tailwind/**/*.css',
-      require.resolve('fxa-react/configs/tailwind'),
-      path.normalize(
-        `${path.dirname(
-          require.resolve('fxa-react/configs/tailwind')
-        )}/../styles`
-      ),
-    ],
-    time: true,
-  });
-}
 
 module.exports = {
   apps,
