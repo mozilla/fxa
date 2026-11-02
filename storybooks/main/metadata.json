@@ -1,8 +1,8 @@
 {
-  "commit": "4469220f2fa3f1fd290703cfe8c4ac182d03977f",
-  "summary": "Merge pull request #21533 from mozilla/fxa-11987",
-  "description": "chore(deps): remove nest-typed-config/class-validator resolution",
-  "timestamp": 1793635476000,
+  "commit": "04363f7bbbf4b475a0ba52a053989f833b4e6bb2",
+  "summary": "Merge pull request #21664 from mozilla/fxa-14838",
+  "description": "fix(settings): wrap password strength bullets in translate=\"no\" spans",
+  "timestamp": 1793636565000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
