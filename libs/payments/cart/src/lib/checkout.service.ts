@@ -563,7 +563,14 @@ export class CheckoutService {
         confirmationSecret.client_secret
           ? confirmationSecret.client_secret.split('_secret_')[0]
           : undefined;
-      if (paymentIntentId && invoice.amount_due !== 0) {
+      // Stripe marks an invoice below its minimum charge as paid, with no intent
+      const paidBelowMinimumCharge =
+        invoice.status === 'paid' &&
+        invoice.total !== 0 &&
+        !!customer.invoice_settings.default_payment_method;
+      if (paidBelowMinimumCharge) {
+        intent = undefined;
+      } else if (paymentIntentId && invoice.amount_due !== 0) {
         intent = await this.paymentIntentManager.confirm(paymentIntentId, {
           confirmation_token: confirmationTokenId,
           off_session: false,
@@ -618,6 +625,29 @@ export class CheckoutService {
         );
         throw error;
       }
+    }
+
+    if (!intent) {
+      await this.cartManager.dangerouslyUpdateProcessingCart(cart.id, version, {
+        stripeSubscriptionId: subscription.id,
+      });
+      const paymentMethod = await this.paymentMethodManager.retrieve(
+        customer.invoice_settings.default_payment_method ?? ''
+      );
+      await this.postPaySteps({
+        cart,
+        version: version + 1,
+        subscription,
+        uid,
+        paymentProvider: 'stripe',
+        paymentForm: convertStripePaymentMethodTypeToSubPlat(paymentMethod),
+        isCancelInterstitialOffer: isCancelInterstitialOffer(
+          eligibility.subscriptionEligibilityResult,
+          attribution.session_entrypoint
+        ),
+        requestArgs,
+      });
+      return;
     }
 
     await this.cartManager.dangerouslyUpdateProcessingCart(cart.id, version, {
