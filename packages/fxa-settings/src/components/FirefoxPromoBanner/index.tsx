@@ -18,6 +18,9 @@ import heartFoxes from './heart-foxes.svg';
 type VisibleBannerState = Exclude<BannerState, 'hidden'>;
 type PromoAction = 'view' | 'submit' | 'dismiss';
 
+// Upper bound on the wait for the lazy Glean chunk before the pair navigation.
+export const GLEAN_FLUSH_TIMEOUT_MS = 500;
+
 // Each variant maps its actions to the Glean events it emits.
 const VARIANTS = {
   'firefox-pair': {
@@ -120,7 +123,14 @@ export const FirefoxPromoBannerView = ({
             emitMetric('submit');
             // Full page load so the app re-bootstraps and rebuilds the
             // integration from the /pair URL, as if the user had just arrived.
-            hardNavigate(pairHref);
+            Promise.race([
+              GleanMetrics.isDone(),
+              new Promise((resolve) =>
+                setTimeout(resolve, GLEAN_FLUSH_TIMEOUT_MS)
+              ),
+            ])
+              .catch(() => {})
+              .then(() => hardNavigate(pairHref));
           }}
         >
           {variant.cta}
