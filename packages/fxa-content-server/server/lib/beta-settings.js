@@ -228,6 +228,25 @@ function resolvePreConnectDirectives(settingsConfig) {
   };
 }
 
+// The client always fetches en/main.ftl, so the browser can start it early.
+// Only the server knows l10n.baseUrl, so the build cannot write this link.
+function resolveL10nPreload(html) {
+  const match = html.match(/<meta name="fxa-l10n-asset-map" content="([^"]*)"/);
+  if (!match || !match[1]) {
+    return '';
+  }
+  let enPath;
+  try {
+    enPath = JSON.parse(decodeURIComponent(match[1]))['locales/en/main.ftl'];
+  } catch (e) {
+    return '';
+  }
+  if (typeof enPath !== 'string' || !enPath) {
+    return '';
+  }
+  return `<link rel="preload" href="${settingsConfig.l10n.baseUrl}/${enPath}" as="fetch" crossorigin="anonymous">`;
+}
+
 // Conditionally modify the response
 function modifyProxyRes(proxyRes, req, res) {
   const bodyChunks = [];
@@ -263,6 +282,7 @@ function modifyProxyRes(proxyRes, req, res) {
         __FLOW_ID__: flowEventData.flowId,
         __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
         ...resolvePreConnectDirectives(settingsConfig),
+        __L10N_PRELOAD__: resolveL10nPreload(html),
       });
       res.send(new Buffer.from(html));
     } else {
@@ -312,6 +332,7 @@ const modifySettingsStatic = function (req, res) {
       __FLOW_ID__: flowEventData.flowId,
       __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
       ...resolvePreConnectDirectives(settingsConfig),
+      __L10N_PRELOAD__: resolveL10nPreload(indexFile),
     })
   );
 };

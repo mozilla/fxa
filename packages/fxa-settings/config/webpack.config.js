@@ -720,6 +720,48 @@ module.exports = function (webpackEnv) {
             );
           }
         })(),
+      // Start the Index route chunks with the entry JS, not after l10n loads
+      isEnvProduction &&
+        new (class {
+          apply(compiler) {
+            compiler.hooks.compilation.tap(
+              'RoutePreloadPlugin',
+              (compilation) => {
+                HtmlWebpackPlugin.getHooks(compilation).alterAssetTagGroups.tap(
+                  'RoutePreloadPlugin',
+                  (data) => {
+                    const group = compilation.namedChunkGroups.get('Index');
+                    if (!group) {
+                      throw new Error(
+                        'RoutePreloadPlugin: chunk group "Index" not found'
+                      );
+                    }
+                    group.chunks
+                      .filter((chunk) => !chunk.canBeInitial())
+                      .forEach((chunk) => {
+                        chunk.files.forEach((file) => {
+                          if (file.endsWith('.js')) {
+                            // No crossorigin, to match the runtime's chunk requests
+                            data.headTags.push({
+                              tagName: 'link',
+                              voidTag: true,
+                              attributes: {
+                                rel: 'preload',
+                                as: 'script',
+                                href:
+                                  compilation.outputOptions.publicPath + file,
+                                fetchpriority: 'low',
+                              },
+                            });
+                          }
+                        });
+                      });
+                  }
+                );
+              }
+            );
+          }
+        })(),
       // Generate an asset manifest file with the following content:
       // - "files" key: Mapping of all asset filenames to their corresponding
       //   output file so that tools can pick it up without having to parse
