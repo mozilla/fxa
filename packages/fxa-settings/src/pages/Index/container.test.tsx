@@ -53,6 +53,12 @@ jest.mock('../../lib/hooks/useValidate', () => ({
   useValidatedQueryParams: jest.fn(),
 }));
 
+const mockCaptureException = jest.fn();
+jest.mock('@sentry/browser', () => ({
+  ...jest.requireActual('@sentry/browser'),
+  captureException: (...args: unknown[]) => mockCaptureException(...args),
+}));
+
 const mockSensitiveDataClient = new SensitiveDataClient();
 jest.mock('../../models', () => {
   const originalModule = jest.requireActual('../../models');
@@ -559,6 +565,46 @@ describe('IndexContainer', () => {
       expect(currentIndexProps?.tooltipErrorMessage).toEqual(
         AuthUiErrors.EMAIL_REQUIRED.message
       );
+    });
+
+    it('reports an invalid query param email to Sentry with the clientId tag', async () => {
+      jest.spyOn(integration, 'getClientId').mockReturnValue('abc123');
+      const validationError = new ModelValidationErrors(
+        [],
+        {},
+        'QueryParameterValidation'
+      );
+      mockUseValidatedQueryParams.mockReturnValue({
+        queryParamModel: { email: 'invalid-email' },
+        validationError,
+      });
+
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        </MemoryRouter>
+      );
+
+      await waitFor(() => {
+        expect(mockCaptureException).toHaveBeenCalledWith(validationError, {
+          tags: {
+            source: 'IndexContainer',
+            condition: 'QueryParameterValidation',
+            clientId: 'abc123',
+          },
+        });
+      });
+      await waitFor(() => {
+        expect(currentIndexProps?.tooltipErrorMessage).toEqual(
+          AuthUiErrors.EMAIL_REQUIRED.message
+        );
+      });
     });
 
     it('should suggest currentAccount email when available and redirect to signin', async () => {
