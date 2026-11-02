@@ -495,6 +495,8 @@ subscription-content-next-bill-with-tax-1 = { $nextInvoiceTotal } + { $taxDue } 
 subscription-content-next-bill-no-tax-1 = { $nextInvoiceTotal }
 subscription-content-button-cancel-subscription = Aboneliği iptal et
     .aria-label = { $productName } aboneliğinizi iptal edin
+# Link to the terms and restrictions for a coupon offer.
+subscription-content-link-churn-intervention-terms-apply = Koşullar geçerlidir
 
 ##
 

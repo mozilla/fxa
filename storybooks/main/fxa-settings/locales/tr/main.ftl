@@ -831,6 +831,7 @@ recent-activity-account-passkey-removed = Geçiş anahtarı kaldırıldı
 recent-activity-account-passkey-authentication-success = Geçiş anahtarıyla giriş tamamlandı
 recent-activity-account-passkey-authentication-failure = Geçiş anahtarıyla giriş başarısız oldu
 recent-activity-account-passwordless-login-otp-sent = Parolasız giriş kodu gönderildi
+recent-activity-account-passwordless-login-otp-failed = Parolasız giriş kodu kullanılamadı
 recent-activity-account-passwordless-login-otp-verified = Parolasız giriş kodu doğrulandı
 recent-activity-account-passwordless-registration-complete = Parolasız hesap kaydı tamamlandı
 recent-activity-account-recovery-codes-set = Kurtarma kodları ayarlandı
@@ -1362,6 +1363,8 @@ pair2-supplicant-sync-success-description-v2 = Eşitleme sürüyor. Eşitlenen v
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zaman aşımına uğradık
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Vazgeçildi
+pair2-supplicant-timeout-and-cancel-canceled-description = Dilediğiniz zaman cihaz bağlamak için bilgisayarınızdan <b>firefox.com/pair</b> adresini ziyaret edebilirsiniz.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Bu cihazdan zaten giriş yapılmış
 
 
 permissions-heading = { $serviceName } şunlara erişmek istiyor:
@@ -1522,6 +1525,8 @@ signin-passkey-fallback-heading = Eşitlemek için parolanızı yazın
 signin-passkey-fallback-password-label = Parola
 signin-passkey-fallback-continue = Devam et
 signin-passkey-fallback-forgot-password-link = Parolanızı unuttunuz mu?
+signin-passkey-fallback-no-prf-heading = Bu cihaz için parola gerekli
+signin-passkey-fallback-unwrap-failed-description = Bir sorun oluştu. Bu seferlik parolanızı girmeniz gerekecek.
 signin-passkey-fallback-wrap-unusable-link = Daha fazla bilgi al
 
 
