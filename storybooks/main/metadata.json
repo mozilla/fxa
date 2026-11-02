@@ -1,8 +1,8 @@
 {
-  "commit": "25d8fd7deab67d3e4f8359b21e7f74eee57d28ae",
-  "summary": "Merge pull request #21632 from mozilla/agent-c19fbe",
-  "description": "docs(adr): add ADR 0052 for token exchange canonical scope",
-  "timestamp": 1793654031000,
+  "commit": "b38048041fc0881f612ecc5d8ded0a75cc11409c",
+  "summary": "Merge pull request #21647 from mozilla/fxa-14859",
+  "description": "perf(settings): load Settings and CAD Glean events lazily",
+  "timestamp": 1793655337000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
