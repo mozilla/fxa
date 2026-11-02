@@ -2,7 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as jose from 'node-jose';
+import {
+  calculateJwkThumbprint,
+  compactDecrypt,
+  exportJWK,
+  generateKeyPair,
+} from 'jose';
+import type { KeyLike } from 'jose';
 
 /**
  * Scoped key utilities
@@ -13,19 +19,23 @@ export class KeyUtils {
   /**
    * @constructor
    */
-  constructor(public keystore: any = null) {}
+  constructor(public keystore: KeyLike | Uint8Array | null = null) {}
   /**
    * @method createApplicationKeyPair
    * @desc Returns a JWK public key
    * @returns {Promise}
    */
   async createApplicationKeyPair() {
-    const keystore = jose.JWK.createKeyStore();
-    const keyPair = await keystore.generate('EC', 'P-256');
-    this.keystore = keystore;
+    const { publicKey, privateKey } = await generateKeyPair('ECDH-ES', {
+      crv: 'P-256',
+    });
+    this.keystore = privateKey;
+
+    const jwkPublicKey = await exportJWK(publicKey);
+    jwkPublicKey.kid = await calculateJwkThumbprint(jwkPublicKey);
 
     return {
-      jwkPublicKey: keyPair.toJSON(),
+      jwkPublicKey,
     };
   }
   /**
@@ -41,9 +51,10 @@ export class KeyUtils {
       );
     }
 
-    const decryptedBundle = await jose.JWE.createDecrypt(this.keystore).decrypt(
-      bundle
-    );
-    return JSON.parse(jose.util.utf8.encode(decryptedBundle.plaintext));
+    const { plaintext } = await compactDecrypt(bundle, this.keystore, {
+      keyManagementAlgorithms: ['ECDH-ES'],
+      contentEncryptionAlgorithms: ['A256GCM'],
+    });
+    return JSON.parse(new TextDecoder().decode(plaintext));
   }
 }

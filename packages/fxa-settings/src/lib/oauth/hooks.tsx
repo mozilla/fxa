@@ -106,8 +106,8 @@ async function constructKeysJwe(
     );
 
     if (clientKeyData && Object.keys(clientKeyData).length > 0) {
-      // Loaded on demand: the module pulls in node-jose and node-forge, which
-      // would otherwise ship with every page that imports this hook.
+      // Loaded on demand: the module pulls in jose, which would otherwise
+      // ship with every page that imports this hook.
       const { createEncryptedBundle } = await import('../crypto/scoped-keys');
       const keys = await createEncryptedBundle(
         kB,
@@ -118,6 +118,7 @@ async function constructKeysJwe(
       return keys;
     }
   }
+  return undefined;
 }
 
 /**
