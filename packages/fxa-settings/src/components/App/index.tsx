@@ -62,7 +62,9 @@ const ServiceWelcome = lazy(
   () => import('../../pages/PostVerify/ServiceWelcome')
 );
 const UpdateFirefox = lazy(() => import('../../pages/UpdateFirefox'));
-const IndexContainer = lazy(() => import('../../pages/Index/container'));
+const IndexContainer = lazy(
+  () => import(/* webpackChunkName: "Index" */ '../../pages/Index/container')
+);
 const Clear = lazy(() => import('../../pages/Clear'));
 
 const InlineTotpSetupContainer = lazy(

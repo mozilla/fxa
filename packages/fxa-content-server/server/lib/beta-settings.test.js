@@ -102,4 +102,82 @@ describe('beta-settings', () => {
       assert.ok(res.status.calledWith(200));
     });
   });
+
+  describe('l10n preload', () => {
+    const preload =
+      '<link rel="preload" href="/settings/static/locales/en/main.abc123.ftl" as="fetch" crossorigin="anonymous">';
+
+    function assetMapHtml(content) {
+      return `<meta name="fxa-l10n-asset-map" content="${content}" />__L10N_PRELOAD__`;
+    }
+    const enMapHtml = assetMapHtml(
+      encodeURIComponent(
+        JSON.stringify({ 'locales/en/main.ftl': 'locales/en/main.abc123.ftl' })
+      )
+    );
+
+    // A fresh instance per test, because the module caches the index file.
+    function load(html) {
+      return proxyquire('./beta-settings', {
+        fs: { readFileSync: () => html },
+        './configuration': {
+          get: (key) =>
+            ({
+              env: 'production',
+              flow_id_key: 'key',
+              'l10n.baseUrl': '/settings/static',
+            })[key] || '',
+        },
+        '../../../../dist/libs/shared/l10n': {
+          supportedLanguages: [],
+          rtlLocales: [],
+          '@noCallThru': true,
+        },
+      });
+    }
+
+    function staticHtml(html) {
+      const res = mockRes();
+      load(html).modifySettingsStatic({ path: '/' }, res);
+      return res.send.args[0][0];
+    }
+
+    it('modifySettingsStatic adds the en main.ftl preload', () => {
+      const html = staticHtml(enMapHtml);
+      assert.strictEqual(html.split(preload).length - 1, 1);
+      assert.ok(!html.includes('__L10N_PRELOAD__'));
+    });
+
+    it('modifyProxyRes adds the en main.ftl preload', () => {
+      const proxyRes = new EventEmitter();
+      proxyRes.statusCode = 200;
+      proxyRes.headers = { 'content-type': 'text/html' };
+      const res = mockRes();
+      load('').modifyProxyRes(proxyRes, {}, res);
+      proxyRes.emit('data', Buffer.from(enMapHtml));
+      proxyRes.emit('end');
+      const html = res.send.args[0][0].toString();
+      assert.strictEqual(html.split(preload).length - 1, 1);
+    });
+
+    [
+      ['the asset map meta is absent', '__L10N_PRELOAD__'],
+      ['the asset map is empty', assetMapHtml('')],
+      ['the asset map JSON is malformed', assetMapHtml('%7Bnot-json')],
+      [
+        'the asset map has no en entry',
+        assetMapHtml(
+          encodeURIComponent(
+            JSON.stringify({ 'locales/de/main.ftl': 'locales/de/main.x.ftl' })
+          )
+        ),
+      ],
+    ].forEach(([when, html]) => {
+      it(`replaces the placeholder with nothing when ${when}`, () => {
+        const result = staticHtml(html);
+        assert.ok(!result.includes('__L10N_PRELOAD__'));
+        assert.ok(!result.includes('rel="preload"'));
+      });
+    });
+  });
 });
