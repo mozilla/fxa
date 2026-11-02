@@ -788,6 +788,20 @@ describe('navigateWithQuery', () => {
       );
     });
 
+    it('resolves message using ftlMsgResolver if provided', () => {
+      const err = new Error('Current state: Errored');
+      const mockFtlResolver = {
+        getMsg: jest.fn().mockReturnValue('Localized expired pairing message'),
+      };
+      expect(getPairingErrorMessage(err, mockFtlResolver)).toBe(
+        'Localized expired pairing message'
+      );
+      expect(mockFtlResolver.getMsg).toHaveBeenCalledWith(
+        'pair-auth-allow-expired-error',
+        'The pairing session has expired or was interrupted. Please try again.'
+      );
+    });
+
     it('returns original error message for normal Error instances', () => {
       const err = new Error('Network request failed');
       expect(getPairingErrorMessage(err)).toBe('Network request failed');

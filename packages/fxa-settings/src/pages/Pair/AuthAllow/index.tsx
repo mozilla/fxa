@@ -15,7 +15,12 @@ import GleanMetrics from '../../../lib/glean';
 import { useGleanView } from '../../../lib/glean/useGleanView';
 import Banner from '../../../components/Banner';
 import { PairingAuthorityIntegration } from '../../../models/integrations/pairing-authority-integration';
-import { Integration, useAuthClient, useConfig } from '../../../models';
+import {
+  Integration,
+  useAuthClient,
+  useConfig,
+  useFtlMsgResolver,
+} from '../../../models';
 import { firefox } from '../../../lib/channels/firefox';
 import type { UseFxAStatusResult } from '../../../lib/hooks';
 import { useNavigateWithQuery } from '../../../lib/hooks';
@@ -55,8 +60,15 @@ const AuthAllow = ({
   const navigateWithQuery = useNavigateWithQuery();
   const authClient = useAuthClient();
   const config = useConfig();
+  const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
   const [error, setError] = useState<string | undefined>(errorProp);
+
+  useEffect(() => {
+    if (errorProp) {
+      setError(getPairingErrorMessage(new Error(errorProp), ftlMsgResolver));
+    }
+  }, [errorProp, ftlMsgResolver]);
   const [totpChecked, setTotpChecked] = useState(false);
   const [suppDeviceInfo, setSuppDeviceInfo] = useState<
     RemoteMetadata | undefined
@@ -131,12 +143,16 @@ const AuthAllow = ({
       .then((metadata) => {
         if (!cancelled) setSuppDeviceInfo(metadata);
       })
-      .catch(() => {});
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          setError(getPairingErrorMessage(err, ftlMsgResolver));
+        }
+      });
 
     return () => {
       cancelled = true;
     };
-  }, [integration, suppDeviceInfoProp]);
+  }, [integration, suppDeviceInfoProp, ftlMsgResolver]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -151,10 +167,10 @@ const AuthAllow = ({
         }
         navigateWithQuery('/pair/auth/wait_for_supp');
       } catch (err: unknown) {
-        setError(getPairingErrorMessage(err));
+        setError(getPairingErrorMessage(err, ftlMsgResolver));
       }
     },
-    [integration, channelId, navigateWithQuery]
+    [integration, channelId, navigateWithQuery, ftlMsgResolver]
   );
 
   // Don't render the approval page until the TOTP check completes
