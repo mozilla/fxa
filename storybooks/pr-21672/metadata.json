@@ -1,0 +1,10 @@
+{
+  "commit": "ca2ee179bbf44202d9852755cd131e028b3171ad",
+  "summary": "fix(payments-cart): finish upgrade when a below-minimum invoice is paid",
+  "description": "Because:\n- An upgrade invoice below the Stripe minimum charge is marked paid, but payWithStripe still confirmed an intent, which failed the cart.\n- wrapWithCartCatch then reported PaidInvoiceOnFailedCartError to Sentry.\n\nThis commit:\n- Skips the intent confirm for a paid invoice with a non-zero total when the customer has a default payment method.\n- Runs postPaySteps with the payment form of the default payment method.\n- Adds unit tests for the paid upgrade invoice and the no-default-payment-method case.\n\nCloses PAY-3767",
+  "timestamp": 1793646974000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
