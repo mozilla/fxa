@@ -1,8 +1,8 @@
 {
-  "commit": "b38048041fc0881f612ecc5d8ded0a75cc11409c",
-  "summary": "Merge pull request #21647 from mozilla/fxa-14859",
-  "description": "perf(settings): load Settings and CAD Glean events lazily",
-  "timestamp": 1793655337000,
+  "commit": "8a6a2ca5a9bf63ec6ca84ab2257c5375043bdc6f",
+  "summary": "Merge pull request #21674 from mozilla/fxa-14884",
+  "description": "refactor(content-server): rename beta-settings and share serveSettingsPage",
+  "timestamp": 1793659918000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
