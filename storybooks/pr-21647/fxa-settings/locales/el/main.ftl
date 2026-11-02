@@ -396,6 +396,13 @@ locale-toggle-browser-default = Προεπιλογή προγράμματος π
 error-bad-request = Εσφαλμένο αίτημα
 
 
+pair-unsupported-hint-heading = Ολοκλήρωση σύζευξης στην εφαρμογή
+pair-unsupported-hint-step-close-page = Κλείσιμο αυτής της σελίδας
+pair-unsupported-hint-step-app-menu = Πατήστε το <b>μενού εφαρμογής</b>
+pair-unsupported-hint-step-sign-in = <b>Συνδεθείτε</b> και σαρώστε τον κωδικό
+pair-unsupported-hint-learn-more-link = Μάθετε περισσότερα
+
+
 password-info-balloon-why-password-info = Χρειάζεστε αυτόν τον κωδικό πρόσβασης για την πρόσβαση σε τυχόν κρυπτογραφημένα δεδομένα που έχετε αποθηκεύσει σε εμάς.
 password-info-balloon-reset-risk-info = Η επαναφορά κωδικού πρόσβασης σημαίνει πιθανή απώλεια δεδομένων, όπως κωδικών πρόσβασης και σελιδοδεικτών.
 
@@ -1290,6 +1297,11 @@ tfa-qr-code-alt = Χρησιμοποιήστε τον κωδικό { $code } γ�
 inline-totp-setup-page-title = Ταυτοποίηση δύο παραγόντων
 
 
+page-not-found-heading = Η σελίδα δεν βρέθηκε
+page-not-found-description = Η σελίδα που ζητήσατε δεν βρέθηκε. Έχουμε ειδοποιηθεί και θα διορθώσουμε τυχόν συνδέσμους που ενδέχεται να έχουν χαλάσει.
+page-not-found-home-button = Αρχική
+
+
 pair-auth-allow-heading-text = Συνδεθήκατε μόλις στο { -brand-firefox };
 pair-auth-allow-confirm-button = Ναι, έγκριση συσκευής
 pair-auth-allow-refuse-device-link = Εάν δεν το κάνατε εσείς, <a>αλλάξτε τον κωδικό πρόσβασής σας</a>
@@ -1623,6 +1635,11 @@ signin-passkey-fallback-body = Για την προστασία των δεδο�
 signin-passkey-fallback-password-label = Κωδικός πρόσβασης
 signin-passkey-fallback-continue = Συνέχεια
 signin-passkey-fallback-forgot-password-link = Ξεχάσατε τον κωδικό πρόσβασής σας;
+signin-passkey-fallback-no-prf-heading = Απαιτείται κωδικός πρόσβασης σε αυτήν τη συσκευή
+signin-passkey-fallback-no-prf-description = Αυτό το πρόγραμμα περιήγησης ή συσκευή δεν μπορεί να χρησιμοποιήσει από μόνο του το κλειδί πρόσβασής σας για σύνδεση στον συγχρονισμό.
+signin-passkey-fallback-unwrap-failed-heading = Το κλειδί πρόσβασής σας δεν κατάφερε να ξεκλειδώσει τον συγχρονισμό
+signin-passkey-fallback-unwrap-failed-description = Κάτι πήγε στραβά, επομένως θα χρειαστείτε τον κωδικό πρόσβασής σας αυτήν τη φορά.
+signin-passkey-fallback-wrap-unusable-link = Μάθετε περισσότερα
 
 
 signin-passwordless-code-heading = Εισαγωγή κωδικού επιβεβαίωσης

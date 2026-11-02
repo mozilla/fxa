@@ -480,6 +480,13 @@ locale-toggle-browser-default = Predvolený jazyk prehliadača
 error-bad-request = Nesprávna požiadavka
 
 
+pair-unsupported-hint-heading = Dokončite prepojenie v aplikácii
+pair-unsupported-hint-step-close-page = Zavrieť túto stránku
+pair-unsupported-hint-step-app-menu = Ťuknite na <b>ponuku aplikácie</b>
+pair-unsupported-hint-step-sign-in = <b>Prihláste sa</b> a potom naskenujte kód
+pair-unsupported-hint-learn-more-link = Ďalšie informácie
+
+
 password-info-balloon-why-password-info = Toto heslo potrebujete na prístup ku všetkým zašifrovaným údajom, ktoré u nás ukladáte.
 password-info-balloon-reset-risk-info = Zmena hesla môže znamenať stratu údajov, ako sú heslá a záložky.
 
@@ -1376,6 +1383,11 @@ tfa-qr-code-alt = Pomocou kódu { $code } nastavte dvojstupňové overenie v pod
 inline-totp-setup-page-title = Dvojstupňové overenie
 
 
+page-not-found-heading = Stránka nebola nájdená
+page-not-found-description = Požadovaná stránka neexistuje. O probléme už vieme a prípadné nefunkčné odkazy opravíme.
+page-not-found-home-button = Domov
+
+
 pair-auth-allow-heading-text = Prihlásili ste sa do { -brand-firefox(case: "gen") }?
 pair-auth-allow-confirm-button = Áno, schváliť zariadenie
 pair-auth-allow-refuse-device-link = Ak ste to neboli vy, <a>zmeňte si heslo</a>
@@ -1710,6 +1722,11 @@ signin-passkey-fallback-body = Pre zachovanie bezpečnosti vašich údajov je po
 signin-passkey-fallback-password-label = Heslo
 signin-passkey-fallback-continue = Pokračovať
 signin-passkey-fallback-forgot-password-link = Zabudli ste heslo?
+signin-passkey-fallback-no-prf-heading = Na tomto zariadení je potrebné heslo
+signin-passkey-fallback-no-prf-description = Tento prehliadač alebo zariadenie nedokáže použiť váš prístupový kľúč na samostatné prihlásenie do synchronizácie.
+signin-passkey-fallback-unwrap-failed-heading = Prístupovým kľúčom sa nepodarilo odomknúť synchronizáciu
+signin-passkey-fallback-unwrap-failed-description = Vyskytla sa chyba, preto tentoraz budete musieť zadať heslo.
+signin-passkey-fallback-wrap-unusable-link = Ďalšie informácie
 
 
 signin-passwordless-code-heading = Zadajte potvrdzovací kód

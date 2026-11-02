@@ -3,6 +3,27 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 
+## ButtonBack component
+## Allows users to click a back arrow to navigate to the previous page
+
+button-back-aria-label = Enrere
+button-back-title = Enrere
+
+## ButtonDownloadRecoveryKey
+## Clicking on this button downloads a plain text file that contains the user's account recovery key
+## The account recovery key can be used to recover data when users forget their account password
+
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = Baixa i continua
+
+## Dark mode toggle
+
+dark-mode-toggle-light = Clar
+dark-mode-toggle-dark = Fosc
+dark-mode-toggle-system = Sistema
+dark-mode-toggle-label = Canvia el tema
+
 ## Tooltip notifications for actions performed on account recovery keys or one-time use codes
 
 datablock-download =
@@ -12,12 +33,46 @@ datablock-copy =
 datablock-print =
     .message = S'ha imprès
 
+## DeviceInfoBlock component
+## The strings here are used to display information about the origin of activity happening on a user's account
+## For example, when connecting another device to the user's account
+
+# Variable { $ipAddress } represents the IP address where the request originated
+# The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
+device-info-ip-address = Adreça IP: { $ipAddress }
+
+## FormPasswordInlineCriteria
+
+form-password-with-inline-criteria-signup-new-password-label =
+    .label = Contrasenya
+form-password-with-inline-criteria-signup-confirm-password-label =
+    .label = Repetiu la contrasenya
+form-password-with-inline-criteria-reset-new-password =
+    .label = Contrasenya nova
+form-password-with-inline-criteria-old-password-label =
+    .label = Contrasenya antiga
+form-password-with-inline-criteria-set-password-new-password-label =
+    .label = Contrasenya
+form-password-with-inline-criteria-set-password-confirm-password-label =
+    .label = Repetiu la contrasenya
+form-password-with-inline-criteria-set-password-submit-button = Inicia la sincronització
+
+## Images - these are all aria labels used for illustrations
+## Aria labels are used as alternate text that can be read aloud by screen readers.
+
+confirm-signup-aria-label =
+    .aria-label = Un sobre que conté un enllaç
+
 ## Input Password
 
 # Tooltip displayed on a password input visibility toggle. Expresses the toggle action, where clicking on the toggle will hide the password.
 input-password-hide = Amaga la contrasenya
 # Tooltip displayed on a password input visibility toggle. Expresses the toggle action, where clicking on the toggle will show the password.
 input-password-show = Mostra la contrasenya
+
+## Locale Toggle Component
+
+locale-toggle-select-label = Trieu una llengua
 
 ## Alert Bar
 

@@ -328,6 +328,12 @@ locale-toggle-browser-default = Browserstandert
 error-bad-request = Unjildige oanfraach
 
 
+pair-unsupported-hint-heading = Foltôgje it keppeljen yn de app
+pair-unsupported-hint-step-close-page = Dizze side slute
+pair-unsupported-hint-step-sign-in = <b>Oanmelde</b> en scan de koade
+pair-unsupported-hint-learn-more-link = Mear ynfo
+
+
 password-info-balloon-why-password-info = Jo hawwe dit wachtwurd nedich om tagong te krijen ta alle fersifere gegevens dy’t jo by ús bewarje.
 password-info-balloon-reset-risk-info = In nije inisjalisaasje betsjut mooglik ferlies fan gegevens, lykas wachtwurden en blêdwizers.
 
@@ -1225,6 +1231,11 @@ tfa-qr-code-alt = Brûk de koade { $code } om autentikaasje yn twa stappen yn st
 inline-totp-setup-page-title = Autentikaasje yn twa stappen
 
 
+page-not-found-heading = Side net fûn
+page-not-found-description = De opfrege side is net fûn. Wy binne op de hichte en sille keppelingen dy’t mooglik net wurkje werom bringe.
+page-not-found-home-button = Startside
+
+
 pair-auth-allow-heading-text = Hawwe jo jo krekt oanmeld by { -brand-firefox }?
 pair-auth-allow-confirm-button = Ja, apparaat goedkarre
 pair-auth-allow-refuse-device-link = As dit jo net wiene, <a>wizigje dan jo wachtwurd</a>
@@ -1555,6 +1566,8 @@ signin-passkey-fallback-body = Om jo gegevens feilich te hâlden, moatte jo jo w
 signin-passkey-fallback-password-label = Wachtwurd
 signin-passkey-fallback-continue = Trochgean
 signin-passkey-fallback-forgot-password-link = Wachtwurd ferjitten?
+signin-passkey-fallback-no-prf-heading = Wachtwurd fereaske op dit apparaat
+signin-passkey-fallback-wrap-unusable-link = Mear ynfo
 
 
 signin-passwordless-code-heading = Fier befêstigingskoade yn

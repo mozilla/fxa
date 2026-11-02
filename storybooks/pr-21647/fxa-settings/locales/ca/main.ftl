@@ -13,14 +13,27 @@
     }
 -product-firefox-account = Compte del Firefox
 -product-mozilla-vpn = Mozilla VPN
+-product-mozilla-vpn-short = VPN
 -product-mozilla-hubs = Mozilla Hubs
+-product-mdn = MDN
 -product-mdn-plus = MDN Plus
 -product-firefox-cloud = Firefox Cloud
+-product-mozilla-monitor = Mozilla Monitor
+-product-mozilla-monitor-short = Monitor
 -product-firefox-relay = Firefox Relay
 -brand-apple = Apple
+-brand-apple-pay = Apple Pay
 -brand-google = Google
+-brand-google-pay = Google Pay
 -brand-paypal = PayPal
 -brand-name-stripe = Stripe
+-brand-amex = American Express
+-brand-diners = Diners Club
+-brand-discover = Discover
+-brand-jcb = JCB
+-brand-mastercard = Mastercard
+-brand-unionpay = UnionPay
+-brand-visa = Visa
 -app-store = App Store
 -google-play = Google Play
 
@@ -28,6 +41,19 @@ app-footer-mozilla-logo-label = Logotip del { -brand-mozilla }
 app-footer-privacy-notice = Avís de privadesa del lloc web
 app-footer-terms-of-service = Condicions del servei
 
+
+
+button-back-aria-label = Enrere
+button-back-title = Enrere
+
+
+recovery-key-download-button-v4 = Baixa i continua
+
+
+dark-mode-toggle-light = Clar
+dark-mode-toggle-dark = Fosc
+dark-mode-toggle-system = Sistema
+dark-mode-toggle-label = Canvia el tema
 
 
 datablock-download =
@@ -38,8 +64,33 @@ datablock-print =
     .message = S'ha imprès
 
 
+device-info-ip-address = Adreça IP: { $ipAddress }
+
+
+form-password-with-inline-criteria-signup-new-password-label =
+    .label = Contrasenya
+form-password-with-inline-criteria-signup-confirm-password-label =
+    .label = Repetiu la contrasenya
+form-password-with-inline-criteria-reset-new-password =
+    .label = Contrasenya nova
+form-password-with-inline-criteria-old-password-label =
+    .label = Contrasenya antiga
+form-password-with-inline-criteria-set-password-new-password-label =
+    .label = Contrasenya
+form-password-with-inline-criteria-set-password-confirm-password-label =
+    .label = Repetiu la contrasenya
+form-password-with-inline-criteria-set-password-submit-button = Inicia la sincronització
+
+
+confirm-signup-aria-label =
+    .aria-label = Un sobre que conté un enllaç
+
+
 input-password-hide = Amaga la contrasenya
 input-password-show = Mostra la contrasenya
+
+
+locale-toggle-select-label = Trieu una llengua
 
 
 alert-bar-close-message = Tanca el missatge

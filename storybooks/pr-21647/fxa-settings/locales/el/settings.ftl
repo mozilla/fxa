@@ -401,6 +401,20 @@ locale-toggle-browser-default = Προεπιλογή προγράμματος π
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Εσφαλμένο αίτημα
 
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+pair-unsupported-hint-heading = Ολοκλήρωση σύζευξης στην εφαρμογή
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = Κλείσιμο αυτής της σελίδας
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Πατήστε το <b>μενού εφαρμογής</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>Συνδεθείτε</b> και σαρώστε τον κωδικό
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = Μάθετε περισσότερα
+
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
 
@@ -1700,6 +1714,13 @@ inline-totp-setup-code-required-error = Απαιτείται κωδικός τα
 tfa-qr-code-alt = Χρησιμοποιήστε τον κωδικό { $code } για να ρυθμίσετε την ταυτοποίηση δύο παραγόντων στις υποστηριζόμενες εφαρμογές.
 inline-totp-setup-page-title = Ταυτοποίηση δύο παραγόντων
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Η σελίδα δεν βρέθηκε
+page-not-found-description = Η σελίδα που ζητήσατε δεν βρέθηκε. Έχουμε ειδοποιηθεί και θα διορθώσουμε τυχόν συνδέσμους που ενδέχεται να έχουν χαλάσει.
+page-not-found-home-button = Αρχική
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Συνδεθήκατε μόλις στο { -brand-firefox };
@@ -2297,6 +2318,16 @@ signin-passkey-fallback-body = Για την προστασία των δεδο�
 signin-passkey-fallback-password-label = Κωδικός πρόσβασης
 signin-passkey-fallback-continue = Συνέχεια
 signin-passkey-fallback-forgot-password-link = Ξεχάσατε τον κωδικό πρόσβασής σας;
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = Απαιτείται κωδικός πρόσβασης σε αυτήν τη συσκευή
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
+signin-passkey-fallback-no-prf-description = Αυτό το πρόγραμμα περιήγησης ή συσκευή δεν μπορεί να χρησιμοποιήσει από μόνο του το κλειδί πρόσβασής σας για σύνδεση στον συγχρονισμό.
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
+signin-passkey-fallback-unwrap-failed-heading = Το κλειδί πρόσβασής σας δεν κατάφερε να ξεκλειδώσει τον συγχρονισμό
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = Κάτι πήγε στραβά, επομένως θα χρειαστείτε τον κωδικό πρόσβασής σας αυτήν τη φορά.
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = Μάθετε περισσότερα
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.

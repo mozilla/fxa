@@ -332,6 +332,11 @@ locale-toggle-browser-default = Tarayıcı varsayılanı
 error-bad-request = Hatalı istek
 
 
+pair-unsupported-hint-step-close-page = Bu sayfayı kapatın
+pair-unsupported-hint-step-app-menu = <b>Uygulama menüsüne</b> dokunun
+pair-unsupported-hint-learn-more-link = Daha fazla bilgi al
+
+
 password-info-balloon-why-password-info = Bizde depolanan şifrelenmiş verilerinize erişmek için bu parolaya ihtiyacınız olacak.
 password-info-balloon-reset-risk-info = Sıfırlama yaparsanız parolalar ve yer imleri gibi verileriniz kaybolabilir.
 
@@ -1194,6 +1199,11 @@ tfa-qr-code-alt = Desteklenen uygulamalarda iki aşamalı doğrulamayı kurmak i
 inline-totp-setup-page-title = İki aşamalı doğrulama
 
 
+page-not-found-heading = Sayfa bulunamadı
+page-not-found-description = İstediğiniz sayfa bulunamadı. Kırık olabilecek bağlantıları düzeltmeleri için durumu site yöneticilerimize bildirdik.
+page-not-found-home-button = Ana sayfa
+
+
 pair-auth-allow-heading-text = Az önce { -brand-firefox }’a giriş yaptınız mı?
 pair-auth-allow-confirm-button = Evet, cihazı onayla
 pair-auth-allow-refuse-device-link = Giriş yapan siz değilseniz <a>parolanızı değiştirin</a>
@@ -1296,12 +1306,14 @@ pair2-authority-continue-on-mobile-cancel-button = Vazgeç
 
 
 pair2-authority-download-firefox-heading = Eşitlemek için { -brand-firefox } tarayıcısını açın
+pair2-authority-download-firefox-instruction-v2 = Cihazlar arasında eşitlemeyi kurmak için bu cihazda { -brand-firefox }’u açıp <b>firefox.com/pair</b> adresine gidin.
 pair2-authority-download-firefox-cta = { -brand-firefox }’u indir
 
 
 pair2-authority-scan-qr-heading = Mobil cihazınızı bağlamak için okutun
 pair2-authority-scan-qr-instruction = { -brand-firefox } yer imlerinizi, sekmelerinizi ve daha fazlasını eşitlemek için telefonunuz veya tabletinizle QR kodunu okutun.
 pair2-authority-scan-qr-code-aria-label = Mobil cihazınızı bağlamak için QR kodu
+pair2-authority-scan-qr-other-ways-link = Giriş yapmanın diğer yolları
 pair2-authority-scan-qr-skip-button = Şimdilik geç
 
 
@@ -1327,8 +1339,17 @@ pair2-supplicant-connect-this-device-connect-button = Bağla
 pair2-supplicant-connect-this-device-cancel-button = Vazgeç
 
 
+pair2-supplicant-download-firefox-heading-v2 = Bu cihazda { -brand-firefox }’u açın
+pair2-supplicant-download-firefox-description-v2 = Yer imlerinizi, geçmişinizi ve diğer verilerinizi cihazlarınız arasında eşitlemek için { -brand-firefox }’u indirin.
 pair2-supplicant-download-firefox-continue-button = { -brand-firefox } ile devam et
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } açılıyor…
+pair2-supplicant-download-firefox-download-button = { -brand-firefox }’u indir
+pair2-supplicant-download-firefox-have-firefox-button = { -brand-firefox } zaten yüklü
+pair2-supplicant-download-firefox-learn-more-link = Daha fazla bilgi al
+
+
+pair2-supplicant-connect-hint-step-app-menu = Araç çubuğundaki <b>uygulama menüsüne</b> dokunun
+pair2-supplicant-connect-hint-learn-more-link = Daha fazla bilgi al
 
 
 pair2-supplicant-ready-to-scan-heading = Cihaz bağlamak için
@@ -1336,16 +1357,24 @@ pair2-supplicant-ready-to-scan-learn-more-link = Daha fazla bilgi al
 
 
 pair2-supplicant-sync-success-heading = Cihazınız bağlandı
+pair2-supplicant-sync-success-description-v2 = Eşitleme sürüyor. Eşitlenen verilerinizin görünmesi biraz zaman alabilir. Bu sırada gezinmeye devam edebilirsiniz.
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zaman aşımına uğradık
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Vazgeçildi
 
 
+permissions-heading = { $serviceName } şunlara erişmek istiyor:
 permissions-label-email = E-posta adresi
 permissions-label-display-name = Görünen ad
+permissions-label-avatar = Hesap resmi
 permissions-continue-button = Devam et
 permissions-cancel-button = Vazgeç
+
+
+force-password-change-heading = Lütfen parolanızı değiştirin
+force-password-change-info = { -product-mozilla-account }nızda şüpheli bir davranış tespit ettik. Hesabınızı korumak için lütfen yeni bir parola oluşturun. Tüm { -product-mozilla-account } hizmetlerinize tekrar giriş yapmak için bu parolayı kullanacaksınız.
+force-password-change-data-info = Eşitlenmiş geçmiş, yer imleri, hesaplar ve diğer kişisel veriler kaybolmaz.
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } onaylandı
@@ -1404,6 +1433,7 @@ confirm-totp-reset-password-use-different-account = Farklı bir hesap kullan
 
 
 password-reset-flow-heading = Parolanızı sıfırlayın
+password-reset-forgot-heading = Parolanızı mı unuttunuz?
 password-reset-email-input =
     .label = E-posta adresinizi yazın
 password-reset-submit-button-2 = Devam et
@@ -1444,6 +1474,11 @@ reset-password-with-recovery-key-verified-page-title = Parola başarıyla sıfı
 reset-password-complete-new-password-saved = Yeni parola kaydedildi!
 reset-password-complete-recovery-key-created = Yeni hesap kurtarma anahtarı oluşturuldu. Hemen indirip saklayın.
 reset-password-complete-recovery-key-download-info = Parolanızı unutursanız verilerinizi kurtarmak için bu anahtara sahip olmalısınız. <b>Şimdi indirip güvenli bir şekilde saklayın. Daha sonra bu sayfaya erişemeyeceksiniz.</b>
+
+
+server-error-heading = Hata 500
+server-error-description = Ters giden bir şeyler var. Kendi kendimize haber verdik ve sorunu düzelteceğiz.
+server-error-home-button = Ana sayfa
 
 
 error-label = Hata:
@@ -1487,6 +1522,7 @@ signin-passkey-fallback-heading = Eşitlemek için parolanızı yazın
 signin-passkey-fallback-password-label = Parola
 signin-passkey-fallback-continue = Devam et
 signin-passkey-fallback-forgot-password-link = Parolanızı unuttunuz mu?
+signin-passkey-fallback-wrap-unusable-link = Daha fazla bilgi al
 
 
 signin-passwordless-code-heading = Onay kodunu girin

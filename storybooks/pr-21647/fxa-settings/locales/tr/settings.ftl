@@ -401,6 +401,17 @@ locale-toggle-browser-default = Tarayıcı varsayılanı
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Hatalı istek
 
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = Bu sayfayı kapatın
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = <b>Uygulama menüsüne</b> dokunun
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = Daha fazla bilgi al
+
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
 
@@ -1642,6 +1653,13 @@ inline-totp-setup-code-required-error = Kimlik doğrulama kodu gerekli
 tfa-qr-code-alt = Desteklenen uygulamalarda iki aşamalı doğrulamayı kurmak için { $code } kodunu kullanın.
 inline-totp-setup-page-title = İki aşamalı doğrulama
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Sayfa bulunamadı
+page-not-found-description = İstediğiniz sayfa bulunamadı. Kırık olabilecek bağlantıları düzeltmeleri için durumu site yöneticilerimize bildirdik.
+page-not-found-home-button = Ana sayfa
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Az önce { -brand-firefox }’a giriş yaptınız mı?
@@ -1842,6 +1860,8 @@ pair2-authority-continue-on-mobile-cancel-button = Vazgeç
 
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Eşitlemek için { -brand-firefox } tarayıcısını açın
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction-v2 = Cihazlar arasında eşitlemeyi kurmak için bu cihazda { -brand-firefox }’u açıp <b>firefox.com/pair</b> adresine gidin.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = { -brand-firefox }’u indir
 
@@ -1854,6 +1874,8 @@ pair2-authority-scan-qr-heading = Mobil cihazınızı bağlamak için okutun
 pair2-authority-scan-qr-instruction = { -brand-firefox } yer imlerinizi, sekmelerinizi ve daha fazlasını eşitlemek için telefonunuz veya tabletinizle QR kodunu okutun.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = Mobil cihazınızı bağlamak için QR kodu
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Giriş yapmanın diğer yolları
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Şimdilik geç
 
@@ -1912,11 +1934,32 @@ pair2-supplicant-connect-this-device-cancel-button = Vazgeç
 ## not Firefox. It offers to open the Firefox app to finish pairing, and to
 ## install it first when the user does not have it yet.
 
+pair2-supplicant-download-firefox-heading-v2 = Bu cihazda { -brand-firefox }’u açın
+# "sync" is a verb here, referring to syncing data between the user's devices.
+pair2-supplicant-download-firefox-description-v2 = Yer imlerinizi, geçmişinizi ve diğer verilerinizi cihazlarınız arasında eşitlemek için { -brand-firefox }’u indirin.
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = { -brand-firefox } ile devam et
 # Replaces the button label while waiting for the Firefox app to take over
 pair2-supplicant-download-firefox-opening-button = { -brand-firefox } açılıyor…
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = { -brand-firefox }’u indir
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = { -brand-firefox } zaten yüklü
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = Daha fazla bilgi al
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## with the phone's camera app instead of with Firefox. They already have
+## Firefox installed, so it tells them how to scan the code again from inside
+## Firefox.
+
+# <b> emphasises the name of the button the user taps in Firefox
+pair2-supplicant-connect-hint-step-app-menu = Araç çubuğundaki <b>uygulama menüsüne</b> dokunun
+# Opens a Mozilla support article about connecting a device without a QR code
+pair2-supplicant-connect-hint-learn-more-link = Daha fazla bilgi al
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -1932,6 +1975,8 @@ pair2-supplicant-ready-to-scan-learn-more-link = Daha fazla bilgi al
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = Cihazınız bağlandı
+# "Syncing" here means copying data between the user's devices
+pair2-supplicant-sync-success-description-v2 = Eşitleme sürüyor. Eşitlenen verilerinizin görünmesi biraz zaman alabilir. Bu sırada gezinmeye devam edebilirsiniz.
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -1950,10 +1995,20 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Vazgeçildi
 ## The page informs the user which profile information the relying party can
 ## read. It does not offer a choice.
 
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } şunlara erişmek istiyor:
 permissions-label-email = E-posta adresi
 permissions-label-display-name = Görünen ad
+permissions-label-avatar = Hesap resmi
 permissions-continue-button = Devam et
 permissions-cancel-button = Vazgeç
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Lütfen parolanızı değiştirin
+force-password-change-info = { -product-mozilla-account }nızda şüpheli bir davranış tespit ettik. Hesabınızı korumak için lütfen yeni bir parola oluşturun. Tüm { -product-mozilla-account } hizmetlerinize tekrar giriş yapmak için bu parolayı kullanacaksınız.
+force-password-change-data-info = Eşitlenmiş geçmiş, yer imleri, hesaplar ve diğer kişisel veriler kaybolmaz.
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2052,6 +2107,7 @@ confirm-totp-reset-password-use-different-account = Farklı bir hesap kullan
 ## ResetPassword start page
 
 password-reset-flow-heading = Parolanızı sıfırlayın
+password-reset-forgot-heading = Parolanızı mı unuttunuz?
 password-reset-email-input =
     .label = E-posta adresinizi yazın
 password-reset-submit-button-2 = Devam et
@@ -2105,6 +2161,13 @@ reset-password-with-recovery-key-verified-page-title = Parola başarıyla sıfı
 reset-password-complete-new-password-saved = Yeni parola kaydedildi!
 reset-password-complete-recovery-key-created = Yeni hesap kurtarma anahtarı oluşturuldu. Hemen indirip saklayın.
 reset-password-complete-recovery-key-download-info = Parolanızı unutursanız verilerinizi kurtarmak için bu anahtara sahip olmalısınız. <b>Şimdi indirip güvenli bir şekilde saklayın. Daha sonra bu sayfaya erişemeyeceksiniz.</b>
+
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Hata 500
+server-error-description = Ters giden bir şeyler var. Kendi kendimize haber verdik ve sorunu düzelteceğiz.
+server-error-home-button = Ana sayfa
 
 ## CompleteSignin component
 
@@ -2170,6 +2233,8 @@ signin-passkey-fallback-heading = Eşitlemek için parolanızı yazın
 signin-passkey-fallback-password-label = Parola
 signin-passkey-fallback-continue = Devam et
 signin-passkey-fallback-forgot-password-link = Parolanızı unuttunuz mu?
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = Daha fazla bilgi al
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.

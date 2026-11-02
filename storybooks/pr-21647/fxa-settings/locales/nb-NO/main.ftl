@@ -332,6 +332,13 @@ locale-toggle-browser-default = Nettleser-standard
 error-bad-request = Ugyldig forespørsel
 
 
+pair-unsupported-hint-heading = Fullfør sammenkoblingen i appen
+pair-unsupported-hint-step-close-page = Lukk denne siden
+pair-unsupported-hint-step-app-menu = Trykk på <b>appmenyen</b>
+pair-unsupported-hint-step-sign-in = <b>Logg inn</b>, og skann deretter koden
+pair-unsupported-hint-learn-more-link = Les mer
+
+
 password-info-balloon-why-password-info = Du trenger dette passordet for å få tilgang til krypterte data du lagrer hos oss.
 password-info-balloon-reset-risk-info = En tilbakestilling betyr potensielt tap av data som passord og bokmerker.
 
@@ -939,6 +946,7 @@ passkey-sub-row-created-date = Opprettet: { $createdDate }
 passkey-sub-row-last-used-date = Sist brukt: { $lastUsedDate }
 passkey-sub-row-delete-title = Slett passnøkkel
 passkey-delete-modal-heading = Slette passnøkkelen din?
+passkey-delete-modal-content-v3 = Denne passnøkkelen vil bli fjernet fra kontoen din. Du må logge på med et passord, en annen passnøkkel eller en tilknyttet konto.
 passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Slett passnøkkel
 passkey-delete-success = Passnøkkel slettet
@@ -1172,13 +1180,16 @@ index-email-bounced = Bekreftelsesmeldingen kom i retur. Feilstavet e-postadress
 
 
 inline-passwordless-sync-setup-page-title = Hopp over passordet neste gang?
+inline-passwordless-sync-setup-success-banner-v2 = Du er logget på, og synkronisering er på
 inline-passwordless-sync-setup-heading = Hoppe over passordet neste gang?
 inline-passwordless-sync-setup-description = Bruk denne passnøkkelen for å logge på raskere.
 inline-passwordless-sync-setup-enable-button = Slå på passnøkkel
 inline-passwordless-sync-setup-enabling = Slår på…
 inline-passwordless-sync-setup-not-now-button = Ikke nå
+inline-passwordless-sync-setup-success-alert-v2 = Denne passnøkkelen er aktivert for pålogging og synkronisering.
 inline-passwordless-sync-setup-error-cancelled = Bekreftelsen med passnøkkelen ble ikke fullført
 inline-passwordless-sync-setup-error-cancelled-description = Bekreft med passnøkkelen din for å slippe å skrive inn passordet neste gang.
+inline-passwordless-sync-setup-error-generic-v2 = Vi kunne ikke aktivere denne passnøkkelen for pålogging og synkronisering. Du må bruke passordet ditt neste gang.
 
 
 inline-recovery-key-setup-create-error = Beklager! Vi kunne ikke opprette kontogjenopprettingsnøkkelen din. Prøv på nytt senere.
@@ -1206,6 +1217,11 @@ inline-totp-setup-security-code-placeholder = Autentiseringskode
 inline-totp-setup-code-required-error = Autentiseringskode kreves
 tfa-qr-code-alt = Bruk koden { $code } for å sette opp totrinns-autentisering i støttede apper.
 inline-totp-setup-page-title = Totrinns-autentisering
+
+
+page-not-found-heading = Fant ikke siden
+page-not-found-description = Den forespurte siden ble ikke funnet. Vi har blitt varslet, og vil fikse de lenker som ikke virker.
+page-not-found-home-button = Hjem
 
 
 pair-auth-allow-heading-text = Logget du akkurat inn på { -brand-firefox }?
@@ -1310,12 +1326,14 @@ pair2-authority-continue-on-mobile-cancel-button = Avbryt
 
 
 pair2-authority-download-firefox-heading = Åpne { -brand-firefox } for å synkronisere
+pair2-authority-download-firefox-instruction-v2 = For å konfigurere synkronisering på tvers av enheter, åpne { -brand-firefox } på denne enheten og gå til <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
 
 
 pair2-authority-scan-qr-heading = Skann for å koble til mobilenheten din
 pair2-authority-scan-qr-instruction = Skann QR-koden med telefonen eller nettbrettet ditt for å synkronisere bokmerker, faner og mer fra { -brand-firefox }.
 pair2-authority-scan-qr-code-aria-label = QR-kode for å koble til mobilenheten din
+pair2-authority-scan-qr-other-ways-link = Andre måter å logge inn på
 pair2-authority-scan-qr-skip-button = Hopp over foreløpig
 
 
@@ -1370,11 +1388,14 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Det ser ut til at det opps
 pair2-supplicant-timeout-and-cancel-timeout-description = For å koble til mobilenheten din og synkronisere { -brand-firefox }-dataene dine, gå til <b>firefox.com/pair</b> på datamaskinen din.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Avbrutt
 pair2-supplicant-timeout-and-cancel-canceled-description = For å koble til en enhet når som helst, gå til <b>firefox.com/pair</b> på datamaskinen din.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Denne enheten er allerede logget inn
+pair2-supplicant-timeout-and-cancel-signed-in-description = For å koble til kontoen din på datamaskinen må du logge ut av { -brand-firefox } på denne enheten og deretter gå til <b>firefox.com/pair</b> på datamaskinen for å fullføre påloggingen.
 
 
 permissions-heading = { $serviceName } ønsker tilgang til:
 permissions-label-email = E-postadresse
 permissions-label-display-name = Visningsnavn
+permissions-label-avatar = Kontobilde
 permissions-continue-button = Fortsett
 permissions-cancel-button = Avbryt
 
@@ -1441,9 +1462,12 @@ confirm-totp-reset-password-use-different-account = Bruk en annen konto
 
 
 password-reset-flow-heading = Tilbakestill passordet ditt
+password-reset-forgot-heading = Glemt passord ditt?
+password-reset-alternatives-body = <signInLink>Prøv å logge inn med { -brand-google }, { -brand-apple } eller en passnøkkel i stedet.</signInLink> Eller skriv inn e-postadressen din, så sender vi deg en kode for å tilbakestille passordet.
 password-reset-email-input =
     .label = Skriv inn e-postadressen din
 password-reset-submit-button-2 = Fortsett
+password-reset-data-recovery-warning = Tilbakestilling av passordet ditt kan påvirke om du kan gjenopprette synkroniserte nettleserdata. <learnMoreLink>Les mer</learnMoreLink>
 
 
 reset-password-complete-header = Passordet ditt er tilbakestilt
@@ -1484,6 +1508,11 @@ reset-password-complete-recovery-key-download-info =
     Denne nøkkelen er viktig for
     datagjenoppretting hvis du glemmer passordet ditt. <b>Last ned og lagre den sikkert
     nå, da du ikke vil kunne få tilgang til denne siden igjen senere.</b>
+
+
+server-error-heading = Feil 500
+server-error-description = Oi da, noe gikk galt. Vi har fått beskjed om problemet og skal jobbe med å løse det.
+server-error-home-button = Hjem
 
 
 error-label = Feil:
@@ -1528,6 +1557,11 @@ signin-passkey-fallback-body = For å holde dataene dine trygge, må du oppgi pa
 signin-passkey-fallback-password-label = Passord
 signin-passkey-fallback-continue = Fortsett
 signin-passkey-fallback-forgot-password-link = Glemt passord?
+signin-passkey-fallback-no-prf-heading = Passord kreves på denne enheten
+signin-passkey-fallback-no-prf-description = Denne nettleseren eller enheten kan ikke bruke passnøkkelen din til å logge på for å synkronisere på egenhånd.
+signin-passkey-fallback-unwrap-failed-heading = Passnøkkelen din kunne ikke låse opp synkroniseringen
+signin-passkey-fallback-unwrap-failed-description = Noe gikk galt, så du trenger passordet ditt denne gangen.
+signin-passkey-fallback-wrap-unusable-link = Les mer
 
 
 signin-passwordless-code-heading = Skriv inn bekreftelseskode
