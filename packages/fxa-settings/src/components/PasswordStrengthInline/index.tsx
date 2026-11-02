@@ -70,8 +70,11 @@ export const PasswordStrengthInline = ({
       <ul className="mt-2 mb-2 text-grey-400 dark:text-grey-200">
         <li data-testid="password-min-char-req" className="flex -mb-1">
           <span className="w-7 h-7 text-center">
-            {isPasswordEmpty && '•'}
-            {!isPasswordEmpty && <ValidationIcon hasError={isTooShort} />}
+            {isPasswordEmpty ? (
+              <span translate="no">•</span>
+            ) : (
+              <ValidationIcon hasError={isTooShort} />
+            )}
           </span>
           <FtlMsg id="password-strength-inline-min-length">
             <span className="ps-2">At least 8 characters</span>
@@ -79,8 +82,9 @@ export const PasswordStrengthInline = ({
         </li>
         <li data-testid="password-not-email-req" className="flex -mb-1">
           <span className="w-7 h-7 text-center">
-            {isPasswordEmpty && '•'}
-            {!isPasswordEmpty && (
+            {isPasswordEmpty ? (
+              <span translate="no">•</span>
+            ) : (
               <ValidationIcon hasError={!isTooShort && isSameAsEmail} />
             )}
           </span>
@@ -90,8 +94,11 @@ export const PasswordStrengthInline = ({
         </li>
         <li data-testid="password-not-common-req" className="flex -mb-1">
           <span className="w-7 h-7 text-center">
-            {isPasswordEmpty && '•'}
-            {!isPasswordEmpty && <ValidationIcon hasError={isCommon} />}
+            {isPasswordEmpty ? (
+              <span translate="no">•</span>
+            ) : (
+              <ValidationIcon hasError={isCommon} />
+            )}
           </span>
           <FtlMsg id="password-strength-inline-not-common">
             <span className="ps-2">Not a commonly used password</span>
@@ -100,8 +107,9 @@ export const PasswordStrengthInline = ({
         {isUnconfirmed !== undefined && isNewPasswordForm && (
           <li data-testid="passwords-match" className="flex">
             <span className="w-7 h-7 text-center">
-              {(isPasswordEmpty || isConfirmedPasswordEmpty) && '•'}
-              {!(isPasswordEmpty || isConfirmedPasswordEmpty) && (
+              {isPasswordEmpty || isConfirmedPasswordEmpty ? (
+                <span translate="no">•</span>
+              ) : (
                 <ValidationIcon hasError={isUnconfirmed} />
               )}
             </span>
@@ -118,8 +126,9 @@ export const PasswordStrengthInline = ({
             passwordFormType === 'post-verify-set-password') && (
             <li data-testid="passwords-match" className="flex">
               <span className="w-7 h-7 text-center">
-                {(isPasswordEmpty || isConfirmedPasswordEmpty) && '•'}
-                {!(isPasswordEmpty || isConfirmedPasswordEmpty) && (
+                {isPasswordEmpty || isConfirmedPasswordEmpty ? (
+                  <span translate="no">•</span>
+                ) : (
                   <ValidationIcon hasError={isUnconfirmed} />
                 )}
               </span>
