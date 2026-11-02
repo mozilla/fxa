@@ -408,6 +408,10 @@ error-bad-request = Mal requesta
 pair-unsupported-hint-heading = Fini le accopulamento in le application
 # Shown first when the page is open inside another app, which the user must close
 pair-unsupported-hint-step-close-page = Clauder iste pagina
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Tocca le <b>menu del applicationes</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>Accede</b>, pois scande le codice
 # Opens a Mozilla support article about connecting a device without a QR code
 pair-unsupported-hint-learn-more-link = Pro saper plus
 
@@ -1716,6 +1720,7 @@ inline-totp-setup-page-title = Authentication a duo passos
 ## Shown when the requested page does not exist
 
 page-not-found-heading = Pagina non trovate
+page-not-found-description = Le pagina que tu requireva non es trovate.
 page-not-found-home-button = Initio
 
 ## AuthAllow page - Part of the device pairing flow
@@ -2312,6 +2317,14 @@ signin-passkey-fallback-body = Pro mantener tu datos secur, tu debe inserer tu c
 signin-passkey-fallback-password-label = Contrasigno
 signin-passkey-fallback-continue = Continuar
 signin-passkey-fallback-forgot-password-link = Contrasigno oblidate?
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = Contrasigno necessari sur iste apparato
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
+signin-passkey-fallback-no-prf-description = Iste navigator o apparato non pote usar tu clave-contrasigno pro acceder pro synchronisar si sol.
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
+signin-passkey-fallback-unwrap-failed-heading = Tu clave-contrasigno non poteva disblocar le synchronisation
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = Alco errate eveniva, assi tu besoniara tu contrasigno iste vice
 # Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
 signin-passkey-fallback-wrap-unusable-link = Pro saper plus
 

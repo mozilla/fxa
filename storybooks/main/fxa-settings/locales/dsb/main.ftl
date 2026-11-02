@@ -334,6 +334,13 @@ locale-toggle-browser-default = Standard wobglědowaka
 error-bad-request = Špatne napšašowanje
 
 
+pair-unsupported-hint-heading = Koplowanje w nałoženju dokóńcyś
+pair-unsupported-hint-step-close-page = Toś ten bok zacyniś
+pair-unsupported-hint-step-app-menu = Pótusniśo <b>meni nałoženja</b>
+pair-unsupported-hint-step-sign-in = <b>Pśizjawśo se</b> a scannujśo pón kode
+pair-unsupported-hint-learn-more-link = Dalšne informacije
+
+
 password-info-balloon-why-password-info = Trjebaśo toś to gronidł za pśistup k skoděrowanym datam, kótarež pla nas składujośo.
 password-info-balloon-reset-risk-info = Slědkstajenje groni, až se snaź daty ako gronidła a cytańske znamjenja zgubiju.
 
@@ -1235,6 +1242,11 @@ tfa-qr-code-alt = Wužywajśo kod { $code }, aby zarědował dwukšacowu awtenti
 inline-totp-setup-page-title = Dwójokšacowa awtentifikacija
 
 
+page-not-found-heading = Bok njejo se namakał
+page-not-found-description = Bok, kótaryž sćo pominał, njejo se namakał. Smy powěsć dostali a pórěźamy njepłaśiwe wótkaze.
+page-not-found-home-button = Startowy bok
+
+
 pair-auth-allow-heading-text = Sćo se rowno pśizjawił pla { -brand-firefox }?
 pair-auth-allow-confirm-button = Jo, rěd pśizwóliś
 pair-auth-allow-refuse-device-link = Jolic njejsćo to był wy, <a>změńśo swójo gronidło</a>
@@ -1570,6 +1582,11 @@ signin-passkey-fallback-body = Aby swóje daty wěste wobchował, musyśo swójo
 signin-passkey-fallback-password-label = Gronidło
 signin-passkey-fallback-continue = Dalej
 signin-passkey-fallback-forgot-password-link = Sćo gronidło zabył?
+signin-passkey-fallback-no-prf-heading = Gronidło jo na toś tom rěźe trjebne
+signin-passkey-fallback-no-prf-description = Toś ten wobglědowak abo rěd njamóžo waš gronidłowy kluc wužywaś, aby se za synchronizaciju pśizjawił.
+signin-passkey-fallback-unwrap-failed-heading = Waš gronidłowy kluc njejo mógł synchronizaciju wótwóriś
+signin-passkey-fallback-unwrap-failed-description = Něco njejo se raźiło, togodla trjebaśo tenraz swójo gronidło.
+signin-passkey-fallback-wrap-unusable-link = Dalšne informacije
 
 
 signin-passwordless-code-heading = Wobkšuśeński kod zapódaś

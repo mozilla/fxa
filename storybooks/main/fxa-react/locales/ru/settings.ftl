@@ -404,6 +404,20 @@ locale-toggle-browser-default = Браузер по умолчанию
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Неверный запрос
 
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+pair-unsupported-hint-heading = Завершите сопряжение в приложении
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = Закрыть эту страницу
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Нажмите на <b>меню приложений</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>Войдите</b>, а затем отсканируйте код
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = Подробнее
+
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
 
@@ -1702,6 +1716,13 @@ inline-totp-setup-code-required-error = Требуется код аутенти
 tfa-qr-code-alt = Используйте код { $code } для настройки двухэтапной аутентификации в поддерживаемых приложениях.
 inline-totp-setup-page-title = Двухэтапная аутентификация
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Страница не найдена
+page-not-found-description = Запрошенная вами страница не найдена. Мы уведомлены об этом и исправим все ссылки, которые могут быть сломаны.
+page-not-found-home-button = Домой
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Вы только что вошли в { -brand-firefox }?
@@ -2300,6 +2321,16 @@ signin-passkey-fallback-body = Для обеспечения безопасно�
 signin-passkey-fallback-password-label = Пароль
 signin-passkey-fallback-continue = Продолжить
 signin-passkey-fallback-forgot-password-link = Забыли пароль?
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = На этом устройстве необходим пароль
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
+signin-passkey-fallback-no-prf-description = Этот браузер или устройство не могут самостоятельно использовать ваш ключ доступа для входа в синхронизацию.
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
+signin-passkey-fallback-unwrap-failed-heading = Ваш ключ доступа не может разблокировать синхронизацию
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = Что-то пошло не так, поэтому на этот раз вам понадобится пароль.
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = Подробнее
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.

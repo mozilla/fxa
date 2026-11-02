@@ -320,6 +320,13 @@ locale-toggle-browser-default = 기본 브라우저
 error-bad-request = 잘못된 요청
 
 
+pair-unsupported-hint-heading = 앱에서 페어링 완료하기
+pair-unsupported-hint-step-close-page = 이 페이지 닫기
+pair-unsupported-hint-step-app-menu = <b>앱 메뉴</b>를 탭
+pair-unsupported-hint-step-sign-in = <b>로그인</b> 후, 코드 스캔
+pair-unsupported-hint-learn-more-link = 더 알아보기
+
+
 password-info-balloon-why-password-info = 여기에 저장한 암호화된 데이터에 접근하려면 이 비밀번호가 필요합니다.
 password-info-balloon-reset-risk-info = 재설정은 비밀번호와 북마크 같은 데이터가 손실될 수 있음을 의미합니다.
 
@@ -1195,6 +1202,11 @@ tfa-qr-code-alt = 지원되는 애플리케이션에서 2단계 인증을 설정
 inline-totp-setup-page-title = 2단계 인증
 
 
+page-not-found-heading = 페이지를 찾을 수 없음
+page-not-found-description = 요청하신 페이지를 찾을 수 없습니다. 잘못된 모든 링크를 수정할 예정입니다.
+page-not-found-home-button = 홈
+
+
 pair-auth-allow-heading-text = 방금 { -brand-firefox }에 로그인하셨나요?
 pair-auth-allow-confirm-button = 네, 기기를 승인합니다.
 pair-auth-allow-refuse-device-link = 본인이 아니라면, <a>비밀번호를 변경하세요</a>.
@@ -1524,6 +1536,11 @@ signin-passkey-fallback-body = 데이터를 안전하게 지키기 위해, 이 �
 signin-passkey-fallback-password-label = 비밀번호
 signin-passkey-fallback-continue = 계속
 signin-passkey-fallback-forgot-password-link = 비밀번호를 잊으셨나요?
+signin-passkey-fallback-no-prf-heading = 이 기기에 비밀번호 필요함
+signin-passkey-fallback-no-prf-description = 이 브라우저나 기기는 패스키를 사용하여 Sync에 로그인 할 수 없습니다.
+signin-passkey-fallback-unwrap-failed-heading = 패스키로 동기화를 잠금 해제할 수 없음
+signin-passkey-fallback-unwrap-failed-description = 문제가 발생했습니다. 이번에는 비밀번호가 필요합니다.
+signin-passkey-fallback-wrap-unusable-link = 더 알아보기
 
 
 signin-passwordless-code-heading = 인증 코드 입력

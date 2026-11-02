@@ -385,6 +385,20 @@ locale-toggle-browser-default = ברירת המחדל של הדפדפן
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = בקשה שגויה
 
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+pair-unsupported-hint-heading = סיום הצימוד ביישומון
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = סגירת דף זה
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = יש להקיש על <b>תפריט היישומון</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>יש להתחבר</b>, ולאחר מכן לסרוק את הקוד
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = מידע נוסף
+
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
 
@@ -1628,6 +1642,13 @@ inline-totp-setup-code-required-error = נדרש קוד אימות
 tfa-qr-code-alt = ניתן להשתמש בקוד { $code } כדי להגדיר אימות דו־שלבי ביישומים נתמכים.
 inline-totp-setup-page-title = אימות דו־שלבי
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = הדף לא נמצא
+page-not-found-description = העמוד המבוקש לא נמצא. קיבלנו את המידע הדרוש ונתקן את הקישורים שייתכן שנשברו.
+page-not-found-home-button = בית
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = האם זה עתה התחברת ל־{ -brand-firefox }?
@@ -2213,6 +2234,16 @@ signin-passkey-fallback-body = כדי לשמור על בטיחות הנתוני�
 signin-passkey-fallback-password-label = ססמה
 signin-passkey-fallback-continue = המשך
 signin-passkey-fallback-forgot-password-link = שכחת את הססמה?
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = נדרשת ססמה במכשיר זה
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
+signin-passkey-fallback-no-prf-description = דפדפן או מכשיר זה אינם יכולים להשתמש במפתח הגישה שלך כדי להיכנס ולסנכרן בעצמם.
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
+signin-passkey-fallback-unwrap-failed-heading = מפתח הגישה שלך אינו יכול לשחרר את הנעילה של הסנכרון
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = משהו השתבש, אז יהיה לך צורך בססמה שלך הפעם.
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = מידע נוסף
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.

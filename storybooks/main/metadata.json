@@ -1,8 +1,8 @@
 {
-  "commit": "3f78fe7dff13ea51635aec6d6fd5e7d5f69e1aa5",
-  "summary": "Merge pull request #21612 from mozilla/metering-metrics",
-  "description": "feat(ent): add metering metrics job",
-  "timestamp": 1793382234000,
+  "commit": "590121f6d9c0e328176eb8220c30daa072d5de1f",
+  "summary": "Merge pull request #21638 from mozilla/fxa-14854",
+  "description": "perf(settings): lazy-load scoped-keys in the OAuth finish hook",
+  "timestamp": 1793634753000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

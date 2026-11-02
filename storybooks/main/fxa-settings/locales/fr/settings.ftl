@@ -405,7 +405,7 @@ error-bad-request = Requête incorrecte
 ## Users see this on their mobile device when they open the pairing link
 ## outside the Firefox app. It tells them how to finish pairing in Firefox.
 
-pair-unsupported-hint-heading = Terminez l’association dans l’application
+pair-unsupported-hint-heading = Finalisez l’association dans l’application
 # Shown first when the page is open inside another app, which the user must close
 pair-unsupported-hint-step-close-page = Fermer cette page
 # <b> emphasises the name of the button the user taps in Firefox
@@ -1709,7 +1709,7 @@ inline-totp-setup-page-title = Authentification en deux étapes
 ## Shown when the requested page does not exist
 
 page-not-found-heading = Page introuvable
-page-not-found-description = La page demandée est introuvable. Nous en avons été informés et nous réparerons les liens éventuellement cassés.
+page-not-found-description = La page demandée est introuvable. Nous en avons été informés et nous rétablirons les liens éventuellement cassés.
 page-not-found-home-button = Accueil
 
 ## AuthAllow page - Part of the device pairing flow
@@ -2309,9 +2309,9 @@ signin-passkey-fallback-forgot-password-link = Mot de passe oublié ?
 # Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
 signin-passkey-fallback-no-prf-heading = Mot de passe nécessaire sur cet appareil
 # Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
-signin-passkey-fallback-no-prf-description = Ce navigateur ou cet appareil ne peut pas utiliser votre clé d’accès pour se connecter et synchroniser tout seul.
+signin-passkey-fallback-no-prf-description = Ce navigateur ou cet appareil ne peut pas utiliser uniquement votre clé d’accès pour l’accès à la synchronisation.
 # Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
-signin-passkey-fallback-unwrap-failed-heading = Votre clé d’accès n’a pas pu déverrouiller Sync
+signin-passkey-fallback-unwrap-failed-heading = Votre clé d’accès n’a pas pu déverrouiller la synchronisation
 # Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
 signin-passkey-fallback-unwrap-failed-description = Une erreur s’est produite. Vous aurez donc besoin de votre mot de passe cette fois-ci.
 # Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
