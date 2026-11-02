@@ -1228,7 +1228,7 @@ inline-totp-setup-page-title = Tvåstegsautentisering
 
 
 page-not-found-heading = Sidan hittades inte
-page-not-found-description = Sidan du begärde hittades inte. Vi har underrättats och kommer att fixa alla länkar som kan vara trasiga.
+page-not-found-description = Sidan du sökte kunde inte hittas. Vi har fått information om detta och kommer att åtgärda eventuella felaktiga länkar.
 page-not-found-home-button = Hem
 
 

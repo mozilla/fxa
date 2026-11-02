@@ -1251,7 +1251,7 @@ inline-totp-setup-page-title = Dilysu dau gam
 
 
 page-not-found-heading = Heb ganfod y dudalen
-page-not-found-description = Nid yw'r dudalen y gofynnoch amdani wedi'i chanfod. Rydym wedi cael ein hysbysu a byddwn yn trwsio unrhyw ddolenni a allai gael eu torri.
+page-not-found-description = Dyw'r dudalen rydych wedi gofyn amdani heb ei chanfod. Rydym wedi cael ein hysbysu a byddwn yn trwsio unrhyw ddolenni sydd efallai wedi'u torri.
 page-not-found-home-button = Cartref
 
 
@@ -1590,9 +1590,9 @@ signin-passkey-fallback-password-label = Cyfrinallwedd
 signin-passkey-fallback-continue = Parhau
 signin-passkey-fallback-forgot-password-link = Wedi anghofio'r cyfrinair?
 signin-passkey-fallback-no-prf-heading = Mae angen cyfrinair ar y ddyfais hon
-signin-passkey-fallback-no-prf-description = Ni all y porwr neu ddyfais hwn ddefnyddio'ch cyfrinair i fewngofnodi i gysoni ar ei ben ei hun.
-signin-passkey-fallback-unwrap-failed-heading = Ni allai'ch cyfrinair ddatgloi cysoni
-signin-passkey-fallback-unwrap-failed-description = Aeth rhywbeth o'i le, felly bydd angen eich cyfrinair y tro hwn.
+signin-passkey-fallback-no-prf-description = Does dim modd i'r porwr neu'r ddyfais hyn ddefnyddio'ch cyfrinallwedd ei hun i fewngofnodi i gydweddu.
+signin-passkey-fallback-unwrap-failed-heading = Doedd dim modd i'ch cyfrinallwedd ddatgloi cydweddu
+signin-passkey-fallback-unwrap-failed-description = Aeth rhywbeth o'i le, felly bydd angen eich cyfrinair y tro yma.
 signin-passkey-fallback-wrap-unusable-link = Dysgu rhagor
 
 

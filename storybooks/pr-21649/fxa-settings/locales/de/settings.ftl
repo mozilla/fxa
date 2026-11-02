@@ -411,7 +411,7 @@ pair-unsupported-hint-step-close-page = Diese Seite schließen
 # <b> emphasises the name of the button the user taps in Firefox
 pair-unsupported-hint-step-app-menu = Tippen Sie auf das <b>App-Menü</b>
 # <b> emphasises the name of the menu item the user taps in Firefox
-pair-unsupported-hint-step-sign-in = <b>Melden Sie sich an</b>, scannen Sie den Code
+pair-unsupported-hint-step-sign-in = <b>Melden Sie sich an</b> und scannen Sie anschließend den Code
 # Opens a Mozilla support article about connecting a device without a QR code
 pair-unsupported-hint-learn-more-link = Weitere Informationen
 
@@ -1715,7 +1715,7 @@ inline-totp-setup-page-title = Zwei-Schritt-Authentifizierung
 ## Shown when the requested page does not exist
 
 page-not-found-heading = Seite nicht gefunden
-page-not-found-description = Die angeforderte Seite wurde nicht gefunden. Wir wurden benachrichtigt und werden alle Links reparieren, die möglicherweise defekt sind.
+page-not-found-description = Die angeforderte Seite wurde nicht gefunden. Wir wurden informiert und werden alle möglicherweise defekten Links reparieren.
 page-not-found-home-button = Startseite
 
 ## AuthAllow page - Part of the device pairing flow
@@ -2313,13 +2313,13 @@ signin-passkey-fallback-password-label = Passwort
 signin-passkey-fallback-continue = Weiter
 signin-passkey-fallback-forgot-password-link = Passwort vergessen?
 # Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
-signin-passkey-fallback-no-prf-heading = Passwort auf diesem Gerät erforderlich
+signin-passkey-fallback-no-prf-heading = Auf diesem Gerät ist ein Passwort erforderlich
 # Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
-signin-passkey-fallback-no-prf-description = Dieser Browser oder das Gerät kann Ihren Zugangsschlüssel nicht zur Anmeldung verwenden, um sich selbst zu synchronisieren.
+signin-passkey-fallback-no-prf-description = Dieser Browser oder dieses Gerät kann Sie nicht allein mit Ihrem Zugangsschlüssel bei der Synchronisierung anmelden.
 # Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
 signin-passkey-fallback-unwrap-failed-heading = Der Zugangsschlüssel konnte die Synchronisierung nicht entsperren
 # Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
-signin-passkey-fallback-unwrap-failed-description = Etwas ist schiefgegangen, daher benötigen Sie dieses Mal Ihr Passwort.
+signin-passkey-fallback-unwrap-failed-description = Da etwas schiefgegangen ist, müssen Sie dieses Mal Ihr Passwort eingeben.
 # Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
 signin-passkey-fallback-wrap-unusable-link = Weitere Informationen
 

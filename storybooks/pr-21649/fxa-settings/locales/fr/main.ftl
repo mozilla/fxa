@@ -344,7 +344,7 @@ locale-toggle-browser-default = Navigateur par défaut
 error-bad-request = Requête incorrecte
 
 
-pair-unsupported-hint-heading = Terminez l’association dans l’application
+pair-unsupported-hint-heading = Finalisez l’association dans l’application
 pair-unsupported-hint-step-close-page = Fermer cette page
 pair-unsupported-hint-step-app-menu = Appuyez sur le <b>menu de l’application</b>
 pair-unsupported-hint-step-sign-in = <b>Connectez-vous</b>, puis scannez le code
@@ -1237,7 +1237,7 @@ inline-totp-setup-page-title = Authentification en deux étapes
 
 
 page-not-found-heading = Page introuvable
-page-not-found-description = La page demandée est introuvable. Nous en avons été informés et nous réparerons les liens éventuellement cassés.
+page-not-found-description = La page demandée est introuvable. Nous en avons été informés et nous rétablirons les liens éventuellement cassés.
 page-not-found-home-button = Accueil
 
 
@@ -1572,8 +1572,8 @@ signin-passkey-fallback-password-label = Mot de passe
 signin-passkey-fallback-continue = Continuer
 signin-passkey-fallback-forgot-password-link = Mot de passe oublié ?
 signin-passkey-fallback-no-prf-heading = Mot de passe nécessaire sur cet appareil
-signin-passkey-fallback-no-prf-description = Ce navigateur ou cet appareil ne peut pas utiliser votre clé d’accès pour se connecter et synchroniser tout seul.
-signin-passkey-fallback-unwrap-failed-heading = Votre clé d’accès n’a pas pu déverrouiller Sync
+signin-passkey-fallback-no-prf-description = Ce navigateur ou cet appareil ne peut pas utiliser uniquement votre clé d’accès pour l’accès à la synchronisation.
+signin-passkey-fallback-unwrap-failed-heading = Votre clé d’accès n’a pas pu déverrouiller la synchronisation
 signin-passkey-fallback-unwrap-failed-description = Une erreur s’est produite. Vous aurez donc besoin de votre mot de passe cette fois-ci.
 signin-passkey-fallback-wrap-unusable-link = En savoir plus
 

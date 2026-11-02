@@ -1739,7 +1739,7 @@ inline-totp-setup-page-title = Dilysu dau gam
 ## Shown when the requested page does not exist
 
 page-not-found-heading = Heb ganfod y dudalen
-page-not-found-description = Nid yw'r dudalen y gofynnoch amdani wedi'i chanfod. Rydym wedi cael ein hysbysu a byddwn yn trwsio unrhyw ddolenni a allai gael eu torri.
+page-not-found-description = Dyw'r dudalen rydych wedi gofyn amdani heb ei chanfod. Rydym wedi cael ein hysbysu a byddwn yn trwsio unrhyw ddolenni sydd efallai wedi'u torri.
 page-not-found-home-button = Cartref
 
 ## AuthAllow page - Part of the device pairing flow
@@ -2343,11 +2343,11 @@ signin-passkey-fallback-forgot-password-link = Wedi anghofio'r cyfrinair?
 # Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
 signin-passkey-fallback-no-prf-heading = Mae angen cyfrinair ar y ddyfais hon
 # Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
-signin-passkey-fallback-no-prf-description = Ni all y porwr neu ddyfais hwn ddefnyddio'ch cyfrinair i fewngofnodi i gysoni ar ei ben ei hun.
+signin-passkey-fallback-no-prf-description = Does dim modd i'r porwr neu'r ddyfais hyn ddefnyddio'ch cyfrinallwedd ei hun i fewngofnodi i gydweddu.
 # Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
-signin-passkey-fallback-unwrap-failed-heading = Ni allai'ch cyfrinair ddatgloi cysoni
+signin-passkey-fallback-unwrap-failed-heading = Doedd dim modd i'ch cyfrinallwedd ddatgloi cydweddu
 # Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
-signin-passkey-fallback-unwrap-failed-description = Aeth rhywbeth o'i le, felly bydd angen eich cyfrinair y tro hwn.
+signin-passkey-fallback-unwrap-failed-description = Aeth rhywbeth o'i le, felly bydd angen eich cyfrinair y tro yma.
 # Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
 signin-passkey-fallback-wrap-unusable-link = Dysgu rhagor
 

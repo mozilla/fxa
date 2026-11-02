@@ -2324,7 +2324,7 @@ signin-passkey-fallback-forgot-password-link = Elfelejtette a jelszót?
 # Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
 signin-passkey-fallback-no-prf-heading = Jelszó szükséges ezen az eszközön
 # Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
-signin-passkey-fallback-no-prf-description = Ez a böngésző vagy eszköz nem használhatja a jelkulcsot a saját maga bejelentkezéshez a szinkronizáláshoz.
+signin-passkey-fallback-no-prf-description = Ez a böngésző vagy eszköz nem használhatja a jelkulcsot, hogy magától jelentkezzen be a szinkronizáláshoz.
 # Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
 signin-passkey-fallback-unwrap-failed-heading = A jelkulcs nem tudta feloldani a szinkronizálást
 # Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.

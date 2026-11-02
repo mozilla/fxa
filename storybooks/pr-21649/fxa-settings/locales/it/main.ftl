@@ -1229,7 +1229,7 @@ inline-totp-setup-page-title = Autenticazione in due passaggi
 
 
 page-not-found-heading = Pagina non trovata
-page-not-found-description = La pagina richiesta non è stata trovata. Siamo stati avvisati e risolveremo eventuali collegamenti non funzionanti.
+page-not-found-description = La pagina richiesta non è stata trovata. Abbiamo ricevuto una segnalazione e correggeremo eventuali link non funzionanti.
 page-not-found-home-button = Pagina iniziale
 
 
@@ -1564,9 +1564,9 @@ signin-passkey-fallback-password-label = Password
 signin-passkey-fallback-continue = Continua
 signin-passkey-fallback-forgot-password-link = Password dimenticata?
 signin-passkey-fallback-no-prf-heading = È richiesta la password per questo dispositivo
-signin-passkey-fallback-no-prf-description = Questo browser o dispositivo non può utilizzare la passkey per eseguire la sincronizzazione autonomamente.
-signin-passkey-fallback-unwrap-failed-heading = Impossibile sbloccare la sincronizzazione con la chiave di accesso
-signin-passkey-fallback-unwrap-failed-description = Si è verificato un errore, quindi questa volta avrai bisogno della password.
+signin-passkey-fallback-no-prf-description = Questo browser o dispositivo non può usare autonomamente la passkey per accedere alla sincronizzazione.
+signin-passkey-fallback-unwrap-failed-heading = Impossibile sbloccare la sincronizzazione con la passkey
+signin-passkey-fallback-unwrap-failed-description = Si è verificato un errore, quindi questa volta dovrai usare la password.
 signin-passkey-fallback-wrap-unusable-link = Ulteriori informazioni
 
 

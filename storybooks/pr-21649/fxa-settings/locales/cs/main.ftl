@@ -620,7 +620,7 @@ error-bad-request = Špatný požadavek
 pair-unsupported-hint-heading = Dokončete párování v aplikaci
 pair-unsupported-hint-step-close-page = Zavřít tuto stránku
 pair-unsupported-hint-step-app-menu = Klepněte na <b>nabídku aplikace</b>
-pair-unsupported-hint-step-sign-in = <b>Přihlaste se</b> a poté naskenujte kód
+pair-unsupported-hint-step-sign-in = <b>Přihlaste se</b>, a poté naskenujte kód
 pair-unsupported-hint-learn-more-link = Zjistit více
 
 
@@ -1517,8 +1517,8 @@ tfa-qr-code-alt = Pro nastavení dvoufázového ověřování v podporovaných a
 inline-totp-setup-page-title = Dvoufázové ověřování
 
 
-page-not-found-heading = Stránka nenalezena
-page-not-found-description = Požadovaná stránka nebyla nalezena. Byli jsme upozorněni a všechny odkazy, které mohou být nefunkční, opravíme.
+page-not-found-heading = Stránka nebyla nalezena
+page-not-found-description = Požadovaná stránka nebyla nalezena. Byli jsme o tom informováni a opravíme všechny nefunkční odkazy.
 page-not-found-home-button = Domů
 
 
@@ -1854,9 +1854,9 @@ signin-passkey-fallback-password-label = Heslo
 signin-passkey-fallback-continue = Pokračovat
 signin-passkey-fallback-forgot-password-link = Zapomněli jste heslo?
 signin-passkey-fallback-no-prf-heading = Na tomto zařízení je vyžadováno heslo
-signin-passkey-fallback-no-prf-description = Tento prohlížeč nebo zařízení nemůže pro přihlášení ke synchronizaci použít vlastní klíč.
+signin-passkey-fallback-no-prf-description = Tento prohlížeč nebo zařízení nedokáže k přihlášení k synchronizaci použít samotný přístupový klíč.
 signin-passkey-fallback-unwrap-failed-heading = Váš přístupový kód nemohl odemknout synchronizaci
-signin-passkey-fallback-unwrap-failed-description = Něco se pokazilo, tentokrát budete potřebovat heslo.
+signin-passkey-fallback-unwrap-failed-description = Něco se nezdařilo, takže tentokrát budete muset zadat heslo.
 signin-passkey-fallback-wrap-unusable-link = Zjistit více
 
 

@@ -144,6 +144,12 @@ icon-passkey-aria-label =
     .aria-label = សោសម្ងាត់
 
 
+pair-unsupported-hint-heading = បញ្ចប់ការផ្គូផ្គងនៅក្នុងកម្មវិធី
+pair-unsupported-hint-step-close-page = បិទទំព័រនេះ
+pair-unsupported-hint-step-app-menu = ចុច <b>ម៉ឺនុយកម្មវិធី</b>
+pair-unsupported-hint-learn-more-link = ស្វែងយល់​បន្ថែម
+
+
 password-strength-inline-passwords-match = ពាក្យសម្ងាត់ត្រូវគ្នា
 
 
@@ -246,6 +252,10 @@ index-account-delete-success = បាន​លុប​គណនី​ដោយ�
 
 
 inline-totp-setup-cancel-setup-button = បោះបង់ការដំឡើង
+
+
+page-not-found-heading = រក​មិន​ឃើញ​ទំព័រ
+page-not-found-home-button = ទំព័រដើម
 
 
 pair-auth-allow-confirm-button = បាទ/ចាស៎ យល់ព្រមលើឧបករណ៍

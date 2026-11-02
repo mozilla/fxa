@@ -324,6 +324,13 @@ locale-toggle-browser-default = ברירת המחדל של הדפדפן
 error-bad-request = בקשה שגויה
 
 
+pair-unsupported-hint-heading = סיום הצימוד ביישומון
+pair-unsupported-hint-step-close-page = סגירת דף זה
+pair-unsupported-hint-step-app-menu = יש להקיש על <b>תפריט היישומון</b>
+pair-unsupported-hint-step-sign-in = <b>יש להתחבר</b>, ולאחר מכן לסרוק את הקוד
+pair-unsupported-hint-learn-more-link = מידע נוסף
+
+
 password-info-balloon-why-password-info = יש לך צורך בססמה זו כדי לגשת לכל מידע מוצפן שבחרת לאחסן אצלנו.
 password-info-balloon-reset-risk-info = איפוס פירושו פוטנציאל לאבד נתונים כמו ססמאות וסימניות.
 
@@ -1174,6 +1181,11 @@ tfa-qr-code-alt = ניתן להשתמש בקוד { $code } כדי להגדיר �
 inline-totp-setup-page-title = אימות דו־שלבי
 
 
+page-not-found-heading = הדף לא נמצא
+page-not-found-description = העמוד המבוקש לא נמצא. קיבלנו את המידע הדרוש ונתקן את הקישורים שייתכן שנשברו.
+page-not-found-home-button = בית
+
+
 pair-auth-allow-heading-text = האם זה עתה התחברת ל־{ -brand-firefox }?
 pair-auth-allow-confirm-button = כן, לאשר את המכשיר
 pair-auth-allow-refuse-device-link = אם לא ביצעת פעולה זו, <a>יש לשנות את הססמה שלך</a>
@@ -1497,6 +1509,11 @@ signin-passkey-fallback-body = כדי לשמור על בטיחות הנתוני�
 signin-passkey-fallback-password-label = ססמה
 signin-passkey-fallback-continue = המשך
 signin-passkey-fallback-forgot-password-link = שכחת את הססמה?
+signin-passkey-fallback-no-prf-heading = נדרשת ססמה במכשיר זה
+signin-passkey-fallback-no-prf-description = דפדפן או מכשיר זה אינם יכולים להשתמש במפתח הגישה שלך כדי להיכנס ולסנכרן בעצמם.
+signin-passkey-fallback-unwrap-failed-heading = מפתח הגישה שלך אינו יכול לשחרר את הנעילה של הסנכרון
+signin-passkey-fallback-unwrap-failed-description = משהו השתבש, אז יהיה לך צורך בססמה שלך הפעם.
+signin-passkey-fallback-wrap-unusable-link = מידע נוסף
 
 
 signin-passwordless-code-heading = נא להכניס את קוד האימות

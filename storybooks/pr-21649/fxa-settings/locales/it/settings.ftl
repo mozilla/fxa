@@ -1701,7 +1701,7 @@ inline-totp-setup-page-title = Autenticazione in due passaggi
 ## Shown when the requested page does not exist
 
 page-not-found-heading = Pagina non trovata
-page-not-found-description = La pagina richiesta non è stata trovata. Siamo stati avvisati e risolveremo eventuali collegamenti non funzionanti.
+page-not-found-description = La pagina richiesta non è stata trovata. Abbiamo ricevuto una segnalazione e correggeremo eventuali link non funzionanti.
 page-not-found-home-button = Pagina iniziale
 
 ## AuthAllow page - Part of the device pairing flow
@@ -2301,11 +2301,11 @@ signin-passkey-fallback-forgot-password-link = Password dimenticata?
 # Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
 signin-passkey-fallback-no-prf-heading = È richiesta la password per questo dispositivo
 # Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
-signin-passkey-fallback-no-prf-description = Questo browser o dispositivo non può utilizzare la passkey per eseguire la sincronizzazione autonomamente.
+signin-passkey-fallback-no-prf-description = Questo browser o dispositivo non può usare autonomamente la passkey per accedere alla sincronizzazione.
 # Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
-signin-passkey-fallback-unwrap-failed-heading = Impossibile sbloccare la sincronizzazione con la chiave di accesso
+signin-passkey-fallback-unwrap-failed-heading = Impossibile sbloccare la sincronizzazione con la passkey
 # Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
-signin-passkey-fallback-unwrap-failed-description = Si è verificato un errore, quindi questa volta avrai bisogno della password.
+signin-passkey-fallback-unwrap-failed-description = Si è verificato un errore, quindi questa volta dovrai usare la password.
 # Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
 signin-passkey-fallback-wrap-unusable-link = Ulteriori informazioni
 
