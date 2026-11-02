@@ -96,8 +96,7 @@ try {
   // a browser with genuinely disabled storage from replacing onto this route in
   // a loop.
   if (
-    !config.serverError &&
-    !config.notFound &&
+    !config.errorPage &&
     !localStorageEnabled &&
     window.location.pathname !== '/cookies_disabled'
   ) {
@@ -107,13 +106,14 @@ try {
     window.location.replace('/cookies_disabled' + window.location.search);
   }
 
-  const View = config.serverError
-    ? () => <ServerError />
-    : config.notFound
-      ? () => <PageNotFound />
-      : localStorageEnabled
-        ? () => <App {...{ flowQueryParams }} />
-        : () => <CookiesDisabled />;
+  const View =
+    config.errorPage === 500
+      ? () => <ServerError />
+      : config.errorPage === 404
+        ? () => <PageNotFound />
+        : localStorageEnabled
+          ? () => <App {...{ flowQueryParams }} />
+          : () => <CookiesDisabled />;
 
   const root = createRoot(document.getElementById('root') as HTMLElement);
   root.render(

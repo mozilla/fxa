@@ -144,10 +144,8 @@ export interface Config {
     l10nEnabled: boolean;
   };
   servicesWithEmailVerification: string[];
-  // Set by the content-server 500 handler
-  serverError?: boolean;
-  // Set by the content-server 404 handler
-  notFound?: boolean;
+  // Set by the content-server 404 and 500 handlers
+  errorPage?: 404 | 500;
 }
 
 export function getDefault() {

@@ -6,7 +6,7 @@ const { getReactRouteGroups } = require('.');
 const { reactRouteServer } = require('./react-route-server');
 
 /** Add all routes from route groups with the feature flag on for fxa-settings to serve,
- * with the middleware passed ('createSettingsProxy' in dev, else 'modifySettingsStatic').
+ * with the middleware passed ('serveSettingsPage').
  * @type {import("./types").AddRoutes}
  */
 function addAllReactRoutesConditionally(app, middleware, config) {

@@ -38,7 +38,8 @@ const { cors, routing } = require('@fxa/shared/express').express();
 const {
   createSettingsProxy,
   modifySettingsStatic,
-} = require('../lib/beta-settings');
+  serveSettingsPage,
+} = require('../lib/settings');
 
 const userAgent = require('@fxa/shared/user-agent').userAgent;
 if (!userAgent.isToVersionStringSupported()) {
@@ -171,10 +172,10 @@ function makeApp() {
 
   if (config.get('proxy_settings')) {
     app.use(settingsPath, createSettingsProxy);
-    addNonSettingsRoutes(createSettingsProxy);
+    addNonSettingsRoutes(serveSettingsPage);
   } else {
     app.get(settingsPath, modifySettingsStatic);
-    addNonSettingsRoutes(modifySettingsStatic);
+    addNonSettingsRoutes(serveSettingsPage);
     app.get(settingsPath + '/*splat', modifySettingsStatic);
   }
 

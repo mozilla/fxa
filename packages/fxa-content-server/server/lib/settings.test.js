@@ -5,11 +5,12 @@
 'use strict';
 
 const assert = require('node:assert');
-const { EventEmitter } = require('node:events');
+const { EventEmitter, once } = require('node:events');
+const express = require('express');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
-const { modifySettingsStatic, modifyProxyRes } = proxyquire('./beta-settings', {
+const { modifySettingsStatic, modifyProxyRes } = proxyquire('./settings', {
   fs: {
     readFileSync: () =>
       '<meta name="fxa-config" content="__SERVER_CONFIG__" />',
@@ -40,25 +41,25 @@ function mockRes(locals = {}) {
   };
 }
 
-describe('beta-settings', () => {
+describe('settings', () => {
   describe('modifySettingsStatic', () => {
-    it('adds serverError to the config when the 500 handler sets it', () => {
-      const res = mockRes({ serverError: true });
+    it('adds errorPage 500 to the config when the 500 handler sets it', () => {
+      const res = mockRes({ errorPage: 500 });
       modifySettingsStatic({ path: '/boom' }, res);
-      assert.strictEqual(injectedConfig(res.send.args[0][0]).serverError, true);
+      assert.strictEqual(injectedConfig(res.send.args[0][0]).errorPage, 500);
     });
 
-    it('adds notFound to the config when the 404 handler sets it', () => {
-      const res = mockRes({ notFound: true });
+    it('adds errorPage 404 to the config when the 404 handler sets it', () => {
+      const res = mockRes({ errorPage: 404 });
       modifySettingsStatic({ path: '/no-such-page' }, res);
-      assert.strictEqual(injectedConfig(res.send.args[0][0]).notFound, true);
+      assert.strictEqual(injectedConfig(res.send.args[0][0]).errorPage, 404);
     });
 
-    it('leaves serverError out of the config otherwise', () => {
+    it('leaves errorPage out of the config otherwise', () => {
       const res = mockRes();
       modifySettingsStatic({ path: '/signin' }, res);
       assert.strictEqual(
-        injectedConfig(res.send.args[0][0]).serverError,
+        injectedConfig(res.send.args[0][0]).errorPage,
         undefined
       );
     });
@@ -79,27 +80,111 @@ describe('beta-settings', () => {
       return res;
     }
 
-    it('keeps status 500 and adds serverError when the 500 handler sets it', () => {
-      const res = proxy({ serverError: true });
+    it('keeps status 500 and adds errorPage 500 when the 500 handler sets it', () => {
+      const res = proxy({ errorPage: 500 });
       assert.ok(res.status.calledWith(500));
       assert.strictEqual(
-        injectedConfig(res.send.args[0][0].toString()).serverError,
-        true
+        injectedConfig(res.send.args[0][0].toString()).errorPage,
+        500
       );
     });
 
-    it('sets status 404 and adds notFound when the 404 handler sets it', () => {
-      const res = proxy({ notFound: true });
+    it('sets status 404 and adds errorPage 404 when the 404 handler sets it', () => {
+      const res = proxy({ errorPage: 404 });
       assert.ok(res.status.calledWith(404));
       assert.strictEqual(
-        injectedConfig(res.send.args[0][0].toString()).notFound,
-        true
+        injectedConfig(res.send.args[0][0].toString()).errorPage,
+        404
       );
     });
 
     it('forwards the proxied status otherwise', () => {
       const res = proxy({});
       assert.ok(res.status.calledWith(200));
+    });
+  });
+
+  describe('serveSettingsPage', () => {
+    function load({ proxySettings, proxy, readFileSync }) {
+      return proxyquire('./settings', {
+        fs: { readFileSync },
+        'http-proxy-middleware': { createProxyMiddleware: () => proxy },
+        './configuration': {
+          get: (key) =>
+            ({ env: 'production', proxy_settings: proxySettings })[key] || '',
+        },
+        '../../../../dist/libs/shared/l10n': {
+          supportedLanguages: [],
+          rtlLocales: [],
+          '@noCallThru': true,
+        },
+      });
+    }
+
+    it('proxies to fxa-settings when proxy_settings is on', () => {
+      const proxy = sinon.spy();
+      const { serveSettingsPage } = load({ proxySettings: true, proxy });
+      const req = { path: '/' };
+      const res = mockRes();
+      const next = () => {};
+      serveSettingsPage(req, res, next);
+      assert.ok(proxy.calledWith(req, res, next));
+      assert.ok(res.send.notCalled);
+    });
+
+    it('serves the built page when proxy_settings is off', () => {
+      const proxy = sinon.spy();
+      const { serveSettingsPage } = load({
+        proxySettings: false,
+        proxy,
+        readFileSync: () => '<meta content="__SERVER_CONFIG__" />',
+      });
+      const res = mockRes({ errorPage: 404 });
+      serveSettingsPage({ path: '/' }, res, () => {});
+      assert.ok(proxy.notCalled);
+      assert.strictEqual(injectedConfig(res.send.args[0][0]).errorPage, 404);
+    });
+
+    // Go through Express, which turns a throw or a rejection into next(err).
+    async function statusForUnknownPage(settings) {
+      const app = express();
+      app.use(proxyquire('./404', { './settings': settings }));
+      app.use(
+        proxyquire('./500', {
+          './settings': settings,
+          './logging/log': () => ({ error: () => {} }),
+        })
+      );
+      const server = app.listen(0);
+      await once(server, 'listening');
+      try {
+        const response = await fetch(
+          `http://localhost:${server.address().port}/no-such-page`,
+          { headers: { accept: 'text/html' } }
+        );
+        await response.text();
+        return response.status;
+      } finally {
+        server.close();
+      }
+    }
+
+    it('sends a 500 when serving the built page throws', async () => {
+      const settings = load({
+        proxySettings: false,
+        readFileSync: () => {
+          throw new Error('no index.html');
+        },
+      });
+      assert.strictEqual(await statusForUnknownPage(settings), 500);
+    });
+
+    it('sends a 500 when serving the page rejects', async () => {
+      const settings = load({
+        proxySettings: true,
+        proxy: () => Promise.reject(new Error('proxy failed')),
+      });
+      assert.strictEqual(await statusForUnknownPage(settings), 500);
     });
   });
 
@@ -118,7 +203,7 @@ describe('beta-settings', () => {
 
     // A fresh instance per test, because the module caches the index file.
     function load(html) {
-      return proxyquire('./beta-settings', {
+      return proxyquire('./settings', {
         fs: { readFileSync: () => html },
         './configuration': {
           get: (key) =>
