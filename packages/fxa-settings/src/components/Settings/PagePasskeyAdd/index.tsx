@@ -84,7 +84,11 @@ export const MfaGuardPagePasskeyAdd = () => {
   useEffect(() => {
     if (!supported && !hasRedirectedRef.current) {
       hasRedirectedRef.current = true;
-      alertBar.error(unsupportedPasskeyMessage());
+      alertBar.error(
+        unsupportedPasskeyMessage(),
+        undefined,
+        'account_pref_passkey_unsupported'
+      );
       navigateWithQuery(SETTINGS_PATH + '#security', { replace: true });
     }
   }, [supported, alertBar, navigateWithQuery]);
@@ -120,7 +124,11 @@ export const PagePasskeyAdd = () => {
     // alert/navigate.
     userCanceled.current = true;
     abortController.current?.abort();
-    alertBar.error(passkeyCanceledOrTimedOutMessage());
+    alertBar.error(
+      passkeyCanceledOrTimedOutMessage(),
+      undefined,
+      'account_pref_passkey_create_canceled'
+    );
     navigateToSettings();
   }, [alertBar, navigateToSettings]);
 
@@ -258,7 +266,11 @@ export const PagePasskeyAdd = () => {
             // NotSupportedError at this stage means the ceremony was refused
             // (e.g., algorithm/attestation mismatch, requireResidentKey on a non-RK authenticator, etc.),
             // not that the browser doesn't support WebAuthn at all — the MfaGuard's pre-check would have caught that.
-            latest.current.alertBar.error(passkeyCouldNotCompleteMessage());
+            latest.current.alertBar.error(
+              passkeyCouldNotCompleteMessage(),
+              undefined,
+              'account_pref_passkey_create_failed'
+            );
             latest.current.navigateToSettings();
             return;
           }
@@ -270,7 +282,11 @@ export const PagePasskeyAdd = () => {
             // banner (per Figma). NotAllowedError is excluded — WebAuthn
             // conflates cancel with UV failure under that name, so it falls
             // through to the generic categorizer below.
-            latest.current.alertBar.error(passkeyCanceledOrTimedOutMessage());
+            latest.current.alertBar.error(
+              passkeyCanceledOrTimedOutMessage(),
+              undefined,
+              'account_pref_passkey_create_canceled'
+            );
             latest.current.navigateToSettings();
             return;
           }

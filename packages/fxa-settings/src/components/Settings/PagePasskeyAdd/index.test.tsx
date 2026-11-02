@@ -352,7 +352,9 @@ describe('PagePasskeyAdd', () => {
     renderPage();
     await waitFor(() => {
       expect(mockAlertError).toHaveBeenCalledWith(
-        'mock-could-not-complete-message'
+        'mock-could-not-complete-message',
+        undefined,
+        'account_pref_passkey_create_failed'
       );
     });
     expect(
@@ -380,7 +382,9 @@ describe('PagePasskeyAdd', () => {
     renderPage();
     await waitFor(() => {
       expect(mockAlertError).toHaveBeenCalledWith(
-        'mock-canceled-or-timed-out-message'
+        'mock-canceled-or-timed-out-message',
+        undefined,
+        'account_pref_passkey_create_canceled'
       );
     });
     expect(
@@ -737,7 +741,9 @@ describe('PagePasskeyAdd', () => {
     renderPage();
     fireEvent.click(screen.getByTestId('passkey-add-cancel'));
     expect(mockAlertError).toHaveBeenCalledWith(
-      'mock-canceled-or-timed-out-message'
+      'mock-canceled-or-timed-out-message',
+      undefined,
+      'account_pref_passkey_create_canceled'
     );
     expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
       replace: true,
@@ -772,7 +778,9 @@ describe('PagePasskeyAdd', () => {
     expect(mockCompletePasskeyRegistration).not.toHaveBeenCalled();
     expect(mockAlertSuccess).not.toHaveBeenCalled();
     expect(mockAlertError).toHaveBeenCalledWith(
-      'mock-canceled-or-timed-out-message'
+      'mock-canceled-or-timed-out-message',
+      undefined,
+      'account_pref_passkey_create_canceled'
     );
   });
 
@@ -793,7 +801,9 @@ describe('PagePasskeyAdd', () => {
     // Only the cancel banner — the catch block must not fire its own banner.
     expect(mockAlertError).toHaveBeenCalledTimes(1);
     expect(mockAlertError).toHaveBeenCalledWith(
-      'mock-canceled-or-timed-out-message'
+      'mock-canceled-or-timed-out-message',
+      undefined,
+      'account_pref_passkey_create_canceled'
     );
     expect(mockHandleWebAuthnError).not.toHaveBeenCalled();
   });
@@ -828,6 +838,11 @@ describe('MfaGuardPagePasskeyAdd pre-check', () => {
     mockIsWebAuthnSupported.mockReturnValue(false);
     const { container } = renderWrapper();
     expect(mockAlertError).toHaveBeenCalledTimes(1);
+    expect(mockAlertError).toHaveBeenCalledWith(
+      'mock-unsupported-message',
+      undefined,
+      'account_pref_passkey_unsupported'
+    );
     expect(mockNavigateWithQuery).toHaveBeenCalledWith('/settings#security', {
       replace: true,
     });

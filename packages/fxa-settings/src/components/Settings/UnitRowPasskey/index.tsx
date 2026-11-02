@@ -76,13 +76,22 @@ export const UnitRowPasskey = () => {
       headerId="passkeys"
       prefixDataTestId="passkey"
       ctaText={ftlMsgResolver.getMsg('passkey-row-action-create', 'Create')}
-      ctaGleanDataAttrs={{ id: 'account_pref_passkey_create_submit' }}
+      ctaGleanDataAttrs={{
+        id: webAuthnSupported
+          ? 'account_pref_passkey_create_submit'
+          : 'account_pref_passkey_create_unsupported',
+      }}
       route={
         webAuthnSupported && !isAtLimit ? '/settings/passkeys/add' : undefined
       }
       revealModal={
         !webAuthnSupported
-          ? () => alertBar.error(unsupportedPasskeyMessage())
+          ? () =>
+              alertBar.error(
+                unsupportedPasskeyMessage(),
+                undefined,
+                'account_pref_passkey_unsupported'
+              )
           : undefined
       }
       disabled={webAuthnSupported && isAtLimit}

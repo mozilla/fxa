@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useEffect } from 'react';
 import { BannerProps } from './interfaces';
 import {
   CheckmarkCircleOutlineCurrentIcon,
@@ -16,6 +17,7 @@ import { useFtlMsgResolver } from '../../models';
 import { FIREFOX_NOREPLY_EMAIL } from '../../constants';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { Link } from 'react-router';
+import GleanMetrics from '../../lib/glean';
 
 export const Banner = ({
   type,
@@ -27,9 +29,19 @@ export const Banner = ({
   isFancy,
   bannerId,
   className,
+  gleanId,
   textAlignClassName = 'text-start',
   iconAlignClassName = 'self-center',
 }: BannerProps) => {
+  useEffect(() => {
+    if (!gleanId) return;
+    try {
+      GleanMetrics.banner.view({ event: { reason: gleanId } });
+    } catch {
+      // A metrics failure must never block the banner.
+    }
+  }, [gleanId]);
+
   const iconClassName = `shrink-0 ${iconAlignClassName}`;
   return (
     <div
