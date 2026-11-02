@@ -1098,6 +1098,7 @@ recent-activity-account-passkey-removed = Geçiş anahtarı kaldırıldı
 recent-activity-account-passkey-authentication-success = Geçiş anahtarıyla giriş tamamlandı
 recent-activity-account-passkey-authentication-failure = Geçiş anahtarıyla giriş başarısız oldu
 recent-activity-account-passwordless-login-otp-sent = Parolasız giriş kodu gönderildi
+recent-activity-account-passwordless-login-otp-failed = Parolasız giriş kodu kullanılamadı
 recent-activity-account-passwordless-login-otp-verified = Parolasız giriş kodu doğrulandı
 recent-activity-account-passwordless-registration-complete = Parolasız hesap kaydı tamamlandı
 recent-activity-account-recovery-codes-set = Kurtarma kodları ayarlandı
@@ -1988,6 +1989,10 @@ pair2-supplicant-sync-success-description-v2 = Eşitleme sürüyor. Eşitlenen v
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zaman aşımına uğradık
 # Shown after the pairing attempt was canceled
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Vazgeçildi
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = Dilediğiniz zaman cihaz bağlamak için bilgisayarınızdan <b>firefox.com/pair</b> adresini ziyaret edebilirsiniz.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Bu cihazdan zaten giriş yapılmış
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2233,6 +2238,10 @@ signin-passkey-fallback-heading = Eşitlemek için parolanızı yazın
 signin-passkey-fallback-password-label = Parola
 signin-passkey-fallback-continue = Devam et
 signin-passkey-fallback-forgot-password-link = Parolanızı unuttunuz mu?
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = Bu cihaz için parola gerekli
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = Bir sorun oluştu. Bu seferlik parolanızı girmeniz gerekecek.
 # Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
 signin-passkey-fallback-wrap-unusable-link = Daha fazla bilgi al
 

@@ -1,8 +1,8 @@
 {
-  "commit": "d858ec4b25778bf658c357041b927b0454837640",
+  "commit": "4f6f693c2f5113422a5a7e1e2e216e430dc10022",
   "summary": "chore(deps): bump joi from 17.13.8 to 17.13.9",
   "description": "Bumps [joi](https://github.com/hapijs/joi) from 17.13.8 to 17.13.9.\n- [Commits](https://github.com/hapijs/joi/compare/v17.13.8...v17.13.9)\n\n---\nupdated-dependencies:\n- dependency-name: joi\n  dependency-version: 17.13.9\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
-  "timestamp": 1793636272000,
+  "timestamp": 1793642828000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
