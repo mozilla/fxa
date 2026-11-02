@@ -1,8 +1,8 @@
 {
-  "commit": "aa34b38d51de50bf3f5daa3ca48cbd3db432a614",
-  "summary": "Merge pull request #21460 from mozilla/fxa-12837",
-  "description": "refactor(auth): convert email bounce handler to TypeScript",
-  "timestamp": 1793635344000,
+  "commit": "4469220f2fa3f1fd290703cfe8c4ac182d03977f",
+  "summary": "Merge pull request #21533 from mozilla/fxa-11987",
+  "description": "chore(deps): remove nest-typed-config/class-validator resolution",
+  "timestamp": 1793635476000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
