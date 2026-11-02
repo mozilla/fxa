@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { decodeProtectedHeader } from 'jose';
+
 import { DeriverUtils } from './deriver-utils';
 
 describe('DeriverUtils', () => {
@@ -29,6 +31,45 @@ describe('DeriverUtils', () => {
         JSON.stringify(keySample)
       );
       expect(enc.length).toBe(632);
+    });
+
+    it('sets only the alg, enc, epk and kid header fields', async () => {
+      const appJwk = {
+        kty: 'EC',
+        kid: 'test-kid',
+        crv: 'P-256',
+        x: 'SiBn6uebjigmQqw4TpNzs3AUyCae1_sG2b9Fzhq3Fyo',
+        y: 'q99Xq1RWNTFpk99pdQOSjUvwELss51PkmAGCXhLfMV4',
+      };
+
+      const enc = await deriverUtils.encryptBundle(
+        b64urlencode(JSON.stringify(appJwk)),
+        JSON.stringify(keySample)
+      );
+      const header = decodeProtectedHeader(enc);
+
+      // Same key set as the legacy vector in key-utils.spec.ts.
+      expect(Object.keys(header).sort()).toEqual(['alg', 'enc', 'epk', 'kid']);
+      expect(header.alg).toBe('ECDH-ES');
+      expect(header.enc).toBe('A256GCM');
+      expect(header.kid).toBe('test-kid');
+      expect(header.epk).toMatchObject({ kty: 'EC', crv: 'P-256' });
+    });
+
+    it('omits kid from the header when the key has none', async () => {
+      const appJwk = {
+        kty: 'EC',
+        crv: 'P-256',
+        x: 'SiBn6uebjigmQqw4TpNzs3AUyCae1_sG2b9Fzhq3Fyo',
+        y: 'q99Xq1RWNTFpk99pdQOSjUvwELss51PkmAGCXhLfMV4',
+      };
+
+      const enc = await deriverUtils.encryptBundle(
+        b64urlencode(JSON.stringify(appJwk)),
+        JSON.stringify(keySample)
+      );
+
+      expect(decodeProtectedHeader(enc)).not.toHaveProperty('kid');
     });
 
     it('rejects keys that include the private key component', async () => {

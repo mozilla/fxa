@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// Browsers have no global Buffer; webpack resolves this to the buffer package.
+import { Buffer } from 'buffer';
+
 const KEY_LENGTH = 48;
 
 // The browser bundle's Buffer polyfill rejects the 'base64url' encoding name.

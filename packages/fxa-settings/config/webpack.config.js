@@ -386,11 +386,7 @@ module.exports = function (webpackEnv) {
       fallback: {
         fs: false,
         path: false,
-        buffer: require.resolve('buffer/'),
-        crypto: require.resolve('crypto-browserify'),
-        stream: require.resolve('stream-browserify'),
         'process/browser': require.resolve('process/browser'),
-        zlib: require.resolve('browserify-zlib'),
       },
     },
     module: {
