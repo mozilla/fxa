@@ -1,9 +1,10 @@
 {
-  "commit": "18c121dff0a049f957590cca847d62c4dae9fb97",
+  "commit": "2851914aa53067927c06c83db3e469e71b7090b0",
   "summary": "feat(settings): record passkey alert and banner views in Glean",
-  "description": "Because:\n\n- origin/main and this branch put different comments on the same no-loop-func disable line.\n\nThis commit:\n\n- Merges origin/main and keeps one comment above the shared disable line.\n- Keeps the alertBar and banner Glean tests.\n\nCloses FXA-13972",
-  "timestamp": 1793656331000,
+  "description": "Because:\n\n* Settings did not record when it showed a passkey alert or banner.\n* CI failed: GleanMetricsT had no alertBar or banner group.\n\nThis commit:\n\n* Adds the alert_bar.view and banner.view Glean events and wiring.\n* Records AlertBar and Banner views when the caller gives a gleanId.\n* Tags the passkey alerts, Learn more links, close button and row CTA.\n* Sets a gleanId on the passkey sign-in banner builders.\n\nCloses FXA-13972",
+  "timestamp": 1793657630000,
   "storybooks": [
+    "fxa-admin-panel",
     "fxa-settings"
   ],
   "deployDir": "deploy/"

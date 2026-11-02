@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 18c121dff0a049f957590cca847d62c4dae9fb97</title>
+  <title>Storybooks for commit 2851914aa53067927c06c83db3e469e71b7090b0</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,24 +23,28 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 18c121dff0a049f957590cca847d62c4dae9fb97</h1>
+  <h1>Storybooks for commit 2851914aa53067927c06c83db3e469e71b7090b0</h1>
   <ul>
-    <li><a href="./fxa-settings/">fxa-settings</a></li>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/2/2026, 9:52:11 PM UTC</dd>
+    <dd>11/2/2026, 10:13:50 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): record passkey alert and banner views in Glean</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- origin/main and this branch put different comments on the same no-loop-func disable line.
+* Settings did not record when it showed a passkey alert or banner.
+* CI failed: GleanMetricsT had no alertBar or banner group.
 
 This commit:
 
-- Merges origin/main and keeps one comment above the shared disable line.
-- Keeps the alertBar and banner Glean tests.
+* Adds the alert_bar.view and banner.view Glean events and wiring.
+* Records AlertBar and Banner views when the caller gives a gleanId.
+* Tags the passkey alerts, Learn more links, close button and row CTA.
+* Sets a gleanId on the passkey sign-in banner builders.
 
 Closes FXA-13972</pre></dd>
   </dl>
