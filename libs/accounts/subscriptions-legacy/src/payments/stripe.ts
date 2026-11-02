@@ -6,7 +6,7 @@
 import cacheManager, { Cacheable } from '@type-cacheable/core';
 import { useAdapter } from '@type-cacheable/ioredis-adapter';
 import { StatsD } from 'hot-shots';
-import ioredis from 'ioredis';
+import Redis from 'ioredis';
 import { Stripe } from 'stripe';
 import { IapExtraStripeInfo } from '../dto/auth/payments/iap-subscription';
 import { formatPlanConfigDto } from '../dto/auth/payments/plan-configuration';
@@ -122,7 +122,7 @@ export abstract class StripeHelper {
   protected abstract readonly paymentConfigManager?: PaymentConfigManager;
 
   /** Optional Redis instance used for caching. */
-  protected readonly redis?: ioredis.Redis;
+  protected readonly redis?: Redis;
 
   /** */
   protected abstract readonly productConfigurationManager?: ProductConfigurationManager;

@@ -19,7 +19,7 @@ interface RecordedCommand {
 }
 
 function pipelineReturning(
-  replies: Array<[Error | null, unknown]>,
+  replies: Array<[Error | null, unknown]> | null,
   commands: RecordedCommand[]
 ): DedupePipeline {
   return {
@@ -187,6 +187,12 @@ describe('MeteringDedupeManager', () => {
       redis.pipeline.mockReturnValueOnce(
         pipelineReturning([[new Error('OOM'), null]], commands)
       );
+
+      await expect(manager.claim(['vpn:e1'])).rejects.toThrow(DedupeError);
+    });
+
+    it('throws DedupeError when the pipeline resolves null', async () => {
+      redis.pipeline.mockReturnValueOnce(pipelineReturning(null, commands));
 
       await expect(manager.claim(['vpn:e1'])).rejects.toThrow(DedupeError);
     });

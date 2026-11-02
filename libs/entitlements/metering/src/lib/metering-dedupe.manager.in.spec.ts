@@ -22,8 +22,8 @@ const CONFIG: MeteringRedisConfig = {
 };
 
 describe('MeteringDedupeManager against a real Redis', () => {
-  let prefixed: Redis.Redis;
-  let raw: Redis.Redis;
+  let prefixed: Redis;
+  let raw: Redis;
   let manager: MeteringDedupeManager;
 
   async function deleteTestKeys(): Promise<void> {

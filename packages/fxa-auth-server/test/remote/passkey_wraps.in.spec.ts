@@ -33,7 +33,7 @@ const Client = require('../client')();
 const password = 'pssssst';
 
 let server: TestServerInstance;
-let redis: Redis.Redis | undefined;
+let redis: Redis | undefined;
 let db: Awaited<ReturnType<typeof setupAccountDatabase>> | undefined;
 let passkeyManager: PasskeyManager;
 let passkeyRpId: string;

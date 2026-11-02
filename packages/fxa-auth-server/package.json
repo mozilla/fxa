@@ -87,7 +87,7 @@
     "hapi-swagger": "^17.3.0",
     "hot-shots": "^10.2.1",
     "i18n-iso-countries": "^7.14.0",
-    "ioredis": "^4.28.2",
+    "ioredis": "^5.11.1",
     "joi": "^17.13.8",
     "jose": "^5.9.6",
     "jsonwebtoken": "^9.0.3",
@@ -115,7 +115,6 @@
   "devDependencies": {
     "@golevelup/ts-jest": "^0.5.0",
     "@types/async-retry": "^1",
-    "@types/ioredis": "^4.26.4",
     "@types/jest": "^29.5.12",
     "@types/jsonwebtoken": "8.5.1",
     "@types/jws": "^3.2.3",

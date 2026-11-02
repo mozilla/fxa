@@ -40,7 +40,7 @@ export interface DedupePipeline {
     setMode?: string
   ): unknown;
   get(key: string): unknown;
-  exec(): Promise<Array<[Error | null, unknown]>>;
+  exec(): Promise<Array<[Error | null, unknown]> | null>;
 }
 
 export interface DedupeRedis {

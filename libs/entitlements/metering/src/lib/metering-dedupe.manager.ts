@@ -89,11 +89,18 @@ export class MeteringDedupeManager implements OnApplicationShutdown {
     pipeline: DedupePipeline,
     operation: string
   ): Promise<unknown[]> {
-    let replies: Array<[Error | null, unknown]>;
+    let replies: Array<[Error | null, unknown]> | null;
     try {
       replies = await pipeline.exec();
     } catch (err) {
       throw new DedupeError(operation, toError(err));
+    }
+    // ioredis resolves null only for a MULTI aborted by WATCH; plain pipelines never do.
+    if (!replies) {
+      throw new DedupeError(
+        operation,
+        new Error('pipeline returned no replies')
+      );
     }
 
     const failure = replies.find(([err]) => err !== null)?.[0];
