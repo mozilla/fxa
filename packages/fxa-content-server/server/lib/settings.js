@@ -160,20 +160,14 @@ const settingsConfig = {
   servicesWithEmailVerification: config.get('servicesWithEmailVerification'),
 };
 
-// The 500 and 404 handlers set res.locals so React renders their pages
+// The 404 and 500 handlers set res.locals.errorPage so React renders their pages
 function getServerConfig(res) {
-  if (res.locals.serverError) {
-    return { ...settingsConfig, serverError: true };
-  }
-  if (res.locals.notFound) {
-    return { ...settingsConfig, notFound: true };
-  }
-  return settingsConfig;
+  const { errorPage } = res.locals;
+  return errorPage ? { ...settingsConfig, errorPage } : settingsConfig;
 }
 
-// Inject Settings content into the index HTML
-// This used to inject the configs and flow metrics values.
-function swapBetaMeta(html, tmplContent = {}) {
+// Replace each placeholder key in the page HTML with its value
+function injectServerConfig(html, tmplContent = {}) {
   let result = html;
 
   Object.keys(tmplContent).forEach((key) => {
@@ -259,13 +253,7 @@ function modifyProxyRes(proxyRes, req, res) {
     const body = Buffer.concat(bodyChunks);
 
     // forward existing response data
-    res.status(
-      res.locals.serverError
-        ? 500
-        : res.locals.notFound
-          ? 404
-          : proxyRes.statusCode
-    );
+    res.status(res.locals.errorPage || proxyRes.statusCode);
     Object.keys(proxyRes.headers).forEach((key) => {
       res.append(key, proxyRes.headers[key]);
     });
@@ -277,7 +265,7 @@ function modifyProxyRes(proxyRes, req, res) {
     ) {
       let html = body.toString();
       const flowEventData = flowMetrics.create(FLOW_ID_KEY);
-      html = swapBetaMeta(html, {
+      html = injectServerConfig(html, {
         __SERVER_CONFIG__: getServerConfig(res),
         __FLOW_ID__: flowEventData.flowId,
         __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
@@ -327,7 +315,7 @@ const modifySettingsStatic = function (req, res) {
 
   const flowEventData = flowMetrics.create(FLOW_ID_KEY);
   return res.send(
-    swapBetaMeta(indexFile, {
+    injectServerConfig(indexFile, {
       __SERVER_CONFIG__: getServerConfig(res),
       __FLOW_ID__: flowEventData.flowId,
       __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
@@ -337,10 +325,18 @@ const modifySettingsStatic = function (req, res) {
   );
 };
 
+// Proxy to the dev server when proxy_settings is on, else serve the built page
+function serveSettingsPage(req, res, next) {
+  return config.get('proxy_settings')
+    ? createSettingsProxy(req, res, next)
+    : modifySettingsStatic(req, res);
+}
+
 module.exports = {
   createSettingsProxy,
   modifySettingsStatic,
-  swapBetaMeta,
+  serveSettingsPage,
+  injectServerConfig,
   modifyProxyRes,
   settingsConfig,
 };

@@ -3,11 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
-const config = require('./configuration');
-const {
-  createSettingsProxy,
-  modifySettingsStatic,
-} = require('./beta-settings');
+const { serveSettingsPage } = require('./settings');
 
 // It's a 404 not found response.
 
@@ -15,10 +11,8 @@ module.exports = function (req, res, next) {
   res.status(404);
 
   if (req.accepts('html')) {
-    res.locals.notFound = true;
-    return config.get('proxy_settings')
-      ? createSettingsProxy(req, res, next)
-      : modifySettingsStatic(req, res);
+    res.locals.errorPage = 404;
+    return serveSettingsPage(req, res, next);
   }
 
   if (req.accepts('json')) {
