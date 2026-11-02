@@ -1,8 +1,8 @@
 {
-  "commit": "b0592d13ec1e920cd63e5efc11da523533c811f0",
+  "commit": "8dc626dc810f343a41e98cef970e63c6b418ba27",
   "summary": "feat(settings): show webview hint on connect hint page in Custom Tabs",
   "description": "Because:\n\n* A Custom Tab belongs to another app, so the user must close it first\n\nThis commit:\n\n* Shows the webview hint when embed=customtab is in the URL or router state\n* Exports view and OS type aliases from PairUnsupportedHint\n\nCloses FXA-14247",
-  "timestamp": 1793648645000,
+  "timestamp": 1793648682000,
   "storybooks": [
     "fxa-settings"
   ],
