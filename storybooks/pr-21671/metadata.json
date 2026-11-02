@@ -1,0 +1,10 @@
+{
+  "commit": "e27fc2c3a73a1545ad502d1db80c9d6bcb93e16b",
+  "summary": "refactor(crypto-relier): replace node-jose with jose",
+  "description": "Because:\n\n* node-jose pulls node-forge and Node polyfills into fxa-settings\n\nThis commit:\n\n* Moves crypto-relier JWE encrypt and decrypt to jose, same header\n* Removes the buffer, crypto, stream and zlib webpack fallbacks\n* Imports Buffer in ScopedKeys, which used the node-jose global\n* Fixes the implicit return in constructKeysJwe that TS7030 flags\n\nCloses FXA-14858",
+  "timestamp": 1793643446000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
