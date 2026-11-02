@@ -1,8 +1,8 @@
 {
-  "commit": "2d2862820283c356183374656c7aeadc69e6eaea",
-  "summary": "Merge pull request #21669 from mozilla/fxa-14836",
-  "description": "fix(settings): accept empty email query param on Index",
-  "timestamp": 1793645223000,
+  "commit": "ac8bded980eb7625565059e159c23aac997da1b6",
+  "summary": "Merge pull request #21670 from mozilla/fxa-14856",
+  "description": "perf(settings): preload en main.ftl and Index route chunks from the HTML",
+  "timestamp": 1793645629000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
