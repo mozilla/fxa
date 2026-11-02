@@ -109,8 +109,8 @@ describe('bounce messages', () => {
     expect(statsd.increment).toHaveBeenCalledWith('email.bounce.message', {
       bounceType,
       bounceSubType: 'none',
-      hasDiagnosticCode: false,
-      hasComplaint: false,
+      hasDiagnosticCode: 'false',
+      hasComplaint: 'false',
     });
   });
 

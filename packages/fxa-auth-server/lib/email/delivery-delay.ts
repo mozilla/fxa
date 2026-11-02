@@ -17,20 +17,8 @@
 
 import { StatsD } from 'hot-shots';
 import { Logger } from 'mozlog';
-import { EventEmitter } from 'events';
 import * as utils from './utils/helpers';
-
-interface SESMailHeader {
-  name: string;
-  value: string;
-}
-
-interface SESMail {
-  timestamp: string;
-  messageId: string;
-  source: string;
-  headers?: SESMailHeader[];
-}
+import { SESMail, SQSReceiver } from './ses-types';
 
 interface DelayedRecipient {
   emailAddress: string;
@@ -66,10 +54,6 @@ interface SESDeliveryDelayMessage {
   deliveryDelay: DeliveryDelay;
   mail: SESMail;
   del: () => void;
-}
-
-interface SQSReceiver extends EventEmitter {
-  start: () => void;
 }
 
 export = function (log: Logger, statsd: StatsD) {
