@@ -336,6 +336,7 @@ error-bad-request = Špatne naprašowanje
 
 pair-unsupported-hint-heading = Koplowanje w nałoženju dokónčić
 pair-unsupported-hint-step-close-page = Tutu stronu začinić
+pair-unsupported-hint-step-app-menu = Podótkńće so <b>nałoženskeho menija</b>
 pair-unsupported-hint-step-sign-in = <b>Přizjewće so</b> a skenujće potom kode
 pair-unsupported-hint-learn-more-link = Dalše informacije
 
@@ -1581,6 +1582,10 @@ signin-passkey-fallback-body = Zo byšće swoje daty wěste wobchował, dyrbiće
 signin-passkey-fallback-password-label = Hesło
 signin-passkey-fallback-continue = Dale
 signin-passkey-fallback-forgot-password-link = Sće hesło zabył?
+signin-passkey-fallback-no-prf-heading = Hesło je na tutym graće trěbne
+signin-passkey-fallback-no-prf-description = Tutón wobhladowak abo grat njemóže waš hesłowy kluč wužiwać, zo by so za synchronizaciju přizjewił.
+signin-passkey-fallback-unwrap-failed-heading = Waš hesłowy kluč njemóžeše synchronizaciju wotewrić
+signin-passkey-fallback-unwrap-failed-description = Něšto je so nimokuliło, tohodla trjebaće tónkróć swoje hesło.
 signin-passkey-fallback-wrap-unusable-link = Dalše informacije
 
 

@@ -414,6 +414,8 @@ error-bad-request = Špatne naprašowanje
 pair-unsupported-hint-heading = Koplowanje w nałoženju dokónčić
 # Shown first when the page is open inside another app, which the user must close
 pair-unsupported-hint-step-close-page = Tutu stronu začinić
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Podótkńće so <b>nałoženskeho menija</b>
 # <b> emphasises the name of the menu item the user taps in Firefox
 pair-unsupported-hint-step-sign-in = <b>Přizjewće so</b> a skenujće potom kode
 # Opens a Mozilla support article about connecting a device without a QR code
@@ -2331,6 +2333,14 @@ signin-passkey-fallback-body = Zo byšće swoje daty wěste wobchował, dyrbiće
 signin-passkey-fallback-password-label = Hesło
 signin-passkey-fallback-continue = Dale
 signin-passkey-fallback-forgot-password-link = Sće hesło zabył?
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = Hesło je na tutym graće trěbne
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
+signin-passkey-fallback-no-prf-description = Tutón wobhladowak abo grat njemóže waš hesłowy kluč wužiwać, zo by so za synchronizaciju přizjewił.
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
+signin-passkey-fallback-unwrap-failed-heading = Waš hesłowy kluč njemóžeše synchronizaciju wotewrić
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = Něšto je so nimokuliło, tohodla trjebaće tónkróć swoje hesło.
 # Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
 signin-passkey-fallback-wrap-unusable-link = Dalše informacije
 

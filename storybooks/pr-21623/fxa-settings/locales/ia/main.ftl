@@ -330,6 +330,8 @@ error-bad-request = Mal requesta
 
 pair-unsupported-hint-heading = Fini le accopulamento in le application
 pair-unsupported-hint-step-close-page = Clauder iste pagina
+pair-unsupported-hint-step-app-menu = Tocca le <b>menu del applicationes</b>
+pair-unsupported-hint-step-sign-in = <b>Accede</b>, pois scande le codice
 pair-unsupported-hint-learn-more-link = Pro saper plus
 
 
@@ -1230,6 +1232,7 @@ inline-totp-setup-page-title = Authentication a duo passos
 
 
 page-not-found-heading = Pagina non trovate
+page-not-found-description = Le pagina que tu requireva non es trovate.
 page-not-found-home-button = Initio
 
 
@@ -1563,6 +1566,10 @@ signin-passkey-fallback-body = Pro mantener tu datos secur, tu debe inserer tu c
 signin-passkey-fallback-password-label = Contrasigno
 signin-passkey-fallback-continue = Continuar
 signin-passkey-fallback-forgot-password-link = Contrasigno oblidate?
+signin-passkey-fallback-no-prf-heading = Contrasigno necessari sur iste apparato
+signin-passkey-fallback-no-prf-description = Iste navigator o apparato non pote usar tu clave-contrasigno pro acceder pro synchronisar si sol.
+signin-passkey-fallback-unwrap-failed-heading = Tu clave-contrasigno non poteva disblocar le synchronisation
+signin-passkey-fallback-unwrap-failed-description = Alco errate eveniva, assi tu besoniara tu contrasigno iste vice
 signin-passkey-fallback-wrap-unusable-link = Pro saper plus
 
 
