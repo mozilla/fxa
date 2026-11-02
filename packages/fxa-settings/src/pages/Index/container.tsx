@@ -104,12 +104,13 @@ const IndexContainer = ({
         tags: {
           source: 'IndexContainer',
           condition: validationError.condition,
+          clientId: integration.getClientId(),
         },
       });
 
       clearEmailParams();
     }
-  }, [validationError]);
+  }, [validationError, integration]);
 
   const { prefillEmail, deleteAccountSuccess, hasBounced } =
     location.state || {};

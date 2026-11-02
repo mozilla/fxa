@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { IsBoolean, IsEmail, IsOptional, Validate } from 'class-validator';
+import { IsBoolean, IsOptional, Validate } from 'class-validator';
 import {
   bind,
   KeyTransforms,
@@ -12,7 +12,7 @@ import { IsEmailOrEmpty } from '../../../lib/validation';
 
 export class IndexQueryParams extends ModelDataProvider {
   @IsOptional()
-  @IsEmail()
+  @Validate(IsEmailOrEmpty, {})
   @bind()
   email: string | undefined;
 

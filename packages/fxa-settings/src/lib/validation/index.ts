@@ -62,6 +62,6 @@ export class IsEmailOrEmpty implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments) {
-    return 'loginHint must be a valid email, empty string, or undefined';
+    return `${args.property} must be a valid email, empty string, or undefined`;
   }
 }

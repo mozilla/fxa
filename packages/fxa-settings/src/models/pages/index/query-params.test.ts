@@ -20,6 +20,7 @@ describe('SigninQueryParams checks', function () {
     expect(validate('email=test+test@gmail.com').isValid).toBeFalsy();
     expect(validate('email=test%2Btest%40gmail.com').isValid).toBeTruthy(); // supports uri encoding
     expect(validate('email=test%2Btest-gmail.com').isValid).toBeFalsy(); // missing @
+    expect(validate('email=').isValid).toBeTruthy();
   });
 
   it('checks loginHint', () => {
