@@ -88,7 +88,7 @@
     "hot-shots": "^10.2.1",
     "i18n-iso-countries": "^7.14.0",
     "ioredis": "^5.11.1",
-    "joi": "^17.13.8",
+    "joi": "^17.13.9",
     "jose": "^5.9.6",
     "jsonwebtoken": "^9.0.3",
     "jwks-rsa": "^3.1.0",
