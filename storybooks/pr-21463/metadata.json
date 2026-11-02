@@ -1,0 +1,12 @@
+{
+  "commit": "29167227fb486ba36d58315677085a4b9dd6d6a2",
+  "summary": "test(auth): cover SES bounce shapes and the EmailBounce model",
+  "description": "Because:\n\n* No test ran the EmailBounce stored procedures on MySQL, where the earlier bounce errors happened.\n\nThis commit:\n\n* Adds an #integration - EmailBounce describe that round-trips each SES bounce shape through createEmailBounce_3 and fetchEmailBounces_4.\n* Adds an sp_emailBounces.sql fixture that copies both procedures from the fxa migration patches.\n\nCloses FXA-12838",
+  "timestamp": 1793639237000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
