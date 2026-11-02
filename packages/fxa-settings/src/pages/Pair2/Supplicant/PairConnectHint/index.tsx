@@ -11,7 +11,6 @@ import PairUnsupportedHint, {
   PairUnsupportedViewType,
 } from '../../../../components/PairUnsupportedHint';
 import { detectDevice, Devices } from '../../../../lib/utilities';
-import { UrlQueryData } from '../../../../lib/model-data';
 
 // Only iOS reaches this page through the hand-off, so other devices get iOS.
 const detectOs = (): PairUnsupportedHintProps['os'] =>
@@ -20,9 +19,15 @@ const detectOs = (): PairUnsupportedHintProps['os'] =>
     : 'ios';
 
 // When firefox opens a 'custom tab',
-function viewType ({ search, state }: { search: string; state: { embed?:string } }) : PairUnsupportedViewType {
+function viewType({
+  search,
+  state,
+}: {
+  search: string;
+  state: { embed?: string };
+}): PairUnsupportedViewType {
   if (state?.embed === 'customtab') {
-    return 'webview'
+    return 'webview';
   }
   const searchParams = new URLSearchParams(search);
   if (searchParams.has('embed') && searchParams.get('embed') === 'customtab') {
