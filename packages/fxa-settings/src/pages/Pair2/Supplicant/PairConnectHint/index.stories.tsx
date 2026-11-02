@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { Meta } from '@storybook/react';
+import { MemoryRouter } from 'react-router';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import PairConnectHint from '.';
 
@@ -13,5 +14,18 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const Ios = () => <PairConnectHint os="ios" />;
-export const Android = () => <PairConnectHint os="android" />;
+export const Ios = () => (
+  <MemoryRouter>
+    <PairConnectHint os="ios" />
+  </MemoryRouter>
+);
+export const Android = () => (
+  <MemoryRouter>
+    <PairConnectHint os="android" />
+  </MemoryRouter>
+);
+export const CustomTab = () => (
+  <MemoryRouter initialEntries={['/?embed=customtab']}>
+    <PairConnectHint os="android" />
+  </MemoryRouter>
+);

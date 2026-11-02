@@ -8,10 +8,13 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import { PairMenuAndroidImage, PairMenuIosImage } from '../images';
 import { Constants } from '../../lib/constants';
 
+export type PairUnsupportedViewType = 'webview' | 'tab';
+export type PairUnsupportedOsType = 'android' | 'ios';
+
 export type PairUnsupportedHintProps = {
   // A webview belongs to another app, so the user must close it first
-  view: 'webview' | 'tab';
-  os: 'android' | 'ios';
+  view: PairUnsupportedViewType;
+  os: PairUnsupportedOsType;
   learnMoreGleanId?: string;
 };
 
