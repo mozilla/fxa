@@ -1,8 +1,8 @@
 {
-  "commit": "a307893b3549b0eb4736cb696e4d1039d2e0573a",
-  "summary": "Merge pull request #21671 from mozilla/fxa-14858",
-  "description": "refactor(crypto-relier): replace node-jose with jose",
-  "timestamp": 1793647368000,
+  "commit": "25d8fd7deab67d3e4f8359b21e7f74eee57d28ae",
+  "summary": "Merge pull request #21632 from mozilla/agent-c19fbe",
+  "description": "docs(adr): add ADR 0052 for token exchange canonical scope",
+  "timestamp": 1793654031000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
