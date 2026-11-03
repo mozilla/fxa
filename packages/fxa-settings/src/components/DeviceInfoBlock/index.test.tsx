@@ -85,6 +85,14 @@ describe('DeviceInfoBlock component', () => {
     });
   });
 
+  it('renders small text by default', () => {
+    const { container } = renderWithLocalizationProvider(
+      <DeviceInfoBlock remoteMetadata={MOCK_METADATA_WITH_LOCATION} />
+    );
+
+    expect(container.firstElementChild).toHaveClass('text-xs');
+  });
+
   it('replaces the default wrapper classes when className is given', () => {
     const { container } = renderWithLocalizationProvider(
       <DeviceInfoBlock
