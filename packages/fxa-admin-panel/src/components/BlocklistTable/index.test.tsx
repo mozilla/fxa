@@ -81,7 +81,9 @@ describe('BlocklistTable', () => {
     renderTable(makeEntries(PAGE_SIZE + 3));
     await user.click(screen.getByRole('button', { name: 'Next →' }));
 
-    await user.type(screen.getByLabelText('Filter by domain'), 'HOST50');
+    // paste fires one input event; type re-renders the 500-row table per key.
+    await user.click(screen.getByLabelText('Filter by domain'));
+    await user.paste('HOST50');
 
     // host50 and host500 to host502.
     expect(screen.getByRole('status')).toHaveTextContent(
