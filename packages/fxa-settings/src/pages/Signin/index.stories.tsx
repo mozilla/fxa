@@ -65,6 +65,20 @@ export const NonCachedSyncBrowserServiceAccountHasPassword: Story = {
   name: 'Non-Cached > Sync browser service > Account has password',
 };
 
+// set_password sends an account that already has a password here, e.g. from
+// /pair or Firefox's "turn on Sync" without the Sync key; the submit button
+// reads "Start syncing".
+export const NonCachedSyncBrowserServiceSentFromSetPassword: Story = {
+  ...story({
+    serviceName: MozServices.FirefoxSync,
+    hasLinkedAccount: true,
+    hasPassword: true,
+    integration: createMockSigninOAuthNativeSyncIntegration(),
+    locationState: { origin: 'post-verify-set-password' },
+  }),
+  name: 'Non-Cached > Sync browser service > Sent from set_password',
+};
+
 export const NonCachedSyncBrowserServicePasswordlessAccount: Story = {
   ...story({
     serviceName: MozServices.FirefoxSync,

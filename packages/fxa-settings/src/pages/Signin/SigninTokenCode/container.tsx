@@ -49,10 +49,12 @@ const SigninTokenCodeContainer = ({
     authClient,
     integration
   );
+  // A passwordless session has no keys yet; it sets a password after this page.
   const { oAuthKeysCheckError } = useOAuthKeysCheck(
     integration,
     keyFetchToken,
-    unwrapBKey
+    unwrapBKey,
+    signinState?.isSignInWithThirdPartyAuth
   );
 
   // Hook to recover OAuth flow after page refresh or browser crash
