@@ -4,13 +4,13 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { adminApi } from '../../lib/api';
+import BlocklistTable from '../BlocklistTable';
 import type { DomainBlocklistEntry } from 'fxa-admin-server/src/types';
 
 const btnClass =
   'bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded';
 
-/** A synced list holds tens of thousands of rows; mounting them all is slow. */
-const SHOW_LIMIT = 1000;
+const getDomain = (entry: DomainBlocklistEntry) => entry.domain;
 
 const PageDomainBlocklist = () => {
   const [entries, setEntries] = useState<DomainBlocklistEntry[]>([]);
@@ -250,43 +250,13 @@ const PageDomainBlocklist = () => {
       {!loading && !error && entries.length === 0 && (
         <p className="result-grey">No entries yet.</p>
       )}
-      {entries.length > SHOW_LIMIT && (
-        <p data-testid="domain-blocklist-truncated" className="result-grey">
-          Showing the first {SHOW_LIMIT.toLocaleString()} of{' '}
-          {entries.length.toLocaleString()} entries.
-        </p>
-      )}
       {entries.length > 0 && (
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="bg-grey-50">
-              <th className="text-left p-2 border border-grey-100">Domain</th>
-              <th className="text-left p-2 border border-grey-100">Added</th>
-              <th className="p-2 border border-grey-100"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {entries.slice(0, SHOW_LIMIT).map((entry) => (
-              <tr key={entry.domain} className="hover:bg-grey-10">
-                <td className="p-2 border border-grey-100 font-mono">
-                  {entry.domain}
-                </td>
-                <td className="p-2 border border-grey-100 whitespace-nowrap">
-                  {new Date(entry.createdAt).toISOString()}
-                </td>
-                <td className="p-2 border border-grey-100 text-center">
-                  <button
-                    data-testid={`delete-${entry.domain}`}
-                    className={btnClass}
-                    onClick={() => handleDelete(entry.domain)}
-                  >
-                    🗑️ Remove
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <BlocklistTable
+          entries={entries}
+          label="Domain"
+          getValue={getDomain}
+          onDelete={handleDelete}
+        />
       )}
     </>
   );

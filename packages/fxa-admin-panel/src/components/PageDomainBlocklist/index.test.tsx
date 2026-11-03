@@ -60,7 +60,7 @@ describe('PageDomainBlocklist', () => {
     expect(screen.queryByText('Loading…')).not.toBeInTheDocument();
   });
 
-  it('renders at most 1,000 rows and names the total', async () => {
+  it('reaches entries past the first page by page and by filter', async () => {
     const many = Array.from({ length: 1005 }, (_, i) => ({
       domain: `spam${i}.example`,
       createdAt: 1000,
@@ -70,10 +70,16 @@ describe('PageDomainBlocklist', () => {
     render(<PageDomainBlocklist />);
 
     expect(
-      await screen.findByTestId('domain-blocklist-truncated')
-    ).toHaveTextContent('Showing the first 1,000 of 1,005 entries.');
-    // 1000 entry rows plus the header row.
-    expect(screen.getAllByRole('row')).toHaveLength(1001);
+      await screen.findByText('Showing 1 to 500 of 1,005 entries.')
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Next →' }));
+    await user.click(screen.getByRole('button', { name: 'Next →' }));
+    expect(screen.getByText('spam1004.example')).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText('Filter by domain'), 'SPAM1003');
+    expect(screen.getByText('spam1003.example')).toBeInTheDocument();
+    // One entry row plus the header row.
+    expect(screen.getAllByRole('row')).toHaveLength(2);
   });
 
   it('shows error state when load fails', async () => {
