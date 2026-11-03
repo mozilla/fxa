@@ -1,8 +1,8 @@
 {
-  "commit": "8a6a2ca5a9bf63ec6ca84ab2257c5375043bdc6f",
-  "summary": "Merge pull request #21674 from mozilla/fxa-14884",
-  "description": "refactor(content-server): rename beta-settings and share serveSettingsPage",
-  "timestamp": 1793659918000,
+  "commit": "72f75c808ced14324969abf6fc40c670bd8939b4",
+  "summary": "Merge pull request #21620 from mozilla/payments_update-proxy",
+  "description": "fix(payments-next): only set experimentationId when missing",
+  "timestamp": 1793715544000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
