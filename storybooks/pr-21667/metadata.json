@@ -1,8 +1,8 @@
 {
-  "commit": "4f6f693c2f5113422a5a7e1e2e216e430dc10022",
-  "summary": "chore(deps): bump joi from 17.13.8 to 17.13.9",
-  "description": "Bumps [joi](https://github.com/hapijs/joi) from 17.13.8 to 17.13.9.\n- [Commits](https://github.com/hapijs/joi/compare/v17.13.8...v17.13.9)\n\n---\nupdated-dependencies:\n- dependency-name: joi\n  dependency-version: 17.13.9\n  dependency-type: direct:production\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
-  "timestamp": 1793642828000,
+  "commit": "3e4acb25d46501c712cc1e63182e6880d32f75b7",
+  "summary": "fix(deps): dedupe joi so celebrate shares the root copy",
+  "description": "Because:\n\n- celebrate kept a nested joi 17.13.8, and the content server crashed at startup with \"Cannot mix different versions of joi schemas\"\n\nThis commit:\n\n- dedupes joi in yarn.lock to a single 17.13.9",
+  "timestamp": 1793742814000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
