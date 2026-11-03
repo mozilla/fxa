@@ -1,8 +1,8 @@
 {
-  "commit": "df91561729351b9323ed4f64383a34539f95f8f9",
-  "summary": "Merge pull request #21642 from mozilla/fxa-13972",
-  "description": "feat(settings): record passkey alert and banner views in Glean",
-  "timestamp": 1793735229000,
+  "commit": "c6aa62def6e48da4a516edd8bc9d21a70c26b0af",
+  "summary": "Merge pull request #21592 from mozilla/blender/security-bump-nodemailer",
+  "description": "chore(deps): bump nodemailer to >=10.1.4",
+  "timestamp": 1793735771000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
