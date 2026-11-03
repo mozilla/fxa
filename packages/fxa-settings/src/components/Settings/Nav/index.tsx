@@ -236,7 +236,7 @@ export const Nav = ({
               data-testid="nav-link-newsletters"
               href={marketingCommPrefLink}
             >
-              <Localized id="nav-email-comm">Email Communications</Localized>
+              <Localized id="nav-email-prefs">Email Preferences</Localized>
               <OpenExternal
                 className="inline-block w-3 h-3 ms-1 transform rtl:-scale-x-1"
                 aria-hidden="true"
