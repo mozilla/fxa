@@ -79,6 +79,10 @@ const ctaClassName =
  * cost is that cancelling "Open in Firefox?" does as well, which assign()
  * keeps one Back tap from.
  *
+ * Android switches to the same two CTAs when a hand-off times out. The page
+ * cannot tell a missing Play Store from a WebView or an open chooser, so the
+ * download points at mozilla.org rather than the Play Store.
+ *
  * Without a `plan` there is nothing to hand off, so the CTA is the shared
  * mobile download target rather than a per-platform App Store / Play Store
  * link: picking between the two needs user-agent sniffing that buys nothing
@@ -93,10 +97,31 @@ const DownloadFirefox = ({
   const isSafari = plan?.kind === 'ios' && plan.browser === 'safari';
   const willAutoAttempt = plan?.kind === 'android' && plan.autoAttempt;
   const [attempting, setAttempting] = useState(willAutoAttempt);
+  const [timedOut, setTimedOut] = useState(false);
 
   // Holds the teardown for the in-flight iOS watch so we can clean up on unmount.
   const teardownRef = useRef<(() => void) | null>(null);
-  useEffect(() => () => teardownRef.current?.(), []);
+  const restTimerRef = useRef(0);
+  useEffect(
+    () => () => {
+      teardownRef.current?.();
+      window.clearTimeout(restTimerRef.current);
+    },
+    []
+  );
+
+  // Android backstop: if the intent goes nowhere — a WebView that swallows it,
+  // or no Play Store to take S.browser_fallback_url — offer the download rather
+  // than spinning forever. State only — never a navigation, so it cannot race
+  // S.browser_fallback_url, which unloads us first when it works.
+  const armRestTimer = () => {
+    window.clearTimeout(restTimerRef.current);
+    restTimerRef.current = window.setTimeout(() => {
+      GleanMetrics.dtmMobile.deeplinkWebviewFallback();
+      setAttempting(false);
+      setTimedOut(true);
+    }, STORE_FALLBACK_TIMEOUT_MS);
+  };
 
   useEffect(() => {
     if (!willAutoAttempt || plan?.kind !== 'android') {
@@ -113,16 +138,8 @@ const DownloadFirefox = ({
     // hand-off to drain a ping is a cost every successful pairing would pay.
     GleanMetrics.dtmMobile.deeplinkAttempt({ event: { reason: 'android' } });
     assign(plan.deepLink);
-
-    // WebView backstop: if the intent silently no-ops, drop the CTA back to its
-    // resting state rather than spinning forever. State only — never a
-    // navigation, so it cannot race S.browser_fallback_url, which unloads us
-    // first when it works.
-    const restTimer = window.setTimeout(() => {
-      GleanMetrics.dtmMobile.deeplinkWebviewFallback();
-      setAttempting(false);
-    }, STORE_FALLBACK_TIMEOUT_MS);
-    return () => window.clearTimeout(restTimer);
+    armRestTimer();
+    return () => window.clearTimeout(restTimerRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -137,8 +154,9 @@ const DownloadFirefox = ({
     setAttempting(true);
     GleanMetrics.dtmMobile.deeplinkAttempt({ event: { reason: plan.kind } });
     // Android's intent:// carries its own store fallback via
-    // S.browser_fallback_url, so it needs no JS watchdog.
+    // S.browser_fallback_url, so it needs no store watchdog, only the rest timer.
     if (isAndroid) {
+      armRestTimer();
       return;
     }
     teardownRef.current?.();
@@ -178,13 +196,18 @@ const DownloadFirefox = ({
   // an ordinary same-tab anchor too, so the App Store takes over from here.
   // Without a plan the CTA is an ordinary outbound link to mozilla.org.
   let cta: React.ReactNode;
-  if (plan?.kind === 'ios' && isSafari) {
+  if (plan && (isSafari || (isAndroid && timedOut))) {
+    const isIos = plan.kind === 'ios';
     cta = (
       <div className="flex w-full flex-col gap-4">
         <a
-          href={plan.storeUrl}
+          href={isIos ? plan.storeUrl : Constants.FIREFOX_MOBILE_DOWNLOAD_URL}
           className={ctaClassName}
-          data-glean-id="dtm_mobile_download_store_submit"
+          data-glean-id={
+            isIos
+              ? 'dtm_mobile_download_store_submit'
+              : 'dtm_mobile_download_submit'
+          }
         >
           <FtlMsg id="pair2-supplicant-download-firefox-download-button">
             <span>Download Firefox</span>
