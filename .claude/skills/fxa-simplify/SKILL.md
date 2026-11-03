@@ -46,7 +46,7 @@ Follow the established conventions from CLAUDE.md and the codebase:
 - TypeDI `Container.set()`/`Container.get()` for dependency injection in auth-server
 
 ### Config
-- Config is Convict-based (`config/index.ts`, ~2900 lines) — access via `config.get('key')` or `config.getProperties()`
+- Config is Convict-based (`config/index.ts`, ~3200 lines) — access via `config.get('key')` or `config.getProperties()`
 - Never read secrets files (`.env`, `secrets.json`, `key.json`)
 
 ## 3. Apply FXA Testing Standards
@@ -60,8 +60,8 @@ When simplifying test files, follow these patterns:
 - Use shared mocks from `test/mocks.js` (`mockDB()`, `mockLog()`, `mockMailer()`, `mockPush()`, etc.)
 - `jest.mock()` with factory functions for module mocking (replaces `proxyquire`)
 - For parameterized tests: prefer `it.each()` over `forEach` wrapping `it()`
-- `clearMocks: true` is set globally in jest.config — no need for manual `jest.clearAllMocks()` in `beforeEach`
-- Test timeout is 10s (unit) or 120s (integration)
+- `clearMocks: true` is set only in the `fxa-auth-server` and `fxa-profile-server` Jest configs, so check the package's `jest.config.*` before you remove `jest.clearAllMocks()` from `beforeEach`
+- Test timeout is the Jest default of 5s for auth-server unit tests (profile-server sets 20s), and 120s for auth-server integration tests
 - MPL-2.0 license header at top of every file
 
 ### Mocha (legacy — do not add new Mocha tests)

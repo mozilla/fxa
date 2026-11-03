@@ -157,7 +157,7 @@ Tell this agent it is a senior architect who knows FXA's monorepo structure and 
 - Check for circular or bi-directional dependencies between packages/libs — these break build ordering and are hard to untangle later
 - Flag colliding exports: new exports that duplicate existing ones elsewhere in the monorepo
 - For fxa-settings changes: check React and Tailwind best practices (component composition, accessibility, responsive design)
-- Also apply the code smell checks from the `/check-smells` skill (`.claude/skills/check-smells/SKILL.md`) — read that file and incorporate its design, implementation, test, and dependency smell checks into this review
+- Also apply the code smell checks from the `/fxa-check-smells` skill (`.claude/skills/fxa-check-smells/SKILL.md`) — read that file and incorporate its design, implementation, test, and dependency smell checks into this review
 
 **Migration direction compliance:**
 - Mocha → Jest (no new Mocha tests)
