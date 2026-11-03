@@ -46,7 +46,9 @@ test.describe('relay integration', () => {
 
     await page.waitForURL(/settings/);
 
-    await signup.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
+    await signup.checkWebChannelMessageServices(FirefoxCommand.OAuthLogin, {
+      relay: {},
+    });
     await signup.checkWebChannelMessageServices(FirefoxCommand.Login, {
       relay: {},
     });
@@ -68,7 +70,9 @@ test.describe('relay integration', () => {
 
     await page.waitForURL(/settings/);
 
-    await signin.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
+    await signin.checkWebChannelMessageServices(FirefoxCommand.OAuthLogin, {
+      relay: {},
+    });
     await signin.checkWebChannelMessageServices(FirefoxCommand.Login, {
       relay: {},
     });
@@ -178,7 +182,10 @@ test.describe('relay integration', () => {
       'Your password has been reset'
     );
 
-    await resetPassword.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
+    await resetPassword.checkWebChannelMessageServices(
+      FirefoxCommand.OAuthLogin,
+      { relay: {} }
+    );
     await resetPassword.checkWebChannelMessageServices(FirefoxCommand.Login, {
       relay: {},
     });

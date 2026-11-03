@@ -890,6 +890,7 @@ describe('Signin component', () => {
                   redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
                   state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
                   scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
+                  services: { sync: {} },
                 });
 
                 const fxaLoginCallOrder =
@@ -941,6 +942,7 @@ describe('Signin component', () => {
                   redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
                   state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
                   scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
+                  services: { relay: {} },
                 });
 
                 const fxaLoginCallOrder =

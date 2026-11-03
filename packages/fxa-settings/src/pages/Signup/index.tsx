@@ -192,8 +192,6 @@ export const Signup = ({
             selectedNewsletterSlugs,
             // Sync desktop v3 sends a web channel message up on Signup
             // while OAuth Sync does on confirm signup.
-            // Once mobile clients read this from fxaLogin to match
-            // oauth desktop, we can stop sending this on confirm signup code.
             ...(isSyncOAuth && {
               offeredSyncEngines,
               declinedSyncEngines,

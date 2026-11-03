@@ -325,6 +325,7 @@ const CompleteResetPasswordContainer = ({
           redirect,
           state,
           scope,
+          services: integration.getWebChannelServices(),
         });
       }
     }
