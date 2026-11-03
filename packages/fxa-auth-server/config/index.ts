@@ -1174,6 +1174,12 @@ const convictConf = convict({
         env: 'FREE_ACCESS_PROGRAM_ENABLED',
         default: false,
       },
+      lookupTimeoutMs: {
+        doc: 'Maximum time a subscription capability lookup waits for Free Access Program capabilities before returning without them',
+        format: 'nat',
+        env: 'FREE_ACCESS_PROGRAM_LOOKUP_TIMEOUT_MS',
+        default: 1000,
+      },
     },
   },
   currenciesToCountries: {

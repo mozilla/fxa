@@ -27,7 +27,7 @@ import * as Sentry from '@sentry/node';
 
 import { AppError as error } from '@fxa/accounts/errors';
 import { authEvents } from '../events';
-import { AuthLogger, AuthRequest } from '../types';
+import { AppConfig, AuthLogger, AuthRequest } from '../types';
 import { AppleIAP } from './iap/apple-app-store/apple-iap';
 import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription-purchase';
 import { PlayBilling } from './iap/google-play/play-billing';
@@ -35,6 +35,8 @@ import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-pu
 import { PurchaseQueryError } from './iap/google-play/types';
 import { StripeHelper } from './stripe';
 import { ProfileClient } from '@fxa/profile/client';
+
+const DEFAULT_FREE_ACCESS_LOOKUP_TIMEOUT_MS = 1000;
 
 function hex(blob: Buffer | string): string {
   if (Buffer.isBuffer(blob)) {
@@ -62,6 +64,7 @@ export class CapabilityService {
   private profileClient: ProfileClient;
   private capabilityManager?: CapabilityManager;
   private freeAccessProgramService?: FreeAccessProgramService;
+  private freeAccessLookupTimeoutMs: number;
   private eligibilityManager?: EligibilityManager;
 
   constructor() {
@@ -88,6 +91,10 @@ export class CapabilityService {
     if (Container.has(FreeAccessProgramService)) {
       this.freeAccessProgramService = Container.get(FreeAccessProgramService);
     }
+    this.freeAccessLookupTimeoutMs = Container.has(AppConfig)
+      ? (Container.get(AppConfig).subscriptions?.freeAccessProgram
+          ?.lookupTimeoutMs ?? DEFAULT_FREE_ACCESS_LOOKUP_TIMEOUT_MS)
+      : DEFAULT_FREE_ACCESS_LOOKUP_TIMEOUT_MS;
     if (Container.has(EligibilityManager)) {
       this.eligibilityManager = Container.get(EligibilityManager);
     }
@@ -230,14 +237,56 @@ export class CapabilityService {
     uid: string,
     email?: string | null
   ): Promise<ClientIdCapabilityMap> {
-    const subscribedPrices = await this.subscribedPriceIds(uid);
-    const subscriptionCaps =
-      await this.planIdsToClientCapabilities(subscribedPrices);
-    const emailCaps =
-      email && this.freeAccessProgramService
-        ? await this.freeAccessProgramService.findCapabilitiesForEmail(email)
-        : {};
-    return ClientIdCapabilityMap.merge(subscriptionCaps, emailCaps);
+    const [subscriptionCaps, freeAccessCaps] = await Promise.all([
+      this.subscribedPriceIds(uid).then((priceIds) =>
+        this.planIdsToClientCapabilities(priceIds)
+      ),
+      this.freeAccessCapabilities(uid, email),
+    ]);
+    return ClientIdCapabilityMap.merge(subscriptionCaps, freeAccessCaps);
+  }
+
+  /**
+   * Never rejects: a Free Access Program failure or timeout yields no
+   * free-access capabilities rather than failing the caller.
+   */
+  private async freeAccessCapabilities(
+    uid: string,
+    email?: string | null
+  ): Promise<ClientIdCapabilityMap> {
+    const service = this.freeAccessProgramService;
+    if (!service) {
+      return {};
+    }
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => {
+        const err = new Error('Free Access Program lookup timed out');
+        err.name = 'FreeAccessLookupTimeout';
+        reject(err);
+      }, this.freeAccessLookupTimeoutMs);
+    });
+    try {
+      return await Promise.race([
+        email
+          ? service.findCapabilitiesForEmail(email)
+          : service.findCapabilitiesForUid(uid),
+        timeout,
+      ]);
+    } catch (caught) {
+      const err = caught instanceof Error ? caught : new Error(String(caught));
+      this.log.warn('capability.freeAccessCapabilities.failed', {
+        uid,
+        errorName: err.name,
+        errorMessage: err.message,
+      });
+      this.statsd?.increment('subscriptions.capability.free_access.failed', {
+        error: err.name,
+      });
+      return {};
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
   /**

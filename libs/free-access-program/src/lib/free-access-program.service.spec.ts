@@ -160,6 +160,87 @@ describe('FreeAccessProgramService', () => {
     });
   });
 
+  describe('findCapabilitiesForUid', () => {
+    const UID = 'f9416ce3703e4916a4cd6b1e665a3f1a';
+
+    it('returns an empty map without reading the account when the program has no members', async () => {
+      configurationManager.getCachedProjection.mockResolvedValue({});
+      expect(await service.findCapabilitiesForUid(UID)).toEqual({});
+      expect(accountManager.getPrimaryEmailByUid).not.toHaveBeenCalled();
+    });
+
+    it('returns the capabilities for the primary email of the uid (lowercased lookup)', async () => {
+      configurationManager.getCachedProjection.mockResolvedValue(
+        projection([['user@example.com', entry({ 'client-a': ['vpn'] })]])
+      );
+      accountManager.getPrimaryEmailByUid.mockResolvedValue('USER@example.com');
+      expect(await service.findCapabilitiesForUid(UID)).toEqual({
+        'client-a': ['vpn'],
+      });
+      expect(accountManager.getPrimaryEmailByUid).toHaveBeenCalledWith(UID);
+    });
+
+    it('returns an empty map when the primary email has no entry in the projection', async () => {
+      configurationManager.getCachedProjection.mockResolvedValue(
+        projection([['someone@example.com', entry({ 'client-a': ['vpn'] })]])
+      );
+      accountManager.getPrimaryEmailByUid.mockResolvedValue(
+        'nobody@example.com'
+      );
+      expect(await service.findCapabilitiesForUid(UID)).toEqual({});
+    });
+
+    it('returns an empty map when the uid has no primary email', async () => {
+      configurationManager.getCachedProjection.mockResolvedValue(
+        projection([['someone@example.com', entry({ 'client-a': ['vpn'] })]])
+      );
+      accountManager.getPrimaryEmailByUid.mockResolvedValue(undefined);
+      expect(await service.findCapabilitiesForUid(UID)).toEqual({});
+    });
+
+    it('records a member membership check when capabilities are found', async () => {
+      configurationManager.getCachedProjection.mockResolvedValue(
+        projection([['user@example.com', entry({ 'client-a': ['vpn'] })]])
+      );
+      accountManager.getPrimaryEmailByUid.mockResolvedValue('user@example.com');
+      await service.findCapabilitiesForUid(UID);
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'free_access_program.membership.check',
+        { member: 'true', lookup: 'uid_capabilities' }
+      );
+    });
+
+    it('records a non-member membership check when the program has no members', async () => {
+      configurationManager.getCachedProjection.mockResolvedValue({});
+      await service.findCapabilitiesForUid(UID);
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'free_access_program.membership.check',
+        { member: 'false', lookup: 'uid_capabilities' }
+      );
+    });
+
+    it('propagates a projection load failure', async () => {
+      configurationManager.getCachedProjection.mockRejectedValue(
+        new Error('strapi unavailable')
+      );
+      await expect(service.findCapabilitiesForUid(UID)).rejects.toThrow(
+        'strapi unavailable'
+      );
+    });
+
+    it('propagates an account read failure', async () => {
+      configurationManager.getCachedProjection.mockResolvedValue(
+        projection([['user@example.com', entry({ 'client-a': ['vpn'] })]])
+      );
+      accountManager.getPrimaryEmailByUid.mockRejectedValue(
+        new Error('ECONNREFUSED')
+      );
+      await expect(service.findCapabilitiesForUid(UID)).rejects.toThrow(
+        'ECONNREFUSED'
+      );
+    });
+  });
+
   describe('findOfferingIdsForEmail', () => {
     it('returns an empty array for null/undefined emails without touching the cache', async () => {
       expect(await service.findOfferingIdsForEmail(null)).toEqual([]);
@@ -176,9 +257,9 @@ describe('FreeAccessProgramService', () => {
           ],
         ])
       );
-      expect(
-        await service.findOfferingIdsForEmail('user@example.com')
-      ).toEqual(['vpn', 'relay']);
+      expect(await service.findOfferingIdsForEmail('user@example.com')).toEqual(
+        ['vpn', 'relay']
+      );
     });
 
     it('returns an empty array when the email is not in the projection', async () => {
@@ -190,7 +271,9 @@ describe('FreeAccessProgramService', () => {
 
     it('records a member membership check when offerings are found', async () => {
       configurationManager.getCachedProjection.mockResolvedValue(
-        projection([['user@example.com', entry({ 'client-a': ['vpn'] }, ['vpn'])]])
+        projection([
+          ['user@example.com', entry({ 'client-a': ['vpn'] }, ['vpn'])],
+        ])
       );
       await service.findOfferingIdsForEmail('user@example.com');
       expect(statsd.increment).toHaveBeenCalledWith(

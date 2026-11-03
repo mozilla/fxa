@@ -882,6 +882,7 @@ describe('CapabilityService', () => {
 
     const buildFapManager = (caps: Record<string, string[]>) => ({
       findCapabilitiesForEmail: jest.fn().mockResolvedValue(caps),
+      findCapabilitiesForUid: jest.fn().mockResolvedValue(caps),
     });
 
     it('merges free-access caps with subscription caps', async () => {
@@ -923,16 +924,161 @@ describe('CapabilityService', () => {
       expect(caps).toEqual({ c1: ['capSub'] });
     });
 
-    it('skips the free-access lookup entirely when no email is passed', async () => {
-      const findCapabilitiesForEmail = jest.fn().mockResolvedValue({});
-      Container.set(FreeAccessProgramService, { findCapabilitiesForEmail });
+    it('looks up free-access caps by uid when no email is passed', async () => {
+      const fap = buildFapManager({ c1: ['capEmail'] });
+      Container.set(FreeAccessProgramService, fap);
       mockCapabilityManager.priceIdsToClientCapabilities = jest
         .fn()
         .mockResolvedValue({ c1: ['capSub'] });
       const svc = new CapabilityService();
       const caps = await svc.subscriptionCapabilities(UID);
+      expect(caps).toEqual({ c1: ['capSub', 'capEmail'] });
+      expect(fap.findCapabilitiesForUid).toHaveBeenCalledWith(UID);
+      expect(fap.findCapabilitiesForEmail).not.toHaveBeenCalled();
+    });
+
+    it('returns subscription caps when the free-access lookup rejects', async () => {
+      mockCapabilityManager.priceIdsToClientCapabilities = jest
+        .fn()
+        .mockResolvedValue({ c1: ['capSub'] });
+      Container.set(FreeAccessProgramService, {
+        findCapabilitiesForEmail: jest
+          .fn()
+          .mockRejectedValue(new Error('strapi unavailable')),
+      });
+      const svc = new CapabilityService();
+      const caps = await svc.subscriptionCapabilities(UID, EMAIL);
       expect(caps).toEqual({ c1: ['capSub'] });
-      expect(findCapabilitiesForEmail).not.toHaveBeenCalled();
+    });
+
+    it('logs a warning when the free-access lookup rejects', async () => {
+      Container.set(FreeAccessProgramService, {
+        findCapabilitiesForEmail: jest
+          .fn()
+          .mockRejectedValue(new Error('strapi unavailable')),
+      });
+      const svc = new CapabilityService();
+      await svc.subscriptionCapabilities(UID, EMAIL);
+      expect(log.warn).toHaveBeenCalledWith(
+        'capability.freeAccessCapabilities.failed',
+        {
+          uid: UID,
+          errorName: 'Error',
+          errorMessage: 'strapi unavailable',
+        }
+      );
+    });
+
+    describe('when the free-access lookup exceeds the configured timeout', () => {
+      const TIMEOUT_MS = 250;
+
+      beforeEach(() => {
+        jest.useFakeTimers();
+        mockConfig.subscriptions = {
+          ...mockConfig.subscriptions,
+          freeAccessProgram: {
+            ...mockConfig.subscriptions.freeAccessProgram,
+            lookupTimeoutMs: TIMEOUT_MS,
+          },
+        };
+        mockCapabilityManager.priceIdsToClientCapabilities = jest
+          .fn()
+          .mockResolvedValue({ c1: ['capSub'] });
+        Container.set(FreeAccessProgramService, {
+          findCapabilitiesForEmail: jest.fn(() => new Promise(() => {})),
+        });
+      });
+
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      it('returns subscription caps without free-access caps', async () => {
+        const svc = new CapabilityService();
+        const pending = svc.subscriptionCapabilities(UID, EMAIL);
+        await jest.advanceTimersByTimeAsync(TIMEOUT_MS);
+        expect(await pending).toEqual({ c1: ['capSub'] });
+      });
+
+      it('logs the timeout as the failure reason', async () => {
+        const svc = new CapabilityService();
+        const pending = svc.subscriptionCapabilities(UID, EMAIL);
+        await jest.advanceTimersByTimeAsync(TIMEOUT_MS);
+        await pending;
+        expect(log.warn).toHaveBeenCalledWith(
+          'capability.freeAccessCapabilities.failed',
+          {
+            uid: UID,
+            errorName: 'FreeAccessLookupTimeout',
+            errorMessage: 'Free Access Program lookup timed out',
+          }
+        );
+      });
+    });
+
+    it('returns subscription caps when the free-access lookup rejects with a non-Error value', async () => {
+      mockCapabilityManager.priceIdsToClientCapabilities = jest
+        .fn()
+        .mockResolvedValue({ c1: ['capSub'] });
+      Container.set(FreeAccessProgramService, {
+        findCapabilitiesForEmail: jest.fn().mockRejectedValue(undefined),
+      });
+      const svc = new CapabilityService();
+      const caps = await svc.subscriptionCapabilities(UID, EMAIL);
+      expect(caps).toEqual({ c1: ['capSub'] });
+    });
+
+    it('logs a non-Error rejection as a generic Error', async () => {
+      Container.set(FreeAccessProgramService, {
+        findCapabilitiesForEmail: jest.fn().mockRejectedValue(undefined),
+      });
+      const svc = new CapabilityService();
+      await svc.subscriptionCapabilities(UID, EMAIL);
+      expect(log.warn).toHaveBeenCalledWith(
+        'capability.freeAccessCapabilities.failed',
+        {
+          uid: UID,
+          errorName: 'Error',
+          errorMessage: 'undefined',
+        }
+      );
+    });
+
+    describe('when the configured timeout is zero', () => {
+      beforeEach(() => {
+        jest.useFakeTimers();
+        mockConfig.subscriptions = {
+          ...mockConfig.subscriptions,
+          freeAccessProgram: {
+            ...mockConfig.subscriptions.freeAccessProgram,
+            lookupTimeoutMs: 0,
+          },
+        };
+        mockCapabilityManager.priceIdsToClientCapabilities = jest
+          .fn()
+          .mockResolvedValue({ c1: ['capSub'] });
+        Container.set(FreeAccessProgramService, {
+          findCapabilitiesForEmail: jest.fn(() => new Promise(() => {})),
+        });
+      });
+
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      it('settles without waiting for the default timeout', async () => {
+        const svc = new CapabilityService();
+        let settled = false;
+        const pending = svc
+          .subscriptionCapabilities(UID, EMAIL)
+          .then((caps) => {
+            settled = true;
+            return caps;
+          });
+        await jest.advanceTimersByTimeAsync(0);
+        expect(settled).toBe(true);
+        expect(await pending).toEqual({ c1: ['capSub'] });
+      });
     });
   });
 
