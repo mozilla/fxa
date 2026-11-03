@@ -1,8 +1,8 @@
 {
-  "commit": "88a07488f11ec9713b152093dc41ce4f96dd2cf9",
-  "summary": "Merge pull request #21605 from mozilla/fxa-14832",
-  "description": "feat(settings): enlarge Pair V2 device details text",
-  "timestamp": 1793740400000,
+  "commit": "da510ecc81b5ecf67e071bcb38fd8bfe69061f0e",
+  "summary": "Merge pull request #21540 from mozilla/FXA-14357",
+  "description": "feat(settings): gate pairing on the browser holding the Sync key",
+  "timestamp": 1793741277000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

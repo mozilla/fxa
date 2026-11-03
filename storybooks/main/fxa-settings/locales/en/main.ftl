@@ -1753,6 +1753,7 @@ signin-link-expired-message-2 = The link you clicked has expired or has already 
 
 
 signin-password-needed-header-2 = Enter your password <span>for your { -product-mozilla-account }</span>
+signin-button-start-syncing = Start syncing
 
 signin-subheader-without-logo-with-servicename = Continue to { $serviceName }
 signin-subheader-without-logo-default = Continue to account settings
