@@ -1,8 +1,8 @@
 {
-  "commit": "72f75c808ced14324969abf6fc40c670bd8939b4",
-  "summary": "Merge pull request #21620 from mozilla/payments_update-proxy",
-  "description": "fix(payments-next): only set experimentationId when missing",
-  "timestamp": 1793715544000,
+  "commit": "859ecc9ad62175fe903883b0db73dab057a707e8",
+  "summary": "Merge pull request #21675 from mozilla/agent-d1267f",
+  "description": "feat(admin-panel): add paging and a filter to the blocklist tables",
+  "timestamp": 1793723893000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
