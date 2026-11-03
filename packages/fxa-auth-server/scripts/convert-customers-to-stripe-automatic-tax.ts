@@ -4,7 +4,7 @@
 import { program } from 'commander';
 import { ConfigType } from '../config';
 import { AppConfig } from '../lib/types';
-import GeoDB from 'fxa-geodb';
+import { createGeoDBLookup } from '@fxa/shared/geodb';
 import Container from 'typedi';
 
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
@@ -54,7 +54,7 @@ async function init() {
   const rateLimit = parseRateLimit(options.rateLimit);
 
   const config = Container.get<ConfigType>(AppConfig);
-  const geodb = GeoDB(config.geodb);
+  const geodb = createGeoDBLookup(config.geodb.dbPath);
 
   const stripeAutomaticTaxConverter = new StripeAutomaticTaxConverter(
     geodb,

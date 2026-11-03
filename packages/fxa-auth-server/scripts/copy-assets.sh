@@ -22,4 +22,8 @@ find dist/libs/accounts/email-renderer -type f | \
 grep --invert -E "\.js$|\.ts$|\.sh" | \
 xargs -L1 bash -c 'cp $0 packages/fxa-auth-server/$0'
 
+# config geodb.dbPath resolves here when run from dist
+mkdir -p packages/fxa-auth-server/dist/libs/shared/geodb/db
+cp libs/shared/geodb/db/cities-db.mmdb packages/fxa-auth-server/dist/libs/shared/geodb/db/
+
 cd packages/fxa-auth-server
