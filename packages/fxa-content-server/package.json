@@ -51,7 +51,7 @@
     "helmet": "^8.0.0",
     "hot-shots": "^10.2.1",
     "http-proxy-middleware": "^2.0.10",
-    "joi": "^17.13.8",
+    "joi": "^17.13.9",
     "load-grunt-tasks": "^5.1.0",
     "mocha": "^10.4.0",
     "morgan": "^1.11.0",
