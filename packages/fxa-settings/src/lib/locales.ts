@@ -7,6 +7,7 @@ import { supportedLanguages, rtlLocales } from '@fxa/shared/l10n';
 // Default locale constant
 export const DEFAULT_LOCALE = 'en';
 
+// prettier-ignore
 export interface LocaleOption {
   code: string;          // 'en', 'es', 'fr'
   name: string;          // 'English', 'Español', 'Français'
@@ -15,6 +16,7 @@ export interface LocaleOption {
 }
 
 // Locale mappings with accurate supported languages
+// prettier-ignore
 export const LOCALE_MAPPINGS: Record<string, LocaleOption> = {
   'be': { code: 'be', name: 'Belarusian', nativeName: 'Беларуская', rtl: false },
   'cs': { code: 'cs', name: 'Czech', nativeName: 'Čeština', rtl: false },
@@ -76,7 +78,7 @@ export const LOCALE_MAPPINGS: Record<string, LocaleOption> = {
 };
 
 // Storage key for user locale preference
-const LOCALE_STORAGE_KEY = 'fxa-settings-locale';
+export const LOCALE_STORAGE_KEY = 'fxa-settings-locale';
 
 // Helper function to get available locales
 export const getAvailableLocales = (): LocaleOption[] => {

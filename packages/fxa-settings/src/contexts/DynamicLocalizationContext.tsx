@@ -8,6 +8,7 @@ import React, {
   useState,
   useCallback,
   useEffect,
+  useRef,
 } from 'react';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import {
@@ -15,9 +16,11 @@ import {
   saveLocalePreference,
   clearLocalePreference,
   getCurrentLocale,
+  getLocalePreference,
   validateLocale,
   detectBrowserDefaultLocale,
   DEFAULT_LOCALE,
+  LOCALE_STORAGE_KEY,
 } from '../lib/locales';
 
 interface DynamicLocalizationContextType {
@@ -43,11 +46,42 @@ export const DynamicLocalizationProvider: React.FC<{
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [key, setKey] = useState(0); // Force re-render of AppLocalizationProvider
+  // No saved locale: keep lang-fix.js's lang and dir until the locale changes
+  const savedLocale = getLocalePreference();
+  const validSavedLocale =
+    savedLocale && validateLocale(savedLocale) ? savedLocale : null;
+  const langFixLocale = useRef<string | null>(
+    validSavedLocale ? null : currentLocale
+  );
+  // A clear() storage event does not say what it removed
+  const lastSavedLocale = useRef<string | null>(validSavedLocale);
+
+  useEffect(() => {
+    if (currentLocale === langFixLocale.current) {
+      return;
+    }
+    langFixLocale.current = null;
+    document.documentElement.lang = currentLocale;
+    document.documentElement.dir = isRTLLocale(currentLocale) ? 'rtl' : 'ltr';
+  }, [currentLocale]);
 
   // Listen for storage changes (in case user changes locale in another tab)
   useEffect(() => {
-    const handleStorageChange = () => {
-      const newLocale = getCurrentLocale();
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.storageArea !== window.localStorage) {
+        return;
+      }
+      // A null key means localStorage.clear(), which also removes the preference
+      if (event.key !== null && event.key !== LOCALE_STORAGE_KEY) {
+        return;
+      }
+      if (event.key === null && lastSavedLocale.current === null) {
+        return;
+      }
+      // Not getCurrentLocale(): its html.lang fallback holds the old locale
+      const saved = getLocalePreference();
+      lastSavedLocale.current = saved && validateLocale(saved) ? saved : null;
+      const newLocale = lastSavedLocale.current ?? detectBrowserDefaultLocale();
       if (newLocale !== currentLocale) {
         setCurrentLocale(newLocale);
         setUserLocales([newLocale, DEFAULT_LOCALE]);
@@ -78,16 +112,13 @@ export const DynamicLocalizationProvider: React.FC<{
       try {
         // 1. Save preference to localStorage
         saveLocalePreference(locale);
+        lastSavedLocale.current = locale;
 
-        // 2. Update document attributes
-        document.documentElement.lang = locale;
-        document.documentElement.dir = isRTLLocale(locale) ? 'rtl' : 'ltr';
-
-        // 3. Update state
+        // 2. Update state
         setCurrentLocale(locale);
         setUserLocales([locale, DEFAULT_LOCALE]);
 
-        // 4. Force AppLocalizationProvider to re-mount and reload bundles
+        // 3. Force AppLocalizationProvider to re-mount and reload bundles
         setKey((prev) => prev + 1);
       } catch (error) {
         // Language switch failed, we can't really do anything about it so ignore it
@@ -104,21 +135,16 @@ export const DynamicLocalizationProvider: React.FC<{
     try {
       // 1. Clear preference from localStorage
       clearLocalePreference();
+      lastSavedLocale.current = null;
 
       // 2. Get browser's default locale
       const browserDefaultLocale = detectBrowserDefaultLocale();
 
-      // 3. Update document attributes
-      document.documentElement.lang = browserDefaultLocale;
-      document.documentElement.dir = isRTLLocale(browserDefaultLocale)
-        ? 'rtl'
-        : 'ltr';
-
-      // 4. Update state
+      // 3. Update state
       setCurrentLocale(browserDefaultLocale);
       setUserLocales([browserDefaultLocale, DEFAULT_LOCALE]);
 
-      // 5. Force AppLocalizationProvider to re-mount and reload bundles
+      // 4. Force AppLocalizationProvider to re-mount and reload bundles
       setKey((prev) => prev + 1);
     } catch (error) {
       // Clear failed, ignore it
