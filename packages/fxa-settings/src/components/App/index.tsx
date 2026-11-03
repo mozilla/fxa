@@ -11,6 +11,7 @@ import {
   useLayoutEffect,
   useMemo,
   startTransition,
+  useCallback,
 } from 'react';
 
 import { QueryParams } from '../..';
@@ -34,6 +35,7 @@ import {
   useDefaultCmsState,
   isWebIntegration,
   useSensitiveDataClient,
+  SwitchIntegrationContext,
 } from '../../models';
 import { useClearPasskeyWrapOffRoute } from '../../lib/passkeys/use-clear-wrap-off-route';
 import {
@@ -264,7 +266,8 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
 
   const config = useConfig();
   const session = useSession();
-  const integration = useIntegration();
+  const [integrationVersion, setIntegrationVersion] = useState(0);
+  const integration = useIntegration(integrationVersion);
   const navigate = useNavigate();
 
   useClearPasskeyWrapOffRoute(useSensitiveDataClient());
@@ -292,6 +295,14 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
   // This state is updated by AppLayout and read by the Suspense fallback to preserve
   // the origin page's layout until the destination page loads.
   const [currentSplitLayout, setCurrentSplitLayout] = useState<boolean>(false);
+
+  // A switch replaces a full page load, so the session state starts over too.
+  const bumpIntegrationVersion = useCallback(() => {
+    setIntegrationVersion((version) => version + 1);
+    setIsSignedIn(undefined);
+    setIsSignedIntoFirefox(false);
+    setBrowserHasSyncKey(undefined);
+  }, []);
 
   useEffect(() => {
     const initializeSession = async () => {
@@ -413,6 +424,13 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
     );
   }, [metricsEnabled, integration, config.glean, config.version, metricsFlow]);
 
+  // Glean keeps the integration it started with; follow a switch.
+  useLayoutEffect(() => {
+    if (integration && integrationVersion > 0) {
+      GleanMetrics.setIntegration(integration);
+    }
+  }, [integration, integrationVersion]);
+
   useEffect(() => {
     if (!metricsEnabled) {
       return;
@@ -504,44 +522,50 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
   const cmsInfo = integration.getCmsInfo();
 
   return (
-    <Suspense
-      fallback={
-        <AppLayout cmsInfo={cmsInfo} loading splitLayout={currentSplitLayout} />
-      }
-    >
-      <Routes>
-        <Route
-          path="/settings/*"
-          element={
-            <Suspense fallback={<LoadingSpinner fullScreen />}>
-              <SettingsRoutes
+    <SwitchIntegrationContext.Provider value={bumpIntegrationVersion}>
+      <Suspense
+        fallback={
+          <AppLayout
+            cmsInfo={cmsInfo}
+            loading
+            splitLayout={currentSplitLayout}
+          />
+        }
+      >
+        <Routes>
+          <Route
+            path="/settings/*"
+            element={
+              <Suspense fallback={<LoadingSpinner fullScreen />}>
+                <SettingsRoutes
+                  {...{
+                    isSignedIn,
+                    integration,
+                    isSignedIntoFirefox,
+                    browserHasSyncKey,
+                    setCurrentSplitLayout,
+                  }}
+                />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/*"
+            element={
+              <AuthAndAccountSetupRoutes
                 {...{
                   isSignedIn,
                   integration,
+                  flowQueryParams: updatedFlowQueryParams,
                   isSignedIntoFirefox,
-                  browserHasSyncKey,
                   setCurrentSplitLayout,
                 }}
               />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/*"
-          element={
-            <AuthAndAccountSetupRoutes
-              {...{
-                isSignedIn,
-                integration,
-                flowQueryParams: updatedFlowQueryParams,
-                isSignedIntoFirefox,
-                setCurrentSplitLayout,
-              }}
-            />
-          }
-        />
-      </Routes>
-    </Suspense>
+            }
+          />
+        </Routes>
+      </Suspense>
+    </SwitchIntegrationContext.Provider>
   );
 };
 

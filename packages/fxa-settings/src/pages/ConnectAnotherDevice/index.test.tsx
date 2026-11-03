@@ -25,6 +25,7 @@ import {
 } from './mocks';
 import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../constants';
 import { Devices } from '../../lib/utilities';
+import { SwitchIntegrationContext } from '../../models';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -186,6 +187,50 @@ describe('ConnectAnotherDevice', () => {
       screen.getByText('Sign in to this Firefox to complete set-up')
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
+  });
+
+  it('switches in-app to the Sync sign-in when a signed out user clicks Sign in', async () => {
+    mockNavigate.mockClear();
+    jest.mocked(firefox.fxaOAuthFlowBegin).mockResolvedValueOnce({
+      client_id: 'cid-abc',
+      state: 'state-xyz',
+      scope: 'profile https://identity.mozilla.com/apps/oldsync',
+      access_type: 'offline',
+      action: 'email',
+    } as any);
+    const hardNavigate = jest
+      .spyOn(ReactUtils, 'hardNavigate')
+      .mockImplementation(() => {});
+    const bumpIntegrationVersion = jest.fn();
+    renderWithRouter(
+      <SwitchIntegrationContext.Provider value={bumpIntegrationVersion}>
+        <ConnectAnotherDevice
+          isSignIn
+          isSignUp={false}
+          showSuccessMessage={false}
+          email={MOCK_ACCOUNT.primaryEmail.email}
+          entrypoint={ENTRYPOINTS.FIREFOX_FX_VIEW_ENTRYPOINT}
+          device={Devices.FIREFOX_DESKTOP}
+          isSignedIn={false}
+          canSignIn
+          fxaStatus={mockFxAStatus()}
+        />
+      </SwitchIntegrationContext.Provider>
+    );
+
+    screen.getByRole('button', { name: 'Sign in' }).click();
+
+    await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
+    expect(bumpIntegrationVersion).toHaveBeenCalledTimes(1);
+    const url = new URL(mockNavigate.mock.calls[0][0], 'http://localhost');
+    expect(url.pathname).toBe('/');
+    expect(url.searchParams.get('client_id')).toBe('cid-abc');
+    expect(url.searchParams.get('context')).toBe('oauth_webchannel_v1');
+    expect(url.searchParams.get('entrypoint')).toBe(
+      'fxa_connect_another_device'
+    );
+    expect(hardNavigate).not.toHaveBeenCalled();
+    hardNavigate.mockRestore();
   });
 
   it('renders device-specific messaging for Android', () => {

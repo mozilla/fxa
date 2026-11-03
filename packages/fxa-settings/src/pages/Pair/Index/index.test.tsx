@@ -24,6 +24,7 @@ import type { FxAStatusState } from '../../../lib/hooks/useFxAStatus';
 import { getDefault } from '../../../lib/config';
 import { PAIR_GLEAN_REASONS } from '../../../lib/glean/pair-reasons';
 import { Integration } from '../../../models';
+import { SwitchIntegrationContext } from '../../../models/hooks';
 import { parsePairingHash } from '../../../lib/pairing/pair-url';
 import { Devices } from '../../../lib/utilities';
 import {
@@ -786,64 +787,60 @@ describe('Pair', () => {
       expect(requestSignedInUserMock).toHaveBeenCalledTimes(2);
     });
 
-    it('hard-navigates a browser signed in without the Sync key to set_password', async () => {
-      const hardNavigateSpy = jest
-        .spyOn(ReactUtils, 'hardNavigate')
-        .mockImplementation(() => {});
-      try {
-        requestSignedInUserMock.mockResolvedValue({
-          ...MOCK_SYNC_SIGNED_IN_USER,
-          hasSyncKey: false,
-        });
-        fxaOAuthFlowBeginMock.mockResolvedValueOnce(MOCK_OAUTH_PARAMS);
-        renderWithRouter(<Pair {...defaultProps} />, {}, mockAppContext());
-        await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalled());
-        const [target] = hardNavigateSpy.mock.calls[0];
-        expect(new URL(target, 'http://localhost').pathname).toBe(
-          '/post_verify/set_password'
-        );
-      } finally {
-        hardNavigateSpy.mockRestore();
-      }
+    it('switches a browser signed in without the Sync key to set_password', async () => {
+      mockNavigate.mockClear();
+      const bumpIntegrationVersion = jest.fn();
+      requestSignedInUserMock.mockResolvedValue({
+        ...MOCK_SYNC_SIGNED_IN_USER,
+        hasSyncKey: false,
+      });
+      fxaOAuthFlowBeginMock.mockResolvedValueOnce(MOCK_OAUTH_PARAMS);
+      renderWithRouter(
+        <SwitchIntegrationContext.Provider value={bumpIntegrationVersion}>
+          <Pair {...defaultProps} />
+        </SwitchIntegrationContext.Provider>,
+        {},
+        mockAppContext()
+      );
+      await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
+      expect(bumpIntegrationVersion).toHaveBeenCalledTimes(1);
+      const [target] = mockNavigate.mock.calls[0];
+      expect(new URL(target, 'http://localhost').pathname).toBe(
+        '/post_verify/set_password'
+      );
     });
 
-    it('hard-navigates a signed-out browser to / with the OAuth params Firefox returned', async () => {
-      const hardNavigateSpy = jest
-        .spyOn(ReactUtils, 'hardNavigate')
-        .mockImplementation(() => {});
-      try {
-        requestSignedInUserMock.mockResolvedValue(undefined);
-        fxaOAuthFlowBeginMock.mockResolvedValueOnce({
-          action: 'signin',
-          response_type: 'code',
-          access_type: 'offline',
-          scope: 'profile https://identity.mozilla.com/apps/oldsync',
-          client_id: 'cid-abc',
-          state: 'state-xyz',
-          code_challenge: 'cc',
-          code_challenge_method: 'S256',
-        });
-        renderWithRouter(<Pair {...defaultProps} />, {}, mockAppContext());
-        await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalled());
-        const [target] = hardNavigateSpy.mock.calls[0];
-        const url = new URL(target, 'http://localhost');
-        expect(url.pathname).toBe('/');
-        expect(Object.fromEntries(url.searchParams)).toEqual({
-          context: 'oauth_webchannel_v1',
-          service: 'sync',
-          client_id: 'cid-abc',
-          state: 'state-xyz',
-          scope: 'profile https://identity.mozilla.com/apps/oldsync',
-          access_type: 'offline',
-          response_type: 'code',
-          action: 'signin',
-          code_challenge: 'cc',
-          code_challenge_method: 'S256',
-          entrypoint: 'fxa_pairflow',
-        });
-      } finally {
-        hardNavigateSpy.mockRestore();
-      }
+    it('navigates a signed-out browser to / with the OAuth params Firefox returned', async () => {
+      mockNavigate.mockClear();
+      requestSignedInUserMock.mockResolvedValue(undefined);
+      fxaOAuthFlowBeginMock.mockResolvedValueOnce({
+        action: 'signin',
+        response_type: 'code',
+        access_type: 'offline',
+        scope: 'profile https://identity.mozilla.com/apps/oldsync',
+        client_id: 'cid-abc',
+        state: 'state-xyz',
+        code_challenge: 'cc',
+        code_challenge_method: 'S256',
+      });
+      renderWithRouter(<Pair {...defaultProps} />, {}, mockAppContext());
+      await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
+      const [target] = mockNavigate.mock.calls[0];
+      const url = new URL(target, 'http://localhost');
+      expect(url.pathname).toBe('/');
+      expect(Object.fromEntries(url.searchParams)).toEqual({
+        context: 'oauth_webchannel_v1',
+        service: 'sync',
+        client_id: 'cid-abc',
+        state: 'state-xyz',
+        scope: 'profile https://identity.mozilla.com/apps/oldsync',
+        access_type: 'offline',
+        response_type: 'code',
+        action: 'signin',
+        code_challenge: 'cc',
+        code_challenge_method: 'S256',
+        entrypoint: 'fxa_pairflow',
+      });
     });
 
     it.each([
@@ -868,101 +865,76 @@ describe('Pair', () => {
     ])(
       'keeps the entrypoint $source carries',
       async ({ search, integration, expected }) => {
-        const hardNavigateSpy = jest
-          .spyOn(ReactUtils, 'hardNavigate')
-          .mockImplementation(() => {});
-        try {
-          mockLocationSearch = search;
-          requestSignedInUserMock.mockResolvedValue(undefined);
-          fxaOAuthFlowBeginMock.mockResolvedValueOnce({
-            action: 'signin',
-            response_type: 'code',
-            access_type: 'offline',
-            scope: 'profile https://identity.mozilla.com/apps/oldsync',
-            client_id: 'cid-abc',
-            state: 'state-xyz',
-          });
-          renderWithRouter(
-            <Pair {...defaultProps} integration={integration} />
-          );
-          await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalled());
-          const url = new URL(
-            hardNavigateSpy.mock.calls[0][0],
-            'http://localhost'
-          );
-          expect(url.searchParams.get('entrypoint')).toBe(expected);
-        } finally {
-          hardNavigateSpy.mockRestore();
-        }
+        mockNavigate.mockClear();
+        mockLocationSearch = search;
+        requestSignedInUserMock.mockResolvedValue(undefined);
+        fxaOAuthFlowBeginMock.mockResolvedValueOnce({
+          action: 'signin',
+          response_type: 'code',
+          access_type: 'offline',
+          scope: 'profile https://identity.mozilla.com/apps/oldsync',
+          client_id: 'cid-abc',
+          state: 'state-xyz',
+        });
+        renderWithRouter(<Pair {...defaultProps} integration={integration} />);
+        await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
+        const url = new URL(mockNavigate.mock.calls[0][0], 'http://localhost');
+        expect(url.searchParams.get('entrypoint')).toBe(expected);
       }
     );
 
     it('starts the OAuth flow once when the parent re-renders', async () => {
-      const hardNavigateSpy = jest
-        .spyOn(ReactUtils, 'hardNavigate')
-        .mockImplementation(() => {});
-      try {
-        requestSignedInUserMock.mockResolvedValue(undefined);
-        fxaOAuthFlowBeginMock.mockResolvedValue(MOCK_OAUTH_PARAMS);
+      mockNavigate.mockClear();
+      requestSignedInUserMock.mockResolvedValue(undefined);
+      fxaOAuthFlowBeginMock.mockResolvedValue(MOCK_OAUTH_PARAMS);
 
-        // App hands Pair a fresh fxaStatusResult object on every render, so the
-        // parent here does the same. The app context keeps `config` stable, so
-        // the object identity is the only thing that changes.
-        let rerenderParent = () => {};
-        const PairParent = () => {
-          const [, setTick] = React.useState(0);
-          React.useEffect(() => {
-            rerenderParent = () => setTick((tick) => tick + 1);
-          }, []);
-          return <Pair fxaStatusResult={mockUseFxAStatus()} />;
-        };
+      // App hands Pair a fresh fxaStatusResult object on every render, so the
+      // parent here does the same. The app context keeps `config` stable, so
+      // the object identity is the only thing that changes.
+      let rerenderParent = () => {};
+      const PairParent = () => {
+        const [, setTick] = React.useState(0);
+        React.useEffect(() => {
+          rerenderParent = () => setTick((tick) => tick + 1);
+        }, []);
+        return <Pair fxaStatusResult={mockUseFxAStatus()} />;
+      };
 
-        renderWithRouter(<PairParent />, {}, mockAppContext());
-        await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalled());
-        await act(async () => {
-          rerenderParent();
-        });
+      renderWithRouter(<PairParent />, {}, mockAppContext());
+      await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
+      await act(async () => {
+        rerenderParent();
+      });
 
-        expect(fxaOAuthFlowBeginMock).toHaveBeenCalledTimes(1);
-        expect(hardNavigateSpy).toHaveBeenCalledTimes(1);
-      } finally {
-        hardNavigateSpy.mockRestore();
-      }
+      expect(fxaOAuthFlowBeginMock).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalledTimes(1);
     });
 
     it('starts the OAuth flow once when fxa_status answers late', async () => {
-      const hardNavigateSpy = jest
-        .spyOn(ReactUtils, 'hardNavigate')
-        .mockImplementation(() => {});
-      try {
-        requestSignedInUserMock.mockResolvedValue(undefined);
-        fxaOAuthFlowBeginMock.mockResolvedValue(MOCK_OAUTH_PARAMS);
+      mockNavigate.mockClear();
+      requestSignedInUserMock.mockResolvedValue(undefined);
+      fxaOAuthFlowBeginMock.mockResolvedValue(MOCK_OAUTH_PARAMS);
 
-        // A reply that lands after the pairing timeout takes fxaStatusState
-        // from 'unanswered' to 'answered' once the bootstrap has navigated.
-        let answerLate = () => {};
-        const PairAwaitingReply = () => {
-          const [fxaStatusState, setFxaStatusState] =
-            React.useState<FxAStatusState>('unanswered');
-          React.useEffect(() => {
-            answerLate = () => setFxaStatusState('answered');
-          }, []);
-          return (
-            <Pair fxaStatusResult={mockUseFxAStatus({ fxaStatusState })} />
-          );
-        };
+      // A reply that lands after the pairing timeout takes fxaStatusState
+      // from 'unanswered' to 'answered' once the bootstrap has navigated.
+      let answerLate = () => {};
+      const PairAwaitingReply = () => {
+        const [fxaStatusState, setFxaStatusState] =
+          React.useState<FxAStatusState>('unanswered');
+        React.useEffect(() => {
+          answerLate = () => setFxaStatusState('answered');
+        }, []);
+        return <Pair fxaStatusResult={mockUseFxAStatus({ fxaStatusState })} />;
+      };
 
-        renderWithRouter(<PairAwaitingReply />);
-        await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalled());
-        await act(async () => {
-          answerLate();
-        });
+      renderWithRouter(<PairAwaitingReply />);
+      await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
+      await act(async () => {
+        answerLate();
+      });
 
-        expect(fxaOAuthFlowBeginMock).toHaveBeenCalledTimes(1);
-        expect(hardNavigateSpy).toHaveBeenCalledTimes(1);
-      } finally {
-        hardNavigateSpy.mockRestore();
-      }
+      expect(fxaOAuthFlowBeginMock).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalledTimes(1);
     });
 
     it('reveals the choice screen when WebChannel never replies', async () => {
@@ -1185,37 +1157,26 @@ describe('Pair', () => {
     });
 
     it('carries the attribution into the sync OAuth handoff URL', async () => {
-      const hardNavigateSpy = jest
-        .spyOn(ReactUtils, 'hardNavigate')
-        .mockImplementation(() => {});
-      try {
-        jest.mocked(firefox.requestSignedInUser).mockResolvedValue(undefined);
-        jest.mocked(firefox.fxaOAuthFlowBegin).mockResolvedValueOnce({
-          action: 'signin',
-          response_type: 'code',
-          access_type: 'offline',
-          scope: 'profile https://identity.mozilla.com/apps/oldsync',
-          client_id: 'cid-abc',
-          state: 'state-xyz',
-          code_challenge: 'cc',
-          code_challenge_method: 'S256',
-        });
-        renderWithRouter(
-          <Pair {...defaultProps} integration={attributionIntegration} />
-        );
+      mockNavigate.mockClear();
+      jest.mocked(firefox.requestSignedInUser).mockResolvedValue(undefined);
+      jest.mocked(firefox.fxaOAuthFlowBegin).mockResolvedValueOnce({
+        action: 'signin',
+        response_type: 'code',
+        access_type: 'offline',
+        scope: 'profile https://identity.mozilla.com/apps/oldsync',
+        client_id: 'cid-abc',
+        state: 'state-xyz',
+        code_challenge: 'cc',
+        code_challenge_method: 'S256',
+      });
+      renderWithRouter(
+        <Pair {...defaultProps} integration={attributionIntegration} />
+      );
 
-        await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalled());
-        const url = new URL(
-          hardNavigateSpy.mock.calls[0][0],
-          'http://localhost'
-        );
-        expect(url.searchParams.get('entrypoint')).toBe(
-          'send-tab-toolbar-icon'
-        );
-        expect(url.searchParams.get('utm_source')).toBe('firefox-browser');
-      } finally {
-        hardNavigateSpy.mockRestore();
-      }
+      await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
+      const url = new URL(mockNavigate.mock.calls[0][0], 'http://localhost');
+      expect(url.searchParams.get('entrypoint')).toBe('send-tab-toolbar-icon');
+      expect(url.searchParams.get('utm_source')).toBe('firefox-browser');
     });
   });
 
@@ -1501,6 +1462,7 @@ describe('Pair', () => {
     });
 
     it('sends a signed-out desktop to sign-in instead of the QR scanner', async () => {
+      mockNavigate.mockClear();
       const hardNavigateSpy = jest
         .spyOn(ReactUtils, 'hardNavigate')
         .mockImplementation(() => {});
@@ -1512,8 +1474,9 @@ describe('Pair', () => {
         renderWithRouter(<Pair {...v2Props} />, {}, v2AppContext());
 
         await waitFor(() =>
-          expect(hardNavigateSpy).toHaveBeenCalledWith(
-            expect.stringMatching(/^\/\?.*client_id=cid-abc/)
+          expect(mockNavigate).toHaveBeenCalledWith(
+            expect.stringMatching(/^\/\?.*client_id=cid-abc/),
+            undefined
           )
         );
         expect(hardNavigateSpy).not.toHaveBeenCalledWith(

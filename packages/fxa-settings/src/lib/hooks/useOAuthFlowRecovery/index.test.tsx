@@ -5,7 +5,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { useOAuthFlowRecovery } from '.';
 import firefox from '../../channels/firefox';
-import * as ReactUtils from 'fxa-react/lib/utils';
 import {
   IntegrationType,
   isProbablyFirefox,
@@ -19,12 +18,14 @@ jest.mock('../../channels/firefox', () => ({
   },
 }));
 
+const mockSwitchIntegration = jest.fn();
 jest.mock('../../../models', () => {
   const actual = jest.requireActual('../../../models');
   return {
     ...actual,
     isProbablyFirefox: jest.fn(() => true),
     isOAuthNativeIntegration: jest.fn(() => true),
+    useSwitchIntegration: () => mockSwitchIntegration,
   };
 });
 
@@ -44,24 +45,15 @@ const mockIntegration = (isOAuthNative: boolean = true) => {
 };
 
 describe('useOAuthFlowRecovery', () => {
-  let hardNavigateSpy: jest.SpyInstance;
-
   beforeEach(() => {
     jest.clearAllMocks();
     (isProbablyFirefox as unknown as jest.Mock).mockReturnValue(true);
     (isOAuthNativeIntegration as unknown as jest.Mock).mockReturnValue(true);
-    hardNavigateSpy = jest
-      .spyOn(ReactUtils, 'hardNavigate')
-      .mockImplementation(() => {});
 
     Object.defineProperty(window, 'location', {
       value: { search: '?flowId=abc123&utm_source=firefox' },
       writable: true,
     });
-  });
-
-  afterEach(() => {
-    hardNavigateSpy.mockRestore();
   });
 
   it('skips recovery for non-OAuth Native integrations', async () => {
@@ -117,7 +109,7 @@ describe('useOAuthFlowRecovery', () => {
     });
 
     expect(response.success).toBe(true);
-    const url = hardNavigateSpy.mock.calls[0][0];
+    const url = mockSwitchIntegration.mock.calls[0][0];
     expect(url).toContain('/signin?');
     expect(url).toContain('client_id=new-client-id');
     expect(url).toContain('state=new-state');
@@ -141,7 +133,7 @@ describe('useOAuthFlowRecovery', () => {
     });
 
     expect(result.current.recoveryFailed).toBe(true);
-    expect(hardNavigateSpy).not.toHaveBeenCalled();
+    expect(mockSwitchIntegration).not.toHaveBeenCalled();
   });
 
   it('sets recoveryFailed when fxaOAuthFlowBegin throws', async () => {
