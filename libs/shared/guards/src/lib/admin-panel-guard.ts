@@ -32,6 +32,7 @@ export enum AdminPanelFeature {
   AccountHistory = 'AccountHistory',
   AccountDelete = 'AccountDelete',
   AccountReset = 'AccountReset',
+  BulkDisableAccounts = 'BulkDisableAccounts',
   ConnectedServices = 'ConnectedServices',
   LinkedAccounts = 'LinkedAccounts',
   ClearEmailBounces = 'ClearEmailBounces',
@@ -147,6 +148,10 @@ const defaultAdminPanelPermissions: Permissions = {
   },
   [AdminPanelFeature.AccountReset]: {
     name: 'Reset Account By Email/UID',
+    level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.BulkDisableAccounts]: {
+    name: 'Disable Accounts By Email/UID',
     level: PermissionLevel.Admin,
   },
   [AdminPanelFeature.ConnectedServices]: {

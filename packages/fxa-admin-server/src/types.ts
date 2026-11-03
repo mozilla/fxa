@@ -310,6 +310,17 @@ export interface AccountResetResponse {
   status: AccountResetStatus;
 }
 
+export enum AccountDisableStatus {
+  Success = 'Success',
+  Failure = 'Failure',
+  NoAccount = 'No account found',
+}
+
+export interface AccountDisableResponse {
+  locator: string;
+  status: AccountDisableStatus;
+}
+
 export interface EmailBlocklistEntry {
   regex: string;
   createdAt: number;

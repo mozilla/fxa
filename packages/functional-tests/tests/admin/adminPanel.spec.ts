@@ -8,6 +8,12 @@ const ADMIN_PANEL_URL = process.env.ADMIN_PANEL_URL ?? 'http://localhost:8091';
 const ADMIN_SERVER_URL =
   process.env.ADMIN_SERVER_URL ?? 'http://localhost:8095';
 
+const ADMIN_HEADERS = {
+  'content-type': 'application/json',
+  'oidc-claim-id-token-email': 'test-admin@mozilla.com',
+  'remote-groups': 'vpn_fxa_admin_panel_prod',
+};
+
 // Admin panel tests only run locally (stage/prod require SSO)
 test.skip(({ target }) => target.name !== 'local');
 
@@ -68,5 +74,47 @@ test.describe('Admin Panel', () => {
     await expect(page.getByText(credentials.email)).toBeVisible({
       timeout: 10000,
     });
+  });
+
+  test('bulk disable from UI revokes sessions and disables the account', async ({
+    target,
+    page,
+    testAccountTracker,
+  }) => {
+    const credentials = testAccountTracker.generateAccountDetails();
+    const { uid, sessionToken } = await target.createAccount(
+      credentials.email,
+      credentials.password
+    );
+
+    try {
+      await page.goto(`${ADMIN_PANEL_URL}/account-disable`);
+      await page
+        .getByTestId('account-list-input')
+        .fill(`${credentials.email}\nnot-a-uid`);
+      await page.getByTestId('account-disable-btn').click();
+
+      await expect(page.getByRole('status')).toHaveText(
+        '1 account disabled, 0 failed, 1 account not found'
+      );
+
+      await expect(
+        target.authClient.sessionStatus(sessionToken)
+      ).rejects.toMatchObject({ errno: 110 });
+      await expect(
+        target.authClient.signIn(credentials.email, credentials.password)
+      ).rejects.toMatchObject({ errno: 240 });
+    } finally {
+      // Re-enable so the account tracker can sign in to delete it.
+      const response = await fetch(`${ADMIN_SERVER_URL}/api/account/enable`, {
+        method: 'POST',
+        headers: ADMIN_HEADERS,
+        body: JSON.stringify({ uid }),
+      });
+      expect(
+        response.ok,
+        `Account re-enable failed: HTTP ${response.status}`
+      ).toBe(true);
+    }
   });
 });
