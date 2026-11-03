@@ -316,6 +316,13 @@ locale-toggle-browser-default = 瀏覽器預設值
 error-bad-request = 請求錯誤
 
 
+pair-unsupported-hint-heading = 到 App 中完成配對
+pair-unsupported-hint-step-close-page = 關閉此分頁
+pair-unsupported-hint-step-app-menu = 點擊<b>應用程式選單</b>
+pair-unsupported-hint-step-sign-in = <b>登入</b>，然後掃描 QR Code
+pair-unsupported-hint-learn-more-link = 更多資訊
+
+
 password-info-balloon-why-password-info = 需要使用此密碼才能存取所有您儲存在我們這的加密資料。
 password-info-balloon-reset-risk-info = 進行重設，可能會失去網頁密碼、書籤等資料。
 
@@ -1179,6 +1186,11 @@ tfa-qr-code-alt = 使用代碼 { $code } 在支援的應用程式中設定兩階
 inline-totp-setup-page-title = 兩階段驗證
 
 
+page-not-found-heading = 找不到頁面
+page-not-found-description = 找不到您想開啟的頁面。我們已經通知開發團隊來檢查網頁。
+page-not-found-home-button = 首頁
+
+
 pair-auth-allow-heading-text = 您剛登入 { -brand-firefox } 嗎？
 pair-auth-allow-confirm-button = 是我，確認此裝置
 pair-auth-allow-refuse-device-link = 如果您沒有登入，<a>請立即更改密碼</a>
@@ -1505,6 +1517,11 @@ signin-passkey-fallback-body = 為了確保您的資料安全，使用這把 Pas
 signin-passkey-fallback-password-label = 密碼
 signin-passkey-fallback-continue = 繼續
 signin-passkey-fallback-forgot-password-link = 忘記密碼？
+signin-passkey-fallback-no-prf-heading = 需在此裝置輸入密碼
+signin-passkey-fallback-no-prf-description = 此瀏覽器或裝置無法使用您的 Passkey 登入 Sync。
+signin-passkey-fallback-unwrap-failed-heading = 無法使用您的 Passkey 來解鎖 Sync
+signin-passkey-fallback-unwrap-failed-description = 某些東西怪怪的，這次需要輸入密碼。
+signin-passkey-fallback-wrap-unusable-link = 更多資訊
 
 
 signin-passwordless-code-heading = 請輸入確認碼

@@ -366,6 +366,13 @@ locale-toggle-browser-default = ბრაუზერის ნაგული�
 error-bad-request = გაუმართავი მოთხოვნა
 
 
+pair-unsupported-hint-heading = მიერთების დასრულება პროგრამაში
+pair-unsupported-hint-step-close-page = გვერდის დახურვა
+pair-unsupported-hint-step-app-menu = შეეხეთ <b>აპის მენიუს</b>
+pair-unsupported-hint-step-sign-in = <b>შედით</b>, შემდეგ კი წააკითხეთ კოდი
+pair-unsupported-hint-learn-more-link = ვრცლად
+
+
 password-info-balloon-why-password-info = პაროლი გესაჭიროებათ იმ დაშიფრულ მონაცემებთან წვდომისთვის, რომელთაც ჩვენთან ინახავთ.
 password-info-balloon-reset-risk-info = განულების შედეგად, სავარაუდოდ, დაკარგავთ შენახულ მონაცემებს, მათ შორის პაროლებსა და სანიშნებს.
 
@@ -1257,6 +1264,11 @@ tfa-qr-code-alt = გამოიყენეთ კოდი { $code } ორ�
 inline-totp-setup-page-title = ორბიჯიანი დამოწმება
 
 
+page-not-found-heading = გვერდი ვერ მოიძებნა
+page-not-found-description = თქვენ მიერ მოთხოვნილი გვერდი, ვერ მოიძებნა. ჩვენ უკვე გვეცნობა ამის შესახებ და ყველა შესაძლო დაზიანებულ ბმულს გავასწორებთ.
+page-not-found-home-button = საწყისი გვერდი
+
+
 pair-auth-allow-heading-text = ახლახან თქვენ შეხვედით { -brand-firefox }-ში?
 pair-auth-allow-confirm-button = დიახ, დადასტურდეს მოწყობილობა
 pair-auth-allow-refuse-device-link = თუ თქვენ არ ყოფილხართ, <a>შეცვალეთ პაროლი</a>
@@ -1543,6 +1555,11 @@ reset-password-complete-recovery-key-download-info =
     ახლავე, ვინაიდან მოგვიანებით ვეღარ შეძლებთ ამ გვერდთან წვდომას.</b>
 
 
+server-error-heading = 500 შეცდომა
+server-error-description = ვწუხვართ, რაღაც ხარვეზი წარმოიშვა. ჩვენ უკვე გვეცნობა ამის შესახებ და დავიწყებთ მუშაობას მის გამოსასწორებლად.
+server-error-home-button = საწყისი გვერდი
+
+
 error-label = შეცდომა:
 validating-signin = მიმდინარეობს შესვლის დამოწმება…
 complete-signin-error-header = დადასტურების შეცდომა
@@ -1585,6 +1602,11 @@ signin-passkey-fallback-body = თქვენი მონაცემები
 signin-passkey-fallback-password-label = პაროლი
 signin-passkey-fallback-continue = განაგრძეთ
 signin-passkey-fallback-forgot-password-link = დაგავიწყდათ პაროლი?
+signin-passkey-fallback-no-prf-heading = პაროლი საჭიროა ამ მოწყობილობაზე
+signin-passkey-fallback-no-prf-description = ეს ბრაუზერი ან მოწყობილობა ვერ გამოიყენებს საშვს დასინქრონებისთვის.
+signin-passkey-fallback-unwrap-failed-heading = თქვენი საშვი სინქრონიზაციის გახსნას ვერ ახერხებს
+signin-passkey-fallback-unwrap-failed-description = რაღაც ხარვეზი წარმოიქმნა, ასე რომ, ამჯერად პაროლი დაგჭირდებათ.
+signin-passkey-fallback-wrap-unusable-link = ვრცლად
 
 
 signin-passwordless-code-heading = შეიყვანეთ დადასტურების კოდი

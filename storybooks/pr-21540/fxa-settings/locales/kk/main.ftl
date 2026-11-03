@@ -328,6 +328,13 @@ locale-toggle-browser-default = Үнсіз келісім бойынша бра�
 error-bad-request = Жарамсыз сұраным
 
 
+pair-unsupported-hint-heading = Жұптауды қолданбада аяқтаңыз
+pair-unsupported-hint-step-close-page = Бұл бетті жабу
+pair-unsupported-hint-step-app-menu = <b>Қолданба мәзірін</b> шертіңіз
+pair-unsupported-hint-step-sign-in = <b>Кіріңіз</b>, содан кейін кодты сканерлеңіз
+pair-unsupported-hint-learn-more-link = Көбірек білу
+
+
 password-info-balloon-why-password-info = Бізде сақтайтын кез келген шифрленген деректерге қол жеткізу үшін сізге бұл пароль керек.
 password-info-balloon-reset-risk-info = Қалпына келтіру әрекеті парольдер мен бетбелгілер сияқты деректерді жоғалту мүмкіндігін білдіреді.
 
@@ -1222,6 +1229,11 @@ tfa-qr-code-alt = Қолдауы бар қолданбаларда екі қад
 inline-totp-setup-page-title = Екі сатылы аутентификация
 
 
+page-not-found-heading = Бет табылмады
+page-not-found-description = Сіз сұраған бет табылмады. Ол туралы біз хабарды алдық, және қате бола алатын сілтемелерді жөндейміз.
+page-not-found-home-button = Үй беті
+
+
 pair-auth-allow-heading-text = { -brand-firefox } ішіне жаңа кірдіңіз бе?
 pair-auth-allow-confirm-button = Иә, құрылғыны растау
 pair-auth-allow-refuse-device-link = Бұл сіз болмасаңыз, <a>пароліңізді өзгертіңіз</a>
@@ -1508,6 +1520,11 @@ reset-password-complete-recovery-key-download-info =
     себебі бұл бетке кейінірек қайта қол жеткізе алмайсыз.</b>
 
 
+server-error-heading = 500 қатесі
+server-error-description = Әттеген-ай, бірнәрсе қате кетіп қалды. Ол туралы біз хабарды алдық, және оны түзетуге кірістік.
+server-error-home-button = Үй беті
+
+
 error-label = Қате:
 validating-signin = Жүйеге кіру расталуда…
 complete-signin-error-header = Растау қатесі
@@ -1550,6 +1567,11 @@ signin-passkey-fallback-body = Деректеріңіздің қауіпсізд
 signin-passkey-fallback-password-label = Пароль
 signin-passkey-fallback-continue = Жалғастыру
 signin-passkey-fallback-forgot-password-link = Пароліңізді ұмыттыңыз ба?
+signin-passkey-fallback-no-prf-heading = Бұл құрылғыда пароль керек
+signin-passkey-fallback-no-prf-description = Бұл браузер немесе құрылғы өздігінен синхрондау үшін кіру үшін сіздің рұқсар кілтіңізді пайдалана алмайды.
+signin-passkey-fallback-unwrap-failed-heading = Сіздің рұқса кілтіңіз синхрондаудың құлпын аша алмады
+signin-passkey-fallback-unwrap-failed-description = Бірдеңе дұрыс болмады, сондықтан бұл жолы сіздің пароліңіз керек болады.
+signin-passkey-fallback-wrap-unusable-link = Көбірек білу
 
 
 signin-passwordless-code-heading = Растау кодын енгізіңіз

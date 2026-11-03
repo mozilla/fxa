@@ -328,6 +328,13 @@ locale-toggle-browser-default = Browserstandaard
 error-bad-request = Ongeldige aanvraag
 
 
+pair-unsupported-hint-heading = Rond het koppelen af in de app
+pair-unsupported-hint-step-close-page = Deze pagina sluiten
+pair-unsupported-hint-step-app-menu = Tik op het <b>app-menu</b>
+pair-unsupported-hint-step-sign-in = <b>Aanmelden</b> en scan de code
+pair-unsupported-hint-learn-more-link = Meer info
+
+
 password-info-balloon-why-password-info = U hebt dit wachtwoord nodig om toegang te verkrijgen tot alle versleutelde gegevens die u bij ons opslaat.
 password-info-balloon-reset-risk-info = Een herinitialisatie betekent mogelijk verlies van gegevens, zoals wachtwoorden en bladwijzers.
 
@@ -1221,6 +1228,11 @@ tfa-qr-code-alt = Gebruik de code { $code } om authenticatie in twee stappen in 
 inline-totp-setup-page-title = Authenticatie in twee stappen
 
 
+page-not-found-heading = Pagina niet gevonden
+page-not-found-description = De opgevraagde pagina is niet gevonden. We zijn op de hoogte en zullen koppelingen die mogelijk niet werken herstellen.
+page-not-found-home-button = Startpagina
+
+
 pair-auth-allow-heading-text = Hebt u zich zojuist aangemeld bij { -brand-firefox }?
 pair-auth-allow-confirm-button = Ja, apparaat goedkeuren
 pair-auth-allow-refuse-device-link = Als u dit niet was, <a>wijzig dan uw wachtwoord</a>
@@ -1551,6 +1563,8 @@ signin-passkey-fallback-body = Om uw gegevens veilig te houden, dient u uw wacht
 signin-passkey-fallback-password-label = Wachtwoord
 signin-passkey-fallback-continue = Doorgaan
 signin-passkey-fallback-forgot-password-link = Wachtwoord vergeten?
+signin-passkey-fallback-no-prf-heading = Wachtwoord vereist op dit apparaat
+signin-passkey-fallback-wrap-unusable-link = Meer info
 
 
 signin-passwordless-code-heading = Voer bevestigingscode in
