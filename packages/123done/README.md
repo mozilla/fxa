@@ -53,6 +53,31 @@ no `auth_time` — the refresh grant never re-evaluates `acr_values`/`max_age` a
 refresh token holds no authentication event. A relying party has to run step-up again
 rather than assume the elevation carried over.
 
+## Capabilities and event-broker webhooks
+
+Once you are signed in, the page lists the account's subscription capabilities. On every
+page load, `/api/auth_status` fetches them fresh from the issuer's `userinfo_endpoint`
+using the session's access token. If that call fails or takes longer than 5 seconds, the
+page shows the last value stored in the session instead.
+
+`POST /api/webhook` receives event-broker events. Each request has to carry a bearer JWT.
+123Done rejects it with a 401 unless:
+
+- its signature verifies against the JWKS (`WEBHOOK_JWKS_URI`, or the issuer's discovered
+  `jwks_uri` when that is unset),
+- `aud` equals `CLIENT_ID`,
+- `iss` equals the discovered issuer. This check is skipped when `WEBHOOK_JWKS_URI` is set.
+
+Accepted events are kept in memory per `sub`, newest first, capped at 50 per user, and
+are lost on restart. The **Webhook events** link (`GET /api/webhook_events`) shows the
+signed-in user's events.
+
+Locally, the event-broker registers `http://localhost:8080/api/webhook` for the trusted
+client when it runs against the Firestore emulator. It signs tokens with auth-server's key
+and an empty issuer, so `config-local.json` sets `webhook_jwks_uri` to auth-server's
+`/.well-known/public-keys`. To see an event, sign in to 123Done, change something on the
+account (for example, subscribe), then open **Webhook events**.
+
 ### Ansible Deployment
 
 See [fxa-dev 123done](https://github.com/mozilla/fxa-dev/tree/docker/roles/rp) Ansible configuration for details.
@@ -116,6 +141,9 @@ or `heroku config:set`); never commit secret values to the repo.
 - `PKCE_CLIENT_ID`, `PKCE_REDIRECT_URI`
 - `COOKIE_SECRET`, `COOKIE_NAME`
 - `STEP_UP_MAX_AGE` — default `max_age` (seconds) for the step-up flow; optional, defaults to 300
+- `WEBHOOK_JWKS_URI` — JWKS for verifying event-broker webhook tokens; optional, defaults to
+  the issuer's `jwks_uri`. Setting it skips the webhook `iss` check, so leave it unset on
+  stage and prod
 - `PORT` is provided by Heroku automatically.
 
 Heads up on older apps: some set the client secret as `CLIENT_SECRET` and omit `SCOPES` /

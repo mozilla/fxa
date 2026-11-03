@@ -70,6 +70,12 @@ const conf = convict({
     format: Boolean,
     env: 'UNTRUSTED',
   },
+  webhook_jwks_uri: {
+    doc: 'JWKS used to verify event-broker webhook tokens. Defaults to the issuer jwks_uri when empty. Setting it skips the webhook iss check.',
+    default: '',
+    format: String,
+    env: 'WEBHOOK_JWKS_URI',
+  },
   step_up_max_age: {
     doc: 'Default max_age (seconds) requested by the step-up auth flow',
     default: 300,
