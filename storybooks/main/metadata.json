@@ -1,8 +1,8 @@
 {
-  "commit": "769fb07abba151a6210963ee0e0d1f625b7acd3f",
-  "summary": "Merge pull request #21623 from mozilla/fxa-14247",
-  "description": "feat(settings): use PairUnsupportedHint on the pair connect hint page",
-  "timestamp": 1793742377000,
+  "commit": "39bee548afa2c2aa5fb4e41c37c61338cdeab177",
+  "summary": "Merge pull request #21609 from mozilla/fxa-10912",
+  "description": "fix(settings): render Banner content after mount for screen readers",
+  "timestamp": 1793744394000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
