@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { lazy, useEffect, useMemo, useRef, useState } from 'react';
 import * as Sentry from '@sentry/browser';
 import SettingsLayout from './SettingsLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -16,25 +16,63 @@ import {
 } from '../../lib/hooks';
 import { Routes, Route, Navigate, useLocation } from 'react-router';
 import PageSettings from './PageSettings';
-import MfaGuardedPageChangePassword from './PageChangePassword';
-import MfaPageCreatePassword from './PageCreatePassword';
-import { MfaGuardPageSecondaryEmailAdd } from './PageSecondaryEmailAdd';
-import { MfaGuardPageSecondaryEmailVerify } from './PageSecondaryEmailVerify';
-import { PageDisplayName } from './PageDisplayName';
-import { MfaGuardPage2faSetup } from './Page2faSetup';
-import { MfaGuardPage2faChange } from './Page2faChange';
-import { MfaGuardPage2faReplaceBackupCodes } from './Page2faReplaceBackupCodes';
-import { MfaGuardPageRecoveryPhoneSetup } from './PageRecoveryPhoneSetup';
-import { PageDeleteAccount } from './PageDeleteAccount';
-import PageAvatar from './PageAvatar';
-import PageRecentActivity from './PageRecentActivity';
-import { MfaGuardPageRecoveryKeyCreate } from './PageRecoveryKeyCreate';
 import { currentAccount, isSigningOut, sessionToken } from '../../lib/cache';
 import GleanMetrics from '../../lib/glean';
 import Head from 'fxa-react/components/Head';
-import { PageMfaGuardRecoveryPhoneRemove } from './PageRecoveryPhoneRemove';
-import { MfaGuardPagePasskeyAdd } from './PagePasskeyAdd';
 import { SettingsIntegration } from './interfaces';
+
+// The App's /settings/* Suspense boundary shows the spinner while these load.
+const MfaGuardedPageChangePassword = lazy(() => import('./PageChangePassword'));
+const MfaPageCreatePassword = lazy(() => import('./PageCreatePassword'));
+const MfaGuardPageSecondaryEmailAdd = lazy(() =>
+  import('./PageSecondaryEmailAdd').then((m) => ({
+    default: m.MfaGuardPageSecondaryEmailAdd,
+  }))
+);
+const MfaGuardPageSecondaryEmailVerify = lazy(() =>
+  import('./PageSecondaryEmailVerify').then((m) => ({
+    default: m.MfaGuardPageSecondaryEmailVerify,
+  }))
+);
+const PageDisplayName = lazy(() =>
+  import('./PageDisplayName').then((m) => ({ default: m.PageDisplayName }))
+);
+const MfaGuardPage2faSetup = lazy(() =>
+  import('./Page2faSetup').then((m) => ({ default: m.MfaGuardPage2faSetup }))
+);
+const MfaGuardPage2faChange = lazy(() =>
+  import('./Page2faChange').then((m) => ({ default: m.MfaGuardPage2faChange }))
+);
+const MfaGuardPage2faReplaceBackupCodes = lazy(() =>
+  import('./Page2faReplaceBackupCodes').then((m) => ({
+    default: m.MfaGuardPage2faReplaceBackupCodes,
+  }))
+);
+const MfaGuardPageRecoveryPhoneSetup = lazy(() =>
+  import('./PageRecoveryPhoneSetup').then((m) => ({
+    default: m.MfaGuardPageRecoveryPhoneSetup,
+  }))
+);
+const PageDeleteAccount = lazy(() =>
+  import('./PageDeleteAccount').then((m) => ({ default: m.PageDeleteAccount }))
+);
+const PageAvatar = lazy(() => import('./PageAvatar'));
+const PageRecentActivity = lazy(() => import('./PageRecentActivity'));
+const MfaGuardPageRecoveryKeyCreate = lazy(() =>
+  import('./PageRecoveryKeyCreate').then((m) => ({
+    default: m.MfaGuardPageRecoveryKeyCreate,
+  }))
+);
+const PageMfaGuardRecoveryPhoneRemove = lazy(() =>
+  import('./PageRecoveryPhoneRemove').then((m) => ({
+    default: m.PageMfaGuardRecoveryPhoneRemove,
+  }))
+);
+const MfaGuardPagePasskeyAdd = lazy(() =>
+  import('./PagePasskeyAdd').then((m) => ({
+    default: m.MfaGuardPagePasskeyAdd,
+  }))
+);
 
 // Reporting happens in an effect rather than during render so that a repeated
 // render of the error branch cannot report the same failure twice.

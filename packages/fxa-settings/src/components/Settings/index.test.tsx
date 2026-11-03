@@ -410,7 +410,7 @@ describe('Settings App', () => {
   });
 
   it('routes to PageDisplayName', async () => {
-    const { getByTestId, router } = renderWithRouter(
+    const { findByTestId, router } = renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
         <Subject />
       </AppContext.Provider>,
@@ -419,11 +419,13 @@ describe('Settings App', () => {
 
     await router.navigate(SETTINGS_PATH + '/display_name');
 
-    expect(getByTestId('input-label')).toHaveTextContent('Enter display name');
+    expect(await findByTestId('input-label')).toHaveTextContent(
+      'Enter display name'
+    );
   });
 
   it('routes to PageAvatar', async () => {
-    const { getAllByTestId, router } = renderWithRouter(
+    const { findAllByTestId, router } = renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
         <Subject />
       </AppContext.Provider>,
@@ -434,7 +436,7 @@ describe('Settings App', () => {
 
     await router.navigate(SETTINGS_PATH + '/avatar');
 
-    expect(getAllByTestId('avatar-nondefault')[0]).toBeInTheDocument();
+    expect((await findAllByTestId('avatar-nondefault'))[0]).toBeInTheDocument();
   });
   it('routes to PageChangePassword', async () => {
     // Suppress MFA guard for this test
@@ -459,7 +461,7 @@ describe('Settings App', () => {
     }));
 
     const session = mockSession(true);
-    const { getByTestId, router } = renderWithRouter(
+    const { findByTestId, router } = renderWithRouter(
       <AppContext.Provider value={mockAppContext({ session })}>
         <Subject />
       </AppContext.Provider>,
@@ -468,12 +470,14 @@ describe('Settings App', () => {
 
     await router.navigate(SETTINGS_PATH + '/change_password');
 
-    expect(getByTestId('change-password-requirements')).toBeInTheDocument();
+    expect(
+      await findByTestId('change-password-requirements')
+    ).toBeInTheDocument();
   });
 
   it('routes to PageDeleteAccount', async () => {
     const session = mockSession(true);
-    const { getByTestId, router } = renderWithRouter(
+    const { findByTestId, router } = renderWithRouter(
       <AppContext.Provider value={mockAppContext({ session })}>
         <Subject />
       </AppContext.Provider>,
@@ -482,7 +486,7 @@ describe('Settings App', () => {
 
     await router.navigate(SETTINGS_PATH + '/delete_account');
 
-    expect(getByTestId('delete-account-confirm')).toBeInTheDocument();
+    expect(await findByTestId('delete-account-confirm')).toBeInTheDocument();
   });
 
   it('redirects to ConnectedServices', async () => {
@@ -594,7 +598,7 @@ describe('Settings App', () => {
           ...MOCK_ACCOUNT,
           hasPassword,
         } as unknown as Account;
-        const { getByTestId, router } = renderWithRouter(
+        const { findByTestId, router } = renderWithRouter(
           <AppContext.Provider value={mockAppContext({ session, account })}>
             <Subject />
           </AppContext.Provider>,
@@ -602,7 +606,7 @@ describe('Settings App', () => {
         );
         await router.navigate(SETTINGS_PATH + route);
 
-        expect(getByTestId('mfa-guard')).toBeInTheDocument();
+        expect(await findByTestId('mfa-guard')).toBeInTheDocument();
       }
     );
   });

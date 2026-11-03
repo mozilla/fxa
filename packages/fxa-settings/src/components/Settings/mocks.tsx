@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Suspense } from 'react';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import Settings from '.';
 import { GenericData } from '../../lib/model-data';
 import { IntegrationData, IntegrationType } from '../../models';
@@ -32,10 +34,12 @@ export const Subject = () => (
     <Route
       path="/settings/*"
       element={
-        <Settings
-          {...{ flowQueryParams }}
-          integration={createMockSettingsIntegration()}
-        />
+        <Suspense fallback={<LoadingSpinner fullScreen />}>
+          <Settings
+            {...{ flowQueryParams }}
+            integration={createMockSettingsIntegration()}
+          />
+        </Suspense>
       }
     />
   </Routes>
