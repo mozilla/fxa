@@ -22,6 +22,15 @@ import {
 } from './free-access-program.types';
 import { diffByEmail } from './util/diffByEmail';
 
+function hasAnyEntry(record: Record<string, unknown>): boolean {
+  for (const key in record) {
+    if (Object.prototype.hasOwnProperty.call(record, key)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 @Injectable()
 export class FreeAccessProgramService {
   constructor(
@@ -49,6 +58,23 @@ export class FreeAccessProgramService {
     const capabilities = projection[email.toLowerCase()]?.capabilities ?? {};
     this.recordMembershipCheck(
       'email_capabilities',
+      Object.keys(capabilities).length > 0
+    );
+    return capabilities;
+  }
+
+  async findCapabilitiesForUid(uid: string): Promise<FreeAccessCapabilityMap> {
+    const projection = await this.configurationManager.getCachedProjection();
+    if (!hasAnyEntry(projection)) {
+      this.recordMembershipCheck('uid_capabilities', false);
+      return {};
+    }
+    const email = (
+      await this.accountManager.getPrimaryEmailByUid(uid)
+    )?.toLowerCase();
+    const capabilities = (email && projection[email]?.capabilities) || {};
+    this.recordMembershipCheck(
+      'uid_capabilities',
       Object.keys(capabilities).length > 0
     );
     return capabilities;
@@ -94,7 +120,11 @@ export class FreeAccessProgramService {
   }
 
   private recordMembershipCheck(
-    lookup: 'uid' | 'email_capabilities' | 'email_offerings',
+    lookup:
+      | 'uid'
+      | 'uid_capabilities'
+      | 'email_capabilities'
+      | 'email_offerings',
     member: boolean
   ): void {
     this.statsd.increment('free_access_program.membership.check', {
