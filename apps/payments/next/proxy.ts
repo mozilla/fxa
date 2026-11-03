@@ -97,11 +97,13 @@ export function proxy(request: NextRequest) {
     contentSecurityPolicyHeaderValue
   );
 
-  response.cookies.set({
-    name: 'experimentationId',
-    value: experimentationId,
-    path: '/',
-  });
+  if (!existingExperimentationId) {
+    response.cookies.set({
+      name: 'experimentationId',
+      value: experimentationId,
+      path: '/',
+    });
+  }
 
   if (SENTRY_CSP_ENDPOINT) {
     response.headers.set(
