@@ -1,0 +1,13 @@
+{
+  "commit": "3cc92a27e3a2852339347e0dbe9fc180a451334a",
+  "summary": "fix(deps): align all @sentry packages on 10.78.0",
+  "description": "Because:\n\n- bumping only @sentry/nextjs left browser, nestjs, node and opentelemetry on 10.33, so two @sentry/core type sets broke the build with TS2322\n\nThis commit:\n\n- moves @sentry/browser, nestjs, nextjs, node and opentelemetry to ^10.78.0\n- dedupes @sentry/* in yarn.lock to a single @sentry/core",
+  "timestamp": 1793744078000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
