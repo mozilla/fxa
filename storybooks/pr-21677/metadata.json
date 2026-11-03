@@ -1,0 +1,10 @@
+{
+  "commit": "b0b83af8cd3f045fcb99ba384e3bde1ffe1f555b",
+  "summary": "perf(settings): lazy-load Settings sub-pages behind one spinner",
+  "description": "Because:\n\n* The Settings chunk held all 15 sub-page modules, so /settings loaded code most visits do not use.\n* A cold /settings load showed a spinner, the AppLayout card, then a second spinner.\n\nThis commit:\n\n* Loads the 15 Settings sub-page modules with React.lazy, with the same exports.\n* Wraps the /settings/* route in one Suspense with a full-screen LoadingSpinner.\n* Adds the same Suspense to the Settings test harness and waits with findBy* in routing tests.\n* Adds an App test for the /settings/* loading fallback.\n\nCloses FXA-14857",
+  "timestamp": 1793722934000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
