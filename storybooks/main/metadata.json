@@ -1,8 +1,8 @@
 {
-  "commit": "1f4ef30277d2ede9fc6e936774f68e02c0eac6fd",
-  "summary": "Merge pull request #21681 from mozilla/agent-448137",
-  "description": "fix(skills): correct dead references and stale facts in agent instructions",
-  "timestamp": 1793737320000,
+  "commit": "647388cdfd675c93e648305fbe0dbf0d3395edfc",
+  "summary": "Merge pull request #21374 from mozilla/PAY-3918",
+  "description": "fix(payments-ui): fix displayed invoice amounts during upgrade",
+  "timestamp": 1793737340000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
