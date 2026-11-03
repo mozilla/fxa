@@ -1,8 +1,8 @@
 {
-  "commit": "0b2d2f35bc3b593928c420bd4ca66f7457730e26",
-  "summary": "Merge pull request #21676 from mozilla/PAY-3967-fap-capability-lookup",
-  "description": "fix(payments): bound and fail open the free-access capability lookup",
-  "timestamp": 1793733040000,
+  "commit": "df91561729351b9323ed4f64383a34539f95f8f9",
+  "summary": "Merge pull request #21642 from mozilla/fxa-13972",
+  "description": "feat(settings): record passkey alert and banner views in Glean",
+  "timestamp": 1793735229000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
