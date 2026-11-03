@@ -1,8 +1,8 @@
 {
-  "commit": "c6aa62def6e48da4a516edd8bc9d21a70c26b0af",
-  "summary": "Merge pull request #21592 from mozilla/blender/security-bump-nodemailer",
-  "description": "chore(deps): bump nodemailer to >=10.1.4",
-  "timestamp": 1793735771000,
+  "commit": "1f4ef30277d2ede9fc6e936774f68e02c0eac6fd",
+  "summary": "Merge pull request #21681 from mozilla/agent-448137",
+  "description": "fix(skills): correct dead references and stale facts in agent instructions",
+  "timestamp": 1793737320000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
