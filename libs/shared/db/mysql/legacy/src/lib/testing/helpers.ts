@@ -19,7 +19,7 @@ export const defaultOpts = {
     multipleStatements: true,
   },
   mainDbConfig: {
-    client: 'mysql',
+    client: 'mysql2',
     connection: {
       charset: 'UTF8MB4_BIN',
       host: 'localhost',

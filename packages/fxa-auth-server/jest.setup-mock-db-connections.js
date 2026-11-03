@@ -28,11 +28,11 @@ jest.mock('@fxa/shared/db/mysql/legacy/redis', () => {
   return { RedisShared, Config: {} };
 });
 
-// OAuth MySQL boundary: node-mysql opens a real connection on first query. Fake
-// the pool (no socket). Only the OAuth DB uses node-mysql; the main auth DB uses
-// knex, so this stays oauth-scoped.
-jest.mock('mysql', () => {
-  const actual = jest.requireActual('mysql');
+// OAuth MySQL boundary: a mysql2 pool opens a real connection on first query.
+// Fake the pool (no socket). Only the OAuth DB uses a mysql2 pool; the main auth
+// DB uses knex, which creates single connections, so this stays oauth-scoped.
+jest.mock('mysql2', () => {
+  const actual = jest.requireActual('mysql2');
   const noResult = (...args) => {
     const cb = args[args.length - 1];
     if (typeof cb === 'function') cb(null, []);

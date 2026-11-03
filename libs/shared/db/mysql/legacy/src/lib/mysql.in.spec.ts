@@ -1,5 +1,5 @@
 import { StatsD } from 'hot-shots';
-import { Connection } from 'mysql';
+import { Connection } from 'mysql2';
 import { IMysqlStoreSharedEvents, MysqlStoreShared } from './mysql';
 import { defaultOpts, testDatabaseSetup } from './testing/helpers';
 
