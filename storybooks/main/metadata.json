@@ -1,8 +1,8 @@
 {
-  "commit": "099437dffb29a8c17ae153fe01e60e0ad5e84b75",
-  "summary": "Merge pull request #21677 from mozilla/fxa-14857",
-  "description": "perf(settings): lazy-load Settings sub-pages behind one spinner",
-  "timestamp": 1793726169000,
+  "commit": "a2ca59c58d2d41682cacd493e60d714e56926c4e",
+  "summary": "Merge pull request #21603 from mozilla/FXA-14800",
+  "description": "fix(auth): record Sync passkey login.complete once, after keys",
+  "timestamp": 1793727455000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
