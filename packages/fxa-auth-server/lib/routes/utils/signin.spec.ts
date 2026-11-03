@@ -783,6 +783,141 @@ describe('sendSigninNotifications', () => {
     });
   });
 
+  // account.signed is desktop Sync; account.login is mobile Sync.
+  describe.each(['account.signed', 'account.login'])(
+    'password step of a Sync passkey sign-in with %s stashed',
+    (stashedSignal) => {
+      beforeEach(() => {
+        sessionToken.verificationMethodValue = 'passkey';
+        metricsContext.getStashed.mockResolvedValue({
+          flowCompleteSignal: stashedSignal,
+          flowType: 'login',
+          authMethod: 'passkey',
+        });
+      });
+
+      it('reads the stash for the session token', async () => {
+        await sendSigninNotifications(
+          request,
+          accountRecord,
+          sessionToken,
+          undefined
+        );
+
+        expect(metricsContext.getStashed).toHaveBeenCalledWith(sessionToken);
+      });
+
+      it(`does not replace the ${stashedSignal} flow signal`, async () => {
+        await sendSigninNotifications(
+          request,
+          accountRecord,
+          sessionToken,
+          undefined
+        );
+
+        expect(metricsContext.setFlowCompleteSignal).not.toHaveBeenCalled();
+      });
+
+      it('does not emit account.login or complete the flow', async () => {
+        await sendSigninNotifications(
+          request,
+          accountRecord,
+          sessionToken,
+          undefined
+        );
+
+        expect(log.activityEvent).not.toHaveBeenCalled();
+        expect(log.flowEvent).not.toHaveBeenCalled();
+      });
+
+      it('does not record a second account.login security event', async () => {
+        await sendSigninNotifications(
+          request,
+          accountRecord,
+          sessionToken,
+          undefined
+        );
+
+        expect(db.securityEvent).not.toHaveBeenCalled();
+      });
+
+      it('does not notify attached services of a second login', async () => {
+        await sendSigninNotifications(
+          request,
+          accountRecord,
+          sessionToken,
+          undefined
+        );
+
+        expect(log.notifyAttachedServices).not.toHaveBeenCalled();
+      });
+    }
+  );
+
+  describe('password step of a non-Sync passkey sign-in', () => {
+    beforeEach(() => {
+      sessionToken.verificationMethodValue = 'passkey';
+      metricsContext.getStashed.mockResolvedValue({
+        flowId: 'f'.repeat(64),
+        flowBeginTime: 1_700_000_000_000,
+      });
+    });
+
+    it('sets the account.login flow signal', async () => {
+      await sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        undefined
+      );
+
+      expect(metricsContext.setFlowCompleteSignal).toHaveBeenCalledWith(
+        'account.login',
+        'login',
+        'passkey'
+      );
+    });
+
+    it('records the account.login security event with the passkey method', async () => {
+      await sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        undefined
+      );
+
+      expect(db.securityEvent).toHaveBeenCalledTimes(1);
+      expect(db.securityEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'account.login',
+          additionalInfo: expect.objectContaining({ method: 'passkey' }),
+        })
+      );
+    });
+
+    it('does not notify attached services of a second login', async () => {
+      await sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        undefined
+      );
+
+      expect(log.notifyAttachedServices).not.toHaveBeenCalled();
+    });
+  });
+
+  it('does not read the stash for a password session', async () => {
+    await sendSigninNotifications(
+      request,
+      accountRecord,
+      sessionToken,
+      undefined
+    );
+
+    expect(metricsContext.getStashed).not.toHaveBeenCalled();
+  });
+
   it('emits correct notifications when no verifications are required', () => {
     return sendSigninNotifications(
       request,

@@ -97,6 +97,7 @@ export interface AuthRequest extends Request {
   setMetricsFlowCompleteSignal: any;
   emitMetricsEvent: any;
   stashMetricsContext: any;
+  getStashedMetricsContext: any;
   propagateMetricsContext: any;
   gatherMetricsContext: any;
 }

@@ -518,6 +518,11 @@ async function create(
   await configureSentry(server, config);
 
   server.decorate('request', 'stashMetricsContext', metricsContext.stash);
+  server.decorate(
+    'request',
+    'getStashedMetricsContext',
+    metricsContext.getStashed
+  );
   server.decorate('request', 'gatherMetricsContext', metricsContext.gather);
   server.decorate(
     'request',

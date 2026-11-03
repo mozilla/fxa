@@ -57,6 +57,7 @@ module.exports = function (log, config) {
   return {
     stash,
     get,
+    getStashed,
     gather,
     propagate,
     clear,
@@ -145,6 +146,17 @@ module.exports = function (log, config) {
     }
 
     return {};
+  }
+
+  /**
+   * Returns the metrics context stashed against a token, ignoring any in the
+   * request payload. Resolves to an empty object if nothing is stashed.
+   *
+   * @name getStashedMetricsContext
+   * @param token
+   */
+  async function getStashed(token) {
+    return (await cache.get(getKey(token))) || {};
   }
 
   /**
