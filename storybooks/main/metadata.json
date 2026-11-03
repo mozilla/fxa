@@ -1,8 +1,8 @@
 {
-  "commit": "21692bd72e1bcbe6c3bdb2db803b8b53494eb46f",
-  "summary": "Merge pull request #21673 from mozilla/ENT-75",
-  "description": "feat(metering): add global redis rate limit for clickhouse requests",
-  "timestamp": 1793728075000,
+  "commit": "1dceeb86abd57e41c7a738a1e13c7be458396ba6",
+  "summary": "Merge pull request #21680 from mozilla/fxa-14907",
+  "description": "fix(admin-panel): speed up blocklist filter tests with paste",
+  "timestamp": 1793731618000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
