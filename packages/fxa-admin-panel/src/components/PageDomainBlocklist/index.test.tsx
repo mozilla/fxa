@@ -76,7 +76,9 @@ describe('PageDomainBlocklist', () => {
     await user.click(screen.getByRole('button', { name: 'Next →' }));
     expect(screen.getByText('spam1004.example')).toBeInTheDocument();
 
-    await user.type(screen.getByLabelText('Filter by domain'), 'SPAM1003');
+    // paste fires one input event; type re-renders the 500-row table per key.
+    await user.click(screen.getByLabelText('Filter by domain'));
+    await user.paste('SPAM1003');
     expect(screen.getByText('spam1003.example')).toBeInTheDocument();
     // One entry row plus the header row.
     expect(screen.getAllByRole('row')).toHaveLength(2);
