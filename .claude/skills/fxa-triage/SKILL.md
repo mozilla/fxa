@@ -285,7 +285,7 @@ Run as many queries in parallel as possible. Track the result status of every qu
 
 ### 2A: Jira
 
-Run these three JQL queries via `mcp__atlassian__searchJiraIssuesUsingJql`. For each, use:
+Run these four JQL queries via `mcp__atlassian__searchJiraIssuesUsingJql`. For each, use:
 - `cloudId:` → `jira.cloudId` (operational config)
 - `maxResults: 30`
 - `fields: ["summary", "status", "issuetype", "priority", "created", "assignee", "labels"]`

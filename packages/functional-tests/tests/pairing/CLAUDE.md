@@ -233,8 +233,8 @@ Common failure modes:
 - **Supplicant page shows `Invalid pairing configuration`:** `channel_id` /
   `channel_key` dropped out of the URL fragment. Inspect the loaded URL's fragment
   in the remote DevTools/Web Inspector, then the app's URL handling.
-- **Flaky handshake (channel vs approval timing):** expected variance; the spec
-  uses `retries: 2`. A long-running emulator degrades (binder/ANR), so relaunch it
+- **Flaky handshake (channel vs approval timing):** expected variance; `pairingFlowAndroid.spec.ts`
+  uses `retries: 2` (the V2 specs use `retries: 0`). A long-running emulator degrades (binder/ANR), so relaunch it
   fresh.
 - **Fenix crash-loops on launch (`MOZ_CRASH(JNI exception)`):** artifact-mode
   native/Java version skew. Run `./mach artifact clear-cache`, rebuild, reinstall.

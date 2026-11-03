@@ -135,7 +135,7 @@ Focus on `.tsx`, `.ts`, `.jsx`, `.js` files. Read additional context from relate
 
 ### 5. Testing Patterns (React/TSX)
 
-When reviewing `*.test.tsx` changes, apply the React testing rules in `.claude/rules/testing/react.md` in addition to the general FXA rules in `.claude/rules/testing/base.md`. Both rules auto-load when Claude reads a matching test file; this skill's pre-flight should explicitly `Read` them too so reviews cover test changes consistently. Headline triggers to flag: implementation-detail queries (className/CSS/data-testid where semantic queries fit), `fireEvent` where `userEvent` belongs, asserting on instances/refs/private state, missing or misused `act()`, whole-tree snapshots for non-trivial components, and duplicated provider boilerplate.
+When reviewing `*.test.tsx` changes, apply the React testing rules in `.claude/rules/testing/react.md` in addition to the general FXA rules in `.claude/rules/testing/base.md`. Both rules auto-load when Claude reads a matching test file; `Read` them before you review so reviews cover test changes consistently. Headline triggers to flag: implementation-detail queries (className/CSS/data-testid where semantic queries fit), `fireEvent` where `userEvent` belongs, asserting on instances/refs/private state, missing or misused `act()`, whole-tree snapshots for non-trivial components, and duplicated provider boilerplate.
 
 ---
 
