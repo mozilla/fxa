@@ -61,6 +61,16 @@ describe('PageEmailBlocklist', () => {
     expect(screen.queryByText('Loading…')).not.toBeInTheDocument();
   });
 
+  it('filters patterns by the text in the filter box', async () => {
+    (adminApi.getEmailBlocklist as jest.Mock).mockResolvedValue(mockEntries);
+
+    render(<PageEmailBlocklist />);
+
+    await user.type(await screen.findByLabelText('Filter by pattern'), 'spam');
+    expect(screen.getByText('@spam\\.net$')).toBeInTheDocument();
+    expect(screen.queryByText('@evil\\.com$')).not.toBeInTheDocument();
+  });
+
   it('shows error state when load fails', async () => {
     (adminApi.getEmailBlocklist as jest.Mock).mockRejectedValue(
       new Error('network error')

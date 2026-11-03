@@ -4,10 +4,13 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { adminApi } from '../../lib/api';
+import BlocklistTable from '../BlocklistTable';
 import type { EmailBlocklistEntry } from 'fxa-admin-server/src/types';
 
 const btnClass =
   'bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded';
+
+const getRegex = (entry: EmailBlocklistEntry) => entry.regex;
 
 const PageEmailBlocklist = () => {
   const [entries, setEntries] = useState<EmailBlocklistEntry[]>([]);
@@ -199,36 +202,12 @@ const PageEmailBlocklist = () => {
         <p className="result-grey">No entries yet.</p>
       )}
       {entries.length > 0 && (
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="bg-grey-50">
-              <th className="text-left p-2 border border-grey-100">Pattern</th>
-              <th className="text-left p-2 border border-grey-100">Added</th>
-              <th className="p-2 border border-grey-100"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {entries.map((entry) => (
-              <tr key={entry.regex} className="hover:bg-grey-10">
-                <td className="p-2 border border-grey-100 font-mono">
-                  {entry.regex}
-                </td>
-                <td className="p-2 border border-grey-100 whitespace-nowrap">
-                  {new Date(entry.createdAt).toISOString()}
-                </td>
-                <td className="p-2 border border-grey-100 text-center">
-                  <button
-                    data-testid={`delete-${entry.regex}`}
-                    className={btnClass}
-                    onClick={() => handleDelete(entry.regex)}
-                  >
-                    🗑️ Remove
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <BlocklistTable
+          entries={entries}
+          label="Pattern"
+          getValue={getRegex}
+          onDelete={handleDelete}
+        />
       )}
     </>
   );

@@ -27,3 +27,16 @@ const stubs = {
 export const Default: Story = { loaders: [stubAdminApi(stubs)] };
 
 export const Error: Story = { loaders: [stubAdminApiErrors(stubs)] };
+
+export const ManyEntries: Story = {
+  loaders: [
+    stubAdminApi({
+      ...stubs,
+      getDomainBlocklist: async () =>
+        Array.from({ length: 1234 }, (_, i) => ({
+          domain: `spam${i}.example.com`,
+          createdAt: 1700000000000,
+        })),
+    }),
+  ],
+};
