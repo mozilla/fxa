@@ -1,8 +1,8 @@
 {
-  "commit": "647388cdfd675c93e648305fbe0dbf0d3395edfc",
-  "summary": "Merge pull request #21374 from mozilla/PAY-3918",
-  "description": "fix(payments-ui): fix displayed invoice amounts during upgrade",
-  "timestamp": 1793737340000,
+  "commit": "9d00744134ed94cd2906f403c75f8622559cb7d9",
+  "summary": "Merge pull request #21651 from mozilla/fxa-8385",
+  "description": "fix(settings): stop reporting Nimbus fetch network failures to Sentry",
+  "timestamp": 1793737785000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
