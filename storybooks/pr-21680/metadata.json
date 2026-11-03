@@ -1,0 +1,10 @@
+{
+  "commit": "2425a165ee1c299c932c2a7dd4ef11122bcb5cca",
+  "summary": "fix(admin-panel): speed up blocklist filter tests with paste",
+  "description": "Because:\n\n- The blocklist filter test exceeded the 5000 ms Jest timeout on CircleCI.\n- user.type renders the 500-row table once for each keystroke.\n\nThis commit:\n\n- Sets the filter with user.click and user.paste in the two blocklist tests.\n\nCloses FXA-14907",
+  "timestamp": 1793730506000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
