@@ -226,8 +226,16 @@ freeTrialEndingReminder-content-charge-discount-2 = Desconto
 #   $invoiceTaxAmount (String) - The tax amount, e.g. $1.20
 freeTrialEndingReminder-content-charge-tax = Impostos e taxas: { $invoiceTaxAmount }
 freeTrialEndingReminder-content-charge-tax-2 = Impostos
+# Variables:
+#   $serviceLastActiveDateOnly (String) - The date the charge will occur, e.g. January 20, 2016
+#   $invoiceTotal (String) - The total amount due, e.g. $9.99
+freeTrialEndingReminder-content-charge-total = Total a pagar em { $serviceLastActiveDateOnly }: { $invoiceTotal }
+freeTrialEndingReminder-content-charge-total-2 = Total a pagar em { $serviceLastActiveDateOnly }
 freeTrialEndingReminder-content-account-link = Você pode revisar ou mudar o método de pagamento e as informações da conta <a data-l10n-name="freeTrialEndingReminder-update-billing">aqui</a>.
 freeTrialEndingReminder-content-account-link-plaintext = Você pode revisar ou mudar o método de pagamento e informações da conta aqui:
+# Variables:
+#   $serviceLastActiveDateOnly (String) - The date the trial ends, e.g. January 20, 2016
+freeTrialEndingReminder-content-cancel-link = Para evitar cobrança, cancele antes de <strong>{ $serviceLastActiveDateOnly }</strong>: <a data-l10n-name="freeTrialEndingReminder-cancel-subscription">Cancelar assinatura</a>
 freeTrialEndingReminder-content-cancel-link-plaintext = Para evitar cobranças, cancele antes de { $serviceLastActiveDateOnly }:
 # Variables:
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
@@ -365,7 +373,16 @@ subscriptionPaymentProviderCancelled-content-detect = Detectamos um problema com
 subscriptionPaymentProviderCancelled-content-reason-1 = Seu método de pagamento atual pode estar vencido ou desatualizado.
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-subject-2 = Sua assinatura do { $productName } foi reativada
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-free-trial-subject = O seu teste gratuito do { $productName } foi reativado
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionReactivation-title = Obrigado por reativar sua assinatura do { $productName }!
+# Variables:
+#  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+subscriptionReactivation-free-trial-title = Obrigado por reativar seu teste gratuito do { $productName }!
 # Variables:
 #  $invoiceTotal (String) - The amount of the subscription invoice, including currency, e.g. $10.00
 #  $nextInvoiceDateOnly (String) - The date of the next invoice, e.g. 2016/01/20
@@ -380,6 +397,8 @@ subscriptionRenewalReminder-content-greeting = Prezado cliente do { $productName
 # Variables
 #   $reminderLength (String) - The number of days until the current subscription is set to automatically renew, e.g. 14
 subscriptionRenewalReminder-content-intro = Sua assinatura atual está configurada para ser renovada automaticamente daqui a { $reminderLength } dias.
+subscriptionRenewalReminder-content-discount-change = Sua próxima fatura reflete uma alteração no preço, pois foi encerrado um desconto anterior e um novo desconto foi aplicado.
+subscriptionRenewalReminder-content-discount-ending = Como um foi encerrado um desconto anterior, sua assinatura será renovada com preço normal.
 subscriptionRenewalReminder-content-closing = Atenciosamente,
 # Variables
 #   $productName (String) - The name of the subscribed product, e.g. Mozilla VPN

@@ -367,6 +367,13 @@ locale-toggle-browser-default = Браузер по умолчанию
 error-bad-request = Неверный запрос
 
 
+pair-unsupported-hint-heading = Завершите сопряжение в приложении
+pair-unsupported-hint-step-close-page = Закрыть эту страницу
+pair-unsupported-hint-step-app-menu = Нажмите на <b>меню приложений</b>
+pair-unsupported-hint-step-sign-in = <b>Войдите</b>, а затем отсканируйте код
+pair-unsupported-hint-learn-more-link = Подробнее
+
+
 password-info-balloon-why-password-info = Вам нужен этот пароль для доступа к любым зашифрованным данным, которые вы храните у нас.
 password-info-balloon-reset-risk-info = Сброс означает потенциальную потерю данных, таких как пароли и закладки.
 
@@ -1260,6 +1267,11 @@ tfa-qr-code-alt = Используйте код { $code } для настрой�
 inline-totp-setup-page-title = Двухэтапная аутентификация
 
 
+page-not-found-heading = Страница не найдена
+page-not-found-description = Запрошенная вами страница не найдена. Мы уведомлены об этом и исправим все ссылки, которые могут быть сломаны.
+page-not-found-home-button = Домой
+
+
 pair-auth-allow-heading-text = Вы только что вошли в { -brand-firefox }?
 pair-auth-allow-confirm-button = Да, подтвердить устройство
 pair-auth-allow-refuse-device-link = Если это были не вы, <a>смените пароль</a>
@@ -1594,6 +1606,11 @@ signin-passkey-fallback-body = Для обеспечения безопасно�
 signin-passkey-fallback-password-label = Пароль
 signin-passkey-fallback-continue = Продолжить
 signin-passkey-fallback-forgot-password-link = Забыли пароль?
+signin-passkey-fallback-no-prf-heading = На этом устройстве необходим пароль
+signin-passkey-fallback-no-prf-description = Этот браузер или устройство не могут самостоятельно использовать ваш ключ доступа для входа в синхронизацию.
+signin-passkey-fallback-unwrap-failed-heading = Ваш ключ доступа не может разблокировать синхронизацию
+signin-passkey-fallback-unwrap-failed-description = Что-то пошло не так, поэтому на этот раз вам понадобится пароль.
+signin-passkey-fallback-wrap-unusable-link = Подробнее
 
 
 signin-passwordless-code-heading = Введите код подтверждения

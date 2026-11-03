@@ -403,6 +403,20 @@ locale-toggle-browser-default = ბრაუზერის ნაგული�
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = გაუმართავი მოთხოვნა
 
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+pair-unsupported-hint-heading = მიერთების დასრულება პროგრამაში
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = გვერდის დახურვა
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = შეეხეთ <b>აპის მენიუს</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>შედით</b>, შემდეგ კი წააკითხეთ კოდი
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = ვრცლად
+
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
 
@@ -1699,6 +1713,13 @@ inline-totp-setup-code-required-error = საჭიროა დამოწმ
 tfa-qr-code-alt = გამოიყენეთ კოდი { $code } ორბიჯიანი დამოწმების გასამართად მხარდაჭერილ პროგრამებში.
 inline-totp-setup-page-title = ორბიჯიანი დამოწმება
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = გვერდი ვერ მოიძებნა
+page-not-found-description = თქვენ მიერ მოთხოვნილი გვერდი, ვერ მოიძებნა. ჩვენ უკვე გვეცნობა ამის შესახებ და ყველა შესაძლო დაზიანებულ ბმულს გავასწორებთ.
+page-not-found-home-button = საწყისი გვერდი
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = ახლახან თქვენ შეხვედით { -brand-firefox }-ში?
@@ -2224,6 +2245,13 @@ reset-password-complete-recovery-key-download-info =
     მონაცემთა აღდგენისთვის, თუ დაგავიწყდებათ პაროლი. <b>ჩამოტვირთეთ და შეინახეთ უსაფრთხოდ
     ახლავე, ვინაიდან მოგვიანებით ვეღარ შეძლებთ ამ გვერდთან წვდომას.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = 500 შეცდომა
+server-error-description = ვწუხვართ, რაღაც ხარვეზი წარმოიშვა. ჩვენ უკვე გვეცნობა ამის შესახებ და დავიწყებთ მუშაობას მის გამოსასწორებლად.
+server-error-home-button = საწყისი გვერდი
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin
@@ -2289,6 +2317,16 @@ signin-passkey-fallback-body = თქვენი მონაცემები
 signin-passkey-fallback-password-label = პაროლი
 signin-passkey-fallback-continue = განაგრძეთ
 signin-passkey-fallback-forgot-password-link = დაგავიწყდათ პაროლი?
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = პაროლი საჭიროა ამ მოწყობილობაზე
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
+signin-passkey-fallback-no-prf-description = ეს ბრაუზერი ან მოწყობილობა ვერ გამოიყენებს საშვს დასინქრონებისთვის.
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
+signin-passkey-fallback-unwrap-failed-heading = თქვენი საშვი სინქრონიზაციის გახსნას ვერ ახერხებს
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = რაღაც ხარვეზი წარმოიქმნა, ასე რომ, ამჯერად პაროლი დაგჭირდებათ.
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = ვრცლად
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.

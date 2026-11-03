@@ -55,6 +55,7 @@
 -product-mozilla-monitor = Mozilla Monitor
 -product-mozilla-monitor-short = Monitor
 -product-firefox-relay = Firefox Relay
+-product-firefox-relay-short = Relay
 -brand-apple = Apple
 -brand-apple-pay = Apple Pay
 -brand-google = Google

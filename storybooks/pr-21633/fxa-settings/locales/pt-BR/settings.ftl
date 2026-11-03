@@ -43,9 +43,21 @@ button-back-title = Voltar
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = Baixar e continuar
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = Desculpe, houve um problema ao baixar a chave de recuperação de conta.
+
+## ButtonPasskeySignin
+
+button-passkey-signin = Entrar com chave de acesso
+# This is a loading state indicating that we are waiting for the user to
+# interact with their authenticator to approve the sign-in. They should see a
+# device prompt/pop-up with authentication options (or message indicating that
+# no passkeys are available).
+button-passkey-signin-loading = Entrando na conta com segurança…
 
 ## ChooseNewsletters component
 ## Checklist of newsletters that the user can choose to sign up to
@@ -63,6 +75,13 @@ choose-newsletters-option-test-pilot =
 choose-newsletters-option-reclaim-the-internet =
     .label = Avisos de ações para recuperar o controle da internet
 
+## Dark mode toggle
+
+dark-mode-toggle-light = Claro
+dark-mode-toggle-dark = Escuro
+dark-mode-toggle-system = Sistema
+dark-mode-toggle-label = Ativar/desativar tema
+
 ## Tooltip notifications for actions performed on account recovery keys or one-time use codes
 
 datablock-download =
@@ -71,6 +90,25 @@ datablock-copy =
     .message = Copiado
 datablock-print =
     .message = Impresso
+
+## Success banners for datablock actions.
+## $count – number of codes
+
+datablock-copy-success =
+    { $count ->
+        [one] Código copiado
+       *[other] Códigos copiados
+    }
+datablock-download-success =
+    { $count ->
+        [one] Código baixada
+       *[other] Códigos baixado
+    }
+datablock-print-success =
+    { $count ->
+        [one] Código impresso
+       *[other] Códigos impressos
+    }
 
 ##
 
@@ -99,9 +137,22 @@ device-info-block-location-unknown = Local desconhecido
 # Variable { $browserName } is the browser that created the request (e.g., Firefox)
 # Variable { $genericOSName } is the name of the operating system that created the request (e.g., MacOS, Windows, iOS)
 device-info-browser-os = { $browserName } em { $genericOSName }
+# Variable { $browserName } is the browser that created the request (e.g., Firefox)
+# Variable { $deviceName } is the user-chosen name of the device that created the request (e.g., Laurel's MacBook Pro)
+device-info-browser-device = { $browserName } em { $deviceName }
 # Variable { $ipAddress } represents the IP address where the request originated
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = Endereço IP: { $ipAddress }
+
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-heading = Use o { -brand-firefox } onde quer que esteja
+firefox-promo-banner-mobile-description = Sincronize suas abas, favoritos e senhas entre seus dispositivos. Tudo isso é protegido com criptografia.
+firefox-promo-banner-mobile-cta = Conectar um dispositivo
+firefox-promo-banner-switch-heading = Rápido trocar. Fácil de se adaptar.
+firefox-promo-banner-switch-cta = Mude para o { -brand-firefox }
 
 ## FormPasswordInlineCriteria
 
@@ -115,10 +166,14 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = Confirmar senha
 form-password-with-inline-criteria-reset-submit-button = Criar nova senha
+form-password-with-inline-criteria-old-password-label =
+    .label = Senha antiga
+form-password-with-inline-criteria-change-password-submit-button = Alterar senha
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Senha
 form-password-with-inline-criteria-set-password-confirm-password-label =
     .label = Repetir senha
+form-password-with-inline-criteria-set-password-submit-button = Iniciar sincronização
 form-password-with-inline-criteria-match-error = As senhas não coincidem
 form-password-with-inline-criteria-sr-too-short-message = A senha deve ter pelo menos 8 caracteres.
 form-password-with-inline-criteria-sr-not-email-message = A senha não pode ter seu endereço de email
@@ -193,12 +248,18 @@ checkmark-success-icon-aria-label =
 # Used to indicate a check mark for an enabled state/option
 checkmark-enabled-icon-aria-label =
     .aria-label = Ativado
+# Used to indicate that an action will navigate forward or open a detail view
+chevron-right-icon-aria-label =
+    .aria-label = Seta para direita
 # Used on X icon to dismiss a message such as an alert or banner
 close-icon-aria-label =
     .aria-label = Fechar mensagem
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = Código
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = Editar
 error-icon-aria-label =
     .aria-label = Erro
 # Used as information icon for informative messaging
@@ -207,6 +268,12 @@ info-icon-aria-label =
 # Used to select United States as a country code for phone number
 usa-flag-icon-aria-label =
     .aria-label = Bandeira dos Estados Unidos
+# Used for loading arrow icon
+icon-loading-arrow-aria-label =
+    .aria-label = Carregando
+# Used for passkey icon
+icon-passkey-aria-label =
+    .aria-label = Chave de acesso
 hearts-broken-image-aria-label =
     .aria-label = Um computador, um celular e a imagem de um coração partido em cada um
 hearts-verified-image-aria-label =
@@ -238,6 +305,17 @@ backup-recovery-phone-image-aria-label =
     .aria-label = Dispositivo móvel com recursos de mensagens de texto SMS
 backup-authentication-codes-image-aria-label =
     .aria-label = Tela de dispositivo com códigos
+sync-clouds-image-aria-label =
+    .aria-label = Nuvens com um ícone de sincronização
+confetti-falling-image-aria-label =
+    .aria-label = Animação de confetes caindo
+# Aria label for the Firefox logo and wordmark shown together as a brand lockup
+firefox-wordmark-image-aria-label =
+    .aria-label = Logotipo do { -brand-firefox }
+# This id is referenced by `PasswordSuccessImage` but was never added here, so
+# the aria-label has been falling back to English in every locale.
+password-success-image-aria-label =
+    .aria-label = Ilustração para representar uma alteração de senha bem-sucedida.
 
 ## InlineRecoveryKeySetupCreate component
 ## Users see this view when we prompt them to generate an account recovery key
@@ -297,6 +375,8 @@ link-expired-new-link-button = Receber novo link
 
 # immediately before remember-password-signin-link
 remember-password-text = Lembra sua senha?
+# shown in the password reset flow when the account may have a passkey; immediately before remember-password-signin-link
+remember-password-passkey-text = Você tem uma chave de acesso ou se lembra da senha?
 # link navigates to the sign in page
 remember-password-signin-link = Entrar
 
@@ -311,8 +391,22 @@ confirmation-link-reused-message = Esse link de confirmação já foi usado e s�
 ## Locale Toggle Component
 
 locale-toggle-select-label = Selecionar idioma
+locale-toggle-browser-default = Padrão do navegador
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Requisição inválida
+
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = Fechar esta página
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Toque no <b>menu do aplicativo</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>Entre na conta</b>, depois capture o código
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = Saiba mais
 
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
@@ -323,10 +417,25 @@ password-info-balloon-reset-risk-info = Redefinir significa potencialmente perde
 ## PasswordStrengthInline component
 ## These strings are conditions that need to be met to qualify as a strong password
 
+password-strength-long-instruction = Escolha uma senha forte que você não tenha usado em outros sites. Verifique se ela atende aos requisitos de segurança:
+password-strength-short-instruction = Escolha uma senha forte:
 password-strength-inline-min-length = Pelo menos 8 caracteres
 password-strength-inline-not-email = Não ter seu endereço de email
 password-strength-inline-not-common = Não ser uma senha comumente usada
 password-strength-inline-confirmed-must-match = A confirmação corresponde à nova senha
+password-strength-inline-passwords-match = As senhas coincidem
+
+## PromoQrMobile component
+## Promotional aside encouraging users to download the Firefox mobile app via QR code.
+
+# "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
+promo-qr-mobile-heading = Seu celular. Suas regras.
+# Value proposition variant. Refers to resuming browsing on another device.
+promo-qr-mobile-heading-treatment-a = Continue de onde parou, onde quer que vá
+# Value proposition variant. "tabs" are the open pages in a browser.
+promo-qr-mobile-heading-treatment-b = Suas abas e muito mais, disponíveis no seu celular
+# Value proposition variant. Refers to using the same trusted browser on a phone.
+promo-qr-mobile-heading-treatment-c = O navegador que você confia, no seu celular
 
 ## Notification Promo Banner component
 
@@ -441,6 +550,9 @@ cs-cannot-disconnect = Cliente não encontrado, não é possível desconectar
 cs-logged-out-2 = Desconectado da conta em { $service }
 cs-refresh-button =
     .title = Atualizar serviços conectados
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Conectar um dispositivo
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Itens faltando ou duplicados?
 cs-disconnect-sync-heading = Desconectar da sincronização
@@ -556,6 +668,8 @@ flow-setup-2fa-backup-code-dl-button-continue = Continuar
 
 ##
 
+# Success banner shown at the top of the page when the user signed in with a passkey.
+flow-setup-2fa-prompt-passkey-success-banner = Você entrou na conta com sucesso usando chave de acesso
 flow-setup-2fa-prompt-continue-button = Continuar
 
 ## FlowSetupPhoneConfirmCode
@@ -752,6 +866,15 @@ cancel-display-name = Cancelar
 display-name-update-error-2 = Houve um problema ao atualizar seu nome de exibição
 display-name-success-alert-2 = Nome de exibição atualizado
 
+## PagePasskeyAdd - Loading page shown during passkey creation
+
+page-passkey-add-creating-heading = Criando chave de acesso…
+
+## Success / Error messages (shown in alert bar after returning to settings)
+
+page-passkey-add-success = Chave de acesso criada
+page-passkey-add-error-system-v2 = Houve um problema ao criar sua chave de acesso. Tente novamente mais tarde.
+
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
 ## These are displayed as a list with the date when the event occured
@@ -794,6 +917,21 @@ recent-activity-account-recovery-codes-signin-complete = Acesso com códigos de 
 recent-activity-password-reset-otp-sent = Enviado um código de confirmação de redefinição de senha
 recent-activity-password-reset-otp-verified = Validado o código de confirmação de redefinição de senha
 recent-activity-must-reset-password = É necessário redefinir a senha
+recent-activity-account-passkey-registration-success = Chave de acesso adicionada
+recent-activity-account-passkey-registration-failure = Falha ao registrar chave de acesso
+recent-activity-account-passkey-removed = Chave de acesso removida
+recent-activity-account-passkey-authentication-success = Entrada com chave de acesso concluída
+recent-activity-account-passkey-authentication-failure = Falha ao entrar com chave de acesso
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey was set up so it can also unlock the user's synced browser data (bookmarks, history, open tabs), which previously required their password.
+recent-activity-account-passkey-wrap-created = Chave de acesso ativada para sincronização
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to set a passkey up to unlock the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-creation-failure = Falha ao configurar a sincronização com chave de acesso
+# A passkey is a sign-in method that replaces a password. This string is shown when a passkey that could unlock the user's synced browser data had that access turned off, leaving the passkey itself usable for signing in.
+recent-activity-account-passkey-wrap-deleted = Removido acesso à sincronização com chave de acesso
+# A passkey is a sign-in method that replaces a password. This string is shown when an attempt to turn off a passkey's access to the user's synced browser data did not complete.
+recent-activity-account-passkey-wrap-deletion-failure = Falha ao remover acesso à sincronização com chave de acesso
+# A passkey is a sign-in method that replaces a password. Resetting a forgotten password re-encrypts the user's synced browser data, which their passkeys can no longer unlock. This string is shown when that happened and the passkeys need to be set up for syncing again.
+recent-activity-account-passkey-wrap-invalidated = Removido acesso à sincronização com chave de acesso após redefinir a senha
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Outra atividade da conta
 
@@ -948,6 +1086,19 @@ tfa-row-backup-phone-description-v2 = Este é o método de recuperação mais f�
 # into transferring a victim's phone number to their own SIM card, enabling access to accounts secured
 # with SMS-based two-factor authentication.
 tfa-row-backup-phone-sim-swap-risk-link = Saiba mais sobre o risco de troca de SIM
+passkey-sub-row-delete-title = Excluir chave de acesso
+passkey-delete-modal-heading = Excluir sua chave de acesso?
+passkey-delete-modal-confirm-button = Excluir chave de acesso
+passkey-delete-success = Chave de acesso excluída
+passkey-delete-error = Houve um problema ao excluir sua chave de acesso. Tente novamente em alguns minutos.
+passkey-sub-row-rename-title = Renomear chave de acesso
+passkey-rename-modal-heading = Renomear chave de acesso
+passkey-rename-modal-description = Digite outro nome para esta chave de acesso.
+passkey-rename-input-label = Nome da chave de acesso
+passkey-rename-error-empty = Digite um nome para esta chave de acesso
+passkey-rename-error-duplicate = Já existe uma chave de acesso com este nome
+passkey-rename-success = Chave de acesso renomeada
+passkey-rename-error = Houve um problema ao renomear sua chave de acesso. Tente novamente em alguns minutos.
 
 ## Switch component
 
@@ -966,6 +1117,20 @@ row-defaults-action-add = Adicionar
 row-defaults-action-change = Alterar
 row-defaults-action-disable = Desativar
 row-defaults-status = Nenhum
+
+## UnitRowPasskey
+
+passkey-row-header = Chaves de acesso
+# Shown as a warning banner when the user has registered the maximum number of passkeys.
+# Variables:
+#   $count (Number) - the maximum number of passkeys allowed (defaults to 10 allowed)
+passkey-row-max-limit-banner =
+    { $count ->
+        [one] Você usou { $count } chave de acesso. Exclua para criar outra.
+       *[other] Você usou todas as { $count } chaves de acesso. Exclua uma para criar outra.
+    }
+# Tooltip shown on the disabled Create button when the passkey limit is reached
+passkey-row-max-limit-disabled-reason = Você atingiu o número máximo de chaves de acesso.
 
 ## Account recovery key sub-section on main Settings page
 
@@ -1091,6 +1256,12 @@ auth-error-215 = Não existe o número de telefone de recuperação
 auth-error-216 = Atingiu o limite de mensagens de texto
 auth-error-218 = Não foi possível remover o celular de recuperação de conta, faltam códigos de autenticação de backup.
 auth-error-219 = Este número de celular foi registrado em contas demais. Tente outro número.
+auth-error-224 = Chave de acesso não encontrada
+auth-error-225 = Chave de acesso já registrada
+auth-error-226 = Atingido o limite de chaves de acesso
+auth-error-227 = Falha na autenticação com chave de acesso
+auth-error-228 = Falha ao registrar chave de acesso
+auth-error-238 = Falha na verificação de chave de acesso
 auth-error-999 = Erro não esperado
 auth-error-1001 = Tentativa de acesso cancelada
 auth-error-1002 = A sessão expirou. Entre novamente para continuar.
@@ -1115,6 +1286,13 @@ auth-error-1067 = Digitou errado o email?
 #  $lastFourPhoneNumber (Number) - The last 4 digits of the user's recovery phone number
 recovery-phone-number-ending-digits = Número terminado em { $lastFourPhoneNumber }
 oauth-error-1000 = Algo deu errado. Feche esta aba e tente novamente.
+
+## Passkey error messages
+## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
+
+# Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
+# using passkeys.
+passkey-authentication-trouble-link = Como usar chaves de acesso
 
 ## Connect Another Device page
 
@@ -1171,6 +1349,10 @@ index-email-input =
 index-account-delete-success = Conta excluída com sucesso
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = Seu email de confirmação foi devolvido. Digitou errado o email?
+
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+inline-passwordless-sync-setup-enable-button = Ativar chave de acesso
 
 ## InlineRecoveryKeySetup page component
 
@@ -1308,6 +1490,30 @@ pair-wait-for-auth-heading-text = Agora precisa aprovar <span>em seu outro dispo
 
 pair-unsupported-header = Conectar usando um aplicativo
 pair-unsupported-message = Você usou a câmera do sistema? Você deve conectar usando um aplicativo { -brand-firefox }.
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Shown when the pairing attempt expired before it was approved
+pair2-authority-timeout-and-cancel-timeout-heading = Ainda quer conectar um dispositivo?
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+pair2-supplicant-ready-to-scan-heading = Para conectar um dispositivo
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## because the attempt timed out, was canceled, or the device is already signed
+## in to an account. All states are informational and offer no on-screen action,
+## so the copy points the user back to their computer to start again.
+
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-canceled-description = Para conectar um dispositivo quando quiser, acesse <b>firefox.com/pair</b> em seu computador.
 
 ## ThirdPartyAuthCallback Page
 ## This page is called after a user completes the third party authentication flow from Google or Apple.
@@ -1476,6 +1682,11 @@ signin-bounced-message = O email de confirmação que enviamos para { $email } r
 signin-bounced-help = Se este for um endereço de email válido, <linkExternal>avise-nos</linkExternal> e poderemos ajudar a desbloquear sua conta.
 signin-bounced-create-new-account = Não tem mais este email? Crie outra conta
 back = Voltar
+
+## SigninPasskeyFallback page
+## Users who authenticate with a passkey to access Sync must also enter their password.
+
+signin-passkey-fallback-body = Para manter seus dados seguros, você precisa digitar sua senha ao usar esta chave de acesso.
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
