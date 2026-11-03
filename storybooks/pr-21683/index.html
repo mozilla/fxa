@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit d37019b38a2ebb256983644135ac7211145cc88e</title>
+  <title>Storybooks for commit bc9f8bb97ca8c6df3abf1a979667b84fb760aa9b</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,27 +23,26 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit d37019b38a2ebb256983644135ac7211145cc88e</h1>
+  <h1>Storybooks for commit bc9f8bb97ca8c6df3abf1a979667b84fb760aa9b</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/3/2026, 10:15:17 PM UTC</dd>
+    <dd>11/3/2026, 10:43:16 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(admin-panel): add bulk account disable page</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-* Admins can reset accounts in bulk but disable only one at a time.
+* Support staff need to disable many accounts at once.
 
 This commit:
 
-* Adds POST /api/account/bulk-disable for up to 1000 emails or UIDs
-* Revokes tokens, sets disabledAt and logs each disable, with no email
-* Adds the BulkDisableAccounts permission at the Admin level
-* Adds the admin panel Account Disable page with text file upload
-* Shows an error when the file read fails, and checks the test re-enable
+* Adds a bulk Account Disable page and admin-server endpoint.
+* Adds its own Admin-level permission; it sends no email.
+* Shows one summary line of the results, not one row each.
+* Reports a failed batch range as having an unknown outcome.
 
 Closes FXA-14910</pre></dd>
   </dl>

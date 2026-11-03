@@ -1,8 +1,8 @@
 {
-  "commit": "d37019b38a2ebb256983644135ac7211145cc88e",
+  "commit": "bc9f8bb97ca8c6df3abf1a979667b84fb760aa9b",
   "summary": "feat(admin-panel): add bulk account disable page",
-  "description": "Because:\n\n* Admins can reset accounts in bulk but disable only one at a time.\n\nThis commit:\n\n* Adds POST /api/account/bulk-disable for up to 1000 emails or UIDs\n* Revokes tokens, sets disabledAt and logs each disable, with no email\n* Adds the BulkDisableAccounts permission at the Admin level\n* Adds the admin panel Account Disable page with text file upload\n* Shows an error when the file read fails, and checks the test re-enable\n\nCloses FXA-14910",
-  "timestamp": 1793744117000,
+  "description": "Because:\n\n* Support staff need to disable many accounts at once.\n\nThis commit:\n\n* Adds a bulk Account Disable page and admin-server endpoint.\n* Adds its own Admin-level permission; it sends no email.\n* Shows one summary line of the results, not one row each.\n* Reports a failed batch range as having an unknown outcome.\n\nCloses FXA-14910",
+  "timestamp": 1793745796000,
   "storybooks": [
     "fxa-admin-panel"
   ],
