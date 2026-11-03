@@ -723,6 +723,49 @@ describe('SettingsRoutes', () => {
     });
     expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
   });
+
+  it('renders the full-screen LoadingSpinner while Settings code loads', () => {
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
+      data: { isSignedIn: true },
+    });
+
+    const testingLibrary = require('@testing-library/react');
+    try {
+      jest.isolateModules(() => {
+        // A second React or Testing Library copy breaks hooks.
+        jest.doMock('react', () => React);
+        jest.doMock('@testing-library/react', () => testingLibrary);
+        jest.doMock('../Settings', () => ({
+          __esModule: true,
+          default: () => {
+            throw new Promise(() => {});
+          },
+        }));
+        const { default: IsolatedApp } = require('.');
+        const {
+          renderWithRouter: isolatedRender,
+        } = require('../../models/mocks');
+
+        isolatedRender(
+          <AppContext.Provider
+            value={mockAppContext({
+              account: { ...MOCK_ACCOUNT } as unknown as Account,
+            })}
+          >
+            <IsolatedApp flowQueryParams={updatedFlowQueryParams} />
+          </AppContext.Provider>,
+          { route: settingsPath }
+        );
+      });
+    } finally {
+      jest.dontMock('react');
+      jest.dontMock('@testing-library/react');
+      jest.dontMock('../Settings');
+    }
+
+    expect(screen.getByTestId('loading-spinner')).toHaveClass('h-screen');
+    expect(screen.queryByTestId('app')).toBeNull();
+  });
 });
 
 describe('Integration serviceName error handling', () => {

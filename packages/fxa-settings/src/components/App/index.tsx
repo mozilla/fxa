@@ -508,14 +508,16 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
         <Route
           path="/settings/*"
           element={
-            <SettingsRoutes
-              {...{
-                isSignedIn,
-                integration,
-                isSignedIntoFirefox,
-                setCurrentSplitLayout,
-              }}
-            />
+            <Suspense fallback={<LoadingSpinner fullScreen />}>
+              <SettingsRoutes
+                {...{
+                  isSignedIn,
+                  integration,
+                  isSignedIntoFirefox,
+                  setCurrentSplitLayout,
+                }}
+              />
+            </Suspense>
           }
         />
         <Route
