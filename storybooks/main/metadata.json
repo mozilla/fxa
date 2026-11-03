@@ -1,8 +1,8 @@
 {
-  "commit": "72d2e5ab1eab86951b67a460efb8286936c9a5fe",
-  "summary": "Merge pull request #21633 from mozilla/agent-a95461",
-  "description": "refactor(geodb): replace fxa-geodb package with @fxa/shared/geodb",
-  "timestamp": 1793738607000,
+  "commit": "bd1c36037243e755649397f82ce46fe8cd728d9c",
+  "summary": "Merge pull request #21649 from mozilla/fxa-14885",
+  "description": "fix(settings): sync html lang and dir with the saved locale",
+  "timestamp": 1793739274000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
