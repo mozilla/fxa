@@ -1,8 +1,8 @@
 {
-  "commit": "8cbad0d569dc55881db827307f54dd4cbf78772a",
+  "commit": "630cef392cadff54f2e16d633c9fcad20ae208ab",
   "summary": "feat(admin-panel): add paging and a filter to the blocklist pages",
   "description": "Because:\n\n* The domain blocklist page showed only the first 1,000 rows\n* Neither blocklist page could search its entries\n\nThis commit:\n\n* Adds a shared BlocklistTable with a filter and 500 rows per page\n* Uses it on the domain and regex email blocklist pages\n* Removes the 1,000-row cap from the domain page",
-  "timestamp": 1793722299000,
+  "timestamp": 1793722973000,
   "storybooks": [
     "fxa-admin-panel"
   ],
