@@ -1,8 +1,8 @@
 {
-  "commit": "39bee548afa2c2aa5fb4e41c37c61338cdeab177",
-  "summary": "Merge pull request #21609 from mozilla/fxa-10912",
-  "description": "fix(settings): render Banner content after mount for screen readers",
-  "timestamp": 1793744394000,
+  "commit": "a71babbd955af3714d14a253c856c82b4dc9d0ed",
+  "summary": "Merge pull request #21667 from mozilla/dependabot/npm_and_yarn/joi-17.13.9",
+  "description": "chore(deps): bump joi from 17.13.8 to 17.13.9",
+  "timestamp": 1793745713000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
