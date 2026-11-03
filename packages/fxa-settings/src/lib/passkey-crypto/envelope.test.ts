@@ -9,6 +9,7 @@ import {
   createWrapEnvelope,
   openWrapEnvelope,
 } from './envelope';
+import { sealKb } from './hpke';
 
 const UID = '0011223344556677889900aabbccddee';
 const CREDENTIAL_ID = 'cGFzc2tleS1jcmVkZW50aWFsLWlk';
@@ -379,16 +380,12 @@ describe('openWrapEnvelope', () => {
     expect(hex(kB)).toBe(KB_HEX);
   });
 
-  // Corrupted in place at the correct width, so normalizeEnvelope and the AES
-  // layer both pass and the failure comes from HPKE. Every other negative case
-  // here stops at the first layer. The two fields fail at different stages:
-  // the ciphertext at the AEAD open, the ephemeral key at decapsulation.
-  it.each([
-    ['hpkeSealedKb', 'OpenError'],
-    ['hpkeEncapsulatedSecret', 'DecapError'],
-  ] as const)(
-    'surfaces the HPKE failure for a corrupted %s',
-    async (field, name) => {
+  // Corrupted in place at the correct width, so normalizeEnvelope passes. The
+  // HPKE fields are bound into the skR wrap's aad, so the failure comes from
+  // the AES layer and HPKE never runs: the same tag check a wrong prfOut fails.
+  it.each(['hpkeSealedKb', 'hpkeEncapsulatedSecret'] as const)(
+    'surfaces the decryption failure for a corrupted %s',
+    async (field) => {
       const envelope = await create();
       const corrupted = Uint8Array.from(envelope[field]);
       corrupted[0] ^= 0xff;
@@ -400,9 +397,36 @@ describe('openWrapEnvelope', () => {
           uid: UID,
           credentialId: CREDENTIAL_ID,
         })
-      ).rejects.toThrow(expect.objectContaining({ name }));
+      ).rejects.toThrow(expect.objectContaining({ name: 'OperationError' }));
     }
   );
+
+  // The position of anyone holding the stored row but not prfOut: pkR is in
+  // the clear, so a kB of their choosing can be sealed to it. The skR wrap
+  // must refuse to open against the substituted fields rather than hand the
+  // genuine skR to HPKE, which would open them to the chosen kB.
+  it('rejects a kB resealed to the stored pkR by a holder of the row', async () => {
+    const envelope = await create();
+    const resealed = await sealKb(
+      new Uint8Array(32).fill(0x42),
+      envelope.pkR,
+      context(),
+      new Uint8Array(0)
+    );
+
+    await expect(
+      openWrapEnvelope({
+        envelope: {
+          ...envelope,
+          hpkeEncapsulatedSecret: resealed.encapsulatedSecret,
+          hpkeSealedKb: resealed.ciphertext,
+        },
+        prfOut: bytes(PRF_OUT_HEX),
+        uid: UID,
+        credentialId: CREDENTIAL_ID,
+      })
+    ).rejects.toThrow(expect.objectContaining({ name: 'OperationError' }));
+  });
 
   it('surfaces the decryption failure under a different credential', async () => {
     const envelope = await create();
