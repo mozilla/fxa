@@ -1,8 +1,8 @@
 {
-  "commit": "ffdacde3d31aa52dd2c88c87ab4e6d9a741e50db",
+  "commit": "d37019b38a2ebb256983644135ac7211145cc88e",
   "summary": "feat(admin-panel): add bulk account disable page",
-  "description": "Because:\n\n* Admins can reset accounts in bulk but disable only one at a time.\n\nThis commit:\n\n* Adds POST /api/account/bulk-disable for up to 1000 emails or UIDs\n* Revokes tokens, sets disabledAt and logs each disable, with no email\n* Adds the BulkDisableAccounts permission at the Admin level\n* Adds the admin panel Account Disable page with text file upload\n\nCloses FXA-14910",
-  "timestamp": 1793742255000,
+  "description": "Because:\n\n* Admins can reset accounts in bulk but disable only one at a time.\n\nThis commit:\n\n* Adds POST /api/account/bulk-disable for up to 1000 emails or UIDs\n* Revokes tokens, sets disabledAt and logs each disable, with no email\n* Adds the BulkDisableAccounts permission at the Admin level\n* Adds the admin panel Account Disable page with text file upload\n* Shows an error when the file read fails, and checks the test re-enable\n\nCloses FXA-14910",
+  "timestamp": 1793744117000,
   "storybooks": [
     "fxa-admin-panel"
   ],
