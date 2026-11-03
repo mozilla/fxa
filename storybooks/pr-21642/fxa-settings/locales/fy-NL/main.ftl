@@ -330,6 +330,7 @@ error-bad-request = Unjildige oanfraach
 
 pair-unsupported-hint-heading = Foltôgje it keppeljen yn de app
 pair-unsupported-hint-step-close-page = Dizze side slute
+pair-unsupported-hint-step-app-menu = Tik op it <b>app-menu</b>
 pair-unsupported-hint-step-sign-in = <b>Oanmelde</b> en scan de koade
 pair-unsupported-hint-learn-more-link = Mear ynfo
 
@@ -1567,6 +1568,9 @@ signin-passkey-fallback-password-label = Wachtwurd
 signin-passkey-fallback-continue = Trochgean
 signin-passkey-fallback-forgot-password-link = Wachtwurd ferjitten?
 signin-passkey-fallback-no-prf-heading = Wachtwurd fereaske op dit apparaat
+signin-passkey-fallback-no-prf-description = Dizze browser of dit apparaat kin jo wachtwurdkaai net brûke om selsstannich oan te melden foar syngronisaasje.
+signin-passkey-fallback-unwrap-failed-heading = Jo wachtwurdkaai kin de syngronisaasje net ûntskoattelje
+signin-passkey-fallback-unwrap-failed-description = Der gie wat mis, dus jo hawwe diskear jo wachtwurd nedich.
 signin-passkey-fallback-wrap-unusable-link = Mear ynfo
 
 

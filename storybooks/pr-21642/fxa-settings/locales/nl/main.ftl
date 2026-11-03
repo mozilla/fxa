@@ -330,6 +330,7 @@ error-bad-request = Ongeldige aanvraag
 
 pair-unsupported-hint-heading = Rond het koppelen af in de app
 pair-unsupported-hint-step-close-page = Deze pagina sluiten
+pair-unsupported-hint-step-app-menu = Tik op het <b>app-menu</b>
 pair-unsupported-hint-step-sign-in = <b>Aanmelden</b> en scan de code
 pair-unsupported-hint-learn-more-link = Meer info
 

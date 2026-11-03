@@ -1,8 +1,8 @@
 {
-  "commit": "2851914aa53067927c06c83db3e469e71b7090b0",
+  "commit": "c45873c1d407030cb6567979361924b605dccdee",
   "summary": "feat(settings): record passkey alert and banner views in Glean",
   "description": "Because:\n\n* Settings did not record when it showed a passkey alert or banner.\n* CI failed: GleanMetricsT had no alertBar or banner group.\n\nThis commit:\n\n* Adds the alert_bar.view and banner.view Glean events and wiring.\n* Records AlertBar and Banner views when the caller gives a gleanId.\n* Tags the passkey alerts, Learn more links, close button and row CTA.\n* Sets a gleanId on the passkey sign-in banner builders.\n\nCloses FXA-13972",
-  "timestamp": 1793657630000,
+  "timestamp": 1793729499000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-settings"
