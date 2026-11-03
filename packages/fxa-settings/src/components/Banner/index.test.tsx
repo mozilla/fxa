@@ -6,6 +6,12 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import Banner from './index';
 import { BannerProps } from './interfaces';
+import GleanMetrics from '../../lib/glean';
+
+jest.mock('../../lib/glean', () => ({
+  __esModule: true,
+  default: { banner: { view: jest.fn() } },
+}));
 
 describe('Banner Component', () => {
   const getDefaultProps = (type: BannerProps['type'] = 'info') => {
@@ -92,6 +98,37 @@ describe('Banner Component', () => {
         'data-glean-id',
         'link-glean-id'
       );
+    });
+  });
+
+  describe('view metrics', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('records a banner view on mount when gleanId is set', () => {
+      render(
+        <Banner {...getDefaultProps()} gleanId="passkey_signin_trouble" />
+      );
+      expect(GleanMetrics.banner.view).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.banner.view).toHaveBeenCalledWith({
+        event: { reason: 'passkey_signin_trouble' },
+      });
+    });
+
+    it('records no banner view without gleanId', () => {
+      render(<Banner {...getDefaultProps()} />);
+      expect(GleanMetrics.banner.view).not.toHaveBeenCalled();
+    });
+
+    it('still renders when the view call throws', () => {
+      (GleanMetrics.banner.view as jest.Mock).mockImplementationOnce(() => {
+        throw new Error('glean failed');
+      });
+      render(
+        <Banner {...getDefaultProps()} gleanId="passkey_signin_trouble" />
+      );
+      expect(screen.getByText('Heading')).toBeInTheDocument();
     });
   });
 });

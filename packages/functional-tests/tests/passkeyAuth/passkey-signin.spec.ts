@@ -97,6 +97,7 @@ test.describe('severity-1 #smoke', () => {
       target,
       pages: { page, settings, settingsPasskeyAdd, signin },
       testAccountTracker,
+      gleanEventsHelper,
     }) => {
       await setUpAccountWithPasskey({
         target,
@@ -125,6 +126,9 @@ test.describe('severity-1 #smoke', () => {
 
       // Cancelled ceremony keeps the user on email-first so they can retry.
       expect(page.url()).toBe(signinUrl);
+
+      const viewPing = await gleanEventsHelper.waitForEvent('banner_view');
+      expect(viewPing.extras.reason).toBe('passkey_signin_trouble');
     });
 
     test('signs in via passkey into a non-AAL2 OAuth RP for an account without TOTP', async ({
@@ -332,7 +336,9 @@ test.describe('severity-1 #smoke', () => {
       // Enrolling does satisfy the step-up and return to the RP, so the divert is
       // a detour rather than a dead end.
       const { available: recoveryPhoneAvailable } =
-        await target.authClient.recoveryPhoneAvailable(credentials.sessionToken);
+        await target.authClient.recoveryPhoneAvailable(
+          credentials.sessionToken
+        );
       await totp.completeInlineSetupWithBackupCodes(
         inlineTotpSetup,
         credentials,
@@ -676,7 +682,14 @@ test.describe('severity-1 #smoke', () => {
 
     test('forces /inline_totp_setup when password sign-in on an account with a passkey enrolled hits an AAL2 RP', async ({
       target,
-      pages: { page, relier, settings, settingsPasskeyAdd, signin, inlineTotpSetup },
+      pages: {
+        page,
+        relier,
+        settings,
+        settingsPasskeyAdd,
+        signin,
+        inlineTotpSetup,
+      },
       testAccountTracker,
     }) => {
       // Passkey enrolment alone doesn't satisfy AAL2 for a password session,

@@ -13,7 +13,11 @@ export const unsupportedPasskeyMessage = (): ReactNode => (
       <span>Your browser or device doesn’t support passkeys.</span>
     </FtlMsg>{' '}
     <FtlMsg id="passkey-registration-error-not-supported-link">
-      <LinkExternal href={PASSKEY_TROUBLESHOOT_URL} className="link-blue">
+      <LinkExternal
+        href={PASSKEY_TROUBLESHOOT_URL}
+        className="link-blue"
+        gleanDataAttrs={{ id: 'account_pref_passkey_unsupported_learn_more' }}
+      >
         Learn more
       </LinkExternal>
     </FtlMsg>
@@ -26,7 +30,13 @@ export const passkeyCanceledOrTimedOutMessage = (): ReactNode => (
       <span>Passkey setup timed out or was cancelled.</span>
     </FtlMsg>{' '}
     <FtlMsg id="passkey-registration-canceled-link">
-      <LinkExternal href={PASSKEY_TROUBLESHOOT_URL} className="link-blue">
+      <LinkExternal
+        href={PASSKEY_TROUBLESHOOT_URL}
+        className="link-blue"
+        gleanDataAttrs={{
+          id: 'account_pref_passkey_create_canceled_learn_more',
+        }}
+      >
         Learn more
       </LinkExternal>
     </FtlMsg>
@@ -41,7 +51,11 @@ export const passkeyCouldNotCompleteMessage = (): ReactNode => (
       </span>
     </FtlMsg>{' '}
     <FtlMsg id="passkey-registration-error-could-not-complete-link">
-      <LinkExternal href={PASSKEY_TROUBLESHOOT_URL} className="link-blue">
+      <LinkExternal
+        href={PASSKEY_TROUBLESHOOT_URL}
+        className="link-blue"
+        gleanDataAttrs={{ id: 'account_pref_passkey_create_failed_learn_more' }}
+      >
         Learn more
       </LinkExternal>
     </FtlMsg>

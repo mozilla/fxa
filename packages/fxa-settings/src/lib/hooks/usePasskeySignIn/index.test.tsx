@@ -767,18 +767,21 @@ describe('usePasskeySignIn', () => {
         AuthUiErrors.THROTTLED.message,
         { retryAfter: 'in 15 minutes' },
       ],
+      undefined,
     ],
     [
       'THROTTLED without retry-after',
       { errno: AuthUiErrors.THROTTLED.errno },
       'throttled',
       ['auth-error-114-generic', AuthUiErrors.THROTTLED.message],
+      undefined,
     ],
     [
       'REQUEST_BLOCKED',
       { errno: AuthUiErrors.REQUEST_BLOCKED.errno },
       'request_blocked',
       ['auth-error-125', AuthUiErrors.REQUEST_BLOCKED.message],
+      undefined,
     ],
     [
       'PASSKEY_AUHENTICATION_FAILED',
@@ -788,6 +791,7 @@ describe('usePasskeySignIn', () => {
         'passkey-authentication-error-unexpected',
         'Something went wrong. Try again or choose another sign-in method.',
       ],
+      'passkey_signin_error',
     ],
     [
       'PASSKEY_CHALLENGE_EXPIRED',
@@ -797,10 +801,11 @@ describe('usePasskeySignIn', () => {
         'passkey-authentication-error-unexpected',
         'Something went wrong. Try again or choose another sign-in method.',
       ],
+      'passkey_signin_error',
     ],
   ])(
     'on %s reports its reason, shows its banner and skips Sentry',
-    async (_name, error, reason, getMsgArgs) => {
+    async (_name, error, reason, getMsgArgs, gleanId) => {
       const { args, spies } = buildArgs({ surface: 'login' });
       spies.completePasskeyAuthentication.mockRejectedValueOnce(error);
 
@@ -817,6 +822,7 @@ describe('usePasskeySignIn', () => {
       expect(result.current.banner).toEqual({
         type: 'error',
         content: { localizedHeading: getMsgArgs[1] },
+        gleanId,
       });
       expect(Sentry.captureException as jest.Mock).not.toHaveBeenCalled();
     }

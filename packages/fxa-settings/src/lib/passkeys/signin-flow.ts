@@ -184,7 +184,7 @@ export type PasskeyFallbackCause =
 /** Banner state the hook returns; the page renders it with `<Banner {...banner} />`. */
 export type PasskeySignInBanner = Pick<
   BannerProps,
-  'type' | 'content' | 'link'
+  'type' | 'content' | 'link' | 'gleanId'
 >;
 
 export function passkeyErrorBanner(
@@ -195,6 +195,7 @@ export function passkeyErrorBanner(
   return {
     type: 'error',
     content: { localizedHeading: ftl.getMsg(ftlId, fallback) },
+    gleanId: 'passkey_signin_error',
   };
 }
 
@@ -246,6 +247,7 @@ export function passkeyTroubleBanner(
         }
       },
     },
+    gleanId: 'passkey_signin_trouble',
   };
 }
 
@@ -259,5 +261,6 @@ export function passkeyTimeoutBanner(ftl: FtlMsgResolver): PasskeySignInBanner {
         'Passkey sign-in timed out. Try again.'
       ),
     },
+    gleanId: 'passkey_signin_timeout',
   };
 }
