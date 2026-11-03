@@ -1,8 +1,8 @@
 {
-  "commit": "a2ca59c58d2d41682cacd493e60d714e56926c4e",
-  "summary": "Merge pull request #21603 from mozilla/FXA-14800",
-  "description": "fix(auth): record Sync passkey login.complete once, after keys",
-  "timestamp": 1793727455000,
+  "commit": "21692bd72e1bcbe6c3bdb2db803b8b53494eb46f",
+  "summary": "Merge pull request #21673 from mozilla/ENT-75",
+  "description": "feat(metering): add global redis rate limit for clickhouse requests",
+  "timestamp": 1793728075000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
