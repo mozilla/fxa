@@ -309,6 +309,7 @@
     "packages/*"
   ],
   "resolutions": {
+    "@opentelemetry/instrumentation-mongoose": "0.68.0",
     "adm-zip": "0.6.1",
     "@faker-js/faker": "10.5.0",
     "qs": "6.16.0",
