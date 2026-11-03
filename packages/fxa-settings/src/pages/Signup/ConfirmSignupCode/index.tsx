@@ -251,9 +251,8 @@ const ConfirmSignupCode = ({
 
           if (integration.isSync()) {
             firefox.fxaOAuthLogin({
-              // OAuth desktop looks at the sync engine list in fxaLogin. Oauth
-              // mobile currently looks at the engines provided here, but should
-              // eventually move to look at fxaLogin as well to prevent FXA-10596.
+              // Read by OAuth mobile. OAuth desktop reads sync engines from fxaLogin.
+              // See comment above OAuthLogin services.
               declinedSyncEngines,
               offeredSyncEngines,
               action: 'signup',
@@ -261,6 +260,7 @@ const ConfirmSignupCode = ({
               redirect,
               state,
               scope,
+              services: integration.getWebChannelServices(),
             });
             // Mobile sync will close the web view, OAuth Desktop mimics DesktopV3 behavior
             if (integration.isFirefoxDesktopClient()) {
@@ -294,6 +294,7 @@ const ConfirmSignupCode = ({
               redirect,
               state,
               scope,
+              services: integration.getWebChannelServices(),
             });
             if (integration.isFirefoxClientServiceVpn()) {
               // Don't navigate mobile users. The client controls the web view

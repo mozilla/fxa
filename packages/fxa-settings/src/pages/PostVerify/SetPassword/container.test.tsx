@@ -520,6 +520,7 @@ describe('SetPassword-container', () => {
         redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
         state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
         scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
+        services: { sync: {} },
       });
     });
 

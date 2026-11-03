@@ -413,6 +413,7 @@ const SigninPasswordlessCode = ({
                 redirect,
                 state,
                 scope,
+                services: integration.getWebChannelServices(),
               });
               const { error: navError } =
                 await handleNavigation(navigationOptions);
