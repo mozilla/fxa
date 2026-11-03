@@ -1,8 +1,8 @@
 {
-  "commit": "bd1c36037243e755649397f82ce46fe8cd728d9c",
-  "summary": "Merge pull request #21649 from mozilla/fxa-14885",
-  "description": "fix(settings): sync html lang and dir with the saved locale",
-  "timestamp": 1793739274000,
+  "commit": "88a07488f11ec9713b152093dc41ce4f96dd2cf9",
+  "summary": "Merge pull request #21605 from mozilla/fxa-14832",
+  "description": "feat(settings): enlarge Pair V2 device details text",
+  "timestamp": 1793740400000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
