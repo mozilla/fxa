@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 8825f61ca57f089121504da71a767061f472ef91</title>
+  <title>Storybooks for commit ce501dd5b79e4be3c7e2128ddda7785e8f0b6c61</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,25 +23,39 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 8825f61ca57f089121504da71a767061f472ef91</h1>
+  <h1>Storybooks for commit ce501dd5b79e4be3c7e2128ddda7785e8f0b6c61</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/2/2026, 5:41:54 PM UTC</dd>
+    <dd>11/3/2026, 10:20:51 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>test(settings): record the independent reproduction of the passkey vectors</pre></dd>
+    <dd><pre>fix(settings): bind the HPKE fields into the passkey skR wrap aad</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- The regenerated FXA-14742 fixture carried a provenance note saying a
-  second-person reproduction was still owed.
+- `pkR` is stored in the clear and HPKE `mode_base` authenticates nothing
+  a PRF holder can check, so anyone holding the `passkeyWraps` row could
+  `Seal` a kB of their choosing to `pkR` and the genuine `skR` would open
+  it; the client has no reference kB to compare against.
+- The only layer keyed by a secret the row holder lacks is the AES-GCM
+  wrap of `skR` under HKDF(prfOut), so its aad must cover the HPKE fields.
+- Regenerating the v1 fixture is the README&#039;s option 3 and assumes
+  `passkeyWraps` is empty in stage and prod; `check:frozen` refuses the
+  fixture, hence `--no-verify`.
 
 This commit:
 
-- Records that the vectors and the hash pin were reproduced outside the
-  module with hpke 1.1.3 and crypto.subtle alone.</pre></dd>
+- Seals first, then wraps `skR` under `context || frame(pkR, enc, ct)`;
+  `openWrapEnvelope` rebuilds the same aad before unwrapping.
+- Adds a resealed-kB rejection test; corrupted HPKE fields now fail at the
+  AES layer.
+- Regenerates the golden vectors with a throwaway script importing only
+  `hpke` and `crypto.subtle`, and re-pins `FIXTURE_SHA256`.
+- Updates the README&#039;s regeneration recipe for the new aad.
+
+Fixes FXA-14742</pre></dd>
   </dl>
 </body>
 </html>

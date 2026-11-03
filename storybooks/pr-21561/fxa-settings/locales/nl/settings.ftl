@@ -408,6 +408,8 @@ error-bad-request = Ongeldige aanvraag
 pair-unsupported-hint-heading = Rond het koppelen af in de app
 # Shown first when the page is open inside another app, which the user must close
 pair-unsupported-hint-step-close-page = Deze pagina sluiten
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Tik op het <b>app-menu</b>
 # <b> emphasises the name of the menu item the user taps in Firefox
 pair-unsupported-hint-step-sign-in = <b>Aanmelden</b> en scan de code
 # Opens a Mozilla support article about connecting a device without a QR code
