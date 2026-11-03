@@ -1,8 +1,8 @@
 {
-  "commit": "da510ecc81b5ecf67e071bcb38fd8bfe69061f0e",
-  "summary": "Merge pull request #21540 from mozilla/FXA-14357",
-  "description": "feat(settings): gate pairing on the browser holding the Sync key",
-  "timestamp": 1793741277000,
+  "commit": "769fb07abba151a6210963ee0e0d1f625b7acd3f",
+  "summary": "Merge pull request #21623 from mozilla/fxa-14247",
+  "description": "feat(settings): use PairUnsupportedHint on the pair connect hint page",
+  "timestamp": 1793742377000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
