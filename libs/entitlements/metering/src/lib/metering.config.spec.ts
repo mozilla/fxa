@@ -32,6 +32,8 @@ describe('MeteringConfig', () => {
     maxThreads: '2',
     maxMemoryUsageBytes: '268435456',
     maxBytesBeforeExternalGroupBy: '134217728',
+    maxReadsPerSecond: '50',
+    maxWritesPerSecond: '50',
   };
 
   const validPubSub = {

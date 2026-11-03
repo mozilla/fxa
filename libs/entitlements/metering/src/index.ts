@@ -23,6 +23,7 @@ export * from './lib/metering-exception.filter';
 export * from './lib/metering-consumer.service';
 export * from './lib/metering-dedupe.manager';
 export * from './lib/metering-dedupe.provider';
+export * from './lib/clickhouse-rate-limiter.provider';
 export * from './lib/metering-events.manager';
 export * from './lib/metering-events.repository';
 export * from './lib/metering-metrics.manager';

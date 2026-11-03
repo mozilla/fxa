@@ -2,14 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { RateLimiterRes } from 'rate-limiter-flexible';
 import { z } from 'zod';
 
+import { StatsDService, type StatsD } from '@fxa/shared/metrics/statsd';
+
+import { ClickHouseRateLimitersToken } from './clickhouse-rate-limiter.provider';
 import { ClickHouseConfig } from './clickhouse.config';
-import { ClickHouseError, ClickHouseTableNameError } from './metering.error';
+import {
+  ClickHouseError,
+  ClickHouseRateLimitError,
+  ClickHouseTableNameError,
+} from './metering.error';
+import type { ClickHouseRateLimiters } from './metering.types';
 import { toError } from './utils/toError';
 
 const TABLE_IDENTIFIER = /^[a-z_][a-z0-9_]*(\.[a-z_][a-z0-9_]*)?$/i;
+const RATE_LIMIT_KEY = 'global';
 
 export type ClickHouseParams = Record<string, string | number>;
 
@@ -31,7 +41,12 @@ export class ClickHouseClient {
   private readonly timeoutMs: number;
   private readonly settings: ClickHouseParams;
 
-  constructor(clickHouseConfig: ClickHouseConfig) {
+  constructor(
+    clickHouseConfig: ClickHouseConfig,
+    @Inject(StatsDService) private readonly statsd: StatsD,
+    @Inject(ClickHouseRateLimitersToken)
+    private readonly rateLimiters: ClickHouseRateLimiters
+  ) {
     this.endpoint = clickHouseConfig.url;
     this.timeoutMs = clickHouseConfig.requestTimeoutMs;
     this.headers = {
@@ -60,7 +75,7 @@ export class ClickHouseClient {
       search[`param_${name}`] = value;
     }
 
-    const body = await this.send('query', search, sql);
+    const body = await this.send('query', 'read', search, sql);
     return this.parseRows(body, rowSchema);
   }
 
@@ -74,20 +89,36 @@ export class ClickHouseClient {
 
     await this.send(
       'insert',
+      'write',
       { ...this.settings, query: `INSERT INTO ${table} FORMAT JSONEachRow` },
       rows.map((row) => JSON.stringify(row)).join('\n')
     );
   }
 
   async command(sql: string): Promise<void> {
-    await this.send('command', { ...this.settings }, sql);
+    await this.send('command', 'write', { ...this.settings }, sql);
   }
 
   private async send(
     operation: string,
+    budget: keyof ClickHouseRateLimiters,
     search: ClickHouseParams,
     body: string
   ): Promise<string> {
+    try {
+      await this.rateLimiters[budget].consume(RATE_LIMIT_KEY);
+    } catch (rejection) {
+      if (rejection instanceof RateLimiterRes) {
+        this.statsd.increment('metering.clickhouse.limit_rejected', {
+          operation,
+        });
+        throw new ClickHouseRateLimitError(operation);
+      }
+      this.statsd.increment('metering.clickhouse.limiter_error', {
+        operation,
+      });
+    }
+
     const url = new URL(this.endpoint);
     for (const [name, value] of Object.entries(search)) {
       url.searchParams.set(name, String(value));

@@ -48,6 +48,16 @@ export class ClickHouseConfig {
   @IsInt()
   @Min(1)
   public readonly maxBytesBeforeExternalGroupBy: number = 134_217_728;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  public readonly maxReadsPerSecond: number = 50;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  public readonly maxWritesPerSecond: number = 50;
 }
 
 export const MockClickHouseConfig = {
@@ -60,6 +70,8 @@ export const MockClickHouseConfig = {
   maxThreads: 2,
   maxMemoryUsageBytes: 268_435_456,
   maxBytesBeforeExternalGroupBy: 134_217_728,
+  maxReadsPerSecond: 50,
+  maxWritesPerSecond: 50,
 } satisfies ClickHouseConfig;
 
 export const MockClickHouseConfigProvider = {

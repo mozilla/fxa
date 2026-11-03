@@ -2,17 +2,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import 'reflect-metadata';
+
+import { RateLimiterMemory } from 'rate-limiter-flexible';
 import { z } from 'zod';
+
+import { StatsD } from '@fxa/shared/metrics/statsd';
 
 import { ClickHouseClient } from './clickhouse.client';
 import { ClickHouseConfig } from './clickhouse.config';
-import { ClickHouseError, ClickHouseTableNameError } from './metering.error';
+import {
+  ClickHouseError,
+  ClickHouseRateLimitError,
+  ClickHouseTableNameError,
+} from './metering.error';
+import type { ClickHouseRateLimiters } from './metering.types';
 
 const rowSchema = z.object({ subject: z.string(), usage: z.number() });
 
 describe('ClickHouseClient', () => {
   let client: ClickHouseClient;
   let fetchMock: jest.SpyInstance;
+  let statsd: StatsD;
+  let increment: jest.SpyInstance;
+  let rateLimiters: ClickHouseRateLimiters;
 
   const config: ClickHouseConfig = {
     url: 'https://clickhouse.example.com:8443',
@@ -24,6 +37,8 @@ describe('ClickHouseClient', () => {
     maxThreads: 3,
     maxMemoryUsageBytes: 111_000,
     maxBytesBeforeExternalGroupBy: 55_000,
+    maxReadsPerSecond: 2,
+    maxWritesPerSecond: 1,
   };
 
   function respondWith(body: string, status = 200): void {
@@ -42,7 +57,19 @@ describe('ClickHouseClient', () => {
 
   beforeEach(() => {
     fetchMock = jest.spyOn(global, 'fetch');
-    client = new ClickHouseClient(config);
+    statsd = new StatsD({ mock: true });
+    increment = jest.spyOn(statsd, 'increment');
+    rateLimiters = {
+      read: new RateLimiterMemory({
+        points: config.maxReadsPerSecond,
+        duration: 60,
+      }),
+      write: new RateLimiterMemory({
+        points: config.maxWritesPerSecond,
+        duration: 60,
+      }),
+    };
+    client = new ClickHouseClient(config, statsd, rateLimiters);
   });
 
   afterEach(() => {
@@ -124,10 +151,14 @@ describe('ClickHouseClient', () => {
 
     it('omits the key header when no password is configured', async () => {
       respondWith('');
-      const noPassword = new ClickHouseClient({
-        ...config,
-        password: undefined,
-      });
+      const noPassword = new ClickHouseClient(
+        {
+          ...config,
+          password: undefined,
+        },
+        statsd,
+        rateLimiters
+      );
 
       await noPassword.query({ sql: 'SELECT 1', rowSchema });
 
@@ -237,6 +268,86 @@ describe('ClickHouseClient', () => {
 
       await expect(client.command('CREATE TABLE t (x UInt8)')).rejects.toThrow(
         ClickHouseError
+      );
+    });
+  });
+
+  describe('rate limit', () => {
+    beforeEach(() => {
+      fetchMock.mockImplementation(async () => new Response(''));
+    });
+
+    async function spendReadBudget(): Promise<void> {
+      await client.query({ sql: 'SELECT 1', rowSchema });
+      await client.query({ sql: 'SELECT 1', rowSchema });
+    }
+
+    it('throws ClickHouseRateLimitError once the read budget is spent', async () => {
+      await spendReadBudget();
+
+      await expect(
+        client.query({ sql: 'SELECT 1', rowSchema })
+      ).rejects.toThrow(ClickHouseRateLimitError);
+    });
+
+    it('makes no request when the rate limit rejects', async () => {
+      await spendReadBudget();
+
+      await client.query({ sql: 'SELECT 1', rowSchema }).catch(() => undefined);
+
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
+
+    it('counts a rejection with its operation tag', async () => {
+      await spendReadBudget();
+
+      await client.query({ sql: 'SELECT 1', rowSchema }).catch(() => undefined);
+
+      expect(increment).toHaveBeenCalledWith(
+        'metering.clickhouse.limit_rejected',
+        { operation: 'query' }
+      );
+    });
+
+    it('draws inserts from the write budget, independent of reads', async () => {
+      await spendReadBudget();
+
+      await expect(
+        client.insert({ table: 'metering.events', rows: [{ subject: 'a' }] })
+      ).resolves.toBeUndefined();
+    });
+
+    it('throws ClickHouseRateLimitError once the write budget is spent', async () => {
+      await client.insert({
+        table: 'metering.events',
+        rows: [{ subject: 'a' }],
+      });
+
+      await expect(
+        client.insert({ table: 'metering.events', rows: [{ subject: 'b' }] })
+      ).rejects.toThrow(ClickHouseRateLimitError);
+    });
+
+    it('sends the request when the limiter store fails', async () => {
+      jest
+        .spyOn(rateLimiters.read, 'consume')
+        .mockRejectedValue(new Error('redis unavailable'));
+
+      await client.query({ sql: 'SELECT 1', rowSchema });
+
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('counts a limiter store failure with its operation tag', async () => {
+      jest
+        .spyOn(rateLimiters.read, 'consume')
+        .mockRejectedValue(new Error('redis unavailable'));
+
+      await client.query({ sql: 'SELECT 1', rowSchema });
+
+      expect(increment).toHaveBeenCalledWith(
+        'metering.clickhouse.limiter_error',
+        { operation: 'query' }
       );
     });
   });

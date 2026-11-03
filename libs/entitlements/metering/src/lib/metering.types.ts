@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import type { RateLimiterAbstract } from 'rate-limiter-flexible';
+
 export interface MeteringEventInput {
   eventIdHash: string;
   clientId: string;
@@ -48,6 +50,11 @@ export interface DedupeRedis {
   del(...keys: string[]): Promise<number>;
   quit(): Promise<'OK'>;
   disconnect(): void;
+}
+
+export interface ClickHouseRateLimiters {
+  read: RateLimiterAbstract;
+  write: RateLimiterAbstract;
 }
 
 export interface SentNotification {

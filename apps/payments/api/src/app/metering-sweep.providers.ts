@@ -6,6 +6,7 @@ import type { Provider } from '@nestjs/common';
 
 import {
   ClickHouseClient,
+  ClickHouseRateLimitersProvider,
   MeteringFirestoreProvider,
   MeteringSweepManager,
   MeteringSweepRepository,
@@ -16,6 +17,7 @@ import {
 
 export const MeteringSweepProviders: Provider[] = [
   ClickHouseClient,
+  ClickHouseRateLimitersProvider,
   MeteringFirestoreProvider,
   MeteringSweepRepository,
   MeteringSweepManager,
