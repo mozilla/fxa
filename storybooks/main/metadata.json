@@ -1,8 +1,8 @@
 {
-  "commit": "a71babbd955af3714d14a253c856c82b4dc9d0ed",
-  "summary": "Merge pull request #21667 from mozilla/dependabot/npm_and_yarn/joi-17.13.9",
-  "description": "chore(deps): bump joi from 17.13.8 to 17.13.9",
-  "timestamp": 1793745713000,
+  "commit": "59a6f2ef929c45974e870bf5811159b78d05f536",
+  "summary": "Merge pull request #21583 from mozilla/dependabot/npm_and_yarn/sentry/nextjs-10.75.2",
+  "description": "chore(deps): bump @sentry/nextjs from 10.33.0 to 10.75.2",
+  "timestamp": 1793745760000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
