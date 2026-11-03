@@ -1,8 +1,8 @@
 {
-  "commit": "1dceeb86abd57e41c7a738a1e13c7be458396ba6",
-  "summary": "Merge pull request #21680 from mozilla/fxa-14907",
-  "description": "fix(admin-panel): speed up blocklist filter tests with paste",
-  "timestamp": 1793731618000,
+  "commit": "be1d7451d12d07d8e252c4ef1764d07d28e3476b",
+  "summary": "Merge pull request #21663 from mozilla/pay-3961-123done-capabilities",
+  "description": "feat(123done): handle event-broker events",
+  "timestamp": 1793732965000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
