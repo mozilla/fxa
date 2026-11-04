@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
+  getPairingErrorMessage,
+  DEFAULT_PAIRING_ERROR,
   buildPairingDownloadUrl,
   constructHrefWithUtm,
   deepMerge,
@@ -774,5 +776,41 @@ describe('navigateWithQuery', () => {
     navigateWithQuery('/signin');
 
     expect(mockNavigate).toHaveBeenCalledWith('/signin?client_id=abc');
+  });
+
+  describe('getPairingErrorMessage', () => {
+    it('returns custom friendly message for browser Errored state', () => {
+      const err = new Error(
+        'Wrong state for fxaccounts:pair_supplicant_metadata. Valid expected states: PendingConfirmations, PendingLocalConfirmation. Current state: Errored.'
+      );
+      expect(getPairingErrorMessage(err)).toBe(
+        'The pairing session has expired or was interrupted. Please try again.'
+      );
+    });
+
+    it('resolves message using ftlMsgResolver if provided', () => {
+      const err = new Error('Current state: Errored');
+      const mockFtlResolver = {
+        getMsg: jest.fn().mockReturnValue('Localized expired pairing message'),
+      };
+      expect(getPairingErrorMessage(err, mockFtlResolver)).toBe(
+        'Localized expired pairing message'
+      );
+      expect(mockFtlResolver.getMsg).toHaveBeenCalledWith(
+        'pair-auth-allow-expired-error',
+        'The pairing session has expired or was interrupted. Please try again.'
+      );
+    });
+
+    it('returns original error message for normal Error instances', () => {
+      const err = new Error('Network request failed');
+      expect(getPairingErrorMessage(err)).toBe('Network request failed');
+    });
+
+    it('returns default fallback message for non-Error thrown objects', () => {
+      expect(getPairingErrorMessage('unknown error')).toBe(
+        DEFAULT_PAIRING_ERROR
+      );
+    });
   });
 });

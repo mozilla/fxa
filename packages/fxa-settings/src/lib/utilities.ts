@@ -344,9 +344,38 @@ export function isValidCmsUrl(value: string | null | undefined) {
 /** Default fallback message used across pairing pages when the error is not an Error instance. */
 export const DEFAULT_PAIRING_ERROR = 'An error occurred during pairing';
 
+export const PAIR_EXPIRED_OR_INTERRUPTED_ERROR_FTL_ID =
+  'pair-auth-allow-expired-error';
+export const DEFAULT_PAIRING_EXPIRED_ERROR =
+  'The pairing session has expired or was interrupted. Please try again.';
+
+export function isPairingExpiredOrInterruptedError(err: unknown): boolean {
+  if (err instanceof Error) {
+    return (
+      err.message.includes('Current state: Errored') ||
+      err.message.includes('pair_supplicant_metadata')
+    );
+  }
+  return false;
+}
+
 /** Extract a human-readable error message from an unknown thrown value. */
-export function getPairingErrorMessage(err: unknown): string {
-  return err instanceof Error ? err.message : DEFAULT_PAIRING_ERROR;
+export function getPairingErrorMessage(
+  err: unknown,
+  ftlMsgResolver?: { getMsg: (id: string, fallback: string) => string }
+): string {
+  if (isPairingExpiredOrInterruptedError(err)) {
+    return ftlMsgResolver
+      ? ftlMsgResolver.getMsg(
+          PAIR_EXPIRED_OR_INTERRUPTED_ERROR_FTL_ID,
+          DEFAULT_PAIRING_EXPIRED_ERROR
+        )
+      : DEFAULT_PAIRING_EXPIRED_ERROR;
+  }
+  if (err instanceof Error) {
+    return err.message;
+  }
+  return DEFAULT_PAIRING_ERROR;
 }
 
 /** Whether the given entrypoint originated from a Firefox "Send Tab" UI. */

@@ -6,11 +6,19 @@ import PairFailure from '.';
 import { Meta } from '@storybook/react';
 import { MOCK_ERROR } from './mock';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { MemoryRouter } from 'react-router';
 
 export default {
   title: 'Pages/Pair/Failure',
   component: PairFailure,
-  decorators: [withLocalization],
+  decorators: [
+    withLocalization,
+    (Story) => (
+      <MemoryRouter>
+        <Story />
+      </MemoryRouter>
+    ),
+  ],
 } as Meta;
 
 export const Default = () => <PairFailure />;

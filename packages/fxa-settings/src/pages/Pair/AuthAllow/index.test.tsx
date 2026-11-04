@@ -474,4 +474,46 @@ describe('Pair/AuthAllow page', () => {
       });
     });
   });
+
+  it('renders a retry link to /pair when an error occurs', async () => {
+    renderWithAppContext(
+      <AuthAllow
+        email={MOCK_EMAIL}
+        suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+        error="Some pairing error"
+      />
+    );
+    const retryLink = await screen.findByRole('link', { name: /Try again/i });
+    expect(retryLink).toBeInTheDocument();
+    expect(retryLink).toHaveAttribute('href', '/pair');
+    expect(screen.getByText('Some pairing error')).toBeInTheDocument();
+  });
+
+  it('renders friendly error and retry link when getSupplicantMetadata rejects with an error', async () => {
+    const integration = {
+      validatePairingClient: jest.fn().mockReturnValue(true),
+      getSupplicantMetadata: jest
+        .fn()
+        .mockRejectedValue(
+          new Error(
+            'Failed command: pair_supplicant_metadata. Current state: Errored.'
+          )
+        ),
+      authorize: jest.fn(),
+      channelId: 'test-channel',
+    } as unknown as Integration;
+
+    renderWithAppContext(
+      <AuthAllow email={MOCK_EMAIL} integration={integration} />
+    );
+
+    const retryLink = await screen.findByRole('link', { name: /Try again/i });
+    expect(retryLink).toBeInTheDocument();
+    expect(retryLink).toHaveAttribute('href', '/pair');
+    expect(
+      await screen.findByText(
+        'The pairing session has expired or was interrupted. Please try again.'
+      )
+    ).toBeInTheDocument();
+  });
 });

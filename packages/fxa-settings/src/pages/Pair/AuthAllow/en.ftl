@@ -7,3 +7,6 @@ pair-auth-allow-confirm-button = Yes, approve device
 # "If this wasn't you" means "If it wasn't you that just signed in to Firefox"
 # The text with the <link> tags links to a `reset password` page
 pair-auth-allow-refuse-device-link = If this wasn’t you, <a>change your password</a>
+
+# Error message displayed in the banner when pairing has expired or encountered an errored state
+pair-auth-allow-expired-error = The pairing session has expired or was interrupted. Please try again.
