@@ -996,7 +996,12 @@ module.exports = (
           });
 
           if (customs.v2Enabled()) {
-            await customs.check(request, email, 'verifyTotpCodeFailed');
+            await customs.checkAuthenticated(
+              request,
+              uid,
+              email,
+              'verifyTotpCodeFailed'
+            );
           }
         }
 

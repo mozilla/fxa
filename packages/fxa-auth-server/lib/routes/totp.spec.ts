@@ -545,6 +545,17 @@ describe('totp', () => {
         );
 
         expect(glean.login.totpFailure).toHaveBeenCalledTimes(1);
+        expect(customs.checkAuthenticated).toHaveBeenCalledWith(
+          request,
+          'uid',
+          TEST_EMAIL,
+          'verifyTotpCodeFailed'
+        );
+        expect(customs.check).not.toHaveBeenCalledWith(
+          request,
+          TEST_EMAIL,
+          'verifyTotpCodeFailed'
+        );
       });
     });
   });
