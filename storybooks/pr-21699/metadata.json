@@ -1,0 +1,10 @@
+{
+  "commit": "1ba202f40de35e8067ca42bbd9f3ac238fdf3038",
+  "summary": "feat(auth): count PayPal invoice and SNS publish failures in StatsD",
+  "description": "Because:\n- PayPal invoice failures and failed SNS publishes are only logged, so\n  Yardstick has nothing to alert on\n\nThis commit:\n- Counts paypal-processor.invoice.processed and .error per invoice\n- Counts notifier.publish.failure in the legacy notifier and NotifierService\n- Adds the matching unit test assertions\n\nFixes PAY-3881",
+  "timestamp": 1793828617000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
