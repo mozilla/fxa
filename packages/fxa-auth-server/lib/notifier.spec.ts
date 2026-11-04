@@ -127,7 +127,7 @@ describe('notifier', () => {
     });
 
     it('captures perf stats with statsd when it is present', () => {
-      const statsd = { timing: jest.fn() };
+      const statsd = { timing: jest.fn(), increment: jest.fn() };
 
       mockConfigWithArn('arn:aws:sns:us-west-2:927034868275:foo');
       jest.resetModules();
@@ -142,6 +142,26 @@ describe('notifier', () => {
         'notifier.publish',
         expect.any(Number)
       );
+      expect(statsd.increment).not.toHaveBeenCalled();
+    });
+
+    it('increments the publish failure counter when publish fails', () => {
+      const statsd = { timing: jest.fn(), increment: jest.fn() };
+
+      mockConfigWithArn('arn:aws:sns:us-west-2:927034868275:foo');
+      jest.resetModules();
+      const notifierModule = require('./notifier');
+      notifier = notifierModule(log, statsd);
+      notifier.__sns.publish = jest.fn(
+        (event: Record<string, unknown>, cb: (err: Error) => void) => {
+          cb(new Error('publish failed'));
+        }
+      );
+      notifier.send({
+        event: 'testo',
+      });
+      expect(statsd.increment).toHaveBeenCalledTimes(1);
+      expect(statsd.increment).toHaveBeenCalledWith('notifier.publish.failure');
     });
   });
 

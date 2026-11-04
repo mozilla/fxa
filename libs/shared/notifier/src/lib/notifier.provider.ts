@@ -17,7 +17,7 @@ export const LegacyNotifierServiceProvider: Provider<NotifierService> = {
     configService: ConfigService,
     log: MozLoggerService,
     sns: SNS,
-    statsd: StatsD | undefined
+    statsd: StatsD
   ) => {
     const config = configService.get('notifier.sns');
     if (config == null) {

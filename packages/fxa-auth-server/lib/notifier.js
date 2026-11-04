@@ -69,6 +69,9 @@ module.exports = function notifierLog(log, statsd) {
           }
 
           if (err) {
+            if (statsd) {
+              statsd.increment('notifier.publish.failure');
+            }
             log.error('Notifier.publish', { err: err });
           } else {
             log.trace('Notifier.publish', { success: true, data: data });

@@ -67,6 +67,7 @@ describe('NotifierService', () => {
     };
 
     jest.spyOn(statsd, 'timing');
+    jest.spyOn(statsd, 'increment');
     mockSnsService.publish.mockImplementation((params, callback) => {
       notifierService.onPublish(
         undefined,
@@ -103,6 +104,7 @@ describe('NotifierService', () => {
       'notifier.publish',
       expect.any(Number)
     );
+    expect(statsd.increment).not.toHaveBeenCalled();
     expect(mockLogger.debug).toHaveBeenCalledWith(
       'Notifier.publish success',
       responseData
@@ -127,6 +129,7 @@ describe('NotifierService', () => {
     };
 
     jest.spyOn(statsd, 'timing');
+    jest.spyOn(statsd, 'increment');
     mockSnsService.publish.mockImplementation((params, callback) => {
       notifierService.onPublish(err, responseData, Date.now() - 100, callback);
     });
@@ -152,6 +155,7 @@ describe('NotifierService', () => {
       'notifier.publish',
       expect.any(Number)
     );
+    expect(statsd.increment).toHaveBeenCalledWith('notifier.publish.failure');
     expect(mockLogger.error).toHaveBeenCalledWith('Notifier.publish', err);
     expect(callback).toHaveBeenCalledWith(err, responseData);
   });

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
 
 import { PayPalHelper } from './helper';
@@ -41,6 +42,7 @@ describe('PaypalProcessor', () => {
   let processor: any;
   let mockConfig: any;
   let mockHandler: any;
+  let mockStatsd: any;
 
   beforeEach(() => {
     mockConfig = {
@@ -53,12 +55,14 @@ describe('PaypalProcessor', () => {
     mockStripeHelper = {};
     mockPaypalHelper = {};
     mockHandler = {};
+    mockStatsd = { increment: jest.fn() };
     // Make currencyHelper
     const currencyHelper = new CurrencyHelper(mockConfig);
     Container.set(CurrencyHelper, currencyHelper);
     Container.set(StripeHelper, mockStripeHelper);
     Container.set(PayPalHelper, mockPaypalHelper);
     Container.set(CapabilityService, {});
+    Container.set(StatsD, mockStatsd);
     processor = new PaypalProcessor(
       mockLog,
       mockConfig,
@@ -686,6 +690,12 @@ describe('PaypalProcessor', () => {
         invoiceId: invoice.id,
       });
       expect(mockLog.error).not.toHaveBeenCalled();
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
+        'paypal-processor.invoice.processed'
+      );
+      expect(mockStatsd.increment).not.toHaveBeenCalledWith(
+        'paypal-processor.invoice.error'
+      );
     });
 
     it('logs an error on invoice exception', async () => {
@@ -717,6 +727,12 @@ describe('PaypalProcessor', () => {
         nvpData: undefined,
         invoiceId: invoice.id,
       });
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
+        'paypal-processor.invoice.error'
+      );
+      expect(mockStatsd.increment).not.toHaveBeenCalledWith(
+        'paypal-processor.invoice.processed'
+      );
     });
   });
 

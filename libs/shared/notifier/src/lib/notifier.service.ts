@@ -23,7 +23,7 @@ export class NotifierService {
     private readonly notifierSnsConfig: NotifierSnsConfig,
     @Inject(LOGGER_PROVIDER) readonly log: LoggerService,
     @Inject(NotifierSnsService) private readonly sns: SNS,
-    @Inject(StatsDService) private readonly statsd: StatsD | undefined
+    @Inject(StatsDService) private readonly statsd: StatsD
   ) {
     if (notifierSnsConfig == null) {
       throw new Error('Could not locate sns.notifier config');
@@ -70,11 +70,10 @@ export class NotifierService {
       data: PublishCommandOutput | undefined
     ) => void
   ) {
-    if (this.statsd) {
-      this.statsd.timing('notifier.publish', Date.now() - startTime);
-    }
+    this.statsd.timing('notifier.publish', Date.now() - startTime);
 
     if (err) {
+      this.statsd.increment('notifier.publish.failure');
       this.log.error('Notifier.publish', err);
     } else {
       this.log.debug?.('Notifier.publish success', data);
