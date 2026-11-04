@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useLocation } from 'react-router';
+import { Link } from 'react-router';
 import { RemoteMetadata } from '../../../lib/types';
 import { usePageViewEvent } from '../../../lib/metrics';
 import AppLayout from '../../../components/AppLayout';
@@ -55,7 +55,6 @@ const AuthAllow = ({
   const navigateWithQuery = useNavigateWithQuery();
   const authClient = useAuthClient();
   const config = useConfig();
-  const location = useLocation();
   const [error, setError] = useState<string | undefined>(errorProp);
   const [totpChecked, setTotpChecked] = useState(false);
   const [suppDeviceInfo, setSuppDeviceInfo] = useState<
@@ -68,16 +67,9 @@ const AuthAllow = ({
   const channelId = getUrlParam('channel_id');
 
   // Check if account has TOTP enabled; redirect to /pair/auth/totp if so.
-  // Skip the check if we're returning from a successful TOTP verification.
-  const totpComplete = (location.state as Record<string, unknown>)
-    ?.totpComplete;
   const fxaStatusState = fxaStatusResult?.fxaStatusState;
   const signedInUser = fxaStatusResult?.fxaStatus?.signedInUser;
   useEffect(() => {
-    if (totpComplete) {
-      setTotpChecked(true);
-      return;
-    }
     // The gate checks the Sync account, which only fxa_status names. A re-run
     // while the check is in flight waits for its result.
     if (fxaStatusState === 'pending' || isTotpCheckStarted.current) {
@@ -97,14 +89,7 @@ const AuthAllow = ({
       }
       setTotpChecked(true);
     })();
-  }, [
-    authClient,
-    config,
-    navigateWithQuery,
-    totpComplete,
-    fxaStatusState,
-    signedInUser,
-  ]);
+  }, [authClient, config, navigateWithQuery, fxaStatusState, signedInUser]);
 
   // Validate client_id against pairing allowlist (matching Backbone behavior)
   useEffect(() => {

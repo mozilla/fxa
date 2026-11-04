@@ -16,7 +16,7 @@ import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { Integration } from '../../../models/integrations/integration';
 import { AppContext } from '../../../models/contexts/AppContext';
-import { MemoryRouter } from 'react-router';
+import { InitialEntry, MemoryRouter } from 'react-router';
 import { mockUseFxAStatus } from '../../../lib/hooks/useFxAStatus/mocks';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
@@ -70,7 +70,8 @@ function renderWithAppContext(
     accountProfile: jest
       .fn()
       .mockResolvedValue({ authenticationMethods: ['pwd', 'email'] }),
-  }
+  },
+  initialEntry: InitialEntry = '/pair/auth/allow'
 ) {
   const appCtx = mockAppContext();
   if (appCtx.authClient) {
@@ -78,7 +79,7 @@ function renderWithAppContext(
   }
   return renderWithLocalizationProvider(
     <AppContext.Provider value={appCtx}>
-      <MemoryRouter initialEntries={['/pair/auth/allow']}>{ui}</MemoryRouter>
+      <MemoryRouter initialEntries={[initialEntry]}>{ui}</MemoryRouter>
     </AppContext.Provider>
   );
 }
@@ -272,6 +273,48 @@ describe('Pair/AuthAllow page', () => {
       await waitFor(() => {
         expect(mockNavigateWithQuery).toHaveBeenCalledWith('/pair/auth/totp');
       });
+    });
+
+    it('redirects to /pair/auth/totp when the location state has totpComplete but no code was verified', async () => {
+      const accountProfile = jest
+        .fn()
+        .mockResolvedValue({ authenticationMethods: ['pwd', 'email', 'otp'] });
+      renderWithAppContext(
+        <AuthAllow
+          email={MOCK_EMAIL}
+          suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+        />,
+        { accountProfile },
+        { pathname: '/pair/auth/allow', state: { totpComplete: true } }
+      );
+      await waitFor(() => {
+        expect(mockNavigateWithQuery).toHaveBeenCalledWith('/pair/auth/totp');
+      });
+      expect(accountProfile).toHaveBeenCalledWith('deadbeef');
+      expect(
+        screen.queryByRole('button', { name: 'Yes, approve device' })
+      ).not.toBeInTheDocument();
+    });
+
+    it('shows the approve button without a profile lookup when a code was verified recently', async () => {
+      mockGetBasicAccountData.mockReturnValue({
+        sessionToken: 'deadbeef',
+        uid: 'uid-123',
+        totpVerifiedAt: Date.now(),
+      });
+      const accountProfile = jest.fn();
+      renderWithAppContext(
+        <AuthAllow
+          email={MOCK_EMAIL}
+          suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
+        />,
+        { accountProfile }
+      );
+      expect(
+        await screen.findByRole('button', { name: 'Yes, approve device' })
+      ).toBeInTheDocument();
+      expect(accountProfile).not.toHaveBeenCalled();
+      expect(mockNavigateWithQuery).not.toHaveBeenCalledWith('/pair/auth/totp');
     });
 
     it('redirects to /pair/auth/totp when the profile lookup fails', async () => {
