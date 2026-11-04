@@ -1,8 +1,8 @@
 {
-  "commit": "3840b5c07533d702c99d6631b78274d4c427d3c3",
-  "summary": "Merge pull request #21702 from mozilla/fxa-14189",
-  "description": "",
-  "timestamp": 1793833460000,
+  "commit": "acbcd7970cedf1e475a59b7ecfb093a009f98077",
+  "summary": "Merge pull request #21682 from mozilla/agent-a34523",
+  "description": "fix(auth): skip inactive-account emails and deletion when disabled",
+  "timestamp": 1793834911000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
