@@ -1,0 +1,10 @@
+{
+  "commit": "b511c546d48a7725a5889c58b3b918c074fbab6c",
+  "summary": "fix(pairing-channel): catch rejection of the connected promise",
+  "description": "Because:\n\n* fxa-pairing-channel leaves its connected promise without a handler\n* the client error event already reports a failed handshake\n\nThis commit:\n\n* types the pairing channel _connection with its connected promise\n* catches a rejection of that promise when the client attaches a channel\n\nCloses FXA-13751",
+  "timestamp": 1793827006000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
