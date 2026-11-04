@@ -1,8 +1,8 @@
 {
-  "commit": "1bd8a24e5b4d000547dfe4c9905188c7ada9730f",
-  "summary": "Merge pull request #21694 from mozilla/fxa-13750",
-  "description": "refactor(pairing-channel): check the PSK length",
-  "timestamp": 1793826175000,
+  "commit": "5840f5031dbda6495a20bab74f336345fc6372fe",
+  "summary": "Merge pull request #21695 from mozilla/fxa-13751",
+  "description": "fix(pairing-channel): catch rejection of the connected promise",
+  "timestamp": 1793827916000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
