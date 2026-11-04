@@ -247,6 +247,20 @@ export class InactiveAccountsManager {
     const account = await this.fxaDb.account(taskPayload.uid);
     const now = Date.now();
 
+    // A disabled account cannot sign in to stay active, so it gets no email.
+    if (account.disabledAt) {
+      this.statsd.increment(
+        `account.inactive.${emailTypeSpecificVals.attempt}-email.skipped.disabled`
+      );
+      await this.glean.inactiveAccountDeletion[
+        emailTypeSpecificVals.gleanEmailSkippedEvent
+      ](requestForGlean, {
+        uid: taskPayload.uid,
+        reason: 'disabled_account',
+      });
+      return;
+    }
+
     // If the very first email hard bounced, we'll delete the account without
     // sending further emails.
     if (

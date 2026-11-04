@@ -162,8 +162,27 @@ export class AccountDeleteManager {
     // can be attributed to a specific dependency (DB, OAuth, Stripe, etc.)
     // instead of just "deleteAccount failed somewhere". Pushbox is
     // fire-and-forget with its own error handler and is not represented.
-    let stage = 'fxaDb';
+    let stage = 'disabledCheck';
     try {
+      // A disabled account is kept until an admin deletes it.
+      if (
+        reason !== ReasonForDeletion.AdminRequested &&
+        (await this.fxaDb.accountDisabledAt(uid))
+      ) {
+        if (reason === ReasonForDeletion.InactiveAccountScheduled) {
+          this.glean.inactiveAccountDeletion.deletionSkipped(
+            request ?? requestForGlean,
+            {
+              uid,
+              reason: 'disabled_account',
+            }
+          );
+        }
+        this.statsd.increment('account.destroy.skipped.disabled', { reason });
+        return;
+      }
+
+      stage = 'fxaDb';
       const deletedFromDb = await this.deleteAccountFromDb(uid, reason);
       stage = 'oauthAccountData';
       await this.deleteOAuthAccountData(uid);
