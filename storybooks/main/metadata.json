@@ -1,8 +1,8 @@
 {
-  "commit": "3cad35882dd19d0fb2885c24c95a260b1614e527",
-  "summary": "Merge pull request #21693 from mozilla/fxa-13448",
-  "description": "refactor(auth): use one error path for failed sign-in",
-  "timestamp": 1793822226000,
+  "commit": "5436e852cd7769b1b3e6f146dc60783b43e08c9a",
+  "summary": "Merge pull request #21687 from mozilla/fxa-14880",
+  "description": "perf(auth): Perfermonce tuning on redis getSessionTokens_1 script",
+  "timestamp": 1793822435000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
