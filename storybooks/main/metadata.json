@@ -1,8 +1,8 @@
 {
-  "commit": "518e700c3604a14837cecea262b4faf8f046926f",
-  "summary": "Merge pull request #21686 from mozilla/FXA-14478.2",
-  "description": "fix(settings): Make sure there's a fallback for users without access to the google play store",
-  "timestamp": 1793813802000,
+  "commit": "2982fa5231d56ecb265af2cf8741ee64a8902a7c",
+  "summary": "Merge pull request #21640 from mozilla/FXA-14615",
+  "description": "fix(oauth): skip new-device email when the sign-in flow already sent it",
+  "timestamp": 1793814259000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
