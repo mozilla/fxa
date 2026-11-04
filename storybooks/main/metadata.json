@@ -1,8 +1,8 @@
 {
-  "commit": "5436e852cd7769b1b3e6f146dc60783b43e08c9a",
-  "summary": "Merge pull request #21687 from mozilla/fxa-14880",
-  "description": "perf(auth): Perfermonce tuning on redis getSessionTokens_1 script",
-  "timestamp": 1793822435000,
+  "commit": "1bd8a24e5b4d000547dfe4c9905188c7ada9730f",
+  "summary": "Merge pull request #21694 from mozilla/fxa-13750",
+  "description": "refactor(pairing-channel): check the PSK length",
+  "timestamp": 1793826175000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
