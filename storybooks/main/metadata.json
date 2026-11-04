@@ -1,8 +1,8 @@
 {
-  "commit": "0c545d845a10a1d116cc3c4bd841a388a722ba20",
-  "summary": "Merge pull request #21696 from mozilla/fxa-14036",
-  "description": "refactor(oauth): use jwt_sub for sub in introspect",
-  "timestamp": 1793828749000,
+  "commit": "67d57233a8b722a78718cc392b8bf526ca2fc7fd",
+  "summary": "Merge pull request #21700 from mozilla/fxa-14185",
+  "description": "",
+  "timestamp": 1793831726000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
