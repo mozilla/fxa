@@ -875,6 +875,9 @@ export const passkeyRoutes = (
     config
   );
 
+  // Enable CORS credentials only when using explicit origins (not wildcard, per CORS spec)
+  const enableCredentials = config.corsOrigin && config.corsOrigin[0] !== '*';
+
   return [
     {
       method: 'POST',
@@ -1096,6 +1099,11 @@ export const passkeyRoutes = (
       path: '/passkey/authentication/start',
       options: {
         ...PASSKEYS_API_DOCS.PASSKEY_AUTHENTICATION_START_POST,
+        ...(enableCredentials && {
+          cors: {
+            credentials: true,
+          },
+        }),
         pre: [{ method: authenticationEnabledCheck }],
         auth: false,
         validate: {
@@ -1131,6 +1139,11 @@ export const passkeyRoutes = (
       path: '/passkey/authentication/finish',
       options: {
         ...PASSKEYS_API_DOCS.PASSKEY_AUTHENTICATION_FINISH_POST,
+        ...(enableCredentials && {
+          cors: {
+            credentials: true,
+          },
+        }),
         pre: [{ method: authenticationEnabledCheck }],
         auth: false,
         validate: {
