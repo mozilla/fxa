@@ -27,6 +27,9 @@ jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => ({
     delete: jest.fn().mockResolvedValue(null),
     findByUid: jest.fn().mockResolvedValue([]),
   },
+  SecurityEvent: {
+    create: jest.fn().mockResolvedValue(null),
+  },
   Account: {
     delete: jest.fn().mockResolvedValue(null),
     reset: jest.fn().mockResolvedValue(null),
@@ -210,12 +213,32 @@ describe('db with redis disabled:', () => {
     log = createMock<AuthLogger>();
     tokens = require('../lib/tokens')(log, { tokenLifetimes });
     const DB = createDB(
-      { redis: {}, tokenLifetimes, tokenPruning: {} },
+      {
+        redis: {},
+        tokenLifetimes,
+        tokenPruning: {},
+        securityHistory: { ipHmacKey: 'fakeHmacKey' },
+      },
       log,
       tokens,
       {}
     );
     db = await DB.connect({});
+  });
+
+  it('securityEvent does not log the tokenId', async () => {
+    const tokenId = 'fakeTokenId0123456789';
+    await db.securityEvent({
+      uid: 'f9416ce3703e4916a4cd6b1e665a3f1a',
+      name: 'account.login',
+      ipAddr: '127.0.0.1',
+      tokenId,
+    });
+
+    expect(JSON.stringify(log.trace.mock.calls)).not.toContain(tokenId);
+    expect(models.SecurityEvent.create).toHaveBeenCalledWith(
+      expect.objectContaining({ tokenId })
+    );
   });
 
   describe('db.accountDisabledAt', () => {

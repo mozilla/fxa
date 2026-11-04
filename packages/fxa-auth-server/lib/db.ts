@@ -1165,9 +1165,7 @@ export const createDB = (
     }
 
     async securityEvent(event: any) {
-      log.trace('DB.securityEvent', {
-        securityEvent: event,
-      });
+      log.trace('DB.securityEvent', { uid: event.uid, name: event.name });
 
       const payload = {
         ...event,
