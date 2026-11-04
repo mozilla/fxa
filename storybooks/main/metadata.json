@@ -1,8 +1,8 @@
 {
-  "commit": "7e6f03abc8dfe26e9f7fcf293b19edb4ab4ac3d1",
-  "summary": "Merge pull request #21689 from mozilla/FXA-13081-pt1",
-  "description": "chore(docs): document the token exchange and service= in OAuth API docs",
-  "timestamp": 1793821095000,
+  "commit": "3cad35882dd19d0fb2885c24c95a260b1614e527",
+  "summary": "Merge pull request #21693 from mozilla/fxa-13448",
+  "description": "refactor(auth): use one error path for failed sign-in",
+  "timestamp": 1793822226000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
