@@ -1,8 +1,8 @@
 {
-  "commit": "87b61822c3079f31a94e370893a18aaa37317f0c",
-  "summary": "Merge pull request #21688 from mozilla/FXA-14013",
-  "description": "feat(auth): send WAF challenge cookie on passkey sign-in",
-  "timestamp": 1793817874000,
+  "commit": "7e6f03abc8dfe26e9f7fcf293b19edb4ab4ac3d1",
+  "summary": "Merge pull request #21689 from mozilla/FXA-13081-pt1",
+  "description": "chore(docs): document the token exchange and service= in OAuth API docs",
+  "timestamp": 1793821095000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
