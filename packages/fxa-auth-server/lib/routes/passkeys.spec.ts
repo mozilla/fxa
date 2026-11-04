@@ -1967,6 +1967,38 @@ describe('passkeys routes', () => {
     });
   });
 
+  describe('CORS credentials on passkey sign-in routes', () => {
+    const corsOf = (corsOrigin: string[], path: string) => {
+      const all = passkeyRoutes(
+        customs,
+        db,
+        { ...config, corsOrigin } as unknown as ConfigType,
+        statsd,
+        glean,
+        log,
+        mailer
+      );
+      return (optionsOf(all.find((r) => r.path === path)) as { cors?: object })
+        .cors;
+    };
+
+    it.each([
+      '/passkey/authentication/start',
+      '/passkey/authentication/finish',
+    ])('allows credentials on %s for explicit origins', (path) => {
+      expect(corsOf(['https://accounts.firefox.com'], path)).toEqual({
+        credentials: true,
+      });
+    });
+
+    it.each([
+      '/passkey/authentication/start',
+      '/passkey/authentication/finish',
+    ])('sets no CORS override on %s for a wildcard origin', (path) => {
+      expect(corsOf(['*'], path)).toBeUndefined();
+    });
+  });
+
   describe('PasskeyHandler.createPasskeySessionToken', () => {
     // Signup fields differ from the primary to prove the token seeds from the
     // current primary, not the immutable signup address on account.email.

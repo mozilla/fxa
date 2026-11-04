@@ -5,7 +5,7 @@
 import * as assert from 'assert';
 import AuthClient from '../server';
 import * as crypto from '../lib/crypto';
-import { isWafBlockedError } from '../lib/client';
+import { isWafBlockedError, PublicKeyCredentialJSON } from '../lib/client';
 
 // TODO: Use proper mocks when we move to jest. Not going to add sinon dep just for this...
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -81,6 +81,20 @@ describe('lib/client', () => {
 
     it('sets credentials=include on POST /account/credentials/status', async () => {
       await httpsClient.getCredentialStatusV2({ primary: 'user@example.com' });
+      assert.equal(lastInit?.credentials, 'include');
+    });
+
+    it('sets credentials=include on POST /passkey/authentication/start', async () => {
+      await httpsClient.beginPasskeyAuthentication();
+      assert.equal(lastInit?.credentials, 'include');
+    });
+
+    it('sets credentials=include on POST /passkey/authentication/finish', async () => {
+      await httpsClient.completePasskeyAuthentication(
+        {} as PublicKeyCredentialJSON,
+        'challenge',
+        { keysRequired: false }
+      );
       assert.equal(lastInit?.credentials, 'include');
     });
 

@@ -513,6 +513,8 @@ export default class AuthClient {
       '/account/passwordless/confirm_code',
       '/account/passwordless/resend_code',
       '/account/credentials/status',
+      '/passkey/authentication/start',
+      '/passkey/authentication/finish',
     ].includes(pathname);
 
     if (includeCredentials && new URL(this.uri).protocol === 'https:') {
