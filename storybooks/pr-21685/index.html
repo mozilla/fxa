@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 01d328f6d6fda9ffcdbe825b652333cc74a01a5b</title>
+  <title>Storybooks for commit 8f76ba777423eeb3544af6a01d9b618631573e67</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,25 +23,26 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 01d328f6d6fda9ffcdbe825b652333cc74a01a5b</h1>
+  <h1>Storybooks for commit 8f76ba777423eeb3544af6a01d9b618631573e67</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/4/2026, 12:07:40 AM UTC</dd>
+    <dd>11/4/2026, 12:29:49 AM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): send can_link_account with stored uid in email-first</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-* Newer Firefox got can_link_account with the uid only after the password or unblock code, so a retry showed the merge warning again.
+* Newer Firefox got can_link_account only after sign-in, so a retry
+  showed the merge warning again.
 
 This commit:
 
-* Sends can_link_account with the stored uid from email-first when one exists.
-* Passes the approved uid to signin and signin_unblock in location state.
-* Skips the post-auth prompt there only when the real uid matches it.
+* Sends can_link_account with the stored uid from email-first.
+* Passes the approved uid to signin and signin_unblock.
+* Skips the post-auth prompt there only when the real uid matches.
 
 Closes FXA-13012</pre></dd>
   </dl>

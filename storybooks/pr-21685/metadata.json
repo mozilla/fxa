@@ -1,8 +1,8 @@
 {
-  "commit": "01d328f6d6fda9ffcdbe825b652333cc74a01a5b",
+  "commit": "8f76ba777423eeb3544af6a01d9b618631573e67",
   "summary": "fix(settings): send can_link_account with stored uid in email-first",
-  "description": "Because:\n\n* Newer Firefox got can_link_account with the uid only after the password or unblock code, so a retry showed the merge warning again.\n\nThis commit:\n\n* Sends can_link_account with the stored uid from email-first when one exists.\n* Passes the approved uid to signin and signin_unblock in location state.\n* Skips the post-auth prompt there only when the real uid matches it.\n\nCloses FXA-13012",
-  "timestamp": 1793750860000,
+  "description": "Because:\n\n* Newer Firefox got can_link_account only after sign-in, so a retry\n  showed the merge warning again.\n\nThis commit:\n\n* Sends can_link_account with the stored uid from email-first.\n* Passes the approved uid to signin and signin_unblock.\n* Skips the post-auth prompt there only when the real uid matches.\n\nCloses FXA-13012",
+  "timestamp": 1793752189000,
   "storybooks": [
     "fxa-settings"
   ],
