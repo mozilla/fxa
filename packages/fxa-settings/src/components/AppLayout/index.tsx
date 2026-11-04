@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useLayoutEffect } from 'react';
+import React, { createContext, useLayoutEffect } from 'react';
 import mozLogo from '@fxa/shared/assets/images/moz-logo-bw-rgb.svg';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useLocalization } from '@fluent/react';
@@ -14,13 +14,12 @@ import { DarkModeToggle } from '../DarkModeToggle';
 import { useConfig } from '../../models/hooks';
 import { CardLoadingSpinner } from '../CardLoadingSpinner';
 
-type AppLayoutProps = {
-  // TODO: FXA-6803 - the title prop should be made mandatory
-  // the string should be localized
+type AppLayoutBaseProps = {
   /**
-   * `title` takes precedence over the `cmsInfo.shared.pageTitle` if both are present.
+   * A relying party's page-level CMS title. Takes precedence over
+   * `cmsInfo.shared.pageTitle`, which takes precedence over `title`.
    */
-  title?: string;
+  cmsPageTitle?: string;
   children?: React.ReactNode;
   widthClass?: string;
   cmsInfo?: RelierCmsInfo;
@@ -47,8 +46,22 @@ type AppLayoutProps = {
   setCurrentSplitLayout?: (value: boolean) => void;
 };
 
+type AppLayoutProps = AppLayoutBaseProps &
+  (
+    | { loading: true; title?: string }
+    | {
+        loading?: boolean;
+        /** Localized page title, shown before the product name in the tab. */
+        title: string;
+      }
+  );
+
+/** True inside `AppLayout`, which owns the page title. */
+export const AppLayoutContext = createContext(false);
+
 export const AppLayout = ({
   title,
+  cmsPageTitle,
   children,
   widthClass,
   cmsInfo,
@@ -72,11 +85,10 @@ export const AppLayout = ({
   }, [splitLayout, setCurrentSplitLayout]);
 
   const cmsBackgrounds = cmsInfo?.shared?.backgrounds;
-  const cmsPageTitle = cmsInfo?.shared?.pageTitle;
   const cmsHeaderLogoUrl = cmsInfo?.shared?.headerLogoUrl;
   const cmsHeaderLogoAltText = cmsInfo?.shared?.headerLogoAltText;
 
-  const overrideTitle = title ? title : cmsPageTitle;
+  const pageTitle = cmsPageTitle || cmsInfo?.shared?.pageTitle || title;
 
   const favicon = cmsInfo?.shared?.favicon;
 
@@ -89,8 +101,8 @@ export const AppLayout = ({
     window.location.pathname?.startsWith('/pair/supplicant') ?? false;
 
   return (
-    <>
-      <Head {...{ title: overrideTitle, favicon }} />
+    <AppLayoutContext.Provider value={true}>
+      <Head {...{ title: pageTitle, favicon }} />
       <div
         className={classNames(
           'flex min-h-screen flex-col items-center dark:bg-grey-900',
@@ -247,7 +259,7 @@ export const AppLayout = ({
         )}
       </div>
       <div id="body-bottom" className="w-full block mobileLandscape:hidden" />
-    </>
+    </AppLayoutContext.Provider>
   );
 };
 

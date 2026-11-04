@@ -11,6 +11,7 @@ import {
   SyncDevicesImage,
 } from '../../../../components/images';
 import { RemoteMetadata } from '../../../../lib/types';
+import { useFtlMsgResolver } from '../../../../models';
 
 export type ApproveSignInProps = {
   /**
@@ -35,6 +36,11 @@ export const ApproveSignIn = ({
   remoteMetadata,
   onCancel,
 }: ApproveSignInProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'pair2-supplicant-approve-sign-in-page-title',
+    'One last step to sync'
+  );
   remoteMetadata = remoteMetadata ?? {
     deviceName: 'name-foo',
     deviceFamily: 'family-foo',
@@ -45,7 +51,7 @@ export const ApproveSignIn = ({
     city: 'city-foo',
   };
   return (
-    <AppLayout whiteBackground>
+    <AppLayout title={localizedPageTitle} whiteBackground>
       <div className="flex flex-col items-center text-center">
         <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
 

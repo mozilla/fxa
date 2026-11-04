@@ -23,3 +23,7 @@ connect-another-device-not-now-link = Not now
 connect-another-device-android-complete-setup-message = Sign in to { -brand-firefox } for Android to complete setup
 # This is a message for Firefox iOS users, prompting them to complete the process of connecting another device by signing into Firefox for iOS
 connect-another-device-ios-complete-setup-message = Sign in to { -brand-firefox } for iOS to complete setup
+
+# Browser tab title for the page that invites the user to connect another device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+connect-another-device-page-title = Connect another device

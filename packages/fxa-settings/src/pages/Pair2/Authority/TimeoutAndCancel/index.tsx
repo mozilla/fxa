@@ -7,6 +7,7 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../../../components/AppLayout';
 import { PairingInterruptedImage } from '../../../../components/images';
 import GleanMetrics from '../../../../lib/glean';
+import { useFtlMsgResolver } from '../../../../models';
 
 /**
  * Why pairing stopped. Shared verbatim with the mobile twin,
@@ -24,6 +25,8 @@ export type TimeoutAndCancelProps = {
 };
 
 type VariantContent = {
+  pageTitleFtlId: string;
+  pageTitle: string;
   headingFtlId: string;
   heading: string;
   descriptionFtlId: string;
@@ -40,6 +43,8 @@ type VariantContent = {
 
 const variantContent: Record<TimeoutAndCancelReason, VariantContent> = {
   timeout: {
+    pageTitleFtlId: 'pair2-authority-timeout-and-cancel-timeout-page-title',
+    pageTitle: 'Connection timed out',
     headingFtlId: 'pair2-authority-timeout-and-cancel-timeout-heading',
     heading: 'Still want to connect a device?',
     descriptionFtlId: 'pair2-authority-timeout-and-cancel-timeout-description',
@@ -48,6 +53,8 @@ const variantContent: Record<TimeoutAndCancelReason, VariantContent> = {
     gleanId: 'dtm_desktop_timeout_cancel_retry',
   },
   canceled: {
+    pageTitleFtlId: 'pair2-authority-timeout-and-cancel-cancelled-page-title',
+    pageTitle: 'Pairing cancelled',
     headingFtlId: 'pair2-authority-timeout-and-cancel-cancelled-heading',
     heading: 'Cancelled',
     descriptionFtlId: 'pair2-authority-timeout-and-cancel-canceled-description',
@@ -75,6 +82,11 @@ const TimeoutAndCancel = ({
   onSyncSettings,
 }: TimeoutAndCancelProps) => {
   const content = variantContent[reason ?? 'timeout'];
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    content.pageTitleFtlId,
+    content.pageTitle
+  );
 
   // Custom view event rather than the automatic one: both states share a route,
   // so `reason` is the only thing that tells them apart.
@@ -83,7 +95,7 @@ const TimeoutAndCancel = ({
   }, [reason]);
 
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <div className="flex flex-col items-center text-center">
         <FtlMsg id={content.headingFtlId}>
           <h1 className="card-header">{content.heading}</h1>

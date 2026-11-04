@@ -9,3 +9,11 @@ complete-signin-error-header = Confirmation error
 # The user followed a signin confirmation link, but that link is expired and no longer valid
 signin-link-expired-header = Confirmation link expired
 signin-link-expired-message-2 = The link you clicked has expired or has already been used.
+
+# Browser tab title for the page shown when something went wrong while confirming a sign-in from an emailed link.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+complete-signin-error-page-title = Sign-in confirmation error
+
+# Browser tab title for the page shown while a sign-in is being confirmed from an emailed link.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+complete-signin-validating-page-title = Confirming sign-in

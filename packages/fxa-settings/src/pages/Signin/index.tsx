@@ -350,7 +350,11 @@ const Signin = ({
 
   const cmsInfo = integration.getCmsInfo();
   const signinPageCms = cmsInfo?.SigninPage;
-  const title = signinPageCms?.pageTitle;
+  const cmsPageTitle = signinPageCms?.pageTitle;
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'signin-password-page-title',
+    'Enter your password'
+  );
   const splitLayout = signinPageCms?.splitLayout;
   const additionalAccessibilityInfo =
     cmsInfo?.shared.additionalAccessibilityInfo;
@@ -360,7 +364,8 @@ const Signin = ({
 
   return (
     <AppLayout
-      {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}
+      {...{ cmsInfo, cmsPageTitle, splitLayout, setCurrentSplitLayout }}
+      title={localizedPageTitle}
       loading={passkey.isNavigating}
     >
       {(localizedSuccessBannerHeading || localizedSuccessBannerDescription) && (

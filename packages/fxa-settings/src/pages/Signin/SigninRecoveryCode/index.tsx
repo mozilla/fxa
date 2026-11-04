@@ -247,13 +247,18 @@ const SigninRecoveryCode = ({
   const cmsInfo = integration.getCmsInfo();
   const cmsPage = cmsInfo?.SigninRecoveryCodePage;
   const splitLayout = cmsPage?.splitLayout;
-  const title = cmsPage?.pageTitle;
+  const cmsPageTitle = cmsPage?.pageTitle;
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'signin-recovery-code-page-title',
+    'Sign in with a backup code'
+  );
   const additionalAccessibilityInfo =
     cmsInfo?.shared.additionalAccessibilityInfo;
 
   return (
     <AppLayout
-      {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}
+      {...{ cmsInfo, cmsPageTitle, splitLayout, setCurrentSplitLayout }}
+      title={localizedPageTitle}
       loading={loading}
     >
       <div className="relative flex items-center mb-5">

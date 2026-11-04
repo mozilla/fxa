@@ -2,10 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { useFtlMsgResolver } from '../../../models';
 
 import Head from 'fxa-react/components/Head';
+import { AppLayoutContext } from '../../AppLayout';
 import ButtonBack from '../../ButtonBack';
 import classNames from 'classnames';
 
@@ -31,6 +32,7 @@ export const FlowContainer = ({
   children,
 }: FlowContainerProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
+  const inAppLayout = useContext(AppLayoutContext);
   const backButtonTitle = localizedBackButtonTitle
     ? localizedBackButtonTitle
     : ftlMsgResolver.getMsg('flow-container-back', 'Back');
@@ -40,7 +42,7 @@ export const FlowContainer = ({
       className="max-w-lg mx-auto mt-6 p-10 tablet:my-10 flex flex-col items-start bg-white dark:bg-grey-700 shadow tablet:rounded-xl border border-transparent"
       data-testid="flow-container"
     >
-      <Head title={title} />
+      {!inAppLayout && <Head title={title} />}
 
       <div className="relative flex items-center">
         {!hideBackButton && (

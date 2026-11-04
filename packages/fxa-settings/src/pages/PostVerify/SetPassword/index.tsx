@@ -92,6 +92,11 @@ export const SetPassword = ({
 
   const cmsInfo = integration?.getCmsInfo?.();
   const cmsPage = cmsInfo?.PostVerifySetPasswordPage;
+  const cmsPageTitle = cmsPage?.pageTitle;
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'set-password-page-title',
+    'Create a password to sync'
+  );
   const cmsHeadline = cmsPage?.headline;
   const cmsDescription = cmsPage?.description;
   const cmsButton = {
@@ -100,7 +105,11 @@ export const SetPassword = ({
   };
 
   return (
-    <AppLayout cmsInfo={cmsInfo} title={cmsPage?.pageTitle}>
+    <AppLayout
+      cmsInfo={cmsInfo}
+      cmsPageTitle={cmsPageTitle}
+      title={localizedPageTitle}
+    >
       {cmsHeadline ? (
         <h1
           className={getCmsHeadlineClassName(cmsInfo?.shared.headlineFontSize)}

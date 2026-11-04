@@ -15,7 +15,12 @@ import GleanMetrics from '../../../lib/glean';
 import { useGleanView } from '../../../lib/glean/useGleanView';
 import Banner from '../../../components/Banner';
 import { PairingAuthorityIntegration } from '../../../models/integrations/pairing-authority-integration';
-import { Integration, useAuthClient, useConfig } from '../../../models';
+import {
+  Integration,
+  useAuthClient,
+  useConfig,
+  useFtlMsgResolver,
+} from '../../../models';
 import { firefox } from '../../../lib/channels/firefox';
 import type { UseFxAStatusResult } from '../../../lib/hooks';
 import { useNavigateWithQuery } from '../../../lib/hooks';
@@ -50,6 +55,11 @@ const AuthAllow = ({
   error: errorProp,
   fxaStatusResult,
 }: AuthAllowProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'pair-auth-allow-page-title',
+    'Approve Firefox sign-in'
+  );
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   useGleanView(() => GleanMetrics.cadApproveDevice.view());
   const navigateWithQuery = useNavigateWithQuery();
@@ -163,7 +173,7 @@ const AuthAllow = ({
   }
 
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       {/* Does not use CardHeader due to complication of passing vars */}
       <FtlMsg id="pair-auth-allow-heading-text">
         <h1 className="card-header">Did you just sign in to Firefox?</h1>

@@ -38,6 +38,21 @@ export const InlineRecoveryKeySetup = ({
     return <></>;
   };
 
+  const pageTitles: Record<number, string> = {
+    1: ftlMsgResolver.getMsg(
+      'inline-recovery-key-setup-create-page-title',
+      'Create an account recovery key'
+    ),
+    2: ftlMsgResolver.getMsg(
+      'inline-recovery-key-setup-download-page-title',
+      'Download your account recovery key'
+    ),
+    3: ftlMsgResolver.getMsg(
+      'inline-recovery-key-setup-hint-page-title',
+      'Add a recovery key hint'
+    ),
+  };
+
   const renderStepComponent = () => {
     switch (currentStep) {
       case 3:
@@ -100,7 +115,14 @@ export const InlineRecoveryKeySetup = ({
     }
   };
 
-  return <AppLayout cmsInfo={cmsInfo}>{renderStepComponent()}</AppLayout>;
+  return (
+    <AppLayout
+      title={pageTitles[currentStep] ?? pageTitles[1]}
+      cmsInfo={cmsInfo}
+    >
+      {renderStepComponent()}
+    </AppLayout>
+  );
 };
 
 export default InlineRecoveryKeySetup;

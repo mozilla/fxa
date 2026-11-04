@@ -9,14 +9,20 @@ import { HeartsBrokenImage } from '../../../components/images';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import AppLayout from '../../../components/AppLayout';
 import Banner from '../../../components/Banner';
+import { useFtlMsgResolver } from '../../../models';
 
 type PairFailureProps = { error?: string };
 export const viewName = 'pair-failure';
 
 const PairFailure = ({ error }: PairFailureProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'pair-failure-page-title',
+    'Device pairing failed'
+  );
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       {error && <Banner type="error" content={{ localizedHeading: error }} />}
       <CardHeader
         headingTextFtlId="pair-failure-header-v2"

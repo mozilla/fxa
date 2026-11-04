@@ -22,7 +22,7 @@ const ReadyWithLayout = ({
   errorMessage,
 }: ReadyProps) => {
   return (
-    <AppLayout>
+    <AppLayout title="Ready">
       <Ready
         {...{
           viewName,

@@ -8,6 +8,7 @@ import GleanMetrics from '../../../lib/glean';
 import { useGleanView } from '../../../lib/glean/useGleanView';
 
 import AppLayout from '../../../components/AppLayout';
+import { useFtlMsgResolver } from '../../../models';
 import FormPasswordWithInlineCriteria from '../../../components/FormPasswordWithInlineCriteria';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
 
@@ -70,8 +71,14 @@ const CompleteResetPassword = ({
     setIsSubmitting(false);
   };
 
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'complete-reset-password-page-title',
+    'Create a new password'
+  );
+
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <FtlMsg id="password-reset-flow-heading">
         <HeadingPrimary>Reset your password</HeadingPrimary>
       </FtlMsg>

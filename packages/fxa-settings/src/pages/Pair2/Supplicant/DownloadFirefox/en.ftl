@@ -18,3 +18,7 @@ pair2-supplicant-download-firefox-download-button = Download { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = I already have { -brand-firefox }
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = Learn more
+
+# Browser tab title for the page shown on the mobile device asking the user to open { -brand-firefox } on it to continue pairing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-download-firefox-page-title = Open { -brand-firefox } on this device

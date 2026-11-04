@@ -33,8 +33,13 @@ const ConfirmTotpResetPassword = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
 
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'confirm-totp-reset-password-page-title',
+    'Reset password with two-step authentication'
+  );
+
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <FtlMsg id="confirm-totp-reset-password-header">
         <HeadingPrimary>Reset your password</HeadingPrimary>
       </FtlMsg>

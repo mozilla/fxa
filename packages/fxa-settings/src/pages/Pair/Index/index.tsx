@@ -593,8 +593,12 @@ const Pair = ({
   }
 
   if (currentView === 'download') {
+    const localizedDownloadPageTitle = ftlMsgResolver.getMsg(
+      'pair-download-page-title',
+      'Download Firefox for mobile'
+    );
     return (
-      <AppLayout cmsInfo={cmsInfo}>
+      <AppLayout cmsInfo={cmsInfo} title={localizedDownloadPageTitle}>
         <header className="relative flex items-center">
           <ButtonBack onClick={handleBackButton} />
           <h1
@@ -691,8 +695,15 @@ const Pair = ({
     );
   }
 
+  const localizedChoicePageTitle = isSendTab
+    ? ftlMsgResolver.getMsg(
+        'pair-choice-send-tab-page-title',
+        'Send tabs to another device'
+      )
+    : ftlMsgResolver.getMsg('pair-choice-page-title', 'Connect another device');
+
   return (
-    <AppLayout cmsInfo={cmsInfo}>
+    <AppLayout cmsInfo={cmsInfo} title={localizedChoicePageTitle}>
       {bannerCopy && (
         <Banner
           type="success"

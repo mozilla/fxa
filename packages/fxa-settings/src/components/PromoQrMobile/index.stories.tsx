@@ -60,7 +60,7 @@ export const TreatmentA = story('treatment-a');
 
 export const WithCardAppLayout = () => (
   <MemoryRouter initialEntries={['/']}>
-    <AppLayout>
+    <AppLayout title="Promo Qr Mobile">
       <h1 className="card-header">Sign in</h1>
       <p className="mt-2">Continue to account settings</p>
     </AppLayout>

@@ -16,7 +16,7 @@ export default {
 
 export const DefaultNone = () => {
   return (
-    <AppLayout>
+    <AppLayout title="Choose Newsletters">
       <SubjectWithNone />
     </AppLayout>
   );
@@ -24,7 +24,7 @@ export const DefaultNone = () => {
 
 export const DefaultLetters = () => {
   return (
-    <AppLayout>
+    <AppLayout title="Choose Newsletters">
       <SubjectWithNewsletters />
     </AppLayout>
   );

@@ -11,17 +11,19 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { LocationState, ServiceWelcomeProps } from './interfaces';
 import { VpnWelcomeImage } from '../../../components/images';
 
-const ServiceWelcome = ({
-  integration,
-}: ServiceWelcomeProps) => {
+const ServiceWelcome = ({ integration }: ServiceWelcomeProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: LocationState;
   };
   const isSignIn = location?.state?.origin === 'signin';
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'service-welcome-vpn-page-title',
+    'Turn on VPN'
+  );
 
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <Banner
         type="success"
         content={{

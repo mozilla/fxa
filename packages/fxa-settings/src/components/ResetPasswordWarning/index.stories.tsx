@@ -17,7 +17,7 @@ export default {
 
 export const NoRecoveryKeyExists = () => (
   <MemoryRouter>
-    <AppLayout>
+    <AppLayout title="Reset Password Warning">
       <ResetPasswordWarning locationState={createMockLocationState(false)} />
     </AppLayout>
   </MemoryRouter>
@@ -25,7 +25,7 @@ export const NoRecoveryKeyExists = () => (
 
 export const RecoveryKeyExists = () => (
   <MemoryRouter>
-    <AppLayout>
+    <AppLayout title="Reset Password Warning">
       <ResetPasswordWarning locationState={createMockLocationState(true)} />
     </AppLayout>
   </MemoryRouter>
@@ -33,7 +33,7 @@ export const RecoveryKeyExists = () => (
 
 export const RecoveryKeyUnkown = () => (
   <MemoryRouter>
-    <AppLayout>
+    <AppLayout title="Reset Password Warning">
       <ResetPasswordWarning locationState={createMockLocationState()} />
     </AppLayout>
   </MemoryRouter>

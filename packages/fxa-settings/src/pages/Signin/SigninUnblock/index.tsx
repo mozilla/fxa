@@ -215,13 +215,20 @@ export const SigninUnblock = ({
   };
 
   const cmsInfo = integration.getCmsInfo();
-  const title = cmsInfo?.SigninUnblockCodePage?.pageTitle;
+  const cmsPageTitle = cmsInfo?.SigninUnblockCodePage?.pageTitle;
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'signin-unblock-page-title',
+    'Authorize this sign-in'
+  );
   const splitLayout = cmsInfo?.SigninUnblockCodePage?.splitLayout;
   const additionalAccessibilityInfo =
     cmsInfo?.shared.additionalAccessibilityInfo;
 
   return (
-    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
+    <AppLayout
+      {...{ cmsInfo, cmsPageTitle, splitLayout, setCurrentSplitLayout }}
+      title={localizedPageTitle}
+    >
       <CardHeader
         headingText="Authorize this sign-in"
         headingTextFtlId="signin-unblock-header"

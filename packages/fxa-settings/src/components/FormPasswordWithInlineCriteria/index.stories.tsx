@@ -15,7 +15,7 @@ export default {
 } as Meta;
 
 export const ResetPassword = () => (
-  <AppLayout>
+  <AppLayout title="Form Password With Inline Criteria">
     <div className="max-w-lg mx-auto">
       <Subject passwordFormType="reset" />
     </div>
@@ -23,7 +23,7 @@ export const ResetPassword = () => (
 );
 
 export const Signup = () => (
-  <AppLayout>
+  <AppLayout title="Form Password With Inline Criteria">
     <div className="max-w-lg mx-auto">
       <Subject passwordFormType="signup" />
     </div>

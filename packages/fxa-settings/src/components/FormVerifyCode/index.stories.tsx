@@ -15,19 +15,19 @@ export default {
 } as Meta;
 
 export const Default = () => (
-  <AppLayout>
+  <AppLayout title="Form Verify Code">
     <Subject />
   </AppLayout>
 );
 
 export const WithCustomErrorMessage = () => (
-  <AppLayout>
+  <AppLayout title="Form Verify Code">
     <Subject localizedCustomCodeRequiredMessage="This is a spoofed custom error" />
   </AppLayout>
 );
 
 export const SubmitOnPasteDisabled = () => (
-  <AppLayout>
+  <AppLayout title="Form Verify Code">
     <Subject submitFormOnPaste={false} />
   </AppLayout>
 );

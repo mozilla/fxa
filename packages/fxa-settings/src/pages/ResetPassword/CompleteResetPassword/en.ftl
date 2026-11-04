@@ -20,3 +20,7 @@ reset-password-complete-banner-message = Don’t forget to generate a new accoun
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } will try sending you back to use an email mask after you sign in.
+
+# Browser tab title for the page where the user creates a new password while resetting it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+complete-reset-password-page-title = Create a new password

@@ -31,6 +31,10 @@ const SigninBounced = ({
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const ftlMessageResolver = useFtlMsgResolver();
   const backText = ftlMessageResolver.getMsg('back', 'Back');
+  const localizedPageTitle = ftlMessageResolver.getMsg(
+    'signin-bounced-page-title',
+    'Account locked'
+  );
   const navigateWithQuery = useNavigateWithQuery();
 
   const handleNavigationBack = (event: any) => {
@@ -60,7 +64,7 @@ const SigninBounced = ({
   }
 
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <CardHeader
         headingText="Sorry. We’ve locked your account."
         headingTextFtlId="signin-bounced-header"

@@ -19,6 +19,7 @@ import {
 } from '../../../models/integrations/pairing-supplicant-integration';
 import { Integration } from '../../../models/integrations/integration';
 import { useNavigateWithQuery } from '../../../lib/hooks';
+import { useFtlMsgResolver } from '../../../models';
 
 export type SuppAllowProps = {
   authDeviceInfo?: RemoteMetadata;
@@ -35,6 +36,11 @@ const SuppAllow = ({
   integration,
   error,
 }: SuppAllowProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'pair-supp-allow-page-title',
+    'Confirm pairing'
+  );
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   useGleanView(() => GleanMetrics.cadMobilePair.view());
   const navigateWithQuery = useNavigateWithQuery();
@@ -120,7 +126,7 @@ const SuppAllow = ({
   const spanElement = <span className="card-subheader">for {email}</span>;
 
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       {/* Does not use CardHeader due to complication of passing vars within elems */}
       <FtlMsg
         id="pair-supp-allow-heading-text"

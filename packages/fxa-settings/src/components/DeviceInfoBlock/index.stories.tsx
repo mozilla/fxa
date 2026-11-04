@@ -26,7 +26,7 @@ const storyWithProps = (
   deviceNameDisplay?: DeviceNameDisplay
 ) => {
   const story = () => (
-    <AppLayout>
+    <AppLayout title="Device Info Block">
       <DeviceInfoBlock
         remoteMetadata={{ ...MOCK_METADATA_UNKNOWN_LOCATION, ...metadata }}
         {...{ deviceNameDisplay }}

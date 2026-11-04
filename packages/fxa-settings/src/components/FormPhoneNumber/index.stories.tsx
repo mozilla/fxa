@@ -13,7 +13,7 @@ export default {
   component: FormPhoneNumber,
   decorators: [
     (Story) => (
-      <AppLayout>
+      <AppLayout title="Form Phone Number">
         <Story />
       </AppLayout>
     ),

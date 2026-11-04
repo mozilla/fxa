@@ -15,14 +15,14 @@ export default {
 } as Meta;
 
 export const Basic = () => (
-  <AppLayout>
+  <AppLayout title="Page title">
     <h1 className="card-header">Header content</h1>
     <p className="mt-2">Paragraph content here</p>
   </AppLayout>
 );
 
 export const WithoutCard = () => (
-  <AppLayout wrapInCard={false}>
+  <AppLayout title="Page title" wrapInCard={false}>
     <div className="border-2 border-blue-300 p-4 rounded-lg shadow-lg">
       <h1 className="card-header">Header</h1>
       <p className="mt-2">
@@ -41,7 +41,7 @@ export const WithTitle = () => (
 );
 
 export const WithWidthClass = () => (
-  <AppLayout widthClass="card-xl">
+  <AppLayout title="Page title" widthClass="card-xl">
     <h1 className="card-header">Wide content</h1>
     <p className="mt-2">This content uses a wider card layout</p>
   </AppLayout>
@@ -49,7 +49,7 @@ export const WithWidthClass = () => (
 
 export const WithIntegration = () => {
   return (
-    <AppLayout cmsInfo={MOCK_CMS_INFO}>
+    <AppLayout title="Page title" cmsInfo={MOCK_CMS_INFO}>
       <h1 className="card-header">Header content</h1>
       <p className="mt-2">Paragraph content here</p>
     </AppLayout>
@@ -71,7 +71,7 @@ export const WithCmsInfoNoBackground = () => {
   } as RelierCmsInfo;
 
   return (
-    <AppLayout cmsInfo={mockCmsInfo}>
+    <AppLayout title="Page title" cmsInfo={mockCmsInfo}>
       <h1 className="card-header">Header content</h1>
       <p className="mt-2">Paragraph content here</p>
     </AppLayout>
@@ -95,7 +95,7 @@ export const WithCmsInfoInvalidBackground = () => {
   } as RelierCmsInfo;
 
   return (
-    <AppLayout cmsInfo={mockCmsInfo}>
+    <AppLayout title="Page title" cmsInfo={mockCmsInfo}>
       <h1 className="card-header">Header content</h1>
       <p className="mt-2">Paragraph content here</p>
     </AppLayout>
@@ -119,7 +119,7 @@ export const WithCmsInfoRadialGradient = () => {
   } as RelierCmsInfo;
 
   return (
-    <AppLayout cmsInfo={mockCmsInfo}>
+    <AppLayout title="Page title" cmsInfo={mockCmsInfo}>
       <h1 className="card-header">Header content</h1>
       <p className="mt-2">Paragraph content here</p>
     </AppLayout>
@@ -144,7 +144,7 @@ export const WithCmsDefaultLayoutBackgroundAndHeaderBackground = () => {
   } as RelierCmsInfo;
 
   return (
-    <AppLayout cmsInfo={mockCmsInfo}>
+    <AppLayout title="Page title" cmsInfo={mockCmsInfo}>
       <h1 className="card-header">Header content</h1>
       <p className="mt-2">Paragraph content here</p>
     </AppLayout>
@@ -153,7 +153,7 @@ export const WithCmsDefaultLayoutBackgroundAndHeaderBackground = () => {
 
 export const WithCmsSplitLayoutBackgroundGradient = () => {
   return (
-    <AppLayout cmsInfo={MOCK_CMS_INFO} splitLayout>
+    <AppLayout title="Page title" cmsInfo={MOCK_CMS_INFO} splitLayout>
       <h1 className="card-header">Header content</h1>
       <p className="mt-2">Paragraph content here</p>
     </AppLayout>
@@ -172,7 +172,7 @@ export const WithCmsSplitLayoutBackgroundImage = () => {
   };
 
   return (
-    <AppLayout cmsInfo={mockCmsInfo} splitLayout>
+    <AppLayout title="Page title" cmsInfo={mockCmsInfo} splitLayout>
       <h1 className="card-header">Header content</h1>
       <p className="mt-2">Paragraph content here</p>
     </AppLayout>
@@ -192,7 +192,7 @@ export const WithCmsSplitLayoutBackgroundImageHeaderBackground = () => {
   } as RelierCmsInfo;
 
   return (
-    <AppLayout cmsInfo={mockCmsInfo} splitLayout>
+    <AppLayout title="Page title" cmsInfo={mockCmsInfo} splitLayout>
       <h1 className="card-header">Header content</h1>
       <p className="mt-2">
         Lots of text so we can see the max-width! Croissant cookie sesame snaps
@@ -215,7 +215,7 @@ export const WithCmsSplitLayoutBackgroundImageHeaderBackground = () => {
 
 export const WithCmsInfoUndefined = () => {
   return (
-    <AppLayout cmsInfo={undefined}>
+    <AppLayout title="Page title" cmsInfo={undefined}>
       <h1 className="card-header">Header content</h1>
       <p className="mt-2">Paragraph content here</p>
     </AppLayout>
@@ -224,7 +224,7 @@ export const WithCmsInfoUndefined = () => {
 
 export const WithoutCmsInfo = () => {
   return (
-    <AppLayout>
+    <AppLayout title="Page title">
       <h1 className="card-header">Header content</h1>
       <p className="mt-2">Paragraph content here</p>
     </AppLayout>
