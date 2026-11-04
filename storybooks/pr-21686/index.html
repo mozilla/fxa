@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 33fc70df610a6db8c582587daacab9617e23dfd8</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 33fc70df610a6db8c582587daacab9617e23dfd8</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>11/3/2026, 9:47:33 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): Make sure there&#039;s a fallback for users without access to the google play store</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- Some users might not have the play store installed.
+- These users would get a spinner if they tried the pair flow with a non firefox default browser.
+
+This Commit:
+- Adds a fallback if the play store doesn&#039;t open.
+- Let&#039;s user click the &#039;Download Firefox&#039; button as a fallback.
+
+Note, if users can&#039;t access the play store, then the download link doesn&#039;t work, users will should be accustomed to the playstore not working and be able to find a work around.</pre></dd>
+  </dl>
+</body>
+</html>

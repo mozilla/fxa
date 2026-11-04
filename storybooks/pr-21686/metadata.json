@@ -1,0 +1,10 @@
+{
+  "commit": "33fc70df610a6db8c582587daacab9617e23dfd8",
+  "summary": "fix(settings): Make sure there's a fallback for users without access to the google play store",
+  "description": "Because:\n- Some users might not have the play store installed.\n- These users would get a spinner if they tried the pair flow with a non firefox default browser.\n\nThis Commit:\n- Adds a fallback if the play store doesn't open.\n- Let's user click the 'Download Firefox' button as a fallback.\n\nNote, if users can't access the play store, then the download link doesn't work, users will should be accustomed to the playstore not working and be able to find a work around.",
+  "timestamp": 1793742453000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
