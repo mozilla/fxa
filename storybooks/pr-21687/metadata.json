@@ -1,8 +1,8 @@
 {
-  "commit": "a1c8ad66a54695f8241eea753d35ba63db94b382",
-  "summary": "fix(auth): count session token GET failures, lower touch interval",
-  "description": "Because:\n\n- Review asked for an error metric on getSessionTokens and a 60s default.\n\nThis commit:\n\n- Adds a redis.getSessionTokens.error counter.\n- Stops a rejected GET from leaking an unhandled rejection.\n- Lowers lastAccessTimeUpdates.minIntervalSeconds to 60.",
-  "timestamp": 1793819972000,
+  "commit": "9b45a9d1bfc6c9593c443daae7a0767ac1451f1d",
+  "summary": "perf(auth): cut session-token Redis main-thread work",
+  "description": "Because:\n\n- The session-token Redis main thread runs near saturation and stalls\n  auth-server requests.\n- Each lastAccessTime touch decodes and rewrites the account's whole\n  session blob in Lua.\n\nThis commit:\n\n- Throttles lastAccessTime-only touches per token with a SET NX EX marker key.\n- Adds lastAccessTimeUpdates.minIntervalSeconds (default 60, 0 disables).\n- Reads session tokens with a plain GET and unpacks them in Node.\n- Removes the getSessionTokens_1 Lua script.\n- Adds getSessionTokens unpack and error counters.\n\nCloses #FXA-14880",
+  "timestamp": 1793820086000,
   "storybooks": [
     "fxa-admin-panel"
   ],

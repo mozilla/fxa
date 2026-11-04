@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit a1c8ad66a54695f8241eea753d35ba63db94b382</title>
+  <title>Storybooks for commit 9b45a9d1bfc6c9593c443daae7a0767ac1451f1d</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,25 +23,32 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit a1c8ad66a54695f8241eea753d35ba63db94b382</h1>
+  <h1>Storybooks for commit 9b45a9d1bfc6c9593c443daae7a0767ac1451f1d</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/4/2026, 7:19:32 PM UTC</dd>
+    <dd>11/4/2026, 7:21:26 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(auth): count session token GET failures, lower touch interval</pre></dd>
+    <dd><pre>perf(auth): cut session-token Redis main-thread work</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- Review asked for an error metric on getSessionTokens and a 60s default.
+- The session-token Redis main thread runs near saturation and stalls
+  auth-server requests.
+- Each lastAccessTime touch decodes and rewrites the account&#039;s whole
+  session blob in Lua.
 
 This commit:
 
-- Adds a redis.getSessionTokens.error counter.
-- Stops a rejected GET from leaking an unhandled rejection.
-- Lowers lastAccessTimeUpdates.minIntervalSeconds to 60.</pre></dd>
+- Throttles lastAccessTime-only touches per token with a SET NX EX marker key.
+- Adds lastAccessTimeUpdates.minIntervalSeconds (default 60, 0 disables).
+- Reads session tokens with a plain GET and unpacks them in Node.
+- Removes the getSessionTokens_1 Lua script.
+- Adds getSessionTokens unpack and error counters.
+
+Closes #FXA-14880</pre></dd>
   </dl>
 </body>
 </html>
