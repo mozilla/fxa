@@ -1,8 +1,8 @@
 {
-  "commit": "6d671082db9914741761802cf422facd5d65f9c2",
+  "commit": "ace08252f56534825de55e9c767168e314098ccb",
   "summary": "feat(auth): send WAF challenge cookie on passkey sign-in",
   "description": "Because:\n\n- The Fastly WAF challenge needs the cookie on passkey sign-in requests\n  before the WAF rule can cover those routes\n\nThis commit:\n\n- Includes credentials on passkey authentication start/finish in auth-client\n- Allows CORS credentials on both routes in auth-server\n\nCloses #FXA-14013",
-  "timestamp": 1793810327000,
+  "timestamp": 1793813381000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-settings"
