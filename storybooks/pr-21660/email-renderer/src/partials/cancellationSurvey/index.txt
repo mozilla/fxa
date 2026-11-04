@@ -1,2 +1,0 @@
-cancellationSurvey-plaintext = "Please help us improve our services by taking this short survey:"
-<%- cancellationSurveyUrl %>
