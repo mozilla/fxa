@@ -41,10 +41,12 @@ describe('/introspect POST', () => {
       token: {
         getTokenId: jest.fn(async () => MOCK_TOKEN_ID),
       },
+      generateSub: jest.fn(jest.requireActual('../../oauth/jwt_sub')),
     };
 
     jest.resetModules();
     jest.doMock('../../oauth/token', () => mocks.token);
+    jest.doMock('../../oauth/jwt_sub', () => mocks.generateSub);
     route = require('./introspect')({
       oauthDB: mocks.oauthDB,
       customs: mocks.customs,
@@ -122,6 +124,26 @@ describe('/introspect POST', () => {
       });
     });
 
+    it('returns { active: false } only for an expired access token', async () => {
+      mocks.oauthDB.getAccessToken.mockResolvedValue({
+        ...accessToken(),
+        expiresAt: new Date(Date.now() - 1000),
+      });
+      const resp = await handle({ payload: { token: TOKEN } });
+      expect(resp).toEqual({ active: false });
+    });
+
+    it('returns a PPID sub for a PPID-enabled client', async () => {
+      mocks.oauthDB.getAccessToken.mockResolvedValue(accessToken());
+      mocks.generateSub.mockResolvedValueOnce('ppid-sub');
+      const resp = await handle({ payload: { token: TOKEN } });
+      expect(resp.sub).toBe('ppid-sub');
+      expect(mocks.generateSub).toHaveBeenCalledWith(
+        MOCK_USER_ID,
+        MOCK_CLIENT_ID
+      );
+    });
+
     it('returns { active: false } for an unparseable token without leaking', async () => {
       mocks.token.getTokenId.mockRejectedValueOnce(new Error('invalid JWT'));
       const resp = await handle({ payload: { token: 'garbage' } });
@@ -158,6 +180,18 @@ describe('/introspect POST', () => {
           'fxa-lastUsedAt': MOCK_LAST_USED_AT.getTime(),
         });
         expect(mocks.oauthDB.getClient).toHaveBeenCalledWith(MOCK_CLIENT_ID);
+      });
+
+      it('returns { active: false } only for an expired refresh token', async () => {
+        mocks.oauthDB.getRefreshToken.mockResolvedValue({
+          ...accessToken(),
+          expiresAt: new Date(Date.now() - 1000),
+        });
+        mocks.oauthDB.getClient.mockResolvedValue({ publicClient: true });
+        const resp = await handle({
+          payload: { token: TOKEN, token_type_hint: 'refresh_token' },
+        });
+        expect(resp).toEqual({ active: false });
       });
 
       it('throws for a non-public client', async () => {
