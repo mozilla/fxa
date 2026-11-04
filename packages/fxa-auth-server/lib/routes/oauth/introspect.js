@@ -7,6 +7,7 @@ const Joi = require('joi');
 const validators = require('../../oauth/validators');
 const { OauthError } = require('@fxa/accounts/errors');
 const { getTokenId } = require('../../oauth/token');
+const generateSub = require('../../oauth/jwt_sub');
 const OAUTH_SERVER_DOCS =
   require('../../../docs/swagger/oauth-server-api').default;
 const DESCRIPTION =
@@ -107,13 +108,16 @@ module.exports = ({ oauthDB, customs }) => ({
         if (token.expiresAt) {
           response.active = +token.expiresAt > Date.now();
         }
+        if (!response.active) {
+          return { active: false };
+        }
 
         Object.assign(response, {
           scope: token.scope.toString(),
           client_id: token.clientId.toString('hex'),
           token_type: tokenType,
           iat: token.createdAt.getTime(),
-          sub: token.userId.toString('hex'),
+          sub: await generateSub(token.userId, token.clientId),
           jti: tokenId.toString('hex'),
         });
 
