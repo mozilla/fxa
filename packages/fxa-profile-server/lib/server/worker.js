@@ -10,10 +10,15 @@ const Joi = require('joi');
 
 const AppError = require('../error');
 const compute = require('../compute');
+const validate = require('../validate');
 
 const img = require('../img');
 
 const SIZES = img.SIZES;
+
+const params = Joi.object({
+  id: Joi.string().regex(validate.hex).length(32).required(),
+});
 
 exports.create = async function () {
   var server = new Hapi.Server({
@@ -46,6 +51,7 @@ exports.create = async function () {
     path: '/a/{id}',
     config: {
       validate: {
+        params,
         headers: Joi.object({
           'content-length': Joi.number().required(),
         }).unknown(),
@@ -69,6 +75,9 @@ exports.create = async function () {
     method: 'DELETE',
     path: '/a/{id}',
     config: {
+      validate: {
+        params,
+      },
       handler: async function delete_(req) {
         return Promise.all(
           Object.keys(SIZES).map(function (name) {
