@@ -167,7 +167,8 @@ module.exports = function (
     push,
     customs,
     glean,
-    statsd
+    statsd,
+    authServerCacheRedis
   );
   const unblockCodes = require('./unblock-codes')(
     log,
@@ -255,7 +256,8 @@ module.exports = function (
     statsd,
     glean,
     log,
-    mailer
+    mailer,
+    authServerCacheRedis
   );
 
   const { passkeyWrapsRoutes } = require('./passkey-wraps');

@@ -41,6 +41,7 @@ import {
 } from './utils/passwordless';
 import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
+import { markNewDeviceEmailSent } from './utils/new-device-email-sent';
 import validators from './validators';
 import { AccountEventsManager } from '../account-events';
 import { gleanMetrics } from '../metrics/glean';
@@ -1091,6 +1092,11 @@ export class AccountHandler {
                 target: 'strapi',
               });
             }
+            await markNewDeviceEmailSent(
+              this.authServerCacheRedis,
+              this.log,
+              sessionToken.id
+            );
           } catch (err) {
             // If we couldn't email them, no big deal. Log
             // and pretend everything worked.
