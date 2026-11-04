@@ -1,8 +1,8 @@
 {
-  "commit": "5840f5031dbda6495a20bab74f336345fc6372fe",
-  "summary": "Merge pull request #21695 from mozilla/fxa-13751",
-  "description": "fix(pairing-channel): catch rejection of the connected promise",
-  "timestamp": 1793827916000,
+  "commit": "0c545d845a10a1d116cc3c4bd841a388a722ba20",
+  "summary": "Merge pull request #21696 from mozilla/fxa-14036",
+  "description": "refactor(oauth): use jwt_sub for sub in introspect",
+  "timestamp": 1793828749000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
