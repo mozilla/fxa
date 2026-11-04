@@ -140,12 +140,22 @@ export const Index = ({
   });
 
   const cmsInfo = integration.getCmsInfo();
-  const title = cmsInfo?.EmailFirstPage?.pageTitle;
+  const cmsPageTitle = cmsInfo?.EmailFirstPage?.pageTitle;
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'index-page-title',
+    'Sign in or create an account'
+  );
   const splitLayout = cmsInfo?.EmailFirstPage?.splitLayout;
 
   return (
     <AppLayout
-      {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}
+      {...{
+        cmsInfo,
+        cmsPageTitle,
+        splitLayout,
+        setCurrentSplitLayout,
+      }}
+      title={localizedPageTitle}
       loading={passkey.isNavigating}
     >
       {cmsInfo ? (

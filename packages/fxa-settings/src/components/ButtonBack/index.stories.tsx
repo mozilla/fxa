@@ -4,7 +4,7 @@
 
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import AppLayout from '../AppLayout';
+import AppLayout from '../AppLayout/storybook';
 import ButtonBack from '.';
 import { HeadingPrimary } from '../HeadingPrimary';
 import { RelierCmsInfo } from '../../models/integrations';

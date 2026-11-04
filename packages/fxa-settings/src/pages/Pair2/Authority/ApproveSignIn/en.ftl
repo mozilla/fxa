@@ -11,3 +11,7 @@ pair2-authority-approve-sign-in-confirm-button = Yes, approve sign-in
 # "Not you?" asks whether someone other than the user started this sign-in.
 # The text inside <changePassword> links to the page for changing the password.
 pair2-authority-approve-sign-in-change-password = Not you? <changePassword>Change your password</changePassword>
+
+# Browser tab title for the page where the user approves a sign-in requested from their mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-approve-sign-in-page-title = Approve sign-in

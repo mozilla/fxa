@@ -34,7 +34,7 @@ const WebChannelExample = () => {
   }
 
   return (
-    <AppLayout>
+    <AppLayout title="Web channel example">
       <CardHeader
         headingTextFtlId="web-channel-examples"
         headingText="Web Channel Examples"

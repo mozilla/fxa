@@ -3,3 +3,7 @@
 pair-success-header-2 = Device connected
 pair-success-message-2 = Pairing was successful.
 pair-success-tab-close-message = This tab will be closed automatically by { -brand-firefox }.
+
+# Browser tab title for the page shown when a device has been paired successfully.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-success-page-title = Device connected

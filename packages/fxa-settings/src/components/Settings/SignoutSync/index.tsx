@@ -5,6 +5,7 @@
 import { FtlMsg } from 'fxa-react/lib/utils';
 import CardHeader from '../../CardHeader';
 import AppLayout from '../../AppLayout';
+import { useFtlMsgResolver } from '../../../models';
 
 export const viewName = 'legal';
 
@@ -12,8 +13,14 @@ const SignoutSync = () => {
   // TODO: Add button to make this more automatic. We need the android signout fix
   //       to be rolled out first though.
 
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'signout-sync-page-title',
+    'Session expired'
+  );
+
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <CardHeader
         headingTextFtlId="signout-sync-header"
         headingText="Session Expired"

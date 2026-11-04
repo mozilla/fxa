@@ -496,7 +496,7 @@ const SigninPasswordlessCode = ({
   const cmsInfo = integration?.getCmsInfo();
   //TODO: Signup/SigninPasswordlessCodePage to be added as part of FXA-13020
   const {
-    pageTitle: title,
+    pageTitle: cmsPageTitle,
     splitLayout,
     headline: cmsHeadline,
     description: cmsDescription,
@@ -506,6 +506,16 @@ const SigninPasswordlessCode = ({
     : cmsInfo?.SigninPasswordlessCodePage) ?? {};
   const additionalAccessibilityInfo =
     cmsInfo?.shared.additionalAccessibilityInfo;
+
+  const localizedPageTitle = isSignup
+    ? ftlMsgResolver.getMsg(
+        'signup-passwordless-code-page-title',
+        'Sign up with email code'
+      )
+    : ftlMsgResolver.getMsg(
+        'signin-passwordless-code-page-title',
+        'Sign in with email code'
+      );
 
   // Heading and instruction text vary based on signup vs signin
   const subHeadingText = isSignup
@@ -533,7 +543,8 @@ const SigninPasswordlessCode = ({
 
   return (
     <AppLayout
-      {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}
+      {...{ cmsInfo, cmsPageTitle, splitLayout, setCurrentSplitLayout }}
+      title={localizedPageTitle}
       loading={passkey.isNavigating}
     >
       <CardHeader

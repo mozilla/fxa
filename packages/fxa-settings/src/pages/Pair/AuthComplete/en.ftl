@@ -18,3 +18,11 @@ pair-auth-complete-send-tab-heading = You’re ready to send some tabs
 # Variable { $deviceOS } is an operating system short name, for example "iOS", "Android"
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } for { $deviceOS } is connected.
 pair-auth-complete-send-tab-benefits = You’re free to instantly send open tabs, passwords, and bookmarks between devices.
+
+# Browser tab title for the page shown when a device has been connected after pairing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-auth-complete-page-title = Device connected
+
+# Browser tab title for the page shown when a device has been connected after pairing started from a send tab button.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-auth-complete-send-tab-page-title = Ready to send tabs

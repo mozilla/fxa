@@ -8,43 +8,51 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import AppLayout from '../../../../components/AppLayout';
 import { SyncDevicesImage } from '../../../../components/images';
 import { LINK } from '../../../../constants';
+import { useFtlMsgResolver } from '../../../../models';
 
 /**
  * The desktop screen shown when the user needs Firefox before they can pair.
  * It tells them to open Firefox and visit firefox.com/pair, and offers a
  * download link for the desktop browser as the only action.
  */
-const DownloadFirefox = () => (
-  <AppLayout>
-    <div className="flex flex-col items-center text-center">
-      <FtlMsg id="pair2-authority-download-firefox-heading">
-        <h1 className="card-header">Open Firefox to sync</h1>
-      </FtlMsg>
-      <FtlMsg
-        id="pair2-authority-download-firefox-instruction-v2"
-        elems={{ b: <b /> }}
-      >
-        <p className="mt-1 text-base">
-          To set up syncing across devices, open Firefox on this device and
-          visit <b>firefox.com/pair</b>.
-        </p>
-      </FtlMsg>
-
-      <SyncDevicesImage className="mt-10 h-[160px] w-auto" />
-
-      <div className="mt-10 flex w-full">
-        <LinkExternal
-          href={LINK.FX_DESKTOP}
-          gleanDataAttrs={{ id: 'dtm_desktop_download_submit' }}
-          className="cta-primary cta-xl"
+const DownloadFirefox = () => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'pair2-authority-download-firefox-page-title',
+    'Open Firefox to sync'
+  );
+  return (
+    <AppLayout title={localizedPageTitle}>
+      <div className="flex flex-col items-center text-center">
+        <FtlMsg id="pair2-authority-download-firefox-heading">
+          <h1 className="card-header">Open Firefox to sync</h1>
+        </FtlMsg>
+        <FtlMsg
+          id="pair2-authority-download-firefox-instruction-v2"
+          elems={{ b: <b /> }}
         >
-          <FtlMsg id="pair2-authority-download-firefox-cta">
-            Download Firefox
-          </FtlMsg>
-        </LinkExternal>
+          <p className="mt-1 text-base">
+            To set up syncing across devices, open Firefox on this device and
+            visit <b>firefox.com/pair</b>.
+          </p>
+        </FtlMsg>
+
+        <SyncDevicesImage className="mt-10 h-[160px] w-auto" />
+
+        <div className="mt-10 flex w-full">
+          <LinkExternal
+            href={LINK.FX_DESKTOP}
+            gleanDataAttrs={{ id: 'dtm_desktop_download_submit' }}
+            className="cta-primary cta-xl"
+          >
+            <FtlMsg id="pair2-authority-download-firefox-cta">
+              Download Firefox
+            </FtlMsg>
+          </LinkExternal>
+        </div>
       </div>
-    </div>
-  </AppLayout>
-);
+    </AppLayout>
+  );
+};
 
 export default DownloadFirefox;

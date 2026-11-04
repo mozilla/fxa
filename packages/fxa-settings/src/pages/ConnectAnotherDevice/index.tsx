@@ -90,6 +90,10 @@ const ConnectAnotherDevice = ({
 
   const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'connect-another-device-page-title',
+    'Connect another device'
+  );
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
   const searchParams = useMemo(
@@ -276,7 +280,7 @@ const ConnectAnotherDevice = ({
   }
 
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       {showSuccessMessage && isSignedIn && (
         <Banner
           type="success"

@@ -6,7 +6,7 @@ import FormPhoneNumber from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { Meta } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import AppLayout from '../AppLayout';
+import AppLayout from '../AppLayout/storybook';
 
 export default {
   title: 'Components/FormPhoneNumber',

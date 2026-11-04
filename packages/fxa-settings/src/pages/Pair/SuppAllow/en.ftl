@@ -7,3 +7,7 @@
 pair-supp-allow-heading-text = Confirm pairing <span>for { $email }</span>
 pair-supp-allow-confirm-button = Confirm pairing
 pair-supp-allow-cancel-link = Cancel
+
+# Browser tab title for the page where the user confirms pairing a device with their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-supp-allow-page-title = Confirm pairing

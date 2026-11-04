@@ -120,8 +120,12 @@ const AuthComplete = ({
       `${deviceFamily} for ${deviceOS} is connected.`,
       { deviceFamily, deviceOS }
     );
+    const localizedSendTabPageTitle = ftlMsgResolver.getMsg(
+      'pair-auth-complete-send-tab-page-title',
+      'Ready to send tabs'
+    );
     return (
-      <AppLayout>
+      <AppLayout title={localizedSendTabPageTitle}>
         <CardHeader
           headingTextFtlId="pair-auth-complete-send-tab-heading"
           headingText="You’re ready to send some tabs"
@@ -139,8 +143,12 @@ const AuthComplete = ({
     );
   }
 
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'pair-auth-complete-page-title',
+    'Device connected'
+  );
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <CardHeader
         headingTextFtlId="pair-auth-complete-heading"
         headingText="Device connected"

@@ -5,7 +5,7 @@
 import { Meta } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import AppLayout from '../AppLayout';
+import AppLayout from '../AppLayout/storybook';
 import AlternativeAuthOptions from '.';
 import { PasskeyErrorBannerFixture, Subject } from './mocks';
 

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import ChooseNewsletters from '.';
-import AppLayout from '../AppLayout';
+import AppLayout from '../AppLayout/storybook';
 import { Meta } from '@storybook/react';
 import { SubjectWithNewsletters, SubjectWithNone } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';

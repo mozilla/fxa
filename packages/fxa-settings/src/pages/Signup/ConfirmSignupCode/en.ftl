@@ -2,8 +2,9 @@
 ## Users see this page after they have initiated account sign up,
 # and a confirmation code has been sent to their email address.
 
-# Page title show in browser title bar or page tab
-confirm-signup-code-page-title = Enter confirmation code
+# Browser tab title for the page where the user enters the confirmation code emailed to them to finish signing up.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-signup-code-page-title-2 = Confirm your email
 
 # String within the <span> element appears on a separate line
 # If more appropriate in a locale, the string within the <span>, "for your { -product-mozilla-account }"

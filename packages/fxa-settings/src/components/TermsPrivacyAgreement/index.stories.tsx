@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import TermsPrivacyAgreement from '.';
-import AppLayout from '../../components/AppLayout';
+import AppLayout from '../../components/AppLayout/storybook';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { RelierLegalTerms } from '../../models/integrations/relier-interfaces';

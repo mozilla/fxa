@@ -35,6 +35,10 @@ const ConfirmResetPassword = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
   const cmsInfo = integration?.getCmsInfo();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'confirm-reset-password-with-code-page-title',
+    'Check your email to reset your password'
+  );
 
   const spanElement = <span className="font-bold">{email}</span>;
 
@@ -43,7 +47,7 @@ const ConfirmResetPassword = ({
   );
 
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <FtlMsg id="password-reset-flow-heading">
         <HeadingPrimary marginClass="">Reset your password</HeadingPrimary>
       </FtlMsg>

@@ -5,7 +5,7 @@
 import RecoveryKeySetupHint from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import AppLayout from '../AppLayout';
+import AppLayout from '../AppLayout/storybook';
 
 export default {
   title: 'Components/RecoveryKeySetupHint',

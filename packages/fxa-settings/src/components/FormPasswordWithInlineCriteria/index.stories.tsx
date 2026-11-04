@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Subject } from './mocks';
-import AppLayout from '../AppLayout';
+import AppLayout from '../AppLayout/storybook';
 import FormPasswordInline from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';

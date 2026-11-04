@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
+import { useFtlMsgResolver } from '../../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../../../components/AppLayout';
 import DeviceInfoBlock from '../../../../components/DeviceInfoBlock';
@@ -39,63 +40,73 @@ const ApproveSignIn = ({
   remoteMetadata,
   onApprove,
   onChangePassword,
-}: ApproveSignInProps) => (
-  <AppLayout>
-    <div className="text-center">
-      <FtlMsg id="pair2-authority-approve-sign-in-heading">
-        <h1 className="card-header">Approve sign-in?</h1>
-      </FtlMsg>
+}: ApproveSignInProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'pair2-authority-approve-sign-in-page-title',
+    'Approve sign-in'
+  );
 
-      <p className="mt-1 break-all text-base">{email}</p>
+  return (
+    <>
+      <AppLayout title={localizedPageTitle}>
+        <div className="text-center">
+          <FtlMsg id="pair2-authority-approve-sign-in-heading">
+            <h1 className="card-header">Approve sign-in?</h1>
+          </FtlMsg>
 
-      <SyncDevicesImage className="mt-8 mb-4 h-[160px] w-auto mx-auto" />
+          <p className="mt-1 break-all text-base">{email}</p>
 
-      <DeviceInfoBlock
-        {...{ remoteMetadata }}
-        deviceNameDisplay="inline"
-        className="mt-4 w-full rounded-lg border border-grey-100 px-4 py-3 text-sm text-grey-900 break-word dark:border-grey-500 dark:text-grey-300 nova:border-default nova:text-default"
-      />
+          <SyncDevicesImage className="mt-8 mb-4 h-[160px] w-auto mx-auto" />
 
-      <FtlMsg id="pair2-authority-approve-sign-in-confirm-button">
-        <button
-          type="button"
-          data-testid="pair2-auth-approve-btn"
-          onClick={onApprove}
-          data-glean-id="dtm_desktop_connect_submit"
-          className="cta-primary cta-xl mt-6 w-full"
-        >
-          Yes, approve sign-in
-        </button>
-      </FtlMsg>
+          <DeviceInfoBlock
+            {...{ remoteMetadata }}
+            deviceNameDisplay="inline"
+            className="mt-4 w-full rounded-lg border border-grey-100 px-4 py-3 text-sm text-grey-900 break-word dark:border-grey-500 dark:text-grey-300 nova:border-default nova:text-default"
+          />
 
-      <FtlMsg
-        id="pair2-authority-approve-sign-in-change-password"
-        elems={{
-          changePassword: (
+          <FtlMsg id="pair2-authority-approve-sign-in-confirm-button">
             <button
               type="button"
-              onClick={onChangePassword}
-              data-glean-id="dtm_desktop_connect_change_password"
-              className="text-default underline"
-            />
-          ),
-        }}
-      >
-        <p className="mt-6 text-xs">
-          Not you?{' '}
-          {/* This can be replaced with a link to account settings to change their password. */}
-          <button
-            type="button"
-            onClick={onChangePassword}
-            data-glean-id="dtm_desktop_connect_change_password"
-            className="text-default underline"
+              data-testid="pair2-auth-approve-btn"
+              onClick={onApprove}
+              data-glean-id="dtm_desktop_connect_submit"
+              className="cta-primary cta-xl mt-6 w-full"
+            >
+              Yes, approve sign-in
+            </button>
+          </FtlMsg>
+
+          <FtlMsg
+            id="pair2-authority-approve-sign-in-change-password"
+            elems={{
+              changePassword: (
+                <button
+                  type="button"
+                  onClick={onChangePassword}
+                  data-glean-id="dtm_desktop_connect_change_password"
+                  className="text-default underline"
+                />
+              ),
+            }}
           >
-            Change your password
-          </button>
-        </p>
-      </FtlMsg>
-    </div>
-  </AppLayout>
-);
+            <p className="mt-6 text-xs">
+              Not you?{' '}
+              {/* This can be replaced with a link to account settings to change their password. */}
+              <button
+                type="button"
+                onClick={onChangePassword}
+                data-glean-id="dtm_desktop_connect_change_password"
+                className="text-default underline"
+              >
+                Change your password
+              </button>
+            </p>
+          </FtlMsg>
+        </div>
+      </AppLayout>
+    </>
+  );
+};
 
 export default ApproveSignIn;

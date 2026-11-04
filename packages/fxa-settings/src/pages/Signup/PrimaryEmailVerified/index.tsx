@@ -6,6 +6,7 @@ import Ready from '../../../components/Ready';
 import { MozServices } from '../../../lib/types';
 import AppLayout from '../../../components/AppLayout';
 import { ReadyBaseIntegration } from '../../../components/Ready';
+import { useFtlMsgResolver } from '../../../models';
 
 export type PrimaryEmailVerifiedProps = {
   serviceName?: MozServices;
@@ -20,10 +21,15 @@ const PrimaryEmailVerified = ({
   isSignedIn,
   integration,
 }: PrimaryEmailVerifiedProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
   const cmsInfo = integration?.getCmsInfo?.();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'primary-email-verified-page-title',
+    'Primary email confirmed'
+  );
 
   return (
-    <AppLayout cmsInfo={cmsInfo}>
+    <AppLayout cmsInfo={cmsInfo} title={localizedPageTitle}>
       <Ready {...{ viewName, serviceName, isSignedIn, integration }} />
     </AppLayout>
   );

@@ -52,6 +52,11 @@ const AuthTotp = ({
     'Authentication code required'
   );
 
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'auth-totp-page-title',
+    'Pair with two-step authentication'
+  );
+
   const formAttributes: FormAttributes = {
     inputFtlId: 'auth-totp-input-label',
     inputLabelText: 'Enter 6-digit code',
@@ -119,7 +124,7 @@ const AuthTotp = ({
   }
 
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <CardHeader
         headingWithDefaultServiceFtlId="auth-totp-heading-w-default-service"
         headingWithCustomServiceFtlId="auth-totp-heading-w-custom-service"

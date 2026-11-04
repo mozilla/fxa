@@ -11,9 +11,9 @@ const Head = ({ title, favicon }: { title?: string; favicon?: string }) => {
 
   const customTitle = title
     ? l10n.getString(
-        'app-page-title-2',
+        'app-page-title-3',
         { title },
-        `${title} | Mozilla accounts`
+        `${title} – Mozilla accounts`
       )
     : l10n.getString('app-default-title-2', null, 'Mozilla accounts');
 
