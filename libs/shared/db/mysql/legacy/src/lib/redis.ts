@@ -28,9 +28,65 @@ export type Config = {
 interface ICustomRedisCache {
   getAccessToken(uid: string): Promise<any>;
   getAccessTokens(uid: string): Promise<any>;
-  getSessionTokens(uid: string): Promise<any>;
   pruneSessionTokens(uid: string, tokenIds: string): Promise<any>;
   touchSessionToken(uid: string, token: any): Promise<any>;
+}
+
+// Packing scheme written by the touchSessionToken Lua script; see
+// https://github.com/mozilla/fxa-auth-server/pull/2254
+const SESSION_TOKEN_PROPERTIES = [
+  'lastAccessTime',
+  'location',
+  'uaBrowser',
+  'uaBrowserVersion',
+  'uaOS',
+  'uaOSVersion',
+  'uaDeviceType',
+  'uaFormFactor',
+];
+const SESSION_TOKEN_LOCATION_PROPERTIES = [
+  'city',
+  'state',
+  'stateCode',
+  'country',
+  'countryCode',
+];
+
+function unpackArray(keys: string[], values: unknown[]) {
+  const result: Record<string, unknown> = {};
+  keys.forEach((key, i) => {
+    if (values[i] !== undefined) result[key] = values[i];
+  });
+  return result;
+}
+
+/**
+ * Expands a stored session-token blob into `{ [tokenId]: token }`.
+ * Entries that are not packed arrays pass through unchanged.
+ * Throws if the blob is not a JSON object.
+ */
+export function unpackSessionTokens(value: string | null) {
+  if (!value) return {};
+  const tokens = JSON.parse(value);
+  if (tokens === null || typeof tokens !== 'object') {
+    throw new Error('session token blob is not an object');
+  }
+  const result: Record<string, unknown> = {};
+  for (const [id, values] of Object.entries(tokens)) {
+    if (!Array.isArray(values)) {
+      result[id] = values;
+      continue;
+    }
+    const token = unpackArray(SESSION_TOKEN_PROPERTIES, values);
+    if (Array.isArray(token.location)) {
+      token.location = unpackArray(
+        SESSION_TOKEN_LOCATION_PROPERTIES,
+        token.location
+      );
+    }
+    result[id] = token;
+  }
+  return result;
 }
 
 // Type guard for ICustomRedisCache
@@ -38,7 +94,6 @@ function isCustomRedisCache(redis: any): redis is Redis & ICustomRedisCache {
   if (
     'getAccessToken' in redis &&
     'getAccessTokens' in redis &&
-    'getSessionTokens' in redis &&
     'pruneSessionTokens' in redis &&
     'touchSessionToken' in redis
   ) {
@@ -247,19 +302,36 @@ export class RedisShared {
     this.metrics?.increment('redis.getSessionTokens');
     const span = tracer.startSpan('redis.getSessionTokens');
     try {
-      const p1 = this.redis.getSessionTokens(uid);
-      const p2 = this.rejectInMs(p1, this.timeoutMs);
-      const value = await Promise.race([p1, p2]);
+      const p1 = this.redis.get(uid);
+      // See claimLastAccessTimeWrite: the cancel promise must not reject.
+      const p2 = this.rejectInMs(
+        p1.catch(() => undefined),
+        this.timeoutMs
+      );
+      const value = (await Promise.race([p1, p2])) as string | null;
 
-      if (value?.length > 0) {
+      if (value && value.length > 0) {
         span.setAttribute('redis.getSessionTokens.tokens.length', value.length);
         this.metrics?.histogram(
           'redis.getSessionTokens.tokens.length',
           value.length
         );
       }
-      return JSON.parse(value as string);
+      try {
+        const result = unpackSessionTokens(value);
+        this.metrics?.increment('redis.getSessionTokens.unpack.success');
+        return result;
+      } catch (e) {
+        this.metrics?.increment('redis.getSessionTokens.unpack.err');
+        this.log?.error('RedisShared', {
+          msg: 'RedisShared: deleting unparseable session token blob',
+          error: e,
+        });
+        this.redis.del(uid).catch(() => {});
+        return {};
+      }
     } catch (e) {
+      this.metrics?.increment('redis.getSessionTokens.error');
       this.log?.error('RedisShared', {
         error: e,
       });
@@ -308,6 +380,34 @@ export class RedisShared {
     }
 
     return null;
+  }
+
+  /**
+   * Resolves true if no other lastAccessTime write for this token has been
+   * claimed in the last `seconds`. Resolves false on timeout or error, so
+   * callers skip the write when Redis is struggling.
+   */
+  async claimLastAccessTimeWrite(tokenId: string, seconds: number) {
+    try {
+      const p1 = this.redis.set(
+        `lastAccessTime:${tokenId}`,
+        1,
+        'EX',
+        seconds,
+        'NX'
+      );
+      // resolveInMs chains .then on its cancel promise; a rejecting one would
+      // surface as an unhandled rejection.
+      const p2 = this.resolveInMs(
+        p1.catch(() => undefined),
+        this.timeoutMs,
+        null
+      );
+      return (await Promise.race([p1, p2])) === 'OK';
+    } catch (e) {
+      this.log?.error('RedisShared', { error: e });
+      return false;
+    }
   }
 
   async touchSessionToken(uid: string, token: any) {

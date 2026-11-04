@@ -1955,6 +1955,12 @@ const convictConf = convict({
       default: true,
       env: 'LASTACCESSTIME_UPDATES_ON_OAUTH_TOKEN_CREATION',
     },
+    minIntervalSeconds: {
+      doc: 'minimum seconds between lastAccessTime-only Redis writes for the same session token; 0 writes on every call',
+      format: 'nat',
+      default: 60,
+      env: 'LASTACCESSTIME_UPDATES_MIN_INTERVAL_SECONDS',
+    },
   },
   signinUnblock: {
     codeLength: {
