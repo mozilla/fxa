@@ -82,6 +82,7 @@ describe('AccountController', () => {
   let passkeyResult: unknown;
   let passkeyWrapResult: unknown;
   let securityEvents: { create: jest.Mock };
+  let emailQuery: { where: jest.Mock; update: jest.Mock };
 
   const MOCK_UID = 'f9416ce3703e4916a4cd6b1e665a3f1a';
   const MOCK_CREDENTIAL_ID = 'AQIDBAUGBwgJCg';
@@ -142,9 +143,14 @@ describe('AccountController', () => {
       table === 'passkeyWraps' ? passkeyWrapQuery : passkeyQuery
     );
     securityEvents = { create: jest.fn().mockResolvedValue({}) };
+    emailQuery = {
+      where: jest.fn().mockReturnThis(),
+      update: jest.fn(),
+    };
 
     db = createMock<DatabaseService>({
       account: { query: jest.fn().mockReturnValue(accountQuery) } as any,
+      emails: { query: jest.fn().mockReturnValue(emailQuery) } as any,
       knex: knexMock as any,
       securityEvents: securityEvents as any,
     });
@@ -503,6 +509,42 @@ describe('AccountController', () => {
       expect(await controller.disableAccount(MOCK_UID, mockRequest)).toBe(
         false
       );
+    });
+  });
+
+  describe('unverifyEmail', () => {
+    it('matches the lowercased address exactly', async () => {
+      emailQuery.update.mockResolvedValue(1);
+      await controller.unverifyEmail('User@Example.com');
+      expect(emailQuery.where).toHaveBeenCalledWith(
+        'normalizedEmail',
+        'user@example.com'
+      );
+    });
+
+    it('does not use a like match', async () => {
+      emailQuery.update.mockResolvedValue(1);
+      await controller.unverifyEmail('user@example.com');
+      expect(emailQuery.where.mock.calls.flat()).not.toContain('like');
+    });
+
+    it('clears isVerified and verifiedAt', async () => {
+      emailQuery.update.mockResolvedValue(1);
+      await controller.unverifyEmail(EMAIL_LOCATOR);
+      expect(emailQuery.update).toHaveBeenCalledWith({
+        isVerified: false,
+        verifiedAt: null,
+      });
+    });
+
+    it('returns true when one email was updated', async () => {
+      emailQuery.update.mockResolvedValue(1);
+      expect(await controller.unverifyEmail(EMAIL_LOCATOR)).toBe(true);
+    });
+
+    it('returns false when no email matches', async () => {
+      emailQuery.update.mockResolvedValue(0);
+      expect(await controller.unverifyEmail(NO_ACCOUNT_LOCATOR)).toBe(false);
     });
   });
 

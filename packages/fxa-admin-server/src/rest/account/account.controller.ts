@@ -514,7 +514,7 @@ export class AccountController {
     this.eventLogging.onEvent(EventNames.UnverifyEmail);
     const result = await this.db.emails
       .query()
-      .where('normalizedEmail', 'like', `${email.toLowerCase()}%`)
+      .where('normalizedEmail', email.toLowerCase())
       .update({
         isVerified: false,
         verifiedAt: null as any,
