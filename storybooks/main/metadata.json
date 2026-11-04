@@ -1,8 +1,8 @@
 {
-  "commit": "f2c681f235f7f66812a5c18866462a5b8dc8bad8",
-  "summary": "Merge pull request #21679 from mozilla/FXA-14892",
-  "description": "feat(settings): send services in the fxaccounts:oauth_login message",
-  "timestamp": 1793746307000,
+  "commit": "2d7e68baf52b0922bca13cd95ecb25daadb18aa7",
+  "summary": "Merge pull request #21582 from mozilla/blender/security-bump-@sentry/nextjs",
+  "description": "chore(deps): bump @sentry/nextjs to >=10.75.2",
+  "timestamp": 1793804477000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
