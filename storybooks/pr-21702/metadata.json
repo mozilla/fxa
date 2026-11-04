@@ -1,0 +1,10 @@
+{
+  "commit": "4fdbb5e938885639592c8cbcb64acdfd058efc88",
+  "summary": "fix(admin-server): use an exact email match in unverify-email",
+  "description": "Because:\n\n* unverifyEmail matched normalizedEmail with a LIKE prefix, so one request could change rows for other addresses.\n\nThis commit:\n\n* Uses an exact where on the lowercased address in unverifyEmail.\n* Adds unverifyEmail tests to the account controller spec.\n\nCloses FXA-14189",
+  "timestamp": 1793831054000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
