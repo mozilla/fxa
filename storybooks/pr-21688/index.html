@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 6d671082db9914741761802cf422facd5d65f9c2</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 6d671082db9914741761802cf422facd5d65f9c2</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>11/4/2026, 4:38:47 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(auth): send WAF challenge cookie on passkey sign-in</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- The Fastly WAF challenge needs the cookie on passkey sign-in requests
+  before the WAF rule can cover those routes
+
+This commit:
+
+- Includes credentials on passkey authentication start/finish in auth-client
+- Allows CORS credentials on both routes in auth-server
+
+Closes #FXA-14013</pre></dd>
+  </dl>
+</body>
+</html>
