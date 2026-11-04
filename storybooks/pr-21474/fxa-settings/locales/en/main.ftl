@@ -1575,12 +1575,6 @@ pair2-supplicant-download-firefox-have-firefox-button = I already have { -brand-
 pair2-supplicant-download-firefox-learn-more-link = Learn more
 
 
-pair2-supplicant-connect-hint-heading-v2 = Finish pairing in the app
-pair2-supplicant-connect-hint-step-app-menu = Tap the <b>app menu</b> in the toolbar
-pair2-supplicant-connect-hint-step-sign-in = Tap <b>sign in</b>, then scan the code
-pair2-supplicant-connect-hint-learn-more-link = Learn more
-
-
 pair2-supplicant-ready-to-scan-heading = To connect a device
 pair2-supplicant-ready-to-scan-instruction = On your computer, open { -brand-firefox } and go to <b>firefox.com/pair</b>, and follow on screen instructions to connect this mobile device.
 pair2-supplicant-ready-to-scan-learn-more-link = Learn more

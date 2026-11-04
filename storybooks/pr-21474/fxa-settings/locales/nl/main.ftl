@@ -1564,6 +1564,9 @@ signin-passkey-fallback-password-label = Wachtwoord
 signin-passkey-fallback-continue = Doorgaan
 signin-passkey-fallback-forgot-password-link = Wachtwoord vergeten?
 signin-passkey-fallback-no-prf-heading = Wachtwoord vereist op dit apparaat
+signin-passkey-fallback-no-prf-description = Deze browser of dit apparaat kan uw wachtwoordsleutel niet zelfstandig gebruiken om u aan te melden bij synchronisatie.
+signin-passkey-fallback-unwrap-failed-heading = Uw wachtwoordsleutel kan synchronisatie niet ontgrendelen
+signin-passkey-fallback-unwrap-failed-description = Er is iets misgegaan, dus deze keer hebt u uw wachtwoord nodig.
 signin-passkey-fallback-wrap-unusable-link = Meer info
 
 
