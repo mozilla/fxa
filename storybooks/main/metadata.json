@@ -1,8 +1,8 @@
 {
-  "commit": "2d7e68baf52b0922bca13cd95ecb25daadb18aa7",
-  "summary": "Merge pull request #21582 from mozilla/blender/security-bump-@sentry/nextjs",
-  "description": "chore(deps): bump @sentry/nextjs to >=10.75.2",
-  "timestamp": 1793804477000,
+  "commit": "29f93ff25a075388b27a64d9a9b76cc2835f3700",
+  "summary": "Merge pull request #21561 from mozilla/FXA-14742",
+  "description": "fix(settings): bind the HPKE fields into the passkey skR wrap aad",
+  "timestamp": 1793808403000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
