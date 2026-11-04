@@ -2203,6 +2203,56 @@ describe('/account/login', () => {
     });
   });
 
+  describe('with a Password spy', () => {
+    const verifyHash = jest.fn().mockResolvedValue('');
+    const Password = jest.fn(() => ({ verifyHash }));
+    const spyRoute = getRoute(
+      makeRoutes({
+        config,
+        customs: mockCustoms,
+        db: mockDB,
+        log: mockLog,
+        mailer: mockMailer,
+        push: mockPush,
+        cadReminders: mockCadReminders,
+        Password,
+      }),
+      '/account/login'
+    );
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('runs a dummy password hash for an unknown account', async () => {
+      mockDB.accountRecord = jest.fn(() =>
+        Promise.reject(error.unknownAccount())
+      );
+
+      await expect(runTest(spyRoute, mockRequest)).rejects.toMatchObject({
+        errno: error.ERRNO.ACCOUNT_UNKNOWN,
+      });
+      expect(Password).toHaveBeenCalledTimes(1);
+      expect(Password).toHaveBeenCalledWith(
+        mockRequest.payload.authPW,
+        '00'.repeat(32),
+        1
+      );
+      expect(verifyHash).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not hash when customs blocks the request', async () => {
+      jest
+        .spyOn(mockCustoms, 'check')
+        .mockRejectedValueOnce(error.tooManyRequests(60));
+
+      await expect(runTest(spyRoute, mockRequest)).rejects.toMatchObject({
+        errno: error.ERRNO.THROTTLED,
+      });
+      expect(Password).not.toHaveBeenCalled();
+    });
+  });
+
   it('emits the correct series of calls and events', () => {
     const now = Date.now();
     const dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(now);
