@@ -1,8 +1,8 @@
 {
-  "commit": "29f93ff25a075388b27a64d9a9b76cc2835f3700",
-  "summary": "Merge pull request #21561 from mozilla/FXA-14742",
-  "description": "fix(settings): bind the HPKE fields into the passkey skR wrap aad",
-  "timestamp": 1793808403000,
+  "commit": "518e700c3604a14837cecea262b4faf8f046926f",
+  "summary": "Merge pull request #21686 from mozilla/FXA-14478.2",
+  "description": "fix(settings): Make sure there's a fallback for users without access to the google play store",
+  "timestamp": 1793813802000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
