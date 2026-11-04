@@ -1,0 +1,10 @@
+{
+  "commit": "e0e1b67470e18b21b70bafd75f566bbe5c05dbdb",
+  "summary": "refactor(settings): fail closed in the pair approval check",
+  "description": "Because:\n- The v1 approve page and the v2 QR page used router state `totpComplete` as proof of a TOTP code.\n- Router state does not record a verified code, so the pages must ask the gate each time.\n\nThis commit:\n- Removes the `totpComplete` short-circuit from `Pair/AuthAllow` and the `ScanQR` container.\n- Makes both pages always call `pairingRequiresTotp`.\n- Removes the unused `useLocation` from both pages.\n- Updates the comments in `Pair/Index` and `EnterTotp`.\n- Adds and changes tests for the redirect and for a fresh `totpVerifiedAt`.\n\nCloses FXA-14194",
+  "timestamp": 1793831117000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
