@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 4bdbb570448662b10b0a518db00a89e8bd653e4c</title>
+  <title>Storybooks for commit a1c8ad66a54695f8241eea753d35ba63db94b382</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,23 +23,25 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 4bdbb570448662b10b0a518db00a89e8bd653e4c</h1>
+  <h1>Storybooks for commit a1c8ad66a54695f8241eea753d35ba63db94b382</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/4/2026, 6:38:09 PM UTC</dd>
+    <dd>11/4/2026, 7:19:32 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>chore(auth): count session token unpack outcomes</pre></dd>
+    <dd><pre>fix(auth): count session token GET failures, lower touch interval</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- Review asked for metrics on the getSessionTokens unpack path.
+- Review asked for an error metric on getSessionTokens and a 60s default.
 
 This commit:
 
-- Adds redis.getSessionTokens.unpack.success and .err counters.</pre></dd>
+- Adds a redis.getSessionTokens.error counter.
+- Stops a rejected GET from leaking an unhandled rejection.
+- Lowers lastAccessTimeUpdates.minIntervalSeconds to 60.</pre></dd>
   </dl>
 </body>
 </html>

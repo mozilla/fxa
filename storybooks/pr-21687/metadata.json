@@ -1,8 +1,8 @@
 {
-  "commit": "4bdbb570448662b10b0a518db00a89e8bd653e4c",
-  "summary": "chore(auth): count session token unpack outcomes",
-  "description": "Because:\n\n- Review asked for metrics on the getSessionTokens unpack path.\n\nThis commit:\n\n- Adds redis.getSessionTokens.unpack.success and .err counters.",
-  "timestamp": 1793817489000,
+  "commit": "a1c8ad66a54695f8241eea753d35ba63db94b382",
+  "summary": "fix(auth): count session token GET failures, lower touch interval",
+  "description": "Because:\n\n- Review asked for an error metric on getSessionTokens and a 60s default.\n\nThis commit:\n\n- Adds a redis.getSessionTokens.error counter.\n- Stops a rejected GET from leaking an unhandled rejection.\n- Lowers lastAccessTimeUpdates.minIntervalSeconds to 60.",
+  "timestamp": 1793819972000,
   "storybooks": [
     "fxa-admin-panel"
   ],
