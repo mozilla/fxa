@@ -1,0 +1,10 @@
+{
+  "commit": "9c15c0ca27ad5a48c278cf2f0ba6ed40293f9b23",
+  "summary": "perf(auth): cut session-token Redis main-thread work",
+  "description": "Because:\n\n- The session-token Redis main thread runs near saturation and stalls\n  auth-server requests.\n- Each lastAccessTime touch decodes and rewrites the account's whole\n  session blob in Lua.\n\nThis commit:\n\n- Throttles lastAccessTime-only touches per token with a SET NX EX marker key.\n- Adds lastAccessTimeUpdates.minIntervalSeconds (default 300, 0 disables).\n- Reads session tokens with a plain GET and unpacks them in Node.\n- Removes the getSessionTokens_1 Lua script.\n\nCloses #FXA-14880",
+  "timestamp": 1793756610000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
