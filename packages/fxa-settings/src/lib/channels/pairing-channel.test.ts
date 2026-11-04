@@ -24,7 +24,7 @@ let mockChannel: {
   removeEventListener: jest.Mock;
   _channelId?: string;
   _channelKey?: Uint8Array;
-  _connection?: unknown;
+  _connection?: { connected?: Promise<unknown> } | null;
   closed?: boolean;
 };
 
@@ -210,6 +210,35 @@ describe('PairingChannelClient', () => {
 
       expect(window.WebSocket).toBe(nativeWebSocket);
     });
+  });
+
+  describe('handshake failure', () => {
+    const onUnhandledRejection = jest.fn();
+
+    beforeEach(() => {
+      process.on('unhandledRejection', onUnhandledRejection);
+    });
+
+    afterEach(() => {
+      process.off('unhandledRejection', onUnhandledRejection);
+    });
+
+    it.each([
+      ['create', (c: PairingChannelClient) => c.create(SERVER)],
+      ['open', (c: PairingChannelClient) => c.open(SERVER, CHAN, VALID_KEY)],
+    ] as const)(
+      '%s handles a rejected connected promise',
+      async (_method, run) => {
+        mockChannel._connection = {
+          connected: Promise.reject(new Error('decode_error')),
+        };
+
+        await run(client);
+        await new Promise((r) => setTimeout(r, 0));
+
+        expect(onUnhandledRejection).not.toHaveBeenCalled();
+      }
+    );
   });
 
   describe('create', () => {
