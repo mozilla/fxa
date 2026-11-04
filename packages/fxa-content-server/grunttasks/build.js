@@ -13,9 +13,6 @@ module.exports = function (grunt) {
     // copy all static resources from 'app' to 'dist'
     'copy:dist',
 
-    // Remove whitespace from the HTML
-    'htmlmin',
-
     // copy fxa-settings. note this has already been webpacked. we don't need
     // run it through webpack again.
     'copy:settings',

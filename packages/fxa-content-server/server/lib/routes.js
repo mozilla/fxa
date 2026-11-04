@@ -17,7 +17,6 @@ module.exports = function (config, statsd, glean) {
     require('./routes/get-apple-app-site-association')(),
     require('./routes/get-assetlinks-json')(),
     require('./routes/get-ver.json'),
-    require('./routes/get-config')(),
     require('./routes/get-fxa-client-configuration')(config),
     require('./routes/get-heartbeat')(),
     require('./routes/get-lbheartbeat')(),
