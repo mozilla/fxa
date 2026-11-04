@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const crypto = require('crypto');
-const log = { trace() {}, error() {} };
+const log = { trace: jest.fn(), error() {} };
 
 const tokens = require('./index')(log);
 const KeyFetchToken = tokens.KeyFetchToken;
@@ -37,7 +37,10 @@ interface KeyFetchTokenLike {
 describe('KeyFetchToken', () => {
   it('should re-create from tokenData', async () => {
     const token: KeyFetchTokenLike = await KeyFetchToken.create(ACCOUNT);
-    const token2: KeyFetchTokenLike = await KeyFetchToken.fromHex(token.data, ACCOUNT);
+    const token2: KeyFetchTokenLike = await KeyFetchToken.fromHex(
+      token.data,
+      ACCOUNT
+    );
     expect(token.data).toEqual(token2.data);
     expect(token.id).toEqual(token2.id);
     expect(token.authKey).toEqual(token2.authKey);
@@ -50,7 +53,10 @@ describe('KeyFetchToken', () => {
 
   it('should re-create from id', async () => {
     const token: KeyFetchTokenLike = await KeyFetchToken.create(ACCOUNT);
-    const token2: KeyFetchTokenLike = await KeyFetchToken.fromId(token.id, token);
+    const token2: KeyFetchTokenLike = await KeyFetchToken.fromId(
+      token.id,
+      token
+    );
     expect(token2.id).toBe(token.id);
     expect(token2.authKey).toBe(token.authKey);
   });
@@ -63,6 +69,16 @@ describe('KeyFetchToken', () => {
     const unbundled = await token.unbundleKeys(bundle);
     expect(unbundled.kA).toEqual(kA);
     expect(unbundled.wrapKb).toEqual(wrapKb);
+  });
+
+  it('should not log the token id when it bundles / unbundles keys', async () => {
+    const kA = crypto.randomBytes(32).toString('hex');
+    const wrapKb = crypto.randomBytes(32).toString('hex');
+    const token: KeyFetchTokenLike = await KeyFetchToken.create(ACCOUNT);
+    log.trace.mockClear();
+    await token.unbundleKeys(await token.bundleKeys(kA, wrapKb));
+    expect(log.trace).toHaveBeenCalled();
+    expect(JSON.stringify(log.trace.mock.calls)).not.toContain(token.id);
   });
 
   it('should only bundle / unbundle of keys with correct token', async () => {
@@ -82,7 +98,10 @@ describe('KeyFetchToken', () => {
   it('should have key derivations that are test-vector compliant', async () => {
     const tokenData =
       '808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f';
-    const token: KeyFetchTokenLike = await KeyFetchToken.fromHex(tokenData, ACCOUNT);
+    const token: KeyFetchTokenLike = await KeyFetchToken.fromHex(
+      tokenData,
+      ACCOUNT
+    );
     expect(token.data).toBe(tokenData);
     expect(token.id).toBe(
       '3d0a7c02a15a62a2882f76e39b6494b500c022a8816e048625a495718998ba60'
