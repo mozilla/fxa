@@ -773,6 +773,15 @@ export const createDB = (
 
       let t;
       if (onlyUpdateLastAccessTime) {
+        const minIntervalSeconds =
+          config.lastAccessTimeUpdates?.minIntervalSeconds;
+        if (
+          minIntervalSeconds > 0 &&
+          !(await this.redis.claimLastAccessTimeWrite(id, minIntervalSeconds))
+        ) {
+          this.metrics?.increment('db.touchSessionToken.throttled');
+          return;
+        }
         t = {
           lastAccessTime: token.lastAccessTime,
           id,

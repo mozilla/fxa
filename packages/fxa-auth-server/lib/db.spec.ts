@@ -365,6 +365,7 @@ describe('redis enabled, token-pruning enabled:', () => {
       getSessionTokens: jest.fn(() => Promise.resolve()),
       pruneSessionTokens: jest.fn(() => Promise.resolve()),
       touchSessionToken: jest.fn(() => Promise.resolve()),
+      claimLastAccessTimeWrite: jest.fn(() => Promise.resolve(true)),
     };
     redisMockFactory = (...args: any[]) => {
       expect(args).toHaveLength(2);
@@ -395,6 +396,7 @@ describe('redis enabled, token-pruning enabled:', () => {
           enabled: true,
           sampleRate: 1,
           earliestSaneTimestamp: 1,
+          minIntervalSeconds: 300,
         },
       },
       log,
@@ -460,6 +462,36 @@ describe('redis enabled, token-pruning enabled:', () => {
       'blee',
       expect.anything()
     );
+  });
+
+  it('writes a lastAccessTime-only touch when the write is claimed', async () => {
+    await db.touchSessionToken(
+      { id: 'wibble', uid: 'blee', lastAccessTime: 42 },
+      {},
+      true
+    );
+    expect(redis.claimLastAccessTimeWrite).toHaveBeenCalledWith('wibble', 300);
+    expect(redis.touchSessionToken).toHaveBeenCalledWith('blee', {
+      lastAccessTime: 42,
+      id: 'wibble',
+    });
+  });
+
+  it('skips a lastAccessTime-only touch when the write is not claimed', async () => {
+    redis.claimLastAccessTimeWrite.mockResolvedValue(false);
+    await db.touchSessionToken(
+      { id: 'wibble', uid: 'blee', lastAccessTime: 42 },
+      {},
+      true
+    );
+    expect(redis.touchSessionToken).not.toHaveBeenCalled();
+  });
+
+  it('does not throttle a full touch', async () => {
+    redis.claimLastAccessTimeWrite.mockResolvedValue(false);
+    await db.touchSessionToken({ id: 'wibble', uid: 'blee' }, {});
+    expect(redis.claimLastAccessTimeWrite).not.toHaveBeenCalled();
+    expect(redis.touchSessionToken).toHaveBeenCalledTimes(1);
   });
 
   it('should call redis.pruneSessionTokens in db.pruneSessionTokens', async () => {

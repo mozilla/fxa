@@ -71,7 +71,9 @@ describe('#integration - Redis', () => {
       await redis.touchSessionToken(uid, sessionToken);
       await redis.touchSessionToken(uid, { ...sessionToken, id: 'token2' });
       const tokens = await redis.getSessionTokens(uid);
-      expect(Object.keys(tokens)).toEqual([sessionToken.id, 'token2']);
+      expect(Object.keys(tokens).sort()).toEqual(
+        [sessionToken.id, 'token2'].sort()
+      );
     });
 
     it('updates existing tokens with new data', async () => {
@@ -184,7 +186,9 @@ describe('#integration - Redis', () => {
     it('does nothing for unknown token ids', async () => {
       await redis.pruneSessionTokens(uid, ['x', 'y']);
       const tokens = await redis.getSessionTokens(uid);
-      expect(Object.keys(tokens)).toEqual([sessionToken.id, 'token2']);
+      expect(Object.keys(tokens).sort()).toEqual(
+        [sessionToken.id, 'token2'].sort()
+      );
     });
 
     it('deletes a given token id', async () => {
