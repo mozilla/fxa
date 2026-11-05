@@ -189,6 +189,7 @@ test.describe('severity-2 #smoke', () => {
 
       //Verify confirm code header
       await expect(page).toHaveURL(/confirm_signup_code/);
+      await expect(confirmSignupCode.heading).toBeVisible();
 
       const confirmationCode = await target.emailClient.getVerifyLoginCode(
         credentials.email
