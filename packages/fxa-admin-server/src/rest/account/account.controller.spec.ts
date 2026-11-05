@@ -3,7 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Firestore } from '@google-cloud/firestore';
-import { Provider } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Provider,
+} from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -15,6 +19,14 @@ import { CartManager } from '@fxa/payments/cart';
 import { ProfileClient } from '@fxa/profile/client';
 import { NotifierService } from '@fxa/shared/notifier';
 import { MozLoggerService } from '@fxa/shared/mozlog';
+import {
+  AdminPanelFeature,
+  AdminPanelGroup,
+  USER_GROUP_HEADER,
+} from '@fxa/shared/guards';
+import { SecurityEventNames } from '@fxa/shared/db/mysql/legacy/models/auth/security-event';
+import { AuditLogInterceptor } from '../../auth/audit-log.interceptor';
+import { FEATURE_KEY } from '../../auth/user-group-header.decorator';
 import { EmailService } from '../../backend/email.service';
 import {
   CloudTasks,
@@ -753,6 +765,81 @@ describe('AccountController', () => {
         )
       ).toBe(false);
       expect(securityEvents.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('recordAdminSecurityEvent', () => {
+    const requestFrom = (group: AdminPanelGroup) =>
+      ({
+        ...mockRequest,
+        get: (header: string) =>
+          header === USER_GROUP_HEADER ? group : undefined,
+      }) as unknown as Request;
+
+    it('requires a feature from the 2FA, bounce or passkey actions', () => {
+      expect(
+        Reflect.getMetadata(
+          FEATURE_KEY,
+          AccountController.prototype.recordAdminSecurityEvent
+        )
+      ).toEqual([
+        AdminPanelFeature.Remove2FA,
+        AdminPanelFeature.ClearEmailBounces,
+        AdminPanelFeature.RemovePasskeys,
+      ]);
+    });
+
+    it('uses the audit log interceptor', () => {
+      expect(
+        Reflect.getMetadata(
+          '__interceptors__',
+          AccountController.prototype.recordAdminSecurityEvent
+        )
+      ).toContain(AuditLogInterceptor);
+    });
+
+    it('rejects a name that the admin panel does not send', async () => {
+      await expect(
+        controller.recordAdminSecurityEvent(
+          MOCK_UID,
+          'account.login',
+          requestFrom(AdminPanelGroup.AdminProd)
+        )
+      ).rejects.toThrow(BadRequestException);
+      expect(securityEvents.create).not.toHaveBeenCalled();
+    });
+
+    it('rejects a name whose feature the group lacks', async () => {
+      await expect(
+        controller.recordAdminSecurityEvent(
+          MOCK_UID,
+          'account.passkey.removed',
+          requestFrom(AdminPanelGroup.SupportAgentProd)
+        )
+      ).rejects.toThrow(ForbiddenException);
+      expect(securityEvents.create).not.toHaveBeenCalled();
+    });
+
+    it.each<[SecurityEventNames, AdminPanelGroup]>([
+      ['account.passkey.removed', AdminPanelGroup.AdminProd],
+      ['account.two_factor_removed', AdminPanelGroup.SupportAgentProd],
+      ['emails.clearBounces', AdminPanelGroup.SupportAgentProd],
+    ])('records the %s event for %s', async (name, group) => {
+      expect(
+        await controller.recordAdminSecurityEvent(
+          MOCK_UID,
+          name,
+          requestFrom(group)
+        )
+      ).toBe(true);
+      expect(securityEvents.create).toHaveBeenCalledTimes(1);
+      expect(securityEvents.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          uid: MOCK_UID,
+          name,
+          additionalInfo: expect.objectContaining({ adminPanelAction: true }),
+        })
+      );
     });
   });
 
