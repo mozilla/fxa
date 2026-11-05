@@ -273,7 +273,7 @@ describe.each(testVersions)(
       });
     });
 
-    it('successfully propagates `resource` and `clientId` in the ID token `aud` claim', async () => {
+    it('keeps `resource` out of the ID token `aud` claim', async () => {
       const SCOPE = `${OAUTH_SCOPE_OLD_SYNC} openid`;
 
       let devices = await client.devices();
@@ -307,10 +307,7 @@ describe.each(testVersions)(
       expect(res.token_type).toBeTruthy();
 
       const idToken = decodeJWT(res.id_token);
-      expect(idToken.claims.aud).toEqual([
-        PUBLIC_CLIENT_ID,
-        'https://resource.server.com',
-      ]);
+      expect(idToken.claims.aud).toBe(PUBLIC_CLIENT_ID);
     });
 
     it('successfully grants JWT access tokens via authentication code flow, and refresh token flow', async () => {

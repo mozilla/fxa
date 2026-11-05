@@ -2391,7 +2391,7 @@ describe('#integration - /v1', function () {
         });
       });
 
-      it('should return an id_token that propagates `resource` and `clientId` in the `aud` claim', () => {
+      it('should return an id_token whose aud is only the clientId when resource is set', () => {
         return newToken(
           { scope: 'openid' },
           { resource: 'https://resource.server1.com' }
@@ -2403,10 +2403,7 @@ describe('#integration - /v1', function () {
           const jwt = decodeJWT(res.result.id_token);
           const claims = jwt.claims;
 
-          expect(claims.aud).toEqual([
-            clientId,
-            'https://resource.server1.com',
-          ]);
+          expect(claims.aud).toBe(clientId);
         });
       });
 
