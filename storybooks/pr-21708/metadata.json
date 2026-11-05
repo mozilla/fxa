@@ -1,8 +1,8 @@
 {
-  "commit": "8e5bd7506f6fde0d44a5a668689f5be70cfe16e1",
+  "commit": "9c9d7ecfc1bdc5858a9f2e1acd9b9777002e8e96",
   "summary": "feat(settings): require localized page titles in AppLayout",
   "description": "Because:\n- Most settings pages left the tab title as \"Mozilla accounts\", failing WCAG 2.4.2\n- VoiceOver reads the \" | \" title separator aloud as \"vertical line\"\n\nThis commit:\n- Makes AppLayout's title required except while loading; every page passes one\n- Gives multi-state pages a title per state or step\n- Lets a CMS page title take precedence over the page's own title\n- Uses an en dash separator under a new FTL ID, app-page-title-3\n- Stops FlowContainer setting a second Head inside AppLayout\n\nCloses #FXA-6803",
-  "timestamp": 1793819917000,
+  "timestamp": 1793902809000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",

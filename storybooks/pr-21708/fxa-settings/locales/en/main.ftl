@@ -388,6 +388,7 @@ locale-toggle-select-label = Select language
 locale-toggle-browser-default = Browser default
 
 error-bad-request = Bad Request
+
 error-bad-request-page-title = Bad request
 
 
@@ -1076,6 +1077,7 @@ security-recent-activity-link = View recent account activity
 
 signout-sync-header = Session Expired
 signout-sync-session-expired = Sorry, something went wrong. Please sign out from the browser menu and try again.
+
 signout-sync-page-title = Session expired
 
 
@@ -1351,6 +1353,7 @@ connect-another-device-cad-link = Connect another device
 connect-another-device-not-now-link = Not now
 connect-another-device-android-complete-setup-message = Sign in to { -brand-firefox } for Android to complete setup
 connect-another-device-ios-complete-setup-message = Sign in to { -brand-firefox } for iOS to complete setup
+
 connect-another-device-page-title = Connect another device
 
 
@@ -1358,10 +1361,12 @@ cookies-disabled-header = Local storage and cookies are required
 cookies-disabled-enable-prompt-2 = Please enable cookies and local storage in your browser to access your { -product-mozilla-account }. Doing so will enable functionality such as remembering you between sessions.
 cookies-disabled-button-try-again = Try again
 cookies-disabled-learn-more = Learn more
+
 cookies-disabled-page-title = Cookies and local storage required
 
 
 index-page-title = Sign in or create an account
+
 index-header = Enter your email
 index-sync-header = Continue to your { -product-mozilla-account }
 index-sync-subheader = Sync your passwords, tabs, and bookmarks everywhere you use { -brand-firefox }.
@@ -1396,15 +1401,23 @@ inline-recovery-key-setup-download-header = Secure your account
 inline-recovery-key-setup-download-subheader = Download and store it now
 inline-recovery-key-setup-download-info = Store this key somewhere you’ll remember — you won’t be able to get back to this page later.
 inline-recovery-key-setup-hint-header = Security recommendation
+
 inline-recovery-key-setup-create-page-title = Create an account recovery key
+
 inline-recovery-key-setup-download-page-title = Download your account recovery key
+
 inline-recovery-key-setup-hint-page-title = Add a recovery key hint
 
 inline-recovery-setup-choice-page-title = Choose a recovery method
+
 inline-recovery-setup-download-codes-page-title = Save your backup codes
+
 inline-recovery-setup-confirm-code-page-title = Confirm a backup code
+
 inline-recovery-setup-phone-number-page-title = Add a recovery phone
+
 inline-recovery-setup-phone-code-page-title = Confirm your recovery phone
+
 inline-recovery-setup-complete-page-title = Two-step authentication on
 
 
@@ -1438,13 +1451,16 @@ inline-totp-setup-code-required-error = Authentication code required
 tfa-qr-code-alt = Use the code { $code } to set up two-step authentication in supported applications.
 
 inline-totp-setup-page-title = Two-step authentication
+
 inline-totp-setup-intro-page-title = Set up two-step authentication
+
 inline-totp-setup-enrol-page-title = Connect your authenticator app
 
 
 page-not-found-heading = Page not found
 page-not-found-description = The page you requested is not found. We’ve been notified and will fix any links that may be broken.
 page-not-found-home-button = Home
+
 page-not-found-page-title = Page not found
 
 
@@ -1477,6 +1493,7 @@ auth-totp-instruction = Open your authentication app and enter the authenticatio
 auth-totp-input-label = Enter 6-digit code
 auth-totp-confirm-button = Confirm
 auth-totp-code-required-error = Authentication code required
+
 auth-totp-page-title = Pair with two-step authentication
 
 
@@ -1726,6 +1743,7 @@ account-recovery-confirm-key-input-label =
 account-recovery-confirm-key-hint = Your storage hint is:
 account-recovery-confirm-key-button-2 = Continue
 account-recovery-lost-recovery-key-link-2 = Can’t find your account recovery key?
+
 account-recovery-confirm-key-page-title = Reset password with recovery key
 
 
@@ -1738,6 +1756,7 @@ complete-reset-pw-recovery-key-link = Use account recovery key
 reset-password-complete-banner-heading = Your password has been reset.
 reset-password-complete-banner-message = Don’t forget to generate a new account recovery key from your { -product-mozilla-account } settings to prevent future sign-in issues.
 complete-reset-password-desktop-relay = { -brand-firefox } will try sending you back to use an email mask after you sign in.
+
 complete-reset-password-page-title = Create a new password
 
 
@@ -1746,6 +1765,7 @@ confirm-backup-code-reset-password-confirm-button = Confirm
 confirm-backup-code-reset-password-subheader = Enter backup authentication code
 confirm-backup-code-reset-password-instruction = Enter one of the one-time-use codes you saved when you set up two-step authentication.
 confirm-backup-code-reset-password-locked-out-link = Are you locked out?
+
 confirm-backup-code-reset-password-page-title = Reset password with a backup code
 
 
@@ -1760,6 +1780,7 @@ confirm-reset-password-otp-submit-button = Continue
 confirm-reset-password-otp-resend-code-button = Resend code
 
 confirm-reset-password-otp-different-account-link = Use a different account
+
 confirm-reset-password-with-code-page-title = Check your email to reset your password
 
 
@@ -1770,6 +1791,7 @@ confirm-totp-reset-password-trouble-code = Trouble entering code?
 confirm-totp-reset-password-confirm-button = Confirm
 confirm-totp-reset-password-input-label-v2 = Enter 6-digit code
 confirm-totp-reset-password-use-different-account = Use a different account
+
 confirm-totp-reset-password-page-title = Reset password with two-step authentication
 
 
@@ -1785,11 +1807,13 @@ password-reset-email-input =
 password-reset-submit-button-2 = Continue
 
 password-reset-data-recovery-warning = Resetting your password may affect whether you can recover synced browser data. <learnMoreLink>Learn more</learnMoreLink>
+
 password-reset-flow-page-title = Reset your password
 
 
 reset-password-complete-header = Your password has been reset
 reset-password-confirmed-cta = Continue to { $serviceName }
+
 reset-password-confirmed-page-title = Password reset complete
 
 
@@ -1805,6 +1829,7 @@ password-reset-recovery-method-code-info =
   }
 password-reset-recovery-method-send-code-error-heading = There was a problem sending a code to your recovery phone
 password-reset-recovery-method-send-code-error-description = Please try again later or use your backup authentication codes.
+
 password-reset-recovery-method-page-title = Reset password with a recovery method
 
 
@@ -1831,6 +1856,7 @@ reset-password-recovery-phone-general-error-description = Please try again later
 
 reset-password-recovery-phone-invalid-code-error-description = The code is invalid or expired.
 reset-password-recovery-phone-invalid-code-error-link = Use backup authentication codes instead?
+
 reset-password-recovery-phone-page-title = Reset password with recovery phone
 
 reset-password-with-recovery-key-verified-page-title = Password reset successful
@@ -1839,12 +1865,14 @@ reset-password-complete-recovery-key-created = New account recovery key created.
 reset-password-complete-recovery-key-download-info = This key is essential for
   data recovery if you forget your password. <b>Download and store it securely
   now, as you won’t be able to access this page again later.</b>
+
 reset-password-with-recovery-key-verified-hint-page-title = Add a recovery key hint
 
 
 server-error-heading = 500 Error
 server-error-description = Oh dear, something went wrong there. We’ve been notified and will get working on a fix.
 server-error-home-button = Home
+
 server-error-page-title = Server error
 
 
@@ -2120,4 +2148,5 @@ signup-confirmed-sync-page-title = Sync is turned on
 update-firefox-heading = { -brand-firefox } update required
 update-firefox-description = Your { -product-mozilla-account } makes use of features that are not supported in your version of { -brand-firefox }. Please download and install the latest version of { -brand-firefox } to continue.
 update-firefox-download-button = Download latest
+
 update-firefox-page-title = { -brand-firefox } update required
