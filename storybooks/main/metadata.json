@@ -1,8 +1,8 @@
 {
-  "commit": "142a61e3539e4723f8cb076e9c24489bf31dabc4",
-  "summary": "Merge pull request #21697 from mozilla/fxa-14066",
-  "description": "refactor(profile): keep the processing error cause off the payload",
-  "timestamp": 1793837699000,
+  "commit": "646ae00c8569da29d244e9fd039d4c90017bb560",
+  "summary": "Merge pull request #21703 from mozilla/fxa-14194",
+  "description": "refactor(settings): fail closed in the pair approval check",
+  "timestamp": 1793839394000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
