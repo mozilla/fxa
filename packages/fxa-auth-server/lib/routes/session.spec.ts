@@ -702,6 +702,27 @@ describe('/session/reauth', () => {
     );
   });
 
+  it('returns INCORRECT_EMAIL_CASE when the email differs and originalLoginEmail is unset', async () => {
+    signinUtils.checkPassword = jest.fn().mockResolvedValue(false);
+    signinUtils.checkEmailAddress = jest.fn().mockResolvedValue(true);
+    request.payload.email = 'primary@example.com';
+
+    await expect(runTest(route, request)).rejects.toMatchObject({
+      errno: error.ERRNO.INCORRECT_EMAIL_CASE,
+    });
+  });
+
+  it('returns INCORRECT_PASSWORD for a wrong password when originalLoginEmail is set', async () => {
+    signinUtils.checkPassword = jest.fn().mockResolvedValue(false);
+    signinUtils.checkEmailAddress = jest.fn().mockResolvedValue(true);
+    request.payload.email = 'primary@example.com';
+    request.payload.originalLoginEmail = 'primary@example.com';
+
+    await expect(runTest(route, request)).rejects.toMatchObject({
+      errno: error.ERRNO.INCORRECT_PASSWORD,
+    });
+  });
+
   it('can refuse reauth for selected OAuth clients', async () => {
     const route = getRoute(
       makeRoutes({
