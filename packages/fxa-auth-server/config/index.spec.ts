@@ -164,6 +164,32 @@ describe('Config', () => {
       ]);
     });
 
+    it('blocks accountStatusCheck on the ip and reports tighter ip and email limits', () => {
+      expect(shippedRules()['accountStatusCheck']).toEqual([
+        {
+          blockingOn: 'ip',
+          maxAttempts: 100,
+          windowDurationInSeconds: 900,
+          blockDurationInSeconds: 900,
+          blockPolicy: 'block',
+        },
+        {
+          blockingOn: 'ip',
+          maxAttempts: 20,
+          windowDurationInSeconds: 900,
+          blockDurationInSeconds: 900,
+          blockPolicy: 'report',
+        },
+        {
+          blockingOn: 'email',
+          maxAttempts: 5,
+          windowDurationInSeconds: 900,
+          blockDurationInSeconds: 900,
+          blockPolicy: 'report',
+        },
+      ]);
+    });
+
     it('limits verifyTotpCode on the uid', () => {
       expect(shippedRules()['verifyTotpCode']).toContainEqual({
         blockingOn: 'uid',

@@ -27,6 +27,9 @@ loadAccountFailed                     : ip                : 50          : 24 hou
 #
 accountCreate                         : ip                : 100         : 24 hours        : 24 hours    : block
 accountStatusCheck                    : ip                : 100         : 15 minute       : 15 minute   : block
+# Report-only, to measure tighter limits before they block.
+accountStatusCheck                    : ip                : 20          : 15 minutes      : 15 minutes  : report
+accountStatusCheck                    : email             : 5           : 15 minutes      : 15 minutes  : report
 emailBounceStatusCheck                : ip                : 100         : 15 minute       : 15 minute   : block
 recoveryKeyExists                     : ip                : 100         : 15 minute       : 15 minute   : block
 getCredentialsStatus                  : ip                : 100         : 15 minute       : 15 minute   : block
