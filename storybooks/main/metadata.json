@@ -1,8 +1,8 @@
 {
-  "commit": "dd2350f8d7ae20f2d182a29adb3e8db36571792b",
-  "summary": "Merge pull request #21707 from mozilla/fxa-14034",
-  "description": "refactor(admin-server): check features and names on record-security-event",
-  "timestamp": 1793899387000,
+  "commit": "3c8bc06d3504eb8e7e7c712a4ddd3f5f3902ddeb",
+  "summary": "Merge pull request #21652 from mozilla/FXA-14889",
+  "description": "feat(scripts): pick release remote safely in trigger:dot-release",
+  "timestamp": 1793902724000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
