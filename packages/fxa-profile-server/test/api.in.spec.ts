@@ -1099,6 +1099,8 @@ describe('#integration - api', () => {
           },
         });
         expect(res.statusCode).toBe(500);
+        expect(res.result.message).toBe('Image processing error');
+        expect(res.result).not.toHaveProperty('_res');
         assertSecurityHeaders(res);
       });
 

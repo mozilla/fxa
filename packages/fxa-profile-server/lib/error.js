@@ -51,14 +51,20 @@ AppError.prototype.header = function (name, value) {
 // batch.js can attach the failing sub-request URL for Sentry.
 AppError.from = function from(obj, context) {
   var source = obj;
-  if (source && typeof source === 'object' && source.output && source.output.payload) {
+  if (
+    source &&
+    typeof source === 'object' &&
+    source.output &&
+    source.output.payload
+  ) {
     source = source.output.payload;
   }
 
   var safe = source && typeof source === 'object' ? source : {};
   var code = safe.code || safe.statusCode;
   var errno = safe.errno;
-  var message = safe.message || (obj instanceof Error ? obj.message : undefined);
+  var message =
+    safe.message || (obj instanceof Error ? obj.message : undefined);
 
   var err = new AppError(
     {
@@ -190,17 +196,14 @@ AppError.tooManyRequests = function (retryAfter) {
 };
 
 AppError.processingError = function processingError(res) {
-  return new AppError(
-    {
-      code: 500,
-      error: 'Internal Server Error',
-      errno: 103,
-      message: 'Image processing error',
-    },
-    {
-      _res: res,
-    }
-  );
+  var err = new AppError({
+    code: 500,
+    error: 'Internal Server Error',
+    errno: 103,
+    message: 'Image processing error',
+  });
+  err.cause = res;
+  return err;
 };
 
 AppError.oauthError = function oauthError(err) {
