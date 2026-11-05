@@ -939,7 +939,6 @@ nav-security = Zabezpečení
 nav-connected-services = Propojené služby
 nav-data-collection = Sběr dat a jejich použití
 nav-paid-subs = Předplatné
-nav-email-comm = E-mailová sdělení
 
 
 page-2fa-change-title = Změnit dvoufázové ověřování
@@ -1665,12 +1664,6 @@ pair2-supplicant-download-firefox-opening-button = Spouští se { -brand-firefox
 pair2-supplicant-download-firefox-download-button = Stáhnout { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = Již mám { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Zjistit více
-
-
-pair2-supplicant-connect-hint-heading-v2 = Dokončete párování v aplikaci
-pair2-supplicant-connect-hint-step-app-menu = Na liště klepněte na <b>nabídku aplikace</b>
-pair2-supplicant-connect-hint-step-sign-in = Klepněte na <b>Přihlásit se</b>, a poté naskenujte kód
-pair2-supplicant-connect-hint-learn-more-link = Zjistit více
 
 
 pair2-supplicant-ready-to-scan-heading = Pro připojení zařízení

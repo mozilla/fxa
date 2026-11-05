@@ -669,7 +669,6 @@ nav-security = Sigurnost
 nav-connected-services = Povezane usluge
 nav-data-collection = Prikupljanje i uportreba podataka
 nav-paid-subs = Plaćene pretplate
-nav-email-comm = Komunikacija e-poštom
 
 ## Avatar change page
 

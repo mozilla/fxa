@@ -754,7 +754,6 @@ nav-security = Segurança
 nav-connected-services = Serviços conectados
 nav-data-collection = Coleta e uso de dados
 nav-paid-subs = Assinaturas pagas
-nav-email-comm = Comunicações por email
 
 ## Two Step Authentication - replace backup authentication code
 

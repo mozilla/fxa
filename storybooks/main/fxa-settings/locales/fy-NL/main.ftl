@@ -650,7 +650,6 @@ nav-security = Befeiliging
 nav-connected-services = Ferbûne tsjinsten
 nav-data-collection = Gegevenssamling en gebrûk
 nav-paid-subs = Betelle abonneminten
-nav-email-comm = E-mailkommunikaasje
 
 
 page-2fa-change-title = Autentikaasje yn twa stappen wizigje
@@ -1380,12 +1379,6 @@ pair2-supplicant-download-firefox-opening-button = { -brand-firefox } iepenje…
 pair2-supplicant-download-firefox-download-button = { -brand-firefox } downloade
 pair2-supplicant-download-firefox-have-firefox-button = Ik haw { -brand-firefox } al
 pair2-supplicant-download-firefox-learn-more-link = Mear ynfo
-
-
-pair2-supplicant-connect-hint-heading-v2 = Foltôgje it keppeljen yn de app
-pair2-supplicant-connect-hint-step-app-menu = Tik op it <b>app-menu</b> yn de arkbalke
-pair2-supplicant-connect-hint-step-sign-in = Tik op <b>oanmelde</b> en scan de koade
-pair2-supplicant-connect-hint-learn-more-link = Mear ynfo
 
 
 pair2-supplicant-ready-to-scan-heading = In apparaat ferbine

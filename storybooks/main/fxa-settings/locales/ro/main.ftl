@@ -682,7 +682,6 @@ nav-security = Securitate
 nav-connected-services = Servicii conectate
 nav-data-collection = Colectarea și utilizarea datelor
 nav-paid-subs = Abonamente cu plată
-nav-email-comm = Comunicări prin e-mail
 
 
 page-2fa-change-title = Modifică autentificarea în doi pași
@@ -1409,12 +1408,6 @@ pair2-supplicant-download-firefox-opening-button = Se deschide { -brand-firefox 
 pair2-supplicant-download-firefox-download-button = Descarcă { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = Am deja { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Află mai multe
-
-
-pair2-supplicant-connect-hint-heading-v2 = Finalizează asocierea în aplicație
-pair2-supplicant-connect-hint-step-app-menu = Atinge <b>meniul de aplicații</b> în bara de instrumente
-pair2-supplicant-connect-hint-step-sign-in = Atinge <b>Intră în cont</b> și apoi scanează codul
-pair2-supplicant-connect-hint-learn-more-link = Află mai multe
 
 
 pair2-supplicant-ready-to-scan-heading = Pentru a conecta un dispozitiv

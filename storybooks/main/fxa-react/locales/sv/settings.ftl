@@ -1712,6 +1712,13 @@ inline-totp-setup-code-required-error = Autentiseringskod krävs
 tfa-qr-code-alt = Använd koden { $code } för att ställa in tvåstegsautentisering i applikationer som stöds.
 inline-totp-setup-page-title = Tvåstegsautentisering
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Sidan hittades inte
+page-not-found-description = Sidan du sökte kunde inte hittas. Vi har fått information om detta och kommer att åtgärda eventuella felaktiga länkar.
+page-not-found-home-button = Hem
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Loggade du precis in på { -brand-firefox }?

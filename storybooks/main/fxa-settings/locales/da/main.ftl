@@ -639,7 +639,6 @@ nav-security = Sikkerhed
 nav-connected-services = Forbundne tjenester
 nav-data-collection = Dataindsamling og -brug
 nav-paid-subs = Betalte abonnementer
-nav-email-comm = Mail-kommunikation
 
 
 page-2fa-change-title = Skift totrinsgodkendelse
@@ -1363,12 +1362,6 @@ pair2-supplicant-download-firefox-opening-button = Åbner { -brand-firefox }…
 pair2-supplicant-download-firefox-download-button = Hent { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = Jeg har allerede { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Læs mere
-
-
-pair2-supplicant-connect-hint-heading-v2 = Afslut parring i appen
-pair2-supplicant-connect-hint-step-app-menu = Tryk på <b>programmenuen</b> på værktøjslinjen
-pair2-supplicant-connect-hint-step-sign-in = Tryk på <b>Log ind</b>,  og skan derefter koden
-pair2-supplicant-connect-hint-learn-more-link = Læs mere
 
 
 pair2-supplicant-ready-to-scan-heading = Sådan forbinder du en enhed

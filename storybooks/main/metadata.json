@@ -1,8 +1,8 @@
 {
-  "commit": "3c8bc06d3504eb8e7e7c712a4ddd3f5f3902ddeb",
-  "summary": "Merge pull request #21652 from mozilla/FXA-14889",
-  "description": "feat(scripts): pick release remote safely in trigger:dot-release",
-  "timestamp": 1793902724000,
+  "commit": "56610eb9a11b8c1a14cf499dc6ee7e762e8ed506",
+  "summary": "Merge pull request #21712 from mozilla/fxa-14944",
+  "description": "fix(tests): stop three nightly tests from flaking",
+  "timestamp": 1793912975000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

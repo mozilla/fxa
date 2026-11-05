@@ -685,7 +685,6 @@ nav-security = Безопасность
 nav-connected-services = Подсоединённые устройства
 nav-data-collection = Сбор и использование данных
 nav-paid-subs = Платные подписки
-nav-email-comm = Почтовые рассылки
 
 
 page-2fa-change-title = Изменить двухэтапную аутентификацию
@@ -1415,12 +1414,6 @@ pair2-supplicant-download-firefox-opening-button = Открытие { -brand-fir
 pair2-supplicant-download-firefox-download-button = Скачать { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = У меня уже есть { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Подробнее
-
-
-pair2-supplicant-connect-hint-heading-v2 = Завершите сопряжение в приложении
-pair2-supplicant-connect-hint-step-app-menu = Нажмите на <b>меню приложения</b> на панели инструментов
-pair2-supplicant-connect-hint-step-sign-in = Нажмите <b>войти</b>, затем отсканируйте код
-pair2-supplicant-connect-hint-learn-more-link = Подробнее
 
 
 pair2-supplicant-ready-to-scan-heading = Чтобы подключить устройство

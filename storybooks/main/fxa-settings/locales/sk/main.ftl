@@ -800,7 +800,6 @@ nav-security = Zabezpečenie
 nav-connected-services = Pripojené služby
 nav-data-collection = Zhromažďovanie a používanie údajov
 nav-paid-subs = Predplatné
-nav-email-comm = E‑mailová komunikácia
 
 
 page-2fa-change-title = Zmena dvojstupňového overenia
@@ -1531,12 +1530,6 @@ pair2-supplicant-download-firefox-opening-button = Spúšťa sa { -brand-firefox
 pair2-supplicant-download-firefox-download-button = Stiahnuť { -brand-firefox(case: "acc") }
 pair2-supplicant-download-firefox-have-firefox-button = { -brand-firefox(case: "acc") } už mám
 pair2-supplicant-download-firefox-learn-more-link = Ďalšie informácie
-
-
-pair2-supplicant-connect-hint-heading-v2 = Dokončite prepojenie v aplikácii
-pair2-supplicant-connect-hint-step-app-menu = Ťuknite na <b>ponuku aplikácie</b> na paneli s nástrojmi
-pair2-supplicant-connect-hint-step-sign-in = Ťuknite na <b>Prihlásiť sa</b> a potom naskenujte kód
-pair2-supplicant-connect-hint-learn-more-link = Ďalšie informácie
 
 
 pair2-supplicant-ready-to-scan-heading = Pripojenie zariadenia

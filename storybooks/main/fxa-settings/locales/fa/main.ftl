@@ -646,7 +646,6 @@ nav-security = امنیت
 nav-connected-services = خدمات متصل
 nav-data-collection = جمع‌آوری و استفاده از داده‌ها
 nav-paid-subs = اشتراک‌های پولی
-nav-email-comm = ارتباطات رایانامه‌ای
 
 
 page-2fa-change-title = تغییر احراز هویت دو مرحله‌ای
@@ -1365,12 +1364,6 @@ pair2-supplicant-download-firefox-opening-button = در حال باز کردن {
 pair2-supplicant-download-firefox-download-button = بارگیری { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = { -brand-firefox } را دارم
 pair2-supplicant-download-firefox-learn-more-link = بیش‌تر بدانید
-
-
-pair2-supplicant-connect-hint-heading-v2 = جفت‌سازی را در برنامه تمام کنید
-pair2-supplicant-connect-hint-step-app-menu = روی <b>منوی برنامه</b> در نوار ابزار بزنید
-pair2-supplicant-connect-hint-step-sign-in = روی <b>ورود</b> بزنید، سپس کد را اسکن کنید
-pair2-supplicant-connect-hint-learn-more-link = بیش‌تر بدانید
 
 
 pair2-supplicant-ready-to-scan-heading = برای اتصال یک دستگاه

@@ -656,7 +656,6 @@ nav-security = Segurtasuna
 nav-connected-services = Konektatutako zerbitzuak
 nav-data-collection = Datuen bilketa eta erabilera
 nav-paid-subs = Ordainpeko harpidetzak
-nav-email-comm = Posta bidezko komunikazioak
 
 
 page-2fa-change-title = Aldatu bi urratseko autentifikazioa
@@ -1384,12 +1383,6 @@ pair2-supplicant-download-firefox-opening-button = { -brand-firefox } irekitzenâ
 pair2-supplicant-download-firefox-download-button = Deskargatu { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = Dagoeneko badut { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Argibide gehiago
-
-
-pair2-supplicant-connect-hint-heading-v2 = Bukatu parekatze-prozesua aplikazioan
-pair2-supplicant-connect-hint-step-app-menu = Sakatu <b>aplikazio-menua</b> tresna-barran
-pair2-supplicant-connect-hint-step-sign-in = Sakatu <b>hasi saioa</b>, gero eskaneatu kodea
-pair2-supplicant-connect-hint-learn-more-link = Argibide gehiago
 
 
 pair2-supplicant-ready-to-scan-heading = Gailu bat konektatzeko

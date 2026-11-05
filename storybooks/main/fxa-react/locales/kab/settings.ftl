@@ -414,7 +414,6 @@ nav-security = Taɣellist
 nav-connected-services = Imeẓla yeqqnen
 nav-data-collection = Alqaḍ d useqdec n yisefka
 nav-paid-subs = Amulteɣ s lexlaṣ
-nav-email-comm = Taywalt s yimayl
 
 ## Avatar change page
 

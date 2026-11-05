@@ -625,7 +625,6 @@ nav-security = Security
 nav-connected-services = Connected Services
 nav-data-collection = Data Collection and Use
 nav-paid-subs = Paid Subscriptions
-nav-email-comm = Email Communications
 
 
 page-2fa-change-title = Change two-step authentication

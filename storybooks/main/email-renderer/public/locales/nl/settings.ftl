@@ -887,7 +887,6 @@ nav-security = Beveiliging
 nav-connected-services = Verbonden services
 nav-data-collection = Gegevensverzameling en -gebruik
 nav-paid-subs = Betaalde abonnementen
-nav-email-comm = E-mailcommunicatie
 
 ## Page2faChange
 
@@ -2010,20 +2009,6 @@ pair2-supplicant-download-firefox-download-button = { -brand-firefox } downloade
 pair2-supplicant-download-firefox-have-firefox-button = Ik heb { -brand-firefox } al
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = Meer info
-
-## PairConnectHint page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device after scanning the pairing QR code
-## with the phone's camera app instead of with Firefox. They already have
-## Firefox installed, so it tells them how to scan the code again from inside
-## Firefox.
-
-pair2-supplicant-connect-hint-heading-v2 = Rond het koppelen af in de app
-# <b> emphasises the name of the button the user taps in Firefox
-pair2-supplicant-connect-hint-step-app-menu = Tik op het <b>app-menu</b> in de werkbalk
-# <b> emphasises the name of the menu item the user taps in Firefox
-pair2-supplicant-connect-hint-step-sign-in = Tik op <b>aanmelden</b> en scan de code
-# Opens a Mozilla support article about connecting a device without a QR code
-pair2-supplicant-connect-hint-learn-more-link = Meer info
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them

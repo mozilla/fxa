@@ -687,7 +687,6 @@ nav-security = Biztonság
 nav-connected-services = Kapcsolódó szolgáltatások
 nav-data-collection = Adatgyűjtés és -felhasználás
 nav-paid-subs = Előfizetések
-nav-email-comm = E-mail kommunikáció
 
 
 page-2fa-change-title = Kétlépcsős hitelesítés módosítása
@@ -1417,12 +1416,6 @@ pair2-supplicant-download-firefox-opening-button = A { -brand-firefox } megnyit�
 pair2-supplicant-download-firefox-download-button = A { -brand-firefox } letöltése
 pair2-supplicant-download-firefox-have-firefox-button = Már van { -brand-firefox }om
 pair2-supplicant-download-firefox-learn-more-link = További tudnivalók
-
-
-pair2-supplicant-connect-hint-heading-v2 = Fejezze be a párosítást az alkalmazásban
-pair2-supplicant-connect-hint-step-app-menu = Koppintson az <b>alkalmazásmenüre</b> az eszköztárban
-pair2-supplicant-connect-hint-step-sign-in = Koppintson a <b>bejelentkezésre</b>, majd olvassa le a kódot
-pair2-supplicant-connect-hint-learn-more-link = További tudnivalók
 
 
 pair2-supplicant-ready-to-scan-heading = Eszköz csatlakoztatása

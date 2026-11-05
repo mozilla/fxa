@@ -776,7 +776,6 @@ nav-security = Varnost
 nav-connected-services = Povezane storitve
 nav-data-collection = Zbiranje in uporaba podatkov
 nav-paid-subs = Plačljive naročnine
-nav-email-comm = E-poštno obveščanje
 
 
 page-2fa-change-title = Spremeni overjanje v dveh korakih
@@ -1510,12 +1509,6 @@ pair2-supplicant-download-firefox-opening-button = Odpiranje { -brand-firefox(sk
 pair2-supplicant-download-firefox-download-button = Prenesi { -brand-firefox(sklon: "tozilnik") }
 pair2-supplicant-download-firefox-have-firefox-button = { -brand-firefox } že imam
 pair2-supplicant-download-firefox-learn-more-link = Več o tem
-
-
-pair2-supplicant-connect-hint-heading-v2 = Dokončajte seznanjanje v aplikaciji
-pair2-supplicant-connect-hint-step-app-menu = V orodni vrstici tapnite <b>meni aplikacij</b>
-pair2-supplicant-connect-hint-step-sign-in = Tapnite <b>prijava</b> in preberite kodo
-pair2-supplicant-connect-hint-learn-more-link = Več o tem
 
 
 pair2-supplicant-ready-to-scan-heading = Da povežete napravo

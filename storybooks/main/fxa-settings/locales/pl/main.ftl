@@ -748,7 +748,6 @@ nav-security = Bezpieczeństwo
 nav-connected-services = Połączone usługi
 nav-data-collection = Zbieranie i wykorzystywanie danych
 nav-paid-subs = Płatne subskrypcje
-nav-email-comm = Ustawienia poczty
 
 
 page-2fa-change-title = Zmień uwierzytelnianie dwuetapowe
@@ -1337,12 +1336,6 @@ pair2-supplicant-download-firefox-description-v2 = Pobierz { -brand-firefox(case
 pair2-supplicant-download-firefox-download-button = Pobierz { -brand-firefox(case: "acc") }
 pair2-supplicant-download-firefox-have-firefox-button = Mam już { -brand-firefox(case: "acc") }
 pair2-supplicant-download-firefox-learn-more-link = Więcej informacji
-
-
-pair2-supplicant-connect-hint-heading-v2 = Dokończ powiązanie w aplikacji
-pair2-supplicant-connect-hint-step-app-menu = Stuknij <b>menu aplikacji</b> na pasku narzędzi
-pair2-supplicant-connect-hint-step-sign-in = Stuknij <b>Zaloguj się</b>, a następnie zeskanuj kod
-pair2-supplicant-connect-hint-learn-more-link = Dowiedz się więcej
 
 
 permissions-heading = { $serviceName } prosi o dostęp do:

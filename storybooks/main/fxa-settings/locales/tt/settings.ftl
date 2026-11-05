@@ -473,7 +473,6 @@ nav-security = Хәвефсезлек
 nav-connected-services = Тоташтырылган Хезмәтләр
 nav-data-collection = Мәгълүмат туплау һәм аны куллану
 nav-paid-subs = Түләүле язылулар
-nav-email-comm = Эл. почта элемтәләр
 
 ## Avatar change page
 

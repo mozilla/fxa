@@ -684,7 +684,6 @@ nav-security = უსაფრთხოება
 nav-connected-services = დაკავშირებული მომსახურებები
 nav-data-collection = მონაცემთა აღრიცხვა და გამოყენება
 nav-paid-subs = ფასიანი გამოწერები
-nav-email-comm = ელფოსტით კავშირები
 
 
 page-2fa-change-title = შესვლისას ორბიჯიანი დამოწმების შეცვლა
@@ -1412,12 +1411,6 @@ pair2-supplicant-download-firefox-opening-button = იხსნება { -bran
 pair2-supplicant-download-firefox-download-button = ჩამოტვირთეთ { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = უკვე მაქვს { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = ვრცლად
-
-
-pair2-supplicant-connect-hint-heading-v2 = მიერთების დასრულება პროგრამაში
-pair2-supplicant-connect-hint-step-app-menu = შეეხეთ <b>პროგრამის მენიუს</b> ხელსაწყოთა ზოლზე
-pair2-supplicant-connect-hint-step-sign-in = შეეხეთ <b>შესვლას</b> და წააკითხეთ კოდი
-pair2-supplicant-connect-hint-learn-more-link = ვრცლად
 
 
 pair2-supplicant-ready-to-scan-heading = რომ დაკავშირდეს მოწყობილობა

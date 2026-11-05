@@ -198,7 +198,6 @@ nav-security = Turvalisus
 nav-connected-services = Ühendatud teenused
 nav-data-collection = Andmete kogumine ja kasutamine
 nav-paid-subs = Tasulised tellimused
-nav-email-comm = E-kirjavahetus
 
 ## Avatar change page
 

@@ -897,7 +897,6 @@ nav-security = Wěstota
 nav-connected-services = Zwězane słužby
 nav-data-collection = Zběranje a wužywanje datow
 nav-paid-subs = Zapłaśone abonementy
-nav-email-comm = E-mailowa komunikacija
 
 ## Page2faChange
 
@@ -2024,20 +2023,6 @@ pair2-supplicant-download-firefox-download-button = { -brand-firefox } ześěgnu
 pair2-supplicant-download-firefox-have-firefox-button = Mam južo { -brand-firefox }
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = Dalšne informacije
-
-## PairConnectHint page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device after scanning the pairing QR code
-## with the phone's camera app instead of with Firefox. They already have
-## Firefox installed, so it tells them how to scan the code again from inside
-## Firefox.
-
-pair2-supplicant-connect-hint-heading-v2 = Koplowanje w nałoženju dokóńcyś
-# <b> emphasises the name of the button the user taps in Firefox
-pair2-supplicant-connect-hint-step-app-menu = Pótusniśo <b>nałožeński meni</b> w symbolowej rědce
-# <b> emphasises the name of the menu item the user taps in Firefox
-pair2-supplicant-connect-hint-step-sign-in = Pótusniśo <b>Pśizjawiś</b> a scannujśo pón kode
-# Opens a Mozilla support article about connecting a device without a QR code
-pair2-supplicant-connect-hint-learn-more-link = Dalšne informacije
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them

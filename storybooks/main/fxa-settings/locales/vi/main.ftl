@@ -619,7 +619,6 @@ nav-security = Bảo mật
 nav-connected-services = Dịch vụ đã kết nối
 nav-data-collection = Thu thập và sử dụng dữ liệu
 nav-paid-subs = Thuê bao đã trả phí
-nav-email-comm = Truyền thông email
 
 
 page-2fa-change-title = Thay đổi xác thực hai bước
@@ -1337,12 +1336,6 @@ pair2-supplicant-download-firefox-opening-button = Đang mở { -brand-firefox }
 pair2-supplicant-download-firefox-download-button = Tải xuống { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = Tôi đã có { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Tìm hiểu thêm
-
-
-pair2-supplicant-connect-hint-heading-v2 = Hoàn tất thiết lập trong ứng dụng
-pair2-supplicant-connect-hint-step-app-menu = Nhấn vào <b>menu ứng dụng</b> trên thanh công cụ
-pair2-supplicant-connect-hint-step-sign-in = Nhấn vào <b>đăng nhập</b>, sau đó quét mã
-pair2-supplicant-connect-hint-learn-more-link = Tìm hiểu thêm
 
 
 pair2-supplicant-ready-to-scan-heading = Để kết nối thiết bị

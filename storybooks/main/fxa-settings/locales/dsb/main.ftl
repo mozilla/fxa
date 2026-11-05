@@ -656,7 +656,6 @@ nav-security = Wěstota
 nav-connected-services = Zwězane słužby
 nav-data-collection = Zběranje a wužywanje datow
 nav-paid-subs = Zapłaśone abonementy
-nav-email-comm = E-mailowa komunikacija
 
 
 page-2fa-change-title = Dwójokšacowu awtentifikaciju zmeniś
@@ -1390,12 +1389,6 @@ pair2-supplicant-download-firefox-opening-button = { -brand-firefox } se wócynj
 pair2-supplicant-download-firefox-download-button = { -brand-firefox } ześěgnuś
 pair2-supplicant-download-firefox-have-firefox-button = Mam južo { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Dalšne informacije
-
-
-pair2-supplicant-connect-hint-heading-v2 = Koplowanje w nałoženju dokóńcyś
-pair2-supplicant-connect-hint-step-app-menu = Pótusniśo <b>nałožeński meni</b> w symbolowej rědce
-pair2-supplicant-connect-hint-step-sign-in = Pótusniśo <b>Pśizjawiś</b> a scannujśo pón kode
-pair2-supplicant-connect-hint-learn-more-link = Dalšne informacije
 
 
 pair2-supplicant-ready-to-scan-heading = Rěd zwězaś

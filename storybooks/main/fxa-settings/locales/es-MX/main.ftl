@@ -416,7 +416,6 @@ nav-security = Seguridad
 nav-connected-services = Servicios conectados
 nav-data-collection = Recopilación y uso de datos
 nav-paid-subs = Suscripciones de pago
-nav-email-comm = Comunicaciones por correo electrónico
 
 
 tfa-replace-code-error-3 = Hubo un problema al reemplazar tus códigos de autenticación de respaldo

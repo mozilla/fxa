@@ -570,7 +570,6 @@ nav-security = Segurança
 nav-connected-services = Serviços conectados
 nav-data-collection = Coleta e uso de dados
 nav-paid-subs = Assinaturas pagas
-nav-email-comm = Comunicações por email
 
 
 tfa-replace-code-error-3 = Houve um problema ao substituir seus códigos de autenticação de backup

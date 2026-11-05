@@ -367,7 +367,6 @@ nav-security = Бяспека
 nav-connected-services = Падключаныя паслугі
 nav-data-collection = Збор і выкарыстанне звестак
 nav-paid-subs = Платныя падпіскі
-nav-email-comm = Зносіны па электроннай пошце
 
 
 tfa-replace-code-error-3 = Узнікла праблема пры замене вашых рэзервовых кодаў аўтэнтыфікацыі

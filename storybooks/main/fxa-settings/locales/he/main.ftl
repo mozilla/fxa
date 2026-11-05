@@ -631,7 +631,6 @@ nav-security = אבטחה
 nav-connected-services = שירותים מחוברים
 nav-data-collection = איסוף ושימוש בנתונים
 nav-paid-subs = מינויים בתשלום
-nav-email-comm = תקשורת בדוא״ל
 
 
 page-2fa-change-title = שינוי אימות דו־שלבי
@@ -1329,12 +1328,6 @@ pair2-supplicant-download-firefox-opening-button = בתהליך פתיחת { -br
 pair2-supplicant-download-firefox-download-button = הורדת { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = כבר יש לי את { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = מידע נוסף
-
-
-pair2-supplicant-connect-hint-heading-v2 = סיום הצימוד ביישומון
-pair2-supplicant-connect-hint-step-app-menu = יש להקיש על <b>תפריט היישומון</b> בסרגל הכלים
-pair2-supplicant-connect-hint-step-sign-in = יש להקיש על <b>כניסה</b>, ולאחר מכן לסרוק את הקוד
-pair2-supplicant-connect-hint-learn-more-link = מידע נוסף
 
 
 pair2-supplicant-ready-to-scan-heading = כדי לחבר מכשיר

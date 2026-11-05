@@ -799,7 +799,6 @@ nav-security = Безбедност
 nav-connected-services = Повезане услуге
 nav-data-collection = Сакупљање и коришћење података
 nav-paid-subs = Плаћене претплате
-nav-email-comm = Комуникација путем е-поште
 
 ## Page2faChange
 

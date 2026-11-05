@@ -759,7 +759,6 @@ nav-security = Seguridad
 nav-connected-services = Servicios conectados
 nav-data-collection = Recopilación y uso de datos
 nav-paid-subs = Suscripciones de pago
-nav-email-comm = Comunicaciones por correo electrónico
 
 ## Page2faChange
 

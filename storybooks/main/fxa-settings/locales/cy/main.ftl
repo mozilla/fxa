@@ -664,7 +664,6 @@ nav-security = Diogelwch
 nav-connected-services = Gwasanaethau Cysylltiedig
 nav-data-collection = Casglu a'r Defnydd o Ddata
 nav-paid-subs = Tanysgrifiadau Taledig
-nav-email-comm = Cyfathrebu Trwy E-bost
 
 
 page-2fa-change-title = Newid dilysu dau gam
@@ -1398,12 +1397,6 @@ pair2-supplicant-download-firefox-opening-button = Yn agor { -brand-firefox }…
 pair2-supplicant-download-firefox-download-button = Llwytho { -brand-firefox } i lawr
 pair2-supplicant-download-firefox-have-firefox-button = Mae gen i { -brand-firefox } yn barod
 pair2-supplicant-download-firefox-learn-more-link = Dysgu rhagor
-
-
-pair2-supplicant-connect-hint-heading-v2 = Gorffen paru yn yr ap
-pair2-supplicant-connect-hint-step-app-menu = Tapiwch <b>ddewislen yr ap</b> yn y bar offer
-pair2-supplicant-connect-hint-step-sign-in = Tapiwch <b>mewngofnodi</b>, yna sganio'r cod
-pair2-supplicant-connect-hint-learn-more-link = Dysgu rhagor
 
 
 pair2-supplicant-ready-to-scan-heading = I gysylltu dyfais

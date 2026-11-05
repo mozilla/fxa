@@ -101,7 +101,6 @@ nav-profile = Profil
 nav-security = Keamanan
 nav-connected-services = Layanan Tersambung
 nav-paid-subs = Langganan Berbayar
-nav-email-comm = Komunikasi Email
 
 ## Avatar change page
 

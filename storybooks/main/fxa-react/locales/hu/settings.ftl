@@ -891,7 +891,6 @@ nav-security = Biztonság
 nav-connected-services = Kapcsolódó szolgáltatások
 nav-data-collection = Adatgyűjtés és -felhasználás
 nav-paid-subs = Előfizetések
-nav-email-comm = E-mail kommunikáció
 
 ## Page2faChange
 
@@ -2014,20 +2013,6 @@ pair2-supplicant-download-firefox-download-button = A { -brand-firefox } letölt
 pair2-supplicant-download-firefox-have-firefox-button = Már van { -brand-firefox }om
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = További tudnivalók
-
-## PairConnectHint page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device after scanning the pairing QR code
-## with the phone's camera app instead of with Firefox. They already have
-## Firefox installed, so it tells them how to scan the code again from inside
-## Firefox.
-
-pair2-supplicant-connect-hint-heading-v2 = Fejezze be a párosítást az alkalmazásban
-# <b> emphasises the name of the button the user taps in Firefox
-pair2-supplicant-connect-hint-step-app-menu = Koppintson az <b>alkalmazásmenüre</b> az eszköztárban
-# <b> emphasises the name of the menu item the user taps in Firefox
-pair2-supplicant-connect-hint-step-sign-in = Koppintson a <b>bejelentkezésre</b>, majd olvassa le a kódot
-# Opens a Mozilla support article about connecting a device without a QR code
-pair2-supplicant-connect-hint-learn-more-link = További tudnivalók
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them

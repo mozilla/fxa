@@ -67,7 +67,6 @@ nav-profile = Pròifil
 nav-security = Tèarainteachd
 nav-connected-services = Seirbheisean ceangailte
 nav-paid-subs = Fo-sgrìobhaidhean air airgead
-nav-email-comm = Conaltradh puist-d
 
 
 avatar-page-title =

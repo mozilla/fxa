@@ -666,7 +666,6 @@ nav-security = Безпека
 nav-connected-services = Під'єднані служби
 nav-data-collection = Збір та використання даних
 nav-paid-subs = Передплати
-nav-email-comm = Зв’язок електронною поштою
 
 ## Two Step Authentication - replace backup authentication code
 

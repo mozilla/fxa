@@ -496,7 +496,6 @@ nav-security = Sicurizza
 nav-connected-services = Sirbizza cunnessi
 nav-data-collection = Ricugghiuta e usu dî dati
 nav-paid-subs = Abbunamenti a pagamentu
-nav-email-comm = Cumunicazzioni pi posta elittrònica
 
 
 tfa-replace-code-error-3 = Cci fu un prubblema mentri chi canciava i còdici d’autinticazzioni di sicurizza

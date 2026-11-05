@@ -648,7 +648,6 @@ nav-security = Segurança
 nav-connected-services = Serviços associados
 nav-data-collection = Recolha e utilização de dados
 nav-paid-subs = Subscrições pagas
-nav-email-comm = Comunicações por e-mail
 
 
 page-2fa-change-title = Alterar autenticação de dois passos
@@ -1378,12 +1377,6 @@ pair2-supplicant-download-firefox-opening-button = A abrir { -brand-firefox }…
 pair2-supplicant-download-firefox-download-button = Transferir o { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = Eu já tenho o { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Saber mais
-
-
-pair2-supplicant-connect-hint-heading-v2 = Concluir emparelhamento na aplicação
-pair2-supplicant-connect-hint-step-app-menu = Toque no <b>menu da aplicação</b> na barra de ferramentas
-pair2-supplicant-connect-hint-step-sign-in = Toque em <b>iniciar sessão</b>, depois digitalize o código
-pair2-supplicant-connect-hint-learn-more-link = Saber mais
 
 
 pair2-supplicant-ready-to-scan-heading = Para ligar um dispositivo

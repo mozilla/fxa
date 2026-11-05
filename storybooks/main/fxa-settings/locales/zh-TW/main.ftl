@@ -622,7 +622,6 @@ nav-security = 安全性
 nav-connected-services = 連結的服務
 nav-data-collection = 資料收集與使用
 nav-paid-subs = 付費訂閱項目
-nav-email-comm = 電子郵件通訊
 
 
 page-2fa-change-title = 更改兩階段驗證設定
@@ -1334,12 +1333,6 @@ pair2-supplicant-download-firefox-opening-button = 正在開啟 { -brand-firefox
 pair2-supplicant-download-firefox-download-button = 下載 { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = 我已經安裝 { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = 更多資訊
-
-
-pair2-supplicant-connect-hint-heading-v2 = 到 App 中完成配對
-pair2-supplicant-connect-hint-step-app-menu = 點擊工具列中的<b>應用程式選單</b>
-pair2-supplicant-connect-hint-step-sign-in = 點擊<b>登入</b>，然後掃描 QR Code
-pair2-supplicant-connect-hint-learn-more-link = 更多資訊
 
 
 pair2-supplicant-ready-to-scan-heading = 連結裝置

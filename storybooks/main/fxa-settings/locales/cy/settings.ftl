@@ -905,7 +905,6 @@ nav-security = Diogelwch
 nav-connected-services = Gwasanaethau Cysylltiedig
 nav-data-collection = Casglu a'r Defnydd o Ddata
 nav-paid-subs = Tanysgrifiadau Taledig
-nav-email-comm = Cyfathrebu Trwy E-bost
 
 ## Page2faChange
 
@@ -2032,20 +2031,6 @@ pair2-supplicant-download-firefox-download-button = Llwytho { -brand-firefox } i
 pair2-supplicant-download-firefox-have-firefox-button = Mae gen i { -brand-firefox } yn barod
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = Dysgu rhagor
-
-## PairConnectHint page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device after scanning the pairing QR code
-## with the phone's camera app instead of with Firefox. They already have
-## Firefox installed, so it tells them how to scan the code again from inside
-## Firefox.
-
-pair2-supplicant-connect-hint-heading-v2 = Gorffen paru yn yr ap
-# <b> emphasises the name of the button the user taps in Firefox
-pair2-supplicant-connect-hint-step-app-menu = Tapiwch <b>ddewislen yr ap</b> yn y bar offer
-# <b> emphasises the name of the menu item the user taps in Firefox
-pair2-supplicant-connect-hint-step-sign-in = Tapiwch <b>mewngofnodi</b>, yna sganio'r cod
-# Opens a Mozilla support article about connecting a device without a QR code
-pair2-supplicant-connect-hint-learn-more-link = Dysgu rhagor
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them

@@ -646,7 +646,6 @@ nav-security = Säkerhet
 nav-connected-services = Anslutna tjänster
 nav-data-collection = Datainsamling och användning
 nav-paid-subs = Betalda prenumerationer
-nav-email-comm = E-postkommunikation
 
 
 page-2fa-change-title = Ändra tvåstegsautentisering
@@ -1375,12 +1374,6 @@ pair2-supplicant-download-firefox-opening-button = Öppnar { -brand-firefox }…
 pair2-supplicant-download-firefox-download-button = Ladda ned { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = Jag har redan { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Läs mer
-
-
-pair2-supplicant-connect-hint-heading-v2 = Avsluta parkoppling i appen
-pair2-supplicant-connect-hint-step-app-menu = Tryck på <b>appmenyn</b> i verktygsfältet
-pair2-supplicant-connect-hint-step-sign-in = Tryck på <b>logga in</b> och skanna sedan koden
-pair2-supplicant-connect-hint-learn-more-link = Läs mer
 
 
 pair2-supplicant-ready-to-scan-heading = För att ansluta en enhet

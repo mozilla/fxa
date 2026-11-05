@@ -580,7 +580,6 @@ nav-security = Siguri
 nav-connected-services = Shërbime të Lidhura
 nav-data-collection = Grumbullim dhe Përdorim të Dhënash
 nav-paid-subs = Pajtime Me Pagesë
-nav-email-comm = Komunikime Me Email
 
 
 page-2fa-change-title = Ndryshoni mirëfilltësim dyhapësh
