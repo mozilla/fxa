@@ -1,8 +1,8 @@
 {
-  "commit": "acbcd7970cedf1e475a59b7ecfb093a009f98077",
-  "summary": "Merge pull request #21682 from mozilla/agent-a34523",
-  "description": "fix(auth): skip inactive-account emails and deletion when disabled",
-  "timestamp": 1793834911000,
+  "commit": "cb5973c720994f8c4aa25c6ea0f46f4a1c802deb",
+  "summary": "Merge pull request #21692 from mozilla/fxa-13455",
+  "description": "chore(auth): add uid rate-limit rules for TOTP verify",
+  "timestamp": 1793837599000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
