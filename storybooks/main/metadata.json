@@ -1,8 +1,8 @@
 {
-  "commit": "9e802ac9c2b98c13a4b74e2e8e1fd1534b5f617b",
-  "summary": "Merge pull request #21701 from mozilla/fxa-14188",
-  "description": "refactor(profile): validate the avatar id on worker routes",
-  "timestamp": 1793839441000,
+  "commit": "343997be162223b576496ac9e15d4ffdf270d11b",
+  "summary": "Merge pull request #21678 from mozilla/fxa-6757",
+  "description": "fix(settings): rename Email Communications nav link to Email Preferences",
+  "timestamp": 1793846672000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
