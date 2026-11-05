@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit cb47b81c32ab7c15a15eb7d532f46ba7c89dc1c6</title>
+  <title>Storybooks for commit 5055f656cb87b8649fdab159a8dfb3cbfea593c0</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,24 +23,26 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit cb47b81c32ab7c15a15eb7d532f46ba7c89dc1c6</h1>
+  <h1>Storybooks for commit 5055f656cb87b8649fdab159a8dfb3cbfea593c0</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/5/2026, 4:36:06 PM UTC</dd>
+    <dd>11/5/2026, 5:05:02 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>refactor(admin-server): check features and names on record-security-event</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-* The admin record-security-event route used a read feature and took any event name.
+* The admin record-security-event route used a read feature, took any
+  event name, and passed when the group held any one listed feature.
 
 This commit:
 
-* Requires the Remove2FA, ClearEmailBounces or RemovePasskeys feature and adds @AuditLog().
-* Accepts only the three event names the admin panel sends, else returns 400.
+* Requires Remove2FA, ClearEmailBounces or RemovePasskeys, with @AuditLog().
+* Accepts only the three event names the admin panel sends, else 400.
+* Maps each name to its own feature and returns 403 when the group lacks it.
 * Moves the write to a private writeAdminSecurityEvent for internal callers.
 
 Closes FXA-14034</pre></dd>
