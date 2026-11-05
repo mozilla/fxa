@@ -1,8 +1,8 @@
 {
-  "commit": "86aa1fa5448e9be350cf2b41b8605224a30691f5",
-  "summary": "Merge pull request #21706 from mozilla/fxa-13457",
-  "description": "chore(auth): tune account status rate-limit rules",
-  "timestamp": 1793896595000,
+  "commit": "dd2350f8d7ae20f2d182a29adb3e8db36571792b",
+  "summary": "Merge pull request #21707 from mozilla/fxa-14034",
+  "description": "refactor(admin-server): check features and names on record-security-event",
+  "timestamp": 1793899387000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
