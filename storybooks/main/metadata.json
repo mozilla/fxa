@@ -1,8 +1,8 @@
 {
-  "commit": "646ae00c8569da29d244e9fd039d4c90017bb560",
-  "summary": "Merge pull request #21703 from mozilla/fxa-14194",
-  "description": "refactor(settings): fail closed in the pair approval check",
-  "timestamp": 1793839394000,
+  "commit": "9e802ac9c2b98c13a4b74e2e8e1fd1534b5f617b",
+  "summary": "Merge pull request #21701 from mozilla/fxa-14188",
+  "description": "refactor(profile): validate the avatar id on worker routes",
+  "timestamp": 1793839441000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
