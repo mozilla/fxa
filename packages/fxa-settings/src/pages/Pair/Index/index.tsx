@@ -542,7 +542,7 @@ const Pair = ({
   ]);
 
   // Back from /pair/auth/totp with a good code: resume the pairing the user
-  // already started. Like AuthAllow, trust `totpComplete` rather than ask again.
+  // already started. AuthAllow checks the code again before approval.
   const totpComplete = !!(location.state as { totpComplete?: unknown } | null)
     ?.totpComplete;
   const resumedPairingRef = useRef(false);

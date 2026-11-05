@@ -483,7 +483,7 @@ describe('Pair2/Authority/ScanQR container', () => {
       expect(integration.createChannel).not.toHaveBeenCalled();
     });
 
-    it('opens the channel without a profile lookup when returning from a verified code', async () => {
+    it('sends a 2FA account to the TOTP screen when the location state has totpComplete but no code was verified', async () => {
       mockAccountProfile.mockResolvedValue({
         authenticationMethods: ['pwd', 'email', 'otp'],
       });
@@ -492,8 +492,13 @@ describe('Pair2/Authority/ScanQR container', () => {
         totpComplete: true,
       });
 
-      await waitFor(() => expect(integration.createChannel).toHaveBeenCalled());
-      expect(mockAccountProfile).not.toHaveBeenCalled();
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('/pair/authority/totp', {
+          replace: true,
+        })
+      );
+      expect(mockAccountProfile).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
+      expect(integration.createChannel).not.toHaveBeenCalled();
     });
 
     it('opens the channel without a profile lookup when this browser verified a code just now', async () => {
