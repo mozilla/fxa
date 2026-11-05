@@ -332,6 +332,13 @@ locale-toggle-browser-default = پیش‌فرض مرورگر
 error-bad-request = درخواست نامعتبر
 
 
+pair-unsupported-hint-heading = جفت‌سازی را در برنامه کامل کنید
+pair-unsupported-hint-step-close-page = این صفحه را ببندید
+pair-unsupported-hint-step-app-menu = روی <b>منوی برنامه</b> بزنید
+pair-unsupported-hint-step-sign-in = <b>وارد شوید</b> و سپس کد را پویش کنید
+pair-unsupported-hint-learn-more-link = بیشتر بدانید
+
+
 password-info-balloon-why-password-info = برای دسترسی به هر دادهٔ رمزگذاری‌شده‌ای که نزد ما نگه می‌دارید، به این گذرواژه نیاز دارید.
 password-info-balloon-reset-risk-info = بازنشانی ممکن است به از دست رفتن داده‌هایی مثل گذرواژه‌ها و نشانک‌ها منجر شود.
 
@@ -1210,6 +1217,11 @@ tfa-qr-code-alt = برای راه‌اندازی احراز هویت دو مرح
 inline-totp-setup-page-title = احراز هویت دو مرحله‌ای
 
 
+page-not-found-heading = صفحه پیدا نشد
+page-not-found-description = صفحه‌ای که درخواست کردید پیدا نشد. به ما اطلاع داده شده است و هر پیوند خرابی را اصلاح خواهیم کرد.
+page-not-found-home-button = خانه
+
+
 pair-auth-allow-heading-text = همین حالا وارد { -brand-firefox } شدید؟
 pair-auth-allow-confirm-button = بله، دستگاه را تأیید می‌کنم
 pair-auth-allow-refuse-device-link = اگر شما نبودید، <a>گذرواژه‌تان را تغییر دهید</a>
@@ -1312,6 +1324,7 @@ pair2-authority-continue-on-mobile-cancel-button = انصراف
 
 
 pair2-authority-download-firefox-heading = برای همگام‌سازی، { -brand-firefox } را باز کنید
+pair2-authority-download-firefox-instruction-v2 = برای راه‌اندازی همگام‌سازی میان دستگاه‌ها، { -brand-firefox } را روی این دستگاه باز کنید و به <b>firefox.com/pair</b> بروید.
 pair2-authority-download-firefox-cta = بارگیری { -brand-firefox }
 
 
@@ -1539,6 +1552,11 @@ signin-passkey-fallback-body = برای امن نگه داشتن داده‌ها
 signin-passkey-fallback-password-label = گذرواژه
 signin-passkey-fallback-continue = ادامه
 signin-passkey-fallback-forgot-password-link = گذرواژه را فراموش کرده‌اید؟
+signin-passkey-fallback-no-prf-heading = در این دستگاه به گذرواژه نیاز است
+signin-passkey-fallback-no-prf-description = این مرورگر یا دستگاه نمی‌تواند فقط با کلید عبور شما وارد همگام‌سازی شود.
+signin-passkey-fallback-unwrap-failed-heading = کلید عبور شما نتوانست قفل همگام‌سازی را باز کند
+signin-passkey-fallback-unwrap-failed-description = مشکلی پیش آمد، پس این بار به گذرواژهٔ خود نیاز دارید.
+signin-passkey-fallback-wrap-unusable-link = بیشتر بدانید
 
 
 signin-passwordless-code-heading = کد تأیید را وارد کنید

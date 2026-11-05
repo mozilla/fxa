@@ -401,6 +401,20 @@ locale-toggle-browser-default = پیش‌فرض مرورگر
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = درخواست نامعتبر
 
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+pair-unsupported-hint-heading = جفت‌سازی را در برنامه کامل کنید
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = این صفحه را ببندید
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = روی <b>منوی برنامه</b> بزنید
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>وارد شوید</b> و سپس کد را پویش کنید
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = بیشتر بدانید
+
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
 
@@ -1684,6 +1698,13 @@ inline-totp-setup-code-required-error = کد احراز هویت لازم است
 tfa-qr-code-alt = برای راه‌اندازی احراز هویت دو مرحله‌ای در برنامه‌های پشتیبانی‌شده، از کد { $code } استفاده کنید.
 inline-totp-setup-page-title = احراز هویت دو مرحله‌ای
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = صفحه پیدا نشد
+page-not-found-description = صفحه‌ای که درخواست کردید پیدا نشد. به ما اطلاع داده شده است و هر پیوند خرابی را اصلاح خواهیم کرد.
+page-not-found-home-button = خانه
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = همین حالا وارد { -brand-firefox } شدید؟
@@ -1884,6 +1905,8 @@ pair2-authority-continue-on-mobile-cancel-button = انصراف
 
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = برای همگام‌سازی، { -brand-firefox } را باز کنید
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction-v2 = برای راه‌اندازی همگام‌سازی میان دستگاه‌ها، { -brand-firefox } را روی این دستگاه باز کنید و به <b>firefox.com/pair</b> بروید.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = بارگیری { -brand-firefox }
 
@@ -2276,6 +2299,16 @@ signin-passkey-fallback-body = برای امن نگه داشتن داده‌ها
 signin-passkey-fallback-password-label = گذرواژه
 signin-passkey-fallback-continue = ادامه
 signin-passkey-fallback-forgot-password-link = گذرواژه را فراموش کرده‌اید؟
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = در این دستگاه به گذرواژه نیاز است
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
+signin-passkey-fallback-no-prf-description = این مرورگر یا دستگاه نمی‌تواند فقط با کلید عبور شما وارد همگام‌سازی شود.
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
+signin-passkey-fallback-unwrap-failed-heading = کلید عبور شما نتوانست قفل همگام‌سازی را باز کند
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = مشکلی پیش آمد، پس این بار به گذرواژهٔ خود نیاز دارید.
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = بیشتر بدانید
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
