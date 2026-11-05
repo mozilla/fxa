@@ -1,0 +1,13 @@
+{
+  "commit": "4ba089d2a1f0fe1186fd817c6360349627493aad",
+  "summary": "chore(deps-dev): bump storybook from 8.6.18 to 8.6.19",
+  "description": "Bumps [storybook](https://github.com/storybookjs/storybook/tree/HEAD/code/core) from 8.6.18 to 8.6.19.\n- [Release notes](https://github.com/storybookjs/storybook/releases)\n- [Changelog](https://github.com/storybookjs/storybook/blob/v8.6.19/CHANGELOG.md)\n- [Commits](https://github.com/storybookjs/storybook/commits/v8.6.19/code/core)\n\n---\nupdated-dependencies:\n- dependency-name: storybook\n  dependency-version: 8.6.19\n  dependency-type: direct:development\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+  "timestamp": 1793922003000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
