@@ -883,6 +883,7 @@ nav-security = امنیت
 nav-connected-services = خدمات متصل
 nav-data-collection = جمع‌آوری و استفاده از داده‌ها
 nav-paid-subs = اشتراک‌های پولی
+nav-email-prefs = ترجیحات رایانامه
 
 ## Page2faChange
 
@@ -2235,6 +2236,8 @@ signin-link-expired-message-2 = پیوندی که روی آن کلیک کردی�
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = گذرواژه‌تان را وارد کنید <span>برای { -product-mozilla-account }</span>
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = آغاز همگام‌سازی
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = ادامه به { $serviceName }

@@ -664,6 +664,7 @@ nav-security = Diogelwch
 nav-connected-services = Gwasanaethau Cysylltiedig
 nav-data-collection = Casglu a'r Defnydd o Ddata
 nav-paid-subs = Tanysgrifiadau Taledig
+nav-email-prefs = Dewisiadau E-bost
 
 
 page-2fa-change-title = Newid dilysu dau gam
@@ -1548,6 +1549,7 @@ signin-link-expired-message-2 = Mae'r ddolen a gliciwyd gennych wedi dod i ben n
 
 
 signin-password-needed-header-2 = Rhowch eich cyfrinair <span>ar gyfer eich cyfrif { -product-mozilla-account }</span>
+signin-button-start-syncing = Cychwyn cydweddu
 signin-subheader-without-logo-with-servicename = Parhau i { $serviceName }
 signin-subheader-without-logo-default = Parhau i osodiadau cyfrif
 signin-button = Mewngofnodi

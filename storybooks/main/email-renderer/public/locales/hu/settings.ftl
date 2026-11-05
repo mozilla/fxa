@@ -891,6 +891,7 @@ nav-security = Biztonság
 nav-connected-services = Kapcsolódó szolgáltatások
 nav-data-collection = Adatgyűjtés és -felhasználás
 nav-paid-subs = Előfizetések
+nav-email-prefs = E-mail beállítások lehetőségre
 
 ## Page2faChange
 
@@ -2257,6 +2258,8 @@ signin-link-expired-message-2 = A hivatkozás, amelyre kattintott, lejárt, vagy
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Adja meg a <span>{ -product-mozilla-account }</span> jelszavát
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = Szinkronizálás indítása
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = Tovább erre: { $serviceName }

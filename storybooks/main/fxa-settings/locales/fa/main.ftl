@@ -646,6 +646,7 @@ nav-security = امنیت
 nav-connected-services = خدمات متصل
 nav-data-collection = جمع‌آوری و استفاده از داده‌ها
 nav-paid-subs = اشتراک‌های پولی
+nav-email-prefs = ترجیحات رایانامه
 
 
 page-2fa-change-title = تغییر احراز هویت دو مرحله‌ای
@@ -1511,6 +1512,7 @@ signin-link-expired-message-2 = پیوندی که روی آن کلیک کردی�
 
 
 signin-password-needed-header-2 = گذرواژه‌تان را وارد کنید <span>برای { -product-mozilla-account }</span>
+signin-button-start-syncing = آغاز همگام‌سازی
 signin-subheader-without-logo-with-servicename = ادامه به { $serviceName }
 signin-subheader-without-logo-default = ادامه به تنظیمات حساب
 signin-button = ورود

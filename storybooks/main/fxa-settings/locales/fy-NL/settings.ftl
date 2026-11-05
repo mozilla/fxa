@@ -891,6 +891,7 @@ nav-security = Befeiliging
 nav-connected-services = Ferbûne tsjinsten
 nav-data-collection = Gegevenssamling en gebrûk
 nav-paid-subs = Betelle abonneminten
+nav-email-prefs = E-mailfoarkarren
 
 ## Page2faChange
 
@@ -2254,6 +2255,8 @@ signin-link-expired-message-2 = De keppeling wêrop jo klikt hawwe is ferrûn of
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Fier jo wachtwurd <span>foar jo { -product-mozilla-account }</span> yn
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = Begjin mei syngronisearjen
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = Trochgean nei { $serviceName }

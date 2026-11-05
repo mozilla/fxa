@@ -656,6 +656,7 @@ nav-security = Wěstota
 nav-connected-services = Zwězane słužby
 nav-data-collection = Zběranje a wužywanje datow
 nav-paid-subs = Zapłaśone abonementy
+nav-email-prefs = E-mailowe nastajenja
 
 
 page-2fa-change-title = Dwójokšacowu awtentifikaciju zmeniś
@@ -1541,6 +1542,7 @@ signin-link-expired-message-2 = Wótkaz, na kótaryž sćo kliknuł, jo spadnjon
 
 
 signin-password-needed-header-2 = Zapódajśo swójo gronidło <span>za swójo { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
+signin-button-start-syncing = Synchronizaciju zachopiś
 signin-subheader-without-logo-with-servicename = Dalej k { $serviceName }
 signin-subheader-without-logo-default = Dalej ku kontowym nastajenjam
 signin-button = Pśizjawiś

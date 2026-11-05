@@ -650,6 +650,7 @@ nav-security = Befeiliging
 nav-connected-services = Ferbûne tsjinsten
 nav-data-collection = Gegevenssamling en gebrûk
 nav-paid-subs = Betelle abonneminten
+nav-email-prefs = E-mailfoarkarren
 
 
 page-2fa-change-title = Autentikaasje yn twa stappen wizigje
@@ -1526,6 +1527,7 @@ signin-link-expired-message-2 = De keppeling wêrop jo klikt hawwe is ferrûn of
 
 
 signin-password-needed-header-2 = Fier jo wachtwurd <span>foar jo { -product-mozilla-account }</span> yn
+signin-button-start-syncing = Begjin mei syngronisearjen
 signin-subheader-without-logo-with-servicename = Trochgean nei { $serviceName }
 signin-subheader-without-logo-default = Trochgean nei accountynstellingen
 signin-button = Oanmelde

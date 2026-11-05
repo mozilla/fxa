@@ -1,8 +1,8 @@
 {
-  "commit": "56610eb9a11b8c1a14cf499dc6ee7e762e8ed506",
-  "summary": "Merge pull request #21712 from mozilla/fxa-14944",
-  "description": "fix(tests): stop three nightly tests from flaking",
-  "timestamp": 1793912975000,
+  "commit": "a9df888caf356d606d581e5d69545e24587ea7a3",
+  "summary": "Merge pull request #21698 from mozilla/fxa-14040",
+  "description": "refactor(oauth): keep resource out of the id_token aud",
+  "timestamp": 1793918205000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

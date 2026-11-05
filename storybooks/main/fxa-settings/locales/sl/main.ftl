@@ -776,6 +776,7 @@ nav-security = Varnost
 nav-connected-services = Povezane storitve
 nav-data-collection = Zbiranje in uporaba podatkov
 nav-paid-subs = Plačljive naročnine
+nav-email-prefs = Nastavitve e-pošte
 
 
 page-2fa-change-title = Spremeni overjanje v dveh korakih
@@ -1661,6 +1662,7 @@ signin-link-expired-message-2 = Povezavi, ki ste jo kliknili, je potekla veljavn
 
 
 signin-password-needed-header-2 = Vnesite geslo <span>za { -product-mozilla-account }</span>
+signin-button-start-syncing = Začni s sinhronizacijo
 signin-subheader-without-logo-with-servicename = Nadaljuj na { $serviceName }
 signin-subheader-without-logo-default = Nadaljuj na nastavitve računa
 signin-button = Prijava

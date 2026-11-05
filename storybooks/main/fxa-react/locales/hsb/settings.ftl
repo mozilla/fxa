@@ -897,6 +897,7 @@ nav-security = Wěstota
 nav-connected-services = Zwjazane słužby
 nav-data-collection = Hromadźenje a wužiwanje datow
 nav-paid-subs = Zapłaćene abonementy
+nav-email-prefs = E-mejlowe nastajenja
 
 ## Page2faChange
 
@@ -2269,6 +2270,8 @@ signin-link-expired-message-2 = Wotkaz, na kotryž sće kliknył, je spadnjeny a
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Zapodajće swoje hesło <span>za swoje { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = Synchronizaciju započeć
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = Dale k { $serviceName }
