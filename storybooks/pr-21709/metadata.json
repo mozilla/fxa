@@ -1,0 +1,13 @@
+{
+  "commit": "00f5ed7fa900c35a65870c966a65f8a28636beb4",
+  "summary": "fix(shared): replace mysql with mysql2",
+  "description": "Because:\n\n* The deprecated mysql driver is still a dependency of four packages.\n\nThis commit:\n\n* Moves every direct import and knex client from mysql to mysql2.\n* Returns JSON columns as strings from the knex typeCast functions.\n* Closes idle OAuth pool connections with PoolConnection.destroy().\n* Keeps knex pool keys out of the mysql2 connection settings.\n* Removes mysql and @types/mysql and updates yarn.lock.\n\nCloses FXA-13447",
+  "timestamp": 1793898805000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
