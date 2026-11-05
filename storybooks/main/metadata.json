@@ -1,8 +1,8 @@
 {
-  "commit": "cb5973c720994f8c4aa25c6ea0f46f4a1c802deb",
-  "summary": "Merge pull request #21692 from mozilla/fxa-13455",
-  "description": "chore(auth): add uid rate-limit rules for TOTP verify",
-  "timestamp": 1793837599000,
+  "commit": "142a61e3539e4723f8cb076e9c24489bf31dabc4",
+  "summary": "Merge pull request #21697 from mozilla/fxa-14066",
+  "description": "refactor(profile): keep the processing error cause off the payload",
+  "timestamp": 1793837699000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
