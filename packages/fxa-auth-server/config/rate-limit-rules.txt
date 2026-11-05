@@ -14,6 +14,7 @@ passwordCheckFailed                   : ip                : 50          : 24 hou
 unblockCodeFailed                     : ip                : 50          : 24 hours        : 15 minutes    : ban
 accountDestroyFailed                  : ip                : 50          : 24 hours        : 15 minutes    : ban
 verifyTotpCodeFailed                  : ip                : 50          : 24 hours        : 15 minutes    : ban
+verifyTotpCodeFailed                  : uid               : 20          : 24 hours        : 4 hours       : block
 verifySessionCodeFailed               : ip                : 50          : 24 hours        : 15 minutes    : ban
 statusCheckFailed                     : ip                : 50          : 24 hours        : 15 minutes    : ban
 accountStatusCheckFailed              : ip                : 50          : 24 hours        : 4 hours       : ban
@@ -126,6 +127,7 @@ verifyRecoveryPhoneTotpCode           : ip                : 100         : 24 hou
 #
 verifyTotpCode                        : ip_uid            : 10          : 30 seconds      : 15 minutes  : block
 verifyTotpCode                        : ip                : 100         : 24 hours        : 15 minutes  : ban
+verifyTotpCode                        : uid               : 10          : 10 minutes      : 30 minutes  : block
 totpCreate                            : ip_uid            : 10          : 10 minutes      : 15 minutes  : block
 totpCreate                            : ip                : 100         : 24 hours        : 15 minutes  : ban
 

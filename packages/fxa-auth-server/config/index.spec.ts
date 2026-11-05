@@ -163,5 +163,25 @@ describe('Config', () => {
         },
       ]);
     });
+
+    it('limits verifyTotpCode on the uid', () => {
+      expect(shippedRules()['verifyTotpCode']).toContainEqual({
+        blockingOn: 'uid',
+        maxAttempts: 10,
+        windowDurationInSeconds: 600,
+        blockDurationInSeconds: 1800,
+        blockPolicy: 'block',
+      });
+    });
+
+    it('limits verifyTotpCodeFailed on the uid', () => {
+      expect(shippedRules()['verifyTotpCodeFailed']).toContainEqual({
+        blockingOn: 'uid',
+        maxAttempts: 20,
+        windowDurationInSeconds: 86400,
+        blockDurationInSeconds: 14400,
+        blockPolicy: 'block',
+      });
+    });
   });
 });
