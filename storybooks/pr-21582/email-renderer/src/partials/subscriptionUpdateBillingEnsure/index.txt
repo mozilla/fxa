@@ -1,2 +1,0 @@
-subscriptionUpdateBillingEnsure-plaintext = "You can ensure that your payment method and account information are up to date here:"
-<%- updateBillingUrl %>
