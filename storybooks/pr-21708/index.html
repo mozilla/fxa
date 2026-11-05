@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 8e5bd7506f6fde0d44a5a668689f5be70cfe16e1</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 8e5bd7506f6fde0d44a5a668689f5be70cfe16e1</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>11/4/2026, 7:18:37 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(settings): require localized page titles in AppLayout</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- Most settings pages left the tab title as &quot;Mozilla accounts&quot;, failing WCAG 2.4.2
+- VoiceOver reads the &quot; | &quot; title separator aloud as &quot;vertical line&quot;
+
+This commit:
+- Makes AppLayout&#039;s title required except while loading; every page passes one
+- Gives multi-state pages a title per state or step
+- Lets a CMS page title take precedence over the page&#039;s own title
+- Uses an en dash separator under a new FTL ID, app-page-title-3
+- Stops FlowContainer setting a second Head inside AppLayout
+
+Closes #FXA-6803</pre></dd>
+  </dl>
+</body>
+</html>
