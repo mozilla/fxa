@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit cb47b81c32ab7c15a15eb7d532f46ba7c89dc1c6</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit cb47b81c32ab7c15a15eb7d532f46ba7c89dc1c6</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>11/5/2026, 4:36:06 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>refactor(admin-server): check features and names on record-security-event</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* The admin record-security-event route used a read feature and took any event name.
+
+This commit:
+
+* Requires the Remove2FA, ClearEmailBounces or RemovePasskeys feature and adds @AuditLog().
+* Accepts only the three event names the admin panel sends, else returns 400.
+* Moves the write to a private writeAdminSecurityEvent for internal callers.
+
+Closes FXA-14034</pre></dd>
+  </dl>
+</body>
+</html>

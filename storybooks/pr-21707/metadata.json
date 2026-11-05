@@ -1,0 +1,10 @@
+{
+  "commit": "cb47b81c32ab7c15a15eb7d532f46ba7c89dc1c6",
+  "summary": "refactor(admin-server): check features and names on record-security-event",
+  "description": "Because:\n\n* The admin record-security-event route used a read feature and took any event name.\n\nThis commit:\n\n* Requires the Remove2FA, ClearEmailBounces or RemovePasskeys feature and adds @AuditLog().\n* Accepts only the three event names the admin panel sends, else returns 400.\n* Moves the write to a private writeAdminSecurityEvent for internal callers.\n\nCloses FXA-14034",
+  "timestamp": 1793896566000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
