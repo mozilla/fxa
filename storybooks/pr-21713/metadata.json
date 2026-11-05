@@ -1,0 +1,10 @@
+{
+  "commit": "1b580fd99a05b92112ec87fa012f7a96c78859b8",
+  "summary": "perf(shared-db): replace touchSessionToken Lua script with a transaction",
+  "description": "Because:\n\n- The touchSessionToken Lua script packs tokens inside Redis, in Lua.\n\nThis commit:\n\n- Replaces the script with a WATCH/GET/MULTI/SET/EXEC transaction, retried 3 times.\n- Adds packSessionToken with the same merge rules and stored format.\n- Runs touches one at a time on a lazy duplicate() connection.\n- Counts conflicts in redis.touchSessionToken.conflict.\n- Adds unit and integration specs, including a concurrency test.\n\nCloses FXA-14927",
+  "timestamp": 1793912207000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}

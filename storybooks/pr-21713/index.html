@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 1b580fd99a05b92112ec87fa012f7a96c78859b8</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 1b580fd99a05b92112ec87fa012f7a96c78859b8</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>11/5/2026, 8:56:47 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>perf(shared-db): replace touchSessionToken Lua script with a transaction</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- The touchSessionToken Lua script packs tokens inside Redis, in Lua.
+
+This commit:
+
+- Replaces the script with a WATCH/GET/MULTI/SET/EXEC transaction, retried 3 times.
+- Adds packSessionToken with the same merge rules and stored format.
+- Runs touches one at a time on a lazy duplicate() connection.
+- Counts conflicts in redis.touchSessionToken.conflict.
+- Adds unit and integration specs, including a concurrency test.
+
+Closes FXA-14927</pre></dd>
+  </dl>
+</body>
+</html>
