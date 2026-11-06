@@ -60,6 +60,7 @@ describe('Test client routes', () => {
     '/account-search',
     '/account-delete',
     '/account-reset',
+    '/account-disable',
     '/relying-parties',
     '/rate-limiting',
     '/waf-tokens',
