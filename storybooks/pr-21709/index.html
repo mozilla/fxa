@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit e8713b64e5e79e6404bc45bc369c12683e184331</title>
+  <title>Storybooks for commit d49421941032a18387b91a71fd67bd25a9afb11a</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit e8713b64e5e79e6404bc45bc369c12683e184331</h1>
+  <h1>Storybooks for commit d49421941032a18387b91a71fd67bd25a9afb11a</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
@@ -32,21 +32,21 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/6/2026, 2:39:42 PM UTC</dd>
+    <dd>11/6/2026, 4:11:56 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(shared): replace mysql with mysql2</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-* The repo used both the mysql and the mysql2 drivers.
+* mysql2 logs an error for each unknown connection or pool option.
+* Some callers still passed knex pool keys or app-only keys to it.
 
 This commit:
 
-* Moves every direct import and knex client from mysql to mysql2.
-* Returns JSON columns as strings from the knex typeCast functions.
-* Keeps parsed JSON for the kysely pool in the core db lib.
-* Keeps knex pool keys out of the mysql2 connection options.
-* Removes mysql and @types/mysql and updates yarn.lock.
+* Strips knex pool keys in MysqlStoreShared and maps connectionLimitMax.
+* Strips idleLimitMs in core createKnex and adds it to MySQLConfig.
+* Passes the email-bounce script config through connectionOptions.
+* Drops createSchema before the profile server creates its pool.
 
 Closes FXA-13447</pre></dd>
   </dl>
