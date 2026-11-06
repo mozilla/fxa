@@ -1,0 +1,169 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@use '../../global.scss';
+
+.body {
+  max-width: 640px !important;
+  margin: global.$s-0 auto !important;
+}
+
+.text-header div {
+  @extend %text-header-common;
+  @extend .text-2xl;
+  @extend .mb-4;
+  font-weight: 700;
+  color: global.$grey-600 !important;
+}
+
+%text-body-common {
+  @extend %text-body-common;
+  @extend .text-md;
+  color: global.$grey-500 !important;
+}
+
+.text-body div {
+  @extend %text-body-common;
+  @extend .mb-6;
+}
+
+.text-body-mb-4 div {
+  @extend %text-body-common;
+  @extend .mb-4;
+}
+
+.text-title {
+  @extend .font-sans;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  margin-top: 48px !important;
+}
+
+.text-title-table div {
+  @extend .text-title;
+  @extend .mb-4;
+  color: global.$grey-500 !important;
+}
+
+.text-title-link div {
+  @extend .text-title;
+}
+
+.text-body-top-margin div {
+  @extend %text-body-common;
+  @extend .mt-4;
+  color: global.$grey-500 !important;
+  padding: global.$s-1 0;
+}
+
+.text-link {
+  @extend %text-body-common;
+  @extend .mt-2;
+  color: global.$blue-500 !important;
+  text-decoration: underline !important;
+}
+
+.text-body-link div {
+  @extend .text-link;
+}
+
+.text-body-bottom-link div {
+  @extend .text-link;
+  @extend .mb-6;
+}
+
+// NOTE: appeared purple in at least one instance/email client in stage
+.text-body li {
+  color: global.$grey-500 !important;
+}
+
+.text-body-no-bottom-margin div {
+  @extend %text-body-common;
+  @extend .mb-0;
+}
+
+.text-body-table-no-bottom-margin td {
+  @extend %text-body-common;
+  @extend .mb-0;
+  padding: global.$s-1 0;
+}
+
+.header-container {
+  max-width: 640px !important;
+  @extend .mb-6;
+}
+
+.subplat-mozilla-logo {
+  padding: global.$s-5 global.$s-0 !important;
+  display: block !important;
+
+  // overrides the 13px inline font-size default for MJML images
+  // see https://github.com/mozilla/fxa/pull/12956#discussion_r878556004
+  a,
+  img {
+    font-size: global.$s-3 !important;
+  }
+}
+
+.mozilla-logo-footer {
+  padding: global.$s-8 global.$s-0 !important;
+  height: 34px !important;
+  display: block !important;
+  margin: 0 auto !important;
+}
+
+.footer-container {
+  background-color: global.$black;
+  padding: global.$s-10 global.$s-6 !important;
+  @extend .mt-6;
+}
+
+.footer-text div {
+  @extend .text-sm;
+  @extend .font-sans;
+  color: global.$white !important;
+  text-align: center !important;
+}
+
+.footer-text-bottom-margin {
+  @extend .footer-text;
+
+  div {
+    @extend .mb-3;
+  }
+}
+
+.footer-link {
+  color: global.$white !important;
+}
+
+.primary-button-subplat {
+  height: 56px !important;
+  max-width: 310px !important;
+
+  a {
+    @extend .font-sans;
+    @extend .text-lg;
+    background: global.$blue-500 !important;
+    max-width: 310px !important;
+    color: global.$white;
+    display: unset !important;
+    padding: global.$s-3 20px !important;
+    border-radius: 6px !important;
+  }
+}
+
+.product-icon {
+  display: block;
+  margin: 0 auto;
+  height: 58px;
+}
+
+.text-footer div {
+  @extend .text-sm;
+}
+
+.text-footer-automatedEmail {
+  @extend .text-footer;
+}
