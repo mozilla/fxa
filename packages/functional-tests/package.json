@@ -16,7 +16,7 @@
     "@playwright/test": "1.61.1",
     "@types/eslint": "^8",
     "@types/upng-js": "^2",
-    "eslint": "^8.56.0",
+    "eslint": "^8.57.1",
     "eslint-plugin-playwright": "^2.12.1",
     "fxa-auth-client": "workspace:*",
     "fxa-content-server": "workspace:*",
