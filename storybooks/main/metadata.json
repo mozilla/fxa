@@ -1,8 +1,8 @@
 {
-  "commit": "f047128b780e54d26fc24e8257a7b20be4443885",
-  "summary": "Merge pull request #21718 from mozilla/fxa-14950",
-  "description": "fix(admin-panel): batch account disable requests by body size",
-  "timestamp": 1793981254000,
+  "commit": "857250d87bd8b4ec521f610fdada28700045cbd0",
+  "summary": "Merge pull request #21709 from mozilla/fxa-13447",
+  "description": "fix(shared): replace mysql with mysql2",
+  "timestamp": 1793982982000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
