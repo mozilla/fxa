@@ -34,6 +34,7 @@ export interface SigninDeciderProps {
   hasLinkedAccount: boolean;
   hasPassword: boolean;
   hasPasskey?: boolean;
+  canLinkAccountUid?: hexstring;
   avatarData: AvatarResponse | undefined;
   avatarLoading: boolean;
   localizedErrorFromLocationState?: string;
@@ -70,6 +71,7 @@ export const SigninDecider = ({
   hasLinkedAccount,
   hasPassword,
   hasPasskey,
+  canLinkAccountUid,
   avatarData,
   avatarLoading,
   localizedErrorFromLocationState,
@@ -257,6 +259,7 @@ export const SigninDecider = ({
         hasLinkedAccount,
         hasPassword,
         hasPasskey,
+        canLinkAccountUid,
         avatarData,
         avatarLoading,
         localizedErrorFromLocationState: initialBannerError,

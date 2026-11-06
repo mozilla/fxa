@@ -200,6 +200,7 @@ const SigninContainer = ({
     hasPassword: hasPasswordFromLocationState,
     hasPasskey: hasPasskeyFromLocationState,
     canLinkAccountOk,
+    canLinkAccountUid,
     localizedErrorMessage: localizedErrorFromLocationState,
     successBanner,
     // Used when redirecting from passwordless flow with TOTP_REQUIRED error
@@ -462,7 +463,8 @@ const SigninContainer = ({
       if ('data' in result && result.data) {
         if (
           isOAuthNativeIntegration(integration) &&
-          useFxAStatusResult.supportsCanLinkAccountUid
+          useFxAStatusResult.supportsCanLinkAccountUid &&
+          result.data.signIn.uid !== canLinkAccountUid
         ) {
           const ok = await ensureCanLinkAcountOrRedirect({
             email,
@@ -571,6 +573,7 @@ const SigninContainer = ({
       authClient,
       sensitiveDataClient,
       canLinkAccountOk,
+      canLinkAccountUid,
       ftlMsgResolver,
       navigateWithQuery,
       useFxAStatusResult,
@@ -692,6 +695,7 @@ const SigninContainer = ({
         hasLinkedAccount,
         hasPassword,
         hasPasskey,
+        canLinkAccountUid,
         avatarData,
         avatarLoading,
         localizedErrorFromLocationState,

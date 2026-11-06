@@ -114,6 +114,8 @@ export interface LocationState {
   hasPassword?: boolean;
   hasPasskey?: boolean;
   canLinkAccountOk?: boolean;
+  /** uid that email-first already sent in can_link_account */
+  canLinkAccountUid?: hexstring;
   localizedErrorMessage?: string;
   successBanner?: {
     localizedSuccessBannerHeading?: string;
@@ -142,6 +144,7 @@ interface SigninSharedProps {
 }
 
 export interface SigninProps extends SigninSharedProps {
+  canLinkAccountUid?: hexstring;
   beginSigninHandler: BeginSigninHandler;
   sendUnblockEmailHandler: SendUnblockEmailHandler;
   useFxAStatusResult: UseFxAStatusResult;

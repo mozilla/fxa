@@ -7,7 +7,7 @@ import * as IndexModule from './index';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import * as cache from '../../lib/cache';
 
-import { act, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { useValidatedQueryParams } from '../../lib/hooks';
 import {
@@ -23,7 +23,7 @@ import AuthClient from 'fxa-auth-client/browser';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { SensitiveDataClient } from '../../lib/sensitive-data-client';
 import { IndexProps } from './interfaces';
-import { MOCK_EMAIL } from '../mocks';
+import { MOCK_EMAIL, MOCK_UID } from '../mocks';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { checkEmailDomain } from '../../lib/email-domain-validator';
 import GleanMetrics from '../../lib/glean';
@@ -1731,6 +1731,142 @@ describe('IndexContainer', () => {
         });
         await waitFor(() => {
           expect(currentIndexProps?.errorBannerMessage).toBeDefined();
+        });
+      });
+
+      describe('can_link_account with the stored UID', () => {
+        const submitEmail = async () => {
+          renderWithLocalizationProvider(
+            <IndexContainer
+              {...{
+                integration,
+                serviceName: MozServices.Default,
+                useFxAStatusResult: mockUseFxAStatusResult,
+              }}
+            />
+          );
+          await waitFor(() => {
+            expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+          });
+          await act(async () => {
+            await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+          });
+        };
+
+        beforeEach(() => {
+          jest.spyOn(cache, 'findAccountByEmail').mockReturnValue({
+            uid: MOCK_UID,
+            email: MOCK_EMAIL,
+            lastLogin: Date.now(),
+          });
+          (firefox.fxaCanLinkAccount as jest.Mock).mockResolvedValue({
+            ok: true,
+          });
+        });
+
+        it('sends the stored UID and passes it to signin', async () => {
+          await submitEmail();
+
+          expect(firefox.fxaCanLinkAccount).toHaveBeenCalledTimes(1);
+          expect(firefox.fxaCanLinkAccount).toHaveBeenCalledWith({
+            email: MOCK_EMAIL,
+            uid: MOCK_UID,
+          });
+          const [calledUrl, options] = mockNavigate.mock.calls[0];
+          expect(calledUrl).toMatch(/\/signin$/);
+          expect(options.state).toMatchObject({
+            canLinkAccountOk: true,
+            canLinkAccountUid: MOCK_UID,
+          });
+        });
+
+        it('shows the cancel error and does not navigate when the user cancels', async () => {
+          (firefox.fxaCanLinkAccount as jest.Mock).mockResolvedValue({
+            ok: false,
+          });
+
+          await submitEmail();
+
+          expect(firefox.fxaCanLinkAccount).toHaveBeenCalledTimes(1);
+          expect(mockNavigate).not.toHaveBeenCalled();
+          expect(currentIndexProps?.errorBannerMessage).toBe(
+            'Login attempt cancelled'
+          );
+        });
+
+        it('shows the email-first form with the cancel error when the user cancels an auto-submit', async () => {
+          mockUseValidatedQueryParams.mockReturnValue({
+            queryParamModel: { email: MOCK_EMAIL },
+            validationError: null,
+          });
+          (firefox.fxaCanLinkAccount as jest.Mock).mockResolvedValue({
+            ok: false,
+          });
+
+          renderWithLocalizationProvider(
+            <IndexContainer
+              {...{
+                integration,
+                serviceName: MozServices.Default,
+                useFxAStatusResult: mockUseFxAStatusResult,
+              }}
+            />
+          );
+
+          // The cancel banner re-renders, and the auto-submit effect then clears loading.
+          await waitFor(() => {
+            expect(screen.getByText('email-first mock')).toBeInTheDocument();
+          });
+          expect(firefox.fxaCanLinkAccount).toHaveBeenCalledWith({
+            email: MOCK_EMAIL,
+            uid: MOCK_UID,
+          });
+          expect(currentIndexProps?.errorBannerMessage).toBe(
+            'Login attempt cancelled'
+          );
+        });
+
+        it.each([
+          ['hasLinkedAccount is true', { hasLinkedAccount: true }],
+          ['the account has no password', { hasPassword: false }],
+        ])('does not send can_link_account when %s', async (_, status) => {
+          mockAuthClient.accountStatusByEmail = jest.fn().mockResolvedValue({
+            exists: true,
+            hasLinkedAccount: false,
+            hasPassword: true,
+            ...status,
+          });
+          (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
+            () => mockAuthClient
+          );
+
+          await submitEmail();
+
+          expect(firefox.fxaCanLinkAccount).not.toHaveBeenCalled();
+        });
+
+        it('does not send can_link_account when there is no stored entry', async () => {
+          jest.spyOn(cache, 'findAccountByEmail').mockReturnValue(undefined);
+
+          await submitEmail();
+
+          expect(firefox.fxaCanLinkAccount).not.toHaveBeenCalled();
+          const [calledUrl, options] = mockNavigate.mock.calls[0];
+          expect(calledUrl).toMatch(/\/signin$/);
+          expect(options.state.canLinkAccountUid).toBeUndefined();
+        });
+
+        it('does not send can_link_account early when supportsCanLinkAccountUid is false', async () => {
+          mockUseFxAStatusResult = mockUseFxAStatus({
+            supportsCanLinkAccountUid: false,
+          });
+
+          await submitEmail();
+
+          expect(firefox.fxaCanLinkAccount).toHaveBeenCalledTimes(1);
+          expect(firefox.fxaCanLinkAccount).toHaveBeenCalledWith({
+            email: MOCK_EMAIL,
+          });
         });
       });
 
