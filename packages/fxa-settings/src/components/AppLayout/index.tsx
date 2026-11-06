@@ -88,6 +88,10 @@ export const AppLayout = ({
   const isMobilePairingScreen =
     window.location.pathname?.startsWith('/pair/supplicant') ?? false;
 
+  // Pairing pages are for mobile, so they offer no locale or theme choice.
+  const pathname = window.location.pathname;
+  const showFooter = pathname !== '/pair' && !pathname?.startsWith('/pair/');
+
   return (
     <>
       <Head {...{ title: overrideTitle, favicon }} />
@@ -180,7 +184,7 @@ export const AppLayout = ({
                 )}
               </section>
             </main>
-            {(showLocaleToggle || showDarkModeToggle) && (
+            {showFooter && (showLocaleToggle || showDarkModeToggle) && (
               <footer className="w-full py-2 px-4 mobileLandscape:mx-8 mobileLandscape:pb-4 flex text-grey-400 dark:text-grey-300">
                 {showLocaleToggle && (
                   <div className="w-full mobileLandscape:w-auto flex items-center mobileLandscape:ms-10">
@@ -230,18 +234,20 @@ export const AppLayout = ({
                   </section>
                 )}
               </main>
-              <footer className="w-full py-2 px-6 tablet:px-10 flex text-grey-400 dark:text-grey-300">
-                {showLocaleToggle && (
-                  <div className="w-full mobileLandscape:w-auto flex items-center">
-                    <LocaleToggle />
-                  </div>
-                )}
-                {showDarkModeToggle && (
-                  <div className="w-full mobileLandscape:w-auto flex items-center mobileLandscape:ms-10">
-                    <DarkModeToggle />
-                  </div>
-                )}
-              </footer>
+              {showFooter && (
+                <footer className="w-full py-2 px-6 tablet:px-10 flex text-grey-400 dark:text-grey-300">
+                  {showLocaleToggle && (
+                    <div className="w-full mobileLandscape:w-auto flex items-center">
+                      <LocaleToggle />
+                    </div>
+                  )}
+                  {showDarkModeToggle && (
+                    <div className="w-full mobileLandscape:w-auto flex items-center mobileLandscape:ms-10">
+                      <DarkModeToggle />
+                    </div>
+                  )}
+                </footer>
+              )}
             </div>
           </div>
         )}

@@ -436,4 +436,53 @@ describe('<AppLayout />', () => {
       screen.getByText('Split layout content');
     });
   });
+
+  describe('footer', () => {
+    beforeEach(() => {
+      const { useConfig } = require('../../models/hooks');
+      useConfig.mockReturnValue({ featureFlags: { showLocaleToggle: true } });
+    });
+
+    afterEach(() => {
+      const { useConfig } = require('../../models/hooks');
+      useConfig.mockReturnValue({ featureFlags: { showLocaleToggle: false } });
+      window.history.replaceState({}, '', '/');
+    });
+
+    it('shows the footer outside the pairing pages', () => {
+      window.history.replaceState({}, '', '/signin');
+      renderWithLocalizationProvider(
+        <AppLayout>
+          <p>Hello, world!</p>
+        </AppLayout>
+      );
+
+      expect(screen.getByRole('contentinfo')).toBeInTheDocument();
+    });
+
+    it.each(['/pair', '/pair/unsupported', '/pair/supplicant/ready_to_scan'])(
+      'leaves out the footer on %s',
+      (path) => {
+        window.history.replaceState({}, '', path);
+        renderWithLocalizationProvider(
+          <AppLayout>
+            <p>Hello, world!</p>
+          </AppLayout>
+        );
+
+        expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument();
+      }
+    );
+
+    it('leaves out the footer in the split layout on a pairing page', () => {
+      window.history.replaceState({}, '', '/pair/authority/scan_qr');
+      renderWithLocalizationProvider(
+        <AppLayout splitLayout>
+          <p>Hello, world!</p>
+        </AppLayout>
+      );
+
+      expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument();
+    });
+  });
 });
