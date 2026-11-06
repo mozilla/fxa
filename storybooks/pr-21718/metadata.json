@@ -1,0 +1,10 @@
+{
+  "commit": "99946dea4c7e5c8d46ccf4104cba79a6b7e9d8de",
+  "summary": "fix(admin-panel): batch account disable requests by body size",
+  "description": "Because:\n\n- A refresh of /account-disable gave 404 without the dev proxy.\n- 1000 long addresses made a body over the admin server 100 KiB limit.\n- The page said that all tokens are revoked, and its error was not announced.\n\nThis commit:\n\n- Serves index.html for /account-disable.\n- Splits locators into batches of at most 1000 entries and 90,000 bytes.\n- Gives the error paragraph role=\"alert\".\n- Says that OAuth access tokens stay valid until they expire.\n\nCloses FXA-14950",
+  "timestamp": 1793980252000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
