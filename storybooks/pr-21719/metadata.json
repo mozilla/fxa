@@ -1,0 +1,10 @@
+{
+  "commit": "c19abc4d0ba3e159486fbbafa7324d04a1eee275",
+  "summary": "fix(settings): remove backdrop blur over iOS pair menu toolbar",
+  "description": "Because:\n\n* On iOS, a blur covered the toolbar in the menu image on the\n  \"Finish pairing in the app\" screen.\n* WebKit paints the Figma backdrop-filter foreignObject above the SVG.\n\nThis commit:\n\n* Removes the foreignObject blur layer and its unused clipPath from\n  graphic_pair_menu_ios.min.svg.\n\nCloses FXA-14953",
+  "timestamp": 1793986428000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
