@@ -1,8 +1,8 @@
 {
-  "commit": "1179c35fb67b951bda7470b1c42a272f68c942e2",
+  "commit": "aeb2947f6ff3ec866e1a5583f38d4af34c69b8b9",
   "summary": "feat(admin-panel): disable accounts that match a blocklist entry",
-  "description": "Because:\n\n* A new blocklist entry does not affect accounts that already exist.\n* CodeQL flagged a RegExp built from request input.\n\nThis commit:\n\n* Moves the account disable logic into a shared AccountStateService\n* Adds disable-matching routes to the email and domain blocklists\n* Adds a checkbox and a row button to disable matching accounts\n* Builds email patterns only from stored blocklist entries\n* Shows how many accounts were disabled\n\nCloses FXA-14912",
-  "timestamp": 1794001405000,
+  "description": "Because:\n\n* A new blocklist entry does not affect accounts that already exist.\n* Two row scans could run at once, and the page keeps one result.\n\nThis commit:\n\n* Adds disable-matching routes and a shared AccountStateService\n* Adds a checkbox and a row button to disable matching accounts\n* Disables every row button while one scan runs\n* Adds error-path tests for the email disable-matching route\n\nCloses FXA-14912",
+  "timestamp": 1794002599000,
   "storybooks": [
     "fxa-admin-panel"
   ],
