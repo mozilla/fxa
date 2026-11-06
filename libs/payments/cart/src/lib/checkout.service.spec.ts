@@ -1077,14 +1077,15 @@ describe('CheckoutService', () => {
         const freeInvoice = StripeResponseFactory(
           StripeInvoiceFactory({
             payments: StripeApiListFactory([
-          StripeInvoicePaymentFactory({
-            payment: {
-              type: 'payment_intent',
-              payment_intent: mockPaymentIntent.id,
-            },
-          }),
-        ]),
+              StripeInvoicePaymentFactory({
+                payment: {
+                  type: 'payment_intent',
+                  payment_intent: mockPaymentIntent.id,
+                },
+              }),
+            ]),
             amount_due: 0,
+            total: 0,
             status: 'paid',
           })
         );
@@ -1107,6 +1108,7 @@ describe('CheckoutService', () => {
             mockCart.uid
           )
         ).resolves.not.toThrow();
+        expect(setupIntentManager.createAndConfirm).toHaveBeenCalled();
       });
 
       it('creates the subscription without a discounts key when there is no coupon', async () => {
@@ -1429,6 +1431,117 @@ describe('CheckoutService', () => {
       });
     });
 
+    describe('paid invoice below the minimum charge', () => {
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory()
+      );
+
+      const payUpgradeWithPaidInvoice = async (
+        defaultPaymentMethod: string | null
+      ) => {
+        const mockPrePayStepsResult = PrePayStepsResultFactory({
+          uid: mockCart.uid,
+          customer: StripeResponseFactory(
+            StripeCustomerFactory({
+              invoice_settings: {
+                custom_fields: null,
+                default_payment_method: defaultPaymentMethod,
+                footer: null,
+                rendering_options: null,
+              },
+            })
+          ),
+          price: StripePriceFactory(),
+          eligibility: SubscriptionEligibilityUpgradeDowngradeResultFactory({
+            redundantOverlaps: [],
+          }),
+        });
+
+        jest
+          .spyOn(checkoutService, 'prePaySteps')
+          .mockResolvedValue(mockPrePayStepsResult);
+        jest
+          .spyOn(priceManager, 'retrievePricingForCurrency')
+          .mockResolvedValue(
+            PricingForCurrencyFactory({ unitAmountForCurrency: 1000 })
+          );
+        jest
+          .spyOn(checkoutService, 'upgradeSubscription')
+          .mockResolvedValue(mockSubscription);
+        jest
+          .spyOn(cartManager, 'dangerouslyUpdateProcessingCart')
+          .mockResolvedValue();
+        jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(
+          StripeResponseFactory(
+            StripeInvoiceFactory({
+              status: 'paid',
+              total: 30,
+              amount_due: 0,
+              confirmation_secret: null,
+            })
+          )
+        );
+        jest
+          .spyOn(paymentIntentManager, 'confirm')
+          .mockResolvedValue(mockPaymentIntent);
+        jest.spyOn(setupIntentManager, 'createAndConfirm').mockResolvedValue(
+          StripeResponseFactory(
+            StripeSetupIntentFactory({
+              status: 'succeeded',
+              payment_method: mockPaymentMethod.id,
+            })
+          )
+        );
+        jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
+        jest
+          .spyOn(paymentMethodManager, 'retrieve')
+          .mockResolvedValue(mockPaymentMethod);
+        jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
+
+        await checkoutService.payWithStripe(
+          mockCart,
+          StripeConfirmationTokenFactory().id,
+          mockAttributionData,
+          mockRequestArgs,
+          mockCart.uid
+        );
+
+        return mockPrePayStepsResult;
+      };
+
+      it('runs postPaySteps without confirming an intent', async () => {
+        const mockPrePayStepsResult = await payUpgradeWithPaidInvoice(
+          mockPaymentMethod.id
+        );
+
+        expect(paymentIntentManager.confirm).not.toHaveBeenCalled();
+        expect(setupIntentManager.createAndConfirm).not.toHaveBeenCalled();
+        expect(
+          cartManager.dangerouslyUpdateProcessingCart
+        ).toHaveBeenCalledWith(mockCart.id, mockPrePayStepsResult.version, {
+          stripeSubscriptionId: mockSubscription.id,
+        });
+        expect(paymentMethodManager.retrieve).toHaveBeenCalledWith(
+          mockPaymentMethod.id
+        );
+        expect(checkoutService.postPaySteps).toHaveBeenCalledWith(
+          expect.objectContaining({
+            version: mockPrePayStepsResult.version + 1,
+            subscription: mockSubscription,
+            paymentProvider: 'stripe',
+            paymentForm: SubPlatPaymentMethodType.Card,
+          })
+        );
+      });
+
+      it('saves the payment method with a setup intent when the customer has no default payment method', async () => {
+        await payUpgradeWithPaidInvoice(null);
+
+        expect(setupIntentManager.createAndConfirm).toHaveBeenCalled();
+        expect(checkoutService.postPaySteps).toHaveBeenCalled();
+      });
+    });
+
     describe('requires_payment_method', () => {
       it('throws IntentGetInTouchError for card_declined with generic_decline', async () => {
         const mockDeclinedPaymentIntent = StripeResponseFactory(
@@ -1521,13 +1634,13 @@ describe('CheckoutService', () => {
         const mockZeroInvoice = StripeResponseFactory(
           StripeInvoiceFactory({
             payments: StripeApiListFactory([
-          StripeInvoicePaymentFactory({
-            payment: {
-              type: 'payment_intent',
-              payment_intent: mockPaymentIntent.id,
-            },
-          }),
-        ]),
+              StripeInvoicePaymentFactory({
+                payment: {
+                  type: 'payment_intent',
+                  payment_intent: mockPaymentIntent.id,
+                },
+              }),
+            ]),
             amount_due: 0,
           })
         );
@@ -2281,18 +2394,16 @@ describe('CheckoutService', () => {
     const mockRequestArgs = CommonMetricsFactory();
 
     beforeEach(() => {
-      jest
-        .spyOn(checkoutService, 'prePaySteps')
-        .mockResolvedValue(
-          PrePayStepsResultFactory({
-            uid: mockCart.uid,
-            customer: mockCustomer,
-            promotionCode: mockPromotionCode,
-            price: mockPrice,
-            version: mockCart.version + 1,
-            eligibility: mockEligibilityResult,
-          })
-        );
+      jest.spyOn(checkoutService, 'prePaySteps').mockResolvedValue(
+        PrePayStepsResultFactory({
+          uid: mockCart.uid,
+          customer: mockCustomer,
+          promotionCode: mockPromotionCode,
+          price: mockPrice,
+          version: mockCart.version + 1,
+          eligibility: mockEligibilityResult,
+        })
+      );
       jest
         .spyOn(priceManager, 'retrievePricingForCurrency')
         .mockResolvedValue(mockPricingForCurrency);
