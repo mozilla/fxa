@@ -22,3 +22,4 @@ tokenserver.fxa_browserid_audience = "https://token.stage.mozaws.net"
 tokenserver.fxa_browserid_issuer = "https://api-accounts.stage.mozaws.net"
 tokenserver.fxa_browserid_server_url = "https://verifier.stage.mozaws.net/v2"
 tokenserver.run_migrations = true
+tokenserver.init_node_url = "http://localhost:8000"
