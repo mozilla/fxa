@@ -1,8 +1,8 @@
 {
-  "commit": "9f4caf12e607a9748560fa03b83b6262c4d8f026",
-  "summary": "Merge pull request #21704 from mozilla/fxa-14922",
-  "description": "chore(content-server): delete dead feature-flags, /config and crash code",
-  "timestamp": 1793980062000,
+  "commit": "f047128b780e54d26fc24e8257a7b20be4443885",
+  "summary": "Merge pull request #21718 from mozilla/fxa-14950",
+  "description": "fix(admin-panel): batch account disable requests by body size",
+  "timestamp": 1793981254000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
