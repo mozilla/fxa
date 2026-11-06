@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 0f9eba8fa7d764f8675b7d88c7bec672fa66ac12</title>
+  <title>Storybooks for commit a2c30f14ed89ad27bae1b2a240967ca59d71738e</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,26 +23,27 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 0f9eba8fa7d764f8675b7d88c7bec672fa66ac12</h1>
+  <h1>Storybooks for commit a2c30f14ed89ad27bae1b2a240967ca59d71738e</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/6/2026, 8:11:05 PM UTC</dd>
+    <dd>11/6/2026, 8:33:34 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): respect the stored metrics opt-out before sign-in</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- Signed-out pages always turned metrics on, even when the account in
-  localStorage had opted out.
+* Signed-out pages turned metrics on, even when the stored account
+  opted out.
+* A switch to another stored account kept the old Glean state.
 
 This commit:
 
-- Keeps metrics off before sign-in when the stored account has
-  metricsEnabled false.
-- Adds App tests for the signed-out cases.
+* Keeps metrics off before sign-in when the stored account opted out.
+* Recomputes the metrics pref when the current account changes.
+* Turns Glean off when the metrics pref becomes false.
 
 Closes FXA-7105</pre></dd>
   </dl>
