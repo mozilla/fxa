@@ -889,6 +889,7 @@ nav-security = Қауіпсіздік
 nav-connected-services = Байланыстырылған қызметтер
 nav-data-collection = Деректерді жинау және қолдану
 nav-paid-subs = Ақылы жазылулар
+nav-email-prefs = Эл. пошта баптаулары
 
 ## Page2faChange
 
@@ -2254,6 +2255,8 @@ signin-link-expired-message-2 = Сіз басқан сілтеменің мер�
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Өзіңіздің <span>{ -product-mozilla-account } тіркелгіңіз</span> үшін парольді енгізіңіз
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = Синхрондауды бастау
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = { $serviceName } ішіне жалғастыру

@@ -648,6 +648,7 @@ nav-security = Қауіпсіздік
 nav-connected-services = Байланыстырылған қызметтер
 nav-data-collection = Деректерді жинау және қолдану
 nav-paid-subs = Ақылы жазылулар
+nav-email-prefs = Эл. пошта баптаулары
 
 
 page-2fa-change-title = Екі қадамды аутентификацияны өзгерту
@@ -1526,6 +1527,7 @@ signin-link-expired-message-2 = Сіз басқан сілтеменің мер�
 
 
 signin-password-needed-header-2 = Өзіңіздің <span>{ -product-mozilla-account } тіркелгіңіз</span> үшін парольді енгізіңіз
+signin-button-start-syncing = Синхрондауды бастау
 signin-subheader-without-logo-with-servicename = { $serviceName } ішіне жалғастыру
 signin-subheader-without-logo-default = Тіркелгі баптауларына жалғастыру
 signin-button = Кіру
