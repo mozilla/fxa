@@ -153,7 +153,7 @@
     "rimraf": "^6.0.1",
     "sass": "^1.80.4",
     "simplesmtp": "0.3.35",
-    "storybook": "^8.0.0",
+    "storybook": "^8.6.19",
     "through": "2.3.8",
     "ts-jest": "^29.1.2",
     "tsc-alias": "^1.8.8",

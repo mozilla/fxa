@@ -30251,7 +30251,7 @@ __metadata:
     react-refresh: "npm:^0.16.0"
     react-router: "npm:7.18.0"
     serve-static: "npm:^1.16.0"
-    storybook: "npm:^8.0.0"
+    storybook: "npm:^8.6.19"
     style-loader: "npm:^4.0.0"
     supertest: "npm:^7.0.0"
     tailwindcss: "npm:3.4.3"
@@ -30413,7 +30413,7 @@ __metadata:
     rimraf: "npm:^6.0.1"
     sass: "npm:^1.80.4"
     simplesmtp: "npm:0.3.35"
-    storybook: "npm:^8.0.0"
+    storybook: "npm:^8.6.19"
     through: "npm:2.3.8"
     ts-jest: "npm:^29.1.2"
     tsc-alias: "npm:^1.8.8"
@@ -30618,7 +30618,7 @@ __metadata:
     rimraf: "npm:^6.0.1"
     sass-loader: "npm:^16.0.3"
     sinon: "npm:^22.1.0"
-    storybook: "npm:^8.0.0"
+    storybook: "npm:^8.6.19"
     tailwindcss: "npm:3.4.3"
     tailwindcss-dir: "npm:^4.0.0"
     tsc-alias: "npm:^1.8.8"
@@ -30715,7 +30715,7 @@ __metadata:
     semver: "npm:^7.7.1"
     sinon: "npm:^22.1.0"
     source-map-loader: "npm:^5.0.0"
-    storybook: "npm:^8.0.0"
+    storybook: "npm:^8.6.19"
     stream-browserify: "npm:^3.0.0"
     style-loader: "npm:^4.0.0"
     tailwindcss: "npm:^3.4.1"
@@ -30951,7 +30951,7 @@ __metadata:
     set-value: "npm:^4.1.0"
     sinon: "npm:^22.1.0"
     sms-segments-calculator: "npm:^1.2.0"
-    storybook: "npm:^8.0.0"
+    storybook: "npm:^8.6.19"
     stripe: "npm:22.3.1"
     stylelint: "npm:^17.13.0"
     stylelint-config-recommended-scss: "npm:^17.0.1"
@@ -46954,11 +46954,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"storybook@npm:^8.0.0":
-  version: 8.6.18
-  resolution: "storybook@npm:8.6.18"
+"storybook@npm:^8.6.19":
+  version: 8.6.19
+  resolution: "storybook@npm:8.6.19"
   dependencies:
-    "@storybook/core": "npm:8.6.18"
+    "@storybook/core": "npm:8.6.19"
   peerDependencies:
     prettier: ^2 || ^3
   peerDependenciesMeta:
@@ -46968,7 +46968,7 @@ __metadata:
     getstorybook: ./bin/index.cjs
     sb: ./bin/index.cjs
     storybook: ./bin/index.cjs
-  checksum: 10c0/0ea0c0d0226dc2e454838f33cada24be0b1060a539975b559846663d02c1eeb7a1b7a5f703208493261895142c68bf0b2ce4d6ba78d03869f434ceab16eb420d
+  checksum: 10c0/55a7bb5222726089a2d0d316a5dcdcc21c3a762227c06960561297d50f16f6f6cf4200f5d78d705e169ce58339f5a2ab5272d765968fa81687b3bab94cdef502
   languageName: node
   linkType: hard
 
