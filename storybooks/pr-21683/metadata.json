@@ -1,8 +1,8 @@
 {
-  "commit": "bc9f8bb97ca8c6df3abf1a979667b84fb760aa9b",
-  "summary": "feat(admin-panel): add bulk account disable page",
-  "description": "Because:\n\n* Support staff need to disable many accounts at once.\n\nThis commit:\n\n* Adds a bulk Account Disable page and admin-server endpoint.\n* Adds its own Admin-level permission; it sends no email.\n* Shows one summary line of the results, not one row each.\n* Reports a failed batch range as having an unknown outcome.\n\nCloses FXA-14910",
-  "timestamp": 1793745796000,
+  "commit": "13d30996c152a2983e58c7bc6e80691f41e8b57c",
+  "summary": "Merge main into fxa-14910",
+  "description": "",
+  "timestamp": 1793978339000,
   "storybooks": [
     "fxa-admin-panel"
   ],
