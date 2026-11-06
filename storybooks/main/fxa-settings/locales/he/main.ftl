@@ -631,6 +631,7 @@ nav-security = אבטחה
 nav-connected-services = שירותים מחוברים
 nav-data-collection = איסוף ושימוש בנתונים
 nav-paid-subs = מינויים בתשלום
+nav-email-prefs = העדפות דוא״ל
 
 
 page-2fa-change-title = שינוי אימות דו־שלבי
@@ -1468,6 +1469,7 @@ signin-link-expired-message-2 = פג תוקף הקישור עליו לחצת, א
 
 
 signin-password-needed-header-2 = נא להכניס את הססמה שלך <span>עבור { -product-mozilla-account(case: "the") } שלך</span>
+signin-button-start-syncing = התחלה בסנכרון
 signin-subheader-without-logo-with-servicename = המשך אל { $serviceName }
 signin-subheader-without-logo-default = המשך אל הגדרות החשבון
 signin-button = כניסה

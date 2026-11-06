@@ -860,6 +860,7 @@ nav-security = אבטחה
 nav-connected-services = שירותים מחוברים
 nav-data-collection = איסוף ושימוש בנתונים
 nav-paid-subs = מינויים בתשלום
+nav-email-prefs = העדפות דוא״ל
 
 ## Page2faChange
 
@@ -2170,6 +2171,8 @@ signin-link-expired-message-2 = פג תוקף הקישור עליו לחצת, א
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = נא להכניס את הססמה שלך <span>עבור { -product-mozilla-account(case: "the") } שלך</span>
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = התחלה בסנכרון
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = המשך אל { $serviceName }

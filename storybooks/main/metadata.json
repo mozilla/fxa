@@ -1,8 +1,8 @@
 {
-  "commit": "a9df888caf356d606d581e5d69545e24587ea7a3",
-  "summary": "Merge pull request #21698 from mozilla/fxa-14040",
-  "description": "refactor(oauth): keep resource out of the id_token aud",
-  "timestamp": 1793918205000,
+  "commit": "a910af72b030abb22a233eebd7cb7bf0287b56af",
+  "summary": "Merge pull request #21714 from mozilla/dependabot/npm_and_yarn/storybook-8.6.19",
+  "description": "chore(deps-dev): bump storybook from 8.6.18 to 8.6.19",
+  "timestamp": 1793972361000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

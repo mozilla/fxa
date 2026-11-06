@@ -863,6 +863,7 @@ nav-security = 安全性
 nav-connected-services = 連結的服務
 nav-data-collection = 資料收集與使用
 nav-paid-subs = 付費訂閱項目
+nav-email-prefs = 已更新隱私權公告
 
 ## Page2faChange
 
@@ -2204,6 +2205,8 @@ signin-link-expired-message-2 = 您點擊的鏈結已失效，或已經被使用
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = 請輸入您的密碼 <span>{ -product-mozilla-account }</span>
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = 開始同步
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = 繼續前往 { $serviceName }

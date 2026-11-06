@@ -1523,7 +1523,7 @@ signin-link-expired-message-2 = De koppeling waarop u hebt geklikt is verlopen o
 
 
 signin-password-needed-header-2 = Voer uw wachtwoord in <span>voor uw { -product-mozilla-account }</span>
-signin-button-start-syncing = Begin met synchroniseren
+signin-button-start-syncing = Beginnen met synchroniseren
 signin-subheader-without-logo-with-servicename = Doorgaan naar { $serviceName }
 signin-subheader-without-logo-default = Doorgaan naar accountinstellingen
 signin-button = Aanmelden

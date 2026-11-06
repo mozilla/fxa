@@ -889,6 +889,7 @@ nav-security = უსაფრთხოება
 nav-connected-services = დაკავშირებული მომსახურებები
 nav-data-collection = მონაცემთა აღრიცხვა და გამოყენება
 nav-paid-subs = ფასიანი გამოწერები
+nav-email-prefs = ელფოსტის პარამეტრები
 
 ## Page2faChange
 
@@ -2253,6 +2254,8 @@ signin-link-expired-message-2 = ბმული, რომელზეც გა
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = შეიყვანეთ პაროლი <span>თქვენი { -product-mozilla-account(case: "ben") }</span>
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = დასინქ. დაწყება
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = გაიხსნება { $serviceName }

@@ -2252,7 +2252,7 @@ signin-link-expired-message-2 = De koppeling waarop u hebt geklikt is verlopen o
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Voer uw wachtwoord in <span>voor uw { -product-mozilla-account }</span>
 # Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
-signin-button-start-syncing = Begin met synchroniseren
+signin-button-start-syncing = Beginnen met synchroniseren
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = Doorgaan naar { $serviceName }

@@ -684,6 +684,7 @@ nav-security = უსაფრთხოება
 nav-connected-services = დაკავშირებული მომსახურებები
 nav-data-collection = მონაცემთა აღრიცხვა და გამოყენება
 nav-paid-subs = ფასიანი გამოწერები
+nav-email-prefs = ელფოსტის პარამეტრები
 
 
 page-2fa-change-title = შესვლისას ორბიჯიანი დამოწმების შეცვლა
@@ -1561,6 +1562,7 @@ signin-link-expired-message-2 = ბმული, რომელზეც გა
 
 
 signin-password-needed-header-2 = შეიყვანეთ პაროლი <span>თქვენი { -product-mozilla-account(case: "ben") }</span>
+signin-button-start-syncing = დასინქ. დაწყება
 signin-subheader-without-logo-with-servicename = გაიხსნება { $serviceName }
 signin-subheader-without-logo-default = გადასვლა ანგარიშის პარამეტრებზე
 signin-button = შესვლა

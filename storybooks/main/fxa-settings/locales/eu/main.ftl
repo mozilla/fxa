@@ -656,6 +656,7 @@ nav-security = Segurtasuna
 nav-connected-services = Konektatutako zerbitzuak
 nav-data-collection = Datuen bilketa eta erabilera
 nav-paid-subs = Ordainpeko harpidetzak
+nav-email-prefs = Posta-hobespenak
 
 
 page-2fa-change-title = Aldatu bi urratseko autentifikazioa
@@ -1533,6 +1534,7 @@ signin-link-expired-message-2 = Sakatu duzun esteka iraungi egin da edo dagoenek
 
 
 signin-password-needed-header-2 = Sartu <span>zure { -product-mozilla-account }</span> pasahitza
+signin-button-start-syncing = Hasi sinkronizatzen
 signin-subheader-without-logo-with-servicename = Jarraitu { $serviceName } zerbitzura
 signin-subheader-without-logo-default = Jarraitu kontu-ezarpenekin
 signin-button = Hasi saioa

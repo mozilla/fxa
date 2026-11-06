@@ -622,6 +622,7 @@ nav-security = 安全性
 nav-connected-services = 連結的服務
 nav-data-collection = 資料收集與使用
 nav-paid-subs = 付費訂閱項目
+nav-email-prefs = 已更新隱私權公告
 
 
 page-2fa-change-title = 更改兩階段驗證設定
@@ -1476,6 +1477,7 @@ signin-link-expired-message-2 = 您點擊的鏈結已失效，或已經被使用
 
 
 signin-password-needed-header-2 = 請輸入您的密碼 <span>{ -product-mozilla-account }</span>
+signin-button-start-syncing = 開始同步
 signin-subheader-without-logo-with-servicename = 繼續前往 { $serviceName }
 signin-subheader-without-logo-default = 繼續前往帳號設定
 signin-button = 登入

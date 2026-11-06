@@ -648,7 +648,7 @@ nav-security = Segurança
 nav-connected-services = Serviços associados
 nav-data-collection = Recolha e utilização de dados
 nav-paid-subs = Subscrições pagas
-nav-email-prefs = Preferências de email
+nav-email-prefs = Preferências de E-mail
 
 
 page-2fa-change-title = Alterar autenticação de dois passos

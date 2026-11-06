@@ -553,6 +553,7 @@ nav-security = Seguridad
 nav-connected-services = Servicios conectados
 nav-data-collection = Recopilación y uso de datos
 nav-paid-subs = Suscripciones de pago
+nav-email-prefs = Preferencias de correo electrónico
 
 ## Two Step Authentication - replace backup authentication code
 
@@ -1233,6 +1234,8 @@ signin-link-expired-message-2 = El enlace en el que hizo clic ha caducado o ya s
 
 ## Signin page
 
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = Iniciar sincronización
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = Continuar a { $serviceName }

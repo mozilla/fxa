@@ -648,6 +648,7 @@ nav-security = Securitate
 nav-connected-services = Servicios connectite
 nav-data-collection = Recolta e uso de datos
 nav-paid-subs = Subscriptiones pagate
+nav-email-prefs = Preferentias de e-mails
 
 
 page-2fa-change-title = Cambiar authentication a duo passos
@@ -1525,6 +1526,7 @@ signin-link-expired-message-2 = Le ligamine que tu cliccava ha expirate o ha jam
 
 
 signin-password-needed-header-2 = Insere tu contrasigno <span>pro tu { -product-mozilla-account }</span>
+signin-button-start-syncing = Initia a synchronisar
 signin-subheader-without-logo-with-servicename = Continuar a { $serviceName }
 signin-subheader-without-logo-default = Passa a parametros de conto
 signin-button = Aperir session

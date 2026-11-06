@@ -800,6 +800,7 @@ nav-security = Zabezpečenie
 nav-connected-services = Pripojené služby
 nav-data-collection = Zhromažďovanie a používanie údajov
 nav-paid-subs = Predplatné
+nav-email-prefs = Nastavenia e‑mailov
 
 
 page-2fa-change-title = Zmena dvojstupňového overenia
@@ -1681,6 +1682,7 @@ signin-link-expired-message-2 = Platnosť odkazu, na ktorý ste klikli, vypršal
 
 
 signin-password-needed-header-2 = Zadajte heslo<span> pre svoj { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
+signin-button-start-syncing = Spustiť synchronizáciu
 signin-subheader-without-logo-with-servicename = A pokračovať do služby { $serviceName }
 signin-subheader-without-logo-default = A pokračovať do nastavení účtu
 signin-button = Prihlásiť sa

@@ -416,6 +416,7 @@ nav-security = Seguridad
 nav-connected-services = Servicios conectados
 nav-data-collection = Recopilación y uso de datos
 nav-paid-subs = Suscripciones de pago
+nav-email-prefs = Preferencias de correo electrónico
 
 
 tfa-replace-code-error-3 = Hubo un problema al reemplazar tus códigos de autenticación de respaldo
@@ -884,6 +885,7 @@ signin-link-expired-header = Enlace de confirmación expirado
 signin-link-expired-message-2 = El enlace en el que hizo clic ha caducado o ya se ha utilizado.
 
 
+signin-button-start-syncing = Iniciar sincronización
 signin-subheader-without-logo-with-servicename = Continuar a { $serviceName }
 signin-subheader-without-logo-default = Continuar a los ajustes de la cuenta
 signin-button = Iniciar sesión
