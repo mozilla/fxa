@@ -1,8 +1,8 @@
 {
-  "commit": "aeb2947f6ff3ec866e1a5583f38d4af34c69b8b9",
+  "commit": "25bc8087260a823b5dbb3dd890e04735ca6988fa",
   "summary": "feat(admin-panel): disable accounts that match a blocklist entry",
-  "description": "Because:\n\n* A new blocklist entry does not affect accounts that already exist.\n* Two row scans could run at once, and the page keeps one result.\n\nThis commit:\n\n* Adds disable-matching routes and a shared AccountStateService\n* Adds a checkbox and a row button to disable matching accounts\n* Disables every row button while one scan runs\n* Adds error-path tests for the email disable-matching route\n\nCloses FXA-14912",
-  "timestamp": 1794002599000,
+  "description": "Because:\n\n* CodeQL flagged type confusion on the raw request value in the\n  email disable-matching route.\n\nThis commit:\n\n* Matches stored entries against a Set of the requested strings\n\nCloses FXA-14912",
+  "timestamp": 1794007054000,
   "storybooks": [
     "fxa-admin-panel"
   ],

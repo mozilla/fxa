@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit aeb2947f6ff3ec866e1a5583f38d4af34c69b8b9</title>
+  <title>Storybooks for commit 25bc8087260a823b5dbb3dd890e04735ca6988fa</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,27 +23,24 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit aeb2947f6ff3ec866e1a5583f38d4af34c69b8b9</h1>
+  <h1>Storybooks for commit 25bc8087260a823b5dbb3dd890e04735ca6988fa</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/6/2026, 10:03:19 PM UTC</dd>
+    <dd>11/6/2026, 11:17:34 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(admin-panel): disable accounts that match a blocklist entry</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-* A new blocklist entry does not affect accounts that already exist.
-* Two row scans could run at once, and the page keeps one result.
+* CodeQL flagged type confusion on the raw request value in the
+  email disable-matching route.
 
 This commit:
 
-* Adds disable-matching routes and a shared AccountStateService
-* Adds a checkbox and a row button to disable matching accounts
-* Disables every row button while one scan runs
-* Adds error-path tests for the email disable-matching route
+* Matches stored entries against a Set of the requested strings
 
 Closes FXA-14912</pre></dd>
   </dl>
