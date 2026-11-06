@@ -3,14 +3,30 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { randomUUID } from 'crypto';
 import { StatsD } from 'hot-shots';
-import mysql from 'mysql';
+import mysql from 'mysql2';
 
 import type { ILogger } from '@fxa/shared/log';
 import { scopeSetHelpers as ScopeSet } from '@fxa/accounts/oauth';
 
 type Millisecond = number;
-interface DbPoolConfig extends mysql.PoolConfig {
+interface DbPoolConfig extends mysql.PoolOptions {
   idleLimitMs: number;
+  connectionLimitMin?: number;
+  connectionLimitMax?: number;
+  acquireTimeoutMillis?: number;
+}
+
+// mysql2 logs an error for each unknown pool option.
+function poolOptions({
+  idleLimitMs,
+  connectionLimitMin,
+  connectionLimitMax,
+  acquireTimeoutMillis,
+  ...options
+}: DbPoolConfig): mysql.PoolOptions {
+  return connectionLimitMax
+    ? { ...options, connectionLimit: connectionLimitMax }
+    : options;
 }
 
 const buf = (v: Buffer | string) =>
@@ -140,7 +156,7 @@ export class MysqlStoreShared {
       }
       return next();
     };
-    this._pool = mysql.createPool(options);
+    this._pool = mysql.createPool(poolOptions(options));
     this._fxa_idle_limit = options.idleLimitMs;
     this.metrics?.increment('mysql.pool_creation');
 
@@ -249,17 +265,14 @@ export class MysqlStoreShared {
           return reject(err);
         }
 
-        // The mysql module's connection pool never closes any of its
-        // connections.  There's at least one open contributor PR
-        // (https://github.com/mysqljs/mysql/pull/2218) on the
-        // module's repo for the feature, but not much activity.
+        // mysql2 closes idle connections only when maxIdle < connectionLimit.
         if (conn._fxa_idle_timeout) {
           clearTimeout(conn._fxa_idle_timeout);
         }
 
         conn._fxa_idle_timeout = setTimeout(() => {
           try {
-            (pool as any)._purgeConnection(conn);
+            conn.destroy();
             metrics?.increment('mysql.close_idle_connection');
           } catch (err) {
             log?.error('MysqlStoreShared', {
@@ -366,7 +379,7 @@ export class MysqlStoreShared {
         resolve();
       }
 
-      this._pool.end(function (err: mysql.MysqlError) {
+      this._pool.end(function (err) {
         if (err) {
           reject(err);
         }

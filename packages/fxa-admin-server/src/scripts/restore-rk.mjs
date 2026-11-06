@@ -35,7 +35,7 @@ async function getKnexConnection(dbId) {
   }
 
   const options = {
-    client: 'mysql',
+    client: 'mysql2',
     connection: {
       host: process.env[`KNEX_${dbId}_HOST`],
       password: process.env[`KNEX_${dbId}_PWD`],
@@ -76,7 +76,7 @@ async function processUser(row) {
         accounts.uid=?
         AND accounts.keysChangedAt < securityEvents.createdAt
         AND (securityEvents.nameId = 18 or securityEvents.nameId = 14)`,
-      [uid]
+      [row.uid]
     );
 
     if (result[0].length > 0) {

@@ -53,6 +53,10 @@ function typeCasting(field: any, next: any) {
   if (field.type === 'TINY' && field.length === 1) {
     return field.string() === '1';
   }
+  // Callers parse JSON columns themselves.
+  if (field.type === 'JSON') {
+    return field.string('utf8');
+  }
   return next();
 }
 
@@ -72,6 +76,17 @@ export function monitorKnexConnectionPool(pool: any, metrics?: StatsD) {
   });
 }
 
+// mysql2 logs an error for each unknown connection option.
+export function connectionOptions({
+  connectionLimitMin,
+  connectionLimitMax,
+  acquireTimeoutMillis,
+  idleLimitMs,
+  ...connection
+}: MySQLConfig) {
+  return connection;
+}
+
 export function setupDatabase(
   opts: MySQLConfig,
   log?: ILogger,
@@ -81,9 +96,9 @@ export function setupDatabase(
     connection: {
       typeCast: typeCasting,
       charset: 'UTF8MB4_BIN',
-      ...opts,
+      ...connectionOptions(opts),
     },
-    client: 'mysql',
+    client: 'mysql2',
     pool: {
       afterCreate: setupConnection,
       min: opts.connectionLimitMin,

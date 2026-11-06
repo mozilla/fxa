@@ -7,6 +7,7 @@ import { Model } from 'objection';
 import yargs from 'yargs';
 
 import Config from '../config';
+import { connectionOptions } from '@fxa/shared/db/mysql/legacy';
 import {
   Account,
   Email,
@@ -31,7 +32,10 @@ const argv = yargs
   .parseSync();
 
 async function addBounceToDB() {
-  const instance = knex({ client: 'mysql', connection: config.database.fxa });
+  const instance = knex({
+    client: 'mysql2',
+    connection: connectionOptions(config.database.fxa),
+  });
   Model.knex(instance);
   const count = argv.count;
 

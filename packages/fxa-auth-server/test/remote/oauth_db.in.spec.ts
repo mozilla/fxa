@@ -387,9 +387,7 @@ describe('db', () => {
         const email = 'email' + randomString(10) + '@mozilla.com';
         await db.activateDeveloper(email);
         await expect(db.activateDeveloper(email)).rejects.toThrow(
-          expect.objectContaining({
-            message: expect.stringContaining('ER_DUP_ENTRY'),
-          })
+          expect.objectContaining({ code: 'ER_DUP_ENTRY' })
         );
       });
 

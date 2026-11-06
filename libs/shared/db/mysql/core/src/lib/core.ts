@@ -80,18 +80,26 @@ export function createKnex(
   log: Logger = logger,
   metrics: StatsD = localStatsD()
 ): Knex {
+  // mysql2 logs an error for each unknown connection option.
+  const {
+    connectionLimitMin,
+    connectionLimitMax,
+    acquireTimeoutMillis,
+    ...connection
+  } = opts;
+  delete connection.idleLimitMs;
   const db = knex({
     connection: {
       typeCast: typeCasting,
       charset: 'UTF8MB4_BIN',
-      ...opts,
+      ...connection,
     },
-    client: 'mysql',
+    client: 'mysql2',
     pool: {
       afterCreate: setupConnection,
-      min: opts.connectionLimitMin,
-      max: opts.connectionLimitMax,
-      acquireTimeoutMillis: opts.acquireTimeoutMillis,
+      min: connectionLimitMin,
+      max: connectionLimitMax,
+      acquireTimeoutMillis,
     },
   });
 

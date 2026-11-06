@@ -1,5 +1,4 @@
 import { StatsD } from 'hot-shots';
-import { Connection } from 'mysql';
 import { IMysqlStoreSharedEvents, MysqlStoreShared } from './mysql';
 import { defaultOpts, testDatabaseSetup } from './testing/helpers';
 
@@ -7,6 +6,9 @@ const dbOpts = Object.assign({}, defaultOpts.testDbConfig, {
   connectionLimit: 20,
   idleLimitMs: 1000,
 });
+
+// mysql2 sets _closing when a connection closes.
+const isClosed = (conn: any) => conn._closing === true;
 
 type TestStats = {
   pool: {
@@ -162,8 +164,8 @@ describe('mysql', () => {
     mysql = new MySqlStoreTest({ ...dbOpts, idleLimitMs: 10 });
     const conn1 = await mysql.getConnection();
     const conn2 = await mysql.getConnection();
-    expect((conn1 as Connection).state).not.toBe('disconnected');
-    expect((conn2 as Connection).state).not.toBe('disconnected');
+    expect(isClosed(conn1)).toBe(false);
+    expect(isClosed(conn2)).toBe(false);
 
     await new Promise((resolve) => {
       setTimeout(resolve, 50);
@@ -172,7 +174,26 @@ describe('mysql', () => {
       (x) => x[0] === 'mysql.close_idle_connection'
     ).length;
     expect(closeConnCount).toBe(2);
-    expect((conn1 as Connection).state).toBe('disconnected');
-    expect((conn2 as Connection).state).toBe('disconnected');
+    expect(isClosed(conn1)).toBe(true);
+    expect(isClosed(conn2)).toBe(true);
+    await expect(mysql.query('SELECT 1', {})).resolves.toBeDefined();
+  });
+
+  it('keeps knex pool keys out of the mysql2 pool', async () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+    const opts = {
+      ...dbOpts,
+      connectionLimitMin: 1,
+      connectionLimitMax: 5,
+      acquireTimeoutMillis: 1000,
+    };
+    const store = new MySqlStoreTest(opts);
+    try {
+      expect((store as any)._pool.config.connectionLimit).toBe(5);
+      expect(errorSpy).not.toHaveBeenCalled();
+    } finally {
+      errorSpy.mockRestore();
+      await store.close();
+    }
   });
 });

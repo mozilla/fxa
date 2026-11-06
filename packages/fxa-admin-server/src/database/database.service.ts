@@ -10,7 +10,10 @@ import {
   mergeCachedSessionTokens,
   mergeDevicesAndSessionTokens,
 } from '@fxa/accounts/connected-services';
-import { monitorKnexConnectionPool } from '@fxa/shared/db/mysql/legacy';
+import {
+  connectionOptions,
+  monitorKnexConnectionPool,
+} from '@fxa/shared/db/mysql/legacy';
 import {
   Account,
   BaseAuthModel,
@@ -42,6 +45,10 @@ export function typeCasting(field: any, next: any) {
   if (field.type === 'TINY' && field.length === 1) {
     const value = field.string();
     return value === null ? null : value === '1';
+  }
+  // Callers parse JSON columns themselves.
+  if (field.type === 'JSON') {
+    return field.string('utf8');
   }
   return next();
 }
@@ -87,19 +94,19 @@ export class DatabaseService implements OnModuleDestroy {
     this.knex = knex({
       connection: {
         typeCast: typeCasting,
-        ...dbConfig.fxa,
+        ...connectionOptions(dbConfig.fxa),
         charset: 'UTF8MB4_BIN',
       },
-      client: 'mysql',
+      client: 'mysql2',
     });
 
     this.knexOauth = knex({
       connection: {
         typeCast: typeCasting,
-        ...dbConfig.fxa_oauth,
+        ...connectionOptions(dbConfig.fxa_oauth),
         charset: 'UTF8MB4_BIN',
       },
-      client: 'mysql',
+      client: 'mysql2',
     });
 
     monitorKnexConnectionPool(this.knex.client.pool, metrics);
