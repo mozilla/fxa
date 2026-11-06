@@ -21,6 +21,14 @@ const nonIntMap = {
   },
 };
 
+// Steps mapped to design tokens are `var(--space-*)`; parse the computed value.
+const resolveVar = (value) => {
+  const name = /^var\((--[\w-]+)\)$/.exec(value)?.[1];
+  return name
+    ? getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+    : value;
+};
+
 const Spacing = ({ config }) => {
   const twSpacing = {};
 
@@ -123,7 +131,7 @@ const Spacing = ({ config }) => {
             {Object.keys(twSpacing).map((size) => {
               const data = twSpacing[size];
               const parsedSize = parseFloat(size);
-              const parsedValue = parseFloat(data.value);
+              const parsedValue = parseFloat(resolveVar(data.value));
 
               return (
                 <tr className="flex relative spacing-item-row" key={size}>

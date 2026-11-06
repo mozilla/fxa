@@ -12,6 +12,9 @@
   /* Track the app's theme toggle (ThemeProvider sets .dark on <html>), not the
    * OS, so Acorn's light-dark() tokens match the selected theme. */
   color-scheme: light;
+  /* Copied from acorn-web-components' base.css, which we don't import because
+   * it also sets document-level styles, including the root font size. */
+  --font-family: "Segoe UI", "Ubuntu Sans", Roboto, system-ui, -apple-system, sans-serif;
   --color-grey-10: var(--color-gray-05);
   --color-grey-50: var(--color-gray-10);
   --color-grey-100: var(--color-gray-15);
