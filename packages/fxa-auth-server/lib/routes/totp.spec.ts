@@ -359,6 +359,12 @@ describe('totp', () => {
 
         // correct emails sent
         expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
+        expect(authServerCacheRedis.set).toHaveBeenCalledWith(
+          'newDeviceEmailSent:id',
+          '1',
+          'EX',
+          300
+        );
         expect(
           fxaMailer.sendPostAddTwoStepAuthenticationEmail
         ).toHaveBeenCalledTimes(0);
@@ -438,6 +444,12 @@ describe('totp', () => {
 
         // correct emails sent
         expect(fxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
+        expect(authServerCacheRedis.set).toHaveBeenCalledWith(
+          'newDeviceEmailSent:id',
+          '1',
+          'EX',
+          300
+        );
         expect(
           fxaMailer.sendPostAddTwoStepAuthenticationEmail
         ).toHaveBeenCalledTimes(0);
@@ -533,6 +545,17 @@ describe('totp', () => {
         );
 
         expect(glean.login.totpFailure).toHaveBeenCalledTimes(1);
+        expect(customs.checkAuthenticated).toHaveBeenCalledWith(
+          request,
+          'uid',
+          TEST_EMAIL,
+          'verifyTotpCodeFailed'
+        );
+        expect(customs.check).not.toHaveBeenCalledWith(
+          request,
+          TEST_EMAIL,
+          'verifyTotpCodeFailed'
+        );
       });
     });
   });

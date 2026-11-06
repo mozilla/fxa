@@ -390,6 +390,7 @@ describe('ConfirmSignupCode page', () => {
           redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
           state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
           scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
+          services: { sync: {} },
         });
       });
     });
@@ -410,6 +411,7 @@ describe('ConfirmSignupCode page', () => {
           redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
           state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
           scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
+          services: { relay: {} },
         });
       });
     });
@@ -454,6 +456,7 @@ describe('ConfirmSignupCode page', () => {
           redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
           state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
           scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
+          services: { vpn: {} },
         });
       });
       expect(mockNavigate).not.toHaveBeenCalled();

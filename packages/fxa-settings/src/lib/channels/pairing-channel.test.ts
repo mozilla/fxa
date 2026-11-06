@@ -8,9 +8,11 @@ import {
   toRemoteMetadata,
 } from './pairing-channel';
 import { ResumableWebSocket } from './resumable-websocket';
+import { bytesToBase64url } from '../base64url';
 
-// Valid base64url key (decodes to 'testkey1')
-const VALID_KEY = 'dGVzdGtleTE';
+// Valid base64url key (decodes to 32 bytes of 0x01)
+const KEY_BYTES = new Uint8Array(32).fill(1);
+const VALID_KEY = bytesToBase64url(KEY_BYTES);
 const SERVER = 'wss://channel.example.com';
 const CHAN = 'channel-id-123';
 
@@ -22,7 +24,7 @@ let mockChannel: {
   removeEventListener: jest.Mock;
   _channelId?: string;
   _channelKey?: Uint8Array;
-  _connection?: unknown;
+  _connection?: { connected?: Promise<unknown> } | null;
   closed?: boolean;
 };
 
@@ -97,9 +99,8 @@ describe('PairingChannelClient', () => {
       close: jest.fn().mockResolvedValue(undefined),
       addEventListener: jest.fn(),
       removeEventListener: jest.fn(),
-      // 'testkey1' — the same bytes VALID_KEY decodes to.
       _channelId: CHAN,
-      _channelKey: new TextEncoder().encode('testkey1'),
+      _channelKey: KEY_BYTES,
       closed: false,
     };
     jest.clearAllMocks();
@@ -137,6 +138,36 @@ describe('PairingChannelClient', () => {
       await expect(client.open('', CHAN, VALID_KEY)).rejects.toThrow(
         'Invalid channel server configuration'
       );
+    });
+
+    it('passes a 32-byte key to PairingChannel.connect', async () => {
+      const {
+        PairingChannel,
+      } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
+
+      await client.open(SERVER, CHAN, VALID_KEY);
+
+      expect(PairingChannel.connect).toHaveBeenCalledWith(
+        SERVER,
+        CHAN,
+        KEY_BYTES
+      );
+    });
+
+    it.each([
+      ['1 byte', 'AA'],
+      ['8 bytes', 'dGVzdGtleTE'],
+      ['33 bytes', bytesToBase64url(new Uint8Array(33).fill(1))],
+    ])('throws for a key of %s', async (_, key) => {
+      const {
+        PairingChannel,
+      } = require('fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js');
+
+      const err = await client.open(SERVER, CHAN, key).catch((e) => e);
+
+      expect(err).toBeInstanceOf(PairingChannelError);
+      expect(err.errno).toBe(1000);
+      expect(PairingChannel.connect).not.toHaveBeenCalled();
     });
 
     it('throws if already connected', async () => {
@@ -179,6 +210,35 @@ describe('PairingChannelClient', () => {
 
       expect(window.WebSocket).toBe(nativeWebSocket);
     });
+  });
+
+  describe('handshake failure', () => {
+    const onUnhandledRejection = jest.fn();
+
+    beforeEach(() => {
+      process.on('unhandledRejection', onUnhandledRejection);
+    });
+
+    afterEach(() => {
+      process.off('unhandledRejection', onUnhandledRejection);
+    });
+
+    it.each([
+      ['create', (c: PairingChannelClient) => c.create(SERVER)],
+      ['open', (c: PairingChannelClient) => c.open(SERVER, CHAN, VALID_KEY)],
+    ] as const)(
+      '%s handles a rejected connected promise',
+      async (_method, run) => {
+        mockChannel._connection = {
+          connected: Promise.reject(new Error('decode_error')),
+        };
+
+        await run(client);
+        await new Promise((r) => setTimeout(r, 0));
+
+        expect(onUnhandledRejection).not.toHaveBeenCalled();
+      }
+    );
   });
 
   describe('create', () => {

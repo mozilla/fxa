@@ -27,7 +27,7 @@
     "convict": "^6.2.5",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
-    "joi": "^17.13.8",
+    "joi": "^17.13.9",
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
     "poolee": "^1.0.1",

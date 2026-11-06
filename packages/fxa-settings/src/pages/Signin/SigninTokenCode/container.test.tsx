@@ -233,6 +233,32 @@ describe('SigninTokenCode container', () => {
         expect(mockNavigate).not.toHaveBeenCalled();
       });
 
+      it('does not restart the OAuth flow for a passwordless session without keys', async () => {
+        const nativeIntegration = createOAuthNativeIntegration();
+        nativeIntegration.requiresKeys = () => true;
+        integration = nativeIntegration as Integration;
+        mockSensitiveDataClient.AuthData = {};
+        mockLocationState = {
+          ...createMockSigninLocationState(),
+          isSignInWithThirdPartyAuth: true,
+        };
+        const attemptOAuthFlowRecovery = jest.fn();
+        jest
+          .spyOn(OAuthFlowRecoveryModule, 'useOAuthFlowRecovery')
+          .mockReturnValue({
+            isRecovering: false,
+            recoveryFailed: false,
+            attemptOAuthFlowRecovery,
+          });
+        render();
+
+        // The recovery effect runs before the TOTP check.
+        await waitFor(() =>
+          expect(mockCheckTotpTokenExists).toHaveBeenCalled()
+        );
+        expect(attemptOAuthFlowRecovery).not.toHaveBeenCalled();
+      });
+
       it('does not redirect on any other error', async () => {
         mockCheckTotpTokenExists.mockRejectedValue(
           AuthUiErrors.UNEXPECTED_ERROR

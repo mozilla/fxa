@@ -260,6 +260,7 @@ export const accountWhereAndOrderByQueryBuilder = (
     .leftJoin(sessionTokenUids, 'sessionTokenUids.uid', 'accounts.uid')
     .leftJoin(securityEventUids, 'securityEventUids.uid', 'accounts.uid')
     .where('accounts.emailVerified', 1)
+    .whereNull('accounts.disabledAt')
     .where('accounts.createdAt', '>=', startDateTimestamp)
     .where('accounts.createdAt', '<', endDateTimestamp)
     .where((builder) => {

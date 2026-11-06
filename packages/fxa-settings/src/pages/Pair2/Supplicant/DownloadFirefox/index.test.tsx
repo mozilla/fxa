@@ -556,23 +556,87 @@ describe('Pair2/Supplicant/DownloadFirefox page', () => {
       ).toHaveAttribute('href', MOCK_ANDROID_PLAN.deepLink);
     });
 
-    // In an in-app WebView the intent silently no-ops, which would otherwise
-    // strand the user on a spinner forever.
-    it('returns the CTA to rest when the intent silently no-ops', async () => {
-      jest.useFakeTimers();
-      try {
+    // A WebView that swallows the intent, or a device with no Play Store to
+    // take S.browser_fallback_url, would otherwise strand the user on a spinner.
+    describe('when the auto hand-off times out', () => {
+      const renderTimedOut = async () => {
+        jest.useFakeTimers();
         renderWithLocalizationProvider(
           <Subject plan={MOCK_ANDROID_PLAN} storage={createStorage()} />
         );
+        jest.advanceTimersByTime(STORE_FALLBACK_TIMEOUT_MS);
+        await screen.findByRole('link', { name: 'Download Firefox' });
+      };
 
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      // The Play Store may be what failed, so the download avoids it.
+      it('offers the mozilla.org download as the primary action', async () => {
+        await renderTimedOut();
+
+        expect(
+          screen.getByRole('link', { name: 'Download Firefox' })
+        ).toHaveAttribute('href', Constants.FIREFOX_MOBILE_DOWNLOAD_URL);
+      });
+
+      it('offers the deep link as the secondary action', async () => {
+        await renderTimedOut();
+
+        expect(
+          screen.getByRole('link', { name: 'I already have Firefox' })
+        ).toHaveAttribute('href', MOCK_ANDROID_PLAN.deepLink);
+      });
+
+      it('tags both actions for click metrics', async () => {
+        await renderTimedOut();
+
+        expect(
+          screen.getByRole('link', { name: 'Download Firefox' })
+        ).toHaveAttribute('data-glean-id', 'dtm_mobile_download_submit');
+        expect(
+          screen.getByRole('link', { name: 'I already have Firefox' })
+        ).toHaveAttribute('data-glean-id', 'dtm_mobile_download_open_firefox');
+      });
+
+      it('no longer offers the single Continue in Firefox action', async () => {
+        await renderTimedOut();
+
+        expect(
+          screen.queryByRole('link', { name: /Continue in Firefox|Opening/ })
+        ).not.toBeInTheDocument();
+      });
+
+      it('records the timeout', async () => {
+        await renderTimedOut();
+
+        expect(mockDeeplinkWebviewFallback).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('offers the download when a manual hand-off times out', async () => {
+      jest.useFakeTimers();
+      try {
+        const user = userEvent.setup({
+          advanceTimers: jest.advanceTimersByTime,
+        });
+        renderWithLocalizationProvider(
+          <Subject
+            plan={{ ...MOCK_ANDROID_PLAN, autoAttempt: false }}
+            assign={jest.fn()}
+            storage={createStorage()}
+          />
+        );
+
+        await user.click(
+          screen.getByRole('link', { name: 'Continue in Firefox' })
+        );
         jest.advanceTimersByTime(STORE_FALLBACK_TIMEOUT_MS);
 
-        await waitFor(() =>
-          expect(
-            screen.getByRole('link', { name: 'Continue in Firefox' })
-          ).toBeInTheDocument()
-        );
-        expect(mockDeeplinkWebviewFallback).toHaveBeenCalledTimes(1);
+        expect(
+          await screen.findByRole('link', { name: 'Download Firefox' })
+        ).toHaveAttribute('href', Constants.FIREFOX_MOBILE_DOWNLOAD_URL);
       } finally {
         jest.useRealTimers();
       }

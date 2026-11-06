@@ -417,7 +417,7 @@ describe('InlinePasswordlessSyncSetupContainer', () => {
 
       expect(mockRetryStore).toHaveBeenCalledTimes(1);
       expect(
-        screen.getByText('Passkey confirmation didn’t finish')
+        await screen.findByText('Passkey confirmation didn’t finish')
       ).toBeInTheDocument();
       expect(mockNavigate).not.toHaveBeenCalled();
       expect(

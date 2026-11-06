@@ -124,6 +124,11 @@ const DESCRIPTIONS = {
       - \`assertion\`: FxA identity assertion authenticating the user.
       - \`scope\`: (optional) A string-separated list of scopes to be authorized.
       - \`access_type\`: (optional) Determines whether to generate a \`refresh_token\` (if \`offline\`) or not (if \`online\`).
+    - If \`urn:ietf:params:oauth:grant-type:token-exchange\` (refresh token exchange, [RFC 8693](https://www.rfc-editor.org/rfc/rfc8693.html)):
+      - \`subject_token\`: The client's current refresh token.
+      - \`subject_token_type\`: Must be \`urn:ietf:params:oauth:token-type:refresh_token\`.
+      - \`scope\`: Only the **additional** scopes needed. FxA adds them to the subject token's scopes.
+      - No \`client_secret\`. \`/v1/token\` requires \`client_id\` but doesn't use it to authenticate; \`/oauth/token\` doesn't accept it.
   `,
   iat: 'Integer time of token creation.',
   idempotencyKey:
@@ -215,6 +220,7 @@ const DESCRIPTIONS = {
 
     - \`grant_type=authorization_code\` and the original authorization request included \`access_type=offline\`.
     - \`grant_type=fxa-credentials\` and the request included \`access_type=offline\`.
+    - \`grant_type=urn:ietf:params:oauth:grant-type:token-exchange\`, where it is always present and replaces the \`subject_token\`, which is revoked.
   `,
   excludeDau: swaggerText`
     When true, tag this access-token creation so it is excluded from the daily

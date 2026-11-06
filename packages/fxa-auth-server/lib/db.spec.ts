@@ -27,6 +27,9 @@ jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => ({
     delete: jest.fn().mockResolvedValue(null),
     findByUid: jest.fn().mockResolvedValue([]),
   },
+  SecurityEvent: {
+    create: jest.fn().mockResolvedValue(null),
+  },
   Account: {
     delete: jest.fn().mockResolvedValue(null),
     reset: jest.fn().mockResolvedValue(null),
@@ -210,12 +213,32 @@ describe('db with redis disabled:', () => {
     log = createMock<AuthLogger>();
     tokens = require('../lib/tokens')(log, { tokenLifetimes });
     const DB = createDB(
-      { redis: {}, tokenLifetimes, tokenPruning: {} },
+      {
+        redis: {},
+        tokenLifetimes,
+        tokenPruning: {},
+        securityHistory: { ipHmacKey: 'fakeHmacKey' },
+      },
       log,
       tokens,
       {}
     );
     db = await DB.connect({});
+  });
+
+  it('securityEvent does not log the tokenId', async () => {
+    const tokenId = 'fakeTokenId0123456789';
+    await db.securityEvent({
+      uid: 'f9416ce3703e4916a4cd6b1e665a3f1a',
+      name: 'account.login',
+      ipAddr: '127.0.0.1',
+      tokenId,
+    });
+
+    expect(JSON.stringify(log.trace.mock.calls)).not.toContain(tokenId);
+    expect(models.SecurityEvent.create).toHaveBeenCalledWith(
+      expect.objectContaining({ tokenId })
+    );
   });
 
   describe('db.accountDisabledAt', () => {
@@ -365,6 +388,7 @@ describe('redis enabled, token-pruning enabled:', () => {
       getSessionTokens: jest.fn(() => Promise.resolve()),
       pruneSessionTokens: jest.fn(() => Promise.resolve()),
       touchSessionToken: jest.fn(() => Promise.resolve()),
+      claimLastAccessTimeWrite: jest.fn(() => Promise.resolve(true)),
     };
     redisMockFactory = (...args: any[]) => {
       expect(args).toHaveLength(2);
@@ -395,6 +419,7 @@ describe('redis enabled, token-pruning enabled:', () => {
           enabled: true,
           sampleRate: 1,
           earliestSaneTimestamp: 1,
+          minIntervalSeconds: 300,
         },
       },
       log,
@@ -460,6 +485,36 @@ describe('redis enabled, token-pruning enabled:', () => {
       'blee',
       expect.anything()
     );
+  });
+
+  it('writes a lastAccessTime-only touch when the write is claimed', async () => {
+    await db.touchSessionToken(
+      { id: 'wibble', uid: 'blee', lastAccessTime: 42 },
+      {},
+      true
+    );
+    expect(redis.claimLastAccessTimeWrite).toHaveBeenCalledWith('wibble', 300);
+    expect(redis.touchSessionToken).toHaveBeenCalledWith('blee', {
+      lastAccessTime: 42,
+      id: 'wibble',
+    });
+  });
+
+  it('skips a lastAccessTime-only touch when the write is not claimed', async () => {
+    redis.claimLastAccessTimeWrite.mockResolvedValue(false);
+    await db.touchSessionToken(
+      { id: 'wibble', uid: 'blee', lastAccessTime: 42 },
+      {},
+      true
+    );
+    expect(redis.touchSessionToken).not.toHaveBeenCalled();
+  });
+
+  it('does not throttle a full touch', async () => {
+    redis.claimLastAccessTimeWrite.mockResolvedValue(false);
+    await db.touchSessionToken({ id: 'wibble', uid: 'blee' }, {});
+    expect(redis.claimLastAccessTimeWrite).not.toHaveBeenCalled();
+    expect(redis.touchSessionToken).toHaveBeenCalledTimes(1);
   });
 
   it('should call redis.pruneSessionTokens in db.pruneSessionTokens', async () => {

@@ -10,6 +10,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Inject,
   Post,
@@ -35,7 +36,12 @@ import {
   SecurityEventNames,
   SECURITY_EVENTS_LIMIT,
 } from '@fxa/shared/db/mysql/legacy/models/auth/security-event';
-import { AdminPanelFeature } from '@fxa/shared/guards';
+import {
+  AdminPanelFeature,
+  AdminPanelGuard,
+  GuardEnv,
+  USER_GROUP_HEADER,
+} from '@fxa/shared/guards';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { CurrentUser } from '../../auth/auth-header.decorator';
@@ -49,7 +55,7 @@ import {
 } from '../../backend/cloud-tasks.service';
 import { FirestoreService } from '../../backend/firestore.service';
 import { ProfileClient } from '@fxa/profile/client';
-import { AppConfig } from '../../config';
+import config, { AppConfig } from '../../config';
 import { DatabaseService } from '../../database/database.service';
 import { uuidTransformer } from '../../database/transformers';
 import {
@@ -74,6 +80,17 @@ import {
 } from '../../types';
 import { CartManager } from '@fxa/payments/cart';
 import { randomBytes } from 'node:crypto';
+
+const ADMIN_PANEL_SECURITY_EVENTS = new Map<
+  SecurityEventNames,
+  AdminPanelFeature
+>([
+  ['account.passkey.removed', AdminPanelFeature.RemovePasskeys],
+  ['account.two_factor_removed', AdminPanelFeature.Remove2FA],
+  ['emails.clearBounces', AdminPanelFeature.ClearEmailBounces],
+]);
+
+const guard = new AdminPanelGuard(config.get('guard.env') as GuardEnv);
 
 const ACCOUNT_COLUMNS = [
   'uid',
@@ -495,7 +512,7 @@ export class AccountController {
 
     if (deleted) {
       try {
-        await this.recordAdminSecurityEvent(
+        await this.writeAdminSecurityEvent(
           uid,
           'account.passkey.wrap_deleted',
           req
@@ -517,7 +534,7 @@ export class AccountController {
     this.eventLogging.onEvent(EventNames.UnverifyEmail);
     const result = await this.db.emails
       .query()
-      .where('normalizedEmail', 'like', `${email.toLowerCase()}%`)
+      .where('normalizedEmail', email.toLowerCase())
       .update({
         isVerified: false,
         verifiedAt: null as any,
@@ -559,7 +576,7 @@ export class AccountController {
     req: Request
   ) {
     const results = await Promise.allSettled([
-      this.recordAdminSecurityEvent(uid, event, req),
+      this.writeAdminSecurityEvent(uid, event, req),
       this.profileClient.deleteCache(uid),
       this.notifier.send({
         event: 'profileDataChange',
@@ -688,12 +705,34 @@ export class AccountController {
     return success;
   }
 
-  @Features(AdminPanelFeature.AccountSearch)
+  @Features(
+    AdminPanelFeature.Remove2FA,
+    AdminPanelFeature.ClearEmailBounces,
+    AdminPanelFeature.RemovePasskeys
+  )
+  @AuditLog()
   @Post('record-security-event')
   public async recordAdminSecurityEvent(
     @Body('uid') uid: string,
     @Body('name') name: SecurityEventNames,
     @Req() req: Request
+  ) {
+    const feature = ADMIN_PANEL_SECURITY_EVENTS.get(name);
+    if (!feature) {
+      throw new BadRequestException('Unsupported security event name');
+    }
+    // @Features passes when any one feature matches, so check the one this name needs.
+    const group = guard.getBestGroup(req.get(USER_GROUP_HEADER) || '');
+    if (!guard.allow(feature, group)) {
+      throw new ForbiddenException();
+    }
+    return this.writeAdminSecurityEvent(uid, name, req);
+  }
+
+  private async writeAdminSecurityEvent(
+    uid: string,
+    name: SecurityEventNames,
+    req: Request
   ) {
     const result = await this.db.securityEvents.create({
       uid,
@@ -862,7 +901,7 @@ export class AccountController {
           account.emails = await Email.findByUid(account.uid);
           await this.emailService.sendPasswordChangeRequired(account);
 
-          await this.recordAdminSecurityEvent(
+          await this.writeAdminSecurityEvent(
             account.uid,
             'account.must_reset' as SecurityEventNames,
             req

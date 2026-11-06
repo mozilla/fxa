@@ -230,7 +230,7 @@
     "prop-types": "^15.8.1",
     "raw-loader": "^4.0.2",
     "sinon": "^22.1.0",
-    "storybook": "^8.0.0",
+    "storybook": "^8.6.19",
     "style-loader": "^4.0.0",
     "ts-jest": "^29.2.3",
     "type-fest": "^4.38.0",

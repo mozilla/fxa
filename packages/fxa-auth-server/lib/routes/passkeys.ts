@@ -13,6 +13,8 @@ import {
 } from '../types';
 import { signMfaToken } from './utils/mfa-token';
 import { recordSecurityEvent } from './utils/security-event';
+import { markNewDeviceEmailSent } from './utils/new-device-email-sent';
+import { Redis } from 'ioredis';
 import { notifyAttachedServicesForAccountSession } from './utils/account';
 import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
 import { ConfigType } from '../../config';
@@ -163,7 +165,8 @@ export class PasskeyHandler {
     private readonly glean: GleanMetricsType,
     private readonly mailer: any,
     private readonly oauthClientInfoService: AuthClientInfoService,
-    private readonly config: ConfigType
+    private readonly config: ConfigType,
+    private readonly authServerCacheRedis?: Redis
   ) {}
 
   /**
@@ -662,7 +665,8 @@ export class PasskeyHandler {
       account,
       service,
       keysRequired,
-      completion
+      completion,
+      sessionToken.id
     );
 
     const hasPassword = account.verifierSetAt > 0;
@@ -696,7 +700,8 @@ export class PasskeyHandler {
     },
     service: string | undefined,
     keysRequired: boolean,
-    completion: ReturnType<typeof passkeySigninCompletion>
+    completion: ReturnType<typeof passkeySigninCompletion>,
+    sessionTokenId: string
   ) {
     // The new-device-login email is always sent; when keys are still required
     // we drop the service so the subject stays generic — keys aren't retrieved
@@ -714,6 +719,11 @@ export class PasskeyHandler {
         clientName: clientInfo.name,
         showBannerWarning: false,
       });
+      await markNewDeviceEmailSent(
+        this.authServerCacheRedis,
+        this.log,
+        sessionTokenId
+      );
     } catch (err) {
       this.log.error(
         'passkeys.authenticationFinish.sendNewDeviceLoginEmail.error',
@@ -841,7 +851,8 @@ export const passkeyRoutes = (
   statsd: any,
   glean: GleanMetricsType,
   log: any,
-  mailer: any
+  mailer: any,
+  authServerCacheRedis?: Redis
 ) => {
   // Passkey route flag hierarchy:
   //   passkeys.enabled (master switch)  — gates management routes (list/delete/rename)
@@ -872,8 +883,12 @@ export const passkeyRoutes = (
     glean,
     mailer,
     oauthClientInfoService,
-    config
+    config,
+    authServerCacheRedis
   );
+
+  // Enable CORS credentials only when using explicit origins (not wildcard, per CORS spec)
+  const enableCredentials = config.corsOrigin && config.corsOrigin[0] !== '*';
 
   return [
     {
@@ -1096,6 +1111,11 @@ export const passkeyRoutes = (
       path: '/passkey/authentication/start',
       options: {
         ...PASSKEYS_API_DOCS.PASSKEY_AUTHENTICATION_START_POST,
+        ...(enableCredentials && {
+          cors: {
+            credentials: true,
+          },
+        }),
         pre: [{ method: authenticationEnabledCheck }],
         auth: false,
         validate: {
@@ -1131,6 +1151,11 @@ export const passkeyRoutes = (
       path: '/passkey/authentication/finish',
       options: {
         ...PASSKEYS_API_DOCS.PASSKEY_AUTHENTICATION_FINISH_POST,
+        ...(enableCredentials && {
+          cors: {
+            credentials: true,
+          },
+        }),
         pre: [{ method: authenticationEnabledCheck }],
         auth: false,
         validate: {

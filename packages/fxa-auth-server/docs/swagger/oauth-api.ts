@@ -18,7 +18,11 @@ const OAUTH_AUTHORIZATION_POST = {
 
       Authorize a new OAuth client connection to the user's account, returning a short-lived authentication code that the client can exchange for access tokens at the OAuth token endpoint.
 
-      This route behaves like the oauth-server /authorization endpoint except that it is authenticated directly with a sessionToken.
+      This route behaves like the oauth-server /authorization endpoint except that it is authenticated directly with a sessionToken. Relying parties don't call it directly: they send the user to FxA's hosted sign-in pages, which call it.
+
+      ### \`service\` for Firefox clients
+
+      Firefox clients can send \`service=<name>\` (for example \`vpn\`) instead of \`scope\`, and FxA resolves the service's scopes. Without \`scope\`, an unknown service fails with \`errno: 109\`. The response's \`scope\` holds the granted scopes. See [ADR 0049](https://github.com/mozilla/fxa/blob/main/docs/adr/0049-service-driven-scope-resolution.md).
 
       ### Step-up authentication (RFC 9470)
 
@@ -99,6 +103,7 @@ const OAUTH_TOKEN_POST = {
         - \`grant_type=authorization_code\`: A single-use code obtained via OAuth redirect flow.
         - \`grant_type=refresh_token\`: A refresh token issued by a previous call to this endpoint.
         - \`grant_type=fxa-credentials\`: Directly grant tokens using an FxA sessionToken.
+        - \`grant_type=urn:ietf:params:oauth:grant-type:token-exchange\`: Exchange an existing refresh token for a new one with additional scopes. See "Refresh token exchange" on the [oauth-server /token endpoint](#tag/OAuth-Server-API-Overview/operation/postToken). On this endpoint, don't send \`client_id\`.
 
       This is the "token endpoint" as defined in RFC6749, and behaves like the [oauth-server /token endpoint](#tag/OAuth-Server-API-Overview/operation/postToken) except that the \`fxa-credentials\` grant can be authenticated directly with a sessionToken.
     `,

@@ -178,7 +178,7 @@ describe('SigninTokenCode page', () => {
     it('on success, renders banner', async () => {
       session = mockSession();
       await renderAndResend();
-      screen.getByText(/A new code was sent to your email./);
+      await screen.findByText(/A new code was sent to your email./);
     });
     it('on throttled error, renders banner with throttled message', async () => {
       session = {
@@ -187,7 +187,9 @@ describe('SigninTokenCode page', () => {
           .mockRejectedValue(AuthUiErrors.THROTTLED),
       } as unknown as Session;
       await renderAndResend();
-      screen.getByText('You’ve tried too many times. Please try again later.');
+      await screen.findByText(
+        'You’ve tried too many times. Please try again later.'
+      );
     });
 
     it('on throttled resend, disables the submit button', async () => {
@@ -221,7 +223,9 @@ describe('SigninTokenCode page', () => {
         sendVerificationCode: jest.fn().mockRejectedValue(new Error()),
       } as unknown as Session;
       await renderAndResend();
-      screen.getByText('Something went wrong. A new code could not be sent.');
+      await screen.findByText(
+        'Something went wrong. A new code could not be sent.'
+      );
     });
 
     it('shows countdown timer after successful resend', async () => {
@@ -485,6 +489,32 @@ describe('SigninTokenCode page', () => {
             expect.objectContaining({ isPasswordlessOtpSignin: true })
           );
         });
+      });
+
+      it('sends a passwordless Sync session to set a password instead of finishing OAuth', async () => {
+        session = mockSession();
+        const finishOAuthFlowHandler = jest.fn();
+        const integration = createMockSigninOAuthNativeSyncIntegration();
+        render({
+          finishOAuthFlowHandler,
+          integration,
+          signinState: {
+            ...createMockSigninLocationState(integration.wantsKeys()),
+            isSignInWithThirdPartyAuth: true,
+          },
+        });
+        await submitCode();
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith(
+            expect.stringMatching(/^\/post_verify\/set_password/),
+            expect.objectContaining({
+              state: expect.objectContaining({
+                passwordCreationReason: 'third_party_auth',
+              }),
+            })
+          );
+        });
+        expect(finishOAuthFlowHandler).not.toHaveBeenCalled();
       });
 
       it('leaves isPasswordlessOtpSignin unset for a password sign-in', async () => {

@@ -110,7 +110,10 @@ mockEmailTasksRef.current = mockEmailTasks;
 const authModels = require('@fxa/shared/db/mysql/legacy/models/auth');
 const EmailBounce = authModels.EmailBounce;
 
-const { InactiveAccountsManager } = require('../inactive-accounts');
+const {
+  InactiveAccountsManager,
+  requestForGlean,
+} = require('../inactive-accounts');
 
 describe('InactiveAccountsManager', () => {
   const inactiveAccountManager = new InactiveAccountsManager({
@@ -492,5 +495,70 @@ describe('InactiveAccountsManager', () => {
         'account.inactive.deletion.scheduled'
       );
     });
+  });
+
+  describe('disabled account', () => {
+    beforeEach(() => {
+      jest.spyOn(Date, 'now').mockReturnValue(now + 53 * aDayInMs);
+      jest.spyOn(inactiveAccountManager, 'isActive').mockResolvedValue(false);
+      jest.spyOn(accountEventsManager, 'findEmailEvents').mockResolvedValue([]);
+      // every address bounced, so the first email would otherwise schedule a delete
+      (EmailBounce.distinct as jest.Mock).mockResolvedValue([mockAccount]);
+      mockFxaDb.account.mockResolvedValueOnce({
+        ...mockAccount,
+        emails: [{ email: mockAccount.email }],
+        disabledAt: now,
+      });
+    });
+    afterEach(() => {
+      (EmailBounce.distinct as jest.Mock).mockResolvedValue([]);
+      jest.restoreAllMocks();
+    });
+
+    it.each([
+      {
+        emailType: EmailTypes.INACTIVE_DELETE_FIRST_NOTIFICATION,
+        attempt: 'first',
+      },
+      {
+        emailType: EmailTypes.INACTIVE_DELETE_SECOND_NOTIFICATION,
+        attempt: 'second',
+      },
+      {
+        emailType: EmailTypes.INACTIVE_DELETE_FINAL_NOTIFICATION,
+        attempt: 'final',
+      },
+    ])(
+      'sends no $attempt email and deletes nothing',
+      async ({ emailType, attempt }) => {
+        await inactiveAccountManager.handleNotificationTask({
+          ...mockPayload,
+          emailType,
+        });
+
+        expect(
+          mockFxaMailer.sendInactiveAccountFirstWarningEmail
+        ).not.toHaveBeenCalled();
+        expect(
+          mockFxaMailer.sendInactiveAccountSecondWarningEmail
+        ).not.toHaveBeenCalled();
+        expect(
+          mockFxaMailer.sendInactiveAccountFinalWarningEmail
+        ).not.toHaveBeenCalled();
+        expect(mockEmailTasks.scheduleSecondEmail).not.toHaveBeenCalled();
+        expect(mockEmailTasks.scheduleFinalEmail).not.toHaveBeenCalled();
+        expect(mockDeleteAccountTasks.deleteAccount).not.toHaveBeenCalled();
+        expect(mockStatsd.increment).toHaveBeenCalledTimes(1);
+        expect(mockStatsd.increment).toHaveBeenCalledWith(
+          `account.inactive.${attempt}-email.skipped.disabled`
+        );
+        expect(
+          mockGlean.inactiveAccountDeletion[`${attempt}EmailSkipped`]
+        ).toHaveBeenCalledWith(requestForGlean, {
+          uid: mockPayload.uid,
+          reason: 'disabled_account',
+        });
+      }
+    );
   });
 });

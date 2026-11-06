@@ -6,6 +6,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent, UserEvent } from '@testing-library/user-event';
 import PageDomainBlocklist from './index';
+import { PAGE_SIZE } from '../BlocklistTable';
 import { adminApi } from '../../lib/api';
 
 jest.mock('../../lib/api', () => ({
@@ -61,7 +62,7 @@ describe('PageDomainBlocklist', () => {
   });
 
   it('reaches entries past the first page by page and by filter', async () => {
-    const many = Array.from({ length: 1005 }, (_, i) => ({
+    const many = Array.from({ length: PAGE_SIZE + 3 }, (_, i) => ({
       domain: `spam${i}.example`,
       createdAt: 1000,
     }));
@@ -70,16 +71,21 @@ describe('PageDomainBlocklist', () => {
     render(<PageDomainBlocklist />);
 
     expect(
-      await screen.findByText('Showing 1 to 500 of 1,005 entries.')
+      await screen.findByText(
+        `Showing 1 to ${PAGE_SIZE} of ${PAGE_SIZE + 3} entries.`
+      )
     ).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Next →' }));
-    await user.click(screen.getByRole('button', { name: 'Next →' }));
-    expect(screen.getByText('spam1004.example')).toBeInTheDocument();
+    expect(
+      screen.getByText(`spam${PAGE_SIZE + 2}.example`)
+    ).toBeInTheDocument();
 
     // paste fires one input event; type re-renders the 500-row table per key.
     await user.click(screen.getByLabelText('Filter by domain'));
-    await user.paste('SPAM1003');
-    expect(screen.getByText('spam1003.example')).toBeInTheDocument();
+    await user.paste(`SPAM${PAGE_SIZE + 1}`);
+    expect(
+      screen.getByText(`spam${PAGE_SIZE + 1}.example`)
+    ).toBeInTheDocument();
     // One entry row plus the header row.
     expect(screen.getAllByRole('row')).toHaveLength(2);
   });

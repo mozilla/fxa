@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import PromotionBanner, {
   AccountRecoveryKeyPromoBanner,
@@ -27,6 +27,10 @@ describe('PromotionBanner component', () => {
     jest.resetAllMocks();
   });
 
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
   it('renders as expected', () => {
     const notificationProps = {
       image: keyImage,
@@ -38,7 +42,11 @@ describe('PromotionBanner component', () => {
       dismissKey: 'account-recovery-dismissed',
       metricsKey: 'create_recovery_key',
     };
-    renderWithLocalizationProvider(<MemoryRouter><PromotionBanner {...notificationProps} /></MemoryRouter>);
+    renderWithLocalizationProvider(
+      <MemoryRouter>
+        <PromotionBanner {...notificationProps} />
+      </MemoryRouter>
+    );
     screen.getByText('Create');
     screen.getByText('Don’t lose your data if you forget your password');
     screen.getByText(
@@ -46,7 +54,8 @@ describe('PromotionBanner component', () => {
     );
   });
 
-  it('can be dismissed', async () => {
+  it('can be dismissed', () => {
+    jest.useFakeTimers();
     const notificationProps = {
       image: keyImage,
       ctaText: 'Create',
@@ -57,7 +66,11 @@ describe('PromotionBanner component', () => {
       dismissKey: 'account-recovery-dismissed',
       metricsKey: 'create_recovery_key',
     };
-    renderWithLocalizationProvider(<MemoryRouter><PromotionBanner {...notificationProps} /></MemoryRouter>);
+    renderWithLocalizationProvider(
+      <MemoryRouter>
+        <PromotionBanner {...notificationProps} />
+      </MemoryRouter>
+    );
 
     const cta = screen.queryByRole('link', { name: 'Create' });
 
@@ -73,12 +86,20 @@ describe('PromotionBanner component', () => {
       '__fxa_storage.fxa_disable_notification_banner.account-recovery-dismissed'
     );
     expect(key).toBe('true');
-    await waitFor(() => expect(cta).not.toBeInTheDocument());
+    expect(cta).toBeInTheDocument();
+    act(() => {
+      jest.advanceTimersByTime(300);
+    });
+    expect(cta).not.toBeInTheDocument();
   });
 
   describe('recovery key promotion banner', () => {
     it('renders as expected', () => {
-      renderWithLocalizationProvider(<MemoryRouter><AccountRecoveryKeyPromoBanner /></MemoryRouter>);
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <AccountRecoveryKeyPromoBanner />
+        </MemoryRouter>
+      );
       expect(
         screen.getByText('Don’t lose your data if you forget your password')
       ).toBeVisible();
@@ -102,7 +123,11 @@ describe('PromotionBanner component', () => {
         GleanMetrics.accountBanner,
         'createRecoveryKeyView'
       );
-      renderWithLocalizationProvider(<MemoryRouter><AccountRecoveryKeyPromoBanner /></MemoryRouter>);
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <AccountRecoveryKeyPromoBanner />
+        </MemoryRouter>
+      );
 
       expect(viewSpy).toHaveBeenCalledTimes(1);
     });
@@ -110,7 +135,11 @@ describe('PromotionBanner component', () => {
 
   describe('recovery phone promotion banner', () => {
     it('renders as expected', () => {
-      renderWithLocalizationProvider(<MemoryRouter><RecoveryPhonePromoBanner /></MemoryRouter>);
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <RecoveryPhonePromoBanner />
+        </MemoryRouter>
+      );
       expect(
         screen.getByText(
           'Add extra protection to your account with a recovery phone'
@@ -144,7 +173,11 @@ describe('PromotionBanner component', () => {
         GleanMetrics.accountBanner,
         'addRecoveryPhoneView'
       );
-      renderWithLocalizationProvider(<MemoryRouter><RecoveryPhonePromoBanner /></MemoryRouter>);
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <RecoveryPhonePromoBanner />
+        </MemoryRouter>
+      );
 
       expect(viewSpy).toHaveBeenCalledTimes(1);
     });

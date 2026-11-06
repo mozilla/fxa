@@ -154,6 +154,9 @@ export class PairingChannelError extends Error {
  */
 const CHANNEL_CLOSED_MESSAGE = 'WebSocket unexpectedly closed';
 
+// The TLS 1.3 PSK is one SHA-256 output.
+const PSK_LENGTH = 32;
+
 function isChannelClosedError(err: unknown): boolean {
   return err instanceof Error && err.message === CHANNEL_CLOSED_MESSAGE;
 }
@@ -180,7 +183,7 @@ type PairingChannelSocket = {
    * fxa-pairing-channel's own handle on the socket. It is nulled out when the
    * socket goes away, and the package's `close()` dereferences it unguarded.
    */
-  _connection?: unknown;
+  _connection?: { connected?: Promise<unknown> } | null;
   /** True once fxa-pairing-channel has torn the WebSocket down. */
   readonly closed?: boolean;
 };
@@ -284,6 +287,9 @@ export class PairingChannelClient extends EventTarget {
     this.watchPageLifecycle();
     try {
       const psk = base64urlToBytes(channelKey);
+      if (psk.length !== PSK_LENGTH) {
+        throw new PairingChannelError('INVALID_CONFIGURATION');
+      }
 
       // Dynamic import — fxa-pairing-channel UMD bundle exposes PairingChannel.connect()
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -455,6 +461,8 @@ export class PairingChannelClient extends EventTarget {
   };
 
   private attachChannel(channel: PairingChannelSocket): void {
+    // A failed handshake rejects this; the error event already reports it.
+    channel._connection?.connected?.catch(() => {});
     channel.addEventListener('message', this.handleMessage);
     channel.addEventListener('error', this.handleError);
     channel.addEventListener('close', this.handleClose);

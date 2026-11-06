@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import * as Sentry from '@sentry/react';
 import ScanQR from '.';
 import {
@@ -43,17 +43,11 @@ const ScanQRContainer = ({
 }) => {
   const navigateWithQuery = useNavigateWithQuery();
   const navigate = useNavigate();
-  const location = useLocation();
   const authClient = useAuthClient();
   const config = useConfig();
   const [qrCodeValue, setQrCodeValue] = useState('');
-  // A 2FA account enters its code before the channel opens, so no TOTP prompt
-  // can send the user to another app while the channel is live. The TOTP page
-  // returns here with `totpComplete` so the check is not repeated.
-  const totpComplete =
-    (location.state as { totpComplete?: boolean } | null)?.totpComplete ===
-    true;
-  const [totpChecked, setTotpChecked] = useState(totpComplete);
+  // A 2FA account enters its code before the channel opens.
+  const [totpChecked, setTotpChecked] = useState(false);
 
   if (!(integration instanceof PairingAuthorityIntegration)) {
     throw new Error(

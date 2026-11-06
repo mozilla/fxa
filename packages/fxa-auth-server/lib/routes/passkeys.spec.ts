@@ -59,7 +59,8 @@ describe('passkeys routes', () => {
     mockPasskeyService: DeepMocked<PasskeyService>,
     mockFxaMailer: DeepMocked<FxaMailer>,
     mailer: Record<string, jest.Mock>,
-    mockOauthClientInfoService: DeepMocked<AuthClientInfoService>;
+    mockOauthClientInfoService: DeepMocked<AuthClientInfoService>,
+    authServerCacheRedis: { set: jest.Mock };
 
   const UID = 'f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6';
   const SESSION_TOKEN_ID = 'session-token-456';
@@ -143,7 +144,16 @@ describe('passkeys routes', () => {
     requestOptions: { app?: object; [key: string]: unknown },
     method = 'POST'
   ): Promise<T> {
-    routes = passkeyRoutes(customs, db, config, statsd, glean, log, mailer);
+    routes = passkeyRoutes(
+      customs,
+      db,
+      config,
+      statsd,
+      glean,
+      log,
+      mailer,
+      authServerCacheRedis as any
+    );
     route = routes.find((r) => r.path === routePath && r.method === method);
     if (!route) {
       throw new Error(`Route not found: ${method} ${routePath}`);
@@ -252,6 +262,7 @@ describe('passkeys routes', () => {
       sendNewDeviceLoginEmail: jest.fn().mockResolvedValue(undefined),
     };
 
+    authServerCacheRedis = { set: jest.fn().mockResolvedValue('OK') };
     mockOauthClientInfoService = createMock<AuthClientInfoService>({
       fetch: jest.fn().mockResolvedValue({ name: 'Mozilla' }),
     });
@@ -1575,6 +1586,12 @@ describe('passkeys routes', () => {
           })
         );
         expect(mailer.sendNewDeviceLoginEmail).not.toHaveBeenCalled();
+        expect(authServerCacheRedis.set).toHaveBeenCalledWith(
+          'newDeviceEmailSent:new-session-token-id',
+          '1',
+          'EX',
+          300
+        );
       });
 
       it('shows the relying-party name for a non-sync OAuth sign-in', async () => {
@@ -1947,6 +1964,38 @@ describe('passkeys routes', () => {
           );
         });
       });
+    });
+  });
+
+  describe('CORS credentials on passkey sign-in routes', () => {
+    const corsOf = (corsOrigin: string[], path: string) => {
+      const all = passkeyRoutes(
+        customs,
+        db,
+        { ...config, corsOrigin } as unknown as ConfigType,
+        statsd,
+        glean,
+        log,
+        mailer
+      );
+      return (optionsOf(all.find((r) => r.path === path)) as { cors?: object })
+        .cors;
+    };
+
+    it.each([
+      '/passkey/authentication/start',
+      '/passkey/authentication/finish',
+    ])('allows credentials on %s for explicit origins', (path) => {
+      expect(corsOf(['https://accounts.firefox.com'], path)).toEqual({
+        credentials: true,
+      });
+    });
+
+    it.each([
+      '/passkey/authentication/start',
+      '/passkey/authentication/finish',
+    ])('sets no CORS override on %s for a wildcard origin', (path) => {
+      expect(corsOf(['*'], path)).toBeUndefined();
     });
   });
 

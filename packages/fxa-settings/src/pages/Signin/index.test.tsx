@@ -248,6 +248,25 @@ describe('Signin component', () => {
     jest.clearAllMocks();
   });
 
+  describe('sent from set_password', () => {
+    it('labels the submit button as starting Sync', () => {
+      render({ locationState: { origin: 'post-verify-set-password' } });
+      expect(
+        screen.getByRole('button', { name: 'Start syncing' })
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: 'Sign in' })
+      ).not.toBeInTheDocument();
+    });
+
+    it('keeps the Sign in label otherwise', () => {
+      render();
+      expect(
+        screen.getByRole('button', { name: 'Sign in' })
+      ).toBeInTheDocument();
+    });
+  });
+
   describe('passkey signin CTA gating', () => {
     beforeEach(() => {
       (isWebAuthnSupported as jest.Mock).mockReturnValue(true);
@@ -890,6 +909,7 @@ describe('Signin component', () => {
                   redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
                   state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
                   scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
+                  services: { sync: {} },
                 });
 
                 const fxaLoginCallOrder =
@@ -941,6 +961,7 @@ describe('Signin component', () => {
                   redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
                   state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
                   scope: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.scope,
+                  services: { relay: {} },
                 });
 
                 const fxaLoginCallOrder =

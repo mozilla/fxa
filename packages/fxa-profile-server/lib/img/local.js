@@ -30,6 +30,9 @@ LocalDriver.prototype = {
     return new Promise(function uploadPromise(resolve, reject) {
       var dir = PUBLIC_DIR;
       logger.debug('upload.start', name);
+      if (/[^a-zA-Z0-9_-]/.test(name)) {
+        return reject(new Error('Illegal characters in key'));
+      }
       fs.writeFile(path.join(dir, name), buf, function (err) {
         if (err) {
           logger.error('upload', err);

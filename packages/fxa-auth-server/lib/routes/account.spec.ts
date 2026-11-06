@@ -111,6 +111,12 @@ const mockGetAccountCustomerByUid = jest.fn().mockResolvedValue({
   stripeCustomerId: 'customer123',
 });
 
+const mockAuthServerCacheRedis = {
+  get: async () => null,
+  del: async () => 0,
+  set: jest.fn().mockResolvedValue('OK'),
+};
+
 const makeRoutes = function (options: any = {}, requireMocks: any = {}) {
   Container.set(CapabilityService, options.capabilityService || {});
   const config = options.config || {};
@@ -222,10 +228,8 @@ const makeRoutes = function (options: any = {}, requireMocks: any = {}) {
     available: jest.fn().mockResolvedValue(false),
   });
 
-  const authServerCacheRedis = options.authServerCacheRedis || {
-    get: async () => null,
-    del: async () => 0,
-  };
+  const authServerCacheRedis =
+    options.authServerCacheRedis || mockAuthServerCacheRedis;
 
   return accountRoutes(
     log,
@@ -2199,6 +2203,56 @@ describe('/account/login', () => {
     });
   });
 
+  describe('with a Password spy', () => {
+    const verifyHash = jest.fn().mockResolvedValue('');
+    const Password = jest.fn(() => ({ verifyHash }));
+    const spyRoute = getRoute(
+      makeRoutes({
+        config,
+        customs: mockCustoms,
+        db: mockDB,
+        log: mockLog,
+        mailer: mockMailer,
+        push: mockPush,
+        cadReminders: mockCadReminders,
+        Password,
+      }),
+      '/account/login'
+    );
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('runs a dummy password hash for an unknown account', async () => {
+      mockDB.accountRecord = jest.fn(() =>
+        Promise.reject(error.unknownAccount())
+      );
+
+      await expect(runTest(spyRoute, mockRequest)).rejects.toMatchObject({
+        errno: error.ERRNO.ACCOUNT_UNKNOWN,
+      });
+      expect(Password).toHaveBeenCalledTimes(1);
+      expect(Password).toHaveBeenCalledWith(
+        mockRequest.payload.authPW,
+        '00'.repeat(32),
+        1
+      );
+      expect(verifyHash).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not hash when customs blocks the request', async () => {
+      jest
+        .spyOn(mockCustoms, 'check')
+        .mockRejectedValueOnce(error.tooManyRequests(60));
+
+      await expect(runTest(spyRoute, mockRequest)).rejects.toMatchObject({
+        errno: error.ERRNO.THROTTLED,
+      });
+      expect(Password).not.toHaveBeenCalled();
+    });
+  });
+
   it('emits the correct series of calls and events', () => {
     const now = Date.now();
     const dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(now);
@@ -2528,6 +2582,12 @@ describe('/account/login', () => {
           expect(token.tokenVerified).toBeTruthy();
         });
         expect(mockFxaMailer.sendNewDeviceLoginEmail).toHaveBeenCalledTimes(1);
+        expect(mockAuthServerCacheRedis.set).toHaveBeenCalledWith(
+          expect.stringMatching(/^newDeviceEmailSent:/),
+          '1',
+          'EX',
+          300
+        );
         expect(mockMailer.sendVerifyLoginEmail).toHaveBeenCalledTimes(0);
 
         expect(mockMetricsContext.setFlowCompleteSignal).toHaveBeenCalledTimes(

@@ -39,14 +39,14 @@ module.exports = function (log, Token) {
   };
 
   KeyFetchToken.prototype.bundleKeys = function (kA, wrapKb) {
-    log.trace('keyFetchToken.bundleKeys', { id: this.id });
+    log.trace('keyFetchToken.bundleKeys', { uid: this.uid });
     kA = Buffer.from(kA, 'hex');
     wrapKb = Buffer.from(wrapKb, 'hex');
     return this.bundle('account/keys', Buffer.concat([kA, wrapKb]));
   };
 
   KeyFetchToken.prototype.unbundleKeys = async function (bundle) {
-    log.trace('keyFetchToken.unbundleKeys', { id: this.id });
+    log.trace('keyFetchToken.unbundleKeys', { uid: this.uid });
     const plaintext = await this.unbundle('account/keys', bundle);
     return {
       kA: plaintext.slice(0, 64), // strings, not buffers

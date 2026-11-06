@@ -118,3 +118,15 @@ describe('AppError.from', () => {
     expect(err.cause).toBe(cause);
   });
 });
+
+describe('AppError.processingError', () => {
+  it('keeps the upstream error on cause, not in the client payload', () => {
+    const upstream = { code: 'ECONNREFUSED', address: '10.0.0.1', port: 1113 };
+    const err = AppError.processingError(upstream);
+    expect(err.output.payload).not.toHaveProperty('_res');
+    expect(err.cause).toBe(upstream);
+    expect(err.output.statusCode).toBe(500);
+    expect(err.output.payload.errno).toBe(103);
+    expect(err.output.payload.message).toBe('Image processing error');
+  });
+});

@@ -37,6 +37,11 @@ const IOS_CHROME_UA =
   'AppleWebKit/605.1.15 (KHTML, like Gecko) ' +
   'CriOS/124.0.6367.88 Mobile/15E148 Safari/604.1';
 
+const FIREFOX_IOS_UA =
+  'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) ' +
+  'AppleWebKit/605.1.15 (KHTML, like Gecko) ' +
+  'FxiOS/124.0 Mobile/15E148 Safari/605.1.15';
+
 /** What the system camera opens after scanning a v2 authority QR. */
 const PAIRING_HASH = '#channel_id=chan-1&channel_key=key-1&v=2';
 
@@ -190,6 +195,28 @@ test.describe('severity-2 #smoke', () => {
         'cad_firefox_download_firefox_view'
       );
       expect(ping.extras.browser_family).toBe('chrome');
+    });
+  });
+
+  // The download screen hands off to this page in a Firefox tab.
+  test.describe('the connect hint in Firefox iOS', () => {
+    test.use({ userAgent: FIREFOX_IOS_UA });
+
+    test('shows the steps to pair from the app menu', async ({
+      target,
+      page,
+    }) => {
+      await page.goto(
+        `${target.contentServerUrl}/pair/supplicant/connect_hint`
+      );
+
+      await expect(
+        page.getByRole('heading', { name: 'Finish pairing in the app' })
+      ).toBeVisible();
+      const steps = page.getByRole('listitem');
+      await expect(steps).toHaveCount(2);
+      await expect(steps.nth(0)).toHaveText(/Tap the app menu/);
+      await expect(steps.nth(1)).toHaveText(/Sign in, then scan the code/);
     });
   });
 });

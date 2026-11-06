@@ -528,6 +528,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
         redirect: oauthData.redirect,
         state: oauthData.state,
         scope: oauthData.scope,
+        services: integration.getWebChannelServices(),
       });
     }
     if (navigationOptions.performNavigation !== false) {

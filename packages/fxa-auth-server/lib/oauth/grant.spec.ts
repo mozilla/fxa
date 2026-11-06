@@ -666,16 +666,13 @@ describe('generateTokens', () => {
     expect(jwt.claims.aud).toBe('0123456789');
   });
 
-  it('should propagate `resource` and `clientId` in the `aud` claim', async () => {
+  it('does not put resource in the id_token aud claim', async () => {
     requestedGrant.scope = ScopeSet.fromArray(['openid']);
     requestedGrant.resource = 'https://resource.server1.com';
     const result = await generateTokens(requestedGrant);
     expect(result.id_token).toBeTruthy();
     const jwt = decodeJWT(result.id_token);
-    expect(jwt.claims.aud).toEqual([
-      '0123456789',
-      'https://resource.server1.com',
-    ]);
+    expect(jwt.claims.aud).toBe('0123456789');
   });
 
   // No token is minted for a rejected request, so RFC 9470 section 5 reduces to:

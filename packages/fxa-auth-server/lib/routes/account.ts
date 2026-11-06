@@ -41,6 +41,7 @@ import {
 } from './utils/passwordless';
 import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
+import { markNewDeviceEmailSent } from './utils/new-device-email-sent';
 import validators from './validators';
 import { AccountEventsManager } from '../account-events';
 import { gleanMetrics } from '../metrics/glean';
@@ -79,6 +80,7 @@ const MS_ONE_HOUR = 1000 * 60 * 60;
 const MS_ONE_DAY = MS_ONE_HOUR * 24;
 const MS_ONE_WEEK = MS_ONE_DAY * 7;
 const MS_ONE_MONTH = MS_ONE_DAY * 30;
+const DUMMY_AUTH_SALT = '00'.repeat(32);
 
 export class AccountHandler {
   private OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS: Set<string>;
@@ -651,10 +653,16 @@ export class AccountHandler {
     }
 
     const checkCustomsAndLoadAccount = async () => {
-      const res = await this.signinUtils.checkCustomsAndLoadAccount(
-        request,
-        email
-      );
+      let res;
+      try {
+        res = await this.signinUtils.checkCustomsAndLoadAccount(request, email);
+      } catch (err) {
+        if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+          // Match the time of a wrong password, which always runs one hash.
+          await new this.Password(authPW, DUMMY_AUTH_SALT, 1).verifyHash();
+        }
+        throw err;
+      }
       accountRecord = res.accountRecord;
       // Remember whether they did a signin-unblock,
       // because we can use it to bypass token verification.
@@ -1091,6 +1099,11 @@ export class AccountHandler {
                 target: 'strapi',
               });
             }
+            await markNewDeviceEmailSent(
+              this.authServerCacheRedis,
+              this.log,
+              sessionToken.id
+            );
           } catch (err) {
             // If we couldn't email them, no big deal. Log
             // and pretend everything worked.

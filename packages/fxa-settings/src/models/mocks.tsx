@@ -147,6 +147,7 @@ export function mockSession(
       ? jest.fn().mockRejectedValue(new Error())
       : jest.fn().mockResolvedValue(true);
     session.isSessionVerified = jest.fn().mockResolvedValue(session.verified);
+    session.isValid = jest.fn().mockResolvedValue(!isError);
   } else {
     session.destroy = isError
       ? () => Promise.reject(new Error())
@@ -158,6 +159,7 @@ export function mockSession(
       ? () => Promise.reject(new Error())
       : () => Promise.resolve();
     session.isSessionVerified = () => Promise.resolve(session.verified);
+    session.isValid = () => Promise.resolve(!isError);
   }
 
   return session;

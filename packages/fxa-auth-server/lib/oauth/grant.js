@@ -303,17 +303,10 @@ module.exports.generateTokens = async function generateTokens(grant) {
 async function generateIdToken(grant, accessToken) {
   var now = Math.floor(Date.now() / 1000);
   const clientId = grant.clientId.toString('hex');
-  // The IETF spec for `aud` refers to https://openid.net/specs/openid-connect-core-1_0.html#IDToken
-  // > REQUIRED. Audience(s) that this ID Token is intended for. It MUST contain the
-  // > OAuth 2.0 client_id of the Relying Party as an audience value. It MAY also contain
-  // > identifiers for other audiences. In the general case, the aud value is an array of
-  // > case-sensitive strings. In the common special case when there is one audience, the
-  // > aud value MAY be a single case-sensitive string.
-  const audience = grant.resource ? [clientId, grant.resource] : clientId;
-
+  // The id_token audience is only the client id; resource indicators go in the access token.
   const claims = {
     sub: await sub(grant.userId, grant.clientId, grant.ppidSeed),
-    aud: audience,
+    aud: clientId,
     //iss set in jwt.sign
     iat: now,
     exp: now + ID_TOKEN_EXPIRATION,

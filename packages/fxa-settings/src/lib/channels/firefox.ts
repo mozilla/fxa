@@ -92,7 +92,6 @@ export type FxAStatusResponse = {
     choose_what_to_sync?: boolean;
     keys_optional?: boolean;
     can_link_account_uid?: boolean;
-    hasSyncKeys?: boolean;
   };
   clientId?: string;
   signedInUser?: SignedInUser;
@@ -105,6 +104,9 @@ export type SignedInUser = {
   sessionToken: string | undefined;
   uid: string;
   verified: boolean;
+  // Whether the browser holds the Sync key. Undefined when the Firefox version
+  // predates the field; false also when Firefox cannot read its stored keys.
+  hasSyncKey?: boolean;
 };
 
 export type PairOAuthStartState = {
@@ -127,6 +129,10 @@ export type FxALoginRequest = {
   keyFetchToken?: hexstring;
   unwrapBKey?: string;
   verifiedCanLinkAccount?: boolean;
+  /**
+   * Also sent in fxaOAuthLogin as of Q4 2026. Can be removed once Desktop versions
+   * that read it from fxaLogin are no longer supported.
+   */
   services?: WebChannelServices;
 };
 
@@ -163,11 +169,22 @@ export type FxAOAuthLogin = {
   code: string;
   redirect: string;
   state: string;
-  // OAuth desktop looks at the sync engine list in fxaLogin.
-  // OAuth mobile currently looks at fxaOAuthLogin, but should
-  // eventually move to look at fxaLogin as well to prevent FXA-10596.
+  /**
+   * OAuth mobile reads the sync engine lists here; OAuth desktop reads them from
+   * fxaLogin's `services.sync`. FxA dropped CWTS in June 2025 and sends back every
+   * engine the browser offers. Per-device sync settings (Q4 2026) keeps CWTS in Firefox
+   * only, so we can eventually stop sending these.
+   */
   declinedSyncEngines?: string[];
   offeredSyncEngines?: string[];
+  /**
+   * Firefox wants to know which service this flow started with. As of per-device sync
+   * settings (Q4 2026) Firefox maintains its own CWTS engines, so if `service=sync` then
+   * `services.sync` is `{}`. If FxA shows CWTS later on /signup, persist the choices (e.g.
+   * local storage) to prevent FXA-10596 and to prevent Firefox from having to remember,
+   * across platforms, and nest them under `services.sync`.
+   */
+  services?: WebChannelServices;
   /**
    * Space-separated list of granted scopes, sent so the browser knows
    * which scopes were authorized in this flow; this implements ADR 0049.
@@ -242,6 +259,15 @@ export function buildSyncOAuthSearch(
   }
   if (oauthParams.keys_jwk) search.set('keys_jwk', oauthParams.keys_jwk);
   return search;
+}
+
+// Pairing hands the Sync key to the other device, so a browser session can
+// pair only if it holds one. A Firefox that predates the field sends
+// undefined, so only an explicit false blocks pairing.
+export function canPairFromBrowser(
+  user?: SignedInUser
+): user is SignedInUser & { sessionToken: string } {
+  return !!(user?.sessionToken && user.verified && user.hasSyncKey !== false);
 }
 
 // timeout tuned for device latency

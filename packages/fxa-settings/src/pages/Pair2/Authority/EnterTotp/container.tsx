@@ -17,7 +17,7 @@ export type EnterTotpContainerProps = {
 /**
  * The desktop's TOTP prompt for an account with two-step authentication,
  * shown on entry to the flow before any pairing channel exists. A verified
- * code returns to scan_qr with `totpComplete` set so the check is not repeated.
+ * code returns to scan_qr, which checks the code again before the channel opens.
  */
 const EnterTotpContainer = ({
   integration,

@@ -12,6 +12,7 @@ import { PlayBilling } from './payments/iap/google-play/play-billing';
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { reportSentryError } from './sentry';
 import { AppConfig, AuthLogger } from './types';
+import { requestForGlean } from './inactive-accounts';
 
 const mocks = require('../test/mocks');
 const mockReportSentryError = reportSentryError as jest.MockedFunction<
@@ -392,6 +393,24 @@ describe('AccountDeleteManager', () => {
       );
     });
 
+    it('should report a failed disabled lookup and not delete', async () => {
+      mockFxaDb.accountDisabledAt.mockRejectedValue(new Error('db boom'));
+
+      await expect(
+        accountDeleteManager.deleteAccount(uid, deleteReason)
+      ).rejects.toThrow('db boom');
+
+      expect(mockFxaDb.deleteAccount).not.toHaveBeenCalled();
+      expect(mockLog.error).toHaveBeenCalledWith(
+        'deleteAccount',
+        expect.objectContaining({ stage: 'disabledCheck' })
+      );
+      expect(mockStatsd.increment).toHaveBeenCalledWith(
+        'account.destroy.failure',
+        { reason: deleteReason, stage: 'disabledCheck' }
+      );
+    });
+
     describe('scheduled inactive account deletion', () => {
       it('should skip if the account is active', async () => {
         isActiveStub.mockResolvedValue(true);
@@ -423,6 +442,66 @@ describe('AccountDeleteManager', () => {
         expect(mockLog.info).toHaveBeenCalledWith(
           'accountDeleted.byCloudTask',
           { uid }
+        );
+      });
+
+      it('should skip a disabled account for a scheduled deletion', async () => {
+        isActiveStub.mockResolvedValue(false);
+        mockFxaDb.accountDisabledAt.mockResolvedValue(1_700_000_000_000);
+        await accountDeleteManager.deleteAccount(
+          uid,
+          ReasonForDeletion.InactiveAccountScheduled
+        );
+        expect(mockFxaDb.accountDisabledAt).toHaveBeenCalledWith(uid);
+        expect(mockFxaDb.deleteAccount).not.toHaveBeenCalled();
+        expect(
+          mockGlean.inactiveAccountDeletion.deletionSkipped
+        ).toHaveBeenCalledWith(requestForGlean, {
+          uid,
+          reason: 'disabled_account',
+        });
+        expect(mockStatsd.increment).toHaveBeenCalledTimes(1);
+        expect(mockStatsd.increment).toHaveBeenCalledWith(
+          'account.destroy.skipped.disabled',
+          { reason: ReasonForDeletion.InactiveAccountScheduled }
+        );
+      });
+    });
+
+    describe('disabled account', () => {
+      const disabledAt = 1_700_000_000_000;
+
+      beforeEach(() => {
+        mockFxaDb.accountDisabledAt.mockResolvedValue(disabledAt);
+        mockFxaDb.account = mocks.mockDB({ email, uid, disabledAt }).account;
+      });
+
+      it.each([
+        ReasonForDeletion.UserRequested,
+        ReasonForDeletion.Unverified,
+        ReasonForDeletion.Cleanup,
+        ReasonForDeletion.InactiveAccountEmailBounced,
+      ])('should skip a %s deletion', async (reason) => {
+        await accountDeleteManager.deleteAccount(uid, reason);
+        expect(mockFxaDb.deleteAccount).not.toHaveBeenCalled();
+        expect(
+          mockGlean.inactiveAccountDeletion.deletionSkipped
+        ).not.toHaveBeenCalled();
+        expect(mockStatsd.increment).toHaveBeenCalledTimes(1);
+        expect(mockStatsd.increment).toHaveBeenCalledWith(
+          'account.destroy.skipped.disabled',
+          { reason }
+        );
+      });
+
+      it('should delete on an admin request', async () => {
+        await accountDeleteManager.deleteAccount(
+          uid,
+          ReasonForDeletion.AdminRequested
+        );
+        expect(mockFxaDb.deleteAccount).toHaveBeenCalledWith(
+          expect.objectContaining({ uid }),
+          ReasonForDeletion.AdminRequested
         );
       });
     });
