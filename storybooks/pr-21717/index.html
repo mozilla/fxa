@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit e21c12f27fad5bfb96a0b7905e3dea0e0cbd2775</title>
+  <title>Storybooks for commit b11bdd72f8ad3135918fcb45b4eb27a44c59c0ab</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit e21c12f27fad5bfb96a0b7905e3dea0e0cbd2775</h1>
+  <h1>Storybooks for commit b11bdd72f8ad3135918fcb45b4eb27a44c59c0ab</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
@@ -32,18 +32,22 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/6/2026, 4:48:17 PM UTC</dd>
+    <dd>11/6/2026, 6:06:28 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(design-tokens): address Nova token review feedback</pre></dd>
+    <dd><pre>feat(design-tokens): adopt Nova tokens behind a feature flag</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- Review flagged a design-guide crash, a stale comment, a theme/OS mismatch, and a missing test on the Nova token PR.
+ - Firefox&#039;s Nova design system now ships as acorn-web-components; FxA&#039;s colours
+   should come from it, behind a flag so the refresh lands incrementally and can
+   be toggled/rolled back without a frontend deploy. FXA-14254.
 
 This commit:
-- Resolve function-valued Tailwind colors in the Colors design guide so it renders
-- Sync Nova color-scheme to the app&#039;s .dark class instead of the OS
-- Correct the palette source comment to name the real token files
-- Test __NOVA_THEME__ replacement in both settings serving paths</pre></dd>
+ - Adds libs/shared/design-tokens: Acorn&#039;s tokens.css + static legacy.css
+   (:root:not([data-theme=&quot;nova&quot;])) and nova-aliases.css ([data-theme=&quot;nova&quot;]).
+ - Points the fxa-react Tailwind palette at var(--…) (opacity via color-mix) and
+   imports the token layer in fxa-react/styles and admin-panel.
+ - Adds featureFlags.novaDesignSystem and sets data-theme=&quot;nova&quot; on the settings shell.
+ - Adds a Nova toggle to the Storybook toolbar for design review.</pre></dd>
   </dl>
 </body>
 </html>
