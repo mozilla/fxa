@@ -18,13 +18,13 @@ export default {
 } as Meta;
 
 export const Variation1aHeading = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <Banner type="error" content={{ localizedHeading: sampleHeading }} />
   </AppLayout>
 );
 
 export const Variation1bHeadingCta = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <Banner
       type="error"
       content={{ localizedHeading: sampleHeading }}
@@ -34,7 +34,7 @@ export const Variation1bHeadingCta = () => (
 );
 
 export const Variation1cHeadingDismiss = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <Banner
       type="error"
       content={{ localizedHeading: sampleHeading }}
@@ -44,7 +44,7 @@ export const Variation1cHeadingDismiss = () => (
 );
 
 export const Variation1dHeadingCtaDismiss = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <Banner
       type="error"
       content={{ localizedHeading: sampleHeading }}
@@ -55,7 +55,7 @@ export const Variation1dHeadingCtaDismiss = () => (
 );
 
 export const Variation2aDescription = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <Banner
       type="error"
       content={{ localizedDescription: sampleDescription }}
@@ -64,7 +64,7 @@ export const Variation2aDescription = () => (
 );
 
 export const Variation2bDescriptionCta = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <Banner
       type="error"
       content={{ localizedDescription: sampleDescription }}
@@ -74,7 +74,7 @@ export const Variation2bDescriptionCta = () => (
 );
 
 export const Variation2cDescriptionDismiss = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <Banner
       type="error"
       content={{ localizedDescription: sampleDescription }}
@@ -84,7 +84,7 @@ export const Variation2cDescriptionDismiss = () => (
 );
 
 export const Variation2dDescriptionCtaDismiss = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <Banner
       type="error"
       content={{ localizedDescription: sampleDescription }}
@@ -95,7 +95,7 @@ export const Variation2dDescriptionCtaDismiss = () => (
 );
 
 export const Variation3aHeadingDescription = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <Banner
       type="error"
       content={{
@@ -107,7 +107,7 @@ export const Variation3aHeadingDescription = () => (
 );
 
 export const Variation3bHeadingDescriptionCta = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <Banner
       type="error"
       content={{
@@ -120,7 +120,7 @@ export const Variation3bHeadingDescriptionCta = () => (
 );
 
 export const Variation3cHeadingDescriptionDismiss = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <Banner
       type="error"
       content={{
@@ -133,7 +133,7 @@ export const Variation3cHeadingDescriptionDismiss = () => (
 );
 
 export const Variation4aIconStart = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <Banner
       type="error"
       content={{
@@ -147,7 +147,7 @@ export const Variation4aIconStart = () => (
 );
 
 export const Variation4bIconCenter = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <Banner
       type="error"
       content={{
@@ -161,7 +161,7 @@ export const Variation4bIconCenter = () => (
 );
 
 export const TypeError = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <Banner
       type="error"
       content={{
@@ -175,7 +175,7 @@ export const TypeError = () => (
 );
 
 export const TypeInfo = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <Banner
       type="info"
       content={{
@@ -189,7 +189,7 @@ export const TypeInfo = () => (
 );
 
 export const TypeInfoFancyWithCustomContent = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <Banner
       type="info"
       isFancy
@@ -212,7 +212,7 @@ export const TypeInfoFancyWithCustomContent = () => (
 );
 
 export const TypeInfoFancy = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <Banner
       type="info"
       isFancy
@@ -227,7 +227,7 @@ export const TypeInfoFancy = () => (
 );
 
 export const TypeSuccess = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <Banner
       type="success"
       content={{
@@ -241,7 +241,7 @@ export const TypeSuccess = () => (
 );
 
 export const TypeWarning = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <Banner
       type="warning"
       content={{
@@ -255,7 +255,7 @@ export const TypeWarning = () => (
 );
 
 export const CenteredText = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <Banner
       type="success"
       textAlignClassName="text-center"
@@ -268,13 +268,13 @@ export const CenteredText = () => (
 );
 
 export const ResendCodeBanner = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <ResendCodeSuccessBanner />
   </AppLayout>
 );
 
 export const ResendLinkBanner = () => (
-  <AppLayout>
+  <AppLayout title="Banner">
     <ResendLinkSuccessBanner />
   </AppLayout>
 );

@@ -18,6 +18,7 @@ import GleanMetrics from '../../../lib/glean';
 import { useGleanView } from '../../../lib/glean/useGleanView';
 import { hasPairingChannelParams } from '../../../lib/pairing-channel-params';
 import { getBrowserFamily } from '../../../lib/utilities';
+import { useFtlMsgResolver } from '../../../models';
 
 type PairUnsupportedProps = { error?: string };
 export const viewName = 'pair-unsupported';
@@ -76,6 +77,26 @@ const PairUnsupported = ({ error }: PairUnsupportedProps) => {
     isDesktopFirefoxFallback,
     downloadLink,
   } = useDeviceContext();
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = isDesktopNonFirefox
+    ? ftlMsgResolver.getMsg(
+        'pair-unsupported-desktop-non-firefox-page-title',
+        'Firefox required'
+      )
+    : isMobileWithSystemCamera
+      ? ftlMsgResolver.getMsg(
+          'pair-unsupported-system-camera-page-title',
+          'Pair using an app'
+        )
+      : isMobileNoSystemCamera
+        ? ftlMsgResolver.getMsg(
+            'pair-unsupported-mobile-page-title',
+            'Connect your mobile device'
+          )
+        : ftlMsgResolver.getMsg(
+            'pair-unsupported-desktop-firefox-fallback-page-title',
+            'Something went wrong'
+          );
 
   // Emit Glean view events per device context (matches Backbone unsupported.js logView).
   useGleanView(() => {
@@ -92,7 +113,7 @@ const PairUnsupported = ({ error }: PairUnsupportedProps) => {
   });
 
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       {error && <Banner type="error" content={{ localizedHeading: error }} />}
 
       {isDesktopNonFirefox && (

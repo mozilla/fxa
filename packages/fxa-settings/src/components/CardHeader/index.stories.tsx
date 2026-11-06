@@ -27,7 +27,7 @@ const storyWithProps = (
   storyName?: string
 ) => {
   const story = () => (
-    <AppLayout>
+    <AppLayout title="Card Header">
       <CardHeader {...props} />
     </AppLayout>
   );
@@ -88,7 +88,7 @@ export const WithSeparateSubheadingCustomServiceName = storyWithProps(
 );
 
 export const CmsHeaderComparison = () => (
-  <AppLayout>
+  <AppLayout title="Card Header">
     <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
       <div>
         <h2

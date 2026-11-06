@@ -5,6 +5,7 @@
 import Ready, { ReadyBaseIntegration } from '../../../components/Ready';
 import AppLayout from '../../../components/AppLayout';
 import { MozServices } from '../../../lib/types';
+import { useFtlMsgResolver } from '../../../models';
 
 type SignupConfirmedProps = {
   continueHandler?: Function;
@@ -21,10 +22,15 @@ const SignupConfirmed = ({
   serviceName,
   integration,
 }: SignupConfirmedProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
   const cmsInfo = integration?.getCmsInfo?.();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'sign-up-complete-page-title',
+    'Account confirmed'
+  );
 
   return (
-    <AppLayout cmsInfo={cmsInfo}>
+    <AppLayout cmsInfo={cmsInfo} title={localizedPageTitle}>
       <Ready
         {...{ continueHandler, isSignedIn, viewName, serviceName, integration }}
       />

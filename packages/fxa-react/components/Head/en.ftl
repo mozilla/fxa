@@ -5,6 +5,6 @@ app-default-title-2 = { -product-mozilla-accounts }
 
 # This string is used as the title of the page, displayed in the browser tab.
 # Variables:
-#   $title (String) - the name of the current page
-#                      (for example: "Two-step authentication")
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
+#   $title (String) - the already-localized title of the current page
+#                      (for example: “Two-step authentication”)
+app-page-title-3 = { $title } – { -product-mozilla-accounts }

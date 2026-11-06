@@ -7,6 +7,7 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../../../components/AppLayout';
 import { SyncSuccessImage } from '../../../../components/images';
 import firefox from '../../../../lib/channels/firefox';
+import { useFtlMsgResolver } from '../../../../models';
 
 export type SyncSuccessProps = {
   /**
@@ -26,33 +27,40 @@ const openSyncSettings = () => firefox.fxaOpenSyncPreferences();
  */
 const SyncSuccess = ({
   onSyncSettings = openSyncSettings,
-}: SyncSuccessProps) => (
-  <AppLayout>
-    <div className="flex flex-col items-center text-center">
-      <FtlMsg id="pair2-authority-sync-success-heading-v2">
-        <h1 className="card-header">Your device is connected</h1>
-      </FtlMsg>
-      <FtlMsg id="pair2-authority-sync-success-description-v2">
-        <p className="text-base">
-          Syncing is underway. It may take a while for your synced data to
-          appear. Feel free to keep browsing.
-        </p>
-      </FtlMsg>
+}: SyncSuccessProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'pair2-authority-sync-success-page-title',
+    'Device connected'
+  );
+  return (
+    <AppLayout title={localizedPageTitle}>
+      <div className="flex flex-col items-center text-center">
+        <FtlMsg id="pair2-authority-sync-success-heading-v2">
+          <h1 className="card-header">Your device is connected</h1>
+        </FtlMsg>
+        <FtlMsg id="pair2-authority-sync-success-description-v2">
+          <p className="text-base">
+            Syncing is underway. It may take a while for your synced data to
+            appear. Feel free to keep browsing.
+          </p>
+        </FtlMsg>
 
-      <SyncSuccessImage className="mt-6 h-40 w-auto max-w-full" />
+        <SyncSuccessImage className="mt-6 h-40 w-auto max-w-full" />
 
-      <FtlMsg id="pair2-authority-sync-success-sync-settings-button-v2">
-        <button
-          type="button"
-          data-glean-id="dtm_desktop_pair_success_sync_settings"
-          onClick={onSyncSettings}
-          className="link-dark-grey mt-6"
-        >
-          Manage sync settings
-        </button>
-      </FtlMsg>
-    </div>
-  </AppLayout>
-);
+        <FtlMsg id="pair2-authority-sync-success-sync-settings-button-v2">
+          <button
+            type="button"
+            data-glean-id="dtm_desktop_pair_success_sync_settings"
+            onClick={onSyncSettings}
+            className="link-dark-grey mt-6"
+          >
+            Manage sync settings
+          </button>
+        </FtlMsg>
+      </div>
+    </AppLayout>
+  );
+};
 
 export default SyncSuccess;

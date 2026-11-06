@@ -15,7 +15,7 @@ export default {
 } as Meta;
 
 const storyWithProps = (props: PairUnsupportedHintProps) => () => (
-  <AppLayout whiteBackground>
+  <AppLayout title="Pair Unsupported Hint" whiteBackground>
     <PairUnsupportedHint {...props} />
   </AppLayout>
 );

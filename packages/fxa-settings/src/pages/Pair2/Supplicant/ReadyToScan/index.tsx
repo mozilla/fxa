@@ -11,6 +11,7 @@ import {
   LaptopQrCodeImage,
 } from '../../../../components/images';
 import { SYNC_SUPPORT_URL } from '../../../../constants';
+import { useFtlMsgResolver } from '../../../../models';
 
 /**
  * The mobile screen shown before pairing starts. It tells the user to open
@@ -21,38 +22,45 @@ import { SYNC_SUPPORT_URL } from '../../../../constants';
  * the phone until the computer shows a code. Routing and the page-view/Glean
  * metrics that sibling pairing pages emit land with the flow wiring.
  */
-const ReadyToScan = () => (
-  <AppLayout whiteBackground>
-    <div className="flex flex-col items-center text-center">
-      <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
+const ReadyToScan = () => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'pair2-supplicant-ready-to-scan-page-title',
+    'Ready to scan'
+  );
+  return (
+    <AppLayout title={localizedPageTitle} whiteBackground>
+      <div className="flex flex-col items-center text-center">
+        <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
 
-      <LaptopQrCodeImage className="mt-14 h-[120px] w-auto" />
+        <LaptopQrCodeImage className="mt-14 h-[120px] w-auto" />
 
-      <FtlMsg id="pair2-supplicant-ready-to-scan-heading">
-        <h1 className="card-header mt-4">To connect a device</h1>
-      </FtlMsg>
-      <FtlMsg
-        id="pair2-supplicant-ready-to-scan-instruction"
-        elems={{ b: <b className="whitespace-nowrap" /> }}
-      >
-        <p className="mt-1 text-base">
-          On your computer, open Firefox and go to{' '}
-          <b className="whitespace-nowrap">firefox.com/pair</b>, and follow on
-          screen instructions to connect this mobile device.
-        </p>
-      </FtlMsg>
-
-      <LinkExternal
-        href={SYNC_SUPPORT_URL}
-        gleanDataAttrs={{ id: 'dtm_mobile_ready_to_scan_learn_more' }}
-        className="link-dark-grey"
-      >
-        <FtlMsg id="pair2-supplicant-ready-to-scan-learn-more-link">
-          Learn more
+        <FtlMsg id="pair2-supplicant-ready-to-scan-heading">
+          <h1 className="card-header mt-4">To connect a device</h1>
         </FtlMsg>
-      </LinkExternal>
-    </div>
-  </AppLayout>
-);
+        <FtlMsg
+          id="pair2-supplicant-ready-to-scan-instruction"
+          elems={{ b: <b className="whitespace-nowrap" /> }}
+        >
+          <p className="mt-1 text-base">
+            On your computer, open Firefox and go to{' '}
+            <b className="whitespace-nowrap">firefox.com/pair</b>, and follow on
+            screen instructions to connect this mobile device.
+          </p>
+        </FtlMsg>
+
+        <LinkExternal
+          href={SYNC_SUPPORT_URL}
+          gleanDataAttrs={{ id: 'dtm_mobile_ready_to_scan_learn_more' }}
+          className="link-dark-grey"
+        >
+          <FtlMsg id="pair2-supplicant-ready-to-scan-learn-more-link">
+            Learn more
+          </FtlMsg>
+        </LinkExternal>
+      </div>
+    </AppLayout>
+  );
+};
 
 export default ReadyToScan;

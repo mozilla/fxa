@@ -20,6 +20,10 @@ const OAuthDataError = ({
   gleanMetric?: (data: { event: { reason: string } }) => void;
 }) => {
   const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'error-bad-request-page-title',
+    'Bad request'
+  );
 
   // Prefer the ID from the original capture site.
   const [sentryEventId, setSentryEventId] = useState(error.sentryEventId);
@@ -45,7 +49,7 @@ const OAuthDataError = ({
   }, [gleanMetric, error.errno]);
 
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <CardHeader
         headingText="Bad Request"
         headingTextFtlId="error-bad-request"

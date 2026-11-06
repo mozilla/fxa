@@ -5,6 +5,7 @@
 import { act, fireEvent, screen } from '@testing-library/react';
 import FlowContainer from './index';
 import { renderWithRouter } from '../../../models/mocks';
+import AppLayout from '../../AppLayout';
 
 it('renders', async () => {
   renderWithRouter(<FlowContainer />);
@@ -19,4 +20,18 @@ it('calls the given on back button click handler', async () => {
     fireEvent.click(screen.getByTestId('flow-container-back-btn'));
   });
   expect(cb).toHaveBeenCalledTimes(1);
+});
+
+it('sets the page title from its title outside AppLayout', () => {
+  renderWithRouter(<FlowContainer title="Flow Title" />);
+  expect(document.title).toBe('Flow Title – Mozilla accounts');
+});
+
+it('leaves the page title to AppLayout', () => {
+  renderWithRouter(
+    <AppLayout title="Page Title" wrapInCard={false}>
+      <FlowContainer title="Flow Title" />
+    </AppLayout>
+  );
+  expect(document.title).toBe('Page Title – Mozilla accounts');
 });

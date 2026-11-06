@@ -18,7 +18,7 @@ const recoveryKeyValue = 'ABCD 1234 ABCD 1234 ABCD 1234 ABCD O0O0';
 
 const storyWithAccount = (email = MOCK_EMAIL) => {
   const story = () => (
-    <AppLayout>
+    <AppLayout title="Button Download Recovery Key">
       <ButtonDownloadRecoveryKey {...{ recoveryKeyValue, email }} />
     </AppLayout>
   );

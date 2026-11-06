@@ -5,6 +5,7 @@
 import { FtlMsg } from 'fxa-react/lib/utils';
 import CardHeader from '../CardHeader';
 import AppLayout from '../AppLayout';
+import { useFtlMsgResolver } from '../../models';
 
 type LinkUsedProps = {
   isForPrimaryEmail: boolean;
@@ -26,10 +27,15 @@ const getTemplateValues = (isPrimaryEmail: boolean) => {
 const LinkUsed = ({ isForPrimaryEmail }: LinkUsedProps) => {
   // TODO : Metric event(s) for expired link
 
+  const ftlMsgResolver = useFtlMsgResolver();
   const templateValues = getTemplateValues(isForPrimaryEmail);
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    templateValues.headerId,
+    templateValues.headerText
+  );
 
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <CardHeader
         headingText={templateValues.headerText}
         headingTextFtlId={templateValues.headerId}

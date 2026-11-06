@@ -20,7 +20,7 @@ const storyWithProps = (
   confirmPasswordExample: string
 ) => {
   const story = () => (
-    <AppLayout>
+    <AppLayout title="Password Strength Inline">
       <div className="relative">
         <InputPassword
           label="Password (example only, disabled for storybook)"

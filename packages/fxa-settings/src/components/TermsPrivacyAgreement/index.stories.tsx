@@ -23,19 +23,19 @@ const mockCustomLegalTerms: RelierLegalTerms = {
 };
 
 export const Default = () => (
-  <AppLayout>
+  <AppLayout title="Terms Privacy Agreement">
     <TermsPrivacyAgreement />
   </AppLayout>
 );
 
 export const WithCustomTerms = () => (
-  <AppLayout>
+  <AppLayout title="Terms Privacy Agreement">
     <TermsPrivacyAgreement legalTerms={mockCustomLegalTerms} />
   </AppLayout>
 );
 
 export const FontSize1Default = () => (
-  <AppLayout>
+  <AppLayout title="Terms Privacy Agreement">
     <TermsPrivacyAgreement
       legalTerms={{
         ...mockCustomLegalTerms,
@@ -46,7 +46,7 @@ export const FontSize1Default = () => (
 );
 
 export const FontSize2Medium = () => (
-  <AppLayout>
+  <AppLayout title="Terms Privacy Agreement">
     <TermsPrivacyAgreement
       legalTerms={{
         ...mockCustomLegalTerms,
@@ -57,7 +57,7 @@ export const FontSize2Medium = () => (
 );
 
 export const FontSize3Large = () => (
-  <AppLayout>
+  <AppLayout title="Terms Privacy Agreement">
     <TermsPrivacyAgreement
       legalTerms={{
         ...mockCustomLegalTerms,

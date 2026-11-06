@@ -16,19 +16,19 @@ export default {
 } as Meta;
 
 export const Default = () => (
-  <AppLayout>
+  <AppLayout title="Alternative Auth Options">
     <Subject />
   </AppLayout>
 );
 
 export const Standalone = () => (
-  <AppLayout>
+  <AppLayout title="Alternative Auth Options">
     <Subject isStandalone />
   </AppLayout>
 );
 
 export const WithPasskeySignIn = () => (
-  <AppLayout>
+  <AppLayout title="Alternative Auth Options">
     <Subject
       showPasskeySignin
       passkeySignIn={{ onClick: action('passkey-sign-in-clicked') }}
@@ -38,7 +38,7 @@ export const WithPasskeySignIn = () => (
 
 // During an in-flight ceremony the page also disables the other options.
 export const WithPasskeySignInLoading = () => (
-  <AppLayout>
+  <AppLayout title="Alternative Auth Options">
     <Subject
       showPasskeySignin
       passkeySignIn={{
@@ -51,7 +51,7 @@ export const WithPasskeySignInLoading = () => (
 );
 
 export const WithPasskeyError = () => (
-  <AppLayout>
+  <AppLayout title="Alternative Auth Options">
     <Subject
       showPasskeySignin
       passkeySignIn={{ onClick: action('passkey-sign-in-clicked') }}
@@ -61,7 +61,7 @@ export const WithPasskeyError = () => (
 );
 
 export const PasskeyOnly = () => (
-  <AppLayout>
+  <AppLayout title="Alternative Auth Options">
     <Subject
       showThirdPartyAuth={false}
       showPasskeySignin
@@ -71,7 +71,7 @@ export const PasskeyOnly = () => (
 );
 
 export const StandaloneWithPasskey = () => (
-  <AppLayout>
+  <AppLayout title="Alternative Auth Options">
     <Subject
       isStandalone
       showPasskeySignin

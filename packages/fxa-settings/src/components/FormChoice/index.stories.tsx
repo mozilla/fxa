@@ -19,19 +19,19 @@ export default {
 } as Meta;
 
 export const DefaultLeftAlignedImages = () => (
-  <AppLayout>
+  <AppLayout title="Form Choice">
     <FormChoice {...commonFormChoiceProps} />
   </AppLayout>
 );
 
 export const DefaultWithCms = () => (
-  <AppLayout>
+  <AppLayout title="Form Choice">
     <FormChoice {...commonFormChoicePropsWithCms} />
   </AppLayout>
 );
 
 export const WithBadges = () => (
-  <AppLayout>
+  <AppLayout title="Form Choice">
     <FormChoice
       {...commonFormChoiceProps}
       formChoices={[
@@ -49,7 +49,7 @@ export const WithBadges = () => (
 );
 
 export const TopAlignedImages = () => (
-  <AppLayout>
+  <AppLayout title="Form Choice">
     <FormChoice
       {...commonFormChoiceProps}
       contentAlignVertical="top"
@@ -80,7 +80,7 @@ export const TopAlignedImages = () => (
 );
 
 export const RightAlignedImages = () => (
-  <AppLayout>
+  <AppLayout title="Form Choice">
     <FormChoice imagePosition="end" {...commonFormChoiceProps} />
   </AppLayout>
 );

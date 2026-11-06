@@ -15,7 +15,7 @@ export default {
 } as Meta;
 
 export const Default = () => (
-  <AppLayout>
+  <AppLayout title="Password Info Balloon">
     {/* PasswordInfoBalloon and its associated InputPassword
       must be wrapped in a relative div for accurate balloon positioning */}
     <div className="relative">

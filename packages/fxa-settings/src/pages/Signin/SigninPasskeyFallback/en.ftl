@@ -18,3 +18,7 @@ signin-passkey-fallback-unwrap-failed-heading = Your passkey couldn’t unlock s
 signin-passkey-fallback-unwrap-failed-description = Something went wrong, so you’ll need your password this time.
 # Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
 signin-passkey-fallback-wrap-unusable-link = Learn more
+
+# Browser tab title for the page where the user enters their password after using a passkey to sign in, so they can sync.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-passkey-fallback-page-title = Enter your password to sync

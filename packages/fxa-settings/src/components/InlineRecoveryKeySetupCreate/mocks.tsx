@@ -8,7 +8,7 @@ import InlineRecoveryKeySetupCreate, {
 import AppLayout from '../AppLayout';
 
 export const Subject = (props: Partial<InlineRecoveryKeySetupCreateProps>) => (
-  <AppLayout>
+  <AppLayout title="Create an account recovery key">
     <InlineRecoveryKeySetupCreate
       createRecoveryKeyHandler={() =>
         Promise.resolve({

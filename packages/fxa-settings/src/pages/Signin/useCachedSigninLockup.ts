@@ -27,7 +27,7 @@ export const useCachedSigninLockup = ({
   // same header text, same CMS surface — none that prompt for a password.
   const cachedPageCms = cmsInfo?.SigninCachedPage;
   const signinPageCms = cmsInfo?.SigninPage;
-  const title = cachedPageCms?.pageTitle;
+  const cmsPageTitle = cachedPageCms?.pageTitle;
   // If cachedPageCms does not specify splitLayout, fall back to
   // signinPageCms.splitLayout.
   const splitLayout = cachedPageCms?.splitLayout ?? signinPageCms?.splitLayout;
@@ -39,7 +39,7 @@ export const useCachedSigninLockup = ({
     legalTerms,
     cmsInfo,
     cachedPageCms,
-    title,
+    cmsPageTitle,
     splitLayout,
     additionalAccessibilityInfo,
     localizedBannerError,

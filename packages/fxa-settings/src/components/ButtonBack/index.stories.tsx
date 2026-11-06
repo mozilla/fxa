@@ -32,7 +32,7 @@ const Subject = ({ cmsBackground, description }: SubjectProps) => {
     : undefined;
 
   return (
-    <AppLayout {...{ cmsInfo }}>
+    <AppLayout title="Button Back" {...{ cmsInfo }}>
       <div className="relative flex items-start p-8 min-h-[200px]">
         <ButtonBack {...{ cmsBackground }} />
         <HeadingPrimary>{description}</HeadingPrimary>

@@ -215,7 +215,60 @@ const InlineRecoverySetup = ({
     flowHasPhoneChoice,
   ]);
 
-  return <AppLayout wrapInCard={false}>{steps[currentStep - 1]()}</AppLayout>;
+  const step = steps[currentStep - 1];
+  const stepPageTitles = new Map([
+    [
+      BackupChoice,
+      ftlMsgResolver.getMsg(
+        'inline-recovery-setup-choice-page-title',
+        'Choose a recovery method'
+      ),
+    ],
+    [
+      CodeDownload,
+      ftlMsgResolver.getMsg(
+        'inline-recovery-setup-download-codes-page-title',
+        'Save your backup codes'
+      ),
+    ],
+    [
+      CodeConfirm,
+      ftlMsgResolver.getMsg(
+        'inline-recovery-setup-confirm-code-page-title',
+        'Confirm a backup code'
+      ),
+    ],
+    [
+      RecoveryPhoneSubmit,
+      ftlMsgResolver.getMsg(
+        'inline-recovery-setup-phone-number-page-title',
+        'Add a recovery phone'
+      ),
+    ],
+    [
+      RecoveryPhoneConfirm,
+      ftlMsgResolver.getMsg(
+        'inline-recovery-setup-phone-code-page-title',
+        'Confirm your recovery phone'
+      ),
+    ],
+    [
+      Complete,
+      ftlMsgResolver.getMsg(
+        'inline-recovery-setup-complete-page-title',
+        'Two-step authentication on'
+      ),
+    ],
+  ]);
+
+  return (
+    <AppLayout
+      title={stepPageTitles.get(step) ?? localizedPageTitle}
+      wrapInCard={false}
+    >
+      {step()}
+    </AppLayout>
+  );
 };
 
 export default InlineRecoverySetup;

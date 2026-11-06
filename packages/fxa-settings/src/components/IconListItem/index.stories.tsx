@@ -34,7 +34,7 @@ export const ListItemsOnly = () => (
 );
 
 export const WithAppLayout = () => (
-  <AppLayout>
+  <AppLayout title="Icon List Item">
     <KeyIconListItem>
       Lorem ipsum dolor, sit amet consectetur adipisicing elit. In hic dolore
       ipsum non impedit ab maiores, aspernatur autem molestiae recusandae!

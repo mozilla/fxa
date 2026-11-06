@@ -8,6 +8,7 @@ import AppLayout from '../../../../components/AppLayout';
 import DeviceInfoBlock from '../../../../components/DeviceInfoBlock';
 import { SyncDevicesImage } from '../../../../components/images';
 import { RemoteMetadata } from '../../../../lib/types';
+import { useFtlMsgResolver } from '../../../../models';
 
 export type ApproveSignInProps = {
   /** The signed-in account the pairing request would be granted against. */
@@ -39,63 +40,70 @@ const ApproveSignIn = ({
   remoteMetadata,
   onApprove,
   onChangePassword,
-}: ApproveSignInProps) => (
-  <AppLayout>
-    <div className="text-center">
-      <FtlMsg id="pair2-authority-approve-sign-in-heading">
-        <h1 className="card-header">Approve sign-in?</h1>
-      </FtlMsg>
+}: ApproveSignInProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'pair2-authority-approve-sign-in-page-title',
+    'Approve sign-in'
+  );
+  return (
+    <AppLayout title={localizedPageTitle}>
+      <div className="text-center">
+        <FtlMsg id="pair2-authority-approve-sign-in-heading">
+          <h1 className="card-header">Approve sign-in?</h1>
+        </FtlMsg>
 
-      <p className="mt-1 break-all text-base">{email}</p>
+        <p className="mt-1 break-all text-base">{email}</p>
 
-      <SyncDevicesImage className="mt-8 mb-4 h-[160px] w-auto mx-auto" />
+        <SyncDevicesImage className="mt-8 mb-4 h-[160px] w-auto mx-auto" />
 
-      <DeviceInfoBlock
-        {...{ remoteMetadata }}
-        deviceNameDisplay="inline"
-        className="mt-4 w-full rounded-lg border border-grey-100 px-4 py-3 text-sm text-grey-900 break-word dark:border-grey-500 dark:text-grey-300"
-      />
+        <DeviceInfoBlock
+          {...{ remoteMetadata }}
+          deviceNameDisplay="inline"
+          className="mt-4 w-full rounded-lg border border-grey-100 px-4 py-3 text-sm text-grey-900 break-word dark:border-grey-500 dark:text-grey-300"
+        />
 
-      <FtlMsg id="pair2-authority-approve-sign-in-confirm-button">
-        <button
-          type="button"
-          data-testid="pair2-auth-approve-btn"
-          onClick={onApprove}
-          data-glean-id="dtm_desktop_connect_submit"
-          className="cta-primary cta-xl mt-6 w-full"
+        <FtlMsg id="pair2-authority-approve-sign-in-confirm-button">
+          <button
+            type="button"
+            data-testid="pair2-auth-approve-btn"
+            onClick={onApprove}
+            data-glean-id="dtm_desktop_connect_submit"
+            className="cta-primary cta-xl mt-6 w-full"
+          >
+            Yes, approve sign-in
+          </button>
+        </FtlMsg>
+
+        <FtlMsg
+          id="pair2-authority-approve-sign-in-change-password"
+          elems={{
+            changePassword: (
+              <button
+                type="button"
+                onClick={onChangePassword}
+                data-glean-id="dtm_desktop_connect_change_password"
+                className="text-grey-900 underline dark:text-grey-10"
+              />
+            ),
+          }}
         >
-          Yes, approve sign-in
-        </button>
-      </FtlMsg>
-
-      <FtlMsg
-        id="pair2-authority-approve-sign-in-change-password"
-        elems={{
-          changePassword: (
+          <p className="mt-6 text-xs">
+            Not you?{' '}
+            {/* This can be replaced with a link to account settings to change their password. */}
             <button
               type="button"
               onClick={onChangePassword}
               data-glean-id="dtm_desktop_connect_change_password"
               className="text-grey-900 underline dark:text-grey-10"
-            />
-          ),
-        }}
-      >
-        <p className="mt-6 text-xs">
-          Not you?{' '}
-          {/* This can be replaced with a link to account settings to change their password. */}
-          <button
-            type="button"
-            onClick={onChangePassword}
-            data-glean-id="dtm_desktop_connect_change_password"
-            className="text-grey-900 underline dark:text-grey-10"
-          >
-            Change your password
-          </button>
-        </p>
-      </FtlMsg>
-    </div>
-  </AppLayout>
-);
+            >
+              Change your password
+            </button>
+          </p>
+        </FtlMsg>
+      </div>
+    </AppLayout>
+  );
+};
 
 export default ApproveSignIn;

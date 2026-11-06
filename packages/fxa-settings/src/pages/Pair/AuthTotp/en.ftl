@@ -15,3 +15,7 @@ auth-totp-input-label = Enter 6-digit code
 auth-totp-confirm-button = Confirm
 # Error displayed in a tooltip when the form is submitted without a code
 auth-totp-code-required-error = Authentication code required
+
+# Browser tab title for the page where the user enters a two-step authentication code to continue pairing a device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+auth-totp-page-title = Pair with two-step authentication

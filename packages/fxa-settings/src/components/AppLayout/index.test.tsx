@@ -33,7 +33,7 @@ jest.mock('../../models/hooks', () => ({
 describe('<AppLayout />', () => {
   it('renders as expected with children', async () => {
     renderWithLocalizationProvider(
-      <AppLayout>
+      <AppLayout title="Page title">
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -59,13 +59,13 @@ describe('<AppLayout />', () => {
     );
 
     expect(screen.getByTestId('app')).toBeInTheDocument();
-    expect(document.title).toBe('Test Page Title | Mozilla accounts');
+    expect(document.title).toBe('Test Page Title – Mozilla accounts');
     screen.getByText('Hello, world!');
   });
 
   it('renders with widthClass prop', async () => {
     renderWithLocalizationProvider(
-      <AppLayout widthClass="card-xl">
+      <AppLayout title="Page title" widthClass="card-xl">
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -76,7 +76,7 @@ describe('<AppLayout />', () => {
 
   it('renders the page background white with the whiteBackground prop', async () => {
     renderWithLocalizationProvider(
-      <AppLayout whiteBackground>
+      <AppLayout title="Page title" whiteBackground>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -86,7 +86,7 @@ describe('<AppLayout />', () => {
 
   it('leaves the page background at the default without the whiteBackground prop', async () => {
     renderWithLocalizationProvider(
-      <AppLayout>
+      <AppLayout title="Page title">
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -98,7 +98,7 @@ describe('<AppLayout />', () => {
     window.history.replaceState({}, '', '/pair/supplicant/connect_this_device');
     try {
       renderWithLocalizationProvider(
-        <AppLayout>
+        <AppLayout title="Page title">
           <p>Hello, world!</p>
         </AppLayout>
       );
@@ -114,7 +114,7 @@ describe('<AppLayout />', () => {
 
   it('renders with integration prop and valid background image', async () => {
     renderWithLocalizationProvider(
-      <AppLayout cmsInfo={MOCK_CMS_INFO_VALID_LINEAR_BG}>
+      <AppLayout title="Page title" cmsInfo={MOCK_CMS_INFO_VALID_LINEAR_BG}>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -130,7 +130,7 @@ describe('<AppLayout />', () => {
 
   it('renders with integration prop and radial gradient background', async () => {
     renderWithLocalizationProvider(
-      <AppLayout cmsInfo={MOCK_CMS_INFO_VALID_RADIAL_BG}>
+      <AppLayout title="Page title" cmsInfo={MOCK_CMS_INFO_VALID_RADIAL_BG}>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -146,7 +146,7 @@ describe('<AppLayout />', () => {
 
   it('renders with integration prop but no background image when background is missing', async () => {
     renderWithLocalizationProvider(
-      <AppLayout cmsInfo={MOCK_CMS_INFO_NO_BG}>
+      <AppLayout title="Page title" cmsInfo={MOCK_CMS_INFO_NO_BG}>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -162,7 +162,7 @@ describe('<AppLayout />', () => {
 
   it('renders with integration prop but no background image when getCmsInfo returns undefined', async () => {
     renderWithLocalizationProvider(
-      <AppLayout cmsInfo={undefined}>
+      <AppLayout title="Page title" cmsInfo={undefined}>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -178,7 +178,7 @@ describe('<AppLayout />', () => {
 
   it('renders with integration prop but no background image when getCmsInfo is missing', async () => {
     renderWithLocalizationProvider(
-      <AppLayout cmsInfo={undefined}>
+      <AppLayout title="Page title" cmsInfo={undefined}>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -192,36 +192,33 @@ describe('<AppLayout />', () => {
     });
   });
 
-  it('renders with integration prop and uses title over cms-shared-title when available', async () => {
-    const expectedTitle = 'Custom Title';
+  it('uses the cms-shared-title over the title', async () => {
     renderWithLocalizationProvider(
-      <AppLayout cmsInfo={MOCK_CMS_INFO_WITH_PAGE_TITLE} title={expectedTitle}>
+      <AppLayout cmsInfo={MOCK_CMS_INFO_WITH_PAGE_TITLE} title="Custom Title">
         <p>Hello, world!</p>
       </AppLayout>
     );
 
-    expect(screen.getByTestId('app')).toBeInTheDocument();
-    // explicit check for title. Title is concatenated with
-    // ` | Mozilla accounts` in the `head` component
-    expect(document.title).toBe(`${expectedTitle} | Mozilla accounts`);
-    screen.getByText('Hello, world!');
+    expect(document.title).toBe('CMS Custom Title – Mozilla accounts');
   });
 
-  it('renders with integration prop and uses cms-shared-title when title is not available', async () => {
+  it('uses the cmsPageTitle over the cms-shared-title and the title', async () => {
     renderWithLocalizationProvider(
-      <AppLayout cmsInfo={MOCK_CMS_INFO_WITH_PAGE_TITLE} title={undefined}>
+      <AppLayout
+        cmsInfo={MOCK_CMS_INFO_WITH_PAGE_TITLE}
+        cmsPageTitle="CMS Page Title"
+        title="Custom Title"
+      >
         <p>Hello, world!</p>
       </AppLayout>
     );
 
-    expect(screen.getByTestId('app')).toBeInTheDocument();
-    expect(document.title).toBe('CMS Custom Title | Mozilla accounts');
-    screen.getByText('Hello, world!');
+    expect(document.title).toBe('CMS Page Title – Mozilla accounts');
   });
 
   it('renders CMS header logo when headerLogoUrl is provided', async () => {
     renderWithLocalizationProvider(
-      <AppLayout cmsInfo={MOCK_CMS_INFO_HEADER_LOGO}>
+      <AppLayout title="Page title" cmsInfo={MOCK_CMS_INFO_HEADER_LOGO}>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -234,7 +231,7 @@ describe('<AppLayout />', () => {
 
   it('renders CMS header logo with default alt text when headerLogoAltText is not provided', async () => {
     renderWithLocalizationProvider(
-      <AppLayout cmsInfo={MOCK_CMS_INFO_HEADER_LOGO_NO_ALT}>
+      <AppLayout title="Page title" cmsInfo={MOCK_CMS_INFO_HEADER_LOGO_NO_ALT}>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -246,7 +243,7 @@ describe('<AppLayout />', () => {
 
   it('renders default Mozilla logo when headerLogoUrl is not provided', async () => {
     renderWithLocalizationProvider(
-      <AppLayout cmsInfo={MOCK_CMS_INFO_DEFAULT_LOGO}>
+      <AppLayout title="Page title" cmsInfo={MOCK_CMS_INFO_DEFAULT_LOGO}>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -259,7 +256,7 @@ describe('<AppLayout />', () => {
 
   it('renders default Mozilla logo when integration is not provided', async () => {
     renderWithLocalizationProvider(
-      <AppLayout>
+      <AppLayout title="Page title">
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -271,7 +268,7 @@ describe('<AppLayout />', () => {
 
   it('renders default Mozilla logo when getCmsInfo returns undefined', async () => {
     renderWithLocalizationProvider(
-      <AppLayout cmsInfo={undefined}>
+      <AppLayout title="Page title" cmsInfo={undefined}>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -283,7 +280,7 @@ describe('<AppLayout />', () => {
 
   it('renders default Mozilla logo when getCmsInfo is missing', async () => {
     renderWithLocalizationProvider(
-      <AppLayout cmsInfo={undefined}>
+      <AppLayout title="Page title" cmsInfo={undefined}>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -295,7 +292,10 @@ describe('<AppLayout />', () => {
 
   it('renders CMS header logo when both headerLogoUrl and other CMS properties are provided', async () => {
     renderWithLocalizationProvider(
-      <AppLayout cmsInfo={MOCK_CMS_INFO_HEADER_LOGO_WITH_OTHER_PROPS}>
+      <AppLayout
+        title="Page title"
+        cmsInfo={MOCK_CMS_INFO_HEADER_LOGO_WITH_OTHER_PROPS}
+      >
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -319,7 +319,7 @@ describe('<AppLayout />', () => {
       });
 
       renderWithLocalizationProvider(
-        <AppLayout>
+        <AppLayout title="Page title">
           <p>Hello, world!</p>
         </AppLayout>
       );
@@ -345,7 +345,7 @@ describe('<AppLayout />', () => {
 
     it('shows children when loading is false (default)', () => {
       renderWithLocalizationProvider(
-        <AppLayout>
+        <AppLayout title="Page title">
           <p>This content should be visible</p>
         </AppLayout>
       );
@@ -361,7 +361,7 @@ describe('<AppLayout />', () => {
   describe('snapshots', () => {
     it('renders correctly with CMS', () => {
       const { container } = renderWithLocalizationProvider(
-        <AppLayout cmsInfo={MOCK_CMS_INFO}>
+        <AppLayout title="Page title" cmsInfo={MOCK_CMS_INFO}>
           <p>Hello, world!</p>
         </AppLayout>
       );
@@ -394,7 +394,7 @@ describe('<AppLayout />', () => {
 
     it('renders correctly without CMS', () => {
       const { container } = renderWithLocalizationProvider(
-        <AppLayout>
+        <AppLayout title="Page title">
           <p>Hello, world!</p>
         </AppLayout>
       );
@@ -421,7 +421,11 @@ describe('<AppLayout />', () => {
   describe('splitLayout', () => {
     it('renders split layout when splitLayout is true', () => {
       renderWithLocalizationProvider(
-        <AppLayout splitLayout={true} cmsInfo={MOCK_CMS_INFO_SPLIT_LAYOUT_BG}>
+        <AppLayout
+          title="Page title"
+          splitLayout={true}
+          cmsInfo={MOCK_CMS_INFO_SPLIT_LAYOUT_BG}
+        >
           <p>Split layout content</p>
         </AppLayout>
       );

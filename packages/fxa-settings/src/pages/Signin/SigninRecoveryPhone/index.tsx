@@ -164,10 +164,17 @@ const SigninRecoveryPhone = ({
   const cmsInfo = integration?.getCmsInfo();
   const cmsPage = cmsInfo?.SigninRecoveryPhonePage;
   const splitLayout = cmsPage?.splitLayout;
-  const title = cmsPage?.pageTitle;
+  const cmsPageTitle = cmsPage?.pageTitle;
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'signin-recovery-phone-page-title',
+    'Sign in with recovery phone'
+  );
 
   return (
-    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
+    <AppLayout
+      {...{ cmsInfo, cmsPageTitle, splitLayout, setCurrentSplitLayout }}
+      title={localizedPageTitle}
+    >
       <div className="relative flex items-center">
         <ButtonBack
           cmsBackground={cmsInfo?.shared.backgrounds?.defaultLayout}

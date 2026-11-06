@@ -15,13 +15,13 @@ export default {
 } as Meta;
 
 export const Default = () => (
-  <AppLayout>
+  <AppLayout title="Third Party Auth">
     <Subject />
   </AppLayout>
 );
 
 export const Disabled = () => (
-  <AppLayout>
+  <AppLayout title="Third Party Auth">
     <Subject disabled />
   </AppLayout>
 );
