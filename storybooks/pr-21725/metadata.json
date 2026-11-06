@@ -1,8 +1,8 @@
 {
-  "commit": "ffdd2e3ceabbd6be3a911038e0611c93dff0989e",
+  "commit": "ee17c7163a4cc37cf02f7074e0effbb3e3d841d4",
   "summary": "feat(admin-panel): disable accounts that match a blocklist entry",
-  "description": "Because:\n\n* A new blocklist entry does not affect accounts that already exist.\n\nThis commit:\n\n* Moves the account disable logic into a shared AccountStateService\n* Adds disable-matching routes to the email and domain blocklists\n* Adds a checkbox and a row button to disable matching accounts\n* Shows how many accounts were disabled\n\nCloses FXA-14912",
-  "timestamp": 1793998499000,
+  "description": "Because:\n\n* A new blocklist entry does not affect accounts that already exist.\n\nThis commit:\n\n* Moves the account disable logic into a shared AccountStateService\n* Adds disable-matching routes to the email and domain blocklists\n* Adds a checkbox and a row button to disable matching accounts\n* Matches the current primary email and blocks repeated row clicks\n* Shows how many accounts were disabled\n\nCloses FXA-14912",
+  "timestamp": 1794000292000,
   "storybooks": [
     "fxa-admin-panel"
   ],
