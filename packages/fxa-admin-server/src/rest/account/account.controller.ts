@@ -72,6 +72,8 @@ import {
   AccountDeleteResponse,
   AccountDeleteStatus,
   AccountDeleteTaskStatus,
+  AccountDisableResponse,
+  AccountDisableStatus,
   AccountResetResponse,
   AccountResetStatus,
   Passkey,
@@ -545,6 +547,10 @@ export class AccountController {
   @Post('disable')
   public async disableAccount(@Body('uid') uid: string, @Req() req: Request) {
     this.eventLogging.onEvent(EventNames.DisableLogin);
+    return this.disableAccountByUid(uid, req);
+  }
+
+  private async disableAccountByUid(uid: string, req: Request) {
     const uidBuffer = uuidTransformer.to(uid);
     // Revoke before flagging: a revocation failure then leaves the account
     // enabled and retryable, rather than disabled with live credentials
@@ -824,6 +830,32 @@ export class AccountController {
     return Promise.all(promises);
   }
 
+  /** Finds an account by email or uid; a malformed uid finds nothing. */
+  private async findAccountByLocator(
+    locator: string
+  ): Promise<Account | undefined> {
+    if (/@/.test(locator)) {
+      return this.db.account
+        .query()
+        .select(ACCOUNT_COLUMNS.map((c) => 'accounts.' + c))
+        .innerJoin('emails', 'emails.uid', 'accounts.uid')
+        .where('emails.normalizedEmail', locator.toLocaleLowerCase())
+        .first();
+    }
+
+    let uidBuffer;
+    try {
+      uidBuffer = uuidTransformer.to(locator);
+    } catch (err) {
+      Sentry.captureException(err, { extra: { locator } });
+      return undefined;
+    }
+    return this.db.account
+      .query()
+      .select(ACCOUNT_COLUMNS)
+      .findOne({ uid: uidBuffer });
+  }
+
   @Features(AdminPanelFeature.AccountReset)
   @AuditLog()
   @Post('reset')
@@ -844,32 +876,7 @@ export class AccountController {
     for (const locator of locatorList) {
       this.log.info('resetAccounts', { locator, user });
 
-      let account: Account | undefined;
-      if (/@/.test(locator)) {
-        account = await this.db.account
-          .query()
-          .select(ACCOUNT_COLUMNS.map((c) => 'accounts.' + c))
-          .innerJoin('emails', 'emails.uid', 'accounts.uid')
-          .where('emails.normalizedEmail', locator.toLocaleLowerCase())
-          .first();
-      } else if (/.*/.test(locator)) {
-        const uidBuffer = (() => {
-          try {
-            return uuidTransformer.to(locator);
-          } catch (err) {
-            Sentry.captureException(err, { extra: { locator } });
-          }
-          return null;
-        })();
-
-        if (uidBuffer) {
-          account = await this.db.account
-            .query()
-            .select(ACCOUNT_COLUMNS)
-            .findOne({ uid: uidBuffer });
-        }
-      }
-
+      const account = await this.findAccountByLocator(locator);
       if (!account) {
         status.push({ locator, status: AccountResetStatus.NoAccount });
       } else {
@@ -916,6 +923,47 @@ export class AccountController {
         );
       } catch (err) {
         Sentry.captureException(err);
+      }
+    }
+
+    return status;
+  }
+
+  @Features(AdminPanelFeature.BulkDisableAccounts)
+  @AuditLog()
+  @Post('bulk-disable')
+  public async disableAccounts(
+    @Body('locators') locators: string | string[],
+    @CurrentUser() user: string,
+    @Req() req: Request
+  ) {
+    this.eventLogging.onEvent(EventNames.DisableAccounts);
+
+    const locatorList = Array.isArray(locators) ? locators : [locators];
+    if (locatorList.length > 1000) {
+      throw new BadRequestException('Provide at most 1000 account locators.');
+    }
+
+    const status: AccountDisableResponse[] = [];
+    for (const locator of locatorList) {
+      this.log.info('disableAccounts', { locator, user });
+
+      try {
+        const account = await this.findAccountByLocator(locator);
+        if (!account) {
+          status.push({ locator, status: AccountDisableStatus.NoAccount });
+          continue;
+        }
+        const disabled = await this.disableAccountByUid(account.uid, req);
+        status.push({
+          locator,
+          status: disabled
+            ? AccountDisableStatus.Success
+            : AccountDisableStatus.NoAccount,
+        });
+      } catch (err) {
+        Sentry.captureException(err);
+        status.push({ locator, status: AccountDisableStatus.Failure });
       }
     }
 

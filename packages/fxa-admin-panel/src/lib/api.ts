@@ -13,6 +13,7 @@ import type {
   RotateSecretDto,
   AccountDeleteResponse,
   AccountDeleteTaskStatus,
+  AccountDisableResponse,
   AccountResetResponse,
   EmailBlocklistEntry,
   WafBypassTokenDto,
@@ -195,6 +196,13 @@ export const adminApi = {
     return apiFetch('/api/account/reset', {
       method: 'POST',
       body: JSON.stringify({ locators, notificationEmail }),
+    });
+  },
+
+  disableAccounts(locators: string[]): Promise<AccountDisableResponse[]> {
+    return apiFetch('/api/account/bulk-disable', {
+      method: 'POST',
+      body: JSON.stringify({ locators }),
     });
   },
 

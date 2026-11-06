@@ -64,6 +64,12 @@ describe('support agents', () => {
           AdminPanelGroup.SupportAgentProd
         )
       ).true;
+      expect(
+        prodGuard.allow(
+          AdminPanelFeature.BulkDisableAccounts,
+          AdminPanelGroup.AdminProd
+        )
+      ).true;
 
       expect(
         prodGuard.allow(
@@ -277,6 +283,12 @@ describe('support agents', () => {
         guard.allow(
           AdminPanelFeature.RemovePasskeyWrap,
           AdminPanelGroup.SupportAgentStage
+        )
+      ).false;
+      expect(
+        prodGuard.allow(
+          AdminPanelFeature.BulkDisableAccounts,
+          AdminPanelGroup.SupportAgentProd
         )
       ).false;
     });

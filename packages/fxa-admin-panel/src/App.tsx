@@ -15,6 +15,7 @@ import PageRelyingParties from './components/PageRelyingParties';
 import PageAccountDelete from './components/PageAccountDelete';
 import PageRateLimiting from './components/PageRateLimiting';
 import PageAccountReset from './components/PageAccountReset';
+import PageAccountDisable from './components/PageAccountDisable';
 import PageEmailBlocklist from './components/PageEmailBlocklist';
 import PageWafTokens from './components/PageWafTokens';
 import PageDomainBlocklist from './components/PageDomainBlocklist';
@@ -49,6 +50,15 @@ const App = ({ config }: { config: IClientConfig }) => {
               )}
               {guard.allow(AdminPanelFeature.AccountReset, user.group) && (
                 <Route path="/account-reset" element={<PageAccountReset />} />
+              )}
+              {guard.allow(
+                AdminPanelFeature.BulkDisableAccounts,
+                user.group
+              ) && (
+                <Route
+                  path="/account-disable"
+                  element={<PageAccountDisable />}
+                />
               )}
               {guard.allow(AdminPanelFeature.EmailBlocklist, user.group) && (
                 <Route

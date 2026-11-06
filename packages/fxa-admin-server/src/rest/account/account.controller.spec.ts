@@ -41,7 +41,11 @@ import {
 } from '../../event-logging/event-logging.service';
 import { BasketService } from '../../newsletters/basket.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
-import { AccountDeleteStatus, AccountResetStatus } from '../../types';
+import {
+  AccountDeleteStatus,
+  AccountDisableStatus,
+  AccountResetStatus,
+} from '../../types';
 import { uuidTransformer } from '../../database/transformers';
 import { AccountController } from './account.controller';
 
@@ -521,6 +525,138 @@ describe('AccountController', () => {
       expect(await controller.disableAccount(MOCK_UID, mockRequest)).toBe(
         false
       );
+    });
+  });
+
+  describe('disableAccounts', () => {
+    it('logs the disableAccounts admin-panel event', async () => {
+      await controller.disableAccounts(
+        NO_ACCOUNT_LOCATOR,
+        MOCK_USER,
+        mockRequest
+      );
+      expect(eventLogging.onEvent).toHaveBeenCalledWith(
+        EventNames.DisableAccounts
+      );
+    });
+
+    it('disables an account found by email', async () => {
+      givenAccount(mockAccount);
+      // The email lookup's where() chains; the disable update's where() resolves.
+      accountQuery.where
+        .mockReturnValueOnce(accountQuery)
+        .mockReturnValueOnce(Promise.resolve(1));
+
+      const result = await controller.disableAccounts(
+        [EMAIL_LOCATOR],
+        MOCK_USER,
+        mockRequest
+      );
+
+      expect(accountQuery.innerJoin).toHaveBeenCalledWith(
+        'emails',
+        'emails.uid',
+        'accounts.uid'
+      );
+      expect(db.revokeAccountTokens).toHaveBeenCalledWith(MOCK_UID);
+      expect(accountQuery.update).toHaveBeenCalledWith({
+        disabledAt: expect.any(Number),
+      });
+      expect(result).toEqual([
+        { locator: EMAIL_LOCATOR, status: AccountDisableStatus.Success },
+      ]);
+    });
+
+    it('disables an account found by uid and records the security event', async () => {
+      givenAccount(mockAccount);
+      givenAccountUpdated(1);
+
+      const result = await controller.disableAccounts(
+        [MOCK_UID],
+        MOCK_USER,
+        mockRequest
+      );
+
+      expect(accountQuery.findOne).toHaveBeenCalledWith({
+        uid: uuidTransformer.to(MOCK_UID),
+      });
+      expect(db.revokeAccountTokens).toHaveBeenCalledWith(MOCK_UID);
+      expect(db.securityEvents.create).toHaveBeenCalledWith(
+        expect.objectContaining({ uid: MOCK_UID, name: 'account.disable' })
+      );
+      expect(result).toEqual([
+        { locator: MOCK_UID, status: AccountDisableStatus.Success },
+      ]);
+    });
+
+    it('sends no email to the user', async () => {
+      givenAccount(mockAccount);
+      givenAccountUpdated(1);
+
+      await controller.disableAccounts([MOCK_UID], MOCK_USER, mockRequest);
+
+      expect(emailService.sendPasswordChangeRequired).not.toHaveBeenCalled();
+      expect(emailService.sendPasswordResetNotification).not.toHaveBeenCalled();
+    });
+
+    it('returns NoAccount for a malformed uid without a lookup', async () => {
+      const result = await controller.disableAccounts(
+        ['not-a-uid'],
+        MOCK_USER,
+        mockRequest
+      );
+
+      expect(accountQuery.findOne).not.toHaveBeenCalled();
+      expect(result).toEqual([
+        { locator: 'not-a-uid', status: AccountDisableStatus.NoAccount },
+      ]);
+    });
+
+    it('returns NoAccount for a locator that resolves to no account', async () => {
+      const result = await controller.disableAccounts(
+        [NO_ACCOUNT_LOCATOR],
+        MOCK_USER,
+        mockRequest
+      );
+
+      expect(db.revokeAccountTokens).not.toHaveBeenCalled();
+      expect(result).toEqual([
+        { locator: NO_ACCOUNT_LOCATOR, status: AccountDisableStatus.NoAccount },
+      ]);
+    });
+
+    it('returns Failure for a row whose revocation fails and continues with the next row', async () => {
+      givenAccount(mockAccount);
+      db.revokeAccountTokens
+        .mockRejectedValueOnce(new Error('oauth db down'))
+        .mockResolvedValueOnce(undefined as never);
+      givenAccountUpdated(1);
+
+      const result = await controller.disableAccounts(
+        [MOCK_UID, 'not-a-uid', MOCK_UID],
+        MOCK_USER,
+        mockRequest
+      );
+
+      expect(accountQuery.update).toHaveBeenCalledTimes(1);
+      expect(result).toEqual([
+        { locator: MOCK_UID, status: AccountDisableStatus.Failure },
+        { locator: 'not-a-uid', status: AccountDisableStatus.NoAccount },
+        { locator: MOCK_UID, status: AccountDisableStatus.Success },
+      ]);
+    });
+
+    it('rejects more than 1000 locators', async () => {
+      await expect(
+        controller.disableAccounts(
+          Array(1001).fill(MOCK_UID),
+          MOCK_USER,
+          mockRequest
+        )
+      ).rejects.toThrow(
+        new BadRequestException('Provide at most 1000 account locators.')
+      );
+      expect(db.revokeAccountTokens).not.toHaveBeenCalled();
     });
   });
 

@@ -69,6 +69,21 @@ export const Nav = () => (
             </NavLink>
           </li>
         </Guard>
+        <Guard features={[AdminPanelFeature.BulkDisableAccounts]}>
+          <li>
+            <NavLink
+              to="/account-disable"
+              className={({ isActive }) => getNavLinkClassName(isActive)}
+            >
+              <img
+                className="inline-flex mr-2 w-4"
+                src={accountIcon}
+                alt="account icon"
+              />
+              Account Disable
+            </NavLink>
+          </li>
+        </Guard>
         <Guard features={[AdminPanelFeature.EmailBlocklist]}>
           <li>
             <NavLink
