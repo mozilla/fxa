@@ -1,8 +1,8 @@
 {
-  "commit": "c340379f844f54e4d4a0d98a2ed58d273d4e7040",
-  "summary": "Merge pull request #21715 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-d02603911e683d89669e16bf477d280791524856",
-  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from afd07ca2d000252a0b9dd2b8981c0db6f7f15bc1 to d02603911e683d89669e16bf477d280791524856",
-  "timestamp": 1793972384000,
+  "commit": "1c1993161b8cf4288c5011014ef573ab03e39598",
+  "summary": "Merge pull request #21683 from mozilla/fxa-14910",
+  "description": "feat(admin-panel): add bulk account disable page",
+  "timestamp": 1793978868000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
