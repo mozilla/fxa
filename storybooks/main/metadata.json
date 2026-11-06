@@ -1,8 +1,8 @@
 {
-  "commit": "a910af72b030abb22a233eebd7cb7bf0287b56af",
-  "summary": "Merge pull request #21714 from mozilla/dependabot/npm_and_yarn/storybook-8.6.19",
-  "description": "chore(deps-dev): bump storybook from 8.6.18 to 8.6.19",
-  "timestamp": 1793972361000,
+  "commit": "c340379f844f54e4d4a0d98a2ed58d273d4e7040",
+  "summary": "Merge pull request #21715 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-d02603911e683d89669e16bf477d280791524856",
+  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from afd07ca2d000252a0b9dd2b8981c0db6f7f15bc1 to d02603911e683d89669e16bf477d280791524856",
+  "timestamp": 1793972384000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
