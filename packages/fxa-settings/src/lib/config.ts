@@ -131,6 +131,7 @@ export interface Config {
     passkeyAuthenticationEnabled?: boolean;
     passkeyPasswordlessSyncEnabled?: boolean;
     passwordlessEnabled?: boolean;
+    novaDesignSystem?: boolean;
   };
   darkMode?: {
     enabled?: boolean;
@@ -248,6 +249,7 @@ export function getDefault() {
       showLocaleToggle: false,
       paymentsNextSubscriptionManagement: false,
       passwordlessEnabled: false,
+      novaDesignSystem: false,
     },
     darkMode: {
       enabled: false,

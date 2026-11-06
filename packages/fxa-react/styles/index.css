@@ -6,6 +6,12 @@
   This file gathers all stylesheets in fxa-react, so that they can easily
   be imported in other packages that don't want to import tailwind.css.
 */
+/* Design tokens first so the var(--…) the Tailwind config references resolve.
+ * Acorn's tokens at :root; our flag-off values and flag-on aliases layer on top. */
+/* Direct dist path: postcss-import doesn't resolve the package "exports" map. */
+@import 'acorn-web-components/dist/tokens/tokens.css';
+@import '../../../libs/shared/design-tokens/legacy.css';
+@import '../../../libs/shared/design-tokens/nova-aliases.css';
 @import './animations.css';
 @import './links.css';
 @import './portal.css';
