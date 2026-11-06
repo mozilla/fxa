@@ -1,8 +1,8 @@
 {
-  "commit": "a2c30f14ed89ad27bae1b2a240967ca59d71738e",
+  "commit": "3c9e8fbe8f454d7cb187f6588a0a8c445effbe89",
   "summary": "fix(settings): respect the stored metrics opt-out before sign-in",
-  "description": "Because:\n\n* Signed-out pages turned metrics on, even when the stored account\n  opted out.\n* A switch to another stored account kept the old Glean state.\n\nThis commit:\n\n* Keeps metrics off before sign-in when the stored account opted out.\n* Recomputes the metrics pref when the current account changes.\n* Turns Glean off when the metrics pref becomes false.\n\nCloses FXA-7105",
-  "timestamp": 1793997214000,
+  "description": "Because:\n\n* A signed-out user whose stored account opted out still sent metrics.\n* A same-uid opt-out did not recompute metricsEnabled, and it left the legacy Metrics client on.\n\nThis commit:\n\n* Reads metricsEnabled from the stored account before sign-in.\n* Recomputes it when currentAccountUid or accounts change.\n* Turns off Glean and the legacy Metrics client on an opt-out, only when signed out.\n* Adds App tests for these cases.\n\nCloses FXA-7105",
+  "timestamp": 1793999450000,
   "storybooks": [
     "fxa-settings"
   ],
