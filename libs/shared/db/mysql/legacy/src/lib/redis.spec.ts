@@ -4,16 +4,31 @@
 
 import Redis from 'ioredis';
 import type { StatsD } from 'hot-shots';
+import type { ILogger } from '@fxa/shared/log';
 import { LUA_SCRIPTS } from './lua-scripts';
 import { RedisShared, unpackSessionTokens } from './redis';
 
 jest.mock('ioredis', () =>
   jest.fn().mockImplementation(() => {
+    const tx = { set: jest.fn(), del: jest.fn(), exec: jest.fn() };
+    const pruneClient = {
+      on: jest.fn(),
+      watch: jest.fn(() => Promise.resolve('OK')),
+      unwatch: jest.fn(() => Promise.resolve('OK')),
+      get: jest.fn(),
+      multi: jest.fn(() => tx),
+      quit: jest.fn(() => Promise.resolve('OK')),
+      disconnect: jest.fn(),
+      tx,
+    };
     const redis = {
       on: jest.fn(),
       get: jest.fn(),
       set: jest.fn(),
       del: jest.fn(() => Promise.resolve(1)),
+      quit: jest.fn(() => Promise.resolve('OK')),
+      duplicate: jest.fn(() => pruneClient),
+      pruneClient,
       defineCommand: jest.fn((name: string) => {
         (redis as Record<string, unknown>)[name] = jest.fn();
       }),
@@ -21,6 +36,18 @@ jest.mock('ioredis', () =>
     return redis;
   })
 );
+
+type MockPruneClient = {
+  watch: jest.Mock;
+  unwatch: jest.Mock;
+  get: jest.Mock;
+  multi: jest.Mock;
+  quit: jest.Mock;
+  disconnect: jest.Mock;
+  tx: { set: jest.Mock; del: jest.Mock; exec: jest.Mock };
+};
+const pruneClientOf = (shared: RedisShared) =>
+  (shared.redis as unknown as { pruneClient: MockPruneClient }).pruneClient;
 
 describe('RedisShared', () => {
   beforeEach(() => {
@@ -32,11 +59,14 @@ describe('RedisShared', () => {
 
     expect(Redis).toHaveBeenCalledTimes(1);
     const defineCommand = shared.redis.defineCommand as jest.Mock;
-    expect(defineCommand).toHaveBeenCalledTimes(4);
+    expect(defineCommand).toHaveBeenCalledTimes(3);
+    expect(defineCommand).not.toHaveBeenCalledWith(
+      'pruneSessionTokens',
+      expect.anything()
+    );
     for (const [name, scriptName] of [
       ['getAccessToken', 'getAccessToken_1'],
       ['getAccessTokens', 'getAccessTokens_1'],
-      ['pruneSessionTokens', 'pruneSessionTokens_1'],
       ['touchSessionToken', 'touchSessionToken_1'],
     ]) {
       expect(defineCommand).toHaveBeenCalledWith(name, {
@@ -115,6 +145,209 @@ describe('RedisShared', () => {
           'redis.getSessionTokens.error'
         );
       });
+    });
+  });
+
+  describe('pruneSessionTokens', () => {
+    const blob = JSON.stringify({ t1: [1], t2: [2] });
+    const create = () => {
+      const metrics = { increment: jest.fn() };
+      const log = { error: jest.fn(), warn: jest.fn() };
+      const shared = new RedisShared(
+        { host: 'localhost', port: 6379 },
+        log as unknown as ILogger,
+        metrics as unknown as StatsD
+      );
+      return { shared, client: pruneClientOf(shared), metrics, log };
+    };
+    const settled = (shared: RedisShared) => shared['pruneQueue'];
+
+    it('sets the remaining tokens in a watched transaction', async () => {
+      const { shared, client } = create();
+      client.get.mockResolvedValue(blob);
+      client.tx.exec.mockResolvedValue([[null, 'OK']]);
+
+      shared.pruneSessionTokens('uid', ['t2']);
+      await settled(shared);
+
+      expect(client.watch).toHaveBeenCalledWith('uid');
+      expect(client.tx.set).toHaveBeenCalledWith(
+        'uid',
+        JSON.stringify({ t1: [1] })
+      );
+      expect(client.tx.del).not.toHaveBeenCalled();
+    });
+
+    it('deletes the key when no tokens remain', async () => {
+      const { shared, client } = create();
+      client.get.mockResolvedValue(blob);
+      client.tx.exec.mockResolvedValue([[null, 1]]);
+
+      shared.pruneSessionTokens('uid', ['t1', 't2']);
+      await settled(shared);
+
+      expect(client.tx.del).toHaveBeenCalledWith('uid');
+      expect(client.tx.set).not.toHaveBeenCalled();
+    });
+
+    it('deletes a missing key, as the Lua script did', async () => {
+      const { shared, client } = create();
+      client.get.mockResolvedValue(null);
+      client.tx.exec.mockResolvedValue([[null, 0]]);
+
+      shared.pruneSessionTokens('uid');
+      await settled(shared);
+
+      expect(client.tx.del).toHaveBeenCalledWith('uid');
+    });
+
+    it('deletes an unparseable blob', async () => {
+      const { shared, client } = create();
+      client.get.mockResolvedValue('not json');
+      client.tx.exec.mockResolvedValue([[null, 1]]);
+
+      shared.pruneSessionTokens('uid', ['t1']);
+      await settled(shared);
+
+      expect(client.tx.del).toHaveBeenCalledWith('uid');
+    });
+
+    it('returns before the prune runs', () => {
+      const { shared, client } = create();
+
+      expect(shared.pruneSessionTokens('uid', ['t1'])).toBeUndefined();
+      expect(client.watch).not.toHaveBeenCalled();
+    });
+
+    it('counts a conflict once, without a retry, when another client changes the key after WATCH', async () => {
+      const { shared, client, metrics, log } = create();
+      client.get.mockResolvedValue(blob);
+      client.tx.exec.mockResolvedValue(null);
+
+      shared.pruneSessionTokens('uid', ['t1']);
+      await settled(shared);
+
+      expect(client.tx.exec).toHaveBeenCalledTimes(1);
+      expect(metrics.increment).toHaveBeenCalledWith(
+        'redis.pruneSessionTokens.conflict'
+      );
+      expect(metrics.increment).not.toHaveBeenCalledWith(
+        'redis.pruneSessionTokens.error'
+      );
+      expect(log.warn).toHaveBeenCalledWith('RedisShared', {
+        msg: 'RedisShared: pruneSessionTokens skipped after a concurrent write',
+      });
+    });
+
+    it('counts an error and clears the WATCH when Redis errors', async () => {
+      const { shared, client, metrics, log } = create();
+      const error = new Error('down');
+      client.get.mockRejectedValue(error);
+
+      shared.pruneSessionTokens('uid', ['t1']);
+      await settled(shared);
+
+      expect(client.multi).not.toHaveBeenCalled();
+      expect(client.unwatch).toHaveBeenCalled();
+      expect(metrics.increment).toHaveBeenCalledWith(
+        'redis.pruneSessionTokens.error'
+      );
+      expect(log.error).toHaveBeenCalledWith('RedisShared', {
+        msg: 'RedisShared: pruneSessionTokens failed',
+        error,
+      });
+    });
+
+    it('counts an error when a queued command in the transaction errors', async () => {
+      const { shared, client, metrics } = create();
+      client.get.mockResolvedValue(blob);
+      client.tx.exec.mockResolvedValue([[new Error('OOM'), null]]);
+
+      shared.pruneSessionTokens('uid', ['t1']);
+      await settled(shared);
+
+      expect(metrics.increment).toHaveBeenCalledWith(
+        'redis.pruneSessionTokens.error'
+      );
+    });
+
+    it('runs the next prune after a failed one', async () => {
+      const { shared, client } = create();
+      client.get
+        .mockRejectedValueOnce(new Error('down'))
+        .mockResolvedValue(blob);
+      client.tx.exec.mockResolvedValue([[null, 'OK']]);
+
+      shared.pruneSessionTokens('a', ['t1']);
+      shared.pruneSessionTokens('b', ['t2']);
+      await settled(shared);
+
+      expect(client.tx.set).toHaveBeenCalledWith(
+        'b',
+        JSON.stringify({ t1: [1] })
+      );
+    });
+
+    it('runs one prune at a time on its own connection', async () => {
+      const { shared, client } = create();
+      client.get.mockResolvedValue(blob);
+      client.tx.exec.mockResolvedValue([[null, 'OK']]);
+
+      shared.pruneSessionTokens('a', ['t1']);
+      shared.pruneSessionTokens('b', ['t1']);
+      await settled(shared);
+
+      expect(shared.redis.duplicate).toHaveBeenCalledTimes(1);
+      expect(shared.redis.duplicate).toHaveBeenCalledWith({
+        commandTimeout: 1000,
+      });
+      expect(client.watch.mock.invocationCallOrder[1]).toBeGreaterThan(
+        client.tx.exec.mock.invocationCallOrder[0]
+      );
+    });
+  });
+
+  describe('close', () => {
+    const prune = (shared: RedisShared) => {
+      const client = pruneClientOf(shared);
+      client.get.mockResolvedValue(null);
+      client.tx.exec.mockResolvedValue([[null, 0]]);
+      shared.pruneSessionTokens('uid', ['t1']);
+      return client;
+    };
+
+    it('finishes a queued prune, then quits both connections', async () => {
+      const shared = new RedisShared({ host: 'localhost', port: 6379 });
+      const client = prune(shared);
+
+      await shared.close();
+
+      expect(client.tx.exec.mock.invocationCallOrder[0]).toBeLessThan(
+        client.quit.mock.invocationCallOrder[0]
+      );
+      expect(client.quit).toHaveBeenCalledTimes(1);
+      expect(client.disconnect).not.toHaveBeenCalled();
+      expect(shared.redis.quit).toHaveBeenCalledTimes(1);
+    });
+
+    it('disconnects the prune connection and still quits the main one when the prune quit rejects', async () => {
+      const log = { error: jest.fn() };
+      const shared = new RedisShared(
+        { host: 'localhost', port: 6379 },
+        log as unknown as ILogger
+      );
+      const client = prune(shared);
+      const error = new Error('timeout');
+      client.quit.mockRejectedValue(error);
+
+      await shared.close();
+
+      expect(client.disconnect).toHaveBeenCalledTimes(1);
+      expect(log.error).toHaveBeenCalledWith('RedisShared', {
+        msg: 'RedisShared: prune connection quit failed',
+        error,
+      });
+      expect(shared.redis.quit).toHaveBeenCalledTimes(1);
     });
   });
 
