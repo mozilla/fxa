@@ -1,8 +1,8 @@
 {
-  "commit": "ba387791b4f3679a4725848f5fd7f3c973244ce1",
+  "commit": "661d3c1eee1712ae6997e4e8dd052c9cec6bdea0",
   "summary": "fix(settings): hide the locale and theme footer on pairing pages",
-  "description": "Because:\n\n* The pairing pages are for mobile and must not show the locale and\n  theme footer.\n\nThis commit:\n\n* Adds a hideFooter prop to AppLayout in place of the unused\n  showLocaleToggle prop.\n* Passes hideFooter on every Pair2 and Pair/Unsupported page.\n\nCloses FXA-14954",
-  "timestamp": 1793986661000,
+  "description": "Because:\n\n* The pairing pages are for mobile and must not show the locale and\n  theme footer.\n* Review asked for a rule based on the path, not a prop on each page.\n\nThis commit:\n\n* Hides both AppLayout footers when the path is /pair or /pair/*.\n* Removes the hideFooter prop from AppLayout and the pairing pages.\n* Tests the footer on pairing and other paths.\n\nCloses FXA-14954",
+  "timestamp": 1793991623000,
   "storybooks": [
     "fxa-settings"
   ],

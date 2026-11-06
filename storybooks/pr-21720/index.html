@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit ba387791b4f3679a4725848f5fd7f3c973244ce1</title>
+  <title>Storybooks for commit 661d3c1eee1712ae6997e4e8dd052c9cec6bdea0</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit ba387791b4f3679a4725848f5fd7f3c973244ce1</h1>
+  <h1>Storybooks for commit 661d3c1eee1712ae6997e4e8dd052c9cec6bdea0</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/6/2026, 5:37:41 PM UTC</dd>
+    <dd>11/6/2026, 7:00:23 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): hide the locale and theme footer on pairing pages</pre></dd>
     <dt>Description</dt>
@@ -37,12 +37,13 @@
 
 * The pairing pages are for mobile and must not show the locale and
   theme footer.
+* Review asked for a rule based on the path, not a prop on each page.
 
 This commit:
 
-* Adds a hideFooter prop to AppLayout in place of the unused
-  showLocaleToggle prop.
-* Passes hideFooter on every Pair2 and Pair/Unsupported page.
+* Hides both AppLayout footers when the path is /pair or /pair/*.
+* Removes the hideFooter prop from AppLayout and the pairing pages.
+* Tests the footer on pairing and other paths.
 
 Closes FXA-14954</pre></dd>
   </dl>
