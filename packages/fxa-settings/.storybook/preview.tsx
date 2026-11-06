@@ -50,6 +50,20 @@ export const globalTypes = {
       ],
     },
   },
+  nova: {
+    name: 'Nova',
+    description: 'Nova design-system refresh (sets data-theme="nova")',
+    defaultValue: 'off',
+    toolbar: {
+      icon: 'star',
+      title: 'Nova',
+      items: [
+        { value: 'off', title: 'Off' },
+        { value: 'on', title: 'Nova' },
+      ],
+      dynamicTitle: true,
+    },
+  },
 };
 
 export const decorators: Decorator[] = [
@@ -65,6 +79,13 @@ export const decorators: Decorator[] = [
     useEffect(() => {
       document.documentElement.setAttribute('dir', direction);
     }, [direction]);
+    return <Story />;
+  },
+  (Story, context) => {
+    const nova = context.globals['nova'] === 'on';
+    useEffect(() => {
+      document.documentElement.dataset.theme = nova ? 'nova' : '';
+    }, [nova]);
     return <Story />;
   },
 ];

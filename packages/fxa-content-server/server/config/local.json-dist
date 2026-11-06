@@ -69,7 +69,8 @@
     "passkeyRegistrationEnabled": true,
     "passkeyAuthenticationEnabled": true,
     "passkeyPasswordlessSyncEnabled": true,
-    "passwordlessEnabled": true
+    "passwordlessEnabled": true,
+    "novaDesignSystem": false
   },
   "darkMode": {
     "enabled": true

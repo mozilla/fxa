@@ -104,6 +104,67 @@ describe('settings', () => {
     });
   });
 
+  describe('nova theme flag', () => {
+    const novaHtml =
+      '<html data-theme="__NOVA_THEME__"><meta name="fxa-config" content="__SERVER_CONFIG__" /></html>';
+
+    function load(novaEnabled) {
+      return proxyquire('./settings', {
+        fs: { readFileSync: () => novaHtml },
+        './configuration': {
+          get: (key) =>
+            ({
+              env: 'production',
+              flow_id_key: 'key',
+              'featureFlags.novaDesignSystem': novaEnabled,
+            })[key] || '',
+        },
+        '../../../../dist/libs/shared/l10n': {
+          supportedLanguages: [],
+          rtlLocales: [],
+          '@noCallThru': true,
+        },
+      });
+    }
+
+    function staticHtml(novaEnabled) {
+      const res = mockRes();
+      load(novaEnabled).modifySettingsStatic({ path: '/' }, res);
+      return res.send.args[0][0];
+    }
+
+    function proxyHtml(novaEnabled) {
+      const proxyRes = new EventEmitter();
+      proxyRes.statusCode = 200;
+      proxyRes.headers = { 'content-type': 'text/html' };
+      const res = mockRes();
+      load(novaEnabled).modifyProxyRes(proxyRes, {}, res);
+      proxyRes.emit('data', Buffer.from(novaHtml));
+      proxyRes.emit('end');
+      return res.send.args[0][0].toString();
+    }
+
+    it('modifySettingsStatic sets data-theme="nova" when the flag is on', () => {
+      assert.ok(staticHtml(true).includes('data-theme="nova"'));
+    });
+
+    it('modifySettingsStatic clears the placeholder when the flag is off', () => {
+      const html = staticHtml(false);
+      assert.ok(html.includes('data-theme=""'));
+      assert.ok(!html.includes('__NOVA_THEME__'));
+    });
+
+    it('modifyProxyRes sets data-theme="nova" when the flag is on', () => {
+      assert.ok(proxyHtml(true).includes('data-theme="nova"'));
+    });
+
+    it('modifyProxyRes clears the placeholder when the flag is off', () => {
+      const html = proxyHtml(false);
+      assert.ok(html.includes('data-theme=""'));
+      assert.ok(!html.includes('__NOVA_THEME__'));
+    });
+  });
+
   describe('serveSettingsPage', () => {
     function load({ proxySettings, proxy, readFileSync }) {
       return proxyquire('./settings', {
