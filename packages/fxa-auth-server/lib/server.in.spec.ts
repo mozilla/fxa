@@ -746,6 +746,29 @@ describe('lib/server', () => {
           });
         });
 
+        describe('response validation error on a 500:', () => {
+          beforeEach(async () => {
+            response = { access_token: 'too long' };
+            await instance.inject({
+              method: 'POST',
+              url: '/oauth/token',
+              payload: { grant_type: 'fxa-credentials' },
+            });
+          });
+
+          it('logs the grant type and the failed paths', () => {
+            expect(log.error).toHaveBeenCalledWith(
+              'oauth.token.validationError.debug',
+              {
+                path: '/oauth/token',
+                method: 'post',
+                grantType: 'fxa-credentials',
+                failedPaths: [{ path: 'access_token', type: 'string.max' }],
+              }
+            );
+          });
+        });
+
         describe('authenticated request, session token not expired:', () => {
           beforeEach(async () => {
             response = 'ok';
@@ -1001,6 +1024,18 @@ describe('lib/server', () => {
         {
           path: '/account/create',
           method: 'POST',
+          handler() {
+            return response;
+          },
+        },
+        {
+          path: '/oauth/token',
+          method: 'POST',
+          config: {
+            response: {
+              schema: Joi.object({ access_token: Joi.string().max(4) }),
+            },
+          },
           handler() {
             return response;
           },
