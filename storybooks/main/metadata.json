@@ -1,8 +1,8 @@
 {
-  "commit": "b6b8d5b09a24eda5792be58c48bc37e66885fdec",
-  "summary": "Merge pull request #21720 from mozilla/fxa-14954",
-  "description": "fix(settings): hide the locale and theme footer on pairing pages",
-  "timestamp": 1793994312000,
+  "commit": "ab6c7d09528915989bbf08429206bbd80932ac47",
+  "summary": "Merge pull request #21722 from mozilla/fxa-9553",
+  "description": "chore(deps): drop stale dependabot ignores and unused jest-watch-typeahead",
+  "timestamp": 1794000340000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
