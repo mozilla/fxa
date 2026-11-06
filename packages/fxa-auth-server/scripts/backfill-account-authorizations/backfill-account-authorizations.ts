@@ -8,34 +8,51 @@
  * Walks the refreshTokens table in cursor order and writes one consent row
  * per (uid, scope, service, clientId) tuple for every scope on every token,
  * plus the service's canonical scope when the token lacks it. Each token's
- * `service` column is inferred ONCE from its scopes and clientId (see
- * inferServiceForToken, which mirrors lib/routes/oauth/authorization.js).
- * Every row written for that token carries that same service value, so
+ * `service` is inferred from its scopes and clientId (see
+ * inferServicesForToken, which mirrors lib/routes/oauth/authorization.js).
+ * A token with one service scope has that service on every row, so
  * backfilled rows look identical to organic ones, including the service=''
  * rows that future ToS-rejection logic on /authorization will read for
- * non-browser RPs.
+ * non-browser RPs. An exchange-derived token with several service scopes
+ * gets one row set per consented service (see resolveTargetRows).
  *
  * The upsert never touches deauthorizedAt: a backfill is not a ToS view.
  *
  * Per service notes:
- *   - relay rows are written even though token-exchange currently bypasses
- *     the consent check. Two reasons: (a) the firstAuthorizedTosAt /
+ *   - relay rows are written for tokens whose only service scope is relay
+ *     (the Relay website's own sign-in), even though token-exchange currently
+ *     bypasses the consent check. Two reasons: (a) the firstAuthorizedTosAt /
  *     lastAuthorizedTosAt columns are a per-user ToS-acceptance ledger
  *     independent of how exchange decides today, and (b) the bypass is
  *     explicitly transitional — see EXCHANGE_DECISION.BYPASS in
  *     lib/oauth/db/index.js and the "Remove this path once application-
  *     services ships a 4xx handler" comment in lib/routes/oauth/token.js.
  *     Backfilled rows prevent existing users from being re-prompted when
- *     that bypass is eventually removed.
+ *     that bypass is eventually removed. A relay scope that arrived via the
+ *     exchange (alongside another service scope) gets no row; see below.
  *   - sync rows materialize from mobile only — Firefox Desktop calls /destroy
  *     on its sync refresh token immediately after sign-in, so Desktop sync
  *     tokens aren't present in the scan source.
+ *   - A mobile token that went through the token exchange carries its Sync
+ *     scope plus the exchanged service's scope. It yields a sync row set
+ *     (Sync sign-in is always interactive) and a row for each exchanged
+ *     service whose exchange required consent (vpn); relay is skipped while
+ *     it is in bypassConsentForServices.
+ *   - A Firefox Desktop token carrying the Sync scope plus one other service
+ *     scope resolves to that other service, with no Sync row: the same rule
+ *     runtime applies when recording consent (dropUnconsentedSyncScope).
+ *     Desktop destroys its Sync token after sign-in, so such tokens are
+ *     rare in the scan; the rule is here so the two paths agree if one
+ *     does appear.
  *
  * Prerequisites:
  *   - accountAuthorizations table at the new (clientId, firstAuthorizedTosAt,
  *     lastAuthorizedTosAt) shape.
- *   - oauthServer.exchange.serviceScopes, allowedClientsForService and
- *     serviceForClient populated in config.
+ *   - oauthServer.exchange.serviceScopes, allowedClientsForService,
+ *     serviceForClient and bypassConsentForServices populated in config.
+ *     bypassConsentForServices is read at run time: a service listed there
+ *     gets no rows from exchange-derived (multi-service-scope) tokens, so
+ *     the same token is treated differently once Relay leaves the list.
  *
  * Usage (from packages/fxa-auth-server):
  *
@@ -57,7 +74,9 @@
  *
  * To resume after a crash, pass the `cursor` from the last `backfill.batch`
  * log line as --start-cursor. Re-running from anywhere earlier is also safe:
- * the upsert is idempotent.
+ * the upsert is idempotent, and `rowsAffected` on the batch log (1 per
+ * insert, 2 per firstAuthorizedTosAt moved earlier, 0 per untouched row)
+ * shows how much of a re-run did anything.
  *
  * Execution plan:
  *   1. --dry-run on stage           → verify per-service counts
@@ -73,6 +92,7 @@ import { program } from 'commander';
 import { StatsD } from 'hot-shots';
 import pckg from '../../package.json';
 import type { ConfigType } from '../../config';
+import { dropUnconsentedSyncScope } from '../../lib/oauth/desktop-sync-dau-authorization-bandaid';
 
 export interface ServiceConfig {
   // Inverse map: service scope URL → service name. Drives scope matching.
@@ -87,6 +107,11 @@ export interface ServiceConfig {
   canonicalScopes: Map<string, string>;
   // lowercased clientId hex → service, for tokens with no canonical scope.
   serviceForClient: Map<string, string>;
+  // Services the token exchange grants without consulting consent
+  // (oauthServer.exchange.bypassConsentForServices). On a token carrying
+  // several service scopes, such a scope arrived via that exchange and is
+  // not evidence of consent, so no row is written for it.
+  bypassConsent: Set<string>;
 }
 
 export interface UpsertRow {
@@ -100,10 +125,9 @@ export interface UpsertRow {
 
 export interface ResolveResult {
   rows: UpsertRow[];
-  // The inferred service for this token if its allowlist gate rejected the
-  // clientId, otherwise empty. Length is 0 or 1 — a token has exactly one
-  // inferred service. Used by the caller to emit a security-relevant skip
-  // metric distinct from "no rows produced".
+  // Services inferred for this token whose allowlist gate rejected the
+  // clientId. Used by the caller to emit a security-relevant skip metric
+  // distinct from "no rows produced".
   allowlistDenied: string[];
 }
 
@@ -146,7 +170,8 @@ function humanDuration(ms: number): string {
 function buildServiceConfig(
   serviceScopes: Record<string, string>,
   allowedClientsForService: Record<string, string[]>,
-  serviceForClientInput: Record<string, string> = {}
+  serviceForClientInput: Record<string, string> = {},
+  bypassConsentForServices: string[] = []
 ): ServiceConfig {
   const scopeToService = new Map<string, string>();
   const canonicalScopes = new Map<string, string>();
@@ -177,7 +202,15 @@ function buildServiceConfig(
     }
   }
 
-  return { scopeToService, allowedClients, canonicalScopes, serviceForClient };
+  const bypassConsent = new Set(bypassConsentForServices);
+
+  return {
+    scopeToService,
+    allowedClients,
+    canonicalScopes,
+    serviceForClient,
+    bypassConsent,
+  };
 }
 
 // Per-token service inference. Mirrors the runtime path
@@ -186,50 +219,75 @@ function buildServiceConfig(
 // the refreshToken, so we fall back to runtime's inference branch — if
 // exactly one of the token's scopes is a configured service's scope URL,
 // that's the service. No match falls back to the clientId mapping (runtime's
-// getFallbackServiceForClient); otherwise service=''. Two or more
-// service-scope URLs are ambiguous and resolve to '' (matches runtime's
-// `inferred.length === 1` guard).
-function inferServiceForToken(
+// getFallbackServiceForClient); otherwise service=''.
+//
+// Two or more service-scope URLs on one token come from the token exchange
+// (lib/routes/oauth/token.js unions the subject token's scope with the
+// requested one): a Firefox client signed in to one service and exchanged
+// for others. Each service is returned, minus those in bypassConsent: the
+// exchange granted those without a consent check, so the scope says nothing
+// about consent. If nothing survives, the token yields no rows. Firefox
+// Desktop's extra Sync scope is removed by the caller before this runs (see
+// resolveTargetRows).
+function inferServicesForToken(
   scopes: string[],
   clientHex: string,
-  cfg: Pick<ServiceConfig, 'scopeToService' | 'serviceForClient'>
-): string {
-  const matchedServices = scopes
-    .map((s) => cfg.scopeToService.get(s))
-    .filter((s): s is string => Boolean(s));
-  if (matchedServices.length === 1) {
-    return matchedServices[0];
+  cfg: Pick<
+    ServiceConfig,
+    'scopeToService' | 'serviceForClient' | 'bypassConsent'
+  >
+): string[] {
+  const matched: string[] = [];
+  for (const scope of scopes) {
+    const service = cfg.scopeToService.get(scope);
+    if (service && !matched.includes(service)) {
+      matched.push(service);
+    }
   }
-  if (matchedServices.length > 1) {
-    return '';
+  if (matched.length === 1) {
+    return matched;
   }
-  return cfg.serviceForClient.get(clientHex.toLowerCase()) ?? '';
+  if (matched.length > 1) {
+    return matched.filter((s) => !cfg.bypassConsent.has(s));
+  }
+  return [cfg.serviceForClient.get(clientHex.toLowerCase()) ?? ''];
 }
 
-// Mirrors lib/routes/oauth/authorization.js:recordAuthorizationRows semantics
-// for the backfill side:
-//   - One inferred service per token (see inferServiceForToken), applied as
-//     the `service` column on every row written for that token. This matches
-//     runtime, which derives serviceValue once from URL/scope inference and
-//     then writes each scope with that same serviceValue. A 123done token
-//     with scope='openid profile' lands as two rows with service=''; a VPN
-//     token with scope='<vpn-scope-url> profile' lands as two rows both with
+// Follows lib/routes/oauth/authorization.js:recordAuthorizationRows where a
+// token has one service, and differs for exchange-derived tokens, which
+// runtime never records at all:
+//   - A Firefox Desktop token carrying the Sync scope plus one other service
+//     scope resolves to that other service, as runtime does when recording
+//     consent (dropUnconsentedSyncScope): the Sync scope is dropped first and
+//     the token then has a single service.
+//   - A token with one inferred service (see inferServicesForToken) has that
+//     service on every row written for it. This matches runtime, which
+//     derives serviceValue once from URL/scope inference and then writes each
+//     scope with that same serviceValue. A 123done token with
+//     scope='openid profile' lands as two rows with service=''; a VPN token
+//     with scope='<vpn-scope-url> profile' lands as two rows both with
 //     service='vpn'.
-//   - Allowlist gate is per-token, not per-scope: if the inferred service
-//     has an allowlist and the token's clientId isn't on it, the whole
-//     token is skipped (matches runtime's early-return on
-//     isClientAllowedForService failure). service='' is always unrestricted.
-//   - --service filter is also per-token: tokens whose inferred service !=
-//     filter are dropped wholesale. Under correct runtime mirroring, every
-//     row from a single token carries the same service, so a filter naturally
-//     excludes whole tokens — service='' rows can't appear under --service.
+//   - A token with several service scopes (exchange-derived) gets one row set
+//     per surviving service: that service's scope URL under that service.
+//     Scopes that belong to no service (profile, openid, ...) go under sync
+//     when sync is among them, since the Sync sign-in is where these tokens
+//     start, otherwise under the first service. Scope URLs of bypassed
+//     services are not written at all.
+//   - Allowlist gate is per service: if a service has an allowlist and the
+//     token's clientId isn't on it, that service's rows are skipped and the
+//     service is reported in allowlistDenied. service='' is unrestricted.
+//   - --service filter keeps only that service's rows; a token with none is
+//     dropped before the allowlist gate, so it is not counted as denied. The
+//     same applies when every service scope on a token is bypassed.
 //   - Each row carries the token's own clientId (the new PK includes it,
 //     so different RP clients for the same user/scope produce distinct rows).
 //   - lastAuthorizedTosAt is set to the token's createdAt, NOT to a real ToS
 //     view. For refreshTokens minted via prompt=none the user never saw a
 //     ToS, but we have no separate "last consent" signal to draw from.
-//     Backfilled values are upper bounds on "could have seen ToS by";
-//     organic /authorization writes converge the value forward over time.
+//     Backfilled values are upper bounds on "could have seen ToS by". On an
+//     existing row only firstAuthorizedTosAt can move, and only earlier: an
+//     older live token is evidence of an earlier grant, while a newer one
+//     is not evidence of a later ToS view (see batchUpsert).
 function resolveTargetRows(
   token: {
     userId: Buffer;
@@ -241,55 +299,127 @@ function resolveTargetRows(
   serviceFilter?: string,
   omitScopes?: ReadonlySet<string>
 ): ResolveResult {
-  const scopes = token.scope.split(/\s+/).filter(Boolean);
-  if (scopes.length === 0) {
+  const rawScopes = token.scope.split(/\s+/).filter(Boolean);
+  if (rawScopes.length === 0) {
     return { rows: [], allowlistDenied: [] };
   }
 
   const clientHex = token.clientId.toString('hex');
-  const serviceValue = inferServiceForToken(scopes, clientHex, cfg);
+  const nonSyncServices = [
+    ...new Set(
+      rawScopes
+        .map((s) => cfg.scopeToService.get(s))
+        .filter((svc): svc is string => Boolean(svc) && svc !== 'sync')
+    ),
+  ];
+  const { scopes } = dropUnconsentedSyncScope({
+    scopes: rawScopes,
+    serviceValue: nonSyncServices.length === 1 ? nonSyncServices[0] : '',
+    clientIdHex: clientHex,
+  });
 
-  if (serviceFilter !== undefined && serviceValue !== serviceFilter) {
+  const services = inferServicesForToken(scopes, clientHex, cfg);
+  if (services.length === 0) {
     return { rows: [], allowlistDenied: [] };
   }
+  const matchedServices = new Set(
+    scopes.map((s) => cfg.scopeToService.get(s)).filter(Boolean)
+  );
+  const multiService = matchedServices.size > 1;
+  const primary = services.includes('sync') ? 'sync' : services[0];
 
-  const allowlist = cfg.allowedClients.get(serviceValue);
-  if (allowlist && !allowlist.has(clientHex)) {
-    return { rows: [], allowlistDenied: [serviceValue] };
-  }
+  const scopesFor = (service: string): Set<string> => {
+    if (!multiService) {
+      const all = new Set(scopes);
+      const canonical = cfg.canonicalScopes.get(service);
+      if (canonical) all.add(canonical);
+      return all;
+    }
+    const own = new Set<string>();
+    const canonical = cfg.canonicalScopes.get(service);
+    if (canonical) own.add(canonical);
+    if (service === primary) {
+      for (const s of scopes) {
+        if (!cfg.scopeToService.has(s)) own.add(s);
+      }
+    }
+    return own;
+  };
 
   const tsMs = token.createdAt.getTime();
-  const uniqueScopes = new Set(scopes);
-  const canonical = cfg.canonicalScopes.get(serviceValue);
-  if (canonical) {
-    uniqueScopes.add(canonical);
-  }
   const rows: UpsertRow[] = [];
-  for (const scope of uniqueScopes) {
-    if (omitScopes?.has(scope)) {
+  const allowlistDenied: string[] = [];
+  for (const service of services) {
+    if (serviceFilter !== undefined && service !== serviceFilter) {
       continue;
     }
-    rows.push({
-      uid: token.userId,
-      scope,
-      service: serviceValue,
-      clientId: token.clientId,
-      firstAuthorizedTosAt: tsMs,
-      lastAuthorizedTosAt: tsMs,
-    });
+    const allowlist = cfg.allowedClients.get(service);
+    if (allowlist && !allowlist.has(clientHex)) {
+      allowlistDenied.push(service);
+      continue;
+    }
+    for (const scope of scopesFor(service)) {
+      if (omitScopes?.has(scope)) {
+        continue;
+      }
+      rows.push({
+        uid: token.userId,
+        scope,
+        service,
+        clientId: token.clientId,
+        firstAuthorizedTosAt: tsMs,
+        lastAuthorizedTosAt: tsMs,
+      });
+    }
   }
 
-  return { rows, allowlistDenied: [] };
+  return { rows, allowlistDenied };
 }
 
-// LEAST(firstAuthorizedTosAt) preserves the earliest discovered grant across
-// arbitrary cursor-scan order. GREATEST(lastAuthorizedTosAt) keeps the latest
-// observed timestamp, matching the runtime ingress's GREATEST clause.
-async function batchUpsert(query: Query, rows: UpsertRow[]): Promise<void> {
-  if (rows.length === 0) return;
+// On conflict, only firstAuthorizedTosAt can change, and only when the token
+// is from an earlier second than the row. refreshTokens.createdAt has
+// whole-second precision while the row holds milliseconds, so a token minted
+// in the same second as the row would otherwise look up to 999ms older; the
+// + 999 treats the token as the latest instant in its second for the
+// comparison, and the stored value is the token's own timestamp.
+// lastAuthorizedTosAt is never updated: a token minted after the row is a
+// silent refresh or exchange, not a ToS view. Several tokens in one batch can
+// map to the same key, so those are merged first (earliest first, latest last).
+//
+// Returns MySQL's affected-rows count: 1 per inserted row, 2 per row whose
+// firstAuthorizedTosAt moved, 0 per untouched row. That needs the pool opened
+// without FOUND_ROWS, which otherwise reports 1 for an untouched row too. The
+// count is a lower bound: if the connection drops after MySQL commits but
+// before the OK packet arrives, the retry sees its own rows as untouched.
+async function batchUpsert(query: Query, rows: UpsertRow[]): Promise<number> {
+  if (rows.length === 0) return 0;
 
-  const placeholders = rows.map(() => '(?, ?, ?, ?, ?, ?)').join(', ');
-  const values = rows.flatMap((r) => [
+  const merged = new Map<string, UpsertRow>();
+  for (const r of rows) {
+    const key = JSON.stringify([
+      r.uid.toString('hex'),
+      r.scope,
+      r.service,
+      r.clientId.toString('hex'),
+    ]);
+    const prev = merged.get(key);
+    if (!prev) {
+      merged.set(key, { ...r });
+    } else {
+      prev.firstAuthorizedTosAt = Math.min(
+        prev.firstAuthorizedTosAt,
+        r.firstAuthorizedTosAt
+      );
+      prev.lastAuthorizedTosAt = Math.max(
+        prev.lastAuthorizedTosAt,
+        r.lastAuthorizedTosAt
+      );
+    }
+  }
+  const unique = [...merged.values()];
+
+  const placeholders = unique.map(() => '(?, ?, ?, ?, ?, ?)').join(', ');
+  const values = unique.flatMap((r) => [
     r.uid,
     r.scope,
     r.service,
@@ -298,15 +428,19 @@ async function batchUpsert(query: Query, rows: UpsertRow[]): Promise<void> {
     r.lastAuthorizedTosAt,
   ]);
 
-  await query(
+  const result = await query<{ affectedRows?: number }>(
     `INSERT INTO accountAuthorizations
        (uid, scope, service, clientId, firstAuthorizedTosAt, lastAuthorizedTosAt)
      VALUES ${placeholders}
      ON DUPLICATE KEY UPDATE
-       firstAuthorizedTosAt = LEAST(firstAuthorizedTosAt, VALUES(firstAuthorizedTosAt)),
-       lastAuthorizedTosAt  = GREATEST(lastAuthorizedTosAt, VALUES(lastAuthorizedTosAt))`,
+       firstAuthorizedTosAt = IF(
+         VALUES(firstAuthorizedTosAt) + 999 < firstAuthorizedTosAt,
+         VALUES(firstAuthorizedTosAt),
+         firstAuthorizedTosAt
+       )`,
     values
   );
+  return Number(result?.affectedRows ?? 0);
 }
 
 async function estimateTotalTokens(query: Query): Promise<number> {
@@ -448,6 +582,7 @@ async function run(
     estimatedTokens: estimated,
     services: allServiceNames,
     serviceForClient: Object.fromEntries(cfg.serviceForClient),
+    bypassConsent: [...cfg.bypassConsent],
     serviceFilter: serviceFilter ?? null,
     omitScopes: opts.omitScopes ? [...opts.omitScopes] : [],
     startCursor: opts.startCursor?.toString('hex') ?? null,
@@ -462,6 +597,7 @@ async function run(
   let batchNum = 0;
   let totalTokensProcessed = 0;
   let totalUpsertsAttempted = 0;
+  let totalRowsAffected = 0;
   let totalSkippedNoMatch = 0;
   let totalSkippedAllowlist = 0;
   const countsByService: Record<string, number> = {};
@@ -534,9 +670,12 @@ async function run(
       });
     }
 
+    let batchAffected = 0;
     if (!dryRun && upserts.length > 0) {
       try {
-        await withDbRetry('batchUpsert', () => batchUpsert(query, upserts));
+        batchAffected = await withDbRetry('batchUpsert', () =>
+          batchUpsert(query, upserts)
+        );
       } catch (err) {
         statsd?.increment('account_authz.backfill.upsert_batch_failed');
         log.error('backfill.upsert_batch_failed', {
@@ -549,6 +688,10 @@ async function run(
     }
 
     totalUpsertsAttempted += upserts.length;
+    totalRowsAffected += batchAffected;
+    if (batchAffected > 0) {
+      statsd?.increment('account_authz.backfill.rows_affected', batchAffected);
+    }
     cursor = rows[rows.length - 1].token;
 
     const batchDurationMs = Date.now() - batchStartedMs;
@@ -568,6 +711,7 @@ async function run(
       tokensProcessed: totalTokensProcessed,
       percent,
       upsertsAttempted: totalUpsertsAttempted,
+      rowsAffected: totalRowsAffected,
       skippedNoMatch: totalSkippedNoMatch,
       skippedAllowlist: totalSkippedAllowlist,
       durationMs: batchDurationMs,
@@ -587,6 +731,7 @@ async function run(
   log.info('backfill.complete', {
     tokensScanned: totalTokensProcessed,
     upsertsAttempted: totalUpsertsAttempted,
+    rowsAffected: totalRowsAffected,
     skippedNoMatch: totalSkippedNoMatch,
     skippedAllowlist: totalSkippedAllowlist,
     totalDurationMs,
@@ -605,7 +750,7 @@ async function run(
 
 export {
   buildServiceConfig,
-  inferServiceForToken,
+  inferServicesForToken,
   resolveTargetRows,
   batchUpsert,
   fetchBatch,
@@ -679,6 +824,8 @@ export async function init() {
   const allowedClientsForService: Record<string, string[]> =
     exchangeCfg.allowedClientsForService;
   const serviceForClient: Record<string, string> = exchangeCfg.serviceForClient;
+  const bypassConsentForServices: string[] =
+    exchangeCfg.bypassConsentForServices ?? [];
 
   let cfg: ServiceConfig;
   let startCursor: Buffer | undefined;
@@ -704,7 +851,8 @@ export async function init() {
     cfg = buildServiceConfig(
       serviceScopes,
       allowedClientsForService,
-      serviceForClient
+      serviceForClient,
+      bypassConsentForServices
     );
   } catch (err) {
     log.error('backfill.config_error', { err: errMessage(err) });
@@ -724,6 +872,9 @@ export async function init() {
     database: dbConfig.database || 'fxa_oauth',
     timezone: '+00:00',
     charset: 'UTF8MB4_UNICODE_CI',
+    // Without this, affectedRows counts an untouched duplicate as 1 and
+    // batchUpsert cannot tell writes from no-ops.
+    flags: '-FOUND_ROWS',
   });
 
   pool.on('connection', (conn: mysql.PoolConnection) => {

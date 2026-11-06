@@ -8,7 +8,7 @@ import {
   ServiceConfig,
   UpsertRow,
   buildServiceConfig,
-  inferServiceForToken,
+  inferServicesForToken,
   resolveTargetRows,
   batchUpsert,
   fetchBatch,
@@ -38,7 +38,7 @@ function makeLog() {
   };
 }
 
-function makeQuery(results: any[] = []) {
+function makeQuery(results: any = []) {
   return jest.fn().mockResolvedValue(results);
 }
 
@@ -47,6 +47,7 @@ function defaultCfg(
     scopes?: Record<string, string>;
     allowed?: Record<string, string[]>;
     serviceForClient?: Record<string, string>;
+    bypass?: string[];
   } = {}
 ): ServiceConfig {
   return buildServiceConfig(
@@ -58,7 +59,8 @@ function defaultCfg(
       monitor: MONITOR_SCOPE,
     },
     overrides.allowed ?? { vpn: [VPN_ALLOWED_CLIENT_ID] },
-    overrides.serviceForClient ?? {}
+    overrides.serviceForClient ?? {},
+    overrides.bypass ?? ['relay']
   );
 }
 
@@ -109,64 +111,115 @@ describe('buildServiceConfig', () => {
     ]);
   });
 
+  it('collects bypassConsentForServices into a set', () => {
+    const cfg = defaultCfg({ bypass: ['relay', 'monitor'] });
+    expect([...cfg.bypassConsent].sort()).toEqual(['monitor', 'relay']);
+  });
+
+  it('defaults bypassConsent to empty when not configured', () => {
+    const cfg = buildServiceConfig({ vpn: VPN_SCOPE }, {});
+    expect(cfg.bypassConsent.size).toBe(0);
+  });
+
   it('omits services with no allowlist entry (unrestricted)', () => {
     const cfg = defaultCfg();
     expect(cfg.allowedClients.has('smartwindow')).toBe(false);
   });
 });
 
-describe('inferServiceForToken', () => {
+describe('inferServicesForToken', () => {
   const cfg = defaultCfg();
   const mappedCfg = defaultCfg({
     serviceForClient: { [MONITOR_WEB_CLIENT_ID]: 'monitor' },
   });
 
-  it('returns "" when no scope matches a configured service URL', () => {
+  it('returns [""] when no scope matches a configured service URL', () => {
     expect(
-      inferServiceForToken(['openid', 'profile'], SMART_CLIENT_ID, cfg)
-    ).toBe('');
+      inferServicesForToken(['openid', 'profile'], SMART_CLIENT_ID, cfg)
+    ).toEqual(['']);
   });
 
   it('returns the service when exactly one scope matches a service URL', () => {
     expect(
-      inferServiceForToken([VPN_SCOPE, 'profile'], VPN_ALLOWED_CLIENT_ID, cfg)
-    ).toBe('vpn');
+      inferServicesForToken([VPN_SCOPE, 'profile'], VPN_ALLOWED_CLIENT_ID, cfg)
+    ).toEqual(['vpn']);
   });
 
-  it('returns "" when two scopes match service URLs (ambiguous)', () => {
+  it('returns every matched service when two scopes match service URLs', () => {
     expect(
-      inferServiceForToken(
-        [VPN_SCOPE, SMARTWINDOW_SCOPE],
+      inferServicesForToken(
+        [SYNC_SCOPE, VPN_SCOPE, 'profile'],
         VPN_ALLOWED_CLIENT_ID,
         cfg
       )
-    ).toBe('');
+    ).toEqual(['sync', 'vpn']);
   });
 
-  it('returns "" for an empty scope list', () => {
-    expect(inferServiceForToken([], VPN_ALLOWED_CLIENT_ID, cfg)).toBe('');
+  it('drops a bypass-consent service from a multi-service token', () => {
+    expect(
+      inferServicesForToken(
+        [SYNC_SCOPE, RELAY_SCOPE, 'profile'],
+        VPN_ALLOWED_CLIENT_ID,
+        cfg
+      )
+    ).toEqual(['sync']);
+  });
+
+  it('keeps a bypass-consent service when it is the only service scope', () => {
+    expect(
+      inferServicesForToken(
+        [RELAY_SCOPE, 'profile'],
+        VPN_ALLOWED_CLIENT_ID,
+        cfg
+      )
+    ).toEqual(['relay']);
+  });
+
+  it('returns no services when every matched service is bypass-consent', () => {
+    const allBypass = defaultCfg({ bypass: ['relay', 'vpn'] });
+    expect(
+      inferServicesForToken(
+        [RELAY_SCOPE, VPN_SCOPE],
+        VPN_ALLOWED_CLIENT_ID,
+        allBypass
+      )
+    ).toEqual([]);
+  });
+
+  it('returns each service once when the same service scope repeats', () => {
+    expect(
+      inferServicesForToken(
+        [SYNC_SCOPE, SYNC_SCOPE, VPN_SCOPE],
+        VPN_ALLOWED_CLIENT_ID,
+        cfg
+      )
+    ).toEqual(['sync', 'vpn']);
+  });
+
+  it('returns [""] for an empty scope list', () => {
+    expect(inferServicesForToken([], VPN_ALLOWED_CLIENT_ID, cfg)).toEqual(['']);
   });
 
   it('falls back to the clientId mapping when no scope is canonical', () => {
     expect(
-      inferServiceForToken(['profile'], MONITOR_WEB_CLIENT_ID, mappedCfg)
-    ).toBe('monitor');
+      inferServicesForToken(['profile'], MONITOR_WEB_CLIENT_ID, mappedCfg)
+    ).toEqual(['monitor']);
   });
 
   it('prefers a canonical scope on the token over the clientId mapping', () => {
     expect(
-      inferServiceForToken(
+      inferServicesForToken(
         [VPN_SCOPE, 'profile'],
         MONITOR_WEB_CLIENT_ID,
         mappedCfg
       )
-    ).toBe('vpn');
+    ).toEqual(['vpn']);
   });
 
-  it('returns "" for an unmapped clientId with no canonical scope', () => {
-    expect(inferServiceForToken(['profile'], SMART_CLIENT_ID, mappedCfg)).toBe(
-      ''
-    );
+  it('returns [""] for an unmapped clientId with no canonical scope', () => {
+    expect(
+      inferServicesForToken(['profile'], SMART_CLIENT_ID, mappedCfg)
+    ).toEqual(['']);
   });
 });
 
@@ -181,19 +234,255 @@ describe('resolveTargetRows', () => {
     expect(result.allowlistDenied).toEqual([]);
   });
 
-  it('emits rows with service="" for a token whose scopes match two service URLs (ambiguous)', () => {
-    // Two service-scope URLs is the runtime's "inferred.length !== 1" branch:
-    // serviceValue stays '' and every row inherits service=''. Skipping --service
-    // (no filter) ensures the rows are still emitted, just with service=''.
-    const result = resolveTargetRows(
-      makeToken({
-        scope: `${VPN_SCOPE} ${SMARTWINDOW_SCOPE}`,
-        clientId: Buffer.from(VPN_ALLOWED_CLIENT_ID, 'hex'),
-      }),
-      defaultCfg()
-    );
-    expect(result.rows).toHaveLength(2);
-    expect(result.rows.every((r) => r.service === '')).toBe(true);
+  describe('multi-service (exchange-derived) tokens', () => {
+    // Firefox mobile client on the sync, relay and vpn allowlists, as prod's are.
+    const MOBILE_CLIENT_ID = 'a2270f727f45f648';
+    const mobileCfg = () =>
+      defaultCfg({
+        allowed: {
+          sync: [MOBILE_CLIENT_ID],
+          relay: [MOBILE_CLIENT_ID],
+          vpn: [MOBILE_CLIENT_ID, VPN_ALLOWED_CLIENT_ID],
+        },
+      });
+    const mobileToken = (scope: string) =>
+      makeToken({ scope, clientId: Buffer.from(MOBILE_CLIENT_ID, 'hex') });
+    // Rows compared as 'service:scope'.
+    const keyOf = (r: { service: string; scope: string }) =>
+      `${r.service}:${r.scope}`;
+
+    it('writes sync rows and no relay row for oldsync+relay+profile', () => {
+      const result = resolveTargetRows(
+        mobileToken(`${SYNC_SCOPE} ${RELAY_SCOPE} profile`),
+        mobileCfg()
+      );
+      expect(result.rows.map(keyOf).sort()).toEqual([
+        `sync:${SYNC_SCOPE}`,
+        'sync:profile',
+      ]);
+      expect(result.allowlistDenied).toEqual([]);
+    });
+
+    it('writes sync rows plus a vpn row for oldsync+vpn+profile', () => {
+      const result = resolveTargetRows(
+        mobileToken(`${SYNC_SCOPE} ${VPN_SCOPE} profile`),
+        mobileCfg()
+      );
+      expect(result.rows.map(keyOf).sort()).toEqual([
+        `sync:${SYNC_SCOPE}`,
+        'sync:profile',
+        `vpn:${VPN_SCOPE}`,
+      ]);
+    });
+
+    it('writes sync and vpn rows and skips relay for oldsync+relay+vpn+profile', () => {
+      const result = resolveTargetRows(
+        mobileToken(`${SYNC_SCOPE} ${RELAY_SCOPE} ${VPN_SCOPE} profile`),
+        mobileCfg()
+      );
+      expect(result.rows.map(keyOf).sort()).toEqual([
+        `sync:${SYNC_SCOPE}`,
+        'sync:profile',
+        `vpn:${VPN_SCOPE}`,
+      ]);
+    });
+
+    it('puts non-service scopes under the first service when sync is absent', () => {
+      const result = resolveTargetRows(
+        mobileToken(`${VPN_SCOPE} ${SMARTWINDOW_SCOPE} profile`),
+        defaultCfg({ allowed: {} })
+      );
+      expect(result.rows.map(keyOf).sort()).toEqual([
+        `smartwindow:${SMARTWINDOW_SCOPE}`,
+        `vpn:${VPN_SCOPE}`,
+        'vpn:profile',
+      ]);
+    });
+
+    it('writes relay rows once relay leaves the bypass list', () => {
+      const result = resolveTargetRows(
+        mobileToken(`${SYNC_SCOPE} ${RELAY_SCOPE} profile`),
+        defaultCfg({
+          allowed: { sync: [MOBILE_CLIENT_ID], relay: [MOBILE_CLIENT_ID] },
+          bypass: [],
+        })
+      );
+      expect(result.rows.map(keyOf).sort()).toEqual([
+        `relay:${RELAY_SCOPE}`,
+        `sync:${SYNC_SCOPE}`,
+        'sync:profile',
+      ]);
+    });
+
+    it('applies each service allowlist independently', () => {
+      // Client allowed for sync but not vpn: sync rows written, vpn denied.
+      const result = resolveTargetRows(
+        mobileToken(`${SYNC_SCOPE} ${VPN_SCOPE} profile`),
+        defaultCfg({
+          allowed: { sync: [MOBILE_CLIENT_ID], vpn: [VPN_ALLOWED_CLIENT_ID] },
+        })
+      );
+      expect(result.rows.map(keyOf).sort()).toEqual([
+        `sync:${SYNC_SCOPE}`,
+        'sync:profile',
+      ]);
+      expect(result.allowlistDenied).toEqual(['vpn']);
+    });
+
+    it('reports every denied service when the client is on no allowlist', () => {
+      const result = resolveTargetRows(
+        mobileToken(`${SYNC_SCOPE} ${VPN_SCOPE}`),
+        defaultCfg({
+          allowed: {
+            sync: [VPN_ALLOWED_CLIENT_ID],
+            vpn: [VPN_ALLOWED_CLIENT_ID],
+          },
+        })
+      );
+      expect(result.rows).toEqual([]);
+      expect(result.allowlistDenied).toEqual(['sync', 'vpn']);
+    });
+
+    it('--service sync keeps only the sync row set of a sync+vpn token', () => {
+      const result = resolveTargetRows(
+        mobileToken(`${SYNC_SCOPE} ${VPN_SCOPE} profile`),
+        mobileCfg(),
+        'sync'
+      );
+      expect(result.rows.map(keyOf).sort()).toEqual([
+        `sync:${SYNC_SCOPE}`,
+        'sync:profile',
+      ]);
+    });
+
+    it('--service vpn keeps only the vpn row of a sync+vpn token', () => {
+      const result = resolveTargetRows(
+        mobileToken(`${SYNC_SCOPE} ${VPN_SCOPE} profile`),
+        mobileCfg(),
+        'vpn'
+      );
+      expect(result.rows.map(keyOf)).toEqual([`vpn:${VPN_SCOPE}`]);
+    });
+
+    it('--service relay drops a sync+relay token without counting a denial', () => {
+      const result = resolveTargetRows(
+        mobileToken(`${SYNC_SCOPE} ${RELAY_SCOPE}`),
+        mobileCfg(),
+        'relay'
+      );
+      expect(result.rows).toEqual([]);
+      expect(result.allowlistDenied).toEqual([]);
+    });
+
+    it('honors omitScopes per service', () => {
+      const result = resolveTargetRows(
+        mobileToken(`${SYNC_SCOPE} ${VPN_SCOPE} profile`),
+        mobileCfg(),
+        undefined,
+        new Set(['profile'])
+      );
+      expect(result.rows.map(keyOf).sort()).toEqual([
+        `sync:${SYNC_SCOPE}`,
+        `vpn:${VPN_SCOPE}`,
+      ]);
+    });
+
+    // Desktop may carry the Sync scope alongside another service's scope.
+    // Runtime records consent for the other service only
+    // (dropUnconsentedSyncScope); the backfill applies the same rule.
+    describe('Firefox Desktop tokens carrying the Sync scope', () => {
+      const DESKTOP_CLIENT_ID = '5882386c6d801776';
+      const desktopCfg = () =>
+        defaultCfg({
+          allowed: {
+            sync: [DESKTOP_CLIENT_ID],
+            relay: [DESKTOP_CLIENT_ID],
+            vpn: [DESKTOP_CLIENT_ID],
+          },
+        });
+      const desktopToken = (scope: string) =>
+        makeToken({ scope, clientId: Buffer.from(DESKTOP_CLIENT_ID, 'hex') });
+
+      it('writes relay rows and no sync row for oldsync+relay+profile', () => {
+        const result = resolveTargetRows(
+          desktopToken(`${SYNC_SCOPE} ${RELAY_SCOPE} profile`),
+          desktopCfg()
+        );
+        expect(result.rows.map(keyOf).sort()).toEqual([
+          `relay:${RELAY_SCOPE}`,
+          'relay:profile',
+        ]);
+      });
+
+      it('writes vpn rows and no sync row for oldsync+vpn+profile', () => {
+        const result = resolveTargetRows(
+          desktopToken(`${SYNC_SCOPE} ${VPN_SCOPE} profile`),
+          desktopCfg()
+        );
+        expect(result.rows.map(keyOf).sort()).toEqual([
+          `vpn:${VPN_SCOPE}`,
+          'vpn:profile',
+        ]);
+      });
+
+      it('keeps the sync row set when Sync is the only service scope', () => {
+        const result = resolveTargetRows(
+          desktopToken(`${SYNC_SCOPE} profile`),
+          desktopCfg()
+        );
+        expect(result.rows.map(keyOf).sort()).toEqual([
+          `sync:${SYNC_SCOPE}`,
+          'sync:profile',
+        ]);
+      });
+
+      it('falls back to the per-service split when two non-sync services are present', () => {
+        const result = resolveTargetRows(
+          desktopToken(`${SYNC_SCOPE} ${RELAY_SCOPE} ${VPN_SCOPE} profile`),
+          desktopCfg()
+        );
+        expect(result.rows.map(keyOf).sort()).toEqual([
+          `sync:${SYNC_SCOPE}`,
+          'sync:profile',
+          `vpn:${VPN_SCOPE}`,
+        ]);
+      });
+    });
+
+    it('does not drop the Sync scope for a non-Desktop client', () => {
+      const result = resolveTargetRows(
+        mobileToken(`${SYNC_SCOPE} ${VPN_SCOPE} profile`),
+        mobileCfg()
+      );
+      expect(result.rows.map(keyOf)).toContain(`sync:${SYNC_SCOPE}`);
+    });
+
+    it('writes nothing and reports no denial when every service scope is bypassed', () => {
+      const result = resolveTargetRows(
+        mobileToken(`${RELAY_SCOPE} ${VPN_SCOPE} profile`),
+        defaultCfg({ bypass: ['relay', 'vpn'] })
+      );
+      expect(result.rows).toEqual([]);
+      expect(result.allowlistDenied).toEqual([]);
+    });
+
+    it('stamps every row with the token createdAt and clientId', () => {
+      const createdAt = new Date('2024-02-02T00:00:00Z');
+      const result = resolveTargetRows(
+        makeToken({
+          scope: `${SYNC_SCOPE} ${VPN_SCOPE}`,
+          clientId: Buffer.from(MOBILE_CLIENT_ID, 'hex'),
+          createdAt,
+        }),
+        mobileCfg()
+      );
+      expect(result.rows).toHaveLength(2);
+      for (const row of result.rows) {
+        expect(row.clientId.toString('hex')).toBe(MOBILE_CLIENT_ID);
+        expect(row.firstAuthorizedTosAt).toBe(createdAt.getTime());
+        expect(row.lastAuthorizedTosAt).toBe(createdAt.getTime());
+      }
+    });
   });
 
   it('records all scopes with service="" for a token whose scopes match no service URL', () => {
@@ -549,7 +838,7 @@ describe('batchUpsert', () => {
     expect(query.mock.calls[0][0]).not.toMatch(/deauthorizedAt/);
   });
 
-  it('uses LEAST for firstAuthorizedTosAt and GREATEST for lastAuthorizedTosAt', async () => {
+  it('on conflict only moves firstAuthorizedTosAt earlier, guarded by the whole-second slack', async () => {
     const query = makeQuery();
     await batchUpsert(query, [
       {
@@ -562,8 +851,66 @@ describe('batchUpsert', () => {
       },
     ]);
     const [sql] = query.mock.calls[0];
-    expect(sql).toContain('LEAST(firstAuthorizedTosAt');
-    expect(sql).toContain('GREATEST(lastAuthorizedTosAt');
+    expect(sql).toMatch(
+      /VALUES\(firstAuthorizedTosAt\) \+ 999 < firstAuthorizedTosAt/
+    );
+    expect(sql).not.toMatch(/lastAuthorizedTosAt\s*=/);
+    expect(sql).not.toMatch(/GREATEST/);
+  });
+
+  it('merges duplicate keys within a batch, keeping earliest first and latest last', async () => {
+    const query = makeQuery();
+    await batchUpsert(query, [
+      {
+        uid,
+        scope: VPN_SCOPE,
+        service: 'vpn',
+        clientId,
+        firstAuthorizedTosAt: 3000,
+        lastAuthorizedTosAt: 3000,
+      },
+      {
+        uid,
+        scope: VPN_SCOPE,
+        service: 'vpn',
+        clientId,
+        firstAuthorizedTosAt: 1000,
+        lastAuthorizedTosAt: 1000,
+      },
+    ]);
+    const [sql, values] = query.mock.calls[0];
+    expect((sql.match(/\(\?, \?, \?, \?, \?, \?\)/g) ?? []).length).toBe(1);
+    expect(values).toEqual([uid, VPN_SCOPE, 'vpn', clientId, 1000, 3000]);
+  });
+
+  it('returns the driver affectedRows count', async () => {
+    const query = makeQuery({ affectedRows: 1 });
+    const inserted = await batchUpsert(query, [
+      {
+        uid,
+        scope: VPN_SCOPE,
+        service: 'vpn',
+        clientId,
+        firstAuthorizedTosAt: 1000,
+        lastAuthorizedTosAt: 1000,
+      },
+    ]);
+    expect(inserted).toBe(1);
+  });
+
+  it('returns 0 when the driver reports no affected rows', async () => {
+    const query = makeQuery([]);
+    const inserted = await batchUpsert(query, [
+      {
+        uid,
+        scope: VPN_SCOPE,
+        service: 'vpn',
+        clientId,
+        firstAuthorizedTosAt: 1000,
+        lastAuthorizedTosAt: 1000,
+      },
+    ]);
+    expect(inserted).toBe(0);
   });
 });
 
@@ -649,6 +996,30 @@ describe('run', () => {
     expect(insertCalls).toHaveLength(1);
   });
 
+  it('sums affectedRows into rowsAffected on backfill.batch and backfill.complete', async () => {
+    const log = makeLog();
+    const firstToken = Buffer.alloc(32, 0x01);
+    const secondToken = Buffer.alloc(32, 0x02);
+    const query = jest
+      .fn()
+      .mockResolvedValueOnce([{ TABLE_ROWS: 2 }])
+      .mockResolvedValueOnce([makeToken({ token: firstToken })])
+      .mockResolvedValueOnce({ affectedRows: 2 })
+      .mockResolvedValueOnce([makeToken({ token: secondToken })])
+      .mockResolvedValueOnce({ affectedRows: 1 })
+      .mockResolvedValueOnce([]);
+    await run(query, cfg, log, { ...baseOpts, batchSize: 1 });
+
+    const batchLogs = log.info.mock.calls.filter(
+      ([type]) => type === 'backfill.batch'
+    );
+    expect(batchLogs.map(([, fields]) => fields.rowsAffected)).toEqual([2, 3]);
+    expect(log.info).toHaveBeenCalledWith(
+      'backfill.complete',
+      expect.objectContaining({ rowsAffected: 3 })
+    );
+  });
+
   it('warns when no rows are upserted and dryRun is false', async () => {
     const log = makeLog();
     // Empty scope produces no rows; without --service we'd otherwise emit
@@ -692,6 +1063,43 @@ describe('run', () => {
         countsByService: expect.objectContaining({ vpn: 1 }),
         upsertsAttempted: 1,
       })
+    );
+  });
+
+  it('counts a multi-service token under each service it resolves to', async () => {
+    const log = makeLog();
+    const mobileCfg = defaultCfg({
+      allowed: { sync: [VPN_ALLOWED_CLIENT_ID], vpn: [VPN_ALLOWED_CLIENT_ID] },
+    });
+    const query = jest
+      .fn()
+      .mockResolvedValueOnce([{ TABLE_ROWS: 1 }])
+      .mockResolvedValueOnce([
+        makeToken({
+          scope: `${SYNC_SCOPE} ${RELAY_SCOPE} ${VPN_SCOPE} profile`,
+        }),
+      ])
+      .mockResolvedValueOnce({ affectedRows: 3 });
+    await run(query, mobileCfg, log, baseOpts);
+    expect(log.info).toHaveBeenCalledWith(
+      'backfill.complete',
+      expect.objectContaining({
+        upsertsAttempted: 3,
+        countsByService: expect.objectContaining({ sync: 2, vpn: 1, relay: 0 }),
+      })
+    );
+  });
+
+  it('logs the bypass-consent services in backfill.start', async () => {
+    const log = makeLog();
+    const query = jest
+      .fn()
+      .mockResolvedValueOnce([{ TABLE_ROWS: 0 }])
+      .mockResolvedValueOnce([]);
+    await run(query, cfg, log, baseOpts);
+    expect(log.info).toHaveBeenCalledWith(
+      'backfill.start',
+      expect.objectContaining({ bypassConsent: ['relay'] })
     );
   });
 
