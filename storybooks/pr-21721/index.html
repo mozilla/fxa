@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit deca4bbed6bdaaf472913f07b3e3bbd8a6610f79</title>
+  <title>Storybooks for commit 9b2327c7e413fdbd1eb81005dfd2c9403cbf6777</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,26 +23,26 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit deca4bbed6bdaaf472913f07b3e3bbd8a6610f79</h1>
+  <h1>Storybooks for commit 9b2327c7e413fdbd1eb81005dfd2c9403cbf6777</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/6/2026, 6:37:36 PM UTC</dd>
+    <dd>11/6/2026, 7:05:17 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>perf(shared): replace pruneSessionTokens Lua script with a WATCH transaction</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- The pruneSessionTokens Lua script blocks Redis while it runs.
-- A prune must not drop a token that touchSessionToken writes at the same time.
+
+* The pruneSessionTokens_1 Lua script runs the prune inside Redis.
 
 This commit:
-- Removes the pruneSessionTokens_1 Lua script and its command.
-- Prunes in TypeScript with WATCH, GET, MULTI and EXEC, and retries up to 3 times.
-- Counts the redis.pruneSessionTokens.conflict StatsD metric when it gives up.
-- Runs prunes one at a time on their own duplicate() connection.
-- Deletes an unparseable blob, as getSessionTokens does.
+
+* Replaces the script with a WATCH, MULTI and EXEC prune in TypeScript
+* Runs prunes one at a time on a duplicate Redis connection
+* Retries a conflicted prune up to three times, then rejects
+* Disconnects the prune connection in close() when its quit fails
 
 Closes FXA-14945</pre></dd>
   </dl>
