@@ -905,7 +905,7 @@ nav-security = Diogelwch
 nav-connected-services = Gwasanaethau Cysylltiedig
 nav-data-collection = Casglu a'r Defnydd o Ddata
 nav-paid-subs = Tanysgrifiadau Taledig
-nav-email-comm = Cyfathrebu Trwy E-bost
+nav-email-prefs = Dewisiadau E-bost
 
 ## Page2faChange
 
@@ -2033,20 +2033,6 @@ pair2-supplicant-download-firefox-have-firefox-button = Mae gen i { -brand-firef
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = Dysgu rhagor
 
-## PairConnectHint page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device after scanning the pairing QR code
-## with the phone's camera app instead of with Firefox. They already have
-## Firefox installed, so it tells them how to scan the code again from inside
-## Firefox.
-
-pair2-supplicant-connect-hint-heading-v2 = Gorffen paru yn yr ap
-# <b> emphasises the name of the button the user taps in Firefox
-pair2-supplicant-connect-hint-step-app-menu = Tapiwch <b>ddewislen yr ap</b> yn y bar offer
-# <b> emphasises the name of the menu item the user taps in Firefox
-pair2-supplicant-connect-hint-step-sign-in = Tapiwch <b>mewngofnodi</b>, yna sganio'r cod
-# Opens a Mozilla support article about connecting a device without a QR code
-pair2-supplicant-connect-hint-learn-more-link = Dysgu rhagor
-
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
 ## to open firefox.com/pair on their computer, which is where the QR code they
@@ -2291,6 +2277,8 @@ signin-link-expired-message-2 = Mae'r ddolen a gliciwyd gennych wedi dod i ben n
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Rhowch eich cyfrinair <span>ar gyfer eich cyfrif { -product-mozilla-account }</span>
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = Cychwyn cydweddu
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = Parhau i { $serviceName }

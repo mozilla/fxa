@@ -438,7 +438,6 @@ nav-security = Segirezza
 nav-connected-services = Servetschs connectads
 nav-data-collection = Rimnada ed utilisaziun da datas
 nav-paid-subs = Abunaments che custan
-nav-email-comm = Communicaziun via e-mail
 
 
 tfa-replace-code-error-3 = Igl ha dà in problem cun remplazzar tes codes d'autentificaziun da backup

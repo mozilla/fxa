@@ -732,7 +732,6 @@ nav-security = ਸੁਰੱਖਿਆ
 nav-connected-services = ਕਨੈਕਟ ਹੋਈਆਂ ਸੇਵਾਵਾਂ
 nav-data-collection = ਡਾਟਾ ਇਕੱਤਰਤਾ ਅਤੇ ਵਰਤੋਂ
 nav-paid-subs = ਭੁਗਤਾਨ ਕੀਤੀਆਂ ਮੈਂਬਰੀਆਂ
-nav-email-comm = ਈਮੇਲ ਪੱਤਰ-ਵਿਹਾਰ
 
 ## Page2faChange
 

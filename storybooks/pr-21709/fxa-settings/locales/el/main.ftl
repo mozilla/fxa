@@ -716,7 +716,6 @@ nav-security = Ασφάλεια
 nav-connected-services = Συνδεδεμένες υπηρεσίες
 nav-data-collection = Συλλογή και χρήση δεδομένων
 nav-paid-subs = Συνδρομές επί πληρωμή
-nav-email-comm = Επικοινωνία μέσω email
 
 
 page-2fa-change-title = Τροποποίηση ελέγχου ταυτότητας δύο παραγόντων
@@ -1445,12 +1444,6 @@ pair2-supplicant-download-firefox-opening-button = Άνοιγμα του { -bran
 pair2-supplicant-download-firefox-download-button = Λήψη του { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = Διαθέτω ήδη το { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Μάθετε περισσότερα
-
-
-pair2-supplicant-connect-hint-heading-v2 = Ολοκλήρωση σύζευξης στην εφαρμογή
-pair2-supplicant-connect-hint-step-app-menu = Πατήστε το <b>μενού εφαρμογής</b> στη γραμμή εργαλείων
-pair2-supplicant-connect-hint-step-sign-in = Επιλέξτε <b>Σύνδεση</b> και σαρώστε τον κωδικό
-pair2-supplicant-connect-hint-learn-more-link = Μάθετε περισσότερα
 
 
 pair2-supplicant-ready-to-scan-heading = Για να συνδέσετε μια συσκευή

@@ -184,7 +184,6 @@ nav-security = Jikomal
 nav-connected-services = Taq Samaj Ye'okisäx
 nav-data-collection = Kimolik Tzij chuqa' Okisaxïk
 nav-paid-subs = Rutz'ib'axik rub'i' Paid
-nav-email-comm = Tzijonem pa taqoya'l
 
 ## Avatar change page
 

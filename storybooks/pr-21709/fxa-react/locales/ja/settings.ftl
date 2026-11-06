@@ -694,7 +694,6 @@ nav-security = セキュリティ
 nav-connected-services = 接続済みサービス
 nav-data-collection = データの収集と使用
 nav-paid-subs = 有料サブスクリプション
-nav-email-comm = メールの設定管理
 
 ## Page2faChange
 

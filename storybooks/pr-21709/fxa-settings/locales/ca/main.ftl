@@ -176,7 +176,6 @@ nav-security = Seguretat
 nav-connected-services = Serveis connectats
 nav-data-collection = Ús i recollida de dades
 nav-paid-subs = Subscripcions de pagament
-nav-email-comm = Comunicacions per correu electrònic
 
 
 avatar-page-title =

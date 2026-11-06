@@ -648,7 +648,6 @@ nav-security = Қауіпсіздік
 nav-connected-services = Байланыстырылған қызметтер
 nav-data-collection = Деректерді жинау және қолдану
 nav-paid-subs = Ақылы жазылулар
-nav-email-comm = Эл. пошта хабарландырулары
 
 
 page-2fa-change-title = Екі қадамды аутентификацияны өзгерту
@@ -1377,12 +1376,6 @@ pair2-supplicant-download-firefox-opening-button = { -brand-firefox } ашылу
 pair2-supplicant-download-firefox-download-button = { -brand-firefox } жүктеп алу
 pair2-supplicant-download-firefox-have-firefox-button = Менде { -brand-firefox } бар
 pair2-supplicant-download-firefox-learn-more-link = Көбірек білу
-
-
-pair2-supplicant-connect-hint-heading-v2 = Жұптауды қолданбада аяқтаңыз
-pair2-supplicant-connect-hint-step-app-menu = Саймандар панеліндегі <b>қолданбалар мәзірін</b> шертіңіз
-pair2-supplicant-connect-hint-step-sign-in = <b>Кіру</b> шертіп, кодты сканерлеңіз
-pair2-supplicant-connect-hint-learn-more-link = Көбірек білу
 
 
 pair2-supplicant-ready-to-scan-heading = Құрылғыны байланыстыру үшін

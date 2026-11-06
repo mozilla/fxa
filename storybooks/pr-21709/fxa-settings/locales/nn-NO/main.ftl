@@ -647,7 +647,6 @@ nav-security = Sikkerheit
 nav-connected-services = Tilkopla tenester
 nav-data-collection = Datainnsamling og bruk
 nav-paid-subs = Betalte abonnement
-nav-email-comm = E-postkommunikasjon
 
 
 page-2fa-change-title = Endre tostegs-autentisering
@@ -1371,12 +1370,6 @@ pair2-supplicant-download-firefox-opening-button = Opnar { -brand-firefox }…
 pair2-supplicant-download-firefox-download-button = Last ned { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = Eg har allereie { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Les meir
-
-
-pair2-supplicant-connect-hint-heading-v2 = Fullfør samankoplinga i appen
-pair2-supplicant-connect-hint-step-app-menu = Trykk på <b>appmenyen</b> i verktøylinja
-pair2-supplicant-connect-hint-step-sign-in = Trykk på <b>logg inn</b>, og skann deretter koden
-pair2-supplicant-connect-hint-learn-more-link = Les meir
 
 
 pair2-supplicant-ready-to-scan-heading = For å kople til ei eining

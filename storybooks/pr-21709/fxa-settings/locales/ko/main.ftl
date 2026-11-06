@@ -628,7 +628,6 @@ nav-security = 보안
 nav-connected-services = 연결된 서비스
 nav-data-collection = 데이터 수집 및 사용
 nav-paid-subs = 유료 구독
-nav-email-comm = 이메일 설정 관리
 
 
 page-2fa-change-title = 2단계 인증 변경
@@ -1350,12 +1349,6 @@ pair2-supplicant-download-firefox-opening-button = { -brand-firefox } 실행 중
 pair2-supplicant-download-firefox-download-button = { -brand-firefox } 다운로드
 pair2-supplicant-download-firefox-have-firefox-button = 이미 { -brand-firefox }가 있습니다
 pair2-supplicant-download-firefox-learn-more-link = 더 알아보기
-
-
-pair2-supplicant-connect-hint-heading-v2 = 앱에서 페어링 완료하기
-pair2-supplicant-connect-hint-step-app-menu = 툴바에서 <b>앱 메뉴</b>를 누르세요
-pair2-supplicant-connect-hint-step-sign-in = <b>로그인</b>을 누른 다음 코드를 스캔하세요
-pair2-supplicant-connect-hint-learn-more-link = 더 알아보기
 
 
 pair2-supplicant-ready-to-scan-heading = 기기를 연결하려면

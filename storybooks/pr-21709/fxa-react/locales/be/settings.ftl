@@ -492,7 +492,6 @@ nav-security = Бяспека
 nav-connected-services = Падключаныя паслугі
 nav-data-collection = Збор і выкарыстанне звестак
 nav-paid-subs = Платныя падпіскі
-nav-email-comm = Зносіны па электроннай пошце
 
 ## Two Step Authentication - replace backup authentication code
 

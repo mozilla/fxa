@@ -889,7 +889,6 @@ nav-security = Қауіпсіздік
 nav-connected-services = Байланыстырылған қызметтер
 nav-data-collection = Деректерді жинау және қолдану
 nav-paid-subs = Ақылы жазылулар
-nav-email-comm = Эл. пошта хабарландырулары
 
 ## Page2faChange
 
@@ -2011,20 +2010,6 @@ pair2-supplicant-download-firefox-download-button = { -brand-firefox } жүкт�
 pair2-supplicant-download-firefox-have-firefox-button = Менде { -brand-firefox } бар
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = Көбірек білу
-
-## PairConnectHint page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device after scanning the pairing QR code
-## with the phone's camera app instead of with Firefox. They already have
-## Firefox installed, so it tells them how to scan the code again from inside
-## Firefox.
-
-pair2-supplicant-connect-hint-heading-v2 = Жұптауды қолданбада аяқтаңыз
-# <b> emphasises the name of the button the user taps in Firefox
-pair2-supplicant-connect-hint-step-app-menu = Саймандар панеліндегі <b>қолданбалар мәзірін</b> шертіңіз
-# <b> emphasises the name of the menu item the user taps in Firefox
-pair2-supplicant-connect-hint-step-sign-in = <b>Кіру</b> шертіп, кодты сканерлеңіз
-# Opens a Mozilla support article about connecting a device without a QR code
-pair2-supplicant-connect-hint-learn-more-link = Көбірек білу
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them

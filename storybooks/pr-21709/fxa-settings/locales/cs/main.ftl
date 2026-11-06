@@ -939,7 +939,7 @@ nav-security = Zabezpečení
 nav-connected-services = Propojené služby
 nav-data-collection = Sběr dat a jejich použití
 nav-paid-subs = Předplatné
-nav-email-comm = E-mailová sdělení
+nav-email-prefs = Předvolby e-mailu
 
 
 page-2fa-change-title = Změnit dvoufázové ověřování
@@ -1667,12 +1667,6 @@ pair2-supplicant-download-firefox-have-firefox-button = Již mám { -brand-firef
 pair2-supplicant-download-firefox-learn-more-link = Zjistit více
 
 
-pair2-supplicant-connect-hint-heading-v2 = Dokončete párování v aplikaci
-pair2-supplicant-connect-hint-step-app-menu = Na liště klepněte na <b>nabídku aplikace</b>
-pair2-supplicant-connect-hint-step-sign-in = Klepněte na <b>Přihlásit se</b>, a poté naskenujte kód
-pair2-supplicant-connect-hint-learn-more-link = Zjistit více
-
-
 pair2-supplicant-ready-to-scan-heading = Pro připojení zařízení
 pair2-supplicant-ready-to-scan-instruction = Na počítači otevřete { -brand-firefox(case: "acc") }, přejděte na <b>firefox.com/pair</b> a podle pokynů na obrazovce připojte toto mobilní zařízení.
 pair2-supplicant-ready-to-scan-learn-more-link = Zjistit více
@@ -1819,6 +1813,7 @@ signin-link-expired-message-2 = Odkaz, na který jste klepli, vypršel nebo byl 
 
 
 signin-password-needed-header-2 = Zadejte své heslo <span>k účtu { -product-mozilla-account }</span>
+signin-button-start-syncing = Spustit synchronizaci
 signin-subheader-without-logo-with-servicename = Pokračovat do služby { $serviceName }
 signin-subheader-without-logo-default = Pokračujte do nastavení účtu
 signin-button = Přihlásit se

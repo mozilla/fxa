@@ -401,6 +401,20 @@ locale-toggle-browser-default = Browserstandert
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Unjildige oanfraach
 
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+pair-unsupported-hint-heading = Foltôgje it keppeljen yn de app
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = Dizze side slute
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Tik op it <b>app-menu</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>Oanmelde</b> en scan de koade
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = Mear ynfo
+
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
 
@@ -1703,6 +1717,13 @@ inline-totp-setup-code-required-error = Autentikaasjekoade fereaske
 tfa-qr-code-alt = Brûk de koade { $code } om autentikaasje yn twa stappen yn stipe tapassingen yn te skeakeljen.
 inline-totp-setup-page-title = Autentikaasje yn twa stappen
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Side net fûn
+page-not-found-description = De opfrege side is net fûn. Wy binne op de hichte en sille keppelingen dy’t mooglik net wurkje werom bringe.
+page-not-found-home-button = Startside
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Hawwe jo jo krekt oanmeld by { -brand-firefox }?
@@ -2297,6 +2318,16 @@ signin-passkey-fallback-body = Om jo gegevens feilich te hâlden, moatte jo jo w
 signin-passkey-fallback-password-label = Wachtwurd
 signin-passkey-fallback-continue = Trochgean
 signin-passkey-fallback-forgot-password-link = Wachtwurd ferjitten?
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = Wachtwurd fereaske op dit apparaat
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
+signin-passkey-fallback-no-prf-description = Dizze browser of dit apparaat kin jo wachtwurdkaai net brûke om selsstannich oan te melden foar syngronisaasje.
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
+signin-passkey-fallback-unwrap-failed-heading = Jo wachtwurdkaai kin de syngronisaasje net ûntskoattelje
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = Der gie wat mis, dus jo hawwe diskear jo wachtwurd nedich.
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = Mear ynfo
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.

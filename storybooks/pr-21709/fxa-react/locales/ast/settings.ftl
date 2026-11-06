@@ -60,7 +60,6 @@ nav-settings = Configuración
 nav-profile = Perfil
 nav-security = Seguranza
 nav-connected-services = Servicios conectaos
-nav-email-comm = Comunicaciones per corréu
 
 ## Avatar change page
 

@@ -806,7 +806,6 @@ nav-security = 账户安全
 nav-connected-services = 关联服务
 nav-data-collection = 数据收集与使用
 nav-paid-subs = 付费订阅
-nav-email-comm = 新闻通讯
 
 ## Page2faChange
 

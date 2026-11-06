@@ -885,7 +885,7 @@ nav-security = Segurança
 nav-connected-services = Serviços associados
 nav-data-collection = Recolha e utilização de dados
 nav-paid-subs = Subscrições pagas
-nav-email-comm = Comunicações por e-mail
+nav-email-prefs = Preferências de E-mail
 
 ## Page2faChange
 
@@ -2009,20 +2009,6 @@ pair2-supplicant-download-firefox-have-firefox-button = Eu já tenho o { -brand-
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = Saber mais
 
-## PairConnectHint page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device after scanning the pairing QR code
-## with the phone's camera app instead of with Firefox. They already have
-## Firefox installed, so it tells them how to scan the code again from inside
-## Firefox.
-
-pair2-supplicant-connect-hint-heading-v2 = Concluir emparelhamento na aplicação
-# <b> emphasises the name of the button the user taps in Firefox
-pair2-supplicant-connect-hint-step-app-menu = Toque no <b>menu da aplicação</b> na barra de ferramentas
-# <b> emphasises the name of the menu item the user taps in Firefox
-pair2-supplicant-connect-hint-step-sign-in = Toque em <b>iniciar sessão</b>, depois digitalize o código
-# Opens a Mozilla support article about connecting a device without a QR code
-pair2-supplicant-connect-hint-learn-more-link = Saber mais
-
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
 ## to open firefox.com/pair on their computer, which is where the QR code they
@@ -2263,6 +2249,8 @@ signin-link-expired-message-2 = A ligação que clicou expirou ou já foi utiliz
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Insira a sua palavra-passe <span>para a sua { -product-mozilla-account }</span>
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = Iniciar sincronização
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = Continuar para { $serviceName }

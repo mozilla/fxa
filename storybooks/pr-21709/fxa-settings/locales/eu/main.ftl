@@ -656,7 +656,7 @@ nav-security = Segurtasuna
 nav-connected-services = Konektatutako zerbitzuak
 nav-data-collection = Datuen bilketa eta erabilera
 nav-paid-subs = Ordainpeko harpidetzak
-nav-email-comm = Posta bidezko komunikazioak
+nav-email-prefs = Posta-hobespenak
 
 
 page-2fa-change-title = Aldatu bi urratseko autentifikazioa
@@ -1386,12 +1386,6 @@ pair2-supplicant-download-firefox-have-firefox-button = Dagoeneko badut { -brand
 pair2-supplicant-download-firefox-learn-more-link = Argibide gehiago
 
 
-pair2-supplicant-connect-hint-heading-v2 = Bukatu parekatze-prozesua aplikazioan
-pair2-supplicant-connect-hint-step-app-menu = Sakatu <b>aplikazio-menua</b> tresna-barran
-pair2-supplicant-connect-hint-step-sign-in = Sakatu <b>hasi saioa</b>, gero eskaneatu kodea
-pair2-supplicant-connect-hint-learn-more-link = Argibide gehiago
-
-
 pair2-supplicant-ready-to-scan-heading = Gailu bat konektatzeko
 pair2-supplicant-ready-to-scan-instruction = Zure ordenagailuan, ireki { -brand-firefox }, zoaz <b>firefox.com/pair</b> helbidera, eta jarraitu gailu mugikor hau konektatzeko pantailako argibideak.
 pair2-supplicant-ready-to-scan-learn-more-link = Argibide gehiago
@@ -1540,6 +1534,7 @@ signin-link-expired-message-2 = Sakatu duzun esteka iraungi egin da edo dagoenek
 
 
 signin-password-needed-header-2 = Sartu <span>zure { -product-mozilla-account }</span> pasahitza
+signin-button-start-syncing = Hasi sinkronizatzen
 signin-subheader-without-logo-with-servicename = Jarraitu { $serviceName } zerbitzura
 signin-subheader-without-logo-default = Jarraitu kontu-ezarpenekin
 signin-button = Hasi saioa

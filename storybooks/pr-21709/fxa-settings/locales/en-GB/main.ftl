@@ -646,7 +646,7 @@ nav-security = Security
 nav-connected-services = Connected Services
 nav-data-collection = Data Collection and Use
 nav-paid-subs = Paid Subscriptions
-nav-email-comm = Email Communications
+nav-email-prefs = Email Preferences
 
 
 page-2fa-change-title = Change two-step authentication
@@ -1377,12 +1377,6 @@ pair2-supplicant-download-firefox-have-firefox-button = I already have { -brand-
 pair2-supplicant-download-firefox-learn-more-link = Learn more
 
 
-pair2-supplicant-connect-hint-heading-v2 = Finish pairing in the app
-pair2-supplicant-connect-hint-step-app-menu = Tap the <b>app menu</b> in the toolbar
-pair2-supplicant-connect-hint-step-sign-in = Tap <b>sign in</b>, then scan the code
-pair2-supplicant-connect-hint-learn-more-link = Learn more
-
-
 pair2-supplicant-ready-to-scan-heading = To connect a device
 pair2-supplicant-ready-to-scan-instruction = On your computer, open { -brand-firefox } and go to <b>firefox.com/pair</b>, and follow on screen instructions to connect this mobile device.
 pair2-supplicant-ready-to-scan-learn-more-link = Learn more
@@ -1531,6 +1525,7 @@ signin-link-expired-message-2 = The link you clicked has expired or has already 
 
 
 signin-password-needed-header-2 = Enter your password <span>for your { -product-mozilla-account }</span>
+signin-button-start-syncing = Start synchronising
 signin-subheader-without-logo-with-servicename = Continue to { $serviceName }
 signin-subheader-without-logo-default = Continue to account settings
 signin-button = Sign in

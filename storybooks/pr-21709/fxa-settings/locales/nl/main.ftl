@@ -646,7 +646,7 @@ nav-security = Beveiliging
 nav-connected-services = Verbonden services
 nav-data-collection = Gegevensverzameling en -gebruik
 nav-paid-subs = Betaalde abonnementen
-nav-email-comm = E-mailcommunicatie
+nav-email-prefs = E-mailvoorkeuren
 
 
 page-2fa-change-title = Authenticatie in twee stappen wijzigen
@@ -1378,12 +1378,6 @@ pair2-supplicant-download-firefox-have-firefox-button = Ik heb { -brand-firefox 
 pair2-supplicant-download-firefox-learn-more-link = Meer info
 
 
-pair2-supplicant-connect-hint-heading-v2 = Rond het koppelen af in de app
-pair2-supplicant-connect-hint-step-app-menu = Tik op het <b>app-menu</b> in de werkbalk
-pair2-supplicant-connect-hint-step-sign-in = Tik op <b>aanmelden</b> en scan de code
-pair2-supplicant-connect-hint-learn-more-link = Meer info
-
-
 pair2-supplicant-ready-to-scan-heading = Een apparaat verbinden
 pair2-supplicant-ready-to-scan-instruction = Open { -brand-firefox } op uw computer, bezoek <b>firefox.com/pair</b> en volg de instructies op het scherm om dit mobiele apparaat te verbinden.
 pair2-supplicant-ready-to-scan-learn-more-link = Meer info
@@ -1529,6 +1523,7 @@ signin-link-expired-message-2 = De koppeling waarop u hebt geklikt is verlopen o
 
 
 signin-password-needed-header-2 = Voer uw wachtwoord in <span>voor uw { -product-mozilla-account }</span>
+signin-button-start-syncing = Beginnen met synchroniseren
 signin-subheader-without-logo-with-servicename = Doorgaan naar { $serviceName }
 signin-subheader-without-logo-default = Doorgaan naar accountinstellingen
 signin-button = Aanmelden
