@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { StartCartDTOFactory } from '@fxa/payments/cart/testing';
@@ -49,11 +50,16 @@ jest.mock('@fxa/payments/ui/server', () => ({
   ),
 }));
 
+const mockConfig = {
+  paymentsNextHostedUrl: 'https://payments.example.com',
+  paypal: { clientId: 'paypal-client-id' },
+  featureFlagPasskeySignin: false,
+};
+
 jest.mock('apps/payments/next/config', () => ({
   __esModule: true,
-  config: {
-    paymentsNextHostedUrl: 'https://payments.example.com',
-    paypal: { clientId: 'paypal-client-id' },
+  get config() {
+    return mockConfig;
   },
 }));
 
@@ -87,18 +93,18 @@ jest.mock('@fxa/payments/ui', () => ({
   buildRedirectUrl: jest
     .fn()
     .mockReturnValue('https://payments.example.com/redirect'),
-  BaseButton: ({
+  AuthOptionButton: ({
     children,
-    ...props
+    leadingIcon,
   }: {
     children: React.ReactNode;
-    [key: string]: unknown;
+    leadingIcon: React.ReactNode;
   }) => (
-    <button {...(props as React.ButtonHTMLAttributes<HTMLButtonElement>)}>
+    <button type="submit">
+      {leadingIcon}
       {children}
     </button>
   ),
-  ButtonVariant: { ThirdParty: 'third-party' },
   PaymentSection: (props: Record<string, unknown>) => {
     mockPaymentSection(props);
     return <div data-testid="payment-section" />;
@@ -115,14 +121,19 @@ jest.mock('clsx', () => ({
   default: (...args: unknown[]) => args.filter(Boolean).join(' '),
 }));
 
-jest.mock('@fxa/shared/assets/images/apple-logo.svg', () => 'apple-logo.svg', {
-  virtual: true,
-});
 jest.mock(
-  '@fxa/shared/assets/images/google-logo.svg',
-  () => 'google-logo.svg',
+  '@fxa/shared/assets/images/apple-logo-cropped-black.svg',
+  () => 'apple-logo-cropped-black.svg',
   { virtual: true }
 );
+jest.mock(
+  '@fxa/shared/assets/images/google-logo-viewbox.svg',
+  () => 'google-logo-viewbox.svg',
+  { virtual: true }
+);
+jest.mock('@fxa/shared/assets/images/passkey.svg', () => 'passkey.svg', {
+  virtual: true,
+});
 
 const MOCK_USER_ID = 'user-123';
 const MOCK_USER_EMAIL = 'user@example.com';
@@ -188,6 +199,7 @@ describe('Checkout start page', () => {
     mockGetCartOrRedirectAction.mockResolvedValue(baseCart);
     mockAuth.mockResolvedValue(baseSession);
     mockGetL10n.mockReturnValue(mockL10n);
+    mockConfig.featureFlagPasskeySignin = false;
   });
 
   it('redirects when cart uid does not match session uid', async () => {
@@ -216,6 +228,104 @@ describe('Checkout start page', () => {
     expect(
       screen.getByRole('button', { name: /Continue with Apple/i })
     ).toBeInTheDocument();
+  });
+
+  describe('sign-in options', () => {
+    beforeEach(() => {
+      mockGetCartOrRedirectAction.mockResolvedValue({
+        ...baseCart,
+        uid: null,
+      });
+      mockAuth.mockResolvedValue(null);
+    });
+
+    // Server actions can't be submitted through jsdom, so call the action of
+    // the <form> wrapping the sign-in option with the given label.
+    async function submitSignInOption(label: string) {
+      const jsx = await Checkout({
+        params: defaultParams as any,
+        searchParams: defaultSearchParams as any,
+      });
+      const action = findFormAction(jsx, label);
+      expect(action).toBeDefined();
+      await action?.();
+    }
+
+    function findFormAction(
+      node: React.ReactNode,
+      label: string
+    ): (() => Promise<void>) | undefined {
+      if (Array.isArray(node)) {
+        for (const child of node) {
+          const action = findFormAction(child, label);
+          if (action) return action;
+        }
+        return undefined;
+      }
+      if (!React.isValidElement(node)) return undefined;
+      const props = node.props as {
+        action?: () => Promise<void>;
+        children?: React.ReactNode;
+      };
+      if (node.type === 'form' && React.isValidElement(props.children)) {
+        const buttonLabel = (props.children.props as { children?: unknown })
+          .children;
+        if (buttonLabel === label) return props.action;
+      }
+      return findFormAction(props.children, label);
+    }
+
+    it('hides the passkey button when the passkey flag is off', async () => {
+      await renderPage();
+
+      expect(
+        screen.queryByRole('button', { name: /Sign in with passkey/i })
+      ).not.toBeInTheDocument();
+    });
+
+    it('shows the passkey button above Google and Apple when the passkey flag is on', async () => {
+      mockConfig.featureFlagPasskeySignin = true;
+
+      await renderPage();
+
+      const buttonNames = screen
+        .getAllByRole('button')
+        .map((button) => button.textContent);
+      expect(buttonNames).toEqual([
+        'Sign in with passkey',
+        'Continue with Google',
+        'Continue with Apple',
+      ]);
+    });
+
+    it('sends passkey sign-in to the accounts login page without a deeplink', async () => {
+      mockConfig.featureFlagPasskeySignin = true;
+      await submitSignInOption('Sign in with passkey');
+
+      expect(mockSignIn).toHaveBeenCalledWith('fxa', {
+        redirectTo: 'https://payments.example.com/redirect',
+      });
+    });
+
+    it('sends Google sign-in with the googleLogin deeplink', async () => {
+      await submitSignInOption('Continue with Google');
+
+      expect(mockSignIn).toHaveBeenCalledWith(
+        'fxa',
+        { redirectTo: 'https://payments.example.com/redirect' },
+        { deeplink: 'googleLogin' }
+      );
+    });
+
+    it('sends Apple sign-in with the appleLogin deeplink', async () => {
+      await submitSignInOption('Continue with Apple');
+
+      expect(mockSignIn).toHaveBeenCalledWith(
+        'fxa',
+        { redirectTo: 'https://payments.example.com/redirect' },
+        { deeplink: 'appleLogin' }
+      );
+    });
   });
 
   it('shows "Choose your payment method" heading when authenticated', async () => {

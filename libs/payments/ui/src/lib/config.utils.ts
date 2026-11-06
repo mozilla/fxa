@@ -3,10 +3,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import set from 'set-value';
-import { plainToInstance, ClassConstructor } from 'class-transformer';
+import {
+  plainToInstance,
+  ClassConstructor,
+  TransformFnParams,
+} from 'class-transformer';
 import { validateSync } from 'class-validator';
 
 const SEPARATOR = '__';
+
+/**
+ * `@Transform` for boolean env vars. Implicit conversion turns any non-empty
+ * string, including "false", into `true`, so this reads the raw value instead.
+ */
+export function parseBooleanEnv({ obj, key }: TransformFnParams) {
+  const raw = obj[key];
+  return raw === true || raw === 'true';
+}
 
 /**
  * Validate the config record against a config class with validation constraints
