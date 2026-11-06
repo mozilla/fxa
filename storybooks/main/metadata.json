@@ -1,8 +1,8 @@
 {
-  "commit": "1c1993161b8cf4288c5011014ef573ab03e39598",
-  "summary": "Merge pull request #21683 from mozilla/fxa-14910",
-  "description": "feat(admin-panel): add bulk account disable page",
-  "timestamp": 1793978868000,
+  "commit": "9f4caf12e607a9748560fa03b83b6262c4d8f026",
+  "summary": "Merge pull request #21704 from mozilla/fxa-14922",
+  "description": "chore(content-server): delete dead feature-flags, /config and crash code",
+  "timestamp": 1793980062000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
