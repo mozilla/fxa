@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const { promisify } = require('util');
 const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
 
@@ -26,6 +26,8 @@ function MysqlStore(options) {
     }
     return next();
   };
+  // mysql2 logs an error for each unknown pool option.
+  delete options.createSchema;
   this._pool = mysql.createPool(options);
 }
 

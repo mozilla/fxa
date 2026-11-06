@@ -35,6 +35,11 @@ export class MySQLConfig {
   @IsInt()
   @Type(() => Number)
   acquireTimeoutMillis?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  idleLimitMs?: number;
 }
 
 /**
