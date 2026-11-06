@@ -1,8 +1,8 @@
 {
-  "commit": "67a574326634927f5337e215d6173394c5181096",
-  "summary": "Merge pull request #21699 from mozilla/PAY-3881",
-  "description": "feat(auth): count PayPal invoice and SNS publish failures in StatsD",
-  "timestamp": 1793984100000,
+  "commit": "45331112459731847ed81b35d93d6f6c8cfec265",
+  "summary": "Merge pull request #21719 from mozilla/fxa-14953",
+  "description": "fix(settings): remove backdrop blur over iOS pair menu toolbar",
+  "timestamp": 1793989689000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
