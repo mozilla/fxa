@@ -40,8 +40,5 @@ cd ../../../..
 # Start the sync server and token server on port 8000
 docker run --rm --name sync -p 8000:8000  sync-for-fxa &
 
-# Adds some rows to the sync database that are needed.
-_scripts/sync-populate.sh
-
 # Keep script alive
 while :; do read -r; done
