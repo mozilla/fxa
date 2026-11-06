@@ -9,9 +9,37 @@ import {
   AccountDisableStatus,
 } from 'fxa-admin-server/src/types';
 
-// The server accepts at most 1000 locators per request.
+// The server accepts at most 1000 locators per request, and a JSON body of at most 100 KiB.
 const BATCH_SIZE = 1000;
+const MAX_BODY_BYTES = 90_000;
 const MAX_FILE_BYTES = 15 * 1024 * 1024;
+
+const byteLength = (s: string) => new TextEncoder().encode(s).length;
+
+const toBatches = (list: string[]) => {
+  const emptyBody = byteLength(JSON.stringify({ locators: [] }));
+  const batches: string[][] = [];
+  let batch: string[] = [];
+  let bytes = emptyBody;
+  for (const locator of list) {
+    // One byte more than needed for the first entry, for the comma.
+    const size = byteLength(JSON.stringify(locator)) + 1;
+    if (
+      batch.length === BATCH_SIZE ||
+      (batch.length > 0 && bytes + size > MAX_BODY_BYTES)
+    ) {
+      batches.push(batch);
+      batch = [];
+      bytes = emptyBody;
+    }
+    batch.push(locator);
+    bytes += size;
+  }
+  if (batch.length > 0) {
+    batches.push(batch);
+  }
+  return batches;
+};
 
 const accounts = (n: number) => `${n} account${n === 1 ? '' : 's'}`;
 
@@ -79,19 +107,19 @@ export const PageAccountDisable = () => {
         .map((x) => x.trim())
         .filter((x) => x.length > 0);
 
-      for (let i = 0; i < list.length; i += BATCH_SIZE) {
+      let start = 0;
+      for (const batch of toBatches(list)) {
         try {
-          const batch = await adminApi.disableAccounts(
-            list.slice(i, i + BATCH_SIZE)
-          );
-          setResults((prev) => [...prev, ...batch]);
+          const batchResults = await adminApi.disableAccounts(batch);
+          setResults((prev) => [...prev, ...batchResults]);
+          start += batch.length;
         } catch (err) {
           // The server can finish a batch that the client gets no reply for.
-          const end = Math.min(i + BATCH_SIZE, list.length);
+          const end = start + batch.length;
           const notSent =
             end < list.length ? ' Later entries were not submitted.' : '';
           setError(
-            `The request for entries ${i + 1} to ${end} of ${list.length} failed, so their outcome is unknown.${notSent} ${err}`
+            `The request for entries ${start + 1} to ${end} of ${list.length} failed, so their outcome is unknown.${notSent} ${err}`
           );
           return;
         }
@@ -106,8 +134,9 @@ export const PageAccountDisable = () => {
       <h2 className="header-page">Disable Accounts</h2>
       <p>
         This page allows you to disable user accounts. A disabled account cannot
-        sign in, and all of its sessions and tokens are revoked. The user does
-        not get an email.
+        sign in, and its sessions, refresh tokens and authorization codes are
+        revoked. Its OAuth access tokens stay valid until they expire. The user
+        does not get an email.
       </p>
       <br />
       <p>
@@ -148,7 +177,11 @@ export const PageAccountDisable = () => {
         </button>
       </form>
       <hr />
-      {error && <p className="text-red-700">{error}</p>}
+      {error && (
+        <p role="alert" className="text-red-700">
+          {error}
+        </p>
+      )}
       {results.length > 0 && <AccountDisableResults list={results} />}
     </>
   );
