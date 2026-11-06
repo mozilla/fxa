@@ -1,8 +1,8 @@
 {
-  "commit": "857250d87bd8b4ec521f610fdada28700045cbd0",
-  "summary": "Merge pull request #21709 from mozilla/fxa-13447",
-  "description": "fix(shared): replace mysql with mysql2",
-  "timestamp": 1793982982000,
+  "commit": "67a574326634927f5337e215d6173394c5181096",
+  "summary": "Merge pull request #21699 from mozilla/PAY-3881",
+  "description": "feat(auth): count PayPal invoice and SNS publish failures in StatsD",
+  "timestamp": 1793984100000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
