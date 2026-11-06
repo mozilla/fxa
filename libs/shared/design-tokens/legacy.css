@@ -97,4 +97,30 @@
   --color-purple-700: #592ACB;
   --color-purple-800: #45278D;
   --color-purple-900: #321C64;
+  /* Non-color tokens tailwind.js references, at today's Tailwind values. Needed
+   * because admin-panel loads this file without Acorn's tokens.css. Shadows map
+   * sm/DEFAULT/md/lg to levels 1-4. */
+  --space-xxsmall: 0.125rem;
+  --space-xsmall: 0.25rem;
+  --space-small: 0.5rem;
+  --space-medium: 0.75rem;
+  --space-large: 1rem;
+  --space-xlarge: 1.5rem;
+  --space-xxlarge: 2rem;
+  --border-radius-xsmall: 0.25rem;
+  --border-radius-small: 0.5rem;
+  --border-radius-medium: 0.75rem;
+  --border-radius-large: 1rem;
+  --border-radius-xlarge: 1.5rem;
+  --border-radius-circle: 9999px;
+  --font-weight: normal;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-heading: 700;
+  --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  --box-shadow-level-1: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --box-shadow-level-2: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --box-shadow-level-3: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --box-shadow-level-4: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }

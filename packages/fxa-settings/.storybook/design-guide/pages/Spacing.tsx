@@ -21,6 +21,16 @@ const nonIntMap = {
   },
 };
 
+// Steps mapped to design tokens are `var(--space-*)`; resolve them, then convert
+// rem against the document's actual root size rather than assuming 16px.
+const toPx = (value) => {
+  const root = getComputedStyle(document.documentElement);
+  const name = /^var\((--[\w-]+)\)$/.exec(value)?.[1];
+  const resolved = name ? root.getPropertyValue(name).trim() : value;
+  const num = parseFloat(resolved);
+  return resolved.endsWith('rem') ? num * parseFloat(root.fontSize) : num;
+};
+
 const Spacing = ({ config }) => {
   const twSpacing = {};
 
@@ -123,7 +133,7 @@ const Spacing = ({ config }) => {
             {Object.keys(twSpacing).map((size) => {
               const data = twSpacing[size];
               const parsedSize = parseFloat(size);
-              const parsedValue = parseFloat(data.value);
+              const px = toPx(data.value);
 
               return (
                 <tr className="flex relative spacing-item-row" key={size}>
@@ -180,7 +190,7 @@ const Spacing = ({ config }) => {
                     <code>
                       {isNaN(parsedSize)
                         ? data.value
-                        : `${data.value} (${parsedValue * 16}px)`}
+                        : `${data.value} (${px}px)`}
                     </code>
                   </td>
                   <td className="flex-7 mb-2">
@@ -189,7 +199,7 @@ const Spacing = ({ config }) => {
                       style={{
                         width: isNaN(parsedSize)
                           ? `${nonIntMap[size].width}px`
-                          : `${Math.abs(parsedValue) * 16}px`,
+                          : `${Math.abs(px)}px`,
                       }}
                     ></span>
                   </td>
