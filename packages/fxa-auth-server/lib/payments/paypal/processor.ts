@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { getMinimumAmount } from '@fxa/accounts/subscriptions-legacy/subscriptions/stripe';
+import { StatsD } from 'hot-shots';
 import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
 import { Container } from 'typedi';
@@ -48,6 +49,7 @@ function sameDay(d1: Date, d2: Date) {
 export class PaypalProcessor {
   private stripeHelper: StripeHelper;
   private paypalHelper: PayPalHelper;
+  private statsd: StatsD;
   private webhookHandler: StripeWebhookHandler;
 
   constructor(
@@ -61,6 +63,7 @@ export class PaypalProcessor {
   ) {
     this.stripeHelper = Container.get(StripeHelper);
     this.paypalHelper = Container.get(PayPalHelper);
+    this.statsd = Container.get(StatsD);
 
     // Instantiate a webhook handler so we can use its subscription sending methods
     this.webhookHandler = new StripeWebhookHandler(
@@ -365,6 +368,7 @@ export class PaypalProcessor {
       this.log.info('processInvoice.processing', { invoiceId: invoice.id });
       try {
         await this.attemptInvoiceProcessing(invoice);
+        this.statsd.increment('paypal-processor.invoice.processed');
       } catch (err) {
         this.log.error('processInvoice', {
           err,
@@ -372,6 +376,7 @@ export class PaypalProcessor {
           invoiceId: invoice.id,
         });
         reportSentryError(err);
+        this.statsd.increment('paypal-processor.invoice.error');
       }
 
       yield;
