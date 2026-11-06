@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 6dd9e95e9791b61c7a347bf5d6703d3e2294b7e5</title>
+  <title>Storybooks for commit de701a5a9bb3b87dcf100002ca9ffaa866f9f864</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 6dd9e95e9791b61c7a347bf5d6703d3e2294b7e5</h1>
+  <h1>Storybooks for commit de701a5a9bb3b87dcf100002ca9ffaa866f9f864</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/4/2026, 10:37:26 PM UTC</dd>
+    <dd>11/6/2026, 4:34:00 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(auth): count PayPal invoice and SNS publish failures in StatsD</pre></dd>
     <dt>Description</dt>
@@ -40,6 +40,7 @@
 This commit:
 - Counts paypal-processor.invoice.processed and .error per invoice
 - Counts notifier.publish.failure in the legacy notifier and NotifierService
+- Makes StatsD a required NotifierService dependency
 - Adds the matching unit test assertions
 
 Fixes PAY-3881</pre></dd>
