@@ -65,7 +65,7 @@
   "devDependencies": {
     "@babel/eslint-parser": "^7.27.5",
     "chai": "^5.3.3",
-    "eslint": "^7.32.0",
+    "eslint": "^8.57.1",
     "pm2": "^7.0.0",
     "prettier": "^3.5.3",
     "proxyquire": "^2.1.3",
