@@ -9,8 +9,10 @@ import {
   Delete,
   Get,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { DomainBlocklist } from '@fxa/shared/db/mysql/legacy/models/auth';
@@ -22,6 +24,7 @@ import type {
   DomainBlocklistEntry,
   DomainBlocklistSyncResult,
 } from '../../types';
+import { AccountStateService } from '../account/account-state.service';
 
 // RFC 1035 hostname label pattern — used to validate each domain entry
 const DOMAIN_RE =
@@ -48,6 +51,50 @@ function isValidDomain(domain: string): boolean {
   );
 }
 
+function parseDomains(domains: string[]): string[] {
+  if (!Array.isArray(domains) || !domains.every((d) => typeof d === 'string')) {
+    throw new BadRequestException(
+      'domains must be a non-empty array of strings'
+    );
+  }
+
+  if (domains.length > 1000) {
+    throw new BadRequestException(
+      'Too many domains in a single request (max 1000)'
+    );
+  }
+
+  const trimmed = domains.map(normalizeDomain).filter((d) => d.length > 0);
+
+  if (trimmed.length === 0) {
+    throw new BadRequestException(
+      'domains array contained no non-empty values after normalization'
+    );
+  }
+
+  const tooLong = trimmed.filter((d) => d.length > 253);
+  if (tooLong.length > 0) {
+    throw new BadRequestException(
+      `Domain(s) exceed maximum length of 253 characters: ${tooLong.join(', ')}`
+    );
+  }
+
+  const labelTooLong = trimmed.filter((d) =>
+    d.split('.').some((label) => label.length > 63)
+  );
+  if (labelTooLong.length > 0) {
+    throw new BadRequestException(
+      `Domain(s) have a label exceeding 63 characters: ${labelTooLong.join(', ')}`
+    );
+  }
+
+  const invalid = trimmed.filter((d) => !DOMAIN_RE.test(d));
+  if (invalid.length > 0) {
+    throw new BadRequestException(`Invalid domain(s): ${invalid.join(', ')}`);
+  }
+  return trimmed;
+}
+
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -55,7 +102,10 @@ function delay(ms: number): Promise<void> {
 @UseGuards(AuthHeaderGuard)
 @Controller('/api/domain-blocklist')
 export class DomainBlocklistController {
-  constructor(private log: MozLoggerService) {}
+  constructor(
+    private log: MozLoggerService,
+    private accountState: AccountStateService
+  ) {}
 
   @Get()
   @Features(AdminPanelFeature.DomainBlocklist)
@@ -70,53 +120,31 @@ export class DomainBlocklistController {
     @Body('domains') domains: string[],
     @CurrentUser() user: string
   ): Promise<{ ok: boolean }> {
-    if (
-      !Array.isArray(domains) ||
-      !domains.every((d) => typeof d === 'string')
-    ) {
-      throw new BadRequestException(
-        'domains must be a non-empty array of strings'
-      );
-    }
-
-    if (domains.length > 1000) {
-      throw new BadRequestException(
-        'Too many domains in a single request (max 1000)'
-      );
-    }
-
-    const trimmed = domains.map(normalizeDomain).filter((d) => d.length > 0);
-
-    if (trimmed.length === 0) {
-      throw new BadRequestException(
-        'domains array contained no non-empty values after normalization'
-      );
-    }
-
-    const tooLong = trimmed.filter((d) => d.length > 253);
-    if (tooLong.length > 0) {
-      throw new BadRequestException(
-        `Domain(s) exceed maximum length of 253 characters: ${tooLong.join(', ')}`
-      );
-    }
-
-    const labelTooLong = trimmed.filter((d) =>
-      d.split('.').some((label) => label.length > 63)
-    );
-    if (labelTooLong.length > 0) {
-      throw new BadRequestException(
-        `Domain(s) have a label exceeding 63 characters: ${labelTooLong.join(', ')}`
-      );
-    }
-
-    const invalid = trimmed.filter((d) => !DOMAIN_RE.test(d));
-    if (invalid.length > 0) {
-      throw new BadRequestException(`Invalid domain(s): ${invalid.join(', ')}`);
-    }
-
+    const trimmed = parseDomains(domains);
     await DomainBlocklist.addMany(trimmed);
     this.log.info('domainBlocklist.add', { user, count: trimmed.length });
     return { ok: true };
+  }
+
+  @Post('disable-matching')
+  @Features(AdminPanelFeature.DomainBlocklist)
+  @AuditLog()
+  public async disableMatching(
+    @Body('domains') domains: string[],
+    @CurrentUser() user: string,
+    @Req() req: Request
+  ): Promise<{ disabled: number }> {
+    const entries = new Set(parseDomains(domains));
+    const disabled = await this.accountState.disableMatching(
+      (email) => entries.has(email.slice(email.lastIndexOf('@') + 1)),
+      req
+    );
+    this.log.info('domainBlocklist.disableMatching', {
+      user,
+      count: entries.size,
+      disabled,
+    });
+    return { disabled };
   }
 
   /**

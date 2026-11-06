@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent, UserEvent } from '@testing-library/user-event';
 import BlocklistTable, { PAGE_SIZE } from './index';
 
@@ -17,13 +17,18 @@ const makeEntries = (count: number): Entry[] =>
     createdAt: 1000,
   }));
 
-const renderTable = (entries: Entry[], onDelete = jest.fn()) =>
+const renderTable = (
+  entries: Entry[],
+  onDelete = jest.fn(),
+  onDisableMatching = jest.fn().mockResolvedValue(undefined)
+) =>
   render(
     <BlocklistTable
       entries={entries}
       label="Domain"
       getValue={getDomain}
       onDelete={onDelete}
+      onDisableMatching={onDisableMatching}
     />
   );
 
@@ -54,22 +59,26 @@ describe('BlocklistTable', () => {
   });
 
   it('pages through the list and disables the buttons at each end', async () => {
-    renderTable(makeEntries(PAGE_SIZE + 3));
+    const { container } = renderTable(makeEntries(PAGE_SIZE + 3));
+    // Role queries over 500 rows are slow; text and selector queries are not.
+    const rows = () => container.querySelectorAll('tbody tr');
 
-    const previous = screen.getByRole('button', { name: '← Previous' });
-    const next = screen.getByRole('button', { name: 'Next →' });
+    const previous = screen.getByText('← Previous');
+    const next = screen.getByText('Next →');
     expect(previous).toBeDisabled();
-    expect(screen.getAllByRole('row')).toHaveLength(PAGE_SIZE + 1);
+    expect(rows()).toHaveLength(PAGE_SIZE);
 
     await user.click(next);
 
     expect(
       screen.getByText('Page 2 of 2', { exact: false })
     ).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent(
-      `Showing ${PAGE_SIZE + 1} to ${PAGE_SIZE + 3} of ${PAGE_SIZE + 3} entries.`
-    );
-    expect(screen.getAllByRole('row')).toHaveLength(4);
+    expect(
+      screen.getByText(
+        `Showing ${PAGE_SIZE + 1} to ${PAGE_SIZE + 3} of ${PAGE_SIZE + 3} entries.`
+      )
+    ).toBeInTheDocument();
+    expect(rows()).toHaveLength(3);
     expect(next).toBeDisabled();
     expect(previous).toBeEnabled();
 
@@ -114,6 +123,7 @@ describe('BlocklistTable', () => {
         label="Domain"
         getValue={getDomain}
         onDelete={jest.fn()}
+        onDisableMatching={jest.fn()}
       />
     );
 
@@ -130,5 +140,46 @@ describe('BlocklistTable', () => {
     await user.click(screen.getByRole('button', { name: /remove/i }));
 
     expect(onDelete).toHaveBeenCalledWith('host0.example');
+  });
+
+  it('disables the row button until onDisableMatching settles', async () => {
+    let settle = () => {};
+    const onDisableMatching = jest.fn(
+      () => new Promise<void>((resolve) => (settle = resolve))
+    );
+    renderTable(makeEntries(1), jest.fn(), onDisableMatching);
+    const button = screen.getByRole('button', {
+      name: /disable matching accounts/i,
+    });
+
+    await user.click(button);
+
+    expect(onDisableMatching).toHaveBeenCalledWith('host0.example');
+    expect(button).toBeDisabled();
+
+    settle();
+    await waitFor(() => expect(button).toBeEnabled());
+    expect(onDisableMatching).toHaveBeenCalledTimes(1);
+  });
+
+  it('disables every row button while one request is pending', async () => {
+    let settle = () => {};
+    const onDisableMatching = jest.fn(
+      () => new Promise<void>((resolve) => (settle = resolve))
+    );
+    renderTable(makeEntries(2), jest.fn(), onDisableMatching);
+    const [first, second] = screen.getAllByRole('button', {
+      name: /disable matching accounts/i,
+    });
+
+    await user.click(first);
+
+    expect(first).toBeDisabled();
+    expect(second).toBeDisabled();
+    await user.click(second);
+
+    settle();
+    await waitFor(() => expect(second).toBeEnabled());
+    expect(onDisableMatching).toHaveBeenCalledTimes(1);
   });
 });
