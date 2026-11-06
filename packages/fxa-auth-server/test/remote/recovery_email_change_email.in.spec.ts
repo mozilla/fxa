@@ -263,6 +263,29 @@ describe.each(testVersions)(
         }
       });
 
+      it('returns 120 then 103 on reauth with a wrong password, before and after the signup email retry', async () => {
+        const mfaJwt = await generateMfaJwt(client);
+        await client.setPrimaryEmail(mfaJwt, secondEmail);
+        const wrongAuthPW = Buffer.alloc(32);
+
+        await expect(
+          client.api.sessionReauth(
+            client.sessionToken,
+            secondEmail,
+            wrongAuthPW
+          )
+        ).rejects.toMatchObject({ code: 400, errno: 120, email });
+
+        await expect(
+          client.api.sessionReauth(
+            client.sessionToken,
+            secondEmail,
+            wrongAuthPW,
+            { originalLoginEmail: secondEmail }
+          )
+        ).rejects.toMatchObject({ code: 400, errno: 103 });
+      });
+
       it('can change password', async () => {
         const mfaJwt = await generateMfaJwt(client);
         let res = await client.setPrimaryEmail(mfaJwt, secondEmail);
