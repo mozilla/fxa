@@ -47,7 +47,7 @@ export enum Proc {
   ForgotPasswordVerified = 'forgotPasswordVerified_10',
   KeyFetchToken = 'keyFetchToken_1',
   KeyFetchTokenWithVerificationStatus = 'keyFetchTokenWithVerificationStatus_2',
-  LimitSessions = 'limitSessions_3',
+  LimitSessions = 'limitSessions_4',
   PasswordChangeToken = 'passwordChangeToken_3',
   PasswordForgotToken = 'passwordForgotToken_3',
   PurgeAvailableCommands = 'purgeAvailableCommands_1',

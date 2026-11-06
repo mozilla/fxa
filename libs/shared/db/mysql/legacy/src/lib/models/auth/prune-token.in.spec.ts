@@ -57,6 +57,7 @@ describe('PruneTokens', () => {
       log as unknown as ILogger
     );
     await SessionToken.query().delete().execute();
+    await knex('devices').delete();
 
     now = Date.now();
 
@@ -199,7 +200,7 @@ describe('PruneTokens', () => {
       (x: any) => x.tokenId.toString('hex')
     );
 
-    expect(result.outputs['@totalDeletions']).toBe(100);
+    expect(result.outputs?.['@totalDeletions']).toBe(100);
     expect(tokens.length).toBe(0);
     // should have have removed the newest token
     expect(tokens).not.toContain(tokenIds[0]);
@@ -220,7 +221,7 @@ describe('PruneTokens', () => {
       (x: any) => x.tokenId.toString('hex')
     );
 
-    expect(result.outputs['@totalDeletions']).toBe(0);
+    expect(result.outputs?.['@totalDeletions']).toBe(0);
     expect(tokens.length).toBe(100);
     // should have kept the newest token
     expect(tokens).toContain(tokenIds[0]);
@@ -238,7 +239,7 @@ describe('PruneTokens', () => {
       (x: any) => x.tokenId.toString('hex')
     );
 
-    expect(result.outputs['@totalDeletions']).toBe(60);
+    expect(result.outputs?.['@totalDeletions']).toBe(60);
     expect(tokens.length).toBe(40);
     // should have kept the newest token
     expect(tokens).toContain(tokenIds[0]);
@@ -252,10 +253,92 @@ describe('PruneTokens', () => {
       (x: any) => x.tokenId.toString('hex')
     );
 
-    expect(result.outputs['@totalDeletions']).toBe(10);
+    expect(result.outputs?.['@totalDeletions']).toBe(10);
     expect(tokens.length).toBe(90);
     expect(tokens).toContain(tokenIds[0]);
     expect(tokens).not.toContain(tokenIds[tokenIds.length - 1]);
+  });
+
+  describe('when sessions have devices', () => {
+    const DEVICE_ID_1 = '11111111111111111111111111111111';
+    const DEVICE_ID_2 = '22222222222222222222222222222222';
+    const REFRESH_TOKEN_ID = 'a'.repeat(64);
+
+    async function insertDevice(
+      id: string,
+      sessionTokenId: string,
+      refreshTokenId: string | null
+    ) {
+      await knex('devices').insert({
+        uid,
+        id: Buffer.from(id, 'hex'),
+        sessionTokenId: Buffer.from(sessionTokenId, 'hex'),
+        refreshTokenId: refreshTokenId
+          ? Buffer.from(refreshTokenId, 'hex')
+          : null,
+        createdAt: now,
+      });
+    }
+
+    const listTokens = async () =>
+      (await SessionToken.query().select('tokenId')).map((x: any) =>
+        x.tokenId.toString('hex')
+      );
+
+    it('deletes sessions without a device before older sessions with one', async () => {
+      const oldestTokenId = tokenIds[tokenIds.length - 1];
+      await insertDevice(DEVICE_ID_1, oldestTokenId, null);
+
+      const result = await pruneTokens.limitSessions(
+        uid.toString('hex'),
+        50,
+        1000
+      );
+      const tokens = await listTokens();
+
+      expect(result.outputs?.['@totalDeletions']).toBe(50);
+      expect(result.deletedDevices).toEqual([]);
+      expect(tokens).toContain(oldestTokenId);
+      expect(tokens).toContain(tokenIds[0]);
+      expect(tokens).not.toContain(tokenIds[tokenIds.length - 2]);
+    });
+
+    it('returns the devices it deletes once no deviceless sessions remain', async () => {
+      await insertDevice(DEVICE_ID_1, tokenIds[0], REFRESH_TOKEN_ID);
+      await insertDevice(DEVICE_ID_2, tokenIds[1], null);
+
+      const result = await pruneTokens.limitSessions(
+        uid.toString('hex'),
+        0,
+        1000
+      );
+
+      expect(result.deletedDevices.length).toEqual(2);
+      expect(result.deletedDevices).toContainEqual({
+        id: DEVICE_ID_1,
+        refreshTokenId: REFRESH_TOKEN_ID,
+      });
+      expect(result.deletedDevices).toContainEqual({
+        id: DEVICE_ID_2,
+        refreshTokenId: null,
+      });
+
+      expect(await knex('devices').count({ count: '*' })).toEqual([
+        { count: 0 },
+      ]);
+    });
+
+    it('counts deleted session tokens only, not device rows', async () => {
+      await insertDevice(DEVICE_ID_1, tokenIds[0], null);
+
+      const result = await pruneTokens.limitSessions(
+        uid.toString('hex'),
+        0,
+        1000
+      );
+
+      expect(result.outputs?.['@totalDeletions']).toBe(100);
+    });
   });
 
   it('Handles prune error', async () => {

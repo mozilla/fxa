@@ -7,6 +7,8 @@ import type { ILogger } from '@fxa/shared/log';
 import { uuidTransformer } from '../../transformers';
 import { BaseAuthModel, Proc } from './base-auth';
 
+export type DeletedDevice = { id: string; refreshTokenId: string | null };
+
 /**
  * Manages pruning of stale tokens.
  */
@@ -129,21 +131,27 @@ export class PruneTokens extends BaseAuthModel {
   }
 
   /**
-   * Prunes old sessions from accounts. Oldest tokens are deleted first.
+   * Prunes sessions from an account down to maxSessions. Sessions without a
+   * device go first, oldest first; sessions with a device go only after those.
    * @param accountUid - The target account
    * @param maxSessions - Max allowed number of sessions for account
    * @param maxSessionsDeleted - Limits the number of session tokens deleted per call
+   * @returns `@totalDeletions` (session tokens only) and the devices deleted
+   *          with them, as hex ids, so the caller can run disconnect side effects.
    */
   async limitSessions(
     accountUid: string,
     maxSessions: number,
     maxSessionsDeleted: number
-  ) {
+  ): Promise<{
+    outputs: { '@totalDeletions': number } | null;
+    deletedDevices: DeletedDevice[];
+  }> {
     const prefix = 'limit-sessions';
     this.onStartMetric(prefix);
 
     try {
-      const result = await PruneTokens.callProcedureWithOutputs(
+      const result = await PruneTokens.callProcedureWithOutputsAndQueryResults(
         Proc.LimitSessions,
         [
           uuidTransformer.to(accountUid),
@@ -154,10 +162,22 @@ export class PruneTokens extends BaseAuthModel {
       );
 
       this.onEndMetric(prefix);
-      this.onCompleteMetric(prefix, '@totalDeletions', result);
+      this.onCompleteMetric(prefix, '@totalDeletions', result.outputs);
 
+      // No result set comes back when the prune lock was not acquired.
+      const rows: { id: Buffer; refreshTokenId: Buffer | null }[] =
+        result.results.rows[0] ?? [];
       return {
-        outputs: result,
+        outputs: result.outputs,
+        deletedDevices: rows.map((row) => {
+          if (row.refreshTokenId?.toString('hex')) {
+            this.metrics?.increment(`${prefix}.device.delete`);
+          }
+          return {
+            id: row.id.toString('hex'),
+            refreshTokenId: row.refreshTokenId?.toString('hex') ?? null,
+          };
+        }),
       };
     } catch (err) {
       this.onErrorMetric(prefix);
@@ -166,6 +186,7 @@ export class PruneTokens extends BaseAuthModel {
 
     return {
       outputs: null,
+      deletedDevices: [],
     };
   }
 
