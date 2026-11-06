@@ -1,0 +1,10 @@
+{
+  "commit": "0f9eba8fa7d764f8675b7d88c7bec672fa66ac12",
+  "summary": "fix(settings): respect the stored metrics opt-out before sign-in",
+  "description": "Because:\n\n- Signed-out pages always turned metrics on, even when the account in\n  localStorage had opted out.\n\nThis commit:\n\n- Keeps metrics off before sign-in when the stored account has\n  metricsEnabled false.\n- Adds App tests for the signed-out cases.\n\nCloses FXA-7105",
+  "timestamp": 1793995865000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
