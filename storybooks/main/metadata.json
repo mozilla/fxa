@@ -1,8 +1,8 @@
 {
-  "commit": "ab6c7d09528915989bbf08429206bbd80932ac47",
-  "summary": "Merge pull request #21722 from mozilla/fxa-9553",
-  "description": "chore(deps): drop stale dependabot ignores and unused jest-watch-typeahead",
-  "timestamp": 1794000340000,
+  "commit": "ccca044a9380383f86ba7ea4e4e523476d64cc57",
+  "summary": "Merge pull request #21726 from mozilla/fxa-9551",
+  "description": "chore(deps): align eslint on ^8.57.1 in every package",
+  "timestamp": 1794001926000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
