@@ -21540,7 +21540,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ansi-escapes@npm:^4.2.1, ansi-escapes@npm:^4.3.1, ansi-escapes@npm:^4.3.2":
+"ansi-escapes@npm:^4.2.1, ansi-escapes@npm:^4.3.2":
   version: 4.3.2
   resolution: "ansi-escapes@npm:4.3.2"
   dependencies:
@@ -30670,7 +30670,6 @@ __metadata:
     html-webpack-plugin: "npm:^5.6.0"
     identity-obj-proxy: "npm:^3.0.0"
     jest: "npm:^29.7.0"
-    jest-watch-typeahead: "npm:0.6.5"
     mini-css-extract-plugin: "npm:^2.9.0"
     mutationobserver-shim: "npm:^0.3.7"
     nx: "npm:^23.2.1"
@@ -35402,7 +35401,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-regex-util@npm:^27.0.0, jest-regex-util@npm:^27.5.1":
+"jest-regex-util@npm:^27.5.1":
   version: 27.5.1
   resolution: "jest-regex-util@npm:27.5.1"
   checksum: 10c0/f9790d417b667b38155c4bbd58f2afc0ad9f774381e5358776df02df3f29564069d4773c7ba050db6826bad8a4cc7ef82c3b4c65bfa508e419fdd063a9682c42
@@ -36004,23 +36003,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-watch-typeahead@npm:0.6.5":
-  version: 0.6.5
-  resolution: "jest-watch-typeahead@npm:0.6.5"
-  dependencies:
-    ansi-escapes: "npm:^4.3.1"
-    chalk: "npm:^4.0.0"
-    jest-regex-util: "npm:^27.0.0"
-    jest-watcher: "npm:^27.0.0"
-    slash: "npm:^3.0.0"
-    string-length: "npm:^4.0.1"
-    strip-ansi: "npm:^6.0.0"
-  peerDependencies:
-    jest: ^26.0.0 || ^27.0.0
-  checksum: 10c0/fd298fcc1581d7c34301b54a8891ba70fdc529adbf98e7ed98c5bdd92e7ac63b01e00341101f8f49c1c2f8cce4c6f677a4be1dad3fb1d0c0303b6e8e25717446
-  languageName: node
-  linkType: hard
-
 "jest-watcher@npm:30.0.5":
   version: 30.0.5
   resolution: "jest-watcher@npm:30.0.5"
@@ -36053,7 +36035,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-watcher@npm:^27.0.0, jest-watcher@npm:^27.5.1":
+"jest-watcher@npm:^27.5.1":
   version: 27.5.1
   resolution: "jest-watcher@npm:27.5.1"
   dependencies:
