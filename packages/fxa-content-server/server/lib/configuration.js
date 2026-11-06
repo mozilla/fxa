@@ -71,11 +71,6 @@ const conf = (module.exports = convict({
       format: Boolean,
     },
   },
-  are_dist_resources: {
-    default: false,
-    doc: 'Check if the resources are under the /dist directory',
-    format: Boolean,
-  },
   cert_path: {
     default: path.resolve(__dirname, '..', '..', 'cert.pem'),
     doc: 'The location of the SSL certificate in pem format',
@@ -153,69 +148,6 @@ const conf = (module.exports = convict({
     default: versionInfo.version,
   },
   featureFlags: {
-    enabled: {
-      default: true,
-      doc: 'Enable feature flagging',
-      env: 'FEATURE_FLAGS_ENABLED',
-      format: Boolean,
-    },
-    interval: {
-      default: '30 seconds',
-      doc: 'The refresh interval for feature-flagging',
-      env: 'FEATURE_FLAGS_INTERVAL',
-      format: 'duration',
-    },
-    redis: {
-      host: {
-        default: 'localhost',
-        doc: 'Redis host name or IP address',
-        env: 'FEATURE_FLAGS_REDIS_HOST',
-        format: String,
-      },
-      password: {
-        default: '',
-        doc: 'Redis password',
-        env: 'REDIS_PASSWORD',
-        sensitive: true,
-        format: String,
-      },
-      initialBackoff: {
-        default: '100 milliseconds',
-        doc: 'Initial backoff for feature-flagging Redis connection retries, increases exponentially with each attempt',
-        env: 'FEATURE_FLAGS_REDIS_TIMEOUT',
-        format: 'duration',
-      },
-      maxConnections: {
-        default: 1,
-        doc: 'Maximum connection count for feature-flagging Redis pool',
-        env: 'FEATURE_FLAGS_REDIS_MAX_CONNECTIONS',
-        format: 'nat',
-      },
-      maxPending: {
-        default: 10,
-        doc: 'Maximum waiting client count for feature-flagging Redis pool',
-        env: 'FEATURE_FLAGS_REDIS_MAX_PENDING',
-        format: 'nat',
-      },
-      minConnections: {
-        default: 1,
-        doc: 'Minimum connection count for feature-flagging Redis pool',
-        env: 'FEATURE_FLAGS_REDIS_MIN_CONNECTIONS',
-        format: 'nat',
-      },
-      port: {
-        default: 6379,
-        doc: 'Redis port',
-        env: 'FEATURE_FLAGS_REDIS_PORT',
-        format: 'port',
-      },
-      retryCount: {
-        default: 5,
-        doc: 'Retry limit for feature-flagging Redis connection attempts',
-        env: 'FEATURE_FLAGS_REDIS_RETRY_COUNT',
-        format: 'int',
-      },
-    },
     keyStretchV2: {
       default: true,
       doc: 'Enables V2 key stretching',
@@ -1107,9 +1039,6 @@ if (conf.has('http_proxy.port')) {
   process.env.HTTP_PROXY_PORT = conf.get('http_proxy.port');
   process.env.HTTPS_PROXY_PORT = conf.get('http_proxy.port');
 }
-
-const areDistResources = conf.get('static_directory') === 'dist';
-conf.set('are_dist_resources', areDistResources);
 
 // TODO: convict 6+ doesn't like the schema definition we've got
 // for `scopedKeys.validation`. It doesn't cause runtime problems
