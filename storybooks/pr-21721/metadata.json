@@ -1,0 +1,10 @@
+{
+  "commit": "deca4bbed6bdaaf472913f07b3e3bbd8a6610f79",
+  "summary": "perf(shared): replace pruneSessionTokens Lua script with a WATCH transaction",
+  "description": "Because:\n- The pruneSessionTokens Lua script blocks Redis while it runs.\n- A prune must not drop a token that touchSessionToken writes at the same time.\n\nThis commit:\n- Removes the pruneSessionTokens_1 Lua script and its command.\n- Prunes in TypeScript with WATCH, GET, MULTI and EXEC, and retries up to 3 times.\n- Counts the redis.pruneSessionTokens.conflict StatsD metric when it gives up.\n- Runs prunes one at a time on their own duplicate() connection.\n- Deletes an unparseable blob, as getSessionTokens does.\n\nCloses FXA-14945",
+  "timestamp": 1793990256000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
