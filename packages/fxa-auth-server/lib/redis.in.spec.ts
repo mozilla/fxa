@@ -178,13 +178,15 @@ describe('#integration - Redis', () => {
     });
 
     it('does nothing for unknown uids', async () => {
-      await redis.pruneSessionTokens('x');
+      redis.pruneSessionTokens('x');
+      await redis.pruneQueue;
       const tokens = await redis.getSessionTokens('x');
       expect(Object.keys(tokens)).toHaveLength(0);
     });
 
     it('does nothing for unknown token ids', async () => {
-      await redis.pruneSessionTokens(uid, ['x', 'y']);
+      redis.pruneSessionTokens(uid, ['x', 'y']);
+      await redis.pruneQueue;
       const tokens = await redis.getSessionTokens(uid);
       expect(Object.keys(tokens).sort()).toEqual(
         [sessionToken.id, 'token2'].sort()
@@ -192,15 +194,38 @@ describe('#integration - Redis', () => {
     });
 
     it('deletes a given token id', async () => {
-      await redis.pruneSessionTokens(uid, ['token2']);
+      redis.pruneSessionTokens(uid, ['token2']);
+      await redis.pruneQueue;
       const tokens = await redis.getSessionTokens(uid);
       expect(Object.keys(tokens)).toEqual([sessionToken.id]);
     });
 
     it('deleted the uid record when no tokens remain', async () => {
-      await redis.pruneSessionTokens(uid, [sessionToken.id, 'token2']);
+      redis.pruneSessionTokens(uid, [sessionToken.id, 'token2']);
+      await redis.pruneQueue;
       const rawData = await redis.get(uid);
       expect(rawData).toBeNull();
+    });
+
+    it('skips the prune and keeps a token touched between the prune read and write', async () => {
+      // The first prune creates the prune connection.
+      redis.pruneSessionTokens(uid, []);
+      await redis.pruneQueue;
+      const pruneRedis = redis.pruneRedis;
+      const get = pruneRedis.get.bind(pruneRedis);
+      jest.spyOn(pruneRedis, 'get').mockImplementationOnce(async (key) => {
+        const value = await get(key);
+        await redis.touchSessionToken(uid, { ...sessionToken, id: 'token3' });
+        return value;
+      });
+
+      redis.pruneSessionTokens(uid, ['token2']);
+      await redis.pruneQueue;
+
+      const tokens = await redis.getSessionTokens(uid);
+      expect(Object.keys(tokens).sort()).toEqual(
+        [sessionToken.id, 'token2', 'token3'].sort()
+      );
     });
   });
 
@@ -536,6 +561,7 @@ describe('Redis down', () => {
 
   afterAll(() => {
     downRedis.redis.disconnect();
+    downRedis.pruneRedis?.disconnect();
   });
 
   describe('touchSessionToken', () => {
@@ -552,10 +578,9 @@ describe('Redis down', () => {
   });
 
   describe('pruneSessionTokens', () => {
-    it('throws a timeout error', async () => {
-      await expect(downRedis.pruneSessionTokens(uid)).rejects.toThrow(
-        'redis timeout'
-      );
+    it('returns without error', async () => {
+      expect(downRedis.pruneSessionTokens(uid)).toBeUndefined();
+      await expect(downRedis.pruneQueue).resolves.toBeUndefined();
     });
   });
 });

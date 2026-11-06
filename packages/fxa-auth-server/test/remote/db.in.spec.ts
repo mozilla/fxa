@@ -310,6 +310,7 @@ describe('#integration - remote db', () => {
     // Attempt to prune a session token that is younger than maxAge
     fetchedToken.createdAt = Date.now() - tokenPruning.maxAge + 10000;
     await db.pruneSessionTokens(account.uid, [fetchedToken]);
+    await db.redis.pruneQueue;
 
     // Fetch all sessions for the account
     sessions = await db.sessions(account.uid);
@@ -327,6 +328,7 @@ describe('#integration - remote db', () => {
     // Prune a session token that is older than maxAge
     fetchedToken.createdAt = Date.now() - tokenPruning.maxAge - 1;
     await db.pruneSessionTokens(account.uid, [fetchedToken]);
+    await db.redis.pruneQueue;
 
     // Fetch all sessions for the account
     sessions = await db.sessions(account.uid);
@@ -381,6 +383,7 @@ describe('#integration - remote db', () => {
 
     // Delete the session token again
     await db.deleteSessionToken(sessions[0]);
+    await db.redis.pruneQueue;
 
     const redisResult = await redis.get(account.uid);
     expect(redisResult).toBeNull();
@@ -586,6 +589,7 @@ describe('#integration - remote db', () => {
     await db.deleteDevice(account.uid, deviceInfo.id);
     // Deleting these serially ensures there's no Redis WATCH conflict for account.uid
     await db.deleteDevice(account.uid, conflictingDeviceInfo.id);
+    await db.redis.pruneQueue;
 
     // Deleting the devices should also have cleared the data from Redis
     const redisResult = await redis.get(account.uid);
