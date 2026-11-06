@@ -1,0 +1,13 @@
+{
+  "commit": "3a4b1dc10b519b1ccec10ce5ab4953882a880653",
+  "summary": "chore(deps): drop stale dependabot ignores and unused jest-watch-typeahead",
+  "description": "Because:\n\n- The jest-watch-typeahead ignore was waiting on a react-scripts\n  update, but create-react-app was ejected in 2023 and nothing uses\n  the plugin.\n- The mailparser ignore pointed at FXA-5351, which is done; the test\n  helper is on mailparser 3.x now.\n\nThis commit:\n\n- Removes both dependency-name ignores from dependabot.yml.\n- Removes jest-watch-typeahead from fxa-settings dependencies and\n  devDependencies, and refreshes yarn.lock.\n\nCloses FXA-9553",
+  "timestamp": 1793993941000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

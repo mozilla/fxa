@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 3a4b1dc10b519b1ccec10ce5ab4953882a880653</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 3a4b1dc10b519b1ccec10ce5ab4953882a880653</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>11/6/2026, 7:39:01 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>chore(deps): drop stale dependabot ignores and unused jest-watch-typeahead</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- The jest-watch-typeahead ignore was waiting on a react-scripts
+  update, but create-react-app was ejected in 2023 and nothing uses
+  the plugin.
+- The mailparser ignore pointed at FXA-5351, which is done; the test
+  helper is on mailparser 3.x now.
+
+This commit:
+
+- Removes both dependency-name ignores from dependabot.yml.
+- Removes jest-watch-typeahead from fxa-settings dependencies and
+  devDependencies, and refreshes yarn.lock.
+
+Closes FXA-9553</pre></dd>
+  </dl>
+</body>
+</html>
