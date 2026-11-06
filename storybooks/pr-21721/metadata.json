@@ -1,8 +1,8 @@
 {
-  "commit": "9b2327c7e413fdbd1eb81005dfd2c9403cbf6777",
+  "commit": "349872d868783dbd94a265fcb162fd92275c9b3f",
   "summary": "perf(shared): replace pruneSessionTokens Lua script with a WATCH transaction",
-  "description": "Because:\n\n* The pruneSessionTokens_1 Lua script runs the prune inside Redis.\n\nThis commit:\n\n* Replaces the script with a WATCH, MULTI and EXEC prune in TypeScript\n* Runs prunes one at a time on a duplicate Redis connection\n* Retries a conflicted prune up to three times, then rejects\n* Disconnects the prune connection in close() when its quit fails\n\nCloses FXA-14945",
-  "timestamp": 1793991917000,
+  "description": "Because:\n\n* The pruneSessionTokens_1 Lua script runs the prune inside Redis.\n* A prune is opportunistic, so callers do not need to wait for it.\n\nThis commit:\n\n* Replaces the script with a WATCH, MULTI and EXEC prune in TypeScript\n* Runs prunes one at a time on a duplicate Redis connection\n* Tries each prune once and counts a conflict or an error in StatsD\n* Makes pruneSessionTokens fire and forget\n* Makes close() finish queued prunes, then quit both connections\n\nCloses FXA-14945",
+  "timestamp": 1793997025000,
   "storybooks": [
     "fxa-admin-panel"
   ],
