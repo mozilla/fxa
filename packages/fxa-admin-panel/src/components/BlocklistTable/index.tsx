@@ -15,6 +15,7 @@ type BlocklistTableProps<T> = {
   label: string;
   getValue: (entry: T) => string;
   onDelete: (value: string) => void;
+  onDisableMatching: (value: string) => Promise<void>;
 };
 
 const BlocklistTable = <T extends { createdAt: number }>({
@@ -22,9 +23,25 @@ const BlocklistTable = <T extends { createdAt: number }>({
   label,
   getValue,
   onDelete,
+  onDisableMatching,
 }: BlocklistTableProps<T>) => {
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(0);
+  // Values in flight; one row scan at a time, because the page keeps one result.
+  const [pending, setPending] = useState<ReadonlySet<string>>(new Set());
+
+  const disableMatching = async (value: string) => {
+    setPending((p) => new Set(p).add(value));
+    try {
+      await onDisableMatching(value);
+    } finally {
+      setPending((p) => {
+        const next = new Set(p);
+        next.delete(value);
+        return next;
+      });
+    }
+  };
 
   const matches = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -109,7 +126,7 @@ const BlocklistTable = <T extends { createdAt: number }>({
                   <td className="p-2 border border-grey-100 whitespace-nowrap">
                     {new Date(entry.createdAt).toISOString()}
                   </td>
-                  <td className="p-2 border border-grey-100 text-center">
+                  <td className="p-2 border border-grey-100 text-center whitespace-nowrap">
                     <button
                       type="button"
                       data-testid={`delete-${value}`}
@@ -117,6 +134,16 @@ const BlocklistTable = <T extends { createdAt: number }>({
                       onClick={() => onDelete(value)}
                     >
                       🗑️ Remove
+                    </button>
+                    &nbsp;
+                    <button
+                      type="button"
+                      data-testid={`disable-matching-${value}`}
+                      className={btnClass}
+                      disabled={pending.size > 0}
+                      onClick={() => disableMatching(value)}
+                    >
+                      🚫 Disable matching accounts
                     </button>
                   </td>
                 </tr>

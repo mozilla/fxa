@@ -296,6 +296,15 @@ export const adminApi = {
     });
   },
 
+  disableEmailBlocklistMatches(
+    regexes: string[]
+  ): Promise<{ disabled: number }> {
+    return apiFetch('/api/email-blocklist/disable-matching', {
+      method: 'POST',
+      body: JSON.stringify({ regexes }),
+    });
+  },
+
   removeEmailBlocklistEntry(regex: string): Promise<{ removed: boolean }> {
     return apiFetch('/api/email-blocklist', {
       method: 'DELETE',
@@ -340,6 +349,15 @@ export const adminApi = {
 
   addDomainBlocklistEntries(domains: string[]): Promise<{ ok: boolean }> {
     return apiFetch('/api/domain-blocklist/add', {
+      method: 'POST',
+      body: JSON.stringify({ domains }),
+    });
+  },
+
+  disableDomainBlocklistMatches(
+    domains: string[]
+  ): Promise<{ disabled: number }> {
+    return apiFetch('/api/domain-blocklist/disable-matching', {
       method: 'POST',
       body: JSON.stringify({ domains }),
     });

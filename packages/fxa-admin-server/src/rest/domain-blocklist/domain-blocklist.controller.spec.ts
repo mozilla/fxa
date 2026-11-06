@@ -5,10 +5,12 @@
 import { BadRequestException, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Request } from 'express';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { DomainBlocklist } from '@fxa/shared/db/mysql/legacy/models/auth';
 import { EventLoggingService } from '../../event-logging/event-logging.service';
 import { AuditLogInterceptor } from '../../auth/audit-log.interceptor';
+import { AccountStateService } from '../account/account-state.service';
 import { DomainBlocklistController } from './domain-blocklist.controller';
 
 jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => ({
@@ -59,6 +61,14 @@ describe('DomainBlocklistController', () => {
   };
   let fetchMock: jest.Mock;
   const realFetch = global.fetch;
+  const EMAILS = ['a@evil.com', 'b@sub.evil.com', 'c@notevil.com'];
+  // Runs the controller's predicate over these primary emails and counts the matches.
+  const accountState = {
+    disableMatching: jest.fn(
+      async (matches: (email: string) => boolean) =>
+        EMAILS.filter(matches).length
+    ),
+  };
 
   beforeEach(async () => {
     logger = {
@@ -93,6 +103,7 @@ describe('DomainBlocklistController', () => {
         MockMozLoggerService,
         MockConfig,
         MockMetricsFactory,
+        { provide: AccountStateService, useValue: accountState },
       ],
     }).compile();
 
@@ -199,6 +210,35 @@ describe('DomainBlocklistController', () => {
       await expect(
         controller.add(['nodot'], 'admin@example.com')
       ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('disableMatching', () => {
+    const req = {} as Request;
+
+    it('disables accounts whose primary email domain equals a normalized entry', async () => {
+      const result = await controller.disableMatching(
+        ['@Evil.com'],
+        'admin@example.com',
+        req
+      );
+
+      expect(result).toEqual({ disabled: 1 });
+      expect(accountState.disableMatching).toHaveBeenCalledWith(
+        expect.any(Function),
+        req
+      );
+      expect(logger.info).toHaveBeenCalledWith(
+        'domainBlocklist.disableMatching',
+        { user: 'admin@example.com', count: 1, disabled: 1 }
+      );
+    });
+
+    it('rejects an invalid domain without disabling accounts', async () => {
+      await expect(
+        controller.disableMatching(['not a domain'], 'admin@example.com', req)
+      ).rejects.toThrow(BadRequestException);
+      expect(accountState.disableMatching).not.toHaveBeenCalled();
     });
   });
 

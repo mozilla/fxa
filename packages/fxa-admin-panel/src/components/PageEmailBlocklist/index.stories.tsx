@@ -19,6 +19,7 @@ type Story = StoryObj<typeof PageEmailBlocklist>;
 const stubs = {
   getEmailBlocklist: async () => mockEmailBlocklist,
   addEmailBlocklistEntries: async () => ({ ok: true }),
+  disableEmailBlocklistMatches: async () => ({ disabled: 2 }),
   removeEmailBlocklistEntry: async () => ({ removed: true }),
   deleteAllEmailBlocklistEntries: async () => ({ ok: true }),
 };

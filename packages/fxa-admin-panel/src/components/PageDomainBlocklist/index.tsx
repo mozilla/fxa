@@ -18,6 +18,8 @@ const PageDomainBlocklist = () => {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [hasInput, setHasInput] = useState(false);
+  const [disableMatches, setDisableMatches] = useState(false);
+  const [disableResult, setDisableResult] = useState<string | null>(null);
   const [syncUrl, setSyncUrl] = useState('');
   const [syncing, setSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<string | null>(null);
@@ -39,6 +41,20 @@ const PageDomainBlocklist = () => {
     loadEntries().finally(() => setLoading(false));
   }, [loadEntries]);
 
+  const disableMatchingAccounts = async (values: string[]) => {
+    setDisableResult(null);
+    try {
+      const { disabled } = await adminApi.disableDomainBlocklistMatches(values);
+      setDisableResult(
+        `Disabled ${disabled} matching ${disabled === 1 ? 'account' : 'accounts'}.`
+      );
+    } catch (e) {
+      setDisableResult(
+        `Error: ${e instanceof Error ? e.message : 'Unknown error'}`
+      );
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const raw = textareaRef.current?.value ?? '';
@@ -55,6 +71,7 @@ const PageDomainBlocklist = () => {
       await adminApi.addDomainBlocklistEntries(domains);
       if (textareaRef.current) textareaRef.current.value = '';
       await loadEntries();
+      if (disableMatches) await disableMatchingAccounts(domains);
     } catch (e) {
       window.alert(
         `Error: ${e instanceof Error ? e.message : 'Unknown error'}`
@@ -132,7 +149,8 @@ const PageDomainBlocklist = () => {
       <ul className="list-disc list-inside mb-4">
         <li>
           Blocks registration for any email whose domain exactly matches an
-          entry. Does not affect existing accounts.
+          entry. Does not affect existing accounts unless you use Disable
+          matching accounts.
         </li>
         <li>
           Enter plain domain names only — no <code>@</code>, no wildcards, no
@@ -166,7 +184,14 @@ const PageDomainBlocklist = () => {
           placeholder={'evildoge.example.com\nhaxor.net'}
           onChange={(e) => setHasInput(e.target.value.trim().length > 0)}
         />
-        <br />
+        <label className="block my-2">
+          <input
+            type="checkbox"
+            checked={disableMatches}
+            onChange={(e) => setDisableMatches(e.target.checked)}
+          />{' '}
+          Disable matching accounts
+        </label>
         <input
           ref={fileInputRef}
           type="file"
@@ -245,6 +270,11 @@ const PageDomainBlocklist = () => {
         )}
       </div>
 
+      {disableResult && (
+        <p role="status" data-testid="disable-matching-result" className="mb-2">
+          {disableResult}
+        </p>
+      )}
       {loading && <p>Loading…</p>}
       {error && <p className="text-red-600">{error}</p>}
       {!loading && !error && entries.length === 0 && (
@@ -256,6 +286,7 @@ const PageDomainBlocklist = () => {
           label="Domain"
           getValue={getDomain}
           onDelete={handleDelete}
+          onDisableMatching={(value) => disableMatchingAccounts([value])}
         />
       )}
     </>

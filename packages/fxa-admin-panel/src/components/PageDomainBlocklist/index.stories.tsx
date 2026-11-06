@@ -19,6 +19,7 @@ type Story = StoryObj<typeof PageDomainBlocklist>;
 const stubs = {
   getDomainBlocklist: async () => mockDomainBlocklist,
   addDomainBlocklistEntries: async () => ({ ok: true }),
+  disableDomainBlocklistMatches: async () => ({ disabled: 2 }),
   removeDomainBlocklistEntry: async () => ({ removed: true }),
   deleteAllDomainBlocklistEntries: async () => ({ ok: true }),
   syncDomainBlocklist: async () => ({ ok: true, total: 2, submitted: 2 }),

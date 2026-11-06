@@ -9,8 +9,10 @@ import {
   Delete,
   Get,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { EmailBlocklist } from '@fxa/shared/db/mysql/legacy/models/auth';
@@ -19,11 +21,15 @@ import { AuditLog } from '../../auth/audit-log.decorator';
 import { Features } from '../../auth/user-group-header.decorator';
 import { CurrentUser } from '../../auth/auth-header.decorator';
 import type { EmailBlocklistEntry } from '../../types';
+import { AccountStateService } from '../account/account-state.service';
 
 @UseGuards(AuthHeaderGuard)
 @Controller('/api/email-blocklist')
 export class EmailBlocklistController {
-  constructor(private log: MozLoggerService) {}
+  constructor(
+    private log: MozLoggerService,
+    private accountState: AccountStateService
+  ) {}
 
   @Get()
   @Features(AdminPanelFeature.EmailBlocklist)
@@ -75,6 +81,42 @@ export class EmailBlocklistController {
     await EmailBlocklist.addMany(trimmed);
     this.log.info('emailBlocklist.add', { user, count: trimmed.length });
     return { ok: true };
+  }
+
+  @Post('disable-matching')
+  @Features(AdminPanelFeature.EmailBlocklist)
+  @AuditLog()
+  public async disableMatching(
+    @Body('regexes') regexes: string[],
+    @CurrentUser() user: string,
+    @Req() req: Request
+  ): Promise<{ disabled: number }> {
+    if (!Array.isArray(regexes)) {
+      throw new BadRequestException('regexes must be an array');
+    }
+    const requested = new Set<string>();
+    for (const r of regexes) {
+      if (typeof r === 'string') {
+        requested.add(r);
+      }
+    }
+    // Stored entries only, so request input never becomes a RegExp.
+    const patterns = (await EmailBlocklist.findAll())
+      .filter((entry) => requested.has(entry.regex))
+      .map((entry) => new RegExp(entry.regex));
+    if (patterns.length === 0) {
+      return { disabled: 0 };
+    }
+    const disabled = await this.accountState.disableMatching(
+      (email) => patterns.some((p) => p.test(email)),
+      req
+    );
+    this.log.info('emailBlocklist.disableMatching', {
+      user,
+      count: patterns.length,
+      disabled,
+    });
+    return { disabled };
   }
 
   @Delete()
