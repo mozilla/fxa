@@ -65,7 +65,10 @@ export abstract class PaymentConfigManager {
       `${this.prefix}plans`
     ) as TypedCollectionReference<PlanConfig>;
 
-    this.load();
+    // hasLoaded stays false on failure, so maybeLoad() retries.
+    this.load().catch((err) =>
+      this.log.error('paymentConfigManager.load', { err })
+    );
     this.startListeners();
   }
 
