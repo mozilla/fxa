@@ -16,6 +16,7 @@ import {
 import { QueryParams } from '../..';
 import { persistAccount, setCurrentAccount } from '../../lib/storage-utils';
 import { currentAccount, getAccountByUid } from '../../lib/cache';
+import { useLocalStorageSync } from '../../lib/hooks/useLocalStorageSync';
 import { firefox } from '../../lib/channels/firefox';
 import * as MetricsFlow from '../../lib/metrics-flow';
 import GleanMetrics from '../../lib/glean';
@@ -371,13 +372,29 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
     initializeSession();
   }, [integration, isSignedInData?.isSignedIn, session]);
 
+  // Recomputes metricsEnabled when a signed-out user's stored account changes.
+  const currentAccountUid = useLocalStorageSync('currentAccountUid');
+  const storedAccounts = useLocalStorageSync('accounts');
+
   const metricsEnabled = useMemo(() => {
     if (metricsLoading || !integration || isSignedIn === undefined) {
       return;
     }
 
-    return data?.account?.metricsEnabled || !isSignedIn;
-  }, [metricsLoading, integration, isSignedIn, data?.account?.metricsEnabled]);
+    // An expired session's account in localStorage still carries its opt-out.
+    return (
+      data?.account?.metricsEnabled ||
+      (!isSignedIn && currentAccount()?.metricsEnabled !== false)
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    metricsLoading,
+    integration,
+    isSignedIn,
+    data?.account?.metricsEnabled,
+    currentAccountUid,
+    storedAccounts,
+  ]);
 
   const metricsFlow = useMemo(
     () => MetricsFlow.init(flowQueryParams),
@@ -394,6 +411,14 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
   // useLayoutEffect ensures this happens immediately after DOM mutations,
   // but before the screen is painted or child useEffect hooks are called.
   useLayoutEffect(() => {
+    // Signed in, false can mean the mount-time metrics fetch has no data yet.
+    if (metricsEnabled === false && !isSignedIn) {
+      Metrics.setEnabled(false);
+      if (GleanMetrics.getEnabled()) {
+        GleanMetrics.setEnabled(false);
+      }
+      return;
+    }
     if (!metricsEnabled || !integration || GleanMetrics.getEnabled()) {
       return;
     }
@@ -411,7 +436,14 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
         integration,
       }
     );
-  }, [metricsEnabled, integration, config.glean, config.version, metricsFlow]);
+  }, [
+    metricsEnabled,
+    isSignedIn,
+    integration,
+    config.glean,
+    config.version,
+    metricsFlow,
+  ]);
 
   useEffect(() => {
     if (!metricsEnabled) {
