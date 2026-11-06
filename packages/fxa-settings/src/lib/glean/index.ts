@@ -58,6 +58,7 @@ type GleanMetricsT = {
     context: GleanMetricsContext
   ) => void;
   setEnabled: (enabled: boolean) => void;
+  setIntegration: (integration: Integration) => void;
   getEnabled: () => boolean;
   isDone: () => Promise<void>;
   pageLoad: (url?: string) => void;
@@ -700,6 +701,7 @@ export const GleanMetrics: Pick<
   GleanMetricsT,
   | 'initialize'
   | 'setEnabled'
+  | 'setIntegration'
   | 'getEnabled'
   | 'useGlean'
   | 'isDone'
@@ -744,6 +746,12 @@ export const GleanMetrics: Pick<
   setEnabled: (enabled: boolean) => {
     gleanEnabled = enabled;
     Glean.setUploadEnabled(gleanEnabled);
+  },
+
+  setIntegration: (integration: Integration) => {
+    if (metricsContext) {
+      metricsContext = { ...metricsContext, integration };
+    }
   },
 
   getEnabled: () => {

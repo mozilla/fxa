@@ -393,6 +393,27 @@ describe('lib/glean', () => {
       );
     });
 
+    it('sets the metrics values from the integration passed to setIntegration', async () => {
+      GleanMetrics.initialize(
+        { ...mockConfig, enabled: true },
+        mockMetricsContext
+      );
+      GleanMetrics.setIntegration({
+        ...mockIntegration,
+        data: {
+          ...mockIntegration.data,
+          clientId: 'switched',
+          service: 'sync',
+        },
+      } as any);
+
+      GleanMetrics.registration.view();
+      await GleanMetrics.isDone();
+
+      sinon.assert.calledWith(setOauthClientIdStub, 'switched');
+      sinon.assert.calledWith(setServiceStub, 'sync');
+    });
+
     it('submits the pings in order', async () => {
       // not await on these calls
       GleanMetrics.registration.view();

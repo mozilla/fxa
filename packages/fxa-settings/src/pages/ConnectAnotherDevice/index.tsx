@@ -16,7 +16,11 @@ import { HeartsVerifiedImage } from '../../components/images';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import Banner from '../../components/Banner';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { useConfig, useFtlMsgResolver } from '../../models';
+import {
+  useConfig,
+  useFtlMsgResolver,
+  useSwitchIntegration,
+} from '../../models';
 import { Constants } from '../../lib/constants';
 import { getBasicAccountData } from '../../lib/account-storage';
 import firefox, {
@@ -125,8 +129,9 @@ const ConnectAnotherDevice = ({
     canSignInProp !== undefined;
   const [bootstrapping, setBootstrapping] = useState(!propsDriveRender);
 
-  // Ask Firefox for fresh Sync OAuth params and hard-navigate to / so the
-  // App re-instantiates with an oauth_webchannel_v1 Sync integration.
+  // Ask Firefox for fresh Sync OAuth params and switch to an
+  // oauth_webchannel_v1 Sync integration at /.
+  const switchIntegration = useSwitchIntegration();
   const startSyncOAuthFlow = useCallback(async (): Promise<boolean> => {
     const oauthParams = await firefox
       .fxaOAuthFlowBegin(['profile', Constants.OAUTH_OLDSYNC_SCOPE])
@@ -147,9 +152,9 @@ const ConnectAnotherDevice = ({
       const val = searchParams.get(key);
       if (val) params.set(key, val);
     }
-    hardNavigate(`/?${params}`);
+    switchIntegration(`/?${params}`);
     return true;
-  }, [email, searchParams]);
+  }, [email, searchParams, switchIntegration]);
 
   const handleSignIn = useCallback(async () => {
     const ok = await startSyncOAuthFlow();

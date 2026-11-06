@@ -15,7 +15,12 @@ import { UseFxAStatusResult, useNavigateWithQuery } from '../../../lib/hooks';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { useAuthClient, useFtlMsgResolver } from '../../../models';
-import { useCmsInfoState, useConfig, useSession } from '../../../models/hooks';
+import {
+  useCmsInfoState,
+  useConfig,
+  useSession,
+  useSwitchIntegration,
+} from '../../../models/hooks';
 import { RelierCmsInfo } from '../../../models/integrations';
 import AppLayout from '../../../components/AppLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -144,6 +149,7 @@ const Pair = ({
   const authClient = useAuthClient();
   const session = useSession();
   const navigateWithQuery = useNavigateWithQuery();
+  const switchIntegration = useSwitchIntegration();
   const location = useLocation();
 
   // CMS theming — mirrors the Backbone pair/index.js fetchCmsConfig() flow.
@@ -443,7 +449,7 @@ const Pair = ({
         const target = isVerifiedUser(signedInUser)
           ? '/post_verify/set_password'
           : '/';
-        hardNavigate(`${target}?${search}`);
+        switchIntegration(`${target}?${search}`);
         return;
       }
       if (fxaStatusStateRef.current === 'unanswered') {
