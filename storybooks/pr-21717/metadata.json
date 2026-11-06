@@ -1,0 +1,13 @@
+{
+  "commit": "a9418e40a92be9a14d02199495b95cf99b2d45bc",
+  "summary": "feat(design-tokens): adopt Nova tokens behind a feature flag",
+  "description": "Because:\n - Firefox's Nova design system now ships as acorn-web-components; FxA's colours\n   should come from it, behind a flag so the refresh lands incrementally and can\n   be toggled/rolled back without a frontend deploy. FXA-14254.\n\nThis commit:\n - Adds libs/shared/design-tokens: Acorn's tokens.css + static legacy.css\n   (:root:not([data-theme=\"nova\"])) and nova-aliases.css ([data-theme=\"nova\"]).\n - Points the fxa-react Tailwind palette at var(--…) (opacity via color-mix) and\n   imports the token layer in fxa-react/styles and admin-panel.\n - Adds featureFlags.novaDesignSystem and sets data-theme=\"nova\" on the settings shell.\n - Adds a Nova toggle to the Storybook toolbar for design review.",
+  "timestamp": 1793979969000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
