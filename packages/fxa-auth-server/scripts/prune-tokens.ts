@@ -10,6 +10,8 @@ import * as Sentry from '@sentry/node';
 import { initSentry } from '@fxa/shared/sentry-node';
 import moment from 'moment';
 import { SessionToken } from '@fxa/shared/db/mysql/legacy/models/auth/session-token';
+import type { DeletedDevice } from '@fxa/shared/db/mysql/legacy/models/auth/prune-tokens';
+import { revokeDeviceRefreshToken } from '../lib/oauth/revoke-device-refresh-token';
 const { PruneTokens } = require('@fxa/shared/db/mysql/legacy/models/auth');
 const pckg = require('../package.json');
 
@@ -29,6 +31,33 @@ const config = require('../config').default.getProperties();
 const statsd = new StatsD(config.statsd);
 const log = require('../lib/log')(config.log.level, 'prune-tokens', statsd);
 initSentry({ ...config, release: pckg.version }, log);
+
+/**
+ * limitSessions deletes device rows in SQL, so run the parts of the
+ * auth-server's device disconnect that other services depend on: revoke the
+ * device's refresh token and send device:delete.
+ */
+async function finishDeviceDisconnect(uid: string, device: DeletedDevice) {
+  if (device.refreshTokenId) {
+    const oauthDB = require('../lib/oauth/db');
+    await revokeDeviceRefreshToken(
+      { oauthDB, log },
+      uid,
+      device.refreshTokenId
+    );
+  }
+  // Wait for the SNS publish; the script calls process.exit() when done.
+  await new Promise<void>((resolve) => {
+    log
+      .notifyAttachedServices(
+        'device:delete',
+        {},
+        { uid, id: device.id, timestamp: Date.now() },
+        () => resolve()
+      )
+      .catch(() => resolve());
+  });
+}
 
 export async function init() {
   // Parse args
@@ -177,15 +206,25 @@ Exit Codes:
             maxSessionsBatchSize
           );
 
+          if (!result.outputs) {
+            throw new Error('limitSessions failed');
+          }
           const currentDeletions = result.outputs['@totalDeletions'];
-          log.info('limitSessions result', { currentDeletions });
+          log.info('limitSessions result', {
+            currentDeletions,
+            devicesDeleted: result.deletedDevices.length,
+          });
+
+          for (const device of result.deletedDevices) {
+            await finishDeviceDisconnect(account, device);
+          }
 
           // Keeping looping until all extraneous sessions been cleaned up
           if (currentDeletions <= 0) {
             break;
           }
 
-          deletions += result.outputs['@totalDeletions'];
+          deletions += currentDeletions;
 
           // Give process a break
           await sleep();

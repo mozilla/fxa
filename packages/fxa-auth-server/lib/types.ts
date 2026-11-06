@@ -115,7 +115,9 @@ export interface AuthLogger extends Logger {
   notifyAttachedServices(
     serviceName: string,
     request: AuthRequest,
-    data: Record<string, any>
+    data: Record<string, any>,
+    // Called once the SNS publish settles; the returned promise does not wait for it.
+    onSent?: (err?: Error | null) => void
   ): Promise<void>;
 
   activityEvent(data: Record<string, any>): void;
