@@ -1,0 +1,126 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Flag OFF (no data-theme="nova"): today's values. Unlayered, so it wins over
+ * acorn-web-components' @layer tokens; the :not() stops matching under the flag. */
+:root:not([data-theme="nova"]) {
+  --color-black: #000;
+  --color-white: #fff;
+  --color-grey-10: #FAFAFB;
+  --color-grey-50: #F0F0F4;
+  --color-grey-100: #E7E7E7;
+  --color-grey-200: #C2C2C2;
+  --color-grey-300: #9E9E9E;
+  --color-grey-400: #6D6D6E;
+  --color-grey-500: #5E5E72;
+  --color-grey-600: #32313C;
+  --color-grey-700: #15141A;
+  --color-grey-900: #0C0C0D;
+  --fxa-color-pink-50: #FFDEF0;
+  --fxa-color-pink-100: #FFB4DB;
+  --color-pink-200: #FF8AC5;
+  --color-pink-300: #FF6BBA;
+  --color-pink-400: #FF4AA2;
+  --color-pink-500: #FF298A;
+  --color-pink-600: #E31587;
+  --color-pink-700: #C60084;
+  --color-pink-800: #7F145B;
+  --color-pink-900: #50134B;
+  --fxa-color-red-50: #FFDFE7;
+  --fxa-color-red-100: #FFBDC5;
+  --color-red-200: #FF9AA2;
+  --color-red-300: #FF848B;
+  --color-red-400: #FF6A75;
+  --color-red-500: #FF4F5E;
+  --color-red-600: #E22850;
+  --color-red-700: #C50042;
+  --color-red-800: #810220;
+  --color-red-900: #440306;
+  --fxa-color-yellow-50: #FFFFCC;
+  --fxa-color-yellow-100: #FFFF98;
+  --color-yellow-200: #FFEA80;
+  --color-yellow-300: #FFD567;
+  --color-yellow-400: #FFBD4F;
+  --color-yellow-500: #FFA436;
+  --color-yellow-600: #E27F2E;
+  --color-yellow-700: #C45A27;
+  --color-yellow-800: #A7341F;
+  --color-yellow-900: #960E18;
+  --fxa-color-orange-50: #FFF4DE;
+  --fxa-color-orange-100: #FFD5B2;
+  --color-orange-200: #FFB587;
+  --color-orange-300: #FFA266;
+  --color-orange-400: #FF8A50;
+  --color-orange-500: #FF7139;
+  --color-orange-600: #E25920;
+  --color-orange-700: #CC3D00;
+  --color-orange-800: #9E280B;
+  --color-orange-900: #7C1504;
+  --fxa-color-blue-50: #AAF2FF;
+  --fxa-color-blue-100: #80EBFF;
+  --color-blue-200: #00DDFF;
+  --color-blue-300: #00B3F4;
+  --color-blue-400: #0090ED;
+  --color-blue-500: #0060DF;
+  --color-blue-600: #0250BB;
+  --color-blue-700: #054096;
+  --color-blue-800: #073072;
+  --color-blue-900: #09204D;
+  --fxa-color-green-50: #E3FFF3;
+  --fxa-color-green-100: #D1FFEE;
+  --color-green-200: #B3FFE3;
+  --color-green-300: #88FFD1;
+  --color-green-400: #54FFBD;
+  --color-green-500: #3FE1B0;
+  --color-green-600: #3AD5B3;
+  --color-green-700: #1CC5A0;
+  --color-green-800: #00A49A;
+  --color-green-900: #00736C;
+  --fxa-color-violet-50: #F7E2FF;
+  --fxa-color-violet-100: #F6B8FF;
+  --color-violet-200: #F68FFF;
+  --color-violet-300: #F770FF;
+  --color-violet-400: #D74CF0;
+  --color-violet-500: #B833E1;
+  --color-violet-600: #952BB9;
+  --color-violet-700: #722291;
+  --color-violet-800: #4E1A69;
+  --color-violet-900: #2B1141;
+  --fxa-color-purple-50: #E7DFFF;
+  --fxa-color-purple-100: #D9BFFF;
+  --color-purple-200: #CB9EFF;
+  --color-purple-300: #C689FF;
+  --color-purple-400: #AB71FF;
+  --color-purple-500: #9059FF;
+  --color-purple-600: #7542E5;
+  --color-purple-700: #592ACB;
+  --color-purple-800: #45278D;
+  --color-purple-900: #321C64;
+  /* Non-color tokens tailwind.js references, at today's Tailwind values. Needed
+   * because admin-panel loads this file without Acorn's tokens.css. Shadows map
+   * sm/DEFAULT/md/lg to levels 1-4. */
+  --space-xxsmall: 0.125rem;
+  --space-xsmall: 0.25rem;
+  --space-small: 0.5rem;
+  --space-medium: 0.75rem;
+  --space-large: 1rem;
+  --space-xlarge: 1.5rem;
+  --space-xxlarge: 2rem;
+  --border-radius-xsmall: 0.25rem;
+  --border-radius-small: 0.5rem;
+  --border-radius-medium: 0.75rem;
+  --border-radius-large: 1rem;
+  --border-radius-xlarge: 1.5rem;
+  --border-radius-circle: 9999px;
+  --font-weight: normal;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-heading: 700;
+  --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  --box-shadow-level-1: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --box-shadow-level-2: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --box-shadow-level-3: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --box-shadow-level-4: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}

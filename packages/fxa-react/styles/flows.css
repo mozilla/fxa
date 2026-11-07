@@ -15,11 +15,11 @@
   }
 
   &-header {
-    @apply font-header text-xl font-bold;
+    @apply font-header text-xl font-heading;
   }
 
   &-header-cms {
-    @apply font-header font-bold;
+    @apply font-header font-heading;
   }
 
   &-subheader {

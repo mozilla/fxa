@@ -6,6 +6,11 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+/* admin-panel uses the shared base config's var(--color-*) colours. Use the
+ * legacy pre-Nova styles for now. When Settings is fully Nova-fied, we'll spot
+ * check admin-panel and turn it on here too. */
+@import '../../../../libs/shared/design-tokens/legacy.css';
+
 @import './tables';
 
 .icon-dark path {
