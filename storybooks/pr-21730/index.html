@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 1ba74c3a80ee02c8ffc1f82b47f72e939177a4bc</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 1ba74c3a80ee02c8ffc1f82b47f72e939177a4bc</h1>
+  <ul>
+    <li><a href="./email-renderer/">email-renderer</a></li>
+<li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>11/7/2026, 12:18:42 AM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(design-tokens): map spacing, radius, type and shadows to Nova</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+ - FXA-14256 moves FxA&#039;s non-color Tailwind tokens onto Acorn behind the novaDesignSystem flag.
+
+This commit:
+ - Points spacing, radius and font-weight steps that match Acorn at its vars; other steps keep Tailwind defaults.
+ - Maps shadows to --box-shadow-level-1..4, font-body/header to --font-family, card headers to --font-weight-heading.
+ - Adds today&#039;s values for these tokens to legacy.css so flag-off and admin-panel are unchanged.
+ - Resolves var() values in the Storybook Spacing page and repoints the Typography page&#039;s font link.
+ - Documents the token mapping and the opacity rule in the design-tokens README.
+
+Fixes FXA-14256</pre></dd>
+  </dl>
+</body>
+</html>
