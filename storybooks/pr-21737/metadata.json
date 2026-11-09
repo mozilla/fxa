@@ -1,0 +1,10 @@
+{
+  "commit": "649e188a844dacba30d20070f7be1f6f9e63eb8f",
+  "summary": "feat(db-migrations): add limitSessions_4, sparing device sessions",
+  "description": "Because:\n- limitSessions_3 deletes the oldest sessions first, often Sync devices,\n  and skips the auth-server's device disconnect side effects.\n\nThis commit:\n- Adds limitSessions_4: deviceless sessions go first, devices only after.\n- Returns the devices it deletes (id, refreshTokenId) as a result set.\n- Counts only session tokens in totalDeletions.\n- Adds the test copy and bumps the fxa target patch to 202.\n\nCloses FXA-14945",
+  "timestamp": 1793990947000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
