@@ -84,7 +84,7 @@ Apply the FXA testing rules in `.claude/rules/testing/base.md` and (for `*.test.
 - `jest.clearAllMocks()` in `beforeEach` — redundant only when the package's `jest.config.*` sets `clearMocks: true` (currently `fxa-auth-server` and `fxa-profile-server`); do not flag in other packages without checking their config
 - `mockClear`/`mockReset`/`jest.clearAllMocks`/`jest.resetAllMocks` called **inside** an `it()` body — band-aid for state leakage from prior tests or shared setup; fix the isolation instead
 - `proxyquire` in new test code — should use `jest.mock()`
-- New Mocha tests in `test/local/` or `test/remote/` — new tests must be Jest
+- New Mocha tests — new tests must be Jest
 - Over-mocked tests that only test mock wiring; mocking internal helpers in the same package instead of at system boundaries
 - Tautological mocks: mock returns `X`, assertion checks for `X`, no real logic in between
 - Untyped mocks where the real interface is available — typed mocks (`jest.Mocked<T>`) catch contract drift

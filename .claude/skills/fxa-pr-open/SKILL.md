@@ -112,7 +112,7 @@ Otherwise, move on to Step 4 with the attestation answers and framing selections
 
 ## Step 4 — Draft the title and body
 
-Read `.github/PULL_REQUEST_TEMPLATE.md` — that is the canonical body skeleton. Preserve its section order, headings, and placeholder text verbatim, and fill it in per the drafting guidance below. Substitute `FXA-NNNNN` on the `Closes:` line with the actual ticket key.
+Read `.github/PULL_REQUEST_TEMPLATE.md` — that is the canonical body skeleton. Preserve its section order, headings, and placeholder text verbatim, and fill it in per the drafting guidance below. Replace `(issue number)` on the `Closes:` line with the actual ticket key.
 
 Title guidance:
 - Follow the commit-message convention: `type(scope): subject`, imperative present tense, ≤72 chars.

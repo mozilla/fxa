@@ -43,7 +43,7 @@ Each agent MUST output findings as a JSON array ONLY (no markdown, no extra text
 Tell this agent it is a senior security engineer. It should:
 
 - Trace user input through changed code paths to check for injection (SQL, Redis, command, XSS)
-- Verify auth schemes on new route handlers — FXA auth-server uses 13 custom Hapi auth schemes, new routes must declare one
+- Verify auth schemes on new route handlers — new routes must declare one of the custom Hapi auth schemes in `packages/fxa-auth-server/lib/server.js`
 - Check for PII exposure in logs and error messages (emails, UIDs, session tokens) — note: UIDs and emails in API response bodies are expected, focus on logs and error messages
 - Verify parameterized queries — no string concatenation in SQL or Redis commands
 - Check rate limiting on new public endpoints (customs server integration)

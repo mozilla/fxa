@@ -35,7 +35,7 @@ Use **AskUserQuestion** twice:
 
 ## Step 2: Validate setup
 
-Run both checks. If either fails, stop and tell the user how to fix it.
+Run these three checks. If any fails, stop and tell the user how to fix it.
 
 ### CIRCLECI_TOKEN in `.env`
 
@@ -104,7 +104,7 @@ curl -s -H "Circle-Token: $(grep -E '^CIRCLECI_TOKEN=' .env | cut -d= -f2-)" \
 Then poll the workflow status:
 
 ```bash
-curl -s -H "Circle-Token: $TOKEN" \
+curl -s -H "Circle-Token: $(grep -E '^CIRCLECI_TOKEN=' .env | cut -d= -f2-)" \
   "https://circleci.com/api/v2/pipeline/<pipeline-id>/workflow" | \
   jq '.items[] | {name, status}'
 ```

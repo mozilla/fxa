@@ -32,7 +32,7 @@ Follow the established conventions from CLAUDE.md and the codebase:
 ### Module Style
 - **Auth-server:** CommonJS (`module.exports`, `require()`) — new TS files can use `import`/`export` but the runtime is CJS
 - **Libs (`libs/*`):** ES modules with proper exports
-- **fxa-settings:** ES modules, React 18 patterns
+- **fxa-settings:** ES modules, React 19 patterns
 
 ### Error Handling
 - Use proper error handling patterns — avoid try/catch when possible, let errors propagate naturally
@@ -56,7 +56,6 @@ When simplifying test files, follow these patterns:
 ### Jest (preferred for all new tests)
 - Co-located `*.spec.ts` files next to source in `lib/`
 - Integration tests use `*.in.spec.ts` suffix in `test/remote/`
-- `sinon` + Jest `expect()` coexistence is the established pattern — do NOT convert sinon to jest.fn() unless it simplifies things
 - Use shared mocks from `test/mocks.js` (`mockDB()`, `mockLog()`, `mockMailer()`, `mockPush()`, etc.)
 - `jest.mock()` with factory functions for module mocking (replaces `proxyquire`)
 - For parameterized tests: prefer `it.each()` over `forEach` wrapping `it()`
@@ -65,7 +64,7 @@ When simplifying test files, follow these patterns:
 - MPL-2.0 license header at top of every file
 
 ### Mocha (legacy — do not add new Mocha tests)
-- Existing tests in `test/local/` and `test/remote/`
+- Mocha remains only in fxa-content-server, fxa-auth-client and eslint-plugin-fxa
 - When migrating: convert `assert.equal` → `expect().toBe()`, `assert.deepEqual` → `expect().toEqual()`
 
 ## 4. Enhance Clarity

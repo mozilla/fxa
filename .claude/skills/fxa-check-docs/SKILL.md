@@ -47,7 +47,7 @@ Work through each changed file and apply all relevant improvements below. Make e
 - Flag any endpoints that are undocumented and add a documentation stub
 
 ### 5. Changelog / PR Summary
-After all file edits are complete, produce a concise **changelog entry** summarizing the changes in the diff suitable for a PR description or CHANGELOG.md. Use this format:
+After all file edits are complete, produce a concise **changelog entry** summarizing the changes in the diff suitable for a PR description. Use this format:
 
 ```
 ## Summary
