@@ -1,8 +1,8 @@
 {
-  "commit": "920adc37739d642c59522b0a5f1e94548f414bde",
-  "summary": "Merge pull request #21725 from mozilla/fxa-14912",
-  "description": "feat(admin-panel): disable accounts that match a blocklist entry",
-  "timestamp": 1794258671000,
+  "commit": "e883a5cdddea3a0b2b8b9d019d3f829ea57de9a0",
+  "summary": "Merge pull request #21705 from mozilla/fxa-14924",
+  "description": "refactor(content-server): merge react-app route reg into one module",
+  "timestamp": 1794263897000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
