@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 53d2529ec9ec1c895d86cc66e590eb991c0ae39e</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 53d2529ec9ec1c895d86cc66e590eb991c0ae39e</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>11/6/2026, 6:49:23 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>feat(auth): finish device disconnects when pruning capped sessions</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- limitSessions deletes device rows in SQL, leaving their refresh tokens
+  live and never telling attached services the device is gone.
+
+This commit:
+- Calls limitSessions_4 and returns the devices it deleted.
+- Moves device refresh-token revocation into a shared helper.
+- Revokes those refresh tokens and sends device:delete from prune-tokens.
+- Lets notifyAttachedServices take a callback for when SNS publish settles.
+
+Closes FXA-14945</pre></dd>
+  </dl>
+</body>
+</html>

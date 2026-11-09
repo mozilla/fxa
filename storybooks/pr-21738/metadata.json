@@ -1,0 +1,10 @@
+{
+  "commit": "53d2529ec9ec1c895d86cc66e590eb991c0ae39e",
+  "summary": "feat(auth): finish device disconnects when pruning capped sessions",
+  "description": "Because:\n- limitSessions deletes device rows in SQL, leaving their refresh tokens\n  live and never telling attached services the device is gone.\n\nThis commit:\n- Calls limitSessions_4 and returns the devices it deleted.\n- Moves device refresh-token revocation into a shared helper.\n- Revokes those refresh tokens and sends device:delete from prune-tokens.\n- Lets notifyAttachedServices take a callback for when SNS publish settles.\n\nCloses FXA-14945",
+  "timestamp": 1793990963000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
