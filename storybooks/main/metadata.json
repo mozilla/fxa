@@ -1,8 +1,8 @@
 {
-  "commit": "4bc0acb70557a6d92ba58c648ab8debe40ba57f4",
-  "summary": "Merge pull request #21730 from mozilla/FXA-14256",
-  "description": "feat(design-tokens): map spacing, radius, type and shadows to Nova",
-  "timestamp": 1794245641000,
+  "commit": "8a4bb9f05fb316ae25d92ce117054981baf00760",
+  "summary": "Merge pull request #21672 from mozilla/pay-3767",
+  "description": "fix(payments-ui): keep subscription mode for below-minimum upgrades",
+  "timestamp": 1794251855000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
