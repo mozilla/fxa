@@ -1,8 +1,8 @@
 {
-  "commit": "e883a5cdddea3a0b2b8b9d019d3f829ea57de9a0",
-  "summary": "Merge pull request #21705 from mozilla/fxa-14924",
-  "description": "refactor(content-server): merge react-app route reg into one module",
-  "timestamp": 1794263897000,
+  "commit": "0271b9ad71224a25ace724d94600ac6187608a37",
+  "summary": "Merge pull request #21736 from mozilla/FXA-14258",
+  "description": "feat(settings): add Nova semantic utilities and restyle shared components",
+  "timestamp": 1794265055000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
