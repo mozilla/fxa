@@ -1,0 +1,13 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-footer-automatedEmail">
+      <span data-l10n-id="automated-email-inactive-account">
+        This is an automated email. You are receiving it because you have a Mozilla account and it has been 2 years since your last sign-in.
+      </span>
+    </mj-text>
+  </mj-column>
+</mj-section>
