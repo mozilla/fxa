@@ -1,0 +1,11 @@
+newDeviceLogin-title-3 = "Your Mozilla account was used to sign in"
+
+<%- include('/partials/userInfo/index.txt') %>
+
+newDeviceLogin-change-password-plain = "Not you? Change your password:"
+<%- passwordChangeLink %>
+
+<%- include('/partials/manageAccount/index.txt') %>
+
+<%- include('/partials/automatedEmailNoAction/index.txt') %>
+<%- include('/partials/support/index.txt') %>
