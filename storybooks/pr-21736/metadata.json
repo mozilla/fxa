@@ -1,8 +1,8 @@
 {
-  "commit": "c794b351d48831856d4984a0be46069e0858ebd5",
+  "commit": "9256e672ad4b2b54fa22104c7710b9160dbfb2b0",
   "summary": "feat(settings): add Nova semantic utilities and restyle shared components",
   "description": "Because:\n- Shared components set colors with raw utilities and hand-written dark: pairs.\n- Acorn's semantic tokens express intent and own light/dark.\n- FXA-14259 and FXA-14260 build on this setup.\n\nThis commit:\n- Adds semantic utilities, a nova: variant and a light-dark() fallback to fxa-settings.\n- Gives each semantic token today's light and dark value in legacy.css for flag-off.\n- Swaps exact light/dark pairs for semantic utilities in 15 shared components.\n- Restyles shared components under nova: per Figma; InputText error border is exclusive.\n- Drops the Nova min-height from cta-base-p so anchor CTAs stay centered.",
-  "timestamp": 1794260925000,
+  "timestamp": 1794262047000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
