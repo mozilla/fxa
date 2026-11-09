@@ -1,0 +1,8 @@
+{
+  "name": "shared-design-tokens",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/design-tokens/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {}
+}

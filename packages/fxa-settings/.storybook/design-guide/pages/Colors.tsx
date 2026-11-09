@@ -6,6 +6,11 @@ import Page from '../Page';
 import Copiable from '../Copiable';
 import Snippet from '../Snippet';
 
+// Tailwind colors are now function-valued (they return var(--color-*) so opacity
+// modifiers work); resolve to the string the swatch can render and display.
+const resolveColor = (value: unknown) =>
+  typeof value === 'function' ? value() : (value as string);
+
 const Swatch = ({
   color,
   hex,
@@ -29,7 +34,9 @@ const Swatch = ({
           </Copiable>
         )}
         <Copiable value={shade ? hex : copyValue}>
-          <span className="block text-xs">{hex.toUpperCase()}</span>
+          <span className="block text-xs">
+            {hex.startsWith('var(') ? hex : hex.toUpperCase()}
+          </span>
         </Copiable>
       </div>
       <span
@@ -117,15 +124,15 @@ const Colors = ({ config }) => {
           <h2 className="pr-5 font-bold w-full">
             {name.charAt(0).toUpperCase() + name.slice(1)}
           </h2>
-          {typeof twColors[name] === 'string' ? (
-            <Swatch color={name} hex={twColors[name]} />
-          ) : (
+          {typeof twColors[name] === 'object' ? (
             Object.keys(twColors[name]).map((shade) => (
               <Swatch
-                {...{ color: name, hex: twColors[name][shade], shade }}
+                {...{ color: name, hex: resolveColor(twColors[name][shade]), shade }}
                 key={shade}
               />
             ))
+          ) : (
+            <Swatch color={name} hex={resolveColor(twColors[name])} />
           )}
         </div>
       ))}
