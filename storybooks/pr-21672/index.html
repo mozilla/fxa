@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit e81e84be0236306e504a0a801063d5585085a746</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit e81e84be0236306e504a0a801063d5585085a746</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>11/9/2026, 6:38:15 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(payments-ui): keep subscription mode for below-minimum upgrades</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- An upgrade prorated below the Stripe minimum charge leaves a pending SetupIntent on the subscription.
+- Elements in setup mode creates a confirmation token Stripe refuses for that SetupIntent, which failed the cart.
+
+This commit:
+- Keeps Elements in subscription mode and passes an amount of 0 when below the minimum charge.
+- Adds a StripeWrapper test for the mode and amount passed to Elements.
+- Adds a payWithStripe test for an upgrade whose paid invoice comes with a pending SetupIntent.
+
+Closes PAY-3767</pre></dd>
+  </dl>
+</body>
+</html>

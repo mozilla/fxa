@@ -1,0 +1,10 @@
+{
+  "commit": "e81e84be0236306e504a0a801063d5585085a746",
+  "summary": "fix(payments-ui): keep subscription mode for below-minimum upgrades",
+  "description": "Because:\n- An upgrade prorated below the Stripe minimum charge leaves a pending SetupIntent on the subscription.\n- Elements in setup mode creates a confirmation token Stripe refuses for that SetupIntent, which failed the cart.\n\nThis commit:\n- Keeps Elements in subscription mode and passes an amount of 0 when below the minimum charge.\n- Adds a StripeWrapper test for the mode and amount passed to Elements.\n- Adds a payWithStripe test for an upgrade whose paid invoice comes with a pending SetupIntent.\n\nCloses PAY-3767",
+  "timestamp": 1794249495000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
