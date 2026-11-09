@@ -1,6 +1,0 @@
-downloadSubscription-title = "Welcome to <%- productName %>"
-
-downloadSubscription-content-2 = "Let’s get started using all the features included in your subscription:"
-<%- link %>
-
-<%- include('/partials/subscriptionSupport/index.txt') %>
