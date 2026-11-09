@@ -612,7 +612,6 @@ nav-security = Безпека
 nav-connected-services = Під'єднані служби
 nav-data-collection = Збір та використання даних
 nav-paid-subs = Передплати
-nav-email-comm = Зв’язок електронною поштою
 
 
 tfa-replace-code-error-3 = Виникла проблема під час заміни ваших резервних кодів

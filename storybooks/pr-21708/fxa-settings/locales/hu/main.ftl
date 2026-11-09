@@ -687,7 +687,7 @@ nav-security = Biztonság
 nav-connected-services = Kapcsolódó szolgáltatások
 nav-data-collection = Adatgyűjtés és -felhasználás
 nav-paid-subs = Előfizetések
-nav-email-comm = E-mail kommunikáció
+nav-email-prefs = E-mail-beállítások
 
 
 page-2fa-change-title = Kétlépcsős hitelesítés módosítása
@@ -1419,12 +1419,6 @@ pair2-supplicant-download-firefox-have-firefox-button = Már van { -brand-firefo
 pair2-supplicant-download-firefox-learn-more-link = További tudnivalók
 
 
-pair2-supplicant-connect-hint-heading-v2 = Fejezze be a párosítást az alkalmazásban
-pair2-supplicant-connect-hint-step-app-menu = Koppintson az <b>alkalmazásmenüre</b> az eszköztárban
-pair2-supplicant-connect-hint-step-sign-in = Koppintson a <b>bejelentkezésre</b>, majd olvassa le a kódot
-pair2-supplicant-connect-hint-learn-more-link = További tudnivalók
-
-
 pair2-supplicant-ready-to-scan-heading = Eszköz csatlakoztatása
 pair2-supplicant-ready-to-scan-instruction = Nyissa meg a { -brand-firefox }ot a számítógépén, lépjen a <b>firefox.com/pair</b> oldalra, és kövesse a képernyőn megjelenő utasításokat a mobileszköze csatlakoztatásához.
 pair2-supplicant-ready-to-scan-learn-more-link = További tudnivalók
@@ -1573,6 +1567,7 @@ signin-link-expired-message-2 = A hivatkozás, amelyre kattintott, lejárt, vagy
 
 
 signin-password-needed-header-2 = Adja meg a <span>{ -product-mozilla-account }</span> jelszavát
+signin-button-start-syncing = Szinkronizálás indítása
 signin-subheader-without-logo-with-servicename = Tovább erre: { $serviceName }
 signin-subheader-without-logo-default = Folytatás a fiókbeállításokhoz
 signin-button = Bejelentkezés

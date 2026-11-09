@@ -865,7 +865,7 @@ nav-security = 보안
 nav-connected-services = 연결된 서비스
 nav-data-collection = 데이터 수집 및 사용
 nav-paid-subs = 유료 구독
-nav-email-comm = 이메일 설정 관리
+nav-email-prefs = 이메일 설정
 
 ## Page2faChange
 
@@ -1981,20 +1981,6 @@ pair2-supplicant-download-firefox-have-firefox-button = 이미 { -brand-firefox 
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = 더 알아보기
 
-## PairConnectHint page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device after scanning the pairing QR code
-## with the phone's camera app instead of with Firefox. They already have
-## Firefox installed, so it tells them how to scan the code again from inside
-## Firefox.
-
-pair2-supplicant-connect-hint-heading-v2 = 앱에서 페어링 완료하기
-# <b> emphasises the name of the button the user taps in Firefox
-pair2-supplicant-connect-hint-step-app-menu = 툴바에서 <b>앱 메뉴</b>를 누르세요
-# <b> emphasises the name of the menu item the user taps in Firefox
-pair2-supplicant-connect-hint-step-sign-in = <b>로그인</b>을 누른 다음 코드를 스캔하세요
-# Opens a Mozilla support article about connecting a device without a QR code
-pair2-supplicant-connect-hint-learn-more-link = 더 알아보기
-
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
 ## to open firefox.com/pair on their computer, which is where the QR code they
@@ -2234,6 +2220,8 @@ signin-link-expired-message-2 = 클릭한 링크가 만료되었거나 이미 �
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = <span>{ -product-mozilla-account }</span> 비밀번호를 입력하세요
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = 동기화 시작
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = { $serviceName }로 계속

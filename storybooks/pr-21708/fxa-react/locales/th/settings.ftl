@@ -772,7 +772,6 @@ nav-security = ความปลอดภัย
 nav-connected-services = บริการที่เชื่อมต่อ
 nav-data-collection = การเก็บรวบรวมและใช้ข้อมูล
 nav-paid-subs = การสมัครสมาชิกแบบเสียค่าใช้จ่าย
-nav-email-comm = การติดต่อสื่อสารทางอีเมล
 
 ## Page2faChange
 

@@ -748,7 +748,6 @@ nav-security = Turvallisuus
 nav-connected-services = Yhdistetyt palvelut
 nav-data-collection = Tietojen keruu ja käyttö
 nav-paid-subs = Maksetut tilaukset
-nav-email-comm = Sähköpostiviestintä
 
 ## Page2faChange
 

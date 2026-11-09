@@ -890,7 +890,7 @@ nav-security = Безопасность
 nav-connected-services = Подсоединённые устройства
 nav-data-collection = Сбор и использование данных
 nav-paid-subs = Платные подписки
-nav-email-comm = Почтовые рассылки
+nav-email-prefs = Настройки эл. почты
 
 ## Page2faChange
 
@@ -2014,20 +2014,6 @@ pair2-supplicant-download-firefox-have-firefox-button = У меня уже ес�
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = Подробнее
 
-## PairConnectHint page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device after scanning the pairing QR code
-## with the phone's camera app instead of with Firefox. They already have
-## Firefox installed, so it tells them how to scan the code again from inside
-## Firefox.
-
-pair2-supplicant-connect-hint-heading-v2 = Завершите сопряжение в приложении
-# <b> emphasises the name of the button the user taps in Firefox
-pair2-supplicant-connect-hint-step-app-menu = Нажмите на <b>меню приложения</b> на панели инструментов
-# <b> emphasises the name of the menu item the user taps in Firefox
-pair2-supplicant-connect-hint-step-sign-in = Нажмите <b>войти</b>, затем отсканируйте код
-# Opens a Mozilla support article about connecting a device without a QR code
-pair2-supplicant-connect-hint-learn-more-link = Подробнее
-
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
 ## to open firefox.com/pair on their computer, which is where the QR code they
@@ -2272,6 +2258,8 @@ signin-link-expired-message-2 = Срок действия ссылки, на к�
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Введите свой пароль <span>для вашего { -product-mozilla-account(case: "genitive") }</span>
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = Начать синхронизацию
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = Перейти к { $serviceName }

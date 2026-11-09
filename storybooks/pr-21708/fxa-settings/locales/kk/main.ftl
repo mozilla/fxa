@@ -648,7 +648,7 @@ nav-security = Қауіпсіздік
 nav-connected-services = Байланыстырылған қызметтер
 nav-data-collection = Деректерді жинау және қолдану
 nav-paid-subs = Ақылы жазылулар
-nav-email-comm = Эл. пошта хабарландырулары
+nav-email-prefs = Эл. пошта баптаулары
 
 
 page-2fa-change-title = Екі қадамды аутентификацияны өзгерту
@@ -1379,12 +1379,6 @@ pair2-supplicant-download-firefox-have-firefox-button = Менде { -brand-fire
 pair2-supplicant-download-firefox-learn-more-link = Көбірек білу
 
 
-pair2-supplicant-connect-hint-heading-v2 = Жұптауды қолданбада аяқтаңыз
-pair2-supplicant-connect-hint-step-app-menu = Саймандар панеліндегі <b>қолданбалар мәзірін</b> шертіңіз
-pair2-supplicant-connect-hint-step-sign-in = <b>Кіру</b> шертіп, кодты сканерлеңіз
-pair2-supplicant-connect-hint-learn-more-link = Көбірек білу
-
-
 pair2-supplicant-ready-to-scan-heading = Құрылғыны байланыстыру үшін
 pair2-supplicant-ready-to-scan-instruction = Компьютеріңізде { -brand-firefox } ашып, <b>firefox.com/pair</b> сайтына өтіп, осы мобильді құрылғыны байланыстыру үшін экрандағы нұсқауларды орындаңыз.
 pair2-supplicant-ready-to-scan-learn-more-link = Көбірек білу
@@ -1533,6 +1527,7 @@ signin-link-expired-message-2 = Сіз басқан сілтеменің мер�
 
 
 signin-password-needed-header-2 = Өзіңіздің <span>{ -product-mozilla-account } тіркелгіңіз</span> үшін парольді енгізіңіз
+signin-button-start-syncing = Синхрондауды бастау
 signin-subheader-without-logo-with-servicename = { $serviceName } ішіне жалғастыру
 signin-subheader-without-logo-default = Тіркелгі баптауларына жалғастыру
 signin-button = Кіру

@@ -622,7 +622,7 @@ nav-security = 安全性
 nav-connected-services = 連結的服務
 nav-data-collection = 資料收集與使用
 nav-paid-subs = 付費訂閱項目
-nav-email-comm = 電子郵件通訊
+nav-email-prefs = 已更新隱私權公告
 
 
 page-2fa-change-title = 更改兩階段驗證設定
@@ -1336,12 +1336,6 @@ pair2-supplicant-download-firefox-have-firefox-button = 我已經安裝 { -brand
 pair2-supplicant-download-firefox-learn-more-link = 更多資訊
 
 
-pair2-supplicant-connect-hint-heading-v2 = 到 App 中完成配對
-pair2-supplicant-connect-hint-step-app-menu = 點擊工具列中的<b>應用程式選單</b>
-pair2-supplicant-connect-hint-step-sign-in = 點擊<b>登入</b>，然後掃描 QR Code
-pair2-supplicant-connect-hint-learn-more-link = 更多資訊
-
-
 pair2-supplicant-ready-to-scan-heading = 連結裝置
 pair2-supplicant-ready-to-scan-instruction = 於您的電腦使用 { -brand-firefox }，造訪 <b>firefox.com/pair</b>，然後依照畫面上的指示連結您的行動裝置。
 pair2-supplicant-ready-to-scan-learn-more-link = 更多資訊
@@ -1483,6 +1477,7 @@ signin-link-expired-message-2 = 您點擊的鏈結已失效，或已經被使用
 
 
 signin-password-needed-header-2 = 請輸入您的密碼 <span>{ -product-mozilla-account }</span>
+signin-button-start-syncing = 開始同步
 signin-subheader-without-logo-with-servicename = 繼續前往 { $serviceName }
 signin-subheader-without-logo-default = 繼續前往帳號設定
 signin-button = 登入

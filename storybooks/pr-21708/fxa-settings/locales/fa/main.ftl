@@ -646,7 +646,7 @@ nav-security = امنیت
 nav-connected-services = خدمات متصل
 nav-data-collection = جمع‌آوری و استفاده از داده‌ها
 nav-paid-subs = اشتراک‌های پولی
-nav-email-comm = ارتباطات رایانامه‌ای
+nav-email-prefs = ترجیحات رایانامه
 
 
 page-2fa-change-title = تغییر احراز هویت دو مرحله‌ای
@@ -1367,12 +1367,6 @@ pair2-supplicant-download-firefox-have-firefox-button = { -brand-firefox } را 
 pair2-supplicant-download-firefox-learn-more-link = بیش‌تر بدانید
 
 
-pair2-supplicant-connect-hint-heading-v2 = جفت‌سازی را در برنامه تمام کنید
-pair2-supplicant-connect-hint-step-app-menu = روی <b>منوی برنامه</b> در نوار ابزار بزنید
-pair2-supplicant-connect-hint-step-sign-in = روی <b>ورود</b> بزنید، سپس کد را اسکن کنید
-pair2-supplicant-connect-hint-learn-more-link = بیش‌تر بدانید
-
-
 pair2-supplicant-ready-to-scan-heading = برای اتصال یک دستگاه
 pair2-supplicant-ready-to-scan-instruction = روی رایانه‌تان { -brand-firefox } را باز کنید، به <b>firefox.com/pair</b> بروید و برای اتصال این دستگاه همراه، دستورهای روی صفحه را دنبال کنید.
 pair2-supplicant-ready-to-scan-learn-more-link = بیشتر بدانید
@@ -1518,6 +1512,7 @@ signin-link-expired-message-2 = پیوندی که روی آن کلیک کردی�
 
 
 signin-password-needed-header-2 = گذرواژه‌تان را وارد کنید <span>برای { -product-mozilla-account }</span>
+signin-button-start-syncing = آغاز همگام‌سازی
 signin-subheader-without-logo-with-servicename = ادامه به { $serviceName }
 signin-subheader-without-logo-default = ادامه به تنظیمات حساب
 signin-button = ورود

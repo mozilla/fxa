@@ -378,7 +378,6 @@ nav-profile = രൂപരേഖ
 nav-security = സുരക്ഷ
 nav-connected-services = ബന്ധിപ്പിച്ച സേവനങ്ങൾ
 nav-data-collection = ദത്ത പിരിവും ഉപയോഗവും
-nav-email-comm = ഇതപാൽ ആശയവിനിമയങ്ങൾ
 
 ## Avatar change page
 

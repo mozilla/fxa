@@ -684,7 +684,7 @@ nav-security = უსაფრთხოება
 nav-connected-services = დაკავშირებული მომსახურებები
 nav-data-collection = მონაცემთა აღრიცხვა და გამოყენება
 nav-paid-subs = ფასიანი გამოწერები
-nav-email-comm = ელფოსტით კავშირები
+nav-email-prefs = ელფოსტის პარამეტრები
 
 
 page-2fa-change-title = შესვლისას ორბიჯიანი დამოწმების შეცვლა
@@ -1414,12 +1414,6 @@ pair2-supplicant-download-firefox-have-firefox-button = უკვე მაქ�
 pair2-supplicant-download-firefox-learn-more-link = ვრცლად
 
 
-pair2-supplicant-connect-hint-heading-v2 = მიერთების დასრულება პროგრამაში
-pair2-supplicant-connect-hint-step-app-menu = შეეხეთ <b>პროგრამის მენიუს</b> ხელსაწყოთა ზოლზე
-pair2-supplicant-connect-hint-step-sign-in = შეეხეთ <b>შესვლას</b> და წააკითხეთ კოდი
-pair2-supplicant-connect-hint-learn-more-link = ვრცლად
-
-
 pair2-supplicant-ready-to-scan-heading = რომ დაკავშირდეს მოწყობილობა
 pair2-supplicant-ready-to-scan-instruction = თქვენს კომპიუტერზე, გახსენით { -brand-firefox }, მოინახულეთ გვერდი <b>firefox.com/pair</b> და მიჰყევით ეკრანზე მითითებებს ამ მობილური მოწყობილობის დასაკავშირებლად.
 pair2-supplicant-ready-to-scan-learn-more-link = ვრცლად
@@ -1568,6 +1562,7 @@ signin-link-expired-message-2 = ბმული, რომელზეც გა
 
 
 signin-password-needed-header-2 = შეიყვანეთ პაროლი <span>თქვენი { -product-mozilla-account(case: "ben") }</span>
+signin-button-start-syncing = დასინქ. დაწყება
 signin-subheader-without-logo-with-servicename = გაიხსნება { $serviceName }
 signin-subheader-without-logo-default = გადასვლა ანგარიშის პარამეტრებზე
 signin-button = შესვლა

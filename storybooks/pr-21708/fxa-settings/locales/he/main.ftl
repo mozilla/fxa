@@ -631,7 +631,7 @@ nav-security = אבטחה
 nav-connected-services = שירותים מחוברים
 nav-data-collection = איסוף ושימוש בנתונים
 nav-paid-subs = מינויים בתשלום
-nav-email-comm = תקשורת בדוא״ל
+nav-email-prefs = העדפות דוא״ל
 
 
 page-2fa-change-title = שינוי אימות דו־שלבי
@@ -1331,12 +1331,6 @@ pair2-supplicant-download-firefox-have-firefox-button = כבר יש לי את { 
 pair2-supplicant-download-firefox-learn-more-link = מידע נוסף
 
 
-pair2-supplicant-connect-hint-heading-v2 = סיום הצימוד ביישומון
-pair2-supplicant-connect-hint-step-app-menu = יש להקיש על <b>תפריט היישומון</b> בסרגל הכלים
-pair2-supplicant-connect-hint-step-sign-in = יש להקיש על <b>כניסה</b>, ולאחר מכן לסרוק את הקוד
-pair2-supplicant-connect-hint-learn-more-link = מידע נוסף
-
-
 pair2-supplicant-ready-to-scan-heading = כדי לחבר מכשיר
 pair2-supplicant-ready-to-scan-instruction = במחשב שלך, יש לפתוח את { -brand-firefox } ולבקר ב־<b>firefox.com/pair</b>, ולעקוב אחרי ההנחיות שמופיעות על המסך כדי לחבר את המכשיר הנייד הזה.
 pair2-supplicant-ready-to-scan-learn-more-link = מידע נוסף
@@ -1475,6 +1469,7 @@ signin-link-expired-message-2 = פג תוקף הקישור עליו לחצת, א
 
 
 signin-password-needed-header-2 = נא להכניס את הססמה שלך <span>עבור { -product-mozilla-account(case: "the") } שלך</span>
+signin-button-start-syncing = התחלה בסנכרון
 signin-subheader-without-logo-with-servicename = המשך אל { $serviceName }
 signin-subheader-without-logo-default = המשך אל הגדרות החשבון
 signin-button = כניסה

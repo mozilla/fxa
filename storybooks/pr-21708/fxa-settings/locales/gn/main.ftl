@@ -638,7 +638,6 @@ nav-security = Tekorosã
 nav-connected-services = Mba’epytyvõrã mbojuajupyre
 nav-data-collection = Ñembyaty ha mba’ekuaarã jeporu
 nav-paid-subs = Ñemboheraguapy ñehepyme’ẽgua
-nav-email-comm = Ñemongeta ñanduti veve rupive
 
 
 page-2fa-change-title = Emombue ñemboaje mokõi jeku’egua
@@ -1352,10 +1351,6 @@ pair2-supplicant-download-firefox-opening-button = Ijurujahína { -brand-firefox
 pair2-supplicant-download-firefox-download-button = Emboguejy { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = Aguerekóma { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Eikuaave
-
-
-pair2-supplicant-connect-hint-heading-v2 = Emohu’ã tembiporu’i mbojuehe
-pair2-supplicant-connect-hint-learn-more-link = Eikuaave
 
 
 pair2-supplicant-ready-to-scan-heading = Embojuaju hag̃ua mba’e’oka

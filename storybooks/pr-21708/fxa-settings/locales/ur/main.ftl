@@ -75,7 +75,6 @@ nav-settings = سیٹنگز
 nav-profile = پروفائل
 nav-security = سلامتی
 nav-paid-subs = ادائیگی شدہ سبسکرپشن
-nav-email-comm = ای میل مواصلات
 
 
 avatar-page-title =

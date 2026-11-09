@@ -656,7 +656,7 @@ nav-security = Wěstota
 nav-connected-services = Zwjazane słužby
 nav-data-collection = Hromadźenje a wužiwanje datow
 nav-paid-subs = Zapłaćene abonementy
-nav-email-comm = E-mejlowa komunikacija
+nav-email-prefs = E-mejlowe nastajenja
 
 
 page-2fa-change-title = Dwukročelowu awtentifikaciju změnić
@@ -1392,12 +1392,6 @@ pair2-supplicant-download-firefox-have-firefox-button = Mam hižo { -brand-firef
 pair2-supplicant-download-firefox-learn-more-link = Dalše informacije
 
 
-pair2-supplicant-connect-hint-heading-v2 = Koplowanje w nałoženju dokónčić
-pair2-supplicant-connect-hint-step-app-menu = Podótkńće so <b>nałoženskeho menija</b> w symbolowej lajsće
-pair2-supplicant-connect-hint-step-sign-in = Podótkńće so <b>Přizjewić</b> a skenujće potom kode
-pair2-supplicant-connect-hint-learn-more-link = Dalše informacije
-
-
 pair2-supplicant-ready-to-scan-heading = Grat zwjazać
 pair2-supplicant-ready-to-scan-instruction = Wočińće { -brand-firefox } na swojim ličaku a wopytajće <b>firefox.com/pair</b> a slědujće instrukcijam na wobrazowce, zo byšće swój mobilny grat zwjazał.
 pair2-supplicant-ready-to-scan-learn-more-link = Dalše informacije
@@ -1548,6 +1542,7 @@ signin-link-expired-message-2 = Wotkaz, na kotryž sće kliknył, je spadnjeny a
 
 
 signin-password-needed-header-2 = Zapodajće swoje hesło <span>za swoje { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
+signin-button-start-syncing = Synchronizaciju započeć
 signin-subheader-without-logo-with-servicename = Dale k { $serviceName }
 signin-subheader-without-logo-default = Dale ke kontowym nastajenjam
 signin-button = Přizjewić

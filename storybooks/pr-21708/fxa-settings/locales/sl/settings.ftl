@@ -897,7 +897,7 @@ nav-security = Varnost
 nav-connected-services = Povezane storitve
 nav-data-collection = Zbiranje in uporaba podatkov
 nav-paid-subs = Plačljive naročnine
-nav-email-comm = E-poštno obveščanje
+nav-email-prefs = Nastavitve e-pošte
 
 ## Page2faChange
 
@@ -2025,20 +2025,6 @@ pair2-supplicant-download-firefox-have-firefox-button = { -brand-firefox } že i
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = Več o tem
 
-## PairConnectHint page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device after scanning the pairing QR code
-## with the phone's camera app instead of with Firefox. They already have
-## Firefox installed, so it tells them how to scan the code again from inside
-## Firefox.
-
-pair2-supplicant-connect-hint-heading-v2 = Dokončajte seznanjanje v aplikaciji
-# <b> emphasises the name of the button the user taps in Firefox
-pair2-supplicant-connect-hint-step-app-menu = V orodni vrstici tapnite <b>meni aplikacij</b>
-# <b> emphasises the name of the menu item the user taps in Firefox
-pair2-supplicant-connect-hint-step-sign-in = Tapnite <b>prijava</b> in preberite kodo
-# Opens a Mozilla support article about connecting a device without a QR code
-pair2-supplicant-connect-hint-learn-more-link = Več o tem
-
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
 ## to open firefox.com/pair on their computer, which is where the QR code they
@@ -2284,6 +2270,8 @@ signin-link-expired-message-2 = Povezavi, ki ste jo kliknili, je potekla veljavn
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Vnesite geslo <span>za { -product-mozilla-account }</span>
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = Začni s sinhronizacijo
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = Nadaljuj na { $serviceName }

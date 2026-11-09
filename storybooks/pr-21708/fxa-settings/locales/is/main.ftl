@@ -466,7 +466,6 @@ nav-security = Öryggi
 nav-connected-services = Tengdar þjónustur
 nav-data-collection = Gagnasöfnun og upplýsingar um notkun
 nav-paid-subs = Greiddar áskriftir
-nav-email-comm = Tölvupóstsamskipti
 
 
 tfa-replace-code-error-3 = Vandamál kom upp við að skipta um varaauðkenningarkóðana þína

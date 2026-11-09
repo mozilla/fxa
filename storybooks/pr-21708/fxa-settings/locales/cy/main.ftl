@@ -664,7 +664,7 @@ nav-security = Diogelwch
 nav-connected-services = Gwasanaethau Cysylltiedig
 nav-data-collection = Casglu a'r Defnydd o Ddata
 nav-paid-subs = Tanysgrifiadau Taledig
-nav-email-comm = Cyfathrebu Trwy E-bost
+nav-email-prefs = Dewisiadau E-bost
 
 
 page-2fa-change-title = Newid dilysu dau gam
@@ -1400,12 +1400,6 @@ pair2-supplicant-download-firefox-have-firefox-button = Mae gen i { -brand-firef
 pair2-supplicant-download-firefox-learn-more-link = Dysgu rhagor
 
 
-pair2-supplicant-connect-hint-heading-v2 = Gorffen paru yn yr ap
-pair2-supplicant-connect-hint-step-app-menu = Tapiwch <b>ddewislen yr ap</b> yn y bar offer
-pair2-supplicant-connect-hint-step-sign-in = Tapiwch <b>mewngofnodi</b>, yna sganio'r cod
-pair2-supplicant-connect-hint-learn-more-link = Dysgu rhagor
-
-
 pair2-supplicant-ready-to-scan-heading = I gysylltu dyfais
 pair2-supplicant-ready-to-scan-instruction = Ar eich cyfrifiadur, agorwch { -brand-firefox } ac ewch i <b>firefox.com/pair</b>, a dilynwch y cyfarwyddiadau ar y sgrin i gysylltu'r ddyfais symudol hon.
 pair2-supplicant-ready-to-scan-learn-more-link = Dysgu rhagor
@@ -1555,6 +1549,7 @@ signin-link-expired-message-2 = Mae'r ddolen a gliciwyd gennych wedi dod i ben n
 
 
 signin-password-needed-header-2 = Rhowch eich cyfrinair <span>ar gyfer eich cyfrif { -product-mozilla-account }</span>
+signin-button-start-syncing = Cychwyn cydweddu
 signin-subheader-without-logo-with-servicename = Parhau i { $serviceName }
 signin-subheader-without-logo-default = Parhau i osodiadau cyfrif
 signin-button = Mewngofnodi

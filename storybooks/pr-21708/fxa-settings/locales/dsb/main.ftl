@@ -656,7 +656,7 @@ nav-security = Wěstota
 nav-connected-services = Zwězane słužby
 nav-data-collection = Zběranje a wužywanje datow
 nav-paid-subs = Zapłaśone abonementy
-nav-email-comm = E-mailowa komunikacija
+nav-email-prefs = E-mailowe nastajenja
 
 
 page-2fa-change-title = Dwójokšacowu awtentifikaciju zmeniś
@@ -1392,12 +1392,6 @@ pair2-supplicant-download-firefox-have-firefox-button = Mam južo { -brand-firef
 pair2-supplicant-download-firefox-learn-more-link = Dalšne informacije
 
 
-pair2-supplicant-connect-hint-heading-v2 = Koplowanje w nałoženju dokóńcyś
-pair2-supplicant-connect-hint-step-app-menu = Pótusniśo <b>nałožeński meni</b> w symbolowej rědce
-pair2-supplicant-connect-hint-step-sign-in = Pótusniśo <b>Pśizjawiś</b> a scannujśo pón kode
-pair2-supplicant-connect-hint-learn-more-link = Dalšne informacije
-
-
 pair2-supplicant-ready-to-scan-heading = Rěd zwězaś
 pair2-supplicant-ready-to-scan-instruction = Wócyńśo { -brand-firefox } na swójom licadle a woglědajśo se k <b>firefox.com/pair</b> a slědujśo instrukcijam na wobrazowce, aby swój mobilny rěd zwězał.
 pair2-supplicant-ready-to-scan-learn-more-link = Dalšne informacije
@@ -1548,6 +1542,7 @@ signin-link-expired-message-2 = Wótkaz, na kótaryž sćo kliknuł, jo spadnjon
 
 
 signin-password-needed-header-2 = Zapódajśo swójo gronidło <span>za swójo { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
+signin-button-start-syncing = Synchronizaciju zachopiś
 signin-subheader-without-logo-with-servicename = Dalej k { $serviceName }
 signin-subheader-without-logo-default = Dalej ku kontowym nastajenjam
 signin-button = Pśizjawiś

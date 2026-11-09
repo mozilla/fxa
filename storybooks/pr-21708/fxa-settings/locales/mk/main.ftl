@@ -97,7 +97,6 @@ nav-profile = Профил
 nav-security = Безбедност
 nav-connected-services = Поврзани услуги
 nav-paid-subs = Платени претплати
-nav-email-comm = Комуникации по е-пошта
 
 
 avatar-page-title =

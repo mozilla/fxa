@@ -748,7 +748,7 @@ nav-security = Bezpieczeństwo
 nav-connected-services = Połączone usługi
 nav-data-collection = Zbieranie i wykorzystywanie danych
 nav-paid-subs = Płatne subskrypcje
-nav-email-comm = Ustawienia poczty
+nav-email-prefs = Preferencje e-mail
 
 
 page-2fa-change-title = Zmień uwierzytelnianie dwuetapowe
@@ -1339,12 +1339,6 @@ pair2-supplicant-download-firefox-have-firefox-button = Mam już { -brand-firefo
 pair2-supplicant-download-firefox-learn-more-link = Więcej informacji
 
 
-pair2-supplicant-connect-hint-heading-v2 = Dokończ powiązanie w aplikacji
-pair2-supplicant-connect-hint-step-app-menu = Stuknij <b>menu aplikacji</b> na pasku narzędzi
-pair2-supplicant-connect-hint-step-sign-in = Stuknij <b>Zaloguj się</b>, a następnie zeskanuj kod
-pair2-supplicant-connect-hint-learn-more-link = Dowiedz się więcej
-
-
 permissions-heading = { $serviceName } prosi o dostęp do:
 permissions-label-email = Adres e-mail
 permissions-label-display-name = Wyświetlana nazwa
@@ -1471,6 +1465,7 @@ signin-link-expired-message-2 = Kliknięty odnośnik wygasł lub został już wy
 
 
 signin-password-needed-header-2 = Wpisz hasło <span>do { -product-mozilla-account(capitalization: "lower", case: "gen") }</span>
+signin-button-start-syncing = Zacznij synchronizować
 signin-subheader-without-logo-with-servicename = Przejdź do usługi { $serviceName }
 signin-subheader-without-logo-default = Przejdź do ustawień konta
 signin-button = Zaloguj się

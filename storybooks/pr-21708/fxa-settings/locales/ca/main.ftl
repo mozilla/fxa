@@ -5,7 +5,11 @@
 -brand-mozilla = Mozilla
 -brand-firefox = Firefox
 -product-firefox-accounts = Comptes del Firefox
--product-mozilla-account = Compte de Mozilla
+-product-mozilla-account =
+    { $capitalization ->
+        [uppercase] Compte de Mozilla
+       *[lowercase] compte de Mozilla
+    }
 -product-mozilla-accounts =
     { $capitalization ->
         [uppercase] Comptes de Mozilla
@@ -21,6 +25,7 @@
 -product-mozilla-monitor = Mozilla Monitor
 -product-mozilla-monitor-short = Monitor
 -product-firefox-relay = Firefox Relay
+-product-firefox-relay-short = Relay
 -brand-apple = Apple
 -brand-apple-pay = Apple Pay
 -brand-google = Google
@@ -31,16 +36,53 @@
 -brand-diners = Diners Club
 -brand-discover = Discover
 -brand-jcb = JCB
+-brand-link = Link
 -brand-mastercard = Mastercard
 -brand-unionpay = UnionPay
 -brand-visa = Visa
 -app-store = App Store
 -google-play = Google Play
 
+app-something-went-wrong-heading = Hi ha hagut un problema
+app-something-went-wrong-message = Se'ns ha notificat el problema. Actualitzeu la pàgina per tornar-ho a provar.
+app-error-id = ID d'error: { $errorId }
+app-error-details-summary = Detalls de l'error
+app-query-parameter-err-heading = Sol·licitud incorrecta: Paràmetres de consulta no vàlids
+
+
 app-footer-mozilla-logo-label = Logotip del { -brand-mozilla }
 app-footer-privacy-notice = Avís de privadesa del lloc web
 app-footer-terms-of-service = Condicions del servei
 
+
+app-default-title-2 = { -product-mozilla-accounts(capitalization: "uppercase") }
+app-page-title-2 = { $title } | { -product-mozilla-accounts(capitalization: "uppercase") }
+
+
+link-sr-new-window = S'obre en una finestra nova
+
+
+app-loading-spinner-aria-label-loading = S'està carregant…
+
+
+app-logo-alt-3 =
+    .alt = Logotip m de { -brand-mozilla }
+
+
+
+resend-code-success-banner-heading = S'ha enviat un codi nou al vostre correu electrònic.
+resend-link-success-banner-heading = S'ha enviat un enllaç nou al vostre correu electrònic.
+resend-success-banner-description = Afegiu { $accountsEmail } als vostres contactes per a garantir un lliurament sense problemes.
+
+
+brand-banner-dismiss-button-2 =
+    .aria-label = Tanca el bàner
+brand-prelaunch-title = Els { -product-firefox-accounts } canviaran el nom a { -product-mozilla-accounts } l'1 de novembre
+brand-learn-more = Més informació
+brand-close-banner =
+    .alt = Tanca el bàner
+brand-m-logo =
+    .alt = Logotip m de { -brand-mozilla }
 
 
 button-back-aria-label = Enrere
@@ -48,6 +90,12 @@ button-back-title = Enrere
 
 
 recovery-key-download-button-v4 = Baixa i continua
+
+
+button-passkey-signin-loading = S'està iniciant la sessió de manera segura...
+
+
+choose-newsletters-prompt-2 = Obteniu més de { -brand-mozilla }:
 
 
 dark-mode-toggle-light = Clar
@@ -64,26 +112,136 @@ datablock-print =
     .message = S'ha imprès
 
 
+datablock-copy-success =
+    { $count ->
+        [one] S'ha copiat el codi
+       *[other] S'han copiat els codis
+    }
+datablock-download-success =
+    { $count ->
+        [one] S'ha baixat el codi
+       *[other] S'han baixat els codis
+    }
+datablock-print-success =
+    { $count ->
+        [one] S'ha imprés el codi
+       *[other] S'han imprès els codis
+    }
+
+
+datablock-inline-copy =
+    .message = S'ha copiat
+
+
+device-info-block-location-city-region-country = { $city }, { $region }, { $country } (estimació)
+device-info-block-location-region-country = { $region }, { $country } (estimació)
+device-info-block-location-city-country = { $city }, { $country } (estimació)
+device-info-block-location-country = { $country } (estimació)
+device-info-block-location-unknown = Ubicació desconeguda
+device-info-browser-os = { $browserName } en { $genericOSName }
+device-info-browser-device = { $browserName } en { $deviceName }
 device-info-ip-address = Adreça IP: { $ipAddress }
+
+
+firefox-promo-banner-switch-cta = Canvieu al { -brand-firefox }
 
 
 form-password-with-inline-criteria-signup-new-password-label =
     .label = Contrasenya
 form-password-with-inline-criteria-signup-confirm-password-label =
     .label = Repetiu la contrasenya
+form-password-with-inline-criteria-signup-submit-button = Crea un compte
 form-password-with-inline-criteria-reset-new-password =
     .label = Contrasenya nova
+form-password-with-inline-criteria-confirm-password =
+    .label = Confirma la contrasenya
+form-password-with-inline-criteria-reset-submit-button = Crea una contrasenya nova
 form-password-with-inline-criteria-old-password-label =
     .label = Contrasenya antiga
+form-password-with-inline-criteria-change-password-submit-button = Canvia la contrasenya
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = Contrasenya
 form-password-with-inline-criteria-set-password-confirm-password-label =
     .label = Repetiu la contrasenya
 form-password-with-inline-criteria-set-password-submit-button = Inicia la sincronització
+form-password-with-inline-criteria-match-error = Les contrasenyes no coincideixen
+form-password-with-inline-criteria-sr-too-short-message = La contrasenya ha de tenir almenys 8 caràcters.
+form-password-with-inline-criteria-sr-not-email-message = La contrasenya no pot contenir la vostra adreça electrònica.
+form-password-with-inline-criteria-sr-not-common-message = La contrasenya no pot ser una contrasenya d'ús comú.
+form-password-with-inline-criteria-sr-requirements-met = La contrasenya introduïda respecta tots els requisits de contrasenya.
+form-password-with-inline-criteria-sr-passwords-match = Les contrasenyes introduïdes coincideixen.
 
 
+form-verify-code-default-error = Aquest camp és obligatori
+
+
+form-verify-totp-disabled-button-title-numeric = Introduïu el codi de { $codeLength } dígits per a continuar
+form-verify-totp-disabled-button-title-alphanumeric = Introduïu el codi de { $codeLength } caràcters per a continuar
+get-data-trio-title-firefox = { -brand-firefox }
+get-data-trio-title-firefox-recovery-key = Clau de recuperació del compte del { -brand-firefox }
+get-data-trio-title-backup-verification-codes = Codis d'autenticació de recuperació
+get-data-trio-download-2 =
+    .aria-label = Baixa
+    .title = Baixa
+get-data-trio-copy-2 =
+    .aria-label = Copia
+    .title = Copia
+get-data-trio-print-2 =
+    .aria-label = Imprimeix
+    .title = Imprimeix
+
+
+alert-icon-aria-label =
+    .aria-label = Alerta
+icon-attention-aria-label =
+    .aria-label = Atenció
+icon-warning-aria-label =
+    .aria-label = Avís
+authenticator-app-aria-label =
+    .aria-label = Aplicació d'autenticació
+backup-recovery-sms-icon-aria-label =
+    .aria-label = SMS de recuperació activat
+backup-recovery-sms-disabled-icon-aria-label =
+    .aria-label = SMS de recuperació desactivat
+canadian-flag-icon-aria-label =
+    .aria-label = Bandera canadenca
+checkmark-icon-aria-label =
+    .aria-label = Marca
+checkmark-success-icon-aria-label =
+    .aria-label = Correcte
+close-icon-aria-label =
+    .aria-label = Tanca el missatge
+code-icon-aria-label =
+    .aria-label = Codi
+edit-icon-aria-label =
+    .aria-label = Edita
+error-icon-aria-label =
+    .aria-label = Error
+info-icon-aria-label =
+    .aria-label = Informació
+usa-flag-icon-aria-label =
+    .aria-label = Bandera dels Estats Units
+icon-loading-arrow-aria-label =
+    .aria-label = S'està carregant
+signin-recovery-code-image-description =
+    .aria-label = Document que conté text ocult.
+signin-totp-code-image-label =
+    .aria-label = Un dispositiu amb un codi de 6 dígits ocult.
 confirm-signup-aria-label =
     .aria-label = Un sobre que conté un enllaç
+security-shield-aria-label =
+    .aria-label = Il·lustració per a representar una clau de recuperació del compte.
+recovery-key-image-aria-label =
+    .aria-label = Il·lustració per a representar una clau de recuperació del compte.
+password-image-aria-label =
+    .aria-label = Una il·lustració per a representar l'escriptura d'una contrasenya.
+firefox-wordmark-image-aria-label =
+    .aria-label = Logotip del { -brand-firefox }
+
+
+inline-recovery-key-setup-signed-in-firefox-2 = Heu iniciat la sessió al { -brand-firefox }.
+inline-recovery-key-setup-create-header = Protegiu el vostre compte
+inline-recovery-key-setup-create-subheader = Teniu un minut per a protegir les vostres dades?
 
 
 input-password-hide = Amaga la contrasenya
@@ -91,6 +249,13 @@ input-password-show = Mostra la contrasenya
 
 
 locale-toggle-select-label = Trieu una llengua
+locale-toggle-browser-default = Opció per defecte del navegador
+error-bad-request = Sol·licitud incorrecta
+
+
+pair-unsupported-hint-step-close-page = Tanca aquesta pàgina
+pair-unsupported-hint-step-app-menu = Toca el <b>menú de l'aplicació</b>
+pair-unsupported-hint-learn-more-link = Més informació
 
 
 alert-bar-close-message = Tanca el missatge
@@ -102,6 +267,10 @@ avatar-default-avatar =
     .alt = Avatar per defecte
 
 
+bento-menu-title-3 = Productes de { -brand-mozilla }
+bento-menu-vpn-2 = { -product-mozilla-vpn }
+bento-menu-monitor-3 = { -product-mozilla-monitor }
+bento-menu-firefox-relay-2 = { -product-firefox-relay }
 bento-menu-firefox-desktop = Navegador { -brand-firefox } per a l'escriptori
 bento-menu-firefox-mobile = Navegador { -brand-firefox } per al mòbil
 bento-menu-made-by-mozilla = Creat per { -brand-mozilla }
@@ -135,7 +304,12 @@ cs-disconnect-suspicious-advice-heading = S'ha desconnectat el dispositiu sospit
 cs-sign-out-button = Tanca la sessió
 
 
+cs-scope-firefox-vpn = VPN integrada del { -brand-firefox }
+
+
 dc-heading = Ús i recollida de dades
+dc-subheader-moz-accounts = { -product-mozilla-accounts(capitalization: "uppercase") }
+dc-subheader-ff-browser = Navegador { -brand-firefox }
 dc-learn-more = Més informació
 drop-down-menu-sign-out = Tanca la sessió
 
@@ -143,10 +317,61 @@ drop-down-menu-sign-out = Tanca la sessió
 flow-container-back = Enrere
 
 
+flow-setup-2fa-manual-key-instruction = <strong>Pas 1:</strong> Introduïu aquest codi a la vostra aplicació d'autenticació preferida.
+flow-setup-2fa-more-info-link = Més informació sobre les aplicacions d'autenticació
+flow-setup-2fa-button = Continua
+flow-setup-2fa-step-2-instruction = <strong>Pas 2:</strong> Introduïu el codi des de l'aplicació d'autenticació.
+flow-setup-2fa-input-label = Introduïu el codi de 6 dígits
+
+
+flow-setup-2fa-backup-choice-heading = Trieu un mètode de recuperació
+flow-setup-2fa-backup-choice-description = Això us permet iniciar la sessió si no podeu accedir al vostre dispositiu mòbil o a l'aplicació d'autenticació.
+flow-setup-2fa-backup-choice-phone-title = Telèfon de recuperació
+flow-setup-2fa-backup-choice-phone-badge = Més fàcil
+flow-setup-2fa-backup-choice-code-title = Codis d'autenticació de recuperació
+flow-setup-2fa-backup-choice-code-badge = Més segur
+flow-setup-2fa-backup-choice-code-info = Creeu i deseu codis d'autenticació d'un sol ús.
+
+
+flow-setup-2fa-backup-code-confirm-heading = Introduïu el codi d'autenticació de recuperació
+flow-setup-2fa-backup-code-confirm-code-input = Introduïu el codi de 10 caràcters
+flow-setup-2fa-backup-code-confirm-button-finish = Finalitza
+
+
+flow-setup-2fa-backup-code-dl-heading = Desa els codis d'autenticació de recuperació
+flow-setup-2fa-backup-code-dl-button-continue = Continua
+
+
+flow-setup-2fa-inline-complete-success-banner = S’ha habilitat l‘autenticació en dos passos
+flow-setup-2fa-inline-complete-backup-code = Codis d'autenticació de recuperació
+flow-setup-2fa-inline-complete-backup-phone = Telèfon de recuperació
+flow-setup-2fa-inline-complete-backup-code-info =
+    { $count ->
+        [one] { $count } codi restant
+       *[other] { $count } codis restants
+    }
+
+
+flow-setup-phone-confirm-code-heading = Introduïu el codi de verificació
+flow-setup-phone-confirm-code-input-label = Introduïu el codi de 6 dígits
+flow-setup-phone-confirm-code-expired = El codi ha caducat?
+flow-setup-phone-confirm-code-resend-code-button = Torna a enviar el codi
+flow-setup-phone-confirm-code-resend-code-success = S'ha enviat el codi
+flow-setup-phone-confirm-code-success-message-v2 = S'ha afegit el telèfon de recuperació
+flow-change-phone-confirm-code-success-message = S'ha canviat el telèfon de recuperació
+flow-setup-phone-submit-number-heading = Verifiqueu el vostre número de telèfon
+flow-setup-phone-verify-number-instruction = Rebreu un missatge de text de { -brand-mozilla } amb un codi per a verificar el vostre número. No compartiu aquest codi amb ningú.
+flow-setup-phone-submit-number-info-message-v2 = El telèfon de recuperació només està disponible als Estats Units i Canadà. No es recomanen números de VoIP ni màscares de telèfon.
+flow-setup-phone-submit-number-button = Envia el codi
+
+
 header-menu-open = Tanca el menú
 header-menu-closed = Menú de navegació del lloc
 header-back-to-top-link =
     .title = Torna a dalt
+header-back-to-settings-link =
+    .title = Torna a la configuració del { -product-mozilla-account }
+header-title-2 = { -product-mozilla-account(capitalization: "uppercase") }
 header-help = Ajuda
 
 
@@ -154,6 +379,7 @@ la-heading = Comptes enllaçats
 la-description = Heu autoritzat l'accés als comptes següents.
 la-unlink-button = Desenllaça
 la-unlink-account-button = Desenllaça
+la-set-password-button = Defineix una contrasenya
 la-unlink-heading = Desenllaça d'un compte de tercers
 la-unlink-content-3 = Esteu segur que voleu desenllaçar el compte? Si el desenllaceu, no se us tancaran les sessions dels serveis actualment connectats. Per fer-ho, caldrà que tanqueu la sessió manualment en la secció de Serveis connectats.
 nav-linked-accounts = { la-heading }
@@ -161,6 +387,15 @@ nav-linked-accounts = { la-heading }
 
 modal-close-title = Tanca
 modal-cancel-button = Cancel·la
+modal-default-confirm-button = Confirma
+
+
+modal-mfa-protected-title = Introduïu el codi de confirmació
+modal-mfa-protected-input-label = Introduïu el codi de 6 dígits
+modal-mfa-protected-cancel-button = Cancel·la
+modal-mfa-protected-confirm-button = Confirma
+modal-mfa-protected-code-expired = El codi ha caducat?
+modal-mfa-protected-resend-code-link = Envia el codi nou per correu electrònic.
 
 
 mvs-verify-your-email-2 = Confirmeu l'adreça electrònica
@@ -176,7 +411,13 @@ nav-security = Seguretat
 nav-connected-services = Serveis connectats
 nav-data-collection = Ús i recollida de dades
 nav-paid-subs = Subscripcions de pagament
-nav-email-comm = Comunicacions per correu electrònic
+
+
+page-2fa-change-title = Canvieu l'autenticació en dos passos
+page-2fa-change-success = S'ha actualitzat l'autenticació en dos passos
+
+
+tfa-backup-codes-page-title = Codis d'autenticació de recuperació
 
 
 avatar-page-title =
@@ -360,6 +601,12 @@ auth-error-1008 = La contrasenya nova ha de ser diferent
 
 
 connect-another-device-not-now-link = Ara no
+
+
+inline-passwordless-sync-setup-page-title = Voleu ometre la contrasenya la pròxima vegada?
+inline-passwordless-sync-setup-heading = Voleu ometre la contrasenya la pròxima vegada?
+inline-passwordless-sync-setup-error-cancelled-description = Confirmeu amb la vostra clau d'accés per a ometre la contrasenya la pròxima vegada.
+inline-passwordless-sync-setup-error-generic-v2 = No hem pogut activar aquesta clau d'accés per a iniciar la sessió i la sincronització. La pròxima vegada haureu d'introduir la contrasenya.
 
 
 pair-not-now-button = Ara no

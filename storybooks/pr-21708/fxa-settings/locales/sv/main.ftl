@@ -646,7 +646,7 @@ nav-security = Säkerhet
 nav-connected-services = Anslutna tjänster
 nav-data-collection = Datainsamling och användning
 nav-paid-subs = Betalda prenumerationer
-nav-email-comm = E-postkommunikation
+nav-email-prefs = E-postinställningar
 
 
 page-2fa-change-title = Ändra tvåstegsautentisering
@@ -1227,6 +1227,11 @@ tfa-qr-code-alt = Använd koden { $code } för att ställa in tvåstegsautentise
 inline-totp-setup-page-title = Tvåstegsautentisering
 
 
+page-not-found-heading = Sidan hittades inte
+page-not-found-description = Sidan du sökte kunde inte hittas. Vi har fått information om detta och kommer att åtgärda eventuella felaktiga länkar.
+page-not-found-home-button = Hem
+
+
 pair-auth-allow-heading-text = Loggade du precis in på { -brand-firefox }?
 pair-auth-allow-confirm-button = Ja, godkänn enhet
 pair-auth-allow-refuse-device-link = Om det inte var du, <a>ändra du ditt lösenord</a>
@@ -1370,12 +1375,6 @@ pair2-supplicant-download-firefox-opening-button = Öppnar { -brand-firefox }…
 pair2-supplicant-download-firefox-download-button = Ladda ned { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = Jag har redan { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Läs mer
-
-
-pair2-supplicant-connect-hint-heading-v2 = Avsluta parkoppling i appen
-pair2-supplicant-connect-hint-step-app-menu = Tryck på <b>appmenyn</b> i verktygsfältet
-pair2-supplicant-connect-hint-step-sign-in = Tryck på <b>logga in</b> och skanna sedan koden
-pair2-supplicant-connect-hint-learn-more-link = Läs mer
 
 
 pair2-supplicant-ready-to-scan-heading = För att ansluta en enhet
@@ -1526,6 +1525,7 @@ signin-link-expired-message-2 = Länken du klickade på har upphört eller har r
 
 
 signin-password-needed-header-2 = Ange ditt lösenord <span>för ditt { -product-mozilla-account }</span>
+signin-button-start-syncing = Starta synkronisering
 signin-subheader-without-logo-with-servicename = Fortsätt till { $serviceName }
 signin-subheader-without-logo-default = Fortsätt till kontoinställningar
 signin-button = Logga in

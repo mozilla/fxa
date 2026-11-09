@@ -648,7 +648,7 @@ nav-security = Securitate
 nav-connected-services = Servicios connectite
 nav-data-collection = Recolta e uso de datos
 nav-paid-subs = Subscriptiones pagate
-nav-email-comm = Communicationes email
+nav-email-prefs = Preferentias de e-mails
 
 
 page-2fa-change-title = Cambiar authentication a duo passos
@@ -1381,12 +1381,6 @@ pair2-supplicant-download-firefox-have-firefox-button = Io jam ha { -brand-firef
 pair2-supplicant-download-firefox-learn-more-link = Pro saper plus
 
 
-pair2-supplicant-connect-hint-heading-v2 = Fini le accopulamento in le application
-pair2-supplicant-connect-hint-step-app-menu = Tocca le <b>menu del application</b> in le barra del instrumentos
-pair2-supplicant-connect-hint-step-sign-in = Tocca <b>acceder</b>, pois scande le codice
-pair2-supplicant-connect-hint-learn-more-link = Pro saper plus
-
-
 pair2-supplicant-ready-to-scan-heading = Connecter un apparato
 pair2-supplicant-ready-to-scan-instruction = Sur tu computator, aperi { -brand-firefox } e va a <b>firefox.com/par</b>, e seque le instructiones sur le schermo pro connecter iste apparato mobile.
 pair2-supplicant-ready-to-scan-learn-more-link = Pro saper plus
@@ -1532,6 +1526,7 @@ signin-link-expired-message-2 = Le ligamine que tu cliccava ha expirate o ha jam
 
 
 signin-password-needed-header-2 = Insere tu contrasigno <span>pro tu { -product-mozilla-account }</span>
+signin-button-start-syncing = Initia a synchronisar
 signin-subheader-without-logo-with-servicename = Continuar a { $serviceName }
 signin-subheader-without-logo-default = Passa a parametros de conto
 signin-button = Aperir session

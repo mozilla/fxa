@@ -335,7 +335,7 @@ error-bad-request = Pedido inválido
 pair-unsupported-hint-heading = Concluir emparelhamento na aplicação
 pair-unsupported-hint-step-close-page = Fechar esta página
 pair-unsupported-hint-step-app-menu = Toque no <b>menu da aplicação</b>
-pair-unsupported-hint-step-sign-in = <b>Inicie sessão</b> e digitalize o código
+pair-unsupported-hint-step-sign-in = <b>Inicie sessão</b>, depois digitalize o código
 pair-unsupported-hint-learn-more-link = Saber mais
 
 
@@ -648,7 +648,7 @@ nav-security = Segurança
 nav-connected-services = Serviços associados
 nav-data-collection = Recolha e utilização de dados
 nav-paid-subs = Subscrições pagas
-nav-email-comm = Comunicações por e-mail
+nav-email-prefs = Preferências de E-mail
 
 
 page-2fa-change-title = Alterar autenticação de dois passos
@@ -1230,6 +1230,11 @@ tfa-qr-code-alt =
 inline-totp-setup-page-title = Autenticação de dois passos
 
 
+page-not-found-heading = Página não encontrada
+page-not-found-description = A página que solicitou não foi encontrada. Fomos notificados e iremos corrigir todas as ligações que possam estar quebradas.
+page-not-found-home-button = Início
+
+
 pair-auth-allow-heading-text = Acabou de iniciar a sessão no { -brand-firefox }?
 pair-auth-allow-confirm-button = Sim, aprovar dispositivo
 pair-auth-allow-refuse-device-link = Se não foi você, <a>altere a sua palavra-passe</a>
@@ -1373,12 +1378,6 @@ pair2-supplicant-download-firefox-opening-button = A abrir { -brand-firefox }…
 pair2-supplicant-download-firefox-download-button = Transferir o { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = Eu já tenho o { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Saber mais
-
-
-pair2-supplicant-connect-hint-heading-v2 = Concluir emparelhamento na aplicação
-pair2-supplicant-connect-hint-step-app-menu = Toque no <b>menu da aplicação</b> na barra de ferramentas
-pair2-supplicant-connect-hint-step-sign-in = Toque em <b>iniciar sessão</b>, depois digitalize o código
-pair2-supplicant-connect-hint-learn-more-link = Saber mais
 
 
 pair2-supplicant-ready-to-scan-heading = Para ligar um dispositivo
@@ -1526,6 +1525,7 @@ signin-link-expired-message-2 = A ligação que clicou expirou ou já foi utiliz
 
 
 signin-password-needed-header-2 = Insira a sua palavra-passe <span>para a sua { -product-mozilla-account }</span>
+signin-button-start-syncing = Iniciar sincronização
 signin-subheader-without-logo-with-servicename = Continuar para { $serviceName }
 signin-subheader-without-logo-default = Continuar para as definições da conta
 signin-button = Iniciar a sessão
@@ -1561,9 +1561,9 @@ signin-passkey-fallback-password-label = Palavra-passe
 signin-passkey-fallback-continue = Continuar
 signin-passkey-fallback-forgot-password-link = Esqueceu-se da palavra-passe?
 signin-passkey-fallback-no-prf-heading = É necessária uma palavra-passe neste dispositivo
-signin-passkey-fallback-no-prf-description = Este navegador ou dispositivo não pode utilizar a sua chave para iniciar sessão para sincronizar por si próprio.
-signin-passkey-fallback-unwrap-failed-heading = A sua chave de acesso não desbloqueou a sincronização
-signin-passkey-fallback-unwrap-failed-description = Algo correu mal, pelo que desta vez irá precisar da sua palavra-passe.
+signin-passkey-fallback-no-prf-description = Este navegador ou dispositivo não consegue usar a sua chave-passe para iniciar sessão para sincronizar por si próprio..
+signin-passkey-fallback-unwrap-failed-heading = A sua chave-passe não conseguiu desbloquear a sincronização
+signin-passkey-fallback-unwrap-failed-description = Algo correu mal, por isso desta vez irá precisar da sua palavra-passe.
 signin-passkey-fallback-wrap-unusable-link = Saber mais
 
 

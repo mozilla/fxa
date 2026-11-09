@@ -648,7 +648,6 @@ nav-security = Güvenlik
 nav-connected-services = Bağlı hizmetler
 nav-data-collection = Veri toplanması ve kullanımı
 nav-paid-subs = Ücretli abonelikler
-nav-email-comm = E-posta iletişimi
 
 
 page-2fa-change-title = İki aşamalı doğrulamayı değiştir
@@ -1347,10 +1346,6 @@ pair2-supplicant-download-firefox-opening-button = { -brand-firefox } açılıyo
 pair2-supplicant-download-firefox-download-button = { -brand-firefox }’u indir
 pair2-supplicant-download-firefox-have-firefox-button = { -brand-firefox } zaten yüklü
 pair2-supplicant-download-firefox-learn-more-link = Daha fazla bilgi al
-
-
-pair2-supplicant-connect-hint-step-app-menu = Araç çubuğundaki <b>uygulama menüsüne</b> dokunun
-pair2-supplicant-connect-hint-learn-more-link = Daha fazla bilgi al
 
 
 pair2-supplicant-ready-to-scan-heading = Cihaz bağlamak için

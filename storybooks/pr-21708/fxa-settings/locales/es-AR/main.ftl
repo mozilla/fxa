@@ -644,7 +644,7 @@ nav-security = Seguridad
 nav-connected-services = Servicios conectados
 nav-data-collection = Recolección y uso de datos
 nav-paid-subs = Suscripciones pagas
-nav-email-comm = Comunicaciones por correo electrónico
+nav-email-prefs = Preferencias de correo electrónico
 
 
 page-2fa-change-title = Cambiar la autenticación de dos pasos
@@ -1376,12 +1376,6 @@ pair2-supplicant-download-firefox-have-firefox-button = Ya tengo { -brand-firefo
 pair2-supplicant-download-firefox-learn-more-link = Conocer más
 
 
-pair2-supplicant-connect-hint-heading-v2 = Finalizar el emparejamiento en la aplicación
-pair2-supplicant-connect-hint-step-app-menu = Tocá el <b>menú de la aplicación</b> en la barra de herramientas
-pair2-supplicant-connect-hint-step-sign-in = Tocá <b>iniciar sesión</b> y escaneá el código
-pair2-supplicant-connect-hint-learn-more-link = Conocer más
-
-
 pair2-supplicant-ready-to-scan-heading = Para conectar un dispositivo
 pair2-supplicant-ready-to-scan-instruction = En tu computadora, abrí { -brand-firefox }, andá a <b>firefox.com/pair</b> y seguí las instrucciones en pantalla para conectar este dispositivo móvil.
 pair2-supplicant-ready-to-scan-learn-more-link = Conocer más
@@ -1530,6 +1524,7 @@ signin-link-expired-message-2 = El enlace en el que hiciste clic ha expirado o y
 
 
 signin-password-needed-header-2 = Ingresá la contraseña <span>para tu { -product-mozilla-account }</span>
+signin-button-start-syncing = Iniciar sincronización
 signin-subheader-without-logo-with-servicename = Continuar a { $serviceName }
 signin-subheader-without-logo-default = Continuar a configuración de cuenta
 signin-button = Iniciar sesión

@@ -716,7 +716,7 @@ nav-security = Ασφάλεια
 nav-connected-services = Συνδεδεμένες υπηρεσίες
 nav-data-collection = Συλλογή και χρήση δεδομένων
 nav-paid-subs = Συνδρομές επί πληρωμή
-nav-email-comm = Επικοινωνία μέσω email
+nav-email-prefs = Προτιμήσεις email
 
 
 page-2fa-change-title = Τροποποίηση ελέγχου ταυτότητας δύο παραγόντων
@@ -1447,12 +1447,6 @@ pair2-supplicant-download-firefox-have-firefox-button = Διαθέτω ήδη τ
 pair2-supplicant-download-firefox-learn-more-link = Μάθετε περισσότερα
 
 
-pair2-supplicant-connect-hint-heading-v2 = Ολοκλήρωση σύζευξης στην εφαρμογή
-pair2-supplicant-connect-hint-step-app-menu = Πατήστε το <b>μενού εφαρμογής</b> στη γραμμή εργαλείων
-pair2-supplicant-connect-hint-step-sign-in = Επιλέξτε <b>Σύνδεση</b> και σαρώστε τον κωδικό
-pair2-supplicant-connect-hint-learn-more-link = Μάθετε περισσότερα
-
-
 pair2-supplicant-ready-to-scan-heading = Για να συνδέσετε μια συσκευή
 pair2-supplicant-ready-to-scan-instruction = Στον υπολογιστή σας, ανοίξτε το { -brand-firefox }, μεταβείτε στο <b>firefox.com/pair</b> και ακολουθήστε τις οδηγίες που εμφανίζονται στην οθόνη για να συνδέσετε αυτήν την κινητή συσκευή.
 pair2-supplicant-ready-to-scan-learn-more-link = Μάθετε περισσότερα
@@ -1601,6 +1595,7 @@ signin-link-expired-message-2 = Ο σύνδεσμος στον οποίο κάν
 
 
 signin-password-needed-header-2 = Εισαγάγετε τον κωδικό πρόσβασης <span>για τον { -product-mozilla-account(capitalization: "lower", case: "acc") } σας</span>
+signin-button-start-syncing = Έναρξη συγχρονισμού
 signin-subheader-without-logo-with-servicename = Συνέχεια στο { $serviceName }
 signin-subheader-without-logo-default = Συνέχεια στις ρυθμίσεις λογαριασμού
 signin-button = Σύνδεση

@@ -893,7 +893,7 @@ nav-security = Segurtasuna
 nav-connected-services = Konektatutako zerbitzuak
 nav-data-collection = Datuen bilketa eta erabilera
 nav-paid-subs = Ordainpeko harpidetzak
-nav-email-comm = Posta bidezko komunikazioak
+nav-email-prefs = Posta-hobespenak
 
 ## Page2faChange
 
@@ -2015,20 +2015,6 @@ pair2-supplicant-download-firefox-have-firefox-button = Dagoeneko badut { -brand
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = Argibide gehiago
 
-## PairConnectHint page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device after scanning the pairing QR code
-## with the phone's camera app instead of with Firefox. They already have
-## Firefox installed, so it tells them how to scan the code again from inside
-## Firefox.
-
-pair2-supplicant-connect-hint-heading-v2 = Bukatu parekatze-prozesua aplikazioan
-# <b> emphasises the name of the button the user taps in Firefox
-pair2-supplicant-connect-hint-step-app-menu = Sakatu <b>aplikazio-menua</b> tresna-barran
-# <b> emphasises the name of the menu item the user taps in Firefox
-pair2-supplicant-connect-hint-step-sign-in = Sakatu <b>hasi saioa</b>, gero eskaneatu kodea
-# Opens a Mozilla support article about connecting a device without a QR code
-pair2-supplicant-connect-hint-learn-more-link = Argibide gehiago
-
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
 ## to open firefox.com/pair on their computer, which is where the QR code they
@@ -2272,6 +2258,8 @@ signin-link-expired-message-2 = Sakatu duzun esteka iraungi egin da edo dagoenek
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Sartu <span>zure { -product-mozilla-account }</span> pasahitza
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = Hasi sinkronizatzen
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = Jarraitu { $serviceName } zerbitzura

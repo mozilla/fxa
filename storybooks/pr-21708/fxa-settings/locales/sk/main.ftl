@@ -800,7 +800,7 @@ nav-security = Zabezpečenie
 nav-connected-services = Pripojené služby
 nav-data-collection = Zhromažďovanie a používanie údajov
 nav-paid-subs = Predplatné
-nav-email-comm = E‑mailová komunikácia
+nav-email-prefs = Nastavenia e‑mailov
 
 
 page-2fa-change-title = Zmena dvojstupňového overenia
@@ -1533,12 +1533,6 @@ pair2-supplicant-download-firefox-have-firefox-button = { -brand-firefox(case: "
 pair2-supplicant-download-firefox-learn-more-link = Ďalšie informácie
 
 
-pair2-supplicant-connect-hint-heading-v2 = Dokončite prepojenie v aplikácii
-pair2-supplicant-connect-hint-step-app-menu = Ťuknite na <b>ponuku aplikácie</b> na paneli s nástrojmi
-pair2-supplicant-connect-hint-step-sign-in = Ťuknite na <b>Prihlásiť sa</b> a potom naskenujte kód
-pair2-supplicant-connect-hint-learn-more-link = Ďalšie informácie
-
-
 pair2-supplicant-ready-to-scan-heading = Pripojenie zariadenia
 pair2-supplicant-ready-to-scan-instruction = V počítači otvorte { -brand-firefox(case: "acc") }, prejdite na stránku <b>firefox.com/pair</b> a podľa pokynov na obrazovke pripojte toto mobilné zariadenie.
 pair2-supplicant-ready-to-scan-learn-more-link = Ďalšie informácie
@@ -1688,6 +1682,7 @@ signin-link-expired-message-2 = Platnosť odkazu, na ktorý ste klikli, vypršal
 
 
 signin-password-needed-header-2 = Zadajte heslo<span> pre svoj { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
+signin-button-start-syncing = Spustiť synchronizáciu
 signin-subheader-without-logo-with-servicename = A pokračovať do služby { $serviceName }
 signin-subheader-without-logo-default = A pokračovať do nastavení účtu
 signin-button = Prihlásiť sa

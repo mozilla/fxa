@@ -411,7 +411,7 @@ pair-unsupported-hint-step-close-page = Fechar esta página
 # <b> emphasises the name of the button the user taps in Firefox
 pair-unsupported-hint-step-app-menu = Toque no <b>menu da aplicação</b>
 # <b> emphasises the name of the menu item the user taps in Firefox
-pair-unsupported-hint-step-sign-in = <b>Inicie sessão</b> e digitalize o código
+pair-unsupported-hint-step-sign-in = <b>Inicie sessão</b>, depois digitalize o código
 # Opens a Mozilla support article about connecting a device without a QR code
 pair-unsupported-hint-learn-more-link = Saber mais
 
@@ -885,7 +885,7 @@ nav-security = Segurança
 nav-connected-services = Serviços associados
 nav-data-collection = Recolha e utilização de dados
 nav-paid-subs = Subscrições pagas
-nav-email-comm = Comunicações por e-mail
+nav-email-prefs = Preferências de E-mail
 
 ## Page2faChange
 
@@ -1711,6 +1711,13 @@ tfa-qr-code-alt =
     aplicações suportadas.
 inline-totp-setup-page-title = Autenticação de dois passos
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Página não encontrada
+page-not-found-description = A página que solicitou não foi encontrada. Fomos notificados e iremos corrigir todas as ligações que possam estar quebradas.
+page-not-found-home-button = Início
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Acabou de iniciar a sessão no { -brand-firefox }?
@@ -2002,20 +2009,6 @@ pair2-supplicant-download-firefox-have-firefox-button = Eu já tenho o { -brand-
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = Saber mais
 
-## PairConnectHint page - Part of the desktop-to-mobile pairing flow
-## Users see this on their mobile device after scanning the pairing QR code
-## with the phone's camera app instead of with Firefox. They already have
-## Firefox installed, so it tells them how to scan the code again from inside
-## Firefox.
-
-pair2-supplicant-connect-hint-heading-v2 = Concluir emparelhamento na aplicação
-# <b> emphasises the name of the button the user taps in Firefox
-pair2-supplicant-connect-hint-step-app-menu = Toque no <b>menu da aplicação</b> na barra de ferramentas
-# <b> emphasises the name of the menu item the user taps in Firefox
-pair2-supplicant-connect-hint-step-sign-in = Toque em <b>iniciar sessão</b>, depois digitalize o código
-# Opens a Mozilla support article about connecting a device without a QR code
-pair2-supplicant-connect-hint-learn-more-link = Saber mais
-
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
 ## to open firefox.com/pair on their computer, which is where the QR code they
@@ -2256,6 +2249,8 @@ signin-link-expired-message-2 = A ligação que clicou expirou ou já foi utiliz
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Insira a sua palavra-passe <span>para a sua { -product-mozilla-account }</span>
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = Iniciar sincronização
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = Continuar para { $serviceName }
@@ -2308,11 +2303,11 @@ signin-passkey-fallback-forgot-password-link = Esqueceu-se da palavra-passe?
 # Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
 signin-passkey-fallback-no-prf-heading = É necessária uma palavra-passe neste dispositivo
 # Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
-signin-passkey-fallback-no-prf-description = Este navegador ou dispositivo não pode utilizar a sua chave para iniciar sessão para sincronizar por si próprio.
+signin-passkey-fallback-no-prf-description = Este navegador ou dispositivo não consegue usar a sua chave-passe para iniciar sessão para sincronizar por si próprio..
 # Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
-signin-passkey-fallback-unwrap-failed-heading = A sua chave de acesso não desbloqueou a sincronização
+signin-passkey-fallback-unwrap-failed-heading = A sua chave-passe não conseguiu desbloquear a sincronização
 # Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
-signin-passkey-fallback-unwrap-failed-description = Algo correu mal, pelo que desta vez irá precisar da sua palavra-passe.
+signin-passkey-fallback-unwrap-failed-description = Algo correu mal, por isso desta vez irá precisar da sua palavra-passe.
 # Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
 signin-passkey-fallback-wrap-unusable-link = Saber mais
 

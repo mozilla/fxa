@@ -600,7 +600,6 @@ nav-security = Безбедност
 nav-connected-services = Повезане услуге
 nav-data-collection = Сакупљање и коришћење података
 nav-paid-subs = Плаћене претплате
-nav-email-comm = Комуникација путем е-поште
 
 
 page-2fa-change-title = Промените потврду идентитета у два корака

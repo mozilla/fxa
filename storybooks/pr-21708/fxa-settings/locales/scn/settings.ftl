@@ -664,7 +664,6 @@ nav-security = Sicurizza
 nav-connected-services = Sirbizza cunnessi
 nav-data-collection = Ricugghiuta e usu dî dati
 nav-paid-subs = Abbunamenti a pagamentu
-nav-email-comm = Cumunicazzioni pi posta elittrònica
 
 ## Two Step Authentication - replace backup authentication code
 

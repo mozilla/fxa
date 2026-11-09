@@ -685,7 +685,7 @@ nav-security = Безопасность
 nav-connected-services = Подсоединённые устройства
 nav-data-collection = Сбор и использование данных
 nav-paid-subs = Платные подписки
-nav-email-comm = Почтовые рассылки
+nav-email-prefs = Настройки эл. почты
 
 
 page-2fa-change-title = Изменить двухэтапную аутентификацию
@@ -1417,12 +1417,6 @@ pair2-supplicant-download-firefox-have-firefox-button = У меня уже ес�
 pair2-supplicant-download-firefox-learn-more-link = Подробнее
 
 
-pair2-supplicant-connect-hint-heading-v2 = Завершите сопряжение в приложении
-pair2-supplicant-connect-hint-step-app-menu = Нажмите на <b>меню приложения</b> на панели инструментов
-pair2-supplicant-connect-hint-step-sign-in = Нажмите <b>войти</b>, затем отсканируйте код
-pair2-supplicant-connect-hint-learn-more-link = Подробнее
-
-
 pair2-supplicant-ready-to-scan-heading = Чтобы подключить устройство
 pair2-supplicant-ready-to-scan-instruction = Откройте { -brand-firefox } на своём компьютере, посетите <b>firefox.com/pair</b> и следуйте инструкциям на экране, чтобы подключить мобильное устройство.
 pair2-supplicant-ready-to-scan-learn-more-link = Подробнее
@@ -1572,6 +1566,7 @@ signin-link-expired-message-2 = Срок действия ссылки, на к�
 
 
 signin-password-needed-header-2 = Введите свой пароль <span>для вашего { -product-mozilla-account(case: "genitive") }</span>
+signin-button-start-syncing = Начать синхронизацию
 signin-subheader-without-logo-with-servicename = Перейти к { $serviceName }
 signin-subheader-without-logo-default = Перейти к настройкам аккаунта
 signin-button = Войти
