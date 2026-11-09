@@ -31,7 +31,7 @@ docker exec mydb mysql -e 'GRANT ALL PRIVILEGES on tokenserver.* to "sync"@"%";'
 # Start the sync server and token server on port 8000.
 #  - Config modifications can be made by editing the
 #    _dev/docker/sync/sync-for-fxa/config/local.toml file.
-docker run --rm --name sync -p 8000:8000 \
+docker run --rm --name sync -p 8000:8000 --platform linux/amd64 \
   -v "$PWD/_dev/docker/sync/sync-for-fxa/config/local.toml:/app/config/local.toml:ro" \
   ghcr.io/mozilla-services/syncstorage-rs/syncserver-mysql:0.24.1 \
   --config=config/local.toml &
