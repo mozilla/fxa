@@ -1,8 +1,8 @@
 {
-  "commit": "015babb241453075a1c1faf2713dccfceed6e9f6",
-  "summary": "chore(ci): keep junit results in the Nx cache for lib test runs",
-  "description": "Because:\n\n- Lib test targets override `outputs` with coverage only, so junit XML is never\n  stored in the Nx cache; a fully cached tag build has nothing to upload to GCS.\n\nThis commit:\n\n- Adds `artifacts/tests/{projectName}` to lib test-unit/test-integration outputs.\n- Points the 11 stray jest-junit outputDirectory values at `artifacts/tests/<projectName>`.",
-  "timestamp": 1794255195000,
+  "commit": "eb09edb50989593841b7ae8e6d3ffe5dc7f3cd6c",
+  "summary": "chore(ci): keep junit results on cached lib test runs and don't fail uploads on none",
+  "description": "",
+  "timestamp": 1794255540000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
