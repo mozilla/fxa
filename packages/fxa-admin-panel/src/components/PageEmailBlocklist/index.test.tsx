@@ -12,6 +12,7 @@ jest.mock('../../lib/api', () => ({
   adminApi: {
     getEmailBlocklist: jest.fn(),
     addEmailBlocklistEntries: jest.fn(),
+    disableEmailBlocklistMatches: jest.fn(),
     removeEmailBlocklistEntry: jest.fn(),
     deleteAllEmailBlocklistEntries: jest.fn(),
   },
@@ -239,5 +240,88 @@ describe('PageEmailBlocklist', () => {
       expect(textarea.value).toBe('@evil\\.com$\n@spam\\.net$');
     });
     expect(screen.getByTestId('blocklist-add-btn')).toBeEnabled();
+  });
+
+  it('adds the entries, then disables matching accounts when the checkbox is set', async () => {
+    (adminApi.addEmailBlocklistEntries as jest.Mock).mockResolvedValue({
+      ok: true,
+    });
+    (adminApi.disableEmailBlocklistMatches as jest.Mock).mockResolvedValue({
+      disabled: 3,
+    });
+
+    render(<PageEmailBlocklist />);
+    await screen.findByText('No entries yet.');
+
+    await user.type(screen.getByTestId('blocklist-input'), '@newevil\\.com$');
+    await user.click(
+      screen.getByRole('checkbox', { name: 'Disable matching accounts' })
+    );
+    await user.click(screen.getByTestId('blocklist-add-btn'));
+
+    expect(
+      await screen.findByTestId('disable-matching-result')
+    ).toHaveTextContent('Disabled 3 matching accounts.');
+    expect(adminApi.addEmailBlocklistEntries).toHaveBeenCalledWith([
+      '@newevil\\.com$',
+    ]);
+    expect(adminApi.disableEmailBlocklistMatches).toHaveBeenCalledWith([
+      '@newevil\\.com$',
+    ]);
+  });
+
+  it('does not disable accounts when the checkbox is clear', async () => {
+    (adminApi.addEmailBlocklistEntries as jest.Mock).mockResolvedValue({
+      ok: true,
+    });
+
+    render(<PageEmailBlocklist />);
+    await screen.findByText('No entries yet.');
+
+    await user.type(screen.getByTestId('blocklist-input'), '@newevil\\.com$');
+    await user.click(screen.getByTestId('blocklist-add-btn'));
+
+    await waitFor(() =>
+      expect(adminApi.addEmailBlocklistEntries).toHaveBeenCalled()
+    );
+    expect(adminApi.disableEmailBlocklistMatches).not.toHaveBeenCalled();
+  });
+
+  it('disables the accounts that match a row and shows the count', async () => {
+    (adminApi.getEmailBlocklist as jest.Mock).mockResolvedValue(mockEntries);
+    (adminApi.disableEmailBlocklistMatches as jest.Mock).mockResolvedValue({
+      disabled: 1,
+    });
+
+    render(<PageEmailBlocklist />);
+    await user.click(
+      await screen.findByTestId(`disable-matching-${'@evil\\.com$'}`)
+    );
+
+    expect(
+      await screen.findByTestId('disable-matching-result')
+    ).toHaveTextContent('Disabled 1 matching account.');
+    expect(adminApi.disableEmailBlocklistMatches).toHaveBeenCalledWith([
+      '@evil\\.com$',
+    ]);
+  });
+
+  it('shows the error when disabling matching accounts fails', async () => {
+    (adminApi.getEmailBlocklist as jest.Mock).mockResolvedValue(mockEntries);
+    (adminApi.disableEmailBlocklistMatches as jest.Mock).mockRejectedValue(
+      new Error('API error 500')
+    );
+
+    render(<PageEmailBlocklist />);
+    await user.click(
+      await screen.findByTestId(`disable-matching-${'@evil\\.com$'}`)
+    );
+
+    expect(
+      await screen.findByTestId('disable-matching-result')
+    ).toHaveTextContent('Error: API error 500');
+    expect(
+      screen.getByTestId(`disable-matching-${'@evil\\.com$'}`)
+    ).toBeEnabled();
   });
 });

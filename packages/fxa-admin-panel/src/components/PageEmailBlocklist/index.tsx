@@ -18,6 +18,8 @@ const PageEmailBlocklist = () => {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [hasInput, setHasInput] = useState(false);
+  const [disableMatches, setDisableMatches] = useState(false);
+  const [disableResult, setDisableResult] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -40,6 +42,20 @@ const PageEmailBlocklist = () => {
     loadEntries().finally(() => setLoading(false));
   }, [loadEntries]);
 
+  const disableMatchingAccounts = async (values: string[]) => {
+    setDisableResult(null);
+    try {
+      const { disabled } = await adminApi.disableEmailBlocklistMatches(values);
+      setDisableResult(
+        `Disabled ${disabled} matching ${disabled === 1 ? 'account' : 'accounts'}.`
+      );
+    } catch (e) {
+      setDisableResult(
+        `Error: ${e instanceof Error ? e.message : 'Unknown error'}`
+      );
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const raw = textareaRef.current?.value ?? '';
@@ -56,6 +72,7 @@ const PageEmailBlocklist = () => {
       await adminApi.addEmailBlocklistEntries(regexes);
       if (textareaRef.current) textareaRef.current.value = '';
       await loadEntries();
+      if (disableMatches) await disableMatchingAccounts(regexes);
     } catch (e) {
       window.alert(
         `Error: ${e instanceof Error ? e.message : 'Unknown error'}`
@@ -114,7 +131,7 @@ const PageEmailBlocklist = () => {
       <ul className="list-disc list-inside mb-4">
         <li>
           Blocks registration for emails matching any pattern. Does not affect
-          existing accounts.
+          existing accounts unless you use Disable matching accounts.
         </li>
         <li>
           Patterns are regexes matched against the full address. Mostly used for
@@ -156,7 +173,14 @@ const PageEmailBlocklist = () => {
           placeholder={'@evildoge\\.example\\.com$\n@haxor\\.net$'}
           onChange={(e) => setHasInput(e.target.value.trim().length > 0)}
         />
-        <br />
+        <label className="block my-2">
+          <input
+            type="checkbox"
+            checked={disableMatches}
+            onChange={(e) => setDisableMatches(e.target.checked)}
+          />{' '}
+          Disable matching accounts
+        </label>
         <input
           ref={fileInputRef}
           type="file"
@@ -196,6 +220,11 @@ const PageEmailBlocklist = () => {
         )}
       </div>
 
+      {disableResult && (
+        <p role="status" data-testid="disable-matching-result" className="mb-2">
+          {disableResult}
+        </p>
+      )}
       {loading && <p>Loading…</p>}
       {error && <p className="text-red-600">{error}</p>}
       {!loading && !error && entries.length === 0 && (
@@ -207,6 +236,7 @@ const PageEmailBlocklist = () => {
           label="Pattern"
           getValue={getRegex}
           onDelete={handleDelete}
+          onDisableMatching={(value) => disableMatchingAccounts([value])}
         />
       )}
     </>

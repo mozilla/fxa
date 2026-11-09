@@ -67,6 +67,7 @@ import { BounceType, BounceSubType } from '../model/email-bounces.model';
 import { BasketService } from '../../newsletters/basket.service';
 import { FidoMdsService } from '../../backend/fido-mds.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
+import { AccountStateService } from './account-state.service';
 import {
   AccountAuthorization,
   AccountDeleteResponse,
@@ -175,10 +176,6 @@ export class AccountController {
     ) as AppConfig['clientFormatter'];
   }
 
-  private get ipHmacKey() {
-    return this.configService.get('ipHmacKey') as AppConfig['ipHmacKey'];
-  }
-
   constructor(
     private log: MozLoggerService,
     private db: DatabaseService,
@@ -192,7 +189,8 @@ export class AccountController {
     @Inject(FirestoreService) private firestore: Firestore,
     @Inject(CloudTasksService) private cloudTask: CloudTasks,
     @Inject(ProfileClient) private profileClient: ProfileClient,
-    private mds: FidoMdsService
+    private mds: FidoMdsService,
+    private accountState: AccountStateService
   ) {}
 
   /**
@@ -512,7 +510,7 @@ export class AccountController {
 
     if (deleted) {
       try {
-        await this.writeAdminSecurityEvent(
+        await this.accountState.writeSecurityEvent(
           uid,
           'account.passkey.wrap_deleted',
           req
@@ -547,50 +545,7 @@ export class AccountController {
   @Post('disable')
   public async disableAccount(@Body('uid') uid: string, @Req() req: Request) {
     this.eventLogging.onEvent(EventNames.DisableLogin);
-    return this.disableAccountByUid(uid, req);
-  }
-
-  private async disableAccountByUid(uid: string, req: Request) {
-    const uidBuffer = uuidTransformer.to(uid);
-    // Revoke before flagging: a revocation failure then leaves the account
-    // enabled and retryable, rather than disabled with live credentials
-    // that a later enable would reactivate.
-    await this.db.revokeAccountTokens(uid);
-    const result = await this.db.account
-      .query()
-      .update({ disabledAt: Date.now() })
-      .where('uid', uidBuffer);
-    if (!result) {
-      return false;
-    }
-
-    await this.recordAccountStateChange(uid, 'account.disable', req);
-    return true;
-  }
-
-  // Best effort: the account state is already written, so a failed audit
-  // event, cache clear or notification must not fail the completed action.
-  private async recordAccountStateChange(
-    uid: string,
-    event: SecurityEventNames,
-    req: Request
-  ) {
-    const results = await Promise.allSettled([
-      this.writeAdminSecurityEvent(uid, event, req),
-      this.profileClient.deleteCache(uid),
-      this.notifier.send({
-        event: 'profileDataChange',
-        data: {
-          ts: Date.now() / 1000,
-          uid,
-        },
-      }),
-    ]);
-    for (const result of results) {
-      if (result.status === 'rejected') {
-        Sentry.captureException(result.reason, { extra: { uid, event } });
-      }
-    }
+    return this.accountState.disable(uid, req);
   }
 
   @Features(AdminPanelFeature.EnableAccount)
@@ -606,7 +561,7 @@ export class AccountController {
       return false;
     }
 
-    await this.recordAccountStateChange(uid, 'account.enable', req);
+    await this.accountState.recordStateChange(uid, 'account.enable', req);
     return true;
   }
 
@@ -726,25 +681,7 @@ export class AccountController {
     if (!guard.allow(feature, group)) {
       throw new ForbiddenException();
     }
-    return this.writeAdminSecurityEvent(uid, name, req);
-  }
-
-  private async writeAdminSecurityEvent(
-    uid: string,
-    name: SecurityEventNames,
-    req: Request
-  ) {
-    const result = await this.db.securityEvents.create({
-      uid,
-      name,
-      ipAddr: (req.headers['x-forwarded-for'] as string) || req.ip || '',
-      ipHmacKey: this.ipHmacKey,
-      additionalInfo: {
-        userAgent: req.headers['user-agent'],
-        adminPanelAction: true,
-      },
-    });
-    return !!result;
+    return this.accountState.writeSecurityEvent(uid, name, req);
   }
 
   @Features(AdminPanelFeature.DeleteAccount)
@@ -901,7 +838,7 @@ export class AccountController {
           account.emails = await Email.findByUid(account.uid);
           await this.emailService.sendPasswordChangeRequired(account);
 
-          await this.writeAdminSecurityEvent(
+          await this.accountState.writeSecurityEvent(
             account.uid,
             'account.must_reset' as SecurityEventNames,
             req
@@ -954,7 +891,7 @@ export class AccountController {
           status.push({ locator, status: AccountDisableStatus.NoAccount });
           continue;
         }
-        const disabled = await this.disableAccountByUid(account.uid, req);
+        const disabled = await this.accountState.disable(account.uid, req);
         status.push({
           locator,
           status: disabled

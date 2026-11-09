@@ -13,6 +13,7 @@ jest.mock('../../lib/api', () => ({
   adminApi: {
     getDomainBlocklist: jest.fn(),
     addDomainBlocklistEntries: jest.fn(),
+    disableDomainBlocklistMatches: jest.fn(),
     removeDomainBlocklistEntry: jest.fn(),
     deleteAllDomainBlocklistEntries: jest.fn(),
     syncDomainBlocklist: jest.fn(),
@@ -256,5 +257,94 @@ describe('PageDomainBlocklist', () => {
 
     expect(adminApi.deleteAllDomainBlocklistEntries).not.toHaveBeenCalled();
     expect(screen.getByText('evil.com')).toBeInTheDocument();
+  });
+
+  it('adds the entries, then disables matching accounts when the checkbox is set', async () => {
+    (adminApi.addDomainBlocklistEntries as jest.Mock).mockResolvedValue({
+      ok: true,
+    });
+    (adminApi.disableDomainBlocklistMatches as jest.Mock).mockResolvedValue({
+      disabled: 3,
+    });
+
+    render(<PageDomainBlocklist />);
+    await screen.findByText('No entries yet.');
+
+    await user.type(
+      screen.getByTestId('domain-blocklist-input'),
+      'newevilsite.com'
+    );
+    await user.click(
+      screen.getByRole('checkbox', { name: 'Disable matching accounts' })
+    );
+    await user.click(screen.getByTestId('domain-blocklist-add-btn'));
+
+    expect(
+      await screen.findByTestId('disable-matching-result')
+    ).toHaveTextContent('Disabled 3 matching accounts.');
+    expect(adminApi.addDomainBlocklistEntries).toHaveBeenCalledWith([
+      'newevilsite.com',
+    ]);
+    expect(adminApi.disableDomainBlocklistMatches).toHaveBeenCalledWith([
+      'newevilsite.com',
+    ]);
+  });
+
+  it('does not disable accounts when the checkbox is clear', async () => {
+    (adminApi.addDomainBlocklistEntries as jest.Mock).mockResolvedValue({
+      ok: true,
+    });
+
+    render(<PageDomainBlocklist />);
+    await screen.findByText('No entries yet.');
+
+    await user.type(
+      screen.getByTestId('domain-blocklist-input'),
+      'newevilsite.com'
+    );
+    await user.click(screen.getByTestId('domain-blocklist-add-btn'));
+
+    await waitFor(() =>
+      expect(adminApi.addDomainBlocklistEntries).toHaveBeenCalled()
+    );
+    expect(adminApi.disableDomainBlocklistMatches).not.toHaveBeenCalled();
+  });
+
+  it('disables the accounts that match a row and shows the count', async () => {
+    (adminApi.getDomainBlocklist as jest.Mock).mockResolvedValue(mockEntries);
+    (adminApi.disableDomainBlocklistMatches as jest.Mock).mockResolvedValue({
+      disabled: 1,
+    });
+
+    render(<PageDomainBlocklist />);
+    await user.click(
+      await screen.findByTestId(`disable-matching-${mockEntries[0].domain}`)
+    );
+
+    expect(
+      await screen.findByTestId('disable-matching-result')
+    ).toHaveTextContent('Disabled 1 matching account.');
+    expect(adminApi.disableDomainBlocklistMatches).toHaveBeenCalledWith([
+      mockEntries[0].domain,
+    ]);
+  });
+
+  it('shows the error when disabling matching accounts fails', async () => {
+    (adminApi.getDomainBlocklist as jest.Mock).mockResolvedValue(mockEntries);
+    (adminApi.disableDomainBlocklistMatches as jest.Mock).mockRejectedValue(
+      new Error('API error 500')
+    );
+
+    render(<PageDomainBlocklist />);
+    await user.click(
+      await screen.findByTestId(`disable-matching-${mockEntries[0].domain}`)
+    );
+
+    expect(
+      await screen.findByTestId('disable-matching-result')
+    ).toHaveTextContent('Error: API error 500');
+    expect(
+      screen.getByTestId(`disable-matching-${mockEntries[0].domain}`)
+    ).toBeEnabled();
   });
 });

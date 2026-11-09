@@ -48,6 +48,7 @@ import {
 } from '../../types';
 import { uuidTransformer } from '../../database/transformers';
 import { AccountController } from './account.controller';
+import { AccountStateService } from './account-state.service';
 
 // AccountController imports SentryTraced from @sentry/nestjs, whose module init
 // does not run under Jest; stub the decorator to a no-op.
@@ -176,6 +177,7 @@ describe('AccountController', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AccountController,
+        AccountStateService,
         { provide: EventLoggingService, useValue: eventLogging },
         { provide: EmailService, useValue: emailService },
         { provide: CloudTasksService, useValue: cloudTask },

@@ -5,10 +5,12 @@
 import { BadRequestException, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Request } from 'express';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { EmailBlocklist } from '@fxa/shared/db/mysql/legacy/models/auth';
 import { EventLoggingService } from '../../event-logging/event-logging.service';
 import { AuditLogInterceptor } from '../../auth/audit-log.interceptor';
+import { AccountStateService } from '../account/account-state.service';
 import { EmailBlocklistController } from './email-blocklist.controller';
 
 jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => ({
@@ -23,6 +25,14 @@ jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => ({
 describe('EmailBlocklistController', () => {
   let controller: EmailBlocklistController;
   let logger: { debug: jest.Mock; error: jest.Mock; info: jest.Mock };
+  const EMAILS = ['a@evil.com', 'b@spam.net', 'c@evil.com.example.org'];
+  // Runs the controller's predicate over these primary emails and counts the matches.
+  const accountState = {
+    disableMatching: jest.fn(
+      async (matches: (email: string) => boolean) =>
+        EMAILS.filter(matches).length
+    ),
+  };
 
   beforeEach(async () => {
     logger = { debug: jest.fn(), error: jest.fn(), info: jest.fn() };
@@ -52,6 +62,7 @@ describe('EmailBlocklistController', () => {
         MockMozLoggerService,
         MockConfig,
         MockMetricsFactory,
+        { provide: AccountStateService, useValue: accountState },
       ],
     }).compile();
 
@@ -144,6 +155,99 @@ describe('EmailBlocklistController', () => {
         BadRequestException
       );
       expect(EmailBlocklist.addMany).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('disableMatching', () => {
+    const req = {} as Request;
+
+    beforeEach(() => {
+      (EmailBlocklist.findAll as jest.Mock).mockResolvedValue([
+        { regex: '@evil\\.com$' },
+        { regex: '@spam\\.net$' },
+      ]);
+    });
+
+    it('disables accounts whose primary email matches any regex and logs the count', async () => {
+      const result = await controller.disableMatching(
+        ['@evil\\.com$', '@spam\\.net$'],
+        'admin@example.com',
+        req
+      );
+
+      expect(result).toEqual({ disabled: 2 });
+      expect(accountState.disableMatching).toHaveBeenCalledWith(
+        expect.any(Function),
+        req
+      );
+      expect(logger.info).toHaveBeenCalledWith(
+        'emailBlocklist.disableMatching',
+        { user: 'admin@example.com', count: 2, disabled: 2 }
+      );
+    });
+
+    it('ignores a regex that is not on the blocklist', async () => {
+      const result = await controller.disableMatching(
+        ['@spam\\.net$', '.*'],
+        'admin@example.com',
+        req
+      );
+
+      expect(result).toEqual({ disabled: 1 });
+    });
+
+    it('disables nothing when no regex is on the blocklist', async () => {
+      const result = await controller.disableMatching(
+        ['.*'],
+        'admin@example.com',
+        req
+      );
+
+      expect(result).toEqual({ disabled: 0 });
+      expect(accountState.disableMatching).not.toHaveBeenCalled();
+    });
+
+    it('ignores non-string elements', async () => {
+      const result = await controller.disableMatching(
+        [42, { regex: '@spam\\.net$' }, '@evil\\.com$'] as any,
+        'admin@example.com',
+        req
+      );
+
+      expect(result).toEqual({ disabled: 1 });
+    });
+
+    it('throws if regexes is not an array', async () => {
+      await expect(
+        controller.disableMatching(
+          '@evil\\.com$' as any,
+          'admin@example.com',
+          req
+        )
+      ).rejects.toThrow(BadRequestException);
+      expect(EmailBlocklist.findAll).not.toHaveBeenCalled();
+    });
+
+    it('rejects when the blocklist lookup fails', async () => {
+      (EmailBlocklist.findAll as jest.Mock).mockRejectedValue(
+        new Error('ECONNREFUSED')
+      );
+
+      await expect(
+        controller.disableMatching(['@evil\\.com$'], 'admin@example.com', req)
+      ).rejects.toThrow('ECONNREFUSED');
+      expect(accountState.disableMatching).not.toHaveBeenCalled();
+    });
+
+    it('rejects and logs nothing when the account scan fails', async () => {
+      accountState.disableMatching.mockRejectedValueOnce(
+        new Error('ER_LOCK_WAIT_TIMEOUT')
+      );
+
+      await expect(
+        controller.disableMatching(['@evil\\.com$'], 'admin@example.com', req)
+      ).rejects.toThrow('ER_LOCK_WAIT_TIMEOUT');
+      expect(logger.info).not.toHaveBeenCalled();
     });
   });
 
