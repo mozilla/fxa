@@ -1,7 +1,6 @@
 #!/bin/bash -e
 
-# We currently don't want don't want to spin this up in the CI, since
-# we don't have any functional Sync tests at the moment.
+# CI does not run Sync, so the Sync functional specs skip there.
 if [ "$CI" == "true" ]; then
   echo Not running sync in CI. Exiting...
   exit 0
@@ -31,10 +30,15 @@ docker exec mydb mysql -e 'GRANT ALL PRIVILEGES on tokenserver.* to "sync"@"%";'
 # Start the sync server and token server on port 8000.
 #  - Config modifications can be made by editing the
 #    _dev/docker/sync/sync-for-fxa/config/local.toml file.
+# Pull first so a slow first download does not use up the heartbeat wait.
+docker pull --platform linux/amd64 ghcr.io/mozilla-services/syncstorage-rs/syncserver-mysql:0.24.1
 docker run --rm --name sync -p 8000:8000 --platform linux/amd64 \
   -v "$PWD/_dev/docker/sync/sync-for-fxa/config/local.toml:/app/config/local.toml:ro" \
   ghcr.io/mozilla-services/syncstorage-rs/syncserver-mysql:0.24.1 \
   --config=config/local.toml &
+
+# Exit non-zero so PM2 does not report Sync as running when it never started.
+_scripts/check-url.sh localhost:8000/__heartbeat__ 200 Sync || { docker stop sync; exit 1; }
 
 # Keep script alive
 while :; do read -r; done
