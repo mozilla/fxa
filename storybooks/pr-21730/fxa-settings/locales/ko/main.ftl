@@ -628,6 +628,7 @@ nav-security = 보안
 nav-connected-services = 연결된 서비스
 nav-data-collection = 데이터 수집 및 사용
 nav-paid-subs = 유료 구독
+nav-email-prefs = 이메일 설정
 
 
 page-2fa-change-title = 2단계 인증 변경
@@ -1495,6 +1496,7 @@ signin-link-expired-message-2 = 클릭한 링크가 만료되었거나 이미 �
 
 
 signin-password-needed-header-2 = <span>{ -product-mozilla-account }</span> 비밀번호를 입력하세요
+signin-button-start-syncing = 동기화 시작
 signin-subheader-without-logo-with-servicename = { $serviceName }로 계속
 signin-subheader-without-logo-default = 계정 설정 계속하기
 signin-button = 로그인

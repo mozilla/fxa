@@ -891,7 +891,7 @@ nav-security = Biztonság
 nav-connected-services = Kapcsolódó szolgáltatások
 nav-data-collection = Adatgyűjtés és -felhasználás
 nav-paid-subs = Előfizetések
-nav-email-prefs = E-mail beállítások lehetőségre
+nav-email-prefs = E-mail-beállítások
 
 ## Page2faChange
 

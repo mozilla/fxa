@@ -716,6 +716,7 @@ nav-security = Ασφάλεια
 nav-connected-services = Συνδεδεμένες υπηρεσίες
 nav-data-collection = Συλλογή και χρήση δεδομένων
 nav-paid-subs = Συνδρομές επί πληρωμή
+nav-email-prefs = Προτιμήσεις email
 
 
 page-2fa-change-title = Τροποποίηση ελέγχου ταυτότητας δύο παραγόντων
@@ -1594,6 +1595,7 @@ signin-link-expired-message-2 = Ο σύνδεσμος στον οποίο κάν
 
 
 signin-password-needed-header-2 = Εισαγάγετε τον κωδικό πρόσβασης <span>για τον { -product-mozilla-account(capitalization: "lower", case: "acc") } σας</span>
+signin-button-start-syncing = Έναρξη συγχρονισμού
 signin-subheader-without-logo-with-servicename = Συνέχεια στο { $serviceName }
 signin-subheader-without-logo-default = Συνέχεια στις ρυθμίσεις λογαριασμού
 signin-button = Σύνδεση

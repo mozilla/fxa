@@ -389,6 +389,20 @@ locale-toggle-browser-default = Trình duyệt mặc định
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Yêu cầu không hợp lệ
 
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+pair-unsupported-hint-heading = Hoàn tất thiết lập trong ứng dụng
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = Đóng trang này
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Nhấn vào <b>menu ứng dụng</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>Đăng nhập</b>, sau đó quét mã
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = Tìm hiểu thêm
+
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
 
@@ -853,6 +867,7 @@ nav-security = Bảo mật
 nav-connected-services = Dịch vụ đã kết nối
 nav-data-collection = Thu thập và sử dụng dữ liệu
 nav-paid-subs = Thuê bao đã trả phí
+nav-email-prefs = Tuỳ chỉnh email
 
 ## Page2faChange
 
@@ -1671,6 +1686,13 @@ inline-totp-setup-code-required-error = Yêu cầu mã xác thực
 tfa-qr-code-alt = Sử dụng mã { $code } để thiết lập xác thực hai bước trong các ứng dụng được hỗ trợ.
 inline-totp-setup-page-title = Xác thực hai bước
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Không tìm thấy trang
+page-not-found-description = Trang bạn yêu cầu không được tìm thấy. Chúng tôi đã nhận được thông báo và sẽ sửa chữa bất kỳ liên kết nào có thể bị lỗi.
+page-not-found-home-button = Trang chủ
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Bạn vừa đăng nhập vào { -brand-firefox } phải không?
@@ -2178,6 +2200,13 @@ reset-password-complete-recovery-key-download-info =
     nếu bạn quên mật khẩu. <b>Tải xuống và lưu trữ an toàn bây giờ,
     vì bạn sẽ không thể truy cập lại trang này sau này.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Lỗi 500
+server-error-description = Trang chủ
+server-error-home-button = Trang chủ
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin
@@ -2194,6 +2223,8 @@ signin-link-expired-message-2 = Liên kết bạn nhấp vào đã hết hạn h
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Nhập mật khẩu của bạn <span>cho { -product-mozilla-account } của bạn</span>
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = Bắt đầu đồng bộ hoá
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = Tiếp tục đến { $serviceName }
@@ -2243,6 +2274,16 @@ signin-passkey-fallback-body = Để bảo vệ dữ liệu của bạn, bạn c
 signin-passkey-fallback-password-label = Mật khẩu
 signin-passkey-fallback-continue = Tiếp tục
 signin-passkey-fallback-forgot-password-link = Quên mật khẩu?
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = Cần có mật khẩu trên thiết bị này
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
+signin-passkey-fallback-no-prf-description = Trình duyệt hoặc thiết bị này không thể tự động sử dụng passkey của bạn để đăng nhập và đồng bộ hoá.
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
+signin-passkey-fallback-unwrap-failed-heading = Passkey của bạn không thể sử dụng để đồng bộ hoá
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = Đã xảy ra lỗi, vì vậy lần này bạn cần nhập mật khẩu.
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = Tìm hiểu thêm
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.

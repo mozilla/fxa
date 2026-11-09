@@ -22,7 +22,24 @@ automated-email-reset =
 change-password-plaintext = Si sospiteu que algú està provant d’accedir al vostre compte, canvieu la contrasenya.
 manage-account = Gestiona el compte
 manage-account-plaintext = { manage-account }:
+# Variables:
+#  $city (String) - User's city
+#  $stateCode (String) - User's state
+#  $country (String) - User's country
+location-all = { $city }, { $stateCode }, { $country } (estimated)
+# Variables:
+#  $city (String) - User's city
+#  $country (String) - User's country
+location-city-country = { $city }, { $country } (estimated)
+# Variables:
+#  $stateCode (String) - User's state
+#  $country (String) - User's country
+location-state-country = { $stateCode }, { $country } (estimated)
+# Variables:
+#  $country (stateCode) - User's country
+location-country = { $country } (estimated)
 cadReminderFirst-action = Sincronitza un altre dispositiu
+codes-create-plaintext = { lowRecoveryCodes-action-2 }:
 # Variables:
 # $clientName (String) - A client the user hasn't signed into before (e.g. Firefox, Sync)
 newDeviceLogin-subject = Inici de sessió nou al { $clientName }
@@ -30,9 +47,12 @@ newDeviceLogin-subject = Inici de sessió nou al { $clientName }
 # person who performed the action that triggered the email.
 newDeviceLogin-change-password-plain = No recordeu haver-ho fet? Canvieu la contrasenya:
 newDeviceLogin-action = Gestiona el compte
+passwordChangeRequired-action-plaintext = { passwordChangeRequired-action }:
 passwordChanged-subject = S'ha actualitzat la contrasenya
 passwordChanged-title = La contrasenya s’ha canviat correctament
 postAddAccountRecovery-action = Gestiona el compte
+# Links out to a support article about passkeys and { -brand-firefox } sync
+postAddPasskey-learn-more = Més informació
 postAddTwoStepAuthentication-action = Gestiona el compte
 postChangePrimary-title = Adreça electrònica principal nova
 postChangePrimary-action = Gestiona el compte

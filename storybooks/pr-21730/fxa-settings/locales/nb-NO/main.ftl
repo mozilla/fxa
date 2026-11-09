@@ -648,6 +648,7 @@ nav-security = Sikkerhet
 nav-connected-services = Tilknyttede tjenester
 nav-data-collection = Datainnsamling og -bruk
 nav-paid-subs = Betalte abonnement
+nav-email-prefs = E-postinnstillinger
 
 
 page-2fa-change-title = Endre totrinns-autentisering
@@ -1516,6 +1517,7 @@ signin-link-expired-message-2 = Lenken du klikket på er utløpt eller har aller
 
 
 signin-password-needed-header-2 = Skriv inn passordet ditt <span>for { -product-mozilla-account } din</span>
+signin-button-start-syncing = Start synkronisering
 signin-subheader-without-logo-with-servicename = Fortsett til { $serviceName }
 signin-subheader-without-logo-default = Fortsett til kontoinnstillingene
 signin-button = Logg inn

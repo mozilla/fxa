@@ -316,6 +316,13 @@ locale-toggle-browser-default = Trình duyệt mặc định
 error-bad-request = Yêu cầu không hợp lệ
 
 
+pair-unsupported-hint-heading = Hoàn tất thiết lập trong ứng dụng
+pair-unsupported-hint-step-close-page = Đóng trang này
+pair-unsupported-hint-step-app-menu = Nhấn vào <b>menu ứng dụng</b>
+pair-unsupported-hint-step-sign-in = <b>Đăng nhập</b>, sau đó quét mã
+pair-unsupported-hint-learn-more-link = Tìm hiểu thêm
+
+
 password-info-balloon-why-password-info = Bạn cần mật khẩu này để truy cập mọi dữ liệu được mã hóa mà bạn lưu trữ với chúng tôi.
 password-info-balloon-reset-risk-info = Đặt lại có nghĩa là có khả năng mất dữ liệu như mật khẩu và dấu trang.
 
@@ -619,6 +626,7 @@ nav-security = Bảo mật
 nav-connected-services = Dịch vụ đã kết nối
 nav-data-collection = Thu thập và sử dụng dữ liệu
 nav-paid-subs = Thuê bao đã trả phí
+nav-email-prefs = Tuỳ chỉnh email
 
 
 page-2fa-change-title = Thay đổi xác thực hai bước
@@ -1193,6 +1201,11 @@ tfa-qr-code-alt = Sử dụng mã { $code } để thiết lập xác thực hai 
 inline-totp-setup-page-title = Xác thực hai bước
 
 
+page-not-found-heading = Không tìm thấy trang
+page-not-found-description = Trang bạn yêu cầu không được tìm thấy. Chúng tôi đã nhận được thông báo và sẽ sửa chữa bất kỳ liên kết nào có thể bị lỗi.
+page-not-found-home-button = Trang chủ
+
+
 pair-auth-allow-heading-text = Bạn vừa đăng nhập vào { -brand-firefox } phải không?
 pair-auth-allow-confirm-button = Có, phê duyệt thiết bị
 pair-auth-allow-refuse-device-link = Nếu đây không phải là bạn, hãy <a>thay đổi mật khẩu của bạn</a>
@@ -1469,6 +1482,11 @@ reset-password-complete-recovery-key-download-info =
     vì bạn sẽ không thể truy cập lại trang này sau này.</b>
 
 
+server-error-heading = Lỗi 500
+server-error-description = Trang chủ
+server-error-home-button = Trang chủ
+
+
 error-label = Lỗi:
 validating-signin = Đang xác thực đăng nhập…
 complete-signin-error-header = Lỗi xác minh
@@ -1477,6 +1495,7 @@ signin-link-expired-message-2 = Liên kết bạn nhấp vào đã hết hạn h
 
 
 signin-password-needed-header-2 = Nhập mật khẩu của bạn <span>cho { -product-mozilla-account } của bạn</span>
+signin-button-start-syncing = Bắt đầu đồng bộ hoá
 signin-subheader-without-logo-with-servicename = Tiếp tục đến { $serviceName }
 signin-subheader-without-logo-default = Tiếp tục đến cài đặt tài khoản
 signin-button = Đăng nhập
@@ -1511,6 +1530,11 @@ signin-passkey-fallback-body = Để bảo vệ dữ liệu của bạn, bạn c
 signin-passkey-fallback-password-label = Mật khẩu
 signin-passkey-fallback-continue = Tiếp tục
 signin-passkey-fallback-forgot-password-link = Quên mật khẩu?
+signin-passkey-fallback-no-prf-heading = Cần có mật khẩu trên thiết bị này
+signin-passkey-fallback-no-prf-description = Trình duyệt hoặc thiết bị này không thể tự động sử dụng passkey của bạn để đăng nhập và đồng bộ hoá.
+signin-passkey-fallback-unwrap-failed-heading = Passkey của bạn không thể sử dụng để đồng bộ hoá
+signin-passkey-fallback-unwrap-failed-description = Đã xảy ra lỗi, vì vậy lần này bạn cần nhập mật khẩu.
+signin-passkey-fallback-wrap-unusable-link = Tìm hiểu thêm
 
 
 signin-passwordless-code-heading = Nhập mã xác minh

@@ -658,7 +658,7 @@ nav-security = Sécurité
 nav-connected-services = Services connectés
 nav-data-collection = Collecte et utilisation de données
 nav-paid-subs = Abonnements payants
-nav-email-prefs = Préférences de courrier électronique
+nav-email-prefs = Préférences de communication
 
 
 page-2fa-change-title = Modifier l’authentification en deux étapes

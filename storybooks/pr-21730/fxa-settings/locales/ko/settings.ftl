@@ -865,6 +865,7 @@ nav-security = 보안
 nav-connected-services = 연결된 서비스
 nav-data-collection = 데이터 수집 및 사용
 nav-paid-subs = 유료 구독
+nav-email-prefs = 이메일 설정
 
 ## Page2faChange
 
@@ -2219,6 +2220,8 @@ signin-link-expired-message-2 = 클릭한 링크가 만료되었거나 이미 �
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = <span>{ -product-mozilla-account }</span> 비밀번호를 입력하세요
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = 동기화 시작
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = { $serviceName }로 계속
