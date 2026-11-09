@@ -1,8 +1,8 @@
 {
-  "commit": "a3c8c65ee5ad35830aa3f4c29a4f53995bfd667e",
-  "summary": "Merge pull request #21724 from mozilla/fxa-14087",
-  "description": "fix(payments): catch a failed load in the PaymentConfigManager constructor",
-  "timestamp": 1794256216000,
+  "commit": "920adc37739d642c59522b0a5f1e94548f414bde",
+  "summary": "Merge pull request #21725 from mozilla/fxa-14912",
+  "description": "feat(admin-panel): disable accounts that match a blocklist entry",
+  "timestamp": 1794258671000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
