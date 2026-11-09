@@ -1,8 +1,8 @@
 {
-  "commit": "30bb9b3b23539b32c7c71cf748f1388ac271c091",
-  "summary": "Merge pull request #21717 from mozilla/FXA-14254-v2",
-  "description": "feat(design-tokens): adopt Nova tokens behind a feature flag",
-  "timestamp": 1794244632000,
+  "commit": "4bc0acb70557a6d92ba58c648ab8debe40ba57f4",
+  "summary": "Merge pull request #21730 from mozilla/FXA-14256",
+  "description": "feat(design-tokens): map spacing, radius, type and shadows to Nova",
+  "timestamp": 1794245641000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
