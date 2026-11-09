@@ -1,14 +1,16 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
-const { assert } = require('chai');
-const sinon = require('sinon');
-const { addAllReactRoutesConditionally } = require('./add-routes');
-
-const ALWAYS_ON_PATHS = [
+/**
+ * To serve a new page, add its route name to `alwaysOnRoutes`, or to a group
+ * behind a `showReactApp` flag while the page is in development.
+ *
+ * Routes in a group with its flag off return the content-server 404.
+ */
+const alwaysOnRoutes = [
+  // the order of the routes in the array is important.  do not put '/'
+  // first.
   'authorization',
   'oauth',
   '/',
@@ -73,15 +75,19 @@ const ALWAYS_ON_PATHS = [
   'post_verify/password/force_password_change',
   'subscriptions',
   'post_verify/third_party_auth/callback',
+  // Canonical SetPassword URL going forward (FXA-13475). The legacy
+  // `post_verify/third_party_auth/set_password` URL below is kept
+  // registered so in-flight bookmarks and redirects continue to
+  // resolve through Express to the React app.
   'post_verify/set_password',
   'post_verify/third_party_auth/set_password',
   'post_verify/service_welcome',
   'update_firefox',
-].map(toExpressPath);
+];
 
-const WEB_CHANNEL_EXAMPLE_PATHS = ['web_channel_example'].map(toExpressPath);
+const webChannelExampleRoutes = ['web_channel_example'];
 
-const PAIR2_PATHS = [
+const pair2Routes = [
   'pair/authority/approve_signin',
   'pair/authority/continue_on_mobile',
   'pair/authority/download_firefox',
@@ -96,54 +102,32 @@ const PAIR2_PATHS = [
   'pair/supplicant/ready_to_scan',
   'pair/supplicant/sync_success',
   'pair/supplicant/timeout_and_cancel',
-].map(toExpressPath);
+];
 
-// Same conversion as react-route-server.js, as a string so paths compare.
-function toExpressPath(name) {
-  return name.startsWith('/') ? name : String(new RegExp(`^/${name}/?$`));
+/** @param {string} name */
+function toPath(name) {
+  // Names that start with '/' are already Express paths, e.g. '/oauth/success/:clientId'
+  return name.startsWith('/') ? name : new RegExp(`^/${name}/?$`);
 }
 
-describe('react-app/add-routes:', () => {
-  let app, middleware;
+/**
+ * Add the React routes for fxa-settings to serve with `middleware`.
+ * @param {import('express').Express} app
+ * @param {import('express').RequestHandler} middleware
+ * @param {{ get(key: 'showReactApp'): { webChannelExampleRoutes: boolean, pair2Routes: boolean } }} config
+ */
+function addReactRoutes(app, middleware, config) {
+  const showReactApp = config.get('showReactApp');
+  const routes = [
+    ...alwaysOnRoutes,
+    ...(showReactApp.webChannelExampleRoutes === true
+      ? webChannelExampleRoutes
+      : []),
+    ...(showReactApp.pair2Routes === true ? pair2Routes : []),
+  ];
+  routes.forEach((name) => app.get(toPath(name), middleware));
+}
 
-  function registeredPaths(showReactApp) {
-    const config = {
-      get: sinon.stub().withArgs('showReactApp').returns(showReactApp),
-    };
-    addAllReactRoutesConditionally(app, middleware, config);
-    return app.get.args.map(([path]) => String(path));
-  }
-
-  beforeEach(() => {
-    app = { get: sinon.spy() };
-    middleware = sinon.spy();
-  });
-
-  it('registers only the always-on routes, in order, when the flags are off', () => {
-    const paths = registeredPaths({
-      webChannelExampleRoutes: false,
-      pair2Routes: false,
-    });
-
-    assert.deepEqual(paths, ALWAYS_ON_PATHS);
-    assert.isTrue(app.get.alwaysCalledWith(sinon.match.any, middleware));
-  });
-
-  it('registers webChannelExampleRoutes when its flag is on', () => {
-    const paths = registeredPaths({
-      webChannelExampleRoutes: true,
-      pair2Routes: false,
-    });
-
-    assert.deepEqual(paths, [...ALWAYS_ON_PATHS, ...WEB_CHANNEL_EXAMPLE_PATHS]);
-  });
-
-  it('registers pair2Routes when its flag is on', () => {
-    const paths = registeredPaths({
-      webChannelExampleRoutes: false,
-      pair2Routes: true,
-    });
-
-    assert.deepEqual(paths, [...ALWAYS_ON_PATHS, ...PAIR2_PATHS]);
-  });
-});
+module.exports = {
+  addReactRoutes,
+};
