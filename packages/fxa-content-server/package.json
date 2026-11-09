@@ -9,7 +9,6 @@
     "build-js": "NODE_ENV=production grunt build",
     "check-local-config": "node scripts/check-local-config",
     "clean": "rimraf dist",
-    "compile": "tsc --noEmit",
     "copy-local-config": "cp server/config/local.json-dist server/config/local.json",
     "glean-generate": "npx glean translate ../../libs/shared/metrics/glean/src/registry/fxa-backend-pings.yaml ../../libs/shared/metrics/glean/src/registry/fxa-backend-metrics.yaml -f javascript_server -s module_spec=commonjs -o server/lib/glean && prettier --config ../../_dev/.prettierrc --write server/lib/glean/*.js",
     "l10n-prime": "yarn l10n:prime packages/fxa-content-server",
