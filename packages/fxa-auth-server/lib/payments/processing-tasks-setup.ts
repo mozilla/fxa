@@ -33,7 +33,8 @@ export async function setupProcessingTaskObjects(processName: string) {
     : ({
         increment: () => {},
         timing: () => {},
-        close: () => {},
+        gauge: () => {},
+        close: (callback?: (error?: Error) => void) => callback?.(),
       } as unknown as StatsD);
   Container.set(StatsD, statsd);
 

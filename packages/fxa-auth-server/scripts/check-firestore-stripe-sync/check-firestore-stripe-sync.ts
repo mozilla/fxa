@@ -5,6 +5,7 @@ import Stripe from 'stripe';
 import Container from 'typedi';
 import { CollectionReference, Firestore } from '@google-cloud/firestore';
 import PQueue from 'p-queue';
+import { StatsD } from 'hot-shots';
 
 import { AppConfig, AuthFirestore } from '../../lib/types';
 import { ConfigType } from '../../config';
@@ -24,6 +25,7 @@ export class FirestoreStripeSyncChecker {
   private firestore: Firestore;
   private stripeQueue: PQueue;
   private stripe: Stripe;
+  private statsd: StatsD;
   private customersCheckedCount = 0;
   private subscriptionsCheckedCount = 0;
   private outOfSyncCount = 0;
@@ -31,6 +33,7 @@ export class FirestoreStripeSyncChecker {
   private subscriptionsMissingInFirestore = 0;
   private customersMismatched = 0;
   private subscriptionsMismatched = 0;
+  private checksFailedCount = 0;
   private customerCollectionDbRef: CollectionReference;
   private subscriptionCollection: string;
 
@@ -46,6 +49,8 @@ export class FirestoreStripeSyncChecker {
 
     const firestore = Container.get<Firestore>(AuthFirestore);
     this.firestore = firestore;
+
+    this.statsd = Container.get(StatsD);
 
     this.customerCollectionDbRef = this.firestore.collection(
       `${this.config.authFirestore.prefix}stripe-customers`
@@ -64,26 +69,34 @@ export class FirestoreStripeSyncChecker {
 
   async run(): Promise<void> {
     this.log.info('firestore-stripe-sync-check-start');
+    this.statsd.increment('firestore-stripe-sync.startup');
 
     const queue = new PQueue({ concurrency: QUEUE_CONCURRENCY_LIMIT });
 
-    await this.stripe.customers
-      .list({
-        limit: 25,
-      })
-      .autoPagingEach(async (customer) => {
-        if (queue.size + queue.pending >= QUEUE_SIZE_LIMIT) {
-          await queue.onSizeLessThan(
-            QUEUE_SIZE_LIMIT - QUEUE_CONCURRENCY_LIMIT
-          );
-        }
+    try {
+      await this.stripe.customers
+        .list({
+          limit: 25,
+        })
+        .autoPagingEach(async (customer) => {
+          if (queue.size + queue.pending >= QUEUE_SIZE_LIMIT) {
+            await queue.onSizeLessThan(
+              QUEUE_SIZE_LIMIT - QUEUE_CONCURRENCY_LIMIT
+            );
+          }
 
-        queue.add(() => {
-          return this.checkCustomerSync(customer);
+          queue.add(() => {
+            return this.checkCustomerSync(customer);
+          });
         });
-      });
 
-    await queue.onIdle();
+      await queue.onIdle();
+    } catch (err) {
+      this.statsd.increment('firestore-stripe-sync.shutdown', {
+        result: 'failure',
+      });
+      throw err;
+    }
 
     this.log.info('firestore-stripe-sync-check-complete', {
       customersCheckedCount: this.customersCheckedCount,
@@ -93,6 +106,32 @@ export class FirestoreStripeSyncChecker {
       subscriptionsMissingInFirestore: this.subscriptionsMissingInFirestore,
       customersMismatched: this.customersMismatched,
       subscriptionsMismatched: this.subscriptionsMismatched,
+    });
+
+    this.statsd.gauge(
+      'firestore-stripe-sync.last-run.customers-checked',
+      this.customersCheckedCount
+    );
+    this.statsd.gauge(
+      'firestore-stripe-sync.last-run.checks-succeeded',
+      this.customersCheckedCount +
+        this.subscriptionsCheckedCount -
+        this.checksFailedCount
+    );
+    this.statsd.gauge(
+      'firestore-stripe-sync.last-run.checks-failed',
+      this.checksFailedCount
+    );
+    this.statsd.gauge(
+      'firestore-stripe-sync.last-run.out-of-sync',
+      this.outOfSyncCount
+    );
+    this.statsd.gauge(
+      'firestore-stripe-sync.last-run.completed-at',
+      Math.floor(Date.now() / 1000)
+    );
+    this.statsd.increment('firestore-stripe-sync.shutdown', {
+      result: 'success',
     });
   }
 
@@ -151,6 +190,7 @@ export class FirestoreStripeSyncChecker {
         );
       }
     } catch (e) {
+      this.checksFailedCount++;
       this.log.error('error-checking-customer', {
         customerId: stripeCustomer.id,
         error: e,
@@ -196,6 +236,7 @@ export class FirestoreStripeSyncChecker {
         return;
       }
     } catch (e) {
+      this.checksFailedCount++;
       this.log.error('error-checking-subscription', {
         customerId,
         subscriptionId: stripeSubscription.id,
