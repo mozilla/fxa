@@ -1076,7 +1076,7 @@ describe('#integration - scripts/backfill-account-authorizations scenarios', () 
       timezone: '+00:00',
       // Same as the script's own pool: lets affectedRows tell inserts and
       // moved rows from untouched ones.
-      flags: '-FOUND_ROWS',
+      flags: ['-FOUND_ROWS'],
     });
     query = <T = unknown>(sql: string, values?: unknown[]) =>
       new Promise<T>((resolve, reject) => {
