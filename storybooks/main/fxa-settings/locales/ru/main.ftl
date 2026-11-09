@@ -685,6 +685,7 @@ nav-security = Безопасность
 nav-connected-services = Подсоединённые устройства
 nav-data-collection = Сбор и использование данных
 nav-paid-subs = Платные подписки
+nav-email-prefs = Настройки эл. почты
 
 
 page-2fa-change-title = Изменить двухэтапную аутентификацию
@@ -1565,6 +1566,7 @@ signin-link-expired-message-2 = Срок действия ссылки, на к�
 
 
 signin-password-needed-header-2 = Введите свой пароль <span>для вашего { -product-mozilla-account(case: "genitive") }</span>
+signin-button-start-syncing = Начать синхронизацию
 signin-subheader-without-logo-with-servicename = Перейти к { $serviceName }
 signin-subheader-without-logo-default = Перейти к настройкам аккаунта
 signin-button = Войти

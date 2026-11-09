@@ -890,6 +890,7 @@ nav-security = Безопасность
 nav-connected-services = Подсоединённые устройства
 nav-data-collection = Сбор и использование данных
 nav-paid-subs = Платные подписки
+nav-email-prefs = Настройки эл. почты
 
 ## Page2faChange
 
@@ -2257,6 +2258,8 @@ signin-link-expired-message-2 = Срок действия ссылки, на к�
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Введите свой пароль <span>для вашего { -product-mozilla-account(case: "genitive") }</span>
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = Начать синхронизацию
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = Перейти к { $serviceName }

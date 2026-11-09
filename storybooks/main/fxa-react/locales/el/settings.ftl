@@ -889,6 +889,7 @@ nav-security = Ασφάλεια
 nav-connected-services = Συνδεδεμένες υπηρεσίες
 nav-data-collection = Συλλογή και χρήση δεδομένων
 nav-paid-subs = Συνδρομές επί πληρωμή
+nav-email-prefs = Προτιμήσεις email
 
 ## Page2faChange
 
@@ -2254,6 +2255,8 @@ signin-link-expired-message-2 = Ο σύνδεσμος στον οποίο κάν
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Εισαγάγετε τον κωδικό πρόσβασης <span>για τον { -product-mozilla-account(capitalization: "lower", case: "acc") } σας</span>
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = Έναρξη συγχρονισμού
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = Συνέχεια στο { $serviceName }

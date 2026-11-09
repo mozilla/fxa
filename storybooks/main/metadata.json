@@ -1,8 +1,8 @@
 {
-  "commit": "ccca044a9380383f86ba7ea4e4e523476d64cc57",
-  "summary": "Merge pull request #21726 from mozilla/fxa-9551",
-  "description": "chore(deps): align eslint on ^8.57.1 in every package",
-  "timestamp": 1794001926000,
+  "commit": "ecfa03969423c07cc88155f4a9c0a24fd5558d49",
+  "summary": "Merge pull request #21732 from mozilla/agent-a87d6c",
+  "description": "fix(skills): correct stale facts in skills and CLAUDE.md",
+  "timestamp": 1794233841000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
