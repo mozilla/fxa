@@ -1,8 +1,8 @@
 {
-  "commit": "ecfa03969423c07cc88155f4a9c0a24fd5558d49",
-  "summary": "Merge pull request #21732 from mozilla/agent-a87d6c",
-  "description": "fix(skills): correct stale facts in skills and CLAUDE.md",
-  "timestamp": 1794233841000,
+  "commit": "6e4e5c084a1e99b137c33a2dd0cbdfbf2bb85d1d",
+  "summary": "Merge pull request #21727 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-c7a5cdba31f5dc1b52adb51629280037c1570c6b",
+  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from d02603911e683d89669e16bf477d280791524856 to c7a5cdba31f5dc1b52adb51629280037c1570c6b",
+  "timestamp": 1794234014000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
