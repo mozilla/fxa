@@ -6,8 +6,10 @@ come from the package; we add two small static layers.
 
 Imported once via `fxa-react/styles/index.css`:
 
-- `acorn-web-components/dist/tokens/tokens.css` — Acorn's tokens at `:root`, in `@layer
-  acorn.tokens`. The `dist/` path is used because postcss-import doesn't resolve the
+- `acorn-web-components/dist/all-tokens.css` — Acorn's foundation and component tokens
+  (`--button-*`, `--link-*`, …) at `:root`, in `@layer acorn.tokens`. The per-component
+  files in `dist/tokens/` are scoped to `:host`, so they don't apply outside Acorn's
+  components. The `dist/` path is used because postcss-import doesn't resolve the
   package `exports` map.
 - `legacy.css` — `:root:not([data-theme="nova"])`: today's values (flag off). Unlayered,
   so it beats Acorn's layer; the `:not()` stops matching under the flag, letting Acorn win.
@@ -50,8 +52,18 @@ user's root font size.
 - Raw `rgba()` is only for black/white overlays that don't depend on the theme.
 - Add a token only when a color+alpha pair recurs as a semantic role.
 
-Known case left for FXA-14255: `--cta-disabled` in `fxa-react/styles/ctas.css` hardcodes
-Tailwind's stock blue-500 (`rgb(59 130 246 / 0.4)`), not the palette's.
+Known case: flag-off `--cta-disabled` in `fxa-react/styles/ctas.css` hardcodes Tailwind's
+stock blue-500 (`rgb(59 130 246 / 0.4)`), not the palette's. Under the flag it uses
+Acorn's disabled button token.
+
+## Buttons and links
+
+`fxa-react/styles/ctas.css` and `links.css` restyle the shared `cta-*` and `link-*`
+classes under `[data-theme="nova"]` with Acorn's `--button-*` and `--link-*` tokens:
+`cta-primary` → primary, `cta-caution` → destructive, `cta-neutral` → the default
+(accent outline) button, `link-blue` and `link-grey` → `--link-color`. `link-dark-grey`
+and `link-white` are unchanged. These files load only in Settings, so `legacy.css` needs
+no values for them.
 
 ## Maintenance
 

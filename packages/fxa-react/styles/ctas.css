@@ -202,6 +202,144 @@
       }
     }
   }
+
+  /* Nova (data-theme="nova"): Acorn's --button-* tokens. cta-primary maps to
+   * Acorn's primary, cta-caution to destructive, cta-neutral to the default
+   * (accent outline) button. Shape and spacing sit under :where() so utilities
+   * on a button still override them. Colors carry the attribute's specificity
+   * to beat the dark: variants above; Acorn's tokens switch on color-scheme. */
+  :where([data-theme='nova']) .cta-neutral,
+  :where([data-theme='nova']) .cta-caution,
+  :where([data-theme='nova']) .cta-primary-cms,
+  :where([data-theme='nova']) .cta-primary,
+  :where([data-theme='nova']) .cta-xl {
+    border-radius: var(--button-border-radius);
+    font-weight: var(--button-font-weight);
+  }
+
+  :where([data-theme='nova']) .cta-base-p {
+    padding: var(--button-padding);
+    min-height: var(--button-min-height);
+  }
+
+  :where([data-theme='nova']) .cta-xl {
+    padding: var(--button-padding-block-large)
+      var(--button-padding-inline-large);
+    min-height: var(--button-min-height-large);
+  }
+
+  [data-theme='nova'] .cta-neutral {
+    background-color: var(--button-background-color);
+    border-color: var(--button-border-color);
+    color: var(--button-text-color);
+  }
+
+  [data-theme='nova'] .cta-neutral:active {
+    background-color: var(--button-background-color-active);
+    border-color: var(--button-border-color-active);
+    color: var(--button-text-color-active);
+  }
+
+  [data-theme='nova'] .cta-neutral:focus,
+  [data-theme='nova'] .cta-neutral:focus-visible {
+    background-color: var(--button-background-color);
+    outline: var(--focus-outline);
+    outline-offset: var(--focus-outline-offset);
+  }
+
+  [data-theme='nova'] .cta-neutral:disabled {
+    background-color: var(--button-background-color-disabled);
+    border-color: var(--button-border-color-disabled);
+    color: var(--button-text-color-disabled);
+    opacity: var(--button-opacity-disabled);
+  }
+
+  [data-theme='nova'] .cta-primary {
+    background-color: var(--button-background-color-primary);
+    border-color: var(--button-border-color-primary);
+    color: var(--button-text-color-primary);
+  }
+
+  [data-theme='nova'] .cta-primary:active:not([aria-disabled='true']) {
+    background-color: var(--button-background-color-primary-active);
+    border-color: var(--button-border-color-primary-active);
+    color: var(--button-text-color-primary-active);
+  }
+
+  [data-theme='nova'] .cta-primary:focus:not([aria-disabled='true']),
+  [data-theme='nova'] .cta-primary:focus-visible:not([aria-disabled='true']) {
+    outline: var(--focus-outline);
+    outline-offset: var(--focus-outline-offset);
+  }
+
+  [data-theme='nova'] .cta-primary:disabled {
+    background-color: var(--button-background-color-primary-disabled);
+    border-color: var(--button-border-color-primary-disabled);
+    color: var(--button-text-color-primary-disabled);
+    opacity: var(--button-opacity-disabled);
+  }
+
+  [data-theme='nova'] .cta-caution {
+    background-color: var(--button-background-color-destructive);
+    border-color: var(--button-border-color-destructive);
+    color: var(--button-text-color-destructive);
+  }
+
+  [data-theme='nova'] .cta-caution:active {
+    background-color: var(--button-background-color-destructive-active);
+    border-color: var(--button-border-color-destructive-active);
+    color: var(--button-text-color-destructive-active);
+  }
+
+  [data-theme='nova'] .cta-caution:focus,
+  [data-theme='nova'] .cta-caution:focus-visible {
+    border-color: var(--button-border-color-destructive);
+    outline: var(--focus-outline);
+    outline-offset: var(--focus-outline-offset);
+  }
+
+  [data-theme='nova'] .cta-caution:disabled {
+    background-color: var(--button-background-color-destructive-disabled);
+    border-color: var(--button-border-color-destructive-disabled);
+    color: var(--button-text-color-destructive-disabled);
+    opacity: var(--button-opacity-disabled);
+  }
+
+  /* Fallbacks only; CmsButtonWithFallback sets these inline from the CMS color. */
+  [data-theme='nova'] .cta-primary-cms {
+    --cta-bg: var(--button-background-color-primary);
+    --cta-border: var(--button-border-color-primary);
+    --cta-active: var(--button-background-color-primary-active);
+    --cta-disabled: var(--button-background-color-primary-disabled);
+    --cta-focus-outline: var(--focus-outline-color);
+  }
+
+  [data-theme='nova'] .cta-primary-cms:disabled {
+    opacity: var(--button-opacity-disabled);
+  }
+
+  @media (hover: hover) {
+    [data-theme='nova'] .cta-neutral:hover:not(:disabled):not(:active) {
+      background-color: var(--button-background-color-hover);
+      border-color: var(--button-border-color-hover);
+      color: var(--button-text-color-hover);
+    }
+
+    [data-theme='nova']
+      .cta-primary:hover:not(:disabled):not(:active):not(
+        [aria-disabled='true']
+      ) {
+      background-color: var(--button-background-color-primary-hover);
+      border-color: var(--button-border-color-primary-hover);
+      color: var(--button-text-color-primary-hover);
+    }
+
+    [data-theme='nova'] .cta-caution:hover:not(:disabled):not(:active) {
+      background-color: var(--button-background-color-destructive-hover);
+      border-color: var(--button-border-color-destructive-hover);
+      color: var(--button-text-color-destructive-hover);
+    }
+  }
 }
 
 @layer utilities {
