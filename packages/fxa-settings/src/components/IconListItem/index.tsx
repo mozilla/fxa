@@ -20,7 +20,7 @@ interface IconListItemProps {
 export const IconListItem = ({
   icon,
   listItemClassnames,
-  spanClassNames = 'me-1 text-grey-400 dark:text-grey-200',
+  spanClassNames = 'me-1 text-deemphasized',
   children,
 }: IconListItemProps) => {
   return (

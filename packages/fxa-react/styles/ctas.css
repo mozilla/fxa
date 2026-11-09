@@ -219,7 +219,6 @@
 
   :where([data-theme='nova']) .cta-base-p {
     padding: var(--button-padding);
-    min-height: var(--button-min-height);
   }
 
   :where([data-theme='nova']) .cta-xl {

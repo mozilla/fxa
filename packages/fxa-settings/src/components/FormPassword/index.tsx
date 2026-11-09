@@ -97,7 +97,7 @@ export const FormPassword = ({
         <h2>Password requirements</h2>
       </Localized>
       <ul
-        className="text-grey-400 dark:text-grey-200 text-xs m-3 list-inside"
+        className="text-deemphasized text-xs m-3 list-inside"
         data-testid="change-password-requirements"
       >
         <li data-testid="change-password-length">

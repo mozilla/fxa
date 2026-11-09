@@ -4670,6 +4670,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@csstools/css-parser-algorithms@npm:^4.0.2":
+  version: 4.0.2
+  resolution: "@csstools/css-parser-algorithms@npm:4.0.2"
+  peerDependencies:
+    "@csstools/css-tokenizer": ^4.0.2
+  checksum: 10c0/ecd411e081ad522fb2e94d7b48d7f8e20cf5ef5f2017addecb80746f7403d289b4e403aee7422330a88f4193942e10bedb960326a7c0567528fc2273b0be5db7
+  languageName: node
+  linkType: hard
+
 "@csstools/css-syntax-patches-for-csstree@npm:^1.1.4":
   version: 1.1.6
   resolution: "@csstools/css-syntax-patches-for-csstree@npm:1.1.6"
@@ -4693,6 +4702,13 @@ __metadata:
   version: 4.0.0
   resolution: "@csstools/css-tokenizer@npm:4.0.0"
   checksum: 10c0/669cf3d0f9c8e1ffdf8c9955ad8beba0c8cfe03197fe29a4fcbd9ee6f7a18856cfa42c62670021a75183d9ab37f5d14a866e6a9df753a6c07f59e36797a9ea9f
+  languageName: node
+  linkType: hard
+
+"@csstools/css-tokenizer@npm:^4.0.2":
+  version: 4.0.2
+  resolution: "@csstools/css-tokenizer@npm:4.0.2"
+  checksum: 10c0/748b42450064cca6a54d2bb8a719cb765c6433b8988ed8855f39c9814b8ef30c4daab235ffee9dacb0388916d6e250ec6bee454e8353d06161228e129e4272ae
   languageName: node
   linkType: hard
 
@@ -4910,6 +4926,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@csstools/postcss-light-dark-function@npm:^3.0.8":
+  version: 3.0.8
+  resolution: "@csstools/postcss-light-dark-function@npm:3.0.8"
+  dependencies:
+    "@csstools/css-parser-algorithms": "npm:^4.0.2"
+    "@csstools/css-tokenizer": "npm:^4.0.2"
+    "@csstools/postcss-progressive-custom-properties": "npm:^5.1.5"
+    "@csstools/utilities": "npm:^3.0.0"
+  peerDependencies:
+    postcss: ^8.4
+  checksum: 10c0/35a3ea4639105616fb663759406c5eafeaa1ea1fe326984a222cde052d1b47f2497a015f73a35511914c72e2b30d34cb79aa1656d66c5c10c72f19311213c220
+  languageName: node
+  linkType: hard
+
 "@csstools/postcss-logical-float-and-clear@npm:^3.0.0":
   version: 3.0.0
   resolution: "@csstools/postcss-logical-float-and-clear@npm:3.0.0"
@@ -5033,6 +5063,17 @@ __metadata:
   peerDependencies:
     postcss: ^8.4
   checksum: 10c0/175081a5c53e37a282f596e01359d4411800e4017c2d389caaa2b7c9b7507a50c5f1ac3d937f27f000be3ac2ac788cad9c1490ec6bc1d4de51331f3cc8ccda8e
+  languageName: node
+  linkType: hard
+
+"@csstools/postcss-progressive-custom-properties@npm:^5.1.5":
+  version: 5.1.5
+  resolution: "@csstools/postcss-progressive-custom-properties@npm:5.1.5"
+  dependencies:
+    postcss-value-parser: "npm:^4.2.0"
+  peerDependencies:
+    postcss: ^8.4
+  checksum: 10c0/8b149f59f08f26dab40c563317124cc881733a73fb8569bf56e64050573016c5dd382b6ff598c617388d614afee37023e3a8b9c324f53d2d07eff2691b8f78a1
   languageName: node
   linkType: hard
 
@@ -5177,6 +5218,15 @@ __metadata:
   peerDependencies:
     postcss: ^8.4
   checksum: 10c0/be5c31437b726928f64cd4bb3e47f5b90bfd2e2a69a8eaabd8e89cc6c0977e4f0f7ee48de50c8ed8b07e04e3956a02293247e0da3236d521fb2e836f88f65822
+  languageName: node
+  linkType: hard
+
+"@csstools/utilities@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@csstools/utilities@npm:3.0.0"
+  peerDependencies:
+    postcss: ^8.4
+  checksum: 10c0/65b6f6aa4ea899777bea710aab5f17028aa5e1aa41f7fe892c2e916b188da2b929c76be643d4a5d8d9ca5a7853df94f05c0247dd6b63540b360055d36db3104f
   languageName: node
   linkType: hard
 
@@ -30409,6 +30459,7 @@ __metadata:
   dependencies:
     "@babel/plugin-proposal-class-properties": "npm:^7.18.6"
     "@babel/types": "npm:7.25.8"
+    "@csstools/postcss-light-dark-function": "npm:^3.0.8"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.3"
     "@sentry/webpack-plugin": "npm:^3.5.0"
     "@storybook/addon-actions": "npm:^8.0.0"

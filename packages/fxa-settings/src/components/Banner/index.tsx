@@ -53,17 +53,17 @@ export const Banner = ({
       className={
         ready
           ? classNames(
-              'my-4 flex flex-row no-wrap items-center px-4 py-3 gap-3.5 rounded-md border border-transparent text-sm text-grey-700',
+              'my-4 flex flex-row no-wrap items-center px-4 py-3 gap-3.5 rounded-md border border-transparent text-sm text-grey-700 nova:text-default',
               className,
               textAlignClassName,
               textAlignClassName === 'text-center' && 'justify-center',
-              type === 'error' && 'bg-red-100',
-              type === 'info' && !isFancy && 'bg-blue-50',
+              type === 'error' && 'bg-critical',
+              type === 'info' && !isFancy && 'bg-information',
               type === 'info' &&
                 isFancy &&
                 'bg-gradient-to-tr from-blue-600/10 to-purple-500/10',
-              type === 'success' && 'bg-green-200',
-              type === 'warning' && 'bg-orange-50',
+              type === 'success' && 'bg-success',
+              type === 'warning' && 'bg-warning',
               animation?.animate && animation?.className
             )
           : undefined

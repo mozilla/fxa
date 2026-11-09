@@ -114,7 +114,7 @@ export const GetDataCopySingletonInline = ({
         data-testid="databutton-copy"
         data-glean-id={gleanDataAttr?.id}
         data-glean-type={gleanDataAttr?.type}
-        className="-my-2 -me-4 p-3 rounded text-grey-500 dark:text-grey-200 bg-transparent border border-transparent hover:bg-grey-100 active:bg-grey-200 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 focus:bg-grey-50"
+        className="-my-2 -me-4 p-3 rounded text-grey-500 dark:text-grey-200 bg-transparent border border-transparent hover:bg-grey-100 active:bg-grey-200 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-focus focus:bg-grey-50"
       >
         <InlineCopyIcon
           aria-hidden

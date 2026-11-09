@@ -260,12 +260,12 @@ module.exports = {
         '.caret-top-default': {
           borderLeft: '0.75rem solid transparent',
           borderRight: '0.75rem solid transparent',
-          borderBottom: '0.75rem solid #5e5e72',
+          borderBottom: '0.75rem solid var(--color-grey-500)',
         },
         '.caret-top-error': {
           borderLeft: '0.75rem solid transparent',
           borderRight: '0.75rem solid transparent',
-          borderBottom: '0.75rem solid #E22850',
+          borderBottom: '0.75rem solid var(--color-red-600)',
         },
         '.caret-bottom': {
           borderLeft: '0.75rem solid transparent',
@@ -275,12 +275,12 @@ module.exports = {
         '.caret-bottom-default': {
           borderLeft: '0.75rem solid transparent',
           borderRight: '0.75rem solid transparent',
-          borderTop: '0.75rem solid #5e5e72',
+          borderTop: '0.75rem solid var(--color-grey-500)',
         },
         '.caret-bottom-error': {
           borderLeft: '0.75rem solid transparent',
           borderRight: '0.75rem solid transparent',
-          borderTop: '0.75rem solid #E22850',
+          borderTop: '0.75rem solid var(--color-red-600)',
         },
       };
       addComponents(carets);

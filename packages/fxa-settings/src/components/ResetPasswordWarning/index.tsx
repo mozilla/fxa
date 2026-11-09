@@ -32,7 +32,7 @@ const ResetPasswordWarning = ({
 
   return (
     <details
-      className="p-4 bg-orange-50 rounded-lg text-sm text-start border border-transparent"
+      className="p-4 bg-warning rounded-lg text-sm text-start border border-transparent"
       data-testid="warning-message-container"
       open={defaultOpenState}
       onToggle={(e) =>

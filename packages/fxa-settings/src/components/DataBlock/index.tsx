@@ -96,7 +96,7 @@ export const DataBlock = ({
   };
 
   return (
-    <div className="w-full flex flex-col items-center bg-white dark:bg-grey-700 rounded-xl border-2 border-grey-100 dark:border-grey-600 p-4">
+    <div className="w-full flex flex-col items-center bg-box rounded-xl border-2 border-default p-4">
       <ul
         className={classNames(
           'relative gap-2 mobileLandscape:gap-3 w-full mb-4 text-black dark:text-grey-10 text-sm font-mono font-bold',

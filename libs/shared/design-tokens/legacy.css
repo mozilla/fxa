@@ -123,4 +123,31 @@
   --box-shadow-level-2: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --box-shadow-level-3: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --box-shadow-level-4: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  /* Acorn semantic colors behind fxa-settings' bg-box, text-default, etc.: the
+   * light/dark pair each replaces (README "Semantic colors"). Status fills,
+   * text-error and outline-focus have no dark variant today. */
+  --background-color-box: var(--color-white);
+  --background-color-canvas: var(--color-grey-10);
+  --background-color-critical: var(--fxa-color-red-100);
+  --background-color-information: var(--fxa-color-blue-50);
+  --background-color-success: var(--color-green-200);
+  --background-color-warning: var(--fxa-color-orange-50);
+  --text-color: var(--color-grey-900);
+  --text-color-deemphasized: var(--color-grey-400);
+  --text-color-disabled: var(--color-grey-300);
+  --text-color-error: var(--color-red-600);
+  --border-color: var(--color-grey-100);
+  --border-color-interactive: var(--color-grey-200);
+  --focus-outline-color: var(--color-blue-500);
+}
+
+/* ThemeProvider sets .dark on <html>. */
+:root.dark:not([data-theme="nova"]) {
+  --background-color-box: var(--color-grey-700);
+  --background-color-canvas: var(--color-grey-900);
+  --text-color: var(--color-grey-10);
+  --text-color-deemphasized: var(--color-grey-200);
+  --text-color-disabled: var(--color-grey-500);
+  --border-color: var(--color-grey-600);
+  --border-color-interactive: var(--color-grey-600);
 }

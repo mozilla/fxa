@@ -6,6 +6,7 @@
 
 const { resolve } = require('path');
 const extractImportedComponents = require('fxa-react/extract-imported-components');
+const plugin = require('tailwindcss/plugin');
 const config = require('fxa-react/configs/tailwind');
 
 if (process.env.NODE_ENV === 'production') {
@@ -25,8 +26,54 @@ if (process.env.STORYBOOK_BUILD === '1') {
 
 config.content.push('./src/components/images/**/*.svg');
 
+// Nova semantic colors. Each points at an Acorn token; legacy.css gives it
+// today's light and dark value for flag-off. See libs/shared/design-tokens/README.md.
 config.theme.extend = {
   ...config.theme.extend,
+  backgroundColor: {
+    box: 'var(--background-color-box)',
+    canvas: 'var(--background-color-canvas)',
+    critical: 'var(--background-color-critical)',
+    information: 'var(--background-color-information)',
+    success: 'var(--background-color-success)',
+    warning: 'var(--background-color-warning)',
+    // nova:-only (no flag-off value), see README.
+    'accent-primary': 'var(--color-accent-primary)',
+    'accent-primary-hover': 'var(--color-accent-primary-hover)',
+    'accent-primary-active': 'var(--color-accent-primary-active)',
+    'button-hover': 'var(--button-background-color-hover)',
+    'button-active': 'var(--button-background-color-active)',
+  },
+  textColor: {
+    default: 'var(--text-color)',
+    deemphasized: 'var(--text-color-deemphasized)',
+    disabled: 'var(--text-color-disabled)',
+    error: 'var(--text-color-error)',
+    // nova:-only
+    input: 'var(--input-text-color)',
+  },
+  borderColor: {
+    default: 'var(--border-color)',
+    interactive: 'var(--border-color-interactive)',
+    // nova:-only
+    error: 'var(--border-color-error)',
+    'accent-primary': 'var(--color-accent-primary)',
+    'accent-primary-hover': 'var(--color-accent-primary-hover)',
+    'accent-primary-active': 'var(--color-accent-primary-active)',
+    'button-hover': 'var(--button-border-color-hover)',
+    'button-active': 'var(--button-border-color-active)',
+    'input-disabled': 'var(--input-border-color-disabled)',
+  },
+  outlineColor: {
+    focus: 'var(--focus-outline-color)',
+    // nova:-only
+    error: 'var(--border-color-error)',
+  },
+  // nova:-only
+  opacity: {
+    'button-disabled': 'var(--button-opacity-disabled)',
+    'input-disabled': 'var(--input-opacity-disabled)',
+  },
   transitionDelay: {
     ...config.theme.extend.transitionDelay,
     400: '400ms',
@@ -307,5 +354,20 @@ config.theme.extend = {
     'confetti-fall-right': 'confetti-fall-right 4.2s ease-in-out forwards',
   },
 };
+
+// Styling that differs only under the flag, e.g. `w-6 nova:w-4`. :root adds
+// specificity so nova: beats dark:, which Tailwind emits later.
+config.plugins.push(
+  plugin(({ addVariant, addComponents }) => {
+    addVariant('nova', ':root[data-theme="nova"] &');
+    // Acorn's focus ring (nova:-only). Pair with outline-error to recolor it.
+    addComponents({
+      '.focus-ring': {
+        outline: 'var(--focus-outline)',
+        outlineOffset: 'var(--focus-outline-offset)',
+      },
+    });
+  })
+);
 
 module.exports = config;

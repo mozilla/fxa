@@ -164,13 +164,22 @@ export const InputText = ({
     <label
       className={classNames(
         'flex text-start rounded transition-all duration-100 ease-in-out border relative outline-none',
-        hasErrors || errorText ? 'border-red-700 shadow-input-red-focus' : '',
-        !hasErrors && focused
-          ? 'border-blue-400 shadow-input-blue-focus'
-          : 'border-grey-200 dark:border-grey-600',
+        hasErrors || errorText
+          ? 'border-red-700 shadow-input-red-focus'
+          : focused
+            ? 'border-blue-400 shadow-input-blue-focus'
+            : 'border-grey-200 dark:border-grey-600',
         disabled
           ? 'border-grey-100 bg-grey-10 dark:border-grey-700 dark:bg-grey-800'
-          : 'bg-white dark:bg-grey-700',
+          : 'bg-box',
+        'nova:rounded-xl nova:shadow-none',
+        disabled
+          ? 'nova:bg-transparent nova:border-input-disabled nova:opacity-input-disabled'
+          : hasErrors || errorText
+            ? 'nova:border-error nova:focus-ring nova:outline-error'
+            : focused
+              ? 'nova:border-accent-primary nova:focus-ring'
+              : 'nova:border-interactive',
         className
       )}
       data-testid={formatDataTestId('input-container')}
@@ -180,8 +189,12 @@ export const InputText = ({
           className={classNames(
             'px-3 w-full cursor-text absolute ltr:origin-top-left rtl:origin-top-right text-sm transition-all duration-100 ease-in-out truncate font-body',
             disabled
-              ? 'text-grey-300 dark:text-grey-500'
+              ? 'text-disabled nova:text-default'
               : 'text-grey-900 dark:text-grey-100',
+            !disabled &&
+              (placeholder || hasContent || focused
+                ? 'nova:text-deemphasized'
+                : 'nova:text-default'),
             placeholder || hasContent || focused
               ? 'transform scale-80 mt-1 ltr:ml-1 rtl:mr-1 ltr:-left-px rtl:-right-px'
               : 'mt-3 pt-px'
@@ -195,7 +208,7 @@ export const InputText = ({
           defaultValue={value === undefined ? defaultValue : undefined}
           className={classNames(
             inputOnlyClassName,
-            'pb-1 pt-5 px-3 font-body rounded text-start bg-transparent dark:text-grey-10',
+            'pb-1 pt-5 px-3 font-body rounded text-start bg-transparent dark:text-grey-10 nova:text-input',
             // password specific width is to accomodate password manager icons
             // that are otherwise hidden and inaccessible under the visibility icon
             isPasswordInput ? 'w-[90%]' : 'w-full',
@@ -203,7 +216,7 @@ export const InputText = ({
               ? 'outline-none border-none placeholder-grey-500 dark:placeholder-grey-400'
               : '',
             disabled
-              ? 'bg-grey-10 dark:bg-grey-800 placeholder-transparent cursor-default'
+              ? 'bg-grey-10 dark:bg-grey-800 nova:bg-transparent placeholder-transparent cursor-default'
               : ''
           )}
           data-testid={formatDataTestId('input-field')}

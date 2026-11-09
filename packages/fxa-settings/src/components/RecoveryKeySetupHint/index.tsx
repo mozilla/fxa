@@ -108,7 +108,7 @@ export const RecoveryKeySetupHint = ({
     return (
       <p
         className={classNames('text-end text-xs my-2', {
-          'text-red-600': isTooLong,
+          'text-error': isTooLong,
         })}
       >
         {hint.length}/{MAX_HINT_LENGTH}
