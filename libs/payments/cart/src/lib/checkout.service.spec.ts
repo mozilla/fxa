@@ -1346,6 +1346,104 @@ describe('CheckoutService', () => {
       });
     });
 
+    describe('upgrade with an invoice paid below the minimum charge', () => {
+      const mockEligibilityResult =
+        SubscriptionEligibilityUpgradeDowngradeResultFactory({
+          redundantOverlaps: [],
+        });
+      const mockUpgradePrePayStepsResult = PrePayStepsResultFactory({
+        uid: mockCart.uid,
+        customer: mockCustomer,
+        price: mockPrice,
+        eligibility: mockEligibilityResult,
+      });
+      const mockPendingSetupIntentId = 'seti_pending_upgrade_12345';
+      const mockUpgradedSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          pending_setup_intent: mockPendingSetupIntentId,
+        })
+      );
+      const mockPaidInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({
+          status: 'paid',
+          total: 30,
+          confirmation_secret: null,
+        })
+      );
+      const mockSetupIntent = StripeResponseFactory(
+        StripeSetupIntentFactory({
+          id: mockPendingSetupIntentId,
+          status: 'succeeded',
+          payment_method: mockPaymentMethod.id,
+        })
+      );
+
+      beforeEach(async () => {
+        jest
+          .spyOn(checkoutService, 'prePaySteps')
+          .mockResolvedValue(mockUpgradePrePayStepsResult);
+        jest
+          .spyOn(checkoutService, 'upgradeSubscription')
+          .mockResolvedValue(mockUpgradedSubscription);
+        jest
+          .spyOn(invoiceManager, 'retrieve')
+          .mockResolvedValue(mockPaidInvoice);
+        jest
+          .spyOn(setupIntentManager, 'update')
+          .mockResolvedValue(mockSetupIntent);
+        jest
+          .spyOn(setupIntentManager, 'confirm')
+          .mockResolvedValue(mockSetupIntent);
+        jest
+          .spyOn(setupIntentManager, 'createAndConfirm')
+          .mockResolvedValue(mockSetupIntent);
+
+        await checkoutService.payWithStripe(
+          mockCart,
+          mockConfirmationToken.id,
+          mockAttributionData,
+          mockRequestArgs,
+          mockCart.uid
+        );
+      });
+
+      it('confirms the pending setup intent with the confirmation token', () => {
+        expect(setupIntentManager.confirm).toHaveBeenCalledWith(
+          mockPendingSetupIntentId,
+          mockConfirmationToken.id
+        );
+      });
+
+      it('does not confirm a payment intent', () => {
+        expect(paymentIntentManager.confirm).not.toHaveBeenCalled();
+      });
+
+      it('does not create a new setup intent', () => {
+        expect(setupIntentManager.createAndConfirm).not.toHaveBeenCalled();
+      });
+
+      it('sets the setup intent payment method as the customer default', () => {
+        expect(customerManager.update).toHaveBeenCalledWith(mockCustomer.id, {
+          invoice_settings: {
+            default_payment_method: mockPaymentMethod.id,
+          },
+        });
+      });
+
+      it('calls postPaySteps with the upgraded subscription', () => {
+        expect(checkoutService.postPaySteps).toHaveBeenCalledWith({
+          cart: mockCart,
+          version: mockUpgradePrePayStepsResult.version + 1,
+          subscription: mockUpgradedSubscription,
+          uid: mockCart.uid,
+          paymentProvider: 'stripe',
+          paymentForm: SubPlatPaymentMethodType.Card,
+          requestArgs: mockRequestArgs,
+          isCancelInterstitialOffer: false,
+        });
+      });
+    });
+
     describe('requires_action', () => {
       it('calls setNeedsInputCart', async () => {
         const mockAttributionData = SubscriptionAttributionFactory();
