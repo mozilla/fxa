@@ -874,7 +874,7 @@ export async function init() {
     charset: 'UTF8MB4_UNICODE_CI',
     // Without this, affectedRows counts an untouched duplicate as 1 and
     // batchUpsert cannot tell writes from no-ops.
-    flags: '-FOUND_ROWS',
+    flags: ['-FOUND_ROWS'],
   });
 
   pool.on('connection', (conn: mysql.PoolConnection) => {
