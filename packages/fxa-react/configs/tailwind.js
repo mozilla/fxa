@@ -14,11 +14,12 @@ const screenSizes = {
   desktopXl: '1441px',
 };
 
-// Colors resolve to CSS variables from the design-token layer, imported via
-// fxa-react/styles/index.css: Acorn's acorn-web-components tokens.css plus
+// Colors, spacing, radii, font weights and shadows resolve to CSS variables
+// from the design-token layer, imported via fxa-react/styles/index.css: Acorn's
+// acorn-web-components tokens.css plus
 // libs/shared/design-tokens/{legacy,nova-aliases}.css. Values swap with the
 // `novaDesignSystem` flag (data-theme="nova" on <html>) — flag off = today's
-// hex, on = Acorn's tokens.
+// values, on = Acorn's tokens.
 //
 // Function form so opacity modifiers work on var() colors (e.g. bg-blue-500/40):
 // plain var() for base utilities (widest support), color-mix only for an
@@ -67,6 +68,31 @@ module.exports = {
   content: ['./src/**/*.tsx', './public/index.html'],
   theme: {
     extend: {
+      // Only the steps whose values match an Acorn token; the rest keep
+      // Tailwind's defaults.
+      spacing: {
+        0.5: 'var(--space-xxsmall)',
+        1: 'var(--space-xsmall)',
+        2: 'var(--space-small)',
+        3: 'var(--space-medium)',
+        4: 'var(--space-large)',
+        6: 'var(--space-xlarge)',
+        8: 'var(--space-xxlarge)',
+      },
+      borderRadius: {
+        DEFAULT: 'var(--border-radius-xsmall)',
+        lg: 'var(--border-radius-small)',
+        xl: 'var(--border-radius-medium)',
+        '2xl': 'var(--border-radius-large)',
+        '3xl': 'var(--border-radius-xlarge)',
+        full: 'var(--border-radius-circle)',
+      },
+      fontWeight: {
+        normal: 'var(--font-weight)',
+        semibold: 'var(--font-weight-semibold)',
+        bold: 'var(--font-weight-bold)',
+        heading: 'var(--font-weight-heading)',
+      },
       zIndex: {
         1000: '1000',
         9999: '9999',
@@ -122,6 +148,10 @@ module.exports = {
         ten: '10%',
       },
       boxShadow: {
+        sm: 'var(--box-shadow-level-1)',
+        DEFAULT: 'var(--box-shadow-level-2)',
+        md: 'var(--box-shadow-level-3)',
+        lg: 'var(--box-shadow-level-4)',
         // Specific-use focus shadows for input elements
         'input-blue-focus': '0 0 0 1px #0090ED, 0 0 0 3px #C2D8F7',
         'input-grey-focus': '0 0 0 1px #6D6D6E, 0 0 0 3px #E7E7E7',
@@ -180,34 +210,8 @@ module.exports = {
       xxxl: '32px',
     },
     fontFamily: {
-      body: [
-        'system-ui',
-        '-apple-system',
-        'BlinkMacSystemFont',
-        '"Segoe UI"',
-        'Roboto',
-        'Oxygen',
-        'Ubuntu',
-        'Cantarell',
-        '"Fira Sans"',
-        '"Droid Sans"',
-        '"Helvetica Neue"',
-        'sans-serif',
-      ],
-      header: [
-        'system-ui',
-        '-apple-system',
-        'BlinkMacSystemFont',
-        '"Segoe UI"',
-        'Roboto',
-        'Oxygen',
-        'Ubuntu',
-        'Cantarell',
-        '"Fira Sans"',
-        '"Droid Sans"',
-        '"Helvetica Neue"',
-        'sans-serif',
-      ],
+      body: ['var(--font-family)'],
+      header: ['var(--font-family)'],
       mono: [
         'Menlo',
         'Monaco',

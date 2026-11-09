@@ -113,12 +113,12 @@ export const Typography = ({ config }) => {
         for more details. We are currently using <b>system fonts</b> for header
         and body copy, see{' '}
         <LinkExternal
-          href="https://github.com/mozilla/fxa/blob/main/packages/fxa-react/configs/tailwind.js"
+          href="https://github.com/mozilla/fxa/tree/main/libs/shared/design-tokens"
           className="underline link-blue"
         >
-          the Tailwind config file
+          the design tokens
         </LinkExternal>{' '}
-        "fontFamily" section to see fallbacks.
+        "--font-family" values to see fallbacks.
       </p>
       <p className="mt-2 mb-8 max-w-4xl">
         If we introduce custom font-faces in the future, we should keep the
