@@ -28,20 +28,13 @@ docker exec mydb mysql -e 'DROP DATABASE IF EXISTS tokenserver;'
 docker exec mydb mysql -e 'CREATE DATABASE tokenserver;'
 docker exec mydb mysql -e 'GRANT ALL PRIVILEGES on tokenserver.* to "sync"@"%";'
 
-# Make sure the docker image that runs sync is up to date, and then run it.
-#  - Because image layers are cached by docker, the first build may take a
-#    second, but subsequent builds should have hardly any overhead.
-#  - Note that config modifications can be made by editing the
-#    config/local.toml file.
-cd _dev/docker/sync/sync-for-fxa
-docker build . --tag sync-for-fxa
-cd ../../../..
-
-# Start the sync server and token server on port 8000
-docker run --rm --name sync -p 8000:8000  sync-for-fxa &
-
-# Adds some rows to the sync database that are needed.
-_scripts/sync-populate.sh
+# Start the sync server and token server on port 8000.
+#  - Config modifications can be made by editing the
+#    _dev/docker/sync/sync-for-fxa/config/local.toml file.
+docker run --rm --name sync -p 8000:8000 \
+  -v "$PWD/_dev/docker/sync/sync-for-fxa/config/local.toml:/app/config/local.toml:ro" \
+  ghcr.io/mozilla-services/syncstorage-rs/syncserver-mysql:0.24.1 \
+  --config=config/local.toml &
 
 # Keep script alive
 while :; do read -r; done
