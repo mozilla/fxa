@@ -145,9 +145,10 @@ export function StripeWrapper({
 
   const options: StripeElementsOptions = {
     ...sharedOptions,
-    mode: isBelowMin ? 'setup' : 'subscription',
+    mode: 'subscription',
     locale: isStripeElementLocale(locale) ? locale : 'auto',
-    amount: isBelowMin ? undefined : amount,
+    // Stripe accepts 0 in subscription mode, but rejects any amount between 0 and the minimum charge
+    amount: isBelowMin ? 0 : amount,
     currency: normalizedCurrency,
     externalPaymentMethodTypes: ['external_paypal'],
     customerSessionClientSecret: initialSessionSecret,
