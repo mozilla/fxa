@@ -1,0 +1,10 @@
+{
+  "commit": "c971a5afbf5710718a1e772264a1d68c5f735a40",
+  "summary": "feat(settings): adopt Nova semantics in Settings",
+  "description": "Because:\n- Settings components set colors with raw utilities and hand-written dark: pairs.\n- Nova restyles Switch, Checkbox and AlertBar with accent and status tokens.\n\nThis commit:\n- Swaps exact light/dark pairs for semantic utilities across Settings.\n- Collapses other neutral pairs onto semantic tokens under nova: only.\n- Makes Switch on, Checkbox checked and the avatar slider accent under nova:.\n- Moves inline blue focus outlines to outline-focus; drops dead grey classes.\n- Adds nova:-only text-accent-primary and bg-overlay; records gaps in README.",
+  "timestamp": 1794266915000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
