@@ -1,8 +1,8 @@
 {
-  "commit": "3640c1b96a711d3f3a177ef1cfe86c6954993e4b",
+  "commit": "1a34c7ea5384e8de1048c4122a07f9b7efd0bfb3",
   "summary": "feat(fxa-react): adopt Nova button and link styles under the flag",
   "description": "Because:\n- Buttons and links still use Firefox blue and the old shapes with Nova on.\n- Acorn's per-component token files are scoped to :host, so they define nothing on our pages.\n\nThis commit:\n- Imports Acorn's all-tokens.css (foundation plus --button-*/--link-* at :root, layered).\n- Styles cta-primary/-caution/-neutral/-primary-cms with Acorn button tokens.\n- Maps cta-neutral to Acorn's default (accent outline) button.\n- Points link-blue and link-grey at Acorn's --link-* tokens and Nova's focus outline.\n- Updates the design-tokens README for the import and button/link mapping.",
-  "timestamp": 1794246893000,
+  "timestamp": 1794250549000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",
