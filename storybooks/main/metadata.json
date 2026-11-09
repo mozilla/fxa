@@ -1,8 +1,8 @@
 {
-  "commit": "8a4bb9f05fb316ae25d92ce117054981baf00760",
-  "summary": "Merge pull request #21672 from mozilla/pay-3767",
-  "description": "fix(payments-ui): keep subscription mode for below-minimum upgrades",
-  "timestamp": 1794251855000,
+  "commit": "16d9f318611397a15c02b7ec5021ce85451a30b3",
+  "summary": "Merge pull request #21734 from mozilla/FXA-14255",
+  "description": "feat(fxa-react): adopt Nova button and link styles under the flag",
+  "timestamp": 1794252085000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
