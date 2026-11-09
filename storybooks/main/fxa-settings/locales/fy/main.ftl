@@ -650,7 +650,7 @@ nav-security = Befeiliging
 nav-connected-services = Ferbûne tsjinsten
 nav-data-collection = Gegevenssamling en gebrûk
 nav-paid-subs = Betelle abonneminten
-nav-email-comm = E-mailkommunikaasje
+nav-email-prefs = E-mailfoarkarren
 
 
 page-2fa-change-title = Autentikaasje yn twa stappen wizigje
@@ -1382,12 +1382,6 @@ pair2-supplicant-download-firefox-have-firefox-button = Ik haw { -brand-firefox 
 pair2-supplicant-download-firefox-learn-more-link = Mear ynfo
 
 
-pair2-supplicant-connect-hint-heading-v2 = Foltôgje it keppeljen yn de app
-pair2-supplicant-connect-hint-step-app-menu = Tik op it <b>app-menu</b> yn de arkbalke
-pair2-supplicant-connect-hint-step-sign-in = Tik op <b>oanmelde</b> en scan de koade
-pair2-supplicant-connect-hint-learn-more-link = Mear ynfo
-
-
 pair2-supplicant-ready-to-scan-heading = In apparaat ferbine
 pair2-supplicant-ready-to-scan-instruction = Iepenje { -brand-firefox } op jo kompjûter, besykje <b>firefox.com/pair</b> en folgje de ynstruksjes op it skerm om jo mobile apparaat te ferbinen.
 pair2-supplicant-ready-to-scan-learn-more-link = Mear ynfo
@@ -1533,6 +1527,7 @@ signin-link-expired-message-2 = De keppeling wêrop jo klikt hawwe is ferrûn of
 
 
 signin-password-needed-header-2 = Fier jo wachtwurd <span>foar jo { -product-mozilla-account }</span> yn
+signin-button-start-syncing = Begjin mei syngronisearjen
 signin-subheader-without-logo-with-servicename = Trochgean nei { $serviceName }
 signin-subheader-without-logo-default = Trochgean nei accountynstellingen
 signin-button = Oanmelde

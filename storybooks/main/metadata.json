@@ -1,8 +1,8 @@
 {
-  "commit": "16d9f318611397a15c02b7ec5021ce85451a30b3",
-  "summary": "Merge pull request #21734 from mozilla/FXA-14255",
-  "description": "feat(fxa-react): adopt Nova button and link styles under the flag",
-  "timestamp": 1794252085000,
+  "commit": "a3c8c65ee5ad35830aa3f4c29a4f53995bfd667e",
+  "summary": "Merge pull request #21724 from mozilla/fxa-14087",
+  "description": "fix(payments): catch a failed load in the PaymentConfigManager constructor",
+  "timestamp": 1794256216000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

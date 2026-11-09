@@ -646,7 +646,7 @@ nav-security = Säkerhet
 nav-connected-services = Anslutna tjänster
 nav-data-collection = Datainsamling och användning
 nav-paid-subs = Betalda prenumerationer
-nav-email-comm = E-postkommunikation
+nav-email-prefs = E-postinställningar
 
 
 page-2fa-change-title = Ändra tvåstegsautentisering
@@ -1377,12 +1377,6 @@ pair2-supplicant-download-firefox-have-firefox-button = Jag har redan { -brand-f
 pair2-supplicant-download-firefox-learn-more-link = Läs mer
 
 
-pair2-supplicant-connect-hint-heading-v2 = Avsluta parkoppling i appen
-pair2-supplicant-connect-hint-step-app-menu = Tryck på <b>appmenyn</b> i verktygsfältet
-pair2-supplicant-connect-hint-step-sign-in = Tryck på <b>logga in</b> och skanna sedan koden
-pair2-supplicant-connect-hint-learn-more-link = Läs mer
-
-
 pair2-supplicant-ready-to-scan-heading = För att ansluta en enhet
 pair2-supplicant-ready-to-scan-instruction = På din dator, öppna { -brand-firefox } och gå till <b>firefox.com/pair</b> och följ instruktionerna på skärmen för att ansluta den här mobila enheten.
 pair2-supplicant-ready-to-scan-learn-more-link = Läs mer
@@ -1531,6 +1525,7 @@ signin-link-expired-message-2 = Länken du klickade på har upphört eller har r
 
 
 signin-password-needed-header-2 = Ange ditt lösenord <span>för ditt { -product-mozilla-account }</span>
+signin-button-start-syncing = Starta synkronisering
 signin-subheader-without-logo-with-servicename = Fortsätt till { $serviceName }
 signin-subheader-without-logo-default = Fortsätt till kontoinställningar
 signin-button = Logga in
