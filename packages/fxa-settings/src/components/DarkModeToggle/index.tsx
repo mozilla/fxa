@@ -35,7 +35,7 @@ export const DarkModeToggle: React.FC = () => {
         id="theme-select"
         value={themePreference}
         onChange={handleChange}
-        className="text-xs text-grey-500 dark:text-grey-200 hover:text-grey-600 dark:hover:text-grey-100 p-1 focus:outline-2 focus:outline-offset-1 focus:outline-blue-500 focus:text-grey-600 bg-transparent border-0 cursor-pointer appearance-none min-w-[8ch] w-auto"
+        className="text-xs text-grey-500 dark:text-grey-200 hover:text-grey-600 dark:hover:text-grey-100 p-1 focus:outline-2 focus:outline-offset-1 focus:outline-focus focus:text-grey-600 bg-transparent border-0 cursor-pointer appearance-none min-w-[8ch] w-auto"
         data-testid="dark-mode-toggle"
         aria-label={selectLabel}
       >

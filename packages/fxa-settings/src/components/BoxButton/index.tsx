@@ -28,7 +28,10 @@ const BoxButton = ({
     <LoadingArrowIcon className="w-5 h-5 animate-spin-slow" ariaHidden />
   ) : (
     (trailingIcon ?? (
-      <ChevronRightIcon className="w-6 h-6 rtl:-scale-x-100" ariaHidden />
+      <ChevronRightIcon
+        className="w-6 h-6 rtl:-scale-x-100 nova:text-deemphasized"
+        ariaHidden
+      />
     ))
   );
 
@@ -38,7 +41,7 @@ const BoxButton = ({
       disabled={disabled || isLoading}
       className={`w-full min-h-14 py-3 px-4 gap-4 rounded-md inline-flex items-center
         font-header text-start break-words
-        text-grey-900 dark:text-grey-10
+        text-default
         bg-grey-10 dark:bg-grey-600
         border border-grey-200 dark:border-grey-500
         hover:bg-grey-100 hover:border-grey-300 dark:hover:bg-grey-500
@@ -49,6 +52,12 @@ const BoxButton = ({
         disabled:hover:bg-grey-50 disabled:hover:border-grey-100
         dark:disabled:hover:bg-grey-700 dark:disabled:hover:border-grey-600
         focus-visible-default outline-offset-2
+        nova:rounded-full nova:bg-transparent nova:border-default
+        nova:hover:bg-button-hover nova:hover:border-button-hover
+        nova:active:bg-button-active nova:active:border-button-active
+        nova:disabled:bg-transparent nova:disabled:border-default nova:disabled:text-default
+        nova:disabled:hover:bg-transparent nova:disabled:hover:border-default
+        nova:disabled:opacity-button-disabled
         ${className ?? ''}`}
       {...rest}
     >
