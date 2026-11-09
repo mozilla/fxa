@@ -13,7 +13,7 @@ export default {
     [
       'jest-junit',
       {
-        outputDirectory: 'artifacts/tests/lib/accounts/errors',
+        outputDirectory: 'artifacts/tests/accounts-errors',
         outputName: 'accounts-errors-jest-unit-results.xml',
       },
     ],

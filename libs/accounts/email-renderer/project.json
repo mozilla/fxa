@@ -38,12 +38,8 @@
     "build-css": {
       "cache": true,
       "executor": "nx:run-commands",
-      "inputs": [
-        "{projectRoot}/src/**/*.scss"
-      ],
-      "outputs": [
-        "{projectRoot}/src/css"
-      ],
+      "inputs": ["{projectRoot}/src/**/*.scss"],
+      "outputs": ["{projectRoot}/src/css"],
       "options": {
         "commands": [
           "ts-node libs/accounts/email-renderer/src/sass-compile-files.ts"
@@ -53,7 +49,10 @@
     "test-unit": {
       "dependsOn": ["l10n-merge"],
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}",
+        "{workspaceRoot}/artifacts/tests/{projectName}"
+      ],
       "options": {
         "jestConfig": "libs/accounts/email-renderer/jest.config.ts",
         "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
@@ -61,7 +60,10 @@
     },
     "test-integration": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}",
+        "{workspaceRoot}/artifacts/tests/{projectName}"
+      ],
       "dependsOn": ["l10n-merge"],
       "options": {
         "jestConfig": "libs/accounts/email-renderer/jest.config.ts",

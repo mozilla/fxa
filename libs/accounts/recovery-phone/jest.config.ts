@@ -15,7 +15,7 @@ const config: Config = {
     [
       'jest-junit',
       {
-        outputDirectory: 'artifacts/tests/recovery-phone',
+        outputDirectory: 'artifacts/tests/accounts-recovery-phone',
         outputName: 'recovery-phone-jest-unit-results.xml',
       },
     ],
