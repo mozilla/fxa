@@ -8,8 +8,10 @@
 */
 /* Design tokens first so the var(--…) the Tailwind config references resolve.
  * Acorn's tokens at :root; our flag-off values and flag-on aliases layer on top. */
-/* Direct dist path: postcss-import doesn't resolve the package "exports" map. */
-@import 'acorn-web-components/dist/tokens/tokens.css';
+/* Direct dist path: postcss-import doesn't resolve the package "exports" map.
+ * all-tokens.css is tokens.css plus the component tokens (--button-*, --link-*, …)
+ * at :root. The per-component files in dist/tokens/ are scoped to :host. */
+@import 'acorn-web-components/dist/all-tokens.css';
 @import '../../../libs/shared/design-tokens/legacy.css';
 @import '../../../libs/shared/design-tokens/nova-aliases.css';
 @import './animations.css';

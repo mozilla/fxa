@@ -41,3 +41,36 @@
     @apply text-grey-100;
   }
 }
+
+/* Nova (data-theme="nova"): link-blue and link-grey use Acorn's --link-*
+ * tokens. */
+[data-theme='nova'] .link-blue,
+[data-theme='nova'] .link-grey {
+  color: var(--link-color);
+}
+
+[data-theme='nova'] .link-blue:active,
+[data-theme='nova'] .link-grey:active {
+  color: var(--link-color-active);
+}
+
+[data-theme='nova'] .link-blue:focus,
+[data-theme='nova'] .link-blue:focus-visible,
+[data-theme='nova'] .link-grey:focus,
+[data-theme='nova'] .link-grey:focus-visible {
+  box-shadow: none;
+  outline: var(--focus-outline);
+  outline-offset: var(--link-focus-outline-offset);
+  border-radius: var(--link-border-radius-focus);
+}
+
+@media (hover: hover) {
+  [data-theme='nova'] .link-blue:hover,
+  [data-theme='nova'] .link-grey:hover {
+    color: var(--link-color-hover);
+  }
+  [data-theme='nova'] .link-blue:hover:active,
+  [data-theme='nova'] .link-grey:hover:active {
+    color: var(--link-color-active);
+  }
+}
