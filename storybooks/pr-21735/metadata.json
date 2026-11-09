@@ -1,8 +1,8 @@
 {
-  "commit": "eb09edb50989593841b7ae8e6d3ffe5dc7f3cd6c",
+  "commit": "4f5387b0095c541da799a14a38ffd48c6e4458df",
   "summary": "chore(ci): keep junit results on cached lib test runs and don't fail uploads on none",
-  "description": "",
-  "timestamp": 1794255540000,
+  "description": "Because:\n\n- Lib test targets override `outputs` with coverage only, so junit XML is never\n  stored in the Nx cache; a fully cached tag build has nothing to upload to GCS.\n- The upload step exits 1 when it finds no XML, which failed the v1.349.1\n  \"Integration Test - Libraries\" job once fxa-geodb's mocha results were gone.\n\nThis commit:\n\n- Adds `artifacts/tests/{projectName}` to lib test-unit/test-integration outputs.\n- Points the 11 stray jest-junit outputDirectory values at `artifacts/tests/<projectName>`.\n- Makes upload_to_gcs log and exit 0 when no result files match.",
+  "timestamp": 1794255585000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

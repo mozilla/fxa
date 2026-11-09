@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit eb09edb50989593841b7ae8e6d3ffe5dc7f3cd6c</title>
+  <title>Storybooks for commit 4f5387b0095c541da799a14a38ffd48c6e4458df</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit eb09edb50989593841b7ae8e6d3ffe5dc7f3cd6c</h1>
+  <h1>Storybooks for commit 4f5387b0095c541da799a14a38ffd48c6e4458df</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
@@ -32,9 +32,22 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/9/2026, 8:19:00 PM UTC</dd>
+    <dd>11/9/2026, 8:19:45 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>chore(ci): keep junit results on cached lib test runs and don&#039;t fail uploads on none</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- Lib test targets override `outputs` with coverage only, so junit XML is never
+  stored in the Nx cache; a fully cached tag build has nothing to upload to GCS.
+- The upload step exits 1 when it finds no XML, which failed the v1.349.1
+  &quot;Integration Test - Libraries&quot; job once fxa-geodb&#039;s mocha results were gone.
+
+This commit:
+
+- Adds `artifacts/tests/{projectName}` to lib test-unit/test-integration outputs.
+- Points the 11 stray jest-junit outputDirectory values at `artifacts/tests/&lt;projectName&gt;`.
+- Makes upload_to_gcs log and exit 0 when no result files match.</pre></dd>
   </dl>
 </body>
 </html>
