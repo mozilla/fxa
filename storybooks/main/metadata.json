@@ -1,8 +1,8 @@
 {
-  "commit": "336fd9e7fa68faae2b35cc3b31b85638451f158b",
-  "summary": "Merge pull request #21690 from mozilla/fxa-14724-backfill-no-overwrite",
-  "description": "fix(auth): leave existing accountAuthorizations rows alone in the backfill",
-  "timestamp": 1794243299000,
+  "commit": "30bb9b3b23539b32c7c71cf748f1388ac271c091",
+  "summary": "Merge pull request #21717 from mozilla/FXA-14254-v2",
+  "description": "feat(design-tokens): adopt Nova tokens behind a feature flag",
+  "timestamp": 1794244632000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
