@@ -199,7 +199,12 @@ Lug.prototype.summary = function (request, response) {
 
 // Broadcast an event to attached services, such as sync.
 // In production, these events are broadcast to relying services over SNS/SQS.
-Lug.prototype.notifyAttachedServices = async function (name, request, data) {
+Lug.prototype.notifyAttachedServices = async function (
+  name,
+  request,
+  data,
+  onSent
+) {
   let metricsContextData = {};
   if (request.gatherMetricsContext) {
     metricsContextData = await request.gatherMetricsContext({});
@@ -229,7 +234,11 @@ Lug.prototype.notifyAttachedServices = async function (name, request, data) {
   e.data.metricsContext = metricsContextData;
 
   this.debug('notify.attached', e);
-  this.notifier.send(e);
+  if (onSent) {
+    this.notifier.send(e, onSent);
+  } else {
+    this.notifier.send(e);
+  }
 };
 
 // Log an activity metrics event.
