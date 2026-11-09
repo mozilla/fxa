@@ -15,7 +15,7 @@ service port to `localhost`, so `http://localhost:3030` *is* the CI stack and
 `yarn playwright test --project=local` runs against it unchanged. The stack
 stays up 30 minutes after boot whether or not a tunnel is open, so several
 can run side by side and `--tunnel` hops between them. How the script gets
-there is documented in `.circleci/README.md` (Interactive stack); this skill
+there is documented in `.circleci/README.md` (Interactive PR stack); this skill
 only drives it.
 
 Arguments: a leading integer is a PR number; everything else is the test

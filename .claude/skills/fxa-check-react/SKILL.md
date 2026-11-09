@@ -121,12 +121,6 @@ Focus on `.tsx`, `.ts`, `.jsx`, `.js` files. Read additional context from relate
 - Shared cross-component state managed locally, causing sync bugs
 - Recommendation: keep UI state local; lift or globalize only when multiple disconnected components need it
 
-**Apollo / GraphQL cache**
-- Queries that bypass the cache with `fetchPolicy: 'network-only'` without clear justification
-- Manual cache writes (`writeQuery`, `writeFragment`) that could cause stale data
-- Missing `optimisticResponse` on mutations where latency would hurt UX
-- Over-fetching: queries selecting more fields than the component uses
-
 **Stale or redundant state after data fetches**
 - Local state that mirrors remote data and can get out of sync
 - Recommendation: derive from the query result directly; avoid duplicating server state locally

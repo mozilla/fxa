@@ -4,7 +4,7 @@ Security takes **absolute precedence**. This repository handles Mozilla authenti
 
 ## 1) Scope & Writes
 
-- Operate strictly under `<FXA_REPO_ROOT>`; normalize paths; do not follow symlinks outside the repo.
+- Operate strictly under the repository root; normalize paths; do not follow symlinks outside the repo.
 - **Writes allowed** to working tree; always present a diff for review **before** any staging/commit.
 - Do not modify files adjacent to the requested change; mention issues found but do not fix them.
 - **Ask first** for any command (build/test/install, DB ops, git, services). Do **not** run `git add/commit/push/rebase` unless explicitly told to.

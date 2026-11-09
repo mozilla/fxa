@@ -65,8 +65,8 @@ find packages/<pkg>/test -maxdepth 3 \( -iname 'mocks*' -o -iname 'mock-*' \) 2>
 #    setup/teardown structure, and any custom matchers
 grep -rn 'jest.mock(' packages/<pkg> --include='*.spec.ts' --include='*.test.ts' --include='*.test.tsx' | head -10
 
-# 4. For React tests in fxa-settings: see how providers are wrapped (Intl, Router, etc.)
-grep -rn 'renderWithProviders\|MockedProvider\|IntlProvider' packages/fxa-settings/src --include='*.test.tsx' | head -5
+# 4. For React tests in fxa-settings: see how providers are wrapped (l10n, Router, etc.)
+grep -rn 'renderWithLocalizationProvider\|renderWithRouter' packages/fxa-settings/src --include='*.test.tsx' | head -5
 ```
 
 Determine:

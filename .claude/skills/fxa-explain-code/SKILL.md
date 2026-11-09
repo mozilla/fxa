@@ -31,9 +31,9 @@ Where this fits in the broader system. Include an ASCII diagram if it clarifies 
 
 Example style (adapt as needed):
 ```
-Client → [fxa-settings] → GraphQL BFF → [fxa-graphql-api] → Auth Server
-                                              ↓
-                                           MySQL / Redis
+Client → [fxa-settings] → fxa-auth-client (REST) → [fxa-auth-server]
+                                                          ↓
+                                                     MySQL / Redis
 ```
 
 ### 3. Annotated Walkthrough

@@ -24,8 +24,6 @@ Dot-releases (`v1.340.1`, `v1.340.2`, …) are hotfixes *within* train 340; they
 
 ## Execution Architecture
 
-Same split as the fxa-triage skill, for the same reasons:
-
 - **Scan script** (`scripts/changelog-scan.py`) — everything that is pure git arithmetic: first-parent walk, PR/Jira extraction, SubPlat/noise/revert classification, diff stats, flagged-path detection, release-tag containment. Deterministic, instant, can't hallucinate a sha.
 - **Enrichment collectors** (haiku subagents, ~10 PRs per batch, parallel) — PR bodies, Jira tickets (incl. epic + points), flagged diffs. Compress at the source; return contract JSON only.
 - **Jira reconciliation** (Phase 3.5) — tickets resolved in the window with no PR in this repo; cross-repo search by ticket key. **Delegate this to one haiku subagent by default** — it's mechanical (one JQL, diff against the scanned keys, `gh search` each orphan, validate hits by summary match) and its ~30-ticket search loop + raw output shouldn't sit in the orchestrator's context. The subagent returns only the bucketed result.
