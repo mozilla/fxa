@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit b31ee83d55b503be0c1c04b417a79274abf0ac7a</title>
+  <title>Storybooks for commit 02fc39b50721b74bb8f5418519826184ad6dc05f</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,15 +23,29 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit b31ee83d55b503be0c1c04b417a79274abf0ac7a</h1>
+  <h1>Storybooks for commit 02fc39b50721b74bb8f5418519826184ad6dc05f</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/10/2026, 4:48:58 AM UTC</dd>
+    <dd>11/10/2026, 12:28:06 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>wip</pre></dd>
+    <dd><pre>fix(shared): replace pruneSessionTokens Lua script with WATCH/MULTI code</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* The pruneSessionTokens_1 Lua script blocks Redis while it runs.
+* The Redis down prune test expected a rejection that no longer happens.
+
+This commit:
+
+* Prunes session tokens with WATCH/MULTI/EXEC on a duplicate connection.
+* Skips, counts and logs busy, conflicted and failed prunes; never rejects.
+* Starts the prune span and connection setup inside the busy guard&#039;s try.
+* Expects a resolve in the Redis down test and disconnects its prune connection.
+
+Closes FXA-14945</pre></dd>
   </dl>
 </body>
 </html>
