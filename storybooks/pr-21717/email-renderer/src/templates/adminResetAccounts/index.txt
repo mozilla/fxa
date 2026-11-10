@@ -1,3 +1,0 @@
-adminResetAccounts-title-1 = "Here's the account reset status"
-
-<%- status.map(({ locator, status:x }) => ` ${locator} - ${x}`).join("\r") %>
