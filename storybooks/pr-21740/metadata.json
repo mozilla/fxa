@@ -1,8 +1,8 @@
 {
-  "commit": "380b8546801e33a0326fd16af06a7d344d769176",
-  "summary": "fix(settings): tune Nova dividers, nav icons and weights in Settings",
-  "description": "Because:\n- Nova dividers were darker than Figma's; nav icons, headings and the delete button were off.\n- The Connected Services rule sat inset more than other section dividers, flag on or off.\n\nThis commit:\n- Adds a nova:-only border-divider (currentColor at 12%) for Settings dividers.\n- Leads nav external links with a 16px text-colored icon under nova:.\n- Aligns the Connected Services rule with other dividers (flag-off change).\n- Keeps Delete account at py-2 on mobileLandscape under nova:.\n- Uses font-heading on Settings headings (700 flag-off, semibold under nova:).",
-  "timestamp": 1794333433000,
+  "commit": "3f0aabeb855328949d986a4b8a7f3f1735d74f81",
+  "summary": "fix(settings): Linked Accounts, device rows, mobile radius and hover tints for Nova",
+  "description": "Because:\n- Design review asked for Nova device rows, rounded mobile cards, hover tints and a promo tint.\n- Data Collection's \"Learn more\" links could wrap mid-phrase (flag-off fix).\n\nThis commit:\n- Restyles device and linked-account rows under nova: per the designer's spec.\n- Keeps section card radius on mobile and taller mobile UnitRow CTAs under nova:.\n- Adds nova:-only bg-hover-tint and bg-promo-vibrant; applies them to closes and promos.\n- Reverts nav external icons to today's size, 8px after the label under nova:.\n- Keeps \"Learn more\" links on one line; uses font-heading on the header wordmark.",
+  "timestamp": 1794352445000,
   "storybooks": [
     "fxa-settings"
   ],
