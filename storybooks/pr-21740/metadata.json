@@ -1,8 +1,8 @@
 {
-  "commit": "c971a5afbf5710718a1e772264a1d68c5f735a40",
-  "summary": "feat(settings): adopt Nova semantics in Settings",
-  "description": "Because:\n- Settings components set colors with raw utilities and hand-written dark: pairs.\n- Nova restyles Switch, Checkbox and AlertBar with accent and status tokens.\n\nThis commit:\n- Swaps exact light/dark pairs for semantic utilities across Settings.\n- Collapses other neutral pairs onto semantic tokens under nova: only.\n- Makes Switch on, Checkbox checked and the avatar slider accent under nova:.\n- Moves inline blue focus outlines to outline-focus; drops dead grey classes.\n- Adds nova:-only text-accent-primary and bg-overlay; records gaps in README.",
-  "timestamp": 1794266915000,
+  "commit": "96de03bf2a38962ae53ac799478510c4d12e124b",
+  "summary": "feat(settings): apply Nova Settings nav, dividers and status colors",
+  "description": "Because:\n- Updated Figma and design answers cover the nav, dividers, AlertBar and status colors.\n\nThis commit:\n- Styles Nav items as Acorn page-nav pills with a filled selected state.\n- Uses border-deemphasized for Settings dividers and the device box.\n- Restyles AlertBar as a tinted pill with a circular close button.\n- Maps status fills to Acorn icon colors and drops gradients under nova:.\n- Adds nova:-only nav, icon and border-deemphasized utilities.",
+  "timestamp": 1794328016000,
   "storybooks": [
     "fxa-settings"
   ],
