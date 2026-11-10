@@ -1,8 +1,8 @@
 {
-  "commit": "b918083fd80062642f28313b5fcfc2b7d0f96fcb",
+  "commit": "c834896adf6a93f856ec6efc275c7de6b5ca9325",
   "summary": "fix(settings): close pairing metric gaps",
-  "description": "Because:\n\n* Pairing redirects and hand-offs sent no metric, or could drop one\n* Play Store links carried no attribution for the referrer API\n\nThis commit:\n\n* Adds the DTM_SYNC_PAIR_V2 referrer to Android Play Store links\n* Waits for a bounded Glean flush before the Android intent fires\n* Adds cad_firefox download_firefox_redirect and scan_qr_redirect\n* Records entrypoint user for a direct /pair visit with no query\n\nCloses FXA-14958",
-  "timestamp": 1794338465000,
+  "description": "Because:\n\n* Pairing redirects and hand-offs sent no metric, or could drop one\n* Play Store links carried no attribution for the referrer API\n\nThis commit:\n\n* Adds the DTM_SYNC_PAIR_V2 referrer to Android Play Store links\n* Waits for a bounded Glean flush before the Android intent fires\n* Adds cad_firefox download_firefox_redirect and scan_qr_redirect\n* Records entrypoint user for a direct /pair visit with no query\n* Skips the scan_qr redirect if the user leaves during the flush\n\nCloses FXA-14958",
+  "timestamp": 1794340560000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-settings"
