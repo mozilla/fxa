@@ -554,6 +554,7 @@ describe('Redis down', () => {
   });
 
   afterAll(() => {
+    downRedis.pruneRedis?.disconnect();
     downRedis.redis.disconnect();
   });
 
@@ -571,10 +572,8 @@ describe('Redis down', () => {
   });
 
   describe('pruneSessionTokens', () => {
-    it('throws a timeout error', async () => {
-      await expect(downRedis.pruneSessionTokens(uid)).rejects.toThrow(
-        'redis timeout'
-      );
+    it('resolves without error', async () => {
+      await expect(downRedis.pruneSessionTokens(uid)).resolves.toBeUndefined();
     });
   });
 });

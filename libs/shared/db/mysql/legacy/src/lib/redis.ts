@@ -295,7 +295,6 @@ export class RedisShared {
 
   async pruneSessionTokens(uid: string, tokenIds: string[] = []) {
     this.metrics?.increment('redis.pruneSessionTokens');
-    const span = tracer.startSpan('redis.pruneSessionTokens');
     // Pruning is opportunistic and the prune-tokens cron catches what this
     // drops, so a busy connection, a conflict or an error skips the prune.
     if (this.pruning) {
@@ -303,19 +302,20 @@ export class RedisShared {
       return;
     }
     this.pruning = true;
-    if (!this.pruneRedis) {
-      this.pruneRedis = this.redis.duplicate({
-        commandTimeout: this.timeoutMs,
-      });
-      this.pruneRedis.on('error', (error) => {
-        this.log?.error('RedisShared', {
-          msg: 'RedisShared: prune connection error',
-          error,
-        });
-      });
-    }
-    const redis = this.pruneRedis;
+    const span = tracer.startSpan('redis.pruneSessionTokens');
     try {
+      if (!this.pruneRedis) {
+        this.pruneRedis = this.redis.duplicate({
+          commandTimeout: this.timeoutMs,
+        });
+        this.pruneRedis.on('error', (error) => {
+          this.log?.error('RedisShared', {
+            msg: 'RedisShared: prune connection error',
+            error,
+          });
+        });
+      }
+      const redis = this.pruneRedis;
       await redis.watch(uid);
       const value = await redis.get(uid);
       let tokens: Record<string, unknown>;
@@ -351,7 +351,7 @@ export class RedisShared {
       return result;
     } catch (error) {
       // A stale WATCH would abort the next prune's EXEC.
-      redis.unwatch().catch(() => {});
+      this.pruneRedis?.unwatch().catch(() => {});
       this.metrics?.increment('redis.pruneSessionTokens.error');
       this.log?.error('RedisShared', {
         msg: 'RedisShared: pruneSessionTokens failed',
