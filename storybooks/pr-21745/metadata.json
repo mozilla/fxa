@@ -1,0 +1,10 @@
+{
+  "commit": "ee621d88a3dc46d68f8755cc337a46b484d1353d",
+  "summary": "fix(free-access-program): delay RP notifications past memory cache TTL",
+  "description": "Because:\n\n- reconcile clears only its own process's memory cache, so an RP re-fetching\n  right after a notification can hit an instance still serving the old\n  projection for up to memCacheTTL\n\nThis commit:\n\n- queues changed emails in a Firestore `state/pending` subcollection with\n  notBefore = memCacheTTL + 60s\n- sends due notifications from reconcile (at most 500 per run, oldest first)\n- deletes each sent doc with an update-time precondition so re-queues survive\n- adds memoryCacheTtlSeconds() as the single source for the delay and cache\n- deletes malformed pending docs and treats superseded deletes as expected",
+  "timestamp": 1794339995000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
