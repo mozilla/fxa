@@ -1,8 +1,8 @@
 {
-  "commit": "8a69f68cb9858bcda0f64421d9f9123505aabc4b",
-  "summary": "feat(settings): adopt Nova semantics on auth flow pages",
-  "description": "Because:\n- Auth pages and shared components set colors with raw utilities and dark: pairs.\n- Nova's Figma shows pill-shaped, taller CTAs and violet accents.\n\nThis commit:\n- Swaps exact pairs for semantic utilities, incl. body (bg-canvas text-default).\n- Collapses other pairs onto semantic tokens under nova: in pages and shared components.\n- Applies Figma's Terms text, \"or\" divider and AppLayout panel under nova:.\n- Gives Nova CTAs the circle radius and cta-xl padding near Figma's 56px.\n- Uses the accent for nav-active, progress, input-radio and focus-visible-default.",
-  "timestamp": 1794268108000,
+  "commit": "ff97e7c7ae7e766ff728a1170a4e1b2be9789aa5",
+  "summary": "feat(settings): restyle banners and choice cards to Nova Figma",
+  "description": "Because:\n- The designer's Figma update moves banners to Nova's message bar and refines choice cards.\n- Nova dark cards barely separated from the page.\n\nThis commit:\n- Restyles Banner and ResetPasswordWarning as message bars with Nova icon colors.\n- Gives choice cards a flat selected fill, a check circle cue and the Nova focus ring.\n- Sets the card surface to bg-box with Acorn's level-2 shadow under Nova.\n- Replaces gradients with flat fills and adds bg-deemphasized for the progress track.\n- Drops the Nova .nav-active styling; the Settings nav owns it.",
+  "timestamp": 1794328848000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",
