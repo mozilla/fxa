@@ -1,0 +1,12 @@
+{
+  "commit": "8a69f68cb9858bcda0f64421d9f9123505aabc4b",
+  "summary": "feat(settings): adopt Nova semantics on auth flow pages",
+  "description": "Because:\n- Auth pages and shared components set colors with raw utilities and dark: pairs.\n- Nova's Figma shows pill-shaped, taller CTAs and violet accents.\n\nThis commit:\n- Swaps exact pairs for semantic utilities, incl. body (bg-canvas text-default).\n- Collapses other pairs onto semantic tokens under nova: in pages and shared components.\n- Applies Figma's Terms text, \"or\" divider and AppLayout panel under nova:.\n- Gives Nova CTAs the circle radius and cta-xl padding near Figma's 56px.\n- Uses the accent for nav-active, progress, input-radio and focus-visible-default.",
+  "timestamp": 1794268108000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
