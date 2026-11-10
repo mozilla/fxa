@@ -202,6 +202,25 @@ describe('#integration - Redis', () => {
       const rawData = await redis.get(uid);
       expect(rawData).toBeNull();
     });
+
+    it('skips the prune when a token is touched between its read and write', async () => {
+      // The first prune creates the prune connection.
+      await redis.pruneSessionTokens(uid, []);
+      const pruneRedis = redis.pruneRedis;
+      const get = pruneRedis.get.bind(pruneRedis);
+      jest.spyOn(pruneRedis, 'get').mockImplementationOnce(async (key) => {
+        const value = await get(key);
+        await redis.touchSessionToken(uid, { ...sessionToken, id: 'token3' });
+        return value;
+      });
+
+      await redis.pruneSessionTokens(uid, ['token2']);
+
+      const tokens = await redis.getSessionTokens(uid);
+      expect(Object.keys(tokens).sort()).toEqual(
+        [sessionToken.id, 'token2', 'token3'].sort()
+      );
+    });
   });
 
   describe('Access Tokens', () => {
