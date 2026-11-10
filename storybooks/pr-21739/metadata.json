@@ -1,8 +1,8 @@
 {
-  "commit": "ff97e7c7ae7e766ff728a1170a4e1b2be9789aa5",
-  "summary": "feat(settings): restyle banners and choice cards to Nova Figma",
-  "description": "Because:\n- The designer's Figma update moves banners to Nova's message bar and refines choice cards.\n- Nova dark cards barely separated from the page.\n\nThis commit:\n- Restyles Banner and ResetPasswordWarning as message bars with Nova icon colors.\n- Gives choice cards a flat selected fill, a check circle cue and the Nova focus ring.\n- Sets the card surface to bg-box with Acorn's level-2 shadow under Nova.\n- Replaces gradients with flat fills and adds bg-deemphasized for the progress track.\n- Drops the Nova .nav-active styling; the Settings nav owns it.",
-  "timestamp": 1794328848000,
+  "commit": "add9924080ef8a194a0e37dcfa30e964c669a149",
+  "summary": "fix(settings): tune Nova weights and borders on auth pages",
+  "description": "Because:\n- Manual review found Nova headings and BoxButton labels too heavy and some borders too dark or thick.\n- Figma's base buttons are 40px, taller than Acorn's default padding gives.\n\nThis commit:\n- Uses font-heading for headings that were font-bold (semibold under Nova).\n- Gives BoxButton semibold labels and the deemphasized border under Nova.\n- Rests choice cards at a 1px border, 2px when checked.\n- Gives Nova cta-base-p the large block padding (about 42px tall).",
+  "timestamp": 1794333381000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",
