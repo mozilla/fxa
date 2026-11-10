@@ -3,7 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Logger } from '@nestjs/common';
+import type { LoggerService } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import type { Firestore } from '@google-cloud/firestore';
 import { StatsD } from 'hot-shots';
 
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
@@ -14,7 +16,10 @@ import {
   FreeAccessProgramConfigurationManager,
 } from './free-access-program-configuration.manager';
 import { StrapiClient } from './strapi.client';
-import { MockStrapiClientConfigProvider } from './strapi.client.config';
+import {
+  MockStrapiClientConfig,
+  MockStrapiClientConfigProvider,
+} from './strapi.client.config';
 
 // Decorators are pass-through in unit tests: the cache layer is
 // exercised in integration, not here. Mirrors strapi.client.spec.ts.
@@ -249,6 +254,29 @@ describe('FreeAccessProgramConfigurationManager', () => {
       await expect(
         manager.invalidateProjectionCache()
       ).resolves.toBeUndefined();
+    });
+  });
+
+  describe('memoryCacheTtlSeconds', () => {
+    const build = (memCacheTTL?: number) =>
+      new FreeAccessProgramConfigurationManager(
+        { ...MockStrapiClientConfig, memCacheTTL },
+        strapiClient as unknown as StrapiClient,
+        {} as Firestore,
+        { error: jest.fn(), log: jest.fn() } as unknown as LoggerService,
+        mockStatsd
+      );
+
+    it('returns the configured memory cache TTL', () => {
+      expect(build(120).memoryCacheTtlSeconds()).toBe(120);
+    });
+
+    it('falls back to 300 seconds when the TTL is unset', () => {
+      expect(build(undefined).memoryCacheTtlSeconds()).toBe(300);
+    });
+
+    it('falls back to 300 seconds when the TTL is 0', () => {
+      expect(build(0).memoryCacheTtlSeconds()).toBe(300);
     });
   });
 

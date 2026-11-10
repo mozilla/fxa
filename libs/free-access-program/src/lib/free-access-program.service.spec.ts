@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import type { Timestamp } from '@google-cloud/firestore';
 import { Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import type { StatsD } from 'hot-shots';
@@ -16,6 +17,7 @@ import {
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 
 import { FreeAccessProgramJournalManager } from './free-access-program.journal.manager';
+import type { FreeAccessPendingNotification } from './free-access-program.repository';
 import { FreeAccessProgramService } from './free-access-program.service';
 import {
   FREE_ACCESS_NOTIFIER,
@@ -43,11 +45,19 @@ describe('FreeAccessProgramService', () => {
       | 'getFreshProjection'
       | 'getCachedAccessGrantsByClient'
       | 'invalidateProjectionCache'
+      | 'memoryCacheTtlSeconds'
     >
   >;
   let accountManager: jest.Mocked<Pick<AccountManager, 'getPrimaryEmailByUid'>>;
   let journalManager: jest.Mocked<
-    Pick<FreeAccessProgramJournalManager, 'get' | 'set'>
+    Pick<
+      FreeAccessProgramJournalManager,
+      | 'get'
+      | 'set'
+      | 'queueNotifications'
+      | 'getDueNotifications'
+      | 'deleteNotification'
+    >
   >;
   let notifier: jest.Mocked<FreeAccessNotifier>;
   let statsd: jest.Mocked<Pick<StatsD, 'increment' | 'timing'>>;
@@ -60,6 +70,7 @@ describe('FreeAccessProgramService', () => {
       getFreshProjection: jest.fn().mockResolvedValue({}),
       getCachedAccessGrantsByClient: jest.fn().mockResolvedValue({}),
       invalidateProjectionCache: jest.fn().mockResolvedValue(undefined),
+      memoryCacheTtlSeconds: jest.fn().mockReturnValue(300),
     };
     accountManager = {
       getPrimaryEmailByUid: jest.fn().mockResolvedValue(undefined),
@@ -69,6 +80,9 @@ describe('FreeAccessProgramService', () => {
       // (null) path explicitly.
       get: jest.fn().mockResolvedValue({}),
       set: jest.fn().mockResolvedValue(undefined),
+      queueNotifications: jest.fn().mockResolvedValue(undefined),
+      getDueNotifications: jest.fn().mockResolvedValue([]),
+      deleteNotification: jest.fn().mockResolvedValue(undefined),
     };
     notifier = {
       notifyEmailChanged: jest.fn().mockResolvedValue(undefined),
@@ -401,7 +415,26 @@ describe('FreeAccessProgramService', () => {
   });
 
   describe('reconcile', () => {
-    it('notifies for an email that appears for the first time', async () => {
+    const NOW = 1_700_000_000_000;
+    const DEFAULT_DELAY_MS = (300 + 60) * 1000;
+    const pending = (
+      email: string,
+      id = `id-${email}`
+    ): FreeAccessPendingNotification => ({
+      id,
+      email,
+      updateTime: { seconds: 1, nanoseconds: 0 } as Timestamp,
+    });
+
+    beforeEach(() => {
+      jest.spyOn(Date, 'now').mockReturnValue(NOW);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('queues an email that appears for the first time', async () => {
       journalManager.get.mockResolvedValue({});
       configurationManager.getFreshProjection.mockResolvedValue(
         projection([['alice@example.com', entry({ 'client-a': ['vpn'] })]])
@@ -409,14 +442,14 @@ describe('FreeAccessProgramService', () => {
 
       const result = await service.reconcile();
 
-      expect(notifier.notifyEmailChanged).toHaveBeenCalledTimes(1);
-      expect(notifier.notifyEmailChanged).toHaveBeenCalledWith(
-        'alice@example.com'
+      expect(journalManager.queueNotifications).toHaveBeenCalledWith(
+        ['alice@example.com'],
+        NOW + DEFAULT_DELAY_MS
       );
       expect(result).toEqual({ changed: 1 });
     });
 
-    it('notifies for an email that disappears from the fresh projection', async () => {
+    it('queues an email that disappears from the fresh projection', async () => {
       journalManager.get.mockResolvedValue(
         projection([['stale@example.com', entry({ 'client-a': ['vpn'] })]])
       );
@@ -424,14 +457,14 @@ describe('FreeAccessProgramService', () => {
 
       const result = await service.reconcile();
 
-      expect(notifier.notifyEmailChanged).toHaveBeenCalledTimes(1);
-      expect(notifier.notifyEmailChanged).toHaveBeenCalledWith(
-        'stale@example.com'
+      expect(journalManager.queueNotifications).toHaveBeenCalledWith(
+        ['stale@example.com'],
+        NOW + DEFAULT_DELAY_MS
       );
       expect(result).toEqual({ changed: 1 });
     });
 
-    it("notifies once when an email's capabilities change", async () => {
+    it('queues an email once when its capabilities change', async () => {
       journalManager.get.mockResolvedValue(
         projection([['alice@example.com', entry({ 'client-a': ['vpn-old'] })]])
       );
@@ -441,14 +474,15 @@ describe('FreeAccessProgramService', () => {
 
       const result = await service.reconcile();
 
-      expect(notifier.notifyEmailChanged).toHaveBeenCalledTimes(1);
-      expect(notifier.notifyEmailChanged).toHaveBeenCalledWith(
-        'alice@example.com'
+      expect(journalManager.queueNotifications).toHaveBeenCalledTimes(1);
+      expect(journalManager.queueNotifications).toHaveBeenCalledWith(
+        ['alice@example.com'],
+        NOW + DEFAULT_DELAY_MS
       );
       expect(result).toEqual({ changed: 1 });
     });
 
-    it('emits no notifications when before and after capability sets are equal', async () => {
+    it('queues nothing when before and after capability sets are equal', async () => {
       const projectionValue = projection([
         ['alice@example.com', entry({ 'client-a': ['vpn'] })],
       ]);
@@ -459,11 +493,95 @@ describe('FreeAccessProgramService', () => {
 
       const result = await service.reconcile();
 
-      expect(notifier.notifyEmailChanged).not.toHaveBeenCalled();
+      expect(journalManager.queueNotifications).not.toHaveBeenCalled();
       expect(result).toEqual({ changed: 0 });
     });
 
-    it('persists the new projection to the journal before firing notifications', async () => {
+    it('delays notifications by the memory cache TTL plus a 60 second margin', async () => {
+      configurationManager.memoryCacheTtlSeconds.mockReturnValue(120);
+      journalManager.get.mockResolvedValue({});
+      configurationManager.getFreshProjection.mockResolvedValue(
+        projection([['alice@example.com', entry({ 'client-a': ['vpn'] })]])
+      );
+
+      await service.reconcile();
+
+      expect(journalManager.queueNotifications).toHaveBeenCalledWith(
+        ['alice@example.com'],
+        NOW + 180_000
+      );
+    });
+
+    it('loads at most 500 due notifications as of now', async () => {
+      await service.reconcile();
+
+      expect(journalManager.getDueNotifications).toHaveBeenCalledWith(NOW, 500);
+    });
+
+    it('records pending.backlog when a full page of due notifications is loaded', async () => {
+      journalManager.getDueNotifications.mockResolvedValue(
+        Array.from({ length: 500 }, (_, i) => pending(`user${i}@example.com`))
+      );
+
+      await service.reconcile();
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'free_access_program.reconcile.pending.backlog'
+      );
+    });
+
+    it('does not record pending.backlog for a partial page', async () => {
+      journalManager.getDueNotifications.mockResolvedValue([
+        pending('alice@example.com'),
+      ]);
+
+      await service.reconcile();
+
+      expect(statsd.increment).not.toHaveBeenCalledWith(
+        'free_access_program.reconcile.pending.backlog'
+      );
+    });
+
+    it('notifies and deletes each due pending notification', async () => {
+      const alice = pending('alice@example.com');
+      const bob = pending('bob@example.com');
+      journalManager.getDueNotifications.mockResolvedValue([alice, bob]);
+
+      await service.reconcile();
+
+      expect(notifier.notifyEmailChanged).toHaveBeenCalledTimes(2);
+      expect(notifier.notifyEmailChanged).toHaveBeenNthCalledWith(
+        1,
+        'alice@example.com'
+      );
+      expect(notifier.notifyEmailChanged).toHaveBeenNthCalledWith(
+        2,
+        'bob@example.com'
+      );
+      expect(journalManager.deleteNotification).toHaveBeenCalledTimes(2);
+      expect(journalManager.deleteNotification).toHaveBeenNthCalledWith(
+        1,
+        alice
+      );
+      expect(journalManager.deleteNotification).toHaveBeenNthCalledWith(
+        2,
+        bob
+      );
+    });
+
+    it('sends due notifications when nothing changed in this run', async () => {
+      journalManager.getDueNotifications.mockResolvedValue([
+        pending('alice@example.com'),
+      ]);
+
+      await service.reconcile();
+
+      expect(notifier.notifyEmailChanged).toHaveBeenCalledWith(
+        'alice@example.com'
+      );
+    });
+
+    it('queues, writes the journal, invalidates, then sends due notifications', async () => {
       journalManager.get.mockResolvedValue({});
       const fresh = projection([
         ['alice@example.com', entry({ 'client-a': ['vpn'] })],
@@ -471,6 +589,9 @@ describe('FreeAccessProgramService', () => {
       configurationManager.getFreshProjection.mockResolvedValue(fresh);
 
       const callOrder: string[] = [];
+      journalManager.queueNotifications.mockImplementation(async () => {
+        callOrder.push('queue');
+      });
       journalManager.set.mockImplementation(async () => {
         callOrder.push('journal-write');
       });
@@ -479,35 +600,84 @@ describe('FreeAccessProgramService', () => {
           callOrder.push('invalidate');
         }
       );
+      journalManager.getDueNotifications.mockImplementation(async () => {
+        callOrder.push('load-due');
+        return [pending('bob@example.com')];
+      });
       notifier.notifyEmailChanged.mockImplementation(async () => {
         callOrder.push('notify');
+      });
+      journalManager.deleteNotification.mockImplementation(async () => {
+        callOrder.push('delete');
       });
 
       await service.reconcile();
 
       expect(journalManager.set).toHaveBeenCalledWith(fresh);
-      expect(callOrder).toEqual(['journal-write', 'invalidate', 'notify']);
+      expect(callOrder).toEqual([
+        'queue',
+        'journal-write',
+        'invalidate',
+        'load-due',
+        'notify',
+        'delete',
+      ]);
     });
 
-    it('still fires notifications when invalidateProjectionCache throws', async () => {
+    it('rejects without writing the journal when queueing fails', async () => {
       journalManager.get.mockResolvedValue({});
       configurationManager.getFreshProjection.mockResolvedValue(
         projection([['alice@example.com', entry({ 'client-a': ['vpn'] })]])
       );
+      journalManager.queueNotifications.mockRejectedValue(
+        new Error('firestore-down')
+      );
+
+      await expect(service.reconcile()).rejects.toThrow('firestore-down');
+      expect(journalManager.set).not.toHaveBeenCalled();
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'free_access_program.reconcile.failure'
+      );
+    });
+
+    it('still sends earlier due notifications, then rethrows, when the journal write fails', async () => {
+      journalManager.get.mockResolvedValue({});
+      configurationManager.getFreshProjection.mockResolvedValue(
+        projection([['alice@example.com', entry({ 'client-a': ['vpn'] })]])
+      );
+      journalManager.set.mockRejectedValue(new Error('journal-write-failed'));
+      journalManager.getDueNotifications.mockResolvedValue([
+        pending('bob@example.com'),
+      ]);
+
+      await expect(service.reconcile()).rejects.toThrow('journal-write-failed');
+      expect(notifier.notifyEmailChanged).toHaveBeenCalledWith(
+        'bob@example.com'
+      );
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'free_access_program.reconcile.failure'
+      );
+    });
+
+    it('still sends due notifications when invalidateProjectionCache throws', async () => {
+      journalManager.getDueNotifications.mockResolvedValue([
+        pending('alice@example.com'),
+      ]);
       configurationManager.invalidateProjectionCache.mockRejectedValueOnce(
         new Error('firestore-down')
       );
 
       await service.reconcile();
 
-      expect(notifier.notifyEmailChanged).toHaveBeenCalledTimes(1);
-      expect(logger.error).toHaveBeenCalled();
+      expect(notifier.notifyEmailChanged).toHaveBeenCalledWith(
+        'alice@example.com'
+      );
       expect(statsd.increment).toHaveBeenCalledWith(
         'free_access_program.reconcile.invalidate.error'
       );
     });
 
-    it('seeds the journal and fires nothing on a cold start', async () => {
+    it('seeds the journal without queueing or sending on a cold start', async () => {
       const fresh = projection([
         ['alice@example.com', entry({ 'client-a': ['vpn'] })],
       ]);
@@ -517,7 +687,8 @@ describe('FreeAccessProgramService', () => {
       const result = await service.reconcile();
 
       expect(journalManager.set).toHaveBeenCalledWith(fresh);
-      expect(notifier.notifyEmailChanged).not.toHaveBeenCalled();
+      expect(journalManager.queueNotifications).not.toHaveBeenCalled();
+      expect(journalManager.getDueNotifications).not.toHaveBeenCalled();
       expect(
         configurationManager.invalidateProjectionCache
       ).not.toHaveBeenCalled();
@@ -527,39 +698,96 @@ describe('FreeAccessProgramService', () => {
       );
     });
 
-    it('continues and records both notify.error and notify.success when one notification rejects', async () => {
-      journalManager.get.mockResolvedValue({});
-      configurationManager.getFreshProjection.mockResolvedValue(
-        projection([
-          ['a@example.com', entry({ 'client-a': ['vpn'] })],
-          ['b@example.com', entry({ 'client-a': ['vpn'] })],
-        ])
-      );
-      notifier.notifyEmailChanged.mockRejectedValueOnce(new Error('boom'));
+    it('keeps a pending notification whose send fails and continues with the rest', async () => {
+      const alice = pending('alice@example.com');
+      const bob = pending('bob@example.com');
+      journalManager.getDueNotifications.mockResolvedValue([alice, bob]);
+      const sendError = new Error('boom');
+      notifier.notifyEmailChanged.mockRejectedValueOnce(sendError);
 
       await service.reconcile();
 
       expect(notifier.notifyEmailChanged).toHaveBeenCalledTimes(2);
-      expect(logger.error).toHaveBeenCalled();
+      expect(logger.error).toHaveBeenCalledWith(sendError);
+      expect(journalManager.deleteNotification).toHaveBeenCalledTimes(1);
+      expect(journalManager.deleteNotification).toHaveBeenCalledWith(bob);
       expect(statsd.increment).toHaveBeenCalledWith(
         'free_access_program.reconcile.notify.error'
       );
-      // The second email still delivered, so success is counted alongside.
       expect(statsd.increment).toHaveBeenCalledWith(
         'free_access_program.reconcile.notify.success'
       );
     });
 
-    it('increments notify.success for each delivered notification', async () => {
-      journalManager.get.mockResolvedValue({});
-      configurationManager.getFreshProjection.mockResolvedValue(
-        projection([['alice@example.com', entry({ 'client-a': ['vpn'] })]])
+    it('records pending.delete.error and continues with the rest when a delete fails', async () => {
+      const alice = pending('alice@example.com');
+      const bob = pending('bob@example.com');
+      journalManager.getDueNotifications.mockResolvedValue([alice, bob]);
+      const deleteError = Object.assign(new Error('unavailable'), { code: 14 });
+      journalManager.deleteNotification.mockRejectedValueOnce(deleteError);
+
+      await expect(service.reconcile()).resolves.toEqual({ changed: 0 });
+      expect(journalManager.deleteNotification).toHaveBeenNthCalledWith(2, bob);
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'free_access_program.reconcile.pending.delete.error'
       );
+      expect(logger.error).toHaveBeenCalledWith(
+        'freeAccessProgram.pending.delete.error',
+        { id: alice.id, err: deleteError }
+      );
+    });
+
+    it.each([
+      { code: 9, reason: 're-queued (FAILED_PRECONDITION)' },
+      { code: 5, reason: 'already deleted (NOT_FOUND)' },
+    ])(
+      'records pending.delete.superseded without logging an error when the doc was $reason',
+      async ({ code }) => {
+        journalManager.getDueNotifications.mockResolvedValue([
+          pending('alice@example.com'),
+        ]);
+        journalManager.deleteNotification.mockRejectedValue(
+          Object.assign(new Error('superseded'), { code })
+        );
+
+        await service.reconcile();
+
+        expect(statsd.increment).toHaveBeenCalledWith(
+          'free_access_program.reconcile.pending.delete.superseded'
+        );
+        expect(statsd.increment).not.toHaveBeenCalledWith(
+          'free_access_program.reconcile.pending.delete.error'
+        );
+        expect(logger.error).not.toHaveBeenCalled();
+      }
+    );
+
+    it('deletes a pending doc without a string email instead of notifying', async () => {
+      const malformed = { ...pending('ignored'), email: undefined };
+      journalManager.getDueNotifications.mockResolvedValue([malformed]);
 
       await service.reconcile();
 
+      expect(notifier.notifyEmailChanged).not.toHaveBeenCalled();
+      expect(journalManager.deleteNotification).toHaveBeenCalledWith(malformed);
       expect(statsd.increment).toHaveBeenCalledWith(
-        'free_access_program.reconcile.notify.success'
+        'free_access_program.reconcile.pending.malformed'
+      );
+      expect(logger.error).toHaveBeenCalledWith(
+        'freeAccessProgram.pending.malformed',
+        { id: malformed.id }
+      );
+    });
+
+    it('records pending.load.error and still succeeds when due notifications cannot be loaded', async () => {
+      const loadError = new Error('firestore-down');
+      journalManager.getDueNotifications.mockRejectedValue(loadError);
+
+      await expect(service.reconcile()).resolves.toEqual({ changed: 0 });
+      expect(notifier.notifyEmailChanged).not.toHaveBeenCalled();
+      expect(logger.error).toHaveBeenCalledWith(loadError);
+      expect(statsd.increment).toHaveBeenCalledWith(
+        'free_access_program.reconcile.pending.load.error'
       );
     });
 

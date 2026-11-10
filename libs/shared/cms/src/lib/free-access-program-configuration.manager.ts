@@ -72,6 +72,14 @@ export class FreeAccessProgramConfigurationManager {
     );
   }
 
+  /**
+   * This process's memory-tier TTL. Other processes bound their staleness by
+   * their own configured TTL, not this one.
+   */
+  memoryCacheTtlSeconds(): number {
+    return this.config.memCacheTTL || DEFAULT_MEM_CACHE_TTL_SECONDS;
+  }
+
   recordCacheTiming(
     operationName: string,
     cacheTier: 'memory' | 'firestore',
@@ -106,7 +114,7 @@ export class FreeAccessProgramConfigurationManager {
         context.log
       ),
     ttlSeconds: (_args: any, context: FreeAccessProgramConfigurationManager) =>
-      context.config.memCacheTTL || DEFAULT_MEM_CACHE_TTL_SECONDS,
+      context.memoryCacheTtlSeconds(),
     client: (_args: any, context: FreeAccessProgramConfigurationManager) =>
       context.memoryCacheAdapter,
   })
@@ -185,7 +193,7 @@ export class FreeAccessProgramConfigurationManager {
         context.log
       ),
     ttlSeconds: (_args: any, context: FreeAccessProgramConfigurationManager) =>
-      context.config.memCacheTTL || DEFAULT_MEM_CACHE_TTL_SECONDS,
+      context.memoryCacheTtlSeconds(),
     client: (_args: any, context: FreeAccessProgramConfigurationManager) =>
       context.memoryCacheAdapter,
   })
