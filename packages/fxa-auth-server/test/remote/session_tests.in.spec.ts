@@ -73,6 +73,39 @@ describe.each(testVersions)(
         );
 
         const sessionTokenCreate = client.sessionToken;
+        const c = await client.login();
+        const sessionTokenLogin = c.sessionToken;
+
+        const clients = await client.api.attachedClients(sessionTokenCreate);
+        const handle = clients.find(
+          (c: any) => c.sessionTokenHandle && !c.isCurrentSession
+        ).sessionTokenHandle;
+
+        await client.api.sessionDestroy(sessionTokenCreate, {
+          customSessionTokenHandle: handle,
+        });
+
+        try {
+          await client.api.sessionStatus(sessionTokenLogin);
+          throw new Error('got status with destroyed session');
+        } catch (err: any) {
+          expect(err.code).toBe(401);
+          expect(err.errno).toBe(110);
+        }
+      });
+
+      it('refuses an unverified session that targets another session', async () => {
+        const email = server.uniqueEmail();
+        const password = 'foobar';
+        const client = await Client.createAndVerify(
+          server.publicUrl,
+          email,
+          password,
+          server.mailbox,
+          testOptions
+        );
+
+        const sessionTokenCreate = client.sessionToken;
         const clients = await client.api.attachedClients(sessionTokenCreate);
         const handle = clients.find(
           (c: any) => c.isCurrentSession
@@ -81,20 +114,18 @@ describe.each(testVersions)(
         const c = await client.login();
         const sessionTokenLogin = c.sessionToken;
 
+        try {
+          await client.api.sessionDestroy(sessionTokenLogin, {
+            customSessionTokenHandle: handle,
+          });
+          throw new Error('unverified session destroyed another session');
+        } catch (err: any) {
+          expect(err.code).toBe(400);
+          expect(err.errno).toBe(138);
+        }
+
         const status = await client.api.sessionStatus(sessionTokenCreate);
         expect(status.uid).toBeTruthy();
-
-        await client.api.sessionDestroy(sessionTokenLogin, {
-          customSessionTokenHandle: handle,
-        });
-
-        try {
-          await client.api.sessionStatus(sessionTokenCreate);
-          throw new Error('got status with destroyed session');
-        } catch (err: any) {
-          expect(err.code).toBe(401);
-          expect(err.errno).toBe(110);
-        }
       });
 
       it('fails with a bad custom token', async () => {

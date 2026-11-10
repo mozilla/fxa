@@ -24,6 +24,9 @@ const { FxaMailer } = require('../senders/fxa-mailer');
 const { FxaMailerFormat } = require('../senders/fxa-mailer-format');
 const { OAuthClientInfoServiceName } = require('../senders/oauth_client_info');
 const { getClientServiceTags } = require('../metrics/client-tags');
+const {
+  makePostLookupGuard,
+} = require('./auth-schemes/verified-session-token');
 
 module.exports = function (
   log,
@@ -41,6 +44,7 @@ module.exports = function (
 ) {
   const otpUtils = require('./utils/otp').default(db, statsd);
   const sessionTokenHandleKey = config.sessionTokenHandle.key;
+  const postLookupGuard = makePostLookupGuard(db, config, statsd);
 
   const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(
     config.oauth.disableNewConnectionsForClients || []
@@ -105,6 +109,10 @@ module.exports = function (
           );
           if (!match) {
             throw error.invalidToken('Invalid session token');
+          }
+          // Destroying another session needs the same bar as attached_client/destroy.
+          if (match.id !== sessionToken.id) {
+            await postLookupGuard(request, sessionToken);
           }
           sessionToken = {
             id: match.id,
