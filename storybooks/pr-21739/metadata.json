@@ -1,8 +1,8 @@
 {
-  "commit": "add9924080ef8a194a0e37dcfa30e964c669a149",
-  "summary": "fix(settings): tune Nova weights and borders on auth pages",
-  "description": "Because:\n- Manual review found Nova headings and BoxButton labels too heavy and some borders too dark or thick.\n- Figma's base buttons are 40px, taller than Acorn's default padding gives.\n\nThis commit:\n- Uses font-heading for headings that were font-bold (semibold under Nova).\n- Gives BoxButton semibold labels and the deemphasized border under Nova.\n- Rests choice cards at a 1px border, 2px when checked.\n- Gives Nova cta-base-p the large block padding (about 42px tall).",
-  "timestamp": 1794333381000,
+  "commit": "334cb2bc1c0c886819c7b2b47b388eb7586c06d2",
+  "summary": "fix(fxa-react): make Nova cta-xl semibold",
+  "description": "Because:\n- Figma's buttons are semibold, but .cta-xl's font-bold beat the zero-specificity Nova rule.\n\nThis commit:\n- Sets Nova cta-xl to --button-font-weight with attribute specificity.\n- Notes it in the design-tokens README.",
+  "timestamp": 1794333573000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",
