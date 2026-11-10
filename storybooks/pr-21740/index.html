@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 96de03bf2a38962ae53ac799478510c4d12e124b</title>
+  <title>Storybooks for commit 380b8546801e33a0326fd16af06a7d344d769176</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,25 +23,26 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 96de03bf2a38962ae53ac799478510c4d12e124b</h1>
+  <h1>Storybooks for commit 380b8546801e33a0326fd16af06a7d344d769176</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/10/2026, 4:26:56 PM UTC</dd>
+    <dd>11/10/2026, 5:57:13 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>feat(settings): apply Nova Settings nav, dividers and status colors</pre></dd>
+    <dd><pre>fix(settings): tune Nova dividers, nav icons and weights in Settings</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- Updated Figma and design answers cover the nav, dividers, AlertBar and status colors.
+- Nova dividers were darker than Figma&#039;s; nav icons, headings and the delete button were off.
+- The Connected Services rule sat inset more than other section dividers, flag on or off.
 
 This commit:
-- Styles Nav items as Acorn page-nav pills with a filled selected state.
-- Uses border-deemphasized for Settings dividers and the device box.
-- Restyles AlertBar as a tinted pill with a circular close button.
-- Maps status fills to Acorn icon colors and drops gradients under nova:.
-- Adds nova:-only nav, icon and border-deemphasized utilities.</pre></dd>
+- Adds a nova:-only border-divider (currentColor at 12%) for Settings dividers.
+- Leads nav external links with a 16px text-colored icon under nova:.
+- Aligns the Connected Services rule with other dividers (flag-off change).
+- Keeps Delete account at py-2 on mobileLandscape under nova:.
+- Uses font-heading on Settings headings (700 flag-off, semibold under nova:).</pre></dd>
   </dl>
 </body>
 </html>
