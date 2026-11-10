@@ -1,8 +1,8 @@
 {
-  "commit": "747552e2705aac6a03046bd9b24b859866efd293",
-  "summary": "perf(shared): replace pruneSessionTokens Lua with WATCH transaction",
-  "description": "Because:\n\n* The pruneSessionTokens_1 Lua script blocks Redis while it runs.\n\nThis commit:\n\n* Replaces the script with a WATCH, GET, MULTI and EXEC prune in RedisShared.\n* Runs prunes one at a time on a duplicate connection, fire and forget.\n* Counts a WATCH conflict or an error and does not retry.\n* Makes close() wait for queued prunes and quit the prune connection.\n* Disconnects the prune connection in the Redis down spec teardown.\n\nCloses FXA-14945",
-  "timestamp": 1793998926000,
+  "commit": "b31ee83d55b503be0c1c04b417a79274abf0ac7a",
+  "summary": "wip",
+  "description": "",
+  "timestamp": 1794286138000,
   "storybooks": [
     "fxa-admin-panel"
   ],
