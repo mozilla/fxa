@@ -1,8 +1,8 @@
 {
-  "commit": "334cb2bc1c0c886819c7b2b47b388eb7586c06d2",
-  "summary": "fix(fxa-react): make Nova cta-xl semibold",
-  "description": "Because:\n- Figma's buttons are semibold, but .cta-xl's font-bold beat the zero-specificity Nova rule.\n\nThis commit:\n- Sets Nova cta-xl to --button-font-weight with attribute specificity.\n- Notes it in the design-tokens README.",
-  "timestamp": 1794333573000,
+  "commit": "d78e1a24fd6ea791bafd8248a56e0873060f3486",
+  "summary": "fix(settings): finish Nova choice cards and spinner",
+  "description": "Because:\n- Design review settled the choice-card fills and asked for accent spinners.\n- Promo banners, the phone select and a link still used FxA blues and gradients.\n\nThis commit:\n- Gives choice cards a transparent rest and Acorn's button hover/selected fills.\n- Recolors LoadingSpinner and BoxButton's loading arrow to the accent.\n- Replaces the promo banner gradients with the vibrant promo tint.\n- Uses the Nova focus ring on InputPhoneNumber and the link hover in BrandMessaging.",
+  "timestamp": 1794352464000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",
