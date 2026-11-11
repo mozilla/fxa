@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 89c48a9bbae90fd78eef76222dc079714aea8c4e</title>
+  <title>Storybooks for commit f33f662723a9f8034fea6a802ba81b445034fc43</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,15 +23,28 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 89c48a9bbae90fd78eef76222dc079714aea8c4e</h1>
+  <h1>Storybooks for commit f33f662723a9f8034fea6a802ba81b445034fc43</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/11/2026, 12:17:46 PM UTC</dd>
+    <dd>11/11/2026, 12:39:20 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>Merge main into fxa-14791</pre></dd>
+    <dd><pre>feat(settings): switch the integration in-app instead of hard-reloading</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- A Glean event queued before an in-app integration switch was recorded
+  with the new integration&#039;s client ID, service and attribution.
+
+This commit:
+
+- Captures the integration when a Glean event is emitted and passes it
+  to initMetrics.
+- Adds a unit test for an event queued before setIntegration.
+
+Closes FXA-14791</pre></dd>
   </dl>
 </body>
 </html>

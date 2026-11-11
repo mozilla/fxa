@@ -1,8 +1,8 @@
 {
-  "commit": "89c48a9bbae90fd78eef76222dc079714aea8c4e",
-  "summary": "Merge main into fxa-14791",
-  "description": "",
-  "timestamp": 1794399466000,
+  "commit": "f33f662723a9f8034fea6a802ba81b445034fc43",
+  "summary": "feat(settings): switch the integration in-app instead of hard-reloading",
+  "description": "Because:\n\n- A Glean event queued before an in-app integration switch was recorded\n  with the new integration's client ID, service and attribution.\n\nThis commit:\n\n- Captures the integration when a Glean event is emitted and passes it\n  to initMetrics.\n- Adds a unit test for an event queued before setIntegration.\n\nCloses FXA-14791",
+  "timestamp": 1794400760000,
   "storybooks": [
     "fxa-settings"
   ],
