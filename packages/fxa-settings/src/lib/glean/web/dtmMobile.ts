@@ -7,6 +7,26 @@
 import EventMetricType from '@mozilla/glean/private/metrics/event';
 
 /**
+ * User viewed the screen telling them to scan the pairing QR code again
+ * from inside the Firefox app.
+ *
+ * Generated from `dtm_mobile.connect_hint_view`.
+ */
+export const connectHintView = new EventMetricType<{
+  firefox_version?: string;
+  reason?: string;
+}>(
+  {
+    category: 'dtm_mobile',
+    name: 'connect_hint_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['firefox_version', 'reason']
+);
+
+/**
  * Pairing tried to hand off from a browser to the Firefox app after a QR
  * scan. Recorded where the hand-off starts, which differs per platform:
  * Android navigates on mount, iOS requires the user to tap first.

@@ -59,6 +59,9 @@ export const PAIRING_ATTRIBUTION_STORAGE_KEY = 'pairing_attribution';
  */
 export const PAIR_FLOW_ENTRYPOINT = 'fxa_pairflow';
 
+/** Entrypoint for a `/pair` visit with no query at all: the user typed the URL. */
+export const PAIR_DIRECT_ENTRYPOINT = 'user';
+
 /**
  * How long a stashed hand-off stays valid. The journey is `/pair` → Firefox's
  * pairing dialog → (possibly install Firefox on the phone) → scan → approve, so

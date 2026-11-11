@@ -143,6 +143,16 @@ export function claimAutoAttempt(
 }
 
 /**
+ * The Play Store passes only its `referrer` param on to the app's Install
+ * Referrer API, so the attribution rides there rather than as a bare query.
+ */
+export function withPlayStoreReferrer(storeUrl: string): string {
+  const url = new URL(storeUrl);
+  url.searchParams.set('referrer', 'utm_content=DTM_SYNC_PAIR_V2');
+  return url.toString();
+}
+
+/**
  * Package-pinned intent that opens `target` in Firefox, with a built-in store
  * fallback for when it is not installed.
  */
@@ -222,14 +232,16 @@ export function planPairingHandoff({
         storeUrl: storeLinks.ios,
         browser: isSafari ? 'safari' : 'other',
       };
-    case Devices.OTHER_ANDROID:
+    case Devices.OTHER_ANDROID: {
+      const storeUrl = withPlayStoreReferrer(storeLinks.android);
       return {
         kind: 'android',
-        deepLink: buildAndroidDeepLink(targetUrl, storeLinks.android, build),
-        storeUrl: storeLinks.android,
+        deepLink: buildAndroidDeepLink(targetUrl, storeUrl, build),
+        storeUrl,
         target: targetUrl,
         autoAttempt: shouldAutoAttempt({ target: targetUrl, storage }),
       };
+    }
     default:
       return { kind: 'none' };
   }

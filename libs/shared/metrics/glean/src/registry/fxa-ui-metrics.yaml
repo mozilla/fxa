@@ -2296,6 +2296,58 @@ cad_firefox:
         description: |
           The browser that opened the page, from the user agent in the browser: firefox, safari, chrome, edge or other. On iOS, Firefox, Chrome and Edge report their own family, not safari.
         type: string
+  download_firefox_redirect:
+    type: event
+    description: |
+      The /pair page sent a mobile device that scanned a pairing QR code to the
+      "Get Firefox on this device" screen, because the browser that opened the
+      page could not carry the pairing flow
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14958
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Why the user was sent to the screen: not_firefox when the browser is not Firefox, otherwise firefox_version_too_low.
+        type: string
+      firefox_version:
+        description: |
+          The Firefox major version from the user agent, or unknown when the browser is not Firefox, which indicates Firefox is not installed or not in use.
+        type: string
+  scan_qr_redirect:
+    type: event
+    description: |
+      The /pair or /connect_another_device page sent a pairing v2 browser
+      straight to the scan QR code screen, so the choice screen and its
+      choice_view event did not show
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14958
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          The sign-in or registration flow that sent the user to pairing, with the same values as the reason on cad_firefox.choice_view. Empty when there is no such flow.
+        type: string
 
 cad_approve_device:
   view:
@@ -4571,6 +4623,35 @@ dtm_mobile:
           when the mobile browser already held a verified account.
         type: string
 
+  connect_hint_view:
+    type: event
+    description: |
+      User viewed the screen telling them to scan the pairing QR code again
+      from inside the Firefox app.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14958
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          'not_firefox' when the browser is not Firefox,
+          'firefox_version_too_low' when its version is below the configured
+          pairing v2 minimum for its platform, otherwise 'other'.
+        type: string
+      firefox_version:
+        description: |
+          The Firefox major version from the user agent, or unknown when the browser is not Firefox.
+        type: string
   deeplink_attempt:
     type: event
     description: |

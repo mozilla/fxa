@@ -5,7 +5,13 @@
 import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { InitialEntry, MemoryRouter } from 'react-router';
+import GleanMetrics from '../../../../lib/glean';
 import PairConnectHint from '.';
+
+jest.mock('../../../../lib/glean', () => ({
+  __esModule: true,
+  default: { dtmMobile: { connectHintView: jest.fn() } },
+}));
 
 const FIREFOX_IOS_UA =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/124.0 Mobile/15E148 Safari/605.1.15';
@@ -22,6 +28,29 @@ const render = (ui: React.ReactElement, entry: InitialEntry = '/') =>
 describe('Pair2/Supplicant/PairConnectHint page', () => {
   afterEach(() => {
     jest.restoreAllMocks();
+    jest.clearAllMocks();
+  });
+
+  // The default config sets no v2 minimum, so a Firefox lands on 'other'.
+  it('records one connect_hint_view with the Firefox version', () => {
+    jest.spyOn(navigator, 'userAgent', 'get').mockReturnValue(FIREFOX_IOS_UA);
+    render(<PairConnectHint />);
+
+    expect(GleanMetrics.dtmMobile.connectHintView).toHaveBeenCalledTimes(1);
+    expect(GleanMetrics.dtmMobile.connectHintView).toHaveBeenCalledWith({
+      event: { reason: 'other', firefox_version: '124' },
+    });
+  });
+
+  it('records connect_hint_view with not_firefox for a non-Firefox browser', () => {
+    jest
+      .spyOn(navigator, 'userAgent', 'get')
+      .mockReturnValue(CHROME_DESKTOP_UA);
+    render(<PairConnectHint />);
+
+    expect(GleanMetrics.dtmMobile.connectHintView).toHaveBeenCalledWith({
+      event: { reason: 'not_firefox', firefox_version: 'unknown' },
+    });
   });
 
   // The jest SVG stub renders the file name as the element's text.

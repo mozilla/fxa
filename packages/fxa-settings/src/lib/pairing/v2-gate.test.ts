@@ -6,6 +6,7 @@ import { Devices } from '../utilities';
 import {
   getFirefoxMajorVersion,
   getPairingPlatform,
+  getPairingV2VersionCheck,
   isPairingV2Enabled,
   isPairingV2RolledOut,
 } from './v2-gate';
@@ -228,5 +229,45 @@ describe('isPairingV2Enabled', () => {
         })
       ).toBe(true);
     });
+  });
+});
+
+describe('getPairingV2VersionCheck', () => {
+  const pairing = { version: 2, v2MinVersion: { ios: 148 } };
+
+  it.each([
+    ['Chrome', Devices.OTHER, CHROME_DESKTOP],
+    // A Firefox device whose UA carries no version token for its platform.
+    ['Firefox iOS without an FxiOS token', Devices.FIREFOX_IOS, CHROME_DESKTOP],
+  ])('reports not_firefox for %s', (_label, device, userAgent) => {
+    expect(getPairingV2VersionCheck(pairing, device, userAgent)).toEqual({
+      reason: 'not_firefox',
+    });
+  });
+
+  it('reports firefox_version_too_low below the platform minimum', () => {
+    expect(
+      getPairingV2VersionCheck(pairing, Devices.FIREFOX_IOS, FIREFOX_IOS_147)
+    ).toEqual({ reason: 'firefox_version_too_low', firefoxVersion: 147 });
+  });
+
+  it('reports other at the platform minimum', () => {
+    expect(
+      getPairingV2VersionCheck(
+        { version: 2, v2MinVersion: { ios: 147 } },
+        Devices.FIREFOX_IOS,
+        FIREFOX_IOS_147
+      )
+    ).toEqual({ reason: 'other', firefoxVersion: 147 });
+  });
+
+  it('reports other when the platform has no minimum', () => {
+    expect(
+      getPairingV2VersionCheck(
+        pairing,
+        Devices.FIREFOX_ANDROID,
+        FIREFOX_ANDROID_147
+      )
+    ).toEqual({ reason: 'other', firefoxVersion: 147 });
   });
 });
