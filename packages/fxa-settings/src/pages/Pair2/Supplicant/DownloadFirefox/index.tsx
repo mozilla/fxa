@@ -16,6 +16,7 @@ import {
 import { LINK } from '../../../../constants';
 import { Constants } from '../../../../lib/constants';
 import GleanMetrics from '../../../../lib/glean';
+import { flushGlean } from '../../../../lib/glean/flush';
 import {
   AttemptStorage,
   claimAutoAttempt,
@@ -123,6 +124,14 @@ const DownloadFirefox = ({
     }, STORE_FALLBACK_TIMEOUT_MS);
   };
 
+  // The intent can unload the page at once, so the attempt is flushed first,
+  // within a short bound, or the event that counts hand-offs is dropped.
+  const handOffAndroid = (deepLink: string) => {
+    GleanMetrics.dtmMobile.deeplinkAttempt({ event: { reason: 'android' } });
+    flushGlean().then(() => assign(deepLink));
+    armRestTimer();
+  };
+
   useEffect(() => {
     if (!willAutoAttempt || plan?.kind !== 'android') {
       return;
@@ -134,31 +143,29 @@ const DownloadFirefox = ({
       setAttempting(false);
       return;
     }
-    // Not flushed before navigating: this is the happy path, and holding the
-    // hand-off to drain a ping is a cost every successful pairing would pay.
-    GleanMetrics.dtmMobile.deeplinkAttempt({ event: { reason: 'android' } });
-    assign(plan.deepLink);
-    armRestTimer();
+    handOffAndroid(plan.deepLink);
     return () => window.clearTimeout(restTimerRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // The tap on the anchor below performs the hand-off itself — deliberately no
-  // preventDefault() and no JS navigation, since the native top-level
-  // navigation is what iOS requires and routing it through JS risks losing the
-  // user activation. This only arms the fallback.
-  const onAttempt = () => {
+  // On iOS the tap on the anchor below performs the hand-off itself —
+  // deliberately no preventDefault() and no JS navigation, since the native
+  // top-level navigation is what iOS requires and routing it through JS risks
+  // losing the user activation. Android needs no user activation (see
+  // `handoff.ts`), so it navigates from script after the flush.
+  const onAttempt = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!plan) {
       return;
     }
     setAttempting(true);
-    GleanMetrics.dtmMobile.deeplinkAttempt({ event: { reason: plan.kind } });
     // Android's intent:// carries its own store fallback via
     // S.browser_fallback_url, so it needs no store watchdog, only the rest timer.
-    if (isAndroid) {
-      armRestTimer();
+    if (plan.kind === 'android') {
+      e.preventDefault();
+      handOffAndroid(plan.deepLink);
       return;
     }
+    GleanMetrics.dtmMobile.deeplinkAttempt({ event: { reason: plan.kind } });
     teardownRef.current?.();
     teardownRef.current = armStoreFallback({
       onFallback: (reason) => {

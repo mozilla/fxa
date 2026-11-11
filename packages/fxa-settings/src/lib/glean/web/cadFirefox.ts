@@ -82,6 +82,27 @@ export const choiceView = new EventMetricType<{
 );
 
 /**
+ * The /pair page sent a mobile device that scanned a pairing QR code to the
+ * "Get Firefox on this device" screen, because the browser that opened the
+ * page could not carry the pairing flow
+ *
+ * Generated from `cad_firefox.download_firefox_redirect`.
+ */
+export const downloadFirefoxRedirect = new EventMetricType<{
+  firefox_version?: string;
+  reason?: string;
+}>(
+  {
+    category: 'cad_firefox',
+    name: 'download_firefox_redirect',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['firefox_version', 'reason']
+);
+
+/**
  * User viewed the "Get Firefox on this device" screen, shown on a mobile
  * device that scanned a pairing QR code in a browser that is not Firefox
  *
@@ -114,6 +135,26 @@ export const notnowSubmit = new EventMetricType(
     disabled: false,
   },
   []
+);
+
+/**
+ * The /pair or /connect_another_device page sent a pairing v2 browser
+ * straight to the scan QR code screen, so the choice screen and its
+ * choice_view event did not show
+ *
+ * Generated from `cad_firefox.scan_qr_redirect`.
+ */
+export const scanQrRedirect = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'cad_firefox',
+    name: 'scan_qr_redirect',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
 );
 
 /**

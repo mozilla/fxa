@@ -9,6 +9,7 @@ import {
   planPairingHandoff,
   shouldAutoAttempt,
   StoreLinks,
+  withPlayStoreReferrer,
 } from './handoff';
 
 const MOCK_TARGET =
@@ -134,6 +135,9 @@ describe('planPairingHandoff', () => {
   });
 
   describe('on a non-Firefox Android browser', () => {
+    const MOCK_ANDROID_STORE_URL =
+      'https://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_content%3DDTM_SYNC_PAIR_V2';
+
     it('pins the intent to the Firefox package and carries a store fallback', () => {
       expect(plan(Devices.OTHER_ANDROID)).toEqual({
         kind: 'android',
@@ -141,9 +145,9 @@ describe('planPairingHandoff', () => {
           'intent://accounts.firefox.com/pair#channel_id=chan-1&channel_key=key-1&v=2' +
           '#Intent;scheme=https;package=org.mozilla.firefox' +
           `;S.browser_fallback_url=${encodeURIComponent(
-            MOCK_STORE_LINKS.android
+            MOCK_ANDROID_STORE_URL
           )};end`,
-        storeUrl: MOCK_STORE_LINKS.android,
+        storeUrl: MOCK_ANDROID_STORE_URL,
         target: MOCK_TARGET,
         autoAttempt: true,
       });
@@ -184,7 +188,9 @@ describe('planPairingHandoff', () => {
       }) as { deepLink: string };
 
       expect(deepLink).toContain(
-        `;S.browser_fallback_url=${encodeURIComponent(storeLinks.android)};end`
+        `;S.browser_fallback_url=${encodeURIComponent(
+          withPlayStoreReferrer(storeLinks.android)
+        )};end`
       );
       // The encoded fallback plus the trailing terminator, and nothing more.
       expect(deepLink.split(';end').length - 1).toBe(1);
@@ -280,5 +286,15 @@ describe('claimAutoAttempt', () => {
 
   it('returns false when storage is unavailable', () => {
     expect(claimAutoAttempt(MOCK_TARGET, undefined)).toBe(false);
+  });
+});
+
+describe('withPlayStoreReferrer', () => {
+  it('carries the pairing attribution in the Install Referrer param', () => {
+    const url = new URL(withPlayStoreReferrer(MOCK_STORE_LINKS.android));
+    expect(url.searchParams.get('id')).toBe('org.mozilla.firefox');
+    expect(url.searchParams.get('referrer')).toBe(
+      'utm_content=DTM_SYNC_PAIR_V2'
+    );
   });
 });

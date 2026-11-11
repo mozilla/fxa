@@ -17,6 +17,7 @@ import Banner from '../../../components/Banner';
 import GleanMetrics from '../../../lib/glean';
 import { useGleanView } from '../../../lib/glean/useGleanView';
 import { hasPairingChannelParams } from '../../../lib/pairing-channel-params';
+import { withPlayStoreReferrer } from '../../../lib/pairing/handoff';
 import { getBrowserFamily } from '../../../lib/utilities';
 
 type PairUnsupportedProps = { error?: string };
@@ -53,7 +54,9 @@ function useDeviceContext() {
 
     const downloadLink = isIos
       ? 'https://apps.apple.com/app/firefox-private-safe-browser/id989804926'
-      : 'https://play.google.com/store/apps/details?id=org.mozilla.firefox';
+      : withPlayStoreReferrer(
+          'https://play.google.com/store/apps/details?id=org.mozilla.firefox'
+        );
 
     return {
       isDesktopNonFirefox,

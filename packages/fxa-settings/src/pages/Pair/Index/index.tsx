@@ -51,15 +51,18 @@ import {
 import { getPairingChannelHashParams } from '../../../lib/pairing-channel-params';
 import { isChannelComplete } from '../../../models/integrations/pairing-supplicant-integration';
 import {
+  getFirefoxMajorVersion,
   isPairingV2Enabled,
   isPairingV2RolledOut,
 } from '../../../lib/pairing/v2-gate';
+import { goToScanQr } from '../../../lib/pairing/scan-qr-redirect';
 import {
   getAttemptStorage,
   HandoffPlan,
   planPairingHandoff,
 } from '../../../lib/pairing/handoff';
 import {
+  PAIR_DIRECT_ENTRYPOINT,
   PAIR_FLOW_ENTRYPOINT,
   pickPairingAttribution,
   pickPairingAttributionFromData,
@@ -123,10 +126,6 @@ export const viewName = 'pair';
 const isVerifiedUser = (user?: SignedInUser) =>
   !!(user?.sessionToken && user.verified);
 
-// Full reload: `useIntegration` is not keyed on location, so only a fresh page
-// load rebuilds it as a PairingAuthorityIntegration.
-const goToScanQr = () => hardNavigate('/pair/authority/scan_qr', {}, true);
-
 const Pair = ({
   error,
   cmsInfo: cmsInfoProp,
@@ -174,7 +173,9 @@ const Pair = ({
     return {
       ...picked,
       entrypoint:
-        picked.entrypoint || fromUrl.entrypoint || PAIR_FLOW_ENTRYPOINT,
+        picked.entrypoint ||
+        fromUrl.entrypoint ||
+        (location.search ? PAIR_FLOW_ENTRYPOINT : PAIR_DIRECT_ENTRYPOINT),
     };
   }, [integration, location.search]);
 
@@ -228,6 +229,21 @@ const Pair = ({
     // This indicates no handoff is needed. and we can continue as normal.
     return { kind: 'none' };
   }, [pairingChannelInfo, fxaStatusResult.fxaStatusState, device, config]);
+
+  // Router state is the primary channel, but flows that stop at an interstitial
+  // (/signup_confirmed_sync, /inline_recovery_key_setup) reach here through a
+  // hard navigation that carries the query param instead, and a reload drops
+  // router state entirely. Both are validated: `location.state` is untyped at
+  // runtime, and the param is user-controllable.
+  const pairReason = useMemo(() => {
+    const fromState = (location.state as { pairReason?: unknown } | null)
+      ?.pairReason;
+    if (isPairGleanReason(fromState)) {
+      return fromState;
+    }
+    const fromQuery = new URLSearchParams(location.search).get('pairReason');
+    return isPairGleanReason(fromQuery) ? fromQuery : undefined;
+  }, [location.state, location.search]);
 
   // The bootstrap ends in a hard navigation that nothing can undo, so it starts
   // at most once per mount. `abortBootstrapRef` stands an in-flight run down on
@@ -283,6 +299,19 @@ const Pair = ({
     // !isFirefoxDesktop branch, which would otherwise send every mobile
     // browser to /pair/unsupported.
     if (handoffPlan.kind !== 'none') {
+      const firefoxVersion = getFirefoxMajorVersion(
+        navigator.userAgent,
+        handoffPlan.kind
+      );
+      GleanMetrics.cadFireFox.downloadFirefoxRedirect({
+        event: {
+          reason:
+            firefoxVersion === undefined
+              ? 'not_firefox'
+              : 'firefox_version_too_low',
+          firefox_version: String(firefoxVersion ?? 'unknown'),
+        },
+      });
       navigateWithQuery(
         '/pair/supplicant/download_firefox',
         { state: pairingChannelInfo },
@@ -357,7 +386,7 @@ const Pair = ({
       pairingV2 &&
       canPairFromBrowser(fxaStatusResult.fxaStatus.signedInUser)
     ) {
-      goToScanQr();
+      goToScanQr(pairReason);
       return;
     }
 
@@ -412,7 +441,7 @@ const Pair = ({
       if (sessionIsValid) {
         bootstrapUserRef.current = signedInUser;
         if (pairingV2Ref.current) {
-          goToScanQr();
+          goToScanQr(pairReason);
         } else {
           setBootstrapping(false);
         }
@@ -457,8 +486,8 @@ const Pair = ({
       // still reaches it: reveal the page rather than strand the user.
       setBootstrapping(false);
     })();
-    // `pairingAttribution` and `pairOrigin` are captured at mount on purpose;
-    // re-running on a new value would re-ask the WebChannel.
+    // `pairingAttribution`, `pairOrigin` and `pairReason` are captured at mount
+    // on purpose; re-running on a new value would re-ask the WebChannel.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     pairingChannelInfo,
@@ -467,21 +496,6 @@ const Pair = ({
     handoffPlan,
     navigateWithQuery,
   ]);
-
-  // Router state is the primary channel, but flows that stop at an interstitial
-  // (/signup_confirmed_sync, /inline_recovery_key_setup) reach here through a
-  // hard navigation that carries the query param instead, and a reload drops
-  // router state entirely. Both are validated: `location.state` is untyped at
-  // runtime, and the param is user-controllable.
-  const pairReason = useMemo(() => {
-    const fromState = (location.state as { pairReason?: unknown } | null)
-      ?.pairReason;
-    if (isPairGleanReason(fromState)) {
-      return fromState;
-    }
-    const fromQuery = new URLSearchParams(location.search).get('pairReason');
-    return isPairGleanReason(fromQuery) ? fromQuery : undefined;
-  }, [location.state, location.search]);
 
   // Fire Glean view events only after the bootstrap reveals the page;
   // otherwise users redirected during bootstrap would skew the metric.

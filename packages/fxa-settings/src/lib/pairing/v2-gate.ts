@@ -79,6 +79,34 @@ export function isPairingV2RolledOut(
 }
 
 /**
+ * Why this browser is not on the v2 flow, as far as the user agent and config
+ * can tell. 'other' covers a Firefox that meets its minimum, or has none, yet
+ * still landed off v2, e.g. one reporting only pairing v1 in fxa_status.
+ */
+export function getPairingV2VersionCheck(
+  pairing: PairingV2Config,
+  device: Devices,
+  userAgent: string
+): {
+  reason: 'not_firefox' | 'firefox_version_too_low' | 'other';
+  firefoxVersion?: number;
+} {
+  const platform = getPairingPlatform(device);
+  const firefoxVersion = platform
+    ? getFirefoxMajorVersion(userAgent, platform)
+    : undefined;
+  if (!platform || firefoxVersion === undefined) {
+    return { reason: 'not_firefox' };
+  }
+  const minVersion = getPairingV2MinVersion(pairing, platform);
+  const reason =
+    minVersion !== undefined && firefoxVersion < minVersion
+      ? 'firefox_version_too_low'
+      : 'other';
+  return { reason, firefoxVersion };
+}
+
+/**
  * Whether this browser takes the pairing v2 flow.
  *
  * `pairing.version` is the deployment-wide switch. The browser then has to

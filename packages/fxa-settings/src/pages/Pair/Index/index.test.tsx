@@ -99,7 +99,10 @@ jest.mock('../../../lib/pairing/totp-gate', () => ({
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
   default: {
+    isDone: () => Promise.resolve(),
     cadFireFox: {
+      scanQrRedirect: jest.fn(),
+      downloadFirefoxRedirect: jest.fn(),
       choiceView: jest.fn(),
       view: jest.fn(),
       choiceEngage: jest.fn(),
@@ -839,7 +842,7 @@ describe('Pair', () => {
           action: 'signin',
           code_challenge: 'cc',
           code_challenge_method: 'S256',
-          entrypoint: 'fxa_pairflow',
+          entrypoint: 'user',
         });
       } finally {
         hardNavigateSpy.mockRestore();
@@ -1160,7 +1163,7 @@ describe('Pair', () => {
       });
     });
 
-    it('stashes the fxa_pairflow entrypoint for a signed-in direct visit', async () => {
+    it('stashes the user entrypoint for a direct visit with no query', async () => {
       const user = userEvent.setup();
       await renderPair();
 
@@ -1169,9 +1172,21 @@ describe('Pair', () => {
       );
       await user.click(screen.getByRole('button', { name: 'Continue' }));
 
-      expect(readPairingAttribution()).toEqual({
-        entrypoint: 'fxa_pairflow',
-      });
+      expect(readPairingAttribution()).toEqual({ entrypoint: 'user' });
+    });
+
+    // The firefox.com/pair redirect sends only `service` and `client_id`.
+    it('stashes the fxa_pairflow entrypoint for a visit with a query but no entrypoint', async () => {
+      const user = userEvent.setup();
+      mockLocationSearch = '?service=sync';
+      await renderPair();
+
+      await user.click(
+        screen.getByLabelText(/I already have Firefox for mobile/)
+      );
+      await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+      expect(readPairingAttribution()).toEqual({ entrypoint: 'fxa_pairflow' });
     });
 
     it('stashes nothing when the user only advances to the download screen', async () => {
@@ -1446,6 +1461,24 @@ describe('Pair', () => {
         '/pair/supplicant/connect_this_device',
         expect.anything()
       );
+      expect(GleanMetrics.cadFireFox.scanQrRedirect).toHaveBeenCalledWith({
+        event: { reason: undefined },
+      });
+      hardNavigateSpy.mockRestore();
+    });
+
+    it('records the pair reason before it reloads into the QR scanner', async () => {
+      const hardNavigateSpy = jest
+        .spyOn(ReactUtils, 'hardNavigate')
+        .mockImplementation(() => {});
+      mockLocationSearch = '?pairReason=otp_login';
+      renderWithRouter(<Pair {...v2Props} />, {}, v2AppContext());
+
+      await waitFor(() => expect(hardNavigateSpy).toHaveBeenCalled());
+      expect(GleanMetrics.cadFireFox.scanQrRedirect).toHaveBeenCalledWith({
+        event: { reason: 'otp_login' },
+      });
+      expect(GleanMetrics.cadFireFox.choiceView).not.toHaveBeenCalled();
       hardNavigateSpy.mockRestore();
     });
 
@@ -1843,6 +1876,15 @@ describe('parseV2PairingHash', () => {
             }
           )
         );
+        // The browser is not Firefox, so no Firefox version can be read.
+        expect(
+          GleanMetrics.cadFireFox.downloadFirefoxRedirect
+        ).toHaveBeenCalledWith({
+          event: {
+            reason: 'not_firefox',
+            firefox_version: 'unknown',
+          },
+        });
       }
     );
 

@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLocation } from 'react-router';
+import GleanMetrics from '../../../../lib/glean';
+import { getPairingV2VersionCheck } from '../../../../lib/pairing/v2-gate';
+import { useConfig } from '../../../../models/hooks';
 import AppLayout from '../../../../components/AppLayout';
 import { FirefoxWordmarkImage } from '../../../../components/images';
 import PairUnsupportedHint, {
@@ -46,6 +49,24 @@ const PairConnectHint = ({
 }: Partial<Pick<PairUnsupportedHintProps, 'os'>>) => {
   const location = useLocation();
   const view = viewType(location);
+  const { pairing } = useConfig();
+
+  useEffect(() => {
+    const { reason, firefoxVersion } = getPairingV2VersionCheck(
+      pairing,
+      detectDevice(),
+      navigator.userAgent
+    );
+    GleanMetrics.dtmMobile.connectHintView({
+      event: {
+        reason,
+        firefox_version: String(firefoxVersion ?? 'unknown'),
+      },
+    });
+    // One view per mount; useConfig can hand back a fresh object each render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <AppLayout whiteBackground>
       <div className="flex flex-col items-center text-center">
