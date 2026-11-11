@@ -1,8 +1,8 @@
 {
-  "commit": "3f0aabeb855328949d986a4b8a7f3f1735d74f81",
-  "summary": "fix(settings): Linked Accounts, device rows, mobile radius and hover tints for Nova",
-  "description": "Because:\n- Design review asked for Nova device rows, rounded mobile cards, hover tints and a promo tint.\n- Data Collection's \"Learn more\" links could wrap mid-phrase (flag-off fix).\n\nThis commit:\n- Restyles device and linked-account rows under nova: per the designer's spec.\n- Keeps section card radius on mobile and taller mobile UnitRow CTAs under nova:.\n- Adds nova:-only bg-hover-tint and bg-promo-vibrant; applies them to closes and promos.\n- Reverts nav external icons to today's size, 8px after the label under nova:.\n- Keeps \"Learn more\" links on one line; uses font-heading on the header wordmark.",
-  "timestamp": 1794352445000,
+  "commit": "3fe7e69ce785c7f84b1d1144540ddde6ecc6a8eb",
+  "summary": "feat(settings): adopt Nova semantics in Settings",
+  "description": "Because:\n- Settings components set colors with raw utilities and hand-written dark: pairs.\n- Nova restyles Settings per the FxA Design System Figma and design review.\n- The Connected Services rule and \"Learn more\" links had layout bugs (flag-off fixes).\n\nThis commit:\n- Swaps exact pairs for semantic utilities; collapses other pairs under nova:.\n- Restyles nav pills, dividers, device rows, Linked Accounts and mobile cards under nova:.\n- Makes AlertBar a tinted pill; adds hover tints and canvas promos under nova:.\n- Moves Switch, Checkbox, slider and focus rings to the Nova accent.\n- Adds nova:-only utilities and documents mappings and gaps in the README.",
+  "timestamp": 1794356947000,
   "storybooks": [
     "fxa-settings"
   ],
