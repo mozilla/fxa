@@ -1,8 +1,8 @@
 {
-  "commit": "f33f662723a9f8034fea6a802ba81b445034fc43",
+  "commit": "17ed162bb82fd54c3f99dafedf1d879ed6e1e928",
   "summary": "feat(settings): switch the integration in-app instead of hard-reloading",
-  "description": "Because:\n\n- A Glean event queued before an in-app integration switch was recorded\n  with the new integration's client ID, service and attribution.\n\nThis commit:\n\n- Captures the integration when a Glean event is emitted and passes it\n  to initMetrics.\n- Adds a unit test for an event queued before setIntegration.\n\nCloses FXA-14791",
-  "timestamp": 1794400760000,
+  "description": "Because:\n\n* GleanMetrics.initialize is async, but its type said void\n* The emit-time Glean test passed even when queued events were dropped\n\nThis commit:\n\n* Types GleanMetrics.initialize as returning Promise<void>\n* Awaits initialize in the two setIntegration Glean tests\n* Asserts the exact client ID calls of the queued events\n\nCloses FXA-14791",
+  "timestamp": 1794402051000,
   "storybooks": [
     "fxa-settings"
   ],

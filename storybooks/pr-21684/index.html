@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit f33f662723a9f8034fea6a802ba81b445034fc43</title>
+  <title>Storybooks for commit 17ed162bb82fd54c3f99dafedf1d879ed6e1e928</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,26 +23,26 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit f33f662723a9f8034fea6a802ba81b445034fc43</h1>
+  <h1>Storybooks for commit 17ed162bb82fd54c3f99dafedf1d879ed6e1e928</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/11/2026, 12:39:20 PM UTC</dd>
+    <dd>11/11/2026, 1:00:51 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): switch the integration in-app instead of hard-reloading</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- A Glean event queued before an in-app integration switch was recorded
-  with the new integration&#039;s client ID, service and attribution.
+* GleanMetrics.initialize is async, but its type said void
+* The emit-time Glean test passed even when queued events were dropped
 
 This commit:
 
-- Captures the integration when a Glean event is emitted and passes it
-  to initMetrics.
-- Adds a unit test for an event queued before setIntegration.
+* Types GleanMetrics.initialize as returning Promise&lt;void&gt;
+* Awaits initialize in the two setIntegration Glean tests
+* Asserts the exact client ID calls of the queued events
 
 Closes FXA-14791</pre></dd>
   </dl>
