@@ -1,8 +1,8 @@
 {
-  "commit": "e4f4990ddc1e18e6a2c816bee2edde5be6372ed3",
-  "summary": "Merge pull request #21743 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-935bf2e01bc2f16b9887af44bd314ad37788b9d7",
-  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from c7a5cdba31f5dc1b52adb51629280037c1570c6b to 935bf2e01bc2f16b9887af44bd314ad37788b9d7",
-  "timestamp": 1794320584000,
+  "commit": "305cd4439aa696286361981d55689dbfbce57c37",
+  "summary": "Merge pull request #21744 from mozilla/fxa-14958",
+  "description": "fix(settings): close pairing metric gaps",
+  "timestamp": 1794362927000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
