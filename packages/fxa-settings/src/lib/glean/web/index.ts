@@ -27,6 +27,7 @@ export const stringEventExtraPropertyNames = [
   'has_passkey_option',
   'branch',
   'browser_family',
+  'firefox_version',
 ] as const;
 
 export type PropertyNameStringT = typeof stringEventPropertyNames;
@@ -245,6 +246,8 @@ export const eventsMap = {
     syncDeviceSubmit: 'cad_firefox_sync_device_submit',
     notnowSubmit: 'cad_firefox_notnow_submit',
     downloadFirefoxView: 'cad_firefox_download_firefox_view',
+    downloadFirefoxRedirect: 'cad_firefox_download_firefox_redirect',
+    scanQrRedirect: 'cad_firefox_scan_qr_redirect',
   },
 
   accountPref: {
@@ -382,6 +385,7 @@ export const eventsMap = {
 
   dtmMobile: {
     timeoutView: 'dtm_mobile_timeout_view',
+    connectHintView: 'dtm_mobile_connect_hint_view',
     deeplinkAttempt: 'dtm_mobile_deeplink_attempt',
     deeplinkFirefoxDetected: 'dtm_mobile_deeplink_firefox_detected',
     deeplinkStoreRedirect: 'dtm_mobile_deeplink_store_redirect',

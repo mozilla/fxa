@@ -163,7 +163,7 @@ describe('PairUnsupported', () => {
         });
         expect(downloadLink).toHaveAttribute(
           'href',
-          'https://play.google.com/store/apps/details?id=org.mozilla.firefox'
+          'https://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_content%3DDTM_SYNC_PAIR_V2'
         );
 
         // Instructional content shown below the banner.

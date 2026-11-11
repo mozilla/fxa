@@ -651,9 +651,26 @@ const recordEventMetric = async (
         browser_family: gleanPingMetrics?.event?.['browser_family'] || '',
       });
       break;
+    case 'cad_firefox_download_firefox_redirect':
+      cadFirefox.downloadFirefoxRedirect.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+        firefox_version: gleanPingMetrics?.event?.['firefox_version'] || '',
+      });
+      break;
+    case 'cad_firefox_scan_qr_redirect':
+      cadFirefox.scanQrRedirect.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
     case 'dtm_mobile_timeout_view':
       dtmMobile.timeoutView.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'dtm_mobile_connect_hint_view':
+      dtmMobile.connectHintView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+        firefox_version: gleanPingMetrics?.event?.['firefox_version'] || '',
       });
       break;
     case 'dtm_mobile_deeplink_attempt':

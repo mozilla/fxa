@@ -1078,6 +1078,40 @@ describe('lib/glean', () => {
       });
     });
 
+    describe('pairing redirects', () => {
+      it('submits cad_firefox_download_firefox_redirect with the reason and version', async () => {
+        const spy = sandbox.spy(cadFirefox.downloadFirefoxRedirect, 'record');
+        GleanMetrics.cadFireFox.downloadFirefoxRedirect({
+          event: {
+            reason: 'firefox_version_too_low',
+            firefox_version: 'unknown',
+          },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'cad_firefox_download_firefox_redirect'
+        );
+        sinon.assert.calledOnceWithExactly(spy, {
+          reason: 'firefox_version_too_low',
+          firefox_version: 'unknown',
+        });
+      });
+
+      it('submits cad_firefox_scan_qr_redirect with the pair reason', async () => {
+        const spy = sandbox.spy(cadFirefox.scanQrRedirect, 'record');
+        GleanMetrics.cadFireFox.scanQrRedirect({
+          event: { reason: 'otp_login' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'cad_firefox_scan_qr_redirect'
+        );
+        sinon.assert.calledOnceWithExactly(spy, { reason: 'otp_login' });
+      });
+    });
+
     describe('dtmDesktop', () => {
       it('submits a ping with the dtm_desktop_qr_skip name', async () => {
         const spy = sandbox.spy(dtmDesktop.qrSkip, 'record');
@@ -1964,6 +1998,22 @@ describe('lib/glean', () => {
         await GleanMetrics.isDone();
         sinon.assert.calledWith(setEventNameStub, 'dtm_mobile_timeout_view');
         sinon.assert.calledWith(setEventReasonStub, 'canceled');
+      });
+
+      it('submits dtm_mobile_connect_hint_view with the reason and version', async () => {
+        const spy = sandbox.spy(dtmMobile.connectHintView, 'record');
+        GleanMetrics.dtmMobile.connectHintView({
+          event: { reason: 'firefox_version_too_low', firefox_version: '147' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'dtm_mobile_connect_hint_view'
+        );
+        sinon.assert.calledOnceWithExactly(spy, {
+          reason: 'firefox_version_too_low',
+          firefox_version: '147',
+        });
       });
 
       it('submits a ping with the dtm_mobile_deeplink_attempt event name and a platform reason', async () => {

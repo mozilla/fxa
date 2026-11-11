@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FluentBundle } from '@fluent/bundle';
 import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
@@ -10,6 +10,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { LINK } from '../../../../constants';
 import { Constants } from '../../../../lib/constants';
 import { STORE_FALLBACK_TIMEOUT_MS } from '../../../../lib/pairing/store-fallback';
+import { GLEAN_FLUSH_TIMEOUT_MS } from '../../../../lib/glean/flush';
 import {
   HANDOFF_ATTEMPT_KEY_PREFIX,
   planPairingHandoff,
@@ -30,10 +31,11 @@ import {
 const mockDeeplinkAttempt = jest.fn();
 const mockDeeplinkStoreRedirect = jest.fn();
 const mockDeeplinkWebviewFallback = jest.fn();
+const mockIsDone = jest.fn(() => Promise.resolve());
 jest.mock('../../../../lib/glean', () => ({
   __esModule: true,
   default: {
-    isDone: () => Promise.resolve(),
+    isDone: () => mockIsDone(),
     dtmMobile: {
       deeplinkAttempt: (...args: unknown[]) => mockDeeplinkAttempt(...args),
       deeplinkStoreRedirect: (...args: unknown[]) =>
@@ -481,7 +483,7 @@ describe('Pair2/Supplicant/DownloadFirefox page', () => {
   });
 
   describe('on Android', () => {
-    it('hands off on mount without waiting for a tap', () => {
+    it('hands off on mount without waiting for a tap', async () => {
       const assign = jest.fn();
       renderWithLocalizationProvider(
         <Subject
@@ -491,7 +493,58 @@ describe('Pair2/Supplicant/DownloadFirefox page', () => {
         />
       );
 
-      expect(assign).toHaveBeenCalledWith(MOCK_ANDROID_PLAN.deepLink);
+      await waitFor(() =>
+        expect(assign).toHaveBeenCalledWith(MOCK_ANDROID_PLAN.deepLink)
+      );
+      expect(assign).toHaveBeenCalledTimes(1);
+    });
+
+    it('fires the intent only after the attempt flushes, within the bound', async () => {
+      jest.useFakeTimers();
+      mockIsDone.mockReturnValueOnce(new Promise<void>(() => {}));
+      try {
+        const assign = jest.fn();
+        renderWithLocalizationProvider(
+          <Subject
+            plan={MOCK_ANDROID_PLAN}
+            assign={assign}
+            storage={createStorage()}
+          />
+        );
+
+        expect(mockDeeplinkAttempt).toHaveBeenCalledTimes(1);
+        await act(() =>
+          jest.advanceTimersByTimeAsync(GLEAN_FLUSH_TIMEOUT_MS - 1)
+        );
+        expect(assign).not.toHaveBeenCalled();
+        await act(() => jest.advanceTimersByTimeAsync(1));
+        expect(assign).toHaveBeenCalledWith(MOCK_ANDROID_PLAN.deepLink);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('fires the intent from a tap only after the attempt is recorded', async () => {
+      const user = userEvent.setup();
+      const assign = jest.fn();
+      renderWithLocalizationProvider(
+        <Subject
+          plan={{ ...MOCK_ANDROID_PLAN, autoAttempt: false }}
+          assign={assign}
+          storage={createStorage()}
+        />
+      );
+
+      await user.click(
+        screen.getByRole('link', { name: 'Continue in Firefox' })
+      );
+
+      expect(mockDeeplinkAttempt).toHaveBeenCalledWith({
+        event: { reason: 'android' },
+      });
+      await waitFor(() =>
+        expect(assign).toHaveBeenCalledWith(MOCK_ANDROID_PLAN.deepLink)
+      );
       expect(assign).toHaveBeenCalledTimes(1);
     });
 
@@ -644,7 +697,7 @@ describe('Pair2/Supplicant/DownloadFirefox page', () => {
 
     // The rest timer is UI-only. If it navigated it would race
     // S.browser_fallback_url, which is already sending the user to the store.
-    it('does not navigate a second time when the CTA returns to rest', () => {
+    it('does not navigate a second time when the CTA returns to rest', async () => {
       jest.useFakeTimers();
       try {
         const assign = jest.fn();
@@ -656,7 +709,9 @@ describe('Pair2/Supplicant/DownloadFirefox page', () => {
           />
         );
 
-        jest.advanceTimersByTime(STORE_FALLBACK_TIMEOUT_MS * 3);
+        await act(() =>
+          jest.advanceTimersByTimeAsync(STORE_FALLBACK_TIMEOUT_MS * 3)
+        );
 
         expect(assign).toHaveBeenCalledTimes(1);
       } finally {

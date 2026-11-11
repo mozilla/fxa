@@ -27,6 +27,8 @@ import GleanMetrics from '../../lib/glean';
 import AppLayout from '../../components/AppLayout';
 import { detectDevice, Devices } from '../../lib/utilities';
 import { isPairingV2Enabled } from '../../lib/pairing/v2-gate';
+import { goToScanQr } from '../../lib/pairing/scan-qr-redirect';
+import { isPairGleanReason } from '../../lib/glean/pair-reasons';
 import { UseFxAStatusResult, useNavigateWithQuery } from '../../lib/hooks';
 
 export type ConnectAnotherDeviceProps = {
@@ -221,6 +223,10 @@ const ConnectAnotherDevice = ({
       // Only the pairing redirect needs the Sync key; the page itself renders
       // for any signed-in browser.
       if (canPairFromBrowser(signedInUser) && isEligibleForPairing()) {
+        const queryReason = searchParams.get('pairReason');
+        const pairReason = isPairGleanReason(queryReason)
+          ? queryReason
+          : undefined;
         // The browser has to support pairing at all; which version it gets is
         // the same gate as /pair, see isPairingV2Enabled.
         if (
@@ -233,14 +239,14 @@ const ConnectAnotherDevice = ({
               fxaStatus.fxaStatus.capabilities.pairingVersion,
           })
         ) {
-          hardNavigate('/pair/authority/scan_qr', {}, true);
+          goToScanQr(pairReason);
           return;
         }
 
         // Escape hatch. Allow the query params to force a v2 pairing flow. Useuful initially for testing, probably
         // won't stick around forever...
         if (searchParams.get('v') === '2') {
-          hardNavigate('/pair/authority/scan_qr', {}, true);
+          goToScanQr(pairReason);
           return;
         }
 

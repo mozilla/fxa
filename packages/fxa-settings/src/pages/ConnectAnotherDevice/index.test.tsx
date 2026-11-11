@@ -14,6 +14,7 @@ import {
 // import { FluentBundle } from '@fluent/bundle';
 import ConnectAnotherDevice, { viewName } from '.';
 import { usePageViewEvent } from '../../lib/metrics';
+import GleanMetrics from '../../lib/glean';
 import {
   MOCK_BASIC_PROPS,
   MOCK_BROWSER_SIGNED_IN_USER,
@@ -49,10 +50,14 @@ jest.mock('react-router', () => ({
 jest.mock('../../lib/glean', () => ({
   __esModule: true,
   default: {
+    isDone: () => Promise.resolve(),
     cad: {
       view: jest.fn(),
       submit: jest.fn(),
       startbrowsingSubmit: jest.fn(),
+    },
+    cadFireFox: {
+      scanQrRedirect: jest.fn(),
     },
   },
 }));
@@ -333,6 +338,22 @@ describe('ConnectAnotherDevice', () => {
         )
       );
       expect(mockNavigate).not.toHaveBeenCalled();
+      expect(GleanMetrics.cadFireFox.scanQrRedirect).toHaveBeenCalledWith({
+        event: { reason: undefined },
+      });
+    });
+
+    it('records the pair reason from the query before the v2 redirect', async () => {
+      renderPairingEligible(
+        { pairing: true, pairingVersion: 2 },
+        FXA_PAIRING_V2,
+        `${MOCK_PAIRING_ELIGIBLE_ROUTE}&pairReason=password_login`
+      );
+
+      await waitFor(() => expect(hardNavigate).toHaveBeenCalled());
+      expect(GleanMetrics.cadFireFox.scanQrRedirect).toHaveBeenCalledWith({
+        event: { reason: 'password_login' },
+      });
     });
 
     it('reads the browser pairing capabilities from props instead of requesting fxaStatus', async () => {
