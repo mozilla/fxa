@@ -393,6 +393,52 @@ describe('lib/glean', () => {
       );
     });
 
+    it('sets the metrics values from the integration passed to setIntegration', async () => {
+      await GleanMetrics.initialize(
+        { ...mockConfig, enabled: true },
+        mockMetricsContext
+      );
+      GleanMetrics.setIntegration({
+        ...mockIntegration,
+        data: {
+          ...mockIntegration.data,
+          clientId: 'switched',
+          service: 'sync',
+        },
+      } as any);
+
+      GleanMetrics.registration.view();
+      await GleanMetrics.isDone();
+
+      sinon.assert.calledWith(setOauthClientIdStub, 'switched');
+      sinon.assert.calledWith(setServiceStub, 'sync');
+    });
+
+    it('keeps the emit-time integration for an event queued before setIntegration', async () => {
+      await GleanMetrics.initialize(
+        { ...mockConfig, enabled: true },
+        {
+          ...mockMetricsContext,
+          integration: {
+            data: { clientId: 'first' },
+          } as unknown as WebIntegration,
+        }
+      );
+      // initialize sets the client ID too; count only the queued events
+      setOauthClientIdStub.resetHistory();
+
+      // the first event holds the queue, so the second one waits in it
+      GleanMetrics.registration.view();
+      GleanMetrics.registration.view();
+      GleanMetrics.setIntegration({
+        data: { clientId: 'switched' },
+      } as unknown as WebIntegration);
+      await GleanMetrics.isDone();
+
+      sinon.assert.calledTwice(setOauthClientIdStub);
+      sinon.assert.alwaysCalledWithExactly(setOauthClientIdStub, 'first');
+    });
+
     it('submits the pings in order', async () => {
       // not await on these calls
       GleanMetrics.registration.view();

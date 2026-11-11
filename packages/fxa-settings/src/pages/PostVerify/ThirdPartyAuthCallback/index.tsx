@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useRef, useCallback } from 'react';
-import { hardNavigate } from 'fxa-react/lib/utils';
 import { useNavigate, useLocation } from 'react-router';
 import { AppLayout } from '../../../components/AppLayout';
 import {
@@ -12,6 +11,7 @@ import {
   Integration,
   isWebIntegration,
   useFtlMsgResolver,
+  useSwitchIntegration,
 } from '../../../models';
 import {
   handleNavigation,
@@ -55,6 +55,7 @@ const ThirdPartyAuthCallback = ({
   const location = useLocation();
   const navigate = useNavigate();
   const navigateWithQuery = useNavigateWithQuery();
+  const switchIntegration = useSwitchIntegration();
   const ftlMsgResolver = useFtlMsgResolver();
 
   const { finishOAuthFlowHandler } = useFinishOAuthFlowHandler(
@@ -208,10 +209,8 @@ const ThirdPartyAuthCallback = ({
 
       setCurrentAccount(linkedAccount.uid);
 
-      // HACK: The first time this page loads, it's a ThirdPartyAuthCallbackIntegration.
-      // We perform a hard navigate here so the integration type is updated
-      // based off updated search params.
-      hardNavigate(
+      // Switch from the ThirdPartyAuthCallbackIntegration to the one the relayed params describe.
+      switchIntegration(
         `/post_verify/third_party_auth/callback${fxaParams.toString()}`
       );
     } catch (error) {
@@ -224,6 +223,7 @@ const ThirdPartyAuthCallback = ({
     integration,
     navigateWithQuery,
     storeLinkedAccountData,
+    switchIntegration,
   ]);
 
   const navigateNext = useCallback(
@@ -256,12 +256,12 @@ const ThirdPartyAuthCallback = ({
 
       if (integration.getError()) {
         const fxaParams = integration.getFxAParams();
-        return hardNavigate(`/${fxaParams.toString()}`);
+        return switchIntegration(`/${fxaParams.toString()}`);
       }
 
       verifyThirdPartyAuthResponse();
     }
-  }, [integration, verifyThirdPartyAuthResponse]);
+  }, [integration, verifyThirdPartyAuthResponse, switchIntegration]);
 
   // Once we have verified the third party auth, navigate to the next page
   const isVerifyFxAAuth = useRef(false);

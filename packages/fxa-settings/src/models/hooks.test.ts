@@ -7,7 +7,14 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { ReactNode, createElement } from 'react';
 import * as Sentry from '@sentry/browser';
 
-import { useClientInfoState, useCmsInfoState } from './hooks';
+import { MemoryRouter, useLocation } from 'react-router';
+import {
+  SwitchIntegrationContext,
+  useClientInfoState,
+  useCmsInfoState,
+  useLegalTermsState,
+  useSwitchIntegration,
+} from './hooks';
 import { AppContext } from './contexts/AppContext';
 
 // Mock all external dependencies before importing the hook
@@ -123,6 +130,28 @@ describe('useCmsInfoState', () => {
     require('../contexts/DynamicLocalizationContext').useDynamicLocalization.mockReturnValue(
       { currentLocale: 'en-US' }
     );
+  });
+
+  it('reports loading on the render that bumps the integration version, then fetches again', async () => {
+    mockUrlQueryData.get.mockImplementation((key: string) =>
+      key === 'client_id' ? '1234567890abcdef' : null
+    );
+    const seen: ReturnType<typeof useCmsInfoState>[] = [];
+    const { result, rerender } = renderHook(
+      ({ version }) => {
+        const state = useCmsInfoState(version);
+        seen.push(state);
+        return state;
+      },
+      { wrapper: MockAppProvider, initialProps: { version: 0 } }
+    );
+    await waitFor(() => expect(result.current.data).toBeDefined());
+
+    const firstSwitchRender = seen.length;
+    rerender({ version: 1 });
+    expect(seen[firstSwitchRender]).toEqual({ loading: true });
+    await waitFor(() => expect(result.current.data).toBeDefined());
+    expect(mockFetch).toHaveBeenCalledTimes(2);
   });
 
   it('should use default entrypoint when entrypoint is not provided in URL', async () => {
@@ -565,7 +594,7 @@ describe('useClientInfoState', () => {
 
   afterEach(() => {
     jest.useRealTimers();
-  })
+  });
 
   it('populates clientInfo from the fetch response', async () => {
     mockUrlQueryData.get.mockImplementation((key: string) =>
@@ -607,7 +636,14 @@ describe('useClientInfoState', () => {
     expect(result.current.data).toBeUndefined();
     expect(Sentry.captureException).toHaveBeenCalledWith(fetchError, {
       tags: { area: 'useClientInfoState.fetch', clientId: '1234567890abcdef' },
-      extra: { "code": undefined, "errno": undefined, "message": "Network error", "statusCode": undefined, mounted:true, attempt:3 },
+      extra: {
+        code: undefined,
+        errno: undefined,
+        message: 'Network error',
+        statusCode: undefined,
+        mounted: true,
+        attempt: 3,
+      },
     });
   });
 
@@ -628,7 +664,20 @@ describe('useClientInfoState', () => {
     expect(result.current.error?.message).toMatch(/403/);
     expect(Sentry.captureException).toHaveBeenCalledWith(
       expect.objectContaining({ message: expect.stringMatching(/403/) }),
-      expect.objectContaining({ tags: { area: 'useClientInfoState.fetch', clientId: '1234567890abcdef' }, extra: {"code": undefined, "errno": undefined, "message": "Failed to fetch client info: 403", "statusCode": undefined, mounted:true, attempt:3} })
+      expect.objectContaining({
+        tags: {
+          area: 'useClientInfoState.fetch',
+          clientId: '1234567890abcdef',
+        },
+        extra: {
+          code: undefined,
+          errno: undefined,
+          message: 'Failed to fetch client info: 403',
+          statusCode: undefined,
+          mounted: true,
+          attempt: 3,
+        },
+      })
     );
   });
 
@@ -643,7 +692,9 @@ describe('useClientInfoState', () => {
       (_url: string, opts: { signal: AbortSignal }) =>
         new Promise((_resolve, reject) => {
           opts.signal.addEventListener('abort', () =>
-            reject(opts.signal.reason ?? new DOMException('aborted', 'AbortError'))
+            reject(
+              opts.signal.reason ?? new DOMException('aborted', 'AbortError')
+            )
           );
         })
     );
@@ -728,6 +779,33 @@ describe('useClientInfoState', () => {
     expect(result.current.data?.clientInfo.clientId).toBe('1234567890abcdef');
   });
 
+  it('reports loading on the render that bumps the integration version, then fetches again', async () => {
+    mockUrlQueryData.get.mockImplementation((key: string) =>
+      key === 'client_id' ? '1234567890abcdef' : null
+    );
+    const seen: ReturnType<typeof useClientInfoState>[] = [];
+    const { result, rerender } = renderHook(
+      ({ version }) => {
+        const state = useClientInfoState(version);
+        seen.push(state);
+        return state;
+      },
+      { wrapper: MockAppProvider, initialProps: { version: 0 } }
+    );
+    await waitFor(() => expect(result.current.data).toBeDefined());
+
+    rerender({ version: 0 });
+    expect(result.current.data).toBeDefined();
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+
+    const firstSwitchRender = seen.length;
+    rerender({ version: 1 });
+    expect(seen[firstSwitchRender]).toEqual({ loading: true });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.data?.clientInfo.clientId).toBe('1234567890abcdef');
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+
   it('surfaces an Invalid clientId error and does not fetch when client_id is missing', async () => {
     mockUrlQueryData.get.mockReturnValue(null);
     const { isHexadecimal, length } = require('class-validator');
@@ -746,5 +824,70 @@ describe('useClientInfoState', () => {
     expect(result.current.error).toBeInstanceOf(Error);
     expect(result.current.error?.message).toBe('Invalid clientId');
     expect(Sentry.captureException).not.toHaveBeenCalled();
+  });
+});
+
+describe('useLegalTermsState', () => {
+  it('reports loading on the render that bumps the integration version, then fetches again', async () => {
+    jest.clearAllMocks();
+    const { UrlQueryData } = require('../lib/model-data');
+    UrlQueryData.mockImplementation(() => ({
+      get: (key: string) =>
+        ({ context: 'oauth_webchannel_v1', service: 'sync' })[key] ?? null,
+    }));
+    mockFetch.mockResolvedValue({
+      ok: true,
+      text: jest.fn().mockResolvedValue('{"label":"Sync"}'),
+    });
+    const seen: ReturnType<typeof useLegalTermsState>[] = [];
+    const { result, rerender } = renderHook(
+      ({ version }) => {
+        const state = useLegalTermsState(version);
+        seen.push(state);
+        return state;
+      },
+      { wrapper: MockAppProvider, initialProps: { version: 0 } }
+    );
+    await waitFor(() => expect(result.current.data).toBeDefined());
+
+    const firstSwitchRender = seen.length;
+    rerender({ version: 1 });
+    expect(seen[firstSwitchRender]).toEqual({ loading: true });
+    await waitFor(() => expect(result.current.data).toBeDefined());
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('useSwitchIntegration', () => {
+  it('bumps the integration version and navigates with location state', () => {
+    const bumpIntegrationVersion = jest.fn();
+    const wrapper = ({ children }: { children: ReactNode }) =>
+      createElement(
+        MemoryRouter,
+        { initialEntries: ['/pair'] },
+        createElement(
+          SwitchIntegrationContext.Provider,
+          { value: bumpIntegrationVersion },
+          children
+        )
+      );
+    const { result } = renderHook(
+      () => ({
+        switchIntegration: useSwitchIntegration(),
+        location: useLocation(),
+      }),
+      { wrapper }
+    );
+
+    act(() => {
+      result.current.switchIntegration('/signin?client_id=abc', {
+        state: { from: '/pair' },
+      });
+    });
+
+    expect(bumpIntegrationVersion).toHaveBeenCalledTimes(1);
+    expect(result.current.location.pathname).toBe('/signin');
+    expect(result.current.location.search).toBe('?client_id=abc');
+    expect(result.current.location.state).toEqual({ from: '/pair' });
   });
 });
