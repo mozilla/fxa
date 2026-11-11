@@ -1,8 +1,8 @@
 {
-  "commit": "97f25a73a5a8625e520b4579731cba01317894bc",
-  "summary": "chore(settings): leave promo banners to the Settings branch",
-  "description": "Because:\n- The Settings branch already restyles both promo banners and adds bg-promo-vibrant.\n\nThis commit:\n- Reverts the promo banner classes, the promo-vibrant utility and its README notes.",
-  "timestamp": 1794352590000,
+  "commit": "e6b57a7524b32c5e1bd96431a6484b57910865fe",
+  "summary": "feat(settings): adopt Nova semantics on auth flow pages",
+  "description": "Because:\n- Auth pages and their shared components set colors with raw utilities and dark: pairs.\n- Nova's Figma restyles CTAs, banners, choice cards and cards, with violet accents.\n\nThis commit:\n- Swaps exact pairs for semantic utilities (incl. body) and collapses others under nova:.\n- Restyles Banner and ResetPasswordWarning as message bars, and choice cards per Figma.\n- Gives Nova CTAs the circle radius, 58px cta-xl, semibold labels; fixes the card surface.\n- Uses the accent for progress, spinners, focus rings and input-radio; 200ms transitions.\n- Documents each collapse, delta and remaining gap in the design-tokens README.",
+  "timestamp": 1794356791000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",

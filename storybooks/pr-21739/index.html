@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 97f25a73a5a8625e520b4579731cba01317894bc</title>
+  <title>Storybooks for commit e6b57a7524b32c5e1bd96431a6484b57910865fe</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 97f25a73a5a8625e520b4579731cba01317894bc</h1>
+  <h1>Storybooks for commit e6b57a7524b32c5e1bd96431a6484b57910865fe</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-react/">fxa-react</a></li>
@@ -31,15 +31,20 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/10/2026, 11:16:30 PM UTC</dd>
+    <dd>11/11/2026, 12:26:31 AM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>chore(settings): leave promo banners to the Settings branch</pre></dd>
+    <dd><pre>feat(settings): adopt Nova semantics on auth flow pages</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- The Settings branch already restyles both promo banners and adds bg-promo-vibrant.
+- Auth pages and their shared components set colors with raw utilities and dark: pairs.
+- Nova&#039;s Figma restyles CTAs, banners, choice cards and cards, with violet accents.
 
 This commit:
-- Reverts the promo banner classes, the promo-vibrant utility and its README notes.</pre></dd>
+- Swaps exact pairs for semantic utilities (incl. body) and collapses others under nova:.
+- Restyles Banner and ResetPasswordWarning as message bars, and choice cards per Figma.
+- Gives Nova CTAs the circle radius, 58px cta-xl, semibold labels; fixes the card surface.
+- Uses the accent for progress, spinners, focus rings and input-radio; 200ms transitions.
+- Documents each collapse, delta and remaining gap in the design-tokens README.</pre></dd>
   </dl>
 </body>
 </html>
