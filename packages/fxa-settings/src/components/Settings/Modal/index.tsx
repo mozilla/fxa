@@ -61,12 +61,12 @@ export const Modal = ({
     <Portal id="modal">
       <div
         data-testid={testid}
-        className="flex fixed inset-0 z-50 w-full p-2 bg-black/75 h-dvh overflow-y-auto overscroll-contain"
+        className="flex fixed inset-0 z-50 w-full p-2 bg-black/75 nova:bg-overlay h-dvh overflow-y-auto overscroll-contain"
       >
         <div
           data-testid="modal-content-container"
           className={classNames(
-            'max-w-120 bg-white dark:bg-grey-700 m-auto rounded-xl border border-transparent',
+            'max-w-120 bg-box m-auto rounded-xl border border-transparent',
             className
           )}
           ref={modalInsideRef}

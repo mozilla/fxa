@@ -24,15 +24,15 @@
     @apply text-start border-transparent;
 
     .slider {
-      @apply bg-blue-500;
+      @apply bg-blue-500 nova:bg-accent-primary;
 
       &:not(:disabled):hover {
-        @apply bg-blue-600;
+        @apply bg-blue-600 nova:bg-accent-primary-hover;
       }
 
       &:active,
       &:focus {
-        @apply bg-blue-700;
+        @apply bg-blue-700 nova:bg-accent-primary-active;
       }
 
       &::before {
@@ -61,7 +61,7 @@
   }
 
   &[aria-checked='false'] {
-    @apply text-end border-grey-200 dark:border-grey-500;
+    @apply text-end border-grey-200 dark:border-grey-500 nova:border-interactive;
 
     .slider {
       @apply bg-grey-50 dark:bg-grey-600;
@@ -85,7 +85,7 @@
 
       &-status {
         /* pl matches pseudo width + .5 rem to account for long l10n */
-        @apply text-grey-500 pl-7 pr-2;
+        @apply text-grey-500 nova:text-deemphasized pl-7 pr-2;
 
         [dir='rtl'] & {
           /* pr matches pseudo width + .5 rem to account for long l10n */

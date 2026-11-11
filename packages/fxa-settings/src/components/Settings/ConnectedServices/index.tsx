@@ -217,11 +217,11 @@ export const ConnectedServices = forwardRef<
       id="connected-services-section"
       {...{ ref }}
     >
-      <h2 className="font-header font-bold mobileLandscape:ms-6 ms-4 mb-4 relative">
+      <h2 className="font-header font-heading mobileLandscape:ms-6 ms-4 mb-4 relative">
         <span id="connected-services" className="nav-anchor"></span>
         <Localized id="cs-heading">Connected Services</Localized>
       </h2>
-      <div className="bg-white dark:bg-grey-700 tablet:rounded-xl shadow px-4 tablet:px-6 pt-7 pb-8">
+      <div className="bg-box tablet:rounded-xl nova:rounded-2xl nova:mx-4 nova:tablet:mx-0 shadow px-4 tablet:px-6 pt-7 pb-8">
         <div className="flex justify-between items-center gap-4 mb-4">
           <Localized id="cs-description">
             <p>Everything you are using and signed into.</p>
@@ -287,7 +287,7 @@ export const ConnectedServices = forwardRef<
 
         {showMobilePromo && (
           <>
-            <hr className="unit-row-hr mt-5 mx-0" />
+            <hr className="mt-5 mx-1 tablet:-mx-1 border-default nova:border-divider" />
             <div className="mt-5">
               <ConnectAnotherDevicePromo />
             </div>
@@ -313,7 +313,7 @@ export const ConnectedServices = forwardRef<
               <Localized id="cs-disconnect-sync-heading">
                 <h2
                   id="connected-services-sign-out-header"
-                  className="font-bold text-xl text-center mb-2"
+                  className="font-heading text-xl text-center mb-2"
                   data-testid="connected-services-modal-header"
                 >
                   Disconnect from Sync
@@ -453,7 +453,7 @@ export const ConnectedServices = forwardRef<
                 <Localized id="cs-disconnect-lost-advice-heading">
                   <h2
                     id="connected-services-advice-modal-header"
-                    className="font-bold text-xl text-center mb-2"
+                    className="font-heading text-xl text-center mb-2"
                     data-testid="connected-services-lost-device-modal-header"
                   >
                     Lost or stolen device disconnected
@@ -478,7 +478,7 @@ export const ConnectedServices = forwardRef<
                 <Localized id="cs-disconnect-suspicious-advice-heading">
                   <h2
                     id="connected-services-advice-modal-header"
-                    className="font-bold text-xl text-center mb-2"
+                    className="font-heading text-xl text-center mb-2"
                     data-testid="connected-services-suspicious-device-modal-header"
                   >
                     Suspicious device disconnected

@@ -5,14 +5,12 @@
 /* `@layer components` allows us to use classes like `mobileLandscape:drop-down-menu` */
 @layer components {
   .drop-down-menu {
-    @apply w-64 bg-white dark:bg-grey-700 text-black dark:text-grey-100 absolute shadow-md rounded-lg;
+    @apply w-64 bg-box text-black dark:text-grey-100 nova:text-default absolute shadow-md rounded-lg;
 
     &::before {
       content: '';
       @apply caret-top absolute -top-3;
-      .dark & {
-        border-bottom-color: #15141a;
-      }
+      border-bottom-color: var(--background-color-box);
 
       [dir='ltr'] & {
         @apply left-55;

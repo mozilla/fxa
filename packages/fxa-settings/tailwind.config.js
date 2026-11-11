@@ -45,8 +45,18 @@ config.theme.extend = {
     'button-active': 'var(--button-background-color-active)',
     // Divider and track fills.
     deemphasized: 'var(--border-color-deemphasized)',
+    overlay: 'var(--background-color-overlay)',
+    'nav-hover': 'var(--page-nav-button-background-color-hover)',
+    'nav-active': 'var(--page-nav-button-background-color-active)',
+    'nav-selected': 'var(--page-nav-button-background-color-selected)',
+    'icon-success': 'var(--icon-color-success)',
+    'icon-critical': 'var(--icon-color-critical)',
+    // Tints a surface toward its text color on hover: darker on light surfaces, lighter in dark mode. No Acorn token.
+    'hover-tint': 'color-mix(in srgb, currentColor 8%, transparent)',
   },
   textColor: {
+    // nova:-only
+    'nav-selected': 'var(--page-nav-button-text-color-selected)',
     default: 'var(--text-color)',
     deemphasized: 'var(--text-color-deemphasized)',
     disabled: 'var(--text-color-disabled)',
@@ -61,6 +71,8 @@ config.theme.extend = {
     'link-hover': 'var(--link-color-hover)',
   },
   borderColor: {
+    // nova:-only. Lighter than --border-color-deemphasized, per Figma's dividers.
+    divider: 'color-mix(in srgb, currentColor 12%, transparent)',
     default: 'var(--border-color)',
     interactive: 'var(--border-color-interactive)',
     // nova:-only

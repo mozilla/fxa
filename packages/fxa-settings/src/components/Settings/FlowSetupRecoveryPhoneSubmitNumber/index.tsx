@@ -80,7 +80,7 @@ export const FlowSetupRecoveryPhoneSubmitNumber = ({
       )}
       <BackupRecoveryPhoneImage />
       <FtlMsg id="flow-setup-phone-submit-number-heading">
-        <h2 className="font-bold text-xl">Verify your phone number</h2>
+        <h2 className="font-heading text-xl">Verify your phone number</h2>
       </FtlMsg>
       <FtlMsg id="flow-setup-phone-verify-number-instruction">
         <p className="text-base my-4">
@@ -107,7 +107,7 @@ export const FlowSetupRecoveryPhoneSubmitNumber = ({
         }}
       />
       <FtlMsg id="flow-setup-phone-submit-number-legal">
-        <p className="text-xs mt-6">
+        <p className="text-xs mt-6 nova:text-deemphasized">
           By providing your number, you agree to us storing it so we can text
           you for account verification only. Message and data rates may apply.
         </p>

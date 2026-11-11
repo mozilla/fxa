@@ -56,11 +56,11 @@ export const DataCollection = forwardRef<HTMLDivElement>((_, ref) => {
       id="data-collection-section"
       {...{ ref }}
     >
-      <h2 className="font-header font-bold mobileLandscape:ms-6 ms-4 mb-4 relative">
+      <h2 className="font-header font-heading mobileLandscape:ms-6 ms-4 mb-4 relative">
         <span id="data-collection" className="nav-anchor" />
         {localizedHeader}
       </h2>
-      <div className="bg-white dark:bg-grey-700 tablet:rounded-xl shadow">
+      <div className="bg-box tablet:rounded-xl nova:rounded-2xl nova:mx-4 nova:tablet:mx-0 shadow">
         <UnitRow
           header={ftlMsgResolver.getMsg(
             'dc-subheader-moz-accounts',
@@ -86,7 +86,7 @@ export const DataCollection = forwardRef<HTMLDivElement>((_, ref) => {
             </FtlMsg>{' '}
             <LinkExternal
               href="https://www.mozilla.org/privacy/mozilla-accounts/"
-              className="link-blue"
+              className="link-blue whitespace-nowrap"
               data-testid="link-external-telemetry-opt-out"
             >
               <FtlMsg id="dc-learn-more">Learn more</FtlMsg>
@@ -111,7 +111,7 @@ export const DataCollection = forwardRef<HTMLDivElement>((_, ref) => {
             </FtlMsg>{' '}
             <LinkExternal
               href="https://support.mozilla.org/kb/manage-firefox-data-collection-privacy-settings"
-              className="link-blue"
+              className="link-blue whitespace-nowrap"
               data-testid="link-external-firefox-telemetry"
             >
               <FtlMsg id="dc-learn-more">Learn more</FtlMsg>

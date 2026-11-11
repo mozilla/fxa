@@ -222,7 +222,7 @@ export const PageSecondaryEmailVerify = () => {
                 className={classNames(
                   'text-sm',
                   resendDisabled
-                    ? 'text-grey-300 cursor-not-allowed pointer-events-none'
+                    ? 'text-grey-300 nova:text-disabled cursor-not-allowed pointer-events-none'
                     : 'link-blue'
                 )}
                 data-testid="secondary-email-resend-code-button"

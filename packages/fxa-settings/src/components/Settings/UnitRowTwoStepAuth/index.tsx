@@ -279,7 +279,7 @@ const DisableTwoStepAuthModal = ({
       >
         <FtlMsg id="tfa-row-disable-modal-heading">
           <h2
-            className="font-bold text-xl text-center mb-2"
+            className="font-heading text-xl text-center mb-2"
             data-testid="disable-totp-modal-header"
           >
             Disable two-step authentication?

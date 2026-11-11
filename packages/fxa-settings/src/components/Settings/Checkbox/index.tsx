@@ -73,11 +73,15 @@ export const Checkbox = ({
               ? 'border-grey-300 text-grey-300'
               : `cursor-pointer ${
                   checked
-                    ? `border-blue-500 text-blue-500 ${
-                        focused ? 'shadow-input-blue-focus' : ''
+                    ? `border-blue-500 text-blue-500 nova:border-accent-primary nova:text-accent-primary ${
+                        focused
+                          ? 'shadow-input-blue-focus nova:shadow-none nova:focus-ring'
+                          : ''
                       }`
-                    : `border-grey-400 text-grey-400 dark:border-grey-200 dark:text-grey-200 ${
-                        focused ? 'shadow-input-grey-focus' : ''
+                    : `border-grey-400 text-grey-400 dark:border-grey-200 dark:text-grey-200 nova:border-interactive ${
+                        focused
+                          ? 'shadow-input-grey-focus nova:shadow-none nova:focus-ring'
+                          : ''
                       }`
                 }`
           }`}

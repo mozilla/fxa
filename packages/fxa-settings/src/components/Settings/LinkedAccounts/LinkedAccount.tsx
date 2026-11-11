@@ -110,13 +110,13 @@ export function LinkedAccount({
 
   return (
     <div
-      className="my-1"
+      className="my-1 nova:my-2"
       data-testid="settings-linked-account"
       data-name={providerId}
     >
-      <div className="p-4 border-2 border-solid border-grey-100 rounded flex mobileLandscape:justify-around items-center flex-col mobileLandscape:flex-row">
-        <div className="flex flex-grow w-full mobileLandscape:flex-2">
-          <span className="flex justify-center items-center flex-0">
+      <div className="p-4 border-2 border-solid border-grey-100 rounded flex mobileLandscape:justify-around items-center flex-col mobileLandscape:flex-row nova:border nova:border-deemphasized nova:rounded-xl nova:gap-4">
+        <div className="flex flex-grow w-full mobileLandscape:flex-2 nova:gap-4">
+          <span className="flex justify-center items-center flex-0 nova:w-10 nova:h-10 nova:shrink-0 nova:bg-canvas nova:rounded">
             {providerId === 1 && <GoogleIcon role="img" aria-label="Google" />}
             {providerId === 2 && <AppleIcon role="img" aria-label="Apple" />}
           </span>
@@ -133,7 +133,7 @@ export function LinkedAccount({
         <div className="flex flex-grow w-full mobileLandscape:justify-end mobileLandscape:flex-1">
           <Localized id="la-unlink-button">
             <button
-              className="cta-neutral cta-base cta-base-p disabled:cursor-wait whitespace-nowrap"
+              className="cta-neutral cta-base cta-base-p disabled:cursor-wait whitespace-nowrap nova:py-1.5"
               data-testid={`linked-account-unlink-${providerId}`}
               onClick={onUnlinkAccountClick}
             >
@@ -156,7 +156,7 @@ export function LinkedAccount({
           <Localized id="la-unlink-heading">
             <h2
               id="linked-account-unlink-header"
-              className="font-bold text-xl text-center mb-2"
+              className="font-heading text-xl text-center mb-2"
               data-testid="linked-account-modal-header"
             >
               Unlink from third party account

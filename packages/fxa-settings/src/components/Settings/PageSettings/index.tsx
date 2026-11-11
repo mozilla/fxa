@@ -238,7 +238,7 @@ export const PageSettings = ({
           <Localized id="delete-account-link">
             <Link
               data-testid="settings-delete-account"
-              className="cta-caution text-sm transition-standard mt-2 py-2 px-5 mobileLandscape:py-1"
+              className="cta-caution text-sm transition-standard mt-2 py-2 px-5 mobileLandscape:py-1 nova:py-2 nova:mobileLandscape:py-2"
               to={SETTINGS_PATH + '/delete_account'}
               onClick={() => GleanMetrics.deleteAccount.settingsSubmit()}
             >

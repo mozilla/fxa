@@ -51,13 +51,13 @@ export const FlowRecoveryKeyInfo = ({
       <RecoveryKeyImage />
       {action === RecoveryKeyAction.Create ? (
         <FtlMsg id="flow-recovery-key-info-header">
-          <h2 className="font-bold text-xl mb-4">
+          <h2 className="font-heading text-xl mb-4">
             Create an account recovery key in case you forget your password
           </h2>
         </FtlMsg>
       ) : (
         <FtlMsg id="flow-recovery-key-info-header-change-key">
-          <h2 className="font-bold text-xl mb-4">
+          <h2 className="font-heading text-xl mb-4">
             Change your account recovery key
           </h2>
         </FtlMsg>

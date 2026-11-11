@@ -136,7 +136,7 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
       )}
       <BackupRecoveryPhoneCodeImage />
       <FtlMsg id="flow-setup-phone-confirm-code-heading">
-        <h2 className="font-bold text-xl">Enter verification code</h2>
+        <h2 className="font-heading text-xl">Enter verification code</h2>
       </FtlMsg>
       <FtlMsg
         id="flow-setup-phone-confirm-code-instruction"

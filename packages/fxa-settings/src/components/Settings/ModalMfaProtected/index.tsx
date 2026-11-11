@@ -82,7 +82,7 @@ export const ModalMfaProtected = ({
         })}
       >
         <FtlMsg id="modal-mfa-protected-title">
-          <h2 id="modal-mfa-protected-title" className="font-bold text-xl">
+          <h2 id="modal-mfa-protected-title" className="font-heading text-xl">
             Enter confirmation code
           </h2>
         </FtlMsg>
@@ -162,7 +162,7 @@ export const ModalMfaProtected = ({
           </FtlMsg>
         </div>
       </form>
-      <div className="mt-7 text-grey-500 dark:text-grey-200 text-sm inline-flex gap-1">
+      <div className="mt-7 text-grey-500 dark:text-grey-200 nova:text-deemphasized text-sm inline-flex gap-1">
         <FtlMsg id="modal-mfa-protected-code-expired">
           <p>Code expired?</p>
         </FtlMsg>

@@ -117,7 +117,7 @@ const SubRow = ({
         'flex flex-col w-full max-w-full mt-4 px-4 py-3 @mobileLandscape/unitRow:rounded-lg border items-start text-sm gap-2',
         {
           'bg-grey-10 dark:bg-grey-700 border-transparent': !border,
-          'bg-white dark:bg-grey-700 border-grey-100 dark:border-grey-500':
+          'bg-box border-grey-100 dark:border-grey-500 nova:border-divider':
             border,
         }
       )}
@@ -191,7 +191,7 @@ const SubRow = ({
         )}
       </div>
       {localizedInfoMessage && (
-        <div className="flex w-full max-w-full mt-2 gap-2 bg-gradient-to-tr from-blue-600/10 to-purple-500/10 rounded-md py-2 px-4 items-center">
+        <div className="flex w-full max-w-full mt-2 gap-2 bg-gradient-to-tr from-blue-600/10 to-purple-500/10 nova:bg-none nova:bg-information rounded-md py-2 px-4 items-center">
           <LightbulbIcon className="shrink-0" />
           <p className="text-sm">
             {localizedInfoMessage}
@@ -481,7 +481,7 @@ const PasskeyDeleteModal = ({
       <FtlMsg id="passkey-delete-modal-heading">
         <h2
           id="passkey-delete-header"
-          className="font-bold text-xl mb-2 -mt-2 mx-4"
+          className="font-heading text-xl mb-2 -mt-2 mx-4"
         >
           Delete your passkey?
         </h2>
@@ -625,7 +625,7 @@ const PasskeyRenameModal = ({
         <FtlMsg id="passkey-rename-modal-heading">
           <h2
             id="passkey-rename-header"
-            className="font-bold text-xl mb-4 -mt-2 mx-4"
+            className="font-heading text-xl mb-4 -mt-2 mx-4"
           >
             Rename passkey
           </h2>
@@ -747,7 +747,7 @@ export const PasskeySubRow = ({ passkey }: PasskeySubRowProps) => {
           // dialog; the accessible name conveys the action.
           <button
             type="button"
-            className="group flex items-center gap-2 text-start rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+            className="group flex items-center gap-2 text-start rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
             onClick={revealRenameModal}
             data-testid="passkey-rename-button"
           >
@@ -756,7 +756,7 @@ export const PasskeySubRow = ({ passkey }: PasskeySubRowProps) => {
             </span>
             <EditIcon
               ariaHidden
-              className="w-4 h-4 shrink-0 text-grey-500 group-hover:text-grey-900"
+              className="w-4 h-4 shrink-0 text-grey-500 group-hover:text-grey-900 nova:text-deemphasized nova:group-hover:text-default"
             />
             <span className="sr-only">
               {ftlMsgResolver.getMsg(

@@ -79,7 +79,7 @@ export const ProductPromo = ({
   return (
     <aside
       className={classNames(
-        'bg-white dark:bg-grey-700 rounded-lg desktop:w-11/12 desktop:max-w-56 desktop:p-4 desktop:pb-6 text-grey-600 dark:text-grey-300 text-md desktop:text-sm text-start',
+        'bg-box rounded-lg nova:rounded-2xl nova:shadow desktop:w-11/12 desktop:max-w-56 desktop:p-4 desktop:pb-6 text-grey-600 dark:text-grey-300 nova:text-default text-md desktop:text-sm text-start',
         type === 'sidebar' &&
           'hidden desktop:block px-6 mt-4 desktop:mt-20 desktop:max-w-80 desktop:w-11/12',
         type === 'settings' && 'desktop:hidden px-5 py-3 mb-16'
@@ -88,7 +88,7 @@ export const ProductPromo = ({
       <div
         className={classNames(
           type === 'sidebar' &&
-            'border-2 border-grey-100 dark:border-grey-600 desktop:border-0 rounded-lg px-5 py-3 desktop:px-0 desktop:py-0'
+            'border-2 border-default nova:border-divider desktop:border-0 rounded-lg px-5 py-3 desktop:px-0 desktop:py-0'
         )}
       >
         <h2>
@@ -96,7 +96,7 @@ export const ProductPromo = ({
             <VpnTextLogo
               role="img"
               aria-label="Mozilla VPN"
-              className="w-52 desktop:w-40 h-auto text-black dark:text-white"
+              className="w-52 desktop:w-40 h-auto text-black dark:text-white nova:text-default"
             />
           </FtlMsg>
         </h2>

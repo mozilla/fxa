@@ -31,7 +31,7 @@ const PwdDate = ({ passwordCreated }: { passwordCreated: number }) => {
 
   return (
     <FtlMsg id="security-password-created-date" vars={{ date: pwdDateFluent }}>
-      <p className="text-grey-400 dark:text-grey-200 text-xs mobileLandscape:mt-3">
+      <p className="text-deemphasized text-xs mobileLandscape:mt-3">
         Created {pwdDateText}
       </p>
     </FtlMsg>
@@ -46,11 +46,11 @@ export const Security = forwardRef<HTMLDivElement>((_, ref) => {
 
   return (
     <section data-testid="settings-security" {...{ ref }} id="security-section">
-      <h2 className="font-header font-bold mobileLandscape:ms-6 ms-4 mb-4 relative">
+      <h2 className="font-header font-heading mobileLandscape:ms-6 ms-4 mb-4 relative">
         <span id="security" className="nav-anchor"></span>
         <Localized id="security-heading">Security</Localized>
       </h2>
-      <div className="bg-white dark:bg-grey-700 tablet:rounded-xl shadow">
+      <div className="bg-box tablet:rounded-xl nova:rounded-2xl nova:mx-4 nova:tablet:mx-0 shadow">
         <Localized id="security-password" attrs={{ header: true }}>
           <UnitRow
             header="Password"

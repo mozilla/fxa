@@ -158,7 +158,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
         <PasswordImage />
 
         <FtlMsg id="flow-recovery-key-confirm-pwd-heading-v2">
-          <h2 className="font-bold text-xl">
+          <h2 className="font-heading text-xl">
             Re-enter your password for security
           </h2>
         </FtlMsg>

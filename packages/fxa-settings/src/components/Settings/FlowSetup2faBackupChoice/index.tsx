@@ -73,7 +73,7 @@ export const FlowSetup2faBackupChoice = ({
           <>
             <legend>
               <FtlMsg id="flow-setup-2fa-backup-choice-heading">
-                <h2 className="font-bold text-xl my-2">
+                <h2 className="font-heading text-xl my-2">
                   Choose a recovery method
                 </h2>
               </FtlMsg>
