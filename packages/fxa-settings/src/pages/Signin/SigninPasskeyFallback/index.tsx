@@ -149,7 +149,7 @@ const SigninPasskeyFallback = ({
       )}
 
       <FtlMsg id="signin-passkey-fallback-header">
-        <p className="text-sm text-grey-500 mb-2">Finish sign in</p>
+        <p className="text-sm text-grey-500 nova:text-deemphasized mb-2">Finish sign in</p>
       </FtlMsg>
 
       <FtlMsg id="signin-passkey-fallback-heading">

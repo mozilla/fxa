@@ -94,7 +94,7 @@ const InlinePasswordlessSyncSetup = ({
         <FtlMsg id="inline-passwordless-sync-setup-not-now-button">
           <button
             type="button"
-            className="link-blue disabled:no-underline disabled:text-grey-500 dark:disabled:text-grey-300 disabled:cursor-wait"
+            className="link-blue disabled:no-underline disabled:text-grey-500 dark:disabled:text-grey-300 nova:disabled:text-disabled disabled:cursor-wait"
             onClick={onNotNow}
             disabled={isEnabling}
           >

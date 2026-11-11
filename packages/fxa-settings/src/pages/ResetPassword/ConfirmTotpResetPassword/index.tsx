@@ -49,7 +49,7 @@ const ConfirmTotpResetPassword = ({
         />
       )}
 
-      <h2 className="font-bold text-xl mb-4">
+      <h2 className="font-heading text-xl mb-4">
         <FtlMsg id="confirm-totp-reset-password-subheader-v2">
           Enter two-step authentication code
         </FtlMsg>

@@ -25,3 +25,30 @@
     @apply flex p-4 ps-6 z-10 hover:cursor-pointer;
   }
 }
+
+/* Nova: Acorn's choice button. :root outranks the dark: rules above. The input is
+ * an absolute overlay, so the border width changes without shifting layout. */
+:root[data-theme='nova'] .input-radio {
+  border-width: 1px;
+  border-color: var(--border-color-interactive);
+  border-radius: var(--border-radius-medium);
+  background-color: transparent;
+}
+
+:root[data-theme='nova'] .input-radio:hover {
+  border-color: var(--border-color-interactive);
+  background-color: var(--button-background-color-hover);
+}
+
+:root[data-theme='nova'] .input-radio:checked {
+  background-color: var(--button-background-color-selected);
+  background-image: none;
+  border-width: 2px;
+  border-color: var(--border-color-selected);
+}
+
+:root[data-theme='nova'] .input-radio:focus-visible {
+  box-shadow: none;
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+}

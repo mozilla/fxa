@@ -77,7 +77,7 @@ const Permissions = ({
                 <span className="text-sm font-semibold">{label}</span>
               </FtlMsg>
               {value && (
-                <span className="text-sm text-grey-400 break-all">{value}</span>
+                <span className="text-sm text-grey-400 nova:text-deemphasized break-all">{value}</span>
               )}
             </li>
           );

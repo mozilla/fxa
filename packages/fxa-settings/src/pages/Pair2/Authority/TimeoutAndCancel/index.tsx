@@ -116,7 +116,7 @@ const TimeoutAndCancel = ({
               data-glean-id={content.secondary.gleanId}
               // `py-2` keeps the tap target comfortable, so the margin is halved
               // to land on the 16px gap the design asks for.
-              className="mt-2 py-2 text-base text-grey-900 underline dark:text-grey-10"
+              className="mt-2 py-2 text-base text-default underline"
             >
               {content.secondary.label}
             </button>

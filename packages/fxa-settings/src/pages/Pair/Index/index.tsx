@@ -613,7 +613,7 @@ const Pair = ({
           <ButtonBack onClick={handleBackButton} />
           <h1
             id="cad-header"
-            className="text-grey-400 mb-0 tablet:mb-5 text-base inline-block align-top tablet:mt-0"
+            className="text-grey-400 nova:text-deemphasized mb-0 tablet:mb-5 text-base inline-block align-top tablet:mt-0"
           >
             <FtlMsg id="pair-cad-header-v2">Connect another device</FtlMsg>
           </h1>
@@ -733,7 +733,7 @@ const Pair = ({
         </FtlMsg>
       ) : (
         <div id="cad-header">
-          <h1 className="mb-5 text-grey-400 text-base">
+          <h1 className="mb-5 text-grey-400 nova:text-deemphasized text-base">
             <FtlMsg id="pair-cad-header-v2">Connect another device</FtlMsg>
           </h1>
           <FtlMsg id="pair-choice-subheader">
@@ -780,7 +780,7 @@ const Pair = ({
               <label className="input-radio-label" htmlFor="has-mobile">
                 <div className="pe-3">
                   <FtlMsg id="pair-choice-has-mobile-title">
-                    <strong className="block mb-2 text-base">
+                    <strong className="block mb-2 text-base font-heading">
                       I already have Firefox for mobile
                     </strong>
                   </FtlMsg>
@@ -813,7 +813,7 @@ const Pair = ({
               <label className="input-radio-label" htmlFor="needs-mobile">
                 <div className="pe-3">
                   <FtlMsg id="pair-choice-needs-mobile-title">
-                    <strong className="block mb-2 text-base">
+                    <strong className="block mb-2 text-base font-heading">
                       I don’t have Firefox for mobile
                     </strong>
                   </FtlMsg>

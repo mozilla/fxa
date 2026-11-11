@@ -26,7 +26,7 @@ const PairSuccess = ({ error }: PairSuccessProps) => {
         <p className="text-sm">Pairing was successful.</p>
       </FtlMsg>
       <FtlMsg id="pair-success-tab-close-message">
-        <p className="text-grey-400 text-xs mt-4">
+        <p className="text-grey-400 nova:text-deemphasized text-xs mt-4">
           This tab will be closed automatically by Firefox.
         </p>
       </FtlMsg>

@@ -99,6 +99,10 @@ export const AppLayout = ({
         className={classNames(
           'flex min-h-screen flex-col items-center dark:bg-grey-900',
           whiteBackground && 'bg-white',
+          // Transparent so the body background (bg-canvas) shows through; CMS backgrounds set their own.
+          !whiteBackground &&
+            !cmsBackgrounds?.defaultLayout &&
+            'nova:bg-transparent',
           cmsBackgrounds?.defaultLayout &&
             'mobileLandscape:[background:var(--cms-bg)]',
           splitLayout && 'mobileLandscape:relative'
@@ -185,7 +189,7 @@ export const AppLayout = ({
               </section>
             </main>
             {showFooter && (showLocaleToggle || showDarkModeToggle) && (
-              <footer className="w-full py-2 px-4 mobileLandscape:mx-8 mobileLandscape:pb-4 flex text-grey-400 dark:text-grey-300">
+              <footer className="w-full py-2 px-4 mobileLandscape:mx-8 mobileLandscape:pb-4 flex text-grey-400 dark:text-grey-300 nova:text-deemphasized">
                 {showLocaleToggle && (
                   <div className="w-full mobileLandscape:w-auto flex items-center mobileLandscape:ms-10">
                     <LocaleToggle />
@@ -222,7 +226,7 @@ export const AppLayout = ({
                   : undefined
               }
             />
-            <div className="mobileLandscape:items-center desktop:bg-white desktop:dark:bg-grey-800 desktop:ml-auto flex flex-col flex-1">
+            <div className="mobileLandscape:items-center desktop:bg-white desktop:nova:bg-box desktop:ml-auto flex flex-col flex-1">
               <main className="flex justify-center mobileLandscape:items-center flex-1">
                 {loading ? (
                   <section>
@@ -235,7 +239,7 @@ export const AppLayout = ({
                 )}
               </main>
               {showFooter && (
-                <footer className="w-full py-2 px-6 tablet:px-10 flex text-grey-400 dark:text-grey-300">
+                <footer className="w-full py-2 px-6 tablet:px-10 flex text-grey-400 dark:text-grey-300 nova:text-deemphasized">
                   {showLocaleToggle && (
                     <div className="w-full mobileLandscape:w-auto flex items-center">
                       <LocaleToggle />

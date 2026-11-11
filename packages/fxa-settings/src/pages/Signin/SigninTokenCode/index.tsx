@@ -312,7 +312,7 @@ const SigninTokenCode = ({
         }}
       />
 
-      <div className="animate-delayed-fade-in opacity-0 mt-5 text-grey-500 text-xs inline-flex gap-1">
+      <div className="animate-delayed-fade-in opacity-0 mt-5 text-grey-500 nova:text-deemphasized text-xs inline-flex gap-1">
         <FtlMsg id="signin-token-code-code-expired">
           <p>Code expired?</p>
         </FtlMsg>

@@ -109,7 +109,7 @@ const PairUnsupported = ({ error }: PairUnsupportedProps) => {
               Oops! It looks like you’re not using Firefox.
             </h2>
           </FtlMsg>
-          <div className="flex bg-orange-50 dark:bg-orange-900/30 px-4 py-3 mt-6 rounded-lg mb-4">
+          <div className="flex bg-orange-50 dark:bg-orange-900/30 nova:bg-warning px-4 py-3 mt-6 rounded-lg mb-4">
             <div
               className="bg-icon-warning bg-contain bg-center bg-no-repeat w-6"
               aria-label="Attention:"
@@ -161,7 +161,7 @@ const PairUnsupported = ({ error }: PairUnsupportedProps) => {
             // Inline orange "Oops! not using Firefox" banner for mobile
             // non-Firefox users. Firefox mobile users skip this and go
             // straight to the "Connecting your mobile device" instructions.
-            <div className="flex bg-orange-50 dark:bg-orange-900/30 px-4 py-3 rounded-lg mb-8">
+            <div className="flex bg-orange-50 dark:bg-orange-900/30 nova:bg-warning px-4 py-3 rounded-lg mb-8">
               <div
                 className="bg-icon-warning bg-contain bg-center bg-no-repeat w-10"
                 aria-label="Attention:"

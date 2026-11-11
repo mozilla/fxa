@@ -30,12 +30,12 @@ export const DarkModeToggle: React.FC = () => {
   const darkLabel = ftlMsgResolver.getMsg('dark-mode-toggle-dark', 'Dark');
 
   return (
-    <div className="bg-grey-10 dark:bg-grey-600 p-1 tablet:bg-transparent dark:tablet:bg-transparent tablet:p-0 rounded-md border border-grey-50 dark:border-grey-500 tablet:border-none dark:tablet:border-none">
+    <div className="bg-grey-10 dark:bg-grey-600 nova:bg-canvas p-1 tablet:bg-transparent dark:tablet:bg-transparent tablet:nova:bg-transparent tablet:p-0 rounded-md border border-grey-50 dark:border-grey-500 tablet:border-none dark:tablet:border-none">
       <select
         id="theme-select"
         value={themePreference}
         onChange={handleChange}
-        className="text-xs text-grey-500 dark:text-grey-200 hover:text-grey-600 dark:hover:text-grey-100 p-1 focus:outline-2 focus:outline-offset-1 focus:outline-focus focus:text-grey-600 bg-transparent border-0 cursor-pointer appearance-none min-w-[8ch] w-auto"
+        className="text-xs text-grey-500 dark:text-grey-200 hover:text-grey-600 dark:hover:text-grey-100 nova:text-deemphasized nova:hover:text-default nova:focus:text-default p-1 focus:outline-2 focus:outline-offset-1 focus:outline-focus focus:text-grey-600 bg-transparent border-0 cursor-pointer appearance-none min-w-[8ch] w-auto"
         data-testid="dark-mode-toggle"
         aria-label={selectLabel}
       >

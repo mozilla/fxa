@@ -247,7 +247,7 @@ export const Index = ({
       </form>
 
       {isSync && (
-        <p className="mt-5 text-xs text-grey-500">
+        <p className="mt-5 text-xs text-grey-500 nova:text-deemphasized">
           <FtlMsg id="index-account-info">
             A Mozilla account also unlocks access to more privacy-protecting
             products from Mozilla.

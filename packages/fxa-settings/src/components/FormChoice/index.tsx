@@ -75,7 +75,7 @@ const FormChoice = ({
             >
               {startAlignImage && <div>{choice.image}</div>}
               <div className={startAlignImage ? 'ps-6' : 'pe-6'}>
-                <strong className="block mb-1 text-base">
+                <strong className="block mb-1 text-base font-heading">
                   {choice.localizedChoiceTitle}
                 </strong>
                 {choice.localizedChoiceBadge && (

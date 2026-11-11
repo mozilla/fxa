@@ -37,7 +37,7 @@ const ChooseNewsletters = ({
   return (
     <>
       <FtlMsg id="choose-newsletters-prompt-2">
-        <h2 className="text-start text-base mb-4 font-bold">
+        <h2 className="text-start text-base mb-4 font-heading">
           Get more from Mozilla:
         </h2>
       </FtlMsg>

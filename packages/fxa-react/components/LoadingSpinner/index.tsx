@@ -47,7 +47,7 @@ export const LoadingSpinner = ({
     default:
       spinnerImage = (
         <Spinner
-          className={imageClassName}
+          className={classNames(imageClassName, 'loading-spinner-blue')}
           role="img"
           aria-label={loadingAriaLabel}
           data-testid="loading-spinner-blue"
@@ -60,7 +60,7 @@ export const LoadingSpinner = ({
       className={classNames(
         className,
         fullScreen &&
-          'bg-grey-20 dark:bg-grey-900 flex items-center flex-col justify-center h-screen select-none'
+          'dark:bg-grey-900 flex items-center flex-col justify-center h-screen select-none'
       )}
       data-testid="loading-spinner"
     >

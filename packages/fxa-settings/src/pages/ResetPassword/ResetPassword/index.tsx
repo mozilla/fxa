@@ -133,7 +133,7 @@ const ResetPassword = ({
         id="password-reset-data-recovery-warning"
         elems={{ learnMoreLink }}
       >
-        <p className="text-xs text-grey-500">
+        <p className="text-xs text-grey-500 nova:text-deemphasized">
           Resetting your password may affect whether you can recover synced
           browser data. {learnMoreLink}
         </p>

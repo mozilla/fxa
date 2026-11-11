@@ -31,7 +31,7 @@ export const InlineRecoveryKeySetupDownload = ({
 }: RecoveryKeySetupDownloadProps) => {
   return (
     <>
-      <div className="rounded p-2 text-sm border-2 border-grey-100">
+      <div className="rounded p-2 text-sm border-2 border-grey-100 nova:border nova:border-deemphasized nova:rounded-xl">
         <DataBlockInline
           value={recoveryKeyValue}
           onAction={() =>

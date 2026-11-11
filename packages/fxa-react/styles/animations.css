@@ -15,3 +15,30 @@
     @apply transition duration-150;
   }
 }
+
+/* Nova: 200ms on the shared button transition. Acorn has no motion token; this
+ * value is ours and stays after the flag is removed. */
+[data-theme='nova'] .transition-standard {
+  transition-duration: 200ms;
+}
+
+/* Nova: LoadingSpinner's blue is baked into the SVG; CSS beats its presentation attributes. */
+[data-theme='nova'] .loading-spinner-blue stop {
+  stop-color: var(--color-accent-primary);
+}
+
+[data-theme='nova'] .loading-spinner-blue path[mask] {
+  fill: var(--color-accent-primary);
+}
+
+/* Nova: Acorn's reduced-motion reset, plus animation-* because we have keyframe
+ * spinners. 0.01ms rather than 0 so transitionend/animationend still fire. */
+@media (prefers-reduced-motion: reduce) {
+  [data-theme='nova'] *,
+  [data-theme='nova'] *::before,
+  [data-theme='nova'] *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

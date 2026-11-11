@@ -62,7 +62,7 @@ export const InlineRecoveryKeySetupCreate = ({
 
       <RecoveryKeyImage />
 
-      <h2 className="font-bold text-xl mb-5">
+      <h2 className="font-heading text-xl mb-5">
         <FtlMsg id="inline-recovery-key-setup-create-subheader">
           Got a minute to protect your data?
         </FtlMsg>

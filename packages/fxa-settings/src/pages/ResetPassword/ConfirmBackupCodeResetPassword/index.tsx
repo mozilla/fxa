@@ -58,7 +58,7 @@ const ConfirmBackupCodeResetPassword = ({
         illustrationsTheme={cmsInfo?.shared?.illustrationsTheme}
       />
 
-      <h2 className="font-bold text-xl">
+      <h2 className="font-heading text-xl">
         <FtlMsg id="confirm-backup-code-reset-password-subheader">
           Enter backup authentication code
         </FtlMsg>

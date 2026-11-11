@@ -82,8 +82,17 @@ otherwise record it under Gaps.
 | `text-input` | `--input-text-color` |
 | `opacity-button-disabled` | `--button-opacity-disabled` |
 | `border-input-disabled` | `--input-border-color-disabled` |
+| `border-deemphasized` | `--border-color-deemphasized` |
+| `bg-deemphasized` (divider and track fills) | `--border-color-deemphasized` |
+| `text-icon-critical`, `-information`, `-success`, `-warning` | `--icon-color-*` (status icons) |
+| `text-link-hover` | `--link-color-hover` |
 | `opacity-input-disabled` | `--input-opacity-disabled` |
 | `focus-ring` (component class) | `--focus-outline`, `--focus-outline-offset`; add `outline-error` to recolor |
+
+Under Nova, the progress bar fill, `.input-radio` borders and `focus-visible-default` use
+the accent (`bg-accent-primary`, `--color-accent-primary`, `--border-color-selected`,
+`--focus-outline-color`). `--border-color-deemphasized` mixes `currentColor`, so the
+progress element sets `nova:text-default` to keep its track neutral.
 
 Where an Acorn component token aliases an existing utility, use that utility:
 `--input-border-color` is `border-interactive`, `--input-border-radius` is `rounded-xl`,
@@ -128,46 +137,113 @@ Only the exact pairs below map; anything else is unmapped, so decide per case (s
 
 Kept on primitives until design decides, unless noted.
 
-- **Deemphasized text with other shades.** `text-grey-500 dark:text-grey-200` (InputPassword,
-  LocaleToggle, DarkModeToggle, AlternativeAuthOptions, GetDataTrio, TermsPrivacyAgreement,
-  ResetPasswordWarning, AppErrorDialog), `text-grey-600 dark:text-grey-200` (IconListItem
-  variants, GetDataTrio) and `text-grey-400 dark:text-grey-300` (Footer, AppLayout,
-  OAuthDataError, AppErrorDialog). `text-deemphasized` takes the most common pair repo-wide;
-  collapsing the others onto it shifts their color.
-- **Default text with another dark shade.** `text-grey-900 dark:text-grey-100` (InputText
-  label, PromoQrMobile, AppErrorDialog), `text-grey-900 dark:text-white` (PromoQrMobile),
-  `text-black dark:text-grey-10`/`-100` (DataBlock, DataBlockInline, promo banners).
-- **No dark variant today.** Neutral colors without a `dark:` pair (Banner `text-grey-700`,
-  PairUnsupportedHint, RecoveryKeySetupDownload, InputPhoneNumber borders, AlternativeAuthOptions
-  dividers). A semantic token would change dark mode.
+- **Deemphasized text with other shades.** `text-grey-500 dark:text-grey-200`,
+  `text-grey-600 dark:text-grey-200` and `text-grey-400 dark:text-grey-300` don't match
+  `text-deemphasized` flag-off. Under Nova they collapse onto it (`nova:text-deemphasized`) in
+  InputPassword, LocaleToggle, DarkModeToggle, GetDataTrio's close button, ResetPasswordWarning,
+  IconListItem and OAuthDataError. Remaining: GetDataTrio's action buttons (their blue hover
+  would be lost; design call with the gradients), Footer and AppErrorDialog (admin-panel).
+- **Default text with another dark shade.** `text-grey-900 dark:text-grey-100`/`dark:text-white`
+  and `text-black dark:text-grey-10` collapse onto `nova:text-default` in the InputText label,
+  PromoQrMobile, DataBlock and DataBlockInline. Remaining: AppErrorDialog (admin-panel) and the
+  promo banners.
+- **No dark variant today.** A semantic token would change flag-off dark mode, so these use
+  `nova:` only: PairUnsupportedHint (`border-default`, `bg-box`), RecoveryKeySetupDownload
+  (`border-default`), InputPhoneNumber (`border-interactive`). Banner `text-grey-700` is covered
+  by the status-text decision below.
 - **Status text.** Nova has no success/warning/info text color. Decision: text on Nova status
   backgrounds uses `nova:text-default`; flag-off keeps the primitive (Banner `text-grey-700`,
   FormChoice `text-blue-900`).
 - **Text on fills.** No token for `text-white` on fills (Tooltip on `bg-grey-500`/`bg-red-600`).
-- **Interactive states and fills.** Hover/active/disabled fills and borders (BoxButton,
-  Banner close button, GetDataTrio, InputCheckboxBlue), toggle containers
-  (`bg-grey-10 dark:bg-grey-600`), the blue-to-purple gradients and dimmed fills
+- **Interactive states and fills.** Under Nova, the LocaleToggle and DarkModeToggle containers
+  (`bg-grey-10 dark:bg-grey-600`) use `bg-canvas`, and GetDataTrio's close button uses
+  `bg-button-hover`/`-active`, as does the Banner close button now that the Nova banner body
+  is neutral. Remaining: InputCheckboxBlue, the blue-to-purple gradients and dimmed fills
   (`bg-grey-10 dark:bg-grey-800`). Acorn's `tokens.css` has no `--background-color-dimmed*`.
 - **`bg-accent-primary`.** Acorn's value is `--color-accent-primary`, a `--color-*` name we
   can't redefine for flag-off, so it exists only as a `nova:`-only utility. Flag-off use needs
   an FxA-side name.
-- **`bg-overlay`, `border-deemphasized`.** Acorn has the tokens; add each with the first usage,
-  which sets its flag-off value.
-- **InputText border.** `border-grey-200 dark:border-grey-600` matches `border-interactive`,
-  but stays on primitives next to the error and focus borders, which have no flag-off token.
 - **ButtonBack.** Its `dark:text-grey-200` beats the `tablet:text-*` prop colors in dark mode;
   one semantic class would not.
 - **Intentional.** QR code backgrounds stay white in both themes (QRCode, PromoQrMobile) so
   they scan. ThirdPartyAuth's `forced-colors:` fills are for Windows high contrast.
-- **`bg-grey-20`** (AppErrorDialog, LoadingSpinner) isn't in the palette, so it generates no
+- **`bg-grey-20`** (remaining: AppErrorDialog) isn't in the palette, so it generates no
   CSS and the body color shows through.
-- **Dark-mode tooltip and banner colors:** designer is reworking these; Tooltip keeps
+- **Dark-mode tooltip colors:** designer is reworking these; Tooltip keeps
   `bg-red-600`/`bg-grey-500` for now.
-- **Primary CTA radius:** designer wants `--border-radius-circle` like BoxButton; apply in
-  `ctas.css` together with the button height/padding follow-up where it becomes visible.
-- **`grey-800`** is not in the palette; the 6 `bg/text-grey-800` uses are dead classes (InputText
-  disabled dark bg among them), clean up in the surface tickets.
+- **Button radius:** CTAs and BoxButton use `--border-radius-circle` (design decision). Switch
+  to a button-specific Acorn size (`xxlarge`) if Acorn adds one.
+- **`grey-800`** is not in the palette; its uses are dead classes (remaining: InputText
+  disabled dark bg, AppErrorDialog).
 - **admin-panel components.** Footer, Header and AppErrorDialog stay on primitives (see above).
+
+#### Auth pages (`fxa-settings/src/pages`, AppLayout, AlternativeAuthOptions, TermsPrivacyAgreement)
+
+- **Collapsed under `nova:` only** (flag-off unchanged):
+  - `text-deemphasized` for `text-grey-400`/`-500` with no dark variant (Index,
+    ResetPassword, SigninBounced, SigninTokenCode, SigninPasswordlessCode,
+    SigninPasskeyFallback, ConfirmSignupCode, Permissions, Pair/Index, Pair/Success), for
+    `text-grey-400 dark:text-grey-300` (AppLayout footer) and for `text-grey-500
+    dark:text-grey-200` (AlternativeAuthOptions "or").
+  - `text-disabled` for `disabled:text-grey-500 dark:disabled:text-grey-300`
+    (InlinePasswordlessSyncSetup).
+  - `border-default text-default` for `border-grey-100 text-grey-900 dark:border-grey-500
+    dark:text-grey-300` (Pair2 ApproveSignIn ×2, ConnectThisDevice).
+  - `bg-warning` for `bg-orange-50 dark:bg-orange-900/30` (Pair/Unsupported).
+  - `bg-box` for the split layout panel (`desktop:bg-white`, no working dark value).
+  - AppLayout root goes transparent so the body's `bg-canvas` shows, except with
+    `whiteBackground` or a CMS background.
+- **Per Figma:** TermsPrivacyAgreement text is `text-default`. The AlternativeAuthOptions
+  divider lines become a `border-deemphasized` top border and the "or" label is regular weight.
+- **Message bar (Banner, ResetPasswordWarning):** under Nova the body is `bg-box` with a
+  `border-deemphasized` 12px-radius border and the status tint moves to a start-edge strip
+  (a `::before`, so the markup is unchanged); the icon sits in the strip and text is
+  start-aligned. Status icons use `text-icon-*`. The fancy info variant is a plain info bar
+  under Nova: no gradient, and its baked-in blue icon is swapped for the currentColor one.
+  Remaining (icons are on hold): Banner's status icons are 24px against Figma's 16px, and
+  ResetPasswordWarning's warning icon has a hardcoded fill, so it keeps its orange.
+- **Choice cards (`.input-radio`):** resting 1px `border-interactive` on a transparent fill,
+  hover `--button-background-color-hover` with the same border, checked
+  `--button-background-color-selected` with a 2px `--border-color-selected` border (no
+  gradient), 12px radius, Nova focus outline instead of the blue shadow. The input is an
+  absolute overlay, so the width change doesn't shift layout. No check mark: design chose
+  the border and fill alone as the selected cue.
+- **Gradients:** Nova has none. DataBlock and DataBlockInline use `bg-information` under Nova;
+  GetDataTrio's hover/active/focus fills use `bg-button-hover`/`-active`.
+- **Card surface:** `.card` uses `bg-box` and `--box-shadow-level-2` from `mobileLandscape` up.
+  Its `dark:bg-grey-700` maps to Acorn's near-black gray-100 under the flag, darker than the
+  page; Figma's dark card (#252428) is `bg-box`.
+- **Progress bar:** track `bg-deemphasized`, fill accent.
+- **Weights:** headings that used `font-bold` use `font-heading` (semibold under Nova, bold
+  off). Under Nova, `cta-xl` buttons are semibold (`--button-font-weight`) and BoxButton
+  labels are `nova:font-semibold`. BoxButton's border is `nova:border-deemphasized` (Figma's
+  lighter grey), with the accent hover/active border kept.
+- **Spinners:** LoadingSpinner's blue SVG (baked-in fills) is recolored to the accent by a
+  Nova rule on `.loading-spinner-blue`; BoxButton's loading arrow is `nova:text-accent-primary`.
+- **Focus and links:** InputPhoneNumber's select uses InputText's Nova focus
+  (`border-accent-primary`, `focus-ring`); BrandMessaging's and GetDataTrio's link-like hovers
+  are `text-link-hover`. CmsButtonWithFallback's gradient buttons set a blue focus outline
+  inline, so a Nova rule recolors it to `--focus-outline-color`.
+- **Reduced motion:** under Nova, `prefers-reduced-motion` collapses transitions and animations,
+  matching Acorn.
+- **Transitions:** `transition-standard` is 200ms under Nova (150ms flag-off); our value, Acorn
+  has no motion token.
+- **RecoveryKeySetupDownload:** the key box is a 1px `border-deemphasized` with the 12px input
+  radius under Nova.
+- **ButtonBack:** `nova:rounded-full`, so its hover/focus shape is a circle. Follow-up: move
+  the back arrow inside the card, as Figma shows.
+- **Dead classes removed:** LoadingSpinner `bg-grey-20`, AppLayout `desktop:dark:bg-grey-800`.
+  Flag-off dark mode shows the split layout panel white, as before; that pre-existing bug is
+  out of scope here.
+- **Left on primitives:**
+  - Design input: AccountRecoveryConfirmKey hint box (`bg-grey-50` in both themes; no
+    dimmed token, and deemphasized text on it would fail contrast in dark), the
+    `whiteBackground` AppLayout root (white light / grey-900 dark has no token), Pair2
+    ScanQR link (`hover:text-grey-700`, no dark), FirefoxWordmark `text-black
+    dark:text-white` (illustration, on hold).
+  - `link-*` classes and `dark:invert` on the Mozilla logo are unchanged.
+- **No Figma frame:** every page except Index, Signin, Signup, SigninRecoveryChoice,
+  ResetPassword and ConfirmResetPassword. Those got the mechanical swap only.
 
 ## Opacity
 
@@ -186,7 +262,10 @@ Acorn's disabled button token.
 classes under `[data-theme="nova"]` with Acorn's `--button-*` and `--link-*` tokens:
 `cta-primary` → primary, `cta-caution` → destructive, `cta-neutral` → the default
 (accent outline) button, `link-blue` and `link-grey` → `--link-color`. `link-dark-grey`
-and `link-white` are unchanged. These files load only in Settings, so `legacy.css` needs
+and `link-white` are unchanged. CTAs use the circle radius. `cta-xl` takes
+`--space-large` block padding (58px tall, near Figma's 56px; Acorn's large button is 40px).
+`cta-base-p` takes `--button-padding-block-large` (42px tall with `text-base` against
+Figma's 40px; there is no 7px token). These files load only in Settings, so `legacy.css` needs
 no values for them.
 
 ## Maintenance

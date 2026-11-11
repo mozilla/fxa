@@ -25,7 +25,10 @@ const BoxButton = ({
   ...rest
 }: BoxButtonProps) => {
   const resolvedTrailingIcon = isLoading ? (
-    <LoadingArrowIcon className="w-5 h-5 animate-spin-slow" ariaHidden />
+    <LoadingArrowIcon
+      className="w-5 h-5 animate-spin-slow nova:text-accent-primary"
+      ariaHidden
+    />
   ) : (
     (trailingIcon ?? (
       <ChevronRightIcon
@@ -52,11 +55,11 @@ const BoxButton = ({
         disabled:hover:bg-grey-50 disabled:hover:border-grey-100
         dark:disabled:hover:bg-grey-700 dark:disabled:hover:border-grey-600
         focus-visible-default outline-offset-2
-        nova:rounded-full nova:bg-transparent nova:border-default
+        nova:rounded-full nova:font-semibold nova:bg-transparent nova:border-deemphasized
         nova:hover:bg-button-hover nova:hover:border-button-hover
         nova:active:bg-button-active nova:active:border-button-active
-        nova:disabled:bg-transparent nova:disabled:border-default nova:disabled:text-default
-        nova:disabled:hover:bg-transparent nova:disabled:hover:border-default
+        nova:disabled:bg-transparent nova:disabled:border-deemphasized nova:disabled:text-default
+        nova:disabled:hover:bg-transparent nova:disabled:hover:border-deemphasized
         nova:disabled:opacity-button-disabled
         ${className ?? ''}`}
       {...rest}
