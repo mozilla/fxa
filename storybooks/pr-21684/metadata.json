@@ -1,0 +1,10 @@
+{
+  "commit": "89c48a9bbae90fd78eef76222dc079714aea8c4e",
+  "summary": "Merge main into fxa-14791",
+  "description": "",
+  "timestamp": 1794399466000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
