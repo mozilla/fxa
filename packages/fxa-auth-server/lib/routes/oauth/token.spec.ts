@@ -812,6 +812,99 @@ describe('token exchange grant_type', () => {
       expect(getRefreshToken).not.toHaveBeenCalled();
     });
   });
+
+  describe('refresh_token grant scope expansion', () => {
+    function refreshRoutes(tokenScope: string, getScope: jest.Mock) {
+      resetAndMockDeps();
+      jest.doMock('../../oauth/client', () => ({
+        ...tokenRoutesDepMocks['../../oauth/client'],
+        authenticateClient: (_: any, params: any) => ({
+          id: buf(params.client_id),
+          trusted: true,
+          publicClient: true,
+          allowedScopes: `profile:write ${OAUTH_SCOPE_OLD_SYNC}`,
+        }),
+      }));
+      return require('./token')({
+        ...tokenRoutesArgMocks,
+        oauthDB: {
+          ...tokenRoutesArgMocks.oauthDB,
+          async getRefreshToken() {
+            return {
+              userId: buf(UID),
+              clientId: buf(CLIENT_ID),
+              scope: ScopeSet.fromString(tokenScope),
+            };
+          },
+          getScope,
+        },
+      });
+    }
+
+    function refreshRequest(scope: string) {
+      return {
+        app: {},
+        headers: {},
+        payload: {
+          grant_type: 'refresh_token',
+          client_id: CLIENT_ID,
+          refresh_token: REFRESH_TOKEN,
+          scope: ScopeSet.fromString(scope),
+        },
+        emitMetricsEvent: () => {},
+      };
+    }
+
+    it('rejects expansion to a keyed scope', async () => {
+      const getScope = jest.fn().mockResolvedValue({ hasScopedKeys: true });
+      const routes = refreshRoutes('profile', getScope);
+
+      await expect(
+        routes[0].config.handler(
+          refreshRequest(`profile ${OAUTH_SCOPE_OLD_SYNC}`)
+        )
+      ).rejects.toMatchObject({ errno: 114 });
+      expect(getScope).toHaveBeenCalledWith(OAUTH_SCOPE_OLD_SYNC);
+    });
+
+    it('rejects expansion to a sub-scope of a keyed allowed scope', async () => {
+      const getScope = jest.fn(async (scope: string) =>
+        scope === OAUTH_SCOPE_OLD_SYNC ? { hasScopedKeys: true } : null
+      );
+      const routes = refreshRoutes('profile', getScope);
+
+      await expect(
+        routes[0].config.handler(
+          refreshRequest(`profile ${OAUTH_SCOPE_OLD_SYNC}/bookmarks`)
+        )
+      ).rejects.toMatchObject({ errno: 114 });
+      expect(getScope).toHaveBeenCalledWith(OAUTH_SCOPE_OLD_SYNC);
+    });
+
+    it('refreshes a keyed scope the token already holds', async () => {
+      const getScope = jest.fn();
+      const routes = refreshRoutes(`profile ${OAUTH_SCOPE_OLD_SYNC}`, getScope);
+
+      const result = await routes[0].config.handler(
+        refreshRequest(OAUTH_SCOPE_OLD_SYNC)
+      );
+
+      expect(result.scope.toString()).toBe(OAUTH_SCOPE_OLD_SYNC);
+      expect(getScope).not.toHaveBeenCalled();
+    });
+
+    it('allows trusted expansion to a non-keyed allowed scope', async () => {
+      const getScope = jest.fn().mockResolvedValue(null);
+      const routes = refreshRoutes('email', getScope);
+
+      const result = await routes[0].config.handler(
+        refreshRequest('email profile:write')
+      );
+
+      expect(result.scope.toString()).toBe('email profile:write');
+      expect(getScope).toHaveBeenCalledWith('profile:write');
+    });
+  });
 });
 
 describe('/oauth/token POST', () => {
