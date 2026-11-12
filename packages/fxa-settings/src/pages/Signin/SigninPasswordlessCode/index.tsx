@@ -629,7 +629,7 @@ const SigninPasswordlessCode = ({
         }}
       />
 
-      <div className="mt-6 text-grey-500 text-sm inline-flex gap-1">
+      <div className="mt-6 text-grey-500 nova:text-deemphasized text-sm inline-flex gap-1">
         <FtlMsg id="signin-passwordless-code-expired">
           <p>Code expired?</p>
         </FtlMsg>

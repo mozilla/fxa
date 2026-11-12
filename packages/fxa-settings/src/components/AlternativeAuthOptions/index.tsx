@@ -55,13 +55,13 @@ const AlternativeAuthOptions = ({
             errorBanner ? 'mb-0' : 'mb-6'
           }`}
         >
-          <div className="flex-1 h-px bg-grey-300 divide-x"></div>
+          <div className="flex-1 h-px bg-grey-300 nova:bg-transparent nova:border-t nova:border-deemphasized divide-x"></div>
           <FtlMsg id="third-party-auth-options-or">
-            <div className="mx-4 text-base text-grey-500 dark:text-grey-200 font-extralight">
+            <div className="mx-4 text-base text-grey-500 dark:text-grey-200 font-extralight nova:text-deemphasized nova:font-normal">
               or
             </div>
           </FtlMsg>
-          <div className="flex-1 h-px bg-grey-300 divide-x"></div>
+          <div className="flex-1 h-px bg-grey-300 nova:bg-transparent nova:border-t nova:border-deemphasized divide-x"></div>
         </div>
       )}
 

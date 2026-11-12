@@ -43,7 +43,7 @@ export const FolderIconListItem = ({
 }: Omit<IconListItemProps, 'icon'>) => {
   return (
     <IconListItem
-      spanClassNames="text-grey-600 dark:text-grey-200"
+      spanClassNames="text-grey-600 dark:text-grey-200 nova:text-deemphasized"
       icon={<IconFolder className="w-4 h-4 items-center justify-center" />}
       {...{ listItemClassnames }}
     >
@@ -59,7 +59,7 @@ export const GlobeIconListItem = ({
   return (
     <IconListItem
       {...{ listItemClassnames }}
-      spanClassNames="text-grey-600 dark:text-grey-200"
+      spanClassNames="text-grey-600 dark:text-grey-200 nova:text-deemphasized"
       icon={<IconGlobe className="w-4 h-4 items-center justify-center" />}
     >
       {children}
@@ -87,7 +87,7 @@ export const LockIconListItem = ({
 }: Omit<IconListItemProps, 'icon'>) => {
   return (
     <IconListItem
-      spanClassNames="text-grey-600 dark:text-grey-200"
+      spanClassNames="text-grey-600 dark:text-grey-200 nova:text-deemphasized"
       icon={<IconLock className="w-4 h-4 items-center justify-center" />}
       {...{ listItemClassnames }}
     >
@@ -102,7 +102,7 @@ export const PrinterIconListItem = ({
 }: Omit<IconListItemProps, 'icon'>) => {
   return (
     <IconListItem
-      spanClassNames="text-grey-600 dark:text-grey-200"
+      spanClassNames="text-grey-600 dark:text-grey-200 nova:text-deemphasized"
       icon={<IconPrinter className="w-4 h-4 items-center justify-center" />}
       {...{ listItemClassnames }}
     >

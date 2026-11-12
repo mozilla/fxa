@@ -14,8 +14,7 @@
 @import './brand-banner.css';
 
 body {
-  @apply text-base font-body bg-grey-10 text-grey-900;
-  @apply dark:bg-grey-900 dark:text-grey-10;
+  @apply text-base font-body bg-canvas text-default;
   /* Prevent content from rendering under the status bar/notch on devices with display cutouts */
   padding-top: env(safe-area-inset-top);
 }
@@ -37,13 +36,13 @@ progress {
   border: none;
   border-radius: 10px;
   /* for IE10 and up */
-  @apply text-blue-400;
-  @apply bg-grey-100 dark:bg-grey-600;
+  @apply text-blue-400 nova:text-default;
+  @apply bg-grey-100 dark:bg-grey-600 nova:bg-deemphasized;
 }
 
 progress::-webkit-progress-bar {
   border-radius: 10px;
-  @apply bg-grey-100 dark:bg-grey-600;
+  @apply bg-grey-100 dark:bg-grey-600 nova:bg-deemphasized;
 }
 progress::-webkit-progress-inner-element {
   border-radius: 10px;
@@ -51,13 +50,13 @@ progress::-webkit-progress-inner-element {
 
 progress::-webkit-progress-value {
   border-radius: 10px;
-  @apply bg-blue-400;
+  @apply bg-blue-400 nova:bg-accent-primary;
 }
 
 progress[value]::-moz-progress-bar {
   border-radius: 10px;
   border-radius: 10px;
-  @apply bg-blue-400;
+  @apply bg-blue-400 nova:bg-accent-primary;
 }
 
 @layer utilities {

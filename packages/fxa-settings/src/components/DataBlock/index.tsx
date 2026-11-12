@@ -99,7 +99,7 @@ export const DataBlock = ({
     <div className="w-full flex flex-col items-center bg-box rounded-xl border-2 border-default p-4">
       <ul
         className={classNames(
-          'relative gap-2 mobileLandscape:gap-3 w-full mb-4 text-black dark:text-grey-10 text-sm font-mono font-bold',
+          'relative gap-2 mobileLandscape:gap-3 w-full mb-4 text-black dark:text-grey-10 nova:text-default text-sm font-mono font-bold',
           valueIsArray
             ? 'grid grid-cols-2 max-w-sm justify-between'
             : 'flex flex-col max-w-lg'
@@ -110,7 +110,7 @@ export const DataBlock = ({
         {(valueIsArray ? value : [value]).map((item) => (
           <li
             key={item}
-            className="px-3 py-[8px] flex items-center gap-3 rounded-lg bg-gradient-to-tr from-blue-600/10 to-purple-500/10 text-center justify-center mobileLandscape:justify-start mobileLandscape:tracking-wide"
+            className="px-3 py-[8px] flex items-center gap-3 rounded-lg bg-gradient-to-tr from-blue-600/10 to-purple-500/10 nova:bg-none nova:bg-information text-center justify-center mobileLandscape:justify-start mobileLandscape:tracking-wide"
           >
             <CodeIcon
               className="w-6 h-auto hidden mobileLandscape:block"

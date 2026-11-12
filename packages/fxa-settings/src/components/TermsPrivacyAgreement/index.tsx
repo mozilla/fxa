@@ -25,7 +25,7 @@ const TermsPrivacyAgreement = ({ legalTerms }: TermsPrivacyAgreementProps) => {
   const showCustomTos = !!legalTerms;
 
   return (
-    <div className={`text-grey-500 dark:text-grey-200 ${fontSizeClass} mt-5`}>
+    <div className={`text-grey-500 dark:text-grey-200 nova:text-default ${fontSizeClass} mt-5`}>
       {showCustomTos ? (
         <>
           <FtlMsg id="terms-privacy-agreement-intro-3">

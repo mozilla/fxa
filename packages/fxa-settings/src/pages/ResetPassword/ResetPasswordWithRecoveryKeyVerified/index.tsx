@@ -107,7 +107,7 @@ const ResetPasswordWithRecoveryKeyVerified = ({
         />
         <RecoveryKeyImage />
         <FtlMsg id="reset-password-complete-recovery-key-created">
-          <h2 className="font-bold text-xl">
+          <h2 className="font-heading text-xl">
             New account recovery key created. Download and store it now.
           </h2>
         </FtlMsg>

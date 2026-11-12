@@ -22,7 +22,7 @@ export type PairUnsupportedHintProps = {
 const StepNumber = ({ children }: { children: number }) => (
   <span
     aria-hidden="true"
-    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-grey-100 text-xs"
+    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-grey-100 nova:border-default text-xs"
   >
     {children}
   </span>
@@ -63,7 +63,7 @@ export const PairUnsupportedHint = ({
         <h1 className="card-header mt-4">Finish pairing in the app</h1>
       </FtlMsg>
 
-      <ol className="mt-4 w-full rounded-xl border border-grey-100 bg-white p-4 text-start">
+      <ol className="mt-4 w-full rounded-xl border border-grey-100 nova:border-default bg-white nova:bg-box p-4 text-start">
         {steps.map((step, index) => (
           <li key={index} className="flex items-center gap-2 p-2">
             <StepNumber>{index + 1}</StepNumber>

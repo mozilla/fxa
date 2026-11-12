@@ -72,7 +72,7 @@ export const InlineRecoveryKeySetup = ({
             </FtlMsg>
             <RecoveryKeyImage />
 
-            <h2 className="font-bold text-xl mb-5">
+            <h2 className="font-heading text-xl mb-5">
               <FtlMsg id="inline-recovery-key-setup-download-subheader">
                 Download and store it now
               </FtlMsg>

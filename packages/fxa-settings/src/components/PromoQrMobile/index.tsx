@@ -102,7 +102,7 @@ export const PromoQrMobile = ({
   return (
     <aside className="hidden desktop:fixed desktop:flex desktop:flex-col desktop:items-center desktop:bottom-8 desktop:end-12 w-60 gap-3">
       <div className="py-2 text-center">
-        <h2 className="text-sm font-bold leading-snug text-grey-900 dark:text-white">
+        <h2 className="text-sm font-heading leading-snug text-grey-900 dark:text-white nova:text-default">
           {heading}
         </h2>
       </div>
@@ -136,7 +136,7 @@ export const PromoQrMobile = ({
       </div>
 
       <FtlMsg id="promo-qr-mobile-description-v2">
-        <p className="py-1 text-sm text-grey-900 dark:text-grey-100">
+        <p className="py-1 text-sm text-grey-900 dark:text-grey-100 nova:text-default">
           Scan to download mobile app
         </p>
       </FtlMsg>

@@ -32,7 +32,7 @@ const ResetPasswordWarning = ({
 
   return (
     <details
-      className="p-4 bg-warning rounded-lg text-sm text-start border border-transparent"
+      className="p-4 bg-warning rounded-lg text-sm text-start border border-transparent nova:relative nova:overflow-hidden nova:p-3 nova:ps-14 nova:rounded-xl nova:border-deemphasized nova:bg-box nova:before:absolute nova:before:inset-y-0 nova:before:start-0 nova:before:w-10 nova:before:bg-warning"
       data-testid="warning-message-container"
       open={defaultOpenState}
       onToggle={(e) =>
@@ -43,7 +43,7 @@ const ResetPasswordWarning = ({
       <summary className="flex items-center cursor-pointer list-none [&::-webkit-details-marker]:hidden rounded-sm focus-visible-default outline-offset-2">
         <WarnIcon
           role="img"
-          className="me-4"
+          className="me-4 nova:absolute nova:top-3.5 nova:start-3"
           aria-label={ftlMsgResolver.getMsg(
             'password-reset-warning-icon',
             'Warning'
@@ -110,7 +110,7 @@ const ResetPasswordWarning = ({
               </p>
             </FtlMsg>
             <FtlMsg id="password-reset-warning-signed-in-device-description">
-              <p className="text-grey-500 dark:text-grey-200">
+              <p className="text-grey-500 dark:text-grey-200 nova:text-deemphasized">
                 Your browser data may be available. Reset your password, then
                 sign in on that device to restore and sync your data.
               </p>
@@ -141,7 +141,7 @@ const ResetPasswordWarning = ({
               </p>
             </FtlMsg>
             <FtlMsg id="password-reset-warning-new-device-description">
-              <p className="text-grey-500 dark:text-grey-200">
+              <p className="text-grey-500 dark:text-grey-200 nova:text-deemphasized">
                 After you reset your password, encrypted browser data on Firefox
                 servers won’t be available on this device.
               </p>

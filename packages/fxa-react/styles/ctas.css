@@ -213,18 +213,24 @@
   :where([data-theme='nova']) .cta-primary-cms,
   :where([data-theme='nova']) .cta-primary,
   :where([data-theme='nova']) .cta-xl {
-    border-radius: var(--button-border-radius);
+    /* Acorn's button radius (24px) doesn't keep tall buttons pill-shaped;
+     * circle is the design call until Acorn adds a larger button size. */
+    border-radius: var(--border-radius-circle);
     font-weight: var(--button-font-weight);
   }
 
   :where([data-theme='nova']) .cta-base-p {
-    padding: var(--button-padding);
+    padding: var(--button-padding-block-large) var(--button-padding-inline);
   }
 
+  /* Figma's full-width form CTA is 56px tall; Acorn's large button is 40px. */
   :where([data-theme='nova']) .cta-xl {
-    padding: var(--button-padding-block-large)
-      var(--button-padding-inline-large);
-    min-height: var(--button-min-height-large);
+    padding: var(--space-large) var(--button-padding-inline);
+  }
+
+  /* Outranks the font-bold in .cta-xl above. */
+  [data-theme='nova'] .cta-xl {
+    font-weight: var(--button-font-weight);
   }
 
   [data-theme='nova'] .cta-neutral {
@@ -311,6 +317,14 @@
     --cta-active: var(--button-background-color-primary-active);
     --cta-disabled: var(--button-background-color-primary-disabled);
     --cta-focus-outline: var(--focus-outline-color);
+  }
+
+  /* CmsButtonWithFallback sets a blue outline inline for gradients. */
+  [data-theme='nova']
+    .cta-primary-cms.cta-gradient:focus:not([aria-disabled='true']),
+  [data-theme='nova']
+    .cta-primary-cms.cta-gradient:focus-visible:not([aria-disabled='true']) {
+    outline-color: var(--focus-outline-color);
   }
 
   [data-theme='nova'] .cta-primary-cms:disabled {

@@ -152,9 +152,10 @@ const InputPhoneNumber = ({
           className="
             w-full h-full
             px-2
-            border border-grey-200 rounded-md
+            border border-grey-200 nova:border-interactive rounded-md nova:rounded-xl
             bg-transparent text-transparent
             focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus
+            nova:focus:border-accent-primary nova:focus:shadow-none nova:focus:focus-ring
             forced-color-adjust:none
             [@media(forced-colors:active)]:text-[ButtonFace]
             [@media(forced-colors:active)]:text-shadow-[0_0_0_transparent]

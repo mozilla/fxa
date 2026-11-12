@@ -92,7 +92,7 @@ const SigninBounced = ({
             ),
           }}
         >
-          <p className="text-sm mb-6 text-grey-400">
+          <p className="text-sm mb-6 text-grey-400 nova:text-deemphasized">
             If this is a valid email address,{' '}
             <button
               className="link-blue"

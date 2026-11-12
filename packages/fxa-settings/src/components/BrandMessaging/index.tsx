@@ -92,7 +92,7 @@ export const BrandMessaging = ({
     <LinkExternal
       href="https://support.mozilla.org/kb/firefox-accounts-renamed-mozilla-accounts"
       onClick={onClickLearnMore}
-      className="underline cursor-pointer hover:text-blue-900"
+      className="underline cursor-pointer hover:text-blue-900 nova:hover:text-link-hover"
     >
       <FtlMsg id="brand-learn-more">Learn more</FtlMsg>
     </LinkExternal>

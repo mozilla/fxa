@@ -126,7 +126,7 @@ export const RecoveryKeySetupHint = ({
       )}
       <LightbulbImage />
       <FtlMsg id="flow-recovery-key-hint-header-v2">
-        <h2 className="font-bold text-xl mb-4">
+        <h2 className="font-heading text-xl mb-4">
           Add a hint to help find your key
         </h2>
       </FtlMsg>

@@ -12,3 +12,7 @@
 .focus-visible-default:focus-visible {
   @apply outline outline-blue-500 outline-2;
 }
+
+[data-theme='nova'] .focus-visible-default:focus-visible {
+  outline-color: var(--focus-outline-color);
+}

@@ -43,6 +43,8 @@ config.theme.extend = {
     'accent-primary-active': 'var(--color-accent-primary-active)',
     'button-hover': 'var(--button-background-color-hover)',
     'button-active': 'var(--button-background-color-active)',
+    // Divider and track fills.
+    deemphasized: 'var(--border-color-deemphasized)',
   },
   textColor: {
     default: 'var(--text-color)',
@@ -51,6 +53,12 @@ config.theme.extend = {
     error: 'var(--text-color-error)',
     // nova:-only
     input: 'var(--input-text-color)',
+    'accent-primary': 'var(--color-accent-primary)',
+    'icon-warning': 'var(--icon-color-warning)',
+    'icon-success': 'var(--icon-color-success)',
+    'icon-critical': 'var(--icon-color-critical)',
+    'icon-information': 'var(--icon-color-information)',
+    'link-hover': 'var(--link-color-hover)',
   },
   borderColor: {
     default: 'var(--border-color)',
@@ -63,6 +71,7 @@ config.theme.extend = {
     'button-hover': 'var(--button-border-color-hover)',
     'button-active': 'var(--button-border-color-active)',
     'input-disabled': 'var(--input-border-color-disabled)',
+    deemphasized: 'var(--border-color-deemphasized)',
   },
   outlineColor: {
     focus: 'var(--focus-outline-color)',

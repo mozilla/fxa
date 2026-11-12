@@ -47,7 +47,7 @@ export type GetDataTrioProps = {
 };
 
 const trioButtonClassName =
-  'w-12 h-12 p-1 relative text-grey-600 dark:text-grey-200 text-sm rounded flex flex-col items-center justify-center hover:text-blue-600 active:text-blue-500 focus-visible-default outline-offset-2 hover:bg-gradient-to-tr hover:from-blue-600/10 hover:to-purple-500/10 active:bg-gradient-to-tr active:from-blue-600/10 active:to-purple-500/10 focus-visible:bg-gradient-to-tr focus-visible:from-blue-600/10 focus-visible:to-purple-500/10';
+  'w-12 h-12 p-1 relative text-grey-600 dark:text-grey-200 text-sm rounded flex flex-col items-center justify-center hover:text-blue-600 active:text-blue-500 nova:hover:text-link-hover nova:active:text-accent-primary focus-visible-default outline-offset-2 hover:bg-gradient-to-tr hover:from-blue-600/10 hover:to-purple-500/10 active:bg-gradient-to-tr active:from-blue-600/10 active:to-purple-500/10 focus-visible:bg-gradient-to-tr focus-visible:from-blue-600/10 focus-visible:to-purple-500/10 nova:hover:bg-none nova:hover:bg-button-hover nova:active:bg-none nova:active:bg-button-active nova:focus-visible:bg-none nova:focus-visible:bg-button-hover';
 
 export const GetDataCopySingleton = ({
   value,
@@ -114,7 +114,7 @@ export const GetDataCopySingletonInline = ({
         data-testid="databutton-copy"
         data-glean-id={gleanDataAttr?.id}
         data-glean-type={gleanDataAttr?.type}
-        className="-my-2 -me-4 p-3 rounded text-grey-500 dark:text-grey-200 bg-transparent border border-transparent hover:bg-grey-100 active:bg-grey-200 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-focus focus:bg-grey-50"
+        className="-my-2 -me-4 p-3 rounded text-grey-500 dark:text-grey-200 nova:text-deemphasized bg-transparent border border-transparent hover:bg-grey-100 active:bg-grey-200 nova:hover:bg-button-hover nova:active:bg-button-active focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-focus focus:bg-grey-50"
       >
         <InlineCopyIcon
           aria-hidden

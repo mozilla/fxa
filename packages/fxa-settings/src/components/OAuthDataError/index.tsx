@@ -63,7 +63,7 @@ const OAuthDataError = ({
       />
       {sentryEventId && (
         <FtlMsg id="app-error-id" vars={{ errorId: sentryEventId }}>
-          <p className="mt-6 text-center text-xs text-grey-400 dark:text-grey-300">
+          <p className="mt-6 text-center text-xs text-grey-400 dark:text-grey-300 nova:text-deemphasized">
             {`Error ID: ${sentryEventId}`}
           </p>
         </FtlMsg>

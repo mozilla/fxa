@@ -26,3 +26,13 @@
     @apply font-body font-normal text-sm block mt-1;
   }
 }
+
+/* Nova: Figma's card surface and shadow. dark:bg-grey-700 above maps to Acorn's
+ * near-black gray-100 under the flag, so the box token is set explicitly. Below
+ * mobileLandscape the card is full-bleed with no surface of its own. */
+@screen mobileLandscape {
+  :root[data-theme='nova'] .card {
+    background-color: var(--background-color-box);
+    box-shadow: var(--box-shadow-level-2);
+  }
+}

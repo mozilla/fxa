@@ -46,7 +46,7 @@ export const Banner = ({
     }
   }, [gleanId]);
 
-  const iconClassName = `shrink-0 ${iconAlignClassName}`;
+  const iconClassName = `shrink-0 ${iconAlignClassName} nova:absolute nova:top-3 nova:start-3`;
   return (
     <div
       id={bannerId || ''}
@@ -54,6 +54,9 @@ export const Banner = ({
         ready
           ? classNames(
               'my-4 flex flex-row no-wrap items-center px-4 py-3 gap-3.5 rounded-md border border-transparent text-sm text-grey-700 nova:text-default',
+              // Nova message bar: neutral body, status tint on a start-edge icon strip.
+              'nova:relative nova:overflow-hidden nova:items-start nova:justify-start nova:text-start nova:gap-3 nova:p-3 nova:ps-16 nova:rounded-xl nova:border-deemphasized nova:bg-box nova:bg-none',
+              'nova:before:absolute nova:before:inset-y-0 nova:before:start-0 nova:before:w-12',
               className,
               textAlignClassName,
               textAlignClassName === 'text-center' && 'justify-center',
@@ -64,6 +67,10 @@ export const Banner = ({
                 'bg-gradient-to-tr from-blue-600/10 to-purple-500/10',
               type === 'success' && 'bg-success',
               type === 'warning' && 'bg-warning',
+              type === 'error' && 'nova:before:bg-critical',
+              type === 'info' && 'nova:before:bg-information',
+              type === 'success' && 'nova:before:bg-success',
+              type === 'warning' && 'nova:before:bg-warning',
               animation?.animate && animation?.className
             )
           : undefined
@@ -77,24 +84,34 @@ export const Banner = ({
         <>
           {/* Icon fills use 'currentColor' (from text color) for better accessibility in HCM mode */}
           {type === 'error' && (
-            <ErrorIcon className={iconClassName} aria-hidden />
+            <ErrorIcon
+              className={`${iconClassName} nova:text-icon-critical`}
+              aria-hidden
+            />
           )}
-          {type === 'info' && !isFancy && (
-            <InfoIcon className={iconClassName} aria-hidden />
+          {type === 'info' && (
+            <InfoIcon
+              className={`${iconClassName} nova:text-icon-information ${isFancy ? 'hidden nova:block' : ''}`}
+              aria-hidden
+            />
           )}
+          {/* Its blue is baked into the SVG, so Nova swaps in the currentColor icon above. */}
           {type === 'info' && isFancy && (
-            <InformationOutlineBlueIcon className={iconClassName} aria-hidden />
+            <InformationOutlineBlueIcon
+              className={`${iconClassName} nova:hidden`}
+              aria-hidden
+            />
           )}
           {type === 'success' && (
             <CheckmarkCircleOutlineCurrentIcon
-              className={iconClassName}
+              className={`${iconClassName} nova:text-icon-success`}
               mode="success"
               ariaHidden
             />
           )}
           {type === 'warning' && (
             <WarningIcon
-              className={iconClassName}
+              className={`${iconClassName} nova:text-icon-warning`}
               mode="attention"
               ariaHidden
             />
@@ -102,12 +119,12 @@ export const Banner = ({
 
           <div
             className={classNames(
-              'flex flex-col',
+              'flex flex-col nova:grow',
               textAlignClassName === 'text-start' && 'grow'
             )}
           >
             {content?.localizedHeading && (
-              <p className="font-bold">{content.localizedHeading}</p>
+              <p className="font-heading">{content.localizedHeading}</p>
             )}
             {content?.localizedDescription && (
               <p>{content.localizedDescription}</p>
@@ -156,7 +173,8 @@ export const Banner = ({
                   isFancy &&
                   'hover:bg-gradient-to-tr hover:from-blue-700/10 hover:to-purple-600/10 focus:bg-gradient-to-tr focus:from-blue-800/10 focus:to-purple-700/10',
                 type === 'success' && 'hover:bg-green-400 focus:bg-green-500',
-                type === 'warning' && 'hover:bg-orange-100 focus:bg-orange-200'
+                type === 'warning' && 'hover:bg-orange-100 focus:bg-orange-200',
+                'nova:hover:bg-button-hover nova:hover:bg-none nova:focus:bg-button-hover nova:focus:bg-none'
               )}
               type="button"
               onClick={dismissButton.action}
