@@ -1,8 +1,8 @@
 {
-  "commit": "45ef5a9f7b677b953ccdc09f6c0f91afd15daf49",
-  "summary": "Merge pull request #21746 from mozilla/dependabot/github_actions/docker/login-action-4.8.0",
-  "description": "chore(deps): bump docker/login-action from 4.7.0 to 4.8.0",
-  "timestamp": 1794499295000,
+  "commit": "eb4ed608b7c18615dea3a6fb655a14ca667d8efb",
+  "summary": "Merge pull request #21742 from mozilla/dependabot/github_actions/codeql-action-afc3dfd6c8",
+  "description": "chore(deps): bump the codeql-action group across 1 directory with 3 updates",
+  "timestamp": 1794500046000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
