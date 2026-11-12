@@ -1,8 +1,8 @@
 {
-  "commit": "c3c9f0c0196415c6f395797bb0e43e0fcf119c1a",
-  "summary": "Merge pull request #21748 from mozilla/fxa-14971",
-  "description": "chore(ci): move CircleCI resource classes to gen2",
-  "timestamp": 1794505316000,
+  "commit": "abe2bd447db209b321248227ff90752e495347dc",
+  "summary": "Merge pull request #21749 from mozilla/fix-circleci-medium-plus",
+  "description": "fix(ci): use large.gen2 instead of nonexistent medium+.gen2",
+  "timestamp": 1794506398000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
