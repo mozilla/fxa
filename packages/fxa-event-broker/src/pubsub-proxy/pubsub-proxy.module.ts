@@ -4,12 +4,13 @@
 import { Module } from '@nestjs/common';
 import { LegacyMetricsProvider } from '@fxa/shared/metrics/statsd';
 
+import { ClientCapabilityModule } from '../client-capability/client-capability.module';
 import { ClientWebhooksModule } from '../client-webhooks/client-webhooks.module';
 import { JwtsetModule } from '../jwtset/jwtset.module';
 import { PubsubProxyController } from './pubsub-proxy.controller';
 
 @Module({
-  imports: [ClientWebhooksModule, JwtsetModule],
+  imports: [ClientCapabilityModule, ClientWebhooksModule, JwtsetModule],
   controllers: [PubsubProxyController],
   providers: [LegacyMetricsProvider],
 })

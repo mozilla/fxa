@@ -18,6 +18,7 @@ import * as Sentry from '@sentry/node';
 import { ExtendedError } from '../extended-error';
 
 import { GoogleJwtAuthGuard } from '../auth/google-jwt-auth.guard';
+import { ClientCapabilityService } from '../client-capability/client-capability.service';
 import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';
 import { isDeleteUserEventReason } from '../delete-reason/delete-reason';
 import { JwtsetService } from '../jwtset/jwtset.service';
@@ -42,7 +43,8 @@ export class PubsubProxyController {
     private log: MozLoggerService,
     @Inject('METRICS') private metrics: StatsD,
     private webhookService: ClientWebhooksService,
-    private jwtset: JwtsetService
+    private jwtset: JwtsetService,
+    private clientCapability: ClientCapabilityService
   ) {
     // Keeps the existing mozlog type prefix.
     this.log.setContext('default');
@@ -64,7 +66,24 @@ export class PubsubProxyController {
       // Return a 200 to avoid retrying if no webhook is found.
       throw new HttpException('Webhook not found', 200);
     }
-    const message = this.extractMessage(body.message.data);
+    const message = this.validateMessage(
+      this.extractMessage(body.message.data)
+    );
+    if (message.event === dto.SUBSCRIPTION_UPDATE_EVENT) {
+      const owned = this.clientCapability.capabilities[clientId] ?? [];
+      message.capabilities = message.capabilities.filter((c: string) =>
+        owned.includes(c)
+      );
+      if (!message.capabilities.length) {
+        this.log.debug('proxyDelivery', {
+          message: 'no capabilities for clientId',
+          clientId,
+        });
+        this.metrics.increment('proxy.noCapabilities', { clientId });
+        // Return a 200 to avoid retrying a message the client can never accept.
+        throw new HttpException('No capabilities for client', 200);
+      }
+    }
     const queueDelay = Date.now() - message.timestamp;
     const jwtPayload = await this.generateSET(message, clientId);
     const { status, data } = await this.proxyMessage({
@@ -109,6 +128,26 @@ export class PubsubProxyController {
       Sentry.captureException(err);
       throw new BadRequestException('Invalid message');
     }
+  }
+
+  /**
+   * Validate the message against the shape QueueworkerService publishes for
+   * its event, so that the proxy signs no field the broker did not send.
+   */
+  private validateMessage(message: Record<string, any>): Record<string, any> {
+    const schema = dto.PROXY_MESSAGE_SCHEMAS.get(message?.event);
+    const error = schema
+      ? schema.validate(message, { convert: false }).error
+      : new Error(`Invalid event: ${message?.event}`);
+    if (error) {
+      this.log.error('proxyDelivery', {
+        message: 'Invalid message payload',
+        err: error,
+      });
+      this.metrics.increment('proxy.invalidMessage');
+      throw new BadRequestException('Invalid message');
+    }
+    return message;
   }
 
   /**

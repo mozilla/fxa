@@ -98,6 +98,46 @@ export const PROFILE_CHANGE_SCHEMA = joi
   .unknown(true)
   .required();
 
+// Strict schemas for the messages QueueworkerService publishes to the proxy.
+const PROXY_BASE_SCHEMA = joi
+  .object()
+  .keys({
+    changeTime: joi.number().optional(),
+    email: joi.string().optional(),
+    event: joi.string().required(),
+    reason: joi.string().optional(),
+    timestamp: joi.number().required(),
+    uid: joi.string().required(),
+  })
+  .unknown(false)
+  .required();
+
+const PROXY_PASSWORD_SCHEMA = PROXY_BASE_SCHEMA.keys({
+  changeTime: joi.number().required(),
+});
+
+const PROXY_SUBSCRIPTION_SCHEMA = joi
+  .object()
+  .keys({
+    capabilities: joi.array().items(joi.string()).min(1).required(),
+    changeTime: joi.number().required(),
+    event: joi.string().required(),
+    isActive: joi.bool().required(),
+    timestamp: joi.number().required(),
+    uid: joi.string().required(),
+  })
+  .unknown(false)
+  .required();
+
+export const PROXY_MESSAGE_SCHEMAS = new Map<string, joi.ObjectSchema>([
+  [DELETE_EVENT, PROXY_BASE_SCHEMA],
+  [PASSWORD_CHANGE_EVENT, PROXY_PASSWORD_SCHEMA],
+  [PASSWORD_RESET_EVENT, PROXY_PASSWORD_SCHEMA],
+  [PRIMARY_EMAIL_EVENT, PROXY_BASE_SCHEMA],
+  [PROFILE_CHANGE_EVENT, PROXY_BASE_SCHEMA],
+  [SUBSCRIPTION_UPDATE_EVENT, PROXY_SUBSCRIPTION_SCHEMA],
+]);
+
 export type deleteSchema = {
   event: typeof DELETE_EVENT;
   reason?: unknown;
