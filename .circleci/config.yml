@@ -70,7 +70,7 @@ executors:
     parameters:
       resource_class:
         type: string
-        default: medium+.gen2
+        default: large.gen2
       image:
         type: string
         default: cimg/node:24.22.1
@@ -1046,7 +1046,7 @@ jobs:
 
   update-yarn-cache:
     executor: default-executor
-    resource_class: medium+.gen2
+    resource_class: large.gen2
     steps:
       - git-checkout
       - run:
