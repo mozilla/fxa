@@ -1,0 +1,12 @@
+recovery-title-2 = "Forgot your password?"
+
+recovery-request-origin-2 = "We received a request for a password change on your Mozilla account from:"
+
+<%- include('/partials/userInfo/index.txt') %>
+
+recovery-copy-paste = "Create a new password by copying and pasting the URL below into your browser. This link will expire within the next hour."
+
+<%- link %>
+
+<%- include('/partials/automatedEmailNoAction/index.txt') %>
+<%- include('/partials/support/index.txt') %>
