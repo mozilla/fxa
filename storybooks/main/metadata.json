@@ -1,8 +1,8 @@
 {
-  "commit": "2a98c6253ee557984e2e46d4722f4712e094849e",
-  "summary": "Merge pull request #21747 from mozilla/dependabot/npm_and_yarn/node-forge-1.4.3",
-  "description": "chore(deps): bump node-forge from 1.4.0 to 1.4.3",
-  "timestamp": 1794501856000,
+  "commit": "c3c9f0c0196415c6f395797bb0e43e0fcf119c1a",
+  "summary": "Merge pull request #21748 from mozilla/fxa-14971",
+  "description": "chore(ci): move CircleCI resource classes to gen2",
+  "timestamp": 1794505316000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
