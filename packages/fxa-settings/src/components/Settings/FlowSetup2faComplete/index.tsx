@@ -41,7 +41,7 @@ const BackupCodesDetails = ({
   numCodesRemaining: number;
 }) => {
   return (
-    <div className="bg-grey-10 rounded-lg flex mt-3 p-6 gap-5 items-center">
+    <div className="bg-grey-10 nova:bg-canvas rounded-lg flex mt-3 p-6 gap-5 items-center">
       <BackupCodesIcon className="flex-none" />
       <div>
         <FtlMsg id="flow-setup-2fa-inline-complete-backup-code">
@@ -67,7 +67,7 @@ const RecoveryPhoneDetails = ({
   lastFourPhoneDigits: string;
 }) => {
   return (
-    <div className="bg-grey-10 rounded-lg flex mt-3 p-6 gap-5 items-center">
+    <div className="bg-grey-10 nova:bg-canvas rounded-lg flex mt-3 p-6 gap-5 items-center">
       <BackupRecoverySmsIcon className="flex-none" />
       <div>
         <FtlMsg id="flow-setup-2fa-inline-complete-backup-phone">

@@ -42,9 +42,9 @@ const frameClass = `rounded-full m-auto w-40 object-cover`;
 const zoomSliderClass = [
   'appearance-none w-full bg-transparent cursor-pointer rounded-full focus-visible-default outline-offset-4',
   '[&::-webkit-slider-runnable-track]:h-1 [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-grey-300',
-  '[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:-mt-1.5 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500',
+  '[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:-mt-1.5 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500 nova:[&::-webkit-slider-thumb]:bg-accent-primary',
   '[&::-moz-range-track]:h-1 [&::-moz-range-track]:rounded-full [&::-moz-range-track]:bg-grey-300',
-  '[&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-blue-500',
+  '[&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-blue-500 nova:[&::-moz-range-thumb]:bg-accent-primary',
 ].join(' ');
 
 export const PageAddAvatar = () => {
@@ -281,7 +281,7 @@ export const PageAddAvatar = () => {
       )}
       <>
         <LoadingSpinner
-          className={`bg-grey-20 flex items-center flex-col justify-center select-none ${
+          className={`flex items-center flex-col justify-center select-none ${
             camLoaded || mediaError ? 'invisible h-0' : 'visible h-40'
           }`}
         />

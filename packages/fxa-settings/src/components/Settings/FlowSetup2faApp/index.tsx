@@ -97,7 +97,7 @@ export const FlowSetup2faApp = ({
       {showProgressBar && currentStep != null && numberOfSteps != null && (
         <ProgressBar {...{ currentStep, numberOfSteps }} />
       )}
-      <h2 className="text-xl font-bold my-2">{localizedHeading}</h2>
+      <h2 className="text-xl font-heading my-2">{localizedHeading}</h2>
 
       {errorMessage && (
         <Banner

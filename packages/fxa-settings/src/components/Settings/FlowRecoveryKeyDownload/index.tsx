@@ -42,7 +42,7 @@ export const FlowRecoveryKeyDownload = ({
         <RecoveryKeyImage />
 
         <FtlMsg id="flow-recovery-key-download-heading-v2">
-          <h2 className="font-bold text-xl">
+          <h2 className="font-heading text-xl">
             Account recovery key created — Download and store it now
           </h2>
         </FtlMsg>

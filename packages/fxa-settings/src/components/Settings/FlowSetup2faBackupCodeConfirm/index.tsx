@@ -67,7 +67,7 @@ export const FlowSetup2faBackupCodeConfirm = ({
       <BackupCodesImage />
 
       <FtlMsg id="flow-setup-2fa-backup-code-confirm-heading">
-        <h2 className="font-bold text-xl my-2">
+        <h2 className="font-heading text-xl my-2">
           Enter backup authentication code
         </h2>
       </FtlMsg>

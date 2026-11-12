@@ -63,7 +63,7 @@ export const FlowSetup2faPrompt = ({
       )}
       <BackupRecoveryPhoneCodeImage ariaHidden />
       <FtlMsg id="flow-setup-2fa-prompt-heading">
-        <h2 className="font-bold text-xl my-2">
+        <h2 className="font-heading text-xl my-2">
           Set up two-step authentication
         </h2>
       </FtlMsg>

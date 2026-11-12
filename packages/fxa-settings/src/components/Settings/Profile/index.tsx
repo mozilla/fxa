@@ -15,12 +15,12 @@ export const Profile = forwardRef<HTMLDivElement>((_, ref) => {
 
   return (
     <section data-testid="settings-profile" {...{ ref }} id="profile-section">
-      <h2 className="font-header font-bold mobileLandscape:ms-6 ms-4 mb-4 relative">
+      <h2 className="font-header font-heading mobileLandscape:ms-6 ms-4 mb-4 relative">
         <span id="profile" className="nav-anchor"></span>
         <FtlMsg id="profile-heading">Profile</FtlMsg>
       </h2>
 
-      <div className="bg-white dark:bg-grey-700 tablet:rounded-xl shadow">
+      <div className="bg-box tablet:rounded-xl nova:rounded-2xl nova:mx-4 nova:tablet:mx-0 shadow">
         <FtlMsg id="profile-picture" attrs={{ header: true }}>
           <UnitRow
             header="Picture"

@@ -58,7 +58,10 @@ function getScopeServices(scope: string[] | null): ScopeService[] {
 }
 
 const iconClasses =
-  'flex w-10 justify-center items-center flex-0 text-grey-700 dark:text-grey-100';
+  'flex w-10 justify-center items-center flex-0 text-grey-700 dark:text-grey-100 nova:text-default';
+// Nova device row: icon tile, then name, meta and action 16px apart.
+const novaIconTileClasses =
+  'nova:w-10 nova:h-10 nova:shrink-0 nova:bg-canvas nova:rounded nova:px-0';
 
 export function Service({
   name,
@@ -138,15 +141,19 @@ export function Service({
 
   return (
     <div
-      className="my-1"
+      className="my-1 nova:my-2"
       data-testid="settings-connected-service"
       data-name={name}
     >
-      <div className="border-2 border-solid border-grey-100 dark:border-grey-700 rounded">
-        <div className="p-4 flex mobileLandscape:justify-around items-center flex-col mobileLandscape:flex-row">
-          <div className="flex flex-grow w-full mobileLandscape:flex-2">
-            <span className={classNames(iconClasses, 'px-2')}>{Icon}</span>
-            <div className="flex flex-col flex-5 mobileLandscape:items-center mobileLandscape:flex-row">
+      <div className="border-2 border-solid border-grey-100 dark:border-grey-700 rounded nova:border nova:border-deemphasized nova:rounded-xl nova:overflow-hidden">
+        <div className="p-4 flex mobileLandscape:justify-around items-center flex-col mobileLandscape:flex-row nova:gap-4">
+          <div className="flex flex-grow w-full mobileLandscape:flex-2 nova:gap-4">
+            <span
+              className={classNames(iconClasses, 'px-2', novaIconTileClasses)}
+            >
+              {Icon}
+            </span>
+            <div className="flex flex-col flex-5 mobileLandscape:items-center mobileLandscape:flex-row nova:gap-x-4">
               <div className="flex flex-col mobileLandscape:flex-2">
                 {serviceLink ? (
                   <LinkExternal
@@ -163,7 +170,7 @@ export function Service({
                 )}
                 {locationProvided && (
                   <p
-                    className="text-xs text-grey-400 dark:text-grey-200"
+                    className="text-xs text-deemphasized"
                     data-testid="service-location"
                   >
                     {city}, {stateCode}, {country}
@@ -181,7 +188,7 @@ export function Service({
           <div className="flex flex-grow w-full mobileLandscape:justify-end mobileLandscape:flex-1">
             <Localized id="cs-sign-out-button">
               <button
-                className="cta-neutral cta-base cta-base-p disabled:cursor-wait whitespace-nowrap mobileLandscape:w-auto"
+                className="cta-neutral cta-base cta-base-p disabled:cursor-wait whitespace-nowrap mobileLandscape:w-auto nova:py-1.5"
                 data-testid="connected-service-sign-out"
                 onClick={handleSignOut}
               >
@@ -194,8 +201,9 @@ export function Service({
           <div
             key={scopeService.name}
             className={classNames(
-              'px-4 py-2 bg-grey-50 dark:bg-grey-600 flex items-center',
-              index > 0 && 'border-t border-grey-100 dark:border-grey-500'
+              'px-4 py-2 bg-grey-50 dark:bg-grey-600 nova:bg-transparent flex items-center',
+              index > 0 &&
+                'border-t border-grey-100 dark:border-grey-500 nova:border-divider'
             )}
             data-testid="scope-service"
           >
@@ -204,12 +212,12 @@ export function Service({
             </span>
             {scopeService.ftlId ? (
               <Localized id={scopeService.ftlId}>
-                <p className="text-sm text-grey-600 dark:text-grey-200">
+                <p className="text-sm text-grey-600 dark:text-grey-200 nova:text-deemphasized">
                   {scopeService.name}
                 </p>
               </Localized>
             ) : (
-              <p className="text-sm text-grey-600 dark:text-grey-200">
+              <p className="text-sm text-grey-600 dark:text-grey-200 nova:text-deemphasized">
                 {scopeService.name}
               </p>
             )}

@@ -125,7 +125,7 @@ export const DropDownAvatarMenu = () => {
                 </div>
                 <p className="leading-5 max-w-full truncate">
                   <FtlMsg id="drop-down-menu-signed-in-as-v2">
-                    <span className="text-grey-400 dark:text-grey-200 text-xs">
+                    <span className="text-deemphasized text-xs">
                       Signed in as
                     </span>
                   </FtlMsg>
@@ -138,7 +138,7 @@ export const DropDownAvatarMenu = () => {
                 </p>
               </div>
               <div className="w-full">
-                <div className="bg-gradient-to-r from-blue-500 via-pink-700 to-yellow-500 h-px" />
+                <div className="bg-gradient-to-r from-blue-500 via-pink-700 to-yellow-500 h-px nova:bg-none nova:h-0 nova:border-t nova:border-deemphasized" />
                 <div className="px-4 py-5">
                   <button
                     className="ml-3 group rounded-sm focus-visible-default outline-offset-2"

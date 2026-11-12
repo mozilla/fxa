@@ -75,7 +75,7 @@ export const FlowSetup2faBackupCodeDownload = ({
         />
       )}
       <FtlMsg id="flow-setup-2fa-backup-code-dl-heading">
-        <h2 className="font-bold text-xl my-2">
+        <h2 className="font-heading text-xl my-2">
           Save backup authentication codes
         </h2>
       </FtlMsg>

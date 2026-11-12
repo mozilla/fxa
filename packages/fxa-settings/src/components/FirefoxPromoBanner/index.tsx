@@ -146,7 +146,7 @@ export const FirefoxPromoBannerView = ({
   return (
     // transparent border is for Windows high-contrast mode
     <div
-      className={`relative flex flex-col mobileLandscape:flex-row mobileLandscape:items-center gap-4 p-5 rounded-lg bg-gradient-to-tr from-blue-600/10 to-purple-500/10
+      className={`relative flex flex-col mobileLandscape:flex-row mobileLandscape:items-center gap-4 p-5 rounded-lg nova:rounded-2xl nova:shadow bg-gradient-to-tr from-blue-600/10 to-purple-500/10 nova:bg-none nova:bg-box nova:mx-4 nova:tablet:mx-0
          transition-transform border border-transparent duration-300 ease-in-out ${
            isClosing ? 'translate-x-full' : 'translate-x-0'
          }`}
@@ -157,10 +157,10 @@ export const FirefoxPromoBannerView = ({
           aria-label="Dismiss banner"
           data-testid="firefox-promo-dismiss"
           onClick={onDismiss}
-          className="absolute top-3 end-1 p-2"
+          className="absolute top-3 end-1 p-2 nova:rounded-full nova:transition-colors nova:hover:bg-hover-tint nova:active:bg-hover-tint nova:focus-visible:focus-ring"
         >
           <IconClose
-            className="text-black dark:text-grey-100 w-4 h-4"
+            className="text-black dark:text-grey-100 nova:text-default w-4 h-4"
             role="img"
           />
         </button>

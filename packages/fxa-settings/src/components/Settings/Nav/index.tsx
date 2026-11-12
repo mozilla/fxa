@@ -20,6 +20,9 @@ export interface NavRefProps {
 const navActiveClass = 'nav-active';
 const navItemClasses =
   'inline-block py-1 px-2 hover:bg-grey-100 dark:hover:bg-grey-600 rounded-sm focus-visible-default';
+// Nova page-nav button: full-width pill; the selected item is filled.
+const novaNavItemClasses =
+  'nova:block nova:p-3 nova:rounded-full nova:font-normal nova:hover:bg-nav-hover nova:active:bg-nav-active nova:[&.nav-active]:bg-nav-selected nova:[&.nav-active]:text-nav-selected nova:[&.nav-active]:font-semibold nova:transition-colors';
 
 // Update the active nav class when this percentage of a section is shown on screen
 const STANDARD_SECTION_THRESHOLD = 0.8;
@@ -145,41 +148,45 @@ export const Nav = ({
       data-testid="nav"
     >
       <ul className="px-6 py-8 tablet:px-8 desktop:p-0 text-start">
-        <li className="mb-5">
+        <li className="mb-5 nova:mb-4 nova:pb-4 nova:border-b nova:border-deemphasized">
           <Localized id="nav-settings">
-            <h2 className="font-bold">Settings</h2>
+            <h2 className="font-heading">Settings</h2>
           </Localized>
-          <ul className="ms-4">
-            <li className="mt-3">
+          <ul className="ms-4 nova:ms-0 nova:mt-4 nova:flex nova:flex-col nova:gap-1">
+            <li className="mt-3 nova:mt-0">
               <Localized id="nav-profile">
                 <a
                   data-testid="nav-link-profile"
                   href="#profile"
                   ref={profileLinkRef}
-                  className={classNames(navActiveClass, navItemClasses)}
+                  className={classNames(
+                    navActiveClass,
+                    navItemClasses,
+                    novaNavItemClasses
+                  )}
                 >
                   Profile
                 </a>
               </Localized>
             </li>
-            <li className="mt-3">
+            <li className="mt-3 nova:mt-0">
               <Localized id="nav-security">
                 <a
                   href="#security"
                   data-testid="nav-link-security"
-                  className={navItemClasses}
+                  className={classNames(navItemClasses, novaNavItemClasses)}
                   ref={securityLinkRef}
                 >
                   Security
                 </a>
               </Localized>
             </li>
-            <li className="mt-3">
+            <li className="mt-3 nova:mt-0">
               <Localized id="nav-connected-services">
                 <a
                   href="#connected-services"
                   data-testid="nav-link-connected-services"
-                  className={navItemClasses}
+                  className={classNames(navItemClasses, novaNavItemClasses)}
                   ref={connectedServicesLinkRef}
                 >
                   Connected Services
@@ -187,12 +194,12 @@ export const Nav = ({
               </Localized>
             </li>
             {hasLinkedAccounts && (
-              <li className="mt-3">
+              <li className="mt-3 nova:mt-0">
                 <Localized id="nav-linked-accounts">
                   <a
                     href="#linked-accounts"
                     data-testid="nav-link-linked-accounts"
-                    className={navItemClasses}
+                    className={classNames(navItemClasses, novaNavItemClasses)}
                     ref={linkedAccountsLinkRef}
                   >
                     Linked Accounts
@@ -200,12 +207,12 @@ export const Nav = ({
                 </Localized>
               </li>
             )}
-            <li className="mt-3">
+            <li className="mt-3 nova:mt-0">
               <Localized id="nav-data-collection">
                 <a
                   href="#data-collection"
                   data-testid="nav-link-data-collection"
-                  className={navItemClasses}
+                  className={classNames(navItemClasses, novaNavItemClasses)}
                   ref={dataCollectionLinkRef}
                 >
                   Data Collection and Use
@@ -215,15 +222,18 @@ export const Nav = ({
           </ul>
         </li>
 
-        <li className="mb-5">
+        <li className="mb-5 nova:mb-1">
           <LinkExternal
-            className="font-bold focus-visible-default rounded-sm outline-offset-2"
+            className={classNames(
+              'font-bold focus-visible-default rounded-sm outline-offset-2',
+              novaNavItemClasses
+            )}
             data-testid="nav-link-subscriptions"
             href={subscriptionLink}
           >
             <Localized id="nav-paid-subs">Paid Subscriptions</Localized>
             <OpenExternal
-              className="inline-block w-3 h-3 ml-1"
+              className="inline-block w-3 h-3 ml-1 nova:ml-0 nova:ms-2"
               aria-hidden="true"
             />
           </LinkExternal>
@@ -232,13 +242,16 @@ export const Nav = ({
         {marketingCommPrefLink && (
           <li>
             <LinkExternal
-              className="font-bold focus-visible-default rounded-sm outline-offset-2"
+              className={classNames(
+                'font-bold focus-visible-default rounded-sm outline-offset-2',
+                novaNavItemClasses
+              )}
               data-testid="nav-link-newsletters"
               href={marketingCommPrefLink}
             >
               <Localized id="nav-email-prefs">Email Preferences</Localized>
               <OpenExternal
-                className="inline-block w-3 h-3 ms-1 transform rtl:-scale-x-1"
+                className="inline-block w-3 h-3 ms-1 transform rtl:-scale-x-1 nova:ms-2"
                 aria-hidden="true"
               />
             </LinkExternal>

@@ -351,15 +351,15 @@ export const PagePasskeyAdd = () => {
 
   return (
     <div
-      className="max-w-lg mx-auto mt-6 p-10 tablet:my-10 flex flex-col items-center bg-white dark:bg-grey-700 shadow tablet:rounded-xl border border-transparent text-center"
+      className="max-w-lg mx-auto mt-6 p-10 tablet:my-10 flex flex-col items-center bg-box shadow tablet:rounded-xl nova:rounded-2xl nova:mx-4 nova:[@media(min-width:34rem)]:mx-auto border border-transparent text-center"
       data-testid="page-passkey-add"
     >
       <LoadingSpinner className="flex justify-center mb-6" />
       <FtlMsg id="page-passkey-add-creating-heading">
-        <h2 className="text-xl font-bold mb-2">Creating passkey…</h2>
+        <h2 className="text-xl font-heading mb-2">Creating passkey…</h2>
       </FtlMsg>
       <FtlMsg id="page-passkey-add-follow-prompts">
-        <p className="text-grey-400 dark:text-grey-200 mb-6">
+        <p className="text-deemphasized mb-6">
           Follow the prompts on your device.
         </p>
       </FtlMsg>

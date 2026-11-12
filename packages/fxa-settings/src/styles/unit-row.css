@@ -23,7 +23,7 @@
   }
 
   &-hr {
-    @apply mx-5 border-grey-100 dark:border-grey-600;
+    @apply mx-5 border-default nova:border-divider;
   }
 }
 

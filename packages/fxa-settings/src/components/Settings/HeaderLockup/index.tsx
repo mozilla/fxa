@@ -39,7 +39,7 @@ export const HeaderLockup = () => {
   const left = (
     <>
       <button
-        className="desktop:hidden me-6 p-2 self-center -m-2 z-[1] rounded hover:bg-grey-100 dark:hover:bg-grey-700 focus-visible-default"
+        className="desktop:hidden me-6 p-2 self-center -m-2 z-[1] rounded hover:bg-grey-100 dark:hover:bg-grey-700 nova:hover:bg-hover-tint nova:transition-colors focus-visible-default"
         data-testid="header-menu"
         aria-label={localizedMenuText}
         title={localizedMenuText}
@@ -48,9 +48,9 @@ export const HeaderLockup = () => {
         onClick={() => setNavState(!sidebarRevealedState)}
       >
         {sidebarRevealedState ? (
-          <Close className="text-violet-900 dark:text-grey-100 w-8" />
+          <Close className="text-violet-900 dark:text-grey-100 nova:text-default w-8" />
         ) : (
-          <Menu className="text-violet-900 dark:text-grey-100 w-8" />
+          <Menu className="text-violet-900 dark:text-grey-100 nova:text-default w-8" />
         )}
         {sidebarRevealedState && <Sidebar />}
       </button>
@@ -62,13 +62,13 @@ export const HeaderLockup = () => {
           }
           // use gap instead of margin to make the focus outline look right
           // when the header title is invisible
-          className="flex gap-4 rounded-sm focus-visible:outline focus-visible:outline-blue-500 focus:outline-2 outline-offset-4"
+          className="flex gap-4 rounded-sm focus-visible:outline focus-visible:outline-focus focus:outline-2 outline-offset-4"
           data-testid="back-to-settings"
         >
           <LogoLockup>
             <>
               <FtlMsg id="header-title-2">
-                <span className="font-bold">Mozilla account</span>
+                <span className="font-heading">Mozilla account</span>
               </FtlMsg>
             </>
           </LogoLockup>
@@ -81,14 +81,14 @@ export const HeaderLockup = () => {
       <LinkExternal
         href="https://support.mozilla.org/products/mozilla-account"
         title={localizedHelpText}
-        className="inline-block relative p-2 -m-2 z-[1] rounded hover:bg-grey-100 dark:hover:bg-grey-700 focus-visible-default"
+        className="inline-block relative p-2 -m-2 z-[1] rounded hover:bg-grey-100 dark:hover:bg-grey-700 nova:hover:bg-hover-tint nova:transition-colors focus-visible-default"
         onClick={handleHelpLinkClick}
       >
         <Help
           aria-label={localizedHelpText}
           title={localizedHelpText}
           role="img"
-          className="w-5 text-violet-900 dark:text-grey-100"
+          className="w-5 text-violet-900 dark:text-grey-100 nova:text-default"
         />
       </LinkExternal>
       <BentoMenu />

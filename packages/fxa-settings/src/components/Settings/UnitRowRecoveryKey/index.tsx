@@ -71,7 +71,7 @@ const DeleteRecoveryKeyModal = ({ onDismiss }: { onDismiss: () => void }) => {
       <FtlMsg id="rk-remove-modal-heading-1">
         <h2
           id="recovery-key-header"
-          className="font-bold text-xl text-center mb-2"
+          className="font-heading text-xl text-center mb-2"
         >
           Remove account recovery key?
         </h2>

@@ -118,7 +118,7 @@ export const ModalVerifySession = ({
           <Localized id="mvs-verify-your-email-2">
             <h2
               id="modal-verify-session-header-2"
-              className="font-bold text-xl text-center"
+              className="font-heading text-xl text-center"
               data-testid="modal-verify-session-header"
             >
               Confirm your email

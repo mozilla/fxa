@@ -260,7 +260,7 @@ export const UnitRowSecondaryEmail = () => {
                 <Localized id="se-unverified-2">
                   <span
                     data-testid="secondary-email-unverified-text"
-                    className="uppercase block text-orange-600 font-bold text-xs"
+                    className="uppercase block text-orange-600 nova:text-icon-warning font-bold text-xs"
                   >
                     unconfirmed
                   </span>
@@ -282,7 +282,7 @@ export const UnitRowSecondaryEmail = () => {
                   ),
                 }}
               >
-                <p className="text-xs mt-3 text-grey-400 dark:text-grey-200">
+                <p className="text-xs mt-3 text-deemphasized">
                   Confirmation needed.{' '}
                   <button
                     className="link-blue"
@@ -433,7 +433,7 @@ const SecondaryEmailDefaultContent = () => (
         ),
       }}
     >
-      <p className="text-grey-400 dark:text-grey-200 text-xs mt-2">
+      <p className="text-deemphasized text-xs mt-2">
         Note: a secondary email won’t restore your information — you’ll need an{' '}
         <a
           className="link-blue"

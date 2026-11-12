@@ -108,11 +108,12 @@ export const AlertBar = () => {
             data-testid="alert-bar-inner"
             className={classNames(
               'max-w-full desktop:max-w-2xl w-full desktop:min-w-sm flex shadow-md rounded-sm text-sm font-medium text-grey-700 border border-transparent',
+              'nova:text-default nova:font-semibold nova:rounded-xl nova:shadow nova:min-h-10 nova:items-center',
               {
-                'bg-red-100 error': type === 'error',
-                'bg-blue-50 info': type === 'info',
-                'bg-green-200 success': type === 'success',
-                'bg-orange-50 warning': type === 'warning',
+                'bg-critical error': type === 'error',
+                'bg-information info': type === 'info',
+                'bg-success success': type === 'success',
+                'bg-warning warning': type === 'warning',
               }
             )}
           >
@@ -129,6 +130,7 @@ export const AlertBar = () => {
             <button
               className={classNames(
                 'shrink-0 items-stretch justify-center py-2 px-3 focus-visible:rounded-sm focus-visible-default',
+                'nova:flex nova:items-center nova:w-8 nova:h-8 nova:p-0 nova:me-1 nova:rounded-full nova:transition-colors nova:hover:bg-hover-tint nova:active:bg-hover-tint nova:focus:bg-hover-tint',
                 {
                   'hover:bg-red-200 focus:bg-red-300': type === 'error',
                   'hover:bg-blue-100 focus:bg-blue-200': type === 'info',
@@ -144,7 +146,7 @@ export const AlertBar = () => {
                 'Close message'
               )}
             >
-              <CloseIcon className="w-3.5" />
+              <CloseIcon className="w-3.5 nova:w-4" />
             </button>
           </div>
         </div>

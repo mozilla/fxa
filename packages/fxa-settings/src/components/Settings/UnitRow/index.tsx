@@ -182,7 +182,7 @@ export const UnitRow = ({
       </div>
       <div className="flex flex-col w-full @container/unitRow">
         <div className="w-full @mobileLandscape/unitRow:flex">
-          <div className="unit-row-content">
+          <div className="unit-row-content nova:pe-4">
             {avatar ? (
               <Avatar
                 className="mx-auto @mobileLandscape/unitRow:mx-0 w-32 @mobileLandscape/unitRow:w-16 text-center"
@@ -216,13 +216,13 @@ export const UnitRow = ({
             revealSecondaryModal ||
             disabled) && (
             <div className="unit-row-actions @mobileLandscape/unitRow:flex-1 @mobileLandscape/unitRow:flex @mobileLandscape/unitRow:justify-end ">
-              <div className="flex items-center h-8 gap-2 mt-4 @mobileLandscape/unitRow:mt-0 ">
+              <div className="flex items-center h-8 nova:h-auto nova:min-h-8 gap-2 mt-4 @mobileLandscape/unitRow:mt-0 ">
                 {/* Primary Action */}
                 {!hideCtaText &&
                   ctaText &&
                   (disabled ? (
                     <button
-                      className="cta-neutral cta-base-common cta-base-p transition-standard me-1 w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0"
+                      className="cta-neutral cta-base-common cta-base-p transition-standard me-1 w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0 nova:py-2 nova:@mobileLandscape/unitRow:py-1"
                       data-testid={formatDataTestId('unit-row-disabled')}
                       title={disabledReason}
                       disabled={disabled}
@@ -239,7 +239,7 @@ export const UnitRow = ({
                       {/* Priority 1: Route link */}
                       {route && (
                         <Link
-                          className="cta-neutral cta-base-common cta-base-p transition-standard me-1 w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0"
+                          className="cta-neutral cta-base-common cta-base-p transition-standard me-1 w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0 nova:py-2 nova:@mobileLandscape/unitRow:py-1"
                           data-testid={formatDataTestId('unit-row-route')}
                           to={`${route}${location.search}`}
                           onClick={ctaOnClickAction}

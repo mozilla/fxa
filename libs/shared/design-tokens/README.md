@@ -244,6 +244,94 @@ Kept on primitives until design decides, unless noted.
   - `link-*` classes and `dark:invert` on the Mozilla logo are unchanged.
 - **No Figma frame:** every page except Index, Signin, Signup, SigninRecoveryChoice,
   ResetPassword and ConfirmResetPassword. Those got the mechanical swap only.
+#### Settings
+
+Covers `components/Settings` and the Settings-only `styles/{switch,unit-row,drop-down-menu}.css`.
+Figma: Settings above the fold (light `3119:3089`, dark `3121:2191`), Navigation (Nova)
+`3310:3111`, AlertBar `2421:71` and the component map (`3107:30`). Sections already sit
+as rounded cards with `shadow` (Acorn level 2 under the flag) and inset dividers.
+
+New `nova:`-only utilities: `text-accent-primary` (Checkbox check), `bg-overlay`
+(`--background-color-overlay`, Modal scrim; Acorn's 50% black replaces today's 75%),
+`bg-nav-hover`/`-active`/`-selected` and `text-nav-selected` (`--page-nav-button-*`),
+`border-deemphasized` (`--border-color-deemphasized`), `border-divider` (currentColor at 12%, no
+Acorn token; see below), `text-icon-warning`/`-success`/`-critical`/
+`-information` and `bg-icon-success`/`-critical` (`--icon-color-*`), `bg-hover-tint` (currentColor at
+8%; tints toward the text color on hover, no Acorn token).
+
+- **Nav:** under `nova:`, items are full-width page-nav pills (12px padding, 4px gaps) and the
+  selected item (`.nav-active`) is a filled accent pill, semibold. Acorn's selected tokens are
+  the solid accent with white text (dark: light violet, dark text), matching Figma; the tinted
+  values apply only in forced-colors mode. The primary/secondary separator is a
+  `border-deemphasized` rule (Acorn's `--page-nav-hr-background-color`). Secondary items drop
+  to regular weight; their external-link icon keeps today's size and place, 8px after the label.
+- **Headings** use `font-heading` (700 flag-off, semibold under the flag); bold emphasis in body
+  text stays `font-bold`.
+- **Delete account** keeps `py-2` at `mobileLandscape` under the flag (about 38px tall); its weight
+  comes from `--button-font-weight` (semibold).
+- **Dividers** (`unit-row-hr`, Connected Services rule, ProductPromo, Service scope rows, SubRow) use
+  `nova:border-divider`, currentColor at 12%. Both `--border-color` and
+  `--border-color-deemphasized` (24%) are darker than Figma's divider (`#e7e7e7`). The Nav
+  separator and avatar menu rule keep `border-deemphasized`.
+- **Device and linked-account rows:** 1px `border-deemphasized` box, 12px radius, 16px padding,
+  transparent fill, 8px between rows; a 40px `bg-canvas` icon tile, then name, meta and a 32px
+  `cta-neutral` pill, 16px apart.
+- **Cards** (sections, FlowContainer, PagePasskeyAdd, promos and banners) use `--card-border-radius`
+  (`rounded-2xl`) and `--card-box-shadow` (`shadow`) at every width; sub-rows inside them use
+  `rounded-xl`. Below `tablet` they get 16px side margins, as in Figma mobile; flow cards re-center once they fit. Full-width UnitRow CTAs are about 40px tall below the row's `mobileLandscape` width.
+- **UnitRow** content keeps 16px from the actions column (Switch rows).
+- **Promos:** the sidebar ProductPromo and the FirefoxPromo/Promotion banners use `bg-box` with no
+  border instead of the gradient (the violet promo tint failed AA for links).
+  Figma's promo text block uses canvas; on the Settings page that equals the page color, so
+  promos use box. Banner close buttons get a circular `bg-hover-tint` hover and the Nova focus ring.
+- **Hover fills** on ButtonIcon, HeaderLockup, BentoMenu and PageAvatar edit buttons use
+  `bg-hover-tint`; hover/focus color changes carry `transition-colors`.
+- **AlertBar:** status-tinted pill: 12px radius, `shadow` (level 2), 40px min height, centered
+  semibold `text-default`, 32px circular close button with a 16px icon and a `bg-hover-tint` hover/focus fill.
+- **ButtonIcon** hover/focus fill is a circle (`nova:rounded-full`).
+- **Status/brand colors:** UnitRowSecondaryEmail "unconfirmed" → `text-icon-warning`, SecurityEvent
+  dot → `bg-icon-success`, PageAvatar capture button → `bg-icon-critical` (its hover/active
+  borders no longer change under Nova).
+- **Gradients removed:** SubRow info message → `bg-information`; DropDownAvatarMenu rule →
+  `border-deemphasized`.
+
+`nova:` collapses of non-table pairs (flag-off unchanged):
+
+- `text-deemphasized`: `text-grey-500 dark:text-grey-200` (ButtonIcon, ModalMfaProtected,
+  PageAvatar buttons), `text-grey-600 dark:text-grey-200` (ConnectedServices/Service),
+  `text-grey-500` (Switch off label).
+- `text-default`: `text-violet-900 dark:text-grey-100` (HeaderLockup, BentoMenu icons),
+  `text-black dark:text-grey-100` (BentoMenu, drop-down-menu), `text-grey-700 dark:text-grey-100`
+  (Service icon), `text-grey-600 dark:text-grey-300` (ProductPromo body, which is default-colored
+  in Figma), `text-black dark:text-white` (ProductPromo logo), `text-grey-700` (AlertBar).
+- `border-interactive`: `border-grey-200 dark:border-grey-500` (Switch off),
+  `border-grey-400 dark:border-grey-200` (Checkbox unchecked).
+- Accent: Switch on fill, Checkbox checked, PageAvatar zoom slider thumb (`bg-blue-500`).
+- `focus-ring`: Checkbox `shadow-input-blue-focus`/`-grey-focus`.
+- Light-only neutrals: `bg-grey-10` → `bg-canvas` (FlowSetup2faComplete), `text-grey-300` →
+  `text-disabled` (PageSecondaryEmailVerify, ButtonIcon disabled), `bg-white` → `bg-box` (ContentSkip), `text-grey-500` → `text-deemphasized`
+  (SubRow chevron, hover `text-default`).
+- Mobile Sidebar panel `bg-white dark:bg-grey-900` → `bg-canvas`: best match pending design.
+
+Asks for Acorn:
+
+- A divider token lighter than `--border-color-deemphasized`.
+- An `xxlarge` button radius.
+- A semantic promo tint.
+- A hover-darkening token.
+
+Left on primitives:
+
+- Dimmed fills: Switch off track (`bg-grey-50 dark:bg-grey-600`), SubRow borderless
+  (`bg-grey-10 dark:bg-grey-700`). Service scope rows go transparent under the flag.
+- ProgressBar track `bg-grey-100` (no dark today): dimmed fill, no token.
+- Brand colors with no Nova token: DropDownAvatarMenu purple hover border, SubRow
+  `text-purple-600` passkey icon, FlowSetup2faApp QR frame.
+- Text on fills: Switch on label `text-grey-50`, PageAvatar `text-white`.
+- `progress` (`src/styles/tailwind.css`) and `focus-visible-default` are handled with the auth
+  pages; Nav's selected state is styled in the Nav component. Inline `outline-blue-500` in Settings uses `outline-focus`.
+- Avatar `bg-white` is intentional (no Nova equal).
+- Dead classes removed: ButtonIcon `active:/focus:text-grey-800`, PageAvatar `bg-grey-20`.
 
 ## Opacity
 
