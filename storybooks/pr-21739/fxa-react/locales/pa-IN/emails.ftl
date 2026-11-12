@@ -233,6 +233,9 @@ postAddLinkedAccount-subject-2 = ਤੁਹਾਡੇ { -product-mozilla-account }
 #  $providerName (String) - The name of the provider, e.g. Apple, Google
 postAddLinkedAccount-title-2 = oੁਹਾਡੇ { $providerName } ਨੂੰ ਤੁਹਾਡੇ { -product-mozilla-account } ਨਾਲ ਲਿੰਕ ਕੀਤਾ ਜਾ ਚੁੱਕਾ ਹੈ
 postAddLinkedAccount-action = ਖਾਤੇ ਦਾ ਇੰਤਜ਼ਾਮ ਕਰੋ
+# Links out to a support article about passkeys and { -brand-firefox } sync
+postAddPasskey-learn-more = ਹੋਰ ਜਾਣੋ
+postAddPasskey-action = ਖਾਤੇ ਦਾ ਇੰਤਜ਼ਾਮ ਕਰੋ
 postAddRecoveryPhone-subject = ਰਿਕਵਰੀ ਫ਼ੋਨ ਜੋੜਿਆ ਗਿਆ
 postAddRecoveryPhone-preview = ਖਾਤਾ ਦੋ-ਪੜ੍ਹਾਵੀਂ ਪਰਮਾਣੀਕਰਨ ਨਾਲ ਸੁਰੱਖਿਅਤ ਹੈ
 postAddRecoveryPhone-title-v2 = ਤੁਸੀਂ ਰਿਕਵਰੀ ਫ਼ੋਨ ਨੰਬਰ ਜੋੜਿਆ ਸੀ
@@ -288,6 +291,9 @@ postRemoveAccountRecovery-title-3 = ਤੁਸੀਂ ਆਪਣੀ ਖਾਤਾ �
 postRemoveAccountRecovery-body-part1 = ਜੇ ਤੁਸੀਂ ਆਪਣਾ ਪਾਸਵਰਡ ਭੁੱਲ ਜਾਓ ਤਾਂ ਤੁਹਾਡੇ ਇੰਕ੍ਰਿਪਟ ਕੀਤੇ ਬਰਾਊਜ਼ਿੰਗ ਡਾਟੇ ਨੂੰ ਬਹਾਲ ਕਰਨ ਲਈ ਤੁਹਾਡੀ ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ ਚਾਹੀਦੀ ਹੈ।
 postRemoveAccountRecovery-body-part2 = ਜੇ ਤੁਸੀਂ ਹਾਲੇ ਤੱਕ ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ ਨਹੀਂ ਬਣਾਈ ਹੈ ਤਾਂ ਆਪਣੇ ਸੰਭਾਲੇ ਪਾਸਵਰਡਾਂ, ਬੁੱਕਮਾਰਕਾਂ, ਬਰਾਊਜ਼ਿੰਗ ਅਤੀਤ ਅਤੇ ਹੋਰ ਚੀਜ਼ਾਂ ਨੂੰ ਗੁੰਮਣ ਤੋਂ ਬਚਾਉਣ ਲਈ ਆਪਣੀਆਂ ਖਾਤਾ ਸੈਟਿੰਗਾਂ ਵਿੱਚ ਜਾ ਕੇ ਨਵੀਂ ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ ਬਣਾਓ।
 postRemoveAccountRecovery-action = ਖਾਤੇ ਦਾ ਇੰਤਜ਼ਾਮ ਕਰੋ
+postRemovePasskey-subject = ਪਾਸ-ਕੀ ਨੂੰ ਹਟਾਇਆ
+postRemovePasskey-title = ਤੁਸੀਂ ਆਪਣੀ ਪਾਸ-ਕੀ ਨੂੰ ਹਟਾਇਆ ਹੈ
+postRemovePasskey-action = ਖਾਤੇ ਦਾ ਇੰਤਜ਼ਾਮ ਕਰੋ
 postRemoveRecoveryPhone-subject = ਰਿਕਵਰੀ ਫ਼ੋਨ ਨੂੰ ਹਟਾਇਆ ਗਿਆ
 postRemoveRecoveryPhone-preview = ਖਾਤਾ ਦੋ-ਪੜ੍ਹਾਵੀਂ ਪਰਮਾਣੀਕਰਨ ਨਾਲ ਸੁਰੱਖਿਅਤ ਹੈ
 postRemoveRecoveryPhone-title = ਰਿਕਵਰੀ ਫ਼ੋਨ ਨੂੰ ਹਟਾਇਆ ਗਿਆ
@@ -329,6 +335,7 @@ recovery-request-origin-2 = ਸਾਨੂੰ ਤੁਹਾਡੇ { -product-mozill
 recovery-new-password-button = ਹੇਠ ਦਿੱਤੇ ਬਟਨ ਨੂੰ ਕਲਿੱਕ ਕਰਕੇ ਨਵਾਂ ਪਾਸਵਰਡ ਬਣਾਓ। ਇਸ ਲਿੰਕ ਦੀ ਮਿਆਦ ਅਗਲੇ ਘੰਟੇ ਵਿੱਚ ਪੁੱਗ ਜਾਵੇਗੀ।
 recovery-copy-paste = ਨਵਾਂ ਪਾਸਵਰਡ ਬਣਾਉਣ ਲਈ ਹੇਠਲੇ URL ਨੂੰ ਆਪਣੇ ਬਰਾਊਜ਼ਰ ਵਿੱਚ ਕਾਪੀ ਕਰਕੇ ਚੇਪੋ। ਇਸ ਲਿੰਕ ਦੀ ਮਿਆਦ ਅਗਲੇ ਘੰਟੇ ਵਿੱਚ ਪੁੱਗ ਜਾਵੇਗੀ।
 recovery-action = ਨਵਾਂ ਪਾਸਵਰਡ ਬਣਾਓ
+unblockCode-preview = ਇਹ ਕੋਡ ਦੀ ਮਿਆਦ ਇੱਕ ਘੰਟੇ ਵਿੱਚ ਖ਼ਤਮ ਹੋ ਜਾਵੇਗੀ
 unblockCode-title = ਕੀ ਤੁਸੀਂ ਸਾਈਨ ਇਨ ਕੀਤਾ ਹੈ?
 unblockCode-prompt = ਜੇ ਹਾਂ ਤਾਂ ਇਹ ਪਰਮਾਣੀਕਰਨ ਕੋਡ ਤੁਹਾਨੂੰ ਚਾਹੀਦਾ ਹੈ:
 # Variables:
@@ -365,13 +372,26 @@ verifyAccountChange-preview =
        *[other] ਇਹ ਕੋਡ ਦੀ ਮਿਆਦ { $expirationTime } ਮਿੰਟਾਂ ਵਿੱਚ ਪੁੱਗ ਜਾਵੇਗੀ।
     }
 verifyAccountChange-title = ਕੀ ਤੁਸੀਂ ਆਪਣੇ ਖਾਤੇ ਦੀ ਜਾਣਕਾਰੀ ਨੂੰ ਬਦਲਣ ਜਾ ਰਹੇ ਹੋ?
+# After the colon is a description of the device used to sign in to the service
+verifyAccountChange-safe = ਤੁਹਾਡੇ ਖਾਤੇ ਨੂੰ ਸੁਰੱਖਿਅਤ ਰੱਖਣ ਲਈ ਸਾਡੀ ਮਦਦ ਵਾਸਤੇ ਇਸ ਤਬਦੀਲੀ ਨੂੰ ਮਨਜ਼ੂਰ ਕਰੋ:
 verifyAccountChange-prompt = ਜੇ ਹਾਂ ਤਾਂ ਇਹ ਤੁਹਾਡਾ ਪਰਮਾਣੀਕਰਨ ਕੋਡ ਹੈ:
+# Variables:
+# $expirationTime (Number) - Represents the expiration time in minutes
+verifyAccountChange-expiry-notice =
+    { $expirationTime ->
+        [one] ਇਸ ਦੀ ਮਿਆਦ { $expirationTime } ਮਿੰਟ ਹੈ।
+       *[other] ਇਸ ਦੀ ਮਿਆਦ { $expirationTime } ਮਿੰਟ ਹੈ।
+    }
 # Variables:
 #  $clientName (String) - A client the user hasn't signed into before (e.g. Firefox, Sync)
 verifyLogin-title-2 = ਕੀ ਤੁਸੀਂ { $clientName } ਵਿੱਚ ਸਾਈਨ ਇਨ ਕੀਤਾ ਸੀ?
 verifyLogin-description-2 = ਤੁਹਾਡੇ ਵਲੋਂ ਸਾਈਨ ਇਨ ਕਰਨ ਦੀ ਤਸਦੀਕ ਕਰਕੇ ਸਾਨੂੰ ਤੁਹਾਡੇ ਖਾਤੇ ਨੂੰ ਸੁਰੱਖਿਅਤ ਰੱਖਣ ਲਈ ਮਦਦ ਕਰੋ:
 verifyLogin-subject-2 = ਸਾਈਨ ਇਨ ਨੂੰ ਤਸਦੀਕ ਕਰੋ
 verifyLogin-action = ਸਾਈਨ ਇਨ ਨੂੰ ਤਸਦੀਕ ਕਰੋ
+# Variables:
+#  $code (String) - The confirmation code for sign-in
+verifyLoginCode-subject-line-3 = ਸਾਈਨ ਇਨ ਕਰਨ ਲਈ { $code } ਨੂੰ ਵਰਤੋਂ
+verifyLoginCode-preview = ਇਹ ਕੋਡ ਦੀ ਮਿਆਦ 5 ਮਿੰਟ ਹੈ।
 # Variables:
 #  $serviceName (String) - A service the user hasn't signed into before (e.g. Firefox)
 verifyLoginCode-title-2 = ਕੀ ਤੁਸੀਂ { $serviceName } ਵਿੱਚ ਸਾਈਨ ਇਨ ਕੀਤਾ ਸੀ?
@@ -385,10 +405,18 @@ verifyPrimary-subject = ਪ੍ਰਾਇਮਰੀ ਈਮੇਲ ਤਸਦੀਕ �
 verifyPrimary-action-2 = ਈਮੇਲ ਤਸਦੀਕ ਕਰੋ
 verifyPrimary-action-plaintext-2 = { verifyPrimary-action-2 }
 verifyPrimary-post-verify-2 = ਇੱਕ ਵਾਰ ਤਸਦੀਕ ਹੋਣ ਦੇ ਬਾਅਦ ਇਸ ਡਿਵਾਈਸ ਤੋਂ ਖਾਤਾ ਤਬਦੀਲੀਆਂ ਜਿਵੇਂ ਕਿ ਸੈਕੰਡਰੀ ਈਮੇਲ ਜੋੜਨੇ ਵਾਂਗ ਤਬਦੀਲੀਆਂ ਕਰ ਸਕਦੇ ਹੋ।
+# Variables:
+#  $code (String) - The confirmation code for secondary email
+verifySecondaryCode-subject-2 = ਆਪਣੇ ਸੈਕੰਡਰੀ ਈਮੇਲ ਨੂੰ ਤਸਦੀਕ ਕਰਨ ਲਈ { $code } ਨੂੰ ਵਰਤੋਂ
+verifySecondaryCode-preview = ਇਹ ਕੋਡ ਦੀ ਮਿਆਦ 5 ਮਿੰਟ ਹੈ।
 verifySecondaryCode-title-2 = ਸੈਕੰਡਰੀ ਈਮੇਲ ਤਸਦੀਕ ਕਰੋ
 verifySecondaryCode-action-2 = ਈਮੇਲ ਤਸਦੀਕ ਕਰੋ
 verifySecondaryCode-prompt-2 = ਇਹ ਤਸਦੀਕੀ ਕੋਡ ਵਰਤੋ:
 verifySecondaryCode-expiry-notice-2 = ਇਸ ਦੀ ਮਿਆਦ 5 ਮਿੰਟ ਹੈ। ਇੱਕ ਵਾਰ ਤਸਦੀਕ ਕਰਨ ਤੋਂ ਬਾਅਦ ਇਸ ਸਿਰਨਾਵੇਂ ਉੱਤੇ ਸੁਰੱਖਿਆ ਸੂਚਨਾਵਾਂ ਅਤੇ ਤਸਦੀਕੀ ਜਾਣਕਾਰੀ ਮਿਲਣੀ ਸ਼ੁਰੂ ਹੋ ਜਾਵੇਗੀ।
+# Variables:
+#  $code (String) - comfirmation code for the account
+verifyShortCode-subject-4 = ਆਪਣੇ ਖਾਤੇ ਨੂੰ ਤਸਦੀਕ ਕਰਨ ਲਈ { $code } ਕੋਡ ਨੂੰ ਵਰਤੋਂ
+verifyShortCode-preview-2 = ਇਸ ਕੋਡ ਦੀ ਮਿਆਦ 5 ਮਿੰਟ ਹੈ
 verifyShortCode-title-3 = { -brand-mozilla } ਨਾਲ ਇੰਟਰਨੈੱਟ ਖੋਲ੍ਹੋ
 # Information on the browser and device triggering this confirmation email follows below this string.
 verifyShortCode-title-subtext-2 = ਆਪਣੇ ਖਾਤੇ ਨੂੰ ਤਸਦੀਕ ਕਰੋ ਅਤੇ ਹਰੇਕ ਥਾਂ ਉੱਤੇ ਸਾਇਨ ਇਨ ਕਰਨ ਲਈ { -brand-mozilla } ਤੋਂ ਵੱਧ ਤੋਂ ਵੱਧ ਫਾਇਦਾ ਲਵੋ।
