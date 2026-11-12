@@ -59,7 +59,7 @@ orbs:
 executors:
   # Default node executor with low resources. Useful for running quick / small tasks
   tiny-executor:
-    resource_class: small
+    resource_class: small.gen2
     docker:
       - image: cimg/node:24.22.1
     environment:
@@ -70,7 +70,7 @@ executors:
     parameters:
       resource_class:
         type: string
-        default: medium+
+        default: medium+.gen2
       image:
         type: string
         default: cimg/node:24.22.1
@@ -103,7 +103,7 @@ executors:
     parameters:
       resource_class:
         type: string
-        default: medium
+        default: medium.gen2
     resource_class: << parameters.resource_class >>
     docker:
       - image: mozilla/fxa-circleci:ci-test-runner-v12
@@ -118,7 +118,7 @@ executors:
     parameters:
       resource_class:
         type: string
-        default: large
+        default: large.gen2
     resource_class: << parameters.resource_class >>
     docker:
       - image: mozilla/fxa-circleci:ci-test-runner-v12
@@ -140,7 +140,7 @@ executors:
     parameters:
       resource_class:
         type: string
-        default: xlarge
+        default: xlarge.gen2
       image:
         type: string
         default: mozilla/fxa-circleci:ci-functional-test-runner-v12
@@ -202,7 +202,7 @@ executors:
     parameters:
       resource_class:
         type: string
-        default: xlarge
+        default: xlarge.gen2
     resource_class: << parameters.resource_class >>
     docker:
       - image: mozilla/fxa-circleci:ci-functional-test-runner-v12
@@ -686,7 +686,7 @@ jobs:
   # use.
   init:
     executor: build-executor
-    resource_class: large
+    resource_class: medium.gen2
     steps:
       - git-checkout
       - provision
@@ -698,7 +698,7 @@ jobs:
         type: string
         default: run-many
     executor: default-executor
-    resource_class: xlarge
+    resource_class: large.gen2
     steps:
       - git-checkout
       - restore-workspace
@@ -712,7 +712,7 @@ jobs:
         type: string
         default: run-many
     executor: default-executor
-    resource_class: small
+    resource_class: medium.gen2
     steps:
       - git-checkout
       - restore-workspace
@@ -727,7 +727,7 @@ jobs:
         default: run-many
       resource_class:
         type: string
-        default: large
+        default: large.gen2
       # Git ref the affected-spec narrowing diffs against (see fxa-auth-server's
       # test-ci.sh, which feeds the changed files to Jest's --findRelatedTests).
       # Set on PR workflows only so honoring suites run just the related specs;
@@ -778,7 +778,7 @@ jobs:
         default: run-many
       resource_class:
         type: string
-        default: large
+        default: large.gen2
       # Run the (slow, rate-limited) Stripe test-customer sweep. Housekeeping that
       # only needs to happen periodically, so it's enabled on nightly only; PR and
       # tag workflows leave it false so they don't pay the cost on every run.
@@ -1046,7 +1046,7 @@ jobs:
 
   update-yarn-cache:
     executor: default-executor
-    resource_class: medium+
+    resource_class: medium+.gen2
     steps:
       - git-checkout
       - run:
@@ -1093,7 +1093,7 @@ workflows:
             - fail-fast
       - unit-test:
           name: Unit Test (PR)
-          resource_class: xlarge
+          resource_class: xlarge.gen2
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           jest_affected_base: main
           workflow: test_pull_request
@@ -1103,7 +1103,7 @@ workflows:
             - fail-fast
       - integration-test:
           name: Integration Test - Frontends (PR)
-          resource_class: xlarge
+          resource_class: large.gen2
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:frontend'
           test_suite: frontends-integration
@@ -1122,7 +1122,7 @@ workflows:
           name: Integration Test - Servers - Auth (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server:auth'
-          resource_class: xlarge
+          resource_class: xlarge.gen2
           target: -t test-integration
           test_suite: servers-auth-integration
           workflow: test_pull_request
@@ -1132,7 +1132,7 @@ workflows:
           name: Integration Test - Servers - Auth Scripts (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:server:auth'
-          resource_class: xlarge
+          resource_class: xlarge.gen2
           target: -t test-scripts
           test_suite: servers-auth-scripts
           workflow: test_pull_request
@@ -1301,7 +1301,7 @@ workflows:
             - Init
       - unit-test:
           name: Unit Test
-          resource_class: xlarge
+          resource_class: xlarge.gen2
           workflow: test_and_deploy_tag
           filters:
             branches:
@@ -1313,7 +1313,7 @@ workflows:
             - Build
       - integration-test:
           name: Integration Test - Frontends
-          resource_class: xlarge
+          resource_class: xlarge.gen2
           projects: --exclude '*,!tag:scope:frontend'
           test_suite: frontends-integration
           workflow: test_and_deploy_tag
@@ -1341,7 +1341,7 @@ workflows:
       - integration-test:
           name: Integration Test - Servers - Auth
           projects: --exclude '*,!tag:scope:server:auth'
-          resource_class: xlarge
+          resource_class: xlarge.gen2
           target: -t test-integration
           test_suite: servers-auth-integration
           workflow: test_and_deploy_tag
@@ -1356,7 +1356,7 @@ workflows:
       - integration-test:
           name: Integration Test - Servers - Auth Scripts
           projects: --exclude '*,!tag:scope:server:auth'
-          resource_class: xlarge
+          resource_class: xlarge.gen2
           target: -t test-scripts
           test_suite: servers-auth-scripts
           workflow: test_and_deploy_tag
@@ -1436,14 +1436,14 @@ workflows:
             - Init (nightly)
       - unit-test:
           name: Unit Test (nightly)
-          resource_class: xlarge
+          resource_class: xlarge.gen2
           workflow: nightly
           nx_run: run-many --skipRemoteCache
           requires:
             - Build (nightly)
       - integration-test:
           name: Integration Test - Frontends (nightly)
-          resource_class: xlarge
+          resource_class: xlarge.gen2
           projects: --exclude '*,!tag:scope:frontend'
           test_suite: frontends-integration
           workflow: nightly
@@ -1461,7 +1461,7 @@ workflows:
       - integration-test:
           name: Integration Test - Servers - Auth (nightly)
           projects: --exclude '*,!tag:scope:server:auth'
-          resource_class: xlarge
+          resource_class: xlarge.gen2
           target: -t test-integration
           test_suite: servers-auth-integration
           workflow: nightly
@@ -1472,7 +1472,7 @@ workflows:
       - integration-test:
           name: Integration Test - Servers - Auth Scripts (nightly)
           projects: --exclude '*,!tag:scope:server:auth'
-          resource_class: xlarge
+          resource_class: xlarge.gen2
           target: -t test-scripts
           test_suite: servers-auth-scripts
           workflow: nightly
