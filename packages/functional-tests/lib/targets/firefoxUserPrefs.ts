@@ -36,7 +36,7 @@ const CONFIGS = {
   local: {
     auth: `${AUTH_ORIGIN}/v1`,
     content: `${CONTENT_ORIGIN}/`,
-    token: `http://${LOCAL_HOST}:8000/token/1.0/sync/1.5`,
+    token: `http://${LOCAL_HOST}:8000/1.0/sync/1.5`,
     oauth: `${AUTH_ORIGIN}/v1`,
     profile: `${PROFILE_ORIGIN}/v1`,
   },
