@@ -1,8 +1,8 @@
 {
-  "commit": "305cd4439aa696286361981d55689dbfbce57c37",
-  "summary": "Merge pull request #21744 from mozilla/fxa-14958",
-  "description": "fix(settings): close pairing metric gaps",
-  "timestamp": 1794362927000,
+  "commit": "45ef5a9f7b677b953ccdc09f6c0f91afd15daf49",
+  "summary": "Merge pull request #21746 from mozilla/dependabot/github_actions/docker/login-action-4.8.0",
+  "description": "chore(deps): bump docker/login-action from 4.7.0 to 4.8.0",
+  "timestamp": 1794499295000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

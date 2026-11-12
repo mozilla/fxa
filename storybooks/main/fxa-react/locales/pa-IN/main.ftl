@@ -39,6 +39,9 @@
 -app-store = App Store
 -google-play = Google Play
 
+app-something-went-wrong-heading = ਕੁਝ ਗਲਤ ਵਾਪਰਿਆ
+app-error-id = ਗਲਤੀ ID: { $errorId }
+app-error-details-summary = ਗਲਤੀ ਵੇਰਵੇ
 app-query-parameter-err-heading = ਗਲਤ ਬੇਨਤੀ: ਗ਼ੈਰ-ਵਾਜਬ ਕਿਊਰੀ ਪੈਰਾਮੀਟਰ
 
 

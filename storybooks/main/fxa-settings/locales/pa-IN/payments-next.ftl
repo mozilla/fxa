@@ -1,3 +1,11 @@
+loyalty-discount-terms-heading = ਨਿਯਮ ਅਤੇ ਪਾਬੰਦੀਆਂ
+loyalty-discount-terms-support = ਸਹਿਯੋਗ ਲਈ ਸੰਪਰਕ ਕਰੋ
+# $productName (String) - The name of the product to create subscription, e.g. Mozilla VPN
+loyalty-discount-terms-contact-support-product-aria = { $productName } ਲਈ ਸਹਿਯੋਗ ਨਾਲ ਸੰਪਰਕ ਕਰੋ
+not-found-page-title-terms = ਸਫਾ ਨਹੀ ਲੱਭਾ
+not-found-page-description-terms = ਜੋ ਸਫ਼ਾ ਤਸੀ ਲੱਭ ਰਹੇ ਹੋ, ਉਹ ਮੌਜੂਦ ਨਹੀਂ ਹੈ।
+not-found-page-button-terms-manage-subscriptions = ਮੈਂਬਰੀ ਇੰਤਜ਼ਾਮ
+
 ## Page
 
 checkout-signin-or-create = 1. { -product-mozilla-account } ਨਾਲ ਸਾਈਨ ਇਨ ਕਰੋ ਜਾਂ ਬਣਾਓ
@@ -10,18 +18,28 @@ next-payment-method-header = ਆਪਣਾ ਭੁਗਤਾਨ ਢੰਗ ਚੁਣ
 payment-method-header-second-step-next = 2. { next-payment-method-header }
 next-payment-method-first-approve = ਪਹਿਲਾਂ ਤੁਹਾਨੂੰ ਆਪਣੀ ਮੈਂਬਰੀ ਨੂੰ ਮਨਜ਼ੂਰ ਕਰਨ ਦੀ ਲੋੜ ਹੈ
 
+## Error page
+
+error-page-account-not-found-heading = ਖਾਤਾ ਨਹੀਂ ਲੱਭਿਆ
+error-page-account-not-found-continue-button = ਜਾਰੀ ਰੱਖੋ
+location-banner-info = ਅਸੀਂ ਆਪਣੇ-ਆਪ ਤੁਹਾਡੇ ਟਿਕਾਣਾ ਨਹੀਂ ਲੱਭ ਸਕੇ ਸਾਂ
+
 ## Page - Upgrade page
 
 upgrade-page-payment-information = ਭੁਗਤਾਨ ਦੀ ਜਾਣਕਾਰੀ
 
 ## Authentication Error page
 
+auth-error-page-title = ਅਸੀਂ ਤੁਹਾਨੂੰ ਸਾਈਨ ਇਨ ਨਹੀਂ ਕਰ ਸਕੇ
 checkout-error-boundary-retry-button = ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ
+checkout-error-boundary-basic-error-message = ਕੁਝ ਗਲਤ ਵਾਪਰਿਆ ਹੈ। ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ ਜਾਂ <contactSupportLink>ਸਹਿਯੋਗ ਟੀਮ ਨਾਲ ਸੰਪਰਕ ਕਰੋ।</contactSupportLink>
 amex-logo-alt-text = { -brand-amex } ਲੋਗੋ
 diners-logo-alt-text2 = { -brand-diners } ਲੋਗੋ
 discover-logo-alt-text = { -brand-discover } ਲੋਗੋ
 jcb-logo-alt-text = { -brand-jcb } ਲੋਗੋ
 mastercard-logo-alt-text = { -brand-mastercard } ਲੋਗੋ
+paypal-logo-alt-text = { -brand-paypal } ਲੋਗੋ
+unionpay-logo-alt-text = { -brand-unionpay } ਲੋਗੋ
 visa-logo-alt-text = { -brand-visa } ਲੋਗੋ
 link-logo-alt-text = { -brand-link } ਲੋਗੋ
 apple-pay-logo-alt-text = { -brand-apple-pay } ਲੋਗੋ
@@ -34,6 +52,7 @@ next-payment-error-manage-subscription-button = ਮੇਰੀ ਮੈਂਬਰੀ 
 next-payment-error-retry-button = ਮੁੜ ਕੋਸ਼ਿਸ਼ ਕਰੋ
 next-basic-error-message = ਕੁਝ ਗਲਤ ਵਾਪਰਿਆ ਹੈ। ਬਾਅਦ ਵਿੱਚ ਮੁੜ ਕੋਸ਼ਿਸ਼ ਕਰੋ।
 checkout-error-contact-support-button = ਸਹਿਯੋਗ ਲਈ ਸੰਪਰਕ ਕਰੋ
+checkout-error-already-subscribed = ਤੁਸੀਂ ਪਹਿਲਾਂ ਹੀ ਇਸ ਉਤਪਾਦ ਦੇ ਮੈਂਬਰ ਹੋ।
 
 ## Error pages - Payment method failure messages
 
@@ -69,6 +88,7 @@ next-payment-confirmation-cc-card-ending-in = ਆਖਰੀ ਨੰਬਰ { $last4
 ## Page - Subscription Management
 
 subscription-management-subscriptions-heading = ਮੈਂਬਰੀਆਂ
+subscription-management-payment-method-label = ਭੁਗਤਾਨ ਦਾ ਢੰਗ
 subscription-management-button-add-payment-method-aria = ਭੁਗਤਾਨ ਢੰਗ ਨੂੰ ਜੋੜੋ
 subscription-management-button-add-payment-method = ਜੋੜੋ
 subscription-management-button-manage-payment-method-aria = ਭੁਗਤਾਨ ਢੰਗਾਂ ਦਾ ਇੰਤਜ਼ਾਮ
@@ -77,23 +97,52 @@ subscription-management-button-manage-payment-method = ਬੰਦੋਬਸਤ
 subscription-management-card-ending-in = ਆਖਰੀ ਨੰਬਰ { $last4 } ਵਾਲਾ ਕਾਰਡ
 # $expirationDate (Date) - Payment card's expiration date
 subscription-management-card-expires-date = ਮਿਆਦ { $expirationDate }
+subscription-management-active-subscriptions-heading = ਸਰਗਰਮ ਮੈਂਬਰੀਆਂ
 subscription-management-button-support = ਮਦਦ ਲਵੋ
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscription-management-button-support-aria = { $productName } ਲਈ ਮਦਦ ਲਵੋ
+# $date (String) - Date of next bill
+subscription-management-iap-sub-expires-on-expiry-date = { $date } ਦੀ ਮਿਆਦ ਪੁੱਗਣੀ ਹੈ
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscription-management-button-manage-subscription-aria = { $productName } ਲਈ ਮੈਂਬਰੀ ਦਾ ਇੰਤਜ਼ਾਮ ਕਰੋ
+subscription-management-button-manage-subscription-1 = ਮੈਂਬਰੀ ਇੰਤਜ਼ਾਮ
+error-payment-method-banner-title-expired-card = ਮਿਆਦ ਪੁੱਗਿਆ ਕਾਰਡ
+error-payment-method-banner-label-update-payment-method = ਭੁਗਤਾਨ ਢੰਗ ਨੂੰ ਅੱਪਡੇਟ ਕਰੋ
+error-payment-method-banner-title-invalid-payment-information = ਗਲਤ ਭੁਗਤਾਨ ਜਾਣਕਾਰੀ
+error-payment-method-banner-message-account-issue = ਤੁਹਾਡੇ ਖਾਤੇ ਨਾਲ ਮਸਲਾ ਹੈ।
+subscription-management-button-manage-payment-method-1 = ਭੁਗਤਾਨ ਢੰਗਾਂ ਦਾ ਇੰਤਜ਼ਾਮ
+manage-payment-methods-heading = ਭੁਗਤਾਨ ਢੰਗਾਂ ਦਾ ਇੰਤਜ਼ਾਮ
 # Page - Not Found
 page-not-found-title = ਸਫਾ ਨਹੀ ਲੱਭਾ
 page-not-found-back-button = ਪਿੱਛੇ ਜਾਓ
 
+## Already Canceling
+
+already-canceling-title = ਤੁਹਾਡੀ ਮੈਂਬਰੀ ਛੇਤੀ ਹੀ ਖਤਮ ਹੋਣ ਵਾਲੀ ਹੈ
+already-canceling-button-back-to-subscriptions = ਮੈਂਬਰੀ ਉੱਤੇ ਵਾਪਸ ਜਾਓ
+
 ## Navigation breadcrumbs
 
+# Link title - Account settings
+subscription-management-breadcrumb-account-home = ਖਾਤੇ ਦਾ ਮੁੱਖ ਸਫ਼ਾ
+# Link title - Subscriptions management
+subscription-management-breadcrumb-subscriptions = ਮੈਂਬਰੀ
+# Link title - Payment method management
+subscription-management-breadcrumb-payment-2 = ਭੁਗਤਾਨ ਢੰਗਾਂ ਦਾ ਇੰਤਜ਼ਾਮ
 # $page refers to page titles used in the breadcrumb menu (e.g. Account Home, Subscriptions, Payment Methods)
 subscription-management-breadcrumb-back-aria = { $page } ਉੱਤੇ ਵਾਪਸ ਜਾਓ
 
 ## CancelSubscription
 
 subscription-cancellation-dialog-title = ਸਾਨੂੰ ਅਫਸੋਸ ਹੈ ਕਿ ਤੁਸੀਂ ਛੱਡ ਰਹੇ ਹੋ
+# $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+cancel-subscription-heading = { $productName } ਮੈਂਬਰੀ ਨੂੰ ਰੱਦ ਕਰੋ
+
+## $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+
+cancel-subscription-button-cancel-subscription = ਮੈਂਬਰੀ ਨੂੰ ਰੱਦ ਕਰੋ
+    .aria-label = { $productName } ਲਈ ਮੈਂਬਰੀ ਨੂੰ ਰੱਦ ਕਰੋ
+cancel-subscription-button-keep-subscription = ਮੈਂਬਰੀ ਰੱਖੋ
 
 ## $endDate (Date) - The end date of the free trial
 
@@ -103,6 +152,25 @@ next-payment-confirm-checkbox-error = ਅੱਗੇ ਜਾਣ ਤੋਂ ਪਹਿ
 
 next-new-user-submit = ਹੁਣੇ ਮੈਂਬਰ ਬਣੋ
 next-pay-with-heading-paypal = { -brand-paypal } ਰਾਹੀਂ ਭੁਗਤਾਨ ਕਰੋ
+
+## Churn flow - cancel
+
+churn-cancel-flow-success-title = ਤੁਸੀਂ ਹਾਲੇ ਵੀ ਮੈਂਬਰ ਹੋ
+
+## Churn flow - stay subscribed
+
+churn-stay-subscribed-button-stay-subscribed-and-save = ਮੈਂਬਰ ਬਣੇ ਰਹੋ ਅਤੇ ਬੱਚਤ ਕਰੋ
+churn-stay-subscribed-button-no-thanks = ਨਹੀਂ, ਧੰਨਵਾਦ
+    .aria-label = ਮੈਂਬਰੀ ਸਫ਼ੇ ਉੱਤੇ ਵਾਪਸ ਜਾਓ
+churn-stay-subscribed-link-terms-and-restrictions = ਸੀਮਤ ਨਿਯਮ ਅਤੇ ਪਾਬੰਦੀਆਂ ਲਾਗੂ ਹਨ
+churn-stay-subscribed-title-offer-expired = ਇਹ ਪੇਸ਼ਕਸ਼ ਦੀ ਮਿਆਦ ਪੁੱਗੀ
+
+## $productName (String) - The name of the product associated with the subscription.
+
+churn-stay-subscribed-subtitle-offer-expired = ਕੀ { $productName } ਨੂੰ ਵਰਤਣਾ ਜਾਰੀ ਰੱਖਣਾ ਹੈ?
+churn-stay-subscribed-button-go-to-product-page = { $productName } ਉੱਤੇ ਜਾਓ
+churn-stay-subscribed-button-go-to-subscriptions = ਮੈਂਬਰੀ ਉੱਤੇ ਜਾਓ
+churn-stay-subscribed-button-stay-subscribed = ਮੈਂਬਰ ਬਣੇ ਰਹੋ
 
 ## Component - CouponForm
 
@@ -115,34 +183,61 @@ next-coupon-promo-code-applied = ਪ੍ਰੋਮੋ ਕੋਡ ਲਾਗੂ ਕ�
 next-coupon-remove = ਹਟਾਓ
 next-coupon-submit = ਲਾਗੂ ਕਰੋ
 
+## $amount (Number) - The charge amount excluding tax. It will be formatted as currency.
+## $date (Date) - The date the free trial ends or expires (e.g., September 8, 2026)
+## $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+## $tax (Number) - The tax amount. It will be formatted as currency.
+
+free-trial-content-button-cancel-trial-aria = { $productName } ਲਈ ਟਰਾਇਲ ਨੂੰ ਰੱਦ ਕਰੋ
+free-trial-content-button-cancel-subscription = ਮੈਂਬਰੀ ਰੱਦ ਕਰੋ
+
+## $billedOnDate (Date) - The date of the last bill (e.g., July 20, 2025)
+## $invoiceTotal (Number) - The invoice total amount excluding tax. It will be formatted as currency.
+## $taxDue (Number) - The tax amount. It will be formatted as currency.
+
+free-trial-content-last-bill-no-tax = { $invoiceTotal }
+
 ##
 
-
-# Component - Header
-
+free-trial-content-button-update-payment = ਭੁਗਤਾਨ ਢੰਗ ਨੂੰ ਅੱਪਡੇਟ ਕਰੋ
 payments-header-help =
-    .title = ਮਦਦ
-    .aria-label = ਮਦਦ
     .alt = ਮਦਦ
+    .aria-label = ਮਦਦ
+    .title = ਮਦਦ
 payments-header-bento =
-    .title = { -brand-mozilla } ਉਤਪਾਦ
-    .aria-label = { -brand-mozilla } ਉਤਪਾਦ
     .alt = { -brand-mozilla } ਲੋਗੋ
+    .aria-label = { -brand-mozilla } ਉਤਪਾਦ
+    .title = { -brand-mozilla } ਉਤਪਾਦ
 payments-header-bento-close =
     .alt = ਬੰਦ ਕਰੋ
+
+## Interstitial Offer
+
+interstitial-offer-button-back-to-subscriptions = ਮੈਂਬਰੀ ਉੱਤੇ ਵਾਪਸ ਜਾਓ
+interstitial-offer-cancel-subscription-button = ਮੈਂਬਰੀ ਰੱਦ ਕਰੋ
 
 ##
 
 payments-client-loading-spinner =
-    .aria-label = …ਲੋਡ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ
     .alt = …ਲੋਡ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ
+    .aria-label = …ਲੋਡ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ
+
+## Payment method management page - Stripe
+
+# Save button for saving a new payment method
+payment-method-management-save-method = ਭੁਗਤਾਨ ਢੰਗ ਨੂੰ ਸੰਭਾਲੋ
+manage-stripe-payments-title = ਭੁਗਤਾਨ ਢੰਗਾਂ ਦਾ ਇੰਤਜ਼ਾਮ
 
 ## Component - PurchaseDetails
 
 next-plan-details-header = ਉਤਪਾਦ ਦੇ ਵੇਰਵੇ
 next-plan-details-list-price = ਭਾਅ ਸੂਚੀ
+# $productName (String) - The name of the product, e.g. Mozilla VPN
+plan-details-product-prorated-price = { $productName } ਲਈ ਅਨੁਪਾਤ ਮੁਤਾਬਕ ਕੀਮਤ
 next-plan-details-tax = ਟੈਕਸ ਅਤੇ ਫ਼ੀਸਾਂ
 next-plan-details-total-label = ਕੁੱਲ ਜੋੜ
+# "Unused time" refers to the remaining value of the current subscription that hasn't been used yet
+purchase-details-unused-time-label = ਅਣਵਰਤੇ ਸਮੇਂ ਲਈ ਕਰੈਡਿਟ
 # "Credit applied" refers to account credit used to reduce the amount due on the invoice
 purchase-details-credit-applied-label = ਕਰੈਡਿਟ ਲਾਗੂ ਕੀਤਾ
 # "Total due" is the total that the customer owes after all credits, discounts, and taxes have been applied
@@ -191,6 +286,8 @@ resubscribe-success-dialog-title = ਧੰਨਵਾਦ! ਤੁਸੀਂ ਸਭ �
 ## $promotionName (String) - The name of the promotion.
 ## $taxDue (Number) - The tax added on, not included in amount. It will be formatted as currency.
 
+subscription-content-last-bill-no-tax = { $invoiceTotal }
+subscription-content-next-bill-no-tax-1 = { $nextInvoiceTotal }
 subscription-content-button-stay-subscribed = ਮੈਂਬਰ ਬਣੇ ਰਹੋ
     .aria-label = { $productName } ਲਈ ਮੈਂਬਰ ਬਣੇ ਰਹੋ
 subscription-content-button-cancel-subscription = ਮੈਂਬਰੀ ਰੱਦ ਕਰੋ
@@ -199,6 +296,12 @@ subscription-content-button-cancel-subscription = ਮੈਂਬਰੀ ਰੱਦ �
 ##
 
 dialog-close = ਡਾਈਲਾਗ ਨੂੰ ਬੰਦ ਕਰੋ
+
+## Churn flow - Error page
+
+churn-error-page-button-sign-in = ਸਾਈਨ ਇਨ
+# $productName (String) - The name of the product associated with the subscription.
+churn-error-page-button-go-to-product-page = { $productName } ਉੱਤੇ ਜਾਓ
 
 ## PriceInterval - shared by multiple components, including Details and PurchaseDetails
 ## $amount (Number) - The amount billed. It will be formatted as currency.
@@ -234,3 +337,44 @@ terms-and-privacy-paypal-link = { -brand-paypal } ਪਰਦੇਦਾਰੀ ਨ�
 upgrade-purchase-details-current-plan-label = ਮੌਜੂਦਾ ਪਲਾਨ
 upgrade-purchase-details-new-plan-label = ਨਵਾਂ ਪਲਾਨ
 upgrade-purchase-details-promo-code = ਪਰਚਾਰ ਕੋਡ
+upgrade-purchase-details-tax-label = ਟੈਕਸ ਅਤੇ ਫ਼ੀਸਾਂ
+
+## $productName (String) - Name of the upgraded product (e.g. Mozilla VPN)
+## Daily/Weekly/Monthly/Yearly refers to the subscription interval/amount of time between billing occurrences
+
+upgrade-purchase-details-new-plan-daily = { $productName } (ਰੋਜ਼ਾਨਾ)
+upgrade-purchase-details-new-plan-weekly = { $productName } (ਹਫ਼ਤੇਵਾਰ)
+upgrade-purchase-details-new-plan-monthly = { $productName } (ਮਹੀਨੇਵਾਰ)
+upgrade-purchase-details-new-plan-halfyearly = { $productName } (6-ਮਹੀਨੇ)
+upgrade-purchase-details-new-plan-yearly = { $productName } (ਸਾਲਾਨਾ)
+
+## Page Metadata Information
+## $productTitle (String) - The name of the product to create subscription, e.g. Mozilla VPN
+
+# Checkout error
+metadata-title-checkout-error = ਗਲਤੀ | { $productTitle }
+# Checkout success
+metadata-title-checkout-success = ਸਫ਼ਲ | { $productTitle }
+metadata-description-checkout-success = ਵਧਾਈਆਂ! ਤੁਸੀਂ ਆਪਣੀ ਖਰੀਦ ਕਾਮਯਾਬੀ ਨਾਲ ਪੂਰੀ ਕਰ ਲਈ ਹੈ।
+# Checkout needs_input
+metadata-title-checkout-needs-input = ਕਾਰਵਾਈ ਦੀ ਲੋੜ ਹੈ | { $productTitle }
+# Upgrade start
+metadata-title-upgrade-start = ਅੱਪਗਰੇਡ | { $productTitle }
+# Upgrade processing
+metadata-title-upgrade-processing = ਕਾਰਵਾਈ ਜਾਰੀ ਹੈ | { $productTitle }
+# Upgrade error
+metadata-title-upgrade-error = ਗਲਤੀ | { $productTitle }
+# Upgrade success
+metadata-title-upgrade-success = ਸਫ਼ਲ | { $productTitle }
+# Upgrade needs_input
+metadata-title-upgrade-needs-input = ਕਾਰਵਾਈ ਦੀ ਲੋੜ ਹੈ | { $productTitle }
+# Default
+metadata-title-default = ਸਫ਼ਾ ਨਹੀਂ ਲੱਭਿਆ | { $productTitle }
+
+## Coupon Error Messages
+
+next-coupon-error-invalid = ਤੁਹਾਡੇ ਵਲੋਂ ਦਿੱਤਾ ਕੋਡ ਗ਼ੈਰ-ਵਾਜਬ ਹੈ।
+
+## Stay Subscribed Error Messages
+
+stay-subscribed-error-expired = ਇਹ ਪੇਸ਼ਕਸ਼ ਦੀ ਮਿਆਦ ਪੁੱਗੀ।
