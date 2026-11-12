@@ -328,6 +328,11 @@ locale-toggle-browser-default = Kundahára ypyguáva
 error-bad-request = Mba’ejerure ojavýva
 
 
+pair-unsupported-hint-heading = Emohu’ã tembiporu’i mbojuehe
+pair-unsupported-hint-step-close-page = Emboty ko kuatiarogue
+pair-unsupported-hint-learn-more-link = Eikuaave
+
+
 password-info-balloon-why-password-info = Eikotevẽ ñe’ẽñemi eike hag̃ua oimeraẽva mba’ekuaarã ipapapýva embyatýva orendive.
 password-info-balloon-reset-risk-info = Ñemoñepyrũjey he’ise okañykuaaha mba’ekuaarã ikatúva ñe’ẽñemi ha techaukaha.
 
@@ -638,6 +643,7 @@ nav-security = Tekorosã
 nav-connected-services = Mba’epytyvõrã mbojuajupyre
 nav-data-collection = Ñembyaty ha mba’ekuaarã jeporu
 nav-paid-subs = Ñemboheraguapy ñehepyme’ẽgua
+nav-email-prefs = Ñanduti veve erohoryvéva
 
 
 page-2fa-change-title = Emombue ñemboaje mokõi jeku’egua
@@ -1178,11 +1184,13 @@ index-email-bounced = Ne ñanduti veve ñemoneĩrã ojevyjeýma. ¿Ikatu ehaivai
 
 
 inline-passwordless-sync-setup-page-title = ¿Ehejarei ñe’ẽñemi eiporujeývo?
+inline-passwordless-sync-setup-success-banner-v2 = Emoñepyrũ tembiapo ha hendýma ñembojuehe
 inline-passwordless-sync-setup-heading = ¿Ehejarei ñe’ẽñemi eiporujeývo?
 inline-passwordless-sync-setup-description = Eiporu ko ñe’ẽ ñemi eike pya’eve hag̃ua.
 inline-passwordless-sync-setup-enable-button = Ejora ñe’ẽ ñemi jeikeha
 inline-passwordless-sync-setup-enabling = Emyandyhína…
 inline-passwordless-sync-setup-not-now-button = Ani ko’ág̃a
+inline-passwordless-sync-setup-success-alert-v2 = Ko ñe’ẽ ñemi oĩma eike ha embojuehe hag̃ua
 inline-passwordless-sync-setup-error-cancelled = Nahu’ãi upe ñe’ẽ ñemi ñemoneĩ
 inline-passwordless-sync-setup-error-cancelled-description = Emoneĩ ñe’ẽ ñemi emboyke hag̃ua ñe’ẽñemi eiporujeývo.
 
@@ -1212,6 +1220,10 @@ inline-totp-setup-security-code-placeholder = Ayvu ñemoneĩgua
 inline-totp-setup-code-required-error = Ayvu ñemoneĩgua jerurepyre
 tfa-qr-code-alt = Eiporu { $code } ayvu emboheko hag̃ua ñemoneĩ mokõi jeku’épe tembiporu’i moneĩmbyre.
 inline-totp-setup-page-title = Ñemoneĩ mokõi jeku’épe
+
+
+page-not-found-heading = Kuatiarogue ojejuhu’ỹva
+page-not-found-home-button = Ñepyrũ
 
 
 pair-auth-allow-heading-text = ¿Eikeramoite { -brand-firefox } ndive?
@@ -1322,6 +1334,7 @@ pair2-authority-download-firefox-cta = Emboguejy { -brand-firefox }
 pair2-authority-scan-qr-heading = Emoha’ãnga eike hag̃ua ambue mba’e’okápe
 pair2-authority-scan-qr-instruction = Emoha’ãnga QR ayvu ne pumbyry térã tablétape embojuehe hag̃ua { -brand-firefox } rechaukaha ha hetave.
 pair2-authority-scan-qr-code-aria-label = QR ayvu eike hag̃ua ne mba’e’okápe
+pair2-authority-scan-qr-other-ways-link = Ambueháicha eike hag̃ua
 pair2-authority-scan-qr-skip-button = Ehasa ko’ág̃a
 
 
@@ -1369,6 +1382,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Eike hag̃ua mba’e�
 
 permissions-label-email = Ñanduti veve kundaharape
 permissions-label-display-name = Téra ehechauka hag̃ua
+permissions-label-avatar = Mba’ete ra’ãnga
 permissions-continue-button = Eku’ejey
 permissions-cancel-button = Eheja
 
@@ -1430,6 +1444,7 @@ confirm-totp-reset-password-use-different-account = Eiporu ambuéva mba’ete
 
 
 password-reset-flow-heading = Embojevyjey ne ñe’ẽñemi
+password-reset-forgot-heading = ¿Nderesaráipa ñe’ẽñemi?
 password-reset-email-input =
     .label = Ehai ne ñandutiveve
 password-reset-submit-button-2 = Ku’ejey
@@ -1475,6 +1490,10 @@ reset-password-complete-recovery-key-download-info =
     ko’ag̃a, ndaikatumo’ãigui ejevy ko kuatiaroguépe uperire.</b>
 
 
+server-error-heading = 500 Javy
+server-error-home-button = Ñepyrũ
+
+
 error-label = Javy:
 validating-signin = Amoneĩ tembiapo ñepyrũ…
 complete-signin-error-header = Ñemoneĩha jejavy
@@ -1483,6 +1502,7 @@ signin-link-expired-message-2 = Pe juajuha eikutuva’ekue ndoikovéima térã o
 
 
 signin-password-needed-header-2 = Ehai ñe’ẽñemi <span>ne { -product-mozilla-account }</span> peg̃uarã
+signin-button-start-syncing = Eñepyrũ ñembojuehe
 signin-subheader-without-logo-with-servicename = Eku’ejey { $serviceName }
 signin-subheader-without-logo-default = Eku’ejey mba’ete mbohekopyahúpe
 signin-button = Eñemboheraguapy
@@ -1517,6 +1537,7 @@ signin-passkey-fallback-body = Ereko hag̃ua mba’ekuaarã tekosãme, eikotev�
 signin-passkey-fallback-password-label = Ñe’ẽñemi
 signin-passkey-fallback-continue = Ku’ejey
 signin-passkey-fallback-forgot-password-link = ¿Nderesarái ñe’ẽñemígui?
+signin-passkey-fallback-wrap-unusable-link = Eikuaave
 
 
 signin-passwordless-code-heading = Emoinge ayvu ñemoneĩrã
@@ -1670,4 +1691,5 @@ signup-confirmed-sync-manage-sync-button = Eñangareko ñembojuehére
 signup-confirmed-sync-set-password-success-banner = Ñe’ẽñemi ñembojuehe moheñoipyre
 
 
+update-firefox-heading = Tekotevẽ { -brand-firefox } mbohekopyahu
 update-firefox-download-button = Emboguejy mbohekopyahu ramovegua

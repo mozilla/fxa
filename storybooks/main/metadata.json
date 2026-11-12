@@ -1,8 +1,8 @@
 {
-  "commit": "abe2bd447db209b321248227ff90752e495347dc",
-  "summary": "Merge pull request #21749 from mozilla/fix-circleci-medium-plus",
-  "description": "fix(ci): use large.gen2 instead of nonexistent medium+.gen2",
-  "timestamp": 1794506398000,
+  "commit": "a1f795afc77ca511d0e50892a46220de51c35c7d",
+  "summary": "Merge pull request #21739 from mozilla/FXA-14259",
+  "description": "feat(settings): adopt Nova semantics on auth flow pages",
+  "timestamp": 1794524679000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
