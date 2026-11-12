@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-# CI does not run Sync, so the Sync functional specs skip there.
+# CI does not run Sync.
 if [ "$CI" == "true" ]; then
   echo Not running sync in CI. Exiting...
   exit 0
