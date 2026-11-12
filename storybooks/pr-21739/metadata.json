@@ -1,8 +1,8 @@
 {
-  "commit": "6705df2847040c809f5f7554db6444addcd9e4df",
+  "commit": "ed93239cea0e9197e1c021170a5d862957aaae67",
   "summary": "feat(settings): adopt Nova semantics on auth flow pages",
   "description": "Because:\n- Auth pages and their shared components set colors with raw utilities and dark: pairs.\n- Nova's Figma restyles CTAs, banners, choice cards and cards, with violet accents.\n\nThis commit:\n- Swaps exact pairs for semantic utilities (incl. body) and collapses others under nova:.\n- Restyles Banner and ResetPasswordWarning as message bars, and choice cards per Figma.\n- Gives Nova CTAs the circle radius, 58px cta-xl, semibold labels; fixes the card surface.\n- Uses the accent for progress, spinners, focus rings and input-radio; 200ms transitions.\n- Documents each collapse, delta and remaining gap in the design-tokens README.",
-  "timestamp": 1794504424000,
+  "timestamp": 1794512046000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",
