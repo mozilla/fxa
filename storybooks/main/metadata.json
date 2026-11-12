@@ -1,8 +1,8 @@
 {
-  "commit": "a1f795afc77ca511d0e50892a46220de51c35c7d",
-  "summary": "Merge pull request #21739 from mozilla/FXA-14259",
-  "description": "feat(settings): adopt Nova semantics on auth flow pages",
-  "timestamp": 1794524679000,
+  "commit": "d237ea93f8ecd6312b62bd81c895148c1c05b4fa",
+  "summary": "Merge pull request #21740 from mozilla/FXA-14260",
+  "description": "feat(settings): adopt Nova semantics in Settings",
+  "timestamp": 1794525196000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
