@@ -43,6 +43,9 @@ button-back-title = ਪਿੱਛੇ
 ## Clicking on this button downloads a plain text file that contains the user's account recovery key
 ## The account recovery key can be used to recover data when users forget their account password
 
+# Button to download the account recovery key as a plain text file and navigate to the next step
+# The next (and final) step is an optional prompt to save a storage hint
+recovery-key-download-button-v4 = ਡਾਊਨਲੋਡ ਅਤੇ ਜਾਰੀ ਰੱਖੋ
 # Error message shown in a banner if the account recovery key download failed.
 # The id keeps "pdf" from when this was a PDF, to preserve existing translations.
 recovery-key-pdf-download-error = ਅਫ਼ਸੋਸ, ਤੁਹਾਡੀ ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ ਡਾਊਨਲੋਡ ਕਰਨ ਦੌਰਾਨ ਸਮੱਸਿਆ ਆਈ ਸੀ।
@@ -71,6 +74,12 @@ choose-newsletters-option-test-pilot =
 # "Action alerts" can be interpreted as "Calls to action"
 choose-newsletters-option-reclaim-the-internet =
     .label = ਇੰਟਰਨੈੱਟ ਉੱਤੇ ਦਾਅਵਾ ਕਰਨ ਲਈ ਕਾਰਵਾਈ ਚੇਤਾਵਨੀਆਂ
+
+## Dark mode toggle
+
+dark-mode-toggle-light = ਹਲਕਾ
+dark-mode-toggle-dark = ਗੂੜ੍ਹਾ
+dark-mode-toggle-system = ਸਿਸਟਮ
 
 ## Tooltip notifications for actions performed on account recovery keys or one-time use codes
 
@@ -134,6 +143,13 @@ device-info-browser-device = { $deviceName } ਉੱਤੇ { $browserName }
 # The IP address is a string of numbers separated by periods (e.g., 192.158.1.38)
 device-info-ip-address = IP ਸਿਰਨਾਵਾਂ: { $ipAddress }
 
+## Firefox Promo Banner component
+## Shown at the top of settings to promote installing Firefox on mobile (when
+## the user is on Firefox) or switching to Firefox (on other browsers).
+
+firefox-promo-banner-mobile-cta = ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰੋ
+firefox-promo-banner-switch-cta = { -brand-firefox } ਲਈ ਬਦਲੋ
+
 ## FormPasswordInlineCriteria
 
 form-password-with-inline-criteria-signup-new-password-label =
@@ -146,6 +162,9 @@ form-password-with-inline-criteria-reset-new-password =
 form-password-with-inline-criteria-confirm-password =
     .label = ਪਾਸਵਰਡ ਨੂੰ ਤਸਦੀਕ ਕਰੋ
 form-password-with-inline-criteria-reset-submit-button = ਨਵਾਂ ਪਾਸਵਰਡ ਬਣਾਓ
+form-password-with-inline-criteria-old-password-label =
+    .label = ਪੁਰਾਣਾ ਪਾਸਵਰਡ
+form-password-with-inline-criteria-change-password-submit-button = ਪਾਸਵਰਡ ਨੂੰ ਬਦਲੋ
 form-password-with-inline-criteria-set-password-new-password-label =
     .label = ਪਾਸਵਰਡ
 form-password-with-inline-criteria-set-password-confirm-password-label =
@@ -231,6 +250,9 @@ close-icon-aria-label =
 # Used to decorate a code you enter for verification purposes
 code-icon-aria-label =
     .aria-label = ਕੋਡ
+# Used to decorate an edit or rename control
+edit-icon-aria-label =
+    .aria-label = ਸੋਧੋ
 error-icon-aria-label =
     .aria-label = ਗਲਤੀ
 # Used as information icon for informative messaging
@@ -363,6 +385,16 @@ locale-toggle-browser-default = ਬਰਾਊਜ਼ਰ ਮੂਲ
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = ਖ਼ਰਾਬ ਬੇਨਤੀ
 
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+pair-unsupported-hint-heading = ਐਪ ਵਿੱਚ ਪੇਅਰ ਕਰਨ ਨੂੰ ਪੂਰਾ ਕਰੋ
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = ਇਸ ਸਫ਼ੇ ਨੂੰ ਬੰਦ ਕਰੋ
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = ਹੋਰ ਜਾਣੋ
+
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
 
@@ -378,6 +410,12 @@ password-strength-inline-not-email = ਤੁਹਾਡਾ ਈਮੇਲ ਸਿਰ�
 password-strength-inline-not-common = ਕੋਈ ਆਮ ਵਰਤਿਆ ਪਾਸਵਰਡ ਨਹੀਂ ਹੈ
 password-strength-inline-confirmed-must-match = ਨਵੇਂ ਪਾਸਵਰਡ ਮਿਲਦੇ ਹੋਣ ਦੀ ਤਸਦੀਕ
 password-strength-inline-passwords-match = ਪਾਸਵਰਡ ਮਿਲਦੇ ਹਨ
+
+## PromoQrMobile component
+## Promotional aside encouraging users to download the Firefox mobile app via QR code.
+
+# "Your phone. Your rules." refers to the user being able to control what browser they use on their own phone.
+promo-qr-mobile-heading = ਤੁਹਾਡਾ ਫ਼ੋਨ। ਤੁਹਾਡੇ ਨਿਯਮ।
 
 ## Notification Promo Banner component
 
@@ -732,6 +770,7 @@ nav-security = ਸੁਰੱਖਿਆ
 nav-connected-services = ਕਨੈਕਟ ਹੋਈਆਂ ਸੇਵਾਵਾਂ
 nav-data-collection = ਡਾਟਾ ਇਕੱਤਰਤਾ ਅਤੇ ਵਰਤੋਂ
 nav-paid-subs = ਭੁਗਤਾਨ ਕੀਤੀਆਂ ਮੈਂਬਰੀਆਂ
+nav-email-prefs = ਈਮੇਲ ਪਸੰਦਾਂ
 
 ## Page2faChange
 
@@ -834,6 +873,7 @@ delete-account-product-firefox-sync = { -brand-firefox } ਡਾਟਾ ਸਿੰ�
 delete-account-product-firefox-addons = { -brand-firefox } ਐਡ-ਆਨ
 delete-account-acknowledge = ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੇ ਖਾਤੇ ਨੂੰ ਹਟਾਉਣ ਦੀ ਤਸਦੀਕ ਕਰੋ:
 delete-account-continue-button = ਜਾਰੀ ਰੱਖੋ
+delete-account-delete-button-passwordless = ਖਾਤੇ ਨੂੰ ਹਟਾਓ
 delete-account-password-input =
     .label = ਪਾਸਵਰਡ ਭਰੋ
 delete-account-cancel-button = ਰੱਦ ਕਰੋ
@@ -849,6 +889,15 @@ submit-display-name = ਸੰਭਾਲੋ
 cancel-display-name = ਰੱਦ ਕਰੋ
 display-name-update-error-2 = ਤੁਹਾਡੇ ਦਿਸਣ ਵਾਲੇ ਨਾਂ ਨੂੰ ਅੱਪਡੇਟ ਕਰਨ ਦੌਰਾਨ ਸਮੱਸਿਆ ਸੀ
 display-name-success-alert-2 = ਦਿਖਾਉਣ ਵਾਲਾ ਨਾਂ ਅੱਪਡੇਟ ਕੀਤਾ
+
+## PagePasskeyAdd - Loading page shown during passkey creation
+
+page-passkey-add-creating-heading = ਪਾਸ-ਕੀ ਬਣਾਈ ਜਾ ਰਹੀ ਹੈ…
+page-passkey-add-cancel = ਰੱਦ ਕਰੋ
+
+## Success / Error messages (shown in alert bar after returning to settings)
+
+page-passkey-add-success = ਪਾਸ-ਕੀ ਬਣਾਈ ਗਈ
 
 ## Recent account activity
 ## All strings except title indicate an event that occurred from the user's account
@@ -889,6 +938,9 @@ recent-activity-account-recovery-codes-replaced = ਰਿਕਵਰੀ ਕੋਡ�
 recent-activity-account-recovery-codes-created = ਰਿਕਵਰੀ ਕੋਡ ਬਣਾਏ ਗਏ
 recent-activity-account-recovery-codes-signin-complete = ਰਿਕਵਰੀ ਕੋਡਾਂ ਨਾਲ ਸਾਈਨ ਇਨ ਕਰਨਾ ਪੂਰਾ ਹੋਇਆ
 recent-activity-must-reset-password = ਪਾਸਵਰਡ ਮੁੜ-ਸੈੱਟ ਕਰਨ ਦੀ ਲੋੜ ਹੈ
+recent-activity-account-passkey-removed = ਪਾਸ-ਕੀ ਨੂੰ ਹਟਾਇਆ
+recent-activity-account-passkey-authentication-success = ਪਾਸ-ਕੀ ਨਾਲ ਸਾਈਨ-ਇਨ ਕਰਨਾ ਪੂਰਾ ਹੋਇਆ
+recent-activity-account-passkey-authentication-failure = ਪਾਸ-ਕੀ ਨਾਲ ਸਾਈਨ ਇਨ ਕਰਨਾ ਅਸਫ਼ਲ ਹੈ
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = ਹੋਰ ਖਾਤਾ ਸਰਗਰਮੀ
 
@@ -948,6 +1000,7 @@ verify-secondary-email-please-enter-code-2 = <strong>{ $email }</strong> ਉੱ�
 # Variables:
 #   $email (String) - the user's email address, which does not need translation.
 verify-secondary-email-success-alert-2 = { $email } ਨੂੰ ਕਾਮਯਾਬੀ ਨਾਲ ਜੋੜਿਆ
+verify-secondary-email-resend-code-button = ਤਸਦੀਕੀਕਰਨ ਕੋਡ ਫੇਰ ਭੇਜੋ
 
 ##
 
@@ -963,6 +1016,8 @@ product-promo-monitor =
 product-promo-monitor-description-v2 = ਪਤਾ ਕਰੋ ਕਿ ਤੁਹਾਡੀ ਨਿੱਜੀ ਜਾਣਕਾਰੀ ਕਿੱਥੇ ਦਿਸਦੀ ਹੈ, ਉਸ ਨੂੰ ਆਪਣੇ ਹੱਥ ਹੇਠ ਕਰੋ
 # Links out to the Monitor site
 product-promo-monitor-cta = ਮੁਫ਼ਤ ਸਕੈਨ ਲਵੋ
+product-promo-vpn =
+    .alt = { -product-mozilla-vpn }
 
 ## Profile section
 
@@ -1036,6 +1091,27 @@ tfa-row-backup-phone-delete-title-v2 = ਰਿਕਵਰੀ ਫ਼ੋਨ ਨੂੰ
 # into transferring a victim's phone number to their own SIM card, enabling access to accounts secured
 # with SMS-based two-factor authentication.
 tfa-row-backup-phone-sim-swap-risk-link = ਸਿਮ ਬਦਲਣ ਦੇ ਖ਼ਤਰੇ ਬਾਰੇ ਹੋਰ ਜਾਣੋ
+# This is a string that shows when the user's passkey was created.
+# Variables:
+#   $createdDate (String) - a localized date string
+passkey-sub-row-created-date = ਬਣਾਇਆ: { $createdDate }
+# This is a string that shows when the user's passkey was last used.
+# Variables:
+#   $lastUsedDate (String) - a localized date string
+passkey-sub-row-last-used-date = ਆਖਰੀ ਵਰਤੋਂ: { $lastUsedDate }
+passkey-sub-row-delete-title = ਪਾਸ-ਕੀ ਨੂੰ ਹਟਾਓ
+passkey-delete-modal-heading = ਤੁਹਾਡੀ ਪਾਸ-ਕੀ ਨੂੰ ਹਟਾਉਣਾ ਹੈ?
+passkey-delete-modal-cancel-button = ਰੱਦ ਕਰੋ
+passkey-delete-modal-confirm-button = ਪਾਸ-ਕੀ ਨੂੰ ਹਟਾਓ
+passkey-delete-success = ਪਾਸ-ਕੀ ਨੂੰ ਹਟਾਇਆ
+passkey-sub-row-rename-title = ਪਾਸ-ਕੀ ਦਾ ਨਾਂ ਬਦਲੋ
+passkey-rename-modal-heading = ਪਾਸ-ਕੀ ਦਾ ਨਾਂ ਬਦਲੋ
+passkey-rename-modal-description = ਇਸ ਪਾਸ-ਕੀ ਲਈ ਨਵਾਂ ਨਾਂ ਦਿਓ।
+passkey-rename-input-label = ਪਾਸ-ਕੀ ਦਾ ਨਾਂ
+passkey-rename-save-button = ਸੰਭਾਲੋ
+passkey-rename-cancel-button = ਰੱਦ ਕਰੋ
+passkey-rename-error-empty = ਇਸ ਪਾਸ-ਕੀ ਲਈ ਨਾਂ ਦਿਓ
+passkey-rename-success = ਪਾਸ-ਕੀ ਦਾ ਨਾਂ ਬਦਲਿਆ
 
 ## Switch component
 
@@ -1054,6 +1130,13 @@ row-defaults-action-add = ਜੋੜੋ
 row-defaults-action-change = ਬਦਲੋ
 row-defaults-action-disable = ਅਸਮਰੱਥ ਕਰੋ
 row-defaults-status = ਕੋਈ ਨਹੀਂ
+
+## UnitRowPasskey
+
+passkey-row-header = ਪਾਸ-ਕੀ
+passkey-row-enabled = ਸਮਰੱਥ ਹੈ
+passkey-row-not-set = ਸੈੱਟ ਨਹੀਂ
+passkey-row-action-create = ਬਣਾਓ
 
 ## Account recovery key sub-section on main Settings page
 
@@ -1244,6 +1327,13 @@ index-account-delete-success = ਖਾਤੇ ਨੂੰ ਠੀਕ ਤਰ੍ਹਾ�
 # Displayed when users try to sign up for an account and their confirmation code email bounces
 index-email-bounced = ਤੁਹਾਡੀ ਤਸਦੀਕ ਈਮੇਲ ਵਾਪਿਸ ਪਰਤ ਆਈ ਹੈ। ਕੀ ਈਮੇਲ ਗਲਤ ਲਿਖਿਆ ਸੀ?
 
+## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
+
+inline-passwordless-sync-setup-enable-button = ਪਾਸ-ਕੀ ਨੂੰ ਸਮਰੱਥ ਕਰੋ
+# Button label while the passkey is stored.
+inline-passwordless-sync-setup-enabling = …ਸਮਰੱਥ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ
+inline-passwordless-sync-setup-not-now-button = ਹੁਣੇ ਨਹੀਂ
+
 ## InlineRecoveryKeySetup page component
 
 inline-recovery-key-setup-create-error = ਓਹ ਹੋ! ਅਸੀਂ ਤੁਹਾਡੀ ਨਵੀਂ ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ ਨਹੀਂ ਬਣਾ ਸਕਦੇ ਹਾਂ। ਕਿਰਪਾ ਕਰਕੇ ਬਾਅਦ ਵਿੱਚ ਕੋਸ਼ਿਸ਼ ਕਰੋ।
@@ -1282,6 +1372,12 @@ inline-totp-setup-security-code-placeholder = ਪਰਮਾਣੀਕਰਨ ਕੋ
 inline-totp-setup-code-required-error = ਪਰਮਾਣੀਕਰਨ ਕੋਡ ਚਾਹੀਦਾ ਹੈ
 tfa-qr-code-alt = ਸਹਾਇਕ ਐਪਲੀਕੇਸ਼ਨਾਂ ਵਿੱਚ ਦੋ-ਪੜਾਵੀਂ ਪਰਮਾਣਿਕਤਾ ਨੂੰ ਸੈੱਟਅੱਪ ਕਰਨ ਲਈ { $code } ਕੋਡ ਦੀ ਵਰਤੋਂ ਕਰੋ।
 inline-totp-setup-page-title = ਦੋ-ਪੜ੍ਹਾਵੀਂ ਪਰਮਾਣੀਕਰਨ
+
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = ਸਫਾ ਨਹੀ ਲੱਭਾ
+page-not-found-home-button = ਮੁੱਖ ਸਫ਼ਾ
 
 ## AuthAllow page - Part of the device pairing flow
 
@@ -1331,9 +1427,14 @@ auth-totp-code-required-error = ਪਰਮਾਣੀਕਰਨ ਕੋਡ ਚਾਹ�
 # Strings within the <span> elements appear as a subheading.
 pair-wait-for-supp-heading-text = ਹੁਣ <span>ਤੁਹਾਡੇ ਹੋਰ ਡਿਵਾਈਸ</span> ਤੋਂ ਮਨਜ਼ੂਰ ਚਾਹੀਦੀ ਹੈ
 
+## PairFailure - a view which displays on failure of the device pairing process
+
+pair-failure-try-again-link = ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ
+
 ## Pair index page
 
 pair-sync-header = ਆਪਣੇ ਫ਼ੋ ਜਾਂ ਟੇਬਲੇਟ ਉੱਤੇ { -brand-firefox } ਸਿੰਕ ਕਰੋ
+pair-cad-header-v2 = ਹੋਰ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰੋ
 pair-already-have-firefox-paragraph = ਫ਼ੋਨ ਜਾਂ ਟੇਬਲੇਟ ਉੱਤੇ { -brand-firefox } ਪਹਿਲਾਂ ਹੀ ਹੈ?
 # Clicking this button initiates the pairing process, usually by directing the user to the `about:preferences` page in Firefox
 pair-sync-your-device-button = ਆਪਣੇ ਡਿਵਾਈਸਾਂ ਨੂੰ ਸਿੰਕ ਕਰੋ
@@ -1346,6 +1447,16 @@ pair-take-your-data-message = ਜਿੱਥੇ ਵੀ ਤੁਸੀਂ { -brand-fi
 pair-get-started-button = ਸ਼ੁਰੂ ਕਰੀਏ
 # This is the aria label on the QR code image
 pair-qr-code-aria-label = QR ਕੋਡ
+
+## Choice screen — "Do you have Firefox for mobile?"
+
+# Continue button on choice screen (disabled until a radio option is selected)
+pair-choice-continue-button = ਜਾਰੀ ਰੱਖੋ
+
+## Download screen — shown after selecting "I don’t have Firefox for mobile"
+
+# Button on the download screen that opens about:preferences for pairing
+pair-continue-to-sync-button = ਸਿੰਕ ਲਈ ਜਾਰੀ ਰੱਖੋ
 
 ## PairSuccess - a view which displays  on successful completion of the device pairing process
 
@@ -1374,6 +1485,12 @@ pair-wait-for-auth-heading-text = ਹੁਣ <span>ਤੁਹਾਡੇ ਹੋਰ �
 
 pair-unsupported-header = ਐਪ ਵਰਤ ਕੇ ਪੇਅਰ ਕਰੋ
 pair-unsupported-message = ਕੀ ਤੁਸੀਂ ਸਿਸਟਮ ਕੈਮਰਾ ਵਰਤਿਆ ਸੀ? ਤੁਹਾਨੂੰ { -brand-firefox } ਐਪ ਤੋਂ ਪੇਅਰ ਕਰਨਾ ਪਵੇਗਾ।
+# v2: "Learn more" link below the mobile instructions; links to a Mozilla support article.
+pair-unsupported-learn-more-link-v2 = ਹੋਰ ਜਾਣੋ
+# v2: Fallback shown to a desktop Firefox user who somehow reaches /pair/unsupported.
+# Matches the legacy Backbone "Oops! Something went wrong." message.
+pair-unsupported-desktop-firefox-fallback-header-v2 = ਓਹ ਹੋ! ਕੁਝ ਗ਼ਲਤ ਵਾਪਰਿਆ ਹੈ।
+pair-unsupported-desktop-firefox-fallback-message-v2 = ਇਹ ਟੈਬ ਨੂੰ ਬੰਦ ਕਰਕੇ ਮੁੜ ਕੋਸ਼ਿਸ਼ ਕਰੋ।
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer, which is already signed in, after their
@@ -1417,6 +1534,18 @@ pair2-authority-scan-qr-heading = ਆਪਣੇ ਮੋਬਾਈਲ ਡਿਵਾ�
 pair2-authority-scan-qr-instruction = ਆਪਣੇ { -brand-firefox } ਬੁੱਕਮਾਰਕਾਂ, ਟੈਬਾਂ ਅਤੇ ਹੋਰ ਚੀਜ਼ਾਂ ਨੂੰ ਸਿੰਕ ਕਰਨ ਵਾਸਤੇ ਆਪਣੇ ਫ਼ੋਨ ਜਾਂ ਟੈਬਲੇਟ ਨਾਲ QR ਕੋਡ ਨੂੰ ਸਕੈਨ ਕਰੋ।
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = ਤੁਹਾਡੇ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰਨ ਲਈ QR ਕੋਡ
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = ਸਾਈਨ ਇਨ ਕਰਨ ਦੇ ਹੋਰ ਢੰਗ
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = ਹੁਣ ਲਈ ਛੱਡੋ
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and links to sync settings.
+
+pair2-authority-sync-success-heading-v2 = ਤੁਹਾਡਾ ਡਿਵਾਈਸ ਕਨੈਕਟ ਹੈ
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button-v2 = ਸਿੰਕ ਸੈਟਿੰਗਾਂ ਦਾ ਇੰਤਜ਼ਾਮ ਕਰੋ
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1426,6 +1555,8 @@ pair2-authority-scan-qr-code-aria-label = ਤੁਹਾਡੇ ਮੋਬਾਈਲ 
 # Shown when the pairing attempt expired before it was approved
 pair2-authority-timeout-and-cancel-timeout-heading = ਹਾਲੇ ਵੀ ਕਿਸੇ ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ?
 pair2-authority-timeout-and-cancel-timeout-description = ਲੱਗਦਾ ਹੈ ਕਿ ਅਸੀਂ ਟਾਈਮ-ਆਉਟ ਹੋ ਗਏ ਹਨ। ਜੇ ਤੁਸੀ ਹਾਲੇ ਵੀ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰਕੇ ਆਪਣੇ { -brand-firefox } ਡਾਟੇ ਨੂੰ ਸਿੰਕ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ ਤਾਂ ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।
+# Shown when the pairing attempt was canceled, on either device
+pair2-authority-timeout-and-cancel-cancelled-heading = ਰੱਦ ਕੀਤਾ
 pair2-authority-timeout-and-cancel-canceled-description = ਜੇ ਤੁਸੀਂ ਆਪਣਾ ਮਨ ਬਦਲਿਆ ਜਾਂ ਵੱਖਰੇ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰਨਾ ਹੋਇਆ ਤਾਂ ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰਿਓ।
 # Restarts the pairing flow
 pair2-authority-timeout-and-cancel-try-again-button = ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ
@@ -1462,9 +1593,19 @@ pair2-supplicant-connect-this-device-cancel-button = ਰੱਦ ਕਰੋ
 ## not Firefox. It offers to open the Firefox app to finish pairing, and to
 ## install it first when the user does not have it yet.
 
+pair2-supplicant-download-firefox-heading-v2 = ਇਸ ਡਿਵਾਈਸ ਲਈ { -brand-firefox } ਨੰ ਖੋਲ੍ਹੋ
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = { -brand-firefox } ਨਾਲ ਜਾਰੀ ਰੱਖੋ
+# Replaces the button label while waiting for the Firefox app to take over
+pair2-supplicant-download-firefox-opening-button = …{ -brand-firefox } ਨੂੰ ਖੋਲ੍ਹਿਆ ਜਾ ਰਿਹਾ ਹੈ
+# Primary action shown in Safari on iOS. Opens the App Store page for Firefox.
+pair2-supplicant-download-firefox-download-button = { -brand-firefox } ਨੂੰ ਡਾਊਨਲੋਡ ਕਰੋ
+# Secondary action shown in Safari on iOS, below the download button. Opens the
+# Firefox app when it is already installed.
+pair2-supplicant-download-firefox-have-firefox-button = ਮੇਰੇ ਕੋਲ ਪਹਿਲਾਂ ਹੀ { -brand-firefox } ਹੈ
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = ਹੋਰ ਜਾਣੋ
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -1480,6 +1621,40 @@ pair2-supplicant-ready-to-scan-learn-more-link = ਹੋਰ ਜਾਣੋ
 ## is signed in and syncing with the computer they paired it with.
 
 pair2-supplicant-sync-success-heading = ਤੁਹਾਡਾ ਡਿਵਾਈਸ ਕਨੈਕਟ ਹੈ
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## because the attempt timed out, was canceled, or the device is already signed
+## in to an account. All states are informational and offer no on-screen action,
+## so the copy points the user back to their computer to start again.
+
+# Shown after the pairing attempt was canceled
+pair2-supplicant-timeout-and-cancel-cancelled-heading = ਰੱਦ ਕੀਤਾ
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+permissions-label-email = ਈਮੇਲ ਸਿਰਨਾਵਾਂ
+permissions-label-display-name = ਦਿਖਾਉਣ ਵਾਲਾ ਨਾਂ
+permissions-label-avatar = ਖਾਤੇ ਦੀ ਤਸਵੀਰ
+permissions-continue-button = ਜਾਰੀ ਰੱਖੋ
+permissions-cancel-button = ਰੱਦ ਕਰੋ
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = ਆਪਣੇ ਪਾਸਵਰਡ ਨੂੰ ਬਦਲੋ
+
+## ServiceWelcome page
+## Shown to users after signup/signin for services like VPN
+
+service-welcome-signup-success-banner = { -product-mozilla-account } ਤਸਦੀਕ ਕੀਤਾ
+service-welcome-signin-success-banner = ਕਾਮਯਾਬੀ ਨਾਲ ਸਾਈਨ ਇਨ ਕੀਤਾ!
+# In this context, "VPN" is a VPN service built into the Firefox browser, and generally isn't localized differently than "VPN"
+service-welcome-vpn-heading = ਅੱਗੇ: VPN ਨੂੰ ਚਾਲੂ ਕਰੋ
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
@@ -1646,6 +1821,30 @@ signin-bounced-help = ਜੇ ਇਹ ਵਾਜਬ ਈਮੇਲ ਸਿਰਨਾਵ
 signin-bounced-create-new-account = ਉਹ ਈਮੇਲ ਹੁਣ ਤੁਹਾਡਾ ਨਹੀਂ ਹੈ? ਨਵਾਂ ਖਾਤਾ ਬਣਾਓ
 back = ਪਿੱਛੇ
 
+## SigninPasskeyFallback page
+## Users who authenticate with a passkey to access Sync must also enter their password.
+
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = ਹੋਰ ਜਾਣੋ
+
+## SigninPasswordlessCode page
+## Users are prompted to enter a code sent to their email for passwordless authentication.
+
+signin-passwordless-code-heading = ਤਸਦੀਕੀ ਕੋਡ ਦਿਓ
+signin-passwordless-code-input-label-v2 = 6-ਅੰਕ ਦਾ ਕੋਡ ਦਿਓ
+signin-passwordless-code-confirm-button = ਤਸਦੀਕ
+signin-passwordless-code-required-error = ਤਸਦੀਕੀ ਕੋਡ ਚਾਹੀਦਾ ਹੈ
+signin-passwordless-code-expired = ਕੋਡ ਦੀ ਮਿਆਦ ਪੁੱਗੀ?
+# { $seconds } - countdown timer showing seconds until user can request a new code
+signin-passwordless-code-resend-countdown =
+    { $seconds ->
+        [one] ਨਵਾਂ ਕੋਡ { $seconds } ਸਕਿੰਟ ਵਿੱਚ ਈਮੇਲ ਕਰੋ
+       *[other] ਨਵਾਂ ਕੋਡ { $seconds } ਸਕਿੰਟਾਂ ਵਿੱਚ ਈਮੇਲ ਕਰੋ
+    }
+signin-passwordless-code-resend-link = ਨਵਾਂ ਕੋਡ ਈਮੇਲ ਕਰੋ।
+signin-passwordless-code-resend-error = ਕੁਝ ਗਲਤ ਵਾਪਰਿਆ ਹੈ। ਨਵਾਂ ਕੋਡ ਭੇਜਿਆ ਨਹੀਂ ਜਾ ਸਕਿਆ।
+signin-passwordless-code-other-account-link = ਵੱਖਰੇ ਖਾਤੇ ਨੂੰ ਵਰਤੋਂ
+
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
 ## their password, and they previously had set up an account recovery method.
@@ -1719,6 +1918,13 @@ signin-token-code-confirm-button = ਤਸਦੀਕ
 signin-token-code-code-expired = ਕੋਡ ਦੀ ਮਿਆਦ ਪੁੱਗੀ?
 # Link to resend a new code to the user's email.
 signin-token-code-resend-code-link = ਨਵਾਂ ਕੋਡ ਈਮੇਲ ਕਰੋ।
+# Countdown message shown when user must wait before resending code
+# { $seconds } represents the number of seconds remaining
+signin-token-code-resend-code-countdown =
+    { $seconds ->
+        [one] ਨਵਾਂ ਕੋਡ { $seconds } ਸਕਿੰਟ ਵਿੱਚ ਈਮੇਲ ਕਰੋ
+       *[other] ਨਵਾਂ ਕੋਡ { $seconds } ਸਕਿੰਟਾਂ ਵਿੱਚ ਈਮੇਲ ਕਰੋ
+    }
 # Error displayed in a tooltip when the form is submitted without a code
 signin-token-code-required-error = ਤਸਦੀਕੀ ਕੋਡ ਚਾਹੀਦਾ ਹੈ
 signin-token-code-resend-error = ਕੁਝ ਗਲਤ ਵਾਪਰਿਆ ਹੈ। ਨਵਾਂ ਕੋਡ ਭੇਜਿਆ ਨਹੀਂ ਜਾ ਸਕਿਆ।
@@ -1731,6 +1937,7 @@ signin-totp-code-header = ਸਾਈਨ ਇਨ
 signin-totp-code-subheader-v2 = ਦੋ-ਪੜ੍ਹਾਵੀ ਪਰਮਾਣੀਕਰਨ ਕੋਡ ਦਿਓ
 signin-totp-code-instruction-v4 = ਆਪਣੇ ਸਾਈਨ-ਇਨ ਦੀ ਤਸਦੀਕ ਕਰਨ ਵਾਸਤੇ ਆਪਣੀ <strong>ਪਰਮਾਣੀਕਰਨ ਐਪ</strong> ਨੂੰ ਵੇਖੋ।
 signin-totp-code-input-label-v4 = 6-ਅੰਕ ਦਾ ਕੋਡ ਦਿਓ
+signin-totp-code-aal-sign-out = ਇਸ ਡਿਵਾਈਸ ਤੋਂ ਸਾਈਨ ਆਉਟ ਕਰੋ
 # Form button to confirm if the authentication code entered by the user is valid
 signin-totp-code-confirm-button = ਤਸਦੀਕ
 signin-totp-code-other-account-link = ਵੱਖਰੇ ਖਾਤੇ ਨੂੰ ਵਰਤੋਂ
@@ -1789,3 +1996,9 @@ signup-confirmed-sync-button = ਬਰਾਊਜ਼ ਕਰਨਾ ਸ਼ੁਰੂ ਕਰ�
 signup-confirmed-sync-add-device-link = ਹੋਰ ਡਿਵਾਈਸ ਨੂੰ ਜੋੜੋ
 signup-confirmed-sync-manage-sync-button = ਸਿੰਕ ਦਾ ਇੰਤਜ਼ਾਮ
 signup-confirmed-sync-set-password-success-banner = ਸਿੰਕ ਕਰਨ ਵਾਲਾ ਪਾਸਵਰਡ ਬਣਾਇਆ
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-heading = { -brand-firefox } ਨੂੰ ਅੱਪਡੇਟ ਕਰਨ ਦੀ ਲੋੜ ਹੈ
+update-firefox-download-button = ਨਵਾਂ ਡਾਊਨਲੋਡ ਕਰੋ

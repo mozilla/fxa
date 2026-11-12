@@ -1,8 +1,8 @@
 {
-  "commit": "381e53bbc08441b8ff93884fde91d0be02ac2790",
+  "commit": "b295931dbf84999ac30645e508b1321e55337eb8",
   "summary": "feat(settings): adopt Nova semantics in Settings",
   "description": "Because:\n- Settings components set colors with raw utilities and hand-written dark: pairs.\n- Nova restyles Settings per the FxA Design System Figma and design review.\n- The Connected Services rule and \"Learn more\" links had layout bugs (flag-off fixes).\n\nThis commit:\n- Swaps exact pairs for semantic utilities; collapses other pairs under nova:.\n- Restyles nav pills, dividers, device rows, Linked Accounts and mobile cards under nova:.\n- Makes AlertBar a tinted pill; adds hover tints and boxed promos under nova:.\n- Moves Switch, Checkbox, slider and focus rings to the Nova accent.\n- Adds nova:-only utilities and documents mappings and gaps in the README.",
-  "timestamp": 1794357129000,
+  "timestamp": 1794503451000,
   "storybooks": [
     "fxa-settings"
   ],
