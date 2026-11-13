@@ -12,10 +12,12 @@ import {
 } from '../../../models/mocks';
 import * as Metrics from '../../../lib/metrics';
 import GleanMetrics from '../../../lib/glean';
-import { AppContext } from '../../../models';
+import { Account, AppContext } from '../../../models';
 import { mockWebIntegration } from '../../../pages/Signin/SigninRecoveryCode/mocks';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import { Constants } from '../../../lib/constants';
+import { getDefault } from '../../../lib/config';
+import { isWebAuthnSupported } from '../../../lib/passkeys/webauthn';
 import {
   linkedAccountNoPassword,
   accountEligibleForRecoveryKey,
@@ -26,6 +28,10 @@ import {
 } from './mocks';
 
 jest.mock('../../../models/AlertBarInfo');
+jest.mock('../../../lib/passkeys/webauthn', () => ({
+  ...jest.requireActual('../../../lib/passkeys/webauthn'),
+  isWebAuthnSupported: jest.fn(() => false),
+}));
 
 jest.mock('../../../lib/metrics', () => ({
   setProperties: jest.fn(),
@@ -300,6 +306,81 @@ describe('PageSettings', () => {
           screen.getByTestId('submit_add_recovery_phone')
         ).toBeInTheDocument()
       );
+    });
+
+    describe('account protection card', () => {
+      const renderWithFlag = (account: object) =>
+        renderWithRouter(
+          <AppContext.Provider
+            value={mockAppContext({
+              account: { ...account, passkeys: [] } as unknown as Account,
+              config: {
+                ...getDefault(),
+                featureFlags: {
+                  passkeysEnabled: true,
+                  passkeyRegistrationEnabled: true,
+                  passkeyPromoSettingsEnabled: true,
+                },
+              },
+            })}
+          >
+            <PageSettings integration={mockWebIntegration} />
+          </AppContext.Provider>
+        );
+
+      beforeEach(() => {
+        localStorage.clear();
+        (isWebAuthnSupported as jest.Mock).mockReturnValue(true);
+      });
+
+      it('replaces the promo banners with a collapsed list of options', async () => {
+        renderWithFlag(accountEligibleForRecoveryKey);
+
+        await screen.findByText('3 ways to protect your account');
+        expect(screen.getByTestId('account-protection')).not.toHaveAttribute(
+          'open'
+        );
+        expect(
+          screen.queryByTestId('submit_create_recovery_key')
+        ).not.toBeInTheDocument();
+      });
+
+      it('lists each option with a link to set it up once opened', async () => {
+        const user = userEvent.setup();
+        renderWithFlag(accountEligibleForRecoveryKey);
+
+        await user.click(
+          await screen.findByText('3 ways to protect your account')
+        );
+
+        expect(screen.getByText('Create a passkey')).toBeVisible();
+        expect(screen.getByRole('link', { name: 'Turn on' })).toHaveAttribute(
+          'href',
+          '/settings/two_step_authentication'
+        );
+      });
+
+      it('features the passkey on its own for an account with no password', async () => {
+        renderWithFlag(linkedAccountNoPassword);
+
+        expect(
+          await screen.findByRole('link', { name: 'Create passkey' })
+        ).toHaveAttribute('href', '/settings/passkeys/add');
+        expect(screen.queryByText(/ways to protect/)).not.toBeInTheDocument();
+      });
+
+      it('hides the featured option once dismissed', async () => {
+        const user = userEvent.setup();
+        renderWithFlag(linkedAccountNoPassword);
+
+        await user.click(
+          await screen.findByRole('button', { name: 'Dismiss' })
+        );
+
+        expect(
+          screen.queryByRole('link', { name: 'Create passkey' })
+        ).not.toBeInTheDocument();
+      });
     });
 
     it('shows key banner when eligible', async () => {
