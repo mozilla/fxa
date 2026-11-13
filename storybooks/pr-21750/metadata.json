@@ -1,0 +1,10 @@
+{
+  "commit": "ab27bbc96973827f9b08aa72796a10820e04a6ef",
+  "summary": "fix(settings): restore broken Storybook stories",
+  "description": "Because:\n\n- 29 fxa-settings stories in 10 files rendered an error box.\n\nThis commit:\n\n- Adds router and AppContext decorators where stories need them.\n- Removes nested MemoryRouters inside router decorators.\n- Makes the HeadingPrimary Default story a function.",
+  "timestamp": 1794593462000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
