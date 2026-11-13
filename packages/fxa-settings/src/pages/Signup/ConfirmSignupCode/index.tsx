@@ -17,9 +17,11 @@ import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import {
   useAlertBar,
+  useConfig,
   useFtlMsgResolver,
   useSession,
 } from '../../../models/hooks';
+import { PASSKEY_PROMO_PATH } from '../../../lib/passkeys/promo';
 import AppLayout from '../../../components/AppLayout';
 import CardHeader, {
   getCmsHeadlineClassName,
@@ -74,6 +76,7 @@ const ConfirmSignupCode = ({
   const navigate = useNavigate();
   const alertBar = useAlertBar();
   const session = useSession();
+  const config = useConfig();
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
     ResendStatus.none
@@ -133,6 +136,13 @@ const ConfirmSignupCode = ({
         'Account confirmed successfully'
       )
     );
+    if (config.featureFlags?.passkeyPromoSignupEnabled) {
+      navigateWithQuery(PASSKEY_PROMO_PATH, {
+        replace: true,
+        state: { origin: 'signup' },
+      });
+      return;
+    }
     navigateWithQuery('/settings', { replace: true });
   }
 

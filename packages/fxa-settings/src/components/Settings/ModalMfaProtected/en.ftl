@@ -2,6 +2,8 @@
 
 modal-mfa-protected-title = Enter confirmation code
 modal-mfa-protected-subtitle = Help us make sure it’s you changing your account info
+# Replaces modal-mfa-protected-subtitle when the code confirms the user before creating a passkey.
+modal-mfa-protected-subtitle-create-passkey = Help us make sure it’s you creating a passkey
 # This string is used to show a notification to the user for them to enter
 # email confirmation code to update their multi-factor-authentication-protected
 # account settings

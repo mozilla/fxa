@@ -86,11 +86,19 @@ export const ModalMfaProtected = ({
             Enter confirmation code
           </h2>
         </FtlMsg>
-        <FtlMsg id="modal-mfa-protected-subtitle">
-          <p className="text-base mt-1">
-            Help us make sure it’s you changing your account info
-          </p>
-        </FtlMsg>
+        {reason === MfaReason.createPasskey ? (
+          <FtlMsg id="modal-mfa-protected-subtitle-create-passkey">
+            <p className="text-base mt-1">
+              Help us make sure it’s you creating a passkey
+            </p>
+          </FtlMsg>
+        ) : (
+          <FtlMsg id="modal-mfa-protected-subtitle">
+            <p className="text-base mt-1">
+              Help us make sure it’s you changing your account info
+            </p>
+          </FtlMsg>
+        )}
         {showResendSuccessBanner && <ResendCodeSuccessBanner />}
         {localizedErrorBannerMessage && (
           <Banner

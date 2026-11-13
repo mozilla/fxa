@@ -21,7 +21,11 @@ import { isWebAuthnSupported } from '../../passkeys';
 import { authenticateWithPasskey } from '../../passkeys/signin-passkey-auth';
 import { resolveSignedInAccount } from '../../passkeys/signin-account';
 import { recoverPasswordlessKb } from '../../passkeys/wrap/recover';
-import { useConfig, useSensitiveDataClient } from '../../../models';
+import {
+  IntegrationType,
+  useConfig,
+  useSensitiveDataClient,
+} from '../../../models';
 import {
   PASSKEY_SIGNIN_SURFACES,
   toPasskeyMetricsSurface,
@@ -86,6 +90,10 @@ export function usePasskeySignIn({
   const navigate = useNavigate();
   const config = useConfig();
   const sensitiveDataClient = useSensitiveDataClient();
+  // Only web sign-ins continue to the create-passkey offer.
+  const offerPasskeyAfterSignin =
+    !!config.featureFlags?.passkeyPromoSigninEnabled &&
+    integration.type === IntegrationType.Web;
 
   // One impression per surface when the button is shown, so click-through is measurable.
   useGleanView(
@@ -155,7 +163,11 @@ export function usePasskeySignIn({
         metricsContext: queryParamsToMetricsContext(flowQueryParams),
       });
       if (!assertion.ok) {
-        setBanner(assertion.banner);
+        if (assertion.noCredential && offerPasskeyAfterSignin) {
+          setBanner(withCreateLaterHint(assertion.banner, ftlMsgResolver));
+        } else {
+          setBanner(assertion.banner);
+        }
         finish();
         return;
       }
@@ -352,5 +364,24 @@ export function usePasskeySignIn({
     banner,
     onClick,
     clearError,
+  };
+}
+
+function withCreateLaterHint(
+  banner: PasskeySignInBanner,
+  ftlMsgResolver: FtlMsgResolver
+): PasskeySignInBanner {
+  return {
+    ...banner,
+    content: {
+      localizedHeading: ftlMsgResolver.getMsg(
+        'passkey-authentication-trouble-heading-create-later',
+        'You’re not signed in yet'
+      ),
+      localizedDescription: ftlMsgResolver.getMsg(
+        'passkey-authentication-trouble-description-create-later',
+        'Try again or sign in another way. You can create a passkey after signing in.'
+      ),
+    },
   };
 }

@@ -19,6 +19,8 @@ import {
   isOAuthWebIntegration,
 } from '../../models';
 import { isSendTabEntrypoint } from '../../lib/utilities';
+import config from '../../lib/config';
+import { PASSKEY_PROMO_PATH } from '../../lib/passkeys/promo';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { useNavigateWithQuery } from '../../lib/hooks';
 import { hardNavigate } from 'fxa-react/lib/utils';
@@ -692,6 +694,9 @@ const getNonOAuthNavigationTarget = async (
   // clears out the initially created integration.
   if (redirectTo && redirectTo !== '/settings') {
     return { to: redirectTo, shouldHardNavigate: true };
+  }
+  if (!isPasskeySession && config.featureFlags?.passkeyPromoSigninEnabled) {
+    return { to: PASSKEY_PROMO_PATH };
   }
   return { to: '/settings' };
 };

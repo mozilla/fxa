@@ -52,7 +52,12 @@ type PasskeyAuthenticationResult =
       credentialId: string;
       prfOut?: Uint8Array;
     }
-  | { ok: false; banner: PasskeySignInBanner };
+  | {
+      ok: false;
+      banner: PasskeySignInBanner;
+      /** Cancelled, or no passkey on this device; WebAuthn reports both alike. */
+      noCredential?: boolean;
+    };
 
 /**
  * Runs the discoverable-credential ceremony and completes it with the server.
@@ -111,6 +116,7 @@ export async function authenticateWithPasskey({
         return {
           ok: false,
           banner: passkeyTroubleBanner(ftlMsgResolver, surface),
+          noCredential: true,
         };
       }
       if (categorized.errorType === WebAuthnErrorType.Timeout) {

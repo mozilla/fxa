@@ -7,7 +7,7 @@ import { ERRNO } from '@fxa/accounts/errors';
 import type AuthClient from 'fxa-auth-client/browser';
 import type { PasskeyWrapEnvelope } from 'fxa-auth-client/browser';
 import { getCredential } from '../webauthn';
-import { stripPrfResults } from '../prf-fallback';
+import { extractPrfOutput, stripPrfResults } from '../prf-fallback';
 import {
   categorizeWebAuthnError,
   WebAuthnErrorCategory,
@@ -232,6 +232,35 @@ async function stepUp(
     options.challenge
   );
   return mfaToken;
+}
+
+/**
+ * Mints an `mfa:passkey:wraps` token with an assertion pinned to a passkey
+ * that has no wrap yet, and returns the PRF output that assertion produced.
+ * `prfOut` is undefined when the authenticator does not support PRF.
+ */
+export async function stepUpWithPrf(
+  authClient: WrapAuthClient,
+  sessionToken: hexstring,
+  credentialId: string
+): Promise<{ mfaToken: string; prfOut?: Uint8Array }> {
+  const options = await authClient.beginPasskeyVerification(sessionToken, {
+    credentialId,
+    requestPrf: true,
+  });
+  const response = await getCredential(options);
+  const prfOut = extractPrfOutput(response);
+  try {
+    const { mfaToken } = await authClient.completePasskeyVerification(
+      sessionToken,
+      stripPrfResults(response),
+      options.challenge
+    );
+    return { mfaToken, prfOut };
+  } catch (err) {
+    prfOut?.fill(0);
+    throw err;
+  }
 }
 
 /** A network TypeError or other non-auth throw has no errno to word. */

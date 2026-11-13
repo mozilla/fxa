@@ -54,6 +54,11 @@ passkey-authentication-trouble-heading = Couldn’t sign in with a passkey
 # Shown when a passkey sign-in doesn't complete. "Try again" means retry signing in with the
 # passkey; "another sign-in option" means one of the other sign-in methods offered alongside it.
 passkey-authentication-trouble-description = Try again or use another sign-in option.
+# Replace passkey-authentication-trouble-heading and -description when the user can create a
+# passkey right after signing in another way. Covers both a cancelled prompt and no passkey on
+# this device, which the browser reports alike.
+passkey-authentication-trouble-heading-create-later = You’re not signed in yet
+passkey-authentication-trouble-description-create-later = Try again or sign in another way. You can create a passkey after signing in.
 # Label for the support link in the passkey sign-in trouble message; opens a SUMO article about
 # using passkeys.
 passkey-authentication-trouble-link = How to use passkeys
