@@ -4,16 +4,29 @@
 
 import Redis from 'ioredis';
 import type { StatsD } from 'hot-shots';
+import type { ILogger } from '@fxa/shared/log';
 import { LUA_SCRIPTS } from './lua-scripts';
-import { RedisShared, unpackSessionTokens } from './redis';
+import { packSessionToken, RedisShared, unpackSessionTokens } from './redis';
 
 jest.mock('ioredis', () =>
   jest.fn().mockImplementation(() => {
+    const exec = jest.fn(() => Promise.resolve([[null, 'OK']]));
+    const set = jest.fn(() => ({ exec }));
+    const touchRedis = {
+      on: jest.fn(),
+      watch: jest.fn(() => Promise.resolve('OK')),
+      unwatch: jest.fn(() => Promise.resolve('OK')),
+      get: jest.fn(() => Promise.resolve(null)),
+      multi: jest.fn(() => ({ set })),
+      set,
+      exec,
+    };
     const redis = {
       on: jest.fn(),
       get: jest.fn(),
       set: jest.fn(),
       del: jest.fn(() => Promise.resolve(1)),
+      duplicate: jest.fn(() => touchRedis),
       defineCommand: jest.fn((name: string) => {
         (redis as Record<string, unknown>)[name] = jest.fn();
       }),
@@ -32,12 +45,11 @@ describe('RedisShared', () => {
 
     expect(Redis).toHaveBeenCalledTimes(1);
     const defineCommand = shared.redis.defineCommand as jest.Mock;
-    expect(defineCommand).toHaveBeenCalledTimes(4);
+    expect(defineCommand).toHaveBeenCalledTimes(3);
     for (const [name, scriptName] of [
       ['getAccessToken', 'getAccessToken_1'],
       ['getAccessTokens', 'getAccessTokens_1'],
       ['pruneSessionTokens', 'pruneSessionTokens_1'],
-      ['touchSessionToken', 'touchSessionToken_1'],
     ]) {
       expect(defineCommand).toHaveBeenCalledWith(name, {
         lua: LUA_SCRIPTS[scriptName],
@@ -115,6 +127,102 @@ describe('RedisShared', () => {
           'redis.getSessionTokens.error'
         );
       });
+    });
+  });
+
+  describe('touchSessionToken', () => {
+    const newShared = () => {
+      const log = { error: jest.fn() };
+      const shared = new RedisShared(
+        { host: 'localhost', port: 6379 },
+        log as unknown as ILogger
+      );
+      const touchRedis = (shared.redis.duplicate as jest.Mock)();
+      return { shared, touchRedis, log };
+    };
+
+    it('writes a new token when the key is missing', async () => {
+      const { shared, touchRedis } = newShared();
+
+      expect(
+        await shared.touchSessionToken('uid', {
+          id: 't1',
+          lastAccessTime: 1,
+          location: null,
+          uaBrowser: 'Firefox',
+        })
+      ).toBe('OK');
+      expect(touchRedis.watch).toHaveBeenCalledWith('uid');
+      expect(touchRedis.set).toHaveBeenCalledWith(
+        'uid',
+        '{"t1":[1,null,"Firefox"]}'
+      );
+    });
+
+    it('keeps the other tokens in the blob unchanged', async () => {
+      const { shared, touchRedis } = newShared();
+      touchRedis.get.mockResolvedValue(
+        JSON.stringify({ t1: [1, null, 'Firefox'], t2: [7] })
+      );
+
+      await shared.touchSessionToken('uid', { id: 't1', lastAccessTime: 2 });
+
+      expect(touchRedis.set).toHaveBeenCalledWith(
+        'uid',
+        '{"t1":[2,null,"Firefox"],"t2":[7]}'
+      );
+    });
+
+    it('retries when another client changes the key after WATCH', async () => {
+      const { shared, touchRedis } = newShared();
+      touchRedis.get
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(JSON.stringify({ t2: [7] }));
+      touchRedis.exec.mockResolvedValueOnce(null);
+
+      expect(
+        await shared.touchSessionToken('uid', { id: 't1', lastAccessTime: 1 })
+      ).toBe('OK');
+      expect(touchRedis.watch).toHaveBeenCalledTimes(2);
+      expect(touchRedis.set).toHaveBeenLastCalledWith(
+        'uid',
+        '{"t2":[7],"t1":[1]}'
+      );
+    });
+
+    it('gives up and logs after three failed transactions', async () => {
+      const { shared, touchRedis, log } = newShared();
+      touchRedis.exec.mockResolvedValue(null);
+
+      expect(
+        await shared.touchSessionToken('uid', { id: 't1', lastAccessTime: 1 })
+      ).toBeNull();
+      expect(touchRedis.exec).toHaveBeenCalledTimes(3);
+      expect(log.error).toHaveBeenCalledWith('RedisShared', {
+        msg: 'RedisShared: touchSessionToken gave up after write conflicts',
+      });
+    });
+
+    it('rejects and releases the WATCH on an unparseable blob', async () => {
+      const { shared, touchRedis } = newShared();
+      touchRedis.get.mockResolvedValue('not json');
+
+      await expect(
+        shared.touchSessionToken('uid', { id: 't1', lastAccessTime: 1 })
+      ).rejects.toThrow();
+      expect(touchRedis.unwatch).toHaveBeenCalled();
+      expect(touchRedis.multi).not.toHaveBeenCalled();
+    });
+
+    it('rejects and releases the WATCH when GET fails', async () => {
+      const { shared, touchRedis } = newShared();
+      touchRedis.get.mockRejectedValue(new Error('down'));
+
+      await expect(
+        shared.touchSessionToken('uid', { id: 't1', lastAccessTime: 1 })
+      ).rejects.toThrow('down');
+      expect(touchRedis.unwatch).toHaveBeenCalled();
+      expect(touchRedis.multi).not.toHaveBeenCalled();
     });
   });
 
@@ -218,5 +326,56 @@ describe('unpackSessionTokens', () => {
     expect(() => unpackSessionTokens('not json')).toThrow();
     expect(() => unpackSessionTokens('null')).toThrow();
     expect(() => unpackSessionTokens('42')).toThrow();
+  });
+});
+
+describe('packSessionToken', () => {
+  it('packs the fields in property order and trims trailing gaps', () => {
+    expect(
+      packSessionToken({ id: 't1', lastAccessTime: 1, uaBrowser: 'x' }, null)
+    ).toEqual([1, undefined, 'x']);
+  });
+
+  it('keeps the old value where the update is missing, null or false', () => {
+    expect(
+      packSessionToken(
+        { lastAccessTime: 2, uaBrowser: null, uaOS: false, uaOSVersion: 0 },
+        [1, null, 'Firefox', '130.0', 'Linux', '6']
+      )
+    ).toEqual([2, null, 'Firefox', '130.0', 'Linux', 0]);
+  });
+
+  it('packs a location object in location property order', () => {
+    expect(
+      packSessionToken(
+        { location: { countryCode: 'DE', city: 'Berlin', state: 'Berlin' } },
+        [5, ['Old', 'Old', 'OL', 'Oldland', 'OL']]
+      )
+    ).toEqual([5, ['Berlin', 'Berlin', undefined, undefined, 'DE']]);
+  });
+
+  it('round-trips through unpackSessionTokens', () => {
+    const token = {
+      lastAccessTime: 1,
+      location: {
+        city: 'a',
+        state: 'b',
+        stateCode: 'c',
+        country: 'd',
+        countryCode: 'e',
+      },
+      uaBrowser: 'Firefox',
+      uaFormFactor: 'desktop',
+    };
+    const blob = JSON.stringify({ t1: packSessionToken(token, undefined) });
+    expect(unpackSessionTokens(blob)).toEqual({
+      t1: {
+        ...token,
+        uaBrowserVersion: null,
+        uaOS: null,
+        uaOSVersion: null,
+        uaDeviceType: null,
+      },
+    });
   });
 });
