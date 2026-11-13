@@ -1,8 +1,8 @@
 {
-  "commit": "dfdb206c938a4563e29acd4e817bbb85954276b7",
-  "summary": "Merge pull request #21750 from mozilla/agent-5a05d3",
-  "description": "fix(settings): restore broken Storybook stories",
-  "timestamp": 1794594646000,
+  "commit": "e2b3ccd799ba2b47d61443d7b198e1998bb869a6",
+  "summary": "Merge pull request #21711 from mozilla/fxa-14928",
+  "description": "fix(auth): return incorrect password on reauth retry with signup salt",
+  "timestamp": 1794594863000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
