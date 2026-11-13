@@ -1819,6 +1819,75 @@ describe('PasskeyService', () => {
       });
     });
 
+    describe('with a PRF salt configured', () => {
+      let configSalted: PasskeyConfig;
+      let serviceSalted: PasskeyService;
+
+      beforeEach(() => {
+        configSalted = new PasskeyConfig({
+          ...mockConfig,
+          prfSalt: 'dGVzdC1wcmYtc2FsdA',
+        });
+        serviceSalted = new PasskeyService(
+          mockManager as unknown as PasskeyManager,
+          mockChallengeManager as unknown as PasskeyChallengeManager,
+          configSalted,
+          mockMetrics as never,
+          mockLogger as never
+        );
+      });
+
+      it('requests PRF for a pinned ceremony that asks for it', async () => {
+        await serviceSalted.generateVerificationChallenge({
+          uid: MOCK_UID,
+          scope: 'passkey',
+          credentialId: MOCK_CREDENTIAL_ID,
+          requestPrf: true,
+        });
+
+        expect(
+          webauthnAdapter.generateWebauthnAuthenticationOptions
+        ).toHaveBeenCalledWith(configSalted, {
+          challenge: MOCK_CHALLENGE,
+          allowCredentials: [MOCK_CREDENTIAL_ID],
+          requestPrf: true,
+        });
+      });
+
+      it('ignores requestPrf when the ceremony is unpinned', async () => {
+        await serviceSalted.generateVerificationChallenge({
+          uid: MOCK_UID,
+          scope: 'passkey',
+          requestPrf: true,
+        });
+
+        expect(
+          webauthnAdapter.generateWebauthnAuthenticationOptions
+        ).toHaveBeenCalledWith(configSalted, {
+          challenge: MOCK_CHALLENGE,
+          allowCredentials: [MOCK_CREDENTIAL_ID],
+          requestPrf: false,
+        });
+      });
+    });
+
+    it('ignores requestPrf when no PRF salt is configured', async () => {
+      await service.generateVerificationChallenge({
+        uid: MOCK_UID,
+        scope: 'passkey',
+        credentialId: MOCK_CREDENTIAL_ID,
+        requestPrf: true,
+      });
+
+      expect(
+        webauthnAdapter.generateWebauthnAuthenticationOptions
+      ).toHaveBeenCalledWith(mockConfig, {
+        challenge: MOCK_CHALLENGE,
+        allowCredentials: [MOCK_CREDENTIAL_ID],
+        requestPrf: false,
+      });
+    });
+
     it('commits the pinned credential to the challenge', async () => {
       await service.generateVerificationChallenge({
         uid: MOCK_UID,
