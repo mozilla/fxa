@@ -20,7 +20,10 @@ import {
 } from '../../models';
 import { isSendTabEntrypoint } from '../../lib/utilities';
 import config from '../../lib/config';
-import { PASSKEY_PROMO_PATH } from '../../lib/passkeys/promo';
+import {
+  PASSKEY_PROMO_PATH,
+  PASSKEY_SYNC_PROMO_PATH,
+} from '../../lib/passkeys/promo';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { useNavigateWithQuery } from '../../lib/hooks';
 import { hardNavigate } from 'fxa-react/lib/utils';
@@ -757,7 +760,7 @@ const getOAuthNavigationTarget = async (
 
   // `scope` is the server-resolved scope per ADR 0049, only forwarded
   // to Firefox via fxaOAuthLogin; ignored otherwise.
-  const { error, redirect, code, state, scope } =
+  const { error, redirect, code, state, scope, offerPasskeySync } =
     await navigationOptions.finishOAuthFlowHandler(
       navigationOptions.signinData.uid,
       navigationOptions.signinData.sessionToken,
@@ -824,6 +827,19 @@ const getOAuthNavigationTarget = async (
   if (navigationOptions.showInlinePasswordlessSyncSetup) {
     return {
       to: `/inline_passwordless_sync_setup${navigationOptions.queryParams || ''}`,
+      oauthData,
+    };
+  }
+
+  // Ahead of getSyncNavigate, so it wins over the recovery key promo.
+  if (
+    offerPasskeySync &&
+    navigationOptions.integration.isDesktopSync() &&
+    !navigationOptions.syncHidePromoAfterLogin &&
+    !isSendTabEntrypoint(navigationOptions.integration.data?.entrypoint)
+  ) {
+    return {
+      to: `${PASSKEY_SYNC_PROMO_PATH}${navigationOptions.queryParams || ''}`,
       oauthData,
     };
   }

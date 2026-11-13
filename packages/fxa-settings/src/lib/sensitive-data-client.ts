@@ -43,6 +43,11 @@ export namespace SensitiveData {
     kB?: Uint8Array;
     surface: PasskeyMetricsSurface;
   };
+
+  /** Marks a desktop Sync password sign-in as eligible for the passkey promo. */
+  export type PasskeySyncPromoData = {
+    uid: hexstring;
+  };
 }
 
 /**
@@ -75,6 +80,7 @@ export class SensitiveDataClient {
     | undefined;
 
   public PasskeyWrapData: SensitiveData.PasskeyWrapData | undefined;
+  public PasskeySyncPromoData: SensitiveData.PasskeySyncPromoData | undefined;
 
   /**
    * Zeroes and drops the material a passkey ceremony left for the
@@ -106,5 +112,13 @@ export class SensitiveDataClient {
     } catch {
       pendingWrap.kB = undefined;
     }
+  }
+
+  markPasskeySyncPromo(uid: string): void {
+    this.PasskeySyncPromoData = { uid };
+  }
+
+  clearPasskeySyncPromoData() {
+    this.PasskeySyncPromoData = undefined;
   }
 }
