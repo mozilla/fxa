@@ -10,6 +10,8 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { MemoryRouter } from 'react-router';
 import { MOCK_CMS_INFO, mockSigninLocationState } from '../mocks';
 import { mockFinishOAuthFlowHandler } from '../../mocks';
+import { AppContext } from '../../../models';
+import { mockAppContext } from '../../../models/mocks';
 import { createMockOAuthNativeIntegration, mockWebIntegration } from './mocks';
 import { BeginSigninError, HandledError } from '../../../lib/error-utils';
 
@@ -20,7 +22,9 @@ export default {
     withLocalization,
     (Story) => (
       <MemoryRouter>
-        <Story />
+        <AppContext.Provider value={mockAppContext()}>
+          <Story />
+        </AppContext.Provider>
       </MemoryRouter>
     ),
   ],
@@ -108,32 +112,28 @@ export const WithBannerErrorOnSubmit = () => (
 );
 
 export const WithRecoveryPhoneSuccessNav = () => (
-  <MemoryRouter>
-    <SigninRecoveryCode
-      finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
-      integration={mockWebIntegration}
-      lastFourPhoneDigits="1234"
-      navigateToRecoveryPhone={() => {
-        action('handleNavigation')();
-        return Promise.resolve();
-      }}
-      signinState={mockSigninLocationState}
-      submitRecoveryCode={mockSubmitSuccess}
-    />
-  </MemoryRouter>
+  <SigninRecoveryCode
+    finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+    integration={mockWebIntegration}
+    lastFourPhoneDigits="1234"
+    navigateToRecoveryPhone={() => {
+      action('handleNavigation')();
+      return Promise.resolve();
+    }}
+    signinState={mockSigninLocationState}
+    submitRecoveryCode={mockSubmitSuccess}
+  />
 );
 
 export const WithRecoveryPhoneErrorNav = () => (
-  <MemoryRouter>
-    <SigninRecoveryCode
-      finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
-      integration={mockWebIntegration}
-      lastFourPhoneDigits="1234"
-      navigateToRecoveryPhone={() =>
-        Promise.resolve(AuthUiErrors.UNEXPECTED_ERROR as HandledError)
-      }
-      signinState={mockSigninLocationState}
-      submitRecoveryCode={mockSubmitSuccess}
-    />
-  </MemoryRouter>
+  <SigninRecoveryCode
+    finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+    integration={mockWebIntegration}
+    lastFourPhoneDigits="1234"
+    navigateToRecoveryPhone={() =>
+      Promise.resolve(AuthUiErrors.UNEXPECTED_ERROR as HandledError)
+    }
+    signinState={mockSigninLocationState}
+    submitRecoveryCode={mockSubmitSuccess}
+  />
 );

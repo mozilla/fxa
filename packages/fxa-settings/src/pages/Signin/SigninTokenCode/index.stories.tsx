@@ -4,14 +4,24 @@
 
 import SigninTokenCode from '.';
 import { Meta } from '@storybook/react';
-import { withLocalization } from 'fxa-react/lib/storybooks';
+import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
 import { createOAuthNativeIntegration, Subject } from './mocks';
 import { MOCK_CMS_INFO } from '../../mocks';
+import { AppContext } from '../../../models';
+import { mockAppContext } from '../../../models/mocks';
 
 export default {
   title: 'Pages/Signin/SigninTokenCode',
   component: SigninTokenCode,
-  decorators: [withLocalization],
+  decorators: [
+    withLocalization,
+    withLocation(),
+    (Story) => (
+      <AppContext.Provider value={mockAppContext()}>
+        <Story />
+      </AppContext.Provider>
+    ),
+  ],
 } as Meta;
 
 export const Default = () => <Subject />;

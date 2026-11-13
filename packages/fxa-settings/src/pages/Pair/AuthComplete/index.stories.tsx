@@ -6,13 +6,13 @@ import AuthComplete from '.';
 import { Meta } from '@storybook/react';
 import { MOCK_ERROR } from './mocks';
 import { MOCK_METADATA_UNKNOWN_LOCATION } from '../../../components/DeviceInfoBlock/mocks';
-import { withLocalization } from 'fxa-react/lib/storybooks';
+import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
 import { Integration } from '../../../models/integrations/integration';
 
 export default {
   title: 'Pages/Pair/AuthComplete',
   component: AuthComplete,
-  decorators: [withLocalization],
+  decorators: [withLocalization, withLocation()],
 } as Meta;
 
 // Minimal integration stub carrying an entrypoint — just enough to drive the

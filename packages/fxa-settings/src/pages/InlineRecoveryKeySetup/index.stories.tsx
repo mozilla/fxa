@@ -4,13 +4,13 @@
 
 import InlineRecoveryKeySetup from '.';
 import { Meta } from '@storybook/react';
-import { withLocalization } from 'fxa-react/lib/storybooks';
+import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
 import { Subject } from './mocks';
 
 export default {
   title: 'Pages/InlineRecoveryKeySetup',
   component: InlineRecoveryKeySetup,
-  decorators: [withLocalization],
+  decorators: [withLocalization, withLocation()],
 } as Meta;
 
 export const StepOne = () => <Subject />;
