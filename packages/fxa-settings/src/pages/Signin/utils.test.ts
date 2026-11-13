@@ -1401,6 +1401,73 @@ describe('Signin utils', () => {
         );
       });
 
+      describe('Sync passkey promo', () => {
+        const offeringPasskeySync = jest.fn().mockResolvedValue({
+          ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
+          offerPasskeySync: true,
+        });
+
+        it('shows the promo instead of the recovery key promo when kB is held', async () => {
+          const navigationOptions = createSendTabNavigationOptions({
+            integration: createMockSigninOAuthNativeSyncIntegration(),
+            queryParams: '?service=sync',
+            showInlineRecoveryKeySetup: true,
+            finishOAuthFlowHandler: offeringPasskeySync,
+          });
+
+          await handleNavigation(navigationOptions);
+
+          expect(mockNavigate.mock.calls[0][0]).toBe(
+            '/inline_passkey_sync_setup?service=sync'
+          );
+        });
+
+        it('skips the promo on mobile, which closes the web view on handoff', async () => {
+          const navigationOptions = createSendTabNavigationOptions({
+            integration: createMockSigninOAuthNativeSyncIntegration({
+              isMobile: true,
+            }),
+            queryParams: '?service=sync',
+            finishOAuthFlowHandler: offeringPasskeySync,
+          });
+
+          await handleNavigation(navigationOptions);
+
+          expect(mockNavigate.mock.calls[0][0]).toContain('/pair?');
+        });
+
+        it('skips the promo for a send-tab sign-in', async () => {
+          const integration = createMockSigninOAuthNativeSyncIntegration();
+          integration.data.entrypoint = 'send-tab-toolbar-icon';
+          const navigationOptions = createSendTabNavigationOptions({
+            integration,
+            queryParams: '?service=sync',
+            finishOAuthFlowHandler: offeringPasskeySync,
+          });
+
+          await handleNavigation(navigationOptions);
+
+          expect(mockNavigate.mock.calls[0][0]).toContain('/pair?');
+        });
+
+        it('skips the promo when the CMS hides promos after login', async () => {
+          const integration = createMockSigninOAuthNativeSyncIntegration();
+          integration.getCmsInfo = () =>
+            ({
+              shared: { featureFlags: { syncHidePromoAfterLogin: true } },
+            }) as ReturnType<typeof integration.getCmsInfo>;
+          const navigationOptions = createSendTabNavigationOptions({
+            integration,
+            queryParams: '?service=sync',
+            finishOAuthFlowHandler: offeringPasskeySync,
+          });
+
+          await handleNavigation(navigationOptions);
+
+          expect(mockNavigate.mock.calls[0][0]).toContain('/settings');
+        });
+      });
+
       it('clears showSignupConfirmedSync for send-tab post-verify and soft-navs with origin=post-verify-set-password', async () => {
         const integration = createMockSigninOAuthNativeSyncIntegration();
         integration.data.entrypoint = 'send-tab-app-menu';

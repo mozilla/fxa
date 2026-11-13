@@ -66,3 +66,22 @@ describe('SensitiveDataClient captureKbForPendingWrap', () => {
     expect(client.PasskeyWrapData?.kB).toBeUndefined();
   });
 });
+
+describe('SensitiveDataClient passkey Sync promo marker', () => {
+  it('marks only the uid, never key material', () => {
+    const client = new SensitiveDataClient();
+
+    client.markPasskeySyncPromo(UID);
+
+    expect(client.PasskeySyncPromoData).toEqual({ uid: UID });
+  });
+
+  it('drops the marker on clear', () => {
+    const client = new SensitiveDataClient();
+    client.markPasskeySyncPromo(UID);
+
+    client.clearPasskeySyncPromoData();
+
+    expect(client.PasskeySyncPromoData).toBeUndefined();
+  });
+});

@@ -11,8 +11,10 @@ import {
   isOAuthIntegration,
   isSyncDesktopV3Integration,
   Integration,
+  useConfig,
   useSensitiveDataClient,
 } from '../../models';
+import { canOfferSyncPasskey } from '../passkeys/promo';
 import { Constants } from '../constants';
 import { AuthError, OAUTH_ERRORS, OAuthError } from './oauth-errors';
 import { AuthUiErrors } from '../auth-errors/auth-errors';
@@ -34,6 +36,7 @@ interface FinishOAuthFlowHandlerError {
   state: undefined;
   scope: undefined;
   error: AuthError;
+  offerPasskeySync?: undefined;
 }
 interface FinishOAuthFlowHandlerSuccess {
   redirect: string;
@@ -41,6 +44,8 @@ interface FinishOAuthFlowHandlerSuccess {
   state: string;
   scope: string;
   error: undefined;
+  /** A password Sync sign-in passed the promo's local checks, so navigation may offer it. */
+  offerPasskeySync?: boolean;
 }
 
 export type FinishOAuthFlowHandlerResult =
@@ -230,6 +235,7 @@ export function useFinishOAuthFlowHandler(
   const isSyncOAuth = isOAuthNativeIntegrationSync(integration);
   const oAuthIntegration = isOAuthIntegration(integration) ? integration : null;
   const sensitiveDataClient = useSensitiveDataClient();
+  const config = useConfig();
 
   useEffect(() => {
     // wantsKeys() can throw, so it stays out of render. A failed prefetch is
@@ -266,6 +272,7 @@ export function useFinishOAuthFlowHandler(
       }
 
       let keys;
+      let offerPasskeySync = false;
       if (oAuthIntegration.wantsKeys()) {
         try {
           let kB = knownKb;
@@ -274,6 +281,10 @@ export function useFinishOAuthFlowHandler(
             // The only point in a keys-bearing password sign-in where `kB`
             // exists client-side.
             sensitiveDataClient.captureKbForPendingWrap(accountUid, kB);
+            if (isSyncOAuth && canOfferSyncPasskey(config)) {
+              sensitiveDataClient.markPasskeySyncPromo(accountUid);
+              offerPasskeySync = true;
+            }
           }
           if (kB) {
             keys = await constructKeysJwe(
@@ -340,6 +351,7 @@ export function useFinishOAuthFlowHandler(
         code: oAuthData.code,
         state,
         scope: oAuthData.scope,
+        ...(offerPasskeySync && { offerPasskeySync }),
       };
     },
     [
@@ -348,6 +360,7 @@ export function useFinishOAuthFlowHandler(
       isSyncOAuth,
       sensitiveDataClient,
       skipPermissions,
+      config,
     ]
   );
 

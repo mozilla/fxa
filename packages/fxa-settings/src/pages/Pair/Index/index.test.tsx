@@ -1053,6 +1053,21 @@ describe('Pair', () => {
       ).toBeInTheDocument();
     });
 
+    it('renders the passkey promo outcome passed from the Sync promo', async () => {
+      mockLocationState = {
+        passkeyStatus: {
+          type: 'info',
+          localizedHeading: 'Passkey created',
+          localizedDescription: 'It can’t unlock synced data on this device.',
+        },
+      };
+      await renderPair();
+      expect(await screen.findByText('Passkey created')).toBeInTheDocument();
+      expect(
+        screen.getByText('It can’t unlock synced data on this device.')
+      ).toBeInTheDocument();
+    });
+
     it('does not render a banner when origin is absent', async () => {
       mockLocationState = null;
       await renderPair();

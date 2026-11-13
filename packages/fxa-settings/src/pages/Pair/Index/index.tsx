@@ -68,6 +68,7 @@ import {
 import { getPairingAccount } from '../../../lib/pairing/pairing-account';
 import { pairingRequiresTotp } from '../../../lib/pairing/totp-gate';
 import type { PairOrigin } from '../../Signin/utils';
+import type { PasskeyPromoStatus } from '../../../components/PasskeyCreationPromo/container';
 import type { SigninLocationState } from '../../Signin/interfaces';
 import type { Integration } from '../../../models';
 
@@ -248,10 +249,12 @@ const Pair = ({
 
   // Set by getSyncNavigate when a completed Sync sign-in lands here; drives
   // the banner variant, and tells the bootstrap not to send the user back.
-  const { origin: pairOrigin } = (location.state ?? {}) as Pick<
+  const { origin: pairOrigin, passkeyStatus } = (location.state ?? {}) as Pick<
     SigninLocationState,
     'origin'
-  >;
+  > & {
+    passkeyStatus?: PasskeyPromoStatus;
+  };
 
   useEffect(() => {
     // Lowered again below, after the last branch that routes elsewhere, so
@@ -693,6 +696,15 @@ const Pair = ({
 
   return (
     <AppLayout cmsInfo={cmsInfo}>
+      {currentView === 'choice' && passkeyStatus && (
+        <Banner
+          type={passkeyStatus.type}
+          content={{
+            localizedHeading: passkeyStatus.localizedHeading,
+            localizedDescription: passkeyStatus.localizedDescription,
+          }}
+        />
+      )}
       {bannerCopy && (
         <Banner
           type="success"

@@ -5,6 +5,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router';
 import type { SensitiveDataClient } from '../sensitive-data-client';
+import { PASSKEY_SYNC_PROMO_PATH } from './promo';
 
 /**
  * The only routes with a use for passkey wrap material: the password step
@@ -27,11 +28,13 @@ export function useClearPasskeyWrapOffRoute(
 ) {
   const { pathname } = useLocation();
   useEffect(() => {
-    const holdsMaterial = WRAP_MATERIAL_ROUTES.some(
-      (route) => pathname === route || pathname.startsWith(`${route}/`)
-    );
-    if (!holdsMaterial) {
+    const onRoute = (route: string) =>
+      pathname === route || pathname.startsWith(`${route}/`);
+    if (!WRAP_MATERIAL_ROUTES.some(onRoute)) {
       sensitiveDataClient.clearPasskeyWrapData();
+    }
+    if (!onRoute(PASSKEY_SYNC_PROMO_PATH)) {
+      sensitiveDataClient.clearPasskeySyncPromoData();
     }
   }, [pathname, sensitiveDataClient]);
 }

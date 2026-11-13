@@ -67,6 +67,26 @@ describe('useClearPasskeyWrapOffRoute', () => {
     expect(held.prfOut).toEqual(new Uint8Array(32));
   });
 
+  it('keeps the Sync promo marker on the Sync promo page', () => {
+    const sensitiveDataClient = new SensitiveDataClient();
+    sensitiveDataClient.markPasskeySyncPromo(MOCK_UID);
+
+    renderAt('/inline_passkey_sync_setup?service=sync', sensitiveDataClient);
+
+    expect(sensitiveDataClient.PasskeySyncPromoData).toEqual({
+      uid: MOCK_UID,
+    });
+  });
+
+  it('drops the Sync promo marker on any other route', () => {
+    const sensitiveDataClient = new SensitiveDataClient();
+    sensitiveDataClient.markPasskeySyncPromo(MOCK_UID);
+
+    renderAt('/pair', sensitiveDataClient);
+
+    expect(sensitiveDataClient.PasskeySyncPromoData).toBeUndefined();
+  });
+
   it('leaves material stashed after mount alone until the route changes', () => {
     const sensitiveDataClient = new SensitiveDataClient();
     let navigate!: ReturnType<typeof useNavigate>;

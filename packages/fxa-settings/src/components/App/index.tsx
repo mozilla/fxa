@@ -154,6 +154,9 @@ const InlinePasswordlessSyncSetupContainer = lazy(
   () => import('../../pages/InlinePasswordlessSyncSetup/container')
 );
 const PasskeyPromo = lazy(() => import('../../pages/PasskeyPromo'));
+const InlinePasskeySyncSetupContainer = lazy(
+  () => import('../../pages/InlinePasskeySyncSetup/container')
+);
 const SetPasswordContainer = lazy(
   () => import('../../pages/PostVerify/SetPassword/container')
 );
@@ -1012,6 +1015,10 @@ const AuthAndAccountSetupRoutes = ({
           element={<InlinePasswordlessSyncSetupContainer />}
         />
         <Route path="/passkey_promo/*" element={<PasskeyPromo />} />
+        <Route
+          path="/inline_passkey_sync_setup/*"
+          element={<InlinePasskeySyncSetupContainer />}
+        />
 
         {/* Signup */}
         <Route
