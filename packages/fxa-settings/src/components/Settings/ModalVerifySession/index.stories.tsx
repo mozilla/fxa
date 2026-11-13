@@ -8,7 +8,11 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { ModalVerifySession } from '.';
 import { AppContext } from 'fxa-settings/src/models';
-import { mockSession, MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
+import {
+  mockAppContext,
+  mockSession,
+  MOCK_ACCOUNT,
+} from 'fxa-settings/src/models/mocks';
 import { MemoryRouter } from 'react-router';
 
 export default {
@@ -50,7 +54,7 @@ const ModalToggle = ({ children }: ModalToggleProps) => {
 
 export const DefaultWithValidCode123456 = () => (
   <MemoryRouter>
-    <AppContext.Provider value={{ account, session }}>
+    <AppContext.Provider value={mockAppContext({ account, session })}>
       <ModalToggle>
         {({ modalRevealed, hideModal }) =>
           modalRevealed && (

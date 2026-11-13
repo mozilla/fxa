@@ -10,4 +10,6 @@ export default {
   component: HeadingPrimary,
 } as Meta;
 
-export const Default = <HeadingPrimary>Primary heading text</HeadingPrimary>;
+export const Default = () => (
+  <HeadingPrimary>Primary heading text</HeadingPrimary>
+);

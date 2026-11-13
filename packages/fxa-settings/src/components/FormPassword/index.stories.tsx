@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Subject } from './mocks';
-import { MemoryRouter } from 'react-router';
 import FormPassword from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
@@ -15,21 +14,17 @@ export default {
   decorators: [withLocalization, withLocation('/settings/password')],
 } as Meta;
 export const WithCurrentPassword = () => (
-  <MemoryRouter>
-    <SettingsLayout>
-      <div className="max-w-lg mx-auto">
-        <Subject />
-      </div>
-    </SettingsLayout>
-  </MemoryRouter>
+  <SettingsLayout>
+    <div className="max-w-lg mx-auto">
+      <Subject />
+    </div>
+  </SettingsLayout>
 );
 
 export const WithoutCurrentPassword = () => (
-  <MemoryRouter>
-    <SettingsLayout>
-      <div className="max-w-lg mx-auto">
-        <Subject includeCurrentPw={false} />
-      </div>
-    </SettingsLayout>
-  </MemoryRouter>
+  <SettingsLayout>
+    <div className="max-w-lg mx-auto">
+      <Subject includeCurrentPw={false} />
+    </div>
+  </SettingsLayout>
 );

@@ -21,11 +21,20 @@ import {
   createMockSigninOAuthNativeSyncIntegration,
   createMockSigninWebIntegration,
 } from '../mocks';
+import { AppContext } from '../../../models';
+import { mockAppContext } from '../../../models/mocks';
 
 export default {
   title: 'Pages/Signin/SigninUnblock',
   component: SigninUnblock,
-  decorators: [withLocalization],
+  decorators: [
+    withLocalization,
+    (Story) => (
+      <AppContext.Provider value={mockAppContext()}>
+        <Story />
+      </AppContext.Provider>
+    ),
+  ],
 } as Meta;
 
 const mockSuccessResponse = () =>

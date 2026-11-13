@@ -5,13 +5,13 @@
 import FlowRecoveryKeyInfo from '.';
 import { Meta } from '@storybook/react';
 import { useFtlMsgResolver } from '../../../models';
-import { withLocalization } from 'fxa-react/lib/storybooks';
+import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
 import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
 
 export default {
   title: 'Components/Settings/FlowRecoveryKeyInfo',
   component: FlowRecoveryKeyInfo,
-  decorators: [withLocalization],
+  decorators: [withLocalization, withLocation()],
 } as Meta;
 
 const navigateBackward = () => {

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import FormPhoneNumber from '.';
-import { withLocalization } from 'fxa-react/lib/storybooks';
+import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
 import { Meta } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import AppLayout from '../AppLayout';
@@ -18,6 +18,7 @@ export default {
       </AppLayout>
     ),
     withLocalization,
+    withLocation(),
   ],
 } as Meta;
 
