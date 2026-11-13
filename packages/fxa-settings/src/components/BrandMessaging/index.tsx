@@ -6,11 +6,15 @@ import React, { useEffect, useState } from 'react';
 import { useConfig } from '../../models';
 import { useMetrics } from '../../lib/metrics';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
+import { ReactComponent as CloseIconLegacy } from '@fxa/shared/assets/images/close.svg';
 import { Localized } from '@fluent/react';
 import { createPortal } from 'react-dom';
 import logo from '@fxa/shared/assets/images/moz-m-logo.svg';
 import LinkExternal from 'fxa-react/components/LinkExternal';
+import { ReactComponent as Close } from '../Icons/nova/close.min.svg';
+import { withNova } from '../../lib/nova';
+
+const CloseIcon = withNova(CloseIconLegacy, Close);
 
 export const bannerClosedLocalStorageKey =
   '__fxa_storage.fxa_disable_brand_banner';

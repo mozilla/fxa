@@ -27,7 +27,9 @@ import {
   getLocalizedErrorMessage,
   HandledError,
 } from '../../../lib/error-utils';
-import protectionShieldIcon from '@fxa/shared/assets/images/protection-shield.svg';
+import protectionShieldIconLegacy from '@fxa/shared/assets/images/protection-shield.svg';
+import codeImage from '../../../components/images/nova/code.min.svg';
+import { isNovaTheme } from '../../../lib/nova';
 import Banner from '../../../components/Banner';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
@@ -61,6 +63,9 @@ export const SigninTotpCode = ({
   setCurrentSplitLayout,
   useFxAStatusResult,
 }: SigninTotpCodeProps) => {
+  const protectionShieldIcon = isNovaTheme()
+    ? codeImage
+    : protectionShieldIconLegacy;
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
   const navigate = useNavigate();
@@ -226,20 +231,28 @@ export const SigninTotpCode = ({
       )}
 
       {cmsPage?.headline ? (
-        <h2 className="card-header">{cmsPage.headline}</h2>
+        <h2 className="card-header nova:mb-4">{cmsPage.headline}</h2>
       ) : (
         <FtlMsg id="signin-totp-code-subheader-v2">
-          <h2 className="card-header">Enter two-step authentication code</h2>
+          <h2 className="card-header nova:mb-4">
+            Enter two-step authentication code
+          </h2>
         </FtlMsg>
       )}
 
-      <div className="flex space-x-4">
-        <img src={protectionShieldIcon} alt="" />
+      <div className="flex space-x-4 nova:gap-4">
+        <img
+          src={protectionShieldIcon}
+          alt=""
+          className="nova:w-20 nova:shrink-0"
+        />
         {cmsPage?.description ? (
-          <p className="mt-5 text-md">{cmsPage.description}</p>
+          <p className="mt-5 text-md nova:mt-2 nova:ms-1">
+            {cmsPage.description}
+          </p>
         ) : (
           <FtlMsg id="signin-totp-code-instruction-v4">
-            <p className="mt-5 text-md">
+            <p className="mt-5 text-md nova:mt-2 nova:ms-1">
               Check your <strong>authenticator app</strong> to confirm your
               sign-in.
             </p>

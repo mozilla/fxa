@@ -2,29 +2,92 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import React from 'react';
 import { ImageProps, PreparedImage as PreparedIcon } from '../PreparedImage';
-import { ReactComponent as AlertFull } from './icon_alert_triangle_full_yellow.min.svg';
-import { ReactComponent as AlertOutlineCurrent } from './icon_alert_triangle_outline_current.min.svg';
-import { ReactComponent as AuthenticatorApp } from './icon_authenticator_app.min.svg';
-import { ReactComponent as BackupCodes } from './icon_backup_codes.min.svg';
+import { ReactComponent as AlertFullLegacy } from './icon_alert_triangle_full_yellow.min.svg';
+import { ReactComponent as AlertOutlineCurrentLegacy } from './icon_alert_triangle_outline_current.min.svg';
+import { ReactComponent as AuthenticatorAppLegacy } from './icon_authenticator_app.min.svg';
+import { ReactComponent as BackupCodesLegacy } from './icon_backup_codes.min.svg';
 import { ReactComponent as BackupCodesDisabled } from './icon_backup_codes_disabled.min.svg';
 import { ReactComponent as BackupRecoverySmsDisabled } from './icon_backup_recovery_sms_disabled.min.svg';
-import { ReactComponent as BackupRecoverySms } from './icon_backup_recovery_sms.min.svg';
-import { ReactComponent as CheckmarkGreen } from './icon_checkmark_green.min.svg';
-import { ReactComponent as CheckmarkCircleFullGreen } from './icon_checkmark_circle_full_green.min.svg';
-import { ReactComponent as CheckmarkCircleOutlineCurrent } from './icon_checkmark_circle_outline_current.min.svg';
-import { ReactComponent as ChevronRight } from './icon_chevron_right.min.svg';
-import { ReactComponent as Close } from './icon_close.min.svg';
+import { ReactComponent as BackupRecoverySmsLegacy } from './icon_backup_recovery_sms.min.svg';
+import { ReactComponent as CheckmarkGreenLegacy } from './icon_checkmark_green.min.svg';
+import { ReactComponent as CheckmarkCircleFullGreenLegacy } from './icon_checkmark_circle_full_green.min.svg';
+import { ReactComponent as CheckmarkCircleOutlineCurrentLegacy } from './icon_checkmark_circle_outline_current.min.svg';
+import { ReactComponent as ChevronRightLegacy } from './icon_chevron_right.min.svg';
+import { ReactComponent as CloseLegacy } from './icon_close.min.svg';
 import { ReactComponent as Code } from './icon_code.min.svg';
-import { ReactComponent as ErrorOutlineCurrent } from './icon_error_circle_outline_current.min.svg';
+import { ReactComponent as ErrorOutlineCurrentLegacy } from './icon_error_circle_outline_current.min.svg';
 import { ReactComponent as FlagCanada } from './icon_flag_canada.min.svg';
 import { ReactComponent as FlagUsa } from './icon_flag_usa.min.svg';
-import { ReactComponent as InformationOutlineCurrent } from './icon_information_circle_outline_current.min.svg';
+import { ReactComponent as InformationOutlineCurrentLegacy } from './icon_information_circle_outline_current.min.svg';
 import { ReactComponent as InformationOutlineBlue } from './icon_information_circle_outline_blue.min.svg';
-import { ReactComponent as Lightbulb } from './icon_lightbulb.min.svg';
-import { ReactComponent as LoadingArrow } from './icon_loading_arrow.min.svg';
-import { ReactComponent as Passkey } from './icon_passkey.min.svg';
-import { ReactComponent as Pencil } from './icon_pencil.min.svg';
+import { ReactComponent as LightbulbLegacy } from './icon_lightbulb.min.svg';
+import { ReactComponent as LoadingArrowLegacy } from './icon_loading_arrow.min.svg';
+import { ReactComponent as PasskeyLegacy } from './icon_passkey.min.svg';
+import { ReactComponent as PencilLegacy } from './icon_pencil.min.svg';
+import { ReactComponent as ArrowClockwise } from './nova/arrow-clockwise.min.svg';
+import { ReactComponent as Checkmark } from './nova/checkmark.min.svg';
+import { ReactComponent as CheckmarkCircleFill } from './nova/checkmark-circle-fill.min.svg';
+import { ReactComponent as ChevronRightNova } from './nova/chevron-right.min.svg';
+import { ReactComponent as CloseNova } from './nova/close.min.svg';
+import { ReactComponent as CriticalFill } from './nova/critical-fill.min.svg';
+import { ReactComponent as Edit } from './nova/edit.min.svg';
+import { ReactComponent as InformationFill } from './nova/information-fill.min.svg';
+import { ReactComponent as LightbulbNova } from './nova/lightbulb.min.svg';
+import { ReactComponent as PasskeyNova } from './nova/passkey.min.svg';
+import { ReactComponent as WarningFill } from './nova/warning-fill.min.svg';
+import { ReactComponent as RecoveryCodes } from './nova/recovery-codes.min.svg';
+import { ReactComponent as RecoveryPhone } from './nova/recovery-phone.min.svg';
+import { ReactComponent as ShieldCheckmark } from './nova/shield-checkmark.min.svg';
+import { sized, withNova } from '../../lib/nova';
+
+// acorn-icons glyphs are single-color (currentColor). Where the legacy SVG
+// hard-codes a status color (yellow alert, green check), the Nova icon gets
+// the matching nova:text-icon-* class. Banner's outline status icons use the
+// filled variants, which is what Acorn's message bar component shows.
+
+const AlertFull = withNova(
+  AlertFullLegacy,
+  sized(WarningFill, 'nova:text-icon-warning')
+);
+const AlertOutlineCurrent = withNova(AlertOutlineCurrentLegacy, WarningFill);
+const CheckmarkGreen = withNova(
+  CheckmarkGreenLegacy,
+  sized(Checkmark, 'nova:text-icon-success')
+);
+const CheckmarkCircleFullGreen = withNova(
+  CheckmarkCircleFullGreenLegacy,
+  sized(CheckmarkCircleFill, 'nova:text-icon-success')
+);
+const CheckmarkCircleOutlineCurrent = withNova(
+  CheckmarkCircleOutlineCurrentLegacy,
+  CheckmarkCircleFill
+);
+const ChevronRight = withNova(ChevronRightLegacy, ChevronRightNova);
+const Close = withNova(CloseLegacy, CloseNova);
+const ErrorOutlineCurrent = withNova(ErrorOutlineCurrentLegacy, CriticalFill);
+const InformationOutlineCurrent = withNova(
+  InformationOutlineCurrentLegacy,
+  InformationFill
+);
+const Lightbulb = withNova(LightbulbLegacy, sized(LightbulbNova));
+const LoadingArrow = withNova(LoadingArrowLegacy, ArrowClockwise);
+const Passkey = withNova(PasskeyLegacy, PasskeyNova);
+const Pencil = withNova(PencilLegacy, Edit);
+// Recovery-method art from the FxA Design System Figma (no disabled variants).
+const BackupCodes = withNova(
+  BackupCodesLegacy,
+  sized(RecoveryCodes, 'nova:h-10 nova:w-12', null)
+);
+const BackupRecoverySms = withNova(
+  BackupRecoverySmsLegacy,
+  sized(RecoveryPhone, 'nova:h-10 nova:w-12', null)
+);
+const AuthenticatorApp = withNova(
+  AuthenticatorAppLegacy,
+  sized(ShieldCheckmark, undefined, 32)
+);
 
 type AlertMode = 'alert' | 'attention' | 'warning';
 function getAlertAria(mode: AlertMode) {

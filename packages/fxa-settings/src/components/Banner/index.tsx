@@ -46,7 +46,7 @@ export const Banner = ({
     }
   }, [gleanId]);
 
-  const iconClassName = `shrink-0 ${iconAlignClassName} nova:absolute nova:top-3 nova:start-3`;
+  const iconClassName = `shrink-0 ${iconAlignClassName} nova:absolute nova:top-3.5 nova:start-4`;
   return (
     <div
       id={bannerId || ''}
@@ -164,7 +164,7 @@ export const Banner = ({
             <button
               aria-label={`Close banner`}
               className={classNames(
-                'shrink-0 self-start hover:backdrop-saturate-150 focus:backdrop-saturate-200 focus-visible-default rounded',
+                'shrink-0 self-start hover:backdrop-saturate-150 focus:backdrop-saturate-200 focus-visible-default rounded nova:p-1',
                 type === 'error' && 'hover:bg-red-200 focus:bg-red-300',
                 type === 'info' &&
                   !isFancy &&
@@ -182,7 +182,7 @@ export const Banner = ({
                 'data-glean-id': dismissButton.gleanId,
               })}
             >
-              <CloseIcon className="w-6 h-6" />
+              <CloseIcon className="w-6 h-6 nova:w-4 nova:h-4" />
             </button>
           )}
         </>

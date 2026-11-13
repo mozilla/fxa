@@ -15,7 +15,7 @@
     }
 
     &-status {
-      @apply relative align-middle text-xs uppercase pointer-events-none;
+      @apply relative align-middle text-xs uppercase pointer-events-none nova:font-semibold;
       bottom: 1px; /* TODO: can't seem to add to Tailwind? */
     }
   }
@@ -50,7 +50,7 @@
 
       &-status {
         /* pr matches pseudo width + .5 rem to account for long l10n */
-        @apply text-grey-50 pr-6 pl-3;
+        @apply text-grey-50 nova:text-nav-selected pr-6 pl-3;
 
         [dir='rtl'] & {
           /* pl matches pseudo width + .5 rem to account for long l10n */
@@ -107,8 +107,10 @@
   }
 }
 
+/* Nova keeps the 64x26 switch at every width, per Figma. :where() adds no
+ * specificity, so flag-off ordering is unchanged. */
 @screen tablet {
-  .switch {
+  .switch:where(:root:not([data-theme='nova']) *) {
     @apply min-w-12;
     height: calc(1rem + 2px); /* 2px increase accounts for the border */
 

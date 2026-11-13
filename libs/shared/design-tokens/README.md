@@ -198,10 +198,9 @@ Kept on primitives until design decides, unless noted.
 - **Message bar (Banner, ResetPasswordWarning):** under Nova the body is `bg-box` with a
   `border-deemphasized` 12px-radius border and the status tint moves to a start-edge strip
   (a `::before`, so the markup is unchanged); the icon sits in the strip and text is
-  start-aligned. Status icons use `text-icon-*`. The fancy info variant is a plain info bar
-  under Nova: no gradient, and its baked-in blue icon is swapped for the currentColor one.
-  Remaining (icons are on hold): Banner's status icons are 24px against Figma's 16px, and
-  ResetPasswordWarning's warning icon has a hardcoded fill, so it keeps its orange.
+  start-aligned. Status icons use `text-icon-*` and Acorn's 16px message-bar glyphs (see
+  Icons & illustrations). The fancy info variant is a plain info bar under Nova: no
+  gradient, and its baked-in blue icon is swapped for the currentColor one.
 - **Choice cards (`.input-radio`):** resting 1px `border-interactive` on a transparent fill,
   hover `--button-background-color-hover` with the same border, checked
   `--button-background-color-selected` with a 2px `--border-color-selected` border (no
@@ -280,6 +279,9 @@ Acorn token; see below), `text-icon-warning`/`-success`/`-critical`/
   (`rounded-2xl`) and `--card-box-shadow` (`shadow`) at every width; sub-rows inside them use
   `rounded-xl`. Below `tablet` they get 16px side margins, as in Figma mobile; flow cards re-center once they fit. Full-width UnitRow CTAs are about 40px tall below the row's `mobileLandscape` width.
 - **UnitRow** content keeps 16px from the actions column (Switch rows).
+- **Switch:** 64x26 with a 20px knob at every width, per Figma (flag-off shrinks it from
+  `tablet`). Labels are semibold; the on label is `text-nav-selected`, so it's dark on the light
+  accent in dark mode.
 - **Promos:** the sidebar ProductPromo and the FirefoxPromo/Promotion banners use `bg-box` with no
   border instead of the gradient (the violet promo tint failed AA for links).
   Figma's promo text block uses canvas; on the Settings page that equals the page color, so
@@ -355,6 +357,97 @@ and `link-white` are unchanged. CTAs use the circle radius. `cta-xl` takes
 `cta-base-p` takes `--button-padding-block-large` (42px tall with `text-base` against
 Figma's 40px; there is no 7px token). These files load only in Settings, so `legacy.css` needs
 no values for them.
+
+## Icons & illustrations
+
+Under the flag, fxa-settings swaps SVGs with `withNova(Legacy, Nova)` from
+`fxa-settings/src/lib/nova.tsx`, which reads `data-theme` at render. Nova icons live in
+`src/components/Icons/nova/`, illustrations in `src/components/images/nova/`.
+
+Icons are copied from [`FirefoxUX/acorn-icons`](https://github.com/FirefoxUX/acorn-icons)
+v1.155.0, with `fill="context-fill" fill-opacity="context-fill-opacity"` (Firefox chrome only;
+black on the web) replaced by `fill="currentColor"`, then run through svgo with `prefixIds`
+(keeping `viewBox`). Illustrations get the same svgo pass. File names are lowercase and
+hyphenated, without the size suffix; `.min` marks them as svgo'd.
+
+Icons whose legacy SVG baked in a color take a `nova:text-icon-*` class: AlertFullIcon
+(`text-icon-warning`), CheckmarkGreenIcon and CheckmarkCircleFullGreenIcon (`text-icon-success`),
+PasswordStrengthInline (`text-icon-success`, `text-icon-critical`) and ResetPasswordWarning
+(`text-icon-warning`).
+
+| File | acorn-icons source | Replaces |
+|---|---|---|
+| `add.min.svg` | `icons/desktop/16/add-16.svg` | PageAvatar add photo |
+| `arrow-clockwise.min.svg` | `icons/desktop/16/arrow-clockwise-16.svg` | LoadingArrowIcon, ButtonIcon refresh |
+| `back.min.svg` | `icons/desktop/16/back-16.svg` | ButtonBack |
+| `checkmark.min.svg` | `icons/desktop/16/checkmark-16.svg` | CheckmarkGreenIcon (`text-icon-success`), PasswordStrengthInline pass, Checkbox, InputCheckboxBlue (`text-nav-selected`) |
+| `checkmark-circle-fill.min.svg` | `icons/desktop/16/checkmark-circle-fill-16.svg` | CheckmarkCircleFullGreenIcon (`text-icon-success`), CheckmarkCircleOutlineCurrentIcon |
+| `chevron-down.min.svg` | `icons/desktop/12/chevron-down-12.svg` | ResetPasswordWarning toggle |
+| `chevron-right.min.svg` | `icons/desktop/16/chevron-right-16.svg` | ChevronRightIcon |
+| `close.min.svg` | `icons/desktop/16/close-16.svg` | PageAvatar remove photo, CloseIcon, shared `close.svg` (AlertBar, BentoMenu, Modal, promo banners, BrandMessaging), HeaderLockup, PasswordStrengthInline fail |
+| `copy.min.svg`, `downloads.min.svg`, `print.min.svg` | `icons/desktop/16/copy-16.svg`, `icons/desktop/16/downloads-16.svg`, `icons/desktop/16/print-16.svg` | GetDataTrio |
+| `critical-fill.min.svg` | `icons/desktop/16/critical-fill-16.svg` | ErrorOutlineCurrentIcon |
+| `delete.min.svg` | `icons/desktop/16/delete-16.svg` | ButtonIcon trash |
+| `edit.min.svg` | `icons/desktop/16/edit-16.svg` | EditIcon |
+| `external-link.min.svg` | `icons/desktop/12/external-link-12.svg` | Nav external links |
+| `folder.min.svg`, `globe.min.svg`, `lock.min.svg`, `shield.min.svg` | `icons/desktop/16/folder-16.svg`, `icons/desktop/16/globe-16.svg`, `icons/desktop/16/lock-16.svg`, `icons/desktop/16/shield-16.svg` | IconListItem; `passkey-16` for its key and `print-16` for its printer |
+| `help.min.svg`, `app-menu.min.svg` | `icons/desktop/20/help-20.svg`, `icons/desktop/16/app-menu-16.svg` | HeaderLockup |
+| `information-fill.min.svg` | `icons/desktop/16/information-fill-16.svg` | InformationOutlineCurrentIcon |
+| `lightbulb.min.svg` | `icons/desktop/16/lightbulb-16.svg` | LightbulbIcon |
+| `passkey.min.svg` | `icons/desktop/16/passkey-16.svg` | PasskeyIcon |
+| `show-password.min.svg`, `show-password-slash.min.svg` | `icons/desktop/16/show-password-16.svg`, `icons/desktop/16/show-password-slash-16.svg` | InputPassword |
+| `shield-checkmark.min.svg` | `icons/desktop/16/shield-checkmark-16.svg` | AuthenticatorAppIcon |
+| `warning-fill.min.svg` | `icons/desktop/16/warning-fill-16.svg` | AlertFullIcon (`text-icon-warning`), AlertOutlineCurrentIcon, ResetPasswordWarning |
+
+The outline status icons only render in Banner, so they take the filled glyphs Acorn's
+message bar component uses; Banner's `error` keeps the `!` glyph (`critical-fill`) rather than
+Acorn's `error-fill` (a minus).
+
+Figma-sourced (FxA Design System `h9IZtA5OnTDXYhc59NiGLp`), svgo'd the same way:
+
+| File | Figma node | Replaces |
+|---|---|---|
+| `Icons/nova/recovery-phone.min.svg` | Illustration `Authentication-phone` as used in SigninRecoveryChoice `3121:2186` | BackupRecoverySmsIcon, BackupRecoveryPhoneSmsImage |
+| `Icons/nova/recovery-codes.min.svg` | Illustration `Backup-codes`, same frame | BackupCodesIcon, BackupAuthenticationCodesImage |
+| `Settings/Avatar/nova-avatar-default.min.svg` | `Avatar/Default/Small` `82:3` (HeaderLockup `3121:2178`) | Avatar default image |
+
+The disabled recovery icons have no Figma variant and stay legacy.
+
+Illustrations are the Mozilla accounts set (plain hex fills, no CMS theming: CMS-themed
+images show the Nova art under the flag). `RecoveryKeyImage` takes `variant="confirm"` for
+the check art.
+
+| File | Component |
+|---|---|
+| `add-devices.min.svg` | HeartsVerifiedImage |
+| `authentication-phone.min.svg` | BackupRecoveryPhoneImage, PasswordImage |
+| `backup-codes.min.svg` | BackupCodesImage |
+| `code-success.min.svg` | PasswordSuccessImage |
+| `device.min.svg` | BackupRecoveryPhoneCodeImage, TwoFactorAuthImage |
+| `email-code.min.svg` | EmailCodeImage |
+| `insight.min.svg` | LightbulbImage |
+| `pairing-broken.min.svg` | HeartsBrokenImage |
+| `recovery-key-heart.min.svg`, `recovery-key-check.min.svg` | RecoveryKeyImage (`create`, `confirm`) |
+| `sync-arrows.min.svg` | SyncCloudsImage |
+| `add-devices-platforms.min.svg` | AddDevicesPlatformsImage (ConnectAnotherDevice), pending review |
+| `code.min.svg` | SigninTotpCode and ConfirmTotpResetPassword (replaces `protection-shield.svg`), pending review |
+
+**Not swapped** (legacy under the flag):
+
+- Pair2 pages keep their art: LaptopQrCodeImage, SyncSuccessImage, SyncDevicesImage,
+  MobileDevicePairingImage, QrPhoneFrameImage, PairMenuIos/AndroidImage.
+- No Nova illustration yet: PairingInterruptedImage, VpnWelcomeImage, FirefoxWordmarkImage,
+  FallingConfettiImage, Pair/AuthAllow `confirm-pairing.svg`, SigninBounced
+  `graphic_email_bounced.svg`, CompleteResetPassword `icon-bang.svg`, Pair/Index phone icons.
+- Not imported from the set: `nofirefox-detected` (no slot outside Pair2), `authentication`,
+  `success`, `delay`, `push-notification`, `subplat-email`.
+- No acorn glyph: CodeIcon and DataBlock's code icon; PageAvatar's take photo (acorn's
+  `camera` is a video camera; the legacy glyph is inset under Nova), zoom and rotate;
+  DropDownAvatarMenu sign-out; ResetPasswordWarning sync/non-sync device; ConnectedServices
+  device icons (no desktop or tablet glyph).
+- Color semantics unclear: FormPassword's validation glyphs (valid is blue, unset is a lock).
+- Out of scope: brand and product logos, store badges, flags, QR treatments, fox art,
+  LoadingSpinner. The avatar monogram is unchanged.
 
 ## Maintenance
 

@@ -22,7 +22,7 @@ const PairFailure = ({ error }: PairFailureProps) => {
         headingTextFtlId="pair-failure-header-v2"
         headingText="Device pairing failed"
       />
-      <HeartsBrokenImage className="w-3/5 mx-auto" />
+      <HeartsBrokenImage className="w-3/5 mx-auto nova:mt-6 nova:mb-9" />
       <FtlMsg id="pair-failure-message-v2">
         <p className="text-sm">
           The setup couldn’t be completed. Please sign in with your email.

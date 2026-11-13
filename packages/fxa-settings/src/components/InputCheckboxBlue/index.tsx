@@ -4,7 +4,11 @@
 
 import React, { ChangeEvent, useState, useCallback } from 'react';
 import classNames from 'classnames';
-import { ReactComponent as CheckWhite } from './icon-check-white.svg';
+import { ReactComponent as CheckWhiteLegacy } from './icon-check-white.svg';
+import { ReactComponent as Checkmark } from '../Icons/nova/checkmark.min.svg';
+import { withNova } from '../../lib/nova';
+
+const CheckWhite = withNova(CheckWhiteLegacy, Checkmark);
 
 export type InputCheckboxBlueProps = {
   defaultChecked?: boolean;
@@ -58,7 +62,9 @@ export const InputCheckboxBlue = ({
         }}
       />
       <CheckWhite
-        className={classNames('w-4 h-4 absolute', { 'opacity-0': !checked })}
+        className={classNames('w-4 h-4 absolute nova:text-nav-selected', {
+          'opacity-0': !checked,
+        })}
         aria-hidden={true}
       />
       <span className="inline-block leading-tight">{label}</span>

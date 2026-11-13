@@ -4,7 +4,9 @@
 
 import { Localized } from '@fluent/react';
 import classNames from 'classnames';
-import defaultAvatar from './avatar-default.svg';
+import defaultAvatarLegacy from './avatar-default.svg';
+import avatarDefault from './nova-avatar-default.min.svg';
+import { isNovaTheme } from '../../../lib/nova';
 import { AccountAvatar } from '../../../lib/interfaces';
 
 type AvatarProps = {
@@ -13,6 +15,7 @@ type AvatarProps = {
 };
 
 export const Avatar = ({ className, avatar }: AvatarProps) => {
+  const defaultAvatar = isNovaTheme() ? avatarDefault : defaultAvatarLegacy;
   if (avatar?.url) {
     return (
       <Localized id="avatar-your-avatar" attrs={{ alt: true }}>

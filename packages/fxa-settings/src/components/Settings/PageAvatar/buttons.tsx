@@ -10,12 +10,26 @@ import { useAccount, useAlertBar } from '../../../models';
 import { SETTINGS_PATH } from '../../../constants';
 import ButtonIcon from '../ButtonIcon';
 
-import { ReactComponent as AddIcon } from './add.svg';
-import { ReactComponent as CameraIcon } from './camera.svg';
-import { ReactComponent as RemoveIcon } from './remove.svg';
+import { ReactComponent as AddIconLegacy } from './add.svg';
+import { ReactComponent as CameraIconLegacy } from './camera.svg';
+import { ReactComponent as RemoveIconLegacy } from './remove.svg';
 import { ReactComponent as ZoomOutIcon } from './zoom-out.svg';
 import { ReactComponent as ZoomInIcon } from './zoom-in.svg';
 import { ReactComponent as RotateIcon } from './rotate.svg';
+import { ReactComponent as Add } from '../../Icons/nova/add.min.svg';
+import { ReactComponent as Close } from '../../Icons/nova/close.min.svg';
+import { withNova } from '../../../lib/nova';
+
+const AddIcon = withNova(AddIconLegacy, Add);
+const RemoveIcon = withNova(RemoveIconLegacy, Close);
+// No acorn photo-camera glyph; under Nova the legacy camera is inset to match
+// the acorn glyphs' padding.
+const CameraIcon = withNova(
+  CameraIconLegacy,
+  (props: React.SVGProps<SVGSVGElement>) => (
+    <CameraIconLegacy {...props} width={18} height={16} />
+  )
+);
 
 const buttonClass = `mx-2 text-grey-500 dark:text-grey-200 nova:text-deemphasized
 hover:text-grey-900 dark:hover:text-white nova:hover:text-default
@@ -24,7 +38,7 @@ const captureClass = `mx-2 bg-red-500 w-12 h-12 text-white rounded-full border
 border-red-600 hover:bg-red-600 hover:border-red-600 active:border-red-700
 focus:border-red-800 nova:bg-icon-critical nova:border-transparent`;
 
-const editButtonClass = `mx-1 text-white rounded-full hover:bg-grey-100 dark:hover:bg-grey-600 nova:hover:bg-hover-tint nova:transition-colors`;
+const editButtonClass = `mx-1 text-white rounded-full hover:bg-grey-100 dark:hover:bg-grey-600 nova:text-default nova:hover:bg-hover-tint nova:transition-colors`;
 const buttonSize = 32;
 
 export const RemovePhotoBtn = () => {
