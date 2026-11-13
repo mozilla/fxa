@@ -6,7 +6,9 @@ import React, { Dispatch, SetStateAction } from 'react';
 import AppLayout from '../../../components/AppLayout';
 import { useFtlMsgResolver } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import protectionShieldIcon from '@fxa/shared/assets/images/protection-shield.svg';
+import protectionShieldIconLegacy from '@fxa/shared/assets/images/protection-shield.svg';
+import codeImage from '../../../components/images/nova/code.min.svg';
+import { isNovaTheme } from '../../../lib/nova';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
 import { useNavigateWithQuery } from '../../../lib/hooks';
 import Banner from '../../../components/Banner';
@@ -30,6 +32,9 @@ const ConfirmTotpResetPassword = ({
   email,
   showPasskeyOption,
 }: ConfirmTotpResetPasswordProps) => {
+  const protectionShieldIcon = isNovaTheme()
+    ? codeImage
+    : protectionShieldIconLegacy;
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
 
@@ -56,9 +61,13 @@ const ConfirmTotpResetPassword = ({
       </h2>
 
       <div className="flex gap-4">
-        <img src={protectionShieldIcon} alt="" />
+        <img
+          src={protectionShieldIcon}
+          alt=""
+          className="nova:w-20 nova:shrink-0"
+        />
         <FtlMsg id="confirm-totp-reset-password-instruction-v2">
-          <p className="text-md">
+          <p className="text-md nova:mt-2 nova:ms-1">
             Check your <strong>authenticator app</strong> to reset your
             password.
           </p>

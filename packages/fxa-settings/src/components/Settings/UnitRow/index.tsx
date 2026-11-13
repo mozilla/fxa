@@ -192,10 +192,16 @@ export const UnitRow = ({
               !hideHeaderValue && (
                 <div className="flex gap-2">
                   {statusIcon && statusIcon === 'checkmark' && (
-                    <CheckmarkGreenIcon className="scale-125" mode="enabled" />
+                    <CheckmarkGreenIcon
+                      className="scale-125 nova:scale-100 nova:self-center"
+                      mode="enabled"
+                    />
                   )}
                   {statusIcon && statusIcon === 'alert' && (
-                    <AlertFullIcon className="scale-125" mode="attention" />
+                    <AlertFullIcon
+                      className="scale-125 nova:scale-100 nova:self-center"
+                      mode="attention"
+                    />
                   )}
                   <p
                     className={classNames('font-bold', headerValueClassName)}

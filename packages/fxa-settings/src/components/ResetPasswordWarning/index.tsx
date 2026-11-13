@@ -4,16 +4,31 @@
 
 import React, { useState } from 'react';
 
-import { ReactComponent as WarnIcon } from './icon-warn.svg';
-import { ReactComponent as IconNonSyncDevice } from './icon-non-sync-device.svg';
+import { ReactComponent as WarnIconLegacy } from './icon-warn.svg';
+import { ReactComponent as IconNonSyncDeviceLegacy } from './icon-non-sync-device.svg';
+import { ReactComponent as IconNonSyncDeviceCurrent } from './icon-non-sync-device-current.svg';
 import { ReactComponent as IconSyncDevice } from './icon-sync-device.svg';
-import { ReactComponent as Chevron } from './chevron.svg';
+import { ReactComponent as ChevronLegacy } from './chevron.svg';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models';
 import { Link } from 'react-router';
 import { CompleteResetPasswordLocationState } from '../../pages/ResetPassword/CompleteResetPassword/interfaces';
 import GleanMetrics from '../../lib/glean';
+import { ReactComponent as WarningFill } from '../Icons/nova/warning-fill.min.svg';
+import { ReactComponent as ChevronDown } from '../Icons/nova/chevron-down.min.svg';
+import { ReactComponent as Passkey } from '../Icons/nova/passkey.min.svg';
+import { withNova } from '../../lib/nova';
+
+const WarnIcon = withNova(WarnIconLegacy, WarningFill);
+// The legacy glyph's slash is hard-coded dark; the Nova copy uses currentColor.
+const IconNonSyncDevice = withNova(
+  IconNonSyncDeviceLegacy,
+  IconNonSyncDeviceCurrent
+);
+// acorn-icons has no key glyph; the recovery-key row uses passkey under Nova.
+const IconRecoveryKey = withNova(IconSyncDevice, Passkey);
+const Chevron = withNova(ChevronLegacy, ChevronDown);
 
 const ResetPasswordWarning = ({
   locationState,
@@ -43,7 +58,7 @@ const ResetPasswordWarning = ({
       <summary className="flex items-center cursor-pointer list-none [&::-webkit-details-marker]:hidden rounded-sm focus-visible-default outline-offset-2">
         <WarnIcon
           role="img"
-          className="me-4 nova:absolute nova:top-3.5 nova:start-3"
+          className="me-4 nova:absolute nova:top-3.5 nova:start-3 nova:text-icon-warning"
           aria-label={ftlMsgResolver.getMsg(
             'password-reset-warning-icon',
             'Warning'
@@ -73,7 +88,7 @@ const ResetPasswordWarning = ({
       <div className="flex flex-col pt-4 pb-2 gap-4 text-xs leading-snug">
         {locationState.recoveryKeyExists !== false && (
           <div className="flex">
-            <IconSyncDevice
+            <IconRecoveryKey
               role="img"
               className="me-4 mt-[2px]"
               aria-hidden={true}

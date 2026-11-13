@@ -4,7 +4,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useEscKeydownEffect, useChangeFocusEffect } from '../../../lib/hooks';
-import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
+import { ReactComponent as CloseIconLegacy } from '@fxa/shared/assets/images/close.svg';
 import {
   alertContent,
   alertGleanId,
@@ -16,6 +16,10 @@ import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import { useLocalization } from '@fluent/react';
 import classNames from 'classnames';
 import GleanMetrics from '../../../lib/glean';
+import { ReactComponent as Close } from '../../Icons/nova/close.min.svg';
+import { withNova } from '../../../lib/nova';
+
+const CloseIcon = withNova(CloseIconLegacy, Close);
 
 /**
  * AlertBar component displays an alert message at the top of the screen.

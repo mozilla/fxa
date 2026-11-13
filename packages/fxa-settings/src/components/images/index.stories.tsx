@@ -8,9 +8,9 @@ import {
   EmailCodeImage,
   HeartsBrokenImage,
   HeartsVerifiedImage,
+  AddDevicesPlatformsImage,
   LightbulbImage,
   PasswordImage,
-  MailImage,
   BackupCodesImage,
   RecoveryKeyImage,
   TwoFactorAuthImage,
@@ -41,7 +41,6 @@ export default {
     HeartsVerifiedImage,
     LightbulbImage,
     PasswordImage,
-    MailImage,
     BackupCodesImage,
     RecoveryKeyImage,
     TwoFactorAuthImage,
@@ -58,13 +57,15 @@ export const HeartsBroken = () => <HeartsBrokenImage />;
 
 export const HeartsVerified = () => <HeartsVerifiedImage />;
 
+export const AddDevicesPlatforms = () => <AddDevicesPlatformsImage />;
+
 export const Key = () => <RecoveryKeyImage />;
+
+export const KeyConfirm = () => <RecoveryKeyImage variant="confirm" />;
 
 export const Lightbulb = () => <LightbulbImage />;
 
 export const Password = () => <PasswordImage />;
-
-export const Mail = () => <MailImage />;
 
 export const BackupCodes = () => <BackupCodesImage />;
 

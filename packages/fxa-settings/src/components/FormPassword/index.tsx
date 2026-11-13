@@ -4,9 +4,11 @@
 
 import { Localized } from '@fluent/react';
 import React, { useCallback, useState } from 'react';
-import { ReactComponent as ValidIcon } from './valid.svg';
-import { ReactComponent as InvalidIcon } from './invalid.svg';
-import { ReactComponent as UnsetIcon } from './unset.svg';
+import { ReactComponent as ValidIconLegacy } from './valid.svg';
+import { ReactComponent as InvalidIconLegacy } from './invalid.svg';
+import { ReactComponent as UnsetIconLegacy } from './unset.svg';
+import { ReactComponent as CheckmarkCircleFill } from '../Icons/nova/checkmark-circle-fill.min.svg';
+import { ReactComponent as CriticalFill } from '../Icons/nova/critical-fill.min.svg';
 import { UseFormReturn, ValidateResult } from 'react-hook-form';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import InputPassword from '../InputPassword';
@@ -14,6 +16,21 @@ import PasswordValidator from '../../lib/password-validator';
 import { SETTINGS_PATH } from '../../constants';
 import { logViewEvent, settingsViewName } from '../../lib/metrics';
 import { useNavigate } from 'react-router';
+import { sized, withNova } from '../../lib/nova';
+
+// Unset reuses the valid glyph, deemphasized, so it keeps the same footprint.
+const ValidIcon = withNova(
+  ValidIconLegacy,
+  sized(CheckmarkCircleFill, 'nova:text-icon-success', 16)
+);
+const InvalidIcon = withNova(
+  InvalidIconLegacy,
+  sized(CriticalFill, 'nova:text-icon-critical', 16)
+);
+const UnsetIcon = withNova(
+  UnsetIconLegacy,
+  sized(CheckmarkCircleFill, 'nova:text-deemphasized', 16)
+);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyFormReturn = UseFormReturn<any>;

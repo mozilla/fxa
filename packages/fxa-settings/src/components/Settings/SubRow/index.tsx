@@ -92,7 +92,7 @@ const SubRow = ({
   const StatusIcon = () => (
     <span className="grow-0 shrink-0 ">
       {statusIcon === 'checkmark' ? (
-        <CheckmarkGreenIcon className="mt-1" mode="enabled" />
+        <CheckmarkGreenIcon className="mt-1 nova:mt-0" mode="enabled" />
       ) : statusIcon === 'alert' ? (
         <AlertIcon className="m-0" mode="attention" />
       ) : null}
@@ -137,7 +137,7 @@ const SubRow = ({
           </div>
           <div>
             <div
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 nova:gap-2"
               data-testid={`${idPrefix}-status`}
             >
               <StatusIcon />
@@ -212,7 +212,7 @@ export const BackupCodesSubRow = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const hasCodesRemaining = !!numCodesAvailable && numCodesAvailable > 0;
   const icon = hasCodesRemaining ? (
-    <BackupCodesIcon className="-ms-1 -my-2 scale-50" />
+    <BackupCodesIcon className="-ms-1 -my-2 scale-50 nova:scale-75 nova:-mx-1.5" />
   ) : (
     <BackupCodesDisabledIcon className="-ms-1 -my-2 scale-50" />
   );
@@ -275,7 +275,7 @@ export const BackupPhoneSubRow = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const hasPhoneNumber = !!phoneNumber;
   const icon = hasPhoneNumber ? (
-    <BackupRecoverySmsIcon className="-ms-1 -my-2 scale-50" />
+    <BackupRecoverySmsIcon className="-ms-1 -my-2 scale-50 nova:scale-75 nova:-mx-1.5" />
   ) : (
     <BackupRecoverySmsDisabledIcon className="-ms-1 -my-2 scale-50" />
   );
@@ -756,7 +756,7 @@ export const PasskeySubRow = ({ passkey }: PasskeySubRowProps) => {
             </span>
             <EditIcon
               ariaHidden
-              className="w-4 h-4 shrink-0 text-grey-500 group-hover:text-grey-900 nova:text-deemphasized nova:group-hover:text-default"
+              className="w-4 h-4 shrink-0 text-grey-500 group-hover:text-grey-900 nova:text-deemphasized nova:group-hover:text-default nova:transition-colors"
             />
             <span className="sr-only">
               {ftlMsgResolver.getMsg(

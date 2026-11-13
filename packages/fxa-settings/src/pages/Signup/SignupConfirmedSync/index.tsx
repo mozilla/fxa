@@ -87,7 +87,7 @@ const SignupConfirmedSync = ({
           className="mx-auto mt-4 max-h-44"
         />
       ) : (
-        <SyncCloudsImage className="mx-auto mt-4 max-h-44" />
+        <SyncCloudsImage className="mx-auto mt-4 max-h-44 nova:max-h-20 nova:my-8" />
       )}
       {cmsInfo ? (
         <>

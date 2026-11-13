@@ -4,13 +4,22 @@
 
 import React, { useCallback } from 'react';
 import { copy } from '../../lib/clipboard';
-import { ReactComponent as CopyIcon } from './copy.min.svg';
-import { ReactComponent as InlineCopyIcon } from './copy-inline.svg';
-import { ReactComponent as DownloadIcon } from './download.min.svg';
-import { ReactComponent as PrintIcon } from './print.min.svg';
+import { ReactComponent as CopyIconLegacy } from './copy.min.svg';
+import { ReactComponent as InlineCopyIconLegacy } from './copy-inline.svg';
+import { ReactComponent as DownloadIconLegacy } from './download.min.svg';
+import { ReactComponent as PrintIconLegacy } from './print.min.svg';
 import { useFtlMsgResolver } from '../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { GleanClickEventType2FA } from '../../lib/types';
+import { ReactComponent as Copy } from '../Icons/nova/copy.min.svg';
+import { ReactComponent as Downloads } from '../Icons/nova/downloads.min.svg';
+import { ReactComponent as Print } from '../Icons/nova/print.min.svg';
+import { withNova } from '../../lib/nova';
+
+const CopyIcon = withNova(CopyIconLegacy, Copy);
+const InlineCopyIcon = withNova(InlineCopyIconLegacy, Copy);
+const DownloadIcon = withNova(DownloadIconLegacy, Downloads);
+const PrintIcon = withNova(PrintIconLegacy, Print);
 
 export type DownloadContentType =
   | 'Firefox account recovery key'
@@ -114,11 +123,11 @@ export const GetDataCopySingletonInline = ({
         data-testid="databutton-copy"
         data-glean-id={gleanDataAttr?.id}
         data-glean-type={gleanDataAttr?.type}
-        className="-my-2 -me-4 p-3 rounded text-grey-500 dark:text-grey-200 nova:text-deemphasized bg-transparent border border-transparent hover:bg-grey-100 active:bg-grey-200 nova:hover:bg-button-hover nova:active:bg-button-active focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-focus focus:bg-grey-50"
+        className="-my-2 -me-4 p-3 rounded text-grey-500 dark:text-grey-200 nova:text-deemphasized bg-transparent border border-transparent hover:bg-grey-100 active:bg-grey-200 nova:hover:bg-button-hover nova:active:bg-button-active nova:transition-colors focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-focus focus:bg-grey-50"
       >
         <InlineCopyIcon
           aria-hidden
-          className="w-6 h-6 items-center justify-center stroke-current"
+          className="w-6 h-6 items-center justify-center stroke-current nova:stroke-none"
         />
       </button>
     </FtlMsg>

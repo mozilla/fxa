@@ -8,21 +8,20 @@ import {
   ImageProps,
   PreparedImage,
 } from '../PreparedImage';
-import { ReactComponent as HeartsBroken } from './graphic_hearts_broken.svg';
-import { ReactComponent as HeartsVerified } from './graphic_hearts_verified.svg';
-import { ReactComponent as BackupCodes } from './graphic_backup_codes.min.svg';
-import { ReactComponent as TwoFactorAuth } from './graphic_two_factor_auth.svg';
-import { ReactComponent as Mail } from './graphic_mail.svg';
-import { ReactComponent as Key } from './graphic_recovery_key.min.svg';
-import { ReactComponent as Password } from './graphic_password.min.svg';
-import { ReactComponent as Lightbulb } from './graphic_recovery_key_hint.min.svg';
-import { ReactComponent as EmailCode } from './graphic_email_code.min.svg';
-import { ReactComponent as PasswordSuccess } from './graphic_password_success.min.svg';
-import { ReactComponent as BackupRecoveryPhone } from './graphic_backup_recovery_phone.min.svg';
-import { ReactComponent as BackupRecoveryPhoneCode } from './graphic_phone_code.min.svg';
-import { ReactComponent as BackupRecoveryPhoneSms } from './graphic_phone_sms.min.svg';
-import { ReactComponent as BackupAuthenticationCodes } from './graphic_authentication_codes.min.svg';
-import { ReactComponent as SyncClouds } from './graphic_sync_clouds.min.svg';
+import { ReactComponent as HeartsBrokenLegacy } from './graphic_hearts_broken.svg';
+import { ReactComponent as HeartsVerifiedLegacy } from './graphic_hearts_verified.svg';
+import { ReactComponent as BackupCodesLegacy } from './graphic_backup_codes.min.svg';
+import { ReactComponent as TwoFactorAuthLegacy } from './graphic_two_factor_auth.svg';
+import { ReactComponent as KeyLegacy } from './graphic_recovery_key.min.svg';
+import { ReactComponent as PasswordLegacy } from './graphic_password.min.svg';
+import { ReactComponent as LightbulbLegacy } from './graphic_recovery_key_hint.min.svg';
+import { ReactComponent as EmailCodeLegacy } from './graphic_email_code.min.svg';
+import { ReactComponent as PasswordSuccessLegacy } from './graphic_password_success.min.svg';
+import { ReactComponent as BackupRecoveryPhoneLegacy } from './graphic_backup_recovery_phone.min.svg';
+import { ReactComponent as BackupRecoveryPhoneCodeLegacy } from './graphic_phone_code.min.svg';
+import { ReactComponent as BackupRecoveryPhoneSmsLegacy } from './graphic_phone_sms.min.svg';
+import { ReactComponent as BackupAuthenticationCodesLegacy } from './graphic_authentication_codes.min.svg';
+import { ReactComponent as SyncCloudsLegacy } from './graphic_sync_clouds.min.svg';
 import { ReactComponent as FallingConfetti } from './graphic_celebrate_confetti.svg';
 import { ReactComponent as VpnWelcome } from './graphic_vpn_welcome.svg';
 import { ReactComponent as SyncDevices } from './graphic_sync_devices.min.svg';
@@ -34,6 +33,51 @@ import { ReactComponent as MobileDevicePairing } from './graphic_mobile_device_p
 import { ReactComponent as QrPhoneFrame } from './graphic_qr_phone_frame.min.svg';
 import { ReactComponent as PairMenuIos } from './graphic_pair_menu_ios.min.svg';
 import { ReactComponent as PairMenuAndroid } from './graphic_pair_menu_android.min.svg';
+import { ReactComponent as AddDevices } from './nova/add-devices.min.svg';
+import { ReactComponent as AddDevicesPlatforms } from './nova/add-devices-platforms.min.svg';
+import { ReactComponent as AuthenticationPhone } from './nova/authentication-phone.min.svg';
+import { ReactComponent as BackupCodesNova } from './nova/backup-codes.min.svg';
+import { ReactComponent as CodeSuccess } from './nova/code-success.min.svg';
+import { ReactComponent as Device } from './nova/device.min.svg';
+import { ReactComponent as EmailCodeNova } from './nova/email-code.min.svg';
+import { ReactComponent as Insight } from './nova/insight.min.svg';
+import { ReactComponent as PairingBroken } from './nova/pairing-broken.min.svg';
+import { ReactComponent as RecoveryKeyCheck } from './nova/recovery-key-check.min.svg';
+import { ReactComponent as RecoveryKeyHeart } from './nova/recovery-key-heart.min.svg';
+import { ReactComponent as SyncArrows } from './nova/sync-arrows.min.svg';
+import { ReactComponent as RecoveryCodes } from '../Icons/nova/recovery-codes.min.svg';
+import { ReactComponent as RecoveryPhone } from '../Icons/nova/recovery-phone.min.svg';
+import { sized, withNova } from '../../lib/nova';
+
+// Nova illustrations (plain hex fills; CMS illustration colors don't apply).
+const HeartsBroken = withNova(HeartsBrokenLegacy, PairingBroken);
+const HeartsVerified = withNova(HeartsVerifiedLegacy, AddDevices);
+const HeartsVerifiedPlatforms = withNova(
+  HeartsVerifiedLegacy,
+  AddDevicesPlatforms
+);
+const BackupCodes = withNova(BackupCodesLegacy, BackupCodesNova);
+const TwoFactorAuth = withNova(TwoFactorAuthLegacy, Device);
+const Key = withNova(KeyLegacy, RecoveryKeyHeart);
+const KeyConfirm = withNova(KeyLegacy, RecoveryKeyCheck);
+const Password = withNova(PasswordLegacy, AuthenticationPhone);
+const Lightbulb = withNova(LightbulbLegacy, Insight);
+const EmailCode = withNova(EmailCodeLegacy, EmailCodeNova);
+const PasswordSuccess = withNova(PasswordSuccessLegacy, CodeSuccess);
+const BackupRecoveryPhone = withNova(
+  BackupRecoveryPhoneLegacy,
+  AuthenticationPhone
+);
+const BackupRecoveryPhoneCode = withNova(BackupRecoveryPhoneCodeLegacy, Device);
+const SyncClouds = withNova(SyncCloudsLegacy, SyncArrows);
+const BackupRecoveryPhoneSms = withNova(
+  BackupRecoveryPhoneSmsLegacy,
+  sized(RecoveryPhone, 'nova:h-10 nova:w-12', null)
+);
+const BackupAuthenticationCodes = withNova(
+  BackupAuthenticationCodesLegacy,
+  sized(RecoveryCodes, 'nova:h-10 nova:w-12', null)
+);
 
 function illustrationStyle(
   colors?: IllustrationsTheme
@@ -68,6 +112,19 @@ export const HeartsVerifiedImage = ({ className, ariaHidden }: ImageProps) => (
     ariaLabel="A computer and a mobile phone and a tablet with a pulsing heart on each"
     ariaLabelFtlId="hearts-verified-image-aria-label"
     Image={HeartsVerified}
+    {...{ className, ariaHidden }}
+  />
+);
+
+/** HeartsVerifiedImage's art flag-off; under Nova, devices across platforms. */
+export const AddDevicesPlatformsImage = ({
+  className,
+  ariaHidden,
+}: ImageProps) => (
+  <PreparedImage
+    ariaLabel="A computer and a mobile phone and a tablet with a pulsing heart on each"
+    ariaLabelFtlId="hearts-verified-image-aria-label"
+    Image={HeartsVerifiedPlatforms}
     {...{ className, ariaHidden }}
   />
 );
@@ -123,20 +180,16 @@ export const TwoFactorAuthImage = ({ className, ariaHidden }: ImageProps) => (
   />
 );
 
-export const MailImage = ({ className, ariaHidden }: ImageProps) => (
-  <PreparedImage
-    ariaLabel="An envelope containing a link"
-    ariaLabelFtlId="confirm-signup-aria-label"
-    Image={Mail}
-    {...{ className, ariaHidden }}
-  />
-);
-
-export const RecoveryKeyImage = ({ className, ariaHidden }: ImageProps) => (
+/** `variant` picks the Nova art: `create` (default) or `confirm` (key verified). */
+export const RecoveryKeyImage = ({
+  className,
+  ariaHidden,
+  variant = 'create',
+}: ImageProps & { variant?: 'create' | 'confirm' }) => (
   <PreparedImage
     ariaLabel="Illustration to represent an account recovery key."
     ariaLabelFtlId="recovery-key-image-aria-label"
-    Image={Key}
+    Image={variant === 'confirm' ? KeyConfirm : Key}
     {...{ ariaHidden, className }}
   />
 );

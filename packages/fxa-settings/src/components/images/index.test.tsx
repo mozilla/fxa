@@ -8,6 +8,7 @@ import { getFtlBundle } from 'fxa-react/lib/test-utils';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { ImageProps } from '../PreparedImage';
 import * as images from '.';
+import { HeartsVerifiedImage, RecoveryKeyImage } from '.';
 
 // `testAllL10n` can't cover these: the jest SVG stub renders the file name as
 // the element's text, so an attribute-only message never matches its fallback.
@@ -70,5 +71,37 @@ describe('components/images aria labels', () => {
 
     expect(message).toBeDefined();
     expect(message!.attributes['aria-label']).toBeDefined();
+  });
+});
+
+// The jest SVG stub renders the file name, which identifies the asset.
+describe('components/images under Nova', () => {
+  afterEach(() => {
+    delete document.documentElement.dataset.theme;
+  });
+
+  it('renders the legacy illustration by default', () => {
+    renderWithLocalizationProvider(<HeartsVerifiedImage />);
+    expect(screen.getByRole('img')).toHaveTextContent(
+      'graphic_hearts_verified.svg'
+    );
+  });
+
+  it('renders the Nova illustration under data-theme="nova"', () => {
+    document.documentElement.dataset.theme = 'nova';
+    renderWithLocalizationProvider(<HeartsVerifiedImage />);
+    expect(screen.getByRole('img')).toHaveTextContent('add-devices.min.svg');
+  });
+
+  it('picks the recovery key art by variant', () => {
+    document.documentElement.dataset.theme = 'nova';
+    const { rerender } = renderWithLocalizationProvider(<RecoveryKeyImage />);
+    expect(screen.getByRole('img')).toHaveTextContent(
+      'recovery-key-heart.min.svg'
+    );
+    rerender(<RecoveryKeyImage variant="confirm" />);
+    expect(screen.getByRole('img')).toHaveTextContent(
+      'recovery-key-check.min.svg'
+    );
   });
 });

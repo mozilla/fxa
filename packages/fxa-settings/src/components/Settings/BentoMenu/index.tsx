@@ -14,7 +14,7 @@ import mobileIcon from './mobile.svg';
 import relayIcon from './relay.svg';
 import vpnIcon from './vpn-logo.svg';
 import { ReactComponent as BentoIcon } from './bento.svg';
-import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
+import { ReactComponent as CloseIconLegacy } from '@fxa/shared/assets/images/close.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import {
   useConfig,
@@ -25,6 +25,10 @@ import { LINK } from '../../../constants';
 import { constructHrefWithUtm } from '../../../lib/utilities';
 import GleanMetrics from '../../../lib/glean';
 import classNames from 'classnames';
+import { ReactComponent as Close } from '../../Icons/nova/close.min.svg';
+import { withNova } from '../../../lib/nova';
+
+const CloseIcon = withNova(CloseIconLegacy, Close);
 
 export const BentoMenu = () => {
   const [isRevealed, setRevealed] = useState(false);

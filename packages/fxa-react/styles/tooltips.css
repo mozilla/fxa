@@ -33,3 +33,11 @@
     }
   }
 }
+
+/* Nova: the balloon follows the theme's box surface in light and dark mode. */
+:root[data-theme='nova'] .input-balloon,
+:root[data-theme='nova'] .input-balloon::before {
+  background-color: var(--background-color-box);
+  border-color: var(--border-color-deemphasized);
+  color: var(--text-color);
+}

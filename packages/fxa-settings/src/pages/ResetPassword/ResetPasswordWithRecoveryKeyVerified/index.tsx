@@ -105,7 +105,10 @@ const ResetPasswordWithRecoveryKeyVerified = ({
             ),
           }}
         />
-        <RecoveryKeyImage />
+        <RecoveryKeyImage
+          variant="confirm"
+          className="mx-auto my-4 max-h-44 nova:my-6"
+        />
         <FtlMsg id="reset-password-complete-recovery-key-created">
           <h2 className="font-heading text-xl">
             New account recovery key created. Download and store it now.

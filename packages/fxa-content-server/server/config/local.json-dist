@@ -70,7 +70,7 @@
     "passkeyAuthenticationEnabled": true,
     "passkeyPasswordlessSyncEnabled": true,
     "passwordlessEnabled": true,
-    "novaDesignSystem": false
+    "novaDesignSystem": true
   },
   "darkMode": {
     "enabled": true

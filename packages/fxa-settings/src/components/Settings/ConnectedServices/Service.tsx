@@ -59,9 +59,10 @@ function getScopeServices(scope: string[] | null): ScopeService[] {
 
 const iconClasses =
   'flex w-10 justify-center items-center flex-0 text-grey-700 dark:text-grey-100 nova:text-default';
-// Nova device row: icon tile, then name, meta and action 16px apart.
+// Nova device row: icon tile, then name, meta and action 16px apart. The tile
+// is canvas on the box-colored device row and box on the canvas scope rows.
 const novaIconTileClasses =
-  'nova:w-10 nova:h-10 nova:shrink-0 nova:bg-canvas nova:rounded nova:px-0';
+  'mono-icon nova:w-10 nova:h-10 nova:shrink-0 nova:rounded nova:px-0';
 
 export function Service({
   name,
@@ -149,7 +150,11 @@ export function Service({
         <div className="p-4 flex mobileLandscape:justify-around items-center flex-col mobileLandscape:flex-row nova:gap-4">
           <div className="flex flex-grow w-full mobileLandscape:flex-2 nova:gap-4">
             <span
-              className={classNames(iconClasses, 'px-2', novaIconTileClasses)}
+              className={classNames(
+                iconClasses,
+                'px-2 nova:bg-canvas',
+                novaIconTileClasses
+              )}
             >
               {Icon}
             </span>
@@ -201,13 +206,18 @@ export function Service({
           <div
             key={scopeService.name}
             className={classNames(
-              'px-4 py-2 bg-grey-50 dark:bg-grey-600 nova:bg-transparent flex items-center',
-              index > 0 &&
-                'border-t border-grey-100 dark:border-grey-500 nova:border-divider'
+              'px-4 py-2 bg-grey-50 dark:bg-grey-600 flex items-center nova:gap-4 nova:bg-canvas nova:border-t nova:border-deemphasized',
+              index > 0 && 'border-t border-grey-100 dark:border-grey-500'
             )}
             data-testid="scope-service"
           >
-            <span className={classNames(iconClasses, 'px-3')}>
+            <span
+              className={classNames(
+                iconClasses,
+                'px-3 nova:bg-box',
+                novaIconTileClasses
+              )}
+            >
               {scopeService.icon}
             </span>
             {scopeService.ftlId ? (

@@ -77,3 +77,14 @@ progress[value]::-moz-progress-bar {
     display: none;
   }
 }
+
+/* Nova only: single-color service and account glyphs take the text color so
+ * they show in dark mode. The SVGs keep their baked fills for flag-off. Paths
+ * inside <mask> and <clipPath> are left alone. */
+:root[data-theme='nova'] .mono-icon {
+  color: var(--text-color);
+}
+
+:root[data-theme='nova'] .mono-icon :is(svg > path, svg > g > path) {
+  fill: currentColor;
+}
