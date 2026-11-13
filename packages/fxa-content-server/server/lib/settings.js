@@ -146,6 +146,16 @@ const settingsConfig = {
     ),
     passwordlessEnabled: config.get('featureFlags.passwordlessEnabled'),
     novaDesignSystem: config.get('featureFlags.novaDesignSystem'),
+    passkeyPromoSigninEnabled: config.get(
+      'featureFlags.passkeyPromoSigninEnabled'
+    ),
+    passkeyPromoSignupEnabled: config.get(
+      'featureFlags.passkeyPromoSignupEnabled'
+    ),
+    passkeyPromoSettingsEnabled: config.get(
+      'featureFlags.passkeyPromoSettingsEnabled'
+    ),
+    passkeyPromoSyncEnabled: config.get('featureFlags.passkeyPromoSyncEnabled'),
   },
   darkMode: {
     enabled: config.get('darkMode.enabled'),

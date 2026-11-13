@@ -208,6 +208,30 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'FEATURE_FLAGS_NOVA_DESIGN_SYSTEM',
     },
+    passkeyPromoSigninEnabled: {
+      default: false,
+      doc: 'POC: offers passkey creation after a web sign-in to an account with no passkey',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_PASSKEY_PROMO_SIGNIN_ENABLED',
+    },
+    passkeyPromoSignupEnabled: {
+      default: false,
+      doc: 'POC: offers passkey creation after a web signup',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_PASSKEY_PROMO_SIGNUP_ENABLED',
+    },
+    passkeyPromoSettingsEnabled: {
+      default: false,
+      doc: 'POC: replaces the Settings promo sequence with an account protection card',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_PASSKEY_PROMO_SETTINGS_ENABLED',
+    },
+    passkeyPromoSyncEnabled: {
+      default: false,
+      doc: 'POC: offers a Sync-enabled passkey after a desktop Sync password sign-in',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_PASSKEY_PROMO_SYNC_ENABLED',
+    },
   },
   passkeys: {
     maxPerUser: {

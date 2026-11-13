@@ -132,6 +132,10 @@ export interface Config {
     passkeyPasswordlessSyncEnabled?: boolean;
     passwordlessEnabled?: boolean;
     novaDesignSystem?: boolean;
+    passkeyPromoSigninEnabled?: boolean;
+    passkeyPromoSignupEnabled?: boolean;
+    passkeyPromoSettingsEnabled?: boolean;
+    passkeyPromoSyncEnabled?: boolean;
   };
   darkMode?: {
     enabled?: boolean;
