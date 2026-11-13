@@ -1,0 +1,10 @@
+{
+  "commit": "c166f956804613c49e87134d9a7f60c8eb2336c5",
+  "summary": "feat(settings): add Synced data row and delete modal UI",
+  "description": "Because:\n\n- Users need to delete their Sync data from Settings\n- Design needs to compare the two proposed delete modals in Storybook\n\nThis commit:\n\n- Adds a \"Synced data\" row to Data Collection, shown only when given devices\n- Opens Firefox Sync settings via the sync_preferences web channel message\n- Adds the delete modal with warning and sign-out variants\n- Adds device mocks, Storybook stories, and modal unit tests\n\nRefs #FXA-14895",
+  "timestamp": 1794611201000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
