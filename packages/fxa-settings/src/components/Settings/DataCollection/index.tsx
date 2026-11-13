@@ -10,117 +10,134 @@ import { useAccount } from '../../../models';
 import { setEnabled } from '../../../lib/metrics';
 import UnitRow from '../UnitRow';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import SyncedDataRow, { SyncedDataRowProps } from './SyncedDataRow';
 
-export const DataCollection = forwardRef<HTMLDivElement>((_, ref) => {
-  const account = useAccount();
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const alertBar = useAlertBar();
-  const ftlMsgResolver = useFtlMsgResolver();
+export type DataCollectionProps = {
+  /** Renders the "Synced data" row when it has at least one device. */
+  syncedData?: SyncedDataRowProps;
+};
 
-  const localizedHeader = (
-    <FtlMsg id="dc-heading">Data Collection and Use</FtlMsg>
-  );
+export const DataCollection = forwardRef<HTMLDivElement, DataCollectionProps>(
+  ({ syncedData }, ref) => {
+    const account = useAccount();
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const alertBar = useAlertBar();
+    const ftlMsgResolver = useFtlMsgResolver();
 
-  const handleMetricsOptOutToggle = useCallback(async () => {
-    setIsSubmitting(true);
+    const localizedHeader = (
+      <FtlMsg id="dc-heading">Data Collection and Use</FtlMsg>
+    );
 
-    try {
-      await account.metricsOpt(account.metricsEnabled ? 'out' : 'in');
-      setEnabled(account.metricsEnabled);
+    const handleMetricsOptOutToggle = useCallback(async () => {
+      setIsSubmitting(true);
 
-      const alertArgs: [string, string] = account.metricsEnabled
-        ? [
-            'dc-opt-in-success-2',
-            'Thanks! Sharing this data helps us improve Mozilla accounts.',
-          ]
-        : [
-            'dc-opt-out-success-2',
-            'Opt out successful. Mozilla accounts won’t send technical or interaction data to Mozilla.',
-          ];
-      alertBar.success(ftlMsgResolver.getMsg.apply(ftlMsgResolver, alertArgs));
-    } catch (err) {
-      alertBar.error(
-        ftlMsgResolver.getMsg(
-          'dc-opt-in-out-error-2',
-          'Sorry, there was a problem changing your data collection preference'
-        )
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [account, alertBar, ftlMsgResolver, setIsSubmitting]);
+      try {
+        await account.metricsOpt(account.metricsEnabled ? 'out' : 'in');
+        setEnabled(account.metricsEnabled);
 
-  return (
-    <section
-      data-testid="settings-data-collection"
-      id="data-collection-section"
-      {...{ ref }}
-    >
-      <h2 className="font-header font-heading mobileLandscape:ms-6 ms-4 mb-4 relative">
-        <span id="data-collection" className="nav-anchor" />
-        {localizedHeader}
-      </h2>
-      <div className="bg-box tablet:rounded-xl nova:rounded-2xl nova:mx-4 nova:tablet:mx-0 shadow">
-        <UnitRow
-          header={ftlMsgResolver.getMsg(
-            'dc-subheader-moz-accounts',
-            'Mozilla accounts'
+        const alertArgs: [string, string] = account.metricsEnabled
+          ? [
+              'dc-opt-in-success-2',
+              'Thanks! Sharing this data helps us improve Mozilla accounts.',
+            ]
+          : [
+              'dc-opt-out-success-2',
+              'Opt out successful. Mozilla accounts won’t send technical or interaction data to Mozilla.',
+            ];
+        alertBar.success(
+          ftlMsgResolver.getMsg.apply(ftlMsgResolver, alertArgs)
+        );
+      } catch (err) {
+        alertBar.error(
+          ftlMsgResolver.getMsg(
+            'dc-opt-in-out-error-2',
+            'Sorry, there was a problem changing your data collection preference'
+          )
+        );
+      } finally {
+        setIsSubmitting(false);
+      }
+    }, [account, alertBar, ftlMsgResolver, setIsSubmitting]);
+
+    return (
+      <section
+        data-testid="settings-data-collection"
+        id="data-collection-section"
+        {...{ ref }}
+      >
+        <h2 className="font-header font-heading mobileLandscape:ms-6 ms-4 mb-4 relative">
+          <span id="data-collection" className="nav-anchor" />
+          {localizedHeader}
+        </h2>
+        <div className="bg-box tablet:rounded-xl nova:rounded-2xl nova:mx-4 nova:tablet:mx-0 shadow">
+          <UnitRow
+            header={ftlMsgResolver.getMsg(
+              'dc-subheader-moz-accounts',
+              'Mozilla accounts'
+            )}
+            hideHeaderValue
+            actionContent={
+              <Switch
+                {...{
+                  isSubmitting,
+                  isOn: account.metricsEnabled,
+                  id: 'metrics-opt-out',
+                  handler: handleMetricsOptOutToggle,
+                  localizedLabel: localizedHeader,
+                }}
+              />
+            }
+          >
+            <p className="mb-4">
+              <FtlMsg id="dc-subheader-content-2">
+                Allow Mozilla accounts to send technical and interaction data to
+                Mozilla.
+              </FtlMsg>{' '}
+              <LinkExternal
+                href="https://www.mozilla.org/privacy/mozilla-accounts/"
+                className="link-blue whitespace-nowrap"
+                data-testid="link-external-telemetry-opt-out"
+              >
+                <FtlMsg id="dc-learn-more">Learn more</FtlMsg>
+              </LinkExternal>
+            </p>
+          </UnitRow>
+
+          <hr className="unit-row-hr" />
+
+          <UnitRow
+            header={ftlMsgResolver.getMsg(
+              'dc-subheader-ff-browser',
+              'Firefox browser'
+            )}
+            hideHeaderValue
+          >
+            <p>
+              <FtlMsg id="dc-subheader-ff-content">
+                To review or update your Firefox browser technical and
+                interaction data settings, open Firefox settings and navigate to
+                Privacy and Security.
+              </FtlMsg>{' '}
+              <LinkExternal
+                href="https://support.mozilla.org/kb/manage-firefox-data-collection-privacy-settings"
+                className="link-blue whitespace-nowrap"
+                data-testid="link-external-firefox-telemetry"
+              >
+                <FtlMsg id="dc-learn-more">Learn more</FtlMsg>
+              </LinkExternal>
+            </p>
+          </UnitRow>
+
+          {syncedData && syncedData.devices.length > 0 && (
+            <>
+              <hr className="unit-row-hr" />
+              <SyncedDataRow {...syncedData} />
+            </>
           )}
-          hideHeaderValue
-          actionContent={
-            <Switch
-              {...{
-                isSubmitting,
-                isOn: account.metricsEnabled,
-                id: 'metrics-opt-out',
-                handler: handleMetricsOptOutToggle,
-                localizedLabel: localizedHeader,
-              }}
-            />
-          }
-        >
-          <p className="mb-4">
-            <FtlMsg id="dc-subheader-content-2">
-              Allow Mozilla accounts to send technical and interaction data to
-              Mozilla.
-            </FtlMsg>{' '}
-            <LinkExternal
-              href="https://www.mozilla.org/privacy/mozilla-accounts/"
-              className="link-blue whitespace-nowrap"
-              data-testid="link-external-telemetry-opt-out"
-            >
-              <FtlMsg id="dc-learn-more">Learn more</FtlMsg>
-            </LinkExternal>
-          </p>
-        </UnitRow>
-
-        <hr className="unit-row-hr" />
-
-        <UnitRow
-          header={ftlMsgResolver.getMsg(
-            'dc-subheader-ff-browser',
-            'Firefox browser'
-          )}
-          hideHeaderValue
-        >
-          <p>
-            <FtlMsg id="dc-subheader-ff-content">
-              To review or update your Firefox browser technical and interaction
-              data settings, open Firefox settings and navigate to Privacy and
-              Security.
-            </FtlMsg>{' '}
-            <LinkExternal
-              href="https://support.mozilla.org/kb/manage-firefox-data-collection-privacy-settings"
-              className="link-blue whitespace-nowrap"
-              data-testid="link-external-firefox-telemetry"
-            >
-              <FtlMsg id="dc-learn-more">Learn more</FtlMsg>
-            </LinkExternal>
-          </p>
-        </UnitRow>
-      </div>
-    </section>
-  );
-});
+        </div>
+      </section>
+    );
+  }
+);
 
 export default DataCollection;
