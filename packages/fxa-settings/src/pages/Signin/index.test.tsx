@@ -1023,6 +1023,27 @@ describe('Signin component', () => {
         });
       });
 
+      it('passes the approved UID to signin_unblock', async () => {
+        const beginSigninHandler = jest.fn().mockReturnValueOnce(
+          createBeginSigninResponseError({
+            errno: AuthUiErrors.REQUEST_BLOCKED.errno,
+          })
+        );
+        const sendUnblockEmailHandler = jest.fn().mockReturnValueOnce({});
+        render({
+          beginSigninHandler,
+          sendUnblockEmailHandler,
+          canLinkAccountUid: MOCK_UID,
+        });
+
+        await enterPasswordAndSubmit();
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith('/signin_unblock', {
+            state: expect.objectContaining({ canLinkAccountUid: MOCK_UID }),
+          });
+        });
+      });
+
       it.each([
         ['406', AuthUiErrors.REQUEST_BLOCKED, /blocked for security reasons/],
         ['429', AuthUiErrors.THROTTLED, /tried too many times/],

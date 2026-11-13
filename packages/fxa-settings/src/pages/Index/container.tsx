@@ -12,7 +12,11 @@ import { isEmailMask } from '@fxa/shared/email';
 
 import { firefox } from '../../lib/channels/firefox';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { currentAccount, lastStoredAccount } from '../../lib/cache';
+import {
+  currentAccount,
+  findAccountByEmail,
+  lastStoredAccount,
+} from '../../lib/cache';
 import { checkEmailDomain } from '../../lib/email-domain-validator';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import GleanMetrics from '../../lib/glean';
@@ -192,7 +196,8 @@ const IndexContainer = ({
       email: string,
       canLinkAccountOk: boolean | undefined = undefined,
       passwordlessSupported: boolean | undefined = undefined,
-      hasPasskey: boolean | undefined = undefined
+      hasPasskey: boolean | undefined = undefined,
+      canLinkAccountUid: string | undefined = undefined
     ) => {
       const isOAuth = isOAuthWebIntegration(integration);
 
@@ -251,6 +256,7 @@ const IndexContainer = ({
               hasPassword,
               hasPasskey,
               canLinkAccountOk,
+              canLinkAccountUid,
             },
           });
         }
@@ -307,6 +313,7 @@ const IndexContainer = ({
     async (email: string, isManualSubmission = true) => {
       let accountExists;
       let canLinkAccountOk: boolean | undefined = undefined;
+      let canLinkAccountUid: string | undefined = undefined;
       try {
         if (!isEmail(email)) {
           throw AuthUiErrors.EMAIL_REQUIRED;
@@ -358,6 +365,30 @@ const IndexContainer = ({
           }
         }
 
+        // Prompt now with the stored uid so signin and signin_unblock can skip
+        // their prompt. Passwordless and third-party accounts prompt later.
+        if (
+          exists &&
+          hasPassword &&
+          !hasLinkedAccount &&
+          isOAuthNativeIntegration(integration) &&
+          useFxAStatusResult.supportsCanLinkAccountUid
+        ) {
+          const storedUid = findAccountByEmail(email)?.uid;
+          if (storedUid) {
+            const { ok } = await firefox.fxaCanLinkAccount({
+              email,
+              uid: storedUid,
+            });
+            if (!ok) {
+              canLinkAccountOk = false;
+              throw AuthUiErrors.USER_CANCELED_LOGIN;
+            }
+            canLinkAccountOk = true;
+            canLinkAccountUid = storedUid;
+          }
+        }
+
         // For older versions of Fx, send can_link_account with email regardless of
         // if the account exists or not
         if (
@@ -385,7 +416,8 @@ const IndexContainer = ({
           email,
           canLinkAccountOk,
           passwordlessSupported,
-          hasPasskey
+          hasPasskey,
+          canLinkAccountUid
         );
 
         GleanMetrics.emailFirst.submitSuccess({

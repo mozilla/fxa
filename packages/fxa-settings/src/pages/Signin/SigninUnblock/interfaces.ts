@@ -11,6 +11,7 @@ export interface SigninUnblockLocationState {
   hasLinkedAccount: boolean;
   hasPassword: boolean;
   authPW: string;
+  canLinkAccountUid?: hexstring;
 }
 
 export interface SigninUnblockProps {
