@@ -28,7 +28,7 @@ You can [file issues on GitHub](https://github.com/mozilla/fxa/issues/new). Plea
 
 ## Development Process
 
-[Read about our development process](https://mozilla.github.io/ecosystem-platform/reference/team-processes/development-process)
+[Read about our development process](https://firefox-source-docs.mozilla.org/contributing/index.html)
 
 ## Sending Pull Requests
 
@@ -58,7 +58,7 @@ See the main [README.md](/README.md) for information on prerequisites, installin
 
 ## Code Review
 
-This project is production Mozilla code and subject to our [engineering practices and quality standards](https://developer.mozilla.org/docs/Mozilla/Developer_guide/Committing_Rules_and_Responsibilities). Every patch must be peer reviewed. This project is part of the [Firefox Accounts module](https://wiki.mozilla.org/Modules/Other#Firefox_Accounts), and your patch must be reviewed by one of the listed module owners or peers.
+This project is production Mozilla code and subject to our [engineering practices and quality standards](https://firefox-source-docs.mozilla.org/contributing/index.html). Every patch must be peer reviewed. This project is part of the [Firefox Accounts module](https://wiki.mozilla.org/Modules/Other#Firefox_Accounts), and your patch must be reviewed by one of the listed module owners or peers.
 
 ## Git Commit Guidelines
 
