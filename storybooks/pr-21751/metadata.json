@@ -1,0 +1,10 @@
+{
+  "commit": "bf7d362a3e654b6d89224f0555031e55b57ebd27",
+  "summary": "feat(settings): adopt Nova icons and illustrations behind the flag",
+  "description": "Because:\n- Nova replaces FxA's icons and illustrations with acorn-icons and the Mozilla accounts set.\n- acorn-icons use context-fill, which renders black outside Firefox chrome.\n\nThis commit:\n- Adds Mozilla accounts illustrations and Figma exports (recovery methods, avatar), via svgo.\n- Adds acorn-icons with context-fill rewritten to currentColor, via svgo.\n- Adds withNova/sized helpers and sets the Storybook Nova theme during render.\n- Keeps the Nova Switch 64x26 at every width; turns Nova on in local.json-dist.\n- Documents the asset tables and unswapped list in the design-tokens README.",
+  "timestamp": 1794608697000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
