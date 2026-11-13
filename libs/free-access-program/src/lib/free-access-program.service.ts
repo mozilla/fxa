@@ -14,6 +14,7 @@ import {
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 
 import { FreeAccessProgramJournalManager } from './free-access-program.journal.manager';
+import type { FreeAccessPendingNotification } from './free-access-program.repository';
 import {
   FREE_ACCESS_NOTIFIER,
   type FreeAccessForUid,
@@ -21,6 +22,11 @@ import {
   type ReconcileResult,
 } from './free-access-program.types';
 import { diffByEmail } from './util/diffByEmail';
+
+const NOTIFICATION_DELAY_MARGIN_SECONDS = 60;
+const MAX_DUE_NOTIFICATIONS_PER_RUN = 500;
+const FIRESTORE_NOT_FOUND = 5;
+const FIRESTORE_FAILED_PRECONDITION = 9;
 
 function hasAnyEntry(record: Record<string, unknown>): boolean {
   for (const key in record) {
@@ -176,13 +182,20 @@ export class FreeAccessProgramService {
         changedEmails.length
       );
 
-      // Invalidate before fan-out so in-process readers don't serve stale
-      // state while RPs are already learning the new state.
+      // Queued before the journal write: a crash in between re-diffs and
+      // re-queues the same ids on the next run instead of dropping them.
+      if (changedEmails.length > 0) {
+        await journalManager.queueNotifications(
+          changedEmails,
+          Date.now() + this.notificationDelayMs()
+        );
+      }
+
       try {
         await journalManager.set(after);
         await this.invalidateAfterFanout();
       } finally {
-        await this.fireNotifications(changedEmails, notifier);
+        await this.sendDueNotifications(journalManager, notifier);
       }
 
       this.recordDuration(startedAt);
@@ -202,19 +215,87 @@ export class FreeAccessProgramService {
     );
   }
 
-  private async fireNotifications(
-    emails: string[],
+  // Other processes only invalidate their memory tier on TTL expiry, so RPs
+  // must not be told about a change until every instance can serve it.
+  private notificationDelayMs(): number {
+    return (
+      (this.configurationManager.memoryCacheTtlSeconds() +
+        NOTIFICATION_DELAY_MARGIN_SECONDS) *
+      1000
+    );
+  }
+
+  // Failures leave the pending doc in place for the next run to retry.
+  private async sendDueNotifications(
+    journalManager: FreeAccessProgramJournalManager,
     notifier: FreeAccessNotifier
   ): Promise<void> {
-    for (const email of emails) {
+    let due: FreeAccessPendingNotification[];
+    try {
+      due = await journalManager.getDueNotifications(
+        Date.now(),
+        MAX_DUE_NOTIFICATIONS_PER_RUN
+      );
+    } catch (err) {
+      this.statsd.increment('free_access_program.reconcile.pending.load.error');
+      this.logger.error(err);
+      Sentry.captureException(err);
+      return;
+    }
+    if (due.length === MAX_DUE_NOTIFICATIONS_PER_RUN) {
+      this.statsd.increment('free_access_program.reconcile.pending.backlog');
+    }
+
+    for (const notification of due) {
+      if (notification.email === undefined) {
+        this.statsd.increment('free_access_program.reconcile.pending.malformed');
+        this.logger.error('freeAccessProgram.pending.malformed', {
+          id: notification.id,
+        });
+        await this.deletePending(journalManager, notification);
+        continue;
+      }
+
       try {
-        await notifier.notifyEmailChanged(email);
+        await notifier.notifyEmailChanged(notification.email);
         this.statsd.increment('free_access_program.reconcile.notify.success');
       } catch (err) {
         this.statsd.increment('free_access_program.reconcile.notify.error');
         this.logger.error(err);
         Sentry.captureException(err);
+        continue;
       }
+
+      await this.deletePending(journalManager, notification);
+    }
+  }
+
+  private async deletePending(
+    journalManager: FreeAccessProgramJournalManager,
+    notification: FreeAccessPendingNotification
+  ): Promise<void> {
+    try {
+      await journalManager.deleteNotification(notification);
+    } catch (err) {
+      // Re-queued or already deleted by a concurrent run: expected, not a failure.
+      const code = (err as { code?: number })?.code;
+      if (
+        code === FIRESTORE_FAILED_PRECONDITION ||
+        code === FIRESTORE_NOT_FOUND
+      ) {
+        this.statsd.increment(
+          'free_access_program.reconcile.pending.delete.superseded'
+        );
+        return;
+      }
+      this.statsd.increment(
+        'free_access_program.reconcile.pending.delete.error'
+      );
+      this.logger.error('freeAccessProgram.pending.delete.error', {
+        id: notification.id,
+        err,
+      });
+      Sentry.captureException(err);
     }
   }
 
