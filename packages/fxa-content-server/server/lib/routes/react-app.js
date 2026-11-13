@@ -49,6 +49,8 @@ const alwaysOnRoutes = [
   'inline_recovery_setup',
   'inline_recovery_key_setup',
   'inline_passwordless_sync_setup',
+  'passkey_promo',
+  'inline_passkey_sync_setup',
   'signin_passwordless_code',
   'oauth/signin_passwordless_code',
   'signup',
