@@ -104,8 +104,10 @@ Patcher.prototype.connect = async function connect() {
     }
   } catch (err) {
     if (this.connection) {
+      // destroy(), not end(): after a refused handshake (e.g. a wrong password)
+      // mysql2 never calls end()'s callback, so awaiting it would never settle
       try {
-        await this.connection.end();
+        this.connection.raw.destroy();
       } catch (_) {}
       this.connection = null;
     }
