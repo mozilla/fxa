@@ -1065,6 +1065,7 @@ module.exports = (config) => {
           resume: options.resume || undefined,
           reason: options.reason || undefined,
           metricsContext: options.metricsContext || undefined,
+          originalLoginEmail: options.originalLoginEmail || undefined,
         }
       );
     });

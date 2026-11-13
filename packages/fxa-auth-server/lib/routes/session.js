@@ -252,7 +252,11 @@ module.exports = function (
           request
         );
         if (!match) {
-          throw error.incorrectPassword(accountRecord.email, email);
+          // originalLoginEmail marks the retry with the signup email salt: return 103, not 120.
+          throw error.incorrectPassword(
+            accountRecord.email,
+            originalLoginEmail ? accountRecord.email : email
+          );
         }
 
         // Check to see if the user has a TOTP token and it is verified and

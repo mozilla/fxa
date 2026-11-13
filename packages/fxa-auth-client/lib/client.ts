@@ -2051,11 +2051,15 @@ export default class AuthClient {
           oldPassword
         );
 
+        // With originalLoginEmail set, the server answers a wrong password on the
+        // signup-salt attempt with INCORRECT_PASSWORD, not INCORRECT_EMAIL_CASE.
         const reauth = await this.sessionReauthWithAuthPW(
           sessionToken,
           email,
           oldCredentials.authPW,
-          { keys: true },
+          i > 0
+            ? { keys: true, originalLoginEmail: email.primary }
+            : { keys: true },
           headers
         );
 

@@ -687,9 +687,11 @@ describe('lib/client', () => {
         assert.ok(calls[0].url.includes('/session/reauth'));
         assert.equal(calls[0].body.email, primaryEmail);
         assert.equal(calls[0].body.authPW, primaryAuthPW);
+        assert.strictEqual(calls[0].body.originalLoginEmail, undefined);
         assert.ok(calls[1].url.includes('/session/reauth'));
         assert.equal(calls[1].body.email, primaryEmail);
         assert.equal(calls[1].body.authPW, signupAuthPW);
+        assert.equal(calls[1].body.originalLoginEmail, primaryEmail);
         // The change payload keeps the signup email (so the server's match against
         // accounts.email holds) with the matching signup-derived oldAuthPW.
         assert.ok(calls[2].url.includes('/mfa/password/change'));
