@@ -401,6 +401,16 @@ locale-toggle-browser-default = Kundahára ypyguáva
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Mba’ejerure ojavýva
 
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+pair-unsupported-hint-heading = Emohu’ã tembiporu’i mbojuehe
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = Emboty ko kuatiarogue
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = Eikuaave
+
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
 
@@ -868,6 +878,7 @@ nav-security = Tekorosã
 nav-connected-services = Mba’epytyvõrã mbojuajupyre
 nav-data-collection = Ñembyaty ha mba’ekuaarã jeporu
 nav-paid-subs = Ñemboheraguapy ñehepyme’ẽgua
+nav-email-prefs = Ñanduti veve erohoryvéva
 
 ## Page2faChange
 
@@ -1629,12 +1640,17 @@ index-email-bounced = Ne ñanduti veve ñemoneĩrã ojevyjeýma. ¿Ikatu ehaivai
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = ¿Ehejarei ñe’ẽñemi eiporujeývo?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner-v2 = Emoñepyrũ tembiapo ha hendýma ñembojuehe
 inline-passwordless-sync-setup-heading = ¿Ehejarei ñe’ẽñemi eiporujeývo?
 inline-passwordless-sync-setup-description = Eiporu ko ñe’ẽ ñemi eike pya’eve hag̃ua.
 inline-passwordless-sync-setup-enable-button = Ejora ñe’ẽ ñemi jeikeha
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Emyandyhína…
 inline-passwordless-sync-setup-not-now-button = Ani ko’ág̃a
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = Ko ñe’ẽ ñemi oĩma eike ha embojuehe hag̃ua
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Nahu’ãi upe ñe’ẽ ñemi ñemoneĩ
 inline-passwordless-sync-setup-error-cancelled-description = Emoneĩ ñe’ẽ ñemi emboyke hag̃ua ñe’ẽñemi eiporujeývo.
@@ -1682,6 +1698,12 @@ inline-totp-setup-security-code-placeholder = Ayvu ñemoneĩgua
 inline-totp-setup-code-required-error = Ayvu ñemoneĩgua jerurepyre
 tfa-qr-code-alt = Eiporu { $code } ayvu emboheko hag̃ua ñemoneĩ mokõi jeku’épe tembiporu’i moneĩmbyre.
 inline-totp-setup-page-title = Ñemoneĩ mokõi jeku’épe
+
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Kuatiarogue ojejuhu’ỹva
+page-not-found-home-button = Ñepyrũ
 
 ## AuthAllow page - Part of the device pairing flow
 
@@ -1895,6 +1917,8 @@ pair2-authority-scan-qr-heading = Emoha’ãnga eike hag̃ua ambue mba’e’ok�
 pair2-authority-scan-qr-instruction = Emoha’ãnga QR ayvu ne pumbyry térã tablétape embojuehe hag̃ua { -brand-firefox } rechaukaha ha hetave.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR ayvu eike hag̃ua ne mba’e’okápe
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Ambueháicha eike hag̃ua
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Ehasa ko’ág̃a
 
@@ -2005,6 +2029,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Eike hag̃ua mba’e�
 
 permissions-label-email = Ñanduti veve kundaharape
 permissions-label-display-name = Téra ehechauka hag̃ua
+permissions-label-avatar = Mba’ete ra’ãnga
 permissions-continue-button = Eku’ejey
 permissions-cancel-button = Eheja
 
@@ -2106,6 +2131,7 @@ confirm-totp-reset-password-use-different-account = Eiporu ambuéva mba’ete
 ## ResetPassword start page
 
 password-reset-flow-heading = Embojevyjey ne ñe’ẽñemi
+password-reset-forgot-heading = ¿Nderesaráipa ñe’ẽñemi?
 password-reset-email-input =
     .label = Ehai ne ñandutiveve
 password-reset-submit-button-2 = Ku’ejey
@@ -2163,6 +2189,12 @@ reset-password-complete-recovery-key-download-info =
     hag̃ua mba’ekuaarãita nde resaráirõ ñe’ẽñemígui. <b>Emboguejy ha eñongatu tekorosãme
     ko’ag̃a, ndaikatumo’ãigui ejevy ko kuatiaroguépe uperire.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = 500 Javy
+server-error-home-button = Ñepyrũ
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin
@@ -2179,6 +2211,8 @@ signin-link-expired-message-2 = Pe juajuha eikutuva’ekue ndoikovéima térã o
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Ehai ñe’ẽñemi <span>ne { -product-mozilla-account }</span> peg̃uarã
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = Eñepyrũ ñembojuehe
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = Eku’ejey { $serviceName }
@@ -2228,6 +2262,8 @@ signin-passkey-fallback-body = Ereko hag̃ua mba’ekuaarã tekosãme, eikotev�
 signin-passkey-fallback-password-label = Ñe’ẽñemi
 signin-passkey-fallback-continue = Ku’ejey
 signin-passkey-fallback-forgot-password-link = ¿Nderesarái ñe’ẽñemígui?
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = Eikuaave
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2477,4 +2513,5 @@ signup-confirmed-sync-set-password-success-banner = Ñe’ẽñemi ñembojuehe m
 ## UpdateFirefox page
 ## Shown when the browser is too old to use a Mozilla account
 
+update-firefox-heading = Tekotevẽ { -brand-firefox } mbohekopyahu
 update-firefox-download-button = Emboguejy mbohekopyahu ramovegua
