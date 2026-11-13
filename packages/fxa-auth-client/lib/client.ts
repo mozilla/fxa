@@ -3763,19 +3763,23 @@ export default class AuthClient {
    * @param sessionToken A verified session token
    * @param options.credentialId Pins the ceremony to one of the account's
    *   passkeys. Omit to let any of them answer.
+   * @param options.requestPrf Request PRF output; honoured only with `credentialId`
    * @param headers Optional additional headers
    */
   async beginPasskeyVerification(
     sessionToken: hexstring,
-    options: { credentialId?: string } = {},
+    options: { credentialId?: string; requestPrf?: boolean } = {},
     headers?: Headers
   ): Promise<PublicKeyCredentialRequestOptionsJSON> {
     return this.sessionPost(
       '/passkey/verification/start',
       sessionToken,
-      options.credentialId === undefined
-        ? {}
-        : { credentialId: options.credentialId },
+      {
+        ...(options.credentialId === undefined
+          ? {}
+          : { credentialId: options.credentialId }),
+        ...(options.requestPrf ? { requestPrf: true } : {}),
+      },
       headers
     );
   }

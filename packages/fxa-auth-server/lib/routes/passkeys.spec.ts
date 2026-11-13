@@ -2132,6 +2132,22 @@ describe('passkeys routes', () => {
       });
     });
 
+    it('passes requestPrf through to the service', async () => {
+      await runTest('/passkey/verification/start', {
+        ...startAuth,
+        payload: { credentialId: CREDENTIAL_ID_B64, requestPrf: true },
+      });
+
+      expect(
+        mockPasskeyService.generateVerificationChallenge
+      ).toHaveBeenCalledWith({
+        uid: UID,
+        scope: 'passkey:wraps',
+        credentialId: CREDENTIAL_ID_B64,
+        requestPrf: true,
+      });
+    });
+
     it('enforces rate limiting via customs.checkAuthenticated', async () => {
       await runTest('/passkey/verification/start', {
         ...startAuth,

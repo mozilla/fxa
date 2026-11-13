@@ -434,10 +434,10 @@ export class PasskeyHandler {
    *
    * Begins an MFA step-up on the caller's session: generates an assertion
    * challenge for the wraps scope, optionally pinned to one of the caller's
-   * passkeys. No PRF is requested — this ceremony only proves presence.
+   * passkeys. PRF is requested only for a pinned ceremony that asks for it.
    *
-   * @param request - Session-authenticated Hapi request carrying an optional
-   *   `credentialId` in the payload.
+   * @param request - Session-authenticated Hapi request carrying optional
+   *   `credentialId` and `requestPrf` in the payload.
    * @returns WebAuthn authentication options to pass to `navigator.credentials.get`.
    */
   async verificationStart(request: AuthRequest) {
@@ -451,14 +451,16 @@ export class PasskeyHandler {
       'passkeyVerificationStart'
     );
 
-    const { credentialId } = (request.payload ?? {}) as {
+    const { credentialId, requestPrf } = (request.payload ?? {}) as {
       credentialId?: string;
+      requestPrf?: boolean;
     };
 
     const options = await this.service.generateVerificationChallenge({
       uid,
       scope: PASSKEY_WRAPS_SCOPE,
       credentialId,
+      requestPrf,
     });
 
     this.glean.passkey.verificationStarted(request);
@@ -1203,6 +1205,8 @@ export const passkeyRoutes = (
             // Pins the ceremony to one passkey. Omitted, any of the account's
             // passkeys may answer.
             credentialId: base64urlCredentialId().optional(),
+            // Only honoured with `credentialId`; the output never leaves the client.
+            requestPrf: isA.boolean().optional(),
           }),
         },
         response: {

@@ -526,14 +526,15 @@ export class PasskeyService {
    * Generate WebAuthn assertion options for an MFA step-up on a session that
    * is already signed in.
    *
-   * PRF is never requested. This ceremony only attests that the user is present
-   * with a registered passkey; a caller that needs PRF output already has it
-   * from the sign-in assertion.
+   * PRF is requested only when the caller asks and the ceremony is pinned to
+   * one passkey, as when a wrap is created for a passkey registered moments ago.
    *
    * @param input.uid - Hex-encoded uid of the signed-in user.
    * @param input.scope - MFA scope the token minted at finish will carry.
    * @param input.credentialId - Pins the ceremony to one of the user's
    *   passkeys. When omitted, any of them may answer.
+   * @param input.requestPrf - Request the PRF extension with the static salt.
+   *   Ignored unless `credentialId` is set and a salt is configured.
    * @returns WebAuthn authentication options
    * @throws {AppError} passkeyNotFound if the user has no passkeys, or if
    *   `credentialId` is not one of them.
@@ -542,7 +543,10 @@ export class PasskeyService {
     uid,
     scope,
     credentialId,
-  }: CreateVerificationChallengeInput): Promise<PublicKeyCredentialRequestOptionsJSON> {
+    requestPrf = false,
+  }: CreateVerificationChallengeInput & {
+    requestPrf?: boolean;
+  }): Promise<PublicKeyCredentialRequestOptionsJSON> {
     const owned = (await this.passkeyManager.listPasskeysForUser(uid)).map(
       (p) => p.credentialId
     );
@@ -571,7 +575,7 @@ export class PasskeyService {
     return await generateWebauthnAuthenticationOptions(this.config, {
       challenge,
       allowCredentials,
-      requestPrf: false,
+      requestPrf: requestPrf && !!credentialId && !!this.config.prfSalt,
     });
   }
 
