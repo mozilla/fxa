@@ -4,9 +4,15 @@
 
 import React, { useState, useCallback, ChangeEvent } from 'react';
 import InputText, { InputTextProps } from '../InputText';
-import { ReactComponent as OpenEye } from './eye-open.svg';
-import { ReactComponent as ClosedEye } from './eye-closed.svg';
+import { ReactComponent as OpenEyeLegacy } from './eye-open.svg';
+import { ReactComponent as ClosedEyeLegacy } from './eye-closed.svg';
 import { useFtlMsgResolver } from '../../models';
+import { ReactComponent as ShowPassword } from '../Icons/nova/show-password.min.svg';
+import { ReactComponent as ShowPasswordSlash } from '../Icons/nova/show-password-slash.min.svg';
+import { withNova } from '../../lib/nova';
+
+const OpenEye = withNova(OpenEyeLegacy, ShowPassword);
+const ClosedEye = withNova(ClosedEyeLegacy, ShowPasswordSlash);
 
 export type InputPasswordProps = Omit<InputTextProps, 'type'>;
 
@@ -123,14 +129,14 @@ export const InputPassword = ({
           <ClosedEye
             width="24"
             height="24"
-            className="stroke-current"
+            className="stroke-current nova:stroke-none"
             aria-hidden="true"
           />
         ) : (
           <OpenEye
             width="24"
             height="18"
-            className="stroke-current"
+            className="stroke-current nova:stroke-none"
             aria-hidden="true"
           />
         )}

@@ -3,9 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { FunctionComponent, SVGProps } from 'react';
-import { ReactComponent as TrashIcon } from './minimal-trash-icon.svg';
-import { ReactComponent as RefreshIcon } from './refresh-icon.svg';
+import { ReactComponent as TrashIconLegacy } from './minimal-trash-icon.svg';
+import { ReactComponent as RefreshIconLegacy } from './refresh-icon.svg';
 import { GleanClickEventDataAttrs } from '../../../lib/types';
+import { ReactComponent as Delete } from '../../Icons/nova/delete.min.svg';
+import { ReactComponent as ArrowClockwise } from '../../Icons/nova/arrow-clockwise.min.svg';
+import { withNova } from '../../../lib/nova';
+
+const TrashIcon = withNova(TrashIconLegacy, Delete);
+const RefreshIcon = withNova(RefreshIconLegacy, ArrowClockwise);
 
 type ButtonIconProps = {
   title: string;

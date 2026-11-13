@@ -21,7 +21,7 @@ const PairSuccess = ({ error }: PairSuccessProps) => {
         headingTextFtlId="pair-success-header-2"
         headingText="Device connected"
       />
-      <HeartsVerifiedImage className="w-3/5 mx-auto" />
+      <HeartsVerifiedImage className="w-3/5 mx-auto nova:mt-6 nova:mb-9" />
       <FtlMsg id="pair-success-message-2">
         <p className="text-sm">Pairing was successful.</p>
       </FtlMsg>

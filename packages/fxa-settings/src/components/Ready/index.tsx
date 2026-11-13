@@ -131,7 +131,7 @@ const Ready = ({
           headingText={templateValues.headerText}
           headingTextFtlId={templateValues.headerId}
         />
-        <HeartsVerifiedImage />
+        <HeartsVerifiedImage className="mx-auto my-4 max-h-44 nova:mt-6 nova:mb-9" />
         {isSync && (
           <>
             <FtlMsg id="ready-complete-set-up-instruction">

@@ -12,7 +12,7 @@ import React, {
 import { Link, useLocation } from 'react-router';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../constants';
-import { HeartsVerifiedImage } from '../../components/images';
+import { AddDevicesPlatformsImage } from '../../components/images';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import Banner from '../../components/Banner';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -311,7 +311,7 @@ const ConnectAnotherDevice = ({
         />
       )}
       <section>
-        <HeartsVerifiedImage />
+        <AddDevicesPlatformsImage className="mx-auto my-4 max-h-44 nova:mt-6 nova:mb-9" />
         {canSignIn && (
           <>
             <FtlMsg id="connect-another-device-signin-to-complete-message">

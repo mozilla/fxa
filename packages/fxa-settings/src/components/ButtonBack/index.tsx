@@ -3,9 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { ReactComponent as BackArrow } from './back-arrow.svg';
+import { ReactComponent as BackArrowLegacy } from './back-arrow.svg';
 import { useFtlMsgResolver } from '../../models';
 import { getTextColorClassName } from 'fxa-react/lib/calculate-contrast';
+import { ReactComponent as Back } from '../Icons/nova/back.min.svg';
+import { withNova } from '../../lib/nova';
+
+const BackArrow = withNova(BackArrowLegacy, Back);
 
 interface ButtonBackProps {
   onClick?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;

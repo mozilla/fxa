@@ -82,10 +82,10 @@ export const decorators: Decorator[] = [
     return <Story />;
   },
   (Story, context) => {
-    const nova = context.globals['nova'] === 'on';
-    useEffect(() => {
-      document.documentElement.dataset.theme = nova ? 'nova' : '';
-    }, [nova]);
+    // Set during render, before the story renders, so components that read
+    // the theme at render time (withNova) pick up a toolbar toggle at once.
+    document.documentElement.dataset.theme =
+      context.globals['nova'] === 'on' ? 'nova' : '';
     return <Story />;
   },
 ];
