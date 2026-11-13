@@ -14,6 +14,7 @@ import {
   isProbablyFirefox,
   useAccount,
   useAlertBar,
+  useConfig,
   useFtlMsgResolver,
 } from '../../../models';
 import { SETTINGS_PATH } from 'fxa-settings/src/constants';
@@ -26,6 +27,7 @@ import ProductPromo, {
   VpnPromoData,
 } from '../ProductPromo';
 import SideBar from '../Sidebar';
+import AccountProtection from '../AccountProtection';
 import Head from 'fxa-react/components/Head';
 import { SettingsIntegration } from '../interfaces';
 import {
@@ -61,6 +63,7 @@ export const PageSettings = ({
   const browserCanPair = browserHasSyncKey !== false;
   const signedIntoPairableFirefox = isSignedIntoFirefox && browserCanPair;
   const account = useAccount();
+  const config = useConfig();
   const { uid, recoveryKey, attachedClients, totp, recoveryPhone } = account;
 
   const ftlMsgResolver = useFtlMsgResolver();
@@ -215,11 +218,19 @@ export const PageSettings = ({
         />
       </div>
       <div className="flex flex-col flex-7 max-w-full gap-8 mt-10">
-        {eligibleForFirefoxPromo && (
-          <FirefoxPromoBanner isSignedIntoFirefox={signedIntoPairableFirefox} />
+        {config.featureFlags?.passkeyPromoSettingsEnabled ? (
+          <AccountProtection />
+        ) : (
+          <>
+            {eligibleForFirefoxPromo && (
+              <FirefoxPromoBanner
+                isSignedIntoFirefox={signedIntoPairableFirefox}
+              />
+            )}
+            {eligibleForRecoveryPhonePromo && <RecoveryPhonePromoBanner />}
+            {eligibleForRecoveryKeyPromo && <AccountRecoveryKeyPromoBanner />}
+          </>
         )}
-        {eligibleForRecoveryPhonePromo && <RecoveryPhonePromoBanner />}
-        {eligibleForRecoveryKeyPromo && <AccountRecoveryKeyPromoBanner />}
         <Profile ref={profileRef} />
         <Security ref={securityRef} />
         <ConnectedServices
