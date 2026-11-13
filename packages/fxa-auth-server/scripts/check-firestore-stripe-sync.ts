@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { program } from 'commander';
+import { StatsD } from 'hot-shots';
+import * as Sentry from '@sentry/node';
+import Container from 'typedi';
+import { promisify } from 'util';
+import { initSentry } from '@fxa/shared/sentry-node';
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 
 import { FirestoreStripeSyncChecker } from './check-firestore-stripe-sync/check-firestore-stripe-sync';
@@ -23,9 +28,11 @@ async function init() {
     .parse(process.argv);
   const options = program.opts();
 
-  const { stripeHelper, log } = await setupProcessingTaskObjects(
+  const { stripeHelper, log, config } = await setupProcessingTaskObjects(
     'check-firestore-stripe-sync'
   );
+
+  initSentry({ ...config, release: pckg.version }, log);
 
   const rateLimit = parseRateLimit(options.rateLimit);
 
@@ -35,7 +42,13 @@ async function init() {
     log,
   );
 
-  await syncChecker.run();
+  const statsd = Container.get(StatsD);
+
+  try {
+    await syncChecker.run();
+  } finally {
+    await promisify(statsd.close).bind(statsd)();
+  }
 
   return 0;
 }
@@ -47,7 +60,11 @@ if (require.main === module) {
       exitStatus = result;
     })
     .catch((err) => {
+      Sentry.captureException(err);
       console.error(err);
+    })
+    .then(() => {
+      return Sentry.close(2000);
     })
     .finally(() => {
       process.exit(exitStatus);
