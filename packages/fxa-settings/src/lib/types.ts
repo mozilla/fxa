@@ -38,6 +38,7 @@ export enum MfaReason {
   removeRecoveryKey = 'remove recovery key',
   createPasskey = 'create passkey',
   removePasskey = 'remove passkey',
+  deleteSyncData = 'delete sync data',
   test = 'test',
 }
 
@@ -102,4 +103,5 @@ export type MfaScope =
   | 'email'
   | 'recovery_key'
   | 'password'
-  | 'passkey';
+  | 'passkey'
+  | 'sync_data';

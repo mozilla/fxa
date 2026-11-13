@@ -11,6 +11,8 @@ import {
 } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
+import { getDefault } from '../../../lib/config';
+import { MOCK_SYNC_CLIENTS } from './mocks';
 
 const account = {
   displayName: 'jrgm',
@@ -151,6 +153,71 @@ describe('DataCollection', () => {
       expect(
         (settingsContext.alertBarInfo?.error as jest.Mock).mock.calls[0][0]
       ).toContain('Sorry, there was a problem');
+    });
+  });
+
+  describe('Synced data row', () => {
+    const renderWithFlag = (
+      syncDataDeletionEnabled: boolean,
+      attachedClients = MOCK_SYNC_CLIENTS,
+      hasPassword = true
+    ) => {
+      const defaultConfig = getDefault();
+      const config = {
+        ...defaultConfig,
+        featureFlags: {
+          ...defaultConfig.featureFlags,
+          syncDataDeletionEnabled,
+        },
+      };
+      renderWithRouter(
+        <AppContext.Provider
+          value={mockAppContext({
+            account: {
+              ...account,
+              attachedClients,
+              hasPassword,
+            } as unknown as Account,
+            config,
+          })}
+        >
+          <SettingsContext.Provider value={mockSettingsContext()}>
+            <DataCollection />
+          </SettingsContext.Provider>
+        </AppContext.Provider>
+      );
+    };
+
+    it('shows the row, linking to the delete flow, when the feature flag is on', () => {
+      renderWithFlag(true);
+      screen.getByRole('heading', { level: 3, name: 'Synced data' });
+      expect(
+        screen.getByRole('link', { name: 'Delete synced data' })
+      ).toHaveAttribute('href', '/settings/delete_sync_data');
+    });
+
+    it('hides the row when no attached client can sync', () => {
+      renderWithFlag(
+        true,
+        MOCK_SYNC_CLIENTS.map((c) => ({ ...c, isSyncCapable: false }))
+      );
+      expect(
+        screen.queryByRole('heading', { level: 3, name: 'Synced data' })
+      ).not.toBeInTheDocument();
+    });
+
+    it('hides the row when the account has no password', () => {
+      renderWithFlag(true, MOCK_SYNC_CLIENTS, false);
+      expect(
+        screen.queryByRole('heading', { level: 3, name: 'Synced data' })
+      ).not.toBeInTheDocument();
+    });
+
+    it('hides the row when the feature flag is off', () => {
+      renderWithFlag(false);
+      expect(
+        screen.queryByRole('heading', { level: 3, name: 'Synced data' })
+      ).not.toBeInTheDocument();
     });
   });
 });

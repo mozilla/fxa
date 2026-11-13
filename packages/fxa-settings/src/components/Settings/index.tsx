@@ -63,6 +63,11 @@ const MfaGuardPageRecoveryKeyCreate = lazy(() =>
     default: m.MfaGuardPageRecoveryKeyCreate,
   }))
 );
+const MfaGuardPageDeleteSyncData = lazy(() =>
+  import('./PageDeleteSyncData').then((m) => ({
+    default: m.MfaGuardPageDeleteSyncData,
+  }))
+);
 const PageMfaGuardRecoveryPhoneRemove = lazy(() =>
   import('./PageRecoveryPhoneRemove').then((m) => ({
     default: m.PageMfaGuardRecoveryPhoneRemove,
@@ -281,6 +286,12 @@ export const Settings = ({
               path="change_password"
               element={<MfaGuardedPageChangePassword />}
             />
+            {config.featureFlags?.syncDataDeletionEnabled && (
+              <Route
+                path="delete_sync_data"
+                element={<MfaGuardPageDeleteSyncData />}
+              />
+            )}
           </>
         ) : (
           <>

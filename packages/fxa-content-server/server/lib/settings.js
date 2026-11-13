@@ -147,6 +147,7 @@ const settingsConfig = {
     ),
     passwordlessEnabled: config.get('featureFlags.passwordlessEnabled'),
     novaDesignSystem: config.get('featureFlags.novaDesignSystem'),
+    syncDataDeletionEnabled: config.get('featureFlags.syncDataDeletionEnabled'),
   },
   darkMode: {
     enabled: config.get('darkMode.enabled'),

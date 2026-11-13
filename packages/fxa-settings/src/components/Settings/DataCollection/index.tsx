@@ -5,14 +5,22 @@
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import Switch from '../Switch';
 import React, { forwardRef, useCallback, useState } from 'react';
-import { useAlertBar, useFtlMsgResolver } from '../../../models';
+import { useAlertBar, useConfig, useFtlMsgResolver } from '../../../models';
 import { useAccount } from '../../../models';
 import { setEnabled } from '../../../lib/metrics';
 import UnitRow from '../UnitRow';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import { Devices, detectDevice } from '../../../lib/utilities';
+import { getSyncDevices } from '../PageDeleteSyncData/utils';
+import SyncedDataRow from './SyncedDataRow';
 
 export const DataCollection = forwardRef<HTMLDivElement>((_, ref) => {
   const account = useAccount();
+  const config = useConfig();
+  const showSyncedDataRow =
+    !!config.featureFlags?.syncDataDeletionEnabled &&
+    account.hasPassword &&
+    getSyncDevices(account.attachedClients).length > 0;
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -118,6 +126,17 @@ export const DataCollection = forwardRef<HTMLDivElement>((_, ref) => {
             </LinkExternal>
           </p>
         </UnitRow>
+
+        {showSyncedDataRow && (
+          <>
+            <hr className="unit-row-hr" />
+            <SyncedDataRow
+              canOpenSyncPreferences={
+                detectDevice() === Devices.FIREFOX_DESKTOP
+              }
+            />
+          </>
+        )}
       </div>
     </section>
   );
