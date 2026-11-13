@@ -1,0 +1,5 @@
+-- SET NAMES utf8mb4 COLLATE utf8mb4_bin;
+--
+-- DROP PROCEDURE `limitSessions_4`;
+--
+-- UPDATE dbMetadata SET value = '201' WHERE name = 'schema-patch-level';
