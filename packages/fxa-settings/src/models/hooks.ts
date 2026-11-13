@@ -2,7 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useContext, useRef, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  startTransition,
+  useCallback,
+  useContext,
+  useRef,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { NavigateOptions, useNavigate } from 'react-router';
 import { isHexadecimal, length } from 'class-validator';
 import { AppContext } from './contexts/AppContext';
 import { useNimbusContext } from './contexts/NimbusContext';
@@ -45,6 +55,35 @@ interface FetchState<T> {
   loading: boolean;
   error?: Error;
   data?: T;
+}
+
+// Returned by the integration fetch hooks until they restart for a new integration version.
+const SWITCHING_STATE: { loading: true; error?: undefined; data?: undefined } =
+  {
+    loading: true,
+  };
+
+/** Bumps the integration version; App provides it. */
+export const SwitchIntegrationContext = createContext<() => void>(() => {});
+
+/**
+ * Navigates in-app and rebuilds the integration from the destination URL,
+ * without the full page load of hardNavigate, so location state survives.
+ */
+export function useSwitchIntegration() {
+  const bumpIntegrationVersion = useContext(SwitchIntegrationContext);
+  const navigate = useNavigate();
+  return useCallback(
+    (to: string, options?: NavigateOptions) => {
+      // The router updates its location in a transition. Bumping in the same
+      // one means no render pairs the new route with the old integration.
+      startTransition(() => {
+        bumpIntegrationVersion();
+        navigate(to, options);
+      });
+    },
+    [bumpIntegrationVersion, navigate]
+  );
 }
 
 export function useAccount() {
@@ -90,11 +129,15 @@ export function useSensitiveDataClient() {
   return sensitiveDataClient;
 }
 
-export function useIntegration() {
-  const clientInfoState = useClientInfoState();
+/**
+ * Builds the integration from the URL. Ordinary navigation keeps it; a new
+ * `integrationVersion` (see useSwitchIntegration) refetches and rebuilds it.
+ */
+export function useIntegration(integrationVersion = 0) {
+  const clientInfoState = useClientInfoState(integrationVersion);
   const productInfoState = useProductInfoState();
-  const cmsInfoState = useCmsInfoState();
-  const legalTermsState = useLegalTermsState();
+  const cmsInfoState = useCmsInfoState(integrationVersion);
+  const legalTermsState = useLegalTermsState(integrationVersion);
 
   return useMemo(() => {
     // If we are still loading data, just return an null integration
@@ -272,13 +315,14 @@ export function useInitialMetricsQueryState() {
   return state;
 }
 
-export function useClientInfoState() {
+export function useClientInfoState(integrationVersion = 0) {
   const { config } = useContext(AppContext);
   const [state, setState] = useState<{
     loading: boolean;
     error?: Error;
     data?: { clientInfo: RelierClientInfo };
   }>({ loading: true });
+  const [stateVersion, setStateVersion] = useState(integrationVersion);
 
   const urlQueryData = new UrlQueryData(new ReachRouterWindow());
   // A hard load of `/oauth/success/:clientId` carries no query params.
@@ -291,6 +335,7 @@ export function useClientInfoState() {
 
   useEffect(() => {
     let mounted = true;
+    setStateVersion(integrationVersion);
     if (!config) {
       Sentry.addBreadcrumb({
         message: `OAuth Client - Missing config`,
@@ -469,12 +514,12 @@ export function useClientInfoState() {
       // Cancel any request currently in flight.
       activeController?.abort();
     };
-  }, [clientId, isValidClientId, config]);
+  }, [clientId, isValidClientId, config, integrationVersion]);
 
-  return state;
+  return stateVersion === integrationVersion ? state : SWITCHING_STATE;
 }
 
-export function useCmsInfoState() {
+export function useCmsInfoState(integrationVersion = 0) {
   const { config } = useContext(AppContext);
   if (!config) {
     throw new Error('Are you forgetting an AppContext.Provider?');
@@ -498,8 +543,10 @@ export function useCmsInfoState() {
     error: undefined,
     data: undefined,
   });
+  const [stateVersion, setStateVersion] = useState(integrationVersion);
 
   useEffect(() => {
+    setStateVersion(integrationVersion);
     // We disable the CMS if:
     // 1. CMS is not enabled in the config
     // 2. l10nEnabled is false AND user's locale is not English
@@ -610,9 +657,10 @@ export function useCmsInfoState() {
     config.cms.enabled,
     config.cms?.l10nEnabled,
     currentLocale,
+    integrationVersion,
   ]);
 
-  return state;
+  return stateVersion === integrationVersion ? state : SWITCHING_STATE;
 }
 
 export function useDefaultCmsState({
@@ -713,7 +761,7 @@ export function useProductInfoState() {
   return emptyProductInfoState;
 }
 
-export function useLegalTermsState() {
+export function useLegalTermsState(integrationVersion = 0) {
   const { config } = useContext(AppContext);
   if (!config) {
     throw new Error('Are you forgetting an AppContext.Provider?');
@@ -734,8 +782,10 @@ export function useLegalTermsState() {
     error: undefined,
     data: undefined,
   });
+  const [stateVersion, setStateVersion] = useState(integrationVersion);
 
   useEffect(() => {
+    setStateVersion(integrationVersion);
     // Determine if we should fetch by clientId or service
     const isOAuth = !!clientId;
     const isOAuthNative = context === 'oauth_webchannel_v1';
@@ -843,9 +893,9 @@ export function useLegalTermsState() {
     return () => {
       mounted = false;
     };
-  }, [authUrl, clientId, service, context, currentLocale]);
+  }, [authUrl, clientId, service, context, currentLocale, integrationVersion]);
 
-  return state;
+  return stateVersion === integrationVersion ? state : SWITCHING_STATE;
 }
 
 // TODO: FXA-8286, test pattern for container components, which will determine

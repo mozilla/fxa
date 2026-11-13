@@ -4,7 +4,6 @@
 
 import * as ModelsModule from '../../../models';
 import { OAuthNativeClients, OAuthNativeServices } from '@fxa/accounts/oauth';
-import * as utils from 'fxa-react/lib/utils';
 import * as CacheModule from '../../../lib/cache';
 
 import { screen, waitFor } from '@testing-library/react';
@@ -24,6 +23,7 @@ import { MOCK_EMAIL, MOCK_SESSION_TOKEN } from '../../mocks';
 import { MemoryRouter } from 'react-router';
 import { GenericData } from '../../../lib/model-data';
 
+const mockSwitchIntegration = jest.fn();
 jest.mock('../../../models', () => {
   const mockAuthClient = {
     checkTotpTokenExists: jest.fn().mockResolvedValue({ verified: true }),
@@ -35,6 +35,7 @@ jest.mock('../../../models', () => {
     useProductInfoState: jest.fn(),
     useAccount: jest.fn(),
     useAuthClient: () => mockAuthClient,
+    useSwitchIntegration: () => mockSwitchIntegration,
   };
 });
 
@@ -167,12 +168,9 @@ function renderWith(props?: {
 }
 
 describe('ThirdPartyAuthCallback component', () => {
-  let hardNavigateSpy: jest.SpyInstance;
   let mockHandleNavigation: jest.Mock;
   beforeEach(() => {
-    hardNavigateSpy = jest
-      .spyOn(utils, 'hardNavigate')
-      .mockImplementation(() => {});
+    mockSwitchIntegration.mockClear();
 
     (useFinishOAuthFlowHandler as jest.Mock).mockImplementation(() => ({
       finishOAuthFlowHandler: jest.fn(),
@@ -241,7 +239,7 @@ describe('ThirdPartyAuthCallback component', () => {
       );
     });
 
-    expect(hardNavigateSpy).toHaveBeenCalledWith(
+    expect(mockSwitchIntegration).toHaveBeenCalledWith(
       '/post_verify/third_party_auth/callback?flowId=aaaa&flowBeginTime=1734112296000&utm_campaign=testo'
     );
   });
@@ -261,7 +259,7 @@ describe('ThirdPartyAuthCallback component', () => {
 
     renderWith({ integration });
 
-    expect(hardNavigateSpy).toHaveBeenCalledWith(
+    expect(mockSwitchIntegration).toHaveBeenCalledWith(
       '/?flowId=aaaa&flowBeginTime=1734112296000&utm_campaign=testo'
     );
   });
