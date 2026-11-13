@@ -27,6 +27,7 @@ import {
   armStoreFallback,
   STORE_FALLBACK_TIMEOUT_MS,
 } from '../../../../lib/pairing/store-fallback';
+import { useFtlMsgResolver } from '../../../../models';
 
 export type DownloadFirefoxProps = {
   /**
@@ -255,8 +256,14 @@ const DownloadFirefox = ({
     );
   }
 
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'pair2-supplicant-download-firefox-page-title',
+    'Open Firefox on this device'
+  );
+
   return (
-    <AppLayout whiteBackground>
+    <AppLayout title={localizedPageTitle} whiteBackground>
       <div className="flex flex-col items-center text-center">
         <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
 

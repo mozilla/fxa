@@ -5,7 +5,7 @@
 import Ready, { ReadyProps } from '.';
 import { Meta } from '@storybook/react';
 import { MozServices } from '../../lib/types';
-import { AppLayout } from '../AppLayout';
+import AppLayout from '../AppLayout/storybook';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {

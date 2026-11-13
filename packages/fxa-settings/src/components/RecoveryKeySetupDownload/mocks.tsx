@@ -9,7 +9,7 @@ import AppLayout from '../AppLayout';
 
 export const Subject = (props: Partial<RecoveryKeySetupDownloadProps>) => {
   return (
-    <AppLayout>
+    <AppLayout title="Recovery Key Setup Download">
       <RecoveryKeySetupDownload
         recoveryKeyValue={MOCK_RECOVERY_KEY_WITH_SPACES}
         email={MOCK_ACCOUNT.primaryEmail.email}

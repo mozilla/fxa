@@ -6,11 +6,10 @@ import { screen, waitFor } from '@testing-library/react';
 import ResetPasswordWithRecoveryKeyVerified, { viewName } from '.';
 import { logViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
-import {
-  renderWithRouter,
-} from '../../../models/mocks';
+import { renderWithRouter } from '../../../models/mocks';
 import GleanMetrics from '../../../lib/glean';
 import userEvent from '@testing-library/user-event';
+import { OAUTH_ERRORS } from '../../../lib/oauth';
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
@@ -74,6 +73,25 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
     await screen.findByText(
       'New account recovery key created. Download and store it now.'
     );
+  });
+
+  it.each([
+    { state: 'success', props: {}, title: 'Password reset successful' },
+    {
+      state: 'hint',
+      props: { showHint: true },
+      title: 'Add a recovery key hint',
+    },
+    {
+      state: 'OAuth error',
+      props: { oAuthError: OAUTH_ERRORS.UNKNOWN_CLIENT },
+      title: 'Bad request',
+    },
+  ])('sets the $state page title', ({ props, title }) => {
+    render(
+      <ResetPasswordWithRecoveryKeyVerified {...defaultProps} {...props} />
+    );
+    expect(document.title).toBe(`${title} – Mozilla accounts`);
   });
 
   it('emits the expected metrics when a user generates new recovery keys', async () => {

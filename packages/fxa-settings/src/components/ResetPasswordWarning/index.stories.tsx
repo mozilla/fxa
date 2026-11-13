@@ -5,7 +5,7 @@
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import ResetPasswordWarning from '.';
-import AppLayout from '../AppLayout';
+import AppLayout from '../AppLayout/storybook';
 import { createMockLocationState } from './mocks';
 import { MemoryRouter } from 'react-router';
 

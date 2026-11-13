@@ -8,6 +8,7 @@ import AppLayout from '../../components/AppLayout';
 import CardHeader from '../../components/CardHeader';
 import { MetricsFlow } from '../../lib/metrics-flow';
 import { useViewEvent } from '../../lib/metrics';
+import { useFtlMsgResolver } from '../../models';
 
 // /download_firefox returns 400 for a param outside this list, or a value that
 // fails its check (content-server redirect-download-firefox.js)
@@ -37,6 +38,11 @@ const UpdateFirefox = ({
 }: {
   metricsFlow: MetricsFlow | null;
 }) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'update-firefox-page-title',
+    'Firefox update required'
+  );
   useViewEvent('flow', 'begin');
   useViewEvent('flow.update-firefox', 'view');
   const location = useLocation();
@@ -61,7 +67,7 @@ const UpdateFirefox = ({
   }
 
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <CardHeader
         headingTextFtlId="update-firefox-heading"
         headingText="Firefox update required"

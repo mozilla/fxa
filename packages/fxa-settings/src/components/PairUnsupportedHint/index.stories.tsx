@@ -5,7 +5,7 @@
 import React from 'react';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import AppLayout from '../AppLayout';
+import AppLayout from '../AppLayout/storybook';
 import PairUnsupportedHint, { PairUnsupportedHintProps } from '.';
 
 export default {

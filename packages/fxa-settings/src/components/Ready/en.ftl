@@ -14,3 +14,15 @@ ready-continue = Continue
 sign-in-complete-header = Sign-in confirmed
 sign-up-complete-header = Account confirmed
 primary-email-verified-header = Primary email confirmed
+
+# Browser tab title for the page confirming the user’s sign-in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+sign-in-complete-page-title = Sign-in confirmed
+
+# Browser tab title for the page confirming the user’s new account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+sign-up-complete-page-title = Account confirmed
+
+# Browser tab title for the page confirming the user’s primary email address.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+primary-email-verified-page-title = Primary email confirmed

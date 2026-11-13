@@ -205,12 +205,19 @@ export const SigninTotpCode = ({
 
   const cmsInfo = integration.getCmsInfo();
   const cmsPage = cmsInfo?.SigninTotpCodePage;
-  const title = cmsPage?.pageTitle;
+  const cmsPageTitle = cmsPage?.pageTitle;
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'signin-totp-code-page-title',
+    'Sign in with two-step authentication'
+  );
   const splitLayout = cmsPage?.splitLayout;
   const additionalAccessibilityInfo =
     cmsInfo?.shared.additionalAccessibilityInfo;
   return (
-    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
+    <AppLayout
+      {...{ cmsInfo, cmsPageTitle, splitLayout, setCurrentSplitLayout }}
+      title={localizedPageTitle}
+    >
       <FtlMsg id="signin-totp-code-header">
         <HeadingPrimary>Sign in</HeadingPrimary>
       </FtlMsg>

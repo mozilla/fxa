@@ -5,7 +5,7 @@
 import Ready from '../../../components/Ready';
 import { MozServices } from '../../../lib/types';
 import AppLayout from '../../../components/AppLayout';
-import { Integration } from '../../../models';
+import { Integration, useFtlMsgResolver } from '../../../models';
 
 type SigninConfirmedProps = {
   continueHandler?: Function;
@@ -22,10 +22,15 @@ const SigninConfirmed = ({
   serviceName,
   integration,
 }: SigninConfirmedProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
   const cmsInfo = integration?.getCmsInfo?.();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'sign-in-complete-page-title',
+    'Sign-in confirmed'
+  );
 
   return (
-    <AppLayout cmsInfo={cmsInfo}>
+    <AppLayout cmsInfo={cmsInfo} title={localizedPageTitle}>
       <Ready
         {...{ continueHandler, isSignedIn, viewName, serviceName, integration }}
       />

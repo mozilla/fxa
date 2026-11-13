@@ -45,3 +45,11 @@ inline-totp-setup-code-required-error = Authentication code required
 tfa-qr-code-alt = Use the code { $code } to set up two-step authentication in supported applications.
 
 inline-totp-setup-page-title = Two-step authentication
+
+# Browser tab title for the first page of two-step authentication setup, which introduces the feature.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-totp-setup-intro-page-title = Set up two-step authentication
+
+# Browser tab title for the page where the user connects an authenticator app to their account during two-step authentication setup.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-totp-setup-enrol-page-title = Connect your authenticator app

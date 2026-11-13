@@ -5,7 +5,7 @@
 import { Meta } from '@storybook/react';
 import FormChoice from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import AppLayout from '../AppLayout';
+import AppLayout from '../AppLayout/storybook';
 import { commonFormChoiceProps, commonFormChoicePropsWithCms } from './mocks';
 import {
   BackupAuthenticationCodesImage,

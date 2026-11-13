@@ -17,6 +17,7 @@ import {
 } from '../../../models/integrations/pairing-supplicant-integration';
 import { Integration } from '../../../models/integrations/integration';
 import { useNavigateWithQuery } from '../../../lib/hooks';
+import { useFtlMsgResolver } from '../../../models';
 
 export type SuppWaitForAuthProps = {
   authDeviceInfo?: RemoteMetadata;
@@ -31,6 +32,11 @@ const SuppWaitForAuth = ({
   error,
   integration,
 }: SuppWaitForAuthProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'pair-wait-for-auth-page-title',
+    'Approve on your other device'
+  );
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const navigateWithQuery = useNavigateWithQuery();
 
@@ -81,7 +87,7 @@ const SuppWaitForAuth = ({
   }, [pairingIntegration, navigateWithQuery]);
 
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <CardHeader
         headingText="Approval now required"
         headingAndSubheadingFtlId="pair-wait-for-auth-heading-text"

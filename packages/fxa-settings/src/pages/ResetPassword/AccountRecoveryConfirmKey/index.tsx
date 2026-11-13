@@ -143,8 +143,13 @@ const AccountRecoveryConfirmKey = ({
     );
   };
 
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'account-recovery-confirm-key-page-title',
+    'Reset password with recovery key'
+  );
+
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <FtlMsg id="password-reset-flow-heading">
         <HeadingPrimary>Reset your password</HeadingPrimary>
       </FtlMsg>

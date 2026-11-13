@@ -28,3 +28,7 @@ reset-password-recovery-phone-general-error-description = Please try again later
 
 reset-password-recovery-phone-invalid-code-error-description = The code is invalid or expired.
 reset-password-recovery-phone-invalid-code-error-link = Use backup authentication codes instead?
+
+# Browser tab title for the page where the user enters a code sent to their recovery phone to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+reset-password-recovery-phone-page-title = Reset password with recovery phone

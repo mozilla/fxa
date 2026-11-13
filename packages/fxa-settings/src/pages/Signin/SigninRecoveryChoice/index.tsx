@@ -140,7 +140,11 @@ const SigninRecoveryChoice = ({
   const cmsInfo = integration?.getCmsInfo();
   const cmsPage = cmsInfo?.SigninRecoveryChoicePage;
   const splitLayout = cmsPage?.splitLayout;
-  const title = cmsPage?.pageTitle;
+  const cmsPageTitle = cmsPage?.pageTitle;
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'signin-recovery-method-page-title',
+    'Sign in with a recovery method'
+  );
   const cmsButton = {
     color: cmsInfo?.shared.buttonColor,
     text: cmsPage?.primaryButtonText,
@@ -171,7 +175,8 @@ const SigninRecoveryChoice = ({
 
   return (
     <AppLayout
-      {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}
+      {...{ cmsInfo, cmsPageTitle, splitLayout, setCurrentSplitLayout }}
+      title={localizedPageTitle}
       loading={loading}
     >
       <div className="relative flex items-center mb-5">

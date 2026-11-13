@@ -9,13 +9,19 @@ import { HeartsVerifiedImage } from '../../../components/images';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import Banner from '../../../components/Banner';
 import AppLayout from '../../../components/AppLayout';
+import { useFtlMsgResolver } from '../../../models';
 
 type PairSuccessProps = { error?: string };
 export const viewName = 'pair-success';
 const PairSuccess = ({ error }: PairSuccessProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'pair-success-page-title',
+    'Device connected'
+  );
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       {error && <Banner type="error" content={{ localizedHeading: error }} />}
       <CardHeader
         headingTextFtlId="pair-success-header-2"

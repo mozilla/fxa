@@ -56,3 +56,15 @@ pair-download-step-scan-qr = <b>Step { $stepNumber }</b>: Download { -brand-fire
 pair-download-step-continue-sync = <b>Step { $stepNumber }</b>: Select “Continue to sync” to sync your { -brand-firefox } experience on your mobile device.
 # Button on the download screen that opens about:preferences for pairing
 pair-continue-to-sync-button = Continue to sync
+
+# Browser tab title for the page where the user chooses how to connect another device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-choice-page-title = Connect another device
+
+# Browser tab title for the page where the user chooses how to set up another device to send tabs to.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-choice-send-tab-page-title = Send tabs to another device
+
+# Browser tab title for the page that explains how to download { -brand-firefox } on a mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-download-page-title = Download { -brand-firefox } for mobile
