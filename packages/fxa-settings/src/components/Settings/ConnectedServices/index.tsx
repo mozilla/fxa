@@ -33,7 +33,8 @@ export function sortAndFilterConnectedClients(
     const key = String(client.name);
     acc[key] = acc[key] ? [...acc[key], client] : [client];
     return acc;
-  }, {});
+    // No prototype, so device names like "constructor" don't read inherited properties.
+  }, Object.create(null));
 
   // get a unique (by name) list and sort by time last accessed
   const sortedAndUniqueClients = Object.keys(groupedByName)

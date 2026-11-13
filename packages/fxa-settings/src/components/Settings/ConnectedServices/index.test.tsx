@@ -752,4 +752,16 @@ describe('Connected Services', () => {
       expect(screen.getByText('Firefox’s built-in VPN')).toBeInTheDocument();
     });
   });
+
+  it.each(['constructor', '__proto__', 'toString'])(
+    'groups a device named %s',
+    (name) => {
+      const client = { ...MOCK_SERVICES[0], name };
+      const { sortedAndUniqueClients, groupedByName } =
+        sortAndFilterConnectedClients([client, { ...client }]);
+
+      expect(sortedAndUniqueClients).toEqual([client]);
+      expect(groupedByName[name]).toEqual([client, client]);
+    }
+  );
 });

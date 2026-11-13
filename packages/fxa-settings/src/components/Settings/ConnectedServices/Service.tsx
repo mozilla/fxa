@@ -6,12 +6,8 @@ import React from 'react';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
 import { DeviceLocation } from '../../../models/Account';
 import { OAUTH_NATIVE_CLIENT_IDS } from '@fxa/accounts/oauth';
-import { ReactComponent as WebIcon } from './web.svg';
-import { ReactComponent as DesktopIcon } from './desktop.svg';
 import { ReactComponent as FPNIcon } from './fpn.svg';
-import { ReactComponent as MobileIcon } from './mobile.svg';
 import { ReactComponent as SyncIcon } from './sync.svg';
-import { ReactComponent as TabletIcon } from './tablet.svg';
 import { ReactComponent as MonitorIcon } from './monitor.svg';
 import { ReactComponent as LockwiseIcon } from './lockwise.svg';
 import { ReactComponent as RelayIcon } from './relay.svg';
@@ -21,6 +17,7 @@ import { ReactComponent as PontoonIcon } from './pontoon.svg';
 import { ReactComponent as MailIcon } from './mail.svg';
 import { Localized } from '@fluent/react';
 import classNames from 'classnames';
+import DeviceIcon from './DeviceIcon';
 
 const SCOPE_RELAY = 'https://identity.mozilla.com/apps/relay';
 const SCOPE_VPN = 'https://identity.mozilla.com/apps/vpn';
@@ -129,15 +126,7 @@ export function Service({
       Icon = <PontoonIcon data-testid="pontoon-icon" />;
       break;
     default:
-      if (name.toLowerCase().includes('ipad')) {
-        Icon = <TabletIcon data-testid="tablet-icon" />;
-      } else if (deviceType === 'mobile') {
-        Icon = <MobileIcon data-testid="mobile-icon" />;
-      } else if (deviceType === 'desktop') {
-        Icon = <DesktopIcon data-testid="desktop-icon" />;
-      } else {
-        Icon = <WebIcon data-testid="web-icon" />;
-      }
+      Icon = <DeviceIcon {...{ name, deviceType }} />;
   }
 
   return (
