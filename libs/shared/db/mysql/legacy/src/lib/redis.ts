@@ -28,7 +28,6 @@ export type Config = {
 interface ICustomRedisCache {
   getAccessToken(uid: string): Promise<any>;
   getAccessTokens(uid: string): Promise<any>;
-  pruneSessionTokens(uid: string, tokenIds: string): Promise<any>;
   touchSessionToken(uid: string, token: any): Promise<any>;
 }
 
@@ -60,17 +59,23 @@ function unpackArray(keys: string[], values: unknown[]) {
   return result;
 }
 
+// Throws if the blob is not a JSON object.
+function parseSessionTokens(value: string | null): Record<string, unknown> {
+  if (!value) return {};
+  const tokens = JSON.parse(value);
+  if (tokens === null || typeof tokens !== 'object') {
+    throw new Error('session token blob is not an object');
+  }
+  return tokens;
+}
+
 /**
  * Expands a stored session-token blob into `{ [tokenId]: token }`.
  * Entries that are not packed arrays pass through unchanged.
  * Throws if the blob is not a JSON object.
  */
 export function unpackSessionTokens(value: string | null) {
-  if (!value) return {};
-  const tokens = JSON.parse(value);
-  if (tokens === null || typeof tokens !== 'object') {
-    throw new Error('session token blob is not an object');
-  }
+  const tokens = parseSessionTokens(value);
   const result: Record<string, unknown> = {};
   for (const [id, values] of Object.entries(tokens)) {
     if (!Array.isArray(values)) {
@@ -94,7 +99,6 @@ function isCustomRedisCache(redis: any): redis is Redis & ICustomRedisCache {
   if (
     'getAccessToken' in redis &&
     'getAccessTokens' in redis &&
-    'pruneSessionTokens' in redis &&
     'touchSessionToken' in redis
   ) {
     return true;
@@ -104,6 +108,9 @@ function isCustomRedisCache(redis: any): redis is Redis & ICustomRedisCache {
 
 export class RedisShared {
   public readonly redis: Redis & ICustomRedisCache;
+  // WATCH state is per connection, so prunes share their own connection, one at a time.
+  private pruneRedis?: Redis;
+  private pruning = false;
 
   protected get keyPrefix() {
     return this.config.keyPrefix;
@@ -239,7 +246,18 @@ export class RedisShared {
   }
 
   async close() {
-    await this.redis.quit();
+    try {
+      await this.pruneRedis?.quit();
+    } catch (error) {
+      // Stops the reconnect loop of a prune connection that cannot QUIT.
+      this.pruneRedis?.disconnect();
+      this.log?.error('RedisShared', {
+        msg: 'RedisShared: prune connection quit failed',
+        error,
+      });
+    } finally {
+      await this.redis.quit();
+    }
   }
 
   async del(key: string): Promise<number | undefined> {
@@ -277,12 +295,73 @@ export class RedisShared {
 
   async pruneSessionTokens(uid: string, tokenIds: string[] = []) {
     this.metrics?.increment('redis.pruneSessionTokens');
+    // Pruning is opportunistic and the prune-tokens cron catches what this
+    // drops, so a busy connection, a conflict or an error skips the prune.
+    if (this.pruning) {
+      this.metrics?.increment('redis.pruneSessionTokens.skipped');
+      return;
+    }
+    this.pruning = true;
     const span = tracer.startSpan('redis.pruneSessionTokens');
-    const p1 = this.redis.pruneSessionTokens(uid, JSON.stringify(tokenIds));
-    const p2 = this.rejectInMs(p1, this.timeoutMs);
-    const result = await Promise.race([p1, p2]);
-    span.end();
-    return result;
+    try {
+      if (!this.pruneRedis) {
+        this.pruneRedis = this.redis.duplicate({
+          commandTimeout: this.timeoutMs,
+        });
+        this.pruneRedis.on('error', (error) => {
+          this.log?.error('RedisShared', {
+            msg: 'RedisShared: prune connection error',
+            error,
+          });
+        });
+      }
+      const redis = this.pruneRedis;
+      await redis.watch(uid);
+      const value = await redis.get(uid);
+      let tokens: Record<string, unknown>;
+      try {
+        tokens = parseSessionTokens(value);
+      } catch (error) {
+        this.log?.error('RedisShared', {
+          msg: 'RedisShared: deleting unparseable session token blob',
+          error,
+        });
+        tokens = {};
+      }
+
+      // Prune unneeded tokens
+      for (const id of tokenIds) {
+        delete tokens[id];
+      }
+
+      const tx = redis.multi();
+      if (Object.keys(tokens).length === 0) {
+        tx.del(uid);
+      } else {
+        tx.set(uid, JSON.stringify(tokens));
+      }
+      // EXEC resolves null when another client changed the key after WATCH.
+      const results = await tx.exec();
+      if (!results) {
+        this.metrics?.increment('redis.pruneSessionTokens.conflict');
+        return;
+      }
+      const [err, result] = results[0];
+      if (err) throw err;
+      return result;
+    } catch (error) {
+      // A stale WATCH would abort the next prune's EXEC.
+      this.pruneRedis?.unwatch().catch(() => {});
+      this.metrics?.increment('redis.pruneSessionTokens.error');
+      this.log?.error('RedisShared', {
+        msg: 'RedisShared: pruneSessionTokens failed',
+        error,
+      });
+      return;
+    } finally {
+      this.pruning = false;
+      span.end();
+    }
   }
 
   async pruneRefreshTokens(
