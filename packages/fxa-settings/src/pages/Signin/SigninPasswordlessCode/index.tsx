@@ -16,6 +16,7 @@ import {
   usePageViewEvent,
 } from '../../../lib/metrics';
 import { EmailCodeImage } from '../../../components/images';
+import { PASSKEY_PROMO_PATH } from '../../../lib/passkeys/promo';
 import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
@@ -184,6 +185,13 @@ const SigninPasswordlessCode = ({
         'Account confirmed successfully'
       )
     );
+    if (config.featureFlags?.passkeyPromoSignupEnabled) {
+      navigateWithQuery(PASSKEY_PROMO_PATH, {
+        replace: true,
+        state: { origin: 'signup' },
+      });
+      return;
+    }
     navigateWithQuery('/settings', { replace: true });
   }
 

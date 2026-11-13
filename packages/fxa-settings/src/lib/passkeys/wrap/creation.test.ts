@@ -5,7 +5,11 @@
 import { ERRNO } from '@fxa/accounts/errors';
 import type AuthClient from 'fxa-auth-client/browser';
 import type { PasskeyWrapEnvelope } from 'fxa-auth-client/browser';
-import { createPasskeyWrap, retryPasskeyWrapStore } from './creation';
+import {
+  createPasskeyWrap,
+  retryPasskeyWrapStore,
+  stepUpWithPrf,
+} from './creation';
 import { AuthUiErrors } from '../../auth-errors/auth-errors';
 import { bytesToBase64url } from '../../base64url';
 import type {
@@ -547,5 +551,65 @@ describe('retryPasskeyWrapStore', () => {
       envelope,
       error: err,
     });
+  });
+});
+
+describe('stepUpWithPrf', () => {
+  const withPrf = (prfOut: Uint8Array) => ({
+    id: MOCK_CREDENTIAL_ID,
+    clientExtensionResults: { prf: { results: { first: prfOut.buffer } } },
+  });
+
+  it('asks the server for a pinned ceremony that requests PRF', async () => {
+    await stepUpWithPrf(authClient(), MOCK_SESSION_TOKEN, MOCK_CREDENTIAL_ID);
+
+    expect(beginVerificationMock).toHaveBeenCalledWith(MOCK_SESSION_TOKEN, {
+      credentialId: MOCK_CREDENTIAL_ID,
+      requestPrf: true,
+    });
+  });
+
+  it('returns the minted token and the PRF output from the assertion', async () => {
+    mockGetCredential.mockResolvedValue(withPrf(Uint8Array.from(MOCK_PRF_OUT)));
+
+    const result = await stepUpWithPrf(
+      authClient(),
+      MOCK_SESSION_TOKEN,
+      MOCK_CREDENTIAL_ID
+    );
+
+    expect(result).toEqual({ mfaToken: FRESH_JWT, prfOut: MOCK_PRF_OUT });
+  });
+
+  it('keeps the PRF output away from the server', async () => {
+    mockGetCredential.mockResolvedValue(withPrf(Uint8Array.from(MOCK_PRF_OUT)));
+
+    await stepUpWithPrf(authClient(), MOCK_SESSION_TOKEN, MOCK_CREDENTIAL_ID);
+
+    const [, sent, challenge] = completeVerificationMock.mock.calls[0];
+    expect(sent.clientExtensionResults.prf?.results).toBeUndefined();
+    expect(challenge).toBe('chal');
+  });
+
+  it('returns no PRF output when the authenticator has no PRF', async () => {
+    const result = await stepUpWithPrf(
+      authClient(),
+      MOCK_SESSION_TOKEN,
+      MOCK_CREDENTIAL_ID
+    );
+
+    expect(result).toEqual({ mfaToken: FRESH_JWT, prfOut: undefined });
+  });
+
+  it('zeroes the PRF output when the server refuses the assertion', async () => {
+    // The browser hands back an ArrayBuffer, which the extracted view shares.
+    const prfOut = Uint8Array.from(MOCK_PRF_OUT);
+    mockGetCredential.mockResolvedValue(withPrf(prfOut));
+    completeVerificationMock.mockRejectedValue(serverError(ERRNO.THROTTLED));
+
+    await expect(
+      stepUpWithPrf(authClient(), MOCK_SESSION_TOKEN, MOCK_CREDENTIAL_ID)
+    ).rejects.toMatchObject({ errno: ERRNO.THROTTLED });
+    expect(prfOut).toEqual(ZEROED);
   });
 });

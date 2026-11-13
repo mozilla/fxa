@@ -30,6 +30,7 @@ import { OAuthNativeServices } from '@fxa/accounts/oauth';
 import { OAUTH_ERRORS, OAuthError } from '../../lib/oauth';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { SensitiveDataClient } from '../../lib/sensitive-data-client';
+import config from '../../lib/config';
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
@@ -235,6 +236,42 @@ describe('Signin utils', () => {
         expect.stringContaining('/signup_confirmed_sync'),
         expect.objectContaining({ replace: false })
       );
+    });
+
+    describe('with the sign-in passkey promo on', () => {
+      const originalFlags = config.featureFlags;
+      beforeEach(() => {
+        config.featureFlags = {
+          ...originalFlags,
+          passkeyPromoSigninEnabled: true,
+        };
+      });
+      afterEach(() => {
+        config.featureFlags = originalFlags;
+      });
+
+      it('sends any web sign-in to the create-passkey offer', async () => {
+        await handleNavigation(
+          createBaseNavigationOptions({
+            integration: createMockSigninWebIntegration(),
+          })
+        );
+        expect(mockNavigate).toHaveBeenCalledWith('/passkey_promo', {
+          replace: false,
+        });
+      });
+
+      it('sends a passkey sign-in straight to settings', async () => {
+        await handleNavigation(
+          createBaseNavigationOptions({
+            integration: createMockSigninWebIntegration(),
+            isPasskeySession: true,
+          })
+        );
+        expect(mockNavigate).toHaveBeenCalledWith('/settings', {
+          replace: false,
+        });
+      });
     });
 
     it('navigates in-app to force password change with the query params', async () => {
