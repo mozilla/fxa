@@ -30,7 +30,10 @@
     },
     "test-unit": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}",
+        "{workspaceRoot}/artifacts/tests/{projectName}"
+      ],
       "options": {
         "jestConfig": "libs/shared/crypto/jest.config.ts",
         "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]

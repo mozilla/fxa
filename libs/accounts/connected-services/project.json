@@ -24,7 +24,10 @@
     },
     "test-unit": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}",
+        "{workspaceRoot}/artifacts/tests/{projectName}"
+      ],
       "options": {
         "jestConfig": "libs/accounts/connected-services/jest.config.ts",
         "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]

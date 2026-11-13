@@ -28,7 +28,7 @@ const config: Config = {
     [
       'jest-junit',
       {
-        outputDirectory: 'artifacts/tests/url-allow-list',
+        outputDirectory: 'artifacts/tests/shared-url-allow-list',
         outputName: 'url-allow-list-jest-unit-results.xml',
       },
     ],

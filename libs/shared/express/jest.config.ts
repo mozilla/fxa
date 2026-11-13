@@ -28,7 +28,7 @@ const config: Config = {
     [
       'jest-junit',
       {
-        outputDirectory: 'artifacts/tests/express',
+        outputDirectory: 'artifacts/tests/shared-express',
         outputName: 'express-jest-unit-results.xml',
       },
     ],

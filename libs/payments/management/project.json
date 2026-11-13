@@ -37,7 +37,10 @@
     },
     "test-unit": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}",
+        "{workspaceRoot}/artifacts/tests/{projectName}"
+      ],
       "options": {
         "jestConfig": "libs/payments/management/jest.config.ts",
         "testPathPatterns": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
@@ -45,7 +48,10 @@
     },
     "test-integration": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}",
+        "{workspaceRoot}/artifacts/tests/{projectName}"
+      ],
       "options": {
         "jestConfig": "libs/payments/management/jest.config.ts",
         "testPathPatterns": ["\\.in\\.spec\\.ts$"]

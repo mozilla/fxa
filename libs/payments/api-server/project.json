@@ -52,7 +52,10 @@
     },
     "test-unit": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}",
+        "{workspaceRoot}/artifacts/tests/{projectName}"
+      ],
       "options": {
         "jestConfig": "libs/payments/api-server/jest.config.ts",
         "testPathPatterns": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
