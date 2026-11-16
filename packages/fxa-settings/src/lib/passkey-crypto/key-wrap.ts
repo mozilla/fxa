@@ -7,9 +7,10 @@
  * recipient keypair, and wrap/unwrap its private key under the passkey's PRF
  * output.
  *
- * Web Crypto for every cryptographic operation. The one `hpke` import is
- * `SerializePrivateKey`, a serialiser only: Web Crypto cannot export a bare
- * scalar. It does not pad to `Nsk`, so this module left-pads the result.
+ * Web Crypto for every cryptographic operation. The one `hpke` import is the
+ * `concat` byte-join helper. `SerializePrivateKey` on the shared suite is a
+ * serialiser only: Web Crypto cannot export a bare scalar. It does not pad to
+ * `Nsk`, so this module left-pads the result.
  *
  * Everything crosses the module boundary as `Uint8Array`, so no `CryptoKey`
  * escapes a function. `aad` is opaque here; `envelope.ts` owns its construction
@@ -82,7 +83,7 @@ export async function generateRecipientKeyPair(): Promise<RecipientKeyPair> {
 
     // Left-pad rather than trust the length. SerializePrivateKey decodes the JWK
     // `d` as-is, so a platform whose EC export strips leading zeros yields a short
-    // scalar — roughly 1 P-521 key in 512. Stored short, the fixed-width column
+    // scalar for about half of all P-521 keys. Stored short, the fixed-width column
     // right-pads it and the wrap can never be opened.
     const privateKeyRaw = new Uint8Array(V1_SIZES.skRRaw);
     privateKeyRaw.set(scalar, V1_SIZES.skRRaw - scalar.length);

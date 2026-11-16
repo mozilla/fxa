@@ -75,7 +75,7 @@ describe('passkey-crypto key-wrap', () => {
   });
 
   /**
-   * Roughly 1 P-521 key in 512 has a leading zero byte, and SerializePrivateKey
+   * About half of all P-521 keys have a leading zero byte, and SerializePrivateKey
    * decodes the JWK `d` as-is rather than padding it. A short scalar stored in
    * the fixed-width column gets right-padded and can never be opened, so the
    * padding has to happen here.

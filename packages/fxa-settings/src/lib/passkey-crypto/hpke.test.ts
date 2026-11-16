@@ -404,7 +404,7 @@ describe('passkey-crypto hpke', () => {
     });
 
     it('opens a scalar with a leading zero byte', async () => {
-      // Roughly 1 P-521 key in 512. The JWK d is fixed-width, so the zero must
+      // About half of all P-521 keys. The JWK d is fixed-width, so the zero must
       // survive the round trip rather than being stripped.
       const { privateKeyRaw } = await generateRecipientKeyPair();
       const padded = Uint8Array.from(privateKeyRaw);
