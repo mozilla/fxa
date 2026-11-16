@@ -1,8 +1,8 @@
 {
-  "commit": "af1583ad5915263ff34fce210c2d8612bac72bd6",
+  "commit": "455b1a1c85ce4a18c129f31fca2e6fcd562b314c",
   "summary": "feat(settings): adopt Nova icons and illustrations behind the flag",
-  "description": "Because:\n- Nova replaces FxA's icons and illustrations with acorn-icons and the Mozilla accounts set.\n- acorn-icons use context-fill, which renders black outside Firefox chrome.\n\nThis commit:\n- Adds Mozilla accounts illustrations and Figma exports (recovery methods, avatar), via svgo.\n- Adds acorn-icons with context-fill rewritten to currentColor, via svgo.\n- Adds withNova/sized helpers, sets the Storybook Nova theme and turns Nova on in local.json-dist.\n- Sizes Nova status icons at 16px; fixes the Nova Switch, choice card and password balloon; adds hover transitions.\n- Documents the asset tables and unswapped list in the design-tokens README.",
-  "timestamp": 1794847018000,
+  "description": "Because:\n- Nova replaces FxA's icons and illustrations with acorn-icons and the Mozilla accounts set.\n- acorn-icons use context-fill, which renders black outside Firefox chrome.\n- Review of the swap surfaced minor Nova UI issues worth fixing alongside it.\n\nThis commit:\n- Adds Mozilla accounts illustrations, Figma exports and acorn-icons (currentColor), via svgo.\n- Adds withNova/sized helpers, sets the Storybook Nova theme and turns Nova on in local.json-dist.\n- Sizes Nova status icons at 16px and makes service and account icons follow the text color in dark mode.\n- Tweaks Nova UI: Switch sizing and label, choice card spacing/fill/transition, password balloon dark mode, 150ms transitions.\n- Documents the asset tables and unswapped list in the design-tokens README.",
+  "timestamp": 1794848033000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",
