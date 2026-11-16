@@ -47,7 +47,7 @@ const BackupCodesDetails = ({
         <FtlMsg id="flow-setup-2fa-inline-complete-backup-code">
           <p className="font-semibold text-md">Backup authentication codes</p>
         </FtlMsg>
-        <div className="flex">
+        <div className="flex nova:items-center nova:gap-2">
           <CheckmarkGreenIcon mode="enabled" className="flex-none" />
           <FtlMsg
             id="flow-setup-2fa-inline-complete-backup-code-info"
@@ -73,7 +73,7 @@ const RecoveryPhoneDetails = ({
         <FtlMsg id="flow-setup-2fa-inline-complete-backup-phone">
           <p className="font-semibold text-md">Recovery phone</p>
         </FtlMsg>
-        <div className="flex">
+        <div className="flex nova:items-center nova:gap-2">
           <CheckmarkGreenIcon mode="enabled" className="flex-none" />
           {/* Phone numbers should always be displayed left-to-right,
            *including* in rtl languages */}

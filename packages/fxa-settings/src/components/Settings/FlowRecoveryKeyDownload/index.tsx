@@ -39,7 +39,7 @@ export const FlowRecoveryKeyDownload = ({
     >
       <div className="w-full flex flex-col">
         <ProgressBar currentStep={3} numberOfSteps={4} />
-        <RecoveryKeyImage />
+        <RecoveryKeyImage variant="confirm" />
 
         <FtlMsg id="flow-recovery-key-download-heading-v2">
           <h2 className="font-heading text-xl">

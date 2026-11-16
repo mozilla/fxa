@@ -3,10 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useMemo } from 'react';
-import { ReactComponent as PassedIcon } from './icon-check.svg';
-import { ReactComponent as Failed } from './icon-x.svg';
+import { ReactComponent as PassedIconLegacy } from './icon-check.svg';
+import { ReactComponent as FailedLegacy } from './icon-x.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { PasswordFormType } from '../FormPasswordWithInlineCriteria';
+import { ReactComponent as Checkmark } from '../Icons/nova/checkmark.min.svg';
+import { ReactComponent as Close } from '../Icons/nova/close.min.svg';
+import { withNova } from '../../lib/nova';
+
+const PassedIcon = withNova(PassedIconLegacy, Checkmark);
+const Failed = withNova(FailedLegacy, Close);
 
 export type PasswordStrengthInlineProps = {
   isPasswordEmpty: boolean;
@@ -21,9 +27,17 @@ export type PasswordStrengthInlineProps = {
 
 const ValidationIcon = ({ hasError }: { hasError: boolean }) => {
   return hasError ? (
-    <Failed role="img" className="inline-block" aria-label="failed" />
+    <Failed
+      role="img"
+      className="inline-block nova:w-3 nova:h-3 nova:text-icon-critical"
+      aria-label="failed"
+    />
   ) : (
-    <PassedIcon role="img" className="inline-block" aria-label="passed" />
+    <PassedIcon
+      role="img"
+      className="inline-block nova:w-3 nova:h-3 nova:text-icon-success"
+      aria-label="passed"
+    />
   );
 };
 

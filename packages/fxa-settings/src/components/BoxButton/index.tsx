@@ -58,6 +58,7 @@ const BoxButton = ({
         nova:rounded-full nova:font-semibold nova:bg-transparent nova:border-deemphasized
         nova:hover:bg-button-hover nova:hover:border-button-hover
         nova:active:bg-button-active nova:active:border-button-active
+        nova:transition-colors
         nova:disabled:bg-transparent nova:disabled:border-deemphasized nova:disabled:text-default
         nova:disabled:hover:bg-transparent nova:disabled:hover:border-deemphasized
         nova:disabled:opacity-button-disabled

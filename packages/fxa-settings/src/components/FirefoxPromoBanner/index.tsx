@@ -6,7 +6,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import { ReactComponent as IconClose } from '@fxa/shared/assets/images/close.svg';
+import { ReactComponent as IconCloseLegacy } from '@fxa/shared/assets/images/close.svg';
 import { isProbablyFirefox, useAccount } from '../../models';
 import { Constants } from '../../lib/constants';
 import { isMobileDevice, isMobileOrTabletDevice } from '../../lib/utilities';
@@ -14,6 +14,10 @@ import GleanMetrics from '../../lib/glean';
 import { BannerState, getBannerState } from './bannerState';
 import kitMirror from './kit-mirror.svg';
 import heartFoxes from './heart-foxes.svg';
+import { ReactComponent as Close } from '../Icons/nova/close.min.svg';
+import { withNova } from '../../lib/nova';
+
+const IconClose = withNova(IconCloseLegacy, Close);
 
 type VisibleBannerState = Exclude<BannerState, 'hidden'>;
 type PromoAction = 'view' | 'submit' | 'dismiss';

@@ -129,7 +129,7 @@ const AuthTotp = ({
 
       <main>
         <div className="flex justify-center mx-auto">
-          <TwoFactorAuthImage className="w-3/5" />
+          <TwoFactorAuthImage className="w-3/5 nova:mt-9 nova:mb-4" />
         </div>
 
         <FtlMsg id="auth-totp-instruction">

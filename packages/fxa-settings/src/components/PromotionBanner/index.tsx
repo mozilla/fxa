@@ -4,7 +4,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router';
-import { ReactComponent as IconClose } from '@fxa/shared/assets/images/close.svg';
+import { ReactComponent as IconCloseLegacy } from '@fxa/shared/assets/images/close.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import GleanMetrics from '../../lib/glean';
 import { Constants } from '../../lib/constants';
@@ -12,6 +12,10 @@ import keyImage from './key.svg';
 import phoneImage from './phone-star-icon.svg';
 import { useFtlMsgResolver } from '../../models';
 import LinkExternal from 'fxa-react/components/LinkExternal';
+import { ReactComponent as Close } from '../Icons/nova/close.min.svg';
+import { withNova } from '../../lib/nova';
+
+const IconClose = withNova(IconCloseLegacy, Close);
 
 const PromoKeys: { [key: string]: string } = {
   'account-recovery-dismissed':

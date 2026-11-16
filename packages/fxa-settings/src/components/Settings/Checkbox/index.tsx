@@ -3,7 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ChangeEvent, useState, useCallback } from 'react';
-import { ReactComponent as Checkmark } from './checkmark.svg';
+import { ReactComponent as CheckmarkLegacy } from './checkmark.svg';
+import { ReactComponent as CheckmarkNova } from '../../Icons/nova/checkmark.min.svg';
+import { withNova } from '../../../lib/nova';
+
+const Checkmark = withNova(CheckmarkLegacy, CheckmarkNova);
 
 export type CheckboxProps = {
   defaultChecked?: boolean;

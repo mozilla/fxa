@@ -7,11 +7,15 @@ import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import { useChangeFocusEffect, useEscKeydownEffect } from '../../../lib/hooks';
 import classNames from 'classnames';
 import Portal from 'fxa-react/components/Portal';
-import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
+import { ReactComponent as CloseIconLegacy } from '@fxa/shared/assets/images/close.svg';
 import { Link, useLocation } from 'react-router';
 import { useFtlMsgResolver } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { GleanClickEventDataAttrs } from '../../../lib/types';
+import { ReactComponent as Close } from '../../Icons/nova/close.min.svg';
+import { withNova } from '../../../lib/nova';
+
+const CloseIcon = withNova(CloseIconLegacy, Close);
 
 type ModalProps = {
   className?: string;

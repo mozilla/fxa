@@ -151,7 +151,7 @@ const AccountRecoveryConfirmKey = ({
       {errorMessage && (
         <Banner type="error" content={{ localizedHeading: errorMessage }} />
       )}
-      <RecoveryKeyImage />
+      <RecoveryKeyImage variant="confirm" />
       <FtlMsg id="account-recovery-confirm-key-heading">
         <h2 className="card-header mb-2">Enter your account recovery key</h2>
       </FtlMsg>

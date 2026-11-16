@@ -10,12 +10,20 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models';
 import BentoMenu from '../BentoMenu';
 import DropDownAvatarMenu from '../DropDownAvatarMenu';
-import { ReactComponent as Help } from './help.svg';
-import { ReactComponent as Menu } from './menu.svg';
-import { ReactComponent as Close } from './close.svg';
+import { ReactComponent as HelpLegacy } from './help.svg';
+import { ReactComponent as MenuLegacy } from './menu.svg';
+import { ReactComponent as CloseLegacy } from './close.svg';
 import Sidebar from '../Sidebar';
 import GleanMetrics from '../../../lib/glean';
 import { Link, useLocation } from 'react-router';
+import { ReactComponent as HelpNova } from '../../Icons/nova/help.min.svg';
+import { ReactComponent as AppMenu } from '../../Icons/nova/app-menu.min.svg';
+import { ReactComponent as CloseNova } from '../../Icons/nova/close.min.svg';
+import { withNova } from '../../../lib/nova';
+
+const Help = withNova(HelpLegacy, HelpNova);
+const Menu = withNova(MenuLegacy, AppMenu);
+const Close = withNova(CloseLegacy, CloseNova);
 
 export const HeaderLockup = () => {
   const [sidebarRevealedState, setNavState] = useState(false);
@@ -48,9 +56,9 @@ export const HeaderLockup = () => {
         onClick={() => setNavState(!sidebarRevealedState)}
       >
         {sidebarRevealedState ? (
-          <Close className="text-violet-900 dark:text-grey-100 nova:text-default w-8" />
+          <Close className="text-violet-900 dark:text-grey-100 nova:text-default w-8 nova:h-8" />
         ) : (
-          <Menu className="text-violet-900 dark:text-grey-100 nova:text-default w-8" />
+          <Menu className="text-violet-900 dark:text-grey-100 nova:text-default w-8 nova:h-8" />
         )}
         {sidebarRevealedState && <Sidebar />}
       </button>
@@ -88,7 +96,7 @@ export const HeaderLockup = () => {
           aria-label={localizedHelpText}
           title={localizedHelpText}
           role="img"
-          className="w-5 text-violet-900 dark:text-grey-100 nova:text-default"
+          className="w-5 nova:h-5 text-violet-900 dark:text-grey-100 nova:text-default"
         />
       </LinkExternal>
       <BentoMenu />

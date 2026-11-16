@@ -2,13 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ReactComponent as IconFolder } from './icon-folder.svg';
-import { ReactComponent as IconGlobe } from './icon-globe.svg';
-import { ReactComponent as IconKey } from './icon-key.svg';
-import { ReactComponent as IconLock } from './icon-lock.svg';
-import { ReactComponent as IconPrinter } from './icon-printer.svg';
-import { ReactComponent as IconShield } from './icon-shield.svg';
+import { ReactComponent as IconFolderLegacy } from './icon-folder.svg';
+import { ReactComponent as IconGlobeLegacy } from './icon-globe.svg';
+import { ReactComponent as IconKeyLegacy } from './icon-key.svg';
+import { ReactComponent as IconLockLegacy } from './icon-lock.svg';
+import { ReactComponent as IconPrinterLegacy } from './icon-printer.svg';
+import { ReactComponent as IconShieldLegacy } from './icon-shield.svg';
 import { ReactElement } from 'react';
+import { ReactComponent as Folder } from '../Icons/nova/folder.min.svg';
+import { ReactComponent as Globe } from '../Icons/nova/globe.min.svg';
+import { ReactComponent as Passkey } from '../Icons/nova/passkey.min.svg';
+import { ReactComponent as Lock } from '../Icons/nova/lock.min.svg';
+import { ReactComponent as Print } from '../Icons/nova/print.min.svg';
+import { ReactComponent as Shield } from '../Icons/nova/shield.min.svg';
+import { withNova } from '../../lib/nova';
+
+const IconFolder = withNova(IconFolderLegacy, Folder);
+const IconGlobe = withNova(IconGlobeLegacy, Globe);
+const IconKey = withNova(IconKeyLegacy, Passkey);
+const IconLock = withNova(IconLockLegacy, Lock);
+const IconPrinter = withNova(IconPrinterLegacy, Print);
+const IconShield = withNova(IconShieldLegacy, Shield);
 
 interface IconListItemProps {
   icon: ReactElement;

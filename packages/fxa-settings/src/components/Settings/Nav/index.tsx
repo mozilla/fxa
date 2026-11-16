@@ -5,9 +5,13 @@
 import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import { ReactComponent as OpenExternal } from './open-external.svg';
+import { ReactComponent as OpenExternalLegacy } from './open-external.svg';
 import { useAccount, useConfig } from '../../../models';
 import { Localized } from '@fluent/react';
+import { ReactComponent as ExternalLink } from '../../Icons/nova/external-link.min.svg';
+import { withNova } from '../../../lib/nova';
+
+const OpenExternal = withNova(OpenExternalLegacy, ExternalLink);
 
 export interface NavRefProps {
   profileRef?: React.MutableRefObject<HTMLDivElement | null>;

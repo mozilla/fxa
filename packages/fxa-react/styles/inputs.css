@@ -33,15 +33,28 @@
   border-color: var(--border-color-interactive);
   border-radius: var(--border-radius-medium);
   background-color: transparent;
+  transition:
+    background-color 150ms,
+    border-color 150ms;
 }
 
+/* Lighter than the selected fill; Acorn has no lighter accent hover token. */
 :root[data-theme='nova'] .input-radio:hover {
   border-color: var(--border-color-interactive);
-  background-color: var(--button-background-color-hover);
+  background-color: color-mix(
+    in srgb,
+    var(--color-accent-primary) 16%,
+    transparent
+  );
 }
 
+:root[data-theme='nova'] .input-radio-label {
+  padding-inline-start: var(--space-large);
+}
+
+/* Acorn's hover fill is the selected-choice tint in the design. */
 :root[data-theme='nova'] .input-radio:checked {
-  background-color: var(--button-background-color-selected);
+  background-color: var(--button-background-color-hover);
   background-image: none;
   border-width: 2px;
   border-color: var(--border-color-selected);

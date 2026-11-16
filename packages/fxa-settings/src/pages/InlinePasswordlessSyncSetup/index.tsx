@@ -54,7 +54,7 @@ const InlinePasswordlessSyncSetup = ({
         />
       )}
 
-      <SyncCloudsImage className="mx-auto mt-4 max-h-44" />
+      <SyncCloudsImage className="mx-auto mt-4 max-h-44 nova:max-h-20 nova:my-8" />
 
       <FtlMsg id="inline-passwordless-sync-setup-heading">
         <h1 className="card-header mb-2">Skip the password next time?</h1>

@@ -118,7 +118,9 @@ export function LinkedAccount({
         <div className="flex flex-grow w-full mobileLandscape:flex-2 nova:gap-4">
           <span className="flex justify-center items-center flex-0 nova:w-10 nova:h-10 nova:shrink-0 nova:bg-canvas nova:rounded">
             {providerId === 1 && <GoogleIcon role="img" aria-label="Google" />}
-            {providerId === 2 && <AppleIcon role="img" aria-label="Apple" />}
+            {providerId === 2 && (
+              <AppleIcon role="img" aria-label="Apple" className="mono-icon" />
+            )}
           </span>
           <div className="flex flex-col flex-5 mobileLandscape:items-center mobileLandscape:flex-row justify-center">
             <div className="flex flex-col mobileLandscape:flex-2">

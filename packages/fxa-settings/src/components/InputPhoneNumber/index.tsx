@@ -156,6 +156,7 @@ const InputPhoneNumber = ({
             bg-transparent text-transparent
             focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus
             nova:focus:border-accent-primary nova:focus:shadow-none nova:focus:focus-ring
+            nova:transition-colors
             forced-color-adjust:none
             [@media(forced-colors:active)]:text-[ButtonFace]
             [@media(forced-colors:active)]:text-shadow-[0_0_0_transparent]

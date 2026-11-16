@@ -74,7 +74,11 @@ const FormChoice = ({
               htmlFor={choice.id}
             >
               {startAlignImage && <div>{choice.image}</div>}
-              <div className={startAlignImage ? 'ps-6' : 'pe-6'}>
+              <div
+                className={
+                  startAlignImage ? 'ps-6 nova:ps-4' : 'pe-6 nova:pe-4'
+                }
+              >
                 <strong className="block mb-1 text-base font-heading">
                   {choice.localizedChoiceTitle}
                 </strong>

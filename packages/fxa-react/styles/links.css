@@ -47,6 +47,7 @@
 [data-theme='nova'] .link-blue,
 [data-theme='nova'] .link-grey {
   color: var(--link-color);
+  transition: color 150ms;
 }
 
 [data-theme='nova'] .link-blue:active,
