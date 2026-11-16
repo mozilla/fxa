@@ -84,14 +84,14 @@ describe('Config', () => {
       }
     );
 
-    it('errors when AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR is set outside NODE_ENV=dev', () => {
+    it('errors when AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR is set', () => {
       mockOtherProductionSecrets();
       mockEnv('MFA__JWT__KEY', MFA_JWT_KEY);
       mockEnv('AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR', 'true');
       expect(() => {
         require('./index');
       }).toThrow(
-        /Config 'cloudTasks\.useLocalEmulator' may only be set when NODE_ENV=dev or NODE_ENV=test/
+        /Config 'cloudTasks\.useLocalEmulator' must not be set in production or stage$/
       );
     });
   });
@@ -148,12 +148,12 @@ describe('Config', () => {
       expect(() => {
         require('./index');
       }).toThrow(
-        /Config 'cloudTasks\.useLocalEmulator' may only be set when NODE_ENV=dev or NODE_ENV=test/
+        /Config 'cloudTasks\.useLocalEmulator' must not be set in production or stage$/
       );
     });
   });
 
-  describe.each(['dev', 'test'])('NODE_ENV=%s', (nodeEnv) => {
+  describe('AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR outside prod and stage', () => {
     let originalEnv: Record<string, string | undefined>;
 
     function mockEnv(key: string, value: string) {
@@ -164,7 +164,7 @@ describe('Config', () => {
     beforeEach(() => {
       originalEnv = {};
       jest.resetModules();
-      mockEnv('NODE_ENV', nodeEnv);
+      mockEnv('AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR', 'true');
     });
 
     afterEach(() => {
@@ -177,8 +177,15 @@ describe('Config', () => {
       }
     });
 
-    it('succeeds when AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR is set', () => {
-      mockEnv('AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR', 'true');
+    it('succeeds with NODE_ENV=dev', () => {
+      mockEnv('NODE_ENV', 'dev');
+      expect(() => {
+        require('./index');
+      }).not.toThrow();
+    });
+
+    it('succeeds with NODE_ENV=test', () => {
+      mockEnv('NODE_ENV', 'test');
       expect(() => {
         require('./index');
       }).not.toThrow();
