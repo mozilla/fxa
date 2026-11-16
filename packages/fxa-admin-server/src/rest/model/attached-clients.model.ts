@@ -15,6 +15,8 @@ export class AttachedClient {
 
   isCurrentSession!: boolean;
 
+  isSyncCapable?: boolean;
+
   deviceType?: string;
 
   name?: string;

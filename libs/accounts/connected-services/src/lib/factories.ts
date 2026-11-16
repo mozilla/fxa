@@ -13,6 +13,9 @@ import { AttachedSession } from './models/AttachedSession';
 import { SerializableAttachedClient } from './models/SerializableAttachedClient';
 import { hex, serialize, synthesizeClientName } from './util';
 
+/** Firefox registers this command only when it can wrap its keys with the Sync key. */
+export const SEND_TAB_COMMAND = 'https://identity.mozilla.com/cmd/open-uri';
+
 /**
  * Bindings for authorized client factory. Provides access to
  * access and refresh token for a targeted account via the uid.
@@ -293,6 +296,7 @@ export class ConnectedServicesFactory {
         refreshTokenId: null,
         deviceId: device.id,
         deviceType: device.type,
+        isSyncCapable: SEND_TAB_COMMAND in (device.availableCommands ?? {}),
         name: device.name ?? null,
         createdTime: device.createdAt,
         lastAccessTime: device.lastAccessTime,

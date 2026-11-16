@@ -28,6 +28,7 @@ const ACCOUNT_ATTACHED_CLIENTS_GET = {
       - \`sessionTokenHandle\`: An opaque handle for the \`sessionToken\` held by that client, if any. The raw \`sessionTokenId\` is a bearer credential and is never returned.
       - \`refreshTokenId\`: The id of the OAuth \`refreshToken\` held by that client, if any.
       - \`deviceId\`: The id of the client's device record, if it has registered one.
+      - \`isSyncCapable\`: \`true\` when the device registered the send-tab command, which Firefox only does while it holds the Sync key. It means the device can sync, not that Sync is currently enabled. Always \`false\` for clients without a device record.
 
       These identifiers can be passed to [/account/attached_client/destroy](#tag/Devices-and-Sessions/operation/getAccountAttached_clients) in order to disconnect the client.
 

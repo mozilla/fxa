@@ -59,6 +59,7 @@ export interface SecurityEvent {
 export interface AttachedClient {
   clientId: string;
   isCurrentSession: boolean;
+  isSyncCapable: boolean;
   userAgent: string;
   deviceType: string | null;
   deviceId: string | null;

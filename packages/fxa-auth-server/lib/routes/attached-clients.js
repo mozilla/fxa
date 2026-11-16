@@ -55,6 +55,7 @@ module.exports = (log, db, devices, clientUtils, config) => {
                 .allow(null)
                 .required(),
               isCurrentSession: isA.boolean().required(),
+              isSyncCapable: isA.boolean().required(),
               deviceType: DEVICES_SCHEMA.type.allow(null).required(),
               name: DEVICES_SCHEMA.nameResponse
                 .allow('')
