@@ -1,8 +1,8 @@
 {
-  "commit": "af4612056bb0a3921e8605aed2164a66e7010c88",
-  "summary": "Merge pull request #21754 from mozilla/agent-6cb0ae",
-  "description": "fix(skills): point fxa-pr-open at fxa-issue-verification",
-  "timestamp": 1794838507000,
+  "commit": "9c3f31d650507c399990da8ea8e200c9109d34c5",
+  "summary": "Merge pull request #21753 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-ae563fd7714de4934e82dd8d833b9250b541170d",
+  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from 935bf2e01bc2f16b9887af44bd314ad37788b9d7 to ae563fd7714de4934e82dd8d833b9250b541170d",
+  "timestamp": 1794838556000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
