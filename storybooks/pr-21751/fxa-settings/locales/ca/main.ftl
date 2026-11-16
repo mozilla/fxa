@@ -92,7 +92,7 @@ button-back-title = Enrere
 recovery-key-download-button-v4 = Baixa i continua
 
 
-button-passkey-signin-loading = S'està iniciant la sessió de manera segura...
+button-passkey-signin-loading = S'està iniciant la sessió de manera segura…
 
 
 choose-newsletters-prompt-2 = Obteniu més de { -brand-mozilla }:
