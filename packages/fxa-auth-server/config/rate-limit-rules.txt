@@ -160,12 +160,14 @@ mfaOtpCodeRequestFor2fa                : uid              : 10          : 5 minu
 mfaOtpCodeRequestForPassword           : uid              : 10          : 5 minutes       : 15 minutes   : block
 mfaOtpCodeRequestForRecoveryKey        : uid              : 10          : 5 minutes       : 15 minutes   : block
 mfaOtpCodeRequestForPasskey            : uid              : 10          : 5 minutes       : 15 minutes   : block
+mfaOtpCodeRequestForSyncData           : uid              : 10          : 5 minutes       : 15 minutes   : block
 # Verify Code rate limits
 mfaOtpCodeVerifyForEmail               : uid              : 5           : 5 minutes       : 15 minutes   : block
 mfaOtpCodeVerifyFor2fa                 : uid              : 5           : 5 minutes       : 15 minutes   : block
 mfaOtpCodeVerifyForPassword            : uid              : 5           : 5 minutes       : 15 minutes   : block
 mfaOtpCodeVerifyForRecoveryKey         : uid              : 5           : 5 minutes       : 15 minutes   : block
 mfaOtpCodeVerifyForPasskey             : uid              : 5           : 5 minutes       : 15 minutes   : block
+mfaOtpCodeVerifyForSyncData            : uid              : 5           : 5 minutes       : 15 minutes   : block
 
 #
 # Passkey Authentication
@@ -225,6 +227,10 @@ passkeyWrapsGet                        : ip_uid            : 15          : 15 mi
 passkeyWrapsGet                        : uid               : 30          : 15 minutes      : 15 minutes  : block
 passkeyWrapsDelete                     : ip_uid            : 15          : 15 minutes      : 15 minutes  : block
 passkeyWrapsDelete                     : uid               : 30          : 24 hours        : 24 hours    : block
+
+# Sync data deletion from Settings. Destructive and MFA-gated; a handful per window is plenty.
+syncDataDestroy                        : ip_uid            : 5           : 15 minutes      : 15 minutes  : block
+syncDataDestroy                        : uid               : 10          : 24 hours        : 24 hours    : block
 
 #
 # Passwordless Authentication OTP Limits
