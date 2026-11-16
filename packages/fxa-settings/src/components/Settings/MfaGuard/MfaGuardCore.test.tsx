@@ -10,6 +10,7 @@ import { JwtTokenCache, MfaOtpRequestCache } from '../../../lib/cache';
 import { AppContext } from '../../../models';
 import { MfaReason } from '../../../lib/types';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import GleanMetrics from '../../../lib/glean';
 
 const mockSessionToken = 'session-core';
 const mockScope = 'test';
@@ -54,6 +55,21 @@ function renderCore() {
   );
 }
 
+function freshServerJwt() {
+  const serverNowSec = Math.floor(Date.now() / 1000);
+  const payload = {
+    aud: 'fxa',
+    exp: serverNowSec + 300,
+    iat: serverNowSec,
+    iss: 'accounts.firefox.com',
+    jti: 'jti-123',
+    stid: 'session-token-id',
+    sub: 'uid-123',
+    scope: [`mfa:${mockScope}`],
+  };
+  return `header.${btoa(JSON.stringify(payload))}.signature`;
+}
+
 const guardHeading = () =>
   screen.findByRole('heading', { name: 'Enter confirmation code' });
 
@@ -65,6 +81,10 @@ describe('MfaGuardCore', () => {
     jest.clearAllMocks();
     mockAuthClient.mfaRequestOtp.mockReset().mockResolvedValue(undefined);
     mockAuthClient.mfaOtpVerify.mockReset();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it('blocks children and requests an OTP when no JWT is cached', async () => {
@@ -141,10 +161,59 @@ describe('MfaGuardCore', () => {
 
     expect(await screen.findByText('secured content')).toBeInTheDocument();
     expect(JwtTokenCache.hasToken(mockSessionToken, mockScope)).toBe(true);
+    expect(GleanMetrics.accountPref.mfaGuardSubmitSuccess).toHaveBeenCalled();
     expect(mockAuthClient.mfaOtpVerify).toHaveBeenCalledWith(
       mockSessionToken,
       '123456',
       mockScope
+    );
+  });
+
+  it('shows a clock skew error when the device clock is ahead of the token lifetime', async () => {
+    const user = userEvent.setup();
+    mockAuthClient.mfaOtpVerify.mockResolvedValue({
+      accessToken: freshServerJwt(),
+    });
+    const realNow = Date.now();
+    jest.spyOn(Date, 'now').mockReturnValue(realNow + 15 * 60 * 1000);
+
+    renderCore();
+    await guardHeading();
+
+    await user.type(screen.getByRole('textbox'), '123456');
+    await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+    expect(
+      await screen.findByText(/Your device clock is wrong/)
+    ).toBeInTheDocument();
+    expect(screen.queryByText('secured content')).not.toBeInTheDocument();
+    expect(JwtTokenCache.hasToken(mockSessionToken, mockScope)).toBe(false);
+    expect(
+      GleanMetrics.accountPref.mfaGuardSubmitSuccess
+    ).not.toHaveBeenCalled();
+  });
+
+  it('allows a new code request after a clock skew error once the clock is corrected', async () => {
+    const user = userEvent.setup();
+    mockAuthClient.mfaOtpVerify.mockResolvedValue({
+      accessToken: freshServerJwt(),
+    });
+    const nowSpy = jest
+      .spyOn(Date, 'now')
+      .mockReturnValue(Date.now() + 15 * 60 * 1000);
+
+    renderCore();
+    await guardHeading();
+
+    await user.type(screen.getByRole('textbox'), '123456');
+    await user.click(screen.getByRole('button', { name: 'Confirm' }));
+    await screen.findByText(/Your device clock is wrong/);
+
+    nowSpy.mockRestore();
+    await user.click(screen.getByRole('button', { name: 'Email new code.' }));
+
+    await waitFor(() =>
+      expect(mockAuthClient.mfaRequestOtp).toHaveBeenCalledTimes(2)
     );
   });
 
