@@ -18,7 +18,7 @@ Order of operations: gather state → ask the user up front → align ticket/com
 - **Never pre-check the Checklist boxes.** Leave every `- [ ]` unchecked in the draft. Those are manual attestations (GPG signing, tests run locally, docs, RTL verification, AI code review) that only the user can truthfully make. Do not tick them on the user's behalf even if you believe the condition holds.
 - **Never force-push** to a shared branch. If the branch was already pushed, default to a normal push.
 - **Do not touch existing PRs.** This skill is for opening a new PR only. If `gh pr view` shows a PR already exists for the branch, stop and ask the user how to proceed.
-- **Don't invoke review skills from within this one** (`/fxa-review-quick`, `/fxa-review`, `/fxa-security-review`) — they can produce findings requiring new commits, invalidating the discovery this skill just did (commits, diff scope, alignment). The user runs them separately and re-enters this skill after. **Exceptions:** `/fxa-pr-screenshots` and the Jira authoring skills (`/fxa-jira-feature-description`, `/fxa-jira-bug-description`) produce external artifacts (image attachments, Jira tickets) with no code changes, so they may be invoked inline when the user selects them in Step 2 (Jira) or Step 3c (screenshots).
+- **Don't invoke review skills from within this one** (`/fxa-review-quick`, `/fxa-review`, `/fxa-security-review`) — they can produce findings requiring new commits, invalidating the discovery this skill just did (commits, diff scope, alignment). The user runs them separately and re-enters this skill after. **Exceptions:** `/fxa-issue-verification` and the Jira authoring skills (`/fxa-jira-feature-description`, `/fxa-jira-bug-description`) produce external artifacts (image attachments, Jira tickets) with no code changes, so they may be invoked inline when the user selects them in Step 2 (Jira) or Step 3c (screenshots).
 
 ## Step 1 — Pre-flight
 
@@ -101,7 +101,7 @@ Suggested question set:
 
 2. **Screenshots attestation** — only ask when the diff touches `packages/fxa-settings/**/*.tsx`, `packages/fxa-react/**/*.tsx`, or any `.ftl` with user-visible copy.
    - "Yes — already captured (Recommended)"
-   - "Capture now via `/fxa-pr-screenshots`" — invoke inline (see hard rules carve-out). Use the returned image references in `## Screenshots` of Step 4.
+   - "Capture now via `/fxa-issue-verification`" — invoke inline (see hard rules carve-out). With no PR yet, it returns local `artifacts/verify/` paths that GitHub does not render, so keep the `## Screenshots` placeholder in Step 4 and tell the user to upload the screenshots after the PR opens. If it stops without media, say why and stop here, as for a "Not yet — pause" answer.
    - "N/A — no user-visible change"
 
 3. **Framing for the body** — `multiSelect: true`. Pull concrete option labels from the discovery (related PR links surfaced in commits, feature-flag rollout notes when the diff touches config, follow-up tickets mentioned in commit bodies, deploy-ordering caveats for migrations). Don't use generic placeholders — every option should be a real candidate for *this* branch. Always include "Nothing extra" as one option. The user's selections feed into `## Other information` or `## Because` framing in Step 4.
