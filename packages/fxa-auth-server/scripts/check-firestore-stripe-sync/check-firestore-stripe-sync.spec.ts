@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Container from 'typedi';
+import { StatsD } from 'hot-shots';
 
 import { ConfigType } from '../../config';
 import { AppConfig, AuthFirestore } from '../../lib/types';
@@ -29,6 +30,7 @@ describe('FirestoreStripeSyncChecker', () => {
   let stripeHelperStub: StripeHelper;
   let firestoreStub: any;
   let logStub: any;
+  let statsdStub: any;
 
   beforeEach(() => {
     firestoreStub = {
@@ -41,6 +43,12 @@ describe('FirestoreStripeSyncChecker', () => {
 
     Container.set(AuthFirestore, firestoreStub);
     Container.set(AppConfig, mockConfig);
+
+    statsdStub = {
+      increment: jest.fn(),
+      gauge: jest.fn(),
+    };
+    Container.set(StatsD, statsdStub);
 
     stripeStub = {
       on: jest.fn(),
@@ -108,6 +116,89 @@ describe('FirestoreStripeSyncChecker', () => {
         'firestore-stripe-sync-check-complete',
         expect.any(Object)
       );
+    });
+
+    it('emits startup and successful shutdown', () => {
+      expect(statsdStub.increment).toHaveBeenCalledWith(
+        'firestore-stripe-sync.startup'
+      );
+      expect(statsdStub.increment).toHaveBeenCalledWith(
+        'firestore-stripe-sync.shutdown',
+        { result: 'success' }
+      );
+    });
+
+  });
+
+  describe('run with a failing customer check', () => {
+    const MOCK_NOW = 1_700_000_000_000;
+
+    beforeEach(async () => {
+      jest.spyOn(Date, 'now').mockReturnValue(MOCK_NOW);
+
+      firestoreStub.collection = jest.fn().mockReturnValue({
+        doc: jest.fn().mockImplementation(() => {
+          throw new Error('Firestore error');
+        }),
+      });
+      Container.set(AuthFirestore, firestoreStub);
+
+      stripeStub.customers.list = jest.fn().mockReturnValue({
+        autoPagingEach: jest.fn().mockImplementation(async (callback: any) => {
+          await callback(mockCustomer);
+        }),
+      }) as any;
+
+      syncChecker = new FirestoreStripeSyncChecker(
+        stripeHelperStub,
+        20,
+        logStub
+      );
+
+      await syncChecker.run();
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('emits last run gauges with the run counts', () => {
+      expect(statsdStub.gauge.mock.calls).toEqual([
+        ['firestore-stripe-sync.last-run.customers-checked', 1],
+        ['firestore-stripe-sync.last-run.checks-succeeded', 0],
+        ['firestore-stripe-sync.last-run.checks-failed', 1],
+        ['firestore-stripe-sync.last-run.out-of-sync', 0],
+        ['firestore-stripe-sync.last-run.completed-at', MOCK_NOW / 1000],
+      ]);
+    });
+  });
+
+  describe('run failure', () => {
+    const listError = new Error('Stripe list error');
+
+    beforeEach(() => {
+      stripeStub.customers.list = jest.fn().mockReturnValue({
+        autoPagingEach: jest.fn().mockRejectedValue(listError),
+      }) as any;
+    });
+
+    it('rethrows the error', async () => {
+      await expect(syncChecker.run()).rejects.toThrow(listError);
+    });
+
+    it('emits failed shutdown', async () => {
+      await syncChecker.run().catch(() => {});
+
+      expect(statsdStub.increment).toHaveBeenCalledWith(
+        'firestore-stripe-sync.shutdown',
+        { result: 'failure' }
+      );
+    });
+
+    it('does not emit last run gauges', async () => {
+      await syncChecker.run().catch(() => {});
+
+      expect(statsdStub.gauge).not.toHaveBeenCalled();
     });
   });
 
@@ -418,6 +509,44 @@ describe('FirestoreStripeSyncChecker', () => {
           'subscription_mismatch',
           mockSubscription.id
         );
+      });
+    });
+
+    describe('error checking subscription', () => {
+      beforeEach(async () => {
+        firestoreStub.collection = jest.fn().mockReturnValue({
+          doc: jest.fn().mockImplementation(() => {
+            throw new Error('Firestore error');
+          }),
+        });
+        Container.set(AuthFirestore, firestoreStub);
+
+        syncChecker = new FirestoreStripeSyncChecker(
+          stripeHelperStub,
+          20,
+          logStub
+        );
+
+        await syncChecker.checkSubscriptionSync(
+          mockCustomer.id,
+          mockCustomer.metadata.userid,
+          mockSubscription
+        );
+      });
+
+      it('logs error', () => {
+        expect(logStub.error).toHaveBeenCalledWith(
+          'error-checking-subscription',
+          {
+            customerId: mockCustomer.id,
+            subscriptionId: mockSubscription.id,
+            error: new Error('Firestore error'),
+          }
+        );
+      });
+
+      it('counts the failed check', () => {
+        expect(syncChecker['checksFailedCount']).toBe(1);
       });
     });
   });
