@@ -1,8 +1,8 @@
 {
-  "commit": "79d8ec7addc8d27cb15294c75c9060bc59afb074",
-  "summary": "Merge pull request #21741 from mozilla/PAY-3882",
-  "description": "feat(auth): instrument the Firestore/Stripe sync job",
-  "timestamp": 1794858431000,
+  "commit": "d80a5ae1f8f2541ec457fa727b3f4e44468f67a3",
+  "summary": "Merge pull request #21751 from mozilla/FXA-14257",
+  "description": "feat(settings): adopt Nova icons and illustrations behind the flag + minor UI tweaks",
+  "timestamp": 1794859541000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
