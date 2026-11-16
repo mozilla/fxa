@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 690d1bd26db1aabfbb4a1b1f33d6e0443122352a</title>
+  <title>Storybooks for commit ddab44747a1e3e61cea669c61312d7c40e44ce4d</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,25 +23,27 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 690d1bd26db1aabfbb4a1b1f33d6e0443122352a</h1>
+  <h1>Storybooks for commit ddab44747a1e3e61cea669c61312d7c40e44ce4d</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/16/2026, 9:20:06 PM UTC</dd>
+    <dd>11/16/2026, 9:45:55 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): show clock skew error in the MFA guard</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-* A device clock ahead of the server reads a fresh MFA JWT as expired.
-* The MFA guard then shows the code prompt again with no error.
+* A device clock ahead of the server makes the MFA guard read a fresh
+  token as expired, so the code prompt shows again with no error.
+* A future OTP request time blocks a new code after the clock is fixed.
 
 This commit:
 
 * Does not cache a locally expired MFA JWT after a successful verify.
 * Shows a localized clock skew error in the MFA modal.
+* Clears the OTP request marker when the token reads as expired.
 * Sends the Glean submit success event only when the token is cached.
 
 Closes FXA-14968</pre></dd>

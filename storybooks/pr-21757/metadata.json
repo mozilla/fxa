@@ -1,8 +1,8 @@
 {
-  "commit": "690d1bd26db1aabfbb4a1b1f33d6e0443122352a",
+  "commit": "ddab44747a1e3e61cea669c61312d7c40e44ce4d",
   "summary": "fix(settings): show clock skew error in the MFA guard",
-  "description": "Because:\n\n* A device clock ahead of the server reads a fresh MFA JWT as expired.\n* The MFA guard then shows the code prompt again with no error.\n\nThis commit:\n\n* Does not cache a locally expired MFA JWT after a successful verify.\n* Shows a localized clock skew error in the MFA modal.\n* Sends the Glean submit success event only when the token is cached.\n\nCloses FXA-14968",
-  "timestamp": 1794864006000,
+  "description": "Because:\n\n* A device clock ahead of the server makes the MFA guard read a fresh\n  token as expired, so the code prompt shows again with no error.\n* A future OTP request time blocks a new code after the clock is fixed.\n\nThis commit:\n\n* Does not cache a locally expired MFA JWT after a successful verify.\n* Shows a localized clock skew error in the MFA modal.\n* Clears the OTP request marker when the token reads as expired.\n* Sends the Glean submit success event only when the token is cached.\n\nCloses FXA-14968",
+  "timestamp": 1794865555000,
   "storybooks": [
     "fxa-settings"
   ],
