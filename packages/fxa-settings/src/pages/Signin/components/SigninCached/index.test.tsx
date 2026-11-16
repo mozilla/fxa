@@ -137,7 +137,7 @@ describe('SigninCached', () => {
     const integration = createMockSigninWebIntegration();
     integration.isFirefoxClient = () => true;
     integration.getService = () => MozServices.FirefoxSync;
-    renderSigninCached({ integration, isSignedIntoFirefox: true });
+    renderSigninCached({ integration, hasBrowserAccount: true });
 
     expect(
       screen.queryByRole('link', { name: 'Use a different account' })
@@ -209,7 +209,7 @@ describe('SigninCached', () => {
           isSync: false,
         }),
         hasPassword: true,
-        isSignedIntoFirefox: true,
+        hasBrowserAccount: true,
         supportsKeysOptionalLogin: false,
         cachedSigninHandler: mockCachedSigninSuccess(),
       });

@@ -71,7 +71,7 @@ const SigninPasswordlessCode = ({
   setCurrentSplitLayout,
   isSignup = false,
   hasPasskey,
-  isSignedIntoFirefox = false,
+  hasBrowserAccount = false,
   resendCountdownSeconds = 0,
   useFxAStatusResult,
 }: SigninPasswordlessCodeProps) => {
@@ -155,8 +155,8 @@ const SigninPasswordlessCode = ({
     }
   }, [sendError, ftlMsgResolver]);
 
-  const isSignedIntoFirefoxDesktop =
-    isSignedIntoFirefox && integration.isFirefoxDesktopClient();
+  const hideAccountSwitchLink =
+    hasBrowserAccount && integration.isFirefoxDesktopClient();
 
   const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
     'signin-passwordless-code-required-error',
@@ -585,7 +585,7 @@ const SigninPasswordlessCode = ({
             .
           </span>
         </FtlMsg>
-        {!isSignedIntoFirefoxDesktop && (
+        {!hideAccountSwitchLink && (
           <>
             {' '}
             <FtlMsg id="signin-passwordless-code-other-account-link">

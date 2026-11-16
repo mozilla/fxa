@@ -97,7 +97,7 @@ export const Sync = () => (
 export const SignedIntoFirefoxDesktop = () => (
   <Subject
     integration={createMockSigninOAuthNativeSyncIntegration()}
-    isSignedIntoFirefox={true}
+    hasBrowserAccount={true}
   />
 );
 

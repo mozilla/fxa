@@ -1747,7 +1747,7 @@ describe('Signin component', () => {
           <Subject
             integration={integration}
             sessionToken={MOCK_SESSION_TOKEN}
-            isSignedIntoFirefox={true}
+            hasBrowserAccount={true}
           />
         );
 
@@ -1766,7 +1766,7 @@ describe('Signin component', () => {
           <Subject
             integration={integration}
             sessionToken={MOCK_SESSION_TOKEN}
-            isSignedIntoFirefox={true}
+            hasBrowserAccount={true}
             supportsKeysOptionalLogin={true}
           />
         );
@@ -2021,6 +2021,7 @@ describe('Signin component', () => {
             cmsInfo: cachedCmsInfo,
           }),
           isSignedIntoFirefox: true,
+          hasBrowserAccount: true,
           supportsKeysOptionalLogin: true,
           sessionToken: MOCK_SESSION_TOKEN,
           hasPassword: true,

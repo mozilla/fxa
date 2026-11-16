@@ -20,7 +20,7 @@ import { getHandledError, type HandledError } from '../../../lib/error-utils';
 const SigninPasswordlessCodeContainer = ({
   integration,
   flowQueryParams,
-  isSignedIntoFirefox,
+  hasBrowserAccount,
   setCurrentSplitLayout,
   useFxAStatusResult,
 }: SigninPasswordlessCodeContainerProps) => {
@@ -126,7 +126,7 @@ const SigninPasswordlessCodeContainer = ({
         setCurrentSplitLayout,
         isSignup,
         hasPasskey,
-        isSignedIntoFirefox,
+        hasBrowserAccount,
         resendCountdownSeconds: 5,
         useFxAStatusResult,
       }}
