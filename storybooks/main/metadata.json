@@ -1,8 +1,8 @@
 {
-  "commit": "9c3f31d650507c399990da8ea8e200c9109d34c5",
-  "summary": "Merge pull request #21753 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-ae563fd7714de4934e82dd8d833b9250b541170d",
-  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from 935bf2e01bc2f16b9887af44bd314ad37788b9d7 to ae563fd7714de4934e82dd8d833b9250b541170d",
-  "timestamp": 1794838556000,
+  "commit": "79d8ec7addc8d27cb15294c75c9060bc59afb074",
+  "summary": "Merge pull request #21741 from mozilla/PAY-3882",
+  "description": "feat(auth): instrument the Firestore/Stripe sync job",
+  "timestamp": 1794858431000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
