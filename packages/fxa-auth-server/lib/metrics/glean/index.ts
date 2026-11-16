@@ -461,6 +461,9 @@ export function gleanMetrics(config: ConfigType) {
     pairing: {
       success: createEventFn('dtm_backend_pair_success'),
     },
+    syncData: {
+      deleteSuccess: createEventFn('sync_data_deletion_success'),
+    },
   };
 }
 
@@ -503,6 +506,7 @@ export const logErrorWithGlean = ({
           | 'loginConfirmSkipFor'
           | 'passkey'
           | 'pairing'
+          | 'syncData'
         >
       ];
     funnelFns[event as keyof typeof funnelFns](request, {

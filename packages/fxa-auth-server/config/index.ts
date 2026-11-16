@@ -2426,6 +2426,14 @@ const convictConf = convict({
     env: 'SYNC_TOKENSERVER_URL',
     format: 'url',
   },
+  syncDataDeletion: {
+    enabled: {
+      default: false,
+      doc: 'Enable POST /account/sync_data/destroy. Tokenserver only serves the delete when its fxa_delete_data_enabled setting is on.',
+      env: 'SYNC_DATA_DELETION__ENABLED',
+      format: Boolean,
+    },
+  },
   support: {
     secretBearerToken: {
       default: 'YOU MUST CHANGE ME',
@@ -3004,7 +3012,14 @@ const convictConf = convict({
       env: 'MFA__ENABLED',
     },
     actions: {
-      default: ['2fa', 'email', 'recovery_key', 'password', 'passkey'],
+      default: [
+        '2fa',
+        'email',
+        'recovery_key',
+        'password',
+        'passkey',
+        'sync_data',
+      ],
       doc: 'Actions protected by MFA',
       format: Array,
       env: 'MFA__ACTIONS',
