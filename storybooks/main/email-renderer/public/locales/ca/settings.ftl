@@ -48,7 +48,7 @@ recovery-key-download-button-v4 = Baixa i continua
 # interact with their authenticator to approve the sign-in. They should see a
 # device prompt/pop-up with authentication options (or message indicating that
 # no passkeys are available).
-button-passkey-signin-loading = S'està iniciant la sessió de manera segura...
+button-passkey-signin-loading = S'està iniciant la sessió de manera segura…
 
 ## ChooseNewsletters component
 ## Checklist of newsletters that the user can choose to sign up to

@@ -1,8 +1,8 @@
 {
-  "commit": "e2b3ccd799ba2b47d61443d7b198e1998bb869a6",
-  "summary": "Merge pull request #21711 from mozilla/fxa-14928",
-  "description": "fix(auth): return incorrect password on reauth retry with signup salt",
-  "timestamp": 1794594863000,
+  "commit": "af4612056bb0a3921e8605aed2164a66e7010c88",
+  "summary": "Merge pull request #21754 from mozilla/agent-6cb0ae",
+  "description": "fix(skills): point fxa-pr-open at fxa-issue-verification",
+  "timestamp": 1794838507000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
