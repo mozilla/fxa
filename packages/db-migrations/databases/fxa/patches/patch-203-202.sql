@@ -1,0 +1,5 @@
+-- SET NAMES utf8mb4 COLLATE utf8mb4_bin;
+--
+-- DELETE FROM securityEventNames WHERE name = 'account.sync_data_deleted';
+--
+-- UPDATE dbMetadata SET value = '202' WHERE name = 'schema-patch-level';
