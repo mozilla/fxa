@@ -1,8 +1,8 @@
 {
-  "commit": "cc048ce60b7ee7aebbf44ba4d96402c0e529de56",
-  "summary": "Merge main into fxa-14791",
-  "description": "",
-  "timestamp": 1794943241000,
+  "commit": "6fcca2920000cdb3932f75f56c6e05b6fca88741",
+  "summary": "feat(settings): switch the integration in-app instead of hard-reloading",
+  "description": "Because:\n\n* Routes called hardNavigate only to rebuild the integration, which\n  dropped location state and restarted the app.\n* After an in-app switch, a superseded session check could write stale\n  signed-in state.\n\nThis commit:\n\n* Lets a route switch the integration in-app and then navigate.\n* Uses the switch in place of hardNavigate on four call sites.\n* Keeps the emit-time integration on queued Glean events.\n* Stops a superseded App session check from writing state.\n\nCloses FXA-14791",
+  "timestamp": 1794948314000,
   "storybooks": [
     "fxa-settings"
   ],

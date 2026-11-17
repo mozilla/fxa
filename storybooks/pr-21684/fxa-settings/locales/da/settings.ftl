@@ -399,6 +399,20 @@ locale-toggle-browser-default = Browser-standard
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Ugyldig forespørgsel
 
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+pair-unsupported-hint-heading = Afslut parring i appen
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = Luk denne side
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Tryk på <b>appmenuen</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>Log ind</b>,  og skan derefter koden
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = Læs mere
+
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
 
@@ -871,6 +885,7 @@ nav-security = Sikkerhed
 nav-connected-services = Forbundne tjenester
 nav-data-collection = Dataindsamling og -brug
 nav-paid-subs = Betalte abonnementer
+nav-email-prefs = Mailindstillinger
 
 ## Page2faChange
 
@@ -1695,6 +1710,13 @@ inline-totp-setup-code-required-error = Godkendelseskode påkrævet
 tfa-qr-code-alt = Brug koden { $code } til at opsætte totrinsgodkendelse i understøttede applikationer.
 inline-totp-setup-page-title = Totrinsgodkendelse
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Siden blev ikke fundet
+page-not-found-description = Den ønskede side blev ikke fundet. Vi har fået besked og vil rette links, der ikke virker.
+page-not-found-home-button = Hjem
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Har du lige logget ind på { -brand-firefox }?
@@ -2229,6 +2251,8 @@ signin-link-expired-message-2 = Linket, du klikkede på, er udløbet eller er al
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Indtast adgangskoden <span>til din { -product-mozilla-account }</span>
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = Start synkronisering
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = Fortsæt til { $serviceName }
@@ -2278,6 +2302,16 @@ signin-passkey-fallback-body = For at beskytte dine data skal du indtaste din ad
 signin-passkey-fallback-password-label = Adgangskode
 signin-passkey-fallback-continue = Fortsæt
 signin-passkey-fallback-forgot-password-link = Glemt adgangskode?
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = Adgangskode kræves på denne enhed
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
+signin-passkey-fallback-no-prf-description = Denne browser eller enhed kan ikke bruge din adgangsnøgle til at logge ind og synkronisere på egen hånd.
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
+signin-passkey-fallback-unwrap-failed-heading = Din adgangsnøgle kunne ikke låse synkroniseringen op
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = Noget gik galt, så du skal bruge din adgangskode denne gang.
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = Læs mere
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
