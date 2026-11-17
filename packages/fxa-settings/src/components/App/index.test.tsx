@@ -32,6 +32,7 @@ import { firefox } from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
 import config from '../../lib/config';
 import { currentAccount } from '../../lib/cache';
+import Storage from '../../lib/storage';
 import { MozServices } from '../../lib/types';
 import mockUseFxAStatus from '../../lib/hooks/useFxAStatus/mocks';
 import { useFxAStatus } from '../../lib/hooks';
@@ -123,6 +124,7 @@ jest.mock('../../lib/glean', () => ({
   default: {
     initialize: jest.fn(),
     getEnabled: jest.fn(),
+    setEnabled: jest.fn(),
     useGlean: jest.fn().mockReturnValue({ enabled: true }),
     accountPref: { view: jest.fn(), promoVpnView: jest.fn() },
     emailFirst: { view: jest.fn(), engage: jest.fn() },
@@ -298,6 +300,151 @@ describe('glean', () => {
         integration: mockIntegration,
       }
     );
+  });
+});
+
+describe('metrics when signed out', () => {
+  let flowInit: jest.SpyInstance;
+  let legacySetEnabled: jest.SpyInstance;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    flowInit = jest.spyOn(Metrics, 'init');
+    legacySetEnabled = jest.spyOn(Metrics, 'setEnabled');
+    (useFxAStatus as jest.Mock).mockReturnValue(mockUseFxAStatus());
+    (useIntegration as jest.Mock).mockReturnValue({
+      isSync: jest.fn(),
+      isDesktopSync: jest.fn(),
+      isFirefoxClientServiceRelay: jest.fn(),
+      getServiceName: jest.fn(),
+      getClientId: jest.fn(),
+      getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
+      data: {},
+    });
+    (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
+      loading: false,
+    });
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
+      data: { isSignedIn: false },
+    });
+  });
+
+  afterEach(() => {
+    flowInit.mockRestore();
+    legacySetEnabled.mockRestore();
+    (useFxAStatus as jest.Mock).mockReset();
+    (useIntegration as jest.Mock).mockReset();
+    (useInitialMetricsQueryState as jest.Mock).mockReset();
+    (useLocalSignedInQueryState as jest.Mock).mockReset();
+    (currentAccount as jest.Mock).mockReset();
+    (GleanMetrics.getEnabled as jest.Mock).mockReset();
+    localStorage.clear();
+  });
+
+  async function renderApp() {
+    await act(async () => {
+      renderWithLocalizationProvider(
+        <MemoryRouter>
+          <AppContext.Provider
+            value={{ ...mockAppContext(), ...createAppContext() }}
+          >
+            <App flowQueryParams={updatedFlowQueryParams} />
+          </AppContext.Provider>
+        </MemoryRouter>
+      );
+    });
+  }
+
+  it('does not initialize metrics when the stored account opted out', async () => {
+    (currentAccount as jest.Mock).mockReturnValue({
+      uid: 'abc123',
+      metricsEnabled: false,
+    });
+
+    await renderApp();
+
+    expect(GleanMetrics.initialize).not.toHaveBeenCalled();
+    expect(flowInit).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    { name: 'there is no stored account', stored: undefined },
+    {
+      name: 'the stored account opted in',
+      stored: { uid: 'abc123', metricsEnabled: true },
+    },
+    {
+      name: 'the stored account has no metrics pref',
+      stored: { uid: 'abc123' },
+    },
+  ])('initializes metrics when $name', async ({ stored }) => {
+    (currentAccount as jest.Mock).mockReturnValue(stored);
+
+    await renderApp();
+
+    expect(GleanMetrics.initialize).toHaveBeenCalled();
+    expect(flowInit).toHaveBeenCalledWith(true, updatedFlowQueryParams);
+  });
+
+  it('disables Glean when the user switches to a stored account that opted out', async () => {
+    (GleanMetrics.getEnabled as jest.Mock).mockReturnValue(true);
+    (currentAccount as jest.Mock).mockReturnValue({
+      uid: 'abc123',
+      metricsEnabled: true,
+    });
+    await renderApp();
+    expect(GleanMetrics.setEnabled).not.toHaveBeenCalled();
+    expect(legacySetEnabled).not.toHaveBeenCalled();
+
+    (currentAccount as jest.Mock).mockReturnValue({
+      uid: 'def456',
+      metricsEnabled: false,
+    });
+    act(() => {
+      Storage.factory('localStorage').set('currentAccountUid', 'def456');
+    });
+
+    expect(GleanMetrics.setEnabled).toHaveBeenCalledWith(false);
+    expect(legacySetEnabled).toHaveBeenCalledWith(false);
+  });
+
+  it('keeps metrics on when a signed-out user signs in before metrics data loads', async () => {
+    (GleanMetrics.getEnabled as jest.Mock).mockReturnValue(true);
+    (currentAccount as jest.Mock).mockReturnValue({
+      uid: 'abc123',
+      metricsEnabled: true,
+    });
+    await renderApp();
+
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
+      data: { isSignedIn: true },
+    });
+    await act(async () => {
+      Storage.factory('localStorage').set('currentAccountUid', 'abc123');
+    });
+
+    expect(GleanMetrics.setEnabled).not.toHaveBeenCalled();
+    expect(legacySetEnabled).not.toHaveBeenCalled();
+  });
+
+  it('disables Glean when the stored account opts out without a uid change', async () => {
+    (GleanMetrics.getEnabled as jest.Mock).mockReturnValue(true);
+    (currentAccount as jest.Mock).mockReturnValue({
+      uid: 'abc123',
+      metricsEnabled: true,
+    });
+    await renderApp();
+    expect(GleanMetrics.setEnabled).not.toHaveBeenCalled();
+
+    const optedOut = { uid: 'abc123', metricsEnabled: false };
+    (currentAccount as jest.Mock).mockReturnValue(optedOut);
+    act(() => {
+      Storage.factory('localStorage').set('accounts', { abc123: optedOut });
+    });
+
+    expect(GleanMetrics.setEnabled).toHaveBeenCalledWith(false);
+    expect(legacySetEnabled).toHaveBeenCalledWith(false);
   });
 });
 
