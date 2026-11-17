@@ -1,8 +1,8 @@
 {
-  "commit": "a5bf0f2487a68acda1d3470b22e513eea52ca274",
-  "summary": "feat(shared): count successful session token prunes",
-  "description": "Because:\n- Prune outcomes had counters for skip, conflict and error, not success.\n\nThis commit:\n- Counts redis.pruneSessionTokens.success after a committed write.\n- Tests it is counted on success, not on conflict or queued errors.\n\nCloses FXA-14945",
-  "timestamp": 1794883864000,
+  "commit": "0cad267bcb26284de3d408396cfe2d890f5c16dd",
+  "summary": "feat(shared): gate the WATCH prune and orphan cleanup behind a flag",
+  "description": "Because:\n- Review asked to be able to switch back to the previous pruning\n  quickly if the new code misbehaves in production.\n\nThis commit:\n- Adds redis.sessionTokens.watchPrune (SESSIONS_REDIS_WATCH_PRUNE), on.\n- Restores pruneSessionTokens_1 for the flag's off position.\n- Skips the db.sessions orphan cleanup when the flag is off.\n- Tests both positions, including the Lua prune against real Redis.\n\nCloses FXA-14945",
+  "timestamp": 1794942543000,
   "storybooks": [
     "fxa-admin-panel"
   ],
