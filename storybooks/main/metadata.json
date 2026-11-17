@@ -1,8 +1,8 @@
 {
-  "commit": "17c4dd9357e6eaa61f40005075ce4cfdf06c308f",
-  "summary": "Merge pull request #21723 from mozilla/fxa-7105",
-  "description": "fix(settings): respect the stored metrics opt-out before sign-in",
-  "timestamp": 1794930024000,
+  "commit": "5577cbda2c10eec7459f5250d97f895c515f33bf",
+  "summary": "Merge pull request #21745 from mozilla/fap-delay-rp-notifications",
+  "description": "fix(free-access-program): delay RP notifications past memory cache TTL",
+  "timestamp": 1794934602000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
