@@ -308,8 +308,8 @@ export class RedisShared {
       this.metrics?.increment('redis.pruneSessionTokens.skipped');
       return;
     }
-    this.pruning = true;
     const span = tracer.startSpan('redis.pruneSessionTokens');
+    this.pruning = true;
     try {
       if (!this.pruneRedis) {
         // WATCH belongs to a connection, and any EXEC on that connection clears
@@ -338,6 +338,7 @@ export class RedisShared {
       await redis.watch(uid);
       const value = await redis.get(uid);
       let tokens: Record<string, unknown>;
+      let unparseable = false;
       try {
         tokens = parseSessionTokens(value);
       } catch (error) {
@@ -345,17 +346,28 @@ export class RedisShared {
         this.metrics?.increment('redis.pruneSessionTokens.unparseable');
         Sentry.captureException(error);
         tokens = {};
+        unparseable = true;
       }
 
       // Prune unneeded tokens
+      const cached = Object.keys(tokens).length;
       for (const id of tokenIds) {
         delete tokens[id];
+      }
+      const remaining = Object.keys(tokens).length;
+
+      // Session creation prunes an id that is never cached, so most prunes
+      // remove nothing. Those release the WATCH instead of rewriting the blob.
+      if (!unparseable && remaining === cached) {
+        redis.unwatch().catch(() => {});
+        this.metrics?.increment('redis.pruneSessionTokens.noop');
+        return;
       }
 
       // WATCH only applies to EXEC, so the write must go through MULTI/EXEC
       // even though it is a single command; a bare SET would ignore the WATCH.
       const tx = redis.multi();
-      if (Object.keys(tokens).length === 0) {
+      if (remaining === 0) {
         tx.del(uid);
       } else {
         tx.set(uid, JSON.stringify(tokens));

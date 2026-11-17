@@ -179,14 +179,24 @@ describe('RedisShared', () => {
       expect(client.tx.set).not.toHaveBeenCalled();
     });
 
-    it('deletes a missing key, as the Lua script did', async () => {
+    it('releases the WATCH without writing when the key is missing', async () => {
       const shared = new RedisShared({ host: 'localhost', port: 6379 });
       const client = pruneClientOf(shared);
       client.get.mockResolvedValue(null);
-      client.tx.exec.mockResolvedValue([[null, 0]]);
 
-      expect(await shared.pruneSessionTokens('uid')).toBe(0);
-      expect(client.tx.del).toHaveBeenCalledWith('uid');
+      expect(await shared.pruneSessionTokens('uid', ['t1'])).toBeUndefined();
+      expect(client.unwatch).toHaveBeenCalledTimes(1);
+      expect(client.multi).not.toHaveBeenCalled();
+    });
+
+    it('releases the WATCH without writing when none of the ids are cached', async () => {
+      const shared = new RedisShared({ host: 'localhost', port: 6379 });
+      const client = pruneClientOf(shared);
+      client.get.mockResolvedValue(blob);
+
+      expect(await shared.pruneSessionTokens('uid', ['t3'])).toBeUndefined();
+      expect(client.unwatch).toHaveBeenCalledTimes(1);
+      expect(client.multi).not.toHaveBeenCalled();
     });
 
     it('deletes an unparseable blob', async () => {
@@ -208,6 +218,20 @@ describe('RedisShared', () => {
       );
       return { metrics, shared, client: pruneClientOf(shared) };
     };
+
+    it('counts a prune that removes nothing as a noop, not a success', async () => {
+      const { metrics, shared, client } = withMetrics();
+      client.get.mockResolvedValue(blob);
+
+      await shared.pruneSessionTokens('uid', ['t3']);
+
+      expect(metrics.increment).toHaveBeenCalledWith(
+        'redis.pruneSessionTokens.noop'
+      );
+      expect(metrics.increment).not.toHaveBeenCalledWith(
+        'redis.pruneSessionTokens.success'
+      );
+    });
 
     it('counts and reports an unparseable blob', async () => {
       const { metrics, shared, client } = withMetrics();
