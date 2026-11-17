@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 2d947deef071b6a45276c1a853b1979cc6cd1e96</title>
+  <title>Storybooks for commit e9f1ff0e71cc6728a0288485dca00a85f48d727e</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,23 +23,23 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 2d947deef071b6a45276c1a853b1979cc6cd1e96</h1>
+  <h1>Storybooks for commit e9f1ff0e71cc6728a0288485dca00a85f48d727e</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/17/2026, 1:10:32 AM UTC</dd>
+    <dd>11/17/2026, 2:12:23 AM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>docs(shared): explain the prune connection and the WATCH conflict test</pre></dd>
+    <dd><pre>fix(auth): stop db.sessions waiting on orphaned cache cleanup</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- Why prunes use a duplicate() connection, and what the WATCH conflict
-  test sets up, were not apparent from the code.
+- The cleanup could add up to ~3s to a session read when Redis is slow,
+  though the response never depends on it.
 
 This commit:
-- Comments why WATCH needs a connection no other caller sends EXEC on.
-- Comments each step of the touched-between-read-and-write test.
+- Runs pruneOrphanedCachedSessionTokens without awaiting it.
+- Tests the cleanup directly and checks db.sessions does not wait on it.
 
 Closes FXA-14945</pre></dd>
   </dl>

@@ -1,8 +1,8 @@
 {
-  "commit": "2d947deef071b6a45276c1a853b1979cc6cd1e96",
-  "summary": "docs(shared): explain the prune connection and the WATCH conflict test",
-  "description": "Because:\n- Why prunes use a duplicate() connection, and what the WATCH conflict\n  test sets up, were not apparent from the code.\n\nThis commit:\n- Comments why WATCH needs a connection no other caller sends EXEC on.\n- Comments each step of the touched-between-read-and-write test.\n\nCloses FXA-14945",
-  "timestamp": 1794877832000,
+  "commit": "e9f1ff0e71cc6728a0288485dca00a85f48d727e",
+  "summary": "fix(auth): stop db.sessions waiting on orphaned cache cleanup",
+  "description": "Because:\n- The cleanup could add up to ~3s to a session read when Redis is slow,\n  though the response never depends on it.\n\nThis commit:\n- Runs pruneOrphanedCachedSessionTokens without awaiting it.\n- Tests the cleanup directly and checks db.sessions does not wait on it.\n\nCloses FXA-14945",
+  "timestamp": 1794881543000,
   "storybooks": [
     "fxa-admin-panel"
   ],
