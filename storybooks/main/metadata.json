@@ -1,8 +1,8 @@
 {
-  "commit": "ad12dbd39cc95b7cd44ca8f1c042adb6be3a662d",
-  "summary": "Merge pull request #21757 from mozilla/fxa-14968",
-  "description": "fix(settings): show clock skew error in the MFA guard",
-  "timestamp": 1794950197000,
+  "commit": "24b54a501a5cdd765098f8623dda363de47d9034",
+  "summary": "Merge pull request #21763 from mozilla/agent-6318f9",
+  "description": "fix(settings): ignore Strapi colors when Nova is on",
+  "timestamp": 1794952450000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
