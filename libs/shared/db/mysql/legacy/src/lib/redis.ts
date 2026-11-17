@@ -295,8 +295,8 @@ export class RedisShared {
 
   async pruneSessionTokens(uid: string, tokenIds: string[] = []) {
     this.metrics?.increment('redis.pruneSessionTokens');
-    // Pruning is opportunistic and the prune-tokens cron catches what this
-    // drops, so a busy connection, a conflict or an error skips the prune.
+    // A busy connection, a conflict or an error skips the prune. The entries
+    // it leaves are removed the next time db.sessions reads the account.
     if (this.pruning) {
       this.metrics?.increment('redis.pruneSessionTokens.skipped');
       return;

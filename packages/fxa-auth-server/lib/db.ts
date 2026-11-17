@@ -4,6 +4,7 @@
 import crypto from 'crypto';
 import {
   filterExpiredTokens,
+  findUnlistedCachedSessionTokenIds,
   mergeCachedSessionTokens,
   mergeDeviceAndSessionToken,
   mergeDevicesAndSessionTokens,
@@ -310,6 +311,12 @@ export const createDB = (
 
       const [mysqlSessionTokens, redisSessionTokens = {}] =
         await Promise.all(promises);
+
+      await this.pruneOrphanedCachedSessionTokens(
+        uid,
+        mysqlSessionTokens,
+        redisSessionTokens
+      );
 
       // for each db session token, if there is a matching redis token
       // overwrite the properties of the db token with the redis token values
@@ -836,6 +843,41 @@ export const createDB = (
       await this.touchSessionToken(sessionToken, geo);
       await RawSessionToken.update({ id, ...sessionToken });
       this.metrics?.increment('db.sessionToken.update');
+    }
+
+    /**
+     * Removes cached entries whose session token no longer exists in MySQL.
+     * redis.pruneSessionTokens skips when busy or on a write conflict, so
+     * each read of the account's sessions retries what it left behind.
+     */
+    async pruneOrphanedCachedSessionTokens(
+      uid: string,
+      mysqlSessionTokens: { tokenId?: string }[],
+      redisSessionTokens: Record<string, unknown>
+    ) {
+      const unlisted = findUnlistedCachedSessionTokenIds(
+        mysqlSessionTokens,
+        redisSessionTokens
+      );
+      if (!this.redis || !TOKEN_PRUNING_ENABLED || unlisted.length === 0) {
+        return;
+      }
+      try {
+        const existing = new Set(
+          await RawSessionToken.existingTokenIds(unlisted)
+        );
+        const orphaned = unlisted.filter((id) => !existing.has(id));
+        if (orphaned.length === 0) {
+          return;
+        }
+        this.metrics?.increment(
+          'db.sessions.orphanedRedisTokens',
+          orphaned.length
+        );
+        await this.redis.pruneSessionTokens(uid, orphaned);
+      } catch (unusedErr) {
+        // Ignore errors; the next read retries.
+      }
     }
 
     async pruneSessionTokens(uid: string, sessionTokens: any) {

@@ -466,6 +466,74 @@ describe('redis enabled, token-pruning enabled:', () => {
     expect(log.error).toHaveBeenCalledTimes(0);
   });
 
+  describe('db.sessions orphaned cache entries', () => {
+    const LISTED_ID = 'aa'.repeat(32);
+    const DELETED_ID = 'bb'.repeat(32);
+    const UNLISTED_ID = 'cc'.repeat(32);
+
+    beforeEach(() => {
+      models.SessionToken.findByUid = jest
+        .fn()
+        .mockResolvedValue([
+          { tokenId: LISTED_ID, deviceId: 'device', createdAt: 1 },
+        ]);
+      redis.getSessionTokens = jest.fn().mockResolvedValue({
+        [LISTED_ID]: {},
+        [DELETED_ID]: {},
+        [UNLISTED_ID]: {},
+      });
+      models.SessionToken.existingTokenIds = jest
+        .fn()
+        .mockResolvedValue([UNLISTED_ID]);
+    });
+
+    it('checks only cached ids missing from the listing against MySQL', async () => {
+      await db.sessions('wibble');
+
+      expect(models.SessionToken.existingTokenIds).toHaveBeenCalledWith([
+        DELETED_ID,
+        UNLISTED_ID,
+      ]);
+    });
+
+    it('prunes cached entries whose session token no longer exists', async () => {
+      await db.sessions('wibble');
+
+      expect(redis.pruneSessionTokens).toHaveBeenCalledWith('wibble', [
+        DELETED_ID,
+      ]);
+    });
+
+    it('does not prune when every unlisted cached token still exists', async () => {
+      models.SessionToken.existingTokenIds = jest
+        .fn()
+        .mockResolvedValue([DELETED_ID, UNLISTED_ID]);
+
+      await db.sessions('wibble');
+
+      expect(redis.pruneSessionTokens).not.toHaveBeenCalled();
+    });
+
+    it('does not query MySQL when every cached entry is listed', async () => {
+      redis.getSessionTokens = jest.fn().mockResolvedValue({ [LISTED_ID]: {} });
+
+      await db.sessions('wibble');
+
+      expect(models.SessionToken.existingTokenIds).not.toHaveBeenCalled();
+    });
+
+    it('still returns the sessions when the existence check fails', async () => {
+      models.SessionToken.existingTokenIds = jest
+        .fn()
+        .mockRejectedValue(new Error('ECONNREFUSED'));
+
+      const sessions = await db.sessions('wibble');
+
+      expect(sessions.map((s: { id: string }) => s.id)).toEqual([LISTED_ID]);
+      expect(redis.pruneSessionTokens).not.toHaveBeenCalled();
+    });
+  });
+
   it('should call redis.del in db.deleteAccount', async () => {
     await db.deleteAccount({ uid: 'wibble' });
     expect(redis.del).toHaveBeenCalledTimes(1);

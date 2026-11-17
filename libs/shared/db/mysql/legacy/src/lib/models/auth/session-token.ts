@@ -336,6 +336,20 @@ export class SessionToken extends BaseToken {
     return notExpired(token) ? token : null;
   }
 
+  /** The ids from `tokenIds` that still have a row, expired or not. */
+  static async existingTokenIds(tokenIds: string[]): Promise<string[]> {
+    if (tokenIds.length === 0) {
+      return [];
+    }
+    const rows: { tokenId: Buffer }[] = await this.knexQuery()
+      .select('tokenId')
+      .whereIn(
+        'tokenId',
+        tokenIds.map((id) => uuidTransformer.to(id))
+      );
+    return rows.map(({ tokenId }) => tokenId.toString('hex'));
+  }
+
   static async findByUid(uid: string, limit = 500): Promise<SessionToken[]> {
     const { rows } = await this.callProcedure(
       Proc.Sessions,
