@@ -1,8 +1,8 @@
 {
-  "commit": "dece6e320bd27cabf72061a7d75e1f86304ac86c",
-  "summary": "Merge pull request #21759 from mozilla/fxa-15026",
-  "description": "fix(settings): keep account deleted banner while typing on email-first",
-  "timestamp": 1794942412000,
+  "commit": "ad12dbd39cc95b7cd44ca8f1c042adb6be3a662d",
+  "summary": "Merge pull request #21757 from mozilla/fxa-14968",
+  "description": "fix(settings): show clock skew error in the MFA guard",
+  "timestamp": 1794950197000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
