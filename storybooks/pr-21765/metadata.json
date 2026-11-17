@@ -1,0 +1,13 @@
+{
+  "commit": "0c47b1bda50af3ef7cc305cdcd4aa1c6cf24d3ff",
+  "summary": "chore(deps): switch fxa-react to @mozilla/lit-web-components 1.0.1",
+  "description": "Because:\n\n* acorn-web-components moved to @mozilla/lit-web-components on npm\n\nThis commit:\n\n* switches fxa-react to @mozilla/lit-web-components ^1.0.1\n* points the tokens import and the docs at the new package name",
+  "timestamp": 1794958063000,
+  "storybooks": [
+    "email-renderer",
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
