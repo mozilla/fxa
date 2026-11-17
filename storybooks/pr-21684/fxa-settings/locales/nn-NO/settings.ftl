@@ -283,8 +283,6 @@ signin-recovery-code-image-description =
     .aria-label = Dokument som inneheld skjult tekst.
 signin-totp-code-image-label =
     .aria-label = Ei eining med ein skjult 6-sifra kode.
-confirm-signup-aria-label =
-    .aria-label = Ei melding med ei lenke
 # Used for an image of a key on a shield surrounded by 5 other icons representing information that can be recovered with the account recovery key.
 # Other icons and their meaning: Gear (settings), star (favorites), clock (history), magnifying glass (search) and lock (passwords).
 security-shield-aria-label =
@@ -406,6 +404,12 @@ error-bad-request = Ugyldig førespurnad
 ## outside the Firefox app. It tells them how to finish pairing in Firefox.
 
 pair-unsupported-hint-heading = Fullfør samankoplinga i appen
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = Lat att denne sida
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Trykk på <b>appmenyen</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>Logg inn</b>, og skann deretter koden
 # Opens a Mozilla support article about connecting a device without a QR code
 pair-unsupported-hint-learn-more-link = Les meir
 
@@ -881,6 +885,7 @@ nav-security = Sikkerheit
 nav-connected-services = Tilkopla tenester
 nav-data-collection = Datainnsamling og bruk
 nav-paid-subs = Betalte abonnement
+nav-email-prefs = E-postinnstillingar
 
 ## Page2faChange
 
@@ -1280,6 +1285,7 @@ passkey-sub-row-created-date = Oppretta: { $createdDate }
 passkey-sub-row-last-used-date = Sist brukt: { $lastUsedDate }
 passkey-sub-row-delete-title = Slett passnøkkel
 passkey-delete-modal-heading = Slette passnøkkelen?
+passkey-delete-modal-content-v3 = Denne passnøkkelen vil bli fjerna frå kontoen din. Du må logge på med eit passord, ein annan passnøkkel eller ein tilknytt konto.
 passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Slett passnøkkel
 passkey-delete-success = Passnøkkel sletta
@@ -1650,9 +1656,15 @@ inline-passwordless-sync-setup-enable-button = Slå på passnøkkel
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Slår på…
 inline-passwordless-sync-setup-not-now-button = Ikkje no
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = Denne passnøkkelen er aktivert for pålogging og synkronisering.
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Stadfestinga med passnøkkelen vart ikkje fullført
 inline-passwordless-sync-setup-error-cancelled-description = Stadfest med passnøkkelen din for å sleppe å skrive inn passordet neste gong.
+# Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-error-generic-v2 = Vi klarte ikkje å aktivere denne passnøkkelen for pålogging og synkronisering. Du må bruke passordet ditt neste gong.
 
 ## InlineRecoveryKeySetup page component
 
@@ -1702,6 +1714,7 @@ inline-totp-setup-page-title = Tostegs-autentisering
 ## Shown when the requested page does not exist
 
 page-not-found-heading = Fann ikkje sida
+page-not-found-description = Fann ikkje sida du ba om. Vi er varsla, og vil fikse lenkene som ikkje fungerer.
 page-not-found-home-button = Heim
 
 ## AuthAllow page - Part of the device pairing flow
@@ -1904,6 +1917,8 @@ pair2-authority-continue-on-mobile-cancel-button = Avbryt
 
 # "sync" is a verb here, referring to syncing data between the user's devices
 pair2-authority-download-firefox-heading = Opne { -brand-firefox } for å synkronisere
+# "firefox.com/pair" is a URL and should not be translated
+pair2-authority-download-firefox-instruction-v2 = For å konfigurere synkronisering på tvers av einingar, opne { -brand-firefox } på denne eininga og gå til <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
 
@@ -2027,6 +2042,10 @@ pair2-supplicant-timeout-and-cancel-timeout-description = For å kople til mobil
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulert
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = For å kople til ei eining når som helst, gå til <b>firefox.com/pair</b> på datamaskina di.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Denne eininga er allereie logga inn
+# "firefox.com/pair" is a URL and should not be translated
+pair2-supplicant-timeout-and-cancel-signed-in-description = For å kople til kontoen din på datamaskina må du logge ut av { -brand-firefox } på denne eininga og deretter gå til <b>firefox.com/pair</b> på datamaskina for å fullføre innlogginga.
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2148,9 +2167,13 @@ confirm-totp-reset-password-use-different-account = Bruk ein annan konto
 
 password-reset-flow-heading = Tilbakestill passordet ditt
 password-reset-forgot-heading = Gløymt passordet ditt?
+# The text inside <signInLink> links to the email-first sign-in page.
+password-reset-alternatives-body = <signInLink>Prøv å logge inn med { -brand-google }, { -brand-apple } eller ein passnøkkel i staden.</signInLink> Eller skriv inn e-postadressa di, så sender vi deg ein kode for å tilbakestille passordet.
 password-reset-email-input =
     .label = Skriv inn e-postadressa di
 password-reset-submit-button-2 = Hald fram
+# Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
+password-reset-data-recovery-warning = Tilbakestilling av passordet ditt kan påverke om du kan gjenopprette synkroniserte nettlesardata. <learnMoreLink>Les meir</learnMoreLink>
 
 ## ResetPasswordConfirmed
 
@@ -2209,6 +2232,7 @@ reset-password-complete-recovery-key-download-info =
 ## Shown when the server fails to handle a request
 
 server-error-heading = Feil 500
+server-error-description = Oi då, noko gjekk gale. Vi har fått beskjed om problemet og skal jobbe med å løyse det.
 server-error-home-button = Heim
 
 ## CompleteSignin component
@@ -2227,6 +2251,8 @@ signin-link-expired-message-2 = Lenka du klikka på har gått ut, eller er aller
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Skriv inn passordet ditt <span>for { -product-mozilla-account }en din</span>
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = Start synkronisering
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = Hald fram til { $serviceName }
@@ -2276,6 +2302,14 @@ signin-passkey-fallback-body = For å halde dataa dine trygge, må du oppgi pass
 signin-passkey-fallback-password-label = Passord
 signin-passkey-fallback-continue = Hald fram
 signin-passkey-fallback-forgot-password-link = Gløymt passordet?
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = Passord trengst på denne eininga
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
+signin-passkey-fallback-no-prf-description = Denne nettlesaren eller eininga kan ikkje bruke passnøkkelen din til å logge på for å synkronisere på eiga hand.
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
+signin-passkey-fallback-unwrap-failed-heading = Passnøkkelen din kunne ikkje låse opp synkroniseringa
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = Noko gjekk gale, så du treng passordet ditt denne gongen.
 # Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
 signin-passkey-fallback-wrap-unusable-link = Les meir
 

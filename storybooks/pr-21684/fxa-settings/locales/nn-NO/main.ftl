@@ -252,8 +252,6 @@ signin-recovery-code-image-description =
     .aria-label = Dokument som inneheld skjult tekst.
 signin-totp-code-image-label =
     .aria-label = Ei eining med ein skjult 6-sifra kode.
-confirm-signup-aria-label =
-    .aria-label = Ei melding med ei lenke
 security-shield-aria-label =
     .aria-label = Illustrasjon som representerer ein kontogjenopprettingsnøkkel.
 recovery-key-image-aria-label =
@@ -333,6 +331,9 @@ error-bad-request = Ugyldig førespurnad
 
 
 pair-unsupported-hint-heading = Fullfør samankoplinga i appen
+pair-unsupported-hint-step-close-page = Lat att denne sida
+pair-unsupported-hint-step-app-menu = Trykk på <b>appmenyen</b>
+pair-unsupported-hint-step-sign-in = <b>Logg inn</b>, og skann deretter koden
 pair-unsupported-hint-learn-more-link = Les meir
 
 
@@ -647,6 +648,7 @@ nav-security = Sikkerheit
 nav-connected-services = Tilkopla tenester
 nav-data-collection = Datainnsamling og bruk
 nav-paid-subs = Betalte abonnement
+nav-email-prefs = E-postinnstillingar
 
 
 page-2fa-change-title = Endre tostegs-autentisering
@@ -944,6 +946,7 @@ passkey-sub-row-created-date = Oppretta: { $createdDate }
 passkey-sub-row-last-used-date = Sist brukt: { $lastUsedDate }
 passkey-sub-row-delete-title = Slett passnøkkel
 passkey-delete-modal-heading = Slette passnøkkelen?
+passkey-delete-modal-content-v3 = Denne passnøkkelen vil bli fjerna frå kontoen din. Du må logge på med eit passord, ein annan passnøkkel eller ein tilknytt konto.
 passkey-delete-modal-cancel-button = Avbryt
 passkey-delete-modal-confirm-button = Slett passnøkkel
 passkey-delete-success = Passnøkkel sletta
@@ -1193,8 +1196,10 @@ inline-passwordless-sync-setup-description = Bruk denne passnøkkelen for å log
 inline-passwordless-sync-setup-enable-button = Slå på passnøkkel
 inline-passwordless-sync-setup-enabling = Slår på…
 inline-passwordless-sync-setup-not-now-button = Ikkje no
+inline-passwordless-sync-setup-success-alert-v2 = Denne passnøkkelen er aktivert for pålogging og synkronisering.
 inline-passwordless-sync-setup-error-cancelled = Stadfestinga med passnøkkelen vart ikkje fullført
 inline-passwordless-sync-setup-error-cancelled-description = Stadfest med passnøkkelen din for å sleppe å skrive inn passordet neste gong.
+inline-passwordless-sync-setup-error-generic-v2 = Vi klarte ikkje å aktivere denne passnøkkelen for pålogging og synkronisering. Du må bruke passordet ditt neste gong.
 
 
 inline-recovery-key-setup-create-error = Ops! Vi klarte ikkje å opprette kontogjenopprettingsnøkkelen din. Prøv igjen seinare.
@@ -1225,6 +1230,7 @@ inline-totp-setup-page-title = Tostegs-autentisering
 
 
 page-not-found-heading = Fann ikkje sida
+page-not-found-description = Fann ikkje sida du ba om. Vi er varsla, og vil fikse lenkene som ikkje fungerer.
 page-not-found-home-button = Heim
 
 
@@ -1330,6 +1336,7 @@ pair2-authority-continue-on-mobile-cancel-button = Avbryt
 
 
 pair2-authority-download-firefox-heading = Opne { -brand-firefox } for å synkronisere
+pair2-authority-download-firefox-instruction-v2 = For å konfigurere synkronisering på tvers av einingar, opne { -brand-firefox } på denne eininga og gå til <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Last ned { -brand-firefox }
 
 
@@ -1385,6 +1392,8 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Det ser ut til at det opps
 pair2-supplicant-timeout-and-cancel-timeout-description = For å kople til mobileininga di og synkronisere { -brand-firefox }-dataa dine, gå til <b>firefox.com/pair</b> på datamaskina di.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Annulert
 pair2-supplicant-timeout-and-cancel-canceled-description = For å kople til ei eining når som helst, gå til <b>firefox.com/pair</b> på datamaskina di.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Denne eininga er allereie logga inn
+pair2-supplicant-timeout-and-cancel-signed-in-description = For å kople til kontoen din på datamaskina må du logge ut av { -brand-firefox } på denne eininga og deretter gå til <b>firefox.com/pair</b> på datamaskina for å fullføre innlogginga.
 
 
 permissions-heading = { $serviceName } ønskjer tilgang til:
@@ -1458,9 +1467,11 @@ confirm-totp-reset-password-use-different-account = Bruk ein annan konto
 
 password-reset-flow-heading = Tilbakestill passordet ditt
 password-reset-forgot-heading = Gløymt passordet ditt?
+password-reset-alternatives-body = <signInLink>Prøv å logge inn med { -brand-google }, { -brand-apple } eller ein passnøkkel i staden.</signInLink> Eller skriv inn e-postadressa di, så sender vi deg ein kode for å tilbakestille passordet.
 password-reset-email-input =
     .label = Skriv inn e-postadressa di
 password-reset-submit-button-2 = Hald fram
+password-reset-data-recovery-warning = Tilbakestilling av passordet ditt kan påverke om du kan gjenopprette synkroniserte nettlesardata. <learnMoreLink>Les meir</learnMoreLink>
 
 
 reset-password-complete-header = Passordet ditt er tilbakestilt
@@ -1504,6 +1515,7 @@ reset-password-complete-recovery-key-download-info =
 
 
 server-error-heading = Feil 500
+server-error-description = Oi då, noko gjekk gale. Vi har fått beskjed om problemet og skal jobbe med å løyse det.
 server-error-home-button = Heim
 
 
@@ -1515,6 +1527,7 @@ signin-link-expired-message-2 = Lenka du klikka på har gått ut, eller er aller
 
 
 signin-password-needed-header-2 = Skriv inn passordet ditt <span>for { -product-mozilla-account }en din</span>
+signin-button-start-syncing = Start synkronisering
 signin-subheader-without-logo-with-servicename = Hald fram til { $serviceName }
 signin-subheader-without-logo-default = Hald fram til kontoinnstillingar
 signin-button = Logg inn
@@ -1549,6 +1562,10 @@ signin-passkey-fallback-body = For å halde dataa dine trygge, må du oppgi pass
 signin-passkey-fallback-password-label = Passord
 signin-passkey-fallback-continue = Hald fram
 signin-passkey-fallback-forgot-password-link = Gløymt passordet?
+signin-passkey-fallback-no-prf-heading = Passord trengst på denne eininga
+signin-passkey-fallback-no-prf-description = Denne nettlesaren eller eininga kan ikkje bruke passnøkkelen din til å logge på for å synkronisere på eiga hand.
+signin-passkey-fallback-unwrap-failed-heading = Passnøkkelen din kunne ikkje låse opp synkroniseringa
+signin-passkey-fallback-unwrap-failed-description = Noko gjekk gale, så du treng passordet ditt denne gongen.
 signin-passkey-fallback-wrap-unusable-link = Les meir
 
 

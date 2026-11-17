@@ -105,6 +105,12 @@ subscription-charges-invoice-number = <b>ਇਨਵਾਇਸ ਨੰਬਰ:</b> { 
 subscription-charges-invoice-number-plaintext = ਇਨਵਾਇਸ ਨੰਬਰ: { $invoiceNumber }
 subscription-charges-invoice-date = <b>ਤਾਰੀਖ:</b> { $invoiceDateOnly }
 subscription-charges-invoice-date-plaintext = ਤਾਰੀਖ: { $invoiceDateOnly }
+subscription-charges-prorated-price = ਅਨੁਪਾਤ ਮੁਤਾਬਕ ਕੀਮਤ
+# $remainingAmountTotal (String) - The prorated amount of the subscription invoice, including currency, e.g. $4.00
+subscription-charges-prorated-price-plaintext = ਅਨੁਪਾਤ ਮੁਤਾਬਕ ਕੀਮਤ: { $remainingAmountTotal }
+subscription-charges-list-price = ਸੂਚੀ ਕੀਮਤ
+# $offeringPrice (String) - The list price of the subscription offering, including currency, e.g. $10.00
+subscription-charges-list-price-plaintext = ਸੂਚੀ ਕੀਮਤ: { $offeringPrice }
 subscription-charges-credit-from-unused-time = ਅਣਵਰਤੇ ਸਮੇਂ ਲਈ ਕਰੈਡਿਟ
 subscription-charges-subtotal = <b>ਕੁੱਲ-ਜੋੜ</b>
 # $invoiceSubtotal (String) - The amount, before discount, of the subscription invoice, including currency, e.g. $10.00

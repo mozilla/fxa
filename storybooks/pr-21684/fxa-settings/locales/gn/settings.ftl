@@ -283,8 +283,6 @@ signin-recovery-code-image-description =
     .aria-label = Kuatiaite orekóva moñe’ẽrã kañymby.
 signin-totp-code-image-label =
     .aria-label = Mba’e’oka ayvu kañymby 6 tai reheve.
-confirm-signup-aria-label =
-    .aria-label = Mba’yru oguerekóva juajuha
 # Used for an image of a key on a shield surrounded by 5 other icons representing information that can be recovered with the account recovery key.
 # Other icons and their meaning: Gear (settings), star (favorites), clock (history), magnifying glass (search) and lock (passwords).
 security-shield-aria-label =
@@ -400,6 +398,20 @@ locale-toggle-select-label = Eiporavo ñe’ẽ
 locale-toggle-browser-default = Kundahára ypyguáva
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Mba’ejerure ojavýva
+
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+pair-unsupported-hint-heading = Emohu’ã tembiporu’i mbojuehe
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = Emboty ko kuatiarogue
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Eikutu <b>tembiporu’i poravoha</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>Eike</b> ha emoha’ãnga ayvu
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = Eikuaave
 
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
@@ -868,6 +880,7 @@ nav-security = Tekorosã
 nav-connected-services = Mba’epytyvõrã mbojuajupyre
 nav-data-collection = Ñembyaty ha mba’ekuaarã jeporu
 nav-paid-subs = Ñemboheraguapy ñehepyme’ẽgua
+nav-email-prefs = Ñanduti veve erohoryvéva
 
 ## Page2faChange
 
@@ -1629,12 +1642,17 @@ index-email-bounced = Ne ñanduti veve ñemoneĩrã ojevyjeýma. ¿Ikatu ehaivai
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = ¿Ehejarei ñe’ẽñemi eiporujeývo?
+# Success banner after signing in.
+inline-passwordless-sync-setup-success-banner-v2 = Emoñepyrũ tembiapo ha hendýma ñembojuehe
 inline-passwordless-sync-setup-heading = ¿Ehejarei ñe’ẽñemi eiporujeývo?
 inline-passwordless-sync-setup-description = Eiporu ko ñe’ẽ ñemi eike pya’eve hag̃ua.
 inline-passwordless-sync-setup-enable-button = Ejora ñe’ẽ ñemi jeikeha
 # Button label while the passkey is stored.
 inline-passwordless-sync-setup-enabling = Emyandyhína…
 inline-passwordless-sync-setup-not-now-button = Ani ko’ág̃a
+# Success message shown in the Settings alert bar after the passkey was stored with the ability to sign-in and also sync data without a password.
+# "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
+inline-passwordless-sync-setup-success-alert-v2 = Ko ñe’ẽ ñemi oĩma eike ha embojuehe hag̃ua
 # Error banner shown on the page when the passkey confirmation prompt was dismissed or timed out. The button below it tries again.
 inline-passwordless-sync-setup-error-cancelled = Nahu’ãi upe ñe’ẽ ñemi ñemoneĩ
 inline-passwordless-sync-setup-error-cancelled-description = Emoneĩ ñe’ẽ ñemi emboyke hag̃ua ñe’ẽñemi eiporujeývo.
@@ -1682,6 +1700,12 @@ inline-totp-setup-security-code-placeholder = Ayvu ñemoneĩgua
 inline-totp-setup-code-required-error = Ayvu ñemoneĩgua jerurepyre
 tfa-qr-code-alt = Eiporu { $code } ayvu emboheko hag̃ua ñemoneĩ mokõi jeku’épe tembiporu’i moneĩmbyre.
 inline-totp-setup-page-title = Ñemoneĩ mokõi jeku’épe
+
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Kuatiarogue ojejuhu’ỹva
+page-not-found-home-button = Ñepyrũ
 
 ## AuthAllow page - Part of the device pairing flow
 
@@ -1895,6 +1919,8 @@ pair2-authority-scan-qr-heading = Emoha’ãnga eike hag̃ua ambue mba’e’ok�
 pair2-authority-scan-qr-instruction = Emoha’ãnga QR ayvu ne pumbyry térã tablétape embojuehe hag̃ua { -brand-firefox } rechaukaha ha hetave.
 # Accessible label describing the QR code image shown on this page
 pair2-authority-scan-qr-code-aria-label = QR ayvu eike hag̃ua ne mba’e’okápe
+# Link to a support article on connecting a mobile device without scanning the QR code
+pair2-authority-scan-qr-other-ways-link = Ambueháicha eike hag̃ua
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Ehasa ko’ág̃a
 
@@ -1951,6 +1977,7 @@ pair2-supplicant-connect-this-device-cancel-button = Eheja
 ## not Firefox. It offers to open the Firefox app to finish pairing, and to
 ## install it first when the user does not have it yet.
 
+pair2-supplicant-download-firefox-heading-v2 = Embojuruja { -brand-firefox } ko mba’e’okápe
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Eku’ejey { -brand-firefox } ndive
@@ -1996,6 +2023,8 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Embojoaju hag̃ua ne p
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Hejapyre
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Eike hag̃ua mba’e’okápe eikese vove, eho <b>firefox.com/pair</b> ne mohendaha guive.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Ko mba’e’oka oñepyrũma hembiapo
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2003,10 +2032,18 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Eike hag̃ua mba’e�
 ## The page informs the user which profile information the relying party can
 ## read. It does not offer a choice.
 
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } oikese amo:
 permissions-label-email = Ñanduti veve kundaharape
 permissions-label-display-name = Téra ehechauka hag̃ua
+permissions-label-avatar = Mba’ete ra’ãnga
 permissions-continue-button = Eku’ejey
 permissions-cancel-button = Eheja
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Emoambuéke ne ñe’ẽñemi
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2106,6 +2143,7 @@ confirm-totp-reset-password-use-different-account = Eiporu ambuéva mba’ete
 ## ResetPassword start page
 
 password-reset-flow-heading = Embojevyjey ne ñe’ẽñemi
+password-reset-forgot-heading = ¿Nderesaráipa ñe’ẽñemi?
 password-reset-email-input =
     .label = Ehai ne ñandutiveve
 password-reset-submit-button-2 = Ku’ejey
@@ -2163,6 +2201,12 @@ reset-password-complete-recovery-key-download-info =
     hag̃ua mba’ekuaarãita nde resaráirõ ñe’ẽñemígui. <b>Emboguejy ha eñongatu tekorosãme
     ko’ag̃a, ndaikatumo’ãigui ejevy ko kuatiaroguépe uperire.</b>
 
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = 500 Javy
+server-error-home-button = Ñepyrũ
+
 ## CompleteSignin component
 
 # This is a label that precedes any error which could arise from trying to validate the user's signin
@@ -2179,6 +2223,8 @@ signin-link-expired-message-2 = Pe juajuha eikutuva’ekue ndoikovéima térã o
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Ehai ñe’ẽñemi <span>ne { -product-mozilla-account }</span> peg̃uarã
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = Eñepyrũ ñembojuehe
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = Eku’ejey { $serviceName }
@@ -2228,6 +2274,16 @@ signin-passkey-fallback-body = Ereko hag̃ua mba’ekuaarã tekosãme, eikotev�
 signin-passkey-fallback-password-label = Ñe’ẽñemi
 signin-passkey-fallback-continue = Ku’ejey
 signin-passkey-fallback-forgot-password-link = ¿Nderesarái ñe’ẽñemígui?
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = Eikoteve ñe’ẽñemi ko mba’e’okápe
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
+signin-passkey-fallback-no-prf-description = Ko kundahára térã mba’e’oka ndoiporukuaái ne ñe’ẽ ñemi eike hag̃ua ha oñembojuehe ha’eño.
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
+signin-passkey-fallback-unwrap-failed-heading = Pe ñe’ẽ ñemi nombojurujái ñembojuehe
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = Oĩ osẽ vaíva, upévare eikotevẽta ko’ág̃a ne ñe’ẽñemi.
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = Eikuaave
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2477,4 +2533,5 @@ signup-confirmed-sync-set-password-success-banner = Ñe’ẽñemi ñembojuehe m
 ## UpdateFirefox page
 ## Shown when the browser is too old to use a Mozilla account
 
+update-firefox-heading = Tekotevẽ { -brand-firefox } mbohekopyahu
 update-firefox-download-button = Emboguejy mbohekopyahu ramovegua

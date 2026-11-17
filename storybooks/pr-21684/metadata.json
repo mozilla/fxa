@@ -1,8 +1,8 @@
 {
-  "commit": "17ed162bb82fd54c3f99dafedf1d879ed6e1e928",
-  "summary": "feat(settings): switch the integration in-app instead of hard-reloading",
-  "description": "Because:\n\n* GleanMetrics.initialize is async, but its type said void\n* The emit-time Glean test passed even when queued events were dropped\n\nThis commit:\n\n* Types GleanMetrics.initialize as returning Promise<void>\n* Awaits initialize in the two setIntegration Glean tests\n* Asserts the exact client ID calls of the queued events\n\nCloses FXA-14791",
-  "timestamp": 1794402051000,
+  "commit": "cc048ce60b7ee7aebbf44ba4d96402c0e529de56",
+  "summary": "Merge main into fxa-14791",
+  "description": "",
+  "timestamp": 1794943241000,
   "storybooks": [
     "fxa-settings"
   ],

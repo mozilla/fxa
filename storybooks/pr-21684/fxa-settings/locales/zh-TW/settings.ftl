@@ -271,8 +271,6 @@ signin-recovery-code-image-description =
     .aria-label = 包含隱藏文字的文件。
 signin-totp-code-image-label =
     .aria-label = 包含隱藏六位數安全碼的裝置。
-confirm-signup-aria-label =
-    .aria-label = 包含鏈結的信封
 # Used for an image of a key on a shield surrounded by 5 other icons representing information that can be recovered with the account recovery key.
 # Other icons and their meaning: Gear (settings), star (favorites), clock (history), magnifying glass (search) and lock (passwords).
 security-shield-aria-label =

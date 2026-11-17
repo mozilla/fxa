@@ -92,7 +92,7 @@ button-back-title = Enrere
 recovery-key-download-button-v4 = Baixa i continua
 
 
-button-passkey-signin-loading = S'està iniciant la sessió de manera segura...
+button-passkey-signin-loading = S'està iniciant la sessió de manera segura…
 
 
 choose-newsletters-prompt-2 = Obteniu més de { -brand-mozilla }:
@@ -227,8 +227,6 @@ signin-recovery-code-image-description =
     .aria-label = Document que conté text ocult.
 signin-totp-code-image-label =
     .aria-label = Un dispositiu amb un codi de 6 dígits ocult.
-confirm-signup-aria-label =
-    .aria-label = Un sobre que conté un enllaç
 security-shield-aria-label =
     .aria-label = Il·lustració per a representar una clau de recuperació del compte.
 recovery-key-image-aria-label =

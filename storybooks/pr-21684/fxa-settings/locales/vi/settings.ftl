@@ -271,8 +271,6 @@ signin-recovery-code-image-description =
     .aria-label = Tài liệu chứa văn bản ẩn.
 signin-totp-code-image-label =
     .aria-label = Một thiết bị có mã gồm 6 chữ số.
-confirm-signup-aria-label =
-    .aria-label = Một phong bì chứa một liên kết
 # Used for an image of a key on a shield surrounded by 5 other icons representing information that can be recovered with the account recovery key.
 # Other icons and their meaning: Gear (settings), star (favorites), clock (history), magnifying glass (search) and lock (passwords).
 security-shield-aria-label =

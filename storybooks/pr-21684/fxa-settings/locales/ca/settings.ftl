@@ -48,7 +48,7 @@ recovery-key-download-button-v4 = Baixa i continua
 # interact with their authenticator to approve the sign-in. They should see a
 # device prompt/pop-up with authentication options (or message indicating that
 # no passkeys are available).
-button-passkey-signin-loading = S'està iniciant la sessió de manera segura...
+button-passkey-signin-loading = S'està iniciant la sessió de manera segura…
 
 ## ChooseNewsletters component
 ## Checklist of newsletters that the user can choose to sign up to
@@ -242,8 +242,6 @@ signin-recovery-code-image-description =
     .aria-label = Document que conté text ocult.
 signin-totp-code-image-label =
     .aria-label = Un dispositiu amb un codi de 6 dígits ocult.
-confirm-signup-aria-label =
-    .aria-label = Un sobre que conté un enllaç
 # Used for an image of a key on a shield surrounded by 5 other icons representing information that can be recovered with the account recovery key.
 # Other icons and their meaning: Gear (settings), star (favorites), clock (history), magnifying glass (search) and lock (passwords).
 security-shield-aria-label =

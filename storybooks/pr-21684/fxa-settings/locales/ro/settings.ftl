@@ -286,8 +286,6 @@ signin-recovery-code-image-description =
     .aria-label = Document care conține text ascuns.
 signin-totp-code-image-label =
     .aria-label = Un dispozitiv cu un cod ascuns de 6 cifre.
-confirm-signup-aria-label =
-    .aria-label = Un plic care conține un link
 # Used for an image of a key on a shield surrounded by 5 other icons representing information that can be recovered with the account recovery key.
 # Other icons and their meaning: Gear (settings), star (favorites), clock (history), magnifying glass (search) and lock (passwords).
 security-shield-aria-label =
@@ -403,6 +401,20 @@ locale-toggle-select-label = Selectează limba
 locale-toggle-browser-default = Implicit în browser
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Cerere nereușită
+
+## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when they open the pairing link
+## outside the Firefox app. It tells them how to finish pairing in Firefox.
+
+pair-unsupported-hint-heading = Finalizează asocierea în aplicație
+# Shown first when the page is open inside another app, which the user must close
+pair-unsupported-hint-step-close-page = Închide această pagină
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Atinge <b>meniul aplicației</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>Intră în cont</b> și apoi scanează codul
+# Opens a Mozilla support article about connecting a device without a QR code
+pair-unsupported-hint-learn-more-link = Află mai multe
 
 ## PasswordInfoBalloon
 ## Balloon displayed next to password input field
@@ -878,6 +890,7 @@ nav-security = Securitate
 nav-connected-services = Servicii conectate
 nav-data-collection = Colectarea și utilizarea datelor
 nav-paid-subs = Abonamente cu plată
+nav-email-prefs = Preferințe de e-mail
 
 ## Page2faChange
 
@@ -1705,6 +1718,13 @@ inline-totp-setup-code-required-error = Necesită cod de autentificare
 tfa-qr-code-alt = Folosește codul { $code } și configurează autentificarea în doi pași în aplicațiile acceptate.
 inline-totp-setup-page-title = Autentificare în doi pași
 
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = Pagina nu a fost găsită
+page-not-found-description = Pagina pe care ai solicitat-o nu a fost găsită. Am fost anunțați și vom repara orice linkuri care ar putea fi defecte.
+page-not-found-home-button = Acasă
+
 ## AuthAllow page - Part of the device pairing flow
 
 pair-auth-allow-heading-text = Tocmai te-ai autentificat în { -brand-firefox }?
@@ -2240,6 +2260,8 @@ signin-link-expired-message-2 = Linkul pe care ai dat clic a expirat sau a fost 
 
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Introdu parola <span> pentru contul { -product-mozilla-account }</span>
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = Începe sincronizarea
 # $serviceName - the name of the service which the user authenticating for
 # For languages structured like English, the phrase can read "to continue to { $serviceName }"
 signin-subheader-without-logo-with-servicename = Continuă cu { $serviceName }
@@ -2289,6 +2311,16 @@ signin-passkey-fallback-body = Pentru a-ți păstra datele în siguranță, treb
 signin-passkey-fallback-password-label = Parolă
 signin-passkey-fallback-continue = Continuă
 signin-passkey-fallback-forgot-password-link = Ți-ai uitat parola?
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = Dispozitivul necesită parola
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
+signin-passkey-fallback-no-prf-description = Browserul sau dispozitivul nu îți poate folosi cheia de acces pentru a intra în cont și a face singur sincronizarea.
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
+signin-passkey-fallback-unwrap-failed-heading = Cheia de acces nu a putut debloca sincronizarea
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = Ceva nu a mers bine, așa că vei avea nevoie de parolă de data aceasta.
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = Află mai multe
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
