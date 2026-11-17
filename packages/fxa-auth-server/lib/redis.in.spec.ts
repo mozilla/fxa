@@ -227,7 +227,7 @@ describe('#integration - Redis', () => {
       );
     });
 
-    describe('when watchPrune is false', () => {
+    describe('when pruneSessionTokensServerSide is false', () => {
       const luaRedis = require('./redis')(
         {
           ...config.redis.accessTokens,
@@ -236,7 +236,7 @@ describe('#integration - Redis', () => {
           prefix,
           recordLimit,
           maxttl,
-          watchPrune: false,
+          pruneSessionTokensServerSide: false,
         },
         createMock<AuthLogger>()
       );

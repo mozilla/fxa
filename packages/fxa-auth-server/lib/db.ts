@@ -85,7 +85,7 @@ export const createDB = (
   const { enabled: TOKEN_PRUNING_ENABLED, maxAge: TOKEN_PRUNING_MAX_AGE } =
     config.tokenPruning;
   const ORPHAN_CLEANUP_ENABLED =
-    config.redis?.sessionTokens?.watchPrune !== false;
+    config.redis?.sessionTokens?.pruneSessionTokensServerSide !== false;
   const submitServerDeletionRequest = createServerDeletionRequestPing(config);
 
   // Configure the shared model's expiry from the server's config

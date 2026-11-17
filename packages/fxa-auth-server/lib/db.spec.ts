@@ -545,8 +545,8 @@ describe('redis enabled, token-pruning enabled:', () => {
       expect(redis.pruneSessionTokens).not.toHaveBeenCalled();
     });
 
-    it('does nothing when redis.sessionTokens.watchPrune is false', async () => {
-      db = await connectDB({ watchPrune: false });
+    it('does nothing when redis.sessionTokens.pruneSessionTokensServerSide is false', async () => {
+      db = await connectDB({ pruneSessionTokensServerSide: false });
 
       await prune();
 

@@ -24,7 +24,7 @@ export type Config = {
   recordLimit?: number;
   maxttl?: number | string;
   timeoutMs?: number;
-  watchPrune?: boolean;
+  pruneSessionTokensServerSide?: boolean;
 } & RedisOptions;
 
 interface ICustomRedisCache {
@@ -299,7 +299,7 @@ export class RedisShared {
 
   async pruneSessionTokens(uid: string, tokenIds: string[] = []) {
     this.metrics?.increment('redis.pruneSessionTokens');
-    if (this.config.watchPrune === false) {
+    if (this.config.pruneSessionTokensServerSide === false) {
       return this.pruneSessionTokensWithLua(uid, tokenIds);
     }
     // A busy connection or a conflict skips the prune, and an error rejects.
@@ -402,7 +402,7 @@ export class RedisShared {
     }
   }
 
-  // The prune that predates watchPrune, kept so the flag can switch back to it.
+  // The earlier prune, kept so the flag can switch back to it.
   private async pruneSessionTokensWithLua(uid: string, tokenIds: string[]) {
     const span = tracer.startSpan('redis.pruneSessionTokens');
     try {

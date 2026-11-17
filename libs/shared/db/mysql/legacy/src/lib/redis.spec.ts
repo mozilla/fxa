@@ -341,9 +341,13 @@ describe('RedisShared', () => {
       );
     });
 
-    describe('when watchPrune is false', () => {
+    describe('when pruneSessionTokensServerSide is false', () => {
       const luaShared = () =>
-        new RedisShared({ host: 'localhost', port: 6379, watchPrune: false });
+        new RedisShared({
+          host: 'localhost',
+          port: 6379,
+          pruneSessionTokensServerSide: false,
+        });
       const luaPrune = (shared: RedisShared) =>
         (shared.redis as unknown as { pruneSessionTokens: jest.Mock })
           .pruneSessionTokens;
