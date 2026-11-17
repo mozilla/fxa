@@ -1,8 +1,8 @@
 {
-  "commit": "39c5dace387fb7f333f8ad78f18e6e5ea1c41195",
+  "commit": "f266632a90959554a7e1a0f43469c3536e529e97",
   "summary": "fix(auth): prune orphaned Redis session entries on session reads",
-  "description": "Because:\n- pruneSessionTokens skips when busy or on a write conflict, leaving\n  entries for deleted session tokens in Redis indefinitely.\n\nThis commit:\n- Prunes cached entries with no MySQL token whenever db.sessions runs.\n- Adds SessionToken.existingTokenIds to confirm deletion, since the\n  findByUid listing can be truncated or omit expired tokens.\n- Adds findUnlistedCachedSessionTokenIds to pick the ids to check.\n- Points the skip comment in redis.ts at this retry, not the cron.\n\nCloses FXA-14945",
-  "timestamp": 1794874315000,
+  "description": "Because:\n\n- Cached Redis session entries stay after the MySQL token is gone.\n- The Lua prune script had no WATCH-based TypeScript equivalent.\n\nThis commit:\n\n- Replaces pruneSessionTokens_1 with WATCH/GET/MULTI/EXEC on a duplicate() connection.\n- Sets autoResendUnfulfilledCommands false so a reconnect cannot replay MULTI/EXEC alone.\n- Makes db.sessions prune cached entries that have no MySQL row.\n- Counts and reports a failed prune with a statsd counter and Sentry, without throwing.\n- Adds specs for each path.\n\nCloses FXA-14945",
+  "timestamp": 1794877421000,
   "storybooks": [
     "fxa-admin-panel"
   ],
