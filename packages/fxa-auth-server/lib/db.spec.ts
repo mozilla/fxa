@@ -492,8 +492,37 @@ describe('redis enabled, token-pruning enabled:', () => {
         .mockResolvedValue([UNLISTED_ID]);
     });
 
-    it('checks only cached ids missing from the listing against MySQL', async () => {
+    const LISTING = [{ tokenId: LISTED_ID }];
+    const CACHED = { [LISTED_ID]: {}, [DELETED_ID]: {}, [UNLISTED_ID]: {} };
+    const prune = (cached: Record<string, unknown> = CACHED) =>
+      db.pruneOrphanedCachedSessionTokens('wibble', LISTING, cached);
+
+    it('starts the cleanup with the listing and the cached entries', async () => {
+      const cleanup = jest
+        .spyOn(db, 'pruneOrphanedCachedSessionTokens')
+        .mockResolvedValue(undefined);
+
       await db.sessions('wibble');
+
+      expect(cleanup).toHaveBeenCalledWith(
+        'wibble',
+        [expect.objectContaining({ tokenId: LISTED_ID })],
+        CACHED
+      );
+    });
+
+    it('returns the sessions without waiting for the cleanup', async () => {
+      models.SessionToken.existingTokenIds = jest.fn(
+        () => new Promise(() => {})
+      );
+
+      const sessions = await db.sessions('wibble');
+
+      expect(sessions.map((s: { id: string }) => s.id)).toEqual([LISTED_ID]);
+    });
+
+    it('checks only cached ids missing from the listing against MySQL', async () => {
+      await prune();
 
       expect(models.SessionToken.existingTokenIds).toHaveBeenCalledWith([
         DELETED_ID,
@@ -502,7 +531,7 @@ describe('redis enabled, token-pruning enabled:', () => {
     });
 
     it('prunes cached entries whose session token no longer exists', async () => {
-      await db.sessions('wibble');
+      await prune();
 
       expect(redis.pruneSessionTokens).toHaveBeenCalledWith('wibble', [
         DELETED_ID,
@@ -514,37 +543,24 @@ describe('redis enabled, token-pruning enabled:', () => {
         .fn()
         .mockResolvedValue([DELETED_ID, UNLISTED_ID]);
 
-      await db.sessions('wibble');
+      await prune();
 
       expect(redis.pruneSessionTokens).not.toHaveBeenCalled();
     });
 
     it('does not query MySQL when every cached entry is listed', async () => {
-      redis.getSessionTokens = jest.fn().mockResolvedValue({ [LISTED_ID]: {} });
-
-      await db.sessions('wibble');
+      await prune({ [LISTED_ID]: {} });
 
       expect(models.SessionToken.existingTokenIds).not.toHaveBeenCalled();
     });
 
-    it('still returns the sessions when the existence check fails', async () => {
-      models.SessionToken.existingTokenIds = jest
-        .fn()
-        .mockRejectedValue(new Error('ECONNREFUSED'));
-
-      const sessions = await db.sessions('wibble');
-
-      expect(sessions.map((s: { id: string }) => s.id)).toEqual([LISTED_ID]);
-      expect(redis.pruneSessionTokens).not.toHaveBeenCalled();
-    });
-
-    it('counts and reports a failed prune', async () => {
+    it('counts and reports a failed existence check without rejecting', async () => {
       const error = new Error('ECONNREFUSED');
       models.SessionToken.existingTokenIds = jest.fn().mockRejectedValue(error);
       db.metrics = { increment: jest.fn() };
       (Sentry.captureException as jest.Mock).mockClear();
 
-      await db.sessions('wibble');
+      await expect(prune()).resolves.toBeUndefined();
 
       expect(db.metrics.increment).toHaveBeenCalledWith(
         'db.sessions.orphanedRedisTokens.error'

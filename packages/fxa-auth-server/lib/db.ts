@@ -313,11 +313,13 @@ export const createDB = (
       const [mysqlSessionTokens, redisSessionTokens = {}] =
         await Promise.all(promises);
 
-      await this.pruneOrphanedCachedSessionTokens(
+      // Not awaited: the response is built from MySQL and never shows orphaned
+      // entries, so a slow Redis should not slow this read.
+      this.pruneOrphanedCachedSessionTokens(
         uid,
         mysqlSessionTokens,
         redisSessionTokens
-      );
+      ).catch(() => {});
 
       // for each db session token, if there is a matching redis token
       // overwrite the properties of the db token with the redis token values
