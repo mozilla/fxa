@@ -1,8 +1,8 @@
 {
-  "commit": "d80a5ae1f8f2541ec457fa727b3f4e44468f67a3",
-  "summary": "Merge pull request #21751 from mozilla/FXA-14257",
-  "description": "feat(settings): adopt Nova icons and illustrations behind the flag + minor UI tweaks",
-  "timestamp": 1794859541000,
+  "commit": "17c4dd9357e6eaa61f40005075ce4cfdf06c308f",
+  "summary": "Merge pull request #21723 from mozilla/fxa-7105",
+  "description": "fix(settings): respect the stored metrics opt-out before sign-in",
+  "timestamp": 1794930024000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

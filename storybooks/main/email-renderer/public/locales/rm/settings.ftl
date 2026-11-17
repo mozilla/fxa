@@ -205,8 +205,6 @@ signin-recovery-code-image-description =
     .aria-label = Document che cuntegna text zuppà.
 signin-totp-code-image-label =
     .aria-label = In apparat cun in code zuppà da 6 cifras.
-confirm-signup-aria-label =
-    .aria-label = Ina cuverta che cuntegna ina colliaziun
 # Used for an image of a key on a shield surrounded by 5 other icons representing information that can be recovered with the account recovery key.
 # Other icons and their meaning: Gear (settings), star (favorites), clock (history), magnifying glass (search) and lock (passwords).
 security-shield-aria-label =

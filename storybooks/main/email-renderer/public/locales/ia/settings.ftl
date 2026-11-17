@@ -283,8 +283,6 @@ signin-recovery-code-image-description =
     .aria-label = Documento que contine texto occulte.
 signin-totp-code-image-label =
     .aria-label = Un apparato con un codice occulte de 6 cifras.
-confirm-signup-aria-label =
-    .aria-label = Un inveloppe continente un ligamine
 # Used for an image of a key on a shield surrounded by 5 other icons representing information that can be recovered with the account recovery key.
 # Other icons and their meaning: Gear (settings), star (favorites), clock (history), magnifying glass (search) and lock (passwords).
 security-shield-aria-label =

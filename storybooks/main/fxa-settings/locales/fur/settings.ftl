@@ -235,8 +235,6 @@ signin-recovery-code-image-description =
     .aria-label = Document che al conten test platât.
 signin-totp-code-image-label =
     .aria-label = Un dispositîf cuntun codiç platât a 6 cifris.
-confirm-signup-aria-label =
-    .aria-label = Une buste che e conten un colegament
 # Used for an image of a key on a shield surrounded by 5 other icons representing information that can be recovered with the account recovery key.
 # Other icons and their meaning: Gear (settings), star (favorites), clock (history), magnifying glass (search) and lock (passwords).
 security-shield-aria-label =

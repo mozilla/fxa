@@ -248,8 +248,6 @@ signin-recovery-code-image-description =
     .aria-label = Kuatiaite orekóva moñe’ẽrã kañymby.
 signin-totp-code-image-label =
     .aria-label = Mba’e’oka ayvu kañymby 6 tai reheve.
-confirm-signup-aria-label =
-    .aria-label = Mba’yru oguerekóva juajuha
 security-shield-aria-label =
     .aria-label = Ta’ãnga ehechauka hag̃ua mba’ete mba’eñemi guerujeyrã.
 recovery-key-image-aria-label =
@@ -330,6 +328,8 @@ error-bad-request = Mba’ejerure ojavýva
 
 pair-unsupported-hint-heading = Emohu’ã tembiporu’i mbojuehe
 pair-unsupported-hint-step-close-page = Emboty ko kuatiarogue
+pair-unsupported-hint-step-app-menu = Eikutu <b>tembiporu’i poravoha</b>
+pair-unsupported-hint-step-sign-in = <b>Eike</b> ha emoha’ãnga ayvu
 pair-unsupported-hint-learn-more-link = Eikuaave
 
 
@@ -1359,6 +1359,7 @@ pair2-supplicant-connect-this-device-connect-button = Jeike
 pair2-supplicant-connect-this-device-cancel-button = Eheja
 
 
+pair2-supplicant-download-firefox-heading-v2 = Embojuruja { -brand-firefox } ko mba’e’okápe
 pair2-supplicant-download-firefox-continue-button = Eku’ejey { -brand-firefox } ndive
 pair2-supplicant-download-firefox-opening-button = Ijurujahína { -brand-firefox }…
 pair2-supplicant-download-firefox-download-button = Emboguejy { -brand-firefox }
@@ -1378,13 +1379,18 @@ pair2-supplicant-timeout-and-cancel-timeout-heading = Ha’ete opámava ñeha’
 pair2-supplicant-timeout-and-cancel-timeout-description = Embojoaju hag̃ua ne pumbyry ha embojuehe ne mba’ekuaarãita { -brand-firefox }, eike <b>firefox.com/pair</b> ne mohendahápe.
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Hejapyre
 pair2-supplicant-timeout-and-cancel-canceled-description = Eike hag̃ua mba’e’okápe eikese vove, eho <b>firefox.com/pair</b> ne mohendaha guive.
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Ko mba’e’oka oñepyrũma hembiapo
 
 
+permissions-heading = { $serviceName } oikese amo:
 permissions-label-email = Ñanduti veve kundaharape
 permissions-label-display-name = Téra ehechauka hag̃ua
 permissions-label-avatar = Mba’ete ra’ãnga
 permissions-continue-button = Eku’ejey
 permissions-cancel-button = Eheja
+
+
+force-password-change-heading = Emoambuéke ne ñe’ẽñemi
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } moneĩmbyre
@@ -1537,6 +1543,10 @@ signin-passkey-fallback-body = Ereko hag̃ua mba’ekuaarã tekosãme, eikotev�
 signin-passkey-fallback-password-label = Ñe’ẽñemi
 signin-passkey-fallback-continue = Ku’ejey
 signin-passkey-fallback-forgot-password-link = ¿Nderesarái ñe’ẽñemígui?
+signin-passkey-fallback-no-prf-heading = Eikoteve ñe’ẽñemi ko mba’e’okápe
+signin-passkey-fallback-no-prf-description = Ko kundahára térã mba’e’oka ndoiporukuaái ne ñe’ẽ ñemi eike hag̃ua ha oñembojuehe ha’eño.
+signin-passkey-fallback-unwrap-failed-heading = Pe ñe’ẽ ñemi nombojurujái ñembojuehe
+signin-passkey-fallback-unwrap-failed-description = Oĩ osẽ vaíva, upévare eikotevẽta ko’ág̃a ne ñe’ẽñemi.
 signin-passkey-fallback-wrap-unusable-link = Eikuaave
 
 

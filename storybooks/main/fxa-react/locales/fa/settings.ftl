@@ -283,8 +283,6 @@ signin-recovery-code-image-description =
     .aria-label = سندی که دارای متن پنهان است.
 signin-totp-code-image-label =
     .aria-label = یک دستگاه با کد ۶ رقمی پنهان.
-confirm-signup-aria-label =
-    .aria-label = یک پاکت حاوی پیوند
 # Used for an image of a key on a shield surrounded by 5 other icons representing information that can be recovered with the account recovery key.
 # Other icons and their meaning: Gear (settings), star (favorites), clock (history), magnifying glass (search) and lock (passwords).
 security-shield-aria-label =

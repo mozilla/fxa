@@ -211,8 +211,6 @@ signin-recovery-code-image-description =
     .aria-label = Ducumentu chi àvi testu ammucciatu
 signin-totp-code-image-label =
     .aria-label = Un dispusitivu c’un còdici a 6 cifri ammucciatu
-confirm-signup-aria-label =
-    .aria-label = Na busta cu na lijami
 # Used for an image of a key on a shield surrounded by 5 other icons representing information that can be recovered with the account recovery key.
 # Other icons and their meaning: Gear (settings), star (favorites), clock (history), magnifying glass (search) and lock (passwords).
 security-shield-aria-label =

@@ -283,8 +283,6 @@ signin-recovery-code-image-description =
     .aria-label = Kuatiaite orekóva moñe’ẽrã kañymby.
 signin-totp-code-image-label =
     .aria-label = Mba’e’oka ayvu kañymby 6 tai reheve.
-confirm-signup-aria-label =
-    .aria-label = Mba’yru oguerekóva juajuha
 # Used for an image of a key on a shield surrounded by 5 other icons representing information that can be recovered with the account recovery key.
 # Other icons and their meaning: Gear (settings), star (favorites), clock (history), magnifying glass (search) and lock (passwords).
 security-shield-aria-label =
@@ -408,6 +406,10 @@ error-bad-request = Mba’ejerure ojavýva
 pair-unsupported-hint-heading = Emohu’ã tembiporu’i mbojuehe
 # Shown first when the page is open inside another app, which the user must close
 pair-unsupported-hint-step-close-page = Emboty ko kuatiarogue
+# <b> emphasises the name of the button the user taps in Firefox
+pair-unsupported-hint-step-app-menu = Eikutu <b>tembiporu’i poravoha</b>
+# <b> emphasises the name of the menu item the user taps in Firefox
+pair-unsupported-hint-step-sign-in = <b>Eike</b> ha emoha’ãnga ayvu
 # Opens a Mozilla support article about connecting a device without a QR code
 pair-unsupported-hint-learn-more-link = Eikuaave
 
@@ -1975,6 +1977,7 @@ pair2-supplicant-connect-this-device-cancel-button = Eheja
 ## not Firefox. It offers to open the Firefox app to finish pairing, and to
 ## install it first when the user does not have it yet.
 
+pair2-supplicant-download-firefox-heading-v2 = Embojuruja { -brand-firefox } ko mba’e’okápe
 # Primary action. Opens the Firefox app to finish pairing, or sends the user to
 # the Firefox download page when there is no pairing link to hand over.
 pair2-supplicant-download-firefox-continue-button = Eku’ejey { -brand-firefox } ndive
@@ -2020,6 +2023,8 @@ pair2-supplicant-timeout-and-cancel-timeout-description = Embojoaju hag̃ua ne p
 pair2-supplicant-timeout-and-cancel-cancelled-heading = Hejapyre
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-canceled-description = Eike hag̃ua mba’e’okápe eikese vove, eho <b>firefox.com/pair</b> ne mohendaha guive.
+# Shown when the mobile browser is already signed in to an account, so pairing cannot sign it in to another one
+pair2-supplicant-timeout-and-cancel-signed-in-heading = Ko mba’e’oka oñepyrũma hembiapo
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2027,11 +2032,18 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Eike hag̃ua mba’e�
 ## The page informs the user which profile information the relying party can
 ## read. It does not offer a choice.
 
+# Variable $serviceName is the name of the relying party, e.g. "321Done"
+permissions-heading = { $serviceName } oikese amo:
 permissions-label-email = Ñanduti veve kundaharape
 permissions-label-display-name = Téra ehechauka hag̃ua
 permissions-label-avatar = Mba’ete ra’ãnga
 permissions-continue-button = Eku’ejey
 permissions-cancel-button = Eheja
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+force-password-change-heading = Emoambuéke ne ñe’ẽñemi
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2262,6 +2274,14 @@ signin-passkey-fallback-body = Ereko hag̃ua mba’ekuaarã tekosãme, eikotev�
 signin-passkey-fallback-password-label = Ñe’ẽñemi
 signin-passkey-fallback-continue = Ku’ejey
 signin-passkey-fallback-forgot-password-link = ¿Nderesarái ñe’ẽñemígui?
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync, so the user must enter their password.
+signin-passkey-fallback-no-prf-heading = Eikoteve ñe’ẽñemi ko mba’e’okápe
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but this browser or device can’t use it to unlock sync.
+signin-passkey-fallback-no-prf-description = Ko kundahára térã mba’e’oka ndoiporukuaái ne ñe’ẽ ñemi eike hag̃ua ha oñembojuehe ha’eño.
+# Banner heading on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync, so the user must enter their password this time.
+signin-passkey-fallback-unwrap-failed-heading = Pe ñe’ẽ ñemi nombojurujái ñembojuehe
+# Banner text on the enter-password page after a passkey sign-in to sync. The passkey is set up for sync, but an error stopped it from unlocking sync.
+signin-passkey-fallback-unwrap-failed-description = Oĩ osẽ vaíva, upévare eikotevẽta ko’ág̃a ne ñe’ẽñemi.
 # Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
 signin-passkey-fallback-wrap-unusable-link = Eikuaave
 

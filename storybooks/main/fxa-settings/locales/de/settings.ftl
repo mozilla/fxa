@@ -283,8 +283,6 @@ signin-recovery-code-image-description =
     .aria-label = Dokument, das verborgenen Text enthält.
 signin-totp-code-image-label =
     .aria-label = Ein Gerät mit einem versteckten 6-stelligen Code.
-confirm-signup-aria-label =
-    .aria-label = Ein Umschlag mit einem Link
 # Used for an image of a key on a shield surrounded by 5 other icons representing information that can be recovered with the account recovery key.
 # Other icons and their meaning: Gear (settings), star (favorites), clock (history), magnifying glass (search) and lock (passwords).
 security-shield-aria-label =

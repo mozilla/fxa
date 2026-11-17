@@ -283,8 +283,6 @@ signin-recovery-code-image-description =
     .aria-label = Жасырын мәтіні бар құжат.
 signin-totp-code-image-label =
     .aria-label = Жасырын 6 цифрлық коды бар құрылғы.
-confirm-signup-aria-label =
-    .aria-label = Сілтемесі бар конверт
 # Used for an image of a key on a shield surrounded by 5 other icons representing information that can be recovered with the account recovery key.
 # Other icons and their meaning: Gear (settings), star (favorites), clock (history), magnifying glass (search) and lock (passwords).
 security-shield-aria-label =
