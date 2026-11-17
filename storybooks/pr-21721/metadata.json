@@ -1,8 +1,8 @@
 {
-  "commit": "e9f1ff0e71cc6728a0288485dca00a85f48d727e",
-  "summary": "fix(auth): stop db.sessions waiting on orphaned cache cleanup",
-  "description": "Because:\n- The cleanup could add up to ~3s to a session read when Redis is slow,\n  though the response never depends on it.\n\nThis commit:\n- Runs pruneOrphanedCachedSessionTokens without awaiting it.\n- Tests the cleanup directly and checks db.sessions does not wait on it.\n\nCloses FXA-14945",
-  "timestamp": 1794881543000,
+  "commit": "3e1106fd950e1ffaa75f4aac029ff517c69cf11e",
+  "summary": "fix(shared): report prune failures to Sentry and count them in statsd",
+  "description": "Because:\n- Review asked for metrics on each prune failure path, and for Sentry\n  in place of error logs.\n\nThis commit:\n- Sends prune errors and unparseable blobs to Sentry instead of logging.\n- Counts unparseable blobs and prune connection errors in statsd.\n- Keeps connection errors as logs, since ioredis repeats them per retry.\n- Adds braces to the queued-command error check.\n\nCloses FXA-14945",
+  "timestamp": 1794882571000,
   "storybooks": [
     "fxa-admin-panel"
   ],
