@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit e054936f722af77c03a30104adf980ca333adcfe</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit e054936f722af77c03a30104adf980ca333adcfe</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>11/17/2026, 6:31:50 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): keep account deleted banner while typing on email-first</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- The account deleted banner on email-first remounted on each keystroke.
+- useFtlMsgResolver returned a new resolver each render, so banner effects re-ran.
+
+This commit:
+- Memoizes useFtlMsgResolver on l10n and config.l10n.strict.
+- Keeps the success banner on input; still clears the error banner and tooltip.
+- Clears the success banner on a banner-path submit error or a passkey error.
+- Shows the form after a failed auto-submit.
+- Adds unit tests and extends the delete account functional test.
+
+Closes FXA-15026</pre></dd>
+  </dl>
+</body>
+</html>

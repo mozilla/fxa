@@ -1,0 +1,10 @@
+{
+  "commit": "e054936f722af77c03a30104adf980ca333adcfe",
+  "summary": "fix(settings): keep account deleted banner while typing on email-first",
+  "description": "Because:\n- The account deleted banner on email-first remounted on each keystroke.\n- useFtlMsgResolver returned a new resolver each render, so banner effects re-ran.\n\nThis commit:\n- Memoizes useFtlMsgResolver on l10n and config.l10n.strict.\n- Keeps the success banner on input; still clears the error banner and tooltip.\n- Clears the success banner on a banner-path submit error or a passkey error.\n- Shows the form after a failed auto-submit.\n- Adds unit tests and extends the delete account functional test.\n\nCloses FXA-15026",
+  "timestamp": 1794940310000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
