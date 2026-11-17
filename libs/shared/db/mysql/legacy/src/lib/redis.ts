@@ -24,11 +24,13 @@ export type Config = {
   recordLimit?: number;
   maxttl?: number | string;
   timeoutMs?: number;
+  watchPrune?: boolean;
 } & RedisOptions;
 
 interface ICustomRedisCache {
   getAccessToken(uid: string): Promise<any>;
   getAccessTokens(uid: string): Promise<any>;
+  pruneSessionTokens(uid: string, tokenIds: string): Promise<any>;
   touchSessionToken(uid: string, token: any): Promise<any>;
 }
 
@@ -100,6 +102,7 @@ function isCustomRedisCache(redis: any): redis is Redis & ICustomRedisCache {
   if (
     'getAccessToken' in redis &&
     'getAccessTokens' in redis &&
+    'pruneSessionTokens' in redis &&
     'touchSessionToken' in redis
   ) {
     return true;
@@ -296,6 +299,9 @@ export class RedisShared {
 
   async pruneSessionTokens(uid: string, tokenIds: string[] = []) {
     this.metrics?.increment('redis.pruneSessionTokens');
+    if (this.config.watchPrune === false) {
+      return this.pruneSessionTokensWithLua(uid, tokenIds);
+    }
     // A busy connection, a conflict or an error skips the prune. The entries
     // it leaves are removed the next time db.sessions reads the account.
     if (this.pruning) {
@@ -374,6 +380,22 @@ export class RedisShared {
       return;
     } finally {
       this.pruning = false;
+      span.end();
+    }
+  }
+
+  // The prune that predates watchPrune, kept so the flag can switch back to it.
+  private async pruneSessionTokensWithLua(uid: string, tokenIds: string[]) {
+    const span = tracer.startSpan('redis.pruneSessionTokens');
+    try {
+      const p1 = this.redis.pruneSessionTokens(uid, JSON.stringify(tokenIds));
+      // See claimLastAccessTimeWrite: the cancel promise must not reject.
+      const p2 = this.rejectInMs(
+        p1.catch(() => undefined),
+        this.timeoutMs
+      );
+      return await Promise.race([p1, p2]);
+    } finally {
       span.end();
     }
   }

@@ -64,14 +64,11 @@ describe('RedisShared', () => {
 
     expect(Redis).toHaveBeenCalledTimes(1);
     const defineCommand = shared.redis.defineCommand as jest.Mock;
-    expect(defineCommand).toHaveBeenCalledTimes(3);
-    expect(defineCommand).not.toHaveBeenCalledWith(
-      'pruneSessionTokens',
-      expect.anything()
-    );
+    expect(defineCommand).toHaveBeenCalledTimes(4);
     for (const [name, scriptName] of [
       ['getAccessToken', 'getAccessToken_1'],
       ['getAccessTokens', 'getAccessTokens_1'],
+      ['pruneSessionTokens', 'pruneSessionTokens_1'],
       ['touchSessionToken', 'touchSessionToken_1'],
     ]) {
       expect(defineCommand).toHaveBeenCalledWith(name, {
@@ -298,6 +295,35 @@ describe('RedisShared', () => {
         'redis.pruneSessionTokens.success'
       );
       expect(Sentry.captureException).toHaveBeenCalledWith(error);
+    });
+
+    describe('when watchPrune is false', () => {
+      const luaShared = () =>
+        new RedisShared({ host: 'localhost', port: 6379, watchPrune: false });
+      const luaPrune = (shared: RedisShared) =>
+        (shared.redis as unknown as { pruneSessionTokens: jest.Mock })
+          .pruneSessionTokens;
+
+      it('prunes with the pruneSessionTokens_1 Lua script', async () => {
+        const shared = luaShared();
+        luaPrune(shared).mockResolvedValue('OK');
+
+        expect(await shared.pruneSessionTokens('uid', ['t1', 't2'])).toBe('OK');
+        expect(luaPrune(shared)).toHaveBeenCalledWith(
+          'uid',
+          JSON.stringify(['t1', 't2'])
+        );
+        expect(shared.redis.duplicate).not.toHaveBeenCalled();
+      });
+
+      it('rejects when the Lua script fails', async () => {
+        const shared = luaShared();
+        luaPrune(shared).mockRejectedValue(new Error('NOSCRIPT'));
+
+        await expect(shared.pruneSessionTokens('uid', ['t1'])).rejects.toThrow(
+          'NOSCRIPT'
+        );
+      });
     });
 
     it('skips a prune that arrives while another is running', async () => {

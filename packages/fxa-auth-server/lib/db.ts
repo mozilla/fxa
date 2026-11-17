@@ -85,6 +85,8 @@ export const createDB = (
     config.tokenLifetimes.sessionTokenWithoutDevice;
   const { enabled: TOKEN_PRUNING_ENABLED, maxAge: TOKEN_PRUNING_MAX_AGE } =
     config.tokenPruning;
+  const ORPHAN_CLEANUP_ENABLED =
+    config.redis?.sessionTokens?.watchPrune !== false;
   const submitServerDeletionRequest = createServerDeletionRequestPing(config);
 
   // Configure the shared model's expiry from the server's config
@@ -862,7 +864,12 @@ export const createDB = (
         mysqlSessionTokens,
         redisSessionTokens
       );
-      if (!this.redis || !TOKEN_PRUNING_ENABLED || unlisted.length === 0) {
+      if (
+        !this.redis ||
+        !TOKEN_PRUNING_ENABLED ||
+        !ORPHAN_CLEANUP_ENABLED ||
+        unlisted.length === 0
+      ) {
         return;
       }
       try {

@@ -226,6 +226,37 @@ describe('#integration - Redis', () => {
         [sessionToken.id, 'token2', 'token3'].sort()
       );
     });
+
+    describe('when watchPrune is false', () => {
+      const luaRedis = require('./redis')(
+        {
+          ...config.redis.accessTokens,
+          ...config.redis.sessionTokens,
+          password: config.redis.password,
+          prefix,
+          recordLimit,
+          maxttl,
+          watchPrune: false,
+        },
+        createMock<AuthLogger>()
+      );
+
+      afterAll(async () => {
+        await luaRedis.close();
+      });
+
+      it('deletes a given token id with the Lua script', async () => {
+        await luaRedis.pruneSessionTokens(uid, ['token2']);
+        const tokens = await redis.getSessionTokens(uid);
+        expect(Object.keys(tokens)).toEqual([sessionToken.id]);
+        expect(luaRedis.pruneRedis).toBeUndefined();
+      });
+
+      it('deletes the uid record when no tokens remain', async () => {
+        await luaRedis.pruneSessionTokens(uid, [sessionToken.id, 'token2']);
+        expect(await redis.get(uid)).toBeNull();
+      });
+    });
   });
 
   describe('Access Tokens', () => {

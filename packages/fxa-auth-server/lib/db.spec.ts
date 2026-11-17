@@ -385,6 +385,35 @@ describe('redis enabled, token-pruning enabled:', () => {
 
   let redis: any, log: any, tokens: any, db: any;
 
+  const connectDB = (sessionTokens: Record<string, unknown> = {}) =>
+    createDB(
+      {
+        tokenLifetimes,
+        tokenPruning,
+        redis: {
+          foo: 'bar',
+          sessionTokens: {
+            baz: 'qux',
+            prefix: 'wibble',
+            ...sessionTokens,
+          },
+          email: {
+            blee: 'blee',
+            prefix: 'blee',
+          },
+        },
+        lastAccessTimeUpdates: {
+          enabled: true,
+          sampleRate: 1,
+          earliestSaneTimestamp: 1,
+          minIntervalSeconds: 300,
+        },
+      },
+      log,
+      tokens,
+      {}
+    ).connect({});
+
   beforeEach(async () => {
     redis = {
       get: jest.fn(() => Promise.resolve('{}')),
@@ -405,34 +434,7 @@ describe('redis enabled, token-pruning enabled:', () => {
     };
     log = createMock<AuthLogger>();
     tokens = require('../lib/tokens')(log, { tokenLifetimes });
-    const DB = createDB(
-      {
-        tokenLifetimes,
-        tokenPruning,
-        redis: {
-          foo: 'bar',
-          sessionTokens: {
-            baz: 'qux',
-            prefix: 'wibble',
-          },
-          email: {
-            blee: 'blee',
-            prefix: 'blee',
-          },
-        },
-        lastAccessTimeUpdates: {
-          enabled: true,
-          sampleRate: 1,
-          earliestSaneTimestamp: 1,
-          minIntervalSeconds: 300,
-        },
-      },
-      log,
-      tokens,
-      {}
-    );
-
-    db = await DB.connect({});
+    db = await connectDB();
   });
 
   it('should not call redis or the db in db.devices if uid is falsey', async () => {
@@ -545,6 +547,15 @@ describe('redis enabled, token-pruning enabled:', () => {
 
       await prune();
 
+      expect(redis.pruneSessionTokens).not.toHaveBeenCalled();
+    });
+
+    it('does nothing when redis.sessionTokens.watchPrune is false', async () => {
+      db = await connectDB({ watchPrune: false });
+
+      await prune();
+
+      expect(models.SessionToken.existingTokenIds).not.toHaveBeenCalled();
       expect(redis.pruneSessionTokens).not.toHaveBeenCalled();
     });
 
