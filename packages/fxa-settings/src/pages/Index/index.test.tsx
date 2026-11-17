@@ -292,6 +292,7 @@ describe('Index page', () => {
     const passkeyError = 'Your browser or device doesn’t support passkeys.';
     const bannerError = 'Banner error';
     const tooltipError = 'Tooltip error';
+    const successMessage = 'Account deleted successfully';
 
     let user: ReturnType<typeof userEvent.setup>;
 
@@ -301,6 +302,37 @@ describe('Index page', () => {
     beforeEach(() => {
       user = userEvent.setup();
       jest.spyOn(utils, 'hardNavigate').mockImplementation(() => {});
+    });
+
+    it('keeps the success banner while the user types an email', async () => {
+      renderWithLocalizationProvider(
+        <Subject initialSuccessBanner={successMessage} />
+      );
+
+      await user.type(screen.getByLabelText('Enter your email'), MOCK_EMAIL);
+
+      expect(screen.getAllByText(successMessage)).toHaveLength(1);
+    });
+
+    it('clears the error banner when the user types an email', async () => {
+      renderWithLocalizationProvider(
+        <Subject initialErrorBanner={bannerError} />
+      );
+
+      await user.type(screen.getByLabelText('Enter your email'), 'a');
+
+      expect(screen.queryByText(bannerError)).not.toBeInTheDocument();
+    });
+
+    it('clears the success banner when a passkey error shows', async () => {
+      renderWithLocalizationProvider(
+        <Subject passkeyEnabled initialSuccessBanner={successMessage} />
+      );
+
+      await clickPasskey();
+      await screen.findByText(passkeyError);
+
+      expect(screen.queryByText(successMessage)).not.toBeInTheDocument();
     });
 
     it('clears the passkey error when the email form is submitted', async () => {

@@ -7,7 +7,12 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { ReactNode, createElement } from 'react';
 import * as Sentry from '@sentry/browser';
 
-import { useClientInfoState, useCmsInfoState } from './hooks';
+import { LocalizationProvider, ReactLocalization } from '@fluent/react';
+import {
+  useClientInfoState,
+  useCmsInfoState,
+  useFtlMsgResolver,
+} from './hooks';
 import { AppContext } from './contexts/AppContext';
 
 // Mock all external dependencies before importing the hook
@@ -565,7 +570,7 @@ describe('useClientInfoState', () => {
 
   afterEach(() => {
     jest.useRealTimers();
-  })
+  });
 
   it('populates clientInfo from the fetch response', async () => {
     mockUrlQueryData.get.mockImplementation((key: string) =>
@@ -607,7 +612,14 @@ describe('useClientInfoState', () => {
     expect(result.current.data).toBeUndefined();
     expect(Sentry.captureException).toHaveBeenCalledWith(fetchError, {
       tags: { area: 'useClientInfoState.fetch', clientId: '1234567890abcdef' },
-      extra: { "code": undefined, "errno": undefined, "message": "Network error", "statusCode": undefined, mounted:true, attempt:3 },
+      extra: {
+        code: undefined,
+        errno: undefined,
+        message: 'Network error',
+        statusCode: undefined,
+        mounted: true,
+        attempt: 3,
+      },
     });
   });
 
@@ -628,7 +640,20 @@ describe('useClientInfoState', () => {
     expect(result.current.error?.message).toMatch(/403/);
     expect(Sentry.captureException).toHaveBeenCalledWith(
       expect.objectContaining({ message: expect.stringMatching(/403/) }),
-      expect.objectContaining({ tags: { area: 'useClientInfoState.fetch', clientId: '1234567890abcdef' }, extra: {"code": undefined, "errno": undefined, "message": "Failed to fetch client info: 403", "statusCode": undefined, mounted:true, attempt:3} })
+      expect.objectContaining({
+        tags: {
+          area: 'useClientInfoState.fetch',
+          clientId: '1234567890abcdef',
+        },
+        extra: {
+          code: undefined,
+          errno: undefined,
+          message: 'Failed to fetch client info: 403',
+          statusCode: undefined,
+          mounted: true,
+          attempt: 3,
+        },
+      })
     );
   });
 
@@ -643,7 +668,9 @@ describe('useClientInfoState', () => {
       (_url: string, opts: { signal: AbortSignal }) =>
         new Promise((_resolve, reject) => {
           opts.signal.addEventListener('abort', () =>
-            reject(opts.signal.reason ?? new DOMException('aborted', 'AbortError'))
+            reject(
+              opts.signal.reason ?? new DOMException('aborted', 'AbortError')
+            )
           );
         })
     );
@@ -746,5 +773,30 @@ describe('useClientInfoState', () => {
     expect(result.current.error).toBeInstanceOf(Error);
     expect(result.current.error?.message).toBe('Invalid clientId');
     expect(Sentry.captureException).not.toHaveBeenCalled();
+  });
+});
+
+describe('useFtlMsgResolver', () => {
+  it('returns the same instance across re-renders', () => {
+    const l10n = new ReactLocalization([]);
+    const wrapper = ({ children }: { children: ReactNode }) =>
+      createElement(
+        AppContext.Provider,
+        {
+          value: {
+            config: { ...mockConfig, l10n: { strict: false } } as any,
+            account: undefined,
+          },
+        },
+        createElement(LocalizationProvider, { l10n, children })
+      );
+
+    const { result, rerender } = renderHook(() => useFtlMsgResolver(), {
+      wrapper,
+    });
+    const first = result.current;
+    rerender();
+
+    expect(result.current).toBe(first);
   });
 });

@@ -88,6 +88,13 @@ export const Index = ({
 
   const authInProgress = isSubmitting || passkey.isLoading;
 
+  const showPasskeyBanner = showPasskeySignin && !!passkey.banner;
+  useEffect(() => {
+    if (showPasskeyBanner) {
+      setSuccessBannerMessage('');
+    }
+  }, [showPasskeyBanner, setSuccessBannerMessage]);
+
   const legalTerms = integration.getLegalTerms();
 
   const emailEngageEventEmitted = useRef(false);
@@ -122,10 +129,8 @@ export const Index = ({
       emailEngageEventEmitted.current = true;
     }
 
-    if (errorBannerMessage || successBannerMessage) {
-      // TODO improve this, needs height or some animation, FXA-9143
+    if (errorBannerMessage) {
       setErrorBannerMessage('');
-      setSuccessBannerMessage('');
     }
     if (tooltipErrorMessage) {
       setTooltipErrorMessage('');

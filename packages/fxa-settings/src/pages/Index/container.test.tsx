@@ -333,6 +333,40 @@ describe('IndexContainer', () => {
     });
   });
 
+  it('replaces the account deleted banner with a submit error banner', async () => {
+    mockLocationState = { deleteAccountSuccess: true };
+    mockUseAuthClient.mockReturnValue({
+      accountStatusByEmail: jest
+        .fn()
+        .mockRejectedValue(AuthUiErrors.REQUEST_BLOCKED),
+    });
+    renderWithLocalizationProvider(
+      <MemoryRouter>
+        <IndexContainer
+          {...{
+            integration,
+            serviceName: MozServices.Default,
+            useFxAStatusResult: mockUseFxAStatusResult,
+          }}
+        />
+      </MemoryRouter>
+    );
+    await waitFor(() => {
+      expect(currentIndexProps?.successBannerMessage).toBe(
+        'Account deleted successfully'
+      );
+    });
+
+    await act(async () => {
+      await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+    });
+
+    expect(currentIndexProps?.errorBannerMessage).toBe(
+      AuthUiErrors.REQUEST_BLOCKED.message
+    );
+    expect(currentIndexProps?.successBannerMessage).toBe('');
+  });
+
   it('should display LoadingSpinner at initial load and remove when ready', async () => {
     // Mock the initial state and dependencies
     mockLocationState = {};

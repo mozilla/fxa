@@ -879,7 +879,10 @@ export function useAlertBar() {
 export function useFtlMsgResolver() {
   const config = useConfig();
   const { l10n } = useLocalization();
-  return new FtlMsgResolver(l10n, config.l10n.strict);
+  return useMemo(
+    () => new FtlMsgResolver(l10n, config.l10n.strict),
+    [l10n, config.l10n.strict]
+  );
 }
 
 export function useNotifier() {
