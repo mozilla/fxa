@@ -326,6 +326,13 @@ locale-toggle-browser-default = Predeterminado del navegador
 error-bad-request = Solicitud errónea
 
 
+pair-unsupported-hint-heading = Terminar emparejamiento en la app
+pair-unsupported-hint-step-close-page = Cerrar esta página
+pair-unsupported-hint-step-app-menu = Toca el <b>menú de la aplicación</b>
+pair-unsupported-hint-step-sign-in = <b>Conéctate</b> y luego escanea el código
+pair-unsupported-hint-learn-more-link = Aprender más
+
+
 password-info-balloon-why-password-info = Necesitas esta contraseña para acceder a los datos cifrados que almacenas con nosotros.
 password-info-balloon-reset-risk-info = Un reinicio significa la posibilidad de perder datos como contraseñas y marcadores.
 
@@ -635,6 +642,7 @@ nav-security = Seguridad
 nav-connected-services = Servicios conectados
 nav-data-collection = Recolección de datos y uso
 nav-paid-subs = Suscripciones pagadas
+nav-email-prefs = Preferencias de correo electrónico
 
 
 page-2fa-change-title = Cambiar la autenticación en dos pasos
@@ -1214,6 +1222,11 @@ tfa-qr-code-alt = Usa el código { $code } para configurar la autenticación en 
 inline-totp-setup-page-title = Autenticación en dos pasos
 
 
+page-not-found-heading = Página no encontrada
+page-not-found-description = La página que solicitaste no se encontró. Hemos sido notificados y arreglaremos cualquier enlace que pueda estar roto.
+page-not-found-home-button = Inicio
+
+
 pair-auth-allow-heading-text = ¿Acabas de conectarte en { -brand-firefox }?
 pair-auth-allow-confirm-button = Sí, aprobar dispositivo
 pair-auth-allow-refuse-device-link = Si no has sido tú, <a>cambia tu contraseña</a>
@@ -1507,6 +1520,7 @@ signin-link-expired-message-2 = El enlace en el que hiciste clic ha caducado o y
 
 
 signin-password-needed-header-2 = Ingresa tu contraseña <span>para tu { -product-mozilla-account }</span>
+signin-button-start-syncing = Empezar a sincronizar
 signin-subheader-without-logo-with-servicename = Continuar con { $serviceName }
 signin-subheader-without-logo-default = Continuar a los ajustes de la cuenta
 signin-button = Conectarse
@@ -1541,6 +1555,11 @@ signin-passkey-fallback-body = Para mantener tus datos seguros, deberás ingresa
 signin-passkey-fallback-password-label = Contraseña
 signin-passkey-fallback-continue = Continuar
 signin-passkey-fallback-forgot-password-link = ¿Olvidaste tu contraseña?
+signin-passkey-fallback-no-prf-heading = Se requiere contraseña en este dispositivo.
+signin-passkey-fallback-no-prf-description = Este navegador o dispositivo no puede usar tu llave de acceso por sí solo para conectarse a la sincronización.
+signin-passkey-fallback-unwrap-failed-heading = Tu llave de acceso no pudo desbloquear la sincronización
+signin-passkey-fallback-unwrap-failed-description = Algo salió mal, así que esta vez necesitarás tu contraseña.
+signin-passkey-fallback-wrap-unusable-link = Más información
 
 
 signin-passwordless-code-heading = Ingresar código de confirmación
