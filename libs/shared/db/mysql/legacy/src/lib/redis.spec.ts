@@ -244,6 +244,17 @@ describe('RedisShared', () => {
       expect(Sentry.captureException).not.toHaveBeenCalled();
     });
 
+    it('counts a prune that writes', async () => {
+      const { metrics, shared, client } = withMetrics();
+      client.get.mockResolvedValue(blob);
+      client.tx.exec.mockResolvedValue([[null, 'OK']]);
+
+      expect(await shared.pruneSessionTokens('uid', ['t1'])).toBe('OK');
+      expect(metrics.increment).toHaveBeenCalledWith(
+        'redis.pruneSessionTokens.success'
+      );
+    });
+
     it('skips the prune when another client changes the key after WATCH', async () => {
       const { metrics, shared, client } = withMetrics();
       client.get.mockResolvedValue(blob);
@@ -253,6 +264,9 @@ describe('RedisShared', () => {
       expect(client.tx.exec).toHaveBeenCalledTimes(1);
       expect(metrics.increment).toHaveBeenCalledWith(
         'redis.pruneSessionTokens.conflict'
+      );
+      expect(metrics.increment).not.toHaveBeenCalledWith(
+        'redis.pruneSessionTokens.success'
       );
     });
 
@@ -279,6 +293,9 @@ describe('RedisShared', () => {
       expect(await shared.pruneSessionTokens('uid', ['t1'])).toBeUndefined();
       expect(metrics.increment).toHaveBeenCalledWith(
         'redis.pruneSessionTokens.error'
+      );
+      expect(metrics.increment).not.toHaveBeenCalledWith(
+        'redis.pruneSessionTokens.success'
       );
       expect(Sentry.captureException).toHaveBeenCalledWith(error);
     });

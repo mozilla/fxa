@@ -364,6 +364,7 @@ export class RedisShared {
       if (err) {
         throw err;
       }
+      this.metrics?.increment('redis.pruneSessionTokens.success');
       return result;
     } catch (error) {
       // A stale WATCH would abort the next prune's EXEC.
