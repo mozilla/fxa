@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 60e3b20e62674a946bf7dd8f6c7689d93ec9f8a8</title>
+  <title>Storybooks for commit 6b7ee18a705494857de1804b3ac0c7a41cf540cb</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,25 +23,24 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 60e3b20e62674a946bf7dd8f6c7689d93ec9f8a8</h1>
+  <h1>Storybooks for commit 6b7ee18a705494857de1804b3ac0c7a41cf540cb</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/17/2026, 7:22:12 PM UTC</dd>
+    <dd>11/17/2026, 7:27:57 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>perf(shared): skip the blob rewrite when a prune removes nothing</pre></dd>
+    <dd><pre>fix(shared): reject failed session token prunes and log them</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- Session creation prunes an id that is never cached, so most prunes
-  read the whole blob and wrote it back unchanged.
-- A throw from startSpan would have left pruning disabled for good.
+- A swallowed prune error kept db.sessionToken.redisPruneFailed from
+  ever firing, and a Redis outage would flood Sentry.
 
 This commit:
-- Releases the WATCH and returns when no requested id is in the blob.
-- Counts those prunes as redis.pruneSessionTokens.noop.
-- Starts the span before setting the busy flag.
+- Rejects from the WATCH prune on error, as the Lua prune does.
+- Logs prune and orphan cleanup failures instead of sending to Sentry.
+- Keeps skips, conflicts and no-op prunes resolving without error.
 
 Closes FXA-14945</pre></dd>
   </dl>

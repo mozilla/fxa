@@ -1,8 +1,8 @@
 {
-  "commit": "60e3b20e62674a946bf7dd8f6c7689d93ec9f8a8",
-  "summary": "perf(shared): skip the blob rewrite when a prune removes nothing",
-  "description": "Because:\n- Session creation prunes an id that is never cached, so most prunes\n  read the whole blob and wrote it back unchanged.\n- A throw from startSpan would have left pruning disabled for good.\n\nThis commit:\n- Releases the WATCH and returns when no requested id is in the blob.\n- Counts those prunes as redis.pruneSessionTokens.noop.\n- Starts the span before setting the busy flag.\n\nCloses FXA-14945",
-  "timestamp": 1794943332000,
+  "commit": "6b7ee18a705494857de1804b3ac0c7a41cf540cb",
+  "summary": "fix(shared): reject failed session token prunes and log them",
+  "description": "Because:\n- A swallowed prune error kept db.sessionToken.redisPruneFailed from\n  ever firing, and a Redis outage would flood Sentry.\n\nThis commit:\n- Rejects from the WATCH prune on error, as the Lua prune does.\n- Logs prune and orphan cleanup failures instead of sending to Sentry.\n- Keeps skips, conflicts and no-op prunes resolving without error.\n\nCloses FXA-14945",
+  "timestamp": 1794943677000,
   "storybooks": [
     "fxa-admin-panel"
   ],
