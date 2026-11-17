@@ -140,10 +140,19 @@ const ScanQRContainer = ({
       }
     };
 
+    // The resumable socket keeps the channel alive, so the page ends itself.
+    let active = true;
+    let qrTimer: number | undefined;
     (async () => {
       try {
         await integration.createChannel();
         setQrCodeValue(integration.getPairUrl('2'));
+        if (active) {
+          qrTimer = window.setTimeout(
+            giveUp,
+            config.pairing.qrTimeoutMinutes * 60 * 1000
+          );
+        }
       } catch (err) {
         setQrCodeValue('');
         Sentry.captureException(err);
@@ -156,9 +165,18 @@ const ScanQRContainer = ({
 
     return () => {
       // Unsubscribe only — the channel outlives this page for continue_on_mobile.
+      active = false;
+      window.clearTimeout(qrTimer);
       integration.onStateChange = null;
     };
-  }, [integration, navigateWithQuery, fxaStatusState, isSignedIn, totpChecked]);
+  }, [
+    config.pairing.qrTimeoutMinutes,
+    integration,
+    navigateWithQuery,
+    fxaStatusState,
+    isSignedIn,
+    totpChecked,
+  ]);
 
   useEffect(() => {
     if (!isSignedIn) {
