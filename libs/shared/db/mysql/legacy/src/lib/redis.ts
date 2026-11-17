@@ -305,6 +305,13 @@ export class RedisShared {
     const span = tracer.startSpan('redis.pruneSessionTokens');
     try {
       if (!this.pruneRedis) {
+        // WATCH belongs to a connection, and any EXEC on that connection clears
+        // it. On the shared connection, another caller's MULTI/EXEC landing
+        // between our WATCH and EXEC would drop the watch and let a stale write
+        // through. duplicate() opens a separate connection with the same
+        // options, key prefix included, so WATCH and touches use the same key.
+        // commandTimeout bounds each command, so a hung prune releases
+        // `pruning` instead of leaving every later prune skipped.
         this.pruneRedis = this.redis.duplicate({
           commandTimeout: this.timeoutMs,
           // A replay after a reconnect would send MULTI/EXEC without the WATCH.

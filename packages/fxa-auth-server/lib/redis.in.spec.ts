@@ -204,18 +204,23 @@ describe('#integration - Redis', () => {
     });
 
     it('skips the prune when a token is touched between its read and write', async () => {
-      // The first prune creates the prune connection.
+      // The first prune creates the prune connection, which the spy below needs.
       await redis.pruneSessionTokens(uid, []);
       const pruneRedis = redis.pruneRedis;
       const get = pruneRedis.get.bind(pruneRedis);
+      // Another client adds token3 right after the prune reads the key, so the
+      // key changes between the prune's WATCH and its EXEC.
       jest.spyOn(pruneRedis, 'get').mockImplementationOnce(async (key) => {
         const value = await get(key);
         await redis.touchSessionToken(uid, { ...sessionToken, id: 'token3' });
         return value;
       });
 
+      // WATCH aborts the EXEC, and the prune gives up without retrying.
       await redis.pruneSessionTokens(uid, ['token2']);
 
+      // token3 survives because the prune's stale copy was never written.
+      // token2 survives because the prune was skipped.
       const tokens = await redis.getSessionTokens(uid);
       expect(Object.keys(tokens).sort()).toEqual(
         [sessionToken.id, 'token2', 'token3'].sort()
