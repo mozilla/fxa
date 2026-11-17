@@ -1,0 +1,10 @@
+{
+  "commit": "ab572c1d048e4963fbf9288b1a32a230d758d696",
+  "summary": "fix(settings): time out the pairing scan_qr page",
+  "description": "Because:\n\n- The v2 pairing scan_qr page had no timer and left only on a failed channel.\n- The resumable authority socket reconnects, so an unscanned QR stayed open.\n\nThis commit:\n\n- Adds the pairing.qr_timeout_minutes config (default 5) and sends it to settings.\n- Starts a timer in ScanQRContainer after the QR shows and calls giveUp at the limit.\n- Clears the timer on unmount, and skips it when the channel is not created.\n- Adds jest fake-timer tests for the timeout and the no-fire cases.\n\nCloses FXA-15001",
+  "timestamp": 1794951255000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

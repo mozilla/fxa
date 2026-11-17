@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit ab572c1d048e4963fbf9288b1a32a230d758d696</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit ab572c1d048e4963fbf9288b1a32a230d758d696</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>11/17/2026, 9:34:15 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): time out the pairing scan_qr page</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+- The v2 pairing scan_qr page had no timer and left only on a failed channel.
+- The resumable authority socket reconnects, so an unscanned QR stayed open.
+
+This commit:
+
+- Adds the pairing.qr_timeout_minutes config (default 5) and sends it to settings.
+- Starts a timer in ScanQRContainer after the QR shows and calls giveUp at the limit.
+- Clears the timer on unmount, and skips it when the channel is not created.
+- Adds jest fake-timer tests for the timeout and the no-fire cases.
+
+Closes FXA-15001</pre></dd>
+  </dl>
+</body>
+</html>
