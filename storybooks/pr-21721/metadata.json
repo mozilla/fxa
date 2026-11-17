@@ -1,8 +1,8 @@
 {
-  "commit": "8641199d5b0c7eb20ef488756e2543ae3a57691b",
-  "summary": "docs(shared): explain why the single prune write uses MULTI/EXEC",
-  "description": "Because:\n- Review asked why a one-command write is wrapped in a transaction.\n\nThis commit:\n- Comments that WATCH only guards EXEC, so a bare SET would ignore it.\n\nCloses FXA-14945",
-  "timestamp": 1794883495000,
+  "commit": "a5bf0f2487a68acda1d3470b22e513eea52ca274",
+  "summary": "feat(shared): count successful session token prunes",
+  "description": "Because:\n- Prune outcomes had counters for skip, conflict and error, not success.\n\nThis commit:\n- Counts redis.pruneSessionTokens.success after a committed write.\n- Tests it is counted on success, not on conflict or queued errors.\n\nCloses FXA-14945",
+  "timestamp": 1794883864000,
   "storybooks": [
     "fxa-admin-panel"
   ],

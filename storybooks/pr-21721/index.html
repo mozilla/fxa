@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 8641199d5b0c7eb20ef488756e2543ae3a57691b</title>
+  <title>Storybooks for commit a5bf0f2487a68acda1d3470b22e513eea52ca274</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,21 +23,22 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 8641199d5b0c7eb20ef488756e2543ae3a57691b</h1>
+  <h1>Storybooks for commit a5bf0f2487a68acda1d3470b22e513eea52ca274</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/17/2026, 2:44:55 AM UTC</dd>
+    <dd>11/17/2026, 2:51:04 AM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>docs(shared): explain why the single prune write uses MULTI/EXEC</pre></dd>
+    <dd><pre>feat(shared): count successful session token prunes</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- Review asked why a one-command write is wrapped in a transaction.
+- Prune outcomes had counters for skip, conflict and error, not success.
 
 This commit:
-- Comments that WATCH only guards EXEC, so a bare SET would ignore it.
+- Counts redis.pruneSessionTokens.success after a committed write.
+- Tests it is counted on success, not on conflict or queued errors.
 
 Closes FXA-14945</pre></dd>
   </dl>
