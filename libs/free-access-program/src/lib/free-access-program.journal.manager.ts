@@ -10,8 +10,12 @@ import type { FreeAccessProjection } from '@fxa/shared/cms';
 
 import { FreeAccessProgramJournalManagerConfig } from './free-access-program.journal.manager.config';
 import {
+  deleteFreeAccessProgramPendingNotification,
+  type FreeAccessPendingNotification,
+  getDueFreeAccessProgramPendingNotifications,
   getFreeAccessProgramJournal,
   setFreeAccessProgramJournal,
+  upsertFreeAccessProgramPendingNotifications,
 } from './free-access-program.repository';
 
 @Injectable()
@@ -31,5 +35,33 @@ export class FreeAccessProgramJournalManager {
 
   async set(projection: FreeAccessProjection): Promise<void> {
     return setFreeAccessProgramJournal(this.collectionRef, projection);
+  }
+
+  async queueNotifications(emails: string[], notBefore: number): Promise<void> {
+    return upsertFreeAccessProgramPendingNotifications(
+      this.collectionRef,
+      emails,
+      notBefore
+    );
+  }
+
+  async getDueNotifications(
+    now: number,
+    limit: number
+  ): Promise<FreeAccessPendingNotification[]> {
+    return getDueFreeAccessProgramPendingNotifications(
+      this.collectionRef,
+      now,
+      limit
+    );
+  }
+
+  async deleteNotification(
+    notification: FreeAccessPendingNotification
+  ): Promise<void> {
+    return deleteFreeAccessProgramPendingNotification(
+      this.collectionRef,
+      notification
+    );
   }
 }

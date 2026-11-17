@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import type { Timestamp } from '@google-cloud/firestore';
 import { Test } from '@nestjs/testing';
 
 import { FirestoreService } from '@fxa/shared/db/firestore';
@@ -14,12 +15,16 @@ import * as repository from './free-access-program.repository';
 jest.mock('./free-access-program.repository', () => ({
   getFreeAccessProgramJournal: jest.fn(),
   setFreeAccessProgramJournal: jest.fn(),
+  upsertFreeAccessProgramPendingNotifications: jest.fn(),
+  getDueFreeAccessProgramPendingNotifications: jest.fn(),
+  deleteFreeAccessProgramPendingNotification: jest.fn(),
 }));
 
 describe('FreeAccessProgramJournalManager', () => {
   let manager: FreeAccessProgramJournalManager;
 
   beforeEach(async () => {
+    jest.clearAllMocks();
     const module = await Test.createTestingModule({
       providers: [
         MockFreeAccessProgramJournalManagerConfigProvider,
@@ -86,6 +91,43 @@ describe('FreeAccessProgramJournalManager', () => {
         expect.anything(),
         projection
       );
+    });
+  });
+
+  describe('pending notifications', () => {
+    const notification = {
+      id: 'hash-a',
+      email: 'alice@example.com',
+      updateTime: { seconds: 1, nanoseconds: 0 } as Timestamp,
+    };
+
+    it('forwards queueNotifications to the upsert helper', async () => {
+      await manager.queueNotifications(['alice@example.com'], 1_700_000_000_000);
+
+      expect(
+        repository.upsertFreeAccessProgramPendingNotifications
+      ).toHaveBeenCalledWith({}, ['alice@example.com'], 1_700_000_000_000);
+    });
+
+    it('returns the due notifications from the repository', async () => {
+      jest
+        .mocked(repository.getDueFreeAccessProgramPendingNotifications)
+        .mockResolvedValue([notification]);
+
+      await expect(
+        manager.getDueNotifications(1_700_000_000_000, 500)
+      ).resolves.toEqual([notification]);
+      expect(
+        repository.getDueFreeAccessProgramPendingNotifications
+      ).toHaveBeenCalledWith({}, 1_700_000_000_000, 500);
+    });
+
+    it('forwards deleteNotification to the delete helper', async () => {
+      await manager.deleteNotification(notification);
+
+      expect(
+        repository.deleteFreeAccessProgramPendingNotification
+      ).toHaveBeenCalledWith({}, notification);
     });
   });
 });
