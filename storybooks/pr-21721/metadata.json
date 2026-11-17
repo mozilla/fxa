@@ -1,8 +1,8 @@
 {
-  "commit": "6b7ee18a705494857de1804b3ac0c7a41cf540cb",
-  "summary": "fix(shared): reject failed session token prunes and log them",
-  "description": "Because:\n- A swallowed prune error kept db.sessionToken.redisPruneFailed from\n  ever firing, and a Redis outage would flood Sentry.\n\nThis commit:\n- Rejects from the WATCH prune on error, as the Lua prune does.\n- Logs prune and orphan cleanup failures instead of sending to Sentry.\n- Keeps skips, conflicts and no-op prunes resolving without error.\n\nCloses FXA-14945",
-  "timestamp": 1794943677000,
+  "commit": "7ba8aa39b3f1ddf9c52f426760590dab35c729ac",
+  "summary": "feat(shared): prune session tokens in code instead of a Lua script",
+  "description": "Because:\n\n- A team admin asked for a more descriptive name for the session token prune flag.\n\nThis commit:\n\n- Renames the flag watchPrune to pruneSessionTokensServerSide.\n- Renames the env var to SESSION_TOKENS_PRUNE_SERVER_SIDE; the default stays true.\n- Updates the config type, the auth db check, comments and specs.\n\nCloses FXA-14945",
+  "timestamp": 1794944569000,
   "storybooks": [
     "fxa-admin-panel"
   ],
