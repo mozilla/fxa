@@ -56,8 +56,9 @@ type GleanMetricsT = {
   initialize: (
     config: GleanMetricsConfig,
     context: GleanMetricsContext
-  ) => void;
+  ) => Promise<void>;
   setEnabled: (enabled: boolean) => void;
+  setIntegration: (integration: Integration) => void;
   getEnabled: () => boolean;
   isDone: () => Promise<void>;
   pageLoad: (url?: string) => void;
@@ -130,7 +131,7 @@ const getDeviceType: () => DeviceTypes | void = () => {
   }
 };
 
-const initMetrics = async () => {
+const initMetrics = async (integration = metricsContext.integration) => {
   userId.set('');
   userIdSha256.set('');
   const account = currentAccount();
@@ -143,11 +144,11 @@ const initMetrics = async () => {
     // noop
   }
 
-  oauthClientId.set(metricsContext.integration.data.clientId || '');
-  service.set(metricsContext.integration.data.service || '');
+  oauthClientId.set(integration.data.clientId || '');
+  service.set(integration.data.service || '');
 
   deviceType.set(getDeviceType() || '');
-  entrypoint.set(metricsContext.integration.data.entrypoint || '');
+  entrypoint.set(integration.data.entrypoint || '');
   flowId.set(metricsContext.metricsFlow?.flowId || '');
 
   // The join key across the two devices in a pairing. Re-derived on every event
@@ -158,18 +159,14 @@ const initMetrics = async () => {
     pairingChannelId ? await sha256Hex(pairingChannelId) : ''
   );
 
-  utm.campaign.set(metricsContext.integration.data.utmCampaign || '');
-  utm.content.set(metricsContext.integration.data.utmContent || '');
-  utm.medium.set(metricsContext.integration.data.utmMedium || '');
-  utm.source.set(metricsContext.integration.data.utmSource || '');
-  utm.term.set(metricsContext.integration.data.utmTerm || '');
+  utm.campaign.set(integration.data.utmCampaign || '');
+  utm.content.set(integration.data.utmContent || '');
+  utm.medium.set(integration.data.utmMedium || '');
+  utm.source.set(integration.data.utmSource || '');
+  utm.term.set(integration.data.utmTerm || '');
 
-  entrypointQuery.variation.set(
-    metricsContext.integration.data.entrypointVariation || ''
-  );
-  entrypointQuery.experiment.set(
-    metricsContext.integration.data.entrypointExperiment || ''
-  );
+  entrypointQuery.variation.set(integration.data.entrypointVariation || '');
+  entrypointQuery.experiment.set(integration.data.entrypointExperiment || '');
 };
 
 const recordEventMetric = async (
@@ -703,8 +700,10 @@ const createEventFn =
       return;
     }
 
+    // Read at emit time, so a later setIntegration cannot relabel a queued event.
+    const integration = metricsContext?.integration;
     const fn = async () => {
-      await initMetrics();
+      await initMetrics(integration);
 
       // recording the event metric triggers the event ping because Glean is initialized with `maxEvents: 1`
       await recordEventMetric(eventName, gleanPingMetrics);
@@ -717,6 +716,7 @@ export const GleanMetrics: Pick<
   GleanMetricsT,
   | 'initialize'
   | 'setEnabled'
+  | 'setIntegration'
   | 'getEnabled'
   | 'useGlean'
   | 'isDone'
@@ -761,6 +761,12 @@ export const GleanMetrics: Pick<
   setEnabled: (enabled: boolean) => {
     gleanEnabled = enabled;
     Glean.setUploadEnabled(gleanEnabled);
+  },
+
+  setIntegration: (integration: Integration) => {
+    if (metricsContext) {
+      metricsContext = { ...metricsContext, integration };
+    }
   },
 
   getEnabled: () => {

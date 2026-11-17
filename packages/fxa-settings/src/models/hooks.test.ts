@@ -7,11 +7,15 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { ReactNode, createElement } from 'react';
 import * as Sentry from '@sentry/browser';
 
+import { MemoryRouter, useLocation } from 'react-router';
 import { LocalizationProvider, ReactLocalization } from '@fluent/react';
 import {
+  SwitchIntegrationContext,
   useClientInfoState,
   useCmsInfoState,
   useFtlMsgResolver,
+  useLegalTermsState,
+  useSwitchIntegration,
 } from './hooks';
 import { AppContext } from './contexts/AppContext';
 
@@ -128,6 +132,28 @@ describe('useCmsInfoState', () => {
     require('../contexts/DynamicLocalizationContext').useDynamicLocalization.mockReturnValue(
       { currentLocale: 'en-US' }
     );
+  });
+
+  it('reports loading on the render that bumps the integration version, then fetches again', async () => {
+    mockUrlQueryData.get.mockImplementation((key: string) =>
+      key === 'client_id' ? '1234567890abcdef' : null
+    );
+    const seen: ReturnType<typeof useCmsInfoState>[] = [];
+    const { result, rerender } = renderHook(
+      ({ version }) => {
+        const state = useCmsInfoState(version);
+        seen.push(state);
+        return state;
+      },
+      { wrapper: MockAppProvider, initialProps: { version: 0 } }
+    );
+    await waitFor(() => expect(result.current.data).toBeDefined());
+
+    const firstSwitchRender = seen.length;
+    rerender({ version: 1 });
+    expect(seen[firstSwitchRender]).toEqual({ loading: true });
+    await waitFor(() => expect(result.current.data).toBeDefined());
+    expect(mockFetch).toHaveBeenCalledTimes(2);
   });
 
   it('should use default entrypoint when entrypoint is not provided in URL', async () => {
@@ -755,6 +781,33 @@ describe('useClientInfoState', () => {
     expect(result.current.data?.clientInfo.clientId).toBe('1234567890abcdef');
   });
 
+  it('reports loading on the render that bumps the integration version, then fetches again', async () => {
+    mockUrlQueryData.get.mockImplementation((key: string) =>
+      key === 'client_id' ? '1234567890abcdef' : null
+    );
+    const seen: ReturnType<typeof useClientInfoState>[] = [];
+    const { result, rerender } = renderHook(
+      ({ version }) => {
+        const state = useClientInfoState(version);
+        seen.push(state);
+        return state;
+      },
+      { wrapper: MockAppProvider, initialProps: { version: 0 } }
+    );
+    await waitFor(() => expect(result.current.data).toBeDefined());
+
+    rerender({ version: 0 });
+    expect(result.current.data).toBeDefined();
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+
+    const firstSwitchRender = seen.length;
+    rerender({ version: 1 });
+    expect(seen[firstSwitchRender]).toEqual({ loading: true });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.data?.clientInfo.clientId).toBe('1234567890abcdef');
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+
   it('surfaces an Invalid clientId error and does not fetch when client_id is missing', async () => {
     mockUrlQueryData.get.mockReturnValue(null);
     const { isHexadecimal, length } = require('class-validator');
@@ -773,6 +826,71 @@ describe('useClientInfoState', () => {
     expect(result.current.error).toBeInstanceOf(Error);
     expect(result.current.error?.message).toBe('Invalid clientId');
     expect(Sentry.captureException).not.toHaveBeenCalled();
+  });
+});
+
+describe('useLegalTermsState', () => {
+  it('reports loading on the render that bumps the integration version, then fetches again', async () => {
+    jest.clearAllMocks();
+    const { UrlQueryData } = require('../lib/model-data');
+    UrlQueryData.mockImplementation(() => ({
+      get: (key: string) =>
+        ({ context: 'oauth_webchannel_v1', service: 'sync' })[key] ?? null,
+    }));
+    mockFetch.mockResolvedValue({
+      ok: true,
+      text: jest.fn().mockResolvedValue('{"label":"Sync"}'),
+    });
+    const seen: ReturnType<typeof useLegalTermsState>[] = [];
+    const { result, rerender } = renderHook(
+      ({ version }) => {
+        const state = useLegalTermsState(version);
+        seen.push(state);
+        return state;
+      },
+      { wrapper: MockAppProvider, initialProps: { version: 0 } }
+    );
+    await waitFor(() => expect(result.current.data).toBeDefined());
+
+    const firstSwitchRender = seen.length;
+    rerender({ version: 1 });
+    expect(seen[firstSwitchRender]).toEqual({ loading: true });
+    await waitFor(() => expect(result.current.data).toBeDefined());
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('useSwitchIntegration', () => {
+  it('bumps the integration version and navigates with location state', () => {
+    const bumpIntegrationVersion = jest.fn();
+    const wrapper = ({ children }: { children: ReactNode }) =>
+      createElement(
+        MemoryRouter,
+        { initialEntries: ['/pair'] },
+        createElement(
+          SwitchIntegrationContext.Provider,
+          { value: bumpIntegrationVersion },
+          children
+        )
+      );
+    const { result } = renderHook(
+      () => ({
+        switchIntegration: useSwitchIntegration(),
+        location: useLocation(),
+      }),
+      { wrapper }
+    );
+
+    act(() => {
+      result.current.switchIntegration('/signin?client_id=abc', {
+        state: { from: '/pair' },
+      });
+    });
+
+    expect(bumpIntegrationVersion).toHaveBeenCalledTimes(1);
+    expect(result.current.location.pathname).toBe('/signin');
+    expect(result.current.location.search).toBe('?client_id=abc');
+    expect(result.current.location.state).toEqual({ from: '/pair' });
   });
 });
 

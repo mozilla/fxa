@@ -846,6 +846,60 @@ describe('SettingsRoutes', () => {
     expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
   });
 
+  it('ignores a session check that resolves after an integration switch', async () => {
+    (isProbablyFirefox as jest.Mock)
+      .mockReturnValueOnce(true)
+      .mockReturnValueOnce(true);
+    (currentAccount as jest.Mock).mockReturnValue(null);
+    const integration = {
+      isSync: () => false,
+      isDesktopSync: () => false,
+      isFirefoxClientServiceRelay: () => false,
+      isFirefoxDesktopClient: () => true,
+      getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
+      data: { context: {} },
+    };
+    (useIntegration as jest.Mock).mockReturnValue(integration);
+    let resolveFirstUser: (user: object) => void = () => {};
+    (firefox.requestSignedInUser as jest.Mock)
+      .mockImplementationOnce(
+        () => new Promise((resolve) => (resolveFirstUser = resolve))
+      )
+      .mockResolvedValueOnce(null);
+    (useSession as jest.Mock).mockReturnValue({
+      isValid: () => true,
+      isSessionVerified: () => Promise.resolve(true),
+    });
+
+    const { router } = renderWithRouter(
+      <AppContext.Provider
+        value={{ ...mockAppContext(), ...createAppContext() }}
+      >
+        <App flowQueryParams={updatedFlowQueryParams} />
+      </AppContext.Provider>,
+      { route: settingsPath }
+    );
+
+    (useIntegration as jest.Mock).mockReturnValue({ ...integration });
+    await router.navigate(settingsPath);
+    await waitFor(() => {
+      expect(ReactUtils.hardNavigate).toHaveBeenCalledWith(
+        `/?redirect_to=${encodeURIComponent(settingsPath)}`
+      );
+    });
+
+    await act(async () => {
+      resolveFirstUser({
+        email: 'test@example.com',
+        uid: '123',
+        sessionToken: '123',
+        verified: true,
+      });
+    });
+    expect(screen.queryByTestId('settings-profile')).not.toBeInTheDocument();
+  });
+
   it('does not redirect if isSignedIn is true', async () => {
     (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
       data: { isSignedIn: true },
