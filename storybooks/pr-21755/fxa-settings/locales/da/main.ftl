@@ -248,8 +248,6 @@ signin-recovery-code-image-description =
     .aria-label = Dokument, der indeholder skjult tekst.
 signin-totp-code-image-label =
     .aria-label = En enhed med en skjult sekscifret kode.
-confirm-signup-aria-label =
-    .aria-label = En konvolut med et link
 security-shield-aria-label =
     .aria-label = Illustration af en genoprettelsesnøgle til en konto.
 recovery-key-image-aria-label =
@@ -326,6 +324,13 @@ confirmation-link-reused-message = Det bekræftelseslink er allerede blevet brug
 locale-toggle-select-label = Vælg sprog
 locale-toggle-browser-default = Browser-standard
 error-bad-request = Ugyldig forespørgsel
+
+
+pair-unsupported-hint-heading = Afslut parring i appen
+pair-unsupported-hint-step-close-page = Luk denne side
+pair-unsupported-hint-step-app-menu = Tryk på <b>appmenuen</b>
+pair-unsupported-hint-step-sign-in = <b>Log ind</b>,  og skan derefter koden
+pair-unsupported-hint-learn-more-link = Læs mere
 
 
 password-info-balloon-why-password-info = Du skal bruge denne adgangskode for at få adgang til de krypterede data, du gemmer hos os.
@@ -639,6 +644,7 @@ nav-security = Sikkerhed
 nav-connected-services = Forbundne tjenester
 nav-data-collection = Dataindsamling og -brug
 nav-paid-subs = Betalte abonnementer
+nav-email-prefs = Mailindstillinger
 
 
 page-2fa-change-title = Skift totrinsgodkendelse
@@ -1219,6 +1225,11 @@ tfa-qr-code-alt = Brug koden { $code } til at opsætte totrinsgodkendelse i unde
 inline-totp-setup-page-title = Totrinsgodkendelse
 
 
+page-not-found-heading = Siden blev ikke fundet
+page-not-found-description = Den ønskede side blev ikke fundet. Vi har fået besked og vil rette links, der ikke virker.
+page-not-found-home-button = Hjem
+
+
 pair-auth-allow-heading-text = Har du lige logget ind på { -brand-firefox }?
 pair-auth-allow-confirm-button = Ja, godkend enhed
 pair-auth-allow-refuse-device-link = Hvis det ikke var dig, så <a>skift din adgangskode</a>
@@ -1512,6 +1523,7 @@ signin-link-expired-message-2 = Linket, du klikkede på, er udløbet eller er al
 
 
 signin-password-needed-header-2 = Indtast adgangskoden <span>til din { -product-mozilla-account }</span>
+signin-button-start-syncing = Start synkronisering
 signin-subheader-without-logo-with-servicename = Fortsæt til { $serviceName }
 signin-subheader-without-logo-default = Fortsæt til kontoindstillinger
 signin-button = Log ind
@@ -1546,6 +1558,11 @@ signin-passkey-fallback-body = For at beskytte dine data skal du indtaste din ad
 signin-passkey-fallback-password-label = Adgangskode
 signin-passkey-fallback-continue = Fortsæt
 signin-passkey-fallback-forgot-password-link = Glemt adgangskode?
+signin-passkey-fallback-no-prf-heading = Adgangskode kræves på denne enhed
+signin-passkey-fallback-no-prf-description = Denne browser eller enhed kan ikke bruge din adgangsnøgle til at logge ind og synkronisere på egen hånd.
+signin-passkey-fallback-unwrap-failed-heading = Din adgangsnøgle kunne ikke låse synkroniseringen op
+signin-passkey-fallback-unwrap-failed-description = Noget gik galt, så du skal bruge din adgangskode denne gang.
+signin-passkey-fallback-wrap-unusable-link = Læs mere
 
 
 signin-passwordless-code-heading = Indtast bekræftelseskode

@@ -214,8 +214,6 @@ signin-recovery-code-image-description =
     .aria-label = 非表示のテキストを含むドキュメント。
 signin-totp-code-image-label =
     .aria-label = 6 桁のコードが隠されている端末。
-confirm-signup-aria-label =
-    .aria-label = リンクを含む封筒
 # Used for an image of a key on a shield surrounded by 5 other icons representing information that can be recovered with the account recovery key.
 # Other icons and their meaning: Gear (settings), star (favorites), clock (history), magnifying glass (search) and lock (passwords).
 security-shield-aria-label =

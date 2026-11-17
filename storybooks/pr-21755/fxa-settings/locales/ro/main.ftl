@@ -289,8 +289,6 @@ signin-recovery-code-image-description =
     .aria-label = Document care conține text ascuns.
 signin-totp-code-image-label =
     .aria-label = Un dispozitiv cu un cod ascuns de 6 cifre.
-confirm-signup-aria-label =
-    .aria-label = Un plic care conține un link
 security-shield-aria-label =
     .aria-label = Ilustrație care reprezintă o cheie de recuperare a contului.
 recovery-key-image-aria-label =
@@ -367,6 +365,13 @@ confirmation-link-reused-message = Linkul de confirmare a fost deja folosit și 
 locale-toggle-select-label = Selectează limba
 locale-toggle-browser-default = Implicit în browser
 error-bad-request = Cerere nereușită
+
+
+pair-unsupported-hint-heading = Finalizează asocierea în aplicație
+pair-unsupported-hint-step-close-page = Închide această pagină
+pair-unsupported-hint-step-app-menu = Atinge <b>meniul aplicației</b>
+pair-unsupported-hint-step-sign-in = <b>Intră în cont</b> și apoi scanează codul
+pair-unsupported-hint-learn-more-link = Află mai multe
 
 
 password-info-balloon-why-password-info = Ai nevoie de această parolă pentru a accesa orice date criptate pe care le stochezi la noi.
@@ -682,6 +687,7 @@ nav-security = Securitate
 nav-connected-services = Servicii conectate
 nav-data-collection = Colectarea și utilizarea datelor
 nav-paid-subs = Abonamente cu plată
+nav-email-prefs = Preferințe de e-mail
 
 
 page-2fa-change-title = Modifică autentificarea în doi pași
@@ -1265,6 +1271,11 @@ tfa-qr-code-alt = Folosește codul { $code } și configurează autentificarea î
 inline-totp-setup-page-title = Autentificare în doi pași
 
 
+page-not-found-heading = Pagina nu a fost găsită
+page-not-found-description = Pagina pe care ai solicitat-o nu a fost găsită. Am fost anunțați și vom repara orice linkuri care ar putea fi defecte.
+page-not-found-home-button = Acasă
+
+
 pair-auth-allow-heading-text = Tocmai te-ai autentificat în { -brand-firefox }?
 pair-auth-allow-confirm-button = Da, aprobă dispozitivul
 pair-auth-allow-refuse-device-link = Dacă nu ai fost tu, <a>schimbă-ți parola</a>
@@ -1559,6 +1570,7 @@ signin-link-expired-message-2 = Linkul pe care ai dat clic a expirat sau a fost 
 
 
 signin-password-needed-header-2 = Introdu parola <span> pentru contul { -product-mozilla-account }</span>
+signin-button-start-syncing = Începe sincronizarea
 signin-subheader-without-logo-with-servicename = Continuă cu { $serviceName }
 signin-subheader-without-logo-default = Continuă spre setările contului
 signin-button = Intră în cont
@@ -1593,6 +1605,11 @@ signin-passkey-fallback-body = Pentru a-ți păstra datele în siguranță, treb
 signin-passkey-fallback-password-label = Parolă
 signin-passkey-fallback-continue = Continuă
 signin-passkey-fallback-forgot-password-link = Ți-ai uitat parola?
+signin-passkey-fallback-no-prf-heading = Dispozitivul necesită parola
+signin-passkey-fallback-no-prf-description = Browserul sau dispozitivul nu îți poate folosi cheia de acces pentru a intra în cont și a face singur sincronizarea.
+signin-passkey-fallback-unwrap-failed-heading = Cheia de acces nu a putut debloca sincronizarea
+signin-passkey-fallback-unwrap-failed-description = Ceva nu a mers bine, așa că vei avea nevoie de parolă de data aceasta.
+signin-passkey-fallback-wrap-unusable-link = Află mai multe
 
 
 signin-passwordless-code-heading = Introdu codul de confirmare
