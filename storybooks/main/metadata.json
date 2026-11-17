@@ -1,8 +1,8 @@
 {
-  "commit": "5577cbda2c10eec7459f5250d97f895c515f33bf",
-  "summary": "Merge pull request #21745 from mozilla/fap-delay-rp-notifications",
-  "description": "fix(free-access-program): delay RP notifications past memory cache TTL",
-  "timestamp": 1794934602000,
+  "commit": "dece6e320bd27cabf72061a7d75e1f86304ac86c",
+  "summary": "Merge pull request #21759 from mozilla/fxa-15026",
+  "description": "fix(settings): keep account deleted banner while typing on email-first",
+  "timestamp": 1794942412000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
