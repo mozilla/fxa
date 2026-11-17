@@ -17,6 +17,7 @@ import {
   mockAuthorityIntegration,
 } from './mocks';
 import { AuthorityState, Integration } from '../../../../models';
+import { getDefault } from '../../../../lib/config';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import { mockUseFxAStatus } from '../../../../lib/hooks/useFxAStatus/mocks';
 import type { UseFxAStatusResult } from '../../../../lib/hooks';
@@ -410,6 +411,95 @@ describe('Pair2/Authority/ScanQR container', () => {
     expect(integration.onStateChange).toBeNull();
     emitState(integration, AuthorityState.WaitingForAuthorizations);
     expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  // The resumable socket outlives a dropped connection, so a QR nobody scans
+  // only ends by this page's own timer.
+  describe('QR timeout', () => {
+    const QR_TIMEOUT_MS = getDefault().pairing.qrTimeoutMinutes * 60 * 1000;
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+      const fxaStatus: jest.SpyInstance = jest.spyOn(firefox, 'fxaStatus');
+      fxaStatus.mockResolvedValue({ signedInUser: MOCK_SIGNED_IN_USER });
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    const advance = (ms: number) =>
+      act(() => jest.advanceTimersByTimeAsync(ms));
+
+    // The timer starts once the QR is on screen, after the async setup.
+    const showQr = async () => {
+      const result = renderContainer();
+      await waitFor(() =>
+        expect(screen.getByTestId('scan-qr-code')).toHaveAttribute(
+          'data-value',
+          MOCK_PAIR_URL
+        )
+      );
+      return result;
+    };
+
+    it('closes the channel and navigates to the timeout screen when nobody scans', async () => {
+      await showQr();
+
+      await advance(QR_TIMEOUT_MS);
+
+      expect(integration.destroy).toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith(
+        '/pair/authority/timeout_and_cancel',
+        { state: { reason: 'timeout' } }
+      );
+    });
+
+    it('stays on the page until the timeout', async () => {
+      await showQr();
+
+      await advance(QR_TIMEOUT_MS - 1);
+
+      expect(integration.destroy).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    it('does not fire after a scan moves the page on', async () => {
+      const { unmount } = await showQr();
+      emitState(integration, AuthorityState.WaitingForAuthorizations);
+      unmount();
+
+      await advance(QR_TIMEOUT_MS);
+
+      expect(mockNavigate).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalledWith(
+        '/pair/authority/continue_on_mobile'
+      );
+      expect(integration.destroy).not.toHaveBeenCalled();
+    });
+
+    it('does not start when the page unmounts before the channel is created', async () => {
+      integration.createChannel.mockReturnValue(
+        new Promise((resolve) => setTimeout(resolve, 1000))
+      );
+      const { unmount } = renderContainer();
+      await advance(0);
+      unmount();
+
+      await advance(QR_TIMEOUT_MS * 2);
+
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    it('does not start when the channel cannot be created', async () => {
+      integration.createChannel.mockRejectedValue(new Error('unreachable'));
+      renderContainer();
+
+      await advance(QR_TIMEOUT_MS);
+
+      expect(integration.destroy).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
   });
 
   describe('skip', () => {

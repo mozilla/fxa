@@ -636,6 +636,12 @@ const conf = (module.exports = convict({
       env: 'PAIRING_TOTP_MAX_AGE_MINUTES',
       format: Number,
     },
+    qr_timeout_minutes: {
+      default: 5,
+      doc: 'Minutes the v2 pairing QR page waits for a scan before it shows the timeout screen.',
+      env: 'PAIRING_QR_TIMEOUT_MINUTES',
+      format: Number,
+    },
     v2_min_version: {
       ios: {
         default: undefined,
