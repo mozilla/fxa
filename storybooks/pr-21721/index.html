@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 3e1106fd950e1ffaa75f4aac029ff517c69cf11e</title>
+  <title>Storybooks for commit 8641199d5b0c7eb20ef488756e2543ae3a57691b</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,25 +23,21 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 3e1106fd950e1ffaa75f4aac029ff517c69cf11e</h1>
+  <h1>Storybooks for commit 8641199d5b0c7eb20ef488756e2543ae3a57691b</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/17/2026, 2:29:31 AM UTC</dd>
+    <dd>11/17/2026, 2:44:55 AM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>fix(shared): report prune failures to Sentry and count them in statsd</pre></dd>
+    <dd><pre>docs(shared): explain why the single prune write uses MULTI/EXEC</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- Review asked for metrics on each prune failure path, and for Sentry
-  in place of error logs.
+- Review asked why a one-command write is wrapped in a transaction.
 
 This commit:
-- Sends prune errors and unparseable blobs to Sentry instead of logging.
-- Counts unparseable blobs and prune connection errors in statsd.
-- Keeps connection errors as logs, since ioredis repeats them per retry.
-- Adds braces to the queued-command error check.
+- Comments that WATCH only guards EXEC, so a bare SET would ignore it.
 
 Closes FXA-14945</pre></dd>
   </dl>

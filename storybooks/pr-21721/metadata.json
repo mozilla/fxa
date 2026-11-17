@@ -1,8 +1,8 @@
 {
-  "commit": "3e1106fd950e1ffaa75f4aac029ff517c69cf11e",
-  "summary": "fix(shared): report prune failures to Sentry and count them in statsd",
-  "description": "Because:\n- Review asked for metrics on each prune failure path, and for Sentry\n  in place of error logs.\n\nThis commit:\n- Sends prune errors and unparseable blobs to Sentry instead of logging.\n- Counts unparseable blobs and prune connection errors in statsd.\n- Keeps connection errors as logs, since ioredis repeats them per retry.\n- Adds braces to the queued-command error check.\n\nCloses FXA-14945",
-  "timestamp": 1794882571000,
+  "commit": "8641199d5b0c7eb20ef488756e2543ae3a57691b",
+  "summary": "docs(shared): explain why the single prune write uses MULTI/EXEC",
+  "description": "Because:\n- Review asked why a one-command write is wrapped in a transaction.\n\nThis commit:\n- Comments that WATCH only guards EXEC, so a bare SET would ignore it.\n\nCloses FXA-14945",
+  "timestamp": 1794883495000,
   "storybooks": [
     "fxa-admin-panel"
   ],
