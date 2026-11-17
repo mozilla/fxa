@@ -211,12 +211,13 @@ describe('RedisShared', () => {
 
     const withMetrics = () => {
       const metrics = { increment: jest.fn() };
+      const log = { error: jest.fn() };
       const shared = new RedisShared(
         { host: 'localhost', port: 6379 },
-        undefined,
+        log as unknown as ILogger,
         metrics as unknown as StatsD
       );
-      return { metrics, shared, client: pruneClientOf(shared) };
+      return { metrics, log, shared, client: pruneClientOf(shared) };
     };
 
     it('counts a prune that removes nothing as a noop, not a success', async () => {
@@ -291,34 +292,53 @@ describe('RedisShared', () => {
       );
     });
 
-    it('records Redis errors, clears the WATCH, and does not reject', async () => {
-      const { metrics, shared, client } = withMetrics();
+    it('rejects on a Redis error after clearing the WATCH, counting and logging it', async () => {
+      const { metrics, log, shared, client } = withMetrics();
       const error = new Error('down');
       client.get.mockRejectedValue(error);
 
-      expect(await shared.pruneSessionTokens('uid', ['t1'])).toBeUndefined();
+      await expect(shared.pruneSessionTokens('uid', ['t1'])).rejects.toBe(
+        error
+      );
       expect(client.multi).not.toHaveBeenCalled();
       expect(client.unwatch).toHaveBeenCalled();
       expect(metrics.increment).toHaveBeenCalledWith(
         'redis.pruneSessionTokens.error'
       );
-      expect(Sentry.captureException).toHaveBeenCalledWith(error);
+      expect(log.error).toHaveBeenCalledWith('RedisShared', {
+        msg: 'RedisShared: pruneSessionTokens failed',
+        error,
+      });
+      expect(Sentry.captureException).not.toHaveBeenCalled();
     });
 
-    it('records an error from a queued command in the transaction', async () => {
+    it('accepts the next prune after one fails', async () => {
+      const { shared, client } = withMetrics();
+      client.get.mockRejectedValueOnce(new Error('down'));
+      await expect(shared.pruneSessionTokens('uid', ['t1'])).rejects.toThrow(
+        'down'
+      );
+      client.get.mockResolvedValue(blob);
+      client.tx.exec.mockResolvedValue([[null, 'OK']]);
+
+      expect(await shared.pruneSessionTokens('uid', ['t1'])).toBe('OK');
+    });
+
+    it('rejects on an error from a queued command in the transaction', async () => {
       const { metrics, shared, client } = withMetrics();
       const error = new Error('OOM');
       client.get.mockResolvedValue(blob);
       client.tx.exec.mockResolvedValue([[error, null]]);
 
-      expect(await shared.pruneSessionTokens('uid', ['t1'])).toBeUndefined();
+      await expect(shared.pruneSessionTokens('uid', ['t1'])).rejects.toBe(
+        error
+      );
       expect(metrics.increment).toHaveBeenCalledWith(
         'redis.pruneSessionTokens.error'
       );
       expect(metrics.increment).not.toHaveBeenCalledWith(
         'redis.pruneSessionTokens.success'
       );
-      expect(Sentry.captureException).toHaveBeenCalledWith(error);
     });
 
     describe('when watchPrune is false', () => {

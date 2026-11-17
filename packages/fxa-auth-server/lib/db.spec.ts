@@ -3,12 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { createMock } from '@golevelup/ts-jest';
-import * as Sentry from '@sentry/node';
 import { AuthLogger } from './types';
-
-jest.mock('@sentry/node', () => ({
-  captureException: jest.fn(),
-}));
 
 // Mock @fxa/shared/db/mysql/legacy to prevent real DB connections
 jest.mock('@fxa/shared/db/mysql/legacy', () => ({
@@ -565,19 +560,37 @@ describe('redis enabled, token-pruning enabled:', () => {
       expect(models.SessionToken.existingTokenIds).not.toHaveBeenCalled();
     });
 
-    it('counts and reports a failed existence check without rejecting', async () => {
-      const error = new Error('ECONNREFUSED');
-      models.SessionToken.existingTokenIds = jest.fn().mockRejectedValue(error);
+    it('counts and logs a failed existence check without rejecting', async () => {
+      const err = new Error('ECONNREFUSED');
+      models.SessionToken.existingTokenIds = jest.fn().mockRejectedValue(err);
       db.metrics = { increment: jest.fn() };
-      (Sentry.captureException as jest.Mock).mockClear();
 
       await expect(prune()).resolves.toBeUndefined();
 
       expect(db.metrics.increment).toHaveBeenCalledWith(
         'db.sessions.orphanedRedisTokens.error'
       );
-      expect(Sentry.captureException).toHaveBeenCalledWith(error);
+      expect(log.error).toHaveBeenCalledWith(
+        'DB.pruneOrphanedCachedSessionTokens',
+        { uid: 'wibble', err }
+      );
       expect(redis.pruneSessionTokens).not.toHaveBeenCalled();
+    });
+
+    it('counts and logs a failed Redis prune without rejecting', async () => {
+      const err = new Error('Command timed out');
+      redis.pruneSessionTokens = jest.fn().mockRejectedValue(err);
+      db.metrics = { increment: jest.fn() };
+
+      await expect(prune()).resolves.toBeUndefined();
+
+      expect(db.metrics.increment).toHaveBeenCalledWith(
+        'db.sessions.orphanedRedisTokens.error'
+      );
+      expect(log.error).toHaveBeenCalledWith(
+        'DB.pruneOrphanedCachedSessionTokens',
+        { uid: 'wibble', err }
+      );
     });
   });
 

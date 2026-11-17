@@ -608,8 +608,10 @@ describe('Redis down', () => {
   });
 
   describe('pruneSessionTokens', () => {
-    it('resolves without error', async () => {
-      await expect(downRedis.pruneSessionTokens(uid)).resolves.toBeUndefined();
+    it('rejects when Redis does not answer', async () => {
+      await expect(downRedis.pruneSessionTokens(uid)).rejects.toThrow(
+        'Command timed out'
+      );
     });
   });
 });

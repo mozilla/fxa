@@ -302,8 +302,9 @@ export class RedisShared {
     if (this.config.watchPrune === false) {
       return this.pruneSessionTokensWithLua(uid, tokenIds);
     }
-    // A busy connection, a conflict or an error skips the prune. The entries
-    // it leaves are removed the next time db.sessions reads the account.
+    // A busy connection or a conflict skips the prune, and an error rejects.
+    // The entries left behind are removed the next time db.sessions reads the
+    // account.
     if (this.pruning) {
       this.metrics?.increment('redis.pruneSessionTokens.skipped');
       return;
@@ -388,8 +389,13 @@ export class RedisShared {
       // A stale WATCH would abort the next prune's EXEC.
       this.pruneRedis?.unwatch().catch(() => {});
       this.metrics?.increment('redis.pruneSessionTokens.error');
-      Sentry.captureException(error);
-      return;
+      // Logged, not sent to Sentry: a Redis outage fails every prune.
+      this.log?.error('RedisShared', {
+        msg: 'RedisShared: pruneSessionTokens failed',
+        error,
+      });
+      // Rejects, as the Lua prune does, so callers can count the failure.
+      throw error;
     } finally {
       this.pruning = false;
       span.end();
