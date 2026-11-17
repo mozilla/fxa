@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 0cad267bcb26284de3d408396cfe2d890f5c16dd</title>
+  <title>Storybooks for commit 60e3b20e62674a946bf7dd8f6c7689d93ec9f8a8</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,25 +23,25 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 0cad267bcb26284de3d408396cfe2d890f5c16dd</h1>
+  <h1>Storybooks for commit 60e3b20e62674a946bf7dd8f6c7689d93ec9f8a8</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/17/2026, 7:09:03 PM UTC</dd>
+    <dd>11/17/2026, 7:22:12 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>feat(shared): gate the WATCH prune and orphan cleanup behind a flag</pre></dd>
+    <dd><pre>perf(shared): skip the blob rewrite when a prune removes nothing</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
-- Review asked to be able to switch back to the previous pruning
-  quickly if the new code misbehaves in production.
+- Session creation prunes an id that is never cached, so most prunes
+  read the whole blob and wrote it back unchanged.
+- A throw from startSpan would have left pruning disabled for good.
 
 This commit:
-- Adds redis.sessionTokens.watchPrune (SESSIONS_REDIS_WATCH_PRUNE), on.
-- Restores pruneSessionTokens_1 for the flag&#039;s off position.
-- Skips the db.sessions orphan cleanup when the flag is off.
-- Tests both positions, including the Lua prune against real Redis.
+- Releases the WATCH and returns when no requested id is in the blob.
+- Counts those prunes as redis.pruneSessionTokens.noop.
+- Starts the span before setting the busy flag.
 
 Closes FXA-14945</pre></dd>
   </dl>
