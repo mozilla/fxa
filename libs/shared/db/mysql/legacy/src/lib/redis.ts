@@ -346,6 +346,8 @@ export class RedisShared {
         delete tokens[id];
       }
 
+      // WATCH only applies to EXEC, so the write must go through MULTI/EXEC
+      // even though it is a single command; a bare SET would ignore the WATCH.
       const tx = redis.multi();
       if (Object.keys(tokens).length === 0) {
         tx.del(uid);
