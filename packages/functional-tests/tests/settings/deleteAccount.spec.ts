@@ -67,6 +67,10 @@ test.describe('severity-1 #smoke', () => {
     await deleteAccount.deleteAccount(credentials.password);
 
     await expect(page.getByText('Account deleted successfully')).toBeVisible();
+
+    await signin.emailTextbox.pressSequentially('user@example.com');
+
+    await expect(page.getByText('Account deleted successfully')).toHaveCount(1);
   });
 
   test('delete account incorrect password', async ({

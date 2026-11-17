@@ -298,6 +298,7 @@ const IndexContainer = ({
           break;
         default:
           setErrorBannerMessage(localizedError);
+          setSuccessBannerMessage('');
       }
     },
     [ftlMsgResolver]
@@ -412,6 +413,8 @@ const IndexContainer = ({
         // if email verification fails, clear from params to avoid re-use
         if (!isManualSubmission) {
           clearEmailParams();
+          // A failed auto-submit stays on email-first, so show the form.
+          setIsLoading(false);
         }
         handleEmailSubmissionError(email, error);
       }
