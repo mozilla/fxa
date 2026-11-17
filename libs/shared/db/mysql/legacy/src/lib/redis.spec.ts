@@ -272,6 +272,7 @@ describe('RedisShared', () => {
       expect(shared.redis.duplicate).toHaveBeenCalledTimes(1);
       expect(shared.redis.duplicate).toHaveBeenCalledWith({
         commandTimeout: 1000,
+        autoResendUnfulfilledCommands: false,
       });
     });
   });

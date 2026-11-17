@@ -307,6 +307,8 @@ export class RedisShared {
       if (!this.pruneRedis) {
         this.pruneRedis = this.redis.duplicate({
           commandTimeout: this.timeoutMs,
+          // A replay after a reconnect would send MULTI/EXEC without the WATCH.
+          autoResendUnfulfilledCommands: false,
         });
         this.pruneRedis.on('error', (error) => {
           this.log?.error('RedisShared', {

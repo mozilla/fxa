@@ -3,7 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { createMock } from '@golevelup/ts-jest';
+import * as Sentry from '@sentry/node';
 import { AuthLogger } from './types';
+
+jest.mock('@sentry/node', () => ({
+  captureException: jest.fn(),
+}));
 
 // Mock @fxa/shared/db/mysql/legacy to prevent real DB connections
 jest.mock('@fxa/shared/db/mysql/legacy', () => ({
@@ -530,6 +535,21 @@ describe('redis enabled, token-pruning enabled:', () => {
       const sessions = await db.sessions('wibble');
 
       expect(sessions.map((s: { id: string }) => s.id)).toEqual([LISTED_ID]);
+      expect(redis.pruneSessionTokens).not.toHaveBeenCalled();
+    });
+
+    it('counts and reports a failed prune', async () => {
+      const error = new Error('ECONNREFUSED');
+      models.SessionToken.existingTokenIds = jest.fn().mockRejectedValue(error);
+      db.metrics = { increment: jest.fn() };
+      (Sentry.captureException as jest.Mock).mockClear();
+
+      await db.sessions('wibble');
+
+      expect(db.metrics.increment).toHaveBeenCalledWith(
+        'db.sessions.orphanedRedisTokens.error'
+      );
+      expect(Sentry.captureException).toHaveBeenCalledWith(error);
       expect(redis.pruneSessionTokens).not.toHaveBeenCalled();
     });
   });

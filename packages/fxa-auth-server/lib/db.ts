@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import crypto from 'crypto';
+import * as Sentry from '@sentry/node';
 import {
   filterExpiredTokens,
   findUnlistedCachedSessionTokenIds,
@@ -875,8 +876,10 @@ export const createDB = (
           orphaned.length
         );
         await this.redis.pruneSessionTokens(uid, orphaned);
-      } catch (unusedErr) {
-        // Ignore errors; the next read retries.
+      } catch (err) {
+        // The next read retries, so do not fail the session read.
+        this.metrics?.increment('db.sessions.orphanedRedisTokens.error');
+        Sentry.captureException(err);
       }
     }
 
