@@ -6,7 +6,8 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { isNovaTheme, sized, withNova } from './nova';
+import { isNovaTheme, sized, stripCmsColors, withNova } from './nova';
+import type { RelierCmsInfo } from '../models/integrations';
 
 const Legacy = () => <span>legacy</span>;
 const Nova = () => <span>nova</span>;
@@ -67,5 +68,53 @@ describe('sized', () => {
       'mt-1',
       'nova:text-icon-success'
     );
+  });
+});
+
+describe('stripCmsColors', () => {
+  const cmsInfo = {
+    name: '123Done',
+    clientId: 'dcdb5ae7add825d2',
+    entrypoint: 'purple',
+    shared: {
+      buttonColor: '#4845D2',
+      headlineTextColor: '#FF0000',
+      headlineFontSize: 'large',
+      illustrationsTheme: { primary: '#00FF00', hideClouds: true },
+      logoUrl: 'https://example.com/logo.svg',
+      logoAltText: '123Done logo',
+      pageTitle: '123Done',
+      backgrounds: { header: 'red' },
+      featureFlags: { syncHidePromoAfterLogin: true },
+    },
+    EmailFirstPage: { headline: 'Make Space for What Matters' },
+  } as unknown as RelierCmsInfo;
+
+  afterEach(() => {
+    delete document.documentElement.dataset.theme;
+  });
+
+  it('returns the CMS config unchanged without the Nova theme', () => {
+    expect(stripCmsColors(cmsInfo)).toBe(cmsInfo);
+  });
+
+  it('drops only the CMS colors under the Nova theme', () => {
+    document.documentElement.dataset.theme = 'nova';
+    expect(stripCmsColors(cmsInfo)).toEqual({
+      ...cmsInfo,
+      shared: {
+        ...cmsInfo.shared,
+        buttonColor: undefined,
+        headlineTextColor: undefined,
+        illustrationsTheme: undefined,
+      },
+    });
+  });
+
+  it('passes through a missing config or a config with no shared section', () => {
+    document.documentElement.dataset.theme = 'nova';
+    expect(stripCmsColors(undefined)).toBeUndefined();
+    const noShared = {} as RelierCmsInfo;
+    expect(stripCmsColors(noShared)).toBe(noShared);
   });
 });
