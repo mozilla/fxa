@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { readdirSync, readFileSync } from 'fs';
 import Redis, { RedisOptions } from 'ioredis';
+import * as Sentry from '@sentry/node';
 import { basename, extname, resolve } from 'path';
 import { StatsD } from 'hot-shots';
 
@@ -317,7 +318,10 @@ export class RedisShared {
           // A replay after a reconnect would send MULTI/EXEC without the WATCH.
           autoResendUnfulfilledCommands: false,
         });
+        // Logged, not sent to Sentry: ioredis emits this on every failed
+        // reconnect, so an outage would flood Sentry.
         this.pruneRedis.on('error', (error) => {
+          this.metrics?.increment('redis.pruneSessionTokens.connectionError');
           this.log?.error('RedisShared', {
             msg: 'RedisShared: prune connection error',
             error,
@@ -331,10 +335,9 @@ export class RedisShared {
       try {
         tokens = parseSessionTokens(value);
       } catch (error) {
-        this.log?.error('RedisShared', {
-          msg: 'RedisShared: deleting unparseable session token blob',
-          error,
-        });
+        // Treated as holding no tokens, so the blob is deleted below.
+        this.metrics?.increment('redis.pruneSessionTokens.unparseable');
+        Sentry.captureException(error);
         tokens = {};
       }
 
@@ -356,16 +359,15 @@ export class RedisShared {
         return;
       }
       const [err, result] = results[0];
-      if (err) throw err;
+      if (err) {
+        throw err;
+      }
       return result;
     } catch (error) {
       // A stale WATCH would abort the next prune's EXEC.
       this.pruneRedis?.unwatch().catch(() => {});
       this.metrics?.increment('redis.pruneSessionTokens.error');
-      this.log?.error('RedisShared', {
-        msg: 'RedisShared: pruneSessionTokens failed',
-        error,
-      });
+      Sentry.captureException(error);
       return;
     } finally {
       this.pruning = false;
