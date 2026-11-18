@@ -7,7 +7,7 @@ import { MemoryRouter } from 'react-router';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { IntegrationType } from '../../models/integrations';
 import { PromoQrMobile } from '.';
-import AppLayout from '../AppLayout';
+import AppLayout from '../AppLayout/storybook';
 import { NimbusContext } from '../../models/contexts/NimbusContext';
 
 export default {

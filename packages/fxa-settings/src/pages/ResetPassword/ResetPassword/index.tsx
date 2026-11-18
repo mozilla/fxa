@@ -36,6 +36,10 @@ const ResetPassword = ({
   const signInHref = `/${location.search}`;
 
   const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'password-reset-flow-page-title',
+    'Reset your password'
+  );
 
   useGleanView(() => GleanMetrics.passwordReset.view());
 
@@ -85,7 +89,7 @@ const ResetPassword = ({
   );
 
   return (
-    <AppLayout {...{ setCurrentSplitLayout }}>
+    <AppLayout title={localizedPageTitle} {...{ setCurrentSplitLayout }}>
       <FtlMsg id="password-reset-forgot-heading">
         <h1 className="card-header">Forgot your password?</h1>
       </FtlMsg>

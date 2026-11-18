@@ -32,3 +32,7 @@ signin-recovery-phone-invalid-code-error-link = Use backup authentication codes 
 # "Limits" refers to potential restrictions on how often a recovery phone number can be used for signing in within a given time period.
 # If limits are reached, users may have to use an alternate two-step authentication method or wait until the restriction period is over.
 signin-recovery-phone-success-message = Signed in successfully. Limits may apply if you use your recovery phone again.
+
+# Browser tab title for the page where the user enters a code sent to their recovery phone to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-recovery-phone-page-title = Sign in with recovery phone

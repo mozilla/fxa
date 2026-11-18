@@ -7,3 +7,7 @@ cookies-disabled-enable-prompt-2 = Please enable cookies and local storage in yo
 cookies-disabled-button-try-again = Try again
 # An external link going to: https://support.mozilla.org/kb/cookies-information-websites-store-on-your-computer
 cookies-disabled-learn-more = Learn more
+
+# Browser tab title for the page shown when cookies or local storage are disabled in the browser.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+cookies-disabled-page-title = Cookies and local storage required

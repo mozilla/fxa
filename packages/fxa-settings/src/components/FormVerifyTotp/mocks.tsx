@@ -33,7 +33,7 @@ export const Subject = ({
   const verifyCode = success ? mockVerifyCodeSuccess : mockVerifyCodeFail;
 
   return (
-    <AppLayout>
+    <AppLayout title="Form Verify Totp">
       <FormVerifyTotp
         {...{
           codeLength,

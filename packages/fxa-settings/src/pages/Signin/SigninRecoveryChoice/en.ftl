@@ -16,3 +16,7 @@ signin-recovery-method-code-info-v2 =
 # Shown when a backend service fails and a code cannot be sent to the user's recovery phone.
 signin-recovery-method-send-code-error-heading = There was a problem sending a code to your recovery phone
 signin-recovery-method-send-code-error-description = Please try again later or use your backup authentication codes.
+
+# Browser tab title for the page where the user chooses a recovery method to sign in when they cannot use their authenticator app.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-recovery-method-page-title = Sign in with a recovery method

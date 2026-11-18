@@ -23,3 +23,7 @@ signin-recovery-code-required-error = Backup authentication code required
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-recovery-code-use-phone-failure = There was a problem sending a code to your recovery phone
 signin-recovery-code-use-phone-failure-description = Please try again later.
+
+# Browser tab title for the page where the user enters a backup authentication code to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-recovery-code-page-title = Sign in with a backup code

@@ -5,29 +5,38 @@
 import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../components/AppLayout';
 import CardHeader from '../../components/CardHeader';
+import { useFtlMsgResolver } from '../../models';
 
-const ServerError = () => (
-  <AppLayout>
-    <CardHeader
-      headingTextFtlId="server-error-heading"
-      headingText="500 Error"
-    />
+const ServerError = () => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'server-error-page-title',
+    'Server error'
+  );
 
-    <FtlMsg id="server-error-description">
-      <p className="mt-2 text-sm">
-        Oh dear, something went wrong there. We’ve been notified and will get
-        working on a fix.
-      </p>
-    </FtlMsg>
+  return (
+    <AppLayout title={localizedPageTitle}>
+      <CardHeader
+        headingTextFtlId="server-error-heading"
+        headingText="500 Error"
+      />
 
-    <div className="flex mt-6">
-      <FtlMsg id="server-error-home-button">
-        <a className="cta-primary cta-xl" href="/">
-          Home
-        </a>
+      <FtlMsg id="server-error-description">
+        <p className="mt-2 text-sm">
+          Oh dear, something went wrong there. We’ve been notified and will get
+          working on a fix.
+        </p>
       </FtlMsg>
-    </div>
-  </AppLayout>
-);
+
+      <div className="flex mt-6">
+        <FtlMsg id="server-error-home-button">
+          <a className="cta-primary cta-xl" href="/">
+            Home
+          </a>
+        </FtlMsg>
+      </div>
+    </AppLayout>
+  );
+};
 
 export default ServerError;

@@ -47,6 +47,14 @@ const ResetPasswordWithRecoveryKeyVerified = ({
     'reset-password-with-recovery-key-verified-page-title',
     'Password reset successful'
   );
+  const localizedHintPageTitle = ftlMsgResolver.getMsg(
+    'reset-password-with-recovery-key-verified-hint-page-title',
+    'Add a recovery key hint'
+  );
+  const localizedErrorPageTitle = ftlMsgResolver.getMsg(
+    'error-bad-request-page-title',
+    'Bad request'
+  );
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   useGleanView(() => GleanMetrics.passwordReset.recoveryKeyResetSuccessView());
   useEffect(() => {
@@ -56,7 +64,7 @@ const ResetPasswordWithRecoveryKeyVerified = ({
 
   if (oAuthError) {
     return (
-      <AppLayout title={localizedPageTitle}>
+      <AppLayout title={localizedErrorPageTitle}>
         <Banner
           type="error"
           content={{
@@ -72,7 +80,7 @@ const ResetPasswordWithRecoveryKeyVerified = ({
 
   if (showHint) {
     return (
-      <AppLayout title={localizedPageTitle}>
+      <AppLayout title={localizedHintPageTitle}>
         <div className="w-full flex flex-col gap-4">
           <RecoveryKeySetupHint
             {...{

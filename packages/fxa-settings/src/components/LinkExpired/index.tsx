@@ -6,6 +6,7 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import CardHeader from '../CardHeader';
 import AppLayout from '../AppLayout';
 import { ResendStatus } from '../../lib/types';
+import { useFtlMsgResolver } from '../../models';
 import Banner, { ResendLinkSuccessBanner } from '../Banner';
 
 export type LinkExpiredProps = {
@@ -29,8 +30,14 @@ export const LinkExpired = ({
   resendStatus = ResendStatus.none,
   errorMessage,
 }: LinkExpiredProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    headingTextFtlId,
+    headingText
+  );
+
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <CardHeader {...{ headingText, headingTextFtlId }} />
 
       {resendStatus === ResendStatus.sent && <ResendLinkSuccessBanner />}

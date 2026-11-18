@@ -54,7 +54,7 @@ export const Subject = ({ countries = defaultCountries }) => {
   });
 
   return (
-    <AppLayout>
+    <AppLayout title="Input Phone Number">
       <InputPhoneNumber {...{ register, setValue, countries }} />
     </AppLayout>
   );

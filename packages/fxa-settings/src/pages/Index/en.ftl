@@ -1,5 +1,9 @@
 ## Index / home page
 
+# Browser tab title for the page where the user enters their email to sign in or create an account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+index-page-title = Sign in or create an account
+
 index-header = Enter your email
 index-sync-header = Continue to your { -product-mozilla-account }
 index-sync-subheader = Sync your passwords, tabs, and bookmarks everywhere you use { -brand-firefox }.

@@ -20,6 +20,10 @@ export const viewName = 'cookies-disabled';
 const CookiesDisabled = () => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'cookies-disabled-page-title',
+    'Cookies and local storage required'
+  );
 
   /* HACK / TODO when sunsetting content-server: if this page is hit through content-server's
    * router instead of hitting it directly via `/cookies_disabled?showReactApp=true`, which
@@ -46,7 +50,7 @@ const CookiesDisabled = () => {
   }, [contentRedirect]);
 
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <CardHeader
         headingTextFtlId="cookies-disabled-header"
         headingText="Local storage and cookies are required"

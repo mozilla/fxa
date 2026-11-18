@@ -9,3 +9,7 @@ signup-confirmed-sync-description-v2 = Your passwords, addresses, bookmarks, his
 signup-confirmed-sync-add-device-link = Add another device
 signup-confirmed-sync-manage-sync-button = Manage sync
 signup-confirmed-sync-set-password-success-banner = Sync password created
+
+# Browser tab title for the page confirming that sync is turned on after the user confirmed their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signup-confirmed-sync-page-title = Sync is turned on

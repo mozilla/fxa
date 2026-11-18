@@ -15,7 +15,7 @@ import {
   getPairingChannelHashParams,
   getPairingChannelParams,
 } from '../../../lib/pairing-channel-params';
-import { Integration } from '../../../models';
+import { Integration, useFtlMsgResolver } from '../../../models';
 import {
   isChannelComplete,
   PairingSupplicantIntegration,
@@ -42,6 +42,11 @@ const Supp = ({
   error: errorProp,
   fxaStatusResult,
 }: SuppProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'pair-failure-page-title',
+    'Device pairing failed'
+  );
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const navigateWithQuery = useNavigateWithQuery();
   const [error, setError] = useState<string | undefined>(errorProp);
@@ -169,7 +174,7 @@ const Supp = ({
   ]);
 
   return error ? (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <Banner type="error" content={{ localizedHeading: error }} />
     </AppLayout>
   ) : (

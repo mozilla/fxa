@@ -38,11 +38,16 @@ const ScanQR = ({ qrCodeValue, onSkip }: ScanQRProps) => {
     'QR code to connect your mobile device'
   );
 
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'pair2-authority-scan-qr-page-title',
+    'Scan to connect your mobile device'
+  );
+
   return (
     // The card is rendered here rather than by `AppLayout` so the skip button
     // can sit below it: inside, the artwork is flush with the card's bottom
     // edge and leaves no room.
-    <AppLayout wrapInCard={false}>
+    <AppLayout title={localizedPageTitle} wrapInCard={false}>
       <div className="card text-center mobileLandscape:my-4">
         <FtlMsg id="pair2-authority-scan-qr-heading">
           <h1 className="card-header">Scan to connect your mobile device</h1>

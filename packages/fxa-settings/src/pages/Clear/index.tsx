@@ -15,7 +15,7 @@ const Clear = () => {
   }
 
   return (
-    <AppLayout>
+    <AppLayout title="Browser storage cleared">
       <h1 className="card-header text-center">Browser storage is cleared</h1>
     </AppLayout>
   );

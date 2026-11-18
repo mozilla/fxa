@@ -11,3 +11,7 @@ pair2-authority-scan-qr-code-aria-label = QR code to connect your mobile device
 pair2-authority-scan-qr-other-ways-link = Other ways to sign in
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Skip for now
+
+# Browser tab title for the page showing a QR code the user scans with their mobile device to connect it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-scan-qr-page-title = Scan to connect your mobile device

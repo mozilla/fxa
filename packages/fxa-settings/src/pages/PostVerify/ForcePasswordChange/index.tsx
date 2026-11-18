@@ -71,8 +71,13 @@ export const ForcePasswordChange = ({
     [changePasswordHandler, ftlMsgResolver]
   );
 
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'force-password-change-page-title',
+    'Change your password'
+  );
+
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <FtlMsg id="force-password-change-heading">
         <h1 id="fxa-force-password-change-header" className="card-header">
           Please change your password

@@ -7,15 +7,24 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../../components/AppLayout';
 import CardHeader from '../../../components/CardHeader';
 import Banner from '../../../components/Banner';
+import { useFtlMsgResolver } from '../../../models';
 
 export type CompleteSigninProps = { errorMessage?: string };
 
-const CompleteSignin = ({
-  errorMessage,
-}: CompleteSigninProps) => {
+const CompleteSignin = ({ errorMessage }: CompleteSigninProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedErrorPageTitle = ftlMsgResolver.getMsg(
+    'complete-signin-error-page-title',
+    'Sign-in confirmation error'
+  );
+  const localizedValidatingPageTitle = ftlMsgResolver.getMsg(
+    'complete-signin-validating-page-title',
+    'Confirming sign-in'
+  );
+
   if (errorMessage) {
     return (
-      <AppLayout>
+      <AppLayout title={localizedErrorPageTitle}>
         <CardHeader
           headingText="Confirmation error"
           headingTextFtlId="complete-signin-error-header"
@@ -25,7 +34,7 @@ const CompleteSignin = ({
     );
   } else {
     return (
-      <AppLayout>
+      <AppLayout title={localizedValidatingPageTitle}>
         <FtlMsg id="validating-signin">
           <p className="text-base">Validating sign-in…</p>
         </FtlMsg>

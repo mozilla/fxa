@@ -11,7 +11,7 @@ import AppLayout from '../../../components/AppLayout';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import DeviceInfoBlock from '../../../components/DeviceInfoBlock';
 import Banner from '../../../components/Banner';
-import { Integration } from '../../../models';
+import { Integration, useFtlMsgResolver } from '../../../models';
 import { PairingAuthorityIntegration } from '../../../models/integrations/pairing-authority-integration';
 import { useNavigateWithQuery } from '../../../lib/hooks';
 
@@ -28,6 +28,11 @@ const AuthWaitForSupp = ({
   error,
   integration,
 }: AuthWaitForSuppProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'pair-wait-for-supp-page-title',
+    'Approve on your other device'
+  );
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const navigateWithQuery = useNavigateWithQuery();
   const [deviceInfo, setDeviceInfo] = useState<RemoteMetadata | undefined>(
@@ -72,7 +77,7 @@ const AuthWaitForSupp = ({
   }, [integration, navigateWithQuery]);
 
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <CardHeader
         headingText="Approval now required"
         headingAndSubheadingFtlId="pair-wait-for-supp-heading-text"

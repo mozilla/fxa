@@ -70,7 +70,7 @@ const SigninCached = ({
     legalTerms,
     cmsInfo,
     cachedPageCms,
-    title,
+    cmsPageTitle,
     splitLayout,
     additionalAccessibilityInfo,
     localizedBannerError,
@@ -214,8 +214,16 @@ const SigninCached = ({
     authClient,
   ]);
 
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'signin-cached-page-title',
+    'Sign in'
+  );
+
   return (
-    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
+    <AppLayout
+      {...{ cmsInfo, cmsPageTitle, splitLayout, setCurrentSplitLayout }}
+      title={localizedPageTitle}
+    >
       {(localizedSuccessBannerHeading || localizedSuccessBannerDescription) && (
         <Banner
           type="success"

@@ -10,3 +10,7 @@ report-signin-body = You received an email about attempted access to your accoun
 report-signin-submit-button = Report activity
 report-signin-support-link = Why is this happening?
 report-signin-error = Sorry, there was a problem submitting the report.
+
+# Browser tab title for the page where the user can report a sign-in attempt to their account that they did not make.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+report-signin-page-title = Report unauthorized sign-in

@@ -8,6 +8,7 @@ import AppLayout from '../../components/AppLayout';
 import Banner from '../../components/Banner';
 import { usePageViewEvent } from '../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../constants';
+import { useFtlMsgResolver } from '../../models';
 import { DisplayablePermission } from '../../lib/oauth/permissions';
 
 export type PermissionRow = {
@@ -51,9 +52,14 @@ const Permissions = ({
   bannerErrorMessage,
 }: PermissionsProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'permissions-page-title',
+    'Review permissions'
+  );
 
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       {bannerErrorMessage && (
         <Banner
           type="error"

@@ -5,15 +5,29 @@
 import { FtlMsg } from 'fxa-react/lib/utils';
 import CardHeader from '../CardHeader';
 import AppLayout from '../AppLayout';
+import { useFtlMsgResolver } from '../../models';
 
 type LinkDamagedProps = {
   headingText: string;
   headingTextFtlId: string;
+  pageTitleText?: string;
+  pageTitleFtlId?: string;
 };
 
-const LinkDamaged = ({ headingText, headingTextFtlId }: LinkDamagedProps) => {
+const LinkDamaged = ({
+  headingText,
+  headingTextFtlId,
+  pageTitleText = headingText,
+  pageTitleFtlId = headingTextFtlId,
+}: LinkDamagedProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    pageTitleFtlId,
+    pageTitleText
+  );
+
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <CardHeader {...{ headingText, headingTextFtlId }} />
 
       <FtlMsg id="reset-pwd-link-damaged-message">
@@ -50,6 +64,8 @@ export const ReportSigninLinkDamaged = () => {
     <LinkDamaged
       headingText="Link damaged"
       headingTextFtlId="report-signin-link-damaged-header"
+      pageTitleText="Report link damaged"
+      pageTitleFtlId="report-signin-link-damaged-page-title"
     />
   );
 };

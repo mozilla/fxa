@@ -13,7 +13,7 @@ import {
   PrinterIconListItem,
   ShieldIconListItem,
 } from '.';
-import AppLayout from '../AppLayout';
+import AppLayout from '../AppLayout/storybook';
 
 export default {
   title: 'Components/IconListItem',

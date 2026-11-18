@@ -11,6 +11,7 @@ import AppLayout from '../../../components/AppLayout';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { ReportSigninProps } from './interfaces';
 import Banner from '../../../components/Banner';
+import { useFtlMsgResolver } from '../../../models';
 
 export const viewName = 'report-signin';
 
@@ -19,9 +20,14 @@ export const ReportSignin = ({
   submitReport,
 }: ReportSigninProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'report-signin-page-title',
+    'Report unauthorized sign-in'
+  );
 
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <CardHeader
         headingText="Report unauthorized sign-in?"
         headingTextFtlId="report-signin-header"

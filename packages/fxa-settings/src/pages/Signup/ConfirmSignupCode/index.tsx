@@ -378,16 +378,18 @@ const ConfirmSignupCode = ({
   const additionalAccessibilityInfo =
     cmsInfo?.shared.additionalAccessibilityInfo;
 
-  const title = cmsInfo?.SignupConfirmCodePage?.pageTitle
-    ? cmsInfo?.SignupConfirmCodePage?.pageTitle
-    : ftlMsgResolver.getMsg(
-        'confirm-signup-code-page-title',
-        'Enter confirmation code'
-      );
+  const cmsPageTitle = cmsInfo?.SignupConfirmCodePage?.pageTitle;
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'confirm-signup-code-page-title-2',
+    'Confirm your email'
+  );
   const splitLayout = cmsInfo?.SignupConfirmCodePage?.splitLayout;
 
   return (
-    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
+    <AppLayout
+      {...{ cmsInfo, cmsPageTitle, splitLayout, setCurrentSplitLayout }}
+      title={localizedPageTitle}
+    >
       {cmsInfo ? (
         <>
           {cmsInfo.shared.logoUrl && cmsInfo.shared.logoAltText && (

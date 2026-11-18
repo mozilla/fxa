@@ -31,4 +31,16 @@ describe('Head', () => {
 
     expect(iconLinks()).toHaveLength(0);
   });
+
+  it('appends the product name to the title', () => {
+    renderWithLocalizationProvider(<Head title="Page" />);
+
+    expect(document.title).toBe('Page – Mozilla accounts');
+  });
+
+  it('uses the product name alone without a title', () => {
+    renderWithLocalizationProvider(<Head />);
+
+    expect(document.title).toBe('Mozilla accounts');
+  });
 });

@@ -11,3 +11,7 @@ pair2-supplicant-connect-this-device-heading = Connect this device to your accou
 pair2-supplicant-connect-this-device-connect-button = Connect
 # Dismisses the pairing attempt
 pair2-supplicant-connect-this-device-cancel-button = Cancel
+
+# Browser tab title for the page shown on the mobile device where the user confirms connecting it to their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-connect-this-device-page-title = Connect this device

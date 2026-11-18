@@ -11,6 +11,7 @@ import {
   SyncDevicesImage,
 } from '../../../../components/images';
 import { RemoteMetadata } from '../../../../lib/types';
+import { useFtlMsgResolver } from '../../../../models';
 
 export type ConnectThisDeviceProps = {
   /**
@@ -46,11 +47,16 @@ export const ConnectThisDevice = ({
   onConnect,
   onCancel,
 }: ConnectThisDeviceProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'pair2-supplicant-connect-this-device-page-title',
+    'Connect this device'
+  );
   const awaitingRemoteMetadata = remoteMetadata == null;
   email = email ?? 'foo@mozilla.com';
 
   return (
-    <AppLayout whiteBackground>
+    <AppLayout title={localizedPageTitle} whiteBackground>
       <div className="flex flex-col items-center text-center">
         <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
 

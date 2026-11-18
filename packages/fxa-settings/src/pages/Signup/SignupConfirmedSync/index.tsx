@@ -48,12 +48,19 @@ const SignupConfirmedSync = ({
   const cmsButtonColor = cmsInfo?.shared.buttonColor;
   const cmsButtonText = cmsInfo?.SignupConfirmedSyncPage?.primaryButtonText;
   const cmsHideCTA = !!cmsInfo?.shared.featureFlags?.syncConfirmedPageHideCTA;
-  const title = cmsInfo?.SignupConfirmedSyncPage?.pageTitle;
+  const cmsPageTitle = cmsInfo?.SignupConfirmedSyncPage?.pageTitle;
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'signup-confirmed-sync-page-title',
+    'Sync is turned on'
+  );
   const cmsSyncEnabledImage = cmsInfo?.SignupConfirmedSyncPage?.primaryImage;
   const splitLayout = cmsInfo?.SignupConfirmedSyncPage?.splitLayout;
 
   return (
-    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
+    <AppLayout
+      {...{ cmsInfo, cmsPageTitle, splitLayout, setCurrentSplitLayout }}
+      title={localizedPageTitle}
+    >
       <FallingConfettiImage ariaHidden />
 
       {originPostVerifySetPassword ? (

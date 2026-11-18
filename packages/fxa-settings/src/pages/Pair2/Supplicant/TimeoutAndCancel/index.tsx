@@ -10,6 +10,7 @@ import {
   PairingInterruptedImage,
 } from '../../../../components/images';
 import GleanMetrics from '../../../../lib/glean';
+import { useFtlMsgResolver } from '../../../../models';
 
 /**
  * Why the pairing attempt ended without connecting. Named for the cause rather
@@ -28,6 +29,8 @@ export type PairingInterruptionReason = 'timeout' | 'canceled' | 'signed_in';
 const COPY: Record<
   PairingInterruptionReason,
   {
+    pageTitleFtlId: string;
+    pageTitle: string;
     headingFtlId: string;
     heading: string;
     descriptionFtlId: string;
@@ -40,6 +43,8 @@ const COPY: Record<
   }
 > = {
   timeout: {
+    pageTitleFtlId: 'pair2-supplicant-timeout-and-cancel-timeout-page-title',
+    pageTitle: 'Connection timed out',
     headingFtlId: 'pair2-supplicant-timeout-and-cancel-timeout-heading',
     heading: 'Looks like we timed out',
     descriptionFtlId: 'pair2-supplicant-timeout-and-cancel-timeout-description',
@@ -51,6 +56,8 @@ const COPY: Record<
     ),
   },
   canceled: {
+    pageTitleFtlId: 'pair2-supplicant-timeout-and-cancel-cancelled-page-title',
+    pageTitle: 'Pairing cancelled',
     headingFtlId: 'pair2-supplicant-timeout-and-cancel-cancelled-heading',
     heading: 'Cancelled',
     descriptionFtlId:
@@ -63,15 +70,17 @@ const COPY: Record<
     ),
   },
   signed_in: {
+    pageTitleFtlId: 'pair2-supplicant-timeout-and-cancel-signed-in-page-title',
+    pageTitle: 'Device already signed in',
     headingFtlId: 'pair2-supplicant-timeout-and-cancel-signed-in-heading',
     heading: 'This device is already signed in',
     descriptionFtlId:
       'pair2-supplicant-timeout-and-cancel-signed-in-description',
     description: (
       <>
-        To connect to your desktop account, sign out of Firefox on this
-        device, then visit <b className="whitespace-nowrap">firefox.com/pair</b>{' '}
-        on your computer to complete sign in.
+        To connect to your desktop account, sign out of Firefox on this device,
+        then visit <b className="whitespace-nowrap">firefox.com/pair</b> on your
+        computer to complete sign in.
       </>
     ),
   },
@@ -90,7 +99,16 @@ export type TimeoutAndCancelProps = {
  */
 const TimeoutAndCancel = ({ reason }: TimeoutAndCancelProps) => {
   reason = reason ?? 'timeout';
-  const { headingFtlId, heading, descriptionFtlId, description } = COPY[reason];
+  const {
+    pageTitleFtlId,
+    pageTitle,
+    headingFtlId,
+    heading,
+    descriptionFtlId,
+    description,
+  } = COPY[reason];
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(pageTitleFtlId, pageTitle);
 
   // Custom view event rather than the automatic one: the states share a route,
   // so `reason` is the only thing that tells them apart.
@@ -99,7 +117,7 @@ const TimeoutAndCancel = ({ reason }: TimeoutAndCancelProps) => {
   }, [reason]);
 
   return (
-    <AppLayout whiteBackground>
+    <AppLayout title={localizedPageTitle} whiteBackground>
       <div className="flex flex-col items-center text-center">
         <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
 

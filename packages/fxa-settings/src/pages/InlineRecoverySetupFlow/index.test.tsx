@@ -159,6 +159,46 @@ describe('InlineRecoverySetup', () => {
     expect(navigateBackward).toHaveBeenCalledTimes(1);
   });
 
+  it.each([
+    { step: 'choice', props: {}, title: 'Choose a recovery method' },
+    {
+      step: 'backup code download',
+      props: { flowHasPhoneChoice: false, backupCodes: MOCK_BACKUP_CODES },
+      title: 'Save your backup codes',
+    },
+    {
+      step: 'backup code confirmation',
+      props: {
+        flowHasPhoneChoice: false,
+        backupCodes: MOCK_BACKUP_CODES,
+        currentStep: 2,
+      },
+      title: 'Confirm a backup code',
+    },
+    {
+      step: 'recovery phone number',
+      props: { currentStep: 2, backupMethod: CHOICES.phone },
+      title: 'Add a recovery phone',
+    },
+    {
+      step: 'recovery phone confirmation',
+      props: { currentStep: 3, backupMethod: CHOICES.phone },
+      title: 'Confirm your recovery phone',
+    },
+    {
+      step: 'complete',
+      props: {
+        currentStep: 4,
+        backupMethod: CHOICES.code,
+        backupCodes: MOCK_BACKUP_CODES,
+      },
+      title: 'Two-step authentication on',
+    },
+  ])('sets the $step page title', ({ props: stepProps, title }) => {
+    renderWithRouter(<InlineRecoverySetup {...props} {...stepProps} />);
+    expect(document.title).toBe(`${title} – Mozilla accounts`);
+  });
+
   it('when phone is unavailable, renders the code download screen with provided codes', async () => {
     renderWithRouter(
       <InlineRecoverySetup

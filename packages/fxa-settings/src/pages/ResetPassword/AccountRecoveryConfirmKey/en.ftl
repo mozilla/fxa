@@ -14,3 +14,7 @@ account-recovery-confirm-key-hint = Your storage hint is:
 account-recovery-confirm-key-button-2 = Continue
 # Link that leads to the password reset page (without recovery code)
 account-recovery-lost-recovery-key-link-2 = Can’t find your account recovery key?
+
+# Browser tab title for the page where the user enters their account recovery key to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+account-recovery-confirm-key-page-title = Reset password with recovery key

@@ -7,3 +7,7 @@ pair2-authority-continue-on-mobile-heading = Continue on your mobile device
 pair2-authority-continue-on-mobile-description = Follow the steps on your phone or tablet.
 # Dismisses the pairing attempt
 pair2-authority-continue-on-mobile-cancel-button = Cancel
+
+# Browser tab title for the page telling the user to continue connecting their device on their mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-continue-on-mobile-page-title = Continue on your mobile device

@@ -50,6 +50,10 @@ const ResetPasswordRecoveryChoice = ({
 
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'password-reset-recovery-method-page-title',
+    'Reset password with a recovery method'
+  );
 
   const generalSendCodeErrorHeading = ftlMsgResolver.getMsg(
     'password-reset-recovery-method-send-code-error-heading',
@@ -140,7 +144,7 @@ const ResetPasswordRecoveryChoice = ({
   ];
 
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <div className="relative flex items-center mb-5">
         <ButtonBack />
         <FtlMsg id="password-reset-recovery-method-header">

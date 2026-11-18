@@ -4,7 +4,7 @@
 
 import { ComponentProps } from 'react';
 import CardHeader from '.';
-import AppLayout from '../AppLayout';
+import AppLayout from '../AppLayout/storybook';
 import { Meta } from '@storybook/react';
 import {
   MOCK_DEFAULT_HEADING_FTL_ID,

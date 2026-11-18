@@ -4,7 +4,7 @@
 
 import DeviceInfoBlock, { DeviceNameDisplay } from '.';
 import { RemoteMetadata } from '../../lib/types';
-import AppLayout from '../AppLayout';
+import AppLayout from '../AppLayout/storybook';
 import { Meta } from '@storybook/react';
 import {
   MOCK_METADATA_UNKNOWN_LOCATION,

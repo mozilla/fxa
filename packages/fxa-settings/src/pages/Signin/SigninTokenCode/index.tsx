@@ -243,13 +243,20 @@ const SigninTokenCode = ({
   );
 
   const cmsInfo = integration?.getCmsInfo();
-  const title = cmsInfo?.SigninTokenCodePage?.pageTitle;
+  const cmsPageTitle = cmsInfo?.SigninTokenCodePage?.pageTitle;
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'signin-token-code-page-title',
+    'Confirm sign-in with email code'
+  );
   const splitLayout = cmsInfo?.SigninTokenCodePage?.splitLayout;
   const additionalAccessibilityInfo =
     cmsInfo?.shared.additionalAccessibilityInfo;
 
   return (
-    <AppLayout {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}>
+    <AppLayout
+      {...{ cmsInfo, cmsPageTitle, splitLayout, setCurrentSplitLayout }}
+      title={localizedPageTitle}
+    >
       <CardHeader
         headingText="Enter confirmation code"
         headingAndSubheadingFtlId="signin-token-code-heading-2"

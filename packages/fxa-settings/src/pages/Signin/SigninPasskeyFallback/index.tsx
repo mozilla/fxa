@@ -141,8 +141,13 @@ const SigninPasskeyFallback = ({
     [onContinue, passkeySurface, localizedValidPasswordError]
   );
 
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'signin-passkey-fallback-page-title',
+    'Enter your password to sync'
+  );
+
   return (
-    <AppLayout cmsInfo={cmsInfo}>
+    <AppLayout cmsInfo={cmsInfo} title={localizedPageTitle}>
       {wrapUnusableBanner && <Banner {...wrapUnusableBanner} />}
       {bannerErrorText && (
         <Banner type="error" content={{ localizedHeading: bannerErrorText }} />

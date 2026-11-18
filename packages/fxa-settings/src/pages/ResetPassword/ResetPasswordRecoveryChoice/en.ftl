@@ -17,3 +17,7 @@ password-reset-recovery-method-code-info =
 # Shown when a backend service fails and a code cannot be sent to the user's recovery phone.
 password-reset-recovery-method-send-code-error-heading = There was a problem sending a code to your recovery phone
 password-reset-recovery-method-send-code-error-description = Please try again later or use your backup authentication codes.
+
+# Browser tab title for the page where the user chooses a recovery method to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+password-reset-recovery-method-page-title = Reset password with a recovery method

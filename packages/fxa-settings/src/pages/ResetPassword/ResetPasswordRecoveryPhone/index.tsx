@@ -64,6 +64,10 @@ const ResetPasswordRecoveryPhone = ({
     useState(false);
   const ftlMsgResolver = useFtlMsgResolver();
   const cmsInfo = integration?.getCmsInfo();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'reset-password-recovery-phone-page-title',
+    'Reset password with recovery phone'
+  );
 
   const spanElement = <span className="font-bold">{lastFourPhoneDigits}</span>;
 
@@ -171,7 +175,7 @@ const ResetPasswordRecoveryPhone = ({
   };
 
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <div className="relative flex items-center">
         <ButtonBack />
         <FtlMsg id="reset-password-recovery-phone-flow-heading">

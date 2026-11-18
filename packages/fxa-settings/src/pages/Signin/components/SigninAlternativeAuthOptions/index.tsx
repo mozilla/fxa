@@ -75,7 +75,7 @@ const SigninAlternativeAuthOptions = ({
     legalTerms,
     cmsInfo,
     cachedPageCms,
-    title,
+    cmsPageTitle,
     splitLayout,
     additionalAccessibilityInfo,
     localizedBannerError,
@@ -98,9 +98,15 @@ const SigninAlternativeAuthOptions = ({
 
   const authInProgress = passkey.isLoading;
 
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'signin-alternative-auth-page-title',
+    'Choose a sign-in method'
+  );
+
   return (
     <AppLayout
-      {...{ cmsInfo, title, splitLayout, setCurrentSplitLayout }}
+      {...{ cmsInfo, cmsPageTitle, splitLayout, setCurrentSplitLayout }}
+      title={localizedPageTitle}
       loading={passkey.isNavigating}
     >
       {(localizedSuccessBannerHeading || localizedSuccessBannerDescription) && (

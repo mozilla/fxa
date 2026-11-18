@@ -19,3 +19,7 @@ confirm-reset-password-otp-resend-code-button = Resend code
 
 # Link to cancel the password reset and sign in with a different account
 confirm-reset-password-otp-different-account-link = Use a different account
+
+# Browser tab title for the page where the user enters the confirmation code emailed to them to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-reset-password-with-code-page-title = Check your email to reset your password

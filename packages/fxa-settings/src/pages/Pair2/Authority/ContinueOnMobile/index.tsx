@@ -6,6 +6,7 @@ import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../../../components/AppLayout';
 import { MobileDevicePairingImage } from '../../../../components/images';
+import { useFtlMsgResolver } from '../../../../models';
 
 export type ContinueOnMobileProps = {
   /**
@@ -24,30 +25,37 @@ export type ContinueOnMobileProps = {
  * channel reports the mobile device is done, so there is deliberately no
  * primary action. Cancel is the only control.
  */
-export const ContinueOnMobile = ({ onCancel }: ContinueOnMobileProps) => (
-  <AppLayout>
-    <div className="flex flex-col items-center text-center">
-      <FtlMsg id="pair2-authority-continue-on-mobile-heading">
-        <h1 className="card-header">Continue on your mobile device</h1>
-      </FtlMsg>
-      <FtlMsg id="pair2-authority-continue-on-mobile-description">
-        <p className="text-base">Follow the steps on your phone or tablet.</p>
-      </FtlMsg>
+export const ContinueOnMobile = ({ onCancel }: ContinueOnMobileProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'pair2-authority-continue-on-mobile-page-title',
+    'Continue on your mobile device'
+  );
+  return (
+    <AppLayout title={localizedPageTitle}>
+      <div className="flex flex-col items-center text-center">
+        <FtlMsg id="pair2-authority-continue-on-mobile-heading">
+          <h1 className="card-header">Continue on your mobile device</h1>
+        </FtlMsg>
+        <FtlMsg id="pair2-authority-continue-on-mobile-description">
+          <p className="text-base">Follow the steps on your phone or tablet.</p>
+        </FtlMsg>
 
-      <MobileDevicePairingImage className="mt-8 h-40 w-auto" />
+        <MobileDevicePairingImage className="mt-8 h-40 w-auto" />
 
-      <FtlMsg id="pair2-authority-continue-on-mobile-cancel-button">
-        <button
-          type="button"
-          onClick={onCancel}
-          data-glean-id="dtm_desktop_continue_cancel"
-          className="link-dark-grey"
-        >
-          Cancel
-        </button>
-      </FtlMsg>
-    </div>
-  </AppLayout>
-);
+        <FtlMsg id="pair2-authority-continue-on-mobile-cancel-button">
+          <button
+            type="button"
+            onClick={onCancel}
+            data-glean-id="dtm_desktop_continue_cancel"
+            className="link-dark-grey"
+          >
+            Cancel
+          </button>
+        </FtlMsg>
+      </div>
+    </AppLayout>
+  );
+};
 
 export default ContinueOnMobile;

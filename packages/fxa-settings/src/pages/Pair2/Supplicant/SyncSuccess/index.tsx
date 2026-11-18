@@ -9,14 +9,20 @@ import {
   FirefoxWordmarkImage,
   SyncSuccessImage,
 } from '../../../../components/images';
+import { useFtlMsgResolver } from '../../../../models';
 
 /**
  * The mobile screen shown once pairing has completed: the device is signed in
  * and syncing. It confirms that syncing has started.
  */
 const SyncSuccess = () => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'pair2-supplicant-sync-success-page-title',
+    'Device connected'
+  );
   return (
-    <AppLayout whiteBackground>
+    <AppLayout title={localizedPageTitle} whiteBackground>
       <div className="flex flex-col items-center text-center">
         <FirefoxWordmarkImage className="h-8 w-24 text-black dark:text-white" />
 

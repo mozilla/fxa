@@ -9,3 +9,7 @@ pair2-authority-download-firefox-instruction-v2 = To set up syncing across devic
 
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Download { -brand-firefox }
+
+# Browser tab title for the page telling the user to open { -brand-firefox } on this device to start syncing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-download-firefox-page-title = Open { -brand-firefox } to sync

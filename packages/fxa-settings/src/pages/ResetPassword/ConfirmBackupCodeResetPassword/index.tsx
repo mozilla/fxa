@@ -36,8 +36,13 @@ const ConfirmBackupCodeResetPassword = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const cmsInfo = integration?.getCmsInfo();
 
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'confirm-backup-code-reset-password-page-title',
+    'Reset password with a backup code'
+  );
+
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       <div className="relative flex items-center">
         <ButtonBack />
         <FtlMsg id="confirm-totp-reset-password-header">

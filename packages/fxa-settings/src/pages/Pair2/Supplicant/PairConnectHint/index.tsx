@@ -14,6 +14,7 @@ import PairUnsupportedHint, {
   PairUnsupportedViewType,
 } from '../../../../components/PairUnsupportedHint';
 import { detectDevice, Devices } from '../../../../lib/utilities';
+import { useFtlMsgResolver } from '../../../../models';
 
 // Only iOS reaches this page through the hand-off, so other devices get iOS.
 const detectOs = (): PairUnsupportedHintProps['os'] =>
@@ -48,6 +49,11 @@ const PairConnectHint = ({
   os = detectOs(),
 }: Partial<Pick<PairUnsupportedHintProps, 'os'>>) => {
   const location = useLocation();
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'pair2-supplicant-connect-hint-page-title',
+    'Finish pairing in the app'
+  );
   const view = viewType(location);
   const { pairing } = useConfig();
 
@@ -68,7 +74,7 @@ const PairConnectHint = ({
   }, []);
 
   return (
-    <AppLayout whiteBackground>
+    <AppLayout title={localizedPageTitle} whiteBackground>
       <div className="flex flex-col items-center text-center">
         <FirefoxWordmarkImage className="mb-10 h-8 w-24 text-black dark:text-white" />
 

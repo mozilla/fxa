@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import AppLayout from '../../../components/AppLayout';
+import { useFtlMsgResolver } from '../../../models';
 import { ResetPasswordConfirmedProps } from './interfaces';
 import { PasswordSuccessImage } from '../../../components/images';
 import { CheckmarkCircleFullGreenIcon } from '../../../components/Icons';
@@ -14,8 +15,14 @@ const ResetPasswordConfirmed = ({
   errorMessage,
   serviceName,
 }: ResetPasswordConfirmedProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'reset-password-confirmed-page-title',
+    'Password reset complete'
+  );
+
   return (
-    <AppLayout>
+    <AppLayout title={localizedPageTitle}>
       {errorMessage && (
         <Banner type="error" content={{ localizedHeading: errorMessage }} />
       )}

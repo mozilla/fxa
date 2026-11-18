@@ -23,10 +23,25 @@ export const InlineTotpSetup = ({
     'Two-step authentication'
   );
 
+  const localizedStepPageTitle =
+    currentStep === 0
+      ? ftlMsgResolver.getMsg(
+          'inline-totp-setup-intro-page-title',
+          'Set up two-step authentication'
+        )
+      : ftlMsgResolver.getMsg(
+          'inline-totp-setup-enrol-page-title',
+          'Connect your authenticator app'
+        );
+
   const cmsInfo = integration?.getCmsInfo?.();
 
   return (
-    <AppLayout wrapInCard={false} cmsInfo={cmsInfo}>
+    <AppLayout
+      title={localizedStepPageTitle}
+      wrapInCard={false}
+      cmsInfo={cmsInfo}
+    >
       {currentStep === 0 && (
         <FlowSetup2faPrompt
           onContinue={onContinue}
