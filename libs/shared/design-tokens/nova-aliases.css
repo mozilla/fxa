@@ -2,19 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Flag ON: map our Protocol palette names onto acorn-web-components' ramp and
- * enable light/dark. Acorn's own tokens come from acorn-web-components/tokens.css.
+/* Flag ON: map our Protocol palette names onto @mozilla/lit-web-components' ramp and
+ * enable light/dark. Acorn's own tokens come from @mozilla/lit-web-components/tokens.css.
  * Acorn's --color-<hue>-50/-100 are mid and near-black shades that its semantic
  * tokens reference, so our lightest tints use --fxa-color-<hue>-50/-100 instead
  * and must never redefine Acorn's names.
  * TODO(design): confirm the shade pairing. */
-[data-theme="nova"] {
+[data-theme='nova'] {
   /* Track the app's theme toggle (ThemeProvider sets .dark on <html>), not the
    * OS, so Acorn's light-dark() tokens match the selected theme. */
   color-scheme: light;
-  /* Copied from acorn-web-components' base.css, which we don't import because
+  /* Copied from @mozilla/lit-web-components' base.css, which we don't import because
    * it also sets document-level styles, including the root font size. */
-  --font-family: "Segoe UI", "Ubuntu Sans", Roboto, system-ui, -apple-system, sans-serif;
+  --font-family:
+    'Segoe UI', 'Ubuntu Sans', Roboto, system-ui, -apple-system, sans-serif;
   --color-grey-10: var(--color-gray-05);
   --color-grey-50: var(--color-gray-10);
   --color-grey-100: var(--color-gray-15);
@@ -107,6 +108,6 @@
   --color-purple-900: var(--color-purple-90);
 }
 
-[data-theme="nova"].dark {
+[data-theme='nova'].dark {
   color-scheme: dark;
 }

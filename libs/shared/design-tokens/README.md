@@ -1,12 +1,12 @@
 # @fxa/shared/design-tokens
 
-Maps Firefox's **Nova** tokens (the `acorn-web-components` package) onto FxA's Tailwind
+Maps Firefox's **Nova** tokens (the `@mozilla/lit-web-components` package) onto FxA's Tailwind
 utilities, gated behind the `novaDesignSystem` flag. **No build step** — Acorn's values
 come from the package; we add two small static layers.
 
 Imported once via `fxa-react/styles/index.css`:
 
-- `acorn-web-components/dist/all-tokens.css` — Acorn's foundation and component tokens
+- `@mozilla/lit-web-components/dist/all-tokens.css` — Acorn's foundation and component tokens
   (`--button-*`, `--link-*`, …) at `:root`, in `@layer acorn.tokens`. The per-component
   files in `dist/tokens/` are scoped to `:host`, so they don't apply outside Acorn's
   components. The `dist/` path is used because postcss-import doesn't resolve the
@@ -54,40 +54,40 @@ light/dark pair it replaces, so flag-off rendering is unchanged once the `dark:`
 deleted. Swap a class only when the element's current pair matches the table exactly;
 otherwise record it under Gaps.
 
-| Utility | Acorn token | Replaces (light / dark) |
-|---|---|---|
-| `bg-box` | `--background-color-box` | `bg-white` / `dark:bg-grey-700` |
-| `bg-canvas` | `--background-color-canvas` | `bg-grey-10` / `dark:bg-grey-900` (body) |
-| `bg-critical` | `--background-color-critical` | `bg-red-100` (no dark) |
-| `bg-information` | `--background-color-information` | `bg-blue-50` (no dark) |
-| `bg-success` | `--background-color-success` | `bg-green-200` (no dark) |
-| `bg-warning` | `--background-color-warning` | `bg-orange-50` (no dark) |
-| `text-default` | `--text-color` | `text-grey-900` / `dark:text-grey-10` (body) |
-| `text-deemphasized` | `--text-color-deemphasized` | `text-grey-400` / `dark:text-grey-200` |
-| `text-disabled` | `--text-color-disabled` | `text-grey-300` / `dark:text-grey-500` |
-| `text-error` | `--text-color-error` | `text-red-600` (no dark) |
-| `border-default` | `--border-color` | `border-grey-100` / `dark:border-grey-600` |
-| `border-interactive` | `--border-color-interactive` | `border-grey-200` / `dark:border-grey-600` |
-| `outline-focus` | `--focus-outline-color` | `outline-blue-500` (no dark) |
+| Utility              | Acorn token                      | Replaces (light / dark)                      |
+| -------------------- | -------------------------------- | -------------------------------------------- |
+| `bg-box`             | `--background-color-box`         | `bg-white` / `dark:bg-grey-700`              |
+| `bg-canvas`          | `--background-color-canvas`      | `bg-grey-10` / `dark:bg-grey-900` (body)     |
+| `bg-critical`        | `--background-color-critical`    | `bg-red-100` (no dark)                       |
+| `bg-information`     | `--background-color-information` | `bg-blue-50` (no dark)                       |
+| `bg-success`         | `--background-color-success`     | `bg-green-200` (no dark)                     |
+| `bg-warning`         | `--background-color-warning`     | `bg-orange-50` (no dark)                     |
+| `text-default`       | `--text-color`                   | `text-grey-900` / `dark:text-grey-10` (body) |
+| `text-deemphasized`  | `--text-color-deemphasized`      | `text-grey-400` / `dark:text-grey-200`       |
+| `text-disabled`      | `--text-color-disabled`          | `text-grey-300` / `dark:text-grey-500`       |
+| `text-error`         | `--text-color-error`             | `text-red-600` (no dark)                     |
+| `border-default`     | `--border-color`                 | `border-grey-100` / `dark:border-grey-600`   |
+| `border-interactive` | `--border-color-interactive`     | `border-grey-200` / `dark:border-grey-600`   |
+| `outline-focus`      | `--focus-outline-color`          | `outline-blue-500` (no dark)                 |
 
 **`nova:`-only utilities.** These have no flag-off value by design: use them only with the
 `nova:` prefix until the flag is removed.
 
-| Utility | Acorn token |
-|---|---|
-| `bg-accent-primary`, `border-accent-primary` (`-hover`, `-active`) | `--color-accent-primary` (`-hover`, `-active`) |
-| `bg-button-hover`, `bg-button-active` | `--button-background-color-hover`, `-active` |
-| `border-button-hover`, `border-button-active` | `--button-border-color-hover`, `-active` |
-| `border-error`, `outline-error` | `--border-color-error` |
-| `text-input` | `--input-text-color` |
-| `opacity-button-disabled` | `--button-opacity-disabled` |
-| `border-input-disabled` | `--input-border-color-disabled` |
-| `border-deemphasized` | `--border-color-deemphasized` |
-| `bg-deemphasized` (divider and track fills) | `--border-color-deemphasized` |
-| `text-icon-critical`, `-information`, `-success`, `-warning` | `--icon-color-*` (status icons) |
-| `text-link-hover` | `--link-color-hover` |
-| `opacity-input-disabled` | `--input-opacity-disabled` |
-| `focus-ring` (component class) | `--focus-outline`, `--focus-outline-offset`; add `outline-error` to recolor |
+| Utility                                                            | Acorn token                                                                 |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------- |
+| `bg-accent-primary`, `border-accent-primary` (`-hover`, `-active`) | `--color-accent-primary` (`-hover`, `-active`)                              |
+| `bg-button-hover`, `bg-button-active`                              | `--button-background-color-hover`, `-active`                                |
+| `border-button-hover`, `border-button-active`                      | `--button-border-color-hover`, `-active`                                    |
+| `border-error`, `outline-error`                                    | `--border-color-error`                                                      |
+| `text-input`                                                       | `--input-text-color`                                                        |
+| `opacity-button-disabled`                                          | `--button-opacity-disabled`                                                 |
+| `border-input-disabled`                                            | `--input-border-color-disabled`                                             |
+| `border-deemphasized`                                              | `--border-color-deemphasized`                                               |
+| `bg-deemphasized` (divider and track fills)                        | `--border-color-deemphasized`                                               |
+| `text-icon-critical`, `-information`, `-success`, `-warning`       | `--icon-color-*` (status icons)                                             |
+| `text-link-hover`                                                  | `--link-color-hover`                                                        |
+| `opacity-input-disabled`                                           | `--input-opacity-disabled`                                                  |
+| `focus-ring` (component class)                                     | `--focus-outline`, `--focus-outline-offset`; add `outline-error` to recolor |
 
 Under Nova, the progress bar fill, `.input-radio` borders and `focus-visible-default` use
 the accent (`bg-accent-primary`, `--color-accent-primary`, `--border-color-selected`,
@@ -184,11 +184,11 @@ Kept on primitives until design decides, unless noted.
     ResetPassword, SigninBounced, SigninTokenCode, SigninPasswordlessCode,
     SigninPasskeyFallback, ConfirmSignupCode, Permissions, Pair/Index, Pair/Success), for
     `text-grey-400 dark:text-grey-300` (AppLayout footer) and for `text-grey-500
-    dark:text-grey-200` (AlternativeAuthOptions "or").
+dark:text-grey-200` (AlternativeAuthOptions "or").
   - `text-disabled` for `disabled:text-grey-500 dark:disabled:text-grey-300`
     (InlinePasswordlessSyncSetup).
   - `border-default text-default` for `border-grey-100 text-grey-900 dark:border-grey-500
-    dark:text-grey-300` (Pair2 ApproveSignIn ×2, ConnectThisDevice).
+dark:text-grey-300` (Pair2 ApproveSignIn ×2, ConnectThisDevice).
   - `bg-warning` for `bg-orange-50 dark:bg-orange-900/30` (Pair/Unsupported).
   - `bg-box` for the split layout panel (`desktop:bg-white`, no working dark value).
   - AppLayout root goes transparent so the body's `bg-canvas` shows, except with
@@ -239,10 +239,11 @@ Kept on primitives until design decides, unless noted.
     dimmed token, and deemphasized text on it would fail contrast in dark), the
     `whiteBackground` AppLayout root (white light / grey-900 dark has no token), Pair2
     ScanQR link (`hover:text-grey-700`, no dark), FirefoxWordmark `text-black
-    dark:text-white` (illustration, on hold).
+dark:text-white` (illustration, on hold).
   - `link-*` classes and `dark:invert` on the Mozilla logo are unchanged.
 - **No Figma frame:** every page except Index, Signin, Signup, SigninRecoveryChoice,
   ResetPassword and ConfirmResetPassword. Those got the mechanical swap only.
+
 #### Settings
 
 Covers `components/Settings` and the Settings-only `styles/{switch,unit-row,drop-down-menu}.css`.
@@ -368,29 +369,29 @@ Icons whose legacy SVG baked in a color take a `nova:text-icon-*` class: AlertFu
 PasswordStrengthInline and FormPassword (`text-icon-success`, `text-icon-critical`) and ResetPasswordWarning
 (`text-icon-warning`).
 
-| File | acorn-icons source | Replaces |
-|---|---|---|
-| `add.min.svg` | `icons/desktop/16/add-16.svg` | PageAvatar add photo |
-| `arrow-clockwise.min.svg` | `icons/desktop/16/arrow-clockwise-16.svg`, `viewBox` centered on the arc so it spins in place | LoadingArrowIcon, ButtonIcon refresh |
-| `back.min.svg` | `icons/desktop/16/back-16.svg` | ButtonBack |
-| `checkmark.min.svg` | `icons/desktop/16/checkmark-16.svg` | CheckmarkGreenIcon (`text-icon-success`), PasswordStrengthInline pass, Checkbox, InputCheckboxBlue (`text-nav-selected`) |
-| `checkmark-circle-fill.min.svg` | `icons/desktop/16/checkmark-circle-fill-16.svg` | CheckmarkCircleFullGreenIcon (`text-icon-success`), CheckmarkCircleOutlineCurrentIcon, FormPassword valid and unset (`text-deemphasized`) |
-| `chevron-down.min.svg` | `icons/desktop/12/chevron-down-12.svg` | ResetPasswordWarning toggle |
-| `chevron-right.min.svg` | `icons/desktop/16/chevron-right-16.svg` | ChevronRightIcon |
-| `close.min.svg` | `icons/desktop/16/close-16.svg` | PageAvatar remove photo, CloseIcon, shared `close.svg` (AlertBar, BentoMenu, Modal, promo banners, BrandMessaging), HeaderLockup, PasswordStrengthInline fail |
-| `copy.min.svg`, `downloads.min.svg`, `print.min.svg` | `icons/desktop/16/copy-16.svg`, `icons/desktop/16/downloads-16.svg`, `icons/desktop/16/print-16.svg` | GetDataTrio |
-| `critical-fill.min.svg` | `icons/desktop/16/critical-fill-16.svg` | ErrorOutlineCurrentIcon, FormPassword invalid |
-| `delete.min.svg` | `icons/desktop/16/delete-16.svg` | ButtonIcon trash |
-| `edit.min.svg` | `icons/desktop/16/edit-16.svg` | EditIcon |
-| `external-link.min.svg` | `icons/desktop/12/external-link-12.svg` | Nav external links |
-| `folder.min.svg`, `globe.min.svg`, `lock.min.svg`, `shield.min.svg` | `icons/desktop/16/folder-16.svg`, `icons/desktop/16/globe-16.svg`, `icons/desktop/16/lock-16.svg`, `icons/desktop/16/shield-16.svg` | IconListItem; `passkey-16` for its key and `print-16` for its printer |
-| `help.min.svg`, `app-menu.min.svg` | `icons/desktop/20/help-20.svg`, `icons/desktop/16/app-menu-16.svg` | HeaderLockup |
-| `information-fill.min.svg` | `icons/desktop/16/information-fill-16.svg` | InformationOutlineCurrentIcon |
-| `lightbulb.min.svg` | `icons/desktop/16/lightbulb-16.svg` | LightbulbIcon |
-| `passkey.min.svg` | `icons/desktop/16/passkey-16.svg` | PasskeyIcon, ResetPasswordWarning recovery key (acorn-icons has no key glyph) |
-| `show-password.min.svg`, `show-password-slash.min.svg` | `icons/desktop/16/show-password-16.svg`, `icons/desktop/16/show-password-slash-16.svg` | InputPassword |
-| `shield-checkmark.min.svg` | `icons/desktop/16/shield-checkmark-16.svg` | AuthenticatorAppIcon |
-| `warning-fill.min.svg` | `icons/desktop/16/warning-fill-16.svg` | AlertFullIcon (`text-icon-warning`), AlertOutlineCurrentIcon, ResetPasswordWarning |
+| File                                                                | acorn-icons source                                                                                                                  | Replaces                                                                                                                                                      |
+| ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `add.min.svg`                                                       | `icons/desktop/16/add-16.svg`                                                                                                       | PageAvatar add photo                                                                                                                                          |
+| `arrow-clockwise.min.svg`                                           | `icons/desktop/16/arrow-clockwise-16.svg`, `viewBox` centered on the arc so it spins in place                                       | LoadingArrowIcon, ButtonIcon refresh                                                                                                                          |
+| `back.min.svg`                                                      | `icons/desktop/16/back-16.svg`                                                                                                      | ButtonBack                                                                                                                                                    |
+| `checkmark.min.svg`                                                 | `icons/desktop/16/checkmark-16.svg`                                                                                                 | CheckmarkGreenIcon (`text-icon-success`), PasswordStrengthInline pass, Checkbox, InputCheckboxBlue (`text-nav-selected`)                                      |
+| `checkmark-circle-fill.min.svg`                                     | `icons/desktop/16/checkmark-circle-fill-16.svg`                                                                                     | CheckmarkCircleFullGreenIcon (`text-icon-success`), CheckmarkCircleOutlineCurrentIcon, FormPassword valid and unset (`text-deemphasized`)                     |
+| `chevron-down.min.svg`                                              | `icons/desktop/12/chevron-down-12.svg`                                                                                              | ResetPasswordWarning toggle                                                                                                                                   |
+| `chevron-right.min.svg`                                             | `icons/desktop/16/chevron-right-16.svg`                                                                                             | ChevronRightIcon                                                                                                                                              |
+| `close.min.svg`                                                     | `icons/desktop/16/close-16.svg`                                                                                                     | PageAvatar remove photo, CloseIcon, shared `close.svg` (AlertBar, BentoMenu, Modal, promo banners, BrandMessaging), HeaderLockup, PasswordStrengthInline fail |
+| `copy.min.svg`, `downloads.min.svg`, `print.min.svg`                | `icons/desktop/16/copy-16.svg`, `icons/desktop/16/downloads-16.svg`, `icons/desktop/16/print-16.svg`                                | GetDataTrio                                                                                                                                                   |
+| `critical-fill.min.svg`                                             | `icons/desktop/16/critical-fill-16.svg`                                                                                             | ErrorOutlineCurrentIcon, FormPassword invalid                                                                                                                 |
+| `delete.min.svg`                                                    | `icons/desktop/16/delete-16.svg`                                                                                                    | ButtonIcon trash                                                                                                                                              |
+| `edit.min.svg`                                                      | `icons/desktop/16/edit-16.svg`                                                                                                      | EditIcon                                                                                                                                                      |
+| `external-link.min.svg`                                             | `icons/desktop/12/external-link-12.svg`                                                                                             | Nav external links                                                                                                                                            |
+| `folder.min.svg`, `globe.min.svg`, `lock.min.svg`, `shield.min.svg` | `icons/desktop/16/folder-16.svg`, `icons/desktop/16/globe-16.svg`, `icons/desktop/16/lock-16.svg`, `icons/desktop/16/shield-16.svg` | IconListItem; `passkey-16` for its key and `print-16` for its printer                                                                                         |
+| `help.min.svg`, `app-menu.min.svg`                                  | `icons/desktop/20/help-20.svg`, `icons/desktop/16/app-menu-16.svg`                                                                  | HeaderLockup                                                                                                                                                  |
+| `information-fill.min.svg`                                          | `icons/desktop/16/information-fill-16.svg`                                                                                          | InformationOutlineCurrentIcon                                                                                                                                 |
+| `lightbulb.min.svg`                                                 | `icons/desktop/16/lightbulb-16.svg`                                                                                                 | LightbulbIcon                                                                                                                                                 |
+| `passkey.min.svg`                                                   | `icons/desktop/16/passkey-16.svg`                                                                                                   | PasskeyIcon, ResetPasswordWarning recovery key (acorn-icons has no key glyph)                                                                                 |
+| `show-password.min.svg`, `show-password-slash.min.svg`              | `icons/desktop/16/show-password-16.svg`, `icons/desktop/16/show-password-slash-16.svg`                                              | InputPassword                                                                                                                                                 |
+| `shield-checkmark.min.svg`                                          | `icons/desktop/16/shield-checkmark-16.svg`                                                                                          | AuthenticatorAppIcon                                                                                                                                          |
+| `warning-fill.min.svg`                                              | `icons/desktop/16/warning-fill-16.svg`                                                                                              | AlertFullIcon (`text-icon-warning`), AlertOutlineCurrentIcon, ResetPasswordWarning                                                                            |
 
 The outline status icons only render in Banner, so they take the filled glyphs Acorn's
 message bar component uses; Banner's `error` keeps the `!` glyph (`critical-fill`) rather than
@@ -398,11 +399,11 @@ Acorn's `error-fill` (a minus).
 
 Figma-sourced (FxA Design System `h9IZtA5OnTDXYhc59NiGLp`), svgo'd the same way:
 
-| File | Figma node | Replaces |
-|---|---|---|
-| `Icons/nova/recovery-phone.min.svg` | Illustration `Authentication-phone` as used in SigninRecoveryChoice `3121:2186` | BackupRecoverySmsIcon, BackupRecoveryPhoneSmsImage |
-| `Icons/nova/recovery-codes.min.svg` | Illustration `Backup-codes`, same frame | BackupCodesIcon, BackupAuthenticationCodesImage |
-| `Settings/Avatar/nova-avatar-default.min.svg` | `Avatar/Default/Small` `82:3` (HeaderLockup `3121:2178`) | Avatar default image |
+| File                                          | Figma node                                                                      | Replaces                                           |
+| --------------------------------------------- | ------------------------------------------------------------------------------- | -------------------------------------------------- |
+| `Icons/nova/recovery-phone.min.svg`           | Illustration `Authentication-phone` as used in SigninRecoveryChoice `3121:2186` | BackupRecoverySmsIcon, BackupRecoveryPhoneSmsImage |
+| `Icons/nova/recovery-codes.min.svg`           | Illustration `Backup-codes`, same frame                                         | BackupCodesIcon, BackupAuthenticationCodesImage    |
+| `Settings/Avatar/nova-avatar-default.min.svg` | `Avatar/Default/Small` `82:3` (HeaderLockup `3121:2178`)                        | Avatar default image                               |
 
 The disabled recovery icons have no Figma variant and stay legacy.
 
@@ -410,20 +411,20 @@ Illustrations are the Mozilla accounts set (plain hex fills, no CMS theming: CMS
 images show the Nova art under the flag). `RecoveryKeyImage` takes `variant="confirm"` for
 the check art.
 
-| File | Component |
-|---|---|
-| `add-devices.min.svg` | HeartsVerifiedImage |
-| `authentication-phone.min.svg` | BackupRecoveryPhoneImage, PasswordImage |
-| `backup-codes.min.svg` | BackupCodesImage |
-| `code-success.min.svg` | PasswordSuccessImage |
-| `device.min.svg` | BackupRecoveryPhoneCodeImage, TwoFactorAuthImage |
-| `email-code.min.svg` | EmailCodeImage |
-| `insight.min.svg` | LightbulbImage |
-| `pairing-broken.min.svg` | HeartsBrokenImage |
-| `recovery-key-heart.min.svg`, `recovery-key-check.min.svg` | RecoveryKeyImage (`create`, `confirm`) |
-| `sync-arrows.min.svg` | SyncCloudsImage |
-| `add-devices-platforms.min.svg` | AddDevicesPlatformsImage (ConnectAnotherDevice), pending review |
-| `code.min.svg` | SigninTotpCode and ConfirmTotpResetPassword (replaces `protection-shield.svg`), pending review |
+| File                                                       | Component                                                                                      |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `add-devices.min.svg`                                      | HeartsVerifiedImage                                                                            |
+| `authentication-phone.min.svg`                             | BackupRecoveryPhoneImage, PasswordImage                                                        |
+| `backup-codes.min.svg`                                     | BackupCodesImage                                                                               |
+| `code-success.min.svg`                                     | PasswordSuccessImage                                                                           |
+| `device.min.svg`                                           | BackupRecoveryPhoneCodeImage, TwoFactorAuthImage                                               |
+| `email-code.min.svg`                                       | EmailCodeImage                                                                                 |
+| `insight.min.svg`                                          | LightbulbImage                                                                                 |
+| `pairing-broken.min.svg`                                   | HeartsBrokenImage                                                                              |
+| `recovery-key-heart.min.svg`, `recovery-key-check.min.svg` | RecoveryKeyImage (`create`, `confirm`)                                                         |
+| `sync-arrows.min.svg`                                      | SyncCloudsImage                                                                                |
+| `add-devices-platforms.min.svg`                            | AddDevicesPlatformsImage (ConnectAnotherDevice), pending review                                |
+| `code.min.svg`                                             | SigninTotpCode and ConfirmTotpResetPassword (replaces `protection-shield.svg`), pending review |
 
 **Not swapped** (legacy under the flag):
 
@@ -451,6 +452,6 @@ Both files are hand-maintained and stable:
   Drops out when components adopt Acorn's own names (via a Tailwind preset).
 
 Acorn's token values and their versioning come from the package — bump the
-`acorn-web-components` dependency to pick up changes. There's no generator.
+`@mozilla/lit-web-components` dependency to pick up changes. There's no generator.
 
 > Tokens only — we are **not** adopting Acorn's web/React components in phase 1.

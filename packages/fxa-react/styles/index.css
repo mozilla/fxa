@@ -11,7 +11,7 @@
 /* Direct dist path: postcss-import doesn't resolve the package "exports" map.
  * all-tokens.css is tokens.css plus the component tokens (--button-*, --link-*, …)
  * at :root. The per-component files in dist/tokens/ are scoped to :host. */
-@import 'acorn-web-components/dist/all-tokens.css';
+@import '@mozilla/lit-web-components/dist/all-tokens.css';
 @import '../../../libs/shared/design-tokens/legacy.css';
 @import '../../../libs/shared/design-tokens/nova-aliases.css';
 @import './animations.css';

@@ -16,7 +16,7 @@ const screenSizes = {
 
 // Colors, spacing, radii, font weights and shadows resolve to CSS variables
 // from the design-token layer, imported via fxa-react/styles/index.css: Acorn's
-// acorn-web-components tokens.css plus
+// @mozilla/lit-web-components tokens.css plus
 // libs/shared/design-tokens/{legacy,nova-aliases}.css. Values swap with the
 // `novaDesignSystem` flag (data-theme="nova" on <html>) — flag off = today's
 // values, on = Acorn's tokens.
@@ -27,7 +27,10 @@ const screenSizes = {
 const cssVarColor =
   (varName) =>
   ({ opacityValue } = {}) => {
-    if (opacityValue === undefined || String(opacityValue).startsWith('var(--tw-')) {
+    if (
+      opacityValue === undefined ||
+      String(opacityValue).startsWith('var(--tw-')
+    ) {
       return `var(${varName})`;
     }
     return `color-mix(in srgb, var(${varName}) calc(${opacityValue} * 100%), transparent)`;
