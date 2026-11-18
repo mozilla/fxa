@@ -1,8 +1,8 @@
 {
-  "commit": "24b54a501a5cdd765098f8623dda363de47d9034",
-  "summary": "Merge pull request #21763 from mozilla/agent-6318f9",
-  "description": "fix(settings): ignore Strapi colors when Nova is on",
-  "timestamp": 1794952450000,
+  "commit": "34263d0816f6f5f320cb7e1aa20887b383dff6cd",
+  "summary": "Merge pull request #21764 from mozilla/fxa-15001",
+  "description": "fix(settings): time out the pairing scan_qr page",
+  "timestamp": 1794959862000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
