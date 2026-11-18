@@ -153,19 +153,6 @@ export function filterExpiredTokens(
   };
 }
 
-/**
- * Ids of cached session tokens missing from `mySqlSessionTokens`. A listing
- * from SessionToken.findByUid can be truncated or omit expired tokens, so
- * confirm these against MySQL before treating them as deleted.
- */
-export function findUnlistedCachedSessionTokenIds(
-  mySqlSessionTokens: Pick<SessionToken, 'tokenId'>[],
-  redisSessionTokens: Record<string, unknown>
-): string[] {
-  const mySqlIds = new Set(mySqlSessionTokens.map((t) => t.tokenId));
-  return Object.keys(redisSessionTokens).filter((id) => !mySqlIds.has(id));
-}
-
 export function mergeCachedSessionTokens(
   mySqlSessionTokens: SessionToken[],
   redisSessionTokens: Record<string, SessionToken>,

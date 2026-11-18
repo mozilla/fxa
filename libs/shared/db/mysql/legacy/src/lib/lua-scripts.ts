@@ -26,7 +26,6 @@ if #ids > 0 then
 end
 return results
 `,
-  // Used only when redis.sessionTokens.pruneSessionTokensServerSide is false.
   pruneSessionTokens_1: `local function empty(t)
   for _ in pairs(t) do
     return false

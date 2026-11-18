@@ -4,11 +4,7 @@
 import { AttachedSession } from './models/AttachedSession';
 import { Device } from './models/Device';
 import { DeviceSessionToken } from './models/DeviceSessionToken';
-import {
-  findUnlistedCachedSessionTokenIds,
-  mergeDevicesAndSessionTokens,
-  synthesizeClientName,
-} from './util';
+import { mergeDevicesAndSessionTokens, synthesizeClientName } from './util';
 
 describe('connected-services/util', () => {
   const attachedSession: AttachedSession = {
@@ -85,31 +81,5 @@ describe('connected-services/util', () => {
   it('can synthesizeClientName', () => {
     const result = synthesizeClientName(attachedSession);
     expect(result).toBe('Firefox 96, Linux 18.18');
-  });
-
-  describe('findUnlistedCachedSessionTokenIds', () => {
-    it('returns cached ids missing from the MySQL listing', () => {
-      expect(
-        findUnlistedCachedSessionTokenIds([{ tokenId: 'aa' }], {
-          aa: {},
-          bb: {},
-        })
-      ).toEqual(['bb']);
-    });
-
-    it('returns nothing when every cached id is listed', () => {
-      expect(
-        findUnlistedCachedSessionTokenIds(
-          [{ tokenId: 'aa' }, { tokenId: 'bb' }],
-          { aa: {} }
-        )
-      ).toEqual([]);
-    });
-
-    it('returns every cached id when the listing is empty', () => {
-      expect(findUnlistedCachedSessionTokenIds([], { aa: {}, bb: {} })).toEqual(
-        ['aa', 'bb']
-      );
-    });
   });
 });
