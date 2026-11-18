@@ -43,7 +43,7 @@ const SigninCached = ({
   finishOAuthFlowHandler,
   localizedSuccessBannerHeading,
   localizedSuccessBannerDescription,
-  isSignedIntoFirefox = false,
+  hasBrowserAccount = false,
   setCurrentSplitLayout,
   onSessionExpired,
   supportsKeysOptionalLogin,
@@ -86,7 +86,7 @@ const SigninCached = ({
   // the Sync scope is not requested, so Mobile cannot use another account because
   // they cannot sign in without Sync.
   const hideAccountSwitchLink =
-    isSignedIntoFirefox &&
+    hasBrowserAccount &&
     integration.isFirefoxClient() &&
     !!integration.getService();
 

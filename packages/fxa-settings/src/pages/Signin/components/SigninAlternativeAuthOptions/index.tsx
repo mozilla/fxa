@@ -42,7 +42,7 @@ const SigninAlternativeAuthOptions = ({
   localizedErrorFromLocationState,
   localizedSuccessBannerHeading,
   localizedSuccessBannerDescription,
-  isSignedIntoFirefox = false,
+  hasBrowserAccount = false,
   setCurrentSplitLayout,
   supportsKeysOptionalLogin,
 }: SigninAlternativeAuthOptionsProps) => {
@@ -88,7 +88,7 @@ const SigninAlternativeAuthOptions = ({
   // select a different account once they are at Google/Apple. These users will
   // be blocked later, once we have access to the new account's UID.
   const hideAccountSwitchLink =
-    isSignedIntoFirefox && integration.isFirefoxDesktopClient();
+    hasBrowserAccount && integration.isFirefoxDesktopClient();
 
   // Linked-passwordless is the only render path where third-party auth /
   // passkey are the user's only options. Tracked under `login.alternative_auth_*`

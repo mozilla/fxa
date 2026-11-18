@@ -167,6 +167,23 @@ describe('SigninDecider routing', () => {
       passwordInputRendered();
     });
 
+    it('routes to password signin when Mobile holds an unverified browser account', () => {
+      const integration = createMockSigninOAuthNativeIntegration({
+        service: OAuthNativeServices.Vpn,
+        isSync: false,
+        isMobile: true,
+      });
+      render({
+        integration,
+        sessionToken: MOCK_SESSION_TOKEN,
+        isSignedIntoFirefox: false,
+        hasBrowserAccount: true,
+        supportsKeysOptionalLogin: false,
+      });
+
+      passwordInputRendered();
+    });
+
     it('routes to password signin for Desktop signed into Firefox + service=relay without keys_optional', () => {
       const integration = createMockSigninOAuthNativeIntegration({
         service: OAuthNativeServices.Relay,

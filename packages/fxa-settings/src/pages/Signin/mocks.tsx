@@ -374,6 +374,8 @@ export type SubjectProps = Partial<SigninProps> & {
   locationState?: Record<string, unknown>;
   cachedSigninHandler?: CachedSigninHandler;
   supportsKeysOptionalLogin?: boolean;
+  /** Read by SigninDecider's mobile authorization gate, not by the views. */
+  isSignedIntoFirefox?: boolean;
   passwordlessSupported?: boolean;
   skipPasswordlessRedirect?: boolean;
   /**
@@ -401,6 +403,7 @@ export const Subject = ({
   sendUnblockEmailHandler = mockSendUnblockEmailHandler,
   finishOAuthFlowHandler = mockFinishOAuthFlowHandler,
   isSignedIntoFirefox = false,
+  hasBrowserAccount = false,
   supportsKeysOptionalLogin = false,
   passkeyEnabled = false,
   locationState,
@@ -436,6 +439,7 @@ export const Subject = ({
             avatarLoading,
             useFxAStatusResult,
             isSignedIntoFirefox,
+            hasBrowserAccount,
             ...props,
           }}
         />

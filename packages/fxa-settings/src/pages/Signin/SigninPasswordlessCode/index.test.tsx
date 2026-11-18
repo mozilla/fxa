@@ -429,7 +429,7 @@ describe('SigninPasswordlessCode page', () => {
   describe('"Use a different account" link', () => {
     it('is hidden when signed into Firefox desktop', () => {
       const integration = createMockSigninOAuthNativeIntegration();
-      render({ integration, isSignedIntoFirefox: true });
+      render({ integration, hasBrowserAccount: true });
 
       expect(
         screen.queryByRole('link', { name: 'Use a different account' })
@@ -441,14 +441,14 @@ describe('SigninPasswordlessCode page', () => {
         isSync: true,
         isMobile: true,
       });
-      render({ integration, isSignedIntoFirefox: true });
+      render({ integration, hasBrowserAccount: true });
 
       screen.getByRole('link', { name: 'Use a different account' });
     });
 
     it('is shown when on a desktop Firefox client but not signed into Firefox', () => {
       const integration = createMockSigninOAuthNativeIntegration();
-      render({ integration, isSignedIntoFirefox: false });
+      render({ integration, hasBrowserAccount: false });
 
       screen.getByRole('link', { name: 'Use a different account' });
     });

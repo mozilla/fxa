@@ -137,7 +137,7 @@ interface SigninSharedProps {
   localizedSuccessBannerHeading?: string;
   localizedSuccessBannerDescription?: string;
   flowQueryParams?: QueryParams;
-  isSignedIntoFirefox?: boolean;
+  hasBrowserAccount?: boolean;
   setCurrentSplitLayout?: (value: boolean) => void;
 }
 

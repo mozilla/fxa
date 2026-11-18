@@ -93,7 +93,7 @@ export const Subject = ({
   integration = createMockWebIntegration(),
   isSignup = false,
   hasPasskey = undefined,
-  isSignedIntoFirefox = false,
+  hasBrowserAccount = false,
   sendError = null,
   supportsKeysOptionalLogin = false,
 }: Partial<SigninPasswordlessCodeProps> & {
@@ -110,7 +110,7 @@ export const Subject = ({
           integration,
           isSignup,
           hasPasskey,
-          isSignedIntoFirefox,
+          hasBrowserAccount,
           sendError,
           useFxAStatusResult: mockUseFxAStatus({ supportsKeysOptionalLogin }),
         }}

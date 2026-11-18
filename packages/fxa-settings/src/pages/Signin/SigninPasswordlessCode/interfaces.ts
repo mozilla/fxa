@@ -23,7 +23,7 @@ export interface PasswordlessLocationState {
 export interface SigninPasswordlessCodeContainerProps {
   integration: SigninIntegration;
   flowQueryParams: QueryParams;
-  isSignedIntoFirefox?: boolean;
+  hasBrowserAccount?: boolean;
   setCurrentSplitLayout?: (value: boolean) => void;
   useFxAStatusResult: UseFxAStatusResult;
 }
@@ -39,7 +39,7 @@ export interface SigninPasswordlessCodeProps {
   // True if user is signing up (new account)
   isSignup?: boolean;
   hasPasskey?: boolean;
-  isSignedIntoFirefox?: boolean;
+  hasBrowserAccount?: boolean;
   resendCountdownSeconds?: number;
   useFxAStatusResult: UseFxAStatusResult;
 }
