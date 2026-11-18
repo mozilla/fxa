@@ -1,8 +1,8 @@
 {
-  "commit": "1919f10e7fe14aa6d14cd0228e1266b98ce68e51",
-  "summary": "Merge pull request #21737 from mozilla/limit-sessions-4-migration",
-  "description": "feat(db-migrations): add limitSessions_4, sparing device sessions",
-  "timestamp": 1795025501000,
+  "commit": "369b07a1d521babbf58aa40a109108058c66c94e",
+  "summary": "Merge pull request #21765 from mozilla/agent-218683",
+  "description": "chore(deps): switch fxa-react to @mozilla/lit-web-components 1.0.1",
+  "timestamp": 1795026059000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
