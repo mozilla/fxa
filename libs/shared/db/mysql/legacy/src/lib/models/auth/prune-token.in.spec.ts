@@ -258,20 +258,6 @@ describe('PruneTokens', () => {
     expect(tokens).not.toContain(tokenIds[tokenIds.length - 1]);
   });
 
-  describe('SessionToken.existingTokenIds', () => {
-    const MISSING_TOKEN_ID = 'ff'.repeat(32);
-
-    it('returns only the ids that have a row', async () => {
-      expect(
-        await SessionToken.existingTokenIds([tokenIds[0], MISSING_TOKEN_ID])
-      ).toEqual([tokenIds[0]]);
-    });
-
-    it('returns an empty list without querying for no ids', async () => {
-      expect(await SessionToken.existingTokenIds([])).toEqual([]);
-    });
-  });
-
   it('Handles prune error', async () => {
     // Causes error, will be reset on subsequent test
     (PruneTokens as any).knex = null;

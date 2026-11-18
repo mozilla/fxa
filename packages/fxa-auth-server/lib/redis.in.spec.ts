@@ -202,61 +202,6 @@ describe('#integration - Redis', () => {
       const rawData = await redis.get(uid);
       expect(rawData).toBeNull();
     });
-
-    it('skips the prune when a token is touched between its read and write', async () => {
-      // The first prune creates the prune connection, which the spy below needs.
-      await redis.pruneSessionTokens(uid, []);
-      const pruneRedis = redis.pruneRedis;
-      const get = pruneRedis.get.bind(pruneRedis);
-      // Another client adds token3 right after the prune reads the key, so the
-      // key changes between the prune's WATCH and its EXEC.
-      jest.spyOn(pruneRedis, 'get').mockImplementationOnce(async (key) => {
-        const value = await get(key);
-        await redis.touchSessionToken(uid, { ...sessionToken, id: 'token3' });
-        return value;
-      });
-
-      // WATCH aborts the EXEC, and the prune gives up without retrying.
-      await redis.pruneSessionTokens(uid, ['token2']);
-
-      // token3 survives because the prune's stale copy was never written.
-      // token2 survives because the prune was skipped.
-      const tokens = await redis.getSessionTokens(uid);
-      expect(Object.keys(tokens).sort()).toEqual(
-        [sessionToken.id, 'token2', 'token3'].sort()
-      );
-    });
-
-    describe('when pruneSessionTokensServerSide is false', () => {
-      const luaRedis = require('./redis')(
-        {
-          ...config.redis.accessTokens,
-          ...config.redis.sessionTokens,
-          password: config.redis.password,
-          prefix,
-          recordLimit,
-          maxttl,
-          pruneSessionTokensServerSide: false,
-        },
-        createMock<AuthLogger>()
-      );
-
-      afterAll(async () => {
-        await luaRedis.close();
-      });
-
-      it('deletes a given token id with the Lua script', async () => {
-        await luaRedis.pruneSessionTokens(uid, ['token2']);
-        const tokens = await redis.getSessionTokens(uid);
-        expect(Object.keys(tokens)).toEqual([sessionToken.id]);
-        expect(luaRedis.pruneRedis).toBeUndefined();
-      });
-
-      it('deletes the uid record when no tokens remain', async () => {
-        await luaRedis.pruneSessionTokens(uid, [sessionToken.id, 'token2']);
-        expect(await redis.get(uid)).toBeNull();
-      });
-    });
   });
 
   describe('Access Tokens', () => {
@@ -590,7 +535,6 @@ describe('Redis down', () => {
   });
 
   afterAll(() => {
-    downRedis.pruneRedis?.disconnect();
     downRedis.redis.disconnect();
   });
 
@@ -608,9 +552,9 @@ describe('Redis down', () => {
   });
 
   describe('pruneSessionTokens', () => {
-    it('rejects when Redis does not answer', async () => {
+    it('throws a timeout error', async () => {
       await expect(downRedis.pruneSessionTokens(uid)).rejects.toThrow(
-        'Command timed out'
+        'redis timeout'
       );
     });
   });

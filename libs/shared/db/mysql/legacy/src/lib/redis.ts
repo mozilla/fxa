@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { readdirSync, readFileSync } from 'fs';
 import Redis, { RedisOptions } from 'ioredis';
-import * as Sentry from '@sentry/node';
 import { basename, extname, resolve } from 'path';
 import { StatsD } from 'hot-shots';
 
@@ -24,7 +23,6 @@ export type Config = {
   recordLimit?: number;
   maxttl?: number | string;
   timeoutMs?: number;
-  pruneSessionTokensServerSide?: boolean;
 } & RedisOptions;
 
 interface ICustomRedisCache {
@@ -62,23 +60,17 @@ function unpackArray(keys: string[], values: unknown[]) {
   return result;
 }
 
-// Throws if the blob is not a JSON object.
-function parseSessionTokens(value: string | null): Record<string, unknown> {
-  if (!value) return {};
-  const tokens = JSON.parse(value);
-  if (tokens === null || typeof tokens !== 'object') {
-    throw new Error('session token blob is not an object');
-  }
-  return tokens;
-}
-
 /**
  * Expands a stored session-token blob into `{ [tokenId]: token }`.
  * Entries that are not packed arrays pass through unchanged.
  * Throws if the blob is not a JSON object.
  */
 export function unpackSessionTokens(value: string | null) {
-  const tokens = parseSessionTokens(value);
+  if (!value) return {};
+  const tokens = JSON.parse(value);
+  if (tokens === null || typeof tokens !== 'object') {
+    throw new Error('session token blob is not an object');
+  }
   const result: Record<string, unknown> = {};
   for (const [id, values] of Object.entries(tokens)) {
     if (!Array.isArray(values)) {
@@ -112,9 +104,6 @@ function isCustomRedisCache(redis: any): redis is Redis & ICustomRedisCache {
 
 export class RedisShared {
   public readonly redis: Redis & ICustomRedisCache;
-  // WATCH state is per connection, so prunes share their own connection, one at a time.
-  private pruneRedis?: Redis;
-  private pruning = false;
 
   protected get keyPrefix() {
     return this.config.keyPrefix;
@@ -250,18 +239,7 @@ export class RedisShared {
   }
 
   async close() {
-    try {
-      await this.pruneRedis?.quit();
-    } catch (error) {
-      // Stops the reconnect loop of a prune connection that cannot QUIT.
-      this.pruneRedis?.disconnect();
-      this.log?.error('RedisShared', {
-        msg: 'RedisShared: prune connection quit failed',
-        error,
-      });
-    } finally {
-      await this.redis.quit();
-    }
+    await this.redis.quit();
   }
 
   async del(key: string): Promise<number | undefined> {
@@ -299,123 +277,12 @@ export class RedisShared {
 
   async pruneSessionTokens(uid: string, tokenIds: string[] = []) {
     this.metrics?.increment('redis.pruneSessionTokens');
-    if (this.config.pruneSessionTokensServerSide === false) {
-      return this.pruneSessionTokensWithLua(uid, tokenIds);
-    }
-    // A busy connection or a conflict skips the prune, and an error rejects.
-    // The entries left behind are removed the next time db.sessions reads the
-    // account.
-    if (this.pruning) {
-      this.metrics?.increment('redis.pruneSessionTokens.skipped');
-      return;
-    }
     const span = tracer.startSpan('redis.pruneSessionTokens');
-    this.pruning = true;
-    try {
-      if (!this.pruneRedis) {
-        // WATCH belongs to a connection, and any EXEC on that connection clears
-        // it. On the shared connection, another caller's MULTI/EXEC landing
-        // between our WATCH and EXEC would drop the watch and let a stale write
-        // through. duplicate() opens a separate connection with the same
-        // options, key prefix included, so WATCH and touches use the same key.
-        // commandTimeout bounds each command, so a hung prune releases
-        // `pruning` instead of leaving every later prune skipped.
-        this.pruneRedis = this.redis.duplicate({
-          commandTimeout: this.timeoutMs,
-          // A replay after a reconnect would send MULTI/EXEC without the WATCH.
-          autoResendUnfulfilledCommands: false,
-        });
-        // Logged, not sent to Sentry: ioredis emits this on every failed
-        // reconnect, so an outage would flood Sentry.
-        this.pruneRedis.on('error', (error) => {
-          this.metrics?.increment('redis.pruneSessionTokens.connectionError');
-          this.log?.error('RedisShared', {
-            msg: 'RedisShared: prune connection error',
-            error,
-          });
-        });
-      }
-      const redis = this.pruneRedis;
-      await redis.watch(uid);
-      const value = await redis.get(uid);
-      let tokens: Record<string, unknown>;
-      let unparseable = false;
-      try {
-        tokens = parseSessionTokens(value);
-      } catch (error) {
-        // Treated as holding no tokens, so the blob is deleted below.
-        this.metrics?.increment('redis.pruneSessionTokens.unparseable');
-        Sentry.captureException(error);
-        tokens = {};
-        unparseable = true;
-      }
-
-      // Prune unneeded tokens
-      const cached = Object.keys(tokens).length;
-      for (const id of tokenIds) {
-        delete tokens[id];
-      }
-      const remaining = Object.keys(tokens).length;
-
-      // Session creation prunes an id that is never cached, so most prunes
-      // remove nothing. Those release the WATCH instead of rewriting the blob.
-      if (!unparseable && remaining === cached) {
-        redis.unwatch().catch(() => {});
-        this.metrics?.increment('redis.pruneSessionTokens.noop');
-        return;
-      }
-
-      // WATCH only applies to EXEC, so the write must go through MULTI/EXEC
-      // even though it is a single command; a bare SET would ignore the WATCH.
-      const tx = redis.multi();
-      if (remaining === 0) {
-        tx.del(uid);
-      } else {
-        tx.set(uid, JSON.stringify(tokens));
-      }
-      // EXEC resolves null when another client changed the key after WATCH.
-      const results = await tx.exec();
-      if (!results) {
-        this.metrics?.increment('redis.pruneSessionTokens.conflict');
-        return;
-      }
-      const [err, result] = results[0];
-      if (err) {
-        throw err;
-      }
-      this.metrics?.increment('redis.pruneSessionTokens.success');
-      return result;
-    } catch (error) {
-      // A stale WATCH would abort the next prune's EXEC.
-      this.pruneRedis?.unwatch().catch(() => {});
-      this.metrics?.increment('redis.pruneSessionTokens.error');
-      // Logged, not sent to Sentry: a Redis outage fails every prune.
-      this.log?.error('RedisShared', {
-        msg: 'RedisShared: pruneSessionTokens failed',
-        error,
-      });
-      // Rejects, as the Lua prune does, so callers can count the failure.
-      throw error;
-    } finally {
-      this.pruning = false;
-      span.end();
-    }
-  }
-
-  // The earlier prune, kept so the flag can switch back to it.
-  private async pruneSessionTokensWithLua(uid: string, tokenIds: string[]) {
-    const span = tracer.startSpan('redis.pruneSessionTokens');
-    try {
-      const p1 = this.redis.pruneSessionTokens(uid, JSON.stringify(tokenIds));
-      // See claimLastAccessTimeWrite: the cancel promise must not reject.
-      const p2 = this.rejectInMs(
-        p1.catch(() => undefined),
-        this.timeoutMs
-      );
-      return await Promise.race([p1, p2]);
-    } finally {
-      span.end();
-    }
+    const p1 = this.redis.pruneSessionTokens(uid, JSON.stringify(tokenIds));
+    const p2 = this.rejectInMs(p1, this.timeoutMs);
+    const result = await Promise.race([p1, p2]);
+    span.end();
+    return result;
   }
 
   async pruneRefreshTokens(
