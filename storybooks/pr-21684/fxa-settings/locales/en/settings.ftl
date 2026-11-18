@@ -974,6 +974,8 @@ modal-mfa-protected-confirm-button = Confirm
 modal-mfa-protected-code-expired = Code expired?
 # Link to resend a new code to the user's email.
 modal-mfa-protected-resend-code-link = Email new code.
+# Error shown when the code is correct but the device clock is too far ahead of the server time.
+modal-mfa-protected-clock-skew-error = Your device clock is wrong. Correct your device date and time, then try again.
 
 ##
 

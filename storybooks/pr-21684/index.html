@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 6fcca2920000cdb3932f75f56c6e05b6fca88741</title>
+  <title>Storybooks for commit 819153eff48693ffd6ed94c0015f289ea7be06fe</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,31 +23,15 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 6fcca2920000cdb3932f75f56c6e05b6fca88741</h1>
+  <h1>Storybooks for commit 819153eff48693ffd6ed94c0015f289ea7be06fe</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/17/2026, 8:45:14 PM UTC</dd>
+    <dd>11/18/2026, 5:48:05 PM UTC</dd>
     <dt>Summary</dt>
-    <dd><pre>feat(settings): switch the integration in-app instead of hard-reloading</pre></dd>
-    <dt>Description</dt>
-    <dd><pre>Because:
-
-* Routes called hardNavigate only to rebuild the integration, which
-  dropped location state and restarted the app.
-* After an in-app switch, a superseded session check could write stale
-  signed-in state.
-
-This commit:
-
-* Lets a route switch the integration in-app and then navigate.
-* Uses the switch in place of hardNavigate on four call sites.
-* Keeps the emit-time integration on queued Glean events.
-* Stops a superseded App session check from writing state.
-
-Closes FXA-14791</pre></dd>
+    <dd><pre>Merge main into fxa-14791</pre></dd>
   </dl>
 </body>
 </html>
