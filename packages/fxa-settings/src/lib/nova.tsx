@@ -6,11 +6,28 @@
 
 import React from 'react';
 import classNames from 'classnames';
+import type { RelierCmsInfo } from '../models/integrations';
 
 /** True when the page carries `data-theme="nova"` (the `novaDesignSystem` flag). */
 export const isNovaTheme = () =>
   typeof document !== 'undefined' &&
   document.documentElement.dataset.theme === 'nova';
+
+/** Under Nova, drops the CMS colors so the Nova palette and its dark mode apply. */
+export const stripCmsColors = (
+  cmsInfo: RelierCmsInfo | undefined
+): RelierCmsInfo | undefined =>
+  cmsInfo?.shared && isNovaTheme()
+    ? {
+        ...cmsInfo,
+        shared: {
+          ...cmsInfo.shared,
+          buttonColor: undefined,
+          headlineTextColor: undefined,
+          illustrationsTheme: undefined,
+        },
+      }
+    : cmsInfo;
 
 /**
  * Renders `Nova` under the Nova theme and `Legacy` otherwise. The theme is read

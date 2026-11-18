@@ -177,6 +177,7 @@ export const CachedNonSyncBrowserServiceWithPasswordlessCapabilitySignedIntoDesk
       }),
       supportsKeysOptionalLogin: true,
       isSignedIntoFirefox: true,
+      hasBrowserAccount: true,
     }),
     name: 'Cached > Non-Sync browser service > Browser has Sync keys optional capability > Account is signed into Firefox Desktop',
   };
@@ -208,6 +209,7 @@ export const CachedNonSyncBrowserServiceMobileAuthorizationFlow: Story = {
     }),
     supportsKeysOptionalLogin: false,
     isSignedIntoFirefox: true,
+    hasBrowserAccount: true,
   }),
   name: 'Cached > Non-Sync browser service > Browser does not have keys optional capability > Account is signed into Firefox Mobile',
 };
@@ -289,6 +291,7 @@ export const CachedSignedIntoFirefoxMobileWithService: Story = {
   ...story({
     sessionToken: MOCK_SESSION_TOKEN,
     isSignedIntoFirefox: true,
+    hasBrowserAccount: true,
     integration: createMockSigninOAuthNativeIntegration({
       service: OAuthNativeServices.Vpn,
       isSync: false,

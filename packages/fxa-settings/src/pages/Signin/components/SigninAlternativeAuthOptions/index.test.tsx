@@ -168,4 +168,37 @@ describe('SigninAlternativeAuthOptions', () => {
       expect(GleanMetrics.passkey.buttonView).not.toHaveBeenCalled();
     });
   });
+
+  describe('"Use a different account" link', () => {
+    it('is hidden when Firefox desktop holds a browser account', () => {
+      renderSigninAlternativeAuthOptions({
+        integration: createMockSigninOAuthNativeSyncIntegration(),
+        hasBrowserAccount: true,
+      });
+
+      expect(
+        screen.queryByRole('link', { name: 'Use a different account' })
+      ).not.toBeInTheDocument();
+    });
+
+    it('is shown on Firefox desktop with no browser account', () => {
+      renderSigninAlternativeAuthOptions({
+        integration: createMockSigninOAuthNativeSyncIntegration(),
+        hasBrowserAccount: false,
+      });
+
+      screen.getByRole('link', { name: 'Use a different account' });
+    });
+
+    it('is shown on Firefox mobile even with a browser account', () => {
+      renderSigninAlternativeAuthOptions({
+        integration: createMockSigninOAuthNativeSyncIntegration({
+          isMobile: true,
+        }),
+        hasBrowserAccount: true,
+      });
+
+      screen.getByRole('link', { name: 'Use a different account' });
+    });
+  });
 });

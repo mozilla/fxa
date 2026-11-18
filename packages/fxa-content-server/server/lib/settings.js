@@ -112,6 +112,7 @@ const settingsConfig = {
     serverBaseUri: config.get('pairing.server_base_uri'),
     version: config.get('pairing.version'),
     totpMaxAgeMinutes: config.get('pairing.totp_max_age_minutes'),
+    qrTimeoutMinutes: config.get('pairing.qr_timeout_minutes'),
     v2MinVersion: {
       ios: config.get('pairing.v2_min_version.ios'),
       android: config.get('pairing.v2_min_version.android'),
@@ -268,7 +269,9 @@ function modifyProxyRes(proxyRes, req, res) {
       const flowEventData = flowMetrics.create(FLOW_ID_KEY);
       html = injectServerConfig(html, {
         __SERVER_CONFIG__: getServerConfig(res),
-        __NOVA_THEME__: config.get('featureFlags.novaDesignSystem') ? 'nova' : '',
+        __NOVA_THEME__: config.get('featureFlags.novaDesignSystem')
+          ? 'nova'
+          : '',
         __FLOW_ID__: flowEventData.flowId,
         __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
         ...resolvePreConnectDirectives(settingsConfig),

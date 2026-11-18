@@ -102,7 +102,7 @@ export const SignedIntoFirefoxDesktop = () => (
       email="user@example.com"
       expirationMinutes={5}
       integration={createMockSigninOAuthNativeIntegration({ isSync: true })}
-      isSignedIntoFirefox={true}
+      hasBrowserAccount={true}
       isSignup={false}
     />
   </AppContext.Provider>

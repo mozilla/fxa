@@ -101,6 +101,8 @@ export interface Config {
      * account start a pairing without entering one again.
      */
     totpMaxAgeMinutes: number;
+    /** Minutes the v2 QR page waits for a scan before it times out. */
+    qrTimeoutMinutes: number;
     /**
      * Lowest Firefox major version, per platform, that takes the v2 flow. A
      * platform left out defers to the `pairingVersion` the browser reports in
@@ -237,6 +239,7 @@ export function getDefault() {
       serverBaseUri: 'wss://channelserver.services.mozilla.com',
       version: 1,
       totpMaxAgeMinutes: 5,
+      qrTimeoutMinutes: 5,
       v2MinVersion: {},
     },
     mobileStoreLinks: {

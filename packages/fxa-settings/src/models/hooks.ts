@@ -43,6 +43,7 @@ import * as Sentry from '@sentry/browser';
 import { useDynamicLocalization } from '../contexts/DynamicLocalizationContext';
 import { sessionToken } from '../lib/cache';
 import { useLocalStorageSync } from '../lib/hooks/useLocalStorageSync';
+import { stripCmsColors } from '../lib/nova';
 import {
   getFullAccountData,
   isSignedIn as checkIsSignedIn,
@@ -618,7 +619,7 @@ export function useCmsInfoState(integrationVersion = 0) {
           setState({
             loading: false,
             error: undefined,
-            data: { cmsInfo: config },
+            data: { cmsInfo: stripCmsColors(config) },
           });
         }
       } catch (error) {

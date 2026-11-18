@@ -74,6 +74,23 @@ jest.mock('../../lib/channels/firefox', () => ({
   },
 }));
 
+// Probe for the flags App derives from firefox.requestSignedInUser; the real
+// page is lazy-loaded and needs far more context than these tests care about.
+jest.mock('../../pages/Signin/container', () => ({
+  __esModule: true,
+  default: ({
+    isSignedIntoFirefox,
+    hasBrowserAccount,
+  }: {
+    isSignedIntoFirefox?: boolean;
+    hasBrowserAccount?: boolean;
+  }) => (
+    <div data-testid="signin-probe">
+      {`signedIn=${!!isSignedIntoFirefox} hasAccount=${!!hasBrowserAccount}`}
+    </div>
+  ),
+}));
+
 const mockSessionToken = jest.fn();
 jest.mock('../../lib/cache', () => ({
   ...jest.requireActual('../../lib/cache'),
@@ -571,6 +588,7 @@ describe('loading spinner states', () => {
   });
 
   it('when signed in status has not been set yet', async () => {
+    (isProbablyFirefox as jest.Mock).mockReturnValueOnce(true);
     (useInitialMetricsQueryState as jest.Mock).mockReturnValueOnce({
       loading: false,
     });
@@ -655,6 +673,99 @@ describe('AuthAndAccountSetupRoutes', () => {
     expect(useFxAStatus).toHaveBeenCalledTimes(1);
     expect(useFxAStatus).toHaveBeenCalledWith(mockIntegration, {
       pathname: '/',
+    });
+  });
+
+  it('reports an unverified browser account without treating it as signed in', async () => {
+    (isProbablyFirefox as jest.Mock).mockReturnValueOnce(true);
+
+    (useIntegration as jest.Mock).mockReturnValue({
+      type: IntegrationType.OAuthNative,
+      getServiceName: () => MozServices.FirefoxSync,
+      getClientId: () => undefined,
+      isSync: () => true,
+      isDesktopSync: () => false,
+      isFirefoxClientServiceRelay: () => false,
+      isFirefoxDesktopClient: () => true,
+      getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
+      data: {
+        context: {},
+      },
+    });
+
+    (firefox.requestSignedInUser as jest.Mock).mockImplementationOnce(
+      async () => {
+        return {
+          email: 'test@mozilla.com',
+          uid: '123',
+          sessionToken: '123',
+          verified: false,
+        };
+      }
+    );
+    (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
+      loading: false,
+    });
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
+      data: { isSignedIn: false },
+    });
+
+    renderWithRouter(
+      <AppContext.Provider
+        value={{ ...mockAppContext(), ...createAppContext() }}
+      >
+        <App flowQueryParams={updatedFlowQueryParams} />
+      </AppContext.Provider>,
+      { route: '/signin' }
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('signin-probe')).toHaveTextContent(
+        'signedIn=false hasAccount=true'
+      );
+    });
+  });
+
+  it('reports no browser account when Firefox does not answer fxa_status', async () => {
+    (isProbablyFirefox as jest.Mock).mockReturnValueOnce(true);
+
+    (useIntegration as jest.Mock).mockReturnValue({
+      type: IntegrationType.OAuthNative,
+      getServiceName: () => MozServices.FirefoxSync,
+      getClientId: () => undefined,
+      isSync: () => true,
+      isDesktopSync: () => false,
+      isFirefoxClientServiceRelay: () => false,
+      isFirefoxDesktopClient: () => true,
+      getCmsInfo: jest.fn(),
+      getLegalTerms: jest.fn(),
+      data: {
+        context: {},
+      },
+    });
+
+    (firefox.requestSignedInUser as jest.Mock).mockResolvedValueOnce(undefined);
+    (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
+      loading: false,
+    });
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
+      data: { isSignedIn: false },
+    });
+
+    renderWithRouter(
+      <AppContext.Provider
+        value={{ ...mockAppContext(), ...createAppContext() }}
+      >
+        <App flowQueryParams={updatedFlowQueryParams} />
+      </AppContext.Provider>,
+      { route: '/signin' }
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('signin-probe')).toHaveTextContent(
+        'signedIn=false hasAccount=false'
+      );
     });
   });
 });

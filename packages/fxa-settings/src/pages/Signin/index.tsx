@@ -55,7 +55,7 @@ const Signin = ({
   localizedSuccessBannerDescription,
   flowQueryParams,
   useFxAStatusResult: { supportsKeysOptionalLogin, fxaStatusState },
-  isSignedIntoFirefox = false,
+  hasBrowserAccount = false,
   setCurrentSplitLayout,
 }: SigninProps) => {
   const config = useConfig();
@@ -118,7 +118,7 @@ const Signin = ({
   // Users cannot choose another account due to the inability to merge
   // account/sync data (the "merge stop"/warning).
   const hideAccountSwitchLink =
-    isSignedIntoFirefox && integration.isFirefoxDesktopClient();
+    hasBrowserAccount && integration.isFirefoxDesktopClient();
 
   const isServiceWithEmailVerification =
     !!clientId && config.servicesWithEmailVerification.includes(clientId);

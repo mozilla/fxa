@@ -137,6 +137,7 @@ const SigninContainer = ({
   flowQueryParams,
   useFxAStatusResult,
   isSignedIntoFirefox = false,
+  hasBrowserAccount = false,
   setCurrentSplitLayout,
 }: {
   integration: Integration;
@@ -144,6 +145,7 @@ const SigninContainer = ({
   flowQueryParams?: QueryParams;
   useFxAStatusResult: UseFxAStatusResult;
   isSignedIntoFirefox?: boolean;
+  hasBrowserAccount?: boolean;
   setCurrentSplitLayout?: (value: boolean) => void;
 }) => {
   const config = useConfig();
@@ -701,6 +703,7 @@ const SigninContainer = ({
         flowQueryParams,
         useFxAStatusResult,
         isSignedIntoFirefox,
+        hasBrowserAccount,
         setCurrentSplitLayout,
         passwordlessSupported: accountStatus.passwordlessSupported,
         skipPasswordlessRedirect,

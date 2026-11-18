@@ -167,6 +167,18 @@ export const MfaGuardCore = ({
         code,
         requiredScope
       );
+      // A fast device clock reads a fresh token as expired, so caching it would re-prompt forever.
+      if (JwtTokenCache.isExpired(result.accessToken)) {
+        MfaOtpRequestCache.remove(sessionToken, requiredScope);
+        setShowResendSuccessBanner(false);
+        setLocalizedErrorBannerMessage(
+          ftlMsgResolver.getMsg(
+            'modal-mfa-protected-clock-skew-error',
+            'Your device clock is wrong. Correct your device date and time, then try again.'
+          )
+        );
+        return;
+      }
       GleanMetrics.accountPref.mfaGuardSubmitSuccess({
         event: { reason },
       });

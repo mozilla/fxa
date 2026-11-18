@@ -287,6 +287,10 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
 
   // Whether the user is signed into Firefox via WebChannel
   const [isSignedIntoFirefox, setIsSignedIntoFirefox] = useState(false);
+  // Firefox holds an account for this profile, verified or not. Firefox
+  // attaches it on fxaccounts:login and from then on refuses to link a
+  // different one, so pages hide account switching on this signal alone.
+  const [hasBrowserAccount, setHasBrowserAccount] = useState(false);
   // Whether that Firefox holds the Sync key; undefined until it says so.
   const [browserHasSyncKey, setBrowserHasSyncKey] = useState<
     boolean | undefined
@@ -326,6 +330,8 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
         if (cancelled) {
           return;
         }
+
+        setHasBrowserAccount(!!userFromBrowser?.uid);
 
         // Don't intialize session state from partially succesful firefox logins (ie sync, relay, smartwindow).
         // This reprensents an abandonded login. Basically the user hasn't actually confirmed the session yet, so
@@ -604,6 +610,7 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
                   integration,
                   flowQueryParams: updatedFlowQueryParams,
                   isSignedIntoFirefox,
+                  hasBrowserAccount,
                   setCurrentSplitLayout,
                 }}
               />
@@ -685,12 +692,14 @@ const AuthAndAccountSetupRoutes = ({
   integration,
   flowQueryParams,
   isSignedIntoFirefox,
+  hasBrowserAccount,
   setCurrentSplitLayout,
 }: {
   isSignedIn: boolean;
   integration: Integration;
   flowQueryParams: QueryParams;
   isSignedIntoFirefox: boolean;
+  hasBrowserAccount: boolean;
   setCurrentSplitLayout: (value: boolean) => void;
 }) => {
   const localAccount = currentAccount();
@@ -891,6 +900,7 @@ const AuthAndAccountSetupRoutes = ({
                 flowQueryParams,
                 useFxAStatusResult,
                 isSignedIntoFirefox,
+                hasBrowserAccount,
                 setCurrentSplitLayout,
               }}
             />
@@ -906,6 +916,7 @@ const AuthAndAccountSetupRoutes = ({
                 flowQueryParams,
                 useFxAStatusResult,
                 isSignedIntoFirefox,
+                hasBrowserAccount,
                 setCurrentSplitLayout,
               }}
             />
@@ -919,7 +930,7 @@ const AuthAndAccountSetupRoutes = ({
                 integration,
                 serviceName,
                 flowQueryParams,
-                isSignedIntoFirefox,
+                hasBrowserAccount,
                 setCurrentSplitLayout,
                 useFxAStatusResult,
               }}
@@ -934,7 +945,7 @@ const AuthAndAccountSetupRoutes = ({
                 integration,
                 serviceName,
                 flowQueryParams,
-                isSignedIntoFirefox,
+                hasBrowserAccount,
                 setCurrentSplitLayout,
                 useFxAStatusResult,
               }}
@@ -951,6 +962,7 @@ const AuthAndAccountSetupRoutes = ({
                 flowQueryParams,
                 useFxAStatusResult,
                 isSignedIntoFirefox,
+                hasBrowserAccount,
                 setCurrentSplitLayout,
               }}
             />
@@ -966,6 +978,7 @@ const AuthAndAccountSetupRoutes = ({
                 flowQueryParams,
                 useFxAStatusResult,
                 isSignedIntoFirefox,
+                hasBrowserAccount,
                 setCurrentSplitLayout,
               }}
             />

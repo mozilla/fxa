@@ -565,6 +565,55 @@ describe('useCmsInfoState', () => {
       customization: 'english-selected-test',
     });
   });
+
+  describe('CMS colors', () => {
+    const cmsConfig = {
+      shared: {
+        buttonColor: '#4845D2',
+        headlineTextColor: '#FF0000',
+        illustrationsTheme: { primary: '#00FF00' },
+        logoUrl: 'https://example.com/logo.svg',
+      },
+    };
+
+    beforeEach(() => {
+      mockUrlQueryData.get.mockImplementation((key: string) =>
+        key === 'client_id' ? '1234567890abcdef' : null
+      );
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: jest.fn().mockResolvedValue(cmsConfig),
+      });
+    });
+
+    afterEach(() => {
+      delete document.documentElement.dataset.theme;
+    });
+
+    it('keeps CMS colors without the Nova theme', async () => {
+      const { result } = renderHook(() => useCmsInfoState(), {
+        wrapper: MockAppProvider,
+      });
+
+      await waitFor(() => expect(result.current.data).toBeDefined());
+      expect(result.current.data?.cmsInfo).toEqual(cmsConfig);
+    });
+
+    it('drops CMS colors under the Nova theme', async () => {
+      document.documentElement.dataset.theme = 'nova';
+      const { result } = renderHook(() => useCmsInfoState(), {
+        wrapper: MockAppProvider,
+      });
+
+      await waitFor(() => expect(result.current.data).toBeDefined());
+      expect(result.current.data?.cmsInfo?.shared).toEqual({
+        buttonColor: undefined,
+        headlineTextColor: undefined,
+        illustrationsTheme: undefined,
+        logoUrl: 'https://example.com/logo.svg',
+      });
+    });
+  });
 });
 
 describe('useClientInfoState', () => {
