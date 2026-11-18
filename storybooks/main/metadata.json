@@ -1,8 +1,8 @@
 {
-  "commit": "540bf0166d2fd7a677457d2d2cd8f7d683d4d812",
-  "summary": "Merge pull request #21767 from mozilla/agent-c98313",
-  "description": "fix(functional-tests): make CMS button checks Nova-aware",
-  "timestamp": 1794962101000,
+  "commit": "fe89d18b6ceeb19332dc0b38722d5c4fc1819bac",
+  "summary": "Merge pull request #21768 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-5615923a4939feda5294ccd3aebe75cc28758d87",
+  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from ae563fd7714de4934e82dd8d833b9250b541170d to 5615923a4939feda5294ccd3aebe75cc28758d87",
+  "timestamp": 1795013202000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
