@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 62b95423e3da626a75957b92962d646eae301166</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 62b95423e3da626a75957b92962d646eae301166</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>11/18/2026, 6:47:54 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): improve passkey and Settings row accessibility</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* The passkey a11y review found screen-reader and focus gaps on the
+  passkey row, list, dialogs and creation page.
+* Settings row headings and CTAs announced without saying which row
+  they belong to.
+
+This commit:
+
+* Names row headings by heading and status, and row CTAs by CTA text
+  and heading (&quot;Change Password&quot;, &quot;Create passkey&quot;).
+* Keeps disabled row CTAs focusable with aria-disabled; the passkey
+  Create button is described by the limit banner.
+* Renders passkeys as a list with &quot;Delete {nickname}&quot; and icon-only
+  &quot;Rename {nickname}&quot; controls.
+* Returns focus after passkey dialogs close and fixes the delete
+  dialog description.
+* Gives Cancel on the creation page context, and tests that
+  LinkExternal keeps its new-window text under FtlMsg.
+
+Closes FXA-13707</pre></dd>
+  </dl>
+</body>
+</html>
