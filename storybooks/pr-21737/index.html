@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 649e188a844dacba30d20070f7be1f6f9e63eb8f</title>
+  <title>Storybooks for commit 78eda627ba6c2cc257780b8f20446e26207ac0f2</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 649e188a844dacba30d20070f7be1f6f9e63eb8f</h1>
+  <h1>Storybooks for commit 78eda627ba6c2cc257780b8f20446e26207ac0f2</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/6/2026, 6:49:07 PM UTC</dd>
+    <dd>11/18/2026, 12:35:02 AM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(db-migrations): add limitSessions_4, sparing device sessions</pre></dd>
     <dt>Description</dt>
@@ -41,7 +41,8 @@ This commit:
 - Adds limitSessions_4: deviceless sessions go first, devices only after.
 - Returns the devices it deletes (id, refreshTokenId) as a result set.
 - Counts only session tokens in totalDeletions.
-- Adds the test copy and bumps the fxa target patch to 202.
+- Releases the prune lock when the procedure errors.
+- Adds the test copy with tests and bumps the fxa target patch to 202.
 
 Closes FXA-14945</pre></dd>
   </dl>
