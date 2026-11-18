@@ -1,8 +1,8 @@
 {
-  "commit": "62b95423e3da626a75957b92962d646eae301166",
+  "commit": "7f2f91bfae841122bcf90a661ef49a60ad22765c",
   "summary": "fix(settings): improve passkey and Settings row accessibility",
   "description": "Because:\n\n* The passkey a11y review found screen-reader and focus gaps on the\n  passkey row, list, dialogs and creation page.\n* Settings row headings and CTAs announced without saying which row\n  they belong to.\n\nThis commit:\n\n* Names row headings by heading and status, and row CTAs by CTA text\n  and heading (\"Change Password\", \"Create passkey\").\n* Keeps disabled row CTAs focusable with aria-disabled; the passkey\n  Create button is described by the limit banner.\n* Renders passkeys as a list with \"Delete {nickname}\" and icon-only\n  \"Rename {nickname}\" controls.\n* Returns focus after passkey dialogs close and fixes the delete\n  dialog description.\n* Gives Cancel on the creation page context, and tests that\n  LinkExternal keeps its new-window text under FtlMsg.\n\nCloses FXA-13707",
-  "timestamp": 1795027674000,
+  "timestamp": 1795030837000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",
