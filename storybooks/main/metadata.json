@@ -1,8 +1,8 @@
 {
-  "commit": "d8d86e786e17faa0de0e972a03d53459dda6c0ac",
-  "summary": "Merge pull request #21721 from mozilla/fxa-14945",
-  "description": "perf(shared): prune session tokens with a WATCH transaction",
-  "timestamp": 1795025048000,
+  "commit": "516f0908ac314f7031c62167dc13d4d8f23605da",
+  "summary": "Merge pull request #21771 from mozilla/revert-21721-fxa-14945",
+  "description": "Revert \"perf(shared): prune session tokens with a WATCH transaction\"",
+  "timestamp": 1795025369000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
