@@ -4,6 +4,7 @@
 import crypto from 'crypto';
 import {
   filterExpiredTokens,
+  findUnlistedCachedSessionTokenIds,
   mergeCachedSessionTokens,
   mergeDeviceAndSessionToken,
   mergeDevicesAndSessionTokens,
@@ -83,6 +84,8 @@ export const createDB = (
     config.tokenLifetimes.sessionTokenWithoutDevice;
   const { enabled: TOKEN_PRUNING_ENABLED, maxAge: TOKEN_PRUNING_MAX_AGE } =
     config.tokenPruning;
+  const ORPHAN_CLEANUP_ENABLED =
+    config.redis?.sessionTokens?.pruneSessionTokensServerSide !== false;
   const submitServerDeletionRequest = createServerDeletionRequestPing(config);
 
   // Configure the shared model's expiry from the server's config
@@ -310,6 +313,14 @@ export const createDB = (
 
       const [mysqlSessionTokens, redisSessionTokens = {}] =
         await Promise.all(promises);
+
+      // Not awaited: the response is built from MySQL and never shows orphaned
+      // entries, so a slow Redis should not slow this read.
+      this.pruneOrphanedCachedSessionTokens(
+        uid,
+        mysqlSessionTokens,
+        redisSessionTokens
+      ).catch(() => {});
 
       // for each db session token, if there is a matching redis token
       // overwrite the properties of the db token with the redis token values
@@ -836,6 +847,48 @@ export const createDB = (
       await this.touchSessionToken(sessionToken, geo);
       await RawSessionToken.update({ id, ...sessionToken });
       this.metrics?.increment('db.sessionToken.update');
+    }
+
+    /**
+     * Removes cached entries whose session token no longer exists in MySQL.
+     * redis.pruneSessionTokens skips when busy or on a write conflict, so
+     * each read of the account's sessions retries what it left behind.
+     */
+    async pruneOrphanedCachedSessionTokens(
+      uid: string,
+      mysqlSessionTokens: { tokenId?: string }[],
+      redisSessionTokens: Record<string, unknown>
+    ) {
+      const unlisted = findUnlistedCachedSessionTokenIds(
+        mysqlSessionTokens,
+        redisSessionTokens
+      );
+      if (
+        !this.redis ||
+        !TOKEN_PRUNING_ENABLED ||
+        !ORPHAN_CLEANUP_ENABLED ||
+        unlisted.length === 0
+      ) {
+        return;
+      }
+      try {
+        const existing = new Set(
+          await RawSessionToken.existingTokenIds(unlisted)
+        );
+        const orphaned = unlisted.filter((id) => !existing.has(id));
+        if (orphaned.length === 0) {
+          return;
+        }
+        this.metrics?.increment(
+          'db.sessions.orphanedRedisTokens',
+          orphaned.length
+        );
+        await this.redis.pruneSessionTokens(uid, orphaned);
+      } catch (err) {
+        // The next read retries, so do not fail the session read.
+        this.metrics?.increment('db.sessions.orphanedRedisTokens.error');
+        log.error('DB.pruneOrphanedCachedSessionTokens', { uid, err });
+      }
     }
 
     async pruneSessionTokens(uid: string, sessionTokens: any) {
