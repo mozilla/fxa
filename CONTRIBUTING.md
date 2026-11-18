@@ -151,7 +151,9 @@ Use **Sync fork** on your fork's GitHub page, or add `mozilla/fxa` as an `upstre
 ```sh
 git remote add upstream https://github.com/mozilla/fxa.git
 git fetch upstream
+git switch main
 git rebase upstream/main
+git push origin main
 ```
 
 For more info, see [GitHub Docs: Syncing a fork](https://docs.github.com/en/pull-requests/how-tos/work-with-forks/syncing-a-fork).
