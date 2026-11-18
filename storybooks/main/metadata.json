@@ -1,8 +1,8 @@
 {
-  "commit": "fe89d18b6ceeb19332dc0b38722d5c4fc1819bac",
-  "summary": "Merge pull request #21768 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-5615923a4939feda5294ccd3aebe75cc28758d87",
-  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from ae563fd7714de4934e82dd8d833b9250b541170d to 5615923a4939feda5294ccd3aebe75cc28758d87",
-  "timestamp": 1795013202000,
+  "commit": "d7a72775af834434e5c7d4e6a5f2aa1159b6f417",
+  "summary": "Merge pull request #21755 from mozilla/FXA-13191",
+  "description": "fix(settings): hide account switching when Firefox holds an unverified account",
+  "timestamp": 1795023503000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
