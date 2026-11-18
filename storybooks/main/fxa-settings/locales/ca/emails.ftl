@@ -5,6 +5,8 @@
 fxa-header-sync-devices-image = <img data-l10n-name="sync-devices-image" alt="Sincronitza dispositius">
 body-devices-image = <img data-l10n-name="devices-image" alt="Dispositius">
 fxa-privacy-url = Política de privadesa de { -brand-mozilla }
+moz-accounts-privacy-url-2 = Avís de privadesa dels { -product-mozilla-accounts(capitalization: "lowercase") }
+moz-accounts-terms-url = Condicions del servei dels { -product-mozilla-accounts(capitalization: "lowercase") }
 # Variables:
 #  $productName (String) - The name of the product to be downloaded, e.g. Mozilla VPN, or Firefox
 body-android-badge = <img data-l10n-name="google-play-badge" alt="Baixeu el { $productName } del { -google-play }">

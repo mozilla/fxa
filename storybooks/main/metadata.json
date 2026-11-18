@@ -1,8 +1,8 @@
 {
-  "commit": "b95c5727faf6c76a3c2adc6c6739933ecc8adf33",
-  "summary": "Merge pull request #21772 from mozilla/fxa-14945",
-  "description": "perf(shared): prune session tokens with a WATCH transaction",
-  "timestamp": 1795027142000,
+  "commit": "83bf2fedda3204251c1f351f729b204be33ccdcb",
+  "summary": "Merge pull request #21769 from mozilla/FXA-14877",
+  "description": "docs(contributing): update contributor guide for current workflow",
+  "timestamp": 1795028453000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
