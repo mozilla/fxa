@@ -1,8 +1,8 @@
 {
-  "commit": "0c47b1bda50af3ef7cc305cdcd4aa1c6cf24d3ff",
+  "commit": "87f3ae2e2b1e6a34a76fa7b99c7a64e38601f373",
   "summary": "chore(deps): switch fxa-react to @mozilla/lit-web-components 1.0.1",
-  "description": "Because:\n\n* acorn-web-components moved to @mozilla/lit-web-components on npm\n\nThis commit:\n\n* switches fxa-react to @mozilla/lit-web-components ^1.0.1\n* points the tokens import and the docs at the new package name",
-  "timestamp": 1794958063000,
+  "description": "Because:\n\n* The npm package acorn-web-components is now @mozilla/lit-web-components.\n\nThis commit:\n\n* Switches fxa-react to @mozilla/lit-web-components ^1.0.1.\n* Updates the token import and the package name in comments and docs.\n* Formats the design-token files that were not Prettier-clean.",
+  "timestamp": 1795012610000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
