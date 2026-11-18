@@ -1,10 +1,10 @@
-# Contribution Guidelines for Firefox Accounts
+# Contribution Guidelines for Mozilla Accounts
 
-Anyone is welcome to help with Firefox Accounts, but it's important to
-recognize that Firefox Accounts is a complex tool written by Mozilla and used
-solely within Mozilla or by parties tightly coupled to Mozilla. The team's
-goal is focused on serving Mozilla's requirements -- not being easy to set up
-or easily usable in other scenarios.
+Anyone is welcome to help with Mozilla Accounts (formerly Firefox Accounts,
+still abbreviated FxA), but it's important to recognize that FxA is a complex
+service written by Mozilla and used solely within Mozilla or by parties tightly
+coupled to Mozilla. The team's goal is focused on serving Mozilla's
+requirements -- not being easy to set up or easily usable in other scenarios.
 
 In order to scale effectively, we may use technologies which have significant
 barriers to entry (e.g., cost or expertise).
@@ -14,21 +14,34 @@ problem, thank you for your help and please read below for guidelines.
 
 If you want to write code, and you are not an experienced programmer you will
 probably be more successful [looking for other projects at
-Mozilla](https://codetribute.mozilla.org/) to contribute to. The Firefox
-Accounts team is happy to support open source contributions but we have limited
-time to assist in getting the FxA codebase up and running on other platforms.
+Mozilla](https://codetribute.mozilla.org/) to contribute to. The FxA team is
+happy to support open source contributions but we have limited time to assist
+in getting the FxA codebase up and running on other platforms.
 
 ## Code of Conduct
 
-You must agree to abide by the [Mozilla Community Participation Guidelines](https://www.mozilla.org/about/governance/policies/participation/)
+You must agree to abide by the [Mozilla Community Participation Guidelines](https://www.mozilla.org/about/governance/policies/participation/). See [CODE_OF_CONDUCT.md](/CODE_OF_CONDUCT.md).
 
 ## Bug Reports
 
-You can [file issues on GitHub](https://github.com/mozilla/fxa/issues/new). Please try to include as much information as you can and under what conditions you saw the issue.
+You can [file issues on GitHub](https://github.com/mozilla/fxa/issues/new/choose). Please include as much information as you can and the conditions under which you saw the issue.
+
+Do not file security vulnerabilities as public issues. Follow [SECURITY.md](/SECURITY.md) instead.
+
+## Communication
+
+GitHub issues and pull requests are the place to ask questions and discuss changes. Keep the discussion on the issue or PR it belongs to.
+
+Do not @-mention or request reviews from individual Mozilla staff. [CODEOWNERS](/.github/CODEOWNERS) requests the right reviewers automatically, and the team watches new issues and PRs.
 
 ## Development Process
 
-[Read about our development process](https://mozilla.github.io/ecosystem-platform/reference/team-processes/development-process)
+1. **Start from an issue.** Find or file one before writing code, so the team can confirm the change is wanted and agree on the approach. Issues filed on GitHub are mirrored to the team's Jira project.
+2. **Set up your environment.** Follow the [development setup tutorial](https://mozilla.github.io/ecosystem-platform/tutorials/development-setup).
+3. **Work from a fork.** [Fork `mozilla/fxa`](https://github.com/mozilla/fxa/fork) and create a branch from the current `main`. See [Keeping your fork in sync](#keeping-your-fork-in-sync).
+4. **Open a pull request from your fork.** Fill in the [pull request template](/.github/PULL_REQUEST_TEMPLATE.md). Open it as a draft until it is ready for review.
+5. **Wait for CI.** Tests do not run on PRs from forks. A team member mirrors your PR to a branch in `mozilla/fxa` to run them.
+6. **Get it reviewed and merged.** See [Code Review](#code-review). A team member merges the PR once it is approved and CI passes. Merged changes ship in a later scheduled release.
 
 ## Sending Pull Requests
 
@@ -36,66 +49,47 @@ Patches should be submitted as pull requests (PR).
 
 Before submitting a PR:
 
-- Your code must run and pass all the automated tests before you submit your PR for review. "Work in progress" pull requests are allowed to be submitted, but should be opened as a `draft` and should not be merged until all tests pass and the code has been reviewed.
+- Your code must run and pass all the automated tests. Open work in progress as a **draft** PR. It is not merged until all tests pass and the code has been reviewed.
 - Your patch should include new tests that cover your changes. It is your and your reviewer's responsibility to ensure your patch includes adequate tests.
-- Your patch must be [GPG signed](https://help.github.com/articles/managing-commit-signature-verification) to ensure the commits come from a trusted source.
+- Your commits must be [signed](https://docs.github.com/en/authentication/managing-commit-signature-verification) (GPG or SSH) to ensure they come from a trusted source.
+- If you used AI tools to write any of the code, you must have reviewed all of it yourself.
 
 When submitting a PR:
 
 - You agree to and have the legal right to license your code under the project's [license](/LICENSE).
-- Base your branch off the current `main`.
-- Add both your code and new tests, if relevant.
-- Run `grunt lint` and `npm test` to make sure your code passes linting and tests.
-- Please do not include merge commits in pull requests; include only commits with the new relevant code.
-- Your commit message must follow the
-  [commit guidelines](https://github.com/mozilla/fxa/blob/main/CONTRIBUTING.md#git-commit-guidelines).
-- To skip CI tests add the "🙈 skip ci" github label to the PR.
-  - You can skip only specific packages by also adding the corresponding "fxa-" label, for example "fxa-content-server".
-- Be aware that a member of the FxA team will need to open a separate PR for CI
-  to run properly.
+- Lint and test the packages you changed. This repo uses [Nx](https://nx.dev/):
 
-See the main [README.md](/README.md) for information on prerequisites, installing, running and testing.
+  ```sh
+  npx nx lint <project>
+  npx nx test-unit <project>
+  npx nx test-integration <project>
+  ```
+
+  Available targets vary by project; check its `project.json` and `package.json`.
+
+- Do not include merge commits in pull requests. Rebase onto `main` instead.
+- Your commit messages must follow the [commit guidelines](#git-commit-guidelines).
+- PRs with no activity for 60 days are marked stale and closed 7 days later.
 
 ## Code Review
 
-This project is production Mozilla code and subject to our [engineering practices and quality standards](https://developer.mozilla.org/docs/Mozilla/Developer_guide/Committing_Rules_and_Responsibilities). Every patch must be peer reviewed. This project is part of the [Firefox Accounts module](https://wiki.mozilla.org/Modules/Other#Firefox_Accounts), and your patch must be reviewed by one of the listed module owners or peers.
+This project is production Mozilla code. Every patch must be reviewed and approved by a member of the FxA team before it is merged. Reviewers are assigned through [CODEOWNERS](/.github/CODEOWNERS).
+
+Reviewers look for:
+
+- Tests that cover the change.
+- Security and privacy impact, since this code handles authentication, payments and user data.
+- Consistency with existing patterns in the monorepo, and reuse of existing helpers.
+
+Respond to each review comment, either with a change or an explanation.
 
 ## Git Commit Guidelines
 
-We loosely follow the [Angular commit guidelines](https://github.com/angular/angular.js/blob/master/CONTRIBUTING.md#type) of `<type>(<scope>): <subject>` where `type` must be one of:
-
-- **feat**: A new feature
-- **fix**: A bug fix
-- **docs**: Documentation only changes
-- **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing
-  semi-colons, etc)
-- **refactor**: A code change that neither fixes a bug or adds a feature
-- **perf**: A code change that improves performance
-- **test**: Adds missing tests
-- **chore**: Changes to the build process or auxiliary tools and libraries such as documentation
-  generation
-
-### Scope
-
-The scope could be anything specifying place of the commit change. For example `oauth`,
-`fxa-client`, `signup`, `l10n` etc...
-
-### Subject
-
-The subject contains succinct description of the change:
-
-- use the imperative, present tense: "change" not "changed" nor "changes"
-- don't capitalize first letter
-- no dot (.) at the end
-
-### Body
-
-The body should describe the purpose of the commit, so that it's clear why this change is being
-made. To assist in writing this along with the footer, a git commit template (saved as `~/.gitmessage`)
-can be used:
+Save this template as `~/.gitmessage`:
 
 ```text
-feat: SUBJECT LINE
+type(scope): subject
+
 Because:
 
 *
@@ -104,53 +98,63 @@ This commit:
 
 *
 
-Closes #
+Closes #FXA-
 ```
 
-After creating `~/.gitmessage`, update git to use the template with the following:
+Then tell git to use it:
 
-```
+```sh
 git config --global commit.template ~/.gitmessage
 ```
 
 A text editor will open with the template any time `git commit` is run without the `-m` flag.
 
-Just as in the **subject**, use the imperative, present tense: "change" not "changed" nor "changes". Commits
-are expected to follow this format.
+### Subject
+
+The subject line uses the format `<type>(<scope>): <subject>`, where `type` must be one of:
+
+- **feat**: A new feature
+- **fix**: A bug fix
+- **docs**: Documentation only changes
+- **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing
+  semi-colons, etc)
+- **refactor**: A code change that neither fixes a bug nor adds a feature
+- **perf**: A code change that improves performance
+- **test**: Adds missing tests
+- **chore**: Changes to the build process or auxiliary tools and libraries such as documentation
+  generation
+
+The scope names the area of the change, usually a package or feature. For example `auth`,
+`settings`, `payments`, `l10n`.
+
+The subject is a succinct description of the change:
+
+- use the imperative, present tense: "change" not "changed" nor "changes"
+- don't capitalize the first letter
+- no dot (.) at the end
+- keep the whole line to 72 characters or fewer
+
+### Body
+
+- **Because:** why the change is needed.
+- **This commit:** what the change does, in the imperative, present tense.
 
 ### Footer
 
-The footer should contain any information about **Breaking Changes** and is also the place to
-reference GitHub issues that this commit **Closes**. In order to maintain a reference to the context of the commit, add
-`fixes #<issue_number>` if it closes a related issue or `issue #<issue_number>`
-if it's a partial fix.
+`Closes #FXA-<number>`, naming the Jira ticket this commit closes. GitHub issues sync to Jira
+automatically; the issue shows its Jira ticket number once synced.
 
-## How to keep your fork in sync with the latest changes?
+## Keeping your fork in sync
 
-Once your PR is merged, it's recommended to pull new changes from `main` (which will also include the one that you made).
-So for that purpose, specify a new remote `upstream` which will be pointing to the actual [mozilla/fxa](https://github.com/mozilla/fxa) repo.
+Use **Sync fork** on your fork's GitHub page, or add `mozilla/fxa` as an `upstream` remote:
 
 ```sh
 git remote add upstream https://github.com/mozilla/fxa.git
-```
-
-To sync your local copy of the fork with the `upstream` changes, run the following commands:
-
-```sh
 git fetch upstream
-
-git checkout main
-
-git merge upstream/main
+git rebase upstream/main
 ```
 
-Great, now the local copy of the repo is up-to-date. But your fork on Github won’t be updated until you push to it, so go ahead and run:
-
-```sh
-git push origin main
-```
-
-For more info, see [Github Help: Syncing a Fork](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/syncing-a-fork).
+For more info, see [GitHub Docs: Syncing a fork](https://docs.github.com/en/pull-requests/how-tos/work-with-forks/syncing-a-fork).
 
 ## Servers
 
@@ -159,13 +163,10 @@ For more info, see [Github Help: Syncing a Fork](https://docs.github.com/en/gith
 
 ## Dependencies and Tools
 
-### yarn
+### Node and Yarn
 
-We use [yarn](https://yarnpkg.com/) to manage dependencies. Required components are [automatically
-installed](https://github.com/mozilla/fxa/blob/main/package.json#L6) when you install this project.
+The required Node version is in [`.nvmrc`](/.nvmrc). We use [Yarn](https://yarnpkg.com/), pinned by the `packageManager` field in [`package.json`](/package.json). `yarn install` checks both before installing.
 
 ### L10N
 
 To contribute translations visit [Pontoon](https://pontoon.mozilla.org/).
-
-Use the `FXA_L10N_SHA` to pin L10N files to certain Git SHA. If not set then the `master` branch SHA will be used.
