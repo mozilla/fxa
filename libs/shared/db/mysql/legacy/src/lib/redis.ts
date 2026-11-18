@@ -25,12 +25,14 @@ export type Config = {
   maxttl?: number | string;
   timeoutMs?: number;
   pruneSessionTokensServerSide?: boolean;
+  touchSessionTokenServerSide?: boolean;
 } & RedisOptions;
 
 interface ICustomRedisCache {
   getAccessToken(uid: string): Promise<any>;
   getAccessTokens(uid: string): Promise<any>;
   pruneSessionTokens(uid: string, tokenIds: string): Promise<any>;
+  touchSessionToken(uid: string, token: any): Promise<any>;
 }
 
 // Packing scheme written by packSessionToken; see
@@ -132,7 +134,8 @@ function isCustomRedisCache(redis: any): redis is Redis & ICustomRedisCache {
   if (
     'getAccessToken' in redis &&
     'getAccessTokens' in redis &&
-    'pruneSessionTokens' in redis
+    'pruneSessionTokens' in redis &&
+    'touchSessionToken' in redis
   ) {
     return true;
   }
@@ -584,6 +587,19 @@ export class RedisShared {
     // remove keys with null values
     const json = JSON.stringify(token, (k, v) => (v == null ? undefined : v));
     span.setAttribute('redis.touchSessionToken.json.size', json.length);
+    if (this.config.touchSessionTokenServerSide === false) {
+      const p1 = this.redis.touchSessionToken(uid, json);
+      // See claimLastAccessTimeWrite: the cancel promise must not reject.
+      const p2 = this.resolveInMs(
+        p1.catch(() => undefined),
+        this.timeoutMs
+      );
+      try {
+        return await Promise.race([p1, p2]);
+      } finally {
+        span.end();
+      }
+    }
     const p1 = this.touchQueue.then(() =>
       this.touchSessionTokenInTransaction(uid, JSON.parse(json))
     );

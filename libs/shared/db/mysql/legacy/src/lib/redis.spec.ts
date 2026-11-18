@@ -69,11 +69,12 @@ describe('RedisShared', () => {
 
     expect(Redis).toHaveBeenCalledTimes(1);
     const defineCommand = shared.redis.defineCommand as jest.Mock;
-    expect(defineCommand).toHaveBeenCalledTimes(3);
+    expect(defineCommand).toHaveBeenCalledTimes(4);
     for (const [name, scriptName] of [
       ['getAccessToken', 'getAccessToken_1'],
       ['getAccessTokens', 'getAccessTokens_1'],
       ['pruneSessionTokens', 'pruneSessionTokens_1'],
+      ['touchSessionToken', 'touchSessionToken_1'],
     ]) {
       expect(defineCommand).toHaveBeenCalledWith(name, {
         lua: LUA_SCRIPTS[scriptName],
@@ -547,6 +548,46 @@ describe('RedisShared', () => {
       ).rejects.toThrow('down');
       expect(touchRedis.unwatch).toHaveBeenCalled();
       expect(touchRedis.multi).not.toHaveBeenCalled();
+    });
+
+    it('touches with the touchSessionToken_1 Lua script when touchSessionTokenServerSide is false', async () => {
+      const shared = new RedisShared({
+        host: 'localhost',
+        port: 6379,
+        touchSessionTokenServerSide: false,
+      });
+      const luaTouch = (
+        shared.redis as unknown as { touchSessionToken: jest.Mock }
+      ).touchSessionToken;
+      luaTouch.mockResolvedValue('OK');
+
+      expect(
+        await shared.touchSessionToken('uid', {
+          id: 't1',
+          lastAccessTime: 1,
+          location: null,
+        })
+      ).toBe('OK');
+      expect(luaTouch).toHaveBeenCalledWith(
+        'uid',
+        '{"id":"t1","lastAccessTime":1}'
+      );
+      expect(shared.redis.duplicate).not.toHaveBeenCalled();
+    });
+
+    it('rejects when the touchSessionToken_1 Lua script fails', async () => {
+      const shared = new RedisShared({
+        host: 'localhost',
+        port: 6379,
+        touchSessionTokenServerSide: false,
+      });
+      (
+        shared.redis as unknown as { touchSessionToken: jest.Mock }
+      ).touchSessionToken.mockRejectedValue(new Error('NOSCRIPT'));
+
+      await expect(
+        shared.touchSessionToken('uid', { id: 't1', lastAccessTime: 1 })
+      ).rejects.toThrow('NOSCRIPT');
     });
   });
 
