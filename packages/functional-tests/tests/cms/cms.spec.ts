@@ -55,9 +55,14 @@ test.describe('severity-1 #smoke', () => {
         exact: true,
       });
       await expect(button).toBeVisible();
-      await expect(button).toHaveClass(/cta-primary-cms/);
       await expect(button).toHaveClass(/cta-xl/);
       await expect(button).toHaveClass(/cta-primary/);
+      // Under Nova, settings ignores the CMS button color.
+      if ((await page.locator('html').getAttribute('data-theme')) === 'nova') {
+        await expect(button).not.toHaveClass(/cta-primary-cms/);
+        return;
+      }
+      await expect(button).toHaveClass(/cta-primary-cms/);
       await expect(button).toHaveCSS('--cta-bg', buttonColor);
       await expect(button).toHaveCSS('--cta-border', buttonColor);
       await expect(button).toHaveCSS('--cta-active', buttonColor);
