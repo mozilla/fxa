@@ -224,6 +224,12 @@ export function makeRedisConfig() {
         format: 'int',
         doc: 'Minimum connection count for the session token Redis pool',
       },
+      pruneSessionTokensServerSide: {
+        default: true,
+        doc: 'Prune session tokens with WATCH/MULTI/EXEC and remove orphaned Redis entries when sessions are read. Set false to prune with the pruneSessionTokens_1 Lua script and skip orphan cleanup.',
+        format: Boolean,
+        env: 'SESSION_TOKENS_PRUNE_SERVER_SIDE',
+      },
     },
     email: {
       enabled: {

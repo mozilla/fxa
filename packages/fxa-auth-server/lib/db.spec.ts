@@ -380,6 +380,35 @@ describe('redis enabled, token-pruning enabled:', () => {
 
   let redis: any, log: any, tokens: any, db: any;
 
+  const connectDB = (sessionTokens: Record<string, unknown> = {}) =>
+    createDB(
+      {
+        tokenLifetimes,
+        tokenPruning,
+        redis: {
+          foo: 'bar',
+          sessionTokens: {
+            baz: 'qux',
+            prefix: 'wibble',
+            ...sessionTokens,
+          },
+          email: {
+            blee: 'blee',
+            prefix: 'blee',
+          },
+        },
+        lastAccessTimeUpdates: {
+          enabled: true,
+          sampleRate: 1,
+          earliestSaneTimestamp: 1,
+          minIntervalSeconds: 300,
+        },
+      },
+      log,
+      tokens,
+      {}
+    ).connect({});
+
   beforeEach(async () => {
     redis = {
       get: jest.fn(() => Promise.resolve('{}')),
@@ -400,34 +429,7 @@ describe('redis enabled, token-pruning enabled:', () => {
     };
     log = createMock<AuthLogger>();
     tokens = require('../lib/tokens')(log, { tokenLifetimes });
-    const DB = createDB(
-      {
-        tokenLifetimes,
-        tokenPruning,
-        redis: {
-          foo: 'bar',
-          sessionTokens: {
-            baz: 'qux',
-            prefix: 'wibble',
-          },
-          email: {
-            blee: 'blee',
-            prefix: 'blee',
-          },
-        },
-        lastAccessTimeUpdates: {
-          enabled: true,
-          sampleRate: 1,
-          earliestSaneTimestamp: 1,
-          minIntervalSeconds: 300,
-        },
-      },
-      log,
-      tokens,
-      {}
-    );
-
-    db = await DB.connect({});
+    db = await connectDB();
   });
 
   it('should not call redis or the db in db.devices if uid is falsey', async () => {
@@ -464,6 +466,132 @@ describe('redis enabled, token-pruning enabled:', () => {
     expect(redis.getSessionTokens).toHaveBeenCalledWith('wibble');
 
     expect(log.error).toHaveBeenCalledTimes(0);
+  });
+
+  describe('db.sessions orphaned cache entries', () => {
+    const LISTED_ID = 'aa'.repeat(32);
+    const DELETED_ID = 'bb'.repeat(32);
+    const UNLISTED_ID = 'cc'.repeat(32);
+
+    beforeEach(() => {
+      models.SessionToken.findByUid = jest
+        .fn()
+        .mockResolvedValue([
+          { tokenId: LISTED_ID, deviceId: 'device', createdAt: 1 },
+        ]);
+      redis.getSessionTokens = jest.fn().mockResolvedValue({
+        [LISTED_ID]: {},
+        [DELETED_ID]: {},
+        [UNLISTED_ID]: {},
+      });
+      models.SessionToken.existingTokenIds = jest
+        .fn()
+        .mockResolvedValue([UNLISTED_ID]);
+    });
+
+    const LISTING = [{ tokenId: LISTED_ID }];
+    const CACHED = { [LISTED_ID]: {}, [DELETED_ID]: {}, [UNLISTED_ID]: {} };
+    const prune = (cached: Record<string, unknown> = CACHED) =>
+      db.pruneOrphanedCachedSessionTokens('wibble', LISTING, cached);
+
+    it('starts the cleanup with the listing and the cached entries', async () => {
+      const cleanup = jest
+        .spyOn(db, 'pruneOrphanedCachedSessionTokens')
+        .mockResolvedValue(undefined);
+
+      await db.sessions('wibble');
+
+      expect(cleanup).toHaveBeenCalledWith(
+        'wibble',
+        [expect.objectContaining({ tokenId: LISTED_ID })],
+        CACHED
+      );
+    });
+
+    it('returns the sessions without waiting for the cleanup', async () => {
+      models.SessionToken.existingTokenIds = jest.fn(
+        () => new Promise(() => {})
+      );
+
+      const sessions = await db.sessions('wibble');
+
+      expect(sessions.map((s: { id: string }) => s.id)).toEqual([LISTED_ID]);
+    });
+
+    it('checks only cached ids missing from the listing against MySQL', async () => {
+      await prune();
+
+      expect(models.SessionToken.existingTokenIds).toHaveBeenCalledWith([
+        DELETED_ID,
+        UNLISTED_ID,
+      ]);
+    });
+
+    it('prunes cached entries whose session token no longer exists', async () => {
+      await prune();
+
+      expect(redis.pruneSessionTokens).toHaveBeenCalledWith('wibble', [
+        DELETED_ID,
+      ]);
+    });
+
+    it('does not prune when every unlisted cached token still exists', async () => {
+      models.SessionToken.existingTokenIds = jest
+        .fn()
+        .mockResolvedValue([DELETED_ID, UNLISTED_ID]);
+
+      await prune();
+
+      expect(redis.pruneSessionTokens).not.toHaveBeenCalled();
+    });
+
+    it('does nothing when redis.sessionTokens.pruneSessionTokensServerSide is false', async () => {
+      db = await connectDB({ pruneSessionTokensServerSide: false });
+
+      await prune();
+
+      expect(models.SessionToken.existingTokenIds).not.toHaveBeenCalled();
+      expect(redis.pruneSessionTokens).not.toHaveBeenCalled();
+    });
+
+    it('does not query MySQL when every cached entry is listed', async () => {
+      await prune({ [LISTED_ID]: {} });
+
+      expect(models.SessionToken.existingTokenIds).not.toHaveBeenCalled();
+    });
+
+    it('counts and logs a failed existence check without rejecting', async () => {
+      const err = new Error('ECONNREFUSED');
+      models.SessionToken.existingTokenIds = jest.fn().mockRejectedValue(err);
+      db.metrics = { increment: jest.fn() };
+
+      await expect(prune()).resolves.toBeUndefined();
+
+      expect(db.metrics.increment).toHaveBeenCalledWith(
+        'db.sessions.orphanedRedisTokens.error'
+      );
+      expect(log.error).toHaveBeenCalledWith(
+        'DB.pruneOrphanedCachedSessionTokens',
+        { uid: 'wibble', err }
+      );
+      expect(redis.pruneSessionTokens).not.toHaveBeenCalled();
+    });
+
+    it('counts and logs a failed Redis prune without rejecting', async () => {
+      const err = new Error('Command timed out');
+      redis.pruneSessionTokens = jest.fn().mockRejectedValue(err);
+      db.metrics = { increment: jest.fn() };
+
+      await expect(prune()).resolves.toBeUndefined();
+
+      expect(db.metrics.increment).toHaveBeenCalledWith(
+        'db.sessions.orphanedRedisTokens.error'
+      );
+      expect(log.error).toHaveBeenCalledWith(
+        'DB.pruneOrphanedCachedSessionTokens',
+        { uid: 'wibble', err }
+      );
+    });
   });
 
   it('should call redis.del in db.deleteAccount', async () => {
