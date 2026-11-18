@@ -1,8 +1,8 @@
 {
-  "commit": "3967aaf6fa1fc0c62151918ac517ee6fa2a93b0c",
-  "summary": "Merge pull request #21708 from mozilla/fxa-6803-page-titles",
-  "description": "feat(settings): require localized page titles in AppLayout",
-  "timestamp": 1795030705000,
+  "commit": "a3192dcffbfd21ee76ed6ee399bcdb78f1bab7ea",
+  "summary": "Merge pull request #21713 from mozilla/fxa-14927",
+  "description": "perf(shared-db): replace touchSessionToken Lua script with a transaction",
+  "timestamp": 1795031772000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
