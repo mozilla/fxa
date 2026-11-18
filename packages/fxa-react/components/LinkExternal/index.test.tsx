@@ -3,7 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
+import { screen } from '@testing-library/react';
 import LinkExternal from './index';
+import { FtlMsg } from '../../lib/utils';
 import { renderWithLocalizationProvider } from '../../lib/test-utils/localizationProvider';
 
 it('renders without imploding', () => {
@@ -25,4 +27,21 @@ it('renders without imploding', () => {
   expect(link).toHaveTextContent(textContent);
   // 'Opens in new window' is sr-only text added for for accessibility
   expect(link).toHaveTextContent('Opens in new window');
+});
+
+it('keeps the new-window text when wrapped in a localized FtlMsg', () => {
+  renderWithLocalizationProvider(
+    <FtlMsg id="learn-more">
+      <LinkExternal href="https://mozilla.org/">Learn more</LinkExternal>
+    </FtlMsg>,
+    {
+      en: [
+        'learn-more = Translated link\nlink-sr-new-window = Opens in new window\n',
+      ],
+    }
+  );
+
+  expect(screen.getByRole('link')).toHaveAccessibleName(
+    'Translated link Opens in new window'
+  );
 });

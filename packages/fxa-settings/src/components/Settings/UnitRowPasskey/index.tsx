@@ -45,6 +45,7 @@ export const UnitRowPasskey = () => {
     <>
       {webAuthnSupported && isAtLimit && (
         <Banner
+          bannerId="passkey-max-limit-banner"
           type="warning"
           className="mb-2"
           content={{
@@ -56,9 +57,17 @@ export const UnitRowPasskey = () => {
           }}
         />
       )}
-      {passkeys.map((passkey) => (
-        <PasskeySubRow key={passkey.credentialId} passkey={passkey} />
-      ))}
+      {hasPasskeys && (
+        // Safari with VoiceOver drops list semantics under list-style: none.
+        // eslint-disable-next-line jsx-a11y/no-redundant-roles
+        <ul role="list">
+          {passkeys.map((passkey) => (
+            <li key={passkey.credentialId}>
+              <PasskeySubRow passkey={passkey} />
+            </li>
+          ))}
+        </ul>
+      )}
     </>
   );
 
@@ -76,6 +85,10 @@ export const UnitRowPasskey = () => {
       headerId="passkeys"
       prefixDataTestId="passkey"
       ctaText={ftlMsgResolver.getMsg('passkey-row-action-create', 'Create')}
+      ctaAriaLabel={ftlMsgResolver.getMsg(
+        'passkey-row-action-create-label',
+        'Create passkey'
+      )}
       ctaGleanDataAttrs={{
         id: webAuthnSupported
           ? 'account_pref_passkey_create_submit'
@@ -95,6 +108,7 @@ export const UnitRowPasskey = () => {
           : undefined
       }
       disabled={webAuthnSupported && isAtLimit}
+      disabledDescribedBy="passkey-max-limit-banner"
       disabledReason={ftlMsgResolver.getMsg(
         'passkey-row-max-limit-disabled-reason',
         "You've reached the maximum number of passkeys."

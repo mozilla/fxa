@@ -185,6 +185,14 @@ describe('PagePasskeyAdd', () => {
     expect(screen.getByTestId('passkey-add-cancel')).toBeInTheDocument();
   });
 
+  it('describes the Cancel button by the page heading', () => {
+    mockBeginPasskeyRegistration.mockReturnValue(new Promise(() => {}));
+    renderPage();
+    expect(
+      screen.getByRole('button', { name: 'Cancel' })
+    ).toHaveAccessibleDescription('Creating passkey…');
+  });
+
   it('completes ceremony and shows success alert', async () => {
     renderPage();
     await waitFor(() => {

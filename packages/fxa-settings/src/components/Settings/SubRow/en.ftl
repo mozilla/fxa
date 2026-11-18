@@ -50,6 +50,12 @@ passkey-sub-row-created-date = Created: { $createdDate }
 passkey-sub-row-last-used-date = Last used: { $lastUsedDate }
 
 passkey-sub-row-delete-title = Delete passkey
+# Screen reader label for the icon button that deletes a passkey.
+# Variables:
+#   $nickname (String) - the name the user gave the passkey
+passkey-sub-row-delete-label = Delete { $nickname }
+# Button to remove a passkey from the user's account, shown on narrow screens
+passkey-sub-row-remove-button = Remove
 passkey-delete-modal-heading = Delete your passkey?
 passkey-delete-modal-content-v3 = This passkey will be removed from your account. You’ll need to sign in using a password, another passkey, or linked account.
 passkey-delete-modal-cancel-button = Cancel
@@ -58,6 +64,10 @@ passkey-delete-success = Passkey deleted
 passkey-delete-error = There was a problem deleting your passkey. Try again in a few minutes.
 
 passkey-sub-row-rename-title = Rename passkey
+# Screen reader label for the icon button that renames a passkey.
+# Variables:
+#   $nickname (String) - the name the user gave the passkey
+passkey-sub-row-rename-label = Rename { $nickname }
 passkey-rename-modal-heading = Rename passkey
 passkey-rename-modal-description = Enter a new name for this passkey.
 passkey-rename-input-label = Passkey name

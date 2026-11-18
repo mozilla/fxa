@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useId, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import classNames from 'classnames';
 import { Passkey } from 'fxa-auth-client/browser';
@@ -11,7 +11,10 @@ import { isAuthUiError } from '../../../lib/auth-errors/auth-errors';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { DISPLAY_SAFE_UNICODE_WITH_NON_BMP } from '../../../constants';
 import { MfaGuard } from '../MfaGuard';
-import { useMfaErrorHandler } from '../../../lib/hooks';
+import {
+  useFocusOnTriggeringElementOnClose,
+  useMfaErrorHandler,
+} from '../../../lib/hooks';
 import { MfaReason } from '../../../lib/types';
 import InputText from '../../InputText';
 import { Banner } from '../../Banner';
@@ -54,6 +57,9 @@ type SubRowProps = {
   // its own title area (e.g. the passkey row's inline rename control).
   rowTitleContent?: React.ReactNode;
   localizedDeleteIconTitle?: string;
+  localizedDeleteIconLabel?: string;
+  deleteButtonFtlId?: string;
+  deleteButtonDescribedBy?: string;
   message?: React.ReactNode;
   onDeleteClick?: React.MouseEventHandler<HTMLButtonElement>;
   localizedDescription?: React.ReactNode;
@@ -86,6 +92,9 @@ const SubRow = ({
   localizedRowTitle,
   rowTitleContent,
   localizedDeleteIconTitle,
+  localizedDeleteIconLabel,
+  deleteButtonFtlId = 'tfa-row-backup-phone-delete-button',
+  deleteButtonDescribedBy,
   linkExternalProps,
   deleteGleanId,
 }: SubRowProps) => {
@@ -167,11 +176,12 @@ const SubRow = ({
         {onDeleteClick && localizedDeleteIconTitle && (
           <>
             <div className="@mobileLandscape/unitRow:hidden w-full shrink-0">
-              <FtlMsg id="tfa-row-backup-phone-delete-button">
+              <FtlMsg id={deleteButtonFtlId}>
                 <button
                   className="cta-base-common cta-neutral cta-base-p -mt-2 w-full"
                   onClick={onDeleteClick}
                   title={localizedDeleteIconTitle}
+                  aria-describedby={deleteButtonDescribedBy}
                   data-glean-id={deleteGleanId}
                 >
                   Remove
@@ -182,6 +192,7 @@ const SubRow = ({
               <ButtonIconTrash
                 onClick={onDeleteClick}
                 title={localizedDeleteIconTitle}
+                ariaLabel={localizedDeleteIconLabel}
                 {...(deleteGleanId && {
                   gleanDataAttrs: { id: deleteGleanId },
                 })}
@@ -487,7 +498,7 @@ const PasskeyDeleteModal = ({
         </h2>
       </FtlMsg>
       <FtlMsg id="passkey-delete-modal-content-v3">
-        <p className="mb-10 mx-4">
+        <p id="passkey-delete-desc" className="mb-10 mx-4">
           This passkey will be removed from your account. You’ll need to sign in
           using a password, another passkey, or linked account.
         </p>
@@ -698,10 +709,16 @@ const PasskeyRenameModal = ({
 
 export const PasskeySubRow = ({ passkey }: PasskeySubRowProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
+  const nameId = useId();
   const [renameModalRevealed, revealRenameModal, hideRenameModal] =
     useBooleanState();
   const [deleteModalRevealed, revealDeleteModal, hideDeleteModal] =
     useBooleanState();
+  const renameButtonRef = useRef<HTMLButtonElement>(null);
+  // Remove (narrow) or the trash icon (wide), whichever opened the dialog.
+  const deleteTriggerRef = useRef<HTMLButtonElement | null>(null);
+  useFocusOnTriggeringElementOnClose(renameModalRevealed, renameButtonRef);
+  useFocusOnTriggeringElementOnClose(deleteModalRevealed, deleteTriggerRef);
 
   const createdDateFluent = getLocalizedDate(
     passkey.createdAt,
@@ -743,28 +760,33 @@ export const PasskeySubRow = ({ passkey }: PasskeySubRowProps) => {
         icon={<PasskeyIcon ariaHidden className="h-8 w-5 text-purple-600" />}
         localizedRowTitle={passkey.name}
         rowTitleContent={
-          // Single control (name + decorative pencil) that opens the rename
-          // dialog; the accessible name conveys the action.
-          <button
-            type="button"
-            className="group flex items-center gap-2 text-start rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-            onClick={revealRenameModal}
-            data-testid="passkey-rename-button"
-          >
-            <span className="font-semibold group-hover:underline">
+          <span className="flex items-center gap-2">
+            <span id={nameId} className="font-semibold">
               {passkey.name}
             </span>
-            <EditIcon
-              ariaHidden
-              className="w-4 h-4 shrink-0 text-grey-500 group-hover:text-grey-900 nova:text-deemphasized nova:group-hover:text-default nova:transition-colors"
-            />
-            <span className="sr-only">
-              {ftlMsgResolver.getMsg(
+            {/* p-1 with -m-1 gives a 24px target (WCAG 2.5.8) without moving the icon. */}
+            <button
+              type="button"
+              className="group p-1 -m-1 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              onClick={revealRenameModal}
+              ref={renameButtonRef}
+              aria-label={ftlMsgResolver.getMsg(
+                'passkey-sub-row-rename-label',
+                `Rename ${passkey.name}`,
+                { nickname: passkey.name }
+              )}
+              title={ftlMsgResolver.getMsg(
                 'passkey-sub-row-rename-title',
                 'Rename passkey'
               )}
-            </span>
-          </button>
+              data-testid="passkey-rename-button"
+            >
+              <EditIcon
+                ariaHidden
+                className="w-4 h-4 shrink-0 text-grey-500 group-hover:text-grey-900 nova:text-deemphasized nova:group-hover:text-default nova:transition-colors"
+              />
+            </button>
+          </span>
         }
         localizedDescription={localizedDescription}
         // TODO (passkeys phase 2): show upgrade prompt when passkey.prfEnabled
@@ -773,12 +795,20 @@ export const PasskeySubRow = ({ passkey }: PasskeySubRowProps) => {
           // stopPropagation keeps this click from reaching Glean's document-level
           // auto-element-click listener, so record it explicitly.
           GleanMetrics.handleClickEvent(event.nativeEvent);
+          deleteTriggerRef.current = event.currentTarget;
           revealDeleteModal();
         }}
         localizedDeleteIconTitle={ftlMsgResolver.getMsg(
           'passkey-sub-row-delete-title',
           'Delete passkey'
         )}
+        localizedDeleteIconLabel={ftlMsgResolver.getMsg(
+          'passkey-sub-row-delete-label',
+          `Delete ${passkey.name}`,
+          { nickname: passkey.name }
+        )}
+        deleteButtonFtlId="passkey-sub-row-remove-button"
+        deleteButtonDescribedBy={nameId}
         deleteGleanId="account_pref_passkey_delete_submit"
       />
       {renameModalRevealed && (

@@ -388,6 +388,29 @@ describe('PasskeySubRow', () => {
     expect(GleanMetrics.accountPref.passkeyDeleteView).toHaveBeenCalledTimes(1);
   });
 
+  it('labels the icon delete button with the passkey name', () => {
+    renderPasskeySubRow();
+    expect(
+      screen.getByRole('button', { name: 'Delete MacBook Pro' })
+    ).toBeInTheDocument();
+  });
+
+  it('describes the Remove button by the passkey name', () => {
+    renderPasskeySubRow();
+    expect(
+      screen.getByRole('button', { name: 'Remove' })
+    ).toHaveAccessibleDescription('MacBook Pro');
+  });
+
+  it('describes the delete dialog by its body text', async () => {
+    renderPasskeySubRow();
+    await userEvent.click(screen.getAllByTitle(/Delete passkey/)[0]);
+
+    expect(await screen.findByRole('dialog')).toHaveAccessibleDescription(
+      'This passkey will be removed from your account. You’ll need to sign in using a password, another passkey, or linked account.'
+    );
+  });
+
   // Regression (FXA-13881): the delete handler calls event.stopPropagation()
   // to keep the opening click from closing the modal, which also prevents the
   // click from reaching Glean's document-level auto-element-click listener.
@@ -416,6 +439,20 @@ describe('PasskeySubRow', () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  it.each(['Remove', 'Delete MacBook Pro'])(
+    'returns focus to the %s button when the delete dialog is cancelled',
+    async (name) => {
+      renderPasskeySubRow();
+      const trigger = screen.getByRole('button', { name });
+      await userEvent.click(trigger);
+      await userEvent.click(
+        await screen.findByRole('button', { name: 'Cancel' })
+      );
+
+      await waitFor(() => expect(trigger).toHaveFocus());
+    }
+  );
 
   it('calls deletePasskey when confirm button is clicked', async () => {
     mockAccount.deletePasskey.mockResolvedValue(undefined);
@@ -544,14 +581,28 @@ describe('PasskeySubRow', () => {
     it('renders a rename button', () => {
       renderPasskeySubRow();
       expect(
-        screen.getByRole('button', { name: /rename passkey/i })
+        screen.getByRole('button', { name: 'Rename MacBook Pro' })
       ).toBeInTheDocument();
+    });
+
+    it('keeps the passkey name outside the rename button', () => {
+      renderPasskeySubRow();
+      expect(
+        screen.getByRole('button', { name: 'Rename MacBook Pro' })
+      ).not.toHaveTextContent('MacBook Pro');
+    });
+
+    it('shows a Rename passkey tooltip on the rename button', () => {
+      renderPasskeySubRow();
+      expect(
+        screen.getByRole('button', { name: 'Rename MacBook Pro' })
+      ).toHaveAttribute('title', 'Rename passkey');
     });
 
     it('opens the rename dialog and records a view event', async () => {
       renderPasskeySubRow();
       await userEvent.click(
-        screen.getByRole('button', { name: /rename passkey/i })
+        screen.getByRole('button', { name: 'Rename MacBook Pro' })
       );
       expect(
         await screen.findByRole('heading', { name: 'Rename passkey' })
@@ -564,15 +615,8 @@ describe('PasskeySubRow', () => {
     it('opens the dialog with the name pre-filled', async () => {
       renderPasskeySubRow();
       await userEvent.click(
-        screen.getByRole('button', { name: /rename passkey/i })
+        screen.getByRole('button', { name: 'Rename MacBook Pro' })
       );
-      expect(await screen.findByRole('textbox')).toHaveValue('MacBook Pro');
-    });
-
-    it('opens the dialog when the passkey name is clicked', async () => {
-      renderPasskeySubRow();
-      // Clicking the visible name text (inside the trigger button) opens it.
-      await userEvent.click(screen.getByText('MacBook Pro'));
       expect(await screen.findByRole('textbox')).toHaveValue('MacBook Pro');
     });
 
@@ -580,7 +624,7 @@ describe('PasskeySubRow', () => {
       mockAccount.renamePasskey.mockResolvedValue(undefined);
       renderPasskeySubRow();
       await userEvent.click(
-        screen.getByRole('button', { name: /rename passkey/i })
+        screen.getByRole('button', { name: 'Rename MacBook Pro' })
       );
 
       const input = screen.getByRole('textbox');
@@ -598,7 +642,7 @@ describe('PasskeySubRow', () => {
       mockAccount.renamePasskey.mockResolvedValue(undefined);
       renderPasskeySubRow();
       await userEvent.click(
-        screen.getByRole('button', { name: /rename passkey/i })
+        screen.getByRole('button', { name: 'Rename MacBook Pro' })
       );
       await userEvent.type(screen.getByRole('textbox'), ' 2');
       await userEvent.click(screen.getByRole('button', { name: 'Save' }));
@@ -618,7 +662,7 @@ describe('PasskeySubRow', () => {
       mockAccount.renamePasskey.mockRejectedValue(new Error('boom'));
       renderPasskeySubRow();
       await userEvent.click(
-        screen.getByRole('button', { name: /rename passkey/i })
+        screen.getByRole('button', { name: 'Rename MacBook Pro' })
       );
       await userEvent.type(screen.getByRole('textbox'), ' 2');
       await userEvent.click(screen.getByRole('button', { name: 'Save' }));
@@ -641,7 +685,7 @@ describe('PasskeySubRow', () => {
       );
       renderPasskeySubRow();
       await userEvent.click(
-        screen.getByRole('button', { name: /rename passkey/i })
+        screen.getByRole('button', { name: 'Rename MacBook Pro' })
       );
       await userEvent.type(screen.getByRole('textbox'), ' 2');
       await userEvent.click(screen.getByRole('button', { name: 'Save' }));
@@ -655,7 +699,7 @@ describe('PasskeySubRow', () => {
     it('closes the dialog without calling renamePasskey when cancelled', async () => {
       renderPasskeySubRow();
       await userEvent.click(
-        screen.getByRole('button', { name: /rename passkey/i })
+        screen.getByRole('button', { name: 'Rename MacBook Pro' })
       );
       await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
@@ -665,10 +709,32 @@ describe('PasskeySubRow', () => {
       expect(mockAccount.renamePasskey).not.toHaveBeenCalled();
     });
 
+    it('returns focus to the rename button when cancelled', async () => {
+      renderPasskeySubRow();
+      const renameButton = screen.getByRole('button', {
+        name: 'Rename MacBook Pro',
+      });
+      await userEvent.click(renameButton);
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      await waitFor(() => expect(renameButton).toHaveFocus());
+    });
+
+    it('returns focus to the rename button when closed with Escape', async () => {
+      renderPasskeySubRow();
+      const renameButton = screen.getByRole('button', {
+        name: 'Rename MacBook Pro',
+      });
+      await userEvent.click(renameButton);
+      await userEvent.keyboard('{Escape}');
+
+      await waitFor(() => expect(renameButton).toHaveFocus());
+    });
+
     it('keeps the save button enabled on open', async () => {
       renderPasskeySubRow();
       await userEvent.click(
-        screen.getByRole('button', { name: /rename passkey/i })
+        screen.getByRole('button', { name: 'Rename MacBook Pro' })
       );
       expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
     });
@@ -676,7 +742,7 @@ describe('PasskeySubRow', () => {
     it('disables save while an error is shown and re-enables it once the input is edited', async () => {
       renderPasskeySubRow();
       await userEvent.click(
-        screen.getByRole('button', { name: /rename passkey/i })
+        screen.getByRole('button', { name: 'Rename MacBook Pro' })
       );
       const input = screen.getByRole('textbox');
       await userEvent.clear(input);
@@ -697,7 +763,7 @@ describe('PasskeySubRow', () => {
     it('does not validate or show an error while typing before submit', async () => {
       renderPasskeySubRow();
       await userEvent.click(
-        screen.getByRole('button', { name: /rename passkey/i })
+        screen.getByRole('button', { name: 'Rename MacBook Pro' })
       );
       // Clearing makes the name invalid (empty), but nothing is submitted yet.
       await userEvent.clear(screen.getByRole('textbox'));
@@ -709,7 +775,7 @@ describe('PasskeySubRow', () => {
     it('shows an error and does not submit when the name is cleared', async () => {
       renderPasskeySubRow();
       await userEvent.click(
-        screen.getByRole('button', { name: /rename passkey/i })
+        screen.getByRole('button', { name: 'Rename MacBook Pro' })
       );
       await userEvent.clear(screen.getByRole('textbox'));
       await userEvent.click(screen.getByRole('button', { name: 'Save' }));
@@ -726,7 +792,7 @@ describe('PasskeySubRow', () => {
       ];
       renderPasskeySubRow();
       await userEvent.click(
-        screen.getByRole('button', { name: /rename passkey/i })
+        screen.getByRole('button', { name: 'Rename MacBook Pro' })
       );
       const input = screen.getByRole('textbox');
       await userEvent.clear(input);
@@ -749,7 +815,7 @@ describe('PasskeySubRow', () => {
       mockAccount.renamePasskey.mockResolvedValue(undefined);
       renderPasskeySubRow();
       await userEvent.click(
-        screen.getByRole('button', { name: /rename passkey/i })
+        screen.getByRole('button', { name: 'Rename MacBook Pro' })
       );
       const input = screen.getByRole('textbox');
       await userEvent.clear(input);
