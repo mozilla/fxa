@@ -1,8 +1,8 @@
 {
-  "commit": "1b580fd99a05b92112ec87fa012f7a96c78859b8",
-  "summary": "perf(shared-db): replace touchSessionToken Lua script with a transaction",
-  "description": "Because:\n\n- The touchSessionToken Lua script packs tokens inside Redis, in Lua.\n\nThis commit:\n\n- Replaces the script with a WATCH/GET/MULTI/SET/EXEC transaction, retried 3 times.\n- Adds packSessionToken with the same merge rules and stored format.\n- Runs touches one at a time on a lazy duplicate() connection.\n- Counts conflicts in redis.touchSessionToken.conflict.\n- Adds unit and integration specs, including a concurrency test.\n\nCloses FXA-14927",
-  "timestamp": 1793912207000,
+  "commit": "87fe9afe7e6c5ebdd99461047611aa445bfe1a4a",
+  "summary": "feat(shared-db): gate the touchSessionToken transaction behind a flag",
+  "description": "Because:\n\n- The WATCH transaction should be easy to disable in favour of the Lua script.\n\nThis commit:\n\n- Adds redis.sessionTokens.touchSessionTokenServerSide, default true.\n- Restores the touchSessionToken_1 Lua script for when the flag is false.\n- Keeps a Lua failure from rejecting the timeout promise unhandled.",
+  "timestamp": 1795031110000,
   "storybooks": [
     "fxa-admin-panel"
   ],
