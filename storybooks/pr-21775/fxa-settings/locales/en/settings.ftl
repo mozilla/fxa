@@ -1192,6 +1192,14 @@ delete-sync-data-show-devices = Show devices
 delete-sync-data-sign-out-badge = Sign out
 # Label on a device the user chose to keep signed in
 delete-sync-data-stay-signed-in-badge = Stay signed in
+# Screen-reader-only status, updated as the user checks devices
+# $count (Number) - the number of devices the user chose to sign out of
+delete-sync-data-sign-out-count =
+    { $count ->
+        [0] No devices will be signed out
+        [one] { $count } device will be signed out
+       *[other] { $count } devices will be signed out
+    }
 delete-sync-data-cancel = Cancel
 delete-sync-data-delete = Delete
 delete-sync-data-delete-and-sign-out = Delete and sign out

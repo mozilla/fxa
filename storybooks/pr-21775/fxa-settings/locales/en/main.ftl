@@ -910,6 +910,12 @@ delete-sync-data-sign-out-all = Sign out of { -brand-firefox } on all my devices
 delete-sync-data-show-devices = Show devices
 delete-sync-data-sign-out-badge = Sign out
 delete-sync-data-stay-signed-in-badge = Stay signed in
+delete-sync-data-sign-out-count =
+    { $count ->
+        [0] No devices will be signed out
+        [one] { $count } device will be signed out
+       *[other] { $count } devices will be signed out
+    }
 delete-sync-data-cancel = Cancel
 delete-sync-data-delete = Delete
 delete-sync-data-delete-and-sign-out = Delete and sign out
