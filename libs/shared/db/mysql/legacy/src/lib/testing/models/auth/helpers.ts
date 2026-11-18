@@ -226,6 +226,7 @@ export async function testAuthDatabaseSetup(instance: Knex): Promise<void> {
     './sp_accountDevices.sql',
     './sp_prune.sql',
     './sp_limitSessions.sql',
+    './sp_limitSessions_4.sql',
     './sp_findLargeAccounts.sql',
     './sp_resetAccount.sql',
     './sp_revokeAccountTokens.sql',
