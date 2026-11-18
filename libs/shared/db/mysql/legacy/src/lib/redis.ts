@@ -25,6 +25,7 @@ export type Config = {
   maxttl?: number | string;
   timeoutMs?: number;
   pruneSessionTokensServerSide?: boolean;
+  touchSessionTokenServerSide?: boolean;
 } & RedisOptions;
 
 interface ICustomRedisCache {
@@ -34,7 +35,7 @@ interface ICustomRedisCache {
   touchSessionToken(uid: string, token: any): Promise<any>;
 }
 
-// Packing scheme written by the touchSessionToken Lua script; see
+// Packing scheme written by packSessionToken; see
 // https://github.com/mozilla/fxa-auth-server/pull/2254
 const SESSION_TOKEN_PROPERTIES = [
   'lastAccessTime',
@@ -62,6 +63,14 @@ function unpackArray(keys: string[], values: unknown[]) {
   return result;
 }
 
+// Trailing undefined entries are dropped, as Lua drops trailing nils.
+function packArray(values: unknown[]) {
+  while (values.length && values[values.length - 1] === undefined) {
+    values.pop();
+  }
+  return values;
+}
+
 // Throws if the blob is not a JSON object.
 function parseSessionTokens(value: string | null): Record<string, unknown> {
   if (!value) return {};
@@ -70,6 +79,29 @@ function parseSessionTokens(value: string | null): Record<string, unknown> {
     throw new Error('session token blob is not an object');
   }
   return tokens;
+}
+
+/**
+ * Packs a session-token update into the stored array format. A field that is
+ * missing, null or false in `update` keeps its value from `oldPacked`.
+ */
+export function packSessionToken(
+  update: Record<string, unknown>,
+  oldPacked: unknown
+) {
+  const old = Array.isArray(oldPacked) ? oldPacked : [];
+  return packArray(
+    SESSION_TOKEN_PROPERTIES.map((name, i) => {
+      const value = update[name];
+      if (name === 'location' && value !== null && typeof value === 'object') {
+        const location = value as Record<string, unknown>;
+        return packArray(
+          SESSION_TOKEN_LOCATION_PROPERTIES.map((key) => location[key])
+        );
+      }
+      return value == null || value === false ? old[i] : value;
+    })
+  );
 }
 
 /**
@@ -110,11 +142,17 @@ function isCustomRedisCache(redis: any): redis is Redis & ICustomRedisCache {
   return false;
 }
 
+const TOUCH_SESSION_TOKEN_ATTEMPTS = 3;
+
 export class RedisShared {
   public readonly redis: Redis & ICustomRedisCache;
   // WATCH state is per connection, so prunes share their own connection, one at a time.
   private pruneRedis?: Redis;
   private pruning = false;
+  // WATCH is per connection and any EXEC clears it, so touches run one at a
+  // time on their own connection.
+  private touchRedis?: Redis;
+  private touchQueue: Promise<unknown> = Promise.resolve();
 
   protected get keyPrefix() {
     return this.config.keyPrefix;
@@ -260,7 +298,7 @@ export class RedisShared {
         error,
       });
     } finally {
-      await this.redis.quit();
+      await Promise.all([this.redis.quit(), this.touchRedis?.quit()]);
     }
   }
 
@@ -549,10 +587,71 @@ export class RedisShared {
     // remove keys with null values
     const json = JSON.stringify(token, (k, v) => (v == null ? undefined : v));
     span.setAttribute('redis.touchSessionToken.json.size', json.length);
-    const p1 = this.redis.touchSessionToken(uid, json);
-    const p2 = this.resolveInMs(p1, this.timeoutMs);
+    if (this.config.touchSessionTokenServerSide === false) {
+      const p1 = this.redis.touchSessionToken(uid, json);
+      // See claimLastAccessTimeWrite: the cancel promise must not reject.
+      const p2 = this.resolveInMs(
+        p1.catch(() => undefined),
+        this.timeoutMs
+      );
+      try {
+        return await Promise.race([p1, p2]);
+      } finally {
+        span.end();
+      }
+    }
+    const p1 = this.touchQueue.then(() =>
+      this.touchSessionTokenInTransaction(uid, JSON.parse(json))
+    );
+    this.touchQueue = p1.catch(() => undefined);
+    const p2 = this.resolveInMs(this.touchQueue, this.timeoutMs);
     const value = await Promise.race([p1, p2]);
     span.end();
     return value;
+  }
+
+  private async touchSessionTokenInTransaction(
+    uid: string,
+    update: Record<string, unknown> & { id: string }
+  ) {
+    if (!this.touchRedis) {
+      this.touchRedis = this.redis.duplicate();
+      this.touchRedis.on('error', (error) => {
+        this.metrics?.increment('redis.error');
+        this.log?.error('RedisShared', {
+          msg: `RedisShared: touch connection error ${error}`,
+          host: this.config.host,
+          port: this.config.port,
+          error,
+        });
+      });
+    }
+    const redis = this.touchRedis;
+    for (let i = 0; i < TOUCH_SESSION_TOKEN_ATTEMPTS; i++) {
+      let tokens;
+      try {
+        const [, value] = await Promise.all([redis.watch(uid), redis.get(uid)]);
+        tokens = parseSessionTokens(value);
+      } catch (e) {
+        await redis.unwatch().catch(() => undefined);
+        throw e;
+      }
+      tokens[update.id] = packSessionToken(update, tokens[update.id]);
+      const result = await redis
+        .multi()
+        .set(uid, JSON.stringify(tokens))
+        .exec();
+      // A null result means another client changed the key after WATCH.
+      if (result) {
+        const [err, reply] = result[0];
+        if (err) throw err;
+        return reply;
+      }
+      this.metrics?.increment('redis.touchSessionToken.conflict');
+    }
+    this.log?.error('RedisShared', {
+      msg: 'RedisShared: touchSessionToken gave up after write conflicts',
+    });
+    return null;
   }
 }

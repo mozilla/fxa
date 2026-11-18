@@ -230,6 +230,12 @@ export function makeRedisConfig() {
         format: Boolean,
         env: 'SESSION_TOKENS_PRUNE_SERVER_SIDE',
       },
+      touchSessionTokenServerSide: {
+        default: true,
+        doc: 'Touch session tokens with WATCH/MULTI/EXEC. Set false to touch with the touchSessionToken_1 Lua script.',
+        format: Boolean,
+        env: 'SESSION_TOKENS_TOUCH_SERVER_SIDE',
+      },
     },
     email: {
       enabled: {

@@ -56,6 +56,7 @@ else
   return redis.call('set', uid, result)
 end
 `,
+  // Used only when redis.sessionTokens.touchSessionTokenServerSide is false.
   touchSessionToken_1: `-- https://github.com/mozilla/fxa-auth-server/pull/2254 for packing scheme info
 local REDIS_SESSION_TOKEN_PROPERTIES = {
   'lastAccessTime',
