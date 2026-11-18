@@ -1,8 +1,8 @@
 {
-  "commit": "83bf2fedda3204251c1f351f729b204be33ccdcb",
-  "summary": "Merge pull request #21769 from mozilla/FXA-14877",
-  "description": "docs(contributing): update contributor guide for current workflow",
-  "timestamp": 1795028453000,
+  "commit": "3967aaf6fa1fc0c62151918ac517ee6fa2a93b0c",
+  "summary": "Merge pull request #21708 from mozilla/fxa-6803-page-titles",
+  "description": "feat(settings): require localized page titles in AppLayout",
+  "timestamp": 1795030705000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
