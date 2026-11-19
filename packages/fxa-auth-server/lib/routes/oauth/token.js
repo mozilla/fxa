@@ -440,6 +440,8 @@ module.exports = ({
       // However, we do allow trusted clients to request additional scopes in the
       // clients allowedScopes property
       if (!tokObj.scope.contains(params.scope)) {
+        const added = params.scope.difference(tokObj.scope);
+        const addedScopes = added.getScopeValues();
         const allowedScopes = ScopeSet.fromArray(
           client.allowedScopes ? client.allowedScopes.split(' ') : []
         ).union(tokObj.scope);
@@ -448,9 +450,23 @@ module.exports = ({
             allowed: tokObj.scope,
             requested: params.scope,
           });
-          throw OauthError.invalidScopes(
-            params.scope.difference(tokObj.scope).getScopeValues()
-          );
+          throw OauthError.invalidScopes(addedScopes);
+        }
+        // Keyed scopes need a verified session, which this grant cannot check.
+        // Check implicants too, since a keyed parent grants its sub-scopes.
+        const keyedImplicants = [];
+        for (const scope of added.getImplicantValues()) {
+          if ((await oauthDB.getScope(scope))?.hasScopedKeys) {
+            keyedImplicants.push(scope);
+          }
+        }
+        const keyedScopes = added.filtered(keyedImplicants).getScopeValues();
+        if (keyedScopes.length) {
+          log.debug('refresh_token.keyedScopeExpansion', {
+            clientId: hex(client.id),
+            scopes: keyedScopes,
+          });
+          throw OauthError.invalidScopes(keyedScopes);
         }
       }
       tokObj.scope = params.scope;

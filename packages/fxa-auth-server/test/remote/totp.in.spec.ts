@@ -256,7 +256,7 @@ describe.each(testVersions)(
       expect(res).toEqual({});
     });
 
-    it('should not bypass `totp-2fa` by when using session reauth', async () => {
+    it('should reject session reauth until totp is verified', async () => {
       const response = await Client.login(
         server.publicUrl,
         email,
@@ -267,9 +267,41 @@ describe.each(testVersions)(
       expect(response.verificationMethod).toBe('totp-2fa');
       expect(response.verificationReason).toBe('login');
 
-      const reauthResponse = await client.reauth();
-      expect(reauthResponse.verificationMethod).toBe('totp-2fa');
-      expect(reauthResponse.verificationReason).toBe('login');
+      try {
+        await client.reauth();
+        fail('should have thrown');
+      } catch (err: any) {
+        expect(err.errno).toBe(222);
+      }
+    });
+
+    it('should not release keys to a session verified before totp was enabled', async () => {
+      const newEmail = server.uniqueEmail();
+      const preTotpClient = await Client.createAndVerify(
+        server.publicUrl,
+        newEmail,
+        password,
+        server.mailbox,
+        { ...testOptions, keys: true }
+      );
+
+      // Enable TOTP from a second session.
+      const client2 = await Client.loginAndVerify(
+        server.publicUrl,
+        newEmail,
+        password,
+        server.mailbox,
+        { ...testOptions, keys: true }
+      );
+      email = newEmail;
+      await verifyTOTP(client2);
+
+      try {
+        await preTotpClient.reauth({ keys: true });
+        fail('should have thrown');
+      } catch (err: any) {
+        expect(err.errno).toBe(222);
+      }
     });
 
     it('should fail reset password without verifying totp', async () => {

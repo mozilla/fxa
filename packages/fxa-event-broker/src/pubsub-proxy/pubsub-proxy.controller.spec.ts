@@ -7,6 +7,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import * as Sentry from '@sentry/node';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 
+import { ClientCapabilityService } from '../client-capability/client-capability.service';
 import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';
 import { JwtsetService } from '../jwtset/jwtset.service';
 import * as dto from '../queueworker/sqs.dto';
@@ -35,15 +36,8 @@ const createValidSubscriptionMessage = (): string => {
   ).toString('base64');
 };
 
-const createValidUpdateMessage = (): string => {
-  return Buffer.from(
-    JSON.stringify({
-      event: dto.SUBSCRIPTION_UPDATE_EVENT,
-      timestamp: Date.now(),
-      uid: 'uid1234',
-    })
-  ).toString('base64');
-};
+const encodeMessage = (message: Record<string, any>): string =>
+  Buffer.from(JSON.stringify(message)).toString('base64');
 
 const createValidDeleteMessage = (): string => {
   return Buffer.from(
@@ -61,11 +55,6 @@ const createValidProfileMessage = (): string => {
       event: dto.PROFILE_CHANGE_EVENT,
       timestamp: Date.now(),
       uid: 'uid1234',
-      locale: 'en-us',
-      totpEnabled: false,
-      accountDisabled: false,
-      accountLocked: false,
-      metricsEnabled: true,
     })
   ).toString('base64');
 };
@@ -139,6 +128,12 @@ describe('PubsubProxy Controller', () => {
       provide: JwtsetService,
       useValue: jwtset,
     };
+    const MockCapability: Provider = {
+      provide: ClientCapabilityService,
+      useValue: {
+        capabilities: { [TEST_CLIENT_ID]: ['cap1', 'cap2'] },
+      },
+    };
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
@@ -156,7 +151,13 @@ describe('PubsubProxy Controller', () => {
         }),
       ],
       controllers: [PubsubProxyController],
-      providers: [MockMozLogger, MockMetrics, MockWebhook, MockJwtSet],
+      providers: [
+        MockMozLogger,
+        MockMetrics,
+        MockWebhook,
+        MockJwtSet,
+        MockCapability,
+      ],
     }).compile();
 
     controller = module.get<PubsubProxyController>(PubsubProxyController);
@@ -200,7 +201,7 @@ describe('PubsubProxy Controller', () => {
 
   describe('handles common RP events:', () => {
     const eventTypes: { [key: string]: [() => string, string] } = {
-      update: [createValidUpdateMessage, 'generateSubscriptionSET'],
+      update: [createValidSubscriptionMessage, 'generateSubscriptionSET'],
       delete: [createValidDeleteMessage, 'generateDeleteSET'],
       password: [createValidPasswordMessage, 'generatePasswordSET'],
       profile: [createValidProfileMessage, 'generateProfileSET'],
@@ -392,5 +393,144 @@ describe('PubsubProxy Controller', () => {
 
     expect(err?.getStatus()).toBe(400);
     expect(err?.getResponse()).toStrictEqual('Error123');
+  });
+
+  describe('validates messages before signing', () => {
+    const proxy = async (
+      message: Record<string, any>,
+      clientId = TEST_CLIENT_ID
+    ) => {
+      try {
+        await controller.proxy(
+          {
+            message: {
+              data: encodeMessage(message),
+              messageId: 'test-message',
+            },
+            subscription: 'test-sub',
+          },
+          clientId
+        );
+      } catch (error) {
+        return error as { getStatus: () => number };
+      }
+      return undefined;
+    };
+
+    const subscriptionMessage = {
+      capabilities: ['cap1', 'cap2'],
+      changeTime: FIXED_NOW,
+      event: dto.SUBSCRIPTION_UPDATE_EVENT,
+      isActive: true,
+      timestamp: FIXED_NOW,
+      uid: 'uid1234',
+    };
+
+    beforeEach(() => mockWebhook());
+
+    const publishedShapes: [string, Record<string, any>, string][] = [
+      [
+        'delete',
+        {
+          changeTime: FIXED_NOW,
+          email: 'user@example.com',
+          event: dto.DELETE_EVENT,
+          reason: 'inactivity',
+          timestamp: FIXED_NOW,
+          uid: 'uid1234',
+        },
+        'generateDeleteSET',
+      ],
+      [
+        'password reset',
+        {
+          changeTime: FIXED_NOW,
+          event: dto.PASSWORD_RESET_EVENT,
+          timestamp: FIXED_NOW,
+          uid: 'uid1234',
+        },
+        'generatePasswordSET',
+      ],
+      [
+        'primary email',
+        {
+          changeTime: FIXED_NOW,
+          email: 'user@example.com',
+          event: dto.PRIMARY_EMAIL_EVENT,
+          timestamp: FIXED_NOW,
+          uid: 'uid1234',
+        },
+        'generateProfileSET',
+      ],
+      ['subscription', subscriptionMessage, 'generateSubscriptionSET'],
+    ];
+    for (const [name, message, generateFunc] of publishedShapes) {
+      it(`delivers the ${name} shape QueueworkerService publishes`, async () => {
+        const err = await proxy(message);
+
+        expect(err?.getStatus()).toBe(200);
+        expect(jwtset[generateFunc]).toHaveBeenCalledTimes(1);
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+      });
+    }
+
+    const invalidMessages: [string, Record<string, any>][] = [
+      ['an unknown field', { ...subscriptionMessage, extra: true }],
+      ['a wrong type', { ...subscriptionMessage, isActive: 'yes' }],
+      ['a boolean as a string', { ...subscriptionMessage, isActive: 'true' }],
+      [
+        'a number as a string',
+        { ...subscriptionMessage, timestamp: String(FIXED_NOW) },
+      ],
+      [
+        'a profile field the broker does not publish',
+        {
+          event: dto.PROFILE_CHANGE_EVENT,
+          metricsEnabled: true,
+          timestamp: FIXED_NOW,
+          uid: 'uid1234',
+        },
+      ],
+      ['an unknown event', { ...subscriptionMessage, event: 'constructor' }],
+      [
+        'a missing required field',
+        {
+          event: dto.PASSWORD_CHANGE_EVENT,
+          timestamp: FIXED_NOW,
+          uid: 'uid1234',
+        },
+      ],
+    ];
+    for (const [name, message] of invalidMessages) {
+      it(`rejects ${name} with a 400 and no webhook call`, async () => {
+        const err = await proxy(message);
+
+        expect(err?.getStatus()).toBe(400);
+        expect(mockMetricValue.increment).toHaveBeenCalledWith(
+          'proxy.invalidMessage'
+        );
+        expect(global.fetch).not.toHaveBeenCalled();
+      });
+    }
+
+    it('removes capabilities the client does not own', async () => {
+      await proxy({ ...subscriptionMessage, capabilities: ['cap1', 'vpn'] });
+
+      expect(jwtset.generateSubscriptionSET).toHaveBeenCalledWith(
+        expect.objectContaining({ capabilities: ['cap1'] })
+      );
+    });
+
+    it('returns 200 with no webhook call when no owned capability is left', async () => {
+      const err = await proxy(subscriptionMessage, 'def5678');
+
+      expect(err?.getStatus()).toBe(200);
+      expect(mockMetricValue.increment).toHaveBeenCalledWith(
+        'proxy.noCapabilities',
+        { clientId: 'def5678' }
+      );
+      expect(jwtset.generateSubscriptionSET).not.toHaveBeenCalled();
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
   });
 });

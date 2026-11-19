@@ -748,6 +748,43 @@ describe('/session/reauth', () => {
       errno: error.ERRNO.DISABLED_CLIENT_ID,
     });
   });
+
+  it('rejects a verified AAL1 session when the account requires TOTP', async () => {
+    db.totpToken = jest.fn().mockResolvedValue({
+      verified: true,
+      enabled: true,
+    });
+    signinUtils.checkPassword = jest.fn(() => Promise.resolve(true));
+    signinUtils.createKeyFetchToken = jest.fn(() => {
+      throw new Error('should not be called');
+    });
+
+    await expect(runTest(route, request)).rejects.toMatchObject({
+      errno: error.ERRNO.INSUFFICIENT_AAL,
+    });
+    expect(signinUtils.checkPassword).toHaveBeenCalledTimes(0);
+    expect(signinUtils.createKeyFetchToken).toHaveBeenCalledTimes(0);
+  });
+
+  it('rejects an unverified AAL1 session when the account requires TOTP', async () => {
+    db.totpToken = jest.fn().mockResolvedValue({
+      verified: true,
+      enabled: true,
+    });
+    signinUtils.checkPassword = jest.fn(() => Promise.resolve(true));
+    request.auth.credentials = await SessionToken.fromHex(hexString(16), {
+      email: TEST_EMAIL,
+      uid: TEST_UID,
+      createdAt: 12345678,
+      emailVerified: true,
+      tokenVerificationId: hexString(16),
+    });
+
+    await expect(runTest(route, request)).rejects.toMatchObject({
+      errno: error.ERRNO.INSUFFICIENT_AAL,
+    });
+    expect(signinUtils.checkPassword).toHaveBeenCalledTimes(0);
+  });
 });
 
 describe('/session/destroy', () => {
@@ -773,6 +810,7 @@ describe('/session/destroy', () => {
       credentials: {
         email: 'foo@example.org',
         uid: 'foo',
+        tokenVerified: false,
       },
       log: log,
     });
@@ -811,31 +849,91 @@ describe('/session/destroy', () => {
     });
   });
 
-  it('destroys the session the custom handle resolves to', () => {
-    const customTokenId = 'a'.repeat(64);
-    const handle = computeSessionTokenHandle(
-      'test-session-token-handle-key',
-      'foo',
-      customTokenId
-    );
-    db.sessions = jest.fn(() => Promise.resolve([{ id: customTokenId }]));
-    request = mocks.mockRequest({
-      credentials: {
-        email: 'foo@example.org',
-        uid: 'foo',
-      },
-      log: log,
-      payload: {
-        customSessionTokenHandle: handle,
-      },
-    });
+  describe('with a custom session token handle', () => {
+    const callerTokenId = 'c'.repeat(64);
+    const otherTokenId = 'a'.repeat(64);
 
-    return runTest(route, request).then((res: any) => {
-      expect(Object.keys(res).length).toBe(0);
+    function requestFor(targetTokenId: string, credentials: any) {
+      db = mocks.mockDB({ email: 'foo@example.org', emailVerified: true });
+      db.sessions = jest.fn(() =>
+        Promise.resolve([{ id: callerTokenId }, { id: otherTokenId }])
+      );
+      route = getRoute(
+        makeRoutes({
+          log,
+          db,
+          accountEventsManager: { recordSecurityEvent: securityEventStub },
+        }),
+        '/session/destroy'
+      );
+      const req = mocks.mockRequest({
+        credentials: {
+          email: 'foo@example.org',
+          uid: 'foo',
+          id: callerTokenId,
+          ...credentials,
+        },
+        log,
+        payload: {
+          customSessionTokenHandle: computeSessionTokenHandle(
+            'test-session-token-handle-key',
+            'foo',
+            targetTokenId
+          ),
+        },
+      });
+      req.route = { path: '/session/destroy' };
+      return req;
+    }
+
+    it('lets an unverified session destroy itself by its own handle', async () => {
+      request = requestFor(callerTokenId, { tokenVerified: false });
+
+      expect(await runTest(route, request)).toEqual({});
       expect(db.deleteSessionToken).toHaveBeenCalledWith({
-        id: customTokenId,
+        id: callerTokenId,
         uid: 'foo',
       });
+    });
+
+    it('lets a verified AAL2 session destroy another session', async () => {
+      request = requestFor(otherTokenId, {
+        tokenVerified: true,
+        authenticatorAssuranceLevel: 2,
+      });
+      db.totpToken = jest.fn(() =>
+        Promise.resolve({ verified: true, enabled: true })
+      );
+
+      expect(await runTest(route, request)).toEqual({});
+      expect(db.deleteSessionToken).toHaveBeenCalledWith({
+        id: otherTokenId,
+        uid: 'foo',
+      });
+    });
+
+    it('rejects an unverified session that targets another session', async () => {
+      request = requestFor(otherTokenId, { tokenVerified: false });
+
+      await expect(runTest(route, request)).rejects.toMatchObject({
+        errno: error.ERRNO.SESSION_UNVERIFIED,
+      });
+      expect(db.deleteSessionToken).not.toHaveBeenCalled();
+    });
+
+    it('rejects an AAL1 session that targets another session when TOTP is on', async () => {
+      request = requestFor(otherTokenId, {
+        tokenVerified: true,
+        authenticatorAssuranceLevel: 1,
+      });
+      db.totpToken = jest.fn(() =>
+        Promise.resolve({ verified: true, enabled: true })
+      );
+
+      await expect(runTest(route, request)).rejects.toMatchObject({
+        errno: error.ERRNO.INSUFFICIENT_AAL,
+      });
+      expect(db.deleteSessionToken).not.toHaveBeenCalled();
     });
   });
 

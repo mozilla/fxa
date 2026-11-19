@@ -83,6 +83,17 @@ describe('Config', () => {
         }).toThrow(/jwksUri' may only be set when NODE_ENV=dev/);
       }
     );
+
+    it('errors when AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR is set', () => {
+      mockOtherProductionSecrets();
+      mockEnv('MFA__JWT__KEY', MFA_JWT_KEY);
+      mockEnv('AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR', 'true');
+      expect(() => {
+        require('./index');
+      }).toThrow(
+        /Config 'cloudTasks\.useLocalEmulator' must not be set in production or stage$/
+      );
+    });
   });
 
   describe('NODE_ENV=stage', () => {
@@ -126,6 +137,55 @@ describe('Config', () => {
 
     it('succeeds with a 32-byte MFA__JWT__KEY', () => {
       mockEnv('MFA__JWT__KEY', 'stage secret here, 32+ bytes long!!');
+      expect(() => {
+        require('./index');
+      }).not.toThrow();
+    });
+
+    it('errors when AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR is set', () => {
+      mockEnv('MFA__JWT__KEY', 'stage secret here, 32+ bytes long!!');
+      mockEnv('AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR', 'true');
+      expect(() => {
+        require('./index');
+      }).toThrow(
+        /Config 'cloudTasks\.useLocalEmulator' must not be set in production or stage$/
+      );
+    });
+  });
+
+  describe('AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR outside prod and stage', () => {
+    let originalEnv: Record<string, string | undefined>;
+
+    function mockEnv(key: string, value: string) {
+      originalEnv[key] = process.env[key];
+      process.env[key] = value;
+    }
+
+    beforeEach(() => {
+      originalEnv = {};
+      jest.resetModules();
+      mockEnv('AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR', 'true');
+    });
+
+    afterEach(() => {
+      for (const key in originalEnv) {
+        if (originalEnv[key] === undefined) {
+          delete process.env[key];
+        } else {
+          process.env[key] = originalEnv[key];
+        }
+      }
+    });
+
+    it('succeeds with NODE_ENV=dev', () => {
+      mockEnv('NODE_ENV', 'dev');
+      expect(() => {
+        require('./index');
+      }).not.toThrow();
+    });
+
+    it('succeeds with NODE_ENV=test', () => {
+      mockEnv('NODE_ENV', 'test');
       expect(() => {
         require('./index');
       }).not.toThrow();

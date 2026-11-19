@@ -3249,6 +3249,17 @@ if (convictConf.get('env') !== 'dev') {
   }
 }
 
+// The emulator flag lets the cloud-tasks routes run without OIDC auth.
+// CI sets it with NODE_ENV=test, so only deployed environments are refused.
+if (
+  convictConf.get('cloudTasks.useLocalEmulator') &&
+  ['prod', 'stage'].includes(convictConf.get('env'))
+) {
+  throw new Error(
+    "Config 'cloudTasks.useLocalEmulator' must not be set in production or stage"
+  );
+}
+
 export type conf = typeof convictConf;
 export type ConfigType = ReturnType<conf['getProperties']>;
 

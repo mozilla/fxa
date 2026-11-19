@@ -2101,12 +2101,12 @@ describe('#integration - /v1', function () {
           it('should allow trusted clients to expand scopes in allowedScopes', async function () {
             let res = await newToken({
               access_type: 'offline',
-              scope: 'email profile:write',
+              scope: 'email',
             });
 
             expect(res.statusCode).toBe(200);
             assertSecurityHeaders(res);
-            expect(res.result.scope).toBe('email profile:write');
+            expect(res.result.scope).toBe('email');
 
             res = await Server.api.post({
               url: '/token',
@@ -2115,15 +2115,42 @@ describe('#integration - /v1', function () {
                 client_secret: secret,
                 grant_type: 'refresh_token',
                 refresh_token: res.result.refresh_token,
-                scope: 'email https://identity.mozilla.com/apps/notes',
+                scope: 'email profile:write',
               },
             });
 
             expect(res.statusCode).toBe(200);
             assertSecurityHeaders(res);
-            expect(res.result.scope).toBe(
-              'email https://identity.mozilla.com/apps/notes'
+            expect(res.result.scope).toBe('email profile:write');
+          });
+
+          it('should not allow trusted clients to expand to a keyed scope in allowedScopes', async function () {
+            let res = await newToken(
+              {
+                access_type: 'offline',
+                scope: 'https://identity.mozilla.com/apps/sample-scope',
+              },
+              { clientId: SCOPED_CLIENT_ID }
             );
+
+            expect(res.statusCode).toBe(200);
+            assertSecurityHeaders(res);
+
+            res = await Server.api.post({
+              url: '/token',
+              payload: {
+                client_id: SCOPED_CLIENT_ID,
+                client_secret: secret,
+                grant_type: 'refresh_token',
+                refresh_token: res.result.refresh_token,
+                scope:
+                  'https://identity.mozilla.com/apps/sample-scope https://identity.mozilla.com/apps/sample-scope-can-scope-key',
+              },
+            });
+
+            expect(res.statusCode).toBe(400);
+            assertSecurityHeaders(res);
+            expect(res.result.errno).toBe(114);
           });
         });
       });
