@@ -29,6 +29,8 @@ const mockGetCredential = getCredential as jest.MockedFunction<
 >;
 
 const PRF_SALT = 'dGVzdC1wcmYtc2FsdA';
+const MAC_FIREFOX_UA =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:151.0) Gecko/20100101 Firefox/151.0';
 
 const optionsWithPrf: PublicKeyCredentialCreationOptionsJSON = {
   rp: { name: 'Mozilla Accounts', id: 'accounts.firefox.com' },
@@ -214,6 +216,23 @@ describe('createCredentialWithPrfFallback', () => {
       cancel
     );
     expect(mockCreateCredential).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not retry an UnknownError on macOS and rethrows it', async () => {
+    const userAgent = jest
+      .spyOn(navigator, 'userAgent', 'get')
+      .mockReturnValue(MAC_FIREFOX_UA);
+    try {
+      const unknown = new DOMException('unknown', 'UnknownError');
+      mockCreateCredential.mockRejectedValueOnce(unknown);
+
+      await expect(
+        createCredentialWithPrfFallback(optionsWithPrf)
+      ).rejects.toBe(unknown);
+      expect(mockCreateCredential).toHaveBeenCalledTimes(1);
+    } finally {
+      userAgent.mockRestore();
+    }
   });
 
   it('surfaces the retry error when the second attempt also fails', async () => {

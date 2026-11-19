@@ -12,6 +12,7 @@ import {
   type PublicKeyCredentialJSON,
 } from './webauthn';
 import { WebAuthnErrorType } from './webauthn-errors';
+import { isMacOS } from '../utilities';
 
 /**
  * True when a registration ceremony failed with the one error the PRF extension
@@ -168,7 +169,9 @@ export async function createCredentialWithPrfFallback(
   try {
     return await createCredential(options, timeoutMs, externalSignal);
   } catch (error) {
-    if (isRetriableWithoutPrf(error) && options.extensions?.prf) {
+    // macOS reports a cross-device passkey that is already registered as
+    // UnknownError, so a retry there re-prompts only to fail the same way.
+    if (isRetriableWithoutPrf(error) && options.extensions?.prf && !isMacOS()) {
       const budget = timeoutMs ?? DEFAULT_TIMEOUT_MS;
       const remaining = Math.max(0, budget - (Date.now() - startedAt));
       // With no budget left, a retry (timeoutMs=0) would abort immediately and
