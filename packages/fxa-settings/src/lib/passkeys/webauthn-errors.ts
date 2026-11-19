@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { isMacOS } from '../utilities';
+
 export type WebAuthnOperation = 'registration' | 'authentication';
 
 /**
@@ -274,7 +276,7 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
   },
   AuthenticatorAlreadyRegistered: {
     category: WebAuthnErrorCategory.UserAction,
-    errorType: WebAuthnErrorType.NotSupported,
+    errorType: WebAuthnErrorType.NotAllowed,
     logToSentry: false,
     gleanReason: 'not_allowed',
     ftlId: AUTHENTICATOR_ALREADY_REGISTERED_FTL_ID,
@@ -284,9 +286,9 @@ export const ERROR_MAP: Record<string, ErrorEntry> = {
 
 /**
  * Extra ceremony context that refines error categorization. Currently used to
- * disambiguate NotAllowedError during registration: Firefox collapses user-cancel
- * and excludeCredentials-duplicate into the same DOMException, so we lean on
- * context to choose a more helpful user-facing message.
+ * disambiguate NotAllowedError (and UnknownError on macOS) during registration:
+ * Firefox collapses user-cancel and excludeCredentials-duplicate into the same
+ * DOMException, so we lean on context to choose a more helpful user-facing message.
  */
 export interface WebAuthnErrorContext {
   /**
@@ -309,10 +311,12 @@ export function categorizeWebAuthnError(
 
     // There is a special error message when authentication is not allowed due to the authenticator already being
     // registered.
+    // macOS reports an already-registered cross-device passkey as UnknownError.
     if (
       error instanceof DOMException &&
-      error.name === 'NotAllowedError' &&
-      context?.hadExcludeCredentials === true
+      context?.hadExcludeCredentials === true &&
+      (error.name === 'NotAllowedError' ||
+        (error.name === 'UnknownError' && isMacOS()))
     ) {
       return 'AuthenticatorAlreadyRegistered';
     }
