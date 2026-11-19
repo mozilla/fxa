@@ -87,7 +87,11 @@ describe('shouldRequestWrapMaterial', () => {
       ...overrides,
     }) as unknown as PasskeySignInIntegration;
 
-  const enabled = { passkeyPasswordlessSyncEnabled: true };
+  const enabled = {
+    passkeysEnabled: true,
+    passkeyAuthenticationEnabled: true,
+    passkeyPasswordlessSyncEnabled: true,
+  };
 
   it('requests it for a desktop Sync sign-in that needs keys', () => {
     expect(shouldRequestWrapMaterial(desktopSync(), enabled, true)).toBe(true);
@@ -97,7 +101,7 @@ describe('shouldRequestWrapMaterial', () => {
     expect(
       shouldRequestWrapMaterial(
         desktopSync(),
-        { passkeyPasswordlessSyncEnabled: false },
+        { ...enabled, passkeyPasswordlessSyncEnabled: false },
         true
       )
     ).toBe(false);
@@ -105,6 +109,19 @@ describe('shouldRequestWrapMaterial', () => {
       false
     );
   });
+
+  it.each(['passkeysEnabled', 'passkeyAuthenticationEnabled'])(
+    'withholds it when %s is off',
+    (flag) => {
+      expect(
+        shouldRequestWrapMaterial(
+          desktopSync(),
+          { ...enabled, [flag]: false },
+          true
+        )
+      ).toBe(false);
+    }
+  );
 
   // No password step means no client-side kB, so there is nothing to wrap.
   it('withholds it when the sign-in needs no keys', () => {

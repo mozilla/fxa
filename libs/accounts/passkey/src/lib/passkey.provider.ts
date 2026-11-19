@@ -37,6 +37,24 @@ export type RawPasskeyConfig = {
   requestPrfAtAuthentication: string;
 };
 
+const BASE64URL_PATTERN = /^[A-Za-z0-9_-]*$/;
+
+/**
+ * Whether sign-in can request the WebAuthn PRF output: a non-empty base64url
+ * salt and a scope of `all` or `keys-required`.
+ */
+export function isPrfSigninConfigured(config: {
+  prfSalt: string;
+  requestPrfAtAuthentication: string;
+}): boolean {
+  return (
+    !!config.prfSalt &&
+    BASE64URL_PATTERN.test(config.prfSalt) &&
+    (config.requestPrfAtAuthentication === 'all' ||
+      config.requestPrfAtAuthentication === 'keys-required')
+  );
+}
+
 /**
  * Builds and validates a {@link PasskeyConfig} from raw Convict values.
  *
@@ -45,7 +63,8 @@ export type RawPasskeyConfig = {
  * WebAuthn library omits the field from registration options entirely.
  * `requestPrfAtAuthentication` is likewise normalized to a valid scope,
  * defaulting an unrecognized value to `'off'` (and reporting it) instead of
- * throwing.
+ * throwing. A `prfSalt` that is not base64url is normalized to `''` (PRF
+ * off), and reported without its value.
  *
  * @param raw - Raw config values read from Convict.
  * @returns A fully validated {@link PasskeyConfig} instance.
@@ -69,10 +88,20 @@ export function buildPasskeyConfig(raw: RawPasskeyConfig): PasskeyConfig {
     );
   }
 
+  // The salt is secret-adjacent, so the warning never includes it.
+  const prfSalt = BASE64URL_PATTERN.test(raw.prfSalt) ? raw.prfSalt : '';
+  if (prfSalt !== raw.prfSalt) {
+    Sentry.captureMessage(
+      'Invalid PASSKEYS__PRF_SALT value (not base64url); PRF is disabled',
+      'warning'
+    );
+  }
+
   const passkeyConfig = new PasskeyConfig({
     ...raw,
     authenticatorAttachment: raw.authenticatorAttachment || undefined,
     requestPrfAtAuthentication,
+    prfSalt,
   });
 
   const errors = validateSync(passkeyConfig, {

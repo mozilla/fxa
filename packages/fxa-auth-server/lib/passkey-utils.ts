@@ -4,6 +4,7 @@
 
 import { ConfigType } from '../config';
 import { AppError } from '@fxa/accounts/errors';
+import { isPrfSigninConfigured } from '@fxa/accounts/passkey';
 
 /**
  * These helpers only read the passkeys feature flags, so they accept just that
@@ -61,13 +62,23 @@ export function isPasskeyAuthenticationEnabled(
 /**
  * Checks if passwordless sync sign-in is enabled, where `kB` is recovered from a
  * passkey-wrapped envelope instead of the password.
- * Requires both the primary `passkeys.enabled` flag and `passkeys.passwordlessSyncEnabled`.
- * @throws AppError.featureNotEnabled if either flag is disabled
+ * Requires both the primary `passkeys.enabled` flag and `passkeys.passwordlessSyncEnabled`,
+ * and a PRF config that sign-in can use, since no wrap opens without PRF.
+ * @throws AppError.featureNotEnabled if either flag is disabled or PRF sign-in is not configured
  */
 export function isPasskeyPasswordlessSyncEnabled(
-  config: PasskeyFlagsConfig<'enabled' | 'passwordlessSyncEnabled'>
+  config: PasskeyFlagsConfig<
+    | 'enabled'
+    | 'passwordlessSyncEnabled'
+    | 'prfSalt'
+    | 'requestPrfAtAuthentication'
+  >
 ): boolean {
-  if (!config.passkeys.enabled || !config.passkeys.passwordlessSyncEnabled) {
+  if (
+    !config.passkeys.enabled ||
+    !config.passkeys.passwordlessSyncEnabled ||
+    !isPrfSigninConfigured(config.passkeys)
+  ) {
     throw AppError.featureNotEnabled();
   }
   return true;
