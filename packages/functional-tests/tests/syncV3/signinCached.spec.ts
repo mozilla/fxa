@@ -74,6 +74,44 @@ test.describe('severity-2 #smoke', () => {
       // signed in sync account suggested
       await expect(page.getByText(syncCredentials.email)).toBeVisible();
     });
+
+    test('stale cached session is discarded on Sync sign-in', async ({
+      target,
+      syncBrowserPages: { page, signin },
+      testAccountTracker,
+    }) => {
+      const credentials = await signInSyncAccount(
+        target,
+        page,
+        signin,
+        testAccountTracker
+      );
+      const readSessionToken = () =>
+        page.evaluate(() => {
+          const uid = JSON.parse(
+            localStorage.getItem('__fxa_storage.currentAccountUid') || 'null'
+          );
+          const accounts = JSON.parse(
+            localStorage.getItem('__fxa_storage.accounts') || '{}'
+          );
+          return accounts[uid]?.sessionToken;
+        });
+      const sessionToken = await readSessionToken();
+      expect(sessionToken).toBeTruthy();
+
+      // Same server state as a sign-out from the browser menu
+      await target.authClient.sessionDestroy(sessionToken);
+
+      await page.goto(
+        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
+      );
+      await expect(signin.passwordTextbox).toBeVisible();
+      await expect(page.getByText(credentials.email)).toBeVisible();
+      await expect.poll(readSessionToken).toBeUndefined();
+
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(page).toHaveURL(/signin_token_code/);
+    });
   });
 });
 
