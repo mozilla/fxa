@@ -25,6 +25,7 @@ export const PageSecondaryEmailAdd = () => {
   const [saveBtnDisabled, setSaveBtnDisabled] = useState(true);
   const [errorText, setErrorText] = useState<string>();
   const [email, setEmail] = useState<string>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRefDOM = useRef<HTMLInputElement>(null);
   const ftlMsgResolver = useFtlMsgResolver();
 
@@ -48,6 +49,7 @@ export const PageSecondaryEmailAdd = () => {
           replace: true,
         });
       } catch (e) {
+        setIsSubmitting(false);
         const errorHandled = handleMfaError(e);
         if (errorHandled) {
           return;
@@ -106,7 +108,8 @@ export const PageSecondaryEmailAdd = () => {
         <form
           onSubmit={(ev) => {
             ev.preventDefault();
-            if (inputRefDOM.current) {
+            if (inputRefDOM.current && !isSubmitting) {
+              setIsSubmitting(true);
               createSecondaryEmail(email!);
               logViewEvent('settings.emails', 'submit');
             }
@@ -143,7 +146,7 @@ export const PageSecondaryEmailAdd = () => {
                 type="submit"
                 className="cta-primary cta-base-p mx-2 flex-1"
                 data-testid="save-button"
-                disabled={saveBtnDisabled || account.loading}
+                disabled={saveBtnDisabled || isSubmitting}
               >
                 Save
               </button>

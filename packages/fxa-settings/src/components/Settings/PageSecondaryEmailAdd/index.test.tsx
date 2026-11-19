@@ -145,6 +145,51 @@ describe('PageSecondaryEmailAdd', () => {
     });
   });
 
+  describe('submit guard', () => {
+    const renderAndType = async (account: Account) => {
+      const user = userEvent.setup();
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <MfaContext.Provider value="email">
+            <PageSecondaryEmailAdd />
+          </MfaContext.Provider>
+        </AppContext.Provider>
+      );
+      await user.type(
+        screen.getByLabelText('Enter email address'),
+        'user@example.com'
+      );
+      return { user, saveButton: screen.getByRole('button', { name: 'Save' }) };
+    };
+
+    it('sends one request when Save is double-clicked', async () => {
+      const account = {
+        createSecondaryEmail: jest.fn(() => new Promise(() => {})),
+      } as unknown as Account;
+      const { user, saveButton } = await renderAndType(account);
+
+      await user.dblClick(saveButton);
+
+      expect(account.createSecondaryEmail).toHaveBeenCalledTimes(1);
+      expect(saveButton).toBeDisabled();
+    });
+
+    it('sends a new request on Save after a failed request', async () => {
+      const error: any = new Error('Email Address already added');
+      error.errno = AuthUiErrors.EMAIL_PRIMARY_EXISTS.errno;
+      const account = {
+        createSecondaryEmail: jest.fn().mockRejectedValue(error),
+      } as unknown as Account;
+      const { user, saveButton } = await renderAndType(account);
+
+      await user.click(saveButton);
+      await waitFor(() => expect(saveButton).toBeEnabled());
+      await user.click(saveButton);
+
+      expect(account.createSecondaryEmail).toHaveBeenCalledTimes(2);
+    });
+  });
+
   describe('metrics', () => {
     let logViewEventSpy: jest.SpyInstance;
     let usePageViewEventSpy: jest.SpyInstance;
