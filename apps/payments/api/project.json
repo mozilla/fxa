@@ -109,13 +109,6 @@
         "cwd": "apps/payments/api"
       }
     },
-    "metering-sweep-loop": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "../../../_scripts/check-url.sh localhost:3037/__heartbeat__ 200 payments-api && while true; do node ../../../dist/apps/payments/api/metering-sweep.js; sleep 60; done",
-        "cwd": "apps/payments/api"
-      }
-    },
     "metering-metrics-loop": {
       "executor": "nx:run-commands",
       "options": {
