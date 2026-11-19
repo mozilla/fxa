@@ -1,6 +1,6 @@
 # Remove GraphQL from fxa-settings
 
-- Status: proposed
+- Status: accepted (implemented)
 - Deciders: Vijay Budhram, Lauren Zugai, Dan Schomburg, Barry Chen, Valerie Pomerleau, Amri Toufali, Reino Muhl
 - Date: 2026-01-14
 

@@ -1,6 +1,6 @@
 # Next Two Factor authentication in FxA
 
-- Status: accepted
+- Status: accepted (not implemented). The rejected Option B, SMS, shipped as recovery phone; WebAuthn arrived later as passkeys, not as a second factor.
 - Deciders: Vijay Budhram
 - Date: 2020-04-01
 

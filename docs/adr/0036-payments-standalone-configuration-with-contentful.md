@@ -1,6 +1,6 @@
 # Payments standalone configuration solution with Contentful
 
-- Status: accepted
+- Status: superseded. A headless CMS was adopted, but Contentful was replaced by Strapi.
 - Deciders: Reino Muhl, Ben Bangert, Julian Poyourow, Bianca Danforth, Lisa Chan
 - Date: 2023-03-08
 

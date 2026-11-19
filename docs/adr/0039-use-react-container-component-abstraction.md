@@ -1,6 +1,6 @@
 # Use React Container Component Abstraction
 
-- Status: accepted
+- Status: accepted (partially implemented as of 2026-11, amended). Some pages still call the API outside a container; the Apollo requirements were removed by [ADR-0047](0047-remove-graphql-from-fxa-settings.md).
 - Deciders: Lauren Zugai, Dan Schomburg, Barry Chen
 - Date: 2023-07-12
 

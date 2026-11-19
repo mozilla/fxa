@@ -1,6 +1,6 @@
 # Keep SubPlat in the Nx monorepo with targeted improvements
 
-* **Status:** accepted
+* **Status:** accepted (in progress as of 2026-11). Most Stripe and PayPal webhook handling and all subscription email are still in auth-server.
 * **Deciders:** Julian Poyourow, Reino Muhl, Vijay Budhram
 * **Date:** 2025-08-18
 

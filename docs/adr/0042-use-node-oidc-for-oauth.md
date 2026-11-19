@@ -1,6 +1,6 @@
 ## ADR 42: Evaluate Strategy for OAuth Implementation
 
-Status: proposed
+Status: accepted (not implemented as of 2026-11; tracked in [FXA-7218](https://mozilla-hub.atlassian.net/browse/FXA-7218))
 
 Deciders: Vijay Budhram, Wil Clouser, TBD
 

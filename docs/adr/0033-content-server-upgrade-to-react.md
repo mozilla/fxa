@@ -1,6 +1,6 @@
 # Upgrade content-server's tech stack by moving remaining routes into fxa-settings
 
-- Status: accepted
+- Status: accepted (implemented). The "GQL Usage" decision is superseded by [ADR-0047](0047-remove-graphql-from-fxa-settings.md).
 - Deciders: Mill Soper, Lauren Zugai, Vijay Budhram
 - Date: 2022-11-18
 
