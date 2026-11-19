@@ -1,8 +1,8 @@
 {
-  "commit": "461f5b148b6da9a152594aa0204650f7d84ab581",
-  "summary": "Merge pull request #21762 from mozilla/FXA-15005",
-  "description": "feat(auth): add isSyncCapable to attached clients",
-  "timestamp": 1795119575000,
+  "commit": "f9e9e2f91cb1b0b3379977f81b71b2213186e861",
+  "summary": "Merge pull request #21780 from mozilla/fxa-14364",
+  "description": "fix(settings): disable Save after the first secondary email submit",
+  "timestamp": 1795124717000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
