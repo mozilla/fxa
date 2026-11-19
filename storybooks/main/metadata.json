@@ -1,8 +1,8 @@
 {
-  "commit": "f9e9e2f91cb1b0b3379977f81b71b2213186e861",
-  "summary": "Merge pull request #21780 from mozilla/fxa-14364",
-  "description": "fix(settings): disable Save after the first secondary email submit",
-  "timestamp": 1795124717000,
+  "commit": "5549258d6f657bc866d95a963a4108f726ce0dfc",
+  "summary": "Merge pull request #21774 from mozilla/PAY-3884",
+  "description": "feat(auth): report failed Stripe webhook deliveries to StatsD",
+  "timestamp": 1795127620000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
