@@ -9,9 +9,7 @@ import { AuthLogger } from '../types';
 const mocks = require('../../test/mocks');
 const { getRoute } = require('../../test/routes_helpers');
 const { AppError: error } = require('@fxa/accounts/errors');
-const {
-  computeSessionTokenHandle,
-} = require('./utils/session-token-handle');
+const { computeSessionTokenHandle } = require('./utils/session-token-handle');
 
 const EARLIEST_SANE_TIMESTAMP = 31536000000;
 const SESSION_TOKEN_HANDLE_KEY = 'test session token handle key';
@@ -103,6 +101,9 @@ describe('/account/attached_clients', () => {
         type: 'desktop',
         name: 'device 1',
         createdAt: now - 5,
+        availableCommands: {
+          'https://identity.mozilla.com/cmd/open-uri': 'encrypted-keys',
+        },
       },
       {
         id: newId(),
@@ -213,6 +214,7 @@ describe('/account/attached_clients', () => {
       ),
       refreshTokenId: null,
       isCurrentSession: false,
+      isSyncCapable: true,
       deviceType: 'desktop',
       name: 'device 1',
       createdTime: now - 5,
@@ -230,6 +232,7 @@ describe('/account/attached_clients', () => {
       sessionTokenHandle: null,
       refreshTokenId: OAUTH_CLIENTS[2].refresh_token_id,
       isCurrentSession: false,
+      isSyncCapable: false,
       deviceType: 'desktop',
       name: 'oauthy device-o',
       createdTime: now - 2600,
@@ -251,6 +254,7 @@ describe('/account/attached_clients', () => {
       ),
       refreshTokenId: OAUTH_CLIENTS[3].refresh_token_id,
       isCurrentSession: false,
+      isSyncCapable: false,
       deviceType: 'mobile',
       name: 'OAuth Mega-Device',
       createdTime: now - 4000,
@@ -268,6 +272,7 @@ describe('/account/attached_clients', () => {
       sessionTokenHandle: null,
       refreshTokenId: null,
       isCurrentSession: false,
+      isSyncCapable: false,
       deviceType: null,
       name: 'Legacy OAuth Service',
       createdTime: now - 1600,
@@ -285,6 +290,7 @@ describe('/account/attached_clients', () => {
       sessionTokenHandle: null,
       refreshTokenId: OAUTH_CLIENTS[1].refresh_token_id,
       isCurrentSession: false,
+      isSyncCapable: false,
       deviceType: null,
       name: 'OAuth Service',
       createdTime: now - 1600,
@@ -306,6 +312,7 @@ describe('/account/attached_clients', () => {
       ),
       refreshTokenId: null,
       isCurrentSession: true,
+      isSyncCapable: false,
       deviceType: null,
       name: 'Firefox 67, Windows',
       createdTime: now - 1234,
@@ -363,6 +370,7 @@ describe('/account/attached_clients', () => {
       ),
       refreshTokenId: null,
       isCurrentSession: true,
+      isSyncCapable: false,
       deviceType: 'desktop',
       name: '',
       createdTime: DEVICES[0].createdAt,

@@ -38,6 +38,7 @@ describe('connected-services/formatters', () => {
       sessionTokenId: 'test',
       refreshTokenId: 'test',
       isCurrentSession: true,
+      isSyncCapable: false,
       scope: [],
       lastAccessTime: Date.now(),
       createdTime: new Date(Date.now() - 1e4).getTime(),

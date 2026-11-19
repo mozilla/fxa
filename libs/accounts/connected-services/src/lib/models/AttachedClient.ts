@@ -9,6 +9,11 @@ export type AttachedClient = {
   sessionTokenId: string | null;
   refreshTokenId: string | null;
   isCurrentSession: boolean;
+  /**
+   * True when the device registered the send-tab command, which Firefox only
+   * does while it holds the Sync key. Means "can sync", not "is syncing".
+   */
+  isSyncCapable: boolean;
   deviceType?: string | null;
   name?: string | null;
   scope: Array<string> | null;
@@ -29,6 +34,7 @@ export const attachedClientsDefaults: AttachedClient = {
   sessionTokenId: null,
   refreshTokenId: null,
   isCurrentSession: false,
+  isSyncCapable: false,
   deviceType: null,
   name: null,
   createdTime: Infinity,

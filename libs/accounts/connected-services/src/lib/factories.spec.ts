@@ -6,6 +6,7 @@ import {
   ConnectedServicesFactory,
   IAuthorizedClientsBindings,
   IConnectedServicesFactoryBindings,
+  SEND_TAB_COMMAND,
 } from './factories';
 import { AttachedDevice } from './models/AttachedDevice';
 import { AttachedOAuthClient } from './models/AttachedOAuthClient';
@@ -220,6 +221,48 @@ describe('connected-services/factories', () => {
       const results = await factory.build('1234', 'en');
 
       expect(results[0].name).toBe(null);
+    });
+
+    describe('isSyncCapable', () => {
+      const device = (availableCommands?: Record<string, string>) =>
+        ({
+          id: 'test-device',
+          sessionTokenId: 'test',
+          availableCommands,
+          location: {},
+        }) as AttachedDevice;
+
+      beforeEach(() => {
+        oauthClients = [];
+        sessions = [];
+      });
+
+      it('is true when the device registered send-tab', async () => {
+        deviceList = [device({ [SEND_TAB_COMMAND]: 'encrypted-keys' })];
+        const results = await factory.build('1234', 'en');
+        expect(results[0].isSyncCapable).toBe(true);
+      });
+
+      it('is false when the device registered other commands only', async () => {
+        deviceList = [device({ 'https://example.com/cmd/other': 'x' })];
+        const results = await factory.build('1234', 'en');
+        expect(results[0].isSyncCapable).toBe(false);
+      });
+
+      it('is false when the device has no registered commands', async () => {
+        deviceList = [device(undefined)];
+        const results = await factory.build('1234', 'en');
+        expect(results[0].isSyncCapable).toBe(false);
+      });
+
+      it('is false for clients without a device record', async () => {
+        deviceList = [];
+        sessions = [
+          { id: 'test', createdAt: 1, lastAccessTime: 1 } as AttachedSession,
+        ];
+        const results = await factory.build('1234', 'en');
+        expect(results[0].isSyncCapable).toBe(false);
+      });
     });
 
     it('coerces undefined client_name to null', async () => {

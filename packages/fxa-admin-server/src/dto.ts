@@ -65,6 +65,7 @@ export interface AttachedClient {
   sessionTokenId?: Nullable<string>;
   refreshTokenId?: Nullable<string>;
   isCurrentSession?: Nullable<boolean>;
+  isSyncCapable?: Nullable<boolean>;
   deviceType?: Nullable<string>;
   name?: Nullable<string>;
   scope?: Nullable<string[]>;

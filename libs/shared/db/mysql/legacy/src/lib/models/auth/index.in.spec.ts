@@ -693,14 +693,14 @@ describe('auth', () => {
       await knex.raw(`
         INSERT IGNORE INTO deviceCommandIdentifiers (commandName)
         VALUES ('https://identity.mozilla.com/cmd/open-uri'),
-               ('https://identity.mozilla.com/cmd/send-tab')
+               ('https://identity.mozilla.com/cmd/close-uri/v1')
       `);
 
       // Insert device commands
       const cmdIds = await knex.raw(`
         SELECT commandId FROM deviceCommandIdentifiers
         WHERE commandName IN ('https://identity.mozilla.com/cmd/open-uri',
-                              'https://identity.mozilla.com/cmd/send-tab')
+                              'https://identity.mozilla.com/cmd/close-uri/v1')
       `);
 
       for (const cmd of cmdIds[0]) {
@@ -728,7 +728,7 @@ describe('auth', () => {
       ).toBe('string');
       expect(
         typeof device.availableCommands[
-          'https://identity.mozilla.com/cmd/send-tab'
+          'https://identity.mozilla.com/cmd/close-uri/v1'
         ]
       ).toBe('string');
     });

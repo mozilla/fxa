@@ -156,6 +156,7 @@ export interface AttachedClient {
   sessionTokenId?: string;
   refreshTokenId?: string;
   isCurrentSession?: boolean;
+  isSyncCapable?: boolean;
   deviceType?: string;
   name?: string;
   scope?: string[];
