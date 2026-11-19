@@ -1,8 +1,8 @@
 {
-  "commit": "a3192dcffbfd21ee76ed6ee399bcdb78f1bab7ea",
-  "summary": "Merge pull request #21713 from mozilla/fxa-14927",
-  "description": "perf(shared-db): replace touchSessionToken Lua script with a transaction",
-  "timestamp": 1795031772000,
+  "commit": "120b70549b148262e5e3960a2bd1bdc7c85aca82",
+  "summary": "Merge pull request #21776 from mozilla/uplift-v1.349.3",
+  "description": "Uplift v1.349.3",
+  "timestamp": 1795104478000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
