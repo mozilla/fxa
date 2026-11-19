@@ -1,0 +1,10 @@
+{
+  "commit": "3290c1c66177e9dfd24a7dc70768f7a3e1db4476",
+  "summary": "fix(settings): show already-registered passkey message on macOS duplicates",
+  "description": "Because:\n- The already-registered passkey error was typed NotSupported, so the\n  add-passkey page showed a generic banner instead of its message\n- macOS returns UnknownError for a cross-device duplicate, which\n  triggered the PRF-less retry and a second QR prompt\n\nThis commit:\n- Types AuthenticatorAlreadyRegistered as NotAllowed so its message shows\n- Maps UnknownError to already-registered on macOS when passkeys exist\n- Skips the PRF-less registration retry on macOS\n- Adds an isMacOS user-agent helper\n\nCloses #FXA-14949",
+  "timestamp": 1795118010000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 3290c1c66177e9dfd24a7dc70768f7a3e1db4476</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 3290c1c66177e9dfd24a7dc70768f7a3e1db4476</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>11/19/2026, 7:53:30 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): show already-registered passkey message on macOS duplicates</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- The already-registered passkey error was typed NotSupported, so the
+  add-passkey page showed a generic banner instead of its message
+- macOS returns UnknownError for a cross-device duplicate, which
+  triggered the PRF-less retry and a second QR prompt
+
+This commit:
+- Types AuthenticatorAlreadyRegistered as NotAllowed so its message shows
+- Maps UnknownError to already-registered on macOS when passkeys exist
+- Skips the PRF-less registration retry on macOS
+- Adds an isMacOS user-agent helper
+
+Closes #FXA-14949</pre></dd>
+  </dl>
+</body>
+</html>
