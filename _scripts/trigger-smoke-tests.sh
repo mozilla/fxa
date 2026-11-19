@@ -3,30 +3,36 @@
 # Trigger CircleCI smoke tests for stage or production.
 #
 # Usage:
-#   CIRCLECI_TOKEN=<token> ./_scripts/trigger-smoke-tests.sh <stage|production> <branch>
+#   CIRCLECI_TOKEN=<token> ./_scripts/trigger-smoke-tests.sh <stage|production> <ref>
+#
+# Environment variables:
+#   CIRCLECI_TOKEN    Personal CircleCI API token (required).
+#   CIRCLECI_PROJECT  CircleCI project slug (default: github/mozilla/fxa).
+#   GITHUB_OUTPUT     When set, the script appends pipeline_id=<id> and pipeline_number=<number> to it.
 #
 # Requires a CIRCLECI_TOKEN! Get a personal API token at https://app.circleci.com/settings/user/tokens.
 # Project tokens do not work for v2 pipeline triggers.
 #
-# The branch argument is required - specify the train or tag that you intend to deploy. main may
-# have a different test state than your train branch.
+# The ref argument is required - specify the train branch or tag that you intend to deploy. main
+# may have a different test state than your train branch. A ref in the format
+# vMAJOR.MINOR.PATCH[-rcN] goes to CircleCI as a tag, and any other ref as a branch.
 
 set -euo pipefail
 
 env="${1:-}"
-branch="${2:-}"
+ref="${2:-}"
 
 case "${env}" in
   stage|production) ;;
   *)
-    echo "Usage: ${0} <stage|production> <branch>" >&2
+    echo "Usage: ${0} <stage|production> <ref>" >&2
     exit 1
     ;;
 esac
 
-if [[ -z "${branch}" ]]; then
-  echo "ERROR: branch argument is required." >&2
-  echo "Usage: ${0} <stage|production> <branch>" >&2
+if [[ -z "${ref}" ]]; then
+  echo "ERROR: ref argument is required." >&2
+  echo "Usage: ${0} <stage|production> <ref>" >&2
   exit 1
 fi
 
@@ -37,13 +43,20 @@ if [[ -z "${CIRCLECI_TOKEN:-}" ]]; then
 fi
 
 parameter_name="enable_${env}_smoke_tests"
-project_slug="github/mozilla/fxa"
+project_slug="${CIRCLECI_PROJECT:-github/mozilla/fxa}"
+
+if [[ "${ref}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?$ ]]; then
+  ref_type="tag"
+else
+  ref_type="branch"
+fi
 
 payload=$(jq -n \
-  --arg branch "${branch}" \
+  --arg ref_type "${ref_type}" \
+  --arg ref "${ref}" \
   --arg param "${parameter_name}" \
   '{
-    branch: $branch,
+    ($ref_type): $ref,
     parameters: ({
       enable_test_pull_request: false,
       enable_test_and_deploy_tag: false,
@@ -67,5 +80,10 @@ if [[ -z "${pipeline_number}" ]]; then
   exit 1
 fi
 
-echo "Triggered ${env} smoke tests (branch: ${branch})"
+if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+  echo "pipeline_id=$(echo "${response}" | jq -r '.id // empty')" >>"${GITHUB_OUTPUT}"
+  echo "pipeline_number=${pipeline_number}" >>"${GITHUB_OUTPUT}"
+fi
+
+echo "Triggered ${env} smoke tests (${ref_type}: ${ref})"
 echo "https://app.circleci.com/pipelines/${project_slug}/${pipeline_number}"
