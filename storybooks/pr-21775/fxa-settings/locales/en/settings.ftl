@@ -1181,11 +1181,12 @@ delete-sync-data-confirm-pwd-submit-button = Continue
 ## Step 2: confirm deletion and choose devices to sign out of
 
 delete-sync-data-heading = Delete synced data?
-delete-sync-data-content = This deletes your synced data from { -brand-mozilla }’s servers, not your devices. If syncing is on, your data may return to { -brand-mozilla }’s servers. Sign out to stop syncing data.
+delete-sync-data-content = This deletes your synced data from { -brand-mozilla }’s servers, not your devices. If syncing is on, your data will sync back to { -brand-mozilla }’s servers. Sign out to stop syncing data.
 # $deviceName (String) - the name of the device the user is currently using
 delete-sync-data-this-device = { $deviceName } (this device)
-# $count (Number) - the number of devices on the account that can sync
-delete-sync-data-sign-out-all = Sign out of { -brand-firefox } on all my devices ({ $count })
+delete-sync-data-sign-out-all = Sign out of { -brand-firefox }
+# Shown under "Sign out of Firefox"; devices left signed in keep syncing
+delete-sync-data-sign-out-all-note = Syncing will resume wherever you’re signed in.
 # Tooltip and accessible name for the button that expands the device list
 delete-sync-data-show-devices = Show devices
 # Label on a device the user chose to sign out of
