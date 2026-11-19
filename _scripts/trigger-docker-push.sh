@@ -7,14 +7,18 @@
 # Usage:
 #   ./_scripts/trigger-docker-push.sh <tag>
 #   FXA_REMOTE=<remote> ./_scripts/trigger-docker-push.sh <tag>
+#   FXA_DOCKER_REF=<ref> ./_scripts/trigger-docker-push.sh <tag>
 #
 # Environment variables:
-#   FXA_REMOTE   Git remote whose GitHub repo hosts the tag (default: origin).
+#   FXA_REMOTE      Git remote whose GitHub repo hosts the tag (default: origin).
+#   FXA_DOCKER_REF  Branch or tag whose docker.yml runs (default: the repo's default branch).
+#   GITHUB_OUTPUT   When set and the run ID is known, the script appends run_id=<id> to it.
 #
 # Examples:
 #   ./_scripts/trigger-docker-push.sh v1.2.3
 #   ./_scripts/trigger-docker-push.sh v1.2.3-rc4
 #   FXA_REMOTE=private ./_scripts/trigger-docker-push.sh v1.2.3
+#   FXA_DOCKER_REF=train-350 ./_scripts/trigger-docker-push.sh v1.350.1
 #
 # Requires the `gh` CLI authenticated (run `gh auth status` to check).
 
@@ -53,7 +57,20 @@ if ! gh api "repos/${repo}/git/refs/tags/${tag}" --silent >/dev/null 2>&1; then
   exit 1
 fi
 
-gh workflow run docker.yml --repo "${repo}" -f "git_tag=${tag}"
+ref="${FXA_DOCKER_REF:-$(gh api "repos/${repo}" --jq .default_branch)}"
+
+run_id=$(gh api -X POST "repos/${repo}/actions/workflows/docker.yml/dispatches" \
+  -f "ref=${ref}" \
+  -f "inputs[git_tag]=${tag}" \
+  -F return_run_details=true \
+  --jq '.workflow_run_id // empty')
 
 echo "Triggered docker build for tag ${tag}"
-echo "https://github.com/${repo}/actions/workflows/docker.yml"
+if [[ -n "${run_id}" ]]; then
+  echo "https://github.com/${repo}/actions/runs/${run_id}"
+  if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+    echo "run_id=${run_id}" >>"${GITHUB_OUTPUT}"
+  fi
+else
+  echo "https://github.com/${repo}/actions/workflows/docker.yml"
+fi
