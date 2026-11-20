@@ -830,7 +830,7 @@ export async function completeSupplicantApproval(
   const finalAuthUrl = await waitForUrlContaining(
     client,
     'pair/auth/complete',
-    TIMEOUTS.AUTHORITY_COMPLETE
+    TIMEOUTS.PAIR_V2_HANDSHAKE
   );
   expect(finalAuthUrl).not.toContain('pair/failure');
 }

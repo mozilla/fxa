@@ -44,6 +44,7 @@ import {
   completeSupplicantApproval,
   captureDiagnostics,
   verifyPairChoiceScreen,
+  waitForUrlContaining,
 } from '../../lib/pairing-helpers';
 
 async function approveAuthorityPairing(
@@ -62,6 +63,12 @@ async function approveAuthorityPairing(
 
   if (opts.totpSecret) {
     await enterTotpCodeViaMarionette(client, opts.totpSecret);
+    // Wait past TOTP so the pair/failure check below reads the allow page.
+    await waitForUrlContaining(
+      client,
+      'pair/auth/allow',
+      TIMEOUTS.AUTHORITY_COMPLETE
+    );
   }
 
   const { url: preApproveUrl } = await captureDiagnostics(client);
