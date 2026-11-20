@@ -4,6 +4,7 @@
 
 import {
   passkeySigninFeatureEnabled,
+  passwordlessSyncEnabled,
   shouldShowPasskeySignin,
 } from './should-show-passkey-signin';
 
@@ -113,5 +114,30 @@ describe('shouldShowPasskeySignin', () => {
 
   it('defaults to supported when isWebAuthnSupported is omitted', () => {
     expect(shouldShowPasskeySignin(flagsOn, { hasPasskey: true })).toBe(true);
+  });
+});
+
+describe('passwordlessSyncEnabled', () => {
+  const syncFlagsOn = {
+    featureFlags: {
+      ...flagsOn.featureFlags,
+      passkeyPasswordlessSyncEnabled: true,
+    },
+  };
+
+  it('returns true when all three flags are enabled', () => {
+    expect(passwordlessSyncEnabled(syncFlagsOn)).toBe(true);
+  });
+
+  it.each([
+    'passkeysEnabled',
+    'passkeyAuthenticationEnabled',
+    'passkeyPasswordlessSyncEnabled',
+  ])('returns false when %s is false', (flag) => {
+    expect(
+      passwordlessSyncEnabled({
+        featureFlags: { ...syncFlagsOn.featureFlags, [flag]: false },
+      })
+    ).toBe(false);
   });
 });
