@@ -256,14 +256,21 @@ describe('passkey wraps routes', () => {
     it('refuses a session with no password reauth since creation', async () => {
       await expect(
         run(validPayload(), { cid: CREDENTIAL_ID, reauthed: false })
-      ).rejects.toMatchObject({ errno: ERRNO.INVALID_MFA_TOKEN });
+      ).rejects.toMatchObject({
+        output: { statusCode: 401 },
+        errno: ERRNO.PASSKEY_WRAP_REAUTH_REQUIRED,
+      });
       expect(service.storePasskeyWrap).not.toHaveBeenCalled();
+      expect(recordSecurityEvent).toHaveBeenCalledWith(
+        'account.passkey.wrap_creation_failure',
+        expect.objectContaining({ db, request: expect.any(Object) })
+      );
     });
 
     it('refuses a token minted for a different credential', async () => {
       await expect(
         run(validPayload(), { cid: 'some-other-cred' })
-      ).rejects.toThrow();
+      ).rejects.toMatchObject({ errno: ERRNO.INVALID_MFA_TOKEN });
       expect(service.storePasskeyWrap).not.toHaveBeenCalled();
     });
 
