@@ -24,7 +24,7 @@ const DEBUG = !!process.env.DEBUG;
 const PERF = !!process.env.PERF;
 const SLOWMO = parseInt(process.env.PLAYWRIGHT_SLOWMO || '0');
 const NUM_WORKERS = parseInt(process.env.PLAYWRIGHT_WORKERS || '4');
-const FAIL_FAST = !!process.env.PLAYWRIGHT_FAIL_FAST || true;
+const FAIL_FAST = !/^(false|0)$/.test(process.env.PLAYWRIGHT_FAIL_FAST ?? '');
 
 let workers = NUM_WORKERS || 2;
 let maxFailures = 0;
