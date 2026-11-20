@@ -9,8 +9,9 @@ import {
   AccountDisableStatus,
 } from 'fxa-admin-server/src/types';
 
-// The server accepts at most 1000 locators per request, and a JSON body of at most 100 KiB.
-const BATCH_SIZE = 1000;
+// The server accepts up to 1000 locators and a 100 KiB JSON body per request, but
+// disables accounts one at a time, so a batch must finish inside the gateway timeout.
+const BATCH_SIZE = 100;
 const MAX_BODY_BYTES = 90_000;
 const MAX_FILE_BYTES = 15 * 1024 * 1024;
 
