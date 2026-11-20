@@ -74,18 +74,12 @@ test.describe('severity-2 #smoke', () => {
       await signin.fillOutEmailFirstForm(credentials.email);
       await signup.fillOutSignupForm(credentials.password);
 
-      // The service that polls for bounces does so on approximately a 5 second interval.
-      // Add a little timeout to make sure that catches the bounce, and the polling
-      // mechanism can have a chance to redirect.
-      if (target.name === 'local') {
-        await page.waitForTimeout(1000);
-      } else {
-        await page.waitForTimeout(9000);
-      }
-
       // This indicates the email bounced. The front end starts polling for bounces,
       // it should etecte one, and then kick the user back to the sign in page.
-      await expect(signin.emailReturnedWarning).toBeVisible();
+      // Stage waits for a real bounce, so allow 9 s more than the 10 s CI expect timeout.
+      await expect(signin.emailReturnedWarning).toBeVisible(
+        target.name === 'local' ? {} : { timeout: 19_000 }
+      );
     });
 
     test('incorrect code entered', async ({
