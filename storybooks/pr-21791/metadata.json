@@ -1,0 +1,10 @@
+{
+  "commit": "4eb58f2c00094f03f1e4c95d9350110366793fb2",
+  "summary": "fix(admin-panel): lower bulk disable batch size from 1000 to 100",
+  "description": "Because:\n* A 1000-account batch can run past the 30s gateway timeout.\n\nThis commit:\n* Sends bulk disable requests in batches of 100.",
+  "timestamp": 1795189437000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
