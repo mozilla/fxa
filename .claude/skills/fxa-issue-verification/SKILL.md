@@ -252,9 +252,17 @@ Server-only diffs have nothing to show. Write the same throwaway spec under `tes
 
 No recording is attached unreviewed. One round means: extract frames, look at them, list what you checked, fix anything that fails, and re-record. A second round runs only when the first round changed something.
 
-1. Extract one frame per second: `ffmpeg -y -loglevel error -i artifacts/verify/<NAME>/after/video.mp4 -vf fps=1 artifacts/verify/<NAME>/after/review/f-%02d.png`.
-2. Read the first frame, one frame from the middle of the flow, the last frame, and every frame that should show a named state from Step 1.
-3. Check each item below. A failed item means fix, re-record, and review again from step 1.
+1. Extract one frame per second, then tile them into contact sheets. Columns and rows follow the frame count so a short flow does not pay for empty cells, capped at 4x4 (16 frames) per sheet; only the last sheet of a long run pads:
+   ```sh
+   D=artifacts/verify/<NAME>/after
+   rm -rf $D/review && mkdir -p $D/review   # a re-record with fewer frames must not tile last round's leftovers
+   ffmpeg -y -loglevel error -i $D/video.mp4 -vf fps=1 $D/review/f-%02d.png
+   N=$(ls $D/review/f-*.png | wc -l)
+   COLS=$(( N < 4 ? N : 4 )); ROWS=$(( (N + COLS - 1) / COLS )); [ $ROWS -gt 4 ] && ROWS=4
+   ffmpeg -y -loglevel error -i $D/video.mp4 -vf "fps=1,scale=320:-1,tile=${COLS}x${ROWS}" $D/review/sheet-%02d.png
+   ```
+2. Read each `sheet-NN.png` once. A full frame costs about 1.4k tokens; a sheet costs 0.5k for one row up to 2.1k for four, so the sheet is the review. Open an individual frame only when the sheet shows something that needs full resolution (a clipped footer, text you must confirm). Never read a frame twice in a run.
+3. Check each item below. A failed item means fix, re-record, and review again from step 1. On the second round read only the new sheet plus the frames the fix targeted (the first frame after a trim fix, the last after a hold fix); the rest did not change.
 
 | Check | Failure looks like | Fix |
 |---|---|---|
@@ -322,7 +330,7 @@ Report the verdict, the deciding assertion, and the media paths before touching 
 **Nothing reaches the PR until the user says so.** This gate runs every time, including when the run started from a PR number or a Jira key. Starting the skill is not approval to write to the PR; only the answer below is.
 
 1. The review line from Step 4 must already be in the report.
-2. Give the user the media before asking: print the absolute path of every file with its size, and read the key stills back with the Read tool so they render in the conversation. Video cannot be rendered inline, so name the path and say it is ready to open.
+2. Give the user the media before asking: print the absolute path of every file with its size. Include the `review/sheet-*.png` paths so the user can glance at the whole flow, but they are review artifacts and never go in the attach list; the PR gets the video and the full-resolution stills. Do not read the stills again; Step 4 already reviewed them, and a second read only spends tokens. Name the video path and say it is ready to open.
 3. Ask with `AskUserQuestion`, naming the PR number and listing each file with its size. Four answers:
    - **Files only, leave the PR alone** — the common case when the user wants to post the media themselves, often as a PR review rather than a body edit. Report the paths and stop. A complete run, not a failure.
    - **Attach to the PR body** — below.
