@@ -62,11 +62,7 @@ export const SELECTORS = {
   ],
   PASSWORD_INPUT: ['input[type="password"]', 'input[name="password"]'],
   SUBMIT_BUTTON: ['button[type="submit"]'],
-  AUTHORITY_APPROVE: [
-    '[data-testid="pair-auth-approve-btn"]',
-    '#auth-approve-btn',
-    'button[type="submit"]',
-  ],
+  AUTHORITY_APPROVE: ['[data-testid="pair-auth-approve-btn"]'],
   TOTP_INPUT: [
     'input.totp-code',
     'input[name="code"]',
