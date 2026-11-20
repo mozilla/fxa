@@ -10,7 +10,7 @@ import { MozLoggerService } from '@fxa/shared/mozlog';
 import { EmailBlocklist } from '@fxa/shared/db/mysql/legacy/models/auth';
 import { EventLoggingService } from '../../event-logging/event-logging.service';
 import { AuditLogInterceptor } from '../../auth/audit-log.interceptor';
-import { AccountStateService } from '../account/account-state.service';
+import { DisableMatchingJobService } from '../account/disable-matching-job.service';
 import { EmailBlocklistController } from './email-blocklist.controller';
 
 jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => ({
@@ -26,13 +26,20 @@ describe('EmailBlocklistController', () => {
   let controller: EmailBlocklistController;
   let logger: { debug: jest.Mock; error: jest.Mock; info: jest.Mock };
   const EMAILS = ['a@evil.com', 'b@spam.net', 'c@evil.com.example.org'];
-  // Runs the controller's predicate over these primary emails and counts the matches.
-  const accountState = {
-    disableMatching: jest.fn(
-      async (matches: (email: string) => boolean) =>
-        EMAILS.filter(matches).length
-    ),
+  const JOB = {
+    id: '5f0c5f0e-6b0f-4a7e-9d59-2f4f8f5b9c11',
+    status: 'running',
+    scanned: 0,
+    total: 0,
+    disabled: 0,
+    errors: 0,
   };
+  const jobs = {
+    start: jest.fn().mockResolvedValue(JOB),
+    get: jest.fn().mockResolvedValue(JOB),
+  };
+  // The emails that the predicate handed to the scan would disable.
+  const matched = () => EMAILS.filter(jobs.start.mock.calls[0][0].test);
 
   beforeEach(async () => {
     logger = { debug: jest.fn(), error: jest.fn(), info: jest.fn() };
@@ -62,7 +69,7 @@ describe('EmailBlocklistController', () => {
         MockMozLoggerService,
         MockConfig,
         MockMetricsFactory,
-        { provide: AccountStateService, useValue: accountState },
+        { provide: DisableMatchingJobService, useValue: jobs },
       ],
     }).compile();
 
@@ -168,53 +175,63 @@ describe('EmailBlocklistController', () => {
       ]);
     });
 
-    it('disables accounts whose primary email matches any regex and logs the count', async () => {
+    it('starts a scan that matches a primary email against any of the regexes', async () => {
       const result = await controller.disableMatching(
         ['@evil\\.com$', '@spam\\.net$'],
         'admin@example.com',
         req
       );
 
-      expect(result).toEqual({ disabled: 2 });
-      expect(accountState.disableMatching).toHaveBeenCalledWith(
-        expect.any(Function),
-        req
+      expect(result).toEqual(JOB);
+      expect(jobs.start).toHaveBeenCalledWith(
+        { test: expect.any(Function) },
+        req,
+        {
+          event: 'emailBlocklist.disableMatching',
+          user: 'admin@example.com',
+          values: ['@evil\\.com$', '@spam\\.net$'],
+        }
       );
-      expect(logger.info).toHaveBeenCalledWith(
-        'emailBlocklist.disableMatching',
-        { user: 'admin@example.com', count: 2, disabled: 2 }
-      );
+      expect(matched()).toEqual(['a@evil.com', 'b@spam.net']);
     });
 
     it('ignores a regex that is not on the blocklist', async () => {
-      const result = await controller.disableMatching(
+      await controller.disableMatching(
         ['@spam\\.net$', '.*'],
         'admin@example.com',
         req
       );
 
-      expect(result).toEqual({ disabled: 1 });
+      expect(matched()).toEqual(['b@spam.net']);
+      expect(jobs.start.mock.calls[0][2].values).toEqual(['@spam\\.net$']);
     });
 
-    it('disables nothing when no regex is on the blocklist', async () => {
+    it('returns a finished job without a scan when no regex is on the blocklist', async () => {
       const result = await controller.disableMatching(
         ['.*'],
         'admin@example.com',
         req
       );
 
-      expect(result).toEqual({ disabled: 0 });
-      expect(accountState.disableMatching).not.toHaveBeenCalled();
+      expect(result).toEqual({
+        id: '',
+        status: 'done',
+        scanned: 0,
+        total: 0,
+        disabled: 0,
+        errors: 0,
+      });
+      expect(jobs.start).not.toHaveBeenCalled();
     });
 
     it('ignores non-string elements', async () => {
-      const result = await controller.disableMatching(
+      await controller.disableMatching(
         [42, { regex: '@spam\\.net$' }, '@evil\\.com$'] as any,
         'admin@example.com',
         req
       );
 
-      expect(result).toEqual({ disabled: 1 });
+      expect(matched()).toEqual(['a@evil.com']);
     });
 
     it('throws if regexes is not an array', async () => {
@@ -236,18 +253,22 @@ describe('EmailBlocklistController', () => {
       await expect(
         controller.disableMatching(['@evil\\.com$'], 'admin@example.com', req)
       ).rejects.toThrow('ECONNREFUSED');
-      expect(accountState.disableMatching).not.toHaveBeenCalled();
+      expect(jobs.start).not.toHaveBeenCalled();
     });
 
-    it('rejects and logs nothing when the account scan fails', async () => {
-      accountState.disableMatching.mockRejectedValueOnce(
-        new Error('ER_LOCK_WAIT_TIMEOUT')
-      );
+    it('rejects when the scan cannot start', async () => {
+      jobs.start.mockRejectedValueOnce(new Error('scan already running'));
 
       await expect(
         controller.disableMatching(['@evil\\.com$'], 'admin@example.com', req)
-      ).rejects.toThrow('ER_LOCK_WAIT_TIMEOUT');
-      expect(logger.info).not.toHaveBeenCalled();
+      ).rejects.toThrow('scan already running');
+    });
+  });
+
+  describe('disableMatchingJob', () => {
+    it('returns the job for the id', async () => {
+      await expect(controller.disableMatchingJob(JOB.id)).resolves.toEqual(JOB);
+      expect(jobs.get).toHaveBeenCalledWith(JOB.id);
     });
   });
 

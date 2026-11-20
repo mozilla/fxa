@@ -12,8 +12,32 @@ import { SecurityEventNames } from '@fxa/shared/db/mysql/legacy/models/auth/secu
 import { AppConfig } from '../../config';
 import { DatabaseService } from '../../database/database.service';
 import { uuidTransformer } from '../../database/transformers';
+import type { DisableMatchingJob } from '../../types';
 
-const MATCH_BATCH_SIZE = 1000;
+/** How many `emails` ids one scan query covers. */
+const SCAN_RANGE = 10_000;
+/** A run of failures this long means a dependency is down, not that one account is bad. */
+const MAX_CONSECUTIVE_ERRORS = 10;
+
+/** Exact domains are matched in SQL; a predicate runs here on every primary email. */
+export type AccountMatch =
+  | { domains: string[] }
+  | { test: (normalizedEmail: string) => boolean };
+
+export type DisableMatchingProgress = Pick<
+  DisableMatchingJob,
+  'scanned' | 'total' | 'disabled' | 'errors'
+>;
+
+export type DisableMatchingOptions = {
+  /** Highest `emails` id that an earlier, interrupted scan already covered. */
+  after?: number;
+  signal?: AbortSignal;
+  onProgress?: (progress: DisableMatchingProgress) => Promise<void>;
+};
+
+/** The parts of a request that a security event records. A background scan outlives the request itself. */
+export type RequestOrigin = Pick<Request, 'headers' | 'ip'>;
 
 @Injectable()
 export class AccountStateService {
@@ -24,7 +48,7 @@ export class AccountStateService {
     @Inject(ProfileClient) private profileClient: ProfileClient
   ) {}
 
-  public async disable(uid: string, req: Request) {
+  public async disable(uid: string, req: RequestOrigin) {
     const uidBuffer = uuidTransformer.to(uid);
     // Revoke before flagging: a revocation failure then leaves the account
     // enabled and retryable, rather than disabled with live credentials
@@ -42,40 +66,65 @@ export class AccountStateService {
     return true;
   }
 
-  /** Disables each enabled account whose primary email passes `matches`; returns the count. */
+  /**
+   * Disables each enabled account whose primary email matches; returns the counts.
+   * Walks `emails` in id ranges, so every query is bounded however large the table is.
+   * An account that fails to disable is counted and skipped, so it cannot block the rest.
+   */
   public async disableMatching(
-    matches: (normalizedEmail: string) => boolean,
-    req: Request
-  ) {
+    match: AccountMatch,
+    req: RequestOrigin,
+    { after = 0, signal, onProgress }: DisableMatchingOptions = {}
+  ): Promise<Pick<DisableMatchingProgress, 'disabled' | 'errors'>> {
+    const newest = (await this.db.knex('emails').max('id as maxId').first()) as
+      | { maxId: number | null }
+      | undefined;
+    const total = Number(newest?.maxId ?? 0);
     let disabled = 0;
-    let lastUid: string | undefined;
-    while (true) {
+    let errors = 0;
+    let consecutiveErrors = 0;
+    for (let from = after; from < total; from += SCAN_RANGE) {
+      signal?.throwIfAborted();
+      const to = Math.min(from + SCAN_RANGE, total);
       // accounts.normalizedEmail keeps the signup email after a primary email change.
-      const query = this.db.account
-        .query()
-        .select('accounts.uid', 'emails.normalizedEmail')
-        .join('emails', 'emails.uid', 'accounts.uid')
+      const query = this.db
+        .knex('emails')
+        .select('emails.uid', 'emails.normalizedEmail')
+        .join('accounts', 'accounts.uid', 'emails.uid')
+        .where('emails.id', '>', from)
+        .where('emails.id', '<=', to)
         .where('emails.isPrimary', true)
-        .whereNull('accounts.disabledAt')
-        .orderBy('accounts.uid')
-        .limit(MATCH_BATCH_SIZE);
-      if (lastUid) {
-        query.where('accounts.uid', '>', uuidTransformer.to(lastUid));
+        .whereNull('accounts.disabledAt');
+      if ('domains' in match) {
+        const placeholders = match.domains.map(() => '?').join(', ');
+        query.whereRaw(
+          `SUBSTRING_INDEX(emails.normalizedEmail, '@', -1) IN (${placeholders})`,
+          match.domains
+        );
       }
-      const accounts = await query;
-      for (const account of accounts) {
-        if (
-          matches(account.normalizedEmail) &&
-          (await this.disable(account.uid, req))
-        ) {
-          disabled++;
+      const rows: Array<{ uid: Buffer; normalizedEmail: string }> = await query;
+      for (const row of rows) {
+        signal?.throwIfAborted();
+        if ('test' in match && !match.test(row.normalizedEmail)) {
+          continue;
+        }
+        const uid = uuidTransformer.from(row.uid);
+        try {
+          if (await this.disable(uid, req)) {
+            disabled++;
+          }
+          consecutiveErrors = 0;
+        } catch (err) {
+          Sentry.captureException(err, { extra: { uid } });
+          errors++;
+          if (++consecutiveErrors === MAX_CONSECUTIVE_ERRORS) {
+            throw err;
+          }
         }
       }
-      if (accounts.length < MATCH_BATCH_SIZE) {
-        return disabled;
-      }
-      lastUid = accounts[accounts.length - 1].uid;
+      await onProgress?.({ scanned: to, total, disabled, errors });
     }
+    return { disabled, errors };
   }
 
   // Best effort: the account state is already written, so a failed audit
@@ -83,7 +132,7 @@ export class AccountStateService {
   public async recordStateChange(
     uid: string,
     event: SecurityEventNames,
-    req: Request
+    req: RequestOrigin
   ) {
     const results = await Promise.allSettled([
       this.writeSecurityEvent(uid, event, req),
@@ -106,7 +155,7 @@ export class AccountStateService {
   public async writeSecurityEvent(
     uid: string,
     name: SecurityEventNames,
-    req: Request
+    req: RequestOrigin
   ) {
     const result = await this.db.securityEvents.create({
       uid,
