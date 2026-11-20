@@ -1,8 +1,8 @@
 {
-  "commit": "85faf71f738ed49a69c8108616060f43708c7cd8",
+  "commit": "8baadbbdaf825adaf1f9fb768d3d32cdef483c35",
   "summary": "feat(auth): add POST /account/sync_data/destroy",
   "description": "Because:\n- Users need to delete their Sync data from Settings once per-engine toggles in Firefox stop deleting server data.\n- Tokenserver now exposes an FxA-authenticated delete endpoint (STOR-713).\n\nThis commit:\n- Add a route that mints a short-lived fxa-sync-delete+jwt assertion and calls tokenserver.\n- Require an mfa:sync_data token on a session that has re-entered its password.\n- Gate it behind syncDataDeletion.enabled, rate-limit it as syncDataDestroy, and count outcomes in StatsD.\n- Record the account.sync_data_deleted security event and a Glean event when data was deleted.\n- Add destroySyncData to fxa-auth-client, Swagger docs, and unit and integration tests.\n\nRelates to FXA-14946",
-  "timestamp": 1795196425000,
+  "timestamp": 1795197492000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-settings"
