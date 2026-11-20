@@ -1672,7 +1672,9 @@ describe('Pair', () => {
       }
     });
 
-    it('falls through to the normal flow when the browser reports v1', async () => {
+    // A scanned QR outranks the desktop user agent this suite stubs: whatever
+    // arrives with one is a supplicant, never the start of an authority flow.
+    it('sends a desktop user agent that scanned a QR but reports v1 to the connect hint', async () => {
       const status = { pairingEnabled: true, pairingVersion: 1 };
       setPairingHash(V2_HASH);
       renderWithRouter(
@@ -1681,19 +1683,37 @@ describe('Pair', () => {
         v2AppContext()
       );
 
-      // The desktop UA is stubbed for this suite, so the bootstrap reaching the
-      // choice screen is what proves the hold expired. Waits past the grace
-      // period, which is longer than the default findBy timeout.
-      await screen.findByLabelText(
-        /I already have Firefox for mobile/,
-        undefined,
-        {
-          timeout: 4000,
-        }
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/pair/supplicant/connect_hint'
+        )
       );
-      expect(mockNavigate).not.toHaveBeenCalledWith(
-        '/pair/supplicant/connect_this_device',
-        expect.anything()
+      expect(firefox.requestSignedInUser).not.toHaveBeenCalled();
+    });
+
+    // Firefox for Android with "Desktop site" on: a desktop user agent, v2,
+    // and no pairing capability. The suite's UA is Firefox 124.
+    it('holds a desktop user agent that scanned a QR to the Android minimum', async () => {
+      const config = getDefault();
+      config.pairing.version = 2;
+      config.pairing.v2MinVersion = { desktop: 125, android: 124 };
+      setPairingHash(V2_HASH);
+      renderWithRouter(
+        <Pair
+          fxaStatusResult={mockUseFxAStatus({
+            pairingEnabled: 'absent',
+            pairingVersion: 2,
+          })}
+        />,
+        {},
+        mockAppContext({ config } as Parameters<typeof mockAppContext>[0])
+      );
+
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/pair/supplicant/connect_this_device',
+          { state: { channelId: 'chan-1', channelKey: 'key-1', version: '2' } }
+        )
       );
     });
 
@@ -1770,6 +1790,80 @@ describe('Pair', () => {
           true
         );
         hardNavigateSpy.mockRestore();
+      });
+
+      // Firefox for Android with "Desktop site" on sends a desktop user agent,
+      // but answers fxa_status as a phone: version 2 and no pairing key.
+      describe('when a desktop user agent answers fxa_status as a phone', () => {
+        const phoneAnswer = withSignedInUser(
+          mockUseFxAStatus({ pairingEnabled: 'absent', pairingVersion: 2 })
+        );
+        let hardNavigateSpy: jest.SpyInstance;
+
+        beforeEach(() => {
+          hardNavigateSpy = jest
+            .spyOn(ReactUtils, 'hardNavigate')
+            .mockImplementation(() => {});
+        });
+        afterEach(() => {
+          hardNavigateSpy.mockRestore();
+        });
+
+        it.each([
+          { floor: 'at the desktop minimum', desktop: 124 },
+          { floor: 'below the desktop minimum', desktop: 125 },
+        ])(
+          'sends it to ready_to_scan without starting an authority flow $floor',
+          async ({ desktop }) => {
+            renderWithRouter(
+              <Pair fxaStatusResult={phoneAnswer} />,
+              {},
+              minVersionAppContext(desktop)
+            );
+
+            await waitFor(() =>
+              expect(mockNavigate).toHaveBeenCalledWith(
+                '/pair/supplicant/ready_to_scan',
+                { replace: true }
+              )
+            );
+            expect(hardNavigateSpy).not.toHaveBeenCalled();
+            expect(firefox.requestSignedInUser).not.toHaveBeenCalled();
+          }
+        );
+      });
+
+      // Neither is a phone's answer: a v1 answer is an older desktop, and the
+      // defaults that stand in for a silent Firefox report version 1 too.
+      it.each([
+        {
+          browser: 'a desktop that reports pairing v1 without the capability',
+          status: mockUseFxAStatus({
+            pairingEnabled: false,
+            pairingVersion: 1,
+          }),
+        },
+        {
+          browser: 'a browser that never answered fxa_status',
+          status: mockUseFxAStatus({
+            pairingEnabled: false,
+            fxaStatusState: 'unanswered',
+          }),
+        },
+      ])('keeps $browser on the v1 choice screen', async ({ status }) => {
+        renderWithRouter(
+          <Pair fxaStatusResult={status} />,
+          {},
+          minVersionAppContext(124)
+        );
+
+        expect(
+          await screen.findByLabelText(/I already have Firefox for mobile/)
+        ).toBeInTheDocument();
+        expect(mockNavigate).not.toHaveBeenCalledWith(
+          '/pair/supplicant/ready_to_scan',
+          { replace: true }
+        );
       });
     });
   });

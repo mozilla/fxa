@@ -87,7 +87,7 @@ export type FxAStatusResponse = {
   capabilities: {
     engines: string[];
     multiService: boolean;
-    pairing: boolean;
+    pairing?: boolean;
     pairingVersion?: number;
     choose_what_to_sync?: boolean;
     keys_optional?: boolean;
@@ -303,6 +303,12 @@ function createMessageId() {
 export class Firefox extends EventTarget {
   private broadcastChannel?: BroadcastChannel;
   readonly id: string;
+  /**
+   * Whether the browser's latest fxa_status said it can approve a pairing.
+   * Undefined until one arrives. Firefox for Android never says so, whatever
+   * user agent it sends.
+   */
+  canApprovePairing?: boolean;
   constructor() {
     super();
     this.id = 'account_updates';
@@ -348,6 +354,9 @@ export class Firefox extends EventTarget {
           );
         } else {
           const responseData = message.data || message.params;
+          if (message.command === FirefoxCommand.FxAStatus) {
+            this.canApprovePairing = !!responseData?.capabilities?.pairing;
+          }
           this.dispatchEvent(
             new CustomEvent(message.command, { detail: responseData })
           );

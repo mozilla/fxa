@@ -580,6 +580,39 @@ describe('Firefox fxaStatus', () => {
   });
 });
 
+// The browser's own word is the only way to tell Firefox for Android in
+// desktop mode from a desktop: it leaves `pairing` out of its capabilities.
+describe('Firefox canApprovePairing', () => {
+  const answerFxaStatus = (capabilities: Record<string, unknown>) =>
+    window.dispatchEvent(
+      new CustomEvent('WebChannelMessageToContent', {
+        detail: {
+          id: 'account_updates',
+          message: {
+            command: FirefoxCommand.FxAStatus,
+            data: { capabilities, signedInUser: null },
+          },
+        },
+      })
+    );
+
+  it('is undefined before the browser answers fxa_status', () => {
+    expect(new Firefox().canApprovePairing).toBeUndefined();
+  });
+
+  it('is true when fxa_status reports the pairing capability', () => {
+    const ff = new Firefox();
+    answerFxaStatus({ engines: [], pairing: true, pairingVersion: 2 });
+    expect(ff.canApprovePairing).toBe(true);
+  });
+
+  it('is false when fxa_status leaves the pairing capability out', () => {
+    const ff = new Firefox();
+    answerFxaStatus({ engines: [], pairingVersion: 2 });
+    expect(ff.canApprovePairing).toBe(false);
+  });
+});
+
 describe('Firefox requestSignedInUser', () => {
   const MOCK_SIGNED_IN_USER: SignedInUser = {
     email: 'user@example.com',

@@ -17,7 +17,8 @@ export function mockUseFxAStatus({
   fxaStatusState = 'answered',
   signedInUser,
 }: {
-  pairingEnabled?: boolean;
+  /** 'absent' is a browser that answered without `pairing`: a phone. */
+  pairingEnabled?: boolean | 'absent';
   pairingVersion?: number;
   offeredSyncEnginesOverride?: ReturnType<typeof getSyncEngineIds>;
   supportsKeysOptionalLogin?: boolean;
@@ -57,7 +58,7 @@ export function mockUseFxAStatus({
         choose_what_to_sync: true,
         keys_optional: true,
         can_link_account_uid: true,
-        pairing: pairingEnabled,
+        pairing: pairingEnabled === 'absent' ? undefined : pairingEnabled,
         pairingVersion,
       },
     },

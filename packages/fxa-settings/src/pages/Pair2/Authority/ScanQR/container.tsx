@@ -64,9 +64,18 @@ const ScanQRContainer = ({
   const { fxaStatusState } = fxaStatusResult;
   const signedInUser = fxaStatusResult.fxaStatus?.signedInUser;
   const isSignedIn = !!(signedInUser?.sessionToken && signedInUser.verified);
+  // Firefox for Android has no fxaccounts:pair_oauth_finish and says so by
+  // leaving `pairing` out of fxa_status. With "Desktop site" on, its user agent
+  // is a desktop one, so the capability is the only thing that tells it apart.
+  const canApprove = !!fxaStatusResult.fxaStatus?.capabilities.pairing;
 
   useEffect(() => {
-    if (fxaStatusState === 'pending' || !isSignedIn || totpChecked) {
+    if (
+      fxaStatusState === 'pending' ||
+      !isSignedIn ||
+      !canApprove ||
+      totpChecked
+    ) {
       return;
     }
     const { sessionToken, totpVerifiedAt } = getPairingAccount(signedInUser);
@@ -94,6 +103,7 @@ const ScanQRContainer = ({
     navigateWithQuery,
     fxaStatusState,
     isSignedIn,
+    canApprove,
     signedInUser,
     totpChecked,
   ]);
@@ -107,6 +117,26 @@ const ScanQRContainer = ({
       // comes back here once the browser has an account again. Full reload,
       // because `useIntegration` is not keyed on location.
       hardNavigate('/pair', {}, true);
+      return;
+    }
+    if (!canApprove) {
+      // /pair and the settings promo keep these browsers out, so getting here
+      // means an entry point missed one. The extras are what could tell a
+      // phone from a desktop without the user agent.
+      Sentry.captureMessage('Pairing scan_qr reached without capability', {
+        extra: {
+          userAgent: navigator.userAgent,
+          platform: navigator.platform,
+          maxTouchPoints: navigator.maxTouchPoints,
+          pointerCoarse: window.matchMedia?.('(pointer: coarse)').matches,
+          hoverNone: window.matchMedia?.('(hover: none)').matches,
+          hasOrientation: 'orientation' in window,
+          pairingVersion:
+            fxaStatusResult.fxaStatus?.capabilities.pairingVersion,
+          fxaStatusState,
+        },
+      });
+      navigateWithQuery('/pair/unsupported', { replace: true });
       return;
     }
     if (!totpChecked) {
@@ -174,7 +204,9 @@ const ScanQRContainer = ({
     integration,
     navigateWithQuery,
     fxaStatusState,
+    fxaStatusResult.fxaStatus?.capabilities.pairingVersion,
     isSignedIn,
+    canApprove,
     totpChecked,
   ]);
 
