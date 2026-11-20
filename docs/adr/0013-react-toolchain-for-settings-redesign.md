@@ -1,6 +1,6 @@
 # React Toolchain for Settings Redesign
 
-- Status: accepted
+- Status: superseded. fxa-settings is an ejected Create React App with its own webpack config; Rescripts is not used.
 - Deciders: Jody Heavener, Lauren Zugai, Les Orchard
 - Date: 2020-04-13
 

@@ -1,6 +1,6 @@
 # Use Utility-First CSS (Tailwind) with Custom SCSS
 
-- Status: proposed
+- Status: accepted (partially implemented as of 2026-11). Tailwind is adopted; custom styles are CSS with PostCSS, not SCSS.
 - Deciders: Jody Heavener, Lauren Zugai, Danny Coates
 - Date: 2020-05-08
 

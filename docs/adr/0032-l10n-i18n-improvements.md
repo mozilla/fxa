@@ -1,6 +1,6 @@
 # L10n / I18N Improvements
 
-- Status: accepted
+- Status: accepted (partially implemented as of 2026-11). The auth-server template l10n helper and per-component email tests were not done.
 - Deciders: Lauren Zugai, Dan Schomburg, Barry Chen, Vijay Budhram, Wil Clouser
 - Date: 2022-09-22
 

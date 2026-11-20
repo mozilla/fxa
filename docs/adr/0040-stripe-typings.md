@@ -1,6 +1,6 @@
 # Stripe Typings Management Strategy
 
-- Status: accepted
+- Status: accepted (partially implemented as of 2026-11). The wrapper in `libs/payments/stripe` pins a fixed `expand` set per call rather than blocking `expand`; the auth-server `StripeHelper` is not migrated.
 - Deciders: Julian Poyourow, Ben Bangert, Reino Muhl
 - Date: 2023-10-09
 

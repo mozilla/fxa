@@ -1,6 +1,6 @@
 # Improving functional test architecture to ease support for React flows
 
-- Status: Final
+- Status: accepted (partially implemented as of 2026-11). `tests/react-conversion/` still holds specs alongside the main suites.
 - Deciders: Katrina Anderson, Lauren Zugai, Valerie Pomerleau
 - Consulted: Vijay Budharam
 - Date: 2024-05-07

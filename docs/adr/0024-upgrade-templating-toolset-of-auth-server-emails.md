@@ -1,6 +1,6 @@
 # Upgrade the templating toolset of Auth Server emails
 
-- Status: accepted
+- Status: accepted (partially implemented as of 2026-11). Plaintext is a hand-written `.txt` per template, not generated with html-to-text.
 - Deciders: Yogita Bhatia, Lauren Zugai, Jody Heavener, Vijay Budhram, Ben Bangert, Les Orchard, Danny Coates
 - Date: 2021-06-18
 

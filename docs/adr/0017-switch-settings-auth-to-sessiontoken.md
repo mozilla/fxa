@@ -1,6 +1,6 @@
 # Switch from OAuth2 to sharing sessionToken with GraphQL server for settings redesign auth
 
-- Status: proposed
+- Status: accepted (implemented). Settings still authenticates with the sessionToken; the GraphQL server it was shared with was removed in [ADR-0047](0047-remove-graphql-from-fxa-settings.md).
 - Deciders: Les Orchard, Ben Bangert, Danny Coates, Ryan Kelly
 - Date: 2020-05-12
 

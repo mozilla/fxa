@@ -1,6 +1,6 @@
 # Placing subscription info in the `fxa-subscriptions` claim of JWT access tokens
 
-- Status: proposed
+- Status: accepted (implemented)
 - Deciders: Shane Tomlinson
 - Date: 2019-09-30
 

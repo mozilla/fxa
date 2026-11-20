@@ -1,6 +1,6 @@
 # Server-side scope resolution via service parameter for Firefox OAuth flows
 
-- Status: accepted
+- Status: accepted (implemented). The 2026-09-14 addendum is not implemented as of 2026-11; the service-to-scope map is still auth-server config.
 - Deciders: Lauren Zugai, Mark Hammond, Wil Clouser, Vijay Budhram
 - Date: 2026-04-15
 

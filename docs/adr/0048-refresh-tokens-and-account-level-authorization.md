@@ -1,6 +1,6 @@
 # Refresh tokens for browser service authorization and account-level consent
 
-- Status: accepted
+- Status: accepted (partially implemented as of 2026-11). Outstanding: Desktop's move to refresh tokens, skipping consent on a new device, and a revoke control in Connected Services.
 - Deciders: Lauren Zugai, Mark Hammond, Jonathan Almeida, Wil Clouser, Ben Dean-Kawamura, Ross Otto, Vijay Budhram, Luke Crouch, David Durst
 - Date: 2026-01-16
 

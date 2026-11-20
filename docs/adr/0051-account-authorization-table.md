@@ -1,6 +1,6 @@
 # Account-level OAuth authorization table (`accountAuthorizations`)
 
-- Status: accepted
+- Status: accepted (partially implemented as of 2026-11, amended). Disconnect sets `deauthorizedAt` instead of deleting the row; the ToS re-consent gate and Redis write throttle are not implemented.
 - Deciders: Lauren Zugai, Nick Shirley, Dan Schomburg, Vijay Budhram, Wil Clouser, Ross Otto
 - Date: 2026-07-03
 

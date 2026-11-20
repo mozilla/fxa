@@ -1,6 +1,6 @@
 # Improving Testing Standards and Experience in the Monorepo
 
-- Status: accepted
+- Status: accepted (partially implemented as of 2026-11). The Jest migration went beyond the pilot; the functional test audit is not evidenced in this repo.
 - Deciders: Wil Clouser, Dan Schomburg, Valerie Pomerleau, Barry Chen, Amri Toufali, Vijay Budhram
 
 ## Context and Problem Statement

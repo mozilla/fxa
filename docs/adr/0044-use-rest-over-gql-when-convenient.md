@@ -1,6 +1,6 @@
 # Use REST (auth-client) over GQL when convenient
 
-- Status: accepted
+- Status: superseded by [ADR-0047](0047-remove-graphql-from-fxa-settings.md)
 - Deciders: Lauren Zugai, Ben Bangert, Dan Schomburg, Valerie Pomerleau, Barry Chen
 - Date: 2024-12-11
 
