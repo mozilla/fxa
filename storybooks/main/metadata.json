@@ -1,8 +1,8 @@
 {
-  "commit": "5549258d6f657bc866d95a963a4108f726ce0dfc",
-  "summary": "Merge pull request #21774 from mozilla/PAY-3884",
-  "description": "feat(auth): report failed Stripe webhook deliveries to StatsD",
-  "timestamp": 1795127620000,
+  "commit": "d5c0d33623e794409b14d7b4f4443dfe8146659d",
+  "summary": "Merge pull request #21791 from mozilla/admin-bulk-disable-batch-size",
+  "description": "fix(admin-panel): lower bulk disable batch size from 1000 to 100",
+  "timestamp": 1795190286000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
