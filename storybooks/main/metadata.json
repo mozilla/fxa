@@ -1,8 +1,8 @@
 {
-  "commit": "75a1632d618f49c36cb2c112031bb4609f4fb9a1",
-  "summary": "Merge pull request #21790 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-fbbb11ca5fa3dc40cff425f8168f67d0d27f3e42",
-  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from 5615923a4939feda5294ccd3aebe75cc28758d87 to fbbb11ca5fa3dc40cff425f8168f67d0d27f3e42",
-  "timestamp": 1795199196000,
+  "commit": "682e9985b61732a739c5387703c5a250b270cb6a",
+  "summary": "Merge pull request #21795 from mozilla/fxa-15077",
+  "description": "fix(settings): disable signup code form after verifySession succeeds",
+  "timestamp": 1795200790000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
