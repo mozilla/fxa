@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 2f5024bce70126cd9590be940b70a8a20d1f4370</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 2f5024bce70126cd9590be940b70a8a20d1f4370</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>11/20/2026, 12:02:40 AM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(auth): return errno 237 for passkey wrap creation without reauth</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+- POST /passkey/wraps refused a session with no password reauth with errno 223.
+- fxa-settings starts a passkey step-up on 223, and that step-up cannot pass the guard.
+
+This commit:
+- Adds AppError.passkeyWrapReauthRequired() with errno 237, status 401.
+- Throws it from the reauth guard in passkey-wraps.ts.
+- Keeps errno 223 for a token that is not bound to the credential.
+- Lists errno 237 in the swagger docs.
+- Adds unit, remote and settings tests for the new errno.
+
+Closes FXA-14847</pre></dd>
+  </dl>
+</body>
+</html>

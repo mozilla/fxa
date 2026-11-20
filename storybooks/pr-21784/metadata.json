@@ -1,0 +1,11 @@
+{
+  "commit": "2f5024bce70126cd9590be940b70a8a20d1f4370",
+  "summary": "fix(auth): return errno 237 for passkey wrap creation without reauth",
+  "description": "Because:\n- POST /passkey/wraps refused a session with no password reauth with errno 223.\n- fxa-settings starts a passkey step-up on 223, and that step-up cannot pass the guard.\n\nThis commit:\n- Adds AppError.passkeyWrapReauthRequired() with errno 237, status 401.\n- Throws it from the reauth guard in passkey-wraps.ts.\n- Keeps errno 223 for a token that is not bound to the credential.\n- Lists errno 237 in the swagger docs.\n- Adds unit, remote and settings tests for the new errno.\n\nCloses FXA-14847",
+  "timestamp": 1795132960000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
