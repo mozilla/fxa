@@ -1,8 +1,8 @@
 {
-  "commit": "c26cc173ae109ce87e6f375ad341fd74e5df9a87",
-  "summary": "Merge pull request #21758 from mozilla/pay-3905",
-  "description": "fix(auth): skip JWT subscription claims when subscriptions are disabled",
-  "timestamp": 1795208191000,
+  "commit": "0b0ee2c5f3c14ccbc4c6c9ea91acbc07d9f035b5",
+  "summary": "Merge pull request #21782 from mozilla/adr-status-audit",
+  "description": "docs(adr): correct ADR statuses against the current codebase",
+  "timestamp": 1795208429000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
