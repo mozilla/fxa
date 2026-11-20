@@ -200,7 +200,6 @@ app-footer-terms-of-service = Regulamin usługi
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Otwiera w nowym oknie
@@ -1591,7 +1590,6 @@ signin-unblock-support-link = Dlaczego to się stało?
 signin-unblock-desktop-relay = { -brand-firefox } po zalogowaniu spróbuje odesłać Cię do użycia maski dla adresu e-mail.
 
 
-confirm-signup-code-page-title = Wpisz kod potwierdzenia
 confirm-signup-code-heading-2 = Wpisz kod potwierdzenia <span>do { -product-mozilla-account(capitalization: "lower", case: "gen") }</span>
 confirm-signup-code-instruction-v2 = Wpisz kod potwierdzenia wysłany na adres <email>{ $email }</email> w ciągu 5 minut.
 confirm-signup-code-input-label = Wpisz sześciocyfrowy kod

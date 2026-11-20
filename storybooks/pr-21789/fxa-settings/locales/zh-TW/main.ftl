@@ -48,7 +48,6 @@ app-footer-terms-of-service = 服務條款
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = 會用新視窗開啟
@@ -1617,7 +1616,6 @@ signin-unblock-support-link = 為什麼會發生？
 signin-unblock-desktop-relay = 登入後，{ -brand-firefox } 將嘗試使用您的轉寄信箱帶您回到原網站。
 
 
-confirm-signup-code-page-title = 請輸入確認碼
 confirm-signup-code-heading-2 = 請輸入您的確認碼 <span>{ -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = 請在 5 分鐘內輸入寄送到 <email>{ $email }</email> 的代碼。
 confirm-signup-code-input-label = 請輸入六位數的驗證碼

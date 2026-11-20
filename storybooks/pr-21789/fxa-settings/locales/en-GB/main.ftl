@@ -48,7 +48,6 @@ app-footer-terms-of-service = Terms of Service
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Opens in new window
@@ -1681,7 +1680,6 @@ signin-unblock-support-link = Why is this happening?
 signin-unblock-desktop-relay = { -brand-firefox } will try sending you back to use an email mask after you sign in.
 
 
-confirm-signup-code-page-title = Enter confirmation code
 confirm-signup-code-heading-2 = Enter confirmation code <span>for your { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Enter the code that was sent to <email>{ $email }</email> within 5 minutes.
 confirm-signup-code-input-label = Enter 6-digit code

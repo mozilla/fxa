@@ -48,7 +48,6 @@ app-footer-terms-of-service = 服务条款
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = 将新建窗口打开
@@ -1451,7 +1450,6 @@ signin-unblock-support-link = 为什么会出现此情况？
 signin-unblock-desktop-relay = { -brand-firefox } 将尝试在您登录后返回原页面，供您使用马甲邮箱。
 
 
-confirm-signup-code-page-title = 输入确认码
 confirm-signup-code-heading-2 = <span>{ -product-mozilla-account }</span>请输入确认码
 confirm-signup-code-instruction-v2 = 请在 5 分钟内输入发送到 <email>{ $email }</email> 的验证码。
 confirm-signup-code-input-label = 请输入 6 位验证码

@@ -84,7 +84,6 @@ app-footer-terms-of-service = Условия использования
 
 
 app-default-title-2 = { -product-mozilla-accounts(case: "nominative_uppercase") }
-app-page-title-2 = { $title } | { -product-mozilla-accounts(case: "nominative_uppercase") }
 
 
 link-sr-new-window = Открывается в новом окне
@@ -1726,7 +1725,6 @@ signin-unblock-support-link = Почему это происходит?
 signin-unblock-desktop-relay = { -brand-firefox } попытается отправить вас обратно, чтобы вы использовали псевдоним электронной почты после входа.
 
 
-confirm-signup-code-page-title = Введите код подтверждения
 confirm-signup-code-heading-2 = Введите код подтверждения <span>для вашего { -product-mozilla-account(case: "genitive") }</span>
 confirm-signup-code-instruction-v2 = Введите код, отправленный на <email>{ $email }</email>, в течение 5 минут.
 confirm-signup-code-input-label = Введите код из 6 цифр

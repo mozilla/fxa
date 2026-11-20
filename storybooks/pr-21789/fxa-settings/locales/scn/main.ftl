@@ -45,7 +45,6 @@ app-footer-terms-of-service = Tèrmini di sirbizzu
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts(capitalization: "uppercase") }
 
 
 link-sr-new-window = Si rapi nta na finestra nova

@@ -52,7 +52,6 @@ app-footer-terms-of-service = Hizmet Koşulları
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Yeni pencerede açılır
@@ -1622,7 +1621,6 @@ signin-unblock-support-link = Neden böyle bir şey oldu?
 signin-unblock-desktop-relay = { -brand-firefox }, giriş yaptıktan sonra sizi e-posta maskesi kullanmaya yönlendirecektir.
 
 
-confirm-signup-code-page-title = Onay kodunu girin
 confirm-signup-code-heading-2 = <span>{ -product-mozilla-account }</span> onay kodunuzu yazın
 confirm-signup-code-instruction-v2 = <email>{ $email }</email> adresine gönderdiğimiz kodu 5 dakika içinde girin.
 confirm-signup-code-input-label = 6 basamaklı kodu girin
