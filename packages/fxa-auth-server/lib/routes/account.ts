@@ -698,7 +698,11 @@ export class AccountHandler {
           request,
           account: accountRecord,
         });
-        throw error.incorrectPassword(accountRecord.email, email);
+        // originalLoginEmail marks the retry with the signup email salt: return 103, not 120.
+        throw error.incorrectPassword(
+          accountRecord.email,
+          originalLoginEmail ? accountRecord.email : email
+        );
       }
     };
 
@@ -1922,7 +1926,11 @@ export class AccountHandler {
   async destroy(request: AuthRequest) {
     this.log.begin('Account.destroy', request);
 
-    const { authPW, email: emailAddress } = request.payload as any;
+    const {
+      authPW,
+      email: emailAddress,
+      originalLoginEmail,
+    } = request.payload as any;
     const sessionToken =
       request.auth &&
       (request.auth.credentials as unknown as {
@@ -2024,7 +2032,10 @@ export class AccountHandler {
         request
       );
       if (!isMatchingPassword) {
-        throw error.incorrectPassword(accountRecord.email, emailAddress);
+        throw error.incorrectPassword(
+          accountRecord.email,
+          originalLoginEmail ? accountRecord.email : emailAddress
+        );
       }
     }
 
@@ -2645,6 +2656,10 @@ export const accountRoutes = (
           payload: isA.object({
             email: validators.email().required().description(DESCRIPTION.email),
             authPW: validators.authPW.description(DESCRIPTION.authPW),
+            originalLoginEmail: validators
+              .email()
+              .optional()
+              .description(DESCRIPTION.originalLoginEmail),
           }),
         },
       },

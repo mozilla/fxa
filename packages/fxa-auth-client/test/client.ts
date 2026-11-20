@@ -6,6 +6,7 @@ import * as assert from 'assert';
 import AuthClient from '../server';
 import * as crypto from '../lib/crypto';
 import { isWafBlockedError, PublicKeyCredentialJSON } from '../lib/client';
+import { createSaltV2 } from '../lib/salt';
 
 // TODO: Use proper mocks when we move to jest. Not going to add sinon dep just for this...
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -647,6 +648,46 @@ describe('lib/client', () => {
         .authPW;
       assert.equal(calls[0].body.authPW, primaryAuthPW);
       assert.equal(calls[1].body.authPW, signupAuthPW);
+    });
+
+    it('accountDestroy: sends originalLoginEmail only on the signup-salt retry', async () => {
+      responses = [() => emailCaseError(signupEmail), () => ok({})];
+
+      await saltClient.accountDestroy(
+        { primary: primaryEmail, original: signupEmail },
+        password,
+        {},
+        sessionToken
+      );
+
+      assert.strictEqual(calls[0].body.originalLoginEmail, undefined);
+      assert.equal(calls[1].body.originalLoginEmail, primaryEmail);
+    });
+
+    it('signIn: returns INCORRECT_PASSWORD without retrying when v2 credentials get INCORRECT_EMAIL_CASE', async () => {
+      const v2Client = new AuthClient('http://localhost:9000', {
+        keyStretchVersion: 2,
+      });
+      responses = [
+        () =>
+          ok({
+            upgradeNeeded: false,
+            currentVersion: 'v2',
+            clientSalt: createSaltV2('0123456789abcdef0123456789abcdef'),
+          }),
+        () => emailCaseError(signupEmail),
+      ];
+
+      await assert.rejects(
+        v2Client.signIn(
+          { primary: primaryEmail, original: primaryEmail },
+          password
+        ),
+        { errno: 103 }
+      );
+
+      const loginCalls = calls.filter((c) => c.url.includes('/account/login'));
+      assert.equal(loginCalls.length, 1);
     });
 
     it('passwordChangeWithJWT: falls back to the signup email salt, and the change payload keeps the signup email', async () => {

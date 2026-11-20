@@ -12,6 +12,7 @@ import * as Sentry from '@sentry/browser';
 import { MetricsContext } from '@fxa/shared/metrics/glean';
 
 enum ERRORS {
+  INCORRECT_PASSWORD = 103,
   THROTTLED = 114,
   INCORRECT_EMAIL_CASE = 120,
   REQUEST_BLOCKED = 125,
@@ -980,6 +981,15 @@ export default class AuthClient {
 
       return accountData;
     } catch (error: any) {
+      // A v2 authPW is salted with clientSalt, not the email, so a retry with the
+      // signup email would send the same authPW: 120 here is a wrong password.
+      if (credentials.v2 && error?.errno === ERRORS.INCORRECT_EMAIL_CASE) {
+        throw {
+          ...error,
+          errno: ERRORS.INCORRECT_PASSWORD,
+          message: 'Incorrect password',
+        };
+      }
       if (
         error &&
         error.email &&
@@ -1437,6 +1447,8 @@ export default class AuthClient {
     const payload = {
       email: email.primary,
       authPW: credentials.authPW,
+      // Marks the signup-salt attempt so a wrong password returns 103, not 120.
+      ...(options.skipCaseError && { originalLoginEmail: email.primary }),
     };
     try {
       return await this.sessionPost(

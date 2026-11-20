@@ -2253,6 +2253,117 @@ describe('/account/login', () => {
     });
   });
 
+  describe('wrong password for an account whose signup email differs from the primary', () => {
+    const wrongPasswordRoute = getRoute(
+      makeRoutes({
+        checkPassword: () => Promise.resolve(false),
+        config,
+        customs: mockCustoms,
+        db: mockDB,
+        log: mockLog,
+        mailer: mockMailer,
+        push: mockPush,
+        cadReminders: mockCadReminders,
+      }),
+      '/account/login'
+    );
+    const defaultConsumeUnblockCode = mockDB.consumeUnblockCode;
+
+    beforeEach(() => {
+      mockDB.accountRecord = jest.fn(async () => ({
+        ...(await defaultEmailAccountRecord()),
+        email: 'signup@example.com',
+      }));
+    });
+
+    afterEach(() => {
+      delete mockRequest.payload.originalLoginEmail;
+      mockDB.consumeUnblockCode = defaultConsumeUnblockCode;
+    });
+
+    it('returns INCORRECT_EMAIL_CASE when originalLoginEmail is unset', async () => {
+      await expect(
+        runTest(wrongPasswordRoute, mockRequest)
+      ).rejects.toMatchObject({
+        errno: error.ERRNO.INCORRECT_EMAIL_CASE,
+      });
+    });
+
+    it('returns INCORRECT_PASSWORD when originalLoginEmail is set', async () => {
+      mockRequest.payload.originalLoginEmail = TEST_EMAIL;
+
+      await expect(
+        runTest(wrongPasswordRoute, mockRequest)
+      ).rejects.toMatchObject({
+        errno: error.ERRNO.INCORRECT_PASSWORD,
+      });
+    });
+
+    it('does not reuse the consumed unblock code on the signup-email retry', async () => {
+      // Models the rate limiter at its boundary: a valid unblock code calls
+      // resetV2, which clears the ip_email and email blocks (rate-limit.ts unblock).
+      let blocked = true;
+      const unblockingCustoms = {
+        v2Enabled: () => true,
+        check: jest.fn(
+          async (_request: unknown, _email: unknown, action: string) => {
+            if (blocked && action === 'accountLogin') {
+              throw error.requestBlocked(true);
+            }
+          }
+        ),
+        checkAuthenticated: () => Promise.resolve(),
+        flag: () => Promise.resolve(),
+        resetV2: jest.fn(async () => {
+          blocked = false;
+        }),
+      };
+      mockDB.consumeUnblockCode = jest
+        .fn()
+        .mockResolvedValueOnce({ createdAt: Date.now() })
+        .mockRejectedValue(error.invalidUnblockCode());
+      const unblockRoute = getRoute(
+        makeRoutes({
+          checkPassword: () => Promise.resolve(false),
+          config,
+          customs: unblockingCustoms,
+          db: mockDB,
+          log: mockLog,
+          mailer: mockMailer,
+          push: mockPush,
+          cadReminders: mockCadReminders,
+        }),
+        '/account/login'
+      );
+      const loginRequest = (payload: Record<string, unknown>) =>
+        mocks.mockRequest({
+          log: mockLog,
+          metricsContext: mockMetricsContext,
+          payload: {
+            ...mockRequest.payload,
+            unblockCode: 'ABCD1234',
+            ...payload,
+          },
+          query: { keys: 'true' },
+        });
+
+      await expect(
+        runTest(unblockRoute, loginRequest({ email: TEST_EMAIL }))
+      ).rejects.toMatchObject({ errno: error.ERRNO.INCORRECT_EMAIL_CASE });
+      // SigninUnblock retries with the signup email and the same unblock code.
+      await expect(
+        runTest(
+          unblockRoute,
+          loginRequest({
+            email: 'signup@example.com',
+            originalLoginEmail: TEST_EMAIL,
+          })
+        )
+      ).rejects.toMatchObject({ errno: error.ERRNO.INCORRECT_PASSWORD });
+      expect(mockDB.consumeUnblockCode).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it('emits the correct series of calls and events', () => {
     const now = Date.now();
     const dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(now);
@@ -3968,10 +4079,10 @@ describe('/account/destroy', () => {
     glean.account.deleteComplete.mockReset();
   });
 
-  function buildRoute(subscriptionsEnabled = true) {
+  function buildRoute(subscriptionsEnabled = true, passwordMatches = true) {
     const accountRoutes = makeRoutes({
       checkPassword: function () {
-        return Promise.resolve(true);
+        return Promise.resolve(passwordMatches);
       },
       config: {
         subscriptions: {
@@ -4079,6 +4190,44 @@ describe('/account/destroy', () => {
     expect(mockAccountQuickDelete).not.toHaveBeenCalled();
     expect(mockAccountTasksDeleteAccount).not.toHaveBeenCalled();
     expect(glean.account.deleteComplete).not.toHaveBeenCalled();
+  });
+
+  describe('wrong password when the request email differs from the signup email', () => {
+    beforeEach(() => {
+      mockRequest.payload.email = 'primary@example.com';
+    });
+
+    it('returns INCORRECT_EMAIL_CASE when originalLoginEmail is unset', async () => {
+      await expect(
+        runTest(buildRoute(true, false), mockRequest)
+      ).rejects.toMatchObject({
+        errno: error.ERRNO.INCORRECT_EMAIL_CASE,
+      });
+      expect(mockAccountQuickDelete).not.toHaveBeenCalled();
+    });
+
+    it('returns INCORRECT_PASSWORD when originalLoginEmail is set', async () => {
+      mockRequest.payload.originalLoginEmail = 'primary@example.com';
+
+      await expect(
+        runTest(buildRoute(true, false), mockRequest)
+      ).rejects.toMatchObject({
+        errno: error.ERRNO.INCORRECT_PASSWORD,
+      });
+      expect(mockAccountQuickDelete).not.toHaveBeenCalled();
+    });
+
+    it('accepts originalLoginEmail in the payload schema', () => {
+      const { error: validationError } = (
+        buildRoute().options as any
+      ).validate.payload.validate({
+        email: 'primary@example.com',
+        authPW: new Array(65).join('f'),
+        originalLoginEmail: 'primary@example.com',
+      });
+
+      expect(validationError).toBeUndefined();
+    });
   });
 
   it('should delete the passwordless account', () => {
