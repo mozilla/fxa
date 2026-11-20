@@ -42,8 +42,10 @@ const TimeoutAndCancelContainer = ({
     firefox.fxaOpenSyncPreferences()
   }
 
+  const { reason, cause } = location.state ?? {};
+
   return (
-    <TimeoutAndCancel {...{reason:location.state?.reason || 'timeout', onTryAgain, onSyncSettings}} />
+    <TimeoutAndCancel {...{ reason, cause, onTryAgain, onSyncSettings }} />
   );
 };
 

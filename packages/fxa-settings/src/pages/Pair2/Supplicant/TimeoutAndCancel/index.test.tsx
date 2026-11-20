@@ -174,4 +174,25 @@ describe('Pair2/Supplicant/TimeoutAndCancel page', () => {
       });
     }
   );
+
+  // Reporting these as a timeout would overstate how often pairing times out.
+  it('shows the timeout card but reports unknown when nothing said why', () => {
+    renderWithLocalizationProvider(<Subject reason="unknown" />);
+
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      'Looks like we timed out'
+    );
+    expect(GleanMetrics.dtmMobile.timeoutView).toHaveBeenCalledWith({
+      event: { reason: 'unknown' },
+    });
+  });
+
+  it('sends the failure cause with the timeout view event', () => {
+    renderWithLocalizationProvider(
+      <Subject reason="timeout" cause="peer_closed" />
+    );
+    expect(GleanMetrics.dtmMobile.timeoutView).toHaveBeenCalledWith({
+      event: { reason: 'timeout', cause: 'peer_closed' },
+    });
+  });
 });

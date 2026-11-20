@@ -14,10 +14,13 @@ import { useFtlMsgResolver } from '../../../../models';
  * `Pair2/Supplicant/TimeoutAndCancel`, so a route can pick a card without
  * translating the value.
  */
-export type TimeoutAndCancelReason = 'timeout' | 'canceled';
+export type TimeoutAndCancelReason = 'timeout' | 'canceled' | 'unknown';
 
 export type TimeoutAndCancelProps = {
+  /** `unknown` when nothing said why the flow ended. It shows the timeout card. */
   reason?: TimeoutAndCancelReason;
+  /** What ended the pairing, for telemetry. See `PairingFailureCause`. */
+  cause?: string;
   /** Restarts pairing. The only action shared by both reasons. */
   onTryAgain?: () => void;
   /** Sends the user to sync settings. The secondary action when `reason` is `canceled`. */
@@ -41,7 +44,10 @@ type VariantContent = {
   };
 };
 
-const variantContent: Record<TimeoutAndCancelReason, VariantContent> = {
+const variantContent: Record<
+  Exclude<TimeoutAndCancelReason, 'unknown'>,
+  VariantContent
+> = {
   timeout: {
     pageTitleFtlId: 'pair2-authority-timeout-and-cancel-timeout-page-title',
     pageTitle: 'Connection timed out',
@@ -77,11 +83,12 @@ const variantContent: Record<TimeoutAndCancelReason, VariantContent> = {
  * sign-in page. A cancel adds a link to Sync settings.
  */
 const TimeoutAndCancel = ({
-  reason,
+  reason = 'unknown',
+  cause,
   onTryAgain,
   onSyncSettings,
 }: TimeoutAndCancelProps) => {
-  const content = variantContent[reason ?? 'timeout'];
+  const content = variantContent[reason === 'unknown' ? 'timeout' : reason];
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedPageTitle = ftlMsgResolver.getMsg(
     content.pageTitleFtlId,
@@ -91,8 +98,8 @@ const TimeoutAndCancel = ({
   // Custom view event rather than the automatic one: both states share a route,
   // so `reason` is the only thing that tells them apart.
   useEffect(() => {
-    GleanMetrics.dtmDesktop.timeoutView({ event: { reason } });
-  }, [reason]);
+    GleanMetrics.dtmDesktop.timeoutView({ event: { reason, cause } });
+  }, [reason, cause]);
 
   return (
     <AppLayout title={localizedPageTitle}>

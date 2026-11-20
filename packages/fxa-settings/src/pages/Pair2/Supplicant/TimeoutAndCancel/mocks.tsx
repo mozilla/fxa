@@ -7,4 +7,7 @@ import TimeoutAndCancel, { TimeoutAndCancelProps } from '.';
 // Defaults to the timed-out state, the one users reach without doing anything.
 export const Subject = ({
   reason = 'timeout',
-}: Partial<TimeoutAndCancelProps> = {}) => <TimeoutAndCancel {...{ reason }} />;
+  cause,
+}: Partial<TimeoutAndCancelProps> = {}) => (
+  <TimeoutAndCancel {...{ reason, cause }} />
+);

@@ -11,6 +11,8 @@ import {
 import {
   PairingChannelClient,
   PairingChannelIncomingMessage,
+  PairingFailureCause,
+  toFailureCause,
   toRemoteMetadata,
 } from '../../lib/channels/pairing-channel';
 import { firefox } from '../../lib/channels/firefox';
@@ -97,6 +99,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
   private _oauthCode: string | null = null;
   private _error: Error | { errno: number; message: string } | null = null;
   private _canceledByAuthority = false;
+  private _failureCause: PairingFailureCause | undefined;
   private _email = '';
   private _deviceName = '';
   private _channelId: string | null = null;
@@ -174,6 +177,10 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     return this._canceledByAuthority;
   }
 
+  get failureCause(): PairingFailureCause | undefined {
+    return this._failureCause;
+  }
+
   /** Email address sent by the authority in pair:auth:metadata. */
   get email(): string {
     return this._email;
@@ -217,11 +224,22 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     return new Error(String(err));
   }
 
-  private fail(err: unknown): void {
+  private fail(err: unknown, cause: PairingFailureCause = 'error'): void {
     if (PairingSupplicantIntegration.TERMINAL_STATES.has(this._state)) {
       return;
     }
+    this._failureCause = cause;
     this._error = this.normalizeError(err);
+    // Captured for the breadcrumbs leading up to the failure, which telemetry
+    // does not carry.
+    Sentry.captureMessage('Pairing supplicant failed', {
+      level: 'warning',
+      tags: {
+        'pairing.failure_cause': cause,
+        'pairing.state': this._state,
+        'pairing.canceled_by_peer': this._canceledByAuthority,
+      },
+    });
     this.setState(SupplicantState.Failed);
     this.onError?.(this._error);
   }
@@ -258,6 +276,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     this._channelId = channelId;
     this._version = version;
     this._canceledByAuthority = false;
+    this._failureCause = undefined;
     const channel = new PairingChannelClient();
     this._channel = channel;
 
@@ -288,7 +307,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
       // way out. fail() still has to run for the config and already-connected
       // errors, which reject before open() dispatches any `error` event.
       if (!channel.isUnloading && !this.isPostCompletionReconnect()) {
-        this.fail(err);
+        this.fail(err, toFailureCause(channel.closeReason));
       }
     }
   }
@@ -411,7 +430,10 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
    */
   private handleAuthCancel = () => {
     this._canceledByAuthority = true;
-    this.fail(new Error('Pairing was canceled on the other device'));
+    this.fail(
+      new Error('Pairing was canceled on the other device'),
+      'peer_closed'
+    );
   };
 
   /** True when a close/error during connect is the FXA-13616 reload, not a real failure. */
@@ -458,10 +480,15 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     if (this.isPostCompletionReconnect()) {
       return;
     }
-    this.fail({
-      errno: 1006,
-      message: 'Connection to remote device closed, please try again',
-    });
+    // Only the peer's TLS close_notify reaches here as a `close`; a socket
+    // that died arrives as an `error`.
+    this.fail(
+      {
+        errno: 1006,
+        message: 'Connection to remote device closed, please try again',
+      },
+      'peer_closed'
+    );
   };
 
   private handleChannelError = (event: Event) => {
@@ -470,7 +497,10 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     if (this.isPostCompletionReconnect()) {
       return;
     }
-    this.fail((event as CustomEvent).detail);
+    this.fail(
+      (event as CustomEvent).detail,
+      toFailureCause(this._channel?.closeReason)
+    );
   };
 
   // TODO: Remove after v1 is deprecated

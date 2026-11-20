@@ -367,6 +367,7 @@ export const recordLazyEventMetric = (
     case 'dtm_desktop_timeout_view':
       dtmDesktop.timeoutView.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',
+        cause: gleanPingMetrics?.event?.['cause'] || '',
       });
       break;
   }

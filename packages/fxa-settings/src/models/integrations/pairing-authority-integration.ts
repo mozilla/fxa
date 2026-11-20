@@ -20,6 +20,8 @@ import { toGenericOSName } from '../../lib/utilities';
 import config from '../../lib/config';
 import {
   PairingChannelClient,
+  PairingFailureCause,
+  toFailureCause,
   toRemoteMetadata,
 } from '../../lib/channels/pairing-channel';
 import { OAuthError } from '../../lib/oauth';
@@ -29,6 +31,7 @@ import {
 } from './pairing-request-validation';
 import * as Sentry from '@sentry/browser';
 import { buildPairUrl } from '../../lib/pairing/pair-url';
+import { setPairingChannelId } from '../../lib/pairing-channel-params';
 
 const PAIR_HEARTBEAT_INTERVAL = 1000;
 
@@ -95,6 +98,7 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
   private _cachedChannelId: string | null = null;
   private _supRequest: ValidatedSupplicantRequest | null = null;
   private _canceledBySupplicant = false;
+  private _failureCause: PairingFailureCause | undefined;
 
   public onSuppAuthorized: (() => void) | null = null;
   public onHeartbeatError: ((err: unknown) => void) | null = null;
@@ -142,6 +146,10 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
     return this._canceledBySupplicant;
   }
 
+  get failureCause(): PairingFailureCause | undefined {
+    return this._failureCause;
+  }
+
   /**
    * The URL encoded into the QR code. The supplicant reads the channel
    * credentials out of the fragment, which is never sent to the server.
@@ -177,6 +185,7 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
     this._channel = channel;
     this._version = 2; // Only pairing v2 creates the authority channel
     this._canceledBySupplicant = false;
+    this._failureCause = undefined;
 
     channel.addEventListener('connected', this.handleConnected);
     channel.addEventListener('close', this.handleClose);
@@ -193,10 +202,15 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
 
     this._createChannelPromise = channel
       .create(config.pairing.serverBaseUri)
+      .then(() => {
+        if (channel.channelId) {
+          setPairingChannelId(channel.channelId);
+        }
+      })
       .catch((err) => {
         // A create the browser cut short on the page's way out is no failure.
         if (!channel.isUnloading) {
-          this.fail(err);
+          this.fail(err, toFailureCause(channel.closeReason));
         }
         // Reset _channel so a subsequent createChannel() call can retry.
         this._channel = null;
@@ -216,14 +230,22 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
    * guard here.
    */
   private handleClose = () => {
-    this.fail({
-      errno: 1006,
-      message: 'Connection to remote device closed, please try again',
-    });
+    // Only the peer's TLS close_notify reaches here as a `close`; a socket
+    // that died arrives as an `error`.
+    this.fail(
+      {
+        errno: 1006,
+        message: 'Connection to remote device closed, please try again',
+      },
+      'peer_closed'
+    );
   };
 
   private handleChannelError = (event: Event) => {
-    this.fail((event as CustomEvent).detail);
+    this.fail(
+      (event as CustomEvent).detail,
+      toFailureCause(this._channel?.closeReason)
+    );
   };
 
   private setState(state: AuthorityState): void {
@@ -235,13 +257,24 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
     this.onStateChange?.(state);
   }
 
-  private fail(err: unknown): void {
+  private fail(err: unknown, cause: PairingFailureCause = 'error'): void {
     if (
       this._state &&
       PairingAuthorityIntegration.TERMINAL_STATES.has(this._state)
     ) {
       return;
     }
+    this._failureCause = cause;
+    // Captured for the breadcrumbs leading up to the failure, which telemetry
+    // does not carry.
+    Sentry.captureMessage('Pairing authority failed', {
+      level: 'warning',
+      tags: {
+        'pairing.failure_cause': cause,
+        'pairing.state': this._state,
+        'pairing.canceled_by_peer': this._canceledBySupplicant,
+      },
+    });
     this.setState(AuthorityState.Failed);
     this.onError?.(normalizeError(err));
   }
@@ -360,7 +393,10 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
    */
   private handleSuppCancel = () => {
     this._canceledBySupplicant = true;
-    this.fail(new Error('Pairing was canceled on the other device'));
+    this.fail(
+      new Error('Pairing was canceled on the other device'),
+      'peer_closed'
+    );
   };
 
   /**

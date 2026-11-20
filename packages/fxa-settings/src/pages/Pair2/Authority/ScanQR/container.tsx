@@ -115,14 +115,14 @@ const ScanQRContainer = ({
 
     // This exit ends the flow, so the channel goes with it. Leave either way:
     // a channel that will not close must not strand the user here.
-    const giveUp = async () => {
+    const giveUp = async (reason: 'timeout' | 'unknown') => {
       try {
         await integration.destroy();
       } catch (err) {
         Sentry.captureException(err);
       }
       navigateWithQuery('/pair/authority/timeout_and_cancel', {
-        state: { reason: 'timeout' },
+        state: { reason, cause: integration.failureCause },
       });
     };
 
@@ -132,7 +132,7 @@ const ScanQRContainer = ({
           navigateWithQuery('/pair/authority/continue_on_mobile');
           break;
         case AuthorityState.Failed:
-          giveUp();
+          giveUp('unknown');
           break;
         default:
           // Connecting and WaitingForMetadata both resolve on this page.
@@ -149,7 +149,7 @@ const ScanQRContainer = ({
         setQrCodeValue(integration.getPairUrl('2'));
         if (active) {
           qrTimer = window.setTimeout(
-            giveUp,
+            () => giveUp('timeout'),
             config.pairing.qrTimeoutMinutes * 60 * 1000
           );
         }

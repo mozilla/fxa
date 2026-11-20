@@ -75,7 +75,7 @@ describe('Pair2/Supplicant/TimeoutAndCancel container', () => {
     );
   });
 
-  it('falls back to the timeout variant for a reason it does not know', () => {
+  it('shows the timeout card for a reason it does not know', () => {
     renderWithReason('not-a-reason', integration);
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
@@ -83,8 +83,7 @@ describe('Pair2/Supplicant/TimeoutAndCancel container', () => {
     );
   });
 
-  // Timeout is the safe default; a failure is likelier to arrive without state.
-  it('falls back to the timeout variant when no reason was given', () => {
+  it('shows the timeout card when no reason was given', () => {
     renderWithReason(undefined, integration);
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(

@@ -11,6 +11,7 @@ import {
   SupplicantState,
 } from '../../../../models';
 import { navigateWithQuery } from '../../../../lib/utilities';
+import { usePairingIdleTimeout } from '../../usePairingIdleTimeout';
 
 export const ApproveSignInContainer = ({
   integration,
@@ -29,6 +30,7 @@ export const ApproveSignInContainer = ({
   }
 
   const routedInitialState = useRef(false);
+  usePairingIdleTimeout(integration, '/pair/supplicant/timeout_and_cancel');
 
   useEffect(() => {
     const onStateChange = (state: SupplicantState) => {
@@ -44,7 +46,8 @@ export const ApproveSignInContainer = ({
               state: {
                 reason: integration.canceledByAuthority
                   ? 'canceled'
-                  : 'timeout',
+                  : 'unknown',
+                cause: integration.failureCause,
               },
             },
             true
