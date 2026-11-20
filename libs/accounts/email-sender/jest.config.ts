@@ -13,7 +13,7 @@ export default {
     [
       'jest-junit',
       {
-        outputDirectory: 'artifacts/tests/lib/accounts/email-sender',
+        outputDirectory: 'artifacts/tests/accounts-email-sender',
         outputName: 'accounts-email-sender-jest-unit-results.xml',
       },
     ],

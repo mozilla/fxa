@@ -28,7 +28,7 @@ const config: Config = {
     [
       'jest-junit',
       {
-        outputDirectory: 'artifacts/tests/nest-health',
+        outputDirectory: 'artifacts/tests/shared-nest-health',
         outputName: 'nest-health-jest-unit-results.xml',
       },
     ],

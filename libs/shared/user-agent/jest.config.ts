@@ -28,7 +28,7 @@ const config: Config = {
     [
       'jest-junit',
       {
-        outputDirectory: 'artifacts/tests/user-agent',
+        outputDirectory: 'artifacts/tests/shared-user-agent',
         outputName: 'user-agent-jest-unit-results.xml',
       },
     ],

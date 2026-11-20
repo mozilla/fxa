@@ -13,7 +13,7 @@ export default {
     [
       'jest-junit',
       {
-        outputDirectory: 'artifacts/tests/lib/accounts/rate-limit',
+        outputDirectory: 'artifacts/tests/accounts-rate-limit',
         outputName: 'accounts-rate-limit-jest-unit-results.xml',
       },
     ],

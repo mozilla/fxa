@@ -13,7 +13,7 @@ export default {
     [
       'jest-junit',
       {
-        outputDirectory: 'artifacts/tests/lib/accounts/subscriptions-legacy',
+        outputDirectory: 'artifacts/tests/accounts-subscriptions-legacy',
         outputName: 'accounts-subscriptions-legacy-jest-unit-results.xml',
       },
     ],
