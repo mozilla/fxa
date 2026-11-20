@@ -1,0 +1,10 @@
+{
+  "commit": "32eab19f20dd85db5144557224299a6572c591f1",
+  "summary": "fix(settings): keep browsers that cannot approve off the pairing QR page",
+  "description": "Because:\n\n- Firefox for Android with \"Desktop site\" on sends a desktop user agent, so it was routed to the authority flow and shown the pairing promo.\n- It has no fxaccounts:pair_oauth_finish, so approving always failed and the phone that scanned its QR landed on the timeout screen seconds after approving.\n\nThis commit:\n\n- Opens the scan_qr channel only when fxa_status reports the pairing capability; other browsers go to /pair/unsupported.\n- Records that capability on the Firefox channel from each fxa_status reply.\n- Hides the settings \"Connect a device\" promo and button for a browser without it.\n\nCloses FXA-15081",
+  "timestamp": 1795153182000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
