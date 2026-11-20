@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit fe6fc6f5b1abbc73f5b337bf482665061f2c2137</title>
+  <title>Storybooks for commit 8c744a9ceca876dd3cec9435c5366b42bde7e59d</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit fe6fc6f5b1abbc73f5b337bf482665061f2c2137</h1>
+  <h1>Storybooks for commit 8c744a9ceca876dd3cec9435c5366b42bde7e59d</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/19/2026, 6:28:39 PM UTC</dd>
+    <dd>11/20/2026, 5:36:36 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): add Synced data row and delete Sync data flow</pre></dd>
     <dt>Description</dt>
@@ -39,10 +39,10 @@
 
 This commit:
 - Add a &quot;Synced data&quot; row to Data Collection and Use that links to the new flow.
-- Add /settings/delete_sync_data behind an MFA guard: confirm password, then choose devices to sign out and confirm.
-- Gate the route on featureFlags.syncDataDeletionEnabled and the account having a password.
-- Add isSyncCapable to the Settings attached client model.
-- Add stories per step and unit tests for both steps.
+- Add /settings/delete_sync_data behind an MFA guard: confirm password, then pick devices to sign out, one row per device name as in Connected Services.
+- Gate the row and route on featureFlags.syncDataDeletionEnabled; the route also requires a password.
+- Map isSyncCapable onto the Settings attached client model.
+- Add stories per step and unit tests for both steps and the device grouping.
 
 Relates to FXA-14895</pre></dd>
   </dl>

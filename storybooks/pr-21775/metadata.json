@@ -1,8 +1,8 @@
 {
-  "commit": "fe6fc6f5b1abbc73f5b337bf482665061f2c2137",
+  "commit": "8c744a9ceca876dd3cec9435c5366b42bde7e59d",
   "summary": "feat(settings): add Synced data row and delete Sync data flow",
-  "description": "Because:\n- Users need to delete their Sync data from Settings once per-engine toggles in Firefox stop deleting server data.\n- Security review SA-1022 requires the MFA guard plus a password check before the delete.\n\nThis commit:\n- Add a \"Synced data\" row to Data Collection and Use that links to the new flow.\n- Add /settings/delete_sync_data behind an MFA guard: confirm password, then choose devices to sign out and confirm.\n- Gate the route on featureFlags.syncDataDeletionEnabled and the account having a password.\n- Add isSyncCapable to the Settings attached client model.\n- Add stories per step and unit tests for both steps.\n\nRelates to FXA-14895",
-  "timestamp": 1795112919000,
+  "description": "Because:\n- Users need to delete their Sync data from Settings once per-engine toggles in Firefox stop deleting server data.\n- Security review SA-1022 requires the MFA guard plus a password check before the delete.\n\nThis commit:\n- Add a \"Synced data\" row to Data Collection and Use that links to the new flow.\n- Add /settings/delete_sync_data behind an MFA guard: confirm password, then pick devices to sign out, one row per device name as in Connected Services.\n- Gate the row and route on featureFlags.syncDataDeletionEnabled; the route also requires a password.\n- Map isSyncCapable onto the Settings attached client model.\n- Add stories per step and unit tests for both steps and the device grouping.\n\nRelates to FXA-14895",
+  "timestamp": 1795196196000,
   "storybooks": [
     "fxa-settings"
   ],
