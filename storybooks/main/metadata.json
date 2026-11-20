@@ -1,8 +1,8 @@
 {
-  "commit": "d5c0d33623e794409b14d7b4f4443dfe8146659d",
-  "summary": "Merge pull request #21791 from mozilla/admin-bulk-disable-batch-size",
-  "description": "fix(admin-panel): lower bulk disable batch size from 1000 to 100",
-  "timestamp": 1795190286000,
+  "commit": "75a1632d618f49c36cb2c112031bb4609f4fb9a1",
+  "summary": "Merge pull request #21790 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-fbbb11ca5fa3dc40cff425f8168f67d0d27f3e42",
+  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from 5615923a4939feda5294ccd3aebe75cc28758d87 to fbbb11ca5fa3dc40cff425f8168f67d0d27f3e42",
+  "timestamp": 1795199196000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
