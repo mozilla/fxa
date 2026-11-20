@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 3cfe006fde3e344fadf61d0f34cc1df815313101</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 3cfe006fde3e344fadf61d0f34cc1df815313101</h1>
+  <ul>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>11/20/2026, 5:35:33 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(admin): run disable matching accounts as a background job</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+* Scanning every account inside the request outlasts the 30s gateway
+  timeout, so the blocklist pages got a 504 and lost the count.
+
+This commit:
+* Runs the scan in the admin server after the request returns, one at a
+  time, with its status and resume point in Redis.
+* Walks emails in id ranges and filters domains in SQL.
+* Skips and counts accounts that fail to disable.
+* Adds a status route per blocklist, which the panel polls for progress.
+* Logs the start, result and failure of each scan with the admin and job id.
+
+Closes #FXA-15088</pre></dd>
+  </dl>
+</body>
+</html>
