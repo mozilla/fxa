@@ -1,0 +1,11 @@
+{
+  "commit": "463430c2603657c6e0d43fc641023b238b2e205b",
+  "summary": "fix(settings): treat incorrect email case as incorrect password",
+  "description": "Because:\n\n* Settings showed \"Incorrect email case\" for a wrong password, and in the\n  banner instead of under the password field.\n* Sign-in retried a 120 after sending v2 credentials, which can't succeed.\n\nThis commit:\n\n* Adds isIncorrectPassword() and renders errno 120 as the 103 message.\n* Shows 120 as a field error on sign-in, unblock, change password, delete\n  account, recovery key and passkey fallback.\n* Returns INCORRECT_PASSWORD without retrying from the Signin and\n  SigninUnblock containers when v2 credentials got a 120.\n* Stops the SigninUnblock 120 retry from running more than once.\n\nCloses #FXA-14934",
+  "timestamp": 1795209421000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
