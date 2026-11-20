@@ -1,0 +1,10 @@
+{
+  "commit": "6236500ad561ccb9a1207faf06b50cc0290b770e",
+  "summary": "fix(settings): resume a pairing socket that goes silent without closing",
+  "description": "Because:\n\n- A page cannot see WebSocket pings, so a connection that dies with no close event was never resumed and the pairing failed when the channel expired.\n\nThis commit:\n\n- Asks the channel server for keepalive messages and keeps them from the channel.\n- Tries a resume after 15 s without traffic on a visible page.\n- Leaves the silent socket open until the resume succeeds, and keeps it if it speaks first.\n\nCloses FXA-15084",
+  "timestamp": 1795153183000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
