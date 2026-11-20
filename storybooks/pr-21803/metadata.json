@@ -1,0 +1,10 @@
+{
+  "commit": "abdbeb2417b5a554eaeac6c59449bb6d3a812886",
+  "summary": "fix(settings): default Nova theme to system when none is stored",
+  "description": "Because:\n- Nova users with no stored theme got light mode, not the OS theme.\n\nThis commit:\n- Makes getStoredTheme() fall back to 'system' under Nova.\n- Keeps 'light' as the fallback outside Nova.\n- Adds unit tests for the Nova fallback cases.\n\nCloses: FXA-15097",
+  "timestamp": 1795217791000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
