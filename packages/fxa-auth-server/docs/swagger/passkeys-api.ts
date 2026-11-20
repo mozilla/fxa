@@ -275,6 +275,7 @@ const PASSKEYS_API_DOCS = {
 
         **Errors:**
         - \`401\` errno 223 — the token is invalid, or is not bound to \`credentialId\`
+        - \`401\` errno 237 — the session has not verified the password since it was created
         - \`404\` errno 224 — the passkey was deleted after the assertion
         - \`409\` errno 235 — a different wrap from the current key epoch already exists for this credential
 
