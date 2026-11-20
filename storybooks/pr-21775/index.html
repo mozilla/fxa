@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 9c242a92187f3211375c0e2c85add13a9bee35cd</title>
+  <title>Storybooks for commit 73a49bdcefbf768790e1e4a99c9785cad7de1b8f</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 9c242a92187f3211375c0e2c85add13a9bee35cd</h1>
+  <h1>Storybooks for commit 73a49bdcefbf768790e1e4a99c9785cad7de1b8f</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/20/2026, 8:56:21 PM UTC</dd>
+    <dd>11/20/2026, 9:36:25 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): add Synced data row and delete Sync data flow</pre></dd>
     <dt>Description</dt>
@@ -38,11 +38,11 @@
 - Security review SA-1022 requires the MFA guard plus a password check before the delete.
 
 This commit:
-- Add an optional &quot;Synced data&quot; row to Data Collection and Use that opens the new flow.
+- Add a &quot;Synced data&quot; row to Data Collection and Use, shown when a device can sync, that opens the new flow.
 - Add /settings/delete_sync_data: MFA guard, password reauth, then pick devices to sign out, one row per device name as in Connected Services.
 - Gate the row and route on featureFlags.syncDataDeletionEnabled, a new content-server flag (off by default); the route also requires a password.
 - Map isSyncCapable from attached clients onto the Settings model.
-- Add stories and unit tests for both steps and the device grouping.
+- Add stories and unit tests for both steps, the row and the device grouping.
 
 Relates to FXA-14895</pre></dd>
   </dl>
