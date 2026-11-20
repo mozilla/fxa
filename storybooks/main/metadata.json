@@ -1,8 +1,8 @@
 {
-  "commit": "682e9985b61732a739c5387703c5a250b270cb6a",
-  "summary": "Merge pull request #21795 from mozilla/fxa-15077",
-  "description": "fix(settings): disable signup code form after verifySession succeeds",
-  "timestamp": 1795200790000,
+  "commit": "c26cc173ae109ce87e6f375ad341fd74e5df9a87",
+  "summary": "Merge pull request #21758 from mozilla/pay-3905",
+  "description": "fix(auth): skip JWT subscription claims when subscriptions are disabled",
+  "timestamp": 1795208191000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
