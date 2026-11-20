@@ -11,6 +11,7 @@ import {
   useLayoutEffect,
   useMemo,
   startTransition,
+  useCallback,
 } from 'react';
 
 import { QueryParams } from '../..';
@@ -35,6 +36,7 @@ import {
   useDefaultCmsState,
   isWebIntegration,
   useSensitiveDataClient,
+  SwitchIntegrationContext,
 } from '../../models';
 import { useClearPasskeyWrapOffRoute } from '../../lib/passkeys/use-clear-wrap-off-route';
 import {
@@ -265,7 +267,8 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
 
   const config = useConfig();
   const session = useSession();
-  const integration = useIntegration();
+  const [integrationVersion, setIntegrationVersion] = useState(0);
+  const integration = useIntegration(integrationVersion);
   const navigate = useNavigate();
 
   useClearPasskeyWrapOffRoute(useSensitiveDataClient());
@@ -298,7 +301,17 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
   // the origin page's layout until the destination page loads.
   const [currentSplitLayout, setCurrentSplitLayout] = useState<boolean>(false);
 
+  // A switch replaces a full page load, so the session state starts over too.
+  const bumpIntegrationVersion = useCallback(() => {
+    setIntegrationVersion((version) => version + 1);
+    setIsSignedIn(undefined);
+    setIsSignedIntoFirefox(false);
+    setBrowserHasSyncKey(undefined);
+  }, []);
+
   useEffect(() => {
+    // An integration switch reruns this effect; the superseded run must not write state.
+    let cancelled = false;
     const initializeSession = async () => {
       if (!integration) {
         return;
@@ -314,6 +327,9 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
           false,
           integration.data?.service || ''
         );
+        if (cancelled) {
+          return;
+        }
 
         setHasBrowserAccount(!!userFromBrowser?.uid);
 
@@ -327,6 +343,9 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
           const isValidSession = await session.isValid(
             userFromBrowser.sessionToken
           );
+          if (cancelled) {
+            return;
+          }
           if (isValidSession) {
             setIsSignedIntoFirefox(true);
             setBrowserHasSyncKey(userFromBrowser.hasSyncKey);
@@ -361,10 +380,13 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
       }
 
       const localUser = currentAccount();
-      if (
-        localUser?.sessionToken &&
-        (await session.isValid(localUser.sessionToken))
-      ) {
+      const isValidLocalSession =
+        !!localUser?.sessionToken &&
+        (await session.isValid(localUser.sessionToken));
+      if (cancelled) {
+        return;
+      }
+      if (isValidLocalSession) {
         startTransition(() => {
           setIsSignedIn(true);
         });
@@ -376,6 +398,9 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
       });
     };
     initializeSession();
+    return () => {
+      cancelled = true;
+    };
   }, [integration, isSignedInData?.isSignedIn, session]);
 
   // Recomputes metricsEnabled when a signed-out user's stored account changes.
@@ -450,6 +475,13 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
     config.version,
     metricsFlow,
   ]);
+
+  // Glean keeps the integration it started with; follow a switch.
+  useLayoutEffect(() => {
+    if (integration && integrationVersion > 0) {
+      GleanMetrics.setIntegration(integration);
+    }
+  }, [integration, integrationVersion]);
 
   useEffect(() => {
     if (!metricsEnabled) {
@@ -542,45 +574,51 @@ export const App = ({ flowQueryParams }: { flowQueryParams: QueryParams }) => {
   const cmsInfo = integration.getCmsInfo();
 
   return (
-    <Suspense
-      fallback={
-        <AppLayout cmsInfo={cmsInfo} loading splitLayout={currentSplitLayout} />
-      }
-    >
-      <Routes>
-        <Route
-          path="/settings/*"
-          element={
-            <Suspense fallback={<LoadingSpinner fullScreen />}>
-              <SettingsRoutes
+    <SwitchIntegrationContext.Provider value={bumpIntegrationVersion}>
+      <Suspense
+        fallback={
+          <AppLayout
+            cmsInfo={cmsInfo}
+            loading
+            splitLayout={currentSplitLayout}
+          />
+        }
+      >
+        <Routes>
+          <Route
+            path="/settings/*"
+            element={
+              <Suspense fallback={<LoadingSpinner fullScreen />}>
+                <SettingsRoutes
+                  {...{
+                    isSignedIn,
+                    integration,
+                    isSignedIntoFirefox,
+                    browserHasSyncKey,
+                    setCurrentSplitLayout,
+                  }}
+                />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/*"
+            element={
+              <AuthAndAccountSetupRoutes
                 {...{
                   isSignedIn,
                   integration,
+                  flowQueryParams: updatedFlowQueryParams,
                   isSignedIntoFirefox,
-                  browserHasSyncKey,
+                  hasBrowserAccount,
                   setCurrentSplitLayout,
                 }}
               />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/*"
-          element={
-            <AuthAndAccountSetupRoutes
-              {...{
-                isSignedIn,
-                integration,
-                flowQueryParams: updatedFlowQueryParams,
-                isSignedIntoFirefox,
-                hasBrowserAccount,
-                setCurrentSplitLayout,
-              }}
-            />
-          }
-        />
-      </Routes>
-    </Suspense>
+            }
+          />
+        </Routes>
+      </Suspense>
+    </SwitchIntegrationContext.Provider>
   );
 };
 

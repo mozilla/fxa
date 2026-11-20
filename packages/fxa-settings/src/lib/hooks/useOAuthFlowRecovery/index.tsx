@@ -7,9 +7,9 @@ import {
   Integration,
   isOAuthNativeIntegration,
   isProbablyFirefox,
+  useSwitchIntegration,
 } from '../../../models';
 import firefox from '../../channels/firefox';
-import { hardNavigate } from 'fxa-react/lib/utils';
 import { discardSessionToken } from '../../cache';
 
 export type OAuthFlowRecoveryResult = {
@@ -27,6 +27,7 @@ export function useOAuthFlowRecovery(
 ): OAuthFlowRecoveryResult {
   const [isRecovering, setIsRecovering] = useState(false);
   const [recoveryFailed, setRecoveryFailed] = useState(false);
+  const switchIntegration = useSwitchIntegration();
 
   const attemptOAuthFlowRecovery = useCallback(async () => {
     // Only attempt recovery for OAuth Native integrations (Firefox/Sync)
@@ -79,7 +80,7 @@ export function useOAuthFlowRecovery(
       discardSessionToken();
 
       // Redirect to /signin - user will re-enter password
-      hardNavigate(`/signin?${currentParams.toString()}`);
+      switchIntegration(`/signin?${currentParams.toString()}`);
 
       return { success: true };
     } catch (error) {
@@ -89,7 +90,7 @@ export function useOAuthFlowRecovery(
     } finally {
       setIsRecovering(false);
     }
-  }, [integration]);
+  }, [integration, switchIntegration]);
 
   return {
     isRecovering,
