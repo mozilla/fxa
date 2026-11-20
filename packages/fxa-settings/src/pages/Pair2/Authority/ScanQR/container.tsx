@@ -64,9 +64,18 @@ const ScanQRContainer = ({
   const { fxaStatusState } = fxaStatusResult;
   const signedInUser = fxaStatusResult.fxaStatus?.signedInUser;
   const isSignedIn = !!(signedInUser?.sessionToken && signedInUser.verified);
+  // Firefox for Android has no fxaccounts:pair_oauth_finish and says so by
+  // leaving `pairing` out of fxa_status. With "Desktop site" on, its user agent
+  // is a desktop one, so the capability is the only thing that tells it apart.
+  const canApprove = !!fxaStatusResult.fxaStatus?.capabilities.pairing;
 
   useEffect(() => {
-    if (fxaStatusState === 'pending' || !isSignedIn || totpChecked) {
+    if (
+      fxaStatusState === 'pending' ||
+      !isSignedIn ||
+      !canApprove ||
+      totpChecked
+    ) {
       return;
     }
     const { sessionToken, totpVerifiedAt } = getPairingAccount(signedInUser);
@@ -94,6 +103,7 @@ const ScanQRContainer = ({
     navigateWithQuery,
     fxaStatusState,
     isSignedIn,
+    canApprove,
     signedInUser,
     totpChecked,
   ]);
@@ -107,6 +117,10 @@ const ScanQRContainer = ({
       // comes back here once the browser has an account again. Full reload,
       // because `useIntegration` is not keyed on location.
       hardNavigate('/pair', {}, true);
+      return;
+    }
+    if (!canApprove) {
+      navigateWithQuery('/pair/unsupported', { replace: true });
       return;
     }
     if (!totpChecked) {
@@ -175,6 +189,7 @@ const ScanQRContainer = ({
     navigateWithQuery,
     fxaStatusState,
     isSignedIn,
+    canApprove,
     totpChecked,
   ]);
 

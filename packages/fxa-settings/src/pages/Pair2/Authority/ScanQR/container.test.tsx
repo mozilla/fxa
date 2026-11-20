@@ -183,6 +183,29 @@ describe('Pair2/Authority/ScanQR container', () => {
       expect(mockAccountProfile).not.toHaveBeenCalled();
     });
 
+    // Firefox for Android asking for the desktop site sends a desktop user
+    // agent, but answers fxa_status without `pairing` and rejects
+    // fxaccounts:pair_oauth_finish, so a QR shown there can never be approved.
+    it('sends a signed-in browser that cannot approve a pairing to /pair/unsupported without a channel', async () => {
+      renderContainer(integration, {
+        ...mockUseFxAStatus({ pairingEnabled: false, pairingVersion: 2 }),
+        fxaStatus: {
+          ...mockUseFxAStatus({ pairingEnabled: false, pairingVersion: 2 })
+            .fxaStatus,
+          signedInUser: MOCK_SIGNED_IN_USER,
+        },
+      });
+
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('/pair/unsupported', {
+          replace: true,
+        })
+      );
+      expect(integration.createChannel).not.toHaveBeenCalled();
+      expect(mockAccountProfile).not.toHaveBeenCalled();
+      expect(hardNavigate).not.toHaveBeenCalled();
+    });
+
     describe('while the QR is on screen', () => {
       let fxaStatus: jest.SpyInstance;
 
