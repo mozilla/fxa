@@ -53,13 +53,9 @@ export class AuthorizedClientsFactory {
       seenClientIds.add(clientId);
     }
 
-    // Next, enumerate all the access tokens. In the interests of giving the user a
-    // complete-yet-comprehensible list of all the things attached to their account,
-    // we want to:
-    //
-    //  1. Show a single unified record for any client that is not using refresh tokens.
-    //  2. Avoid showing access tokens for `canGrant` clients; such clients will always
-    //     hold some other sort of token, and we don't want them to appear in the list twice.
+    // Show a single unified record for any client that is not using refresh tokens.
+    // Skip `canGrant` clients: they always hold some other sort of token, and we
+    // don't want them to appear in the list twice.
     const accessTokenRecordsByClientId = new Map();
     for (const token of await this.bindings.getAccessTokensByUid(uid)) {
       const clientId = hex(token.clientId);
@@ -179,7 +175,6 @@ export class ConnectedServicesFactory {
     this.mergeOauthClients(oauthClients);
     this.mergeSessions(sessions, sessionTokenId);
 
-    // Now we can do some final tweaks of each item for display.
     for (const client of this.attachedClients) {
       this.bindings.formatTimestamps(client, { app: { acceptLanguage } });
       this.bindings.formatLocation(client, { app: { acceptLanguage } });
