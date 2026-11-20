@@ -76,10 +76,10 @@ it('shows a summary of the statuses', async () => {
   expect(screen.queryByRole('table')).not.toBeInTheDocument();
 });
 
-it('reads locators from a text file and sends them in batches of 1000', async () => {
+it('reads locators from a text file and sends them in batches of 100', async () => {
   const user = userEvent.setup();
   renderWithLocalizationProvider(<PageAccountDisable />);
-  const locators = Array.from({ length: 1500 }, (_, i) => `u${i}@example.com`);
+  const locators = Array.from({ length: 150 }, (_, i) => `u${i}@example.com`);
   const content = locators.join('\n');
   const file = new File([content], 'accounts.txt', { type: 'text/plain' });
   // jsdom's File has no text(); browsers do.
@@ -89,8 +89,8 @@ it('reads locators from a text file and sends them in batches of 1000', async ()
   await user.click(submitButton());
 
   await waitFor(() => expect(disableAccounts).toHaveBeenCalledTimes(2));
-  expect(disableAccounts).toHaveBeenNthCalledWith(1, locators.slice(0, 1000));
-  expect(disableAccounts).toHaveBeenNthCalledWith(2, locators.slice(1000));
+  expect(disableAccounts).toHaveBeenNthCalledWith(1, locators.slice(0, 100));
+  expect(disableAccounts).toHaveBeenNthCalledWith(2, locators.slice(100));
 });
 
 it('splits long locators into batches of at most 90,000 bytes', async () => {
@@ -103,8 +103,8 @@ it('splits long locators into batches of at most 90,000 bytes', async () => {
   );
   renderWithLocalizationProvider(<PageAccountDisable />);
   const locators = Array.from(
-    { length: 1000 },
-    (_, i) => `${String(i).padStart(4, '0')}${'a'.repeat(108)}@example.com`
+    { length: 100 },
+    (_, i) => `${String(i).padStart(4, '0')}${'a'.repeat(1200)}@example.com`
   );
   const content = locators.join('\n');
   const file = new File([content], 'accounts.txt', { type: 'text/plain' });
@@ -114,7 +114,7 @@ it('splits long locators into batches of at most 90,000 bytes', async () => {
   await user.click(submitButton());
 
   expect(await screen.findByRole('status')).toHaveTextContent(
-    '1000 accounts disabled, 0 failed, 0 accounts not found'
+    '100 accounts disabled, 0 failed, 0 accounts not found'
   );
   const batches: string[][] = disableAccounts.mock.calls.map(([b]) => b);
   expect(batches.length).toBeGreaterThan(1);
@@ -148,7 +148,7 @@ it('names the failed batch as unknown and keeps the earlier summary', async () =
     .mockRejectedValueOnce(new Error('Forbidden'));
   renderWithLocalizationProvider(<PageAccountDisable />);
   const content = Array.from(
-    { length: 2500 },
+    { length: 250 },
     (_, i) => `u${i}@example.com`
   ).join('\n');
   const file = new File([content], 'accounts.txt', { type: 'text/plain' });
@@ -159,7 +159,7 @@ it('names the failed batch as unknown and keeps the earlier summary', async () =
 
   expect(
     await screen.findByText(
-      'The request for entries 1001 to 2000 of 2500 failed, so their outcome is unknown. Later entries were not submitted. Error: Forbidden'
+      'The request for entries 101 to 200 of 250 failed, so their outcome is unknown. Later entries were not submitted. Error: Forbidden'
     )
   ).toBeInTheDocument();
   expect(disableAccounts).toHaveBeenCalledTimes(2);
