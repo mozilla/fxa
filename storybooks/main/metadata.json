@@ -1,8 +1,8 @@
 {
-  "commit": "0b0ee2c5f3c14ccbc4c6c9ea91acbc07d9f035b5",
-  "summary": "Merge pull request #21782 from mozilla/adr-status-audit",
-  "description": "docs(adr): correct ADR statuses against the current codebase",
-  "timestamp": 1795208429000,
+  "commit": "fdedb22d8e26a751be892d94e19d16980024d9a2",
+  "summary": "Merge pull request #21800 from mozilla/fxa-15091",
+  "description": "fix(functional-tests): stabilize pairing approve click and wait",
+  "timestamp": 1795212365000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
