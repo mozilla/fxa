@@ -1,5 +1,6 @@
 # Using Google Auth Library
 
+- Status: accepted
 - Deciders: Vijay Budhram, Wil Clouser, Stéphanie Ouillon, Frida Kiriakos
 - Date: 2022-02-03
 

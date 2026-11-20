@@ -1,6 +1,6 @@
 # Bearer Token Prefix Naming for FxA Tokens
 
-- Status: proposed
+- Status: accepted
 - Deciders: FxA Engineering
 - Date: 2026-05-11
 

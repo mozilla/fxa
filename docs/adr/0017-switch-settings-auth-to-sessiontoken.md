@@ -1,6 +1,6 @@
 # Switch from OAuth2 to sharing sessionToken with GraphQL server for settings redesign auth
 
-- Status: proposed
+- Status: accepted
 - Deciders: Les Orchard, Ben Bangert, Danny Coates, Ryan Kelly
 - Date: 2020-05-12
 

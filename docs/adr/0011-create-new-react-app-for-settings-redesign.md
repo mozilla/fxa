@@ -1,5 +1,6 @@
 # Create a New React Application for the Settings Redesign Project
 
+- Status: accepted
 - Deciders: Lauren Zugai, Les Orchard, Danny Coates, Wil Clouser
 - Date: 2020-03-19
 

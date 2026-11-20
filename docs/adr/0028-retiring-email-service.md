@@ -1,5 +1,6 @@
 # Retiring fxa-email-service
 
+- Status: accepted
 - Deciders: Danny Coates, Vijay Budhram, Jon Buckley
 - Date: 2021-10-06
 

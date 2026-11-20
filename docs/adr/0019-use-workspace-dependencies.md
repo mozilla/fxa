@@ -1,5 +1,6 @@
 # Use workspace dependencies in package.json
 
+- Status: superseded by [ADR-0037](0037-use-nx-for-monorepo.md)
 - Deciders: Danny Coates
 - Date: 2020-05-27
 - Obsoleted by: 0037-use-nx-for-monorepo

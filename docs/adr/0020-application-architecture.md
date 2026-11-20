@@ -1,5 +1,6 @@
 # Use a documented Application Architecture for new back-end services
 
+- Status: accepted
 - Deciders: Ben Bangert, Ryan Kelly, Vijay Budhram, Jody Heavener, Danny Coates, Dave Justice
 - Date: 2020-08-12
 

@@ -1,5 +1,6 @@
 # Transition FxA from Backbone to React
 
+- Status: accepted
 - Deciders: Lauren Zugai, Les Orchard, Danny Coates
 - Date: 2020-03-19
 
