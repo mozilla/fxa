@@ -22,6 +22,7 @@ import FormPassword from '../../FormPassword';
 import {
   getErrorFtlId,
   getLocalizedErrorMessage,
+  isIncorrectPassword,
 } from '../../../lib/error-utils';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { MfaReason } from '../../../lib/types';
@@ -90,7 +91,7 @@ export const PageChangePassword = () => {
           return;
         }
         const localizedError = getLocalizedErrorMessage(ftlMsgResolver, e);
-        if (e.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
+        if (isIncorrectPassword(e.errno)) {
           setCurrentPasswordErrorText(localizedError);
           setValue('oldPassword', '');
         } else {

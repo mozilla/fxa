@@ -15,8 +15,10 @@ import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { Checkbox } from '../Checkbox';
 import { useLocalization } from '@fluent/react';
 import { Localized } from '@fluent/react';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import {
+  getLocalizedErrorMessage,
+  isIncorrectPassword,
+} from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
 import { useGleanView } from '../../../lib/glean/useGleanView';
 import { useFtlMsgResolver } from '../../../models/hooks';
@@ -152,7 +154,7 @@ export const PageDeleteAccount = () => {
         });
       } catch (e) {
         const localizedError = getLocalizedErrorMessage(ftlMsgResolver, e);
-        if (e.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
+        if (isIncorrectPassword(e.errno)) {
           setErrorText(localizedError);
           setValue('password', '');
         } else {

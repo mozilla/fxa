@@ -48,6 +48,14 @@ export const getHandledError = (error: { errno: number; message: string }) => {
 };
 
 /**
+ * Errno 120 is the auth server's wrong-password response when the request
+ * email differs from the signup email, so treat it like 103.
+ */
+export const isIncorrectPassword = (errno?: number): boolean =>
+  errno === AuthUiErrors.INCORRECT_PASSWORD.errno ||
+  errno === AuthUiErrors.INCORRECT_EMAIL_CASE.errno;
+
+/**
  * Utility function to retrieve the localized auth client error message
  * - works for throttling errors that include a localized retry after value
  * - returns an unexpected error if the error is unknown or does not have a localized message
@@ -57,8 +65,11 @@ export const getHandledError = (error: { errno: number; message: string }) => {
  */
 export const getLocalizedErrorMessage = (
   ftlMsgResolver: FtlMsgResolver,
-  error: AuthUiError | HandledError
+  originalError: AuthUiError | HandledError
 ) => {
+  const error = isIncorrectPassword(originalError.errno)
+    ? AuthUiErrors.INCORRECT_PASSWORD
+    : originalError;
   if (error.errno) {
     if (AuthUiErrorNos[error.errno]) {
       if (

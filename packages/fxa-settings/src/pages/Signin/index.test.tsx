@@ -996,6 +996,22 @@ describe('Signin component', () => {
           });
           expect(GleanMetrics.login.error).toHaveBeenCalledTimes(1);
         });
+
+        it('shows INCORRECT_EMAIL_CASE as the incorrect-password tooltip, not a banner', async () => {
+          const beginSigninHandler = jest.fn().mockReturnValueOnce(
+            createBeginSigninResponseError({
+              errno: AuthUiErrors.INCORRECT_EMAIL_CASE.errno,
+            })
+          );
+          render({ beginSigninHandler });
+
+          await enterPasswordAndSubmit();
+
+          expect(await screen.findByTestId('tooltip')).toHaveTextContent(
+            'Incorrect password'
+          );
+          expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        });
       });
 
       it('handles error due to throttled or blocked request', async () => {

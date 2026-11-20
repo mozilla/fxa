@@ -17,6 +17,7 @@ import InputPassword from '../../../components/InputPassword';
 import GleanMetrics from '../../../lib/glean';
 import { useGleanView } from '../../../lib/glean/useGleanView';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { isIncorrectPassword } from '../../../lib/error-utils';
 import { AccountAvatar } from '../../../lib/interfaces';
 import type {
   PasskeyFallbackCause,
@@ -121,7 +122,7 @@ const SigninPasskeyFallback = ({
         const result = await onContinue(password);
         if (result) {
           const { errno, localizedErrorMessage: message } = result;
-          if (errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
+          if (isIncorrectPassword(errno)) {
             setBannerErrorText('');
             setPasswordTooltipErrorText(message);
           } else {
@@ -154,7 +155,9 @@ const SigninPasskeyFallback = ({
       )}
 
       <FtlMsg id="signin-passkey-fallback-header">
-        <p className="text-sm text-grey-500 nova:text-deemphasized mb-2">Finish sign in</p>
+        <p className="text-sm text-grey-500 nova:text-deemphasized mb-2">
+          Finish sign in
+        </p>
       </FtlMsg>
 
       <FtlMsg id="signin-passkey-fallback-heading">

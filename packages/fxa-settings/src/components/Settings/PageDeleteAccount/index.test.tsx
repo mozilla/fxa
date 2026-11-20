@@ -20,6 +20,7 @@ import { PageDeleteAccount } from '.';
 import { Account, AppContext } from '../../../models';
 import { MOCK_EMAIL } from '../../../pages/mocks';
 import GleanMetrics from '../../../lib/glean';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import {
   discardSessionToken,
   clearSignedInAccountUid,
@@ -201,6 +202,30 @@ describe('PageDeleteAccount', () => {
     expect(clearSignedInAccountUid).toHaveBeenCalled();
     expect(window.location.pathname).toContainEqual('/');
   });
+
+  it.each([
+    { name: 'INCORRECT_PASSWORD', error: AuthUiErrors.INCORRECT_PASSWORD },
+    { name: 'INCORRECT_EMAIL_CASE', error: AuthUiErrors.INCORRECT_EMAIL_CASE },
+  ])(
+    'shows an incorrect password error in the tooltip for $name',
+    async ({ error }) => {
+      mockDestroy.mockRejectedValueOnce(error);
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account, session })}>
+          <PageDeleteAccount />
+        </AppContext.Provider>
+      );
+
+      await advanceStep();
+      const user = userEvent.setup();
+      await user.type(screen.getByLabelText('Enter password'), 'hunter67');
+      await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+      expect(await screen.findByTestId('tooltip')).toHaveTextContent(
+        'Incorrect password'
+      );
+    }
+  );
 
   it('deletes account if no password set', async () => {
     renderWithRouter(

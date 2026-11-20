@@ -216,9 +216,18 @@ describe('SigninUnblock', () => {
       expect(signinWithUnblockCode).not.toHaveBeenCalled();
     });
 
-    it('with incorrect password', async () => {
+    it.each([
+      {
+        name: 'INCORRECT_PASSWORD',
+        errno: AuthUiErrors.INCORRECT_PASSWORD.errno,
+      },
+      {
+        name: 'INCORRECT_EMAIL_CASE',
+        errno: AuthUiErrors.INCORRECT_EMAIL_CASE.errno,
+      },
+    ])('with incorrect password ($name)', async ({ errno }) => {
       const user = userEvent.setup();
-      renderWithError(AuthUiErrors.INCORRECT_PASSWORD.errno);
+      renderWithError(errno);
       const input = screen.getByRole('textbox');
       const submitButton = screen.getByRole('button', { name: 'Continue' });
 

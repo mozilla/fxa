@@ -30,6 +30,7 @@ import OAuthDataError from '../../../components/OAuthDataError';
 import {
   getHandledError,
   getLocalizedErrorMessage,
+  HandledError,
 } from '../../../lib/error-utils';
 import { getCredentials, getCredentialsV2 } from 'fxa-auth-client/lib/crypto';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
@@ -187,7 +188,16 @@ export const SigninUnblockContainer = ({
       };
     } catch (error) {
       const result = getHandledError(error);
+      // A v2 authPW is salted with clientSalt, not the email, so a retry with the
+      // signup email would send the same authPW: 120 here is a wrong password.
       if (
+        status?.currentVersion === 'v2' &&
+        result.error.errno === AuthUiErrors.INCORRECT_EMAIL_CASE.errno
+      ) {
+        return { error: AuthUiErrors.INCORRECT_PASSWORD as HandledError };
+      }
+      if (
+        !options.skipCaseError &&
         'error' in result &&
         result.error.errno === AuthUiErrors.INCORRECT_EMAIL_CASE.errno &&
         'email' in result.error &&
