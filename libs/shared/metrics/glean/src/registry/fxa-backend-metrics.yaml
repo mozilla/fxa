@@ -1879,6 +1879,26 @@ passkey:
     data_sensitivity:
       - interaction
 
+sync_data_deletion:
+  success:
+    type: event
+    description: |
+      Tokenserver confirmed the deletion of the user's Sync data, requested
+      from Settings. Fires alongside the account.sync_data_deleted security
+      event. Not sent when the user had no data or when the request failed.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14946
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
 step_up_auth:
   requested:
     type: event

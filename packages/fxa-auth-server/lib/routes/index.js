@@ -263,6 +263,9 @@ module.exports = function (
   const { passkeyWrapsRoutes } = require('./passkey-wraps');
   const passkeyWraps = passkeyWrapsRoutes(customs, db, config, log, glean);
 
+  const { syncDataRoutes } = require('./sync-data');
+  const syncData = syncDataRoutes(customs, db, config, log, glean, statsd);
+
   const { passwordlessRoutes } = require('./passwordless');
   const passwordless = passwordlessRoutes(
     log,
@@ -305,6 +308,7 @@ module.exports = function (
     mfa,
     passkeys,
     passkeyWraps,
+    syncData,
     riskSignal
   );
 

@@ -467,6 +467,9 @@
     "firstInterval": "5s",
     "secondInterval": "10s"
   },
+  "syncDataDeletion": {
+    "enabled": true
+  },
   "passkeys": {
     "enabled": true,
     "registrationEnabled": true,

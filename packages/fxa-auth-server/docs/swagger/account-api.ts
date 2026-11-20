@@ -251,6 +251,38 @@ const ACCOUNT_DESTROY_POST = {
   },
 };
 
+const ACCOUNT_SYNC_DATA_DESTROY_POST = {
+  ...TAGS_ACCOUNT,
+  description: '/account/sync_data/destroy',
+  notes: [
+    swaggerText`
+      🔒 Authenticated with an MFA token scoped \`mfa:sync_data\`, on a session that has re-entered its password via \`/session/reauth\`
+
+      Deletes all of the account's Sync data from the Sync storage service. The account keeps syncing afterwards where sync is turned on; devices will re-upload whatever they still hold. This route does not sign out devices.
+
+      Responds with \`deleted: false\` when there was no Sync data to delete.
+    `,
+  ],
+  plugins: {
+    'hapi-swagger': {
+      responses: {
+        401: {
+          description: swaggerText`
+            Failing requests may be caused by the following errors (this is not an exhaustive list):
+            - \`errno: 223\` - Invalid MFA token, including a session that has not verified its password
+          `,
+        },
+        500: {
+          description: swaggerText`
+            Failing requests may be caused by the following errors (this is not an exhaustive list):
+            - \`errno: 203\` - Backend service failure (tokenserver)
+          `,
+        },
+      },
+    },
+  },
+};
+
 const ACCOUNT_METRICS_OPT_POST = {
   ...TAGS_ACCOUNT,
   description: '/account/metrics_opt',
@@ -274,6 +306,7 @@ const API_DOCS = {
   ACCOUNT_CREDENTIALS_STATUS,
   ACCOUNT_STATUS_GET,
   ACCOUNT_STATUS_POST,
+  ACCOUNT_SYNC_DATA_DESTROY_POST,
 };
 
 export default API_DOCS;
