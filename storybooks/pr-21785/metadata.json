@@ -1,0 +1,11 @@
+{
+  "commit": "9bdde557e86ad0a052984169ee35886763221b34",
+  "summary": "feat(settings): record why a pairing failed on the phone",
+  "description": "Because:\n\n- dtm_mobile.timeout_view reported `timeout` for every supplicant failure, so a desktop that gave up could not be told from a phone that lost signal.\n- The channel hash was only set on supplicant pages, so the two devices' events could not be joined.\n\nThis commit:\n\n- Adds a `cause` extra: peer_closed, connection_lost or error. `reason` is unchanged.\n- Derives the cause from how the pairing socket closed.\n- Records the channel id the authority creates, so its events carry the channel hash.\n\nCloses FXA-15085",
+  "timestamp": 1795152347000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
