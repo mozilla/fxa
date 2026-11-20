@@ -16,6 +16,8 @@ type BlocklistTableProps<T> = {
   getValue: (entry: T) => string;
   onDelete: (value: string) => void;
   onDisableMatching: (value: string) => Promise<void>;
+  /** A scan is running that this table did not start, e.g. from the add form. */
+  scanning?: boolean;
 };
 
 const BlocklistTable = <T extends { createdAt: number }>({
@@ -24,6 +26,7 @@ const BlocklistTable = <T extends { createdAt: number }>({
   getValue,
   onDelete,
   onDisableMatching,
+  scanning = false,
 }: BlocklistTableProps<T>) => {
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(0);
@@ -140,7 +143,7 @@ const BlocklistTable = <T extends { createdAt: number }>({
                       type="button"
                       data-testid={`disable-matching-${value}`}
                       className={btnClass}
-                      disabled={pending.size > 0}
+                      disabled={scanning || pending.size > 0}
                       onClick={() => disableMatching(value)}
                     >
                       🚫 Disable matching accounts

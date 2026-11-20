@@ -15,6 +15,7 @@ import type {
   AccountDeleteTaskStatus,
   AccountDisableResponse,
   AccountResetResponse,
+  DisableMatchingJob,
   EmailBlocklistEntry,
   WafBypassTokenDto,
   WafBypassTokenCreateDto,
@@ -296,13 +297,17 @@ export const adminApi = {
     });
   },
 
-  disableEmailBlocklistMatches(
-    regexes: string[]
-  ): Promise<{ disabled: number }> {
+  disableEmailBlocklistMatches(regexes: string[]): Promise<DisableMatchingJob> {
     return apiFetch('/api/email-blocklist/disable-matching', {
       method: 'POST',
       body: JSON.stringify({ regexes }),
     });
+  },
+
+  getEmailBlocklistDisableJob(id: string): Promise<DisableMatchingJob> {
+    return apiFetch(
+      `/api/email-blocklist/disable-matching/${encodeURIComponent(id)}`
+    );
   },
 
   removeEmailBlocklistEntry(regex: string): Promise<{ removed: boolean }> {
@@ -356,11 +361,17 @@ export const adminApi = {
 
   disableDomainBlocklistMatches(
     domains: string[]
-  ): Promise<{ disabled: number }> {
+  ): Promise<DisableMatchingJob> {
     return apiFetch('/api/domain-blocklist/disable-matching', {
       method: 'POST',
       body: JSON.stringify({ domains }),
     });
+  },
+
+  getDomainBlocklistDisableJob(id: string): Promise<DisableMatchingJob> {
+    return apiFetch(
+      `/api/domain-blocklist/disable-matching/${encodeURIComponent(id)}`
+    );
   },
 
   removeDomainBlocklistEntry(domain: string): Promise<{ removed: boolean }> {

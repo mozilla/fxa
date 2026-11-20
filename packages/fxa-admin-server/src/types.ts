@@ -342,6 +342,19 @@ export interface WafBypassTokenCreateDto {
   clientId?: string;
 }
 
+/** A background scan that disables the accounts matching blocklist entries. */
+export interface DisableMatchingJob {
+  id: string;
+  /** `failed` also covers a scan whose process went away, e.g. in a deploy */
+  status: 'running' | 'done' | 'failed';
+  /** highest `emails` id scanned so far, out of `total` */
+  scanned: number;
+  total: number;
+  disabled: number;
+  /** matching accounts the scan could not disable; a later scan tries them again */
+  errors: number;
+}
+
 export interface DomainBlocklistEntry {
   domain: string;
   createdAt: number;

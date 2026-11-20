@@ -3,22 +3,34 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { userEvent, UserEvent } from '@testing-library/user-event';
 import PageDomainBlocklist from './index';
 import { PAGE_SIZE } from '../BlocklistTable';
 import { adminApi } from '../../lib/api';
+import { POLL_MS } from '../../hooks/useDisableMatching';
 
 jest.mock('../../lib/api', () => ({
   adminApi: {
     getDomainBlocklist: jest.fn(),
     addDomainBlocklistEntries: jest.fn(),
     disableDomainBlocklistMatches: jest.fn(),
+    getDomainBlocklistDisableJob: jest.fn(),
     removeDomainBlocklistEntry: jest.fn(),
     deleteAllDomainBlocklistEntries: jest.fn(),
     syncDomainBlocklist: jest.fn(),
   },
 }));
+
+const JOB_ID = '5f0c5f0e-6b0f-4a7e-9d59-2f4f8f5b9c11';
+const doneJob = (disabled: number) => ({
+  id: JOB_ID,
+  status: 'done',
+  scanned: 1000,
+  total: 1000,
+  disabled,
+  errors: 0,
+});
 
 const mockEntries = [
   { domain: 'evil.com', createdAt: 2000 },
@@ -40,6 +52,7 @@ describe('PageDomainBlocklist', () => {
   });
 
   afterEach(() => {
+    jest.useRealTimers();
     jest.clearAllMocks();
   });
 
@@ -263,9 +276,9 @@ describe('PageDomainBlocklist', () => {
     (adminApi.addDomainBlocklistEntries as jest.Mock).mockResolvedValue({
       ok: true,
     });
-    (adminApi.disableDomainBlocklistMatches as jest.Mock).mockResolvedValue({
-      disabled: 3,
-    });
+    (adminApi.disableDomainBlocklistMatches as jest.Mock).mockResolvedValue(
+      doneJob(3)
+    );
 
     render(<PageDomainBlocklist />);
     await screen.findByText('No entries yet.');
@@ -312,9 +325,9 @@ describe('PageDomainBlocklist', () => {
 
   it('disables the accounts that match a row and shows the count', async () => {
     (adminApi.getDomainBlocklist as jest.Mock).mockResolvedValue(mockEntries);
-    (adminApi.disableDomainBlocklistMatches as jest.Mock).mockResolvedValue({
-      disabled: 1,
-    });
+    (adminApi.disableDomainBlocklistMatches as jest.Mock).mockResolvedValue(
+      doneJob(1)
+    );
 
     render(<PageDomainBlocklist />);
     await user.click(
@@ -346,5 +359,80 @@ describe('PageDomainBlocklist', () => {
     expect(
       screen.getByTestId(`disable-matching-${mockEntries[0].domain}`)
     ).toBeEnabled();
+  });
+
+  it('follows a running scan until it finishes', async () => {
+    (adminApi.getDomainBlocklist as jest.Mock).mockResolvedValue(mockEntries);
+    (adminApi.disableDomainBlocklistMatches as jest.Mock).mockResolvedValue({
+      ...doneJob(1),
+      status: 'running',
+      scanned: 500,
+    });
+    (adminApi.getDomainBlocklistDisableJob as jest.Mock).mockResolvedValue(
+      doneJob(2)
+    );
+
+    render(<PageDomainBlocklist />);
+    const button = await screen.findByTestId(
+      `disable-matching-${mockEntries[0].domain}`
+    );
+    jest.useFakeTimers();
+    user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(button);
+
+    expect(
+      await screen.findByTestId('disable-matching-result')
+    ).toHaveTextContent(
+      'Scanning accounts… 50% done, 1 matching account disabled so far.'
+    );
+
+    await act(async () => {
+      jest.advanceTimersByTime(POLL_MS);
+    });
+
+    await waitFor(() =>
+      expect(screen.getByTestId('disable-matching-result')).toHaveTextContent(
+        'Disabled 2 matching accounts.'
+      )
+    );
+    expect(adminApi.getDomainBlocklistDisableJob).toHaveBeenCalledWith(JOB_ID);
+  });
+
+  it('disables the row buttons and the scanning add while a scan from the add form runs', async () => {
+    (adminApi.getDomainBlocklist as jest.Mock).mockResolvedValue(mockEntries);
+    (adminApi.addDomainBlocklistEntries as jest.Mock).mockResolvedValue({
+      ok: true,
+    });
+    (adminApi.disableDomainBlocklistMatches as jest.Mock).mockResolvedValue({
+      ...doneJob(0),
+      status: 'running',
+    });
+
+    render(<PageDomainBlocklist />);
+    const rowButton = await screen.findByTestId(
+      `disable-matching-${mockEntries[0].domain}`
+    );
+    jest.useFakeTimers();
+    user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.type(
+      screen.getByTestId('domain-blocklist-input'),
+      'newevilsite.com'
+    );
+    await user.click(
+      screen.getByRole('checkbox', { name: 'Disable matching accounts' })
+    );
+    await user.click(screen.getByTestId('domain-blocklist-add-btn'));
+
+    await waitFor(() => expect(rowButton).toBeDisabled());
+    await user.type(
+      screen.getByTestId('domain-blocklist-input'),
+      'newevilsite.com'
+    );
+    expect(screen.getByTestId('domain-blocklist-add-btn')).toBeDisabled();
+
+    await user.click(
+      screen.getByRole('checkbox', { name: 'Disable matching accounts' })
+    );
+    expect(screen.getByTestId('domain-blocklist-add-btn')).toBeEnabled();
   });
 });
