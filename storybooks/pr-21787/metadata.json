@@ -1,0 +1,10 @@
+{
+  "commit": "96bb9c1d3ab2c2d45de2aff402fc22f630525f47",
+  "summary": "fix(settings): resend pairing messages the channel server never received",
+  "description": "Because:\n\n- A write to a socket that has already died succeeds locally and is lost.\n- After the resume nothing sent it again, so both devices waited with no error.\n\nThis commit:\n\n- Keeps every message handed to the pairing socket, in order.\n- Resends everything past the `received` count in the server's resume greeting.\n- Sends only unwritten messages to a server that reports no count.\n- Adds scripts/pairing-netsim.mjs, which runs a pairing through a fault-injecting proxy.\n\nCloses FXA-15082",
+  "timestamp": 1795153182000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
