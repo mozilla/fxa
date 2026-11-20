@@ -5,6 +5,7 @@
 // `grant.js` captures `JWT_ACCESS_TOKENS_ENABLED` and the allow-list at
 // module load, so the config is fixed once here. validateRequestedGrant
 // tests don't depend on those values; generateTokens tests do.
+let mockSubscriptionsEnabled = true;
 jest.mock('../../config', () => {
   const realConfig = jest.requireActual('../../config').config;
   return {
@@ -15,6 +16,8 @@ jest.mock('../../config', () => {
             return true;
           case 'oauthServer.jwtAccessTokens.enabledClientIds':
             return ['9876543210'];
+          case 'subscriptions.enabled':
+            return mockSubscriptionsEnabled;
           default:
             return realConfig.get(key);
         }
@@ -578,6 +581,7 @@ describe('generateTokens', () => {
       jwt_token: 'signed jwt access token',
     }));
 
+    mockSubscriptionsEnabled = true;
     mockCapabilityService = {};
     Container.set(CapabilityService, mockCapabilityService);
     setStripeHelper(undefined);
@@ -635,6 +639,21 @@ describe('generateTokens', () => {
     expect('keys_jwe' in result).toBe(false);
     expect('refresh_token' in result).toBe(false);
     expect('id_token' in result).toBe(false);
+  });
+
+  it('omits fxa-subscriptions from the JWT access token when subscriptions are disabled', async () => {
+    mockSubscriptionsEnabled = false;
+    mockCapabilityService.subscriptionCapabilities = jest.fn();
+    requestedGrant.clientId = Buffer.from('9876543210', 'hex');
+
+    const result = await generateTokens(requestedGrant);
+
+    expect(result.access_token).toBe('signed jwt access token');
+    expect(mockCapabilityService.subscriptionCapabilities).not.toHaveBeenCalled();
+    expect(mockJWTAccessToken.create).toHaveBeenCalledWith(
+      mockAccessToken,
+      requestedGrant
+    );
   });
 
   it('should return authAt from grant', async () => {
