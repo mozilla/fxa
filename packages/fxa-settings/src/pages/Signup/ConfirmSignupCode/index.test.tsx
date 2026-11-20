@@ -275,6 +275,78 @@ describe('ConfirmSignupCode page', () => {
       await waitFor(() => {
         screen.getByText(OAUTH_ERRORS.TRY_AGAIN.message);
       });
+      expect(
+        screen.getByRole('button', {
+          name: MOCK_CMS_INFO.SignupConfirmCodePage.primaryButtonText,
+        })
+      ).toBeEnabled();
+    });
+
+    it('does not verify the code again while the page navigates away', async () => {
+      const user = userEvent.setup();
+      renderWithSession({
+        session,
+        integration,
+        finishOAuthFlowHandler: jest.fn().mockResolvedValue({}),
+      });
+      screen.getByRole('textbox', { name: 'Enter 6-digit code' }).focus();
+      await user.paste(MOCK_SIGNUP_CODE);
+      await waitFor(() => expect(ReactUtils.hardNavigate).toHaveBeenCalled());
+
+      const submitButton = screen.getByRole('button', {
+        name: MOCK_CMS_INFO.SignupConfirmCodePage.primaryButtonText,
+      });
+      expect(submitButton).toBeDisabled();
+      await user.click(submitButton);
+      screen.getByRole('textbox', { name: 'Enter 6-digit code' }).focus();
+      await user.paste(MOCK_SIGNUP_CODE);
+      expect(session.verifySession).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.signupConfirmation.error).not.toHaveBeenCalled();
+    });
+
+    it('runs one verification at a time when pastes overlap', async () => {
+      const user = userEvent.setup();
+      let resolveVerify: () => void = () => {};
+      session.verifySession = jest.fn(
+        () => new Promise<void>((resolve) => (resolveVerify = resolve))
+      );
+      renderWithSession({
+        session,
+        integration,
+        finishOAuthFlowHandler: jest.fn().mockResolvedValue({}),
+      });
+      const input = screen.getByRole('textbox', { name: 'Enter 6-digit code' });
+      input.focus();
+      await user.paste(MOCK_SIGNUP_CODE);
+      await user.paste(MOCK_SIGNUP_CODE);
+      expect(session.verifySession).toHaveBeenCalledTimes(1);
+
+      resolveVerify();
+      await waitFor(() => expect(ReactUtils.hardNavigate).toHaveBeenCalled());
+      input.focus();
+      await user.paste(MOCK_SIGNUP_CODE);
+      expect(session.verifySession).toHaveBeenCalledTimes(1);
+    });
+
+    it('enables the form again when a step after verify fails', async () => {
+      renderWithSession({
+        session,
+        integration,
+        finishOAuthFlowHandler: jest.fn().mockRejectedValue(new Error('fail')),
+      });
+      submit(
+        MOCK_SIGNUP_CODE,
+        MOCK_CMS_INFO.SignupConfirmCodePage.primaryButtonText
+      );
+
+      await waitFor(() =>
+        expect(GleanMetrics.signupConfirmation.error).toHaveBeenCalled()
+      );
+      expect(
+        screen.getByRole('button', {
+          name: MOCK_CMS_INFO.SignupConfirmCodePage.primaryButtonText,
+        })
+      ).toBeEnabled();
     });
 
     it('does not send web channel messages', async () => {
@@ -517,6 +589,7 @@ describe('ConfirmSignupCode page', () => {
       submit();
 
       await screen.findByText(AuthUiErrors.INVALID_REDIRECT_TO.message);
+      expect(screen.getByRole('button', { name: 'Confirm' })).toBeEnabled();
     });
 
     it('without redirectTo', async () => {

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import {
   useNavigateWithQuery,
@@ -80,6 +80,10 @@ const ConfirmSignupCode = ({
   );
   const [resendCodeLoading, setResendCodeLoading] = useState<boolean>(false);
   const [resendCountdown, setResendCountdown] = useState<number>(0);
+  // The code is single-use, so block a resubmit once verifySession succeeds.
+  const [isNavigating, setIsNavigating] = useState<boolean>(false);
+  // Paste auto-submit can start a second attempt while the first is pending.
+  const verifyInFlight = useRef(false);
   const throttle = useThrottle();
 
   const navigateWithQuery = useNavigateWithQuery();
@@ -158,12 +162,21 @@ const ConfirmSignupCode = ({
     }
   }
 
+  function unlockForm() {
+    setIsNavigating(false);
+    verifyInFlight.current = false;
+  }
+
   function clearErrorMessages() {
     setLocalizedErrorBannerHeading('');
     setCodeErrorMessage('');
   }
 
   async function verifySession(code: string) {
+    if (verifyInFlight.current) {
+      return;
+    }
+    verifyInFlight.current = true;
     clearErrorMessages();
     logViewEvent(`flow.${viewName}`, 'submit', REACT_ENTRYPOINT);
     GleanMetrics.signupConfirmation.submit({ event: { reason } });
@@ -182,6 +195,7 @@ const ConfirmSignupCode = ({
       };
 
       await session.verifySession(code, options);
+      setIsNavigating(true);
 
       logViewEvent(
         `flow.${viewName}`,
@@ -243,6 +257,7 @@ const ConfirmSignupCode = ({
               unwrapBKey
             );
           if (error) {
+            unlockForm();
             setLocalizedErrorBannerHeading(
               getLocalizedErrorMessage(ftlMsgResolver, error)
             );
@@ -329,6 +344,7 @@ const ConfirmSignupCode = ({
             // Even if the code submission is successful, show the user this error
             // message if the redirect is invalid to match parity with content-server.
             // This may but may be revisited when we look at our signup flows as a whole.
+            unlockForm();
             setLocalizedErrorBannerHeading(
               webRedirectCheck.localizedInvalidRedirectError
             );
@@ -338,6 +354,7 @@ const ConfirmSignupCode = ({
         }
       }
     } catch (error) {
+      unlockForm();
       GleanMetrics.signupConfirmation.error({
         event: { reason: error.errno?.toString() },
       });
@@ -459,6 +476,7 @@ const ConfirmSignupCode = ({
             color: cmsInfo?.shared.buttonColor,
           },
           isThrottled: throttle.isThrottled,
+          disabled: isNavigating,
         }}
       />
 
