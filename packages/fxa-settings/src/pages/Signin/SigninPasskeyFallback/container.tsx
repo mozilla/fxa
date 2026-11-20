@@ -10,11 +10,13 @@ import {
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../../models';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { useSigninAvatar } from '../useSigninAvatar';
 import { useNavigateWithQuery } from '../../../lib/hooks';
-import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import {
+  getLocalizedErrorMessage,
+  isIncorrectPassword,
+} from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
 import OAuthDataError from '../../../components/OAuthDataError';
 import AppLayout from '../../../components/AppLayout';
@@ -86,11 +88,11 @@ const SigninPasskeyFallbackContainer = ({
         ));
       } catch (err) {
         const errno = (err as { errno?: number })?.errno;
-        const isIncorrectPassword =
-          errno === AuthUiErrors.INCORRECT_PASSWORD.errno;
         GleanMetrics.passkeyEnterPassword.submitFrontendError({
           event: {
-            reason: isIncorrectPassword ? 'incorrect_password' : 'server_error',
+            reason: isIncorrectPassword(errno)
+              ? 'incorrect_password'
+              : 'server_error',
           },
         });
         return {

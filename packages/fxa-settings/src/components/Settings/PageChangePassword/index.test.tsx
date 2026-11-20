@@ -176,22 +176,26 @@ describe('PageChangePassword', () => {
     );
   });
 
-  it('shows an incorrect password error message in tooltip', async () => {
-    const mockAccount = {
-      primaryEmail: {
-        email: 'test@example.com',
-      },
-      changePassword: jest
-        .fn()
-        .mockRejectedValue(AuthUiErrors.INCORRECT_PASSWORD),
-    } as unknown as Account;
-    await render(mockAccount);
-    await changePassword();
-    expect(screen.getByTestId('tooltip')).toBeInTheDocument();
-    expect(screen.getByTestId('tooltip')).toHaveTextContent(
-      'Incorrect password'
-    );
-  });
+  it.each([
+    { name: 'INCORRECT_PASSWORD', error: AuthUiErrors.INCORRECT_PASSWORD },
+    { name: 'INCORRECT_EMAIL_CASE', error: AuthUiErrors.INCORRECT_EMAIL_CASE },
+  ])(
+    'shows an incorrect password error message in tooltip for $name',
+    async ({ error }) => {
+      const mockAccount = {
+        primaryEmail: {
+          email: 'test@example.com',
+        },
+        changePassword: jest.fn().mockRejectedValue(error),
+      } as unknown as Account;
+      await render(mockAccount);
+      await changePassword();
+      expect(screen.getByTestId('tooltip')).toBeInTheDocument();
+      expect(screen.getByTestId('tooltip')).toHaveTextContent(
+        'Incorrect password'
+      );
+    }
+  );
 
   it('shows an unexpected error message in alertBar when error is unknown', async () => {
     const mockAccount = {

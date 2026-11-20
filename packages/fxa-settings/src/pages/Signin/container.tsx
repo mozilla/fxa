@@ -53,6 +53,7 @@ import { MetricsContext } from '@fxa/shared/metrics/glean';
 import {
   getHandledError,
   getLocalizedErrorMessage,
+  HandledError,
 } from '../../lib/error-utils';
 import { SensitiveDataClient } from '../../lib/sensitive-data-client';
 import { Constants } from '../../lib/constants';
@@ -453,12 +454,7 @@ const SigninContainer = ({
         authClient,
         options,
         sensitiveDataClient,
-        async (correctedEmail: string) => {
-          return {
-            v1Credentials: await getCredentials(correctedEmail, password),
-            v2Credentials: v2Credentials,
-          };
-        }
+        (correctedEmail: string) => getCredentials(correctedEmail, password)
       );
 
       if ('data' in result && result.data) {
@@ -748,12 +744,9 @@ export async function trySignIn(
     originalLoginEmail?: string;
   },
   sensitiveDataClient: SensitiveDataClient,
-  onRetryCorrectedEmail?: (correctedEmail: string) => Promise<{
-    v1Credentials: { authPW: string; unwrapBKey: string };
-    v2Credentials:
-      | { authPW: string; unwrapBKey: string; clientSalt: string }
-      | undefined;
-  }>
+  onRetryCorrectedEmail?: (
+    correctedEmail: string
+  ) => Promise<{ authPW: string; unwrapBKey: string }>
 ) {
   try {
     const authPW = v2Credentials?.authPW || v1Credentials.authPW;
@@ -814,6 +807,15 @@ export async function trySignIn(
   } catch (error) {
     const result = getHandledError(error);
 
+    // A v2 authPW is salted with clientSalt, not the email, so a retry with the
+    // signup email would send the same authPW: 120 here is a wrong password.
+    if (
+      v2Credentials &&
+      result.error.errno === AuthUiErrors.INCORRECT_EMAIL_CASE.errno
+    ) {
+      return { error: AuthUiErrors.INCORRECT_PASSWORD as HandledError };
+    }
+
     // Special case for incorrect email error.
     if (
       onRetryCorrectedEmail &&
@@ -823,14 +825,14 @@ export async function trySignIn(
       result.error.email != null &&
       result.error.email !== email
     ) {
-      const { v1Credentials, v2Credentials } = await onRetryCorrectedEmail(
+      const correctedV1Credentials = await onRetryCorrectedEmail(
         result.error.email
       );
       // Try one more time with the corrected email
       return await trySignIn(
         result.error.email,
-        v1Credentials,
-        v2Credentials,
+        correctedV1Credentials,
+        undefined,
         authClient,
         {
           ...options,
