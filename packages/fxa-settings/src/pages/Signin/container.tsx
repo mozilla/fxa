@@ -342,15 +342,10 @@ const SigninContainer = ({
 
   const { avatarData, avatarLoading } = useSigninAvatar(sessionToken);
 
-  // For Firefox non-Sync flows, validate the cached session token before rendering.
-  // This is because if users "sign out" from the browser menu, FxA doesn't know
-  // about it (and can't, because even with a web channel message, FxA would need
-  // to be pulled up in a tab) and Fx non-Sync flows will see cached sign-in.
-  // This provides those users with slightly less friction since they'd see an error
-  // message and then be asked to enter their password. If the session token is
-  // invalid, we discard it so the user sees the password field right away.
+  // A browser-menu sign-out leaves a dead token in local storage that FxA can't
+  // know about, so discard it before Firefox flows try to use it.
   const needsSessionValidation =
-    integration.isFirefoxNonSync() && !!sessionToken;
+    (integration.isSync() || integration.isFirefoxNonSync()) && !!sessionToken;
   const [sessionValidationComplete, setSessionValidationComplete] = useState(
     !needsSessionValidation
   );

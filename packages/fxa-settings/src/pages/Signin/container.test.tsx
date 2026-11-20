@@ -1613,7 +1613,7 @@ describe('signin container', () => {
     });
   });
 
-  describe('Firefox non-Sync session validation', () => {
+  describe('cached session validation', () => {
     beforeEach(() => {
       mockFirefoxNonSyncIntegration();
     });
@@ -1668,23 +1668,58 @@ describe('signin container', () => {
       });
     });
 
-    it('does not call session.isValid for Sync integration', async () => {
+    it('calls session.isValid and keeps token for Sync integration when session is valid', async () => {
       mockOAuthNativeIntegration();
       mockCurrentAccount({
         ...MOCK_STORED_ACCOUNT,
-        email: MOCK_QUERY_PARAM_EMAIL,
+        email: MOCK_ROUTER_STATE_EMAIL,
         sessionToken: MOCK_SESSION_TOKEN,
       });
       mockUseValidateModule();
       mockLocationState = MOCK_LOCATION_STATE_CAN_LINK_ACCOUNT_OK;
       (ensureCanLinkAcountOrRedirect as jest.Mock).mockResolvedValue(true);
+      mockSession.isValid = jest.fn().mockResolvedValue(true);
 
       render();
 
       await waitFor(() => {
-        expect(currentSigninProps).toBeDefined();
+        expect(mockSession.isValid).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
       });
-      expect(mockSession.isValid).not.toHaveBeenCalled();
+      await waitFor(() => {
+        expect(currentSigninProps).toBeDefined();
+        expect(currentSigninProps?.sessionToken).toBe(MOCK_SESSION_TOKEN);
+      });
+      expect(CacheModule.discardSessionToken).not.toHaveBeenCalled();
+    });
+
+    it('calls session.isValid and discards token for Sync integration when session is invalid', async () => {
+      mockOAuthNativeIntegration();
+      const storedAccount: { sessionToken?: string; [key: string]: any } = {
+        ...MOCK_STORED_ACCOUNT,
+        email: MOCK_ROUTER_STATE_EMAIL,
+        sessionToken: MOCK_SESSION_TOKEN,
+      };
+      mockCurrentAccount(storedAccount);
+      jest.spyOn(CacheModule, 'discardSessionToken').mockImplementation(() => {
+        storedAccount.sessionToken = undefined;
+      });
+      mockUseValidateModule();
+      mockLocationState = MOCK_LOCATION_STATE_CAN_LINK_ACCOUNT_OK;
+      (ensureCanLinkAcountOrRedirect as jest.Mock).mockResolvedValue(true);
+      mockSession.isValid = jest.fn().mockResolvedValue(false);
+
+      render();
+
+      await waitFor(() => {
+        expect(mockSession.isValid).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
+      });
+      await waitFor(() => {
+        expect(CacheModule.discardSessionToken).toHaveBeenCalled();
+      });
+      await waitFor(() => {
+        expect(currentSigninProps).toBeDefined();
+        expect(currentSigninProps?.sessionToken).toBeUndefined();
+      });
     });
 
     it('does not call session.isValid for OAuth web integration', async () => {
