@@ -203,7 +203,9 @@ describe('signin unblock container', () => {
   });
 
   /** Renders the container with a fake page component */
-  async function render(options?: { useFxAStatusResult?: ReturnType<typeof mockUseFxAStatus> }) {
+  async function render(options?: {
+    useFxAStatusResult?: ReturnType<typeof mockUseFxAStatus>;
+  }) {
     const useFxAStatusResult =
       options?.useFxAStatusResult || mockUseFxAStatus();
 
@@ -381,6 +383,48 @@ describe('signin unblock container', () => {
           email: MOCK_EMAIL,
           uid: expect.any(String),
         })
+      );
+    });
+
+    it('does not call ensureCanLinkAcountOrRedirect when email-first approved the same UID', async () => {
+      mockReachRouter({
+        ...MOCK_SIGNIN_UNBLOCK_LOCATION_STATE,
+        canLinkAccountUid: 'abc123',
+      });
+      const useFxAStatusResult = mockUseFxAStatus({
+        supportsCanLinkAccountUid: true,
+      });
+
+      await render({ useFxAStatusResult });
+
+      let result: BeginSigninResult | undefined;
+      await act(async () => {
+        result =
+          await currentPageProps?.signinWithUnblockCode(MOCK_UNBLOCK_CODE);
+      });
+
+      expect(result?.data?.signIn.uid).toBe('abc123');
+      expect(ensureCanLinkAcountOrRedirect).not.toHaveBeenCalled();
+    });
+
+    it('calls ensureCanLinkAcountOrRedirect with the real UID when email-first approved a different UID', async () => {
+      mockReachRouter({
+        ...MOCK_SIGNIN_UNBLOCK_LOCATION_STATE,
+        canLinkAccountUid: 'stale-uid',
+      });
+      const useFxAStatusResult = mockUseFxAStatus({
+        supportsCanLinkAccountUid: true,
+      });
+
+      await render({ useFxAStatusResult });
+
+      await act(async () => {
+        await currentPageProps?.signinWithUnblockCode(MOCK_UNBLOCK_CODE);
+      });
+
+      expect(ensureCanLinkAcountOrRedirect).toHaveBeenCalledTimes(1);
+      expect(ensureCanLinkAcountOrRedirect).toHaveBeenCalledWith(
+        expect.objectContaining({ email: MOCK_EMAIL, uid: 'abc123' })
       );
     });
   });
