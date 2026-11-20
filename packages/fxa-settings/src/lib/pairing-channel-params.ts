@@ -166,6 +166,16 @@ export function getPairingChannelId(): string | null {
   return channelIdSnapshot ?? read(CHANNEL_ID_STORAGE_KEY);
 }
 
+/**
+ * The authority mints its channel after load, so there is no URL to capture it
+ * from. Recording it here puts the same `session.pairing_channel_hash` on the
+ * desktop's events as on the phone's.
+ */
+export function setPairingChannelId(channelId: string): void {
+  channelIdSnapshot = channelId;
+  write(CHANNEL_ID_STORAGE_KEY, channelId);
+}
+
 /** Test seam. Not for production use. */
 export function resetPairingChannelParamsForTest(): void {
   hashSnapshot = null;

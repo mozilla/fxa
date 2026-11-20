@@ -665,6 +665,7 @@ const recordEventMetric = async (
     case 'dtm_mobile_timeout_view':
       dtmMobile.timeoutView.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',
+        cause: gleanPingMetrics?.event?.['cause'] || '',
       });
       break;
     case 'dtm_mobile_connect_hint_view':

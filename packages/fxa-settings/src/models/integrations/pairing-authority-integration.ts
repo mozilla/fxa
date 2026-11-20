@@ -29,6 +29,7 @@ import {
 } from './pairing-request-validation';
 import * as Sentry from '@sentry/browser';
 import { buildPairUrl } from '../../lib/pairing/pair-url';
+import { setPairingChannelId } from '../../lib/pairing-channel-params';
 
 const PAIR_HEARTBEAT_INTERVAL = 1000;
 
@@ -193,6 +194,11 @@ export class PairingAuthorityIntegration extends OAuthWebIntegration {
 
     this._createChannelPromise = channel
       .create(config.pairing.serverBaseUri)
+      .then(() => {
+        if (channel.channelId) {
+          setPairingChannelId(channel.channelId);
+        }
+      })
       .catch((err) => {
         // A create the browser cut short on the page's way out is no failure.
         if (!channel.isUnloading) {

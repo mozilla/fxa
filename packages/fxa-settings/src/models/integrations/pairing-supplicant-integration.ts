@@ -69,6 +69,16 @@ export enum SupplicantState {
   Failed = 'failed',
 }
 
+/**
+ * Which side a failed pairing was lost on, for telemetry. `peer_closed`: the
+ * other device or the channel server ended the channel. `connection_lost`:
+ * this device's socket died and could not be resumed. `error`: anything else.
+ */
+export type SupplicantFailureCause =
+  | 'peer_closed'
+  | 'connection_lost'
+  | 'error';
+
 export type OAuthStartParams = {
   access_type: string;
   client_id: string;
@@ -97,6 +107,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
   private _oauthCode: string | null = null;
   private _error: Error | { errno: number; message: string } | null = null;
   private _canceledByAuthority = false;
+  private _failureCause: SupplicantFailureCause | undefined;
   private _email = '';
   private _deviceName = '';
   private _channelId: string | null = null;
@@ -174,6 +185,10 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     return this._canceledByAuthority;
   }
 
+  get failureCause(): SupplicantFailureCause | undefined {
+    return this._failureCause;
+  }
+
   /** Email address sent by the authority in pair:auth:metadata. */
   get email(): string {
     return this._email;
@@ -217,13 +232,26 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     return new Error(String(err));
   }
 
-  private fail(err: unknown): void {
+  private fail(err: unknown, cause: SupplicantFailureCause = 'error'): void {
     if (PairingSupplicantIntegration.TERMINAL_STATES.has(this._state)) {
       return;
     }
+    this._failureCause = cause;
     this._error = this.normalizeError(err);
     this.setState(SupplicantState.Failed);
     this.onError?.(this._error);
+  }
+
+  private socketCause(channel: PairingChannelClient): SupplicantFailureCause {
+    switch (channel.closeReason) {
+      case 'server_closed':
+        return 'peer_closed';
+      case 'resume_expired':
+      case 'no_token':
+        return 'connection_lost';
+      default:
+        return 'error';
+    }
   }
 
   hasChannel(channelId: string) {
@@ -288,7 +316,7 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
       // way out. fail() still has to run for the config and already-connected
       // errors, which reject before open() dispatches any `error` event.
       if (!channel.isUnloading && !this.isPostCompletionReconnect()) {
-        this.fail(err);
+        this.fail(err, this.socketCause(channel));
       }
     }
   }
@@ -458,10 +486,15 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     if (this.isPostCompletionReconnect()) {
       return;
     }
-    this.fail({
-      errno: 1006,
-      message: 'Connection to remote device closed, please try again',
-    });
+    // Only the peer's TLS close_notify reaches here as a `close`; a socket
+    // that died arrives as an `error`.
+    this.fail(
+      {
+        errno: 1006,
+        message: 'Connection to remote device closed, please try again',
+      },
+      'peer_closed'
+    );
   };
 
   private handleChannelError = (event: Event) => {
@@ -470,7 +503,10 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     if (this.isPostCompletionReconnect()) {
       return;
     }
-    this.fail((event as CustomEvent).detail);
+    this.fail(
+      (event as CustomEvent).detail,
+      this._channel ? this.socketCause(this._channel) : 'error'
+    );
   };
 
   // TODO: Remove after v1 is deprecated

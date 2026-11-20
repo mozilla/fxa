@@ -17,6 +17,7 @@ const mockSend = jest.fn().mockResolvedValue(undefined);
 const mockClose = jest.fn().mockResolvedValue(undefined);
 const listeners: Record<string, Function[]> = {};
 let mockIsUnloading = false;
+let mockCloseReason: string | undefined;
 
 // Only the client is stubbed; `toRemoteMetadata` is a pure helper the
 // integration relies on for the device details it shows the user.
@@ -28,6 +29,9 @@ jest.mock('../../lib/channels/pairing-channel', () => ({
     close: mockClose,
     get isUnloading() {
       return mockIsUnloading;
+    },
+    get closeReason() {
+      return mockCloseReason;
     },
     addEventListener: jest.fn((type: string, handler: Function) => {
       if (!listeners[type]) listeners[type] = [];
@@ -372,6 +376,44 @@ describe('PairingSupplicantIntegration', () => {
       expect(integration.state).toBe(SupplicantState.Failed);
       expect(onError).toHaveBeenCalled();
     });
+
+    // The dead-end screen calls every failure a timeout; the cause is what
+    // lets telemetry tell a desktop that gave up from a phone that lost signal.
+    it.each([
+      [
+        'the other device closing the channel',
+        'close',
+        undefined,
+        'peer_closed',
+      ],
+      [
+        'the server ending the channel',
+        'error',
+        'server_closed',
+        'peer_closed',
+      ],
+      [
+        'a socket that could not resume',
+        'error',
+        'resume_expired',
+        'connection_lost',
+      ],
+      ['any other channel error', 'error', undefined, 'error'],
+    ])(
+      'records %s as the failure cause',
+      async (_, event, closeReason, cause) => {
+        const integration = createIntegration();
+        await integration.openChannel('wss://channel.test', 'ch', 'key');
+        emit('connected');
+        mockCloseReason = closeReason;
+
+        emit(event, new Error('boom'));
+
+        mockCloseReason = undefined;
+        expect(integration.state).toBe(SupplicantState.Failed);
+        expect(integration.failureCause).toBe(cause);
+      }
+    );
 
     it('channel close in terminal state does not re-fail', async () => {
       const integration = createIntegration();

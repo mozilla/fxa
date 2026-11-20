@@ -48,7 +48,13 @@ const TimeoutAndCancelContainer = ({
     integration.destroy().catch((err) => Sentry.captureException(err));
   }, [integration]);
 
-  return <TimeoutAndCancel {...{ reason }} />;
+  // Telemetry only, and only meaningful for a failure nobody chose.
+  const cause =
+    reason === 'timeout' && typeof location.state?.cause === 'string'
+      ? location.state.cause
+      : undefined;
+
+  return <TimeoutAndCancel {...{ reason, cause }} />;
 };
 
 export default TimeoutAndCancelContainer;

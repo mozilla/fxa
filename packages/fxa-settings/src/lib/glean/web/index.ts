@@ -28,6 +28,7 @@ export const stringEventExtraPropertyNames = [
   'branch',
   'browser_family',
   'firefox_version',
+  'cause',
 ] as const;
 
 export type PropertyNameStringT = typeof stringEventPropertyNames;

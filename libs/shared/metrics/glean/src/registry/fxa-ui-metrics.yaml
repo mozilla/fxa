@@ -4622,6 +4622,13 @@ dtm_mobile:
           'canceled' when either device abandoned the attempt, or 'signed_in'
           when the mobile browser already held a verified account.
         type: string
+      cause:
+        description: |
+          For reason 'timeout', which side the pairing was lost on:
+          'peer_closed' when the other device or the channel server ended the
+          channel, 'connection_lost' when this device's connection dropped and
+          could not be resumed, or 'error' for anything else. Empty otherwise.
+        type: string
 
   connect_hint_view:
     type: event

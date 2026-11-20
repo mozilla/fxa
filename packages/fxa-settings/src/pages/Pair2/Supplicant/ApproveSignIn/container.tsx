@@ -45,6 +45,7 @@ export const ApproveSignInContainer = ({
                 reason: integration.canceledByAuthority
                   ? 'canceled'
                   : 'timeout',
+                cause: integration.failureCause,
               },
             },
             true

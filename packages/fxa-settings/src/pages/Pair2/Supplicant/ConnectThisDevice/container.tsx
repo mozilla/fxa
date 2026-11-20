@@ -27,7 +27,7 @@ const leaveOnError = (
   if (integration.state !== SupplicantState.Failed) {
     navigateWithQuery('/pair/supplicant/timeout_and_cancel', {
       replace: true,
-      state: { reason: 'timeout' },
+      state: { reason: 'timeout', cause: integration.failureCause },
     });
   }
 };
@@ -83,6 +83,7 @@ export const ConnectThisDeviceContainer = ({
                 reason: integration.canceledByAuthority
                   ? 'canceled'
                   : 'timeout',
+                cause: integration.failureCause,
               },
             },
             true

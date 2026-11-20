@@ -89,6 +89,8 @@ const COPY: Record<
 export type TimeoutAndCancelProps = {
   /** Which dead-end state to show. */
   reason?: PairingInterruptionReason;
+  /** What ended a `timeout`, for telemetry. See `SupplicantFailureCause`. */
+  cause?: string;
 };
 
 /**
@@ -97,7 +99,7 @@ export type TimeoutAndCancelProps = {
  * are purely informational — the designs give them no button and no link, so
  * the user restarts from `firefox.com/pair` on their computer.
  */
-const TimeoutAndCancel = ({ reason }: TimeoutAndCancelProps) => {
+const TimeoutAndCancel = ({ reason, cause }: TimeoutAndCancelProps) => {
   reason = reason ?? 'timeout';
   const {
     pageTitleFtlId,
@@ -113,8 +115,8 @@ const TimeoutAndCancel = ({ reason }: TimeoutAndCancelProps) => {
   // Custom view event rather than the automatic one: the states share a route,
   // so `reason` is the only thing that tells them apart.
   useEffect(() => {
-    GleanMetrics.dtmMobile.timeoutView({ event: { reason } });
-  }, [reason]);
+    GleanMetrics.dtmMobile.timeoutView({ event: { reason, cause } });
+  }, [reason, cause]);
 
   return (
     <AppLayout title={localizedPageTitle} whiteBackground>

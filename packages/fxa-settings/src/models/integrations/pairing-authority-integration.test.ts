@@ -9,6 +9,10 @@ import {
   PairingVersion,
 } from './pairing-authority-integration';
 import { OAUTH_ERRORS } from '../../lib/oauth';
+import {
+  getPairingChannelId,
+  resetPairingChannelParamsForTest,
+} from '../../lib/pairing-channel-params';
 
 const CHANNEL_SERVER_URI = 'wss://channel.example.com';
 
@@ -425,6 +429,15 @@ describe('PairingAuthorityIntegration', () => {
     });
 
     describe('createChannel', () => {
+      // The phone's events carry a hash of the channel id; the desktop's can
+      // only be joined to them if it records the id of the channel it minted.
+      it('records the channel id for telemetry', async () => {
+        resetPairingChannelParamsForTest();
+        await integration.createChannel();
+        expect(getPairingChannelId()).toBe('chan-1');
+        resetPairingChannelParamsForTest();
+      });
+
       it('creates a channel against the configured channel server', async () => {
         await integration.createChannel();
 

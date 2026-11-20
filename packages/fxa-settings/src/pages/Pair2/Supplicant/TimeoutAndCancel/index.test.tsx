@@ -174,4 +174,13 @@ describe('Pair2/Supplicant/TimeoutAndCancel page', () => {
       });
     }
   );
+
+  it('sends the failure cause with the timeout view event', () => {
+    renderWithLocalizationProvider(
+      <Subject reason="timeout" cause="peer_closed" />
+    );
+    expect(GleanMetrics.dtmMobile.timeoutView).toHaveBeenCalledWith({
+      event: { reason: 'timeout', cause: 'peer_closed' },
+    });
+  });
 });

@@ -16,7 +16,7 @@ import { RemoteMetadata } from '../types';
 import UAParser from 'ua-parser-js';
 import { toGenericOSName } from '../utilities';
 import { base64urlToBytes, bytesToBase64url } from '../base64url';
-import { ResumableWebSocket } from './resumable-websocket';
+import { CloseReason, ResumableWebSocket } from './resumable-websocket';
 
 // Types
 
@@ -191,6 +191,7 @@ type PairingChannelSocket = {
 export class PairingChannelClient extends EventTarget {
   private channel: PairingChannelSocket | null = null;
   private socket?: ResumableWebSocket;
+  private lastCloseReason?: CloseReason;
   private _opening = false;
   private unloading = false;
 
@@ -200,6 +201,11 @@ export class PairingChannelClient extends EventTarget {
    */
   get isUnloading(): boolean {
     return this.unloading;
+  }
+
+  /** How the socket under the channel ended, kept after the socket is gone. */
+  get closeReason(): CloseReason | undefined {
+    return this.socket?.closeReason ?? this.lastCloseReason;
   }
 
   get channelKey() {
@@ -499,6 +505,7 @@ export class PairingChannelClient extends EventTarget {
   }
 
   private detachSocket(): void {
+    this.lastCloseReason = this.closeReason;
     this.socket?.removeEventListener('resumed', this.handleResumed);
     this.socket = undefined;
   }
