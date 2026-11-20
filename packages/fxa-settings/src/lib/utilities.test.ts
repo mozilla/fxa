@@ -10,6 +10,7 @@ import {
   formatSecret,
   isBase32Crockford,
   isIosSafari,
+  isMacOS,
   getBrowserFamily,
   isMobileDevice,
   isMobileOrTabletDevice,
@@ -390,6 +391,33 @@ describe('isIosSafari', () => {
         Object.defineProperty(navigator, 'userAgent', original);
       }
     }
+  });
+});
+
+describe('isMacOS', () => {
+  it.each([
+    [
+      'Firefox on macOS',
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:151.0) Gecko/20100101 Firefox/151.0',
+      true,
+    ],
+    [
+      'Safari on macOS',
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15',
+      true,
+    ],
+    [
+      'Firefox on Windows',
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:151.0) Gecko/20100101 Firefox/151.0',
+      false,
+    ],
+    [
+      'Firefox on iOS',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/125.0 Mobile/15E148 Safari/605.1.15',
+      false,
+    ],
+  ])('for %s is %s', (_label, userAgent, expected) => {
+    expect(isMacOS(userAgent)).toBe(expected);
   });
 });
 

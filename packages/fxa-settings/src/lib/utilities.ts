@@ -411,6 +411,11 @@ export function isIosSafari(userAgent: string = navigator.userAgent): boolean {
   return os.name === 'iOS' && browser.name === 'Mobile Safari';
 }
 
+/** iPadOS requesting the desktop site also reports as macOS. */
+export function isMacOS(userAgent: string = navigator.userAgent): boolean {
+  return new UAParser(userAgent).getOS().name === 'Mac OS';
+}
+
 export type BrowserFamily = 'firefox' | 'safari' | 'chrome' | 'edge' | 'other';
 
 /**
