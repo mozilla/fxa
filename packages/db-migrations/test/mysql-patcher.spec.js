@@ -258,8 +258,33 @@ describe('mysql-patcher', () => {
   });
 
   describe('connect error handling', () => {
+    it('rejects and destroys the connection when the handshake is refused', async () => {
+      let destroyed = false;
+      const p = new Patcher({
+        dir: path.join(fixturesDir, 'end-to-end'),
+        database: 'testdb',
+        metaTable: 'metadata',
+        patchKey: 'schema-patch-level',
+        patchLevel: 3,
+        mysql: mockMySQL({
+          connect(callback) {
+            callback(new Error("Access denied for user 'u'@'h'"));
+          },
+          // as mysql2 after a refused handshake: end() never calls back
+          end() {},
+          destroy() {
+            destroyed = true;
+          },
+        }),
+      });
+
+      await expect(p.connect()).rejects.toThrow(/Access denied/);
+      expect(destroyed).toBe(true);
+      expect(p.connection).toBeNull();
+    });
+
     it('cleans up connection and rethrows on connect failure', async () => {
-      let endCalled = false;
+      let destroyed = false;
       const p = new Patcher({
         dir: '/tmp',
         patchLevel: 0,
@@ -270,9 +295,9 @@ describe('mysql-patcher', () => {
               connect(callback) {
                 callback(new Error('ECONNREFUSED'));
               },
-              end(callback) {
-                endCalled = true;
-                callback();
+              end() {},
+              destroy() {
+                destroyed = true;
               },
               changeUser(opts, callback) {
                 callback();
@@ -286,12 +311,12 @@ describe('mysql-patcher', () => {
       });
 
       await expect(p.connect()).rejects.toThrow('ECONNREFUSED');
-      expect(endCalled).toBe(true);
+      expect(destroyed).toBe(true);
       expect(p.connection).toBeNull();
     });
 
     it('cleans up connection and rethrows on changeUser failure', async () => {
-      let endCalled = false;
+      let destroyed = false;
       const p = new Patcher({
         dir: '/tmp',
         patchLevel: 0,
@@ -302,9 +327,9 @@ describe('mysql-patcher', () => {
               connect(callback) {
                 callback();
               },
-              end(callback) {
-                endCalled = true;
-                callback();
+              end() {},
+              destroy() {
+                destroyed = true;
               },
               changeUser(opts, callback) {
                 callback(new Error('Access denied'));
@@ -319,7 +344,7 @@ describe('mysql-patcher', () => {
       });
 
       await expect(p.connect()).rejects.toThrow('Access denied');
-      expect(endCalled).toBe(true);
+      expect(destroyed).toBe(true);
       expect(p.connection).toBeNull();
     });
   });
