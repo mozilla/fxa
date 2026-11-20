@@ -4,6 +4,8 @@ passkey-row-header = Passkeys
 passkey-row-enabled = Enabled
 passkey-row-not-set = Not set
 passkey-row-action-create = Create
+# Screen reader label for the button that creates a passkey. Must start with the passkey-row-action-create text.
+passkey-row-action-create-label = Create passkey
 passkey-row-description = Make sign in easier and more secure by using your phone or other supported device to get into your account.
 # External link to a support article about passkeys.
 passkey-row-info-link-2 = Learn more

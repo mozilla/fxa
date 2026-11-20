@@ -57,13 +57,18 @@ describe('UnitRowTwoStepAuth', () => {
     expect(
       screen.getByTestId('two-step-unit-row-header-value').textContent
     ).toContain('Enabled');
-    expect(screen.getByRole('button', { name: 'Disable' })).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Disable' })).toHaveAttribute(
-      'data-glean-id',
-      'two_step_auth_disable_click'
-    );
-    expect(screen.getByRole('link', { name: 'Change' })).toBeVisible();
-    expect(screen.getByRole('link', { name: 'Change' })).toHaveAttribute(
+    expect(
+      screen.getByRole('button', { name: 'Disable Two-step authentication' })
+    ).toBeVisible();
+    expect(
+      screen.getByRole('button', { name: 'Disable Two-step authentication' })
+    ).toHaveAttribute('data-glean-id', 'two_step_auth_disable_click');
+    expect(
+      screen.getByRole('link', { name: 'Change Two-step authentication' })
+    ).toBeVisible();
+    expect(
+      screen.getByRole('link', { name: 'Change Two-step authentication' })
+    ).toHaveAttribute(
       'data-glean-id',
       'account_pref_two_step_auth_change_submit'
     );
@@ -98,7 +103,9 @@ describe('UnitRowTwoStepAuth', () => {
       })
     );
 
-    await user.click(screen.getByRole('button', { name: 'Disable' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Disable Two-step authentication' })
+    );
 
     await waitFor(() =>
       expect(
@@ -121,7 +128,9 @@ describe('UnitRowTwoStepAuth', () => {
     const user = userEvent.setup();
     renderWithRouter(createSubject());
 
-    await user.click(screen.getByRole('button', { name: 'Disable' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Disable Two-step authentication' })
+    );
 
     await waitFor(() =>
       expect(
@@ -138,7 +147,9 @@ describe('UnitRowTwoStepAuth', () => {
 
     renderWithRouter(createSubject());
 
-    await user.click(screen.getByRole('button', { name: 'Disable' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Disable Two-step authentication' })
+    );
 
     expect(screen.getByText('Enter confirmation code')).toBeInTheDocument();
   });

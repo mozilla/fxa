@@ -99,7 +99,8 @@ export class PasskeyRow extends UnitRow {
   }
 
   get deleteButton() {
-    return this.page.getByRole('button', { name: 'Delete passkey' });
+    // Named "Delete {nickname}".
+    return this.subRow.getByRole('button', { name: /^Delete / });
   }
 
   get deleteModalHeading() {

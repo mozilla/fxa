@@ -35,6 +35,150 @@ describe('UnitRow', () => {
     expect(screen.queryByTestId('avatar-nondefault')).toBeNull();
   });
 
+  describe('CTA accessible name', () => {
+    it('adds the row heading to the route link', () => {
+      renderWithRouter(
+        <UnitRow header="Display name" headerValue="Fred" route="/x" />
+      );
+      expect(
+        screen.getByRole('link', { name: 'Change Display name' })
+      ).toBeInTheDocument();
+    });
+
+    it('adds the row heading to the modal button', () => {
+      renderWithRouter(
+        <UnitRow header="Display name" revealModal={() => {}} />
+      );
+      expect(
+        screen.getByRole('button', { name: 'Add Display name' })
+      ).toBeInTheDocument();
+    });
+
+    it('adds the row heading to the disabled button', () => {
+      renderWithRouter(<UnitRow header="Passkeys" ctaText="Create" disabled />);
+      expect(
+        screen.getByRole('button', { name: 'Create Passkeys' })
+      ).toBeInTheDocument();
+    });
+
+    it('uses ctaAriaLabel in place of the heading-based name', () => {
+      renderWithRouter(
+        <UnitRow
+          header="Passkeys"
+          ctaText="Create"
+          ctaAriaLabel="Create passkey"
+          route="/x"
+        />
+      );
+      expect(
+        screen.getByRole('link', { name: 'Create passkey' })
+      ).toBeInTheDocument();
+    });
+
+    it('adds the row heading to the secondary route link', () => {
+      renderWithRouter(
+        <UnitRow
+          header="Two-step authentication"
+          secondaryCtaText="Disable"
+          secondaryCtaRoute="/x"
+        />
+      );
+      expect(
+        screen.getByRole('link', { name: 'Disable Two-step authentication' })
+      ).toBeInTheDocument();
+    });
+
+    it('adds the row heading to the secondary modal button', () => {
+      renderWithRouter(
+        <UnitRow
+          header="Two-step authentication"
+          secondaryCtaText="Disable"
+          revealSecondaryModal={() => {}}
+        />
+      );
+      expect(
+        screen.getByRole('button', { name: 'Disable Two-step authentication' })
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe('disabled CTA', () => {
+    it('stays focusable', async () => {
+      renderWithRouter(<UnitRow header="Foxy" ctaText="Create" disabled />);
+      await userEvent.tab();
+      expect(screen.getByRole('button', { name: 'Create Foxy' })).toHaveFocus();
+    });
+
+    it('is marked aria-disabled', () => {
+      renderWithRouter(<UnitRow header="Foxy" ctaText="Create" disabled />);
+      expect(
+        screen.getByRole('button', { name: 'Create Foxy' })
+      ).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('carries no Glean click attributes', () => {
+      renderWithRouter(
+        <UnitRow
+          header="Foxy"
+          ctaText="Create"
+          disabled
+          ctaGleanDataAttrs={{ id: 'some_glean_id' }}
+        />
+      );
+      expect(
+        screen.getByRole('button', { name: 'Create Foxy' })
+      ).not.toHaveAttribute('data-glean-id');
+    });
+
+    it('is described by disabledDescribedBy', () => {
+      renderWithRouter(
+        <>
+          <p id="why">Limit reached</p>
+          <UnitRow
+            header="Foxy"
+            ctaText="Create"
+            disabled
+            disabledDescribedBy="why"
+          />
+        </>
+      );
+      expect(
+        screen.getByRole('button', { name: 'Create Foxy' })
+      ).toHaveAccessibleDescription('Limit reached');
+    });
+  });
+
+  describe('heading accessible name', () => {
+    it('includes the status text', () => {
+      renderWithRouter(
+        <UnitRow header="Passkeys" headerId="passkeys" headerValue="Enabled" />
+      );
+      expect(
+        screen.getByRole('heading', { name: 'Passkeys Enabled' })
+      ).toBeInTheDocument();
+    });
+
+    it('includes the default status text when there is no header value', () => {
+      renderWithRouter(<UnitRow header="Foxy" />);
+      expect(
+        screen.getByRole('heading', { name: 'Foxy None' })
+      ).toBeInTheDocument();
+    });
+
+    it('is only the header when the status is hidden', () => {
+      renderWithRouter(<UnitRow header="Foxy" hideHeaderValue />);
+      expect(screen.getByRole('heading', { name: 'Foxy' })).toBeInTheDocument();
+    });
+
+    it.each(['checkmark', 'alert'] as const)(
+      'hides the %s status icon from screen readers',
+      (statusIcon) => {
+        renderWithRouter(<UnitRow header="Foxy" statusIcon={statusIcon} />);
+        expect(screen.queryByRole('img')).not.toBeInTheDocument();
+      }
+    );
+  });
+
   it('renders the children', () => {
     renderWithRouter(
       <UnitRow header="Display name">
