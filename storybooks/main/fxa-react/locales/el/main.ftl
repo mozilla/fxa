@@ -116,7 +116,6 @@ app-footer-terms-of-service = Όροι υπηρεσίας
 
 
 app-default-title-2 = { -product-mozilla-accounts(capitalization: "upper", case: "nom") }
-app-page-title-2 = { $title } | { -product-mozilla-accounts(capitalization: "upper", case: "nom") }
 
 
 link-sr-new-window = Ανοίγει σε νέο παράθυρο

@@ -52,7 +52,6 @@ app-footer-terms-of-service = Hizmet Koşulları
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Yeni pencerede açılır

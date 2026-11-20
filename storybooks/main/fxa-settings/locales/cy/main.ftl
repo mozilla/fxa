@@ -48,7 +48,6 @@ app-footer-terms-of-service = Amodau Gwasanaeth
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Yn agor mewn ffenestr newydd
@@ -1721,7 +1720,6 @@ signin-unblock-support-link = Pam mae hyn yn digwydd?
 signin-unblock-desktop-relay = Bydd { -brand-firefox } yn ceisio eich anfon yn ôl i ddefnyddio e-bost arallenw ar ôl i chi fewngofnodi.
 
 
-confirm-signup-code-page-title = Rhowch y cod dilysu
 confirm-signup-code-heading-2 = Rhowch god cadarnhau <span>ar gyfer eich cyfrif { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Rhowch y cod anfonwyd at <email>{ $email }</email> o fewn 5 munud.
 confirm-signup-code-input-label = Rhowch y cod 6 digid

@@ -168,7 +168,6 @@ app-footer-terms-of-service = Pogoji storitve
 
 
 app-default-title-2 = { -product-mozilla-accounts(zacetnica: "velika") }
-app-page-title-2 = { $title } | { -product-mozilla-accounts(zacetnica: "velika") }
 
 
 link-sr-new-window = Odpre se v novem oknu
@@ -1826,7 +1825,6 @@ signin-unblock-support-link = Zakaj se to dogaja?
 signin-unblock-desktop-relay = Po prijavi vas bo { -brand-firefox } poskusil poslati nazaj na uporabo e-poštne maske.
 
 
-confirm-signup-code-page-title = Vnesite potrditveno kodo
 confirm-signup-code-heading-2 = Vnesite potrditveno kodo <span>za svoj { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = V 5 minutah vnesite kodo, ki je bila poslana na <email>{ $email }</email>.
 confirm-signup-code-input-label = Vnesite 6-mestno kodo

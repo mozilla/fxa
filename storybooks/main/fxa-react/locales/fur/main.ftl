@@ -44,7 +44,6 @@ app-footer-terms-of-service = Tiermins dal servizi
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Si vierç intun gnûf barcon

@@ -85,7 +85,6 @@ app-footer-terms-of-service = A szolgáltatás feltételei
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Új ablakban nyílik meg
@@ -1723,7 +1722,6 @@ signin-unblock-support-link = Miért történik ez?
 signin-unblock-desktop-relay = Bejelentkezés után a { -brand-firefox } megpróbálja visszaküldeni Önt az e-mail-maszk használatához.
 
 
-confirm-signup-code-page-title = Adja meg a megerősítő kódot
 confirm-signup-code-heading-2 = Adja meg a megerősítő kódot <span>a { -product-mozilla-account }</span> számára
 confirm-signup-code-instruction-v2 = Adja meg 5 percen belül a(z) <email>{ $email }</email> címre küldött kódot.
 confirm-signup-code-input-label = Adja meg a 6 számjegyű kódot

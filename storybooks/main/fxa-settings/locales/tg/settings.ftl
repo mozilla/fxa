@@ -1139,8 +1139,6 @@ signin-unblock-support-link = Чаро ин ба вуҷуд меояд?
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
 
-# Page title show in browser title bar or page tab
-confirm-signup-code-page-title = Рамзи тасдиқкунандаро ворид намоед
 confirm-signup-code-input-label = Рамзи 6-рақамро ворид кунед
 # Form button to confirm if the confirmation code entered by the user is valid
 confirm-signup-code-confirm-button = Тасдиқ кардан

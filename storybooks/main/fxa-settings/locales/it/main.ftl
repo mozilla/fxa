@@ -64,7 +64,6 @@ app-footer-terms-of-service = Condizioni di utilizzo del servizio
 
 
 app-default-title-2 = { -product-mozilla-accounts(capitalization: "uppercase") }
-app-page-title-2 = { $title } | { -product-mozilla-accounts(capitalization: "uppercase") }
 
 
 link-sr-new-window = Si apre in una nuova finestra
@@ -1679,7 +1678,6 @@ signin-unblock-support-link = Perché succede questo?
 signin-unblock-desktop-relay = Dopo aver effettuato l’accesso, { -brand-firefox } tenterà di rimandarti alla pagina per utilizzare l’alias di posta elettronica.
 
 
-confirm-signup-code-page-title = Inserisci il codice di conferma
 confirm-signup-code-heading-2 = Inserisci il codice di conferma <span>per il tuo { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Inserisci entro 5 minuti il codice che è stato inviato a <email>{ $email }</email>.
 confirm-signup-code-input-label = Inserisci il codice a 6 cifre

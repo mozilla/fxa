@@ -334,7 +334,6 @@ app-footer-terms-of-service = Podmínky služby
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Otevře se v novém okně
@@ -1974,7 +1973,6 @@ signin-unblock-support-link = Proč se to stalo?
 signin-unblock-desktop-relay = { -brand-firefox } se vás pokusí po přihlášení přesměrovat na e-mailovou masku.
 
 
-confirm-signup-code-page-title = Zadejte potvrzovací kód
 confirm-signup-code-heading-2 = Zadejte potvrzovací kód<span>pro svůj { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
 confirm-signup-code-instruction-v2 = Vložte během 5 minut kód, který vám byl zaslán na <email>{ $email }</email>.
 confirm-signup-code-input-label = Zadejte šestimístný kód

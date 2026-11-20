@@ -2460,8 +2460,6 @@ signin-unblock-desktop-relay = 사용자가 로그인한 후 { -brand-firefox }�
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
 
-# Page title show in browser title bar or page tab
-confirm-signup-code-page-title = 확인 코드를 입력하세요.
 # String within the <span> element appears on a separate line
 # If more appropriate in a locale, the string within the <span>, "for your { -product-mozilla-account }"
 # can stand alone as "{ -product-mozilla-account }"

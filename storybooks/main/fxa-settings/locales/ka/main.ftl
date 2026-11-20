@@ -84,7 +84,6 @@ app-footer-terms-of-service = გამოყენების პირობ�
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = გახსნა ახალ ფანჯარაში
@@ -1718,7 +1717,6 @@ signin-unblock-support-link = რის გამოა ეს?
 signin-unblock-desktop-relay = { -brand-firefox } ეცდება შესვლის შემდგომ უკან დაგაბრუნოთ ელფოსტის ნიღბის გამოსაყენებლად.
 
 
-confirm-signup-code-page-title = შეიყვანეთ დადასტურების კოდი
 confirm-signup-code-heading-2 = შეიყვანეთ დასტურის კოდი <span>თქვენი { -product-mozilla-account(case: "ben") }</span>
 confirm-signup-code-instruction-v2 = შეიყვანეთ კოდი, რომელიც მოგივათ ელფოსტაზე <email>{ $email }</email> 5 წუთის განმავლობაში.
 confirm-signup-code-input-label = შეიყვანეთ 6-ციფრიანი კოდი

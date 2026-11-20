@@ -1151,8 +1151,6 @@ signin-unblock-support-link = Бу нидән килеп чыга?
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
 
-# Page title show in browser title bar or page tab
-confirm-signup-code-page-title = Раслау кодын кертү
 confirm-signup-code-input-label = 6-цифрлы кодны кертегез
 # Form button to confirm if the confirmation code entered by the user is valid
 confirm-signup-code-confirm-button = Раслау

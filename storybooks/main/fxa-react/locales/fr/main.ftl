@@ -64,7 +64,6 @@ app-footer-terms-of-service = Conditions d’utilisation
 
 
 app-default-title-2 = { -product-mozilla-accounts(capitalization: "uppercase") }
-app-page-title-2 = { $title } | { -product-mozilla-accounts(capitalization: "uppercase") }
 
 
 link-sr-new-window = S’ouvre dans une nouvelle fenêtre

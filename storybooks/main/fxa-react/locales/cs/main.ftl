@@ -334,7 +334,6 @@ app-footer-terms-of-service = Podmínky služby
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Otevře se v novém okně

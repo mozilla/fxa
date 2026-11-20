@@ -2530,8 +2530,6 @@ signin-unblock-desktop-relay = Po prijavi vas bo { -brand-firefox } poskusil pos
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
 
-# Page title show in browser title bar or page tab
-confirm-signup-code-page-title = Vnesite potrditveno kodo
 # String within the <span> element appears on a separate line
 # If more appropriate in a locale, the string within the <span>, "for your { -product-mozilla-account }"
 # can stand alone as "{ -product-mozilla-account }"

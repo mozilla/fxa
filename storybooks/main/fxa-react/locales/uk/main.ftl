@@ -159,7 +159,6 @@ app-footer-terms-of-service = Умови надання послуг
 
 
 app-default-title-2 = { -product-mozilla-accounts(capitalization: "upper") }
-app-page-title-2 = { $title } | { -product-mozilla-accounts(capitalization: "upper") }
 
 
 link-sr-new-window = Відкриється в новому вікні

@@ -41,7 +41,6 @@ app-footer-terms-of-service = Куллану Шартлары
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Яңа тәрәзәдә ачыла
@@ -842,7 +841,6 @@ signin-unblock-code-incorrect-format-2 = Авторизация коды хәр�
 signin-unblock-support-link = Бу нидән килеп чыга?
 
 
-confirm-signup-code-page-title = Раслау кодын кертү
 confirm-signup-code-input-label = 6-цифрлы кодны кертегез
 confirm-signup-code-confirm-button = Раслау
 confirm-signup-code-code-expired = Мөддәте чыккан кодмы?

@@ -48,7 +48,6 @@ app-footer-terms-of-service = Användarvillkor
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Öppnas i nytt fönster
@@ -1681,7 +1680,6 @@ signin-unblock-support-link = Varför händer detta?
 signin-unblock-desktop-relay = { -brand-firefox } försöker skicka dig tillbaka för att använda ett e-postalias efter du loggat in.
 
 
-confirm-signup-code-page-title = Ange bekräftelsekod
 confirm-signup-code-heading-2 = Ange bekräftelsekoden <span>för ditt { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Ange koden som skickades till <email>{ $email }</email> inom 5 minuter.
 confirm-signup-code-input-label = Ange 6-siffrig kod

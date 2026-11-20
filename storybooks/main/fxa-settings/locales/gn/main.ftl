@@ -48,7 +48,6 @@ app-footer-terms-of-service = Mba’epytyvõrã ñemboguata
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Oñembojuruja ovetã pyahúpe
@@ -1666,7 +1665,6 @@ signin-unblock-support-link = ¿Mba’ére oiko ko’ãva?
 signin-unblock-desktop-relay = { -brand-firefox } orahaukajeýta eimehápe eiporu hag̃ua ñanduti veve rovamo’ãha eñepyrũ rire tembiapo.
 
 
-confirm-signup-code-page-title = Emoinge ayvu jehechajeyrã
 confirm-signup-code-heading-2 = Emoinge ayvu ñemoneĩrã <span>ne { -product-mozilla-account }</span> peg̃uarã
 confirm-signup-code-instruction-v2 = Ehai ayvu jehechajeyrã 5 aravo’i oútavape oñemondóva <email>{ $email }</email>.
 confirm-signup-code-input-label = Emoinge ayvu 6 taíva

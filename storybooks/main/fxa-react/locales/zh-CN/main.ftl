@@ -48,7 +48,6 @@ app-footer-terms-of-service = 服务条款
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = 将新建窗口打开

@@ -168,7 +168,6 @@ app-footer-terms-of-service = Pogoji storitve
 
 
 app-default-title-2 = { -product-mozilla-accounts(zacetnica: "velika") }
-app-page-title-2 = { $title } | { -product-mozilla-accounts(zacetnica: "velika") }
 
 
 link-sr-new-window = Odpre se v novem oknu

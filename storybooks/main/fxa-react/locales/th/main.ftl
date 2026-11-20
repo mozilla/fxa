@@ -48,7 +48,6 @@ app-footer-terms-of-service = เงื่อนไขการให้บร�
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = เปิดในหน้าต่างใหม่

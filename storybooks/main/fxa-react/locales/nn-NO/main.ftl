@@ -52,7 +52,6 @@ app-footer-terms-of-service = Tenestevilkår
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Opnar i nytt vindauge

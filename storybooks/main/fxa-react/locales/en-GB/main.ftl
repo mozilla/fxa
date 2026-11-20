@@ -48,7 +48,6 @@ app-footer-terms-of-service = Terms of Service
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Opens in new window

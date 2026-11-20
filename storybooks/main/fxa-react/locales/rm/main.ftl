@@ -28,7 +28,6 @@ app-footer-terms-of-service = Cundiziuns d'utilisaziun
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = S'avra en ina nova fanestra

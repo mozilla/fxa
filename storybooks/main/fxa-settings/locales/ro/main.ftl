@@ -86,7 +86,6 @@ app-footer-terms-of-service = Condiții de utilizare a serviciilor
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Se deschide în fereastră nouă
@@ -1732,7 +1731,6 @@ signin-unblock-support-link = De ce s-a întâmplat asta?
 signin-unblock-desktop-relay = { -brand-firefox } va încerca să te trimită înapoi ca să folosești o mască de e-mail după ce intri în cont.
 
 
-confirm-signup-code-page-title = Introdu codul de confirmare
 confirm-signup-code-heading-2 = Introdu codul de confirmare <span>pentru contul { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Introdu în 5 minute codul trimis la <email>{ $email }</email>.
 confirm-signup-code-input-label = Introdu codul de 6 cifre

@@ -1,8 +1,8 @@
 {
-  "commit": "fdedb22d8e26a751be892d94e19d16980024d9a2",
-  "summary": "Merge pull request #21800 from mozilla/fxa-15091",
-  "description": "fix(functional-tests): stabilize pairing approve click and wait",
-  "timestamp": 1795212365000,
+  "commit": "052576340d1950fe3eadce2f192f6b9ee37165a1",
+  "summary": "Merge pull request #21794 from mozilla/skill-verify-frame-reads",
+  "description": "docs(skills): review video frames from a contact sheet in issue-verification",
+  "timestamp": 1795216421000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

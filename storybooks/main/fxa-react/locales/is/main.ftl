@@ -28,7 +28,6 @@ app-footer-terms-of-service = Þjónustuskilmálar
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Opnast í nýjum glugga
