@@ -55,4 +55,42 @@ describe('theme-storage', () => {
   it('returns light for unknown stored values', () => {
     expect(getStoredTheme()).toBe('light');
   });
+
+  describe('under the Nova theme', () => {
+    beforeEach(() => {
+      document.documentElement.dataset.theme = 'nova';
+    });
+
+    afterEach(() => {
+      delete document.documentElement.dataset.theme;
+    });
+
+    it('returns system when nothing is stored', () => {
+      expect(getStoredTheme()).toBe('system');
+    });
+
+    it('returns the stored theme over the system default', () => {
+      setStoredTheme('dark');
+      expect(getStoredTheme()).toBe('dark');
+    });
+
+    it('returns system when localStorage is unavailable', () => {
+      jest.isolateModules(() => {
+        jest.doMock('./storage', () => ({
+          __esModule: true,
+          default: {
+            factory: () => ({
+              get: () => {
+                throw new Error('localStorage is disabled');
+              },
+              set: jest.fn(),
+            }),
+          },
+        }));
+
+        const { getStoredTheme } = require('./theme-storage');
+        expect(getStoredTheme()).toBe('system');
+      });
+    });
+  });
 });
