@@ -41,7 +41,6 @@ app-footer-terms-of-service = サービス利用規約
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = 新しいウィンドウで開く
@@ -1111,7 +1110,6 @@ signin-unblock-resend-code-button = 受信トレイや迷惑メールフォル�
 signin-unblock-support-link = このような問題が起きた理由
 
 
-confirm-signup-code-page-title = 確認コードの入力
 confirm-signup-code-heading-2 = <span>{ -product-mozilla-account }</span> の確認コードを入力してください
 confirm-signup-code-instruction-v2 = 5 分以内に <email>{ $email }</email> 宛に送信されたコードを入力してください。
 confirm-signup-code-input-label = 6 桁のコードを入力してください

@@ -33,7 +33,6 @@ app-footer-terms-of-service = Умовы абслугоўвання
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Адкрыць у новым акне
@@ -832,7 +831,6 @@ signin-unblock-support-link = Чаму гэта адбываецца?
 signin-unblock-desktop-relay = { -brand-firefox } паспрабуе адаслаць вас назад на выкарыстанне маскі электроннай пошты пасля ўваходу.
 
 
-confirm-signup-code-page-title = Увядзіце код пацвярджэння
 confirm-signup-code-heading-2 = Увядзіце код пацвярджэння <span>для свайго { -product-mozilla-account }</span>
 confirm-signup-code-input-label = Увядзіце 6-значны код
 confirm-signup-code-confirm-button = Сцвердзіць

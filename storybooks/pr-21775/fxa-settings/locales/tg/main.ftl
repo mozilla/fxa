@@ -48,7 +48,6 @@ app-footer-terms-of-service = Шартҳои хизматрасонӣ
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Дар равзанаи нав кушода мешавад
@@ -848,7 +847,6 @@ signin-unblock-code-required-error = Рамзи санҷиши дастрасӣ 
 signin-unblock-support-link = Чаро ин ба вуҷуд меояд?
 
 
-confirm-signup-code-page-title = Рамзи тасдиқкунандаро ворид намоед
 confirm-signup-code-input-label = Рамзи 6-рақамро ворид кунед
 confirm-signup-code-confirm-button = Тасдиқ кардан
 confirm-signup-code-sync-button = Оғози ҳамоҳангсозӣ

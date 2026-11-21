@@ -48,7 +48,6 @@ app-footer-terms-of-service = Wužiwanske wuměnjenja
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Wočinja w nowym woknje
@@ -1706,7 +1705,6 @@ signin-unblock-support-link = Čehodla so to stawa?
 signin-unblock-desktop-relay = { -brand-firefox } budźe was wróćo słać, zo byšće po přizjewjenju e-mejlowu masku wužiwał.
 
 
-confirm-signup-code-page-title = Wobkrućenski kod zapodać
 confirm-signup-code-heading-2 = Zapodajće wobkrućenski kod <span>za swoje { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
 confirm-signup-code-instruction-v2 = Zapodajće kod, kotryž je so za 5 mjeńšin na <email>{ $email }</email> pósłał.
 confirm-signup-code-input-label = 6-městnowy kod zapodać

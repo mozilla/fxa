@@ -52,7 +52,6 @@ app-footer-terms-of-service = Zerbitzuaren baldintzak
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Ireki leiho berrian
@@ -1690,7 +1689,6 @@ signin-unblock-support-link = Zergatik ari da hau gertatzen?
 signin-unblock-desktop-relay = { -brand-firefox } saioa hasi ondoren posta elektronikoko maskara bat erabiltzera bidaltzen saiatuko da.
 
 
-confirm-signup-code-page-title = Sartu baieztapen-kodea
 confirm-signup-code-heading-2 = Sartu <span>zure { -product-mozilla-account }</span>ko  berrespen-kodea
 confirm-signup-code-instruction-v2 = Idatzi <email>{ $email }</email> helbidera bidali den kodea 5 minutuko epean.
 confirm-signup-code-input-label = Sartu 6 digituko kodea

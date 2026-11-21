@@ -116,7 +116,6 @@ app-footer-terms-of-service = Όροι υπηρεσίας
 
 
 app-default-title-2 = { -product-mozilla-accounts(capitalization: "upper", case: "nom") }
-app-page-title-2 = { $title } | { -product-mozilla-accounts(capitalization: "upper", case: "nom") }
 
 
 link-sr-new-window = Ανοίγει σε νέο παράθυρο
@@ -1751,7 +1750,6 @@ signin-unblock-support-link = Γιατί συμβαίνει αυτό;
 signin-unblock-desktop-relay = Το { -brand-firefox } θα προσπαθήσει να σας μεταφέρει στην αρχική καρτέλα για να χρησιμοποιήσετε μια μάσκα email αφού συνδεθείτε.
 
 
-confirm-signup-code-page-title = Εισαγωγή κωδικού επιβεβαίωσης
 confirm-signup-code-heading-2 = Εισαγάγετε τον κωδικό επιβεβαίωσης <span>για τον { -product-mozilla-account(capitalization: "lower", case: "acc") } σας</span>
 confirm-signup-code-instruction-v2 = Εισαγάγετε τον κωδικό επιβεβαίωσης που απεστάλη στο <email>{ $email }</email>, εντός 5 λεπτών.
 confirm-signup-code-input-label = Εισαγάγετε τον εξαψήφιο κωδικό
