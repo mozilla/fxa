@@ -305,7 +305,7 @@ input-phone-number-country-canada = Kanada
 reset-pwd-link-damaged-header = Länken för att återställa lösenordet fungerar inte
 signin-link-damaged-header = Bekräftelselänken är trasig
 report-signin-link-damaged-header = Länk skadad
-report-signin-link-damaged-page-title = Rapportera länken skadad
+report-signin-link-damaged-page-title = Rapportera trasig länk
 reset-pwd-link-damaged-message = Länken du klickade på saknade vissa tecken och kan ha förvrängts av ditt e-postprogram. Kopiera adressen noggrant och försök igen.
 
 

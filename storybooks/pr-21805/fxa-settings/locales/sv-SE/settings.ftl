@@ -369,7 +369,7 @@ signin-link-damaged-header = Bekräftelselänken är trasig
 report-signin-link-damaged-header = Länk skadad
 # Browser tab title for the page shown when the user followed a link to report an unauthorized sign-in, but the link was damaged.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-report-signin-link-damaged-page-title = Rapportera länken skadad
+report-signin-link-damaged-page-title = Rapportera trasig länk
 # The user followed a link received by email, but the link was damaged.
 reset-pwd-link-damaged-message = Länken du klickade på saknade vissa tecken och kan ha förvrängts av ditt e-postprogram. Kopiera adressen noggrant och försök igen.
 

@@ -116,6 +116,7 @@ app-footer-terms-of-service = Όροι υπηρεσίας
 
 
 app-default-title-2 = { -product-mozilla-accounts(capitalization: "upper", case: "nom") }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = Ανοίγει σε νέο παράθυρο
@@ -1314,6 +1315,7 @@ pair-auth-complete-manage-devices-link = Διαχείριση συσκευών
 pair-auth-complete-send-tab-heading = Είστε έτοιμοι να στείλετε μερικές καρτέλες
 pair-auth-complete-send-tab-device-connected = Το { $deviceFamily } για { $deviceOS } έχει συνδεθεί.
 pair-auth-complete-send-tab-benefits = Μπορείτε να στείλετε άμεσα ανοικτές καρτέλες, κωδικούς πρόσβασης και σελιδοδείκτες μεταξύ των συσκευών σας.
+pair-auth-complete-page-title = Η συσκευή συνδέθηκε
 
 
 auth-totp-heading-w-default-service = Εισαγάγετε τον κωδικό ταυτοποίησης <span>για να συνεχίσετε στις ρυθμίσεις λογαριασμού</span>
@@ -1363,16 +1365,19 @@ pair-download-description = Για να συγχρονίσετε το { -brand-f
 pair-download-step-scan-qr = <b>Βήμα { $stepNumber }:</b> Κάντε λήψη του { -brand-firefox } σαρώνοντας αυτόν τον κωδικό QR με την κάμερα της κινητής σας συσκευής:
 pair-download-step-continue-sync = <b>Βήμα { $stepNumber }:</b> Επιλέξτε «Συνέχεια για συγχρονισμό» για να συγχρονίσετε την εμπειρία σας με το { -brand-firefox } στην κινητή σας συσκευή.
 pair-continue-to-sync-button = Συνέχεια για συγχρονισμό
+pair-choice-page-title = Σύνδεση άλλης συσκευής
 
 
 pair-success-header-2 = Η συσκευή συνδέθηκε
 pair-success-message-2 = Επιτυχής σύζευξη.
 pair-success-tab-close-message = Αυτή η καρτέλα θα κλείσει αυτόματα από το { -brand-firefox }.
+pair-success-page-title = Η συσκευή συνδέθηκε
 
 
 pair-supp-allow-heading-text = Επιβεβαίωση σύζευξης <span>για το { $email }</span>
 pair-supp-allow-confirm-button = Επιβεβαίωση σύζευξης
 pair-supp-allow-cancel-link = Ακύρωση
+pair-supp-allow-page-title = Επιβεβαίωση σύζευξης
 
 
 pair-wait-for-auth-heading-text = Απαιτείται έγκριση <span>από την άλλη συσκευή σας</span>
@@ -1393,6 +1398,7 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Κλείστε αυτήν
 pair2-authority-approve-sign-in-heading = Έγκριση σύνδεσης;
 pair2-authority-approve-sign-in-confirm-button = Ναι, έγκριση σύνδεσης
 pair2-authority-approve-sign-in-change-password = Δεν είστε εσείς; <changePassword>Αλλάξτε τον κωδικό πρόσβασής σας</changePassword>
+pair2-authority-approve-sign-in-page-title = Έγκριση σύνδεσης
 
 
 pair2-authority-continue-on-mobile-heading = Συνεχίστε στην κινητή σας συσκευή
@@ -1423,6 +1429,7 @@ pair2-authority-timeout-and-cancel-cancelled-heading = Ακυρώθηκε
 pair2-authority-timeout-and-cancel-canceled-description = Εάν αλλάξετε γνώμη ή θέλετε να συνδέσετε μια άλλη συσκευή, δοκιμάστε ξανά.
 pair2-authority-timeout-and-cancel-try-again-button = Δοκιμή ξανά
 pair2-authority-timeout-and-cancel-sync-settings-button = Ρυθμίσεις συγχρονισμού
+pair2-authority-timeout-and-cancel-cancelled-page-title = Η σύζευξη ακυρώθηκε
 
 
 pair2-supplicant-approve-sign-in-heading = Ένα τελευταίο βήμα πριν το συγχρονισμό
@@ -1459,6 +1466,7 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Ακυρώθηκε
 pair2-supplicant-timeout-and-cancel-canceled-description = Για να συνδέσετε μια συσκευή ανά πάσα στιγμή, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας.
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Αυτή η συσκευή έχει ήδη συνδεθεί
 pair2-supplicant-timeout-and-cancel-signed-in-description = Για να συνδεθείτε στον λογαριασμό του υπολογιστή σας, αποσυνδεθείτε από το { -brand-firefox } σε αυτήν τη συσκευή και, έπειτα, επισκεφθείτε το <b>firefox.com/pair</b> από τον υπολογιστή σας για να ολοκληρώσετε τη σύνδεση.
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = Η σύζευξη ακυρώθηκε
 
 
 permissions-heading = Το { $serviceName } ζητά πρόσβαση σε:
@@ -1467,6 +1475,7 @@ permissions-label-display-name = Εμφανιζόμενο όνομα
 permissions-label-avatar = Εικόνα λογαριασμού
 permissions-continue-button = Συνέχεια
 permissions-cancel-button = Ακύρωση
+permissions-page-title = Έλεγχος δικαιωμάτων
 
 
 force-password-change-heading = Αλλάξτε τον κωδικό πρόσβασής σας
@@ -1478,6 +1487,7 @@ service-welcome-signup-success-banner = Ο { -product-mozilla-account(capitaliza
 service-welcome-signin-success-banner = Επιτυχής σύνδεση!
 service-welcome-vpn-heading = Επόμενο: Ενεργοποιήστε το VPN
 service-welcome-vpn-description = Ένα ακόμα βήμα για την ενίσχυση του απορρήτου του προγράμματος περιήγησής σας. Μεταβείτε στον ανοικτό πίνακα και ενεργοποιήστε το.
+service-welcome-vpn-page-title = Ενεργοποίηση VPN
 
 
 set-password-heading-v2 = Δημιουργία κωδικού πρόσβασης για συγχρονισμό
@@ -1582,6 +1592,7 @@ reset-password-complete-recovery-key-download-info =
 server-error-heading = Σφάλμα 500
 server-error-description = Ωχ, κάτι πήγε στραβά. Έχουμε ενημερωθεί και θα ξεκινήσουμε αμέσως να το διορθώνουμε.
 server-error-home-button = Αρχική
+server-error-page-title = Σφάλμα διακομιστή
 
 
 error-label = Σφάλμα:
@@ -1589,8 +1600,10 @@ validating-signin = Επικύρωση σύνδεσης…
 complete-signin-error-header = Σφάλμα επιβεβαίωσης
 signin-link-expired-header = Ο σύνδεσμος επιβεβαίωσης έληξε
 signin-link-expired-message-2 = Ο σύνδεσμος στον οποίο κάνατε κλικ έχει λήξει ή έχει ήδη χρησιμοποιηθεί.
+complete-signin-error-page-title = Σφάλμα επιβεβαίωσης σύνδεσης
 
 
+signin-cached-page-title = Σύνδεση
 signin-password-needed-header-2 = Εισαγάγετε τον κωδικό πρόσβασης <span>για τον { -product-mozilla-account(capitalization: "lower", case: "acc") } σας</span>
 signin-button-start-syncing = Έναρξη συγχρονισμού
 signin-subheader-without-logo-with-servicename = Συνέχεια στο { $serviceName }
@@ -1619,6 +1632,7 @@ signin-bounced-message = Το email επιβεβαίωσης που στείλα
 signin-bounced-help = Αν αυτή είναι μια έγκυρη διεύθυνση email, <linkExternal>ενημερώστε μας</linkExternal> και θα σας βοηθήσουμε να ξεκλειδώσετε τον λογαριασμό σας.
 signin-bounced-create-new-account = Δεν είστε πλέον κάτοχος αυτού του email; Δημιουργήστε έναν νέο λογαριασμό
 back = Πίσω
+signin-bounced-page-title = Ο λογαριασμός κλειδώθηκε
 
 
 signin-passkey-fallback-header = Ολοκλήρωση σύνδεσης
@@ -1782,6 +1796,7 @@ signup-confirmed-sync-description-v2 = Οι κωδικοί πρόσβασης, �
 signup-confirmed-sync-add-device-link = Προσθήκη άλλης συσκευής
 signup-confirmed-sync-manage-sync-button = Διαχείριση συγχρονισμού
 signup-confirmed-sync-set-password-success-banner = Ο κωδικός πρόσβασης συγχρονισμού δημιουργήθηκε
+signup-confirmed-sync-page-title = Ο συγχρονισμός είναι ενεργός
 
 
 update-firefox-heading = Απαιτείται ενημέρωση του { -brand-firefox }
