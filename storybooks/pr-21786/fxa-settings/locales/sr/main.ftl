@@ -48,7 +48,6 @@ app-footer-terms-of-service = Услови коришћења
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Отвара у новом прозору
@@ -1472,7 +1471,6 @@ signin-unblock-support-link = Зашто се ово дешава?
 signin-unblock-desktop-relay = { -brand-firefox } ће покушати да вас врати на коришћење маске е-поште након што се пријавите.
 
 
-confirm-signup-code-page-title = Унесите код за потврду
 confirm-signup-code-heading-2 = Унесите код за потврду <span>за ваш { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Унесите код који је послат на <email>{ $email }</email> у року од 5 минута.
 confirm-signup-code-input-label = Унесите шестоцифрени код

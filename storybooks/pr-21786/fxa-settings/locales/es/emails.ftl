@@ -390,7 +390,7 @@ unblockCode-prompt-plaintext = Si es así, el código de autorización que neces
 unblockCode-report = En caso contrario, ayúdanos a mantener a raya a los intrusos e <a data-l10n-name="reportSignInLink">infórmanos.</a>
 unblockCode-report-plaintext = Si no es así, ayúdanos a mantener a raya a los intrusos e infórmanos.
 verificationReminderFinal-subject = Último recordatorio para confirmar tu cuenta
-verificationReminderFinal-description-2 = Hace un par de semanas creaste una { -product-mozilla-account }, pero nunca la confirmaste. Para tu seguridad, borraremos la cuenta si no es verificada en las próximas 24 horas.
+verificationReminderFinal-description-2 = Hace un par de semanas creaste una { -product-mozilla-account }, pero nunca la confirmaste. Por tu seguridad, eliminaremos la cuenta si no la verificas en las próximas 24 horas.
 confirm-account = Confirmar cuenta
 confirm-account-plaintext = { confirm-account }:
 verificationReminderFirst-subject-2 = Recuerda confirmar tu cuenta

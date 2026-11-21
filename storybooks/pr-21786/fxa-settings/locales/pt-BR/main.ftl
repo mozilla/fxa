@@ -60,7 +60,6 @@ app-footer-terms-of-service = Termos de serviço
 
 
 app-default-title-2 = { -product-mozilla-accounts(capitalization: "uppercase") }
-app-page-title-2 = { $title } | { -product-mozilla-accounts(capitalization: "uppercase") }
 
 
 link-sr-new-window = Abre em nova janela
@@ -1287,7 +1286,6 @@ signin-unblock-support-link = Por que isso está acontecendo?
 signin-unblock-desktop-relay = O { -brand-firefox } irá tentar redirecionar de volta para você usar uma máscara de email após entrar na sua conta.
 
 
-confirm-signup-code-page-title = Digite o código de confirmação
 confirm-signup-code-heading-2 = Digite o código de confirmação <span>da sua { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Insira o código enviado para <email>{ $email }</email> em até 5 minutos.
 confirm-signup-code-input-label = Digite o código de 6 dígitos

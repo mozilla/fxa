@@ -48,7 +48,6 @@ app-footer-terms-of-service = Tsjinstbetingsten
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Iepenet yn nij finster
@@ -1683,7 +1682,6 @@ signin-unblock-support-link = Werom bart dit?
 signin-unblock-desktop-relay = { -brand-firefox } probearret jo werom te stjoeren om in e-mailmasker te brûken neidat jo jo oanmeld hawwe.
 
 
-confirm-signup-code-page-title = Fier befêstigingskoade yn
 confirm-signup-code-heading-2 = Fier befêstigingskoade <span>foar jo { -product-mozilla-account }</span> yn
 confirm-signup-code-instruction-v2 = Fier binnen 5 minuten de koade yn dy’t nei <email>{ $email }</email> is ferstjoerd.
 confirm-signup-code-input-label = Fier 6-siferige koade yn

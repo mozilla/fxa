@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 32eab19f20dd85db5144557224299a6572c591f1</title>
+  <title>Storybooks for commit 01e25fa39072b4b7489a3fa2559dcd6bb522990a</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 32eab19f20dd85db5144557224299a6572c591f1</h1>
+  <h1>Storybooks for commit 01e25fa39072b4b7489a3fa2559dcd6bb522990a</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/20/2026, 5:39:42 AM UTC</dd>
+    <dd>11/21/2026, 3:56:34 AM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>fix(settings): keep browsers that cannot approve off the pairing QR page</pre></dd>
     <dt>Description</dt>
@@ -40,9 +40,11 @@
 
 This commit:
 
-- Opens the scan_qr channel only when fxa_status reports the pairing capability; other browsers go to /pair/unsupported.
-- Records that capability on the Firefox channel from each fxa_status reply.
-- Hides the settings &quot;Connect a device&quot; promo and button for a browser without it.
+- Adds detectV2PairingType, which tells a phone from a desktop by its fxa_status answer, and has /pair treat a desktop user agent that answers as a phone as Firefox for Android.
+- Keeps a missing pairing capability undefined in useFxAStatus, so a phone can be told from a desktop with pairing turned off.
+- Sends any Firefox that opens a scanned QR to the supplicant flow or the connect hint, never the authority flow.
+- Opens the scan_qr channel only with the pairing capability; other browsers go to /pair/unsupported and are reported to Sentry.
+- Hides the settings &quot;Connect a device&quot; promo and button, and skips the ?v=2 redirect, for a browser without the capability.
 
 Closes FXA-15081</pre></dd>
   </dl>

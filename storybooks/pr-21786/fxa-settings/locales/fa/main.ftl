@@ -52,7 +52,6 @@ app-footer-terms-of-service = شرایط ارائهٔ خدمات
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = باز کردن در یک پنجره جدید
@@ -1668,7 +1667,6 @@ signin-unblock-support-link = چرا این اتفاق می‌افتد؟
 signin-unblock-desktop-relay = پس از ورود، { -brand-firefox } تلاش می‌کند شما را برگرداند تا از رایانامهٔ پوششی استفاده کنید.
 
 
-confirm-signup-code-page-title = کد تأیید را وارد کنید
 confirm-signup-code-heading-2 = کد تأیید را وارد کنید <span>برای { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = کدی را که به <email>{ $email }</email> فرستاده شده، ظرف ۵ دقیقه وارد کنید.
 confirm-signup-code-input-label = کد ۶ رقمی را وارد کنید

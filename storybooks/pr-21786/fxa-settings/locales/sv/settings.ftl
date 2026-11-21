@@ -283,8 +283,6 @@ signin-recovery-code-image-description =
     .aria-label = Dokument som innehåller dold text.
 signin-totp-code-image-label =
     .aria-label = En enhet med en dold 6-siffrig kod.
-confirm-signup-aria-label =
-    .aria-label = Ett meddelande som innehåller en länk
 # Used for an image of a key on a shield surrounded by 5 other icons representing information that can be recovered with the account recovery key.
 # Other icons and their meaning: Gear (settings), star (favorites), clock (history), magnifying glass (search) and lock (passwords).
 security-shield-aria-label =

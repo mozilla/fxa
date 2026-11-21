@@ -159,7 +159,6 @@ app-footer-terms-of-service = Умови надання послуг
 
 
 app-default-title-2 = { -product-mozilla-accounts(capitalization: "upper") }
-app-page-title-2 = { $title } | { -product-mozilla-accounts(capitalization: "upper") }
 
 
 link-sr-new-window = Відкриється в новому вікні
@@ -1288,7 +1287,6 @@ signin-unblock-support-link = Чому це відбувається?
 signin-unblock-desktop-relay = { -brand-firefox } спробує повернути вас назад, щоб ви використали маску е-пошти після входу.
 
 
-confirm-signup-code-page-title = Введіть код підтвердження
 confirm-signup-code-heading-2 = Введіть код підтвердження <span>для свого { -product-mozilla-account(case: "gen") }</span>
 confirm-signup-code-instruction-v2 = Протягом 5 хвилин уведіть код, надісланий на <email>{ $email }</email>.
 confirm-signup-code-input-label = Введіть код із 6 цифр
