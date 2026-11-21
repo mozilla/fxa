@@ -48,7 +48,6 @@ app-footer-terms-of-service = Tjenestevilkår
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Åbner i et nyt vindue
@@ -1681,7 +1680,6 @@ signin-unblock-support-link = Hvorfor sker dette?
 signin-unblock-desktop-relay = { -brand-firefox } vil forsøge at sende dig tilbage, så du kan bruge en mail-maske, når du har logget ind.
 
 
-confirm-signup-code-page-title = Indtast bekræftelseskode
 confirm-signup-code-heading-2 = Indtast bekræftelseskoden <span>til din { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Indtast koden, der blev sendt til <email>{ $email }</email>, indenfor fem minutter.
 confirm-signup-code-input-label = Indtast sekscifret kode

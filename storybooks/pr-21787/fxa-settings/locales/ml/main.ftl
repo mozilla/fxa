@@ -32,7 +32,6 @@ app-footer-terms-of-service = സേവന നിബന്ധനകൾ
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = പുതിയ ജാലകത്തില്‍ തുറക്കും

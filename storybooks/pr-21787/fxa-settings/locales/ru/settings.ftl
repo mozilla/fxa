@@ -2514,8 +2514,6 @@ signin-unblock-desktop-relay = { -brand-firefox } попытается отпр�
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
 
-# Page title show in browser title bar or page tab
-confirm-signup-code-page-title = Введите код подтверждения
 # String within the <span> element appears on a separate line
 # If more appropriate in a locale, the string within the <span>, "for your { -product-mozilla-account }"
 # can stand alone as "{ -product-mozilla-account }"

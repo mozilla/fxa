@@ -56,7 +56,6 @@ app-footer-terms-of-service = תנאי השירות
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = ‏{ $title } | ‏{ -product-mozilla-accounts }
 
 
 link-sr-new-window = נפתח בחלון חדש
@@ -1620,7 +1619,6 @@ signin-unblock-support-link = מדוע זה קורה?
 signin-unblock-desktop-relay = ‏{ -brand-firefox } ינסה לשלוח אותך בחזרה להשתמש במסכת דוא״ל לאחר ההתחברות.
 
 
-confirm-signup-code-page-title = נא להכניס את קוד האימות
 confirm-signup-code-heading-2 = נא להכניס קוד אימות <span>עבור { -product-mozilla-account(case: "the") } שלך</span>
 confirm-signup-code-instruction-v2 = נא להכניס את הקוד שנשלח אל <email>{ $email }</email> תוך 5 דקות.
 confirm-signup-code-input-label = נא להזין קוד בן 6 ספרות

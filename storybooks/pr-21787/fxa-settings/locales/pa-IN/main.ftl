@@ -51,7 +51,6 @@ app-footer-terms-of-service = ਸੇਵਾ ਦੀਆਂ ਸ਼ਰਤਾਂ
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = ਨਵੀਂ ਵਿੰਡੋ ਵਿੱਚ ਖੋਲ੍ਹੋ
@@ -1362,7 +1361,6 @@ signin-unblock-resend-code-button = ਇਨਬਾਕਸ ਜਾਂ ਸਪੈਮ �
 signin-unblock-support-link = ਇਹ ਕਿਓ ਵਾਪਰਿਆ ਹੈ?
 
 
-confirm-signup-code-page-title = ਤਸਦੀਕੀਕਰਨ ਕੋਡ ਦਿਓ
 confirm-signup-code-heading-2 = <span>ਆਪਣੇ { -product-mozilla-account }</span> ਲਈ ਤਸਦੀਕੀਕਰਨ ਕੋਡ ਦਿਓ
 confirm-signup-code-input-label = 6-ਅੰਕ ਦਾ ਕੋਡ ਦਿਓ
 confirm-signup-code-confirm-button = ਤਸਦੀਕ

@@ -52,7 +52,6 @@ app-footer-terms-of-service = 이용 약관
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = 새 창에서 열림
@@ -1640,7 +1639,6 @@ signin-unblock-support-link = 이런 일이 왜 일어나나요?
 signin-unblock-desktop-relay = 사용자가 로그인한 후 { -brand-firefox }가 이메일 마스크를 사용하도록 다시 요청합니다.
 
 
-confirm-signup-code-page-title = 확인 코드를 입력하세요.
 confirm-signup-code-heading-2 = <span>{ -product-mozilla-account }</span> 확인 코드를 입력하세요.
 confirm-signup-code-instruction-v2 = 5분 이내에 <email>{ $email }</email> 메일로 전송된 코드를 입력하세요.
 confirm-signup-code-input-label = 6자리 숫자 코드 입력

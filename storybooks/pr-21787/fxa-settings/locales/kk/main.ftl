@@ -48,7 +48,6 @@ app-footer-terms-of-service = Қолдану шарттары
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Жаңа терезеде ашылады
@@ -1683,7 +1682,6 @@ signin-unblock-support-link = Бұл неліктен орын алады?
 signin-unblock-desktop-relay = { -brand-firefox } сіз кіргеннен кейін электрондық пошта маскасын пайдалануға қайта жіберуге тырысады.
 
 
-confirm-signup-code-page-title = Растау кодын енгізіңіз
 confirm-signup-code-heading-2 = Өзіңіздің <span>{ -product-mozilla-account } тіркелгіңіз</span> үшін растау кодын енгізіңіз
 confirm-signup-code-instruction-v2 = <email>{ $email }</email> адресіне жіберілген кодты 5 минут ішінде енгізіңіз.
 confirm-signup-code-input-label = 6-цифрлық кодты енгізіңіз
