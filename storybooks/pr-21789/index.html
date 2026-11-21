@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 8460c106b7cbacdce2ddeda2085262347614629e</title>
+  <title>Storybooks for commit c592d799a1a22318177efbd766122fcb034504ec</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,14 +23,14 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 8460c106b7cbacdce2ddeda2085262347614629e</h1>
+  <h1>Storybooks for commit c592d799a1a22318177efbd766122fcb034504ec</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/21/2026, 12:08:15 AM UTC</dd>
+    <dd>11/21/2026, 12:24:53 AM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): record why a pairing failed on each device</pre></dd>
     <dt>Description</dt>
@@ -45,6 +45,7 @@ This commit:
 - Adds a `cause` extra to both timeout_view events, derived from how the pairing socket closed.
 - Reports `reason` as `unknown` for any failure that is not a timer expiring or a cancel.
 - Times out each waiting page after `qrTimeoutMinutes`, on both devices.
+- Captures a Sentry message when a pairing fails, tagged with its cause and state.
 - Records the channel id the authority creates, so its events carry the channel hash.
 
 Closes FXA-15085</pre></dd>

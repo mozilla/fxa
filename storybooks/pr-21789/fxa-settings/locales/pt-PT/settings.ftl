@@ -2235,7 +2235,7 @@ force-password-change-info = Detetámos um comportamento suspeito na sua { -prod
 force-password-change-data-info = O histórico, marcadores, credenciais, e outros dados pessoais sincronizados não serão perdidos.
 # Browser tab title for the page where the user must change their password because of suspicious activity on their account.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-force-password-change-page-title = Altere a sua palavra-passe
+force-password-change-page-title = Alterar a sua palavra-passe
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2247,7 +2247,7 @@ service-welcome-vpn-heading = Seguinte: Ligar a VPN
 service-welcome-vpn-description = Mais um passo para melhorar a privacidade do seu navegador. Aceda ao painel aberto e ative-a.
 # Browser tab title for the page telling the user to turn on VPN as their next step after signing up or signing in. "VPN" is a VPN service built into the Firefox browser.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-service-welcome-vpn-page-title = Ativar a VPN
+service-welcome-vpn-page-title = Ativar VPN
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
@@ -2262,7 +2262,7 @@ set-password-info-v2 = Isto encripta os seus dados. Tem de ser diferente da pala
 set-password-passwordless-info = Esta palavra-passe encripta os seus dados sincronizados mantém-os seguros.
 # Browser tab title for the page where the user creates a password so they can sync.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-set-password-page-title = Crie uma palavra-passe para sincronizar
+set-password-page-title = Criar uma palavra-passe para sincronizar
 
 ## ThirdPartyAuthCallback Page
 ## This page is called after a user completes the third party authentication flow from Google or Apple.
@@ -2318,7 +2318,7 @@ confirm-backup-code-reset-password-instruction = Insira um dos códigos de utili
 confirm-backup-code-reset-password-locked-out-link = Está bloqueado?
 # Browser tab title for the page where the user enters a backup authentication code to reset their password.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-confirm-backup-code-reset-password-page-title = Reponha a palavra-passe com um código de recuperação
+confirm-backup-code-reset-password-page-title = Repor palavra-passe com um código de recuperação
 
 ## Confirm Reset Password With Code
 
@@ -2351,7 +2351,7 @@ confirm-totp-reset-password-input-label-v2 = Inserir código de 6 dígitos
 confirm-totp-reset-password-use-different-account = Utilizar uma conta diferente
 # Browser tab title for the page where the user enters a two-step authentication code to reset their password.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-confirm-totp-reset-password-page-title = Redefinir a palavra-passe com a autenticação de dois passos
+confirm-totp-reset-password-page-title = Redefinir palavra-passe com autenticação de dois passos
 
 ## ResetPassword start page
 
@@ -2397,7 +2397,7 @@ password-reset-recovery-method-send-code-error-heading = Ocorreu um problema ao 
 password-reset-recovery-method-send-code-error-description = Por favor tente novamente mais tarde ou utilize os seus códigos de autenticação de recuperação.
 # Browser tab title for the page where the user chooses a recovery method to reset their password.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-password-reset-recovery-method-page-title = Reponha a palavra-passe com um método de recuperação
+password-reset-recovery-method-page-title = Repor palavra-passe com um método de recuperação
 
 ## ResetPasswordRecoveryPhone page
 
@@ -2421,7 +2421,7 @@ reset-password-recovery-phone-invalid-code-error-description = O código é inv�
 reset-password-recovery-phone-invalid-code-error-link = Em vez disso, usar códigos de autenticação de recuperação?
 # Browser tab title for the page where the user enters a code sent to their recovery phone to reset their password.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-reset-password-recovery-phone-page-title = Redefinir a palavra-passe com o telefone de recuperação
+reset-password-recovery-phone-page-title = Repor palavra-passe com telefone de recuperação
 reset-password-with-recovery-key-verified-page-title = Palavra-passe redefinida com sucesso
 reset-password-complete-new-password-saved = Nova palavra-passe guardada!
 reset-password-complete-recovery-key-created = Nova chave de recuperação da conta criada. Transferir e guardar agora.
@@ -2463,9 +2463,6 @@ complete-signin-validating-page-title = A confirmar início de sessão
 # Browser tab title for the page where the user enters their password to sign in.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 signin-password-page-title = Introduza a sua palavra-passe
-# Browser tab title for the sign-in page shown when the user already has a saved session on this device.
-# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signin-cached-page-title = Iniciar sessão
 # Browser tab title for the page where the user picks how to sign in when their account has no password.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 signin-alternative-auth-page-title = Escolha um método de início de sessão

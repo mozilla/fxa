@@ -1463,14 +1463,14 @@ permissions-page-title = Rever permissões
 force-password-change-heading = Por favor altere a sua palavra-passe
 force-password-change-info = Detetámos um comportamento suspeito na sua { -product-mozilla-account }. Para proteger a sua conta, por favor crie uma nova palavra-passe. Irá utilizar esta palavra-passe para iniciar sessão novamente em todos os seus serviços da { -product-mozilla-account }.
 force-password-change-data-info = O histórico, marcadores, credenciais, e outros dados pessoais sincronizados não serão perdidos.
-force-password-change-page-title = Altere a sua palavra-passe
+force-password-change-page-title = Alterar a sua palavra-passe
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmada
 service-welcome-signin-success-banner = Sessão iniciada com sucesso!
 service-welcome-vpn-heading = Seguinte: Ligar a VPN
 service-welcome-vpn-description = Mais um passo para melhorar a privacidade do seu navegador. Aceda ao painel aberto e ative-a.
-service-welcome-vpn-page-title = Ativar a VPN
+service-welcome-vpn-page-title = Ativar VPN
 
 
 set-password-heading-v2 = Criar palavra-passe para sincronizar
@@ -1478,7 +1478,7 @@ set-password-info-v2 = Isto encripta os seus dados. Tem de ser diferente da pala
 
 
 set-password-passwordless-info = Esta palavra-passe encripta os seus dados sincronizados mantém-os seguros.
-set-password-page-title = Crie uma palavra-passe para sincronizar
+set-password-page-title = Criar uma palavra-passe para sincronizar
 
 
 third-party-auth-callback-message = Por favor, aguarde. Está a ser reencaminhado para uma aplicação autorizada.
@@ -1507,7 +1507,7 @@ confirm-backup-code-reset-password-confirm-button = Confirmar
 confirm-backup-code-reset-password-subheader = Insira o código de autenticação de recuperação
 confirm-backup-code-reset-password-instruction = Insira um dos códigos de utilização única que guardou ao configurar a autenticação de dois passos.
 confirm-backup-code-reset-password-locked-out-link = Está bloqueado?
-confirm-backup-code-reset-password-page-title = Reponha a palavra-passe com um código de recuperação
+confirm-backup-code-reset-password-page-title = Repor palavra-passe com um código de recuperação
 
 
 confirm-reset-password-with-code-heading = Verifique o seu e-mail
@@ -1526,7 +1526,7 @@ confirm-totp-reset-password-trouble-code = Problemas ao introduzir o código?
 confirm-totp-reset-password-confirm-button = Confirmar
 confirm-totp-reset-password-input-label-v2 = Inserir código de 6 dígitos
 confirm-totp-reset-password-use-different-account = Utilizar uma conta diferente
-confirm-totp-reset-password-page-title = Redefinir a palavra-passe com a autenticação de dois passos
+confirm-totp-reset-password-page-title = Redefinir palavra-passe com autenticação de dois passos
 
 
 password-reset-flow-heading = Redefinir a sua palavra-passe
@@ -1556,7 +1556,7 @@ password-reset-recovery-method-code-info =
     }
 password-reset-recovery-method-send-code-error-heading = Ocorreu um problema ao enviar um código para o seu telefone de recuperação
 password-reset-recovery-method-send-code-error-description = Por favor tente novamente mais tarde ou utilize os seus códigos de autenticação de recuperação.
-password-reset-recovery-method-page-title = Reponha a palavra-passe com um método de recuperação
+password-reset-recovery-method-page-title = Repor palavra-passe com um método de recuperação
 
 
 reset-password-recovery-phone-flow-heading = Repor a sua palavra-passe
@@ -1572,7 +1572,7 @@ reset-password-recovery-phone-code-verification-error-heading = Ocorreu um probl
 reset-password-recovery-phone-general-error-description = Por favor tente mais tarde.
 reset-password-recovery-phone-invalid-code-error-description = O código é inválido ou expirou.
 reset-password-recovery-phone-invalid-code-error-link = Em vez disso, usar códigos de autenticação de recuperação?
-reset-password-recovery-phone-page-title = Redefinir a palavra-passe com o telefone de recuperação
+reset-password-recovery-phone-page-title = Repor palavra-passe com telefone de recuperação
 reset-password-with-recovery-key-verified-page-title = Palavra-passe redefinida com sucesso
 reset-password-complete-new-password-saved = Nova palavra-passe guardada!
 reset-password-complete-recovery-key-created = Nova chave de recuperação da conta criada. Transferir e guardar agora.
@@ -1596,7 +1596,6 @@ complete-signin-validating-page-title = A confirmar início de sessão
 
 
 signin-password-page-title = Introduza a sua palavra-passe
-signin-cached-page-title = Iniciar sessão
 signin-alternative-auth-page-title = Escolha um método de início de sessão
 signin-password-needed-header-2 = Insira a sua palavra-passe <span>para a sua { -product-mozilla-account }</span>
 signin-button-start-syncing = Iniciar sincronização
