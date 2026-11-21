@@ -105,12 +105,13 @@ export const deeplinkWebviewFallback = new EventMetricType(
 
 /**
  * User viewed the pairing interrupted screen on the mobile (supplicant)
- * device. One route serves both the timed-out and the canceled state, so the
- * state is in 'reason' rather than being inferable from the URL.
+ * device. One route serves every dead-end state, so the state is in
+ * 'reason' rather than being inferable from the URL.
  *
  * Generated from `dtm_mobile.timeout_view`.
  */
 export const timeoutView = new EventMetricType<{
+  cause?: string;
   reason?: string;
 }>(
   {
@@ -120,5 +121,5 @@ export const timeoutView = new EventMetricType<{
     lifetime: 'ping',
     disabled: false,
   },
-  ['reason']
+  ['cause', 'reason']
 );

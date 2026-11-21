@@ -15,6 +15,7 @@ import {
   SupplicantState,
 } from '../../../../models';
 import { navigateWithQuery } from '../../../../lib/utilities';
+import { getDefault } from '../../../../lib/config';
 
 // The channel credentials reach this page in router state rather than the URL,
 // so the location is mocked instead of driving a real router entry.
@@ -166,7 +167,7 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
     );
   });
 
-  it('blames a timeout when pairing fails on its own', async () => {
+  it('reports an unknown reason when pairing fails on its own', async () => {
     renderContainer();
     await waitFor(() => expect(integration.onStateChange).toBeTruthy());
 
@@ -174,7 +175,7 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
 
     expect(navigateWithQuery).toHaveBeenCalledWith(
       '/pair/supplicant/timeout_and_cancel',
-      { state: { reason: 'timeout' } },
+      { state: { reason: 'unknown' } },
       true
     );
   });
@@ -211,7 +212,7 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
     await waitFor(() => expect(captureException).toHaveBeenCalledWith(err));
     expect(navigateWithQuery).toHaveBeenCalledWith(
       '/pair/supplicant/timeout_and_cancel',
-      { state: { reason: 'timeout' } },
+      { state: { reason: 'unknown' } },
       true
     );
     expect(navigateWithQuery).toHaveBeenCalledTimes(1);
@@ -264,7 +265,7 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
       await waitFor(() => expect(captureException).toHaveBeenCalledWith(err));
       expect(navigateWithQuery).toHaveBeenCalledWith(
         '/pair/supplicant/timeout_and_cancel',
-        { state: { reason: 'timeout' } },
+        { state: { reason: 'unknown' } },
         true
       );
       expect(navigateWithQuery).toHaveBeenCalledTimes(1);
@@ -283,7 +284,7 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
       await waitFor(() => expect(captureException).toHaveBeenCalledWith(err));
       expect(navigateWithQuery).toHaveBeenCalledWith(
         '/pair/supplicant/timeout_and_cancel',
-        { replace: true, state: { reason: 'timeout' } }
+        { replace: true, state: { reason: 'unknown', cause: 'error' } }
       );
       expect(navigateWithQuery).toHaveBeenCalledTimes(1);
     });
@@ -364,6 +365,28 @@ describe('Pair2/Supplicant/ConnectThisDevice container', () => {
 
     expect(() => renderContainer()).toThrow(
       'Invalid location state. Expecting version of 2.'
+    );
+  });
+
+  // Neither device can tell an expired channel from a closed one, so a page
+  // that idles is the only timeout either side can report as one.
+  it('leaves for the timeout screen after idling for the pairing timeout', async () => {
+    jest.useFakeTimers();
+    jest.spyOn(integration, 'destroy').mockResolvedValue(undefined);
+    renderContainer();
+
+    await act(() =>
+      jest.advanceTimersByTimeAsync(
+        getDefault().pairing.qrTimeoutMinutes * 60 * 1000
+      )
+    );
+    jest.useRealTimers();
+
+    expect(integration.destroy).toHaveBeenCalled();
+    expect(navigateWithQuery).toHaveBeenCalledWith(
+      '/pair/supplicant/timeout_and_cancel',
+      { state: { reason: 'timeout' } },
+      true
     );
   });
 });

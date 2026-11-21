@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import ApproveSignIn from '.';
 import { navigateWithQuery } from '../../../../lib/utilities';
+import { usePairingIdleTimeout } from '../../usePairingIdleTimeout';
 import * as Sentry from '@sentry/browser';
 
 export const ApproveSignInContainer = ({
@@ -33,6 +34,7 @@ export const ApproveSignInContainer = ({
   const [remoteMetadata, setRemoteMetadata] = useState<RemoteMetadata | null>(
     integration.remoteMetadata
   );
+  usePairingIdleTimeout(integration, '/pair/authority/timeout_and_cancel');
 
   useEffect(() => {
     integration.onStateChange = (state: AuthorityState) => {
@@ -50,7 +52,8 @@ export const ApproveSignInContainer = ({
               state: {
                 reason: integration.canceledBySupplicant
                   ? 'canceled'
-                  : 'timeout',
+                  : 'unknown',
+                cause: integration.failureCause,
               },
             },
             true
@@ -81,7 +84,11 @@ export const ApproveSignInContainer = ({
     // becomes an unhandled rejection.
     integration.authorize().catch((err) => {
       Sentry.captureException(err);
-      navigateWithQuery('/pair/authority/timeout_and_cancel', {}, true);
+      navigateWithQuery(
+        '/pair/authority/timeout_and_cancel',
+        { state: { reason: 'unknown', cause: 'error' } },
+        true
+      );
     });
   };
 

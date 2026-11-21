@@ -31,6 +31,7 @@ export const qrSkip = new EventMetricType(
  * Generated from `dtm_desktop.timeout_view`.
  */
 export const timeoutView = new EventMetricType<{
+  cause?: string;
   reason?: string;
 }>(
   {
@@ -40,5 +41,5 @@ export const timeoutView = new EventMetricType<{
     lifetime: 'ping',
     disabled: false,
   },
-  ['reason']
+  ['cause', 'reason']
 );

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import * as Sentry from '@sentry/browser';
 import { GenericData } from '../../lib/model-data';
 import {
   AuthorityState,
@@ -9,6 +10,10 @@ import {
   PairingVersion,
 } from './pairing-authority-integration';
 import { OAUTH_ERRORS } from '../../lib/oauth';
+import {
+  getPairingChannelId,
+  resetPairingChannelParamsForTest,
+} from '../../lib/pairing-channel-params';
 
 const CHANNEL_SERVER_URI = 'wss://channel.example.com';
 
@@ -18,6 +23,7 @@ const mockChannelSend = jest.fn().mockResolvedValue(undefined);
 const mockRemoveEventListener = jest.fn();
 let mockListeners: Record<string, Function[]> = {};
 let mockIsUnloading = false;
+let mockCloseReason: string | undefined;
 
 jest.mock('../../lib/channels/pairing-channel', () => {
   const actual = jest.requireActual('../../lib/channels/pairing-channel');
@@ -31,6 +37,9 @@ jest.mock('../../lib/channels/pairing-channel', () => {
       channelKey: 'key-1',
       get isUnloading() {
         return mockIsUnloading;
+      },
+      get closeReason() {
+        return mockCloseReason;
       },
       addEventListener: jest.fn((type: string, handler: Function) => {
         (mockListeners[type] ||= []).push(handler);
@@ -425,6 +434,15 @@ describe('PairingAuthorityIntegration', () => {
     });
 
     describe('createChannel', () => {
+      // The phone's events carry a hash of the channel id; the desktop's can
+      // only be joined to them if it records the id of the channel it minted.
+      it('records the channel id for telemetry', async () => {
+        resetPairingChannelParamsForTest();
+        await integration.createChannel();
+        expect(getPairingChannelId()).toBe('chan-1');
+        resetPairingChannelParamsForTest();
+      });
+
       it('creates a channel against the configured channel server', async () => {
         await integration.createChannel();
 
@@ -756,6 +774,29 @@ describe('PairingAuthorityIntegration', () => {
         });
       });
 
+      // Telemetry says a pairing failed; the Sentry event's breadcrumbs are
+      // what show how it got there.
+      it('reports the failure to Sentry with its cause and state', () => {
+        const captureMessage = jest
+          .spyOn(Sentry, 'captureMessage')
+          .mockImplementation(() => '');
+
+        emit('close');
+
+        expect(captureMessage).toHaveBeenCalledWith(
+          'Pairing authority failed',
+          {
+            level: 'warning',
+            tags: {
+              'pairing.failure_cause': 'peer_closed',
+              'pairing.state': AuthorityState.WaitingForMetadata,
+              'pairing.canceled_by_peer': false,
+            },
+          }
+        );
+        captureMessage.mockRestore();
+      });
+
       it('fails with the channel error detail', () => {
         const err = new Error('socket exploded');
 
@@ -763,6 +804,39 @@ describe('PairingAuthorityIntegration', () => {
 
         expect(integration.state).toBe(AuthorityState.Failed);
         expect(onError).toHaveBeenCalledWith(err);
+      });
+
+      // The dead-end screen calls every failure a timeout; the cause is what
+      // lets telemetry tell a phone that gave up from a desktop that lost its
+      // connection.
+      it.each([
+        [
+          'the other device closing the channel',
+          'close',
+          undefined,
+          'peer_closed',
+        ],
+        [
+          'the server ending the channel',
+          'error',
+          'server_closed',
+          'peer_closed',
+        ],
+        [
+          'a socket that could not resume',
+          'error',
+          'resume_expired',
+          'connection_lost',
+        ],
+        ['any other channel error', 'error', undefined, 'error'],
+      ])('records %s as the failure cause', (_, event, closeReason, cause) => {
+        mockCloseReason = closeReason;
+
+        emit(event, new Error('boom'));
+
+        mockCloseReason = undefined;
+        expect(integration.state).toBe(AuthorityState.Failed);
+        expect(integration.failureCause).toBe(cause);
       });
 
       it('normalizes a non-Error channel failure', () => {
@@ -866,6 +940,7 @@ describe('PairingAuthorityIntegration', () => {
         emit('remote:pair:supp:cancel');
 
         expect(integration.state).toBe(AuthorityState.Failed);
+        expect(integration.failureCause).toBe('peer_closed');
       });
 
       // The container reads the flag from inside the Failed handler, so it has

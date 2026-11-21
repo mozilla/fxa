@@ -15,6 +15,7 @@ import config from '../../../../lib/config';
 import AppLayout from '../../../../components/AppLayout';
 import ConnectThisDevice from '.';
 import { navigateWithQuery } from '../../../../lib/utilities';
+import { usePairingIdleTimeout } from '../../usePairingIdleTimeout';
 
 // The integration's fail() emits Failed, and the state handler routes to the
 // timeout screen from there. Only errors that bypass fail(), such as a missing
@@ -27,7 +28,7 @@ const leaveOnError = (
   if (integration.state !== SupplicantState.Failed) {
     navigateWithQuery('/pair/supplicant/timeout_and_cancel', {
       replace: true,
-      state: { reason: 'timeout' },
+      state: { reason: 'unknown', cause: integration.failureCause ?? 'error' },
     });
   }
 };
@@ -52,6 +53,8 @@ export const ConnectThisDeviceContainer = ({
   if (location.state?.version !== '2') {
     throw new Error('Invalid location state. Expecting version of 2.');
   }
+
+  usePairingIdleTimeout(integration, '/pair/supplicant/timeout_and_cancel');
 
   useEffect(() => {
     integration.onStateChange = (state: SupplicantState) => {
@@ -82,7 +85,8 @@ export const ConnectThisDeviceContainer = ({
               state: {
                 reason: integration.canceledByAuthority
                   ? 'canceled'
-                  : 'timeout',
+                  : 'unknown',
+                cause: integration.failureCause,
               },
             },
             true

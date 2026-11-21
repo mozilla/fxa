@@ -16,7 +16,7 @@ import { RemoteMetadata } from '../types';
 import UAParser from 'ua-parser-js';
 import { toGenericOSName } from '../utilities';
 import { base64urlToBytes, bytesToBase64url } from '../base64url';
-import { ResumableWebSocket } from './resumable-websocket';
+import { CloseReason, ResumableWebSocket } from './resumable-websocket';
 
 // Types
 
@@ -188,9 +188,37 @@ type PairingChannelSocket = {
   readonly closed?: boolean;
 };
 
+/**
+ * Which side a failed pairing was lost on, for telemetry. `peer_closed`: the
+ * other device or the channel server ended the channel. `connection_lost`:
+ * this device's socket died and could not be resumed. `error`: anything else.
+ */
+export type PairingFailureCause = 'peer_closed' | 'connection_lost' | 'error';
+
+export function toFailureCause(closeReason?: CloseReason): PairingFailureCause {
+  switch (closeReason) {
+    // The channel server closed the socket with its own close code, which it
+    // sends when it ends a channel on purpose: the other device left, or the
+    // channel expired.
+    case 'server_closed':
+      return 'peer_closed';
+    // The socket dropped and could not be resumed: no reconnect got through
+    // before the resume window ran out (`resume_expired`), or the server had
+    // not yet issued a resume token to reconnect with (`no_token`).
+    case 'resume_expired':
+    case 'no_token':
+      return 'connection_lost';
+    // `self_closed` (this client hung up) or no close at all: the failure did
+    // not come from the socket.
+    default:
+      return 'error';
+  }
+}
+
 export class PairingChannelClient extends EventTarget {
   private channel: PairingChannelSocket | null = null;
   private socket?: ResumableWebSocket;
+  private lastCloseReason?: CloseReason;
   private _opening = false;
   private unloading = false;
 
@@ -200,6 +228,11 @@ export class PairingChannelClient extends EventTarget {
    */
   get isUnloading(): boolean {
     return this.unloading;
+  }
+
+  /** How the socket under the channel ended, kept after the socket is gone. */
+  get closeReason(): CloseReason | undefined {
+    return this.socket?.closeReason ?? this.lastCloseReason;
   }
 
   get channelKey() {
@@ -499,6 +532,7 @@ export class PairingChannelClient extends EventTarget {
   }
 
   private detachSocket(): void {
+    this.lastCloseReason = this.closeReason;
     this.socket?.removeEventListener('resumed', this.handleResumed);
     this.socket = undefined;
   }

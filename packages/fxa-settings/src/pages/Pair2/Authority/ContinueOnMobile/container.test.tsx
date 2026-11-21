@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { MemoryRouter } from 'react-router';
@@ -16,6 +16,7 @@ import {
 } from './mocks';
 import { AuthorityState, Integration } from '../../../../models';
 import { navigateWithQuery } from '../../../../lib/utilities';
+import { getDefault } from '../../../../lib/config';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router', () => ({
@@ -77,7 +78,7 @@ describe('Pair2/Authority/ContinueOnMobile container', () => {
 
   // The pairing request is dead in this state — cancelled or timed out — so the
   // authority must never be asked to approve a sign-in for it.
-  it('blames a timeout when pairing fails on its own', async () => {
+  it('reports an unknown reason when pairing fails on its own', async () => {
     renderContainer();
     await waitFor(() => expect(integration.onStateChange).toBeTruthy());
 
@@ -85,7 +86,7 @@ describe('Pair2/Authority/ContinueOnMobile container', () => {
 
     expect(navigateWithQuery).toHaveBeenCalledWith(
       '/pair/authority/timeout_and_cancel',
-      { state: { reason: 'timeout' } },
+      { state: { reason: 'unknown' } },
       true
     );
   });
@@ -173,6 +174,28 @@ describe('Pair2/Authority/ContinueOnMobile container', () => {
   it('throws when handed an integration that is not the pairing authority', () => {
     expect(() => renderContainer(MOCK_NON_PAIRING_INTEGRATION)).toThrow(
       'Invalid integration. Expecting instance of PairingAuthorityIntegration.'
+    );
+  });
+
+  // Neither device can tell an expired channel from a closed one, so a page
+  // that idles is the only timeout either side can report as one.
+  it('leaves for the timeout screen after idling for the pairing timeout', async () => {
+    jest.useFakeTimers();
+    jest.spyOn(integration, 'destroy').mockResolvedValue(undefined);
+    renderContainer();
+
+    await act(() =>
+      jest.advanceTimersByTimeAsync(
+        getDefault().pairing.qrTimeoutMinutes * 60 * 1000
+      )
+    );
+    jest.useRealTimers();
+
+    expect(integration.destroy).toHaveBeenCalled();
+    expect(navigateWithQuery).toHaveBeenCalledWith(
+      '/pair/authority/timeout_and_cancel',
+      { state: { reason: 'timeout' } },
+      true
     );
   });
 });

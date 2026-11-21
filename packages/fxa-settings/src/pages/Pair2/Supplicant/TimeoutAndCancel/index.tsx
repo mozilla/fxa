@@ -16,9 +16,14 @@ import { useFtlMsgResolver } from '../../../../models';
  * Why the pairing attempt ended without connecting. Named for the cause rather
  * than the screen, because that is what the caller knows at the point it routes
  * here — the states are otherwise the same card. `signed_in` is the mobile
- * browser already holding an account, which pairing cannot replace.
+ * browser already holding an account, which pairing cannot replace. `unknown`
+ * is nothing having said why; it shows the timeout card.
  */
-export type PairingInterruptionReason = 'timeout' | 'canceled' | 'signed_in';
+export type PairingInterruptionReason =
+  | 'timeout'
+  | 'canceled'
+  | 'signed_in'
+  | 'unknown';
 
 /**
  * The only thing that varies between the states. Keyed by reason so the
@@ -27,7 +32,7 @@ export type PairingInterruptionReason = 'timeout' | 'canceled' | 'signed_in';
  * one parameterised message.
  */
 const COPY: Record<
-  PairingInterruptionReason,
+  Exclude<PairingInterruptionReason, 'unknown'>,
   {
     pageTitleFtlId: string;
     pageTitle: string;
@@ -89,6 +94,8 @@ const COPY: Record<
 export type TimeoutAndCancelProps = {
   /** Which dead-end state to show. */
   reason?: PairingInterruptionReason;
+  /** What ended the pairing, for telemetry. See `PairingFailureCause`. */
+  cause?: string;
 };
 
 /**
@@ -97,8 +104,10 @@ export type TimeoutAndCancelProps = {
  * are purely informational — the designs give them no button and no link, so
  * the user restarts from `firefox.com/pair` on their computer.
  */
-const TimeoutAndCancel = ({ reason }: TimeoutAndCancelProps) => {
-  reason = reason ?? 'timeout';
+const TimeoutAndCancel = ({
+  reason = 'unknown',
+  cause,
+}: TimeoutAndCancelProps) => {
   const {
     pageTitleFtlId,
     pageTitle,
@@ -106,15 +115,15 @@ const TimeoutAndCancel = ({ reason }: TimeoutAndCancelProps) => {
     heading,
     descriptionFtlId,
     description,
-  } = COPY[reason];
+  } = COPY[reason === 'unknown' ? 'timeout' : reason];
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedPageTitle = ftlMsgResolver.getMsg(pageTitleFtlId, pageTitle);
 
   // Custom view event rather than the automatic one: the states share a route,
   // so `reason` is the only thing that tells them apart.
   useEffect(() => {
-    GleanMetrics.dtmMobile.timeoutView({ event: { reason } });
-  }, [reason]);
+    GleanMetrics.dtmMobile.timeoutView({ event: { reason, cause } });
+  }, [reason, cause]);
 
   return (
     <AppLayout title={localizedPageTitle} whiteBackground>

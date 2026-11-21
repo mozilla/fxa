@@ -12,6 +12,7 @@ import {
 } from '../../../../models';
 import ContinueOnMobile from '.';
 import { navigateWithQuery } from '../../../../lib/utilities';
+import { usePairingIdleTimeout } from '../../usePairingIdleTimeout';
 
 export type ContinueOnMobileContainerProps = {
   integration?: Integration | PairingAuthorityIntegration;
@@ -27,6 +28,7 @@ const ContinueOnMobileContainer = ({
   }
 
   const navigate = useNavigate();
+  usePairingIdleTimeout(integration, '/pair/authority/timeout_and_cancel');
 
   useEffect(() => {
     integration.onStateChange = (state: AuthorityState) => {
@@ -43,7 +45,8 @@ const ContinueOnMobileContainer = ({
               state: {
                 reason: integration.canceledBySupplicant
                   ? 'canceled'
-                  : 'timeout',
+                  : 'unknown',
+                cause: integration.failureCause,
               },
             },
             true

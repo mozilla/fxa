@@ -6,8 +6,9 @@ import TimeoutAndCancel, { TimeoutAndCancelProps } from '.';
 
 export const Subject = ({
   reason = 'timeout',
+  cause,
   onTryAgain = () => {},
   onSyncSettings = () => {},
 }: Partial<TimeoutAndCancelProps> = {}) => (
-  <TimeoutAndCancel {...{ reason, onTryAgain, onSyncSettings }} />
+  <TimeoutAndCancel {...{ reason, cause, onTryAgain, onSyncSettings }} />
 );

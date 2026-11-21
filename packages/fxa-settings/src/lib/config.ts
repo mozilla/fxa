@@ -101,7 +101,7 @@ export interface Config {
      * account start a pairing without entering one again.
      */
     totpMaxAgeMinutes: number;
-    /** Minutes the v2 QR page waits for a scan before it times out. */
+    /** Minutes a v2 pairing page waits before it times out. */
     qrTimeoutMinutes: number;
     /**
      * Lowest Firefox major version, per platform, that takes the v2 flow. A

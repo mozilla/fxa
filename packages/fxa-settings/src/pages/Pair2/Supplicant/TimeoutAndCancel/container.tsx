@@ -33,12 +33,12 @@ const TimeoutAndCancelContainer = ({
   integration,
 }: TimeoutAndCancelContainerProps) => {
   const location = useLocation();
-  // Anything unrecognised is a timeout, including no state at all.
+  // Anything unrecognised is unknown, including no state at all.
   const reason: PairingInterruptionReason = KNOWN_REASONS.has(
     location.state?.reason
   )
     ? location.state.reason
-    : 'timeout';
+    : 'unknown';
 
   useEffect(() => {
     if (!(integration instanceof PairingSupplicantIntegration)) {
@@ -48,7 +48,13 @@ const TimeoutAndCancelContainer = ({
     integration.destroy().catch((err) => Sentry.captureException(err));
   }, [integration]);
 
-  return <TimeoutAndCancel {...{ reason }} />;
+  // Telemetry only.
+  const cause =
+    typeof location.state?.cause === 'string'
+      ? location.state.cause
+      : undefined;
+
+  return <TimeoutAndCancel {...{ reason, cause }} />;
 };
 
 export default TimeoutAndCancelContainer;

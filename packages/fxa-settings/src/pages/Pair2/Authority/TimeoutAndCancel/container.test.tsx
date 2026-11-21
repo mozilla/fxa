@@ -75,8 +75,8 @@ describe('Pair2/Authority/TimeoutAndCancel container', () => {
     );
   });
 
-  // Timeout is the safe default: it is the variant offering a way back.
-  it('falls back to the timeout variant when no reason was given', () => {
+  // The timeout card is the one that only offers a way back.
+  it('shows the timeout card when no reason was given', () => {
     renderWithReason(undefined, integration);
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(

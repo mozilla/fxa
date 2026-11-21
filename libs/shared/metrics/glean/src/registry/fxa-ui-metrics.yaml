@@ -4591,8 +4591,16 @@ dtm_desktop:
     extra_keys:
       reason:
         description: |
-          Why pairing stopped: 'timeout' when the pairing channel expired, or
-          'canceled' when either device abandoned the attempt.
+          Why pairing stopped: 'timeout' when a pairing page idled past its
+          time limit, 'canceled' when either device abandoned the attempt, or
+          'unknown' for any other failure. 'cause' narrows an 'unknown'.
+        type: string
+      cause:
+        description: |
+          Which side the pairing was lost on: 'peer_closed' when the other
+          device or the channel server ended the channel, 'connection_lost'
+          when this device's connection dropped and could not be resumed, or
+          'error' for anything else. Empty when the pairing did not fail.
         type: string
 
 dtm_mobile:
@@ -4618,9 +4626,17 @@ dtm_mobile:
     extra_keys:
       reason:
         description: |
-          Why pairing stopped: 'timeout' when the pairing channel expired,
-          'canceled' when either device abandoned the attempt, or 'signed_in'
-          when the mobile browser already held a verified account.
+          Why pairing stopped: 'timeout' when a pairing page idled past its
+          time limit, 'canceled' when either device abandoned the attempt,
+          'signed_in' when the mobile browser already held a verified account,
+          or 'unknown' for any other failure. 'cause' narrows an 'unknown'.
+        type: string
+      cause:
+        description: |
+          Which side the pairing was lost on: 'peer_closed' when the other
+          device or the channel server ended the channel, 'connection_lost'
+          when this device's connection dropped and could not be resumed, or
+          'error' for anything else. Empty when the pairing did not fail.
         type: string
 
   connect_hint_view:

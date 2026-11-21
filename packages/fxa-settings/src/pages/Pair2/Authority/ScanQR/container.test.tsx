@@ -371,7 +371,7 @@ describe('Pair2/Authority/ScanQR container', () => {
     await waitFor(() => expect(integration.destroy).toHaveBeenCalled());
     expect(mockNavigate).toHaveBeenCalledWith(
       '/pair/authority/timeout_and_cancel',
-      { state: { reason: 'timeout' } }
+      { state: { reason: 'unknown' } }
     );
   });
 
