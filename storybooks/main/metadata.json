@@ -1,8 +1,8 @@
 {
-  "commit": "289a812a8af867b279b16aaa67fb21589332eed5",
-  "summary": "Merge pull request #21738 from mozilla/limit-sessions-4-prune-script",
-  "description": "feat(auth): finish device disconnects when pruning capped sessions",
-  "timestamp": 1795221174000,
+  "commit": "0e7438ea93979fef420c147df7593cce5387a754",
+  "summary": "Merge pull request #21789 from mozilla/fxa-15085",
+  "description": "feat(settings): record why a pairing failed on each device",
+  "timestamp": 1795222344000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
