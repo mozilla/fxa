@@ -109,6 +109,38 @@ describe('ResumableWebSocket', () => {
     expect(closed).not.toHaveBeenCalled();
   });
 
+  // A phone moving from wifi to cell writes into a socket that is already
+  // dead: send() succeeds and the message is gone.
+  it('sends again what the server says it never received', () => {
+    const { socket, first } = connect();
+    socket.send('arrived');
+    socket.send('lost');
+    first.drop();
+
+    const second = FakeSocket.instances[1];
+    second.open();
+    second.receive(
+      JSON.stringify({ channelid: 'abc', resume: 'e'.repeat(32), received: 1 })
+    );
+
+    expect(first.sent).toEqual(['arrived', 'lost']);
+    expect(second.sent).toEqual(['lost']);
+  });
+
+  it('sends nothing again when the server received everything', () => {
+    const { socket, first } = connect();
+    socket.send('arrived');
+    first.drop();
+
+    const second = FakeSocket.instances[1];
+    second.open();
+    second.receive(
+      JSON.stringify({ channelid: 'abc', resume: 'e'.repeat(32), received: 1 })
+    );
+
+    expect(second.sent).toEqual([]);
+  });
+
   it('resumes the next drop with the token the server rotated to', () => {
     const { first } = connect();
     first.drop();
