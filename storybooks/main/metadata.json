@@ -1,8 +1,8 @@
 {
-  "commit": "052576340d1950fe3eadce2f192f6b9ee37165a1",
-  "summary": "Merge pull request #21794 from mozilla/skill-verify-frame-reads",
-  "description": "docs(skills): review video frames from a contact sheet in issue-verification",
-  "timestamp": 1795216421000,
+  "commit": "289a812a8af867b279b16aaa67fb21589332eed5",
+  "summary": "Merge pull request #21738 from mozilla/limit-sessions-4-prune-script",
+  "description": "feat(auth): finish device disconnects when pruning capped sessions",
+  "timestamp": 1795221174000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

@@ -48,6 +48,7 @@ app-footer-terms-of-service = Användarvillkor
 
 
 app-default-title-2 = { -product-mozilla-accounts }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = Öppnas i nytt fönster
@@ -304,6 +305,7 @@ input-phone-number-country-canada = Kanada
 reset-pwd-link-damaged-header = Länken för att återställa lösenordet fungerar inte
 signin-link-damaged-header = Bekräftelselänken är trasig
 report-signin-link-damaged-header = Länk skadad
+report-signin-link-damaged-page-title = Rapportera länken skadad
 reset-pwd-link-damaged-message = Länken du klickade på saknade vissa tecken och kan ha förvrängts av ditt e-postprogram. Kopiera adressen noggrant och försök igen.
 
 
@@ -323,6 +325,7 @@ confirmation-link-reused-message = Den bekräftelselänken har redan använts oc
 locale-toggle-select-label = Välj språk
 locale-toggle-browser-default = Webbläsares standard
 error-bad-request = Felaktig begäran
+error-bad-request-page-title = Felaktig begäran
 
 
 pair-unsupported-hint-heading = Avsluta parkoppling i appen
@@ -379,6 +382,9 @@ ready-continue = Fortsätt
 sign-in-complete-header = Inloggning bekräftad
 sign-up-complete-header = Kontot bekräftat
 primary-email-verified-header = Primär e-postadress bekräftad
+sign-in-complete-page-title = Inloggning bekräftad
+sign-up-complete-page-title = Kontot bekräftat
+primary-email-verified-page-title = Primär e-postadress bekräftad
 
 
 flow-recovery-key-download-storage-ideas-heading-v2 = Platser att lagra din nyckel:
@@ -628,6 +634,7 @@ modal-mfa-protected-cancel-button = Avbryt
 modal-mfa-protected-confirm-button = Bekräfta
 modal-mfa-protected-code-expired = Har koden upphört?
 modal-mfa-protected-resend-code-link = Mejla ny kod.
+modal-mfa-protected-clock-skew-error = Enhetens klocka är fel. Korrigera datum och tid på enheten och försök igen.
 
 
 mvs-verify-your-email-2 = Bekräfta din e-postadress
@@ -916,6 +923,7 @@ security-set-password = Ange ett lösenord för att synkronisera och använda vi
 security-recent-activity-link = Visa senaste kontoaktivitet
 signout-sync-header = Sessionen upphörde
 signout-sync-session-expired = Tyvärr, något gick fel. Logga ut från webbläsarmenyn och försök igen.
+signout-sync-page-title = Session upphörd
 
 
 tfa-row-backup-codes-title = Säkerhetskopiera autentiseringskoder
@@ -1161,14 +1169,17 @@ connect-another-device-cad-link = Anslut en annan enhet
 connect-another-device-not-now-link = Inte nu
 connect-another-device-android-complete-setup-message = Logga in på { -brand-firefox } för Android för att slutföra konfigurationen
 connect-another-device-ios-complete-setup-message = Logga in på { -brand-firefox } för iOS för att slutföra konfigurationen
+connect-another-device-page-title = Anslut en annan enhet
 
 
 cookies-disabled-header = Lokal lagring och kakor krävs
 cookies-disabled-enable-prompt-2 = Vänligen aktivera kakor och lokal lagring i din webbläsare för att komma åt ditt { -product-mozilla-account }. Om du gör det aktiveras funktioner som att komma ihåg dig mellan sessionerna.
 cookies-disabled-button-try-again = Försök igen
 cookies-disabled-learn-more = Läs mer
+cookies-disabled-page-title = Kakor och lokal lagring krävs
 
 
+index-page-title = Logga in eller skapa ett konto
 index-header = Ange din e-postadress
 index-sync-header = Fortsätt till ditt { -product-mozilla-account }
 index-sync-subheader = Synkronisera dina lösenord, flikar och bokmärken överallt där du använder { -brand-firefox }.
@@ -1203,6 +1214,15 @@ inline-recovery-key-setup-download-header = Säkra ditt konto
 inline-recovery-key-setup-download-subheader = Ladda ner och lagra den nu
 inline-recovery-key-setup-download-info = Förvara den här nyckeln någonstans du kommer ihåg — du kommer inte att kunna komma tillbaka till den här sidan senare.
 inline-recovery-key-setup-hint-header = Säkerhetsrekommendation
+inline-recovery-key-setup-create-page-title = Skapa en kontoåterställningsnyckel
+inline-recovery-key-setup-download-page-title = Ladda ner din kontoåterställningsnyckel
+inline-recovery-key-setup-hint-page-title = Lägg till ett tips för återställningsnyckel
+inline-recovery-setup-choice-page-title = Välj en återställningsmetod
+inline-recovery-setup-download-codes-page-title = Spara dina reservkoder
+inline-recovery-setup-confirm-code-page-title = Bekräfta en reservkod
+inline-recovery-setup-phone-number-page-title = Lägg till ett återställningsnummer
+inline-recovery-setup-phone-code-page-title = Bekräfta ditt återställningsnummer
+inline-recovery-setup-complete-page-title = Tvåstegsautentisering på
 
 
 inline-totp-setup-cancel-setup-button = Avbryt konfiguration
@@ -1222,16 +1242,20 @@ inline-totp-setup-security-code-placeholder = Autentiseringskod
 inline-totp-setup-code-required-error = Autentiseringskod krävs
 tfa-qr-code-alt = Använd koden { $code } för att ställa in tvåstegsautentisering i applikationer som stöds.
 inline-totp-setup-page-title = Tvåstegsautentisering
+inline-totp-setup-intro-page-title = Ställ in tvåstegsautentisering
+inline-totp-setup-enrol-page-title = Anslut din autentiseringsapp
 
 
 page-not-found-heading = Sidan hittades inte
 page-not-found-description = Sidan du sökte kunde inte hittas. Vi har fått information om detta och kommer att åtgärda eventuella felaktiga länkar.
 page-not-found-home-button = Hem
+page-not-found-page-title = Sidan hittades inte
 
 
 pair-auth-allow-heading-text = Loggade du precis in på { -brand-firefox }?
 pair-auth-allow-confirm-button = Ja, godkänn enhet
 pair-auth-allow-refuse-device-link = Om det inte var du, <a>ändra du ditt lösenord</a>
+pair-auth-allow-page-title = Godkänn inloggning för { -brand-firefox }
 
 
 pair-auth-complete-heading = Enhet ansluten
@@ -1244,6 +1268,8 @@ pair-auth-complete-manage-devices-link = Hantera enheter
 pair-auth-complete-send-tab-heading = Du är redo att skicka några flikar
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } för { $deviceOS } är ansluten.
 pair-auth-complete-send-tab-benefits = Du kan direkt skicka öppna flikar, lösenord och bokmärken mellan enheter.
+pair-auth-complete-page-title = Enhet ansluten
+pair-auth-complete-send-tab-page-title = Redo att skicka flikar
 
 
 auth-totp-heading-w-default-service = Ange autentiseringskoden <span>för att fortsätta till kontoinställningarna</span>
@@ -1252,14 +1278,17 @@ auth-totp-instruction = Öppna din autentiseringsapp och ange autentiseringskode
 auth-totp-input-label = Ange 6-siffrig kod
 auth-totp-confirm-button = Bekräfta
 auth-totp-code-required-error = Autentiseringskod krävs
+auth-totp-page-title = Para med tvåstegsautentisering
 
 
 pair-wait-for-supp-heading-text = Godkännande krävs nu <span>från din andra enhet</span>
+pair-wait-for-supp-page-title = Godkänn på den andra enheten
 
 
 pair-failure-header-v2 = Parkoppling misslyckades
 pair-failure-message-v2 = Installationen kunde inte slutföras. Vänligen logga in med din e-postadress.
 pair-failure-try-again-link = Försök igen
+pair-failure-page-title = Parkoppling misslyckades
 
 
 pair-sync-header = Synkronisera { -brand-firefox } på din telefon eller surfplatta
@@ -1293,19 +1322,25 @@ pair-download-description = För att synka { -brand-firefox } på din telefon el
 pair-download-step-scan-qr = <b>Steg { $stepNumber }</b>: Ladda ner { -brand-firefox } genom att skanna den här QR-koden med kameran på din mobila enhet:
 pair-download-step-continue-sync = <b>Steg { $stepNumber }</b>: Välj “Fortsätt till synkronisering” för att synkronisera din { -brand-firefox }-upplevelse på din mobila enhet.
 pair-continue-to-sync-button = Fortsätt till synkronisering
+pair-choice-page-title = Anslut en annan enhet
+pair-choice-send-tab-page-title = Skicka flikar till en annan enhet
+pair-download-page-title = Hämta { -brand-firefox } för mobil
 
 
 pair-success-header-2 = Enhet ansluten
 pair-success-message-2 = Parkoppling lyckades.
 pair-success-tab-close-message = Den här fliken stängs automatiskt av { -brand-firefox }.
+pair-success-page-title = Enhet ansluten
 
 
 pair-supp-allow-heading-text = Bekräfta parkoppling <span>för { $email }</span>
 pair-supp-allow-confirm-button = Bekräfta parkoppling
 pair-supp-allow-cancel-link = Avbryt
+pair-supp-allow-page-title = Bekräfta parkoppling
 
 
 pair-wait-for-auth-heading-text = Godkännande krävs nu <span>från din andra enhet</span>
+pair-wait-for-auth-page-title = Godkänn på den andra enheten
 
 
 pair-unsupported-header = Parkoppling via en app
@@ -1318,21 +1353,28 @@ pair-unsupported-connecting-mobile-instructions-v2 = Öppna { -brand-firefox } p
 pair-unsupported-learn-more-link-v2 = Läs mer
 pair-unsupported-desktop-firefox-fallback-header-v2 = Hoppsan! Något gick fel.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Stäng den här fliken och försök igen.
+pair-unsupported-desktop-non-firefox-page-title = { -brand-firefox } krävs
+pair-unsupported-system-camera-page-title = Parkoppling via en app
+pair-unsupported-mobile-page-title = Anslut din mobila enhet
+pair-unsupported-desktop-firefox-fallback-page-title = Något gick fel
 
 
 pair2-authority-approve-sign-in-heading = Godkänn inloggning?
 pair2-authority-approve-sign-in-confirm-button = Ja, godkänn inloggning
 pair2-authority-approve-sign-in-change-password = Inte du? <changePassword>Ändra ditt lösenord</changePassword>
+pair2-authority-approve-sign-in-page-title = Godkänn inloggning
 
 
 pair2-authority-continue-on-mobile-heading = Fortsätt på din mobila enhet
 pair2-authority-continue-on-mobile-description = Följ stegen på din telefon eller surfplatta.
 pair2-authority-continue-on-mobile-cancel-button = Avbryt
+pair2-authority-continue-on-mobile-page-title = Fortsätt på din mobila enhet
 
 
 pair2-authority-download-firefox-heading = Öppna { -brand-firefox } för att synkronisera
 pair2-authority-download-firefox-instruction-v2 = För att konfigurera synkronisering mellan enheter, öppna { -brand-firefox } på den här enheten och besök <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Hämta { -brand-firefox }
+pair2-authority-download-firefox-page-title = Öppna { -brand-firefox } för att synkronisera
 
 
 pair2-authority-scan-qr-heading = Skanna för att ansluta din mobila enhet
@@ -1340,11 +1382,13 @@ pair2-authority-scan-qr-instruction = Skanna QR-koden med din telefon eller surf
 pair2-authority-scan-qr-code-aria-label = QR-kod för att ansluta din mobila enhet
 pair2-authority-scan-qr-other-ways-link = Andra sätt att logga in
 pair2-authority-scan-qr-skip-button = Hoppa över nu
+pair2-authority-scan-qr-page-title = Skanna för att ansluta din mobila enhet
 
 
 pair2-authority-sync-success-heading-v2 = Din enhet är ansluten
 pair2-authority-sync-success-description-v2 = Synkronisering pågår. Det kan ta en stund innan din synkroniserade data visas. Fortsätt gärna surfa.
 pair2-authority-sync-success-sync-settings-button-v2 = Hantera synkroniseringsinställningar
+pair2-authority-sync-success-page-title = Enhet ansluten
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Vill du fortfarande ansluta en enhet?
@@ -1353,16 +1397,20 @@ pair2-authority-timeout-and-cancel-cancelled-heading = Avbruten
 pair2-authority-timeout-and-cancel-canceled-description = Om du ångrar dig eller vill ansluta en annan enhet, försök igen.
 pair2-authority-timeout-and-cancel-try-again-button = Försök igen
 pair2-authority-timeout-and-cancel-sync-settings-button = Synkroniseringsinställningar
+pair2-authority-timeout-and-cancel-timeout-page-title = Inget svar
+pair2-authority-timeout-and-cancel-cancelled-page-title = Parkoppling avbruten
 
 
 pair2-supplicant-approve-sign-in-heading = Ett sista steg för att synkronisera
 pair2-supplicant-approve-sign-in-instruction = Godkänn inloggningen på din dator.
 pair2-supplicant-approve-sign-in-cancel-button = Avbryt
+pair2-supplicant-approve-sign-in-page-title = Ett sista steg för att synkronisera
 
 
 pair2-supplicant-connect-this-device-heading = Anslut den här enheten till ditt konto?
 pair2-supplicant-connect-this-device-connect-button = Anslut
 pair2-supplicant-connect-this-device-cancel-button = Avbryt
+pair2-supplicant-connect-this-device-page-title = Anslut enheten
 
 
 pair2-supplicant-download-firefox-heading-v2 = Öppna { -brand-firefox } på den här enheten
@@ -1372,15 +1420,21 @@ pair2-supplicant-download-firefox-opening-button = Öppnar { -brand-firefox }…
 pair2-supplicant-download-firefox-download-button = Ladda ned { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = Jag har redan { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Läs mer
+pair2-supplicant-download-firefox-page-title = Öppna { -brand-firefox } på den här enheten
+
+
+pair2-supplicant-connect-hint-page-title = Avsluta parkoppling i appen
 
 
 pair2-supplicant-ready-to-scan-heading = För att ansluta en enhet
 pair2-supplicant-ready-to-scan-instruction = På din dator, öppna { -brand-firefox } och gå till <b>firefox.com/pair</b> och följ instruktionerna på skärmen för att ansluta den här mobila enheten.
 pair2-supplicant-ready-to-scan-learn-more-link = Läs mer
+pair2-supplicant-ready-to-scan-page-title = Redo att skanna
 
 
 pair2-supplicant-sync-success-heading = Din enhet är ansluten
 pair2-supplicant-sync-success-description-v2 = Synkronisering pågår. Det kan ta en stund innan din synkroniserade data visas. Fortsätt gärna surfa.
+pair2-supplicant-sync-success-page-title = Enhet ansluten
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Vi gjorde timeout
@@ -1389,6 +1443,9 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Avbruten
 pair2-supplicant-timeout-and-cancel-canceled-description = När du vill ansluta en enhet besöker du <b>firefox.com/pair</b> på din dator.
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Den här enheten är redan inloggad
 pair2-supplicant-timeout-and-cancel-signed-in-description = För att ansluta till din dators konto, logga ut från { -brand-firefox } på den här enheten och besök sedan <b>firefox.com/pair</b> på din dator för att slutföra inloggningen.
+pair2-supplicant-timeout-and-cancel-timeout-page-title = Inget svar
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = Parkoppling avbruten
+pair2-supplicant-timeout-and-cancel-signed-in-page-title = Enheten redan inloggad
 
 
 permissions-heading = { $serviceName } vill ha tillgång till:
@@ -1397,17 +1454,20 @@ permissions-label-display-name = Visningsnamn
 permissions-label-avatar = Kontobild
 permissions-continue-button = Fortsätt
 permissions-cancel-button = Avbryt
+permissions-page-title = Granska behörigheter
 
 
 force-password-change-heading = Vänligen ändra ditt lösenord
 force-password-change-info = Vi har upptäckt misstänkt aktivitet på ditt { -product-mozilla-account }. Skapa ett nytt lösenord för att skydda ditt konto. Du använder det nya lösenordet för att logga in igen på alla dina tjänster från { -product-mozilla-account }.
 force-password-change-data-info = Synkroniserad historik, bokmärken, inloggningar och annan personlig information går inte förlorad.
+force-password-change-page-title = Ändra ditt lösenord
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } har bekräftats
 service-welcome-signin-success-banner = Inloggad!
 service-welcome-vpn-heading = Nästa: Slå på VPN
 service-welcome-vpn-description = Ytterligare ett steg för att stärka din webbläsares integritet. Gå till den öppna panelen och slå på den.
+service-welcome-vpn-page-title = Slå på VPN
 
 
 set-password-heading-v2 = Skapa lösenord för att synkronisera
@@ -1415,6 +1475,7 @@ set-password-info-v2 = Detta krypterar din data. Det måste skilja sig från lö
 
 
 set-password-passwordless-info = Detta lösenord krypterar din synkroniserade data och håller den säker.
+set-password-page-title = Skapa ett lösenord för att synkronisera
 
 
 third-party-auth-callback-message = Vänta, du omdirigeras till den auktoriserade applikationen.
@@ -1427,6 +1488,7 @@ account-recovery-confirm-key-input-label =
 account-recovery-confirm-key-hint = Ditt lagringstips är:
 account-recovery-confirm-key-button-2 = Fortsätt
 account-recovery-lost-recovery-key-link-2 = Kan du inte hitta din kontoåterställningsnyckel?
+account-recovery-confirm-key-page-title = Återställ lösenord med återställningsnyckel
 
 
 complete-reset-pw-header-v2 = Skapa ett nytt lösenord
@@ -1436,11 +1498,13 @@ complete-reset-pw-recovery-key-link = Använd nyckel för kontoåterställning
 reset-password-complete-banner-heading = Ditt lösenord har återställts.
 reset-password-complete-banner-message = Glöm inte att skapa en ny kontoåterställningsnyckel från dina inställningar för { -product-mozilla-account } för att förhindra framtida inloggningsproblem.
 complete-reset-password-desktop-relay = { -brand-firefox } försöker skicka dig tillbaka för att använda ett e-postalias efter du loggat in.
+complete-reset-password-page-title = Skapa ett nytt lösenord
 confirm-backup-code-reset-password-input-label = Ange en kod på 10 tecken
 confirm-backup-code-reset-password-confirm-button = Bekräfta
 confirm-backup-code-reset-password-subheader = Ange reservautentiseringskod
 confirm-backup-code-reset-password-instruction = Ange en av engångskoderna som du sparade när du konfigurerade tvåstegsautentisering.
 confirm-backup-code-reset-password-locked-out-link = Är du utelåst?
+confirm-backup-code-reset-password-page-title = Återställ lösenordet med en reservkod
 
 
 confirm-reset-password-with-code-heading = Kontrollera din e-post
@@ -1449,6 +1513,7 @@ confirm-reset-password-code-input-group-label = Ange en 8-siffrig kod inom 10 mi
 confirm-reset-password-otp-submit-button = Fortsätt
 confirm-reset-password-otp-resend-code-button = Skicka koden igen
 confirm-reset-password-otp-different-account-link = Använd ett annat konto
+confirm-reset-password-with-code-page-title = Kontrollera din e-post för att återställa ditt lösenord
 
 
 confirm-totp-reset-password-header = Återställ lösenordet
@@ -1458,6 +1523,7 @@ confirm-totp-reset-password-trouble-code = Har du problem att ange koden?
 confirm-totp-reset-password-confirm-button = Bekräfta
 confirm-totp-reset-password-input-label-v2 = Ange 6-siffrig kod
 confirm-totp-reset-password-use-different-account = Använd ett annat konto
+confirm-totp-reset-password-page-title = Återställ lösenordet med tvåstegsautentisering
 
 
 password-reset-flow-heading = Återställ ditt lösenord
@@ -1467,10 +1533,12 @@ password-reset-email-input =
     .label = Ange din e-postadress
 password-reset-submit-button-2 = Fortsätt
 password-reset-data-recovery-warning = Om du återställer lösenordet kan det påverka möjligheten att återfå synkroniserade webbläsardata. <learnMoreLink>Läs mer</learnMoreLink>
+password-reset-flow-page-title = Återställ lösenordet
 
 
 reset-password-complete-header = Ditt lösenord har återställts
 reset-password-confirmed-cta = Fortsätt till { $serviceName }
+reset-password-confirmed-page-title = Lösenordsåterställning slutförd
 
 
 password-reset-recovery-method-header = Återställ lösenordet
@@ -1485,6 +1553,7 @@ password-reset-recovery-method-code-info =
     }
 password-reset-recovery-method-send-code-error-heading = Det gick inte att skicka en kod till ditt återställningstelefon
 password-reset-recovery-method-send-code-error-description = Försök igen senare eller använd dina reservautentiseringskoder.
+password-reset-recovery-method-page-title = Återställ lösenord med en återställningsmetod
 
 
 reset-password-recovery-phone-flow-heading = Återställ lösenordet
@@ -1500,6 +1569,7 @@ reset-password-recovery-phone-code-verification-error-heading = Det uppstod ett 
 reset-password-recovery-phone-general-error-description = Försök igen senare.
 reset-password-recovery-phone-invalid-code-error-description = Koden är ogiltig eller har upphört.
 reset-password-recovery-phone-invalid-code-error-link = Använd reservautentiseringskoder istället?
+reset-password-recovery-phone-page-title = Återställ lösenordet med återställningstelefon
 reset-password-with-recovery-key-verified-page-title = Lösenordsåterställningen lyckades
 reset-password-complete-new-password-saved = Nytt lösenord sparat!
 reset-password-complete-recovery-key-created = Ny nyckel för kontoåterställning skapad. Ladda ner och lagra den nu.
@@ -1507,11 +1577,13 @@ reset-password-complete-recovery-key-download-info =
     Den här nyckeln är viktig för
     dataåterställning om du glömmer ditt lösenord. <b>Ladda ner och lagra den säkert
     nu, eftersom du inte kommer att kunna komma åt den här sidan igen senare.</b>
+reset-password-with-recovery-key-verified-hint-page-title = Lägg till ett tips för återställningsnyckel
 
 
 server-error-heading = 500 Fel
 server-error-description = Oj, något gick fel där. Vi har meddelats och kommer att arbeta med en lösning.
 server-error-home-button = Hem
+server-error-page-title = Serverfel
 
 
 error-label = Fel:
@@ -1519,8 +1591,13 @@ validating-signin = Validerar inloggning…
 complete-signin-error-header = Bekräftelsefel
 signin-link-expired-header = Bekräftelselänken har upphört
 signin-link-expired-message-2 = Länken du klickade på har upphört eller har redan använts.
+complete-signin-error-page-title = Bekräftelsefel av inloggning
+complete-signin-validating-page-title = Bekräftar inloggning
 
 
+signin-password-page-title = Ange ditt lösenord
+signin-cached-page-title = Logga in
+signin-alternative-auth-page-title = Välj en inloggningsmetod
 signin-password-needed-header-2 = Ange ditt lösenord <span>för ditt { -product-mozilla-account }</span>
 signin-button-start-syncing = Starta synkronisering
 signin-subheader-without-logo-with-servicename = Fortsätt till { $serviceName }
@@ -1544,11 +1621,13 @@ report-signin-body = Du har fått e-post om försök att få tillgång till ditt
 report-signin-submit-button = Rapportera aktivitet
 report-signin-support-link = Varför händer detta?
 report-signin-error = Det uppstod ett problem med att skicka in rapporten.
+report-signin-page-title = Rapportera obehörig inloggning
 signin-bounced-header = Förlåt. Vi har låst ditt konto.
 signin-bounced-message = Bekräftelsemeddelandet som vi skickade till { $email } returnerades och vi har låst ditt konto för att skydda din { -brand-firefox }-data.
 signin-bounced-help = Om detta är en giltig e-postadress, <linkExternal>meddela oss</linkExternal> så kan vi hjälpa dig att låsa upp ditt konto.
 signin-bounced-create-new-account = Äger du inte längre den e-postadressen? Skapa ett nytt konto
 back = Tillbaka
+signin-bounced-page-title = Konto låst
 
 
 signin-passkey-fallback-header = Slutför inloggningen
@@ -1562,6 +1641,7 @@ signin-passkey-fallback-no-prf-description = Den här webbläsaren eller enheten
 signin-passkey-fallback-unwrap-failed-heading = Din lösenordsnyckel kunde inte låsa upp synkronisering
 signin-passkey-fallback-unwrap-failed-description = Något gick fel, så du behöver ditt lösenord den här gången.
 signin-passkey-fallback-wrap-unusable-link = Läs mer
+signin-passkey-fallback-page-title = Ange ditt lösenord för att synkronisera
 
 
 signin-passwordless-code-heading = Ange bekräftelsekod
@@ -1589,6 +1669,8 @@ signup-passwordless-code-subheading = Registrering går snabbt när du använder
 
 
 signin-passwordless-totp-required = Tvåstegsautentisering är aktiverad på ditt konto. Logga in med ditt lösenord.
+signin-passwordless-code-page-title = Logga in med e-postkod
+signup-passwordless-code-page-title = Registrera dig med e-postkod
 
 
 signin-recovery-method-header = Logga in
@@ -1603,6 +1685,7 @@ signin-recovery-method-code-info-v2 =
     }
 signin-recovery-method-send-code-error-heading = Det gick inte att skicka en kod till ditt återställningstelefon
 signin-recovery-method-send-code-error-description = Försök igen senare eller använd dina reservautentiseringskoder.
+signin-recovery-method-page-title = Logga in med en återställningsmetod
 
 
 signin-recovery-code-heading = Logga in
@@ -1615,6 +1698,7 @@ signin-recovery-code-support-link = Är du utelåst?
 signin-recovery-code-required-error = Reservautentiseringskod krävs
 signin-recovery-code-use-phone-failure = Det gick inte att skicka en kod till ditt återställningstelefon
 signin-recovery-code-use-phone-failure-description = Försök igen senare.
+signin-recovery-code-page-title = Logga in med en reservkod
 
 
 signin-recovery-phone-flow-heading = Logga in
@@ -1631,10 +1715,12 @@ signin-recovery-phone-general-error-description = Försök igen senare.
 signin-recovery-phone-invalid-code-error-description = Koden är ogiltig eller har upphört.
 signin-recovery-phone-invalid-code-error-link = Använd reservautentiseringskoder istället?
 signin-recovery-phone-success-message = Inloggad. Begränsningar kan gälla om du använder din återställningstelefon igen.
+signin-recovery-phone-page-title = Logga in med återställningstelefon
 
 
 signin-reported-header = Tack för din vaksamhet
 signin-reported-message = Vårt team har underrättats. Rapporter som denna hjälper oss att avvärja inkräktare.
+signin-reported-page-title = Inloggning rapporterad
 
 
 signin-token-code-heading-2 = Ange bekräftelsekod<span> för ditt { -product-mozilla-account }</span>
@@ -1651,6 +1737,7 @@ signin-token-code-resend-code-countdown =
 signin-token-code-required-error = Bekräftelsekod krävs
 signin-token-code-resend-error = Något gick fel. En ny kod kunde inte skickas.
 signin-token-code-instruction-desktop-relay = { -brand-firefox } försöker skicka dig tillbaka för att använda ett e-postalias efter du loggat in.
+signin-token-code-page-title = Bekräfta inloggning med e-postkod
 
 
 signin-totp-code-header = Logga in
@@ -1666,6 +1753,7 @@ signin-totp-code-other-account-link = Använd ett annat konto
 signin-totp-code-recovery-code-link = Har du problem att ange koden?
 signin-totp-code-required-error = Autentiseringskod krävs
 signin-totp-code-desktop-relay = { -brand-firefox } försöker skicka dig tillbaka för att använda ett e-postalias efter du loggat in.
+signin-totp-code-page-title = Logga in med tvåstegsautentisering
 
 
 signin-unblock-header = Auktorisera denna inloggning
@@ -1678,8 +1766,10 @@ signin-unblock-code-incorrect-format-2 = Behörighetskod kan endast innehålla b
 signin-unblock-resend-code-button = Inte i inkorgen eller skräppostmappen? Skicka igen
 signin-unblock-support-link = Varför händer detta?
 signin-unblock-desktop-relay = { -brand-firefox } försöker skicka dig tillbaka för att använda ett e-postalias efter du loggat in.
+signin-unblock-page-title = Auktorisera denna inloggning
 
 
+confirm-signup-code-page-title-2 = bekräfta din e-postadress
 confirm-signup-code-heading-2 = Ange bekräftelsekoden <span>för ditt { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Ange koden som skickades till <email>{ $email }</email> inom 5 minuter.
 confirm-signup-code-input-label = Ange 6-siffrig kod
@@ -1702,6 +1792,7 @@ signup-relay-info = Ett lösenord behövs för att säkert hantera dina maskerad
 signup-sync-info = Synkronisera dina lösenord, bokmärken och mer överallt där du använder { -brand-firefox }.
 signup-sync-info-with-payment = Synkronisera dina lösenord, betalningsmetoder, bokmärken och mer, överallt där du använder { -brand-firefox }.
 signup-change-email-link = Ändra e-post
+signup-page-title = Skapa ditt konto
 
 
 signup-confirmed-sync-header = Synkronisering är aktiverad
@@ -1712,8 +1803,10 @@ signup-confirmed-sync-description-v2 = Dina lösenord, adresser, bokmärken, his
 signup-confirmed-sync-add-device-link = Lägg till en annan enhet
 signup-confirmed-sync-manage-sync-button = Hantera synkronisering
 signup-confirmed-sync-set-password-success-banner = Synkroniseringslösenord skapat
+signup-confirmed-sync-page-title = Synkronisering är aktiverad
 
 
 update-firefox-heading = { -brand-firefox } uppdatering krävs
 update-firefox-description = Ditt { -product-mozilla-account } använder funktioner som inte stöds av din version av { -brand-firefox }. Ladda ned och installera den senaste versionen av { -brand-firefox } för att fortsätta.
 update-firefox-download-button = Ladda ner senaste
+update-firefox-page-title = { -brand-firefox } uppdatering krävs
