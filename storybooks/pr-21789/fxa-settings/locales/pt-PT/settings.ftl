@@ -879,7 +879,7 @@ modal-mfa-protected-code-expired = Código expirado?
 # Link to resend a new code to the user's email.
 modal-mfa-protected-resend-code-link = Enviar novo código por e-mail.
 # Error shown when the code is correct but the device clock is too far ahead of the server time.
-modal-mfa-protected-clock-skew-error = O relógio do seu dispositivo está errado. Corrija a data e hora do seu dispositivo e tente novamente.
+modal-mfa-protected-clock-skew-error = O relógio do seu dispositivo está errado. Corrija a data e hora do seu dispositivo, e depois tente novamente.
 
 ## Modal Verify Session
 
@@ -1723,7 +1723,7 @@ inline-recovery-setup-confirm-code-page-title = Confirmar um código de seguran�
 inline-recovery-setup-phone-number-page-title = Adicionar um telefone de recuperação
 # Browser tab title for the page where the user enters the code sent to their recovery phone to confirm it.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-inline-recovery-setup-phone-code-page-title = Confirme o seu telefone de recuperação
+inline-recovery-setup-phone-code-page-title = Confirmar o seu telefone de recuperação
 # Browser tab title for the page confirming that two-step authentication is now on for the account.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 inline-recovery-setup-complete-page-title = Autenticação de dois passos ativada
@@ -1792,7 +1792,7 @@ pair-auth-allow-confirm-button = Sim, aprovar dispositivo
 pair-auth-allow-refuse-device-link = Se não foi você, <a>altere a sua palavra-passe</a>
 # Browser tab title for the page where the user approves a { -brand-firefox } sign-in on a new device.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair-auth-allow-page-title = Aprovar { -brand-firefox } início de sessão
+pair-auth-allow-page-title = Aprovar início de sessão no { -brand-firefox }
 
 ## PairAuthComplete page - part of the device pairing flow
 

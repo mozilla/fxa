@@ -636,7 +636,7 @@ modal-mfa-protected-cancel-button = Cancelar
 modal-mfa-protected-confirm-button = Confirmar
 modal-mfa-protected-code-expired = Código expirado?
 modal-mfa-protected-resend-code-link = Enviar novo código por e-mail.
-modal-mfa-protected-clock-skew-error = O relógio do seu dispositivo está errado. Corrija a data e hora do seu dispositivo e tente novamente.
+modal-mfa-protected-clock-skew-error = O relógio do seu dispositivo está errado. Corrija a data e hora do seu dispositivo, e depois tente novamente.
 
 
 mvs-verify-your-email-2 = Confirmar o seu endereço de correio eletrónico
@@ -1222,7 +1222,7 @@ inline-recovery-setup-choice-page-title = Escolha um método de recuperação
 inline-recovery-setup-download-codes-page-title = Guarde os seus códigos de segurança
 inline-recovery-setup-confirm-code-page-title = Confirmar um código de segurança
 inline-recovery-setup-phone-number-page-title = Adicionar um telefone de recuperação
-inline-recovery-setup-phone-code-page-title = Confirme o seu telefone de recuperação
+inline-recovery-setup-phone-code-page-title = Confirmar o seu telefone de recuperação
 inline-recovery-setup-complete-page-title = Autenticação de dois passos ativada
 
 
@@ -1258,7 +1258,7 @@ page-not-found-page-title = Página não encontrada
 pair-auth-allow-heading-text = Acabou de iniciar a sessão no { -brand-firefox }?
 pair-auth-allow-confirm-button = Sim, aprovar dispositivo
 pair-auth-allow-refuse-device-link = Se não foi você, <a>altere a sua palavra-passe</a>
-pair-auth-allow-page-title = Aprovar { -brand-firefox } início de sessão
+pair-auth-allow-page-title = Aprovar início de sessão no { -brand-firefox }
 
 
 pair-auth-complete-heading = Dispositivo ligado

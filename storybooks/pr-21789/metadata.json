@@ -1,8 +1,8 @@
 {
-  "commit": "2c67d79c78c0536e32a5173093f7e5861e78db4a",
+  "commit": "8460c106b7cbacdce2ddeda2085262347614629e",
   "summary": "feat(settings): record why a pairing failed on each device",
-  "description": "Because:\n\n- timeout_view reported `timeout` for every failure, so a device that gave up could not be told from one that lost signal.\n- Pages reached with no reason were also counted as timeouts.\n- The channel hash was only set on supplicant pages, so the two devices' events could not be joined.\n\nThis commit:\n\n- Adds a `cause` extra to both timeout_view events: peer_closed, connection_lost or error.\n- Derives the cause from how the pairing socket closed, on both the supplicant and the authority.\n- Reports `reason` as `unknown` when the page is reached without a recognised reason.\n- Records the channel id the authority creates, so its events carry the channel hash.\n\nCloses FXA-15085",
-  "timestamp": 1795218507000,
+  "description": "Because:\n\n- timeout_view reported `timeout` for every failure, so a real timeout could not be told from a dropped connection or an error.\n- Neither device can tell an expired channel from a closed one, so only a timer of its own can report a timeout.\n- The channel hash was only set on supplicant pages, so the two devices' events could not be joined.\n\nThis commit:\n\n- Adds a `cause` extra to both timeout_view events, derived from how the pairing socket closed.\n- Reports `reason` as `unknown` for any failure that is not a timer expiring or a cancel.\n- Times out each waiting page after `qrTimeoutMinutes`, on both devices.\n- Records the channel id the authority creates, so its events carry the channel hash.\n\nCloses FXA-15085",
+  "timestamp": 1795219695000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-settings"
