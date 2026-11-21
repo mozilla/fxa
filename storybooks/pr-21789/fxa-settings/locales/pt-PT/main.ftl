@@ -1596,6 +1596,7 @@ complete-signin-validating-page-title = A confirmar início de sessão
 
 
 signin-password-page-title = Introduza a sua palavra-passe
+signin-cached-page-title = Iniciar sessão
 signin-alternative-auth-page-title = Escolha um método de início de sessão
 signin-password-needed-header-2 = Insira a sua palavra-passe <span>para a sua { -product-mozilla-account }</span>
 signin-button-start-syncing = Iniciar sincronização
@@ -1714,7 +1715,7 @@ signin-recovery-phone-general-error-description = Por favor, tente novamente mai
 signin-recovery-phone-invalid-code-error-description = O código é inválido ou expirou.
 signin-recovery-phone-invalid-code-error-link = Em vez disso, utilizar códigos de autenticação de recuperação?
 signin-recovery-phone-success-message = Sessão iniciada com sucesso. Podem ser aplicados limites se utilizar novamente o seu telefone de recuperação.
-signin-recovery-phone-page-title = Iniciar sessão com o telefone de recuperação
+signin-recovery-phone-page-title = Iniciar sessão com telefone de recuperação
 
 
 signin-reported-header = Obrigado pela sua vigilância
@@ -1736,7 +1737,7 @@ signin-token-code-resend-code-countdown =
 signin-token-code-required-error = É necessário o código de confirmação
 signin-token-code-resend-error = Algo correu mal. Não foi possível enviar um novo código.
 signin-token-code-instruction-desktop-relay = O { -brand-firefox } vai tentar redirecionar para a utilização de uma máscara de e-mail após o seu início de sessão.
-signin-token-code-page-title = Confirmar início de sessão com o código de e-mail
+signin-token-code-page-title = Confirmar início de sessão com código de e-mail
 
 
 signin-totp-code-header = Iniciar sessão
@@ -1768,7 +1769,7 @@ signin-unblock-desktop-relay = O { -brand-firefox } vai tentar redirecionar para
 signin-unblock-page-title = Autorizar este início de sessão
 
 
-confirm-signup-code-page-title-2 = Confirmar o seu endereço de correio eletrónico
+confirm-signup-code-page-title-2 = Confirmar o seu e-mail
 confirm-signup-code-heading-2 = Introduza o código de confirmação <span>para a sua { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Digite o código que foi enviado para <email>{ $email }</email> nos próximos 5 minutos.
 confirm-signup-code-input-label = Inserir código de 6 dígitos

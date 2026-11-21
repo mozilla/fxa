@@ -2463,6 +2463,9 @@ complete-signin-validating-page-title = A confirmar início de sessão
 # Browser tab title for the page where the user enters their password to sign in.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 signin-password-page-title = Introduza a sua palavra-passe
+# Browser tab title for the sign-in page shown when the user already has a saved session on this device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-cached-page-title = Iniciar sessão
 # Browser tab title for the page where the user picks how to sign in when their account has no password.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 signin-alternative-auth-page-title = Escolha um método de início de sessão
@@ -2662,7 +2665,7 @@ signin-recovery-phone-invalid-code-error-link = Em vez disso, utilizar códigos 
 signin-recovery-phone-success-message = Sessão iniciada com sucesso. Podem ser aplicados limites se utilizar novamente o seu telefone de recuperação.
 # Browser tab title for the page where the user enters a code sent to their recovery phone to sign in.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signin-recovery-phone-page-title = Iniciar sessão com o telefone de recuperação
+signin-recovery-phone-page-title = Iniciar sessão com telefone de recuperação
 
 ## Signin reported page: this page is shown when a user receives an email notifying them of a new account signin, and the user clicks a button indicating that the signin was not them so that we know it was someone trying to break into their account.
 
@@ -2704,7 +2707,7 @@ signin-token-code-resend-error = Algo correu mal. Não foi possível enviar um n
 signin-token-code-instruction-desktop-relay = O { -brand-firefox } vai tentar redirecionar para a utilização de uma máscara de e-mail após o seu início de sessão.
 # Browser tab title for the page where the user enters the confirmation code emailed to them to confirm a sign-in.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signin-token-code-page-title = Confirmar início de sessão com o código de e-mail
+signin-token-code-page-title = Confirmar início de sessão com código de e-mail
 
 ## SigninTOTPCode page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -2760,7 +2763,7 @@ signin-unblock-page-title = Autorizar este início de sessão
 
 # Browser tab title for the page where the user enters the confirmation code emailed to them to finish signing up.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-confirm-signup-code-page-title-2 = Confirmar o seu endereço de correio eletrónico
+confirm-signup-code-page-title-2 = Confirmar o seu e-mail
 # String within the <span> element appears on a separate line
 # If more appropriate in a locale, the string within the <span>, "for your { -product-mozilla-account }"
 # can stand alone as "{ -product-mozilla-account }"
