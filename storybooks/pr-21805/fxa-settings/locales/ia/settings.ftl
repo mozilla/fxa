@@ -367,6 +367,9 @@ signin-link-damaged-header = Ligamine de confirmation damnificate
 # The user followed a link to report an invalid signin attempt that was received by email
 # but the link was damaged (for example mistyped or broken by the email client).
 report-signin-link-damaged-header = Ligamine damnificate
+# Browser tab title for the page shown when the user followed a link to report an unauthorized sign-in, but the link was damaged.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+report-signin-link-damaged-page-title = Reportar ligamine damnificate
 # The user followed a link received by email, but the link was damaged.
 reset-pwd-link-damaged-message = Il manca characteres in le ligamine sur le qual tu ha cliccate. Pote esser que tu programma de e-mail lo ha corrumpite. Copia minutiosemente le adresse, e tenta de novo.
 
@@ -398,6 +401,9 @@ locale-toggle-select-label = Eliger le lingua
 locale-toggle-browser-default = Navigator predefinite
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Mal requesta
+# Browser tab title for the page shown when the URL or network request is malformed, e.g. a required query parameter is invalid.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+error-bad-request-page-title = Mal requesta
 
 ## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when they open the pairing link
@@ -485,6 +491,15 @@ ready-continue = Continuar
 sign-in-complete-header = Apertura de session confirmate
 sign-up-complete-header = Conto confirmate
 primary-email-verified-header = Email primari confirmate
+# Browser tab title for the page confirming the user’s sign-in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+sign-in-complete-page-title = Accesso confirmate
+# Browser tab title for the page confirming the user’s new account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+sign-up-complete-page-title = Conto confirmate
+# Browser tab title for the page confirming the user’s primary email address.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+primary-email-verified-page-title = Email primari confirmate
 
 ## Users see this view when they are generating a new account recovery key
 ## This screen displays the generated key and allows users to download or copy the key
@@ -867,6 +882,8 @@ modal-mfa-protected-confirm-button = Confirmar
 modal-mfa-protected-code-expired = Codice expirate?
 # Link to resend a new code to the user's email.
 modal-mfa-protected-resend-code-link = Inviar per email nove codice.
+# Error shown when the code is correct but the device clock is too far ahead of the server time.
+modal-mfa-protected-clock-skew-error = Corrige data e hora de tu apparato, pois retenta.
 
 ## Modal Verify Session
 
@@ -1236,6 +1253,9 @@ security-set-password = Defini un contrasigno pro synchronisar e usar certe func
 security-recent-activity-link = Vider activitate de conto recente
 signout-sync-header = Session expirate
 signout-sync-session-expired = Un error ha occurrite. Claude iste session e retenta.
+# Browser tab title for the page telling the user their session expired and they need to sign out from the browser menu.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signout-sync-page-title = Session expirate
 
 ## SubRow component
 
@@ -1618,6 +1638,9 @@ connect-another-device-not-now-link = Non ora
 connect-another-device-android-complete-setup-message = Accede a { -brand-firefox } pro Android pro completar le configuration
 # This is a message for Firefox iOS users, prompting them to complete the process of connecting another device by signing into Firefox for iOS
 connect-another-device-ios-complete-setup-message = Accede a { -brand-firefox } pro iOS pro completar le configuration
+# Browser tab title for the page that invites the user to connect another device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+connect-another-device-page-title = Connecter un altere apparato
 
 ## Cookies disabled page
 ## Users will see this page if they have local storage or cookies disabled.
@@ -1628,9 +1651,15 @@ cookies-disabled-enable-prompt-2 = Activa cookies e immagazinage local in tu nav
 cookies-disabled-button-try-again = Retenta
 # An external link going to: https://support.mozilla.org/kb/cookies-information-websites-store-on-your-computer
 cookies-disabled-learn-more = Pro saper plus
+# Browser tab title for the page shown when cookies or local storage are disabled in the browser.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+cookies-disabled-page-title = Cookies e immagazinage local necessari
 
 ## Index / home page
 
+# Browser tab title for the page where the user enters their email to sign in or create an account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+index-page-title = Acceder o crear un conto
 index-header = Insere tu email
 index-sync-header = Passa a tu { -product-mozilla-account }
 index-sync-subheader = Synchronisa tu contrasignos, schedas, e marcapaginas ubique tu usa { -brand-firefox }.
@@ -1678,6 +1707,33 @@ inline-recovery-key-setup-download-header = Protege tu conto
 inline-recovery-key-setup-download-subheader = Discarga e immagazina lo ora
 inline-recovery-key-setup-download-info = Immagazina iste clave in qualque loco que tu memorara, tu non potera revolver a iste pagina plus tarde.
 inline-recovery-key-setup-hint-header = Recommendation de securitate
+# Browser tab title for the page where the user creates an account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-key-setup-create-page-title = Crear un clave de recuperation del conto
+# Browser tab title for the page where the user downloads their account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-key-setup-download-page-title = Discargar tu clave de recuperation del conto
+# Browser tab title for the page where the user adds a hint for their account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-key-setup-hint-page-title = Adder un suggestion de clave de recuperation
+# Browser tab title for the page where the user chooses a recovery method during two-step authentication setup.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-choice-page-title = Eliger un methodo de recuperation
+# Browser tab title for the page where the user saves their backup authentication codes.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-download-codes-page-title = Reserva tu codices de salveguarda
+# Browser tab title for the page where the user confirms one of their backup authentication codes.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-confirm-code-page-title = Confirmar un codice de salveguarda
+# Browser tab title for the page where the user enters a phone number to use as a recovery phone.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-phone-number-page-title = Adde un numero de telephono de recuperation
+# Browser tab title for the page where the user enters the code sent to their recovery phone to confirm it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-phone-code-page-title = Confirma tu numero de telephono de recuperation
+# Browser tab title for the page confirming that two-step authentication is now on for the account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-complete-page-title = Authentication a duo passos active
 
 ## InlineTotpSetup page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -1713,6 +1769,12 @@ inline-totp-setup-security-code-placeholder = Codices de authentication
 inline-totp-setup-code-required-error = Codice de authentication requirite
 tfa-qr-code-alt = Usa le codice { $code } pro configurar le authentication a duo passos in applicationes que lo supporta.
 inline-totp-setup-page-title = Authentication a duo passos
+# Browser tab title for the first page of two-step authentication setup, which introduces the feature.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-totp-setup-intro-page-title = Configurar authentication a duo passos
+# Browser tab title for the page where the user connects an authenticator app to their account during two-step authentication setup.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-totp-setup-enrol-page-title = Connecte tu application de authentication
 
 ## PageNotFound page
 ## Shown when the requested page does not exist
@@ -1720,6 +1782,9 @@ inline-totp-setup-page-title = Authentication a duo passos
 page-not-found-heading = Pagina non trovate
 page-not-found-description = Le pagina que tu requireva non es trovate.
 page-not-found-home-button = Initio
+# Browser tab title for the page shown when the requested page does not exist.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+page-not-found-page-title = Pagina non trovate
 
 ## AuthAllow page - Part of the device pairing flow
 
@@ -1730,6 +1795,9 @@ pair-auth-allow-confirm-button = Si, approbar apparato
 # "If this wasn't you" means "If it wasn't you that just signed in to Firefox"
 # The text with the <link> tags links to a `reset password` page
 pair-auth-allow-refuse-device-link = Si non era tu, <a>cambia la contrasigno</a>
+# Browser tab title for the page where the user approves a { -brand-firefox } sign-in on a new device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-auth-allow-page-title = Approbar accesso a { -brand-firefox }
 
 ## PairAuthComplete page - part of the device pairing flow
 
@@ -1751,6 +1819,12 @@ pair-auth-complete-send-tab-heading = Tu es preste a inviar alcun schedas
 # Variable { $deviceOS } is an operating system short name, for example "iOS", "Android"
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } pro { $deviceOS } es connexe.
 pair-auth-complete-send-tab-benefits = Tu es libere de instantaneemente inviar schedas aperte, contrasignos, marcapaginas inter apparatos.
+# Browser tab title for the page shown when a device has been connected after pairing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-auth-complete-page-title = Apparato connexe
+# Browser tab title for the page shown when a device has been connected after pairing started from a send tab button.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-auth-complete-send-tab-page-title = Preste a inviar schedas
 
 ## AuthTotp page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -1769,6 +1843,9 @@ auth-totp-input-label = Insere le codice de 6 digitos
 auth-totp-confirm-button = Confirmar
 # Error displayed in a tooltip when the form is submitted without a code
 auth-totp-code-required-error = Codice de authentication requirite
+# Browser tab title for the page where the user enters a two-step authentication code to continue pairing a device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+auth-totp-page-title = Accopular con authentication a duo passos
 
 ## WaitForSupp page - Part of the devide pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1777,6 +1854,9 @@ auth-totp-code-required-error = Codice de authentication requirite
 # The "other device" is non-specific and could be a desktop computer, laptop, tablet, mobile phone, etc.
 # Strings within the <span> elements appear as a subheading.
 pair-wait-for-supp-heading-text = Approbation necessari ora <span>ab tu altere apparato</span>
+# Browser tab title for the page that asks the user to approve device pairing on their other device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-wait-for-supp-page-title = Approbar sur tu altere apparato
 
 ## PairFailure - a view which displays on failure of the device pairing process
 
@@ -1784,6 +1864,9 @@ pair-wait-for-supp-heading-text = Approbation necessari ora <span>ab tu altere a
 pair-failure-header-v2 = Accopulamento de apparato fallite
 pair-failure-message-v2 = Le configuration non pote esser completate. Per favor, accede per tu email.
 pair-failure-try-again-link = Retentar
+# Browser tab title for the page shown when device pairing fails.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-failure-page-title = Accopulamento de apparato fallite
 
 ## Pair index page
 
@@ -1843,12 +1926,21 @@ pair-download-step-scan-qr = <b>Passo { $stepNumber } </b>: discarga { -brand-fi
 pair-download-step-continue-sync = <b>Passo { $stepNumber } </b>: selige "Continuar a synchronisar" pro synchronisar tu experientia con { -brand-firefox } sur tu apparato mobile.
 # Button on the download screen that opens about:preferences for pairing
 pair-continue-to-sync-button = Continuar a synchronisar
+# Browser tab title for the page where the user chooses how to connect another device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-choice-page-title = Connecter un altere apparato
+# Browser tab title for the page that explains how to download { -brand-firefox } on a mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-download-page-title = Discargar { -brand-firefox } pro mobile
 
 ## PairSuccess - a view which displays  on successful completion of the device pairing process
 
 pair-success-header-2 = Apparato connexe
 pair-success-message-2 = Accopulamento con successo.
 pair-success-tab-close-message = Iste scheda sera claudite automaticamente per { -brand-firefox }.
+# Browser tab title for the page shown when a device has been paired successfully.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-success-page-title = Apparato connexe
 
 ## SuppAllow page - Part of the device pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1859,6 +1951,9 @@ pair-success-tab-close-message = Iste scheda sera claudite automaticamente per {
 pair-supp-allow-heading-text = Confirmar accopulamento <span>de { $email }</span>
 pair-supp-allow-confirm-button = Confirmar le accopulamento
 pair-supp-allow-cancel-link = Cancellar
+# Browser tab title for the page where the user confirms pairing a device with their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-supp-allow-page-title = Confirmar le accopulamento
 
 ## WaitForAuth page - Part of the devide pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1890,6 +1985,15 @@ pair-unsupported-learn-more-link-v2 = Pro saper plus
 # Matches the legacy Backbone "Oops! Something went wrong." message.
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oppla! Alco errate eveniva.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Claude iste scheda e reproba.
+# Browser tab title for the page shown when a mobile user scans the pairing code with the system camera and must pair from within a { -brand-firefox } app instead.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-system-camera-page-title = Accopulamento per un application
+# Browser tab title for the page that explains how to connect a mobile device by starting from { -brand-firefox } on a computer.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-mobile-page-title = Connecte tu apparato mobile
+# Browser tab title for the page shown to a desktop { -brand-firefox } user when something went wrong and device pairing cannot continue.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-desktop-firefox-fallback-page-title = Alco errate eveniva
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer, which is already signed in, after their
@@ -1914,6 +2018,9 @@ pair2-authority-continue-on-mobile-heading = Continua sur tu apparato mobile
 pair2-authority-continue-on-mobile-description = Seque le passos sur tu telephono o tabletta.
 # Dismisses the pairing attempt
 pair2-authority-continue-on-mobile-cancel-button = Cancellar
+# Browser tab title for the page telling the user to continue connecting their device on their mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-continue-on-mobile-page-title = Continua sur tu apparato mobile
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when Firefox is needed to continue pairing.
@@ -1925,6 +2032,9 @@ pair2-authority-download-firefox-heading = Aperi { -brand-firefox } pro synchron
 pair2-authority-download-firefox-instruction-v2 = Pro configurar synchronisation a transverso apparatos, aperi { -brand-firefox } sur iste apparato e visita <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Discarga { -brand-firefox }
+# Browser tab title for the page telling the user to open { -brand-firefox } on this device to start syncing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-download-firefox-page-title = Aperi { -brand-firefox } pro synchronisar
 
 ## ScanQR page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer. It shows a QR code that they scan with
@@ -1939,6 +2049,9 @@ pair2-authority-scan-qr-code-aria-label = Codice QR pro connecter tu apparato mo
 pair2-authority-scan-qr-other-ways-link = Altere manieras pro acceder
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Saltar pro iste momento
+# Browser tab title for the page showing a QR code the user scans with their mobile device to connect it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-scan-qr-page-title = Scande pro connecter tu apparato mobile
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
@@ -1949,6 +2062,9 @@ pair2-authority-sync-success-heading-v2 = Tu apparato es connexe
 pair2-authority-sync-success-description-v2 = Le synchronisation es in curso. Il pote passar un poco pro apparer tu datos synchronisate. Senti te libere de continuar a navigar.
 # Opens the browser settings that control what is synced
 pair2-authority-sync-success-sync-settings-button-v2 = Gerer configurationes del synchronisation
+# Browser tab title for the page shown when a mobile device has been connected and syncing has started.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-sync-success-page-title = Apparato connexe
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1965,6 +2081,9 @@ pair2-authority-timeout-and-cancel-canceled-description = Si tu cambia opinion o
 pair2-authority-timeout-and-cancel-try-again-button = Retentar
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Configurationes del synchronisation
+# Browser tab title for the page shown on the computer when the device pairing attempt timed out.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-timeout-and-cancel-timeout-page-title = Connexion expirate
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
@@ -1976,6 +2095,9 @@ pair2-supplicant-approve-sign-in-heading = Un ultime passo pro synchronisar
 pair2-supplicant-approve-sign-in-instruction = Approba le accesso sur tu computator.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Cancellar
+# Browser tab title for the page shown on the mobile device while the user approves the sign-in on their computer. "sync" is a verb, referring to syncing data between the user’s devices.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-approve-sign-in-page-title = Un ultime passo pro synchronisar
 
 ## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
@@ -1990,6 +2112,9 @@ pair2-supplicant-connect-this-device-heading = Connecter iste apparato a tu cont
 pair2-supplicant-connect-this-device-connect-button = Connecter
 # Dismisses the pairing attempt
 pair2-supplicant-connect-this-device-cancel-button = Cancellar
+# Browser tab title for the page shown on the mobile device where the user confirms connecting it to their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-connect-this-device-page-title = Connecter iste apparato
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing reaches a browser that is
@@ -2011,6 +2136,15 @@ pair2-supplicant-download-firefox-download-button = Discargar { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = Io jam ha { -brand-firefox }
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = Pro saper plus
+# Browser tab title for the page shown on the mobile device asking the user to open { -brand-firefox } on it to continue pairing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-download-firefox-page-title = Aperir { -brand-firefox } sur iste apparato
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+
+# Browser tab title for the page shown on the mobile device telling the user to finish pairing in the { -brand-firefox } app.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-connect-hint-page-title = Completa le accopulamento in le application
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2023,6 +2157,9 @@ pair2-supplicant-ready-to-scan-heading = Connecter un apparato
 pair2-supplicant-ready-to-scan-instruction = Sur tu computator, aperi { -brand-firefox } e va a <b>firefox.com/par</b>, e seque le instructiones sur le schermo pro connecter iste apparato mobile.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = Pro saper plus
+# Browser tab title for the page shown on the mobile device before pairing starts, telling the user to open firefox.com/pair on their computer.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-ready-to-scan-page-title = Preste a scander
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device once pairing has completed: the device
@@ -2031,6 +2168,9 @@ pair2-supplicant-ready-to-scan-learn-more-link = Pro saper plus
 pair2-supplicant-sync-success-heading = Tu apparato es connexe
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = Le synchronisation es in curso. Il pote passar un poco pro apparer tu datos synchronisate. Senti te libere de continuar a navigar.
+# Browser tab title for the page shown on the mobile device when it has been connected and syncing has started.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-sync-success-page-title = Apparato connexe
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2050,6 +2190,9 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Pro connecter un appa
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Iste apparato es jam connexe
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-signed-in-description = Pro connecter te a tu conto de scriptorio, claude  connexion de { -brand-firefox } sur iste apparato, pois visita <b>firefox.com/par</b> sur tu computator a completa le accesso.
+# Browser tab title for the page shown on the mobile device when the device pairing attempt timed out.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-timeout-and-cancel-timeout-page-title = Connexion expirate
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2071,6 +2214,9 @@ permissions-cancel-button = Cancellar
 force-password-change-heading = Cambia tu contrasigno
 force-password-change-info = Nos detegeva comportamento suspecte sur tu { -product-mozilla-account }. Pro proteger tu conto, crea un nove contrasigno. Tu usara iste contrasigno pro re-acceder a tote tu servicios de { -product-mozilla-account }.
 force-password-change-data-info = Chronologia, marcapaginas, accessos e altere datos personal synchronisate non sera perdite.
+# Browser tab title for the page where the user must change their password because of suspicious activity on their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+force-password-change-page-title = Cambia tu contrasigno
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2080,6 +2226,9 @@ service-welcome-signin-success-banner = Authenticate con successo!
 # In this context, "VPN" is a VPN service built into the Firefox browser, and generally isn't localized differently than "VPN"
 service-welcome-vpn-heading = Successivemente: activa le VPN
 service-welcome-vpn-description = Un altere passo pro augmentar le confidentialitate de tu navigator. Va al pannello aperte e activa lo.
+# Browser tab title for the page telling the user to turn on VPN as their next step after signing up or signing in. "VPN" is a VPN service built into the Firefox browser.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+service-welcome-vpn-page-title = Activar le VPN
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
@@ -2092,6 +2241,9 @@ set-password-info-v2 = Isto crypta tu datos. Illo debe esser differente contrasi
 ## Users who signed in via passwordless OTP and need to create a password for Sync
 
 set-password-passwordless-info = Iste contrasigno crypta tu datos synchronisate e los mantene secur.
+# Browser tab title for the page where the user creates a password so they can sync.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+set-password-page-title = Crear un contrasigno pro synchronisar
 
 ## ThirdPartyAuthCallback Page
 ## This page is called after a user completes the third party authentication flow from Google or Apple.
@@ -2112,6 +2264,9 @@ account-recovery-confirm-key-hint = Tu indicio de immagazinage es:
 account-recovery-confirm-key-button-2 = Continuar
 # Link that leads to the password reset page (without recovery code)
 account-recovery-lost-recovery-key-link-2 = Non pote tu trovar le clave de recuperation de tu conto?
+# Browser tab title for the page where the user enters their account recovery key to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+account-recovery-confirm-key-page-title = Reinitialisar le contrasigno con le clave de recuperation
 
 ## CompleteResetPassword component
 ## User followed a password reset link and is now prompted to create a new password
@@ -2133,6 +2288,9 @@ reset-password-complete-banner-message = Non oblida de generar un nove clave de 
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } tentara inviar te retro pro usar un alias email post que tu accede.
+# Browser tab title for the page where the user creates a new password while resetting it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+complete-reset-password-page-title = Crear un nove contrasigno
 confirm-backup-code-reset-password-input-label = Insere le codice de 10 characteres
 confirm-backup-code-reset-password-confirm-button = Confirmar
 confirm-backup-code-reset-password-subheader = Insere codice de authentication de reserva
@@ -2178,6 +2336,9 @@ password-reset-email-input =
 password-reset-submit-button-2 = Continuar
 # Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
 password-reset-data-recovery-warning = Remontar tu contrasigno pote interessar si tu pote recuperar datos de navigator synchronisate. <learnMoreLink>Pro saper plus</learnMoreLink>
+# Browser tab title for the page where the user starts a password reset by entering their email.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+password-reset-flow-page-title = Reinitialisa tu contrasigno
 
 ## ResetPasswordConfirmed
 
@@ -2235,6 +2396,9 @@ reset-password-complete-recovery-key-download-info = Iste clave es essential pro
 server-error-heading = Error 500
 server-error-description = Guai, qualcosa ha fallite hic. Nos ha recipite notification e va reparar le problema.
 server-error-home-button = Initio
+# Browser tab title for the page shown when the server fails to handle a request.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+server-error-page-title = Error de servitor
 
 ## CompleteSignin component
 
@@ -2250,6 +2414,12 @@ signin-link-expired-message-2 = Le ligamine que tu cliccava ha expirate o ha jam
 
 ## Signin page
 
+# Browser tab title for the page where the user enters their password to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-password-page-title = Insere tu contrasigno
+# Browser tab title for the sign-in page shown when the user already has a saved session on this device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-cached-page-title = Aperir session
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Insere tu contrasigno <span>pro tu { -product-mozilla-account }</span>
 # Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
@@ -2423,6 +2593,9 @@ signin-recovery-phone-invalid-code-error-link = Usar in vice codice de authentic
 # "Limits" refers to potential restrictions on how often a recovery phone number can be used for signing in within a given time period.
 # If limits are reached, users may have to use an alternate two-step authentication method or wait until the restriction period is over.
 signin-recovery-phone-success-message = Apertura session correcte. Limites pote esser applicate si tu usa tu numero de recuperation ancora.
+# Browser tab title for the page where the user enters a code sent to their recovery phone to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-recovery-phone-page-title = Accesso con telephono de recuperation
 
 ## Signin reported page: this page is shown when a user receives an email notifying them of a new account signin, and the user clicks a button indicating that the signin was not them so that we know it was someone trying to break into their account.
 
@@ -2506,6 +2679,9 @@ signin-unblock-desktop-relay = { -brand-firefox } tentara inviar te retro pro us
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
 
+# Browser tab title for the page where the user enters the confirmation code emailed to them to finish signing up.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-signup-code-page-title-2 = Confirma tu email
 # String within the <span> element appears on a separate line
 # If more appropriate in a locale, the string within the <span>, "for your { -product-mozilla-account }"
 # can stand alone as "{ -product-mozilla-account }"
@@ -2543,6 +2719,9 @@ signup-sync-info = Synchronisa tu contrasignos, marcapaginas e altero ubique tu 
 signup-sync-info-with-payment = Synchronisa tu contrasignos, methodos de pagamento, marcapaginas e altero ubique tu usa { -brand-firefox }.
 # Clicking on this link returns the user to the beginning of the flow so they can enter a new email address
 signup-change-email-link = Cambiar email
+# Browser tab title for the page where the user creates a password to sign up for an account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signup-page-title = Crea tu conto
 
 ## SignupConfirmedSync page
 ## Shown to users when they finish confirming their account through Sync
@@ -2556,6 +2735,9 @@ signup-confirmed-sync-description-v2 = Tu contrasignos, adresses, marcapaginas, 
 signup-confirmed-sync-add-device-link = Adder un altere apparato
 signup-confirmed-sync-manage-sync-button = Gerer synchronisation
 signup-confirmed-sync-set-password-success-banner = Contrasigno de synchronisation create
+# Browser tab title for the page confirming that sync is turned on after the user confirmed their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signup-confirmed-sync-page-title = Synchronisation active
 
 ## UpdateFirefox page
 ## Shown when the browser is too old to use a Mozilla account
@@ -2563,3 +2745,6 @@ signup-confirmed-sync-set-password-success-banner = Contrasigno de synchronisati
 update-firefox-heading = Actualisation de { -brand-firefox } necessari
 update-firefox-description = Tu { -product-mozilla-account } usa le functionalitates que non es supportate in tu version de { -brand-firefox }. Discarga e installa le ultime version de { -brand-firefox } pro continuar.
 update-firefox-download-button = Discargar ultime version
+# Browser tab title for the page shown when the browser is too old to use a Mozilla account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+update-firefox-page-title = Actualisation de { -brand-firefox } necessari

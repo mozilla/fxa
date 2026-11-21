@@ -1,8 +1,8 @@
 {
-  "commit": "85abf68e04fbb499a4f57e42d88093ea8d29c26c",
+  "commit": "27a9b0661ab470d8d2966515c2874df646c30fa0",
   "summary": "fix(settings): stop the duplicate Glean page_load on full page loads",
   "description": "Because:\n\n* Glean recorded page_load with the full URL on each full page load, and the app also recorded it with the path.\n\nThis commit:\n\n* Removes enableAutoPageLoadEvents from Glean.initialize, so the path-only app effects are the single source.\n* Updates the glean init test and adds an App test for one pageLoad on first render.\n* Adds a functional spec that checks the real Glean pings.\n\nCloses FXA-15079",
-  "timestamp": 1795223650000,
+  "timestamp": 1795244651000,
   "storybooks": [
     "fxa-settings"
   ],
