@@ -208,6 +208,12 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'FEATURE_FLAGS_NOVA_DESIGN_SYSTEM',
     },
+    syncDataDeletionEnabled: {
+      default: false,
+      doc: 'Enables the "Synced data" row and delete Sync data flow in Settings. Needs the auth-server and tokenserver delete switches on too.',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_SYNC_DATA_DELETION_ENABLED',
+    },
   },
   passkeys: {
     maxPerUser: {

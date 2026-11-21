@@ -49,8 +49,13 @@ export const linkedAccountNoPassword = {
 
 export const completelyFilledOutAccount = {
   ...MOCK_ACCOUNT,
+  hasPassword: true,
   emails: [mockEmail(), mockEmail('johndope2@example.com', false)],
-  attachedClients: SERVICES_NON_MOBILE,
+  // Firefox devices are Sync-capable, so the "Synced data" row shows.
+  attachedClients: SERVICES_NON_MOBILE.map((client) => ({
+    ...client,
+    isSyncCapable: !!client.deviceId,
+  })),
   linkedAccounts: MOCK_LINKED_ACCOUNTS,
   totp: { exists: true, verified: true },
   backupCodes: {

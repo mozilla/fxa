@@ -9,3 +9,10 @@ dc-opt-out-success-2 = Opt out successful. { -product-mozilla-accounts } won’t
 dc-opt-in-success-2 = Thanks! Sharing this data helps us improve { -product-mozilla-accounts }.
 dc-opt-in-out-error-2 = Sorry, there was a problem changing your data collection preference
 dc-learn-more = Learn more
+
+## Synced data row
+
+dc-subheader-synced-data = Synced data
+# <link> opens Firefox's "Account and sync" settings on Firefox Desktop, and is plain text elsewhere.
+dc-synced-data-content = Delete synced data stored on { -brand-mozilla }’s servers. This won’t delete data on your devices or turn off syncing. To manage what syncs on this device, go to <link>Account and sync</link> in { -brand-firefox } Settings.
+dc-synced-data-delete-button = Delete synced data
