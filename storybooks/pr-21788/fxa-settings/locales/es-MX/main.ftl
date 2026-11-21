@@ -45,7 +45,6 @@ app-footer-terms-of-service = Términos del servicio
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Abrir en una nueva ventana
@@ -961,7 +960,6 @@ signin-unblock-resend-code-button = ¿No está en tu Bandeja de Entrada o en tu 
 signin-unblock-support-link = ¿Por qué está pasando esto?
 
 
-confirm-signup-code-page-title = Ingresar código de confirmación
 confirm-signup-code-heading-2 = Ingresa el código de confirmación <span>para tu { -product-mozilla-account }</span>
 confirm-signup-code-input-label = Ingresa el código de 6 dígitos
 confirm-signup-code-confirm-button = Confirmar

@@ -48,7 +48,6 @@ app-footer-terms-of-service = Servicevoorwaarden
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Opent in nieuw venster
@@ -1679,7 +1678,6 @@ signin-unblock-support-link = Waarom gebeurt dit?
 signin-unblock-desktop-relay = { -brand-firefox } probeert u terug te sturen om een e-mailmasker te gebruiken nadat u zich hebt aangemeld.
 
 
-confirm-signup-code-page-title = Voer bevestigingscode in
 confirm-signup-code-heading-2 = Voer bevestigingscode in <span>voor uw { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Voer binnen 5 minuten de code in die naar <email>{ $email }</email> is verzonden.
 confirm-signup-code-input-label = Voer 6-cijferige code in

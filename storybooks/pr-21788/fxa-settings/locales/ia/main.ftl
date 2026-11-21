@@ -48,7 +48,6 @@ app-footer-terms-of-service = Terminos de servicio
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Aperi in un nove fenestra
@@ -1682,7 +1681,6 @@ signin-unblock-support-link = Perque isto eveni?
 signin-unblock-desktop-relay = { -brand-firefox } tentara inviar te retro pro usar un alias email post que tu accede.
 
 
-confirm-signup-code-page-title = Insere le codice de confirmation
 confirm-signup-code-heading-2 = Insere codice de confirmation<span> pro tu { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Insere in 5 minutas le codice inviate a <email>{ $email }</email>.
 confirm-signup-code-input-label = Insere le codice de 6 cifras

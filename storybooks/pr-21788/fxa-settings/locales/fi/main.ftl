@@ -48,7 +48,6 @@ app-footer-terms-of-service = Käyttöehdot
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Avautuu uuteen ikkunaan
@@ -1350,7 +1349,6 @@ signin-unblock-resend-code-button = Ei saapuneissa tai roskapostissa? Lähetä u
 signin-unblock-support-link = Mistä tämä johtuu?
 
 
-confirm-signup-code-page-title = Kirjoita vahvistuskoodi
 confirm-signup-code-heading-2 = Anna vahvistuskoodi<span> { -product-mozilla-account }llesi</span>
 confirm-signup-code-instruction-v2 = Syötä osoitteeseen <email>{ $email }</email> lähetetty koodi viiden minuutin kuluessa.
 confirm-signup-code-input-label = Kirjoita 6-numeroinen koodi

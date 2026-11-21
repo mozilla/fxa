@@ -44,7 +44,6 @@ app-footer-terms-of-service = Tiermins dal servizi
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Si vierç intun gnûf barcon
@@ -1283,7 +1282,6 @@ signin-unblock-support-link = Ce staial sucedint?
 signin-unblock-desktop-relay = Dopo fat l'acès, { -brand-firefox } al cirarà di tornâ a mandâti ae pagjine par doprâ la mascare di pueste eletroniche.
 
 
-confirm-signup-code-page-title = Inserìs il codiç di conferme
 confirm-signup-code-heading-2 = Inserìs il codiç di conferme <span>pal to { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Inserìs dentri di 5 minûts il codiç che al è stât mandât a <email>{ $email }</email>.
 confirm-signup-code-input-label = Inserìs il codiç a 6 cifris
