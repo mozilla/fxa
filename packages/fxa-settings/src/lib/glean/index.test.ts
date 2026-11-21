@@ -249,7 +249,6 @@ describe('lib/glean', () => {
           appDisplayVersion: mockConfig.appDisplayVersion,
           channel: mockConfig.appChannel,
           serverEndpoint: mockConfig.serverEndpoint,
-          enableAutoPageLoadEvents: true,
           enableAutoElementClickEvents: true,
         }
       );
