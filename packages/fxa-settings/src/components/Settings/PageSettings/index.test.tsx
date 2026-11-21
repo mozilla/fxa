@@ -16,6 +16,7 @@ import { AppContext } from '../../../models';
 import { mockWebIntegration } from '../../../pages/Signin/SigninRecoveryCode/mocks';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import { Constants } from '../../../lib/constants';
+import firefox from '../../../lib/channels/firefox';
 import {
   linkedAccountNoPassword,
   accountEligibleForRecoveryKey,
@@ -264,6 +265,25 @@ describe('PageSettings', () => {
         expect(connectedServicesButton()).toBeInTheDocument()
       );
       expect(screen.getByTestId('firefox-promo-cta')).toBeInTheDocument();
+    });
+
+    // Firefox for Android with "Desktop site" on sends a desktop user agent
+    // but cannot approve a pairing, so it must not be invited to start one.
+    it('hides both when the browser answered fxa_status without the pairing capability', async () => {
+      firefox.canApprovePairing = false;
+      try {
+        renderSignedIntoFirefox(undefined);
+
+        await waitFor(() =>
+          expect(screen.getByTestId('settings-profile')).toBeInTheDocument()
+        );
+        expect(connectedServicesButton()).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId('firefox-promo-cta')
+        ).not.toBeInTheDocument();
+      } finally {
+        firefox.canApprovePairing = undefined;
+      }
     });
 
     it('hides both when the browser reports it has no Sync key', async () => {

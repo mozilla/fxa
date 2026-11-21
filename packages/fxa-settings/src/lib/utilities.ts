@@ -8,6 +8,7 @@ import { AttachedClient } from '../models/Account';
 import type { NavigateFunction, NavigateOptions } from 'react-router';
 import { SEND_TAB_ENTRYPOINTS } from '../constants';
 import { Constants } from './constants';
+import type { FxAStatusResponse } from './channels/firefox';
 
 // Various utilities that don't fit in a standalone lib
 
@@ -372,6 +373,19 @@ export enum Devices {
   OTHER_IOS = 'Other iOS',
   OTHER = 'Other',
 }
+
+export function detectV2PairingType(
+  fxaStatus?: FxAStatusResponse
+): 'mobile' | 'desktop' | 'unsupported' {
+  if (fxaStatus?.capabilities.pairingVersion === 2) {
+    if (fxaStatus.capabilities.pairing == null) {
+      return 'mobile';
+    }
+    return 'desktop';
+  }
+  return 'unsupported';
+}
+
 export function detectDevice(): Devices {
   const ua = navigator.userAgent;
   const isFirefox = /Firefox/i.test(ua) && !/FxiOS/i.test(ua);
