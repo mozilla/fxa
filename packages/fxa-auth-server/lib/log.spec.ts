@@ -730,6 +730,20 @@ describe('log', () => {
     });
   });
 
+  it('.notifyAttachedServices should pass onSent to the notifier', async () => {
+    const onSent = jest.fn();
+
+    await log.notifyAttachedServices(
+      'device:delete',
+      {},
+      { uid: 'bloop', id: 'blee' },
+      onSent
+    );
+
+    expect(mockNotifierSend).toHaveBeenCalledTimes(1);
+    expect(mockNotifierSend.mock.calls[0][1]).toBe(onSent);
+  });
+
   it('.notifyAttachedServices should send a notification (with service=known clientid)', async () => {
     const now = 1600000000000;
     jest.spyOn(Date, 'now').mockReturnValue(now);

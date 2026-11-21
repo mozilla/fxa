@@ -8,7 +8,6 @@ const isA = require('joi');
 const Sentry = require('@sentry/node');
 const DESCRIPTION = require('../docs/swagger/shared/descriptions').default;
 const validators = require('./routes/validators');
-const { AppError: error } = require('@fxa/accounts/errors');
 const oauthDB = require('./oauth/db');
 const { DISPLAY_SAFE_UNICODE_WITH_NON_BMP, HEX_STRING, URL_SAFE_BASE_64 } =
   validators;
@@ -19,8 +18,8 @@ const { synthesizeClientName } = require('@fxa/accounts/connected-services');
 const { platformFromOS } = require('@fxa/shared/user-agent');
 const { reportSentryError } = require('./sentry');
 const {
-  deauthorizeOnDisconnect,
-} = require('./oauth/deauthorize-on-disconnect');
+  revokeDeviceRefreshToken,
+} = require('./oauth/revoke-device-refresh-token');
 
 const SCHEMA = {
   id: isA.string().length(32).regex(HEX_STRING),
@@ -183,32 +182,11 @@ module.exports = (log, db, push, pushbox, glean) => {
     const uid = request.auth.credentials.uid;
     const deletedDevice = await db.deleteDevice(uid, deviceId);
     if (deletedDevice && deletedDevice.refreshTokenId) {
-      // Firefox Desktop destroys the refresh token its device was registered
-      // with, so refreshTokenId can dangle and the lookup come back empty.
-      let clientId;
-      try {
-        const token = await oauthDB.getRefreshToken(
-          deletedDevice.refreshTokenId
-        );
-        if (token) {
-          clientId = token.clientId?.toString('hex');
-          await oauthDB.removeRefreshToken(token);
-        }
-      } catch (err) {
-        // The refresh token might already have been deleted, because distributed state.
-        // We don't want errors here to fail the deletion request, because the caller
-        // can't retry it (the device record is already gone).
-        if (err.errno !== error.ERRNO.INVALID_TOKEN) {
-          log.error('deviceDestroy.revokeRefreshTokenById.error', {
-            err: err.message,
-          });
-        }
-      }
-
-      // Runs even if the removal above threw: the policy re-reads, so a token
-      // that survived keeps its row and one already gone releases it. An unset
-      // clientId means nothing was removed, and the pass no-ops.
-      await deauthorizeOnDisconnect({ oauthDB }, { uid, clientId });
+      await revokeDeviceRefreshToken(
+        { oauthDB, log },
+        uid,
+        deletedDevice.refreshTokenId
+      );
     }
 
     // No need to await and block the notifications below.  If the records
