@@ -3,8 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../lib/fixtures/standard';
-import { BaseTarget } from '../../lib/targets/base';
-import AuthClient from '../../../fxa-auth-client/lib/client';
+import {
+  getEmailMfaJwt,
+  signUpAndSwapPrimaryEmail,
+} from '../../lib/primaryEmailSwap';
 
 /**
  * Regression coverage for v1 password derivation after the account's signup
@@ -70,8 +72,13 @@ test.describe('severity-2 #smoke', () => {
       target
     );
 
-    await client.recoveryEmailCreate(emailMfaJwt, primaryEmail1, target.ciHeader);
-    const code1 = await target.emailClient.getVerifySecondaryCode(primaryEmail1);
+    await client.recoveryEmailCreate(
+      emailMfaJwt,
+      primaryEmail1,
+      target.ciHeader
+    );
+    const code1 =
+      await target.emailClient.getVerifySecondaryCode(primaryEmail1);
     await client.recoveryEmailSecondaryVerifyCode(
       emailMfaJwt,
       primaryEmail1,
@@ -85,8 +92,13 @@ test.describe('severity-2 #smoke', () => {
       target.ciHeader
     );
 
-    await client.recoveryEmailCreate(emailMfaJwt, primaryEmail2, target.ciHeader);
-    const code2 = await target.emailClient.getVerifySecondaryCode(primaryEmail2);
+    await client.recoveryEmailCreate(
+      emailMfaJwt,
+      primaryEmail2,
+      target.ciHeader
+    );
+    const code2 =
+      await target.emailClient.getVerifySecondaryCode(primaryEmail2);
     await client.recoveryEmailSecondaryVerifyCode(
       emailMfaJwt,
       primaryEmail2,
@@ -157,55 +169,68 @@ test.describe('severity-2 #smoke', () => {
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.primaryEmail.status).toHaveText(primaryEmail1);
   });
+
+  // After errno 120, v1 retries sign-in with the signup email salt; v2 does not retry.
+  for (const { version, loginRequests } of [
+    { version: 1, loginRequests: 2 },
+    { version: 2, loginRequests: 1 },
+  ] as const) {
+    test(`v${version} account: wrong password after a primary email swap shows incorrect password`, async ({
+      target,
+      pages: { page, settings, signin },
+      testAccountTracker,
+    }) => {
+      const { account, primaryEmail } = await signUpAndSwapPrimaryEmail(
+        target,
+        testAccountTracker,
+        version
+      );
+
+      await page.goto(`${target.contentServerUrl}?stretch=${version}`);
+      await signin.fillOutEmailFirstForm(primaryEmail);
+
+      let loginCount = 0;
+      page.on('request', (request) => {
+        if (
+          request.method() === 'POST' &&
+          new URL(request.url()).pathname.endsWith('/account/login')
+        ) {
+          loginCount++;
+        }
+      });
+      await signin.fillOutPasswordForm(testAccountTracker.generatePassword());
+
+      await expect(signin.tooltip).toHaveText('Incorrect password');
+      await expect(page.getByText('Incorrect email case')).toBeHidden();
+      expect(loginCount).toBe(loginRequests);
+
+      await signin.fillOutPasswordForm(account.password);
+      await expect(settings.settingsHeading).toBeVisible();
+    });
+  }
+
+  test('v1 account: wrong password on delete account after a primary email swap and signup email removal', async ({
+    target,
+    pages: { page, deleteAccount, settings, signin },
+    testAccountTracker,
+  }) => {
+    const { account, client, emailMfaJwt, signupEmail, primaryEmail } =
+      await signUpAndSwapPrimaryEmail(target, testAccountTracker, 1);
+    await client.recoveryEmailDestroyWithJwt(emailMfaJwt, signupEmail);
+
+    await page.goto(`${target.contentServerUrl}?stretch=1`);
+    await signin.fillOutEmailFirstForm(primaryEmail);
+    await signin.fillOutPasswordForm(account.password);
+    await expect(settings.settingsHeading).toBeVisible();
+
+    await settings.deleteAccountButton.click();
+    await deleteAccount.deleteAccount(testAccountTracker.generatePassword());
+
+    await expect(deleteAccount.tooltip).toHaveText('Incorrect password');
+    await expect(page.getByText('Incorrect email case')).toBeHidden();
+
+    await deleteAccount.passwordTextbox.fill(account.password);
+    await deleteAccount.deleteButton.click();
+    await expect(page.getByText('Account deleted successfully')).toBeVisible();
+  });
 });
-
-/**
- * Requests and verifies an `mfa:email` OTP, returning a JWT that authorizes
- * recovery-email mutations. The OTP is sent to the account's current primary
- * email, supplied via `primaryEmail`.
- */
-async function getEmailMfaJwt(
-  client: AuthClient,
-  sessionToken: string,
-  primaryEmail: string,
-  target: BaseTarget
-): Promise<string> {
-  const { status } = await client.mfaRequestOtp(
-    sessionToken,
-    'email',
-    target.ciHeader
-  );
-  expect(status).toBe('success');
-
-  const code = await target.emailClient.getVerifyAccountChangeCode(
-    primaryEmail
-  );
-  const { accessToken } = await client.mfaOtpVerify(
-    sessionToken,
-    code,
-    'email',
-    target.ciHeader
-  );
-  expect(accessToken).toBeDefined();
-  return accessToken;
-}
-
-/**
- * Adds `email` as a secondary email and confirms it with the code sent to that
- * address, leaving it verified and ready to be promoted to primary.
- */
-async function addVerifiedSecondaryEmail(
-  client: AuthClient,
-  emailMfaJwt: string,
-  email: string,
-  target: BaseTarget
-): Promise<void> {
-  await client.recoveryEmailCreate(emailMfaJwt, email, target.ciHeader);
-  const code = await target.emailClient.getVerifySecondaryCode(email);
-  await client.recoveryEmailSecondaryVerifyCode(
-    emailMfaJwt,
-    email,
-    code,
-    target.ciHeader
-  );
-}

@@ -4,6 +4,7 @@
 
 import fs from 'fs';
 import { Page, expect, test } from '../../lib/fixtures/standard';
+import { signUpAndSwapPrimaryEmail } from '../../lib/primaryEmailSwap';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { SettingsPage } from '../../pages/settings';
@@ -140,6 +141,35 @@ test.describe('severity-1 #smoke', () => {
         'Account recovery key removed'
       );
       await expect(settings.recoveryKey.status).toHaveText('Not set');
+    });
+
+    test('v1 account: confirm password with an incorrect password after a primary email swap', async ({
+      target,
+      pages: { page, recoveryKey, settings, signin },
+      testAccountTracker,
+    }) => {
+      const { account, primaryEmail } = await signUpAndSwapPrimaryEmail(
+        target,
+        testAccountTracker,
+        1
+      );
+      await page.goto(`${target.contentServerUrl}?stretch=1`);
+      await signin.fillOutEmailFirstForm(primaryEmail);
+      await signin.fillOutPasswordForm(account.password);
+      await expect(settings.settingsHeading).toBeVisible();
+
+      await settings.recoveryKey.createButton.click();
+      await settings.confirmMfaGuard(primaryEmail);
+      await recoveryKey.acknowledgeInfoForm();
+      await recoveryKey.fillOutConfirmPasswordForm(
+        testAccountTracker.generatePassword()
+      );
+
+      await expect(recoveryKey.tooltip).toHaveText('Incorrect password');
+      await expect(page.getByText('Incorrect email case')).toBeHidden();
+
+      await recoveryKey.fillOutConfirmPasswordForm(account.password);
+      await expect(recoveryKey.recoveryKeyCreatedHeading).toBeVisible();
     });
   });
 });
