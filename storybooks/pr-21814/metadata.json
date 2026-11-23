@@ -1,0 +1,11 @@
+{
+  "commit": "d4c3cae1ecef3ebdebcf61f1b84773eb12a64f8c",
+  "summary": "fix(shared): drop browser Sentry events from file:// pages",
+  "description": "Because:\n\n* Browser Sentry received errors from locally saved FxA pages (file:// URLs).\n\nThis commit:\n\n* Drops browser Sentry events whose page URL is not http or https, or cannot be parsed.\n* Applies the check in sentry-utils beforeSendBrowser and in the older beforeSend.client.ts.\n* Adds unit tests for kept, dropped and fallback URLs.\n\nCloses FXA-15109",
+  "timestamp": 1795470924000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
