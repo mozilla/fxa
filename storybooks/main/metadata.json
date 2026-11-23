@@ -1,8 +1,8 @@
 {
-  "commit": "61c6a85f698bc29b73f6e9b762572f31c8a2cca0",
-  "summary": "Merge pull request #21802 from mozilla/fxa-14934",
-  "description": "fix(auth): stop showing incorrect email case for a wrong password",
-  "timestamp": 1795467105000,
+  "commit": "99c7af7992c7e9974db8d185a0f3a527e6ad7114",
+  "summary": "Merge pull request #21810 from mozilla/fxa-15106",
+  "description": "fix(admin-server): find the basket token by primary email on unsubscribe",
+  "timestamp": 1795467910000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

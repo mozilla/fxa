@@ -1797,7 +1797,7 @@ pair-auth-allow-confirm-button = Ano, schválit zařízení
 pair-auth-allow-refuse-device-link = Pokud jste to nebyli vy, <a>změňte si heslo</a>
 # Browser tab title for the page where the user approves a { -brand-firefox } sign-in on a new device.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair-auth-allow-page-title = Schválit přihlášení aplikace { -brand-firefox }
+pair-auth-allow-page-title = Schválení přihlášení aplikace { -brand-firefox }
 
 ## PairAuthComplete page - part of the device pairing flow
 

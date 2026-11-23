@@ -1545,7 +1545,7 @@ page-not-found-page-title = Stránka nebyla nalezena
 pair-auth-allow-heading-text = Přihlásili jste se právě do { -brand-firefox(case: "gen") }?
 pair-auth-allow-confirm-button = Ano, schválit zařízení
 pair-auth-allow-refuse-device-link = Pokud jste to nebyli vy, <a>změňte si heslo</a>
-pair-auth-allow-page-title = Schválit přihlášení aplikace { -brand-firefox }
+pair-auth-allow-page-title = Schválení přihlášení aplikace { -brand-firefox }
 
 
 pair-auth-complete-heading = Zařízení připojeno
