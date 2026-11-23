@@ -1,0 +1,11 @@
+{
+  "commit": "b0f5d3803be8c689cae30905cfcc3c3db911934e",
+  "summary": "feat(settings): send a locked-primary-password authority to pair failure",
+  "description": "Because:\n\n- Firefox now sends signedInUser.primaryPasswordLocked in fxa_status.\n- While it is locked, desktop /pair sent the user to a sign-in that cannot unlock it.\n\nThis commit:\n\n- Sends a desktop /pair with primaryPasswordLocked true to /pair/failure.\n- Records pairing.password_lock_failure once on /pair/failure for that case.\n- Adds the Glean event, its wiring, unit tests and a functional test.\n\nCloses FXA-15110",
+  "timestamp": 1795475276000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
