@@ -4,9 +4,6 @@ inheritance: true
 
 reviews:
   review_details: true
-  auto_review:
-    labels:
-      - "coderabbit"
   collapse_walkthrough: true
   high_level_summary_instructions: >
     Begin with `Merge Confidence: <score>/5`, where 5 is very safe and 1 is very risky.
