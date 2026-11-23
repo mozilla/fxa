@@ -1,8 +1,8 @@
 {
-  "commit": "7f9e1bad69d8b649ed26870feb2d14b4ca134e6d",
-  "summary": "Merge pull request #21809 from mozilla/coderabbit-enable-by-default",
-  "description": "feat(fxa): enable coderabbit review by default",
-  "timestamp": 1795464834000,
+  "commit": "61c6a85f698bc29b73f6e9b762572f31c8a2cca0",
+  "summary": "Merge pull request #21802 from mozilla/fxa-14934",
+  "description": "fix(auth): stop showing incorrect email case for a wrong password",
+  "timestamp": 1795467105000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

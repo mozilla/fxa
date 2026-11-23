@@ -1511,7 +1511,7 @@ inline-recovery-setup-choice-page-title = Výběr způsobu obnovení
 inline-recovery-setup-download-codes-page-title = Uložení záložních kódů
 inline-recovery-setup-confirm-code-page-title = Potvrzení záložních kódů
 inline-recovery-setup-phone-number-page-title = Přidání telefonního čísla pro obnovení
-inline-recovery-setup-phone-code-page-title = Potvrďte své telefonní číslo pro obnovení
+inline-recovery-setup-phone-code-page-title = Potvrzení telefonního čísla pro obnovení
 inline-recovery-setup-complete-page-title = Dvoufázové ověřování je zapnuto
 
 
@@ -1533,13 +1533,13 @@ inline-totp-setup-code-required-error = Je vyžadován ověřovací kód
 tfa-qr-code-alt = Pro nastavení dvoufázového ověřování v podporovaných aplikacích použijte kód { $code }.
 inline-totp-setup-page-title = Dvoufázové ověřování
 inline-totp-setup-intro-page-title = Nastavení dvoufázového ověřování
-inline-totp-setup-enrol-page-title = Připojte svou ověřovací aplikaci
+inline-totp-setup-enrol-page-title = Připojení ověřovací aplikace
 
 
 page-not-found-heading = Stránka nebyla nalezena
 page-not-found-description = Požadovaná stránka nebyla nalezena. Byli jsme o tom informováni a opravíme všechny nefunkční odkazy.
 page-not-found-home-button = Domů
-page-not-found-page-title = Stránka nenalezena
+page-not-found-page-title = Stránka nebyla nalezena
 
 
 pair-auth-allow-heading-text = Přihlásili jste se právě do { -brand-firefox(case: "gen") }?

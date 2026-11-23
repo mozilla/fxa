@@ -1730,7 +1730,7 @@ inline-recovery-setup-confirm-code-page-title = Potvrzení záložních kódů
 inline-recovery-setup-phone-number-page-title = Přidání telefonního čísla pro obnovení
 # Browser tab title for the page where the user enters the code sent to their recovery phone to confirm it.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-inline-recovery-setup-phone-code-page-title = Potvrďte své telefonní číslo pro obnovení
+inline-recovery-setup-phone-code-page-title = Potvrzení telefonního čísla pro obnovení
 # Browser tab title for the page confirming that two-step authentication is now on for the account.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 inline-recovery-setup-complete-page-title = Dvoufázové ověřování je zapnuto
@@ -1774,7 +1774,7 @@ inline-totp-setup-page-title = Dvoufázové ověřování
 inline-totp-setup-intro-page-title = Nastavení dvoufázového ověřování
 # Browser tab title for the page where the user connects an authenticator app to their account during two-step authentication setup.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-inline-totp-setup-enrol-page-title = Připojte svou ověřovací aplikaci
+inline-totp-setup-enrol-page-title = Připojení ověřovací aplikace
 
 ## PageNotFound page
 ## Shown when the requested page does not exist
@@ -1784,7 +1784,7 @@ page-not-found-description = Požadovaná stránka nebyla nalezena. Byli jsme o 
 page-not-found-home-button = Domů
 # Browser tab title for the page shown when the requested page does not exist.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-page-not-found-page-title = Stránka nenalezena
+page-not-found-page-title = Stránka nebyla nalezena
 
 ## AuthAllow page - Part of the device pairing flow
 
