@@ -12,6 +12,7 @@ import {
   extractPrfOutput,
 } from './prf-fallback';
 import { createCredential, getCredential } from './webauthn';
+import { MAC_FIREFOX_UA } from '../test-utils';
 import type {
   PublicKeyCredentialCreationOptionsJSON,
   PublicKeyCredentialRequestOptionsJSON,
@@ -214,6 +215,23 @@ describe('createCredentialWithPrfFallback', () => {
       cancel
     );
     expect(mockCreateCredential).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not retry an UnknownError on macOS and rethrows it', async () => {
+    const userAgent = jest
+      .spyOn(navigator, 'userAgent', 'get')
+      .mockReturnValue(MAC_FIREFOX_UA);
+    try {
+      const unknown = new DOMException('unknown', 'UnknownError');
+      mockCreateCredential.mockRejectedValueOnce(unknown);
+
+      await expect(
+        createCredentialWithPrfFallback(optionsWithPrf)
+      ).rejects.toBe(unknown);
+      expect(mockCreateCredential).toHaveBeenCalledTimes(1);
+    } finally {
+      userAgent.mockRestore();
+    }
   });
 
   it('surfaces the retry error when the second attempt also fails', async () => {

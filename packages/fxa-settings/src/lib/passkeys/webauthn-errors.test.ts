@@ -13,6 +13,7 @@ import {
   WebAuthnGleanReason,
   WebAuthnOperation,
 } from './webauthn-errors';
+import { MAC_FIREFOX_UA, WINDOWS_FIREFOX_UA } from '../test-utils';
 
 function dom(name: string): DOMException {
   return new DOMException('test', name);
@@ -245,6 +246,38 @@ describe('handleWebAuthnError', () => {
     expect(result.ftlId).toBe(
       'passkey-registration-error-not-allowed-existing'
     );
+    // NotSupported would route PagePasskeyAdd to its could-not-complete banner.
+    expect(result.errorType).toBe(WebAuthnErrorType.NotAllowed);
+  });
+});
+
+describe('categorizeWebAuthnError — UnknownError with existing passkeys', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('shows the already-registered message on macOS', () => {
+    jest.spyOn(navigator, 'userAgent', 'get').mockReturnValue(MAC_FIREFOX_UA);
+    const result = categorizeWebAuthnError(
+      dom('UnknownError'),
+      'registration',
+      { hadExcludeCredentials: true }
+    );
+    expect(result.ftlId).toBe(
+      'passkey-registration-error-not-allowed-existing'
+    );
+  });
+
+  it('stays unexpected on Windows, where UnknownError is the PRF failure', () => {
+    jest
+      .spyOn(navigator, 'userAgent', 'get')
+      .mockReturnValue(WINDOWS_FIREFOX_UA);
+    const result = categorizeWebAuthnError(
+      dom('UnknownError'),
+      'registration',
+      { hadExcludeCredentials: true }
+    );
+    expect(result.ftlId).toBe('passkey-registration-error-unexpected');
   });
 });
 

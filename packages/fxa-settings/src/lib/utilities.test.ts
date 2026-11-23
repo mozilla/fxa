@@ -10,6 +10,7 @@ import {
   formatSecret,
   isBase32Crockford,
   isIosSafari,
+  isMacOS,
   getBrowserFamily,
   isMobileDevice,
   isMobileOrTabletDevice,
@@ -24,6 +25,7 @@ import {
   searchParams,
   toGenericOSName,
 } from './utilities';
+import { MAC_FIREFOX_UA, WINDOWS_FIREFOX_UA } from './test-utils';
 import { SEND_TAB_ENTRYPOINTS } from '../constants';
 import { Constants } from './constants';
 
@@ -390,6 +392,25 @@ describe('isIosSafari', () => {
         Object.defineProperty(navigator, 'userAgent', original);
       }
     }
+  });
+});
+
+describe('isMacOS', () => {
+  it.each([
+    ['Firefox on macOS', MAC_FIREFOX_UA, true],
+    [
+      'Safari on macOS',
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15',
+      true,
+    ],
+    ['Firefox on Windows', WINDOWS_FIREFOX_UA, false],
+    [
+      'Firefox on iOS',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/125.0 Mobile/15E148 Safari/605.1.15',
+      false,
+    ],
+  ])('for %s is %s', (_label, userAgent, expected) => {
+    expect(isMacOS(userAgent)).toBe(expected);
   });
 });
 

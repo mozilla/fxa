@@ -4,6 +4,11 @@
 
 import { act, fireEvent, screen } from '@testing-library/react';
 
+export const MAC_FIREFOX_UA =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:151.0) Gecko/20100101 Firefox/151.0';
+export const WINDOWS_FIREFOX_UA =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:151.0) Gecko/20100101 Firefox/151.0';
+
 export const typeByTestIdFn = (testId: string) => async (x: string) => {
   await act(async () => {
     const input = screen.getByTestId(testId);
