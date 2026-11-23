@@ -1,8 +1,8 @@
 {
-  "commit": "1c837cbb036cca43d4aee3c99eec2e692867db62",
-  "summary": "Merge pull request #21761 from mozilla/FXA-14946",
-  "description": "feat(auth): add POST /account/sync_data/destroy",
-  "timestamp": 1795471080000,
+  "commit": "afbf4cce6cd975bc7b62777f1700f0e624a555d5",
+  "summary": "Merge pull request #21779 from mozilla/fxa-14949",
+  "description": "fix(settings): show passkey already-registered message on macOS",
+  "timestamp": 1795475607000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
