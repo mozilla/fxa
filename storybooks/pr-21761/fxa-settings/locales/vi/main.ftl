@@ -48,7 +48,7 @@ app-footer-terms-of-service = Điều khoản dịch vụ
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = Mở trong cửa sổ mới
@@ -1635,7 +1635,6 @@ signin-unblock-support-link = Tại sao chuyện này xảy ra?
 signin-unblock-desktop-relay = { -brand-firefox } sẽ điều hướng bạn quay trở lại để sử dụng email ẩn danh sau khi bạn đăng nhập.
 
 
-confirm-signup-code-page-title = Nhập mã xác nhận
 confirm-signup-code-heading-2 = Nhập mã xác minh <span>cho { -product-mozilla-account } của bạn</span>
 confirm-signup-code-instruction-v2 = Nhập mã đã được gửi tới <email>{ $email }</email> trong vòng 5 phút.
 confirm-signup-code-input-label = Nhập mã gồm 6 chữ số

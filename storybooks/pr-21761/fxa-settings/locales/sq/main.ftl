@@ -48,7 +48,6 @@ app-footer-terms-of-service = Kushte Shërbimi
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Hapet në dritare të re
@@ -1378,7 +1377,6 @@ signin-unblock-support-link = Pse ndodh kjo?
 signin-unblock-desktop-relay = Pasi të bëni hyrjen në llogari, { -brand-firefox }-i do të provojë t’ju dërgojë një maskë email për ta përdorur.
 
 
-confirm-signup-code-page-title = Jepni kodin e ripohimit
 confirm-signup-code-heading-2 = Jepni kod ripohimi <span>për { -product-mozilla-account } tuajën</span>
 confirm-signup-code-instruction-v2 = Jepni brenda 5 minutash kodin që u dërgua te <email>{ $email }</email>.
 confirm-signup-code-input-label = Jepni kodin 6-shifror
