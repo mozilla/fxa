@@ -28,7 +28,7 @@ const config: Config = {
     [
       'jest-junit',
       {
-        outputDirectory: 'artifacts/tests/crypto',
+        outputDirectory: 'artifacts/tests/shared-crypto',
         outputName: 'crypto-jest-unit-results.xml',
       },
     ],
