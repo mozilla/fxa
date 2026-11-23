@@ -981,6 +981,34 @@ describe('signin container', () => {
         });
       });
 
+      it('returns INCORRECT_PASSWORD without retrying when V2 credentials get INCORRECT_EMAIL_CASE', async () => {
+        mockAuthClient.getCredentialStatusV2 = jest.fn().mockResolvedValue({
+          upgradeNeeded: false,
+          currentVersion: 'v2',
+          clientSalt: MOCK_CLIENT_SALT,
+        });
+        mockAuthClient.signInWithAuthPW = jest.fn().mockRejectedValue({
+          errno: AuthUiErrors.INCORRECT_EMAIL_CASE.errno,
+          message: AuthUiErrors.INCORRECT_EMAIL_CASE.message,
+          email: `signup-${MOCK_EMAIL}`,
+        });
+
+        render();
+
+        let handlerResult: BeginSigninResult | undefined;
+        await act(async () => {
+          handlerResult = await currentSigninProps?.beginSigninHandler(
+            MOCK_EMAIL,
+            MOCK_PASSWORD
+          );
+        });
+
+        expect(mockAuthClient.signInWithAuthPW).toHaveBeenCalledTimes(1);
+        expect(handlerResult?.error?.errno).toEqual(
+          AuthUiErrors.INCORRECT_PASSWORD.errno
+        );
+      });
+
       it('runs handler and upgrades to new V2 credentials', async () => {
         // Mock getCredentialStatusV2 to return upgradeNeeded: true
         mockAuthClient.getCredentialStatusV2 = jest.fn().mockResolvedValue({

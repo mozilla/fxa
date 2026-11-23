@@ -203,7 +203,9 @@ describe('signin unblock container', () => {
   });
 
   /** Renders the container with a fake page component */
-  async function render(options?: { useFxAStatusResult?: ReturnType<typeof mockUseFxAStatus> }) {
+  async function render(options?: {
+    useFxAStatusResult?: ReturnType<typeof mockUseFxAStatus>;
+  }) {
     const useFxAStatusResult =
       options?.useFxAStatusResult || mockUseFxAStatus();
 
@@ -348,6 +350,71 @@ describe('signin unblock container', () => {
     expect(result?.data).toBeUndefined();
     expect(result?.error).toBeDefined();
     expect(result?.error?.errno).toEqual(127);
+  });
+
+  it('retries INCORRECT_EMAIL_CASE with V1 credentials at most once', async () => {
+    mockAuthClient.getCredentialStatusV2.mockResolvedValue({
+      upgradeNeeded: true,
+      currentVersion: 'v1',
+    });
+    const emailCaseError = {
+      errno: AuthUiErrors.INCORRECT_EMAIL_CASE.errno,
+      message: AuthUiErrors.INCORRECT_EMAIL_CASE.message,
+      email: `signup-${MOCK_EMAIL}`,
+    };
+    mockAuthClient.signInWithAuthPW
+      .mockRejectedValueOnce(emailCaseError)
+      .mockRejectedValueOnce(emailCaseError);
+
+    await render();
+
+    let result: BeginSigninResult | undefined;
+    await act(async () => {
+      result = await currentPageProps?.signinWithUnblockCode(MOCK_UNBLOCK_CODE);
+    });
+
+    expect(mockAuthClient.signInWithAuthPW).toHaveBeenCalledTimes(2);
+    expect(mockAuthClient.signInWithAuthPW).toHaveBeenNthCalledWith(
+      2,
+      { primary: `signup-${MOCK_EMAIL}` },
+      MOCK_AUTH_PW,
+      expect.objectContaining({
+        originalLoginEmail: MOCK_EMAIL,
+        unblockCode: MOCK_UNBLOCK_CODE,
+      })
+    );
+    expect(result?.error?.errno).toEqual(
+      AuthUiErrors.INCORRECT_EMAIL_CASE.errno
+    );
+  });
+
+  it('returns INCORRECT_PASSWORD without retrying when V2 credentials get INCORRECT_EMAIL_CASE', async () => {
+    mockAuthClient.getCredentialStatusV2.mockResolvedValue({
+      upgradeNeeded: false,
+      currentVersion: 'v2',
+      clientSalt: MOCK_CLIENT_SALT,
+    });
+    // The 103 is only reached if the retry regresses; it stops the retry from looping.
+    mockAuthClient.signInWithAuthPW
+      .mockRejectedValueOnce({
+        errno: AuthUiErrors.INCORRECT_EMAIL_CASE.errno,
+        message: AuthUiErrors.INCORRECT_EMAIL_CASE.message,
+        email: `signup-${MOCK_EMAIL}`,
+      })
+      .mockRejectedValueOnce({
+        errno: AuthUiErrors.INCORRECT_PASSWORD.errno,
+        message: AuthUiErrors.INCORRECT_PASSWORD.message,
+      });
+
+    await render();
+
+    let result: BeginSigninResult | undefined;
+    await act(async () => {
+      result = await currentPageProps?.signinWithUnblockCode(MOCK_UNBLOCK_CODE);
+    });
+
+    expect(mockAuthClient.signInWithAuthPW).toHaveBeenCalledTimes(1);
+    expect(result?.error?.errno).toEqual(AuthUiErrors.INCORRECT_PASSWORD.errno);
   });
 
   describe('with supportsCanLinkAccountUid capability and OAuthNative integration', () => {

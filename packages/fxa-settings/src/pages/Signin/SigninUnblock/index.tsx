@@ -182,6 +182,7 @@ export const SigninUnblock = ({
       );
       switch (error.errno) {
         case AuthUiErrors.INCORRECT_PASSWORD.errno:
+        case AuthUiErrors.INCORRECT_EMAIL_CASE.errno:
           navigateWithQuery(`/signin`, {
             state: {
               email,

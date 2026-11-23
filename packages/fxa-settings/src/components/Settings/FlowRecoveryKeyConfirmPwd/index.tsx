@@ -15,7 +15,10 @@ import { PasswordImage } from '../../images';
 import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
 import { Link } from 'react-router';
 import { SETTINGS_PATH } from '../../../constants';
-import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import {
+  getLocalizedErrorMessage,
+  isIncorrectPassword,
+} from '../../../lib/error-utils';
 import { formatRecoveryKey } from '../../../lib/utilities';
 import Banner from '../../Banner';
 import { useMfaErrorHandler } from '../../../lib/hooks';
@@ -110,7 +113,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
         err
       );
 
-      if (err.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
+      if (isIncorrectPassword(err.errno)) {
         // show error in tooltip if password is incorrect
         // the error will be cleared when the input content is changed
         setErrorText(localizedErrorMessage);

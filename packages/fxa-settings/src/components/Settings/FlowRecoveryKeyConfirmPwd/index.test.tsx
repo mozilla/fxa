@@ -294,6 +294,24 @@ describe('FlowRecoveryKeyConfirmPwd', () => {
       });
     });
 
+    it('shows INCORRECT_EMAIL_CASE as the incorrect-password tooltip', async () => {
+      const user = userEvent.setup();
+      mockReauthError(AuthUiErrors.INCORRECT_EMAIL_CASE);
+      renderFlowPage(accountWithoutKey);
+
+      await user.type(
+        screen.getByLabelText('Enter your password'),
+        'anypassword'
+      );
+      await user.click(
+        screen.getByRole('button', { name: 'Create account recovery key' })
+      );
+
+      expect(await screen.findByTestId('tooltip')).toHaveTextContent(
+        'Incorrect password'
+      );
+    });
+
     it('renders an error message for unexpected errors', async () => {
       mockReauthError(AuthUiErrors.UNEXPECTED_ERROR);
       renderFlowPage(accountWithoutKey);

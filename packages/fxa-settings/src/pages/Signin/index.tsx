@@ -29,7 +29,10 @@ import { isWebAuthnSupported } from '../../lib/passkeys/webauthn';
 import { SigninFormData, SigninLocationState, SigninProps } from './interfaces';
 import { handleNavigation } from './utils';
 import { isWafBlockedError } from 'fxa-auth-client/browser';
-import { getLocalizedErrorMessage } from '../../lib/error-utils';
+import {
+  getLocalizedErrorMessage,
+  isIncorrectPassword,
+} from '../../lib/error-utils';
 import Banner from '../../components/Banner';
 import { BannerLinkProps } from '../../components/Banner/interfaces';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
@@ -212,7 +215,7 @@ const Signin = ({
 
           if (
             errno === AuthUiErrors.PASSWORD_REQUIRED.errno ||
-            errno === AuthUiErrors.INCORRECT_PASSWORD.errno
+            isIncorrectPassword(errno)
           ) {
             setLocalizedBannerError('');
             setLocalizedBannerErrorDescription('');

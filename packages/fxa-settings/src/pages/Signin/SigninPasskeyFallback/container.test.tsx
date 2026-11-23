@@ -413,20 +413,31 @@ describe('SigninPasskeyFallback container', () => {
       ).not.toHaveBeenCalled();
     });
 
-    it('fires submit_frontend_error with reason=incorrect_password on INCORRECT_PASSWORD errno', async () => {
-      mockSessionReauth.mockRejectedValueOnce({
-        errno: AuthUiErrors.INCORRECT_PASSWORD.errno,
-        message: 'Incorrect password',
-      });
-      const { getByTestId } = render();
-      submitPassword(getByTestId);
-      await waitFor(() => {
+    it.each([
+      { name: 'INCORRECT_PASSWORD', error: AuthUiErrors.INCORRECT_PASSWORD },
+      {
+        name: 'INCORRECT_EMAIL_CASE',
+        error: AuthUiErrors.INCORRECT_EMAIL_CASE,
+      },
+    ])(
+      'fires submit_frontend_error with reason=incorrect_password on $name errno',
+      async ({ error }) => {
+        mockSessionReauth.mockRejectedValueOnce({
+          errno: error.errno,
+          message: error.message,
+        });
+        const { getByTestId } = render();
+        submitPassword(getByTestId);
+        await waitFor(() => {
+          expect(
+            GleanMetrics.passkeyEnterPassword.submitFrontendError
+          ).toHaveBeenCalledWith({ event: { reason: 'incorrect_password' } });
+        });
         expect(
-          GleanMetrics.passkeyEnterPassword.submitFrontendError
-        ).toHaveBeenCalledWith({ event: { reason: 'incorrect_password' } });
-      });
-      expect(GleanMetrics.passkeyEnterPassword.success).not.toHaveBeenCalled();
-    });
+          GleanMetrics.passkeyEnterPassword.success
+        ).not.toHaveBeenCalled();
+      }
+    );
 
     it('fires submit_frontend_error with reason=server_error on other errnos', async () => {
       mockSessionReauth.mockRejectedValueOnce({
