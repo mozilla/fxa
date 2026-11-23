@@ -1,8 +1,8 @@
 {
-  "commit": "ccebf9445d54f1cf779dff5b02ab851d7671420e",
-  "summary": "Merge pull request #21806 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-4c0e7af1249bf55dc626c25ffe66a24c54d8f85c",
-  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from fbbb11ca5fa3dc40cff425f8168f67d0d27f3e42 to 4f5a8c865e061d45383db4210d49c1b413475198",
-  "timestamp": 1795462430000,
+  "commit": "4e390103e72c49f2048c6267f2a316b7a1f6377e",
+  "summary": "Merge pull request #21803 from mozilla/agent-282db0",
+  "description": "fix(settings): default Nova theme to system when none is stored",
+  "timestamp": 1795464365000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
