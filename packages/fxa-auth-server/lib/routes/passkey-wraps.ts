@@ -116,9 +116,7 @@ export class PasskeyWrapsHandler {
 
     if (!hasPasswordReauth(session)) {
       await this.recordEvent(request, 'account.passkey.wrap_creation_failure');
-      // Reuses the MFA token error; a dedicated error the client can act on
-      // is tracked in FXA-14847.
-      throw AppError.invalidMfaToken();
+      throw AppError.passkeyWrapReauthRequired();
     }
 
     let result: Awaited<ReturnType<PasskeyService['storePasskeyWrap']>>;

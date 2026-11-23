@@ -292,6 +292,16 @@ describe('createPasskeyWrap', () => {
       });
     });
 
+    it('does not step up when the session needs a password reauth', async () => {
+      const err = serverError(ERRNO.PASSKEY_WRAP_REAUTH_REQUIRED);
+      createPasskeyWrapApiMock.mockRejectedValue(err);
+
+      const outcome = await createPasskeyWrap(authClient(), args());
+
+      expect(outcome).toEqual({ ok: false, error: err });
+      expect(beginVerificationMock).not.toHaveBeenCalled();
+    });
+
     it('does not step up without a session token', async () => {
       const err = expired();
       createPasskeyWrapApiMock.mockRejectedValue(err);

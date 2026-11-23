@@ -343,7 +343,10 @@ describe('#integration - remote passkey wrap storage', () => {
 
     await expect(
       storeWrap({ credentialId, ...envelope() }, token)
-    ).rejects.toMatchObject({ code: 401, errno: ERRNO.INVALID_MFA_TOKEN });
+    ).rejects.toMatchObject({
+      code: 401,
+      errno: ERRNO.PASSKEY_WRAP_REAUTH_REQUIRED,
+    });
   });
 
   describe('GET /passkey/wraps/{credentialId}', () => {

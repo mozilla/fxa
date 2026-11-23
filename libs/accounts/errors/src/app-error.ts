@@ -1779,6 +1779,15 @@ export class AppError extends Error {
     });
   }
 
+  static passkeyWrapReauthRequired() {
+    return new AppError({
+      code: 401,
+      error: 'Unauthorized',
+      errno: ERRNO.PASSKEY_WRAP_REAUTH_REQUIRED,
+      message: 'Password reauthentication required',
+    });
+  }
+
   static passkeyAlreadyRegistered() {
     return new AppError({
       code: 409,

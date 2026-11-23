@@ -570,6 +570,22 @@ describe('AppErrors', () => {
       });
     });
 
+    it('creates passkeyWrapReauthRequired', () => {
+      const result = AppError.passkeyWrapReauthRequired();
+      expect(result).toBeInstanceOf(AppError);
+      expect(result).toMatchObject({
+        errno: 237,
+        message: 'Password reauthentication required',
+        output: {
+          statusCode: 401,
+          payload: {
+            error: 'Unauthorized',
+            errno: 237,
+          },
+        },
+      });
+    });
+
     it('creates passkeyWrapConflict', () => {
       const result = AppError.passkeyWrapConflict();
       expect(result).toBeInstanceOf(AppError);
