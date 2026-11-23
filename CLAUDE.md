@@ -79,7 +79,7 @@ _Note:_ This is a general overview and may vary per library/package. For authori
 
 Follow the commit message format defined in [CONTRIBUTING.md — Git Commit Guidelines](https://github.com/mozilla/fxa/blob/main/CONTRIBUTING.md#git-commit-guidelines) and the `~/.gitmessage` template configured globally.
 
-Key points: `type(scope): subject` format; imperative present tense subject; `Because:` / `This commit:` body sections; `Fixes #N` footer for issues.
+Key points: `type(scope): subject` format; imperative present tense subject; `Because:` / `This commit:` body sections; `Closes #FXA-<number>` footer for the Jira ticket.
 
 **Never add a `Co-Authored-By: Claude ...` trailer** to any commit message.
 

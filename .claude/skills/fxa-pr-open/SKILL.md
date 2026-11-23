@@ -93,9 +93,9 @@ Suggested question set:
 
 1. **Pre-merge review attestation** — has one been run already?
    - "Yes — completed `/<recommended>` (Recommended)" — name the right skill in the label based on the diff:
-     - `/fxa-security-review` when OAuth, session, password, OTP/TOTP, recovery, or `/account/*` routes are touched
      - `/fxa-review` when auth, payments, crypto, sessions, migrations, or multi-package changes are involved
      - `/fxa-review-quick` otherwise
+     - add `/fxa-security-review` on top of either when OAuth, session, password, OTP/TOTP, recovery, or `/account/*` routes are touched
    - "Not yet — pause; exit so I can run it" — exit the skill; the user re-enters after.
    - "N/A — trivial change, no review needed" — capture the user's reason via the question's notes field and append it to `## Other information (Optional)` in Step 4.
 
