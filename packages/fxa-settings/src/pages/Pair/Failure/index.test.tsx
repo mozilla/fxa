@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { screen } from '@testing-library/react';
+import GleanMetrics from '../../../lib/glean';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -13,6 +14,17 @@ import PairFailure, { viewName } from '.';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
+}));
+
+let mockLocationState: unknown = null;
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useLocation: () => ({ state: mockLocationState }),
+}));
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: { pairing: { passwordLockFailure: jest.fn() } },
 }));
 
 describe('PairFailure', () => {
@@ -51,5 +63,27 @@ describe('PairFailure', () => {
   it('emits expected metrics event on render', () => {
     renderWithLocalizationProvider(<PairFailure />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+  });
+
+  describe('pairing.password_lock_failure', () => {
+    afterEach(() => {
+      mockLocationState = null;
+      jest.clearAllMocks();
+    });
+
+    it('records once when a locked Primary Password caused the failure', () => {
+      mockLocationState = { primaryPasswordLocked: true };
+      renderWithLocalizationProvider(<PairFailure />);
+      expect(GleanMetrics.pairing.passwordLockFailure).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([null, {}, { primaryPasswordLocked: false }])(
+      'does not record for route state %p',
+      (state) => {
+        mockLocationState = state;
+        renderWithLocalizationProvider(<PairFailure />);
+        expect(GleanMetrics.pairing.passwordLockFailure).not.toHaveBeenCalled();
+      }
+    );
   });
 });

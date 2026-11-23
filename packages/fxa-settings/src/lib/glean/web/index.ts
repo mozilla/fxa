@@ -392,4 +392,8 @@ export const eventsMap = {
     deeplinkStoreRedirect: 'dtm_mobile_deeplink_store_redirect',
     deeplinkWebviewFallback: 'dtm_mobile_deeplink_webview_fallback',
   },
+
+  pairing: {
+    passwordLockFailure: 'pairing_password_lock_failure',
+  },
 } as const;

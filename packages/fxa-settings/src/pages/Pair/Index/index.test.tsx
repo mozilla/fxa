@@ -694,6 +694,82 @@ describe('Pair', () => {
     const requestSignedInUserMock = jest.mocked(firefox.requestSignedInUser);
     const fxaOAuthFlowBeginMock = jest.mocked(firefox.fxaOAuthFlowBegin);
 
+    it('sends a browser with a locked Primary Password to /pair/failure', async () => {
+      renderWithRouter(
+        <Pair
+          fxaStatusResult={mockUseFxAStatus({
+            signedInUser: {
+              ...MOCK_SYNC_SIGNED_IN_USER,
+              hasSyncKey: false,
+              primaryPasswordLocked: true,
+            },
+          })}
+        />,
+        {},
+        mockAppContext()
+      );
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('/pair/failure', {
+          replace: true,
+          state: { primaryPasswordLocked: true },
+        })
+      );
+      expect(requestSignedInUserMock).not.toHaveBeenCalled();
+      expect(fxaOAuthFlowBeginMock).not.toHaveBeenCalled();
+    });
+
+    it('sends a lock reported by the bootstrap reply to /pair/failure', async () => {
+      requestSignedInUserMock.mockResolvedValue({
+        ...MOCK_SYNC_SIGNED_IN_USER,
+        hasSyncKey: false,
+        primaryPasswordLocked: true,
+      });
+      renderWithRouter(<Pair {...defaultProps} />, {}, mockAppContext());
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('/pair/failure', {
+          replace: true,
+          state: { primaryPasswordLocked: true },
+        })
+      );
+      expect(fxaOAuthFlowBeginMock).not.toHaveBeenCalled();
+    });
+
+    it('keeps a locked bootstrap reply when a retry would reject', async () => {
+      requestSignedInUserMock
+        .mockResolvedValueOnce({
+          ...MOCK_SYNC_SIGNED_IN_USER,
+          hasSyncKey: false,
+          primaryPasswordLocked: true,
+        })
+        .mockRejectedValueOnce(new Error('boom'));
+      renderWithRouter(<Pair {...defaultProps} />, {}, mockAppContext());
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith('/pair/failure', {
+          replace: true,
+          state: { primaryPasswordLocked: true },
+        })
+      );
+      expect(requestSignedInUserMock).toHaveBeenCalledTimes(1);
+      expect(fxaOAuthFlowBeginMock).not.toHaveBeenCalled();
+    });
+
+    it.each([false, undefined])(
+      'keeps the current flow when primaryPasswordLocked is %s',
+      async (primaryPasswordLocked) => {
+        await renderPair({
+          fxaStatusResult: mockUseFxAStatus({
+            signedInUser: {
+              ...MOCK_SYNC_SIGNED_IN_USER,
+              primaryPasswordLocked,
+            },
+          }),
+        });
+        expect(mockNavigate.mock.calls.map(([to]) => to)).not.toContain(
+          '/pair/failure'
+        );
+      }
+    );
+
     it('renders the choice screen when Firefox has a verified Sync user', async () => {
       await renderPair();
       expect(requestSignedInUserMock).toHaveBeenCalledWith(

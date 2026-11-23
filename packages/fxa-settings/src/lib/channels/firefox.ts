@@ -107,6 +107,8 @@ export type SignedInUser = {
   // Whether the browser holds the Sync key. Undefined when the Firefox version
   // predates the field; false also when Firefox cannot read its stored keys.
   hasSyncKey?: boolean;
+  // Undefined when the Firefox version predates the field.
+  primaryPasswordLocked?: boolean;
 };
 
 export type PairOAuthStartState = {
