@@ -735,13 +735,6 @@ dc-opt-in-success-2 = Thanks! Sharing this data helps us improve { -product-mozi
 dc-opt-in-out-error-2 = Sorry, there was a problem changing your data collection preference
 dc-learn-more = Learn more
 
-## Synced data row
-
-dc-subheader-synced-data = Synced data
-# <accountSettingsLink> opens Firefox's "Account and sync" settings on Firefox Desktop, and is plain text elsewhere.
-dc-synced-data-content = Delete synced data stored on { -brand-mozilla }’s servers. This won’t delete data on your devices or turn off syncing. To manage what syncs on this device, go to <accountSettingsLink>Account and sync</accountSettingsLink> in { -brand-firefox } Settings.
-dc-synced-data-delete-button = Delete synced data
-
 # DropDownAvatarMenu component
 
 drop-down-menu-title-2 = { -product-mozilla-account } menu
@@ -755,31 +748,6 @@ drop-down-menu-sign-out-error-2 = Sorry, there was a problem signing you out
 ## Flow Container
 
 flow-container-back = Back
-
-## Delete synced data flow, step 1: confirm password
-
-delete-sync-data-confirm-pwd-heading = Re-enter your password for security
-delete-sync-data-confirm-pwd-input-label = Enter your password
-delete-sync-data-confirm-pwd-submit-button = Continue
-
-## Delete synced data flow, step 2: confirm deletion and choose devices to sign out of
-
-delete-sync-data-heading = Delete synced data?
-delete-sync-data-content = This deletes your synced data from { -brand-mozilla }’s servers, not your devices. If syncing is on, your data will sync back to { -brand-mozilla }’s servers. Sign out to stop syncing data.
-# $deviceName (String) - the name of the device the user is currently using
-delete-sync-data-this-device = { $deviceName } (this device)
-delete-sync-data-sign-out-all = Sign out of { -brand-firefox }
-# Shown under "Sign out of Firefox"; devices left signed in keep syncing
-delete-sync-data-sign-out-all-note = Syncing will resume wherever you’re signed in.
-# Tooltip and accessible name for the button that expands the device list
-delete-sync-data-show-devices = Show devices
-# Label on a device the user chose to sign out of
-delete-sync-data-sign-out-badge = Sign out
-# Label on a device the user chose to keep signed in
-delete-sync-data-stay-signed-in-badge = Stay signed in
-delete-sync-data-cancel = Cancel
-delete-sync-data-delete = Delete
-delete-sync-data-delete-and-sign-out = Delete and sign out
 
 ## FlowRecoveryKeyConfirmPwd - Second view in the PageRecoveryKeyCreate flow
 ## Users see this view when they are generating a new account recovery key
@@ -1212,12 +1180,6 @@ delete-account-cancel-button = Cancel
 delete-account-delete-button-2 = Delete
 
 ##
-
-## Delete synced data flow
-## Reached from the "Synced data" row in Settings > Data Collection and Use.
-
-delete-sync-data-page-title = Delete synced data
-delete-sync-data-back-button-title = Back to settings
 
 ## Display name page
 

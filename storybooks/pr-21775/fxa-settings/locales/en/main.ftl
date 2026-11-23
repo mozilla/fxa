@@ -571,11 +571,6 @@ dc-opt-in-out-error-2 = Sorry, there was a problem changing your data collection
 dc-learn-more = Learn more
 
 
-dc-subheader-synced-data = Synced data
-dc-synced-data-content = Delete synced data stored on { -brand-mozilla }’s servers. This won’t delete data on your devices or turn off syncing. To manage what syncs on this device, go to <accountSettingsLink>Account and sync</accountSettingsLink> in { -brand-firefox } Settings.
-dc-synced-data-delete-button = Delete synced data
-
-
 drop-down-menu-title-2 = { -product-mozilla-account } menu
 drop-down-menu-signed-in-as-v2 = Signed in as
 drop-down-menu-sign-out = Sign out
@@ -584,24 +579,6 @@ drop-down-menu-sign-out-error-2 = Sorry, there was a problem signing you out
 
 
 flow-container-back = Back
-
-
-delete-sync-data-confirm-pwd-heading = Re-enter your password for security
-delete-sync-data-confirm-pwd-input-label = Enter your password
-delete-sync-data-confirm-pwd-submit-button = Continue
-
-
-delete-sync-data-heading = Delete synced data?
-delete-sync-data-content = This deletes your synced data from { -brand-mozilla }’s servers, not your devices. If syncing is on, your data will sync back to { -brand-mozilla }’s servers. Sign out to stop syncing data.
-delete-sync-data-this-device = { $deviceName } (this device)
-delete-sync-data-sign-out-all = Sign out of { -brand-firefox }
-delete-sync-data-sign-out-all-note = Syncing will resume wherever you’re signed in.
-delete-sync-data-show-devices = Show devices
-delete-sync-data-sign-out-badge = Sign out
-delete-sync-data-stay-signed-in-badge = Stay signed in
-delete-sync-data-cancel = Cancel
-delete-sync-data-delete = Delete
-delete-sync-data-delete-and-sign-out = Delete and sign out
 
 
 flow-recovery-key-confirm-pwd-heading-v2 = Re-enter your password for security
@@ -921,10 +898,6 @@ delete-account-password-input =
 delete-account-cancel-button = Cancel
 delete-account-delete-button-2 = Delete
 
-
-
-delete-sync-data-page-title = Delete synced data
-delete-sync-data-back-button-title = Back to settings
 
 
 display-name-page-title =

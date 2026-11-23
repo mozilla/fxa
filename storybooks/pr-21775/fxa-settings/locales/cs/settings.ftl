@@ -1730,7 +1730,7 @@ inline-recovery-setup-confirm-code-page-title = Potvrzení záložních kódů
 inline-recovery-setup-phone-number-page-title = Přidání telefonního čísla pro obnovení
 # Browser tab title for the page where the user enters the code sent to their recovery phone to confirm it.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-inline-recovery-setup-phone-code-page-title = Potvrďte své telefonní číslo pro obnovení
+inline-recovery-setup-phone-code-page-title = Potvrzení telefonního čísla pro obnovení
 # Browser tab title for the page confirming that two-step authentication is now on for the account.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 inline-recovery-setup-complete-page-title = Dvoufázové ověřování je zapnuto
@@ -1774,7 +1774,7 @@ inline-totp-setup-page-title = Dvoufázové ověřování
 inline-totp-setup-intro-page-title = Nastavení dvoufázového ověřování
 # Browser tab title for the page where the user connects an authenticator app to their account during two-step authentication setup.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-inline-totp-setup-enrol-page-title = Připojte svou ověřovací aplikaci
+inline-totp-setup-enrol-page-title = Připojení ověřovací aplikace
 
 ## PageNotFound page
 ## Shown when the requested page does not exist
@@ -1784,7 +1784,7 @@ page-not-found-description = Požadovaná stránka nebyla nalezena. Byli jsme o 
 page-not-found-home-button = Domů
 # Browser tab title for the page shown when the requested page does not exist.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-page-not-found-page-title = Stránka nenalezena
+page-not-found-page-title = Stránka nebyla nalezena
 
 ## AuthAllow page - Part of the device pairing flow
 
@@ -1797,7 +1797,7 @@ pair-auth-allow-confirm-button = Ano, schválit zařízení
 pair-auth-allow-refuse-device-link = Pokud jste to nebyli vy, <a>změňte si heslo</a>
 # Browser tab title for the page where the user approves a { -brand-firefox } sign-in on a new device.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair-auth-allow-page-title = Schválit přihlášení aplikace { -brand-firefox }
+pair-auth-allow-page-title = Schválení přihlášení aplikace { -brand-firefox }
 
 ## PairAuthComplete page - part of the device pairing flow
 
@@ -1928,7 +1928,7 @@ pair-download-step-continue-sync = <b>Krok { $stepNumber }</b>: Zvolte „Pokra�
 pair-continue-to-sync-button = Pokračovat se synchronizací
 # Browser tab title for the page where the user chooses how to connect another device.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair-choice-page-title = Připojit další zařízení
+pair-choice-page-title = Připojení dalšího zařízení
 # Browser tab title for the page where the user chooses how to set up another device to send tabs to.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 pair-choice-send-tab-page-title = Posílání panelů do jiného zařízení
@@ -1956,7 +1956,7 @@ pair-supp-allow-confirm-button = Potvrdit párování
 pair-supp-allow-cancel-link = Zrušit
 # Browser tab title for the page where the user confirms pairing a device with their account.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair-supp-allow-page-title = Potvrdit párování
+pair-supp-allow-page-title = Potvrzení párování
 
 ## WaitForAuth page - Part of the devide pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1967,7 +1967,7 @@ pair-supp-allow-page-title = Potvrdit párování
 pair-wait-for-auth-heading-text = Je požadováno schválení <span>z vašeho dalšího zařízení</span>
 # Browser tab title for the page that asks the user to approve device pairing on their other device.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair-wait-for-auth-page-title = Schválit na dalším zařízení
+pair-wait-for-auth-page-title = Schválení na dalším zařízení
 
 ## PairUnsupported - a view which is shown when the user tries to scan the pairing QR code any way other than through a Firefox app
 
@@ -1993,13 +1993,13 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Jejda! Něco se pokazilo.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zavřete prosím tento panel a zkuste to znovu.
 # Browser tab title for the page shown to a desktop user who is not using { -brand-firefox } and must switch browsers to pair a device.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair-unsupported-desktop-non-firefox-page-title = Vyžadováno { -brand-firefox }
+pair-unsupported-desktop-non-firefox-page-title = Vyžadován { -brand-firefox }
 # Browser tab title for the page shown when a mobile user scans the pairing code with the system camera and must pair from within a { -brand-firefox } app instead.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair-unsupported-system-camera-page-title = Spárovat pomocí aplikace
+pair-unsupported-system-camera-page-title = Párování pomocí aplikace
 # Browser tab title for the page that explains how to connect a mobile device by starting from { -brand-firefox } on a computer.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair-unsupported-mobile-page-title = Připojte své mobilní zařízení
+pair-unsupported-mobile-page-title = Připojení vašeho mobilního zařízení
 # Browser tab title for the page shown to a desktop { -brand-firefox } user when something went wrong and device pairing cannot continue.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 pair-unsupported-desktop-firefox-fallback-page-title = Něco se pokazilo
@@ -2019,7 +2019,7 @@ pair2-authority-approve-sign-in-confirm-button = Ano, schválit přihlášení
 pair2-authority-approve-sign-in-change-password = Nejste to vy? <changePassword>Změňte si své heslo</changePassword>
 # Browser tab title for the page where the user approves a sign-in requested from their mobile device.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair2-authority-approve-sign-in-page-title = Schválit přihlášení
+pair2-authority-approve-sign-in-page-title = Potvrzení přihlášení
 
 ## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer after scanning the pairing QR code with
