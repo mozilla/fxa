@@ -1,8 +1,8 @@
 {
-  "commit": "abfd1d07c9c89ad229dc84ba1f06b290be10f646",
-  "summary": "Merge pull request #21760 from mozilla/FXA-14946-migration",
-  "description": "chore(db): add account.sync_data_deleted security event name",
-  "timestamp": 1795471063000,
+  "commit": "1c837cbb036cca43d4aee3c99eec2e692867db62",
+  "summary": "Merge pull request #21761 from mozilla/FXA-14946",
+  "description": "feat(auth): add POST /account/sync_data/destroy",
+  "timestamp": 1795471080000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
