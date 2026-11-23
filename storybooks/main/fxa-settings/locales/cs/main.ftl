@@ -1612,7 +1612,7 @@ pair-download-description = Pro synchronizaci aplikace { -brand-firefox } do sv�
 pair-download-step-scan-qr = <b>Krok { $stepNumber }</b>: Stáhněte si aplikaci { -brand-firefox } naskenováním tohoto QR kódu pomocí fotoaparátu svého mobilního zařízení:
 pair-download-step-continue-sync = <b>Krok { $stepNumber }</b>: Zvolte „Pokračovat“ pro synchronizaci aplikace { -brand-firefox } s vaším mobilním zařízením.
 pair-continue-to-sync-button = Pokračovat se synchronizací
-pair-choice-page-title = Připojit další zařízení
+pair-choice-page-title = Připojení dalšího zařízení
 pair-choice-send-tab-page-title = Posílání panelů do jiného zařízení
 pair-download-page-title = Stáhněte si { -brand-firefox(case: "acc") } pro mobilní zařízení
 
@@ -1626,11 +1626,11 @@ pair-success-page-title = Zařízení připojeno
 pair-supp-allow-heading-text = Potvrdit párování <span>pro { $email }</span>
 pair-supp-allow-confirm-button = Potvrdit párování
 pair-supp-allow-cancel-link = Zrušit
-pair-supp-allow-page-title = Potvrdit párování
+pair-supp-allow-page-title = Potvrzení párování
 
 
 pair-wait-for-auth-heading-text = Je požadováno schválení <span>z vašeho dalšího zařízení</span>
-pair-wait-for-auth-page-title = Schválit na dalším zařízení
+pair-wait-for-auth-page-title = Schválení na dalším zařízení
 
 
 pair-unsupported-header = Spárovat pomocí aplikace
@@ -1643,16 +1643,16 @@ pair-unsupported-connecting-mobile-instructions-v2 = Otevřete { -brand-firefox 
 pair-unsupported-learn-more-link-v2 = Zjistit více
 pair-unsupported-desktop-firefox-fallback-header-v2 = Jejda! Něco se pokazilo.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zavřete prosím tento panel a zkuste to znovu.
-pair-unsupported-desktop-non-firefox-page-title = Vyžadováno { -brand-firefox }
-pair-unsupported-system-camera-page-title = Spárovat pomocí aplikace
-pair-unsupported-mobile-page-title = Připojte své mobilní zařízení
+pair-unsupported-desktop-non-firefox-page-title = Vyžadován { -brand-firefox }
+pair-unsupported-system-camera-page-title = Párování pomocí aplikace
+pair-unsupported-mobile-page-title = Připojení vašeho mobilního zařízení
 pair-unsupported-desktop-firefox-fallback-page-title = Něco se pokazilo
 
 
 pair2-authority-approve-sign-in-heading = Schválit přihlášení?
 pair2-authority-approve-sign-in-confirm-button = Ano, schválit přihlášení
 pair2-authority-approve-sign-in-change-password = Nejste to vy? <changePassword>Změňte si své heslo</changePassword>
-pair2-authority-approve-sign-in-page-title = Schválit přihlášení
+pair2-authority-approve-sign-in-page-title = Potvrzení přihlášení
 
 
 pair2-authority-continue-on-mobile-heading = Pokračujte na svém mobilním zařízení
