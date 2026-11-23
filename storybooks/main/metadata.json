@@ -1,8 +1,8 @@
 {
-  "commit": "4e390103e72c49f2048c6267f2a316b7a1f6377e",
-  "summary": "Merge pull request #21803 from mozilla/agent-282db0",
-  "description": "fix(settings): default Nova theme to system when none is stored",
-  "timestamp": 1795464365000,
+  "commit": "7f9e1bad69d8b649ed26870feb2d14b4ca134e6d",
+  "summary": "Merge pull request #21809 from mozilla/coderabbit-enable-by-default",
+  "description": "feat(fxa): enable coderabbit review by default",
+  "timestamp": 1795464834000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
