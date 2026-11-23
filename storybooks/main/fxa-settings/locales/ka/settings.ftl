@@ -369,6 +369,9 @@ signin-link-damaged-header = დასადასტურებელი ბ�
 # The user followed a link to report an invalid signin attempt that was received by email
 # but the link was damaged (for example mistyped or broken by the email client).
 report-signin-link-damaged-header = ბმული დაზიანებულია
+# Browser tab title for the page shown when the user followed a link to report an unauthorized sign-in, but the link was damaged.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+report-signin-link-damaged-page-title = დაზიანებული ბმულის მოხსენება
 # The user followed a link received by email, but the link was damaged.
 reset-pwd-link-damaged-message = ბმულს, რომელზეც გადახვედით, აკლია სიმბოლოები ან დაზიანდა თქვენი ელფოსტის პროგრამიდან აღებისას. ყურადღებით გადმოიტანეთ მისამართი და კვლავ სცადეთ.
 
@@ -400,6 +403,9 @@ locale-toggle-select-label = ენის არჩევა
 locale-toggle-browser-default = ბრაუზერის ნაგულისხმევი
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = გაუმართავი მოთხოვნა
+# Browser tab title for the page shown when the URL or network request is malformed, e.g. a required query parameter is invalid.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+error-bad-request-page-title = უმართებულო მოთხოვნა
 
 ## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when they open the pairing link
@@ -487,6 +493,15 @@ ready-continue = განაგრძეთ
 sign-in-complete-header = შესვლა დადასტურებულია
 sign-up-complete-header = ანგარიში დადასტურებულია
 primary-email-verified-header = მთავარი ელფოსტა დამოწმებულია
+# Browser tab title for the page confirming the user’s sign-in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+sign-in-complete-page-title = შესვლა დადასტურებულია
+# Browser tab title for the page confirming the user’s new account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+sign-up-complete-page-title = ანგარიში დამოწმებულია
+# Browser tab title for the page confirming the user’s primary email address.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+primary-email-verified-page-title = მთავარი ელფოსტა დამოწმებულია
 
 ## Users see this view when they are generating a new account recovery key
 ## This screen displays the generated key and allows users to download or copy the key
@@ -867,6 +882,8 @@ modal-mfa-protected-confirm-button = თანხმობა
 modal-mfa-protected-code-expired = კოდი ვადაგასულია?
 # Link to resend a new code to the user's email.
 modal-mfa-protected-resend-code-link = ახალი კოდის გაგზავნა.
+# Error shown when the code is correct but the device clock is too far ahead of the server time.
+modal-mfa-protected-clock-skew-error = თქვენი მოწყობილობის საათი არეულია. შეასწორეთ მოწყობილობის თარიღი და დრო, შემდეგ კი კვლავ სცადეთ.
 
 ## Modal Verify Session
 
@@ -1236,6 +1253,9 @@ security-set-password = დააყენეთ პაროლი სინქ
 security-recent-activity-link = ბოლო მოქმედებები ანგარიშზე
 signout-sync-header = სეანსი ამოიწურა
 signout-sync-session-expired = სამწუხაროდ, რაღაც ხარვეზია. გთხოვთ გამოხვიდეთ ბრაუზერის მენიუს ანგარიშიდან და სცადოთ ხელახლა.
+# Browser tab title for the page telling the user their session expired and they need to sign out from the browser menu.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signout-sync-page-title = სეანსი ამოიწურა
 
 ## SubRow component
 
@@ -1615,6 +1635,9 @@ connect-another-device-not-now-link = ახლა არა
 connect-another-device-android-complete-setup-message = შედით { -brand-firefox }-ში Android-ზე გამართვის დასასრულებლად
 # This is a message for Firefox iOS users, prompting them to complete the process of connecting another device by signing into Firefox for iOS
 connect-another-device-ios-complete-setup-message = შედით { -brand-firefox }-ში iOS-ზე გამართვის დასასრულებლად
+# Browser tab title for the page that invites the user to connect another device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+connect-another-device-page-title = სხვა მოწყობილობის დაკავშირება
 
 ## Cookies disabled page
 ## Users will see this page if they have local storage or cookies disabled.
@@ -1625,9 +1648,15 @@ cookies-disabled-enable-prompt-2 = გთხოვთ ჩართოთ ბრ�
 cookies-disabled-button-try-again = ხელახლა ცდა
 # An external link going to: https://support.mozilla.org/kb/cookies-information-websites-store-on-your-computer
 cookies-disabled-learn-more = ვრცლად
+# Browser tab title for the page shown when cookies or local storage are disabled in the browser.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+cookies-disabled-page-title = ჩართული უნდა იყოს ფუნთუშები და ადგილობრივი საცავი
 
 ## Index / home page
 
+# Browser tab title for the page where the user enters their email to sign in or create an account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+index-page-title = შედით ან შექმენით ანგარიში
 index-header = შეიყვანეთ თქვენი ელფოსტა
 index-sync-header = განაგრძეთ თქვენი { -product-mozilla-account(case: "ins") }
 index-sync-subheader = დაასინქრონეთ სანიშნები, ისტორია და პაროლები ყველგან, სადაც გიყენიათ { -brand-firefox }.
@@ -1675,6 +1704,33 @@ inline-recovery-key-setup-download-header = დაიცავით თქვ�
 inline-recovery-key-setup-download-subheader = ჩამოტვირთეთ და შეინახეთ ახლავე
 inline-recovery-key-setup-download-info = გადაინახეთ ეს გასაღები ადვილად მისაგნებ ადგილას — მოგვიანებით ამ გვერდზე დაბრუნება აღარ შეგეძლებათ.
 inline-recovery-key-setup-hint-header = რჩევები უსაფრთხოებისთვის
+# Browser tab title for the page where the user creates an account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-key-setup-create-page-title = ანგარიშის აღდგენის გასაღების შექმნა
+# Browser tab title for the page where the user downloads their account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-key-setup-download-page-title = ჩამოტვირთეთ თქვენი ანგარიშის აღდგენის გასაღები
+# Browser tab title for the page where the user adds a hint for their account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-key-setup-hint-page-title = დაამატეთ მინიშნება აღდგენის გასაღებს
+# Browser tab title for the page where the user chooses a recovery method during two-step authentication setup.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-choice-page-title = აირჩიეთ აღდგენის გზა
+# Browser tab title for the page where the user saves their backup authentication codes.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-download-codes-page-title = შეინახეთ სამარქაფო კოდები
+# Browser tab title for the page where the user confirms one of their backup authentication codes.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-confirm-code-page-title = დაადასტურეთ სამარქაფო კოდი
+# Browser tab title for the page where the user enters a phone number to use as a recovery phone.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-phone-number-page-title = აღდგენის ტელეფონის დამატება
+# Browser tab title for the page where the user enters the code sent to their recovery phone to confirm it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-phone-code-page-title = აღდგენის გასაღების დადასტურება
+# Browser tab title for the page confirming that two-step authentication is now on for the account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-complete-page-title = ორბიჯიანი დამოწმება ჩართ.
 
 ## InlineTotpSetup page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -1710,6 +1766,12 @@ inline-totp-setup-security-code-placeholder = შესვლის დამო
 inline-totp-setup-code-required-error = საჭიროა დამოწმების კოდი
 tfa-qr-code-alt = გამოიყენეთ კოდი { $code } ორბიჯიანი დამოწმების გასამართად მხარდაჭერილ პროგრამებში.
 inline-totp-setup-page-title = ორბიჯიანი დამოწმება
+# Browser tab title for the first page of two-step authentication setup, which introduces the feature.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-totp-setup-intro-page-title = ორბიჯიანი დამოწმების გამართვა
+# Browser tab title for the page where the user connects an authenticator app to their account during two-step authentication setup.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-totp-setup-enrol-page-title = დააკავშირეთ თქვენი დამმოწმებელი პროგრამა
 
 ## PageNotFound page
 ## Shown when the requested page does not exist
@@ -1717,6 +1779,9 @@ inline-totp-setup-page-title = ორბიჯიანი დამოწმე
 page-not-found-heading = გვერდი ვერ მოიძებნა
 page-not-found-description = თქვენ მიერ მოთხოვნილი გვერდი, ვერ მოიძებნა. ჩვენ უკვე გვეცნობა ამის შესახებ და ყველა შესაძლო დაზიანებულ ბმულს გავასწორებთ.
 page-not-found-home-button = საწყისი გვერდი
+# Browser tab title for the page shown when the requested page does not exist.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+page-not-found-page-title = გვერდი ვერ მოიძებნა
 
 ## AuthAllow page - Part of the device pairing flow
 
@@ -1727,6 +1792,9 @@ pair-auth-allow-confirm-button = დიახ, დადასტურდეს
 # "If this wasn't you" means "If it wasn't you that just signed in to Firefox"
 # The text with the <link> tags links to a `reset password` page
 pair-auth-allow-refuse-device-link = თუ თქვენ არ ყოფილხართ, <a>შეცვალეთ პაროლი</a>
+# Browser tab title for the page where the user approves a { -brand-firefox } sign-in on a new device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-auth-allow-page-title = { -brand-firefox } – შესვლის დამოწმება
 
 ## PairAuthComplete page - part of the device pairing flow
 
@@ -1748,6 +1816,12 @@ pair-auth-complete-send-tab-heading = ყველფერი მზადა�
 # Variable { $deviceOS } is an operating system short name, for example "iOS", "Android"
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } { $deviceOS }-ზე დაკავშირებულია.
 pair-auth-complete-send-tab-benefits = თავისუფლად შეგიძლიათ მყისიერად გაგზავნოთ გახსნილი ჩანართები, პაროლები და სანიშნები მოწყობილობებს შორის.
+# Browser tab title for the page shown when a device has been connected after pairing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-auth-complete-page-title = მოწყობილობა დაკავშირებულია
+# Browser tab title for the page shown when a device has been connected after pairing started from a send tab button.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-auth-complete-send-tab-page-title = მზადაა ჩანართების გასაგზავნად
 
 ## AuthTotp page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -1766,6 +1840,9 @@ auth-totp-input-label = შეიყვანეთ 6-ციფრიანი �
 auth-totp-confirm-button = თანხმობა
 # Error displayed in a tooltip when the form is submitted without a code
 auth-totp-code-required-error = შესვლის დამოწმების კოდი აუცილებელია
+# Browser tab title for the page where the user enters a two-step authentication code to continue pairing a device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+auth-totp-page-title = მიერთება ორბიჯიანი დამოწმებით
 
 ## WaitForSupp page - Part of the devide pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1774,6 +1851,9 @@ auth-totp-code-required-error = შესვლის დამოწმებ�
 # The "other device" is non-specific and could be a desktop computer, laptop, tablet, mobile phone, etc.
 # Strings within the <span> elements appear as a subheading.
 pair-wait-for-supp-heading-text = ახლა საჭიროა დამოწმება <span>თქვენი მეორე მოწყობილობიდან</span>
+# Browser tab title for the page that asks the user to approve device pairing on their other device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-wait-for-supp-page-title = დამოწმება სხვა მოწყობილობაზე
 
 ## PairFailure - a view which displays on failure of the device pairing process
 
@@ -1781,6 +1861,9 @@ pair-wait-for-supp-heading-text = ახლა საჭიროა დამ�
 pair-failure-header-v2 = მოწყობილობის მიერთება ვერ მოხერხდა
 pair-failure-message-v2 = გამართვა ვერ დასრულდა. გთხოვთ შეხვიდეთ ანგარიშზე თქვენი ელფოსტით.
 pair-failure-try-again-link = ხელახლა ცდა
+# Browser tab title for the page shown when device pairing fails.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-failure-page-title = მოწყობილობის მიერთება ვერ მოხერხდა
 
 ## Pair index page
 
@@ -1840,12 +1923,24 @@ pair-download-step-scan-qr = <b>ნაბიჯი { $stepNumber }</b>: ჩა�
 pair-download-step-continue-sync = <b>ნაბიჯი { $stepNumber }</b>: გახსენით { -brand-firefox } და მიუთითეთ „გაგრძელება დასინქრონებისთვის“ თქვენს მობილურ მოწყობილობაზე.
 # Button on the download screen that opens about:preferences for pairing
 pair-continue-to-sync-button = განაგრძეთ დასინქრონებისთვის
+# Browser tab title for the page where the user chooses how to connect another device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-choice-page-title = სხვა მოწყობილობის დაკავშირება
+# Browser tab title for the page where the user chooses how to set up another device to send tabs to.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-choice-send-tab-page-title = ჩანართების სხვა მოწყობილობაზე გაგზავნა
+# Browser tab title for the page that explains how to download { -brand-firefox } on a mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-download-page-title = ჩამოტვირთეთ { -brand-firefox } მობილურზე
 
 ## PairSuccess - a view which displays  on successful completion of the device pairing process
 
 pair-success-header-2 = მოწყობილობა დაკავშირებულია
 pair-success-message-2 = მიერთებულია წარმატებით.
 pair-success-tab-close-message = ამ ჩანართს თავისით დახურავს { -brand-firefox }.
+# Browser tab title for the page shown when a device has been paired successfully.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-success-page-title = მოწყობილობა დაკავშირებულია
 
 ## SuppAllow page - Part of the device pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1856,6 +1951,9 @@ pair-success-tab-close-message = ამ ჩანართს თავისი
 pair-supp-allow-heading-text = მიერთების დადასტურება <span>ელფოსტისთვის { $email }</span>
 pair-supp-allow-confirm-button = მიერთების დადასტურება
 pair-supp-allow-cancel-link = გაუქმება
+# Browser tab title for the page where the user confirms pairing a device with their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-supp-allow-page-title = მიერთების დადასტურება
 
 ## WaitForAuth page - Part of the devide pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1864,6 +1962,9 @@ pair-supp-allow-cancel-link = გაუქმება
 # The "other device" is non-specific and could be a desktop computer, laptop, tablet, mobile phone, etc.
 # Strings within the <span> elements appear as a subheading.
 pair-wait-for-auth-heading-text = ახლა საჭიროა დამოწმება <span>თქვენი მეორე მოწყობილობიდან</span>
+# Browser tab title for the page that asks the user to approve device pairing on their other device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-wait-for-auth-page-title = დამოწმება სხვა მოწყობილობაზე
 
 ## PairUnsupported - a view which is shown when the user tries to scan the pairing QR code any way other than through a Firefox app
 
@@ -1887,6 +1988,18 @@ pair-unsupported-learn-more-link-v2 = ვრცლად
 # Matches the legacy Backbone "Oops! Something went wrong." message.
 pair-unsupported-desktop-firefox-fallback-header-v2 = უჰ, რაღაც ხარვეზი წარმოიქმნა
 pair-unsupported-desktop-firefox-fallback-message-v2 = გთხოვთ დახუროთ ჩანართი და კვლავ სცადოთ.
+# Browser tab title for the page shown to a desktop user who is not using { -brand-firefox } and must switch browsers to pair a device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-desktop-non-firefox-page-title = საჭიროა { -brand-firefox }
+# Browser tab title for the page shown when a mobile user scans the pairing code with the system camera and must pair from within a { -brand-firefox } app instead.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-system-camera-page-title = მიერთება აპლიკაციის გამოყენებით
+# Browser tab title for the page that explains how to connect a mobile device by starting from { -brand-firefox } on a computer.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-mobile-page-title = დააკავშირეთ თქვენი მობილური მოწყობილობა
+# Browser tab title for the page shown to a desktop { -brand-firefox } user when something went wrong and device pairing cannot continue.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-desktop-firefox-fallback-page-title = რაღაც ხარვეზი წარმოიქმნა
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer, which is already signed in, after their
@@ -1901,6 +2014,9 @@ pair2-authority-approve-sign-in-confirm-button = დიახ, დამოწ�
 # "Not you?" asks whether someone other than the user started this sign-in.
 # The text inside <changePassword> links to the page for changing the password.
 pair2-authority-approve-sign-in-change-password = თქვენ არ ყოფილხართ? <changePassword>შეცვალეთ პაროლი</changePassword>
+# Browser tab title for the page where the user approves a sign-in requested from their mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-approve-sign-in-page-title = შესვლის დამოწმება
 
 ## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer after scanning the pairing QR code with
@@ -1911,6 +2027,9 @@ pair2-authority-continue-on-mobile-heading = განაგრძეთ მო�
 pair2-authority-continue-on-mobile-description = მიჰყევით ნაბიჯებს ტელეფონზე ან პლანშეტზე.
 # Dismisses the pairing attempt
 pair2-authority-continue-on-mobile-cancel-button = გაუქმება
+# Browser tab title for the page telling the user to continue connecting their device on their mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-continue-on-mobile-page-title = განაგრძეთ მობილურ მოწყობილობაზე
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when Firefox is needed to continue pairing.
@@ -1922,6 +2041,9 @@ pair2-authority-download-firefox-heading = გახსენით { -brand-fir
 pair2-authority-download-firefox-instruction-v2 = მოწყობილობებს შორის სინქრონიზაციისთვის გახსენით { -brand-firefox } ამ მოწყობილობაზე და ინახულეთ გვერდი <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = ჩამოტვირთეთ { -brand-firefox }
+# Browser tab title for the page telling the user to open { -brand-firefox } on this device to start syncing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-download-firefox-page-title = გახსენით { -brand-firefox } დასინქრონებისთვის
 
 ## ScanQR page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer. It shows a QR code that they scan with
@@ -1936,6 +2058,9 @@ pair2-authority-scan-qr-code-aria-label = QR-კოდი მობილურ 
 pair2-authority-scan-qr-other-ways-link = სხვა გზები შესვლისთვის
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = ამჟამად გამოტოვება
+# Browser tab title for the page showing a QR code the user scans with their mobile device to connect it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-scan-qr-page-title = წააკითხეთ მობილურ მოწყობილობასთან დასაკავშირებლად
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
@@ -1946,6 +2071,9 @@ pair2-authority-sync-success-heading-v2 = მოწყობილობა დ�
 pair2-authority-sync-success-description-v2 = სინქრონიზაცია მიმდინარეობს. დასინქრონებული მონაცემების გამოჩენამ შეიძლება გარკვეულ ხანს გასტანოს. ამასობაში შეგიძლიათ განაგრძოთ გვერდების მონახულება.
 # Opens the browser settings that control what is synced
 pair2-authority-sync-success-sync-settings-button-v2 = სინქრონიზაციის პარამეტრების მართვა
+# Browser tab title for the page shown when a mobile device has been connected and syncing has started.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-sync-success-page-title = მოწყობილობა დაკავშირებულია
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1962,6 +2090,12 @@ pair2-authority-timeout-and-cancel-canceled-description = თუ გადაი
 pair2-authority-timeout-and-cancel-try-again-button = ხელახლა ცდა
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = სინქრონიზაციის პარამეტრები
+# Browser tab title for the page shown on the computer when the device pairing attempt timed out.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-timeout-and-cancel-timeout-page-title = კავშირის დრო ამოიწურა
+# Browser tab title for the page shown on the computer when the device pairing attempt was cancelled.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-timeout-and-cancel-cancelled-page-title = მიერთება გაუქმებულია
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
@@ -1973,6 +2107,9 @@ pair2-supplicant-approve-sign-in-heading = ბოლო ნაბიჯი დ�
 pair2-supplicant-approve-sign-in-instruction = დაადასტურეთ შესვლა თქვენს კომპიუტერზე.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = გაუქმება
+# Browser tab title for the page shown on the mobile device while the user approves the sign-in on their computer. "sync" is a verb, referring to syncing data between the user’s devices.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-approve-sign-in-page-title = ბოლო ნაბიჯი დასინქრონებისთვის
 
 ## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
@@ -1987,6 +2124,9 @@ pair2-supplicant-connect-this-device-heading = დაუკავშირდე
 pair2-supplicant-connect-this-device-connect-button = დაკავშირება
 # Dismisses the pairing attempt
 pair2-supplicant-connect-this-device-cancel-button = გაუქმება
+# Browser tab title for the page shown on the mobile device where the user confirms connecting it to their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-connect-this-device-page-title = ამ მოწყობილობის დაკავშირება
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing reaches a browser that is
@@ -2008,6 +2148,15 @@ pair2-supplicant-download-firefox-download-button = ჩამოტვირთ�
 pair2-supplicant-download-firefox-have-firefox-button = უკვე მაქვს { -brand-firefox }
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = ვრცლად
+# Browser tab title for the page shown on the mobile device asking the user to open { -brand-firefox } on it to continue pairing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-download-firefox-page-title = გახსენით { -brand-firefox } ამ მოწყობილობაზე
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+
+# Browser tab title for the page shown on the mobile device telling the user to finish pairing in the { -brand-firefox } app.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-connect-hint-page-title = მიერთების დასრულება პროგრამაში
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2020,6 +2169,9 @@ pair2-supplicant-ready-to-scan-heading = რომ დაკავშირდ�
 pair2-supplicant-ready-to-scan-instruction = თქვენს კომპიუტერზე, გახსენით { -brand-firefox }, მოინახულეთ გვერდი <b>firefox.com/pair</b> და მიჰყევით ეკრანზე მითითებებს ამ მობილური მოწყობილობის დასაკავშირებლად.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = ვრცლად
+# Browser tab title for the page shown on the mobile device before pairing starts, telling the user to open firefox.com/pair on their computer.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-ready-to-scan-page-title = მზადაა წასაკითხად
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device once pairing has completed: the device
@@ -2028,6 +2180,9 @@ pair2-supplicant-ready-to-scan-learn-more-link = ვრცლად
 pair2-supplicant-sync-success-heading = მოწყობილობა დაკავშირებულია
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = სინქრონიზაცია მიმდინარეობს. დასინქრონებული მონაცემების გამოჩენამ შეიძლება გარკვეულ ხანს გასტანოს. ამასობაში შეგიძლიათ განაგრძოთ გვერდების მონახულება.
+# Browser tab title for the page shown on the mobile device when it has been connected and syncing has started.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-sync-success-page-title = მოწყობილობა დაკავშირებულია
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2047,6 +2202,15 @@ pair2-supplicant-timeout-and-cancel-canceled-description = მოწყობი
 pair2-supplicant-timeout-and-cancel-signed-in-heading = ეს მოწყობილობა უკვე შესულია
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-signed-in-description = თქვენი კომპიუტერის ანგარიშთან დასაკავშირებლად ჯერ არსებული ანგარიშიდან უნდა გამოვიდეს { -brand-firefox } ამ მოწყობილობაზე, შემდეგ კი კომპიუტერიდან უნდა გაიხსნას <b>firefox.com/pair</b> შესვლის დასასრულებლად.
+# Browser tab title for the page shown on the mobile device when the device pairing attempt timed out.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-timeout-and-cancel-timeout-page-title = კავშირის დრო ამოიწურა
+# Browser tab title for the page shown on the mobile device when the device pairing attempt was cancelled.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = მიერთება გაუქმებულია
+# Browser tab title for the page shown on the mobile device when it is already signed in to an account and cannot be paired.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-timeout-and-cancel-signed-in-page-title = მოწყობილობა უკვე შესულია
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2061,6 +2225,9 @@ permissions-label-display-name = გამოსაჩენი სახელ�
 permissions-label-avatar = ანგარიშის სურათი
 permissions-continue-button = განაგრძეთ
 permissions-cancel-button = გაუქმება
+# Browser tab title for the page where the user reviews the profile information an app or service is asking to access.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+permissions-page-title = ნებართვების გადახედვა
 
 ## ForcePasswordChange page
 ## Users are sent here when suspicious activity on the account requires a new password before they can continue.
@@ -2068,6 +2235,9 @@ permissions-cancel-button = გაუქმება
 force-password-change-heading = გთხოვთ, შეცვალოთ თქვენი პაროლი
 force-password-change-info = თქვენს { -product-mozilla-account(case: "loc") } საეჭვო მოქმედება შევნიშნეთ. თქვენი ანგარიშის დასაცავად გთხოვთ, შექმნათ ახალი პაროლი. ამ პაროლით შეძლებთ დაიბრუნოთ თქვენი { -product-mozilla-account(case: "gen") } ყველა მოქმედი მომსახურება.
 force-password-change-data-info = დასინქრონებული ისტორია, სანიშნები, ანგარიშები და სხვა პირადი მონაცემები არ დაიკარგება.
+# Browser tab title for the page where the user must change their password because of suspicious activity on their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+force-password-change-page-title = შეცვალეთ თქვენი პაროლი
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2077,6 +2247,9 @@ service-welcome-signin-success-banner = შესვლა წარმატე
 # In this context, "VPN" is a VPN service built into the Firefox browser, and generally isn't localized differently than "VPN"
 service-welcome-vpn-heading = შემდეგ: ჩართეთ VPN
 service-welcome-vpn-description = კიდევ ერთი ნაბიჯი თქვენი ბრაუზერის პირადულობის ასამაღლებლად. გადადით გახსნილ არეში და ჩართეთ.
+# Browser tab title for the page telling the user to turn on VPN as their next step after signing up or signing in. "VPN" is a VPN service built into the Firefox browser.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+service-welcome-vpn-page-title = ჩაირთოს VPN
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
@@ -2089,6 +2262,9 @@ set-password-info-v2 = ამით დაიშიფრება თქვე�
 ## Users who signed in via passwordless OTP and need to create a password for Sync
 
 set-password-passwordless-info = ეს პაროლი შიფრავს თქვენს დასინქრონებულ მონაცემებს და ინახავს უსაფრთხოდ.
+# Browser tab title for the page where the user creates a password so they can sync.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+set-password-page-title = პაროლის შექმნა დასინქრონებისთვის
 
 ## ThirdPartyAuthCallback Page
 ## This page is called after a user completes the third party authentication flow from Google or Apple.
@@ -2109,6 +2285,9 @@ account-recovery-confirm-key-hint = თქვენი შესანახი�
 account-recovery-confirm-key-button-2 = გაგრძელება
 # Link that leads to the password reset page (without recovery code)
 account-recovery-lost-recovery-key-link-2 = ვერ იპოვეთ ანგარიშის აღდგენის გასაღები?
+# Browser tab title for the page where the user enters their account recovery key to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+account-recovery-confirm-key-page-title = პაროლის განულება აღდგენის გასაღებით
 
 ## CompleteResetPassword component
 ## User followed a password reset link and is now prompted to create a new password
@@ -2130,12 +2309,18 @@ reset-password-complete-banner-message = არ დაგავიწყდე�
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = { -brand-firefox } ეცდება შესვლის შემდგომ უკან დაგაბრუნოთ ელფოსტის ნიღბის გამოსაყენებლად.
+# Browser tab title for the page where the user creates a new password while resetting it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+complete-reset-password-page-title = შექმენით ახალი პაროლი
 confirm-backup-code-reset-password-input-label = შეიყვანეთ 10-ნიშნა კოდი
 confirm-backup-code-reset-password-confirm-button = თანხმობა
 confirm-backup-code-reset-password-subheader = შეიყვანეთ შესვლის სამარქაფო კოდი
 confirm-backup-code-reset-password-instruction = შეიყვანეთ რომელიმე ერთჯერადი კოდი, რომელიც შეინახეთ ორბიჯიანი დამოწმების გამართვისას.
 # Link out to support article: https://support.mozilla.org/kb/what-if-im-locked-out-two-step-authentication
 confirm-backup-code-reset-password-locked-out-link = ვერ ახერხებთ შესვლას?
+# Browser tab title for the page where the user enters a backup authentication code to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-backup-code-reset-password-page-title = პაროლის აღდგენა სამარქაფო კოდით
 
 ## Confirm Reset Password With Code
 
@@ -2153,6 +2338,9 @@ confirm-reset-password-otp-submit-button = გაგრძელება
 confirm-reset-password-otp-resend-code-button = კოდის კვლავ გაგზავნა
 # Link to cancel the password reset and sign in with a different account
 confirm-reset-password-otp-different-account-link = სხვა ანგარიშის გამოყენება
+# Browser tab title for the page where the user enters the confirmation code emailed to them to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-reset-password-with-code-page-title = შეამოწმეთ თქვენი ელფოსტა პაროლის გასანულებლად
 
 ## PasswordResetConfirmTotp Page
 
@@ -2163,6 +2351,9 @@ confirm-totp-reset-password-trouble-code = ვერ ახერხებთ �
 confirm-totp-reset-password-confirm-button = დასტური
 confirm-totp-reset-password-input-label-v2 = შეიყვანეთ 6-ნიშნა კოდი
 confirm-totp-reset-password-use-different-account = სხვა ანგარიშის გამოყენება
+# Browser tab title for the page where the user enters a two-step authentication code to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-totp-reset-password-page-title = პაროლის განულება ორბიჯიანი დამოწმებით
 
 ## ResetPassword start page
 
@@ -2175,12 +2366,18 @@ password-reset-email-input =
 password-reset-submit-button-2 = განაგრძეთ
 # Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
 password-reset-data-recovery-warning = პაროლის განულებამ შესაძლოა იმოქმედოს დასინქრონებული მონაცემების აღდგენის შესაძლებლობაზე. <learnMoreLink>ვრცლად</learnMoreLink>
+# Browser tab title for the page where the user starts a password reset by entering their email.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+password-reset-flow-page-title = პაროლის განულება
 
 ## ResetPasswordConfirmed
 
 reset-password-complete-header = თქვენი პაროლი აღდგა.
 # $serviceName is a product name such as Monitor, Relay
 reset-password-confirmed-cta = განაგრძეთ და იხილეთ { $serviceName }
+# Browser tab title for the page confirming that the user’s password was reset.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+reset-password-confirmed-page-title = პაროლის განულება დასრულდა
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
@@ -2200,6 +2397,9 @@ password-reset-recovery-method-code-info =
 # Shown when a backend service fails and a code cannot be sent to the user's recovery phone.
 password-reset-recovery-method-send-code-error-heading = ხარვეზი წარმოიშვა კოდის გამოგზავნისას თქვენს აღდგენის ტელეფონზე
 password-reset-recovery-method-send-code-error-description = გთხოვთ, სცადოთ მოგვიანებით ან გამოიყენოთ დამოწმების სამარქაფო კოდები.
+# Browser tab title for the page where the user chooses a recovery method to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+password-reset-recovery-method-page-title = პაროლის განულება აღდგენის გზით
 
 ## ResetPasswordRecoveryPhone page
 
@@ -2221,6 +2421,9 @@ reset-password-recovery-phone-code-verification-error-heading = ხარვე�
 reset-password-recovery-phone-general-error-description = გთხოვთ სცადოთ მოგვიანებით.
 reset-password-recovery-phone-invalid-code-error-description = კოდი უმართებულო ან ვადაგასულია.
 reset-password-recovery-phone-invalid-code-error-link = სანაცვლოდ გამოიყენებთ დამოწმების სამარქაფო კოდებს?
+# Browser tab title for the page where the user enters a code sent to their recovery phone to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+reset-password-recovery-phone-page-title = პაროლის განულება აღდგენის ტელეფონით
 reset-password-with-recovery-key-verified-page-title = პაროლი აღდგა წარმატებით
 reset-password-complete-new-password-saved = ახალი პაროლი შენახულია!
 reset-password-complete-recovery-key-created = შექმნილია ანგარიშის აღდგენის გასაღები. ჩამოტვირთეთ და შეინახეთ ახლავე
@@ -2228,6 +2431,9 @@ reset-password-complete-recovery-key-download-info =
     ეს გასაღები გადამწყვეტია
     მონაცემთა აღდგენისთვის, თუ დაგავიწყდებათ პაროლი. <b>ჩამოტვირთეთ და შეინახეთ უსაფრთხოდ
     ახლავე, ვინაიდან მოგვიანებით ვეღარ შეძლებთ ამ გვერდთან წვდომას.</b>
+# Browser tab title for the page where the user adds a hint for their new account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+reset-password-with-recovery-key-verified-hint-page-title = დაამატეთ მინიშნება აღდგენის გასაღებს
 
 ## ServerError page
 ## Shown when the server fails to handle a request
@@ -2235,6 +2441,9 @@ reset-password-complete-recovery-key-download-info =
 server-error-heading = 500 შეცდომა
 server-error-description = ვწუხვართ, რაღაც ხარვეზი წარმოიშვა. ჩვენ უკვე გვეცნობა ამის შესახებ და დავიწყებთ მუშაობას მის გამოსასწორებლად.
 server-error-home-button = საწყისი გვერდი
+# Browser tab title for the page shown when the server fails to handle a request.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+server-error-page-title = სერვერის შეცდომა
 
 ## CompleteSignin component
 
@@ -2247,9 +2456,24 @@ complete-signin-error-header = დადასტურების შეცდ
 # The user followed a signin confirmation link, but that link is expired and no longer valid
 signin-link-expired-header = დასადასტურებელი ბმული ვადაგასულია
 signin-link-expired-message-2 = ბმული, რომელზეც გადახვედით ვადაგასულია ან უკვე გამოყენებულია.
+# Browser tab title for the page shown when something went wrong while confirming a sign-in from an emailed link.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+complete-signin-error-page-title = შესვლის დადასტურების შეცდომა
+# Browser tab title for the page shown while a sign-in is being confirmed from an emailed link.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+complete-signin-validating-page-title = შესვლა მოწმდება
 
 ## Signin page
 
+# Browser tab title for the page where the user enters their password to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-password-page-title = მიუთითეთ თქვენი პაროლი
+# Browser tab title for the sign-in page shown when the user already has a saved session on this device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-cached-page-title = შესვლა
+# Browser tab title for the page where the user picks how to sign in when their account has no password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-alternative-auth-page-title = შესვლის ხერხის არჩევა
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = შეიყვანეთ პაროლი <span>თქვენი { -product-mozilla-account(case: "ben") }</span>
 # Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
@@ -2286,6 +2510,9 @@ report-signin-body = ესაა შეტყობინება თქვე
 report-signin-submit-button = საეჭვო მოქმედების მოხსენება
 report-signin-support-link = რის გამოა ეს?
 report-signin-error = სამწუხაროდ, ხარვეზი წარმოიშვა მოხსენებისას.
+# Browser tab title for the page where the user can report a sign-in attempt to their account that they did not make.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+report-signin-page-title = უნებართვო შესვლის მოხსენება
 signin-bounced-header = ვწუხვართ. თქვენი ანგარიში ჩაკეტილია.
 # $email (string) - The user's email.
 signin-bounced-message = დასადასტურებელი ბმულის { $email } ელფოსტაზე გამოგზავნა ვერ მოხერხდა და თქვენი ანგარიში ჩაიკეტა { -brand-firefox }-მონაცემთა უსაფრთხოებისთვის.
@@ -2293,6 +2520,9 @@ signin-bounced-message = დასადასტურებელი ბმუ
 signin-bounced-help = თუ ელფოსტის მითითებული მისამართი მართებულია, <linkExternal>გვაცნობეთ</linkExternal> და დაგეხმარებით თქვენს ანგარიშთან წვდომის დაბრუნებაში.
 signin-bounced-create-new-account = აღარ ფლობთ ელფოსტის ამ მისამართს? შექმენით ახალი ანგარიში
 back = უკან
+# Browser tab title for the page telling the user their account is locked because a confirmation email sent to them was returned.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-bounced-page-title = ანგარიში ჩაიკეტა
 
 ## SigninPasskeyFallback page
 ## Users who authenticate with a passkey to access Sync must also enter their password.
@@ -2313,6 +2543,9 @@ signin-passkey-fallback-unwrap-failed-heading = თქვენი საშვ�
 signin-passkey-fallback-unwrap-failed-description = რაღაც ხარვეზი წარმოიქმნა, ასე რომ, ამჯერად პაროლი დაგჭირდებათ.
 # Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
 signin-passkey-fallback-wrap-unusable-link = ვრცლად
+# Browser tab title for the page where the user enters their password after using a passkey to sign in, so they can sync.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-passkey-fallback-page-title = მიუთითეთ თქვენი პაროლი დასინქრონებისთვის
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2354,6 +2587,12 @@ signup-passwordless-code-subheading = ანგარიშის შექმ�
 # Shown when a user with 2FA enabled tries to use passwordless flow
 # They are redirected to password signin instead
 signin-passwordless-totp-required = ორბიჯიანი დამოწმება ჩართულია თქვენს ანგარიშზე. გთხოვთ, შეხვიდეთ ანგარიშზე თქვენი პაროლით.
+# Browser tab title for the page where the user enters the confirmation code emailed to them to sign in to their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-passwordless-code-page-title = შესვლა ელფოსტის კოდით
+# Browser tab title for the page where the user enters the confirmation code emailed to them to sign up for an account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signup-passwordless-code-page-title = შექმნა ელფოსტის კოდით
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
@@ -2373,6 +2612,9 @@ signin-recovery-method-code-info-v2 =
 # Shown when a backend service fails and a code cannot be sent to the user's recovery phone.
 signin-recovery-method-send-code-error-heading = ხარვეზი წარმოიშვა კოდის გამოგზავნისას თქვენს აღდგენის ტელეფონზე
 signin-recovery-method-send-code-error-description = გთხოვთ, სცადოთ მოგვიანებით ან გამოიყენოთ დამოწმების სამარქაფო კოდები.
+# Browser tab title for the page where the user chooses a recovery method to sign in when they cannot use their authenticator app.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-recovery-method-page-title = შესვლა აღდგენის გზით
 
 ## SigninRecoveryCode page
 ## Users are prompted to enter a backup authentication code
@@ -2399,6 +2641,9 @@ signin-recovery-code-required-error = შესვლის დამოწმ�
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-recovery-code-use-phone-failure = ხარვეზი წარმოიშვა კოდის გამოგზავნისას თქვენს აღდგენის ტელეფონზე
 signin-recovery-code-use-phone-failure-description = გთხოვთ სცადოთ მოგვიანებით.
+# Browser tab title for the page where the user enters a backup authentication code to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-recovery-code-page-title = შესვლა სამარქაფო კოდით
 
 ## SigninRecoveryPhone page
 
@@ -2423,11 +2668,17 @@ signin-recovery-phone-invalid-code-error-link = სანაცვლოდ გ�
 # "Limits" refers to potential restrictions on how often a recovery phone number can be used for signing in within a given time period.
 # If limits are reached, users may have to use an alternate two-step authentication method or wait until the restriction period is over.
 signin-recovery-phone-success-message = შესვლა წარმატებულია. შეზღუდვები შეიძლება ახლდეს, თუ კვლავ გამოიყენებთ აღდგენის ტელეფონს.
+# Browser tab title for the page where the user enters a code sent to their recovery phone to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-recovery-phone-page-title = შესვლა აღდგენის ტელეფონით
 
 ## Signin reported page: this page is shown when a user receives an email notifying them of a new account signin, and the user clicks a button indicating that the signin was not them so that we know it was someone trying to break into their account.
 
 signin-reported-header = გმადლობთ ყურადღებისთვის
 signin-reported-message = ჩვენი გუნდი უკვე გაფრთხილებულია. ამგვარი მოხსენებები გვეხმარება დამრღვევების გამოვლენასა და თავდაცვაში.
+# Browser tab title for the page confirming the user reported a sign-in attempt that was not them.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-reported-page-title = შესვლის მოხსენება გაგზავნილია
 
 ## SigninTokenCode page
 ## Users see this page during the signin process. In this instance, the confirmation code is
@@ -2459,6 +2710,9 @@ signin-token-code-resend-error = Რაღაც ხარვეზი წარ
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-token-code-instruction-desktop-relay = { -brand-firefox } ეცდება შესვლის შემდგომ უკან დაგაბრუნოთ ელფოსტის ნიღბის გამოსაყენებლად.
+# Browser tab title for the page where the user enters the confirmation code emailed to them to confirm a sign-in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-token-code-page-title = შესვლის დადასტურება ელფოსტის კოდით
 
 ## SigninTOTPCode page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -2483,6 +2737,9 @@ signin-totp-code-required-error = შესვლის დამოწმებ
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-totp-code-desktop-relay = { -brand-firefox } ეცდება შესვლის შემდგომ უკან დაგაბრუნოთ ელფოსტის ნიღბის გამოსაყენებლად.
+# Browser tab title for the page where the user enters a two-step authentication code from their authenticator app to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-totp-code-page-title = შესვლა ორბიჯიანი დამოწმებით
 
 ## Signin Unblock Page
 ## Page shown when signin has been blocked by rate limiting (too many requests)
@@ -2502,10 +2759,16 @@ signin-unblock-support-link = რის გამოა ეს?
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-unblock-desktop-relay = { -brand-firefox } ეცდება შესვლის შემდგომ უკან დაგაბრუნოთ ელფოსტის ნიღბის გამოსაყენებლად.
+# Browser tab title for the page where the user enters the authorization code emailed to them to approve a blocked sign-in attempt.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-unblock-page-title = ამ შესვლის დამოწმება
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
 
+# Browser tab title for the page where the user enters the confirmation code emailed to them to finish signing up.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-signup-code-page-title-2 = ელფოსტის დადასტურება
 # String within the <span> element appears on a separate line
 # If more appropriate in a locale, the string within the <span>, "for your { -product-mozilla-account }"
 # can stand alone as "{ -product-mozilla-account }"
@@ -2543,6 +2806,9 @@ signup-sync-info = დაასინქრონეთ თქვენი პ�
 signup-sync-info-with-payment = დაასინქრონეთ თქვენი პაროლები, გადახდის საშუალებები, სანიშნები და სხვა მონაცემები ყველგან, სადაც კი გიყენიათ { -brand-firefox }.
 # Clicking on this link returns the user to the beginning of the flow so they can enter a new email address
 signup-change-email-link = ელფოსტის შეცვლა
+# Browser tab title for the page where the user creates a password to sign up for an account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signup-page-title = ანგარიშის შექმნა
 
 ## SignupConfirmedSync page
 ## Shown to users when they finish confirming their account through Sync
@@ -2556,6 +2822,9 @@ signup-confirmed-sync-description-v2 = თქვენი პაროლებ�
 signup-confirmed-sync-add-device-link = სხვა მოწყობილობის დამატება
 signup-confirmed-sync-manage-sync-button = სინქრონიზაციის მართვა
 signup-confirmed-sync-set-password-success-banner = დასინქრონების პაროლი შეიქმნა
+# Browser tab title for the page confirming that sync is turned on after the user confirmed their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signup-confirmed-sync-page-title = სინქრონიზაცია ჩართულია
 
 ## UpdateFirefox page
 ## Shown when the browser is too old to use a Mozilla account
@@ -2563,3 +2832,6 @@ signup-confirmed-sync-set-password-success-banner = დასინქრონ�
 update-firefox-heading = { -brand-firefox } საჭიროებს განახლებას
 update-firefox-description = { -product-mozilla-account } იყენებს შესაძლებლობებს, რომლებთანაც შეუთავსებელია თქვენი { -brand-firefox }. გთხოვთ, ჩამოტვირთოთ და დააყენოთ უახლესი { -brand-firefox }, რომ განაგრძოთ.
 update-firefox-download-button = უახლესის ჩამოტვირთვა
+# Browser tab title for the page shown when the browser is too old to use a Mozilla account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+update-firefox-page-title = { -brand-firefox } საჭიროებს განახლებას

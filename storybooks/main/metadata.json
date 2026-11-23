@@ -1,8 +1,8 @@
 {
-  "commit": "0e7438ea93979fef420c147df7593cce5387a754",
-  "summary": "Merge pull request #21789 from mozilla/fxa-15085",
-  "description": "feat(settings): record why a pairing failed on each device",
-  "timestamp": 1795222344000,
+  "commit": "352b9933d32d60d0cf79e842347a23fb3f0cf75c",
+  "summary": "Merge pull request #21807 from mozilla/agent-bbdce7",
+  "description": "fix(skills): fix six wrong lines in the Claude Code setup",
+  "timestamp": 1795448524000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

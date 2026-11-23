@@ -325,7 +325,7 @@ confirmation-link-reused-message = Der Bestätigungslink wurde bereits verwendet
 locale-toggle-select-label = Sprachen auswählen
 locale-toggle-browser-default = Browser-Standard
 error-bad-request = Fehlerhafte Anfrage
-error-bad-request-page-title = Fehlerhafte Anfrage
+error-bad-request-page-title = Ungültige Anfrage
 
 
 pair-unsupported-hint-heading = Kopplung in der App abschließen
@@ -632,7 +632,7 @@ modal-mfa-protected-cancel-button = Abbrechen
 modal-mfa-protected-confirm-button = Bestätigen
 modal-mfa-protected-code-expired = Code abgelaufen?
 modal-mfa-protected-resend-code-link = Neuen Code per E-Mail senden.
-modal-mfa-protected-clock-skew-error = Die Uhr Ihres Geräts ist falsch. Korrigieren Sie Datum und Uhrzeit Ihres Geräts und versuchen Sie es erneut.
+modal-mfa-protected-clock-skew-error = Die Uhrzeit Ihres Geräts stimmt nicht. Korrigieren Sie Datum und Uhrzeit auf Ihrem Gerät und versuchen Sie es erneut.
 
 
 mvs-verify-your-email-2 = Ihre E-Mail-Adresse bestätigen
@@ -1213,14 +1213,14 @@ inline-recovery-key-setup-download-header = Sichern Sie Ihr Konto
 inline-recovery-key-setup-download-subheader = Jetzt herunterladen und speichern
 inline-recovery-key-setup-download-info = Speichern Sie diesen Schlüssel an einem Ort, an den Sie sich erinnern können – Sie können diese Seite später nicht wieder aufrufen.
 inline-recovery-key-setup-hint-header = Sicherheitsempfehlung
-inline-recovery-key-setup-create-page-title = Einen Kontowiederherstellungsschlüssel erstellen
-inline-recovery-key-setup-download-page-title = Laden Sie Ihren Kontowiederherstellungsschlüssel herunter
-inline-recovery-key-setup-hint-page-title = Einen Wiederherstellungsschlüssel-Hinweis hinzufügen
-inline-recovery-setup-choice-page-title = Wählen Sie eine Kontowiederherstellungsmethode
-inline-recovery-setup-download-codes-page-title = Speichern Sie Ihre Wiederherstellungscodes
+inline-recovery-key-setup-create-page-title = Kontowiederherstellungsschlüssel erstellen
+inline-recovery-key-setup-download-page-title = Ihren Kontowiederherstellungsschlüssel herunterladen
+inline-recovery-key-setup-hint-page-title = Hinweis zum Wiederherstellungsschlüssel hinzufügen
+inline-recovery-setup-choice-page-title = Eine Kontowiederherstellungsmethode wählen
+inline-recovery-setup-download-codes-page-title = Wiederherstellungscodes speichern
 inline-recovery-setup-confirm-code-page-title = Einen Wiederherstellungscode bestätigen
-inline-recovery-setup-phone-number-page-title = Eine Telefonnummer zur Wiederherstellung hinzufügen
-inline-recovery-setup-phone-code-page-title = Bestätigen Sie Ihre Telefonnummer
+inline-recovery-setup-phone-number-page-title = Telefonnummer zur Kontowiederherstellung hinzufügen
+inline-recovery-setup-phone-code-page-title = Telefonnummer bestätigen
 inline-recovery-setup-complete-page-title = Zwei-Schritt-Authentifizierung aktiviert
 
 
@@ -1242,7 +1242,7 @@ inline-totp-setup-code-required-error = Authentifizierungscode erforderlich
 tfa-qr-code-alt = Verwenden Sie den Code { $code } zum Einrichten der Zwei-Schritt-Authentifizierung in unterstützten Anwendungen.
 inline-totp-setup-page-title = Zwei-Schritt-Authentifizierung
 inline-totp-setup-intro-page-title = Zwei-Schritt-Authentifizierung einrichten
-inline-totp-setup-enrol-page-title = Verbinden Sie Ihre Authentifizierungs-App
+inline-totp-setup-enrol-page-title = Authentifizierungs-App verbinden
 
 
 page-not-found-heading = Seite nicht gefunden
@@ -1254,7 +1254,7 @@ page-not-found-page-title = Seite nicht gefunden
 pair-auth-allow-heading-text = Haben Sie sich gerade bei { -brand-firefox } angemeldet?
 pair-auth-allow-confirm-button = Ja, Gerät freischalten
 pair-auth-allow-refuse-device-link = Wenn Sie das nicht waren, <a>ändern Sie Ihr Passwort</a>
-pair-auth-allow-page-title = Anmeldung mit { -brand-firefox } genehmigen
+pair-auth-allow-page-title = { -brand-firefox }-Anmeldung bestätigen
 
 
 pair-auth-complete-heading = Gerät verbunden
@@ -1268,7 +1268,7 @@ pair-auth-complete-send-tab-heading = Sie sind bereit, einige Tabs zu senden
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } für { $deviceOS } ist verbunden.
 pair-auth-complete-send-tab-benefits = Sie können sofort offene Tabs, Passwörter und Lesezeichen zwischen Geräten senden.
 pair-auth-complete-page-title = Gerät verbunden
-pair-auth-complete-send-tab-page-title = Bereit zum Senden von Tabs
+pair-auth-complete-send-tab-page-title = Tabs können gesendet werden
 
 
 auth-totp-heading-w-default-service = Geben Sie den Authentifizierungscode ein, <span>um mit den Kontoeinstellungen fortzufahren</span>
@@ -1281,7 +1281,7 @@ auth-totp-page-title = Mit Zwei-Schritt-Authentifizierung koppeln
 
 
 pair-wait-for-supp-heading-text = Freischaltung ist jetzt erforderlich <span>von Ihrem anderen Gerät</span>
-pair-wait-for-supp-page-title = Auf Ihrem anderen Gerät freischalten
+pair-wait-for-supp-page-title = Auf anderem Gerät bestätigen
 
 
 pair-failure-header-v2 = Kopplung des Geräts fehlgeschlagen
@@ -1322,7 +1322,7 @@ pair-download-step-scan-qr = <b>Schritt { $stepNumber }</b>: Laden Sie { -brand-
 pair-download-step-continue-sync = <b>Schritt { $stepNumber }</b>: Wählen Sie „Weiter zur Synchronisierung“, um Ihr { -brand-firefox }-Erlebnis auf Ihrem Mobilgerät zu synchronisieren.
 pair-continue-to-sync-button = Weiter zur Synchronisierung
 pair-choice-page-title = Weiteres Gerät verbinden
-pair-choice-send-tab-page-title = Tabs an ein anderes Gerät senden
+pair-choice-send-tab-page-title = Tabs an anderes Gerät senden
 pair-download-page-title = { -brand-firefox } für Mobilgeräte herunterladen
 
 
@@ -1339,7 +1339,7 @@ pair-supp-allow-page-title = Kopplung bestätigen
 
 
 pair-wait-for-auth-heading-text = Freischaltung ist jetzt erforderlich <span>von Ihrem anderen Gerät</span>
-pair-wait-for-auth-page-title = Auf Ihrem anderen Gerät freischalten
+pair-wait-for-auth-page-title = Auf anderem Gerät bestätigen
 
 
 pair-unsupported-header = Über eine App koppeln
@@ -1352,7 +1352,7 @@ pair-unsupported-connecting-mobile-instructions-v2 = Öffnen Sie { -brand-firefo
 pair-unsupported-learn-more-link-v2 = Weitere Informationen
 pair-unsupported-desktop-firefox-fallback-header-v2 = Hoppla, etwas ist schiefgegangen!
 pair-unsupported-desktop-firefox-fallback-message-v2 = Bitte schließen Sie diesen Tab und versuchen Sie es erneut.
-pair-unsupported-desktop-non-firefox-page-title = { -brand-firefox } erforderlich
+pair-unsupported-desktop-non-firefox-page-title = { -brand-firefox } benötigt
 pair-unsupported-system-camera-page-title = Über eine App koppeln
 pair-unsupported-mobile-page-title = Verbinden Sie Ihr mobiles Gerät
 pair-unsupported-desktop-firefox-fallback-page-title = Etwas ist schiefgegangen
@@ -1361,7 +1361,7 @@ pair-unsupported-desktop-firefox-fallback-page-title = Etwas ist schiefgegangen
 pair2-authority-approve-sign-in-heading = Anmeldung annehmen?
 pair2-authority-approve-sign-in-confirm-button = Ja, Anmeldung annehmen
 pair2-authority-approve-sign-in-change-password = Sind Sie das nicht? <changePassword>Ändern Sie Ihr Passwort</changePassword>
-pair2-authority-approve-sign-in-page-title = Anmeldung freischalten
+pair2-authority-approve-sign-in-page-title = Anmeldung bestätigen
 
 
 pair2-authority-continue-on-mobile-heading = Auf Ihrem Mobilgerät weitermachen
@@ -1453,7 +1453,7 @@ permissions-label-display-name = Anzeigename
 permissions-label-avatar = Kontobild
 permissions-continue-button = Weiter
 permissions-cancel-button = Abbrechen
-permissions-page-title = Berechtigungen überprüfen
+permissions-page-title = Zugriffsrechte prüfen
 
 
 force-password-change-heading = Bitte ändern Sie Ihr Passwort
@@ -1474,7 +1474,7 @@ set-password-info-v2 = Dadurch werden Ihre Daten verschlüsselt. Es muss sich vo
 
 
 set-password-passwordless-info = Dieses Passwort verschlüsselt Ihre synchronisierten Daten und speichert sie sicher.
-set-password-page-title = Passwort zum Synchronisieren erstellen
+set-password-page-title = Passwort für die Synchronisierung erstellen
 
 
 third-party-auth-callback-message = Bitte warten Sie, Sie werden zur autorisierten Anwendung weitergeleitet.
@@ -1503,7 +1503,7 @@ confirm-backup-code-reset-password-confirm-button = Bestätigen
 confirm-backup-code-reset-password-subheader = Sicherungs-Authentifizierungscode eingeben
 confirm-backup-code-reset-password-instruction = Geben Sie einen der Einmalcodes ein, die Sie beim Einrichten der Zwei-Schritt-Authentifizierung gespeichert haben.
 confirm-backup-code-reset-password-locked-out-link = Haben Sie sich ausgesperrt?
-confirm-backup-code-reset-password-page-title = Passwort mit einem Wiederherstellungscode zurücksetzen
+confirm-backup-code-reset-password-page-title = Passwort per Wiederherstellungscode zurücksetzen
 
 
 confirm-reset-password-with-code-heading = Rufen Sie jetzt Ihre E-Mails ab.
@@ -1522,7 +1522,7 @@ confirm-totp-reset-password-trouble-code = Probleme bei der Codeeingabe?
 confirm-totp-reset-password-confirm-button = Bestätigen
 confirm-totp-reset-password-input-label-v2 = 6-stelligen Code eingeben
 confirm-totp-reset-password-use-different-account = Ein anderes Konto verwenden
-confirm-totp-reset-password-page-title = Passwort mit Zwei-Schritt-Authentifizierung zurücksetzen
+confirm-totp-reset-password-page-title = Passwort per Zwei-Schritt-Authentifizierung zurücksetzen
 
 
 password-reset-flow-heading = Setzen Sie Ihr Passwort zurück
@@ -1532,12 +1532,12 @@ password-reset-email-input =
     .label = E-Mail-Adresse eingeben
 password-reset-submit-button-2 = Weiter
 password-reset-data-recovery-warning = Das Zurücksetzen Ihres Passworts kann sich darauf auswirken, ob Sie synchronisierte Browser-Daten wiederherstellen können. <learnMoreLink>Weitere Informationen</learnMoreLink>
-password-reset-flow-page-title = Setzen Sie Ihr Passwort zurück
+password-reset-flow-page-title = Passwort zurücksetzen
 
 
 reset-password-complete-header = Ihr Passwort wurde zurückgesetzt.
 reset-password-confirmed-cta = Weiter zu { $serviceName }
-reset-password-confirmed-page-title = Passwort zurücksetzen abgeschlossen
+reset-password-confirmed-page-title = Passwort erfolgreich zurückgesetzt
 
 
 password-reset-recovery-method-header = Setzen Sie Ihr Passwort zurück
@@ -1552,7 +1552,7 @@ password-reset-recovery-method-code-info =
     }
 password-reset-recovery-method-send-code-error-heading = Beim Senden eines Codes an Ihre Telefonnummer zur Wiederherstellung ist ein Fehler aufgetreten
 password-reset-recovery-method-send-code-error-description = Bitte versuchen Sie es später erneut oder verwenden Sie Ihre Sicherungs-Authentifizierungscodes.
-password-reset-recovery-method-page-title = Passwort mit einer Wiederherstellungsmethode zurücksetzen
+password-reset-recovery-method-page-title = Passwort per Wiederherstellungsmethode zurücksetzen
 
 
 reset-password-recovery-phone-flow-heading = Setzen Sie Ihr Passwort zurück
@@ -1568,12 +1568,12 @@ reset-password-recovery-phone-code-verification-error-heading = Beim Bestätigen
 reset-password-recovery-phone-general-error-description = Bitte versuchen Sie es später erneut.
 reset-password-recovery-phone-invalid-code-error-description = Der Code ist ungültig oder abgelaufen.
 reset-password-recovery-phone-invalid-code-error-link = Stattdessen Sicherungs-Authentifizierungscodes verwenden?
-reset-password-recovery-phone-page-title = Passwort mit Wiederherstellungsnummer zurücksetzen
+reset-password-recovery-phone-page-title = Passwort per Telefonnummer zurücksetzen
 reset-password-with-recovery-key-verified-page-title = Passwort erfolgreich zurückgesetzt
 reset-password-complete-new-password-saved = Neues Passwort gespeichert!
 reset-password-complete-recovery-key-created = Neuer Kontowiederherstellungsschlüssel erstellt. Jetzt herunterladen und speichern.
 reset-password-complete-recovery-key-download-info = Dieser Schlüssel wird für die Datenwiederherstellung benötigt, wenn Sie Ihr Passwort vergessen haben. <b>Laden Sie ihn jetzt herunter und speichern Sie ihn sicher, da Sie später nicht mehr auf diese Seite zugreifen können.</b>
-reset-password-with-recovery-key-verified-hint-page-title = Einen Wiederherstellungsschlüssel-Hinweis hinzufügen
+reset-password-with-recovery-key-verified-hint-page-title = Hinweis zum Wiederherstellungsschlüssel hinzufügen
 
 
 server-error-heading = Fehler 500
@@ -1587,13 +1587,13 @@ validating-signin = Anmeldung wird bestätigt…
 complete-signin-error-header = Fehler bei der Bestätigung
 signin-link-expired-header = Bestätigungslink abgelaufen
 signin-link-expired-message-2 = Der Link, den Sie angeklickt haben, ist abgelaufen oder wurde bereits verwendet.
-complete-signin-error-page-title = Fehler bei der Anmeldebestätigung
+complete-signin-error-page-title = Anmeldung konnte nicht bestätigt werden
 complete-signin-validating-page-title = Anmeldung wird bestätigt
 
 
 signin-password-page-title = Geben Sie Ihr Passwort ein
 signin-cached-page-title = Anmelden
-signin-alternative-auth-page-title = Wählen Sie eine Anmeldemethode
+signin-alternative-auth-page-title = Anmeldemethode auswählen
 signin-password-needed-header-2 = Geben Sie Ihr Passwort <span>für Ihr { -product-mozilla-account } ein</span>
 signin-button-start-syncing = Mit Synchronisierung beginnen
 signin-subheader-without-logo-with-servicename = Weiter zu { $serviceName }
@@ -1617,7 +1617,7 @@ report-signin-body = Sie haben eine E-Mail über einen Zugriffsversuch auf Ihr K
 report-signin-submit-button = Aktivität melden
 report-signin-support-link = Warum geschieht dies?
 report-signin-error = Beim Senden der Meldung ist ein Problem aufgetreten.
-report-signin-page-title = Unautorisierte Anmeldung melden
+report-signin-page-title = Unbefugte Anmeldung melden
 signin-bounced-header = Leider ist Ihr Konto gesperrt.
 signin-bounced-message = Die an { $email } geschickte Bestätigungs-E-Mail wurde zurückgeschickt und wir haben Ihr Konto zum Schutz Ihrer { -brand-firefox }-Daten gesperrt.
 signin-bounced-help = Wenn dies eine gültige E-Mail-Adresse ist, <linkExternal>sagen Sie uns Bescheid</linkExternal>, damit wir beim Entsperren Ihres Kontos helfen können.
@@ -1665,7 +1665,7 @@ signup-passwordless-code-subheading = Die Registrierung dauert nur einen Schritt
 
 
 signin-passwordless-totp-required = Die Zwei-Schritt-Authentifizierung ist für Ihr Konto aktiviert. Bitte melden Sie sich mit Ihrem Passwort an.
-signin-passwordless-code-page-title = Anmeldung mit E-Mail-Code
+signin-passwordless-code-page-title = Mit E-Mail-Code anmelden
 signup-passwordless-code-page-title = Mit E-Mail-Code registrieren
 
 
@@ -1681,7 +1681,7 @@ signin-recovery-method-code-info-v2 =
     }
 signin-recovery-method-send-code-error-heading = Beim Senden eines Codes an Ihre Telefonnummer zur Wiederherstellung ist ein Fehler aufgetreten
 signin-recovery-method-send-code-error-description = Bitte versuchen Sie es später erneut oder verwenden Sie Ihre Sicherungs-Authentifizierungscodes.
-signin-recovery-method-page-title = Melden Sie sich mit einer Wiederherstellungsmethode an
+signin-recovery-method-page-title = Mit Wiederherstellungsmethode anmelden
 
 
 signin-recovery-code-heading = Anmelden
@@ -1694,7 +1694,7 @@ signin-recovery-code-support-link = Haben Sie sich ausgesperrt?
 signin-recovery-code-required-error = Sicherungs-Authentifizierungscode erforderlich
 signin-recovery-code-use-phone-failure = Beim Senden eines Codes an Ihre Telefonnummer zur Wiederherstellung ist ein Fehler aufgetreten
 signin-recovery-code-use-phone-failure-description = Bitte versuchen Sie es später erneut.
-signin-recovery-code-page-title = Melden Sie sich mit einem Sicherungscode an
+signin-recovery-code-page-title = Mit Wiederherstellungscode anmelden
 
 
 signin-recovery-phone-flow-heading = Anmelden
@@ -1711,12 +1711,12 @@ signin-recovery-phone-general-error-description = Bitte versuchen Sie es später
 signin-recovery-phone-invalid-code-error-description = Der Code ist ungültig oder abgelaufen.
 signin-recovery-phone-invalid-code-error-link = Stattdessen Sicherungs-Authentifizierungscodes verwenden?
 signin-recovery-phone-success-message = Erfolgreich angemeldet. Es gelten möglicherweise Beschränkungen, wenn Sie Ihre Telefonnummer erneut verwenden.
-signin-recovery-phone-page-title = Melden Sie sich mit der Telefonnummer an
+signin-recovery-phone-page-title = Mit Wiederherstellungsnummer anmelden
 
 
 signin-reported-header = Vielen Dank für Ihre Wachsamkeit
 signin-reported-message = Unser Team wurde benachrichtigt. Meldungen wie diese helfen uns bei der Abwehr von Eindringlingen.
-signin-reported-page-title = Anmeldung gemeldet
+signin-reported-page-title = Anmeldeversuch gemeldet
 
 
 signin-token-code-heading-2 = Geben Sie den Bestätigungscode <span>für Ihr { -product-mozilla-account }</span> ein
@@ -1733,7 +1733,7 @@ signin-token-code-resend-code-countdown =
 signin-token-code-required-error = Bestätigungscode erforderlich
 signin-token-code-resend-error = Etwas ist schief gelaufen. Es konnte kein neuer Code gesendet werden.
 signin-token-code-instruction-desktop-relay = { -brand-firefox } wird versuchen, Sie nach der Anmeldung zurückzugeben, um eine E-Mail-Maske zu verwenden.
-signin-token-code-page-title = Anmeldung mit E-Mail-Code bestätigen
+signin-token-code-page-title = Anmeldung per E-Mail-Code bestätigen
 
 
 signin-totp-code-header = Anmelden
@@ -1749,7 +1749,7 @@ signin-totp-code-other-account-link = Ein anderes Konto verwenden
 signin-totp-code-recovery-code-link = Probleme bei der Codeeingabe?
 signin-totp-code-required-error = Authentifizierungscode erforderlich
 signin-totp-code-desktop-relay = { -brand-firefox } wird versuchen, Sie nach der Anmeldung zurückzugeben, um eine E-Mail-Maske zu verwenden.
-signin-totp-code-page-title = Melden Sie sich mit Zwei-Schritt-Authentifizierung an
+signin-totp-code-page-title = Anmelden mit Zwei-Schritt-Authentifizierung
 
 
 signin-unblock-header = Diese Anmeldung autorisieren
@@ -1788,7 +1788,7 @@ signup-relay-info = Sie benötigen ein Passwort, um Ihre maskierten E-Mail-Adres
 signup-sync-info = Synchronisieren Sie Ihre Passwörter, Lesezeichen und mehr überall dort, wo Sie { -brand-firefox } verwenden.
 signup-sync-info-with-payment = Synchronisieren Sie Ihre Passwörter, Zahlungsmethoden, Lesezeichen und mehr überall dort, wo Sie { -brand-firefox } verwenden.
 signup-change-email-link = E-Mail-Adresse ändern
-signup-page-title = Erstellen Sie Ihr Konto
+signup-page-title = Konto erstellen
 
 
 signup-confirmed-sync-header = Sync ist aktiviert
@@ -1805,4 +1805,4 @@ signup-confirmed-sync-page-title = Sync ist aktiviert
 update-firefox-heading = { -brand-firefox } Update erforderlich
 update-firefox-description = Ihr { -product-mozilla-account } verwendet Funktionen, die in Ihrer Version von { -brand-firefox } nicht unterstützt werden. Bitte laden Sie die neueste Version von { -brand-firefox } herunter und installieren Sie diese, um fortzufahren.
 update-firefox-download-button = Neueste Version herunterladen
-update-firefox-page-title = { -brand-firefox } Update erforderlich
+update-firefox-page-title = { -brand-firefox } muss aktualisiert werden

@@ -1935,6 +1935,9 @@ pair2-authority-scan-qr-code-aria-label = QR-kode til at forbinde din mobile enh
 pair2-authority-scan-qr-other-ways-link = Andre måder at logge ind på
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Hop over indtil videre
+# Browser tab title for the page showing a QR code the user scans with their mobile device to connect it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-scan-qr-page-title = Skan for at forbinde din mobile enhed
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.

@@ -409,7 +409,7 @@ locale-toggle-browser-default = Privzeti v brskalniku
 error-bad-request = Zahteva z napako
 # Browser tab title for the page shown when the URL or network request is malformed, e.g. a required query parameter is invalid.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-error-bad-request-page-title = Napačna zahteva
+error-bad-request-page-title = Neveljaven zahtevek
 
 ## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when they open the pairing link
@@ -891,7 +891,7 @@ modal-mfa-protected-code-expired = Je koda potekla?
 # Link to resend a new code to the user's email.
 modal-mfa-protected-resend-code-link = Pošlji novo kodo.
 # Error shown when the code is correct but the device clock is too far ahead of the server time.
-modal-mfa-protected-clock-skew-error = Ura vaše naprave je napačna. Popravite datum in čas naprave ter poskusite znova.
+modal-mfa-protected-clock-skew-error = Ura vaše naprave je napačna. Nastavite datum in uro v napravi ter poskusite znova.
 
 ## Modal Verify Session
 
@@ -1651,7 +1651,7 @@ connect-another-device-android-complete-setup-message = Za dokončanje namestitv
 connect-another-device-ios-complete-setup-message = Za dokončanje namestitve se prijavite v { -brand-firefox } za iOS
 # Browser tab title for the page that invites the user to connect another device.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-connect-another-device-page-title = Poveži drugo napravo
+connect-another-device-page-title = Povezovanje druge naprave
 
 ## Cookies disabled page
 ## Users will see this page if they have local storage or cookies disabled.
@@ -2123,7 +2123,7 @@ pair2-supplicant-approve-sign-in-instruction = Odobrite prijavo na računalniku.
 pair2-supplicant-approve-sign-in-cancel-button = Prekliči
 # Browser tab title for the page shown on the mobile device while the user approves the sign-in on their computer. "sync" is a verb, referring to syncing data between the user’s devices.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair2-supplicant-approve-sign-in-page-title = Še zadnji korak pred sinhronizacijo
+pair2-supplicant-approve-sign-in-page-title = Zadnji korak pred sinhronizacijo
 
 ## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code

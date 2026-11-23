@@ -1340,6 +1340,7 @@ pair2-authority-scan-qr-instruction = Skan QR-koden med din telefon eller tablet
 pair2-authority-scan-qr-code-aria-label = QR-kode til at forbinde din mobile enhed
 pair2-authority-scan-qr-other-ways-link = Andre måder at logge ind på
 pair2-authority-scan-qr-skip-button = Hop over indtil videre
+pair2-authority-scan-qr-page-title = Skan for at forbinde din mobile enhed
 
 
 pair2-authority-sync-success-heading-v2 = Din enhed er forbundet

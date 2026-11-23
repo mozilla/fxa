@@ -84,6 +84,7 @@ app-footer-terms-of-service = Условия использования
 
 
 app-default-title-2 = { -product-mozilla-accounts(case: "nominative_uppercase") }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = Открывается в новом окне

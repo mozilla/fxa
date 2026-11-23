@@ -52,6 +52,7 @@ app-footer-terms-of-service = 이용 약관
 
 
 app-default-title-2 = { -product-mozilla-accounts }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = 새 창에서 열림
