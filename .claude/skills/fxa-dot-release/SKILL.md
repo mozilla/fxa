@@ -109,7 +109,7 @@ curl -s -H "Circle-Token: $(grep -E '^CIRCLECI_TOKEN=' .env | cut -d= -f2-)" \
   jq '.items[] | {name, status}'
 ```
 
-When all workflows finish: alert the user. If any are `failed`, **stop** and surface the failure. Do not proceed. If there are no failures, then run:
+When all workflows finish: alert the user. If any are `failed`, **stop** and surface the failure. Do not proceed. If there are no failures, ask the user to confirm, then run:
 
 ```bash
 yarn trigger:docker-push $tag

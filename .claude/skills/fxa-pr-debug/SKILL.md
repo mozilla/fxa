@@ -2,7 +2,7 @@
 name: fxa-pr-debug
 description: Boots a branch's FxA stack in CircleCI with `yarn pr-debug`, tunnels it to localhost with `yarn pr-debug --tunnel`, and reports when it is up. Given a description of what to check, also writes and runs a throwaway Playwright test against it in a headed local Firefox. Requires CIRCLECI_TOKEN. Use to try a branch or PR without checking it out.
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, TaskOutput, TaskStop, AskUserQuestion
-argument-hint: [pr-number] [what to test]
+argument-hint: "[pr-number] [what to test]"
 user-invocable: true
 context: inherit
 ---

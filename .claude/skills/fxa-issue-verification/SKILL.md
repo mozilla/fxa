@@ -159,7 +159,7 @@ const PHASE = process.env.VERIFY_PHASE ?? 'after';
 const OUT = path.resolve(__dirname, '../../../../artifacts/verify/FXA-14500', PHASE);
 const shot = (name: string) => ({ path: path.join(OUT, `${name}.png`) });
 
-test('FXA-14500 Sync sign-in lands on /pair signed in', async ({ target, testAccountTracker }) => {
+test('Sync sign-in lands on /pair signed in', async ({ target, testAccountTracker }) => {
   test.setTimeout(120000);
   const credentials = await testAccountTracker.signUp();
 

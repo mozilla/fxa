@@ -118,7 +118,7 @@ Include a row for every case identified in Step 4. Mark any cases flagged as dif
 
 Write Jest tests for each identified case following the shared guidelines.
 
-Place tests in the co-located test file (`*.spec.ts` or `*.test.tsx`). If the file doesn't exist, create it with the MPL-2.0 license header at the top.
+Place tests in the co-located test file (`*.spec.ts` or `*.test.tsx`). If the file doesn't exist, give its path and start the drafted file with the MPL-2.0 license header.
 
 **Leave things better than you found them.** When adding tests to an existing file, write new tests to the guidelines standard — don't copy existing patterns that violate them. If existing tests have clear issues, note them in the output and suggest the engineer run `/fxa-test-repair`. Don't rewrite existing tests wholesale unless that's explicitly in scope.
 
