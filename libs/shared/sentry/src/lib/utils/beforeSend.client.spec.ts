@@ -66,6 +66,39 @@ describe('beforeSend', () => {
     expect(data).toEqual(resultData);
   });
 
+  it.each([
+    'https://accounts.firefox.com/subscriptions',
+    'http://localhost:3035/',
+  ])('keeps events from %s', (url) => {
+    const data = { request: { url } } as Sentry.ErrorEvent;
+    expect(beforeSend(config, data)?.request?.url).toEqual(url);
+  });
+
+  it.each(['file:///home/user/Mozilla%20Subscriptions.html', 'not a url'])(
+    'drops events from %s',
+    (url) => {
+      const data = { request: { url } } as Sentry.ErrorEvent;
+      expect(beforeSend(config, data)).toBeNull();
+    }
+  );
+
+  it('falls back to window.location when the event has no request url', () => {
+    const original = Object.getOwnPropertyDescriptor(globalThis, 'location');
+    Object.defineProperty(globalThis, 'location', {
+      value: { href: 'file:///home/user/Mozilla%20Subscriptions.html' },
+      configurable: true,
+    });
+    try {
+      expect(beforeSend(config, {} as Sentry.ErrorEvent)).toBeNull();
+    } finally {
+      if (original) {
+        Object.defineProperty(globalThis, 'location', original);
+      } else {
+        delete (globalThis as { location?: Location }).location;
+      }
+    }
+  });
+
   it('tags the client name', () => {
     const data = { key: 'value' } as unknown as Sentry.ErrorEvent;
 
