@@ -1,0 +1,10 @@
+{
+  "commit": "155e3852111c5fc7a9decda32485d76989596688",
+  "summary": "docs(adr): freeze the passkey wrap format at v1",
+  "description": "Because:\n\n- The wrap envelope is a compatibility contract the server cannot migrate;\n  a format change after production writes sends every passkey user back to\n  their password with no explanation.\n- The policy and the reasoning were spread across five tickets with no\n  single record.\n\nThis commit:\n\n- Adds ADR 0053: the freeze, the rejected options, what counts as a format\n  change, what holds it in place, and the shape of a v2 (table per version).\n- Moves the per-value design rationale into the passkey-crypto README.\n- Corrects doc comments: P-521 leading-zero frequency, hpke import surface.\n- Adds CODEOWNERS entries for the crypto module, the passkey lib, and the\n  passkeyWraps migrations.\n\nCloses FXA-14155",
+  "timestamp": 1795472399000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
