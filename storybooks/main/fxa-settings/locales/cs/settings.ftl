@@ -372,7 +372,7 @@ signin-link-damaged-header = Odkaz pro potvrzení je poškozen
 report-signin-link-damaged-header = Odkaz je poškozen
 # Browser tab title for the page shown when the user followed a link to report an unauthorized sign-in, but the link was damaged.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-report-signin-link-damaged-page-title = Nahlásit poškozený odkaz
+report-signin-link-damaged-page-title = Odkaz pro nahlášení je poškozený
 # The user followed a link received by email, but the link was damaged.
 reset-pwd-link-damaged-message = Adresa odkazu, na který jste klikli, nebyla kompletní, a mohla být poškozena například vaším e-mailovým klientem. Zkopírujte pečlivě celou adresu a zkuste to znovu.
 
@@ -888,7 +888,7 @@ modal-mfa-protected-code-expired = Platnost kódu vypršela?
 # Link to resend a new code to the user's email.
 modal-mfa-protected-resend-code-link = Zaslat e-mailem nový kód.
 # Error shown when the code is correct but the device clock is too far ahead of the server time.
-modal-mfa-protected-clock-skew-error = Hodiny na vašem zařízení nejdou správně. Opravte datum a čas na zařízení a zkuste to znovu.
+modal-mfa-protected-clock-skew-error = Čas na vašem zařízení není nastaven správně. Upravte datum a čas a zkuste to znovu.
 
 ## Modal Verify Session
 
@@ -1640,7 +1640,7 @@ connect-another-device-android-complete-setup-message = Pro dokončení nastaven
 connect-another-device-ios-complete-setup-message = Pro dokončení nastavení se přihlaste k { -brand-firefox(case: "dat") } pro iOS
 # Browser tab title for the page that invites the user to connect another device.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-connect-another-device-page-title = Připojit další zařízení
+connect-another-device-page-title = Připojení dalšího zařízení
 
 ## Cookies disabled page
 ## Users will see this page if they have local storage or cookies disabled.
@@ -1653,13 +1653,13 @@ cookies-disabled-button-try-again = Zkusit znovu
 cookies-disabled-learn-more = Zjistit více
 # Browser tab title for the page shown when cookies or local storage are disabled in the browser.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-cookies-disabled-page-title = Vyžadovány cookies a local storage
+cookies-disabled-page-title = Jsou vyžadovány cookies a místní úložiště
 
 ## Index / home page
 
 # Browser tab title for the page where the user enters their email to sign in or create an account.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-index-page-title = Přihlaste se nebo si vytvořte účet
+index-page-title = Přihlášení nebo vytvoření účtu
 index-header = Zadejte svoji e-mailovou adresu
 index-sync-header = Pokračovat do svého { -product-mozilla-account(capitalization: "lower", case: "gen") }
 index-sync-subheader = Synchronizujte svá hesla, panely a záložky všude, kde používáte { -brand-firefox }.
@@ -1712,22 +1712,22 @@ inline-recovery-key-setup-hint-header = Bezpečnostní doporučení
 inline-recovery-key-setup-create-page-title = Vytvoření obnovovacího klíče k účtu
 # Browser tab title for the page where the user downloads their account recovery key.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-inline-recovery-key-setup-download-page-title = Stáhnout váš obnovovací klíč k účtu
+inline-recovery-key-setup-download-page-title = Stažení obnovovacího klíče k účtu
 # Browser tab title for the page where the user adds a hint for their account recovery key.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-inline-recovery-key-setup-hint-page-title = Přidat nápovědu k obnovovacímu klíči
+inline-recovery-key-setup-hint-page-title = Přidání nápovědy k obnovovacímu klíči
 # Browser tab title for the page where the user chooses a recovery method during two-step authentication setup.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-inline-recovery-setup-choice-page-title = Vyberte způsob obnovení
+inline-recovery-setup-choice-page-title = Výběr způsobu obnovení
 # Browser tab title for the page where the user saves their backup authentication codes.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-inline-recovery-setup-download-codes-page-title = Záložní kódy si uložte
+inline-recovery-setup-download-codes-page-title = Uložení záložních kódů
 # Browser tab title for the page where the user confirms one of their backup authentication codes.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-inline-recovery-setup-confirm-code-page-title = Potvrďte záložní kód
+inline-recovery-setup-confirm-code-page-title = Potvrzení záložních kódů
 # Browser tab title for the page where the user enters a phone number to use as a recovery phone.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-inline-recovery-setup-phone-number-page-title = Přidat telefonní číslo pro obnovení
+inline-recovery-setup-phone-number-page-title = Přidání telefonního čísla pro obnovení
 # Browser tab title for the page where the user enters the code sent to their recovery phone to confirm it.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 inline-recovery-setup-phone-code-page-title = Potvrďte své telefonní číslo pro obnovení

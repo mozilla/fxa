@@ -1,8 +1,8 @@
 {
-  "commit": "da8d2b49114e740ea38ca5b9d9a2b188c7581d45",
-  "summary": "Merge pull request #21808 from mozilla/fxa-15102",
-  "description": "fix(auth): update prune-tokens spec deletion counts for limitSessions_4",
-  "timestamp": 1795451110000,
+  "commit": "3e5674998355072e290d42250b9bf9fd969993c6",
+  "summary": "Merge pull request #21735 from mozilla/ci/gcs-upload-no-files",
+  "description": "chore(ci): keep junit results on cached lib test runs and don't fail uploads on none",
+  "timestamp": 1795456615000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
