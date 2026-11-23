@@ -16,7 +16,13 @@ type RecoveryKeyAuthClient = Pick<
 
 type ReauthCredentials =
   | { password: string }
-  | { email: string; authPW: string; unwrapBKey: string };
+  | {
+      email: string;
+      authPW: string;
+      unwrapBKey: string;
+      // The primary the user signed in with, when `email` is the signup email
+      originalLoginEmail?: string;
+    };
 
 /**
  * Reauthenticates for a fresh keyFetchToken, then creates a recovery key for
@@ -84,7 +90,12 @@ async function reauthForKeys(
             sessionToken,
             { primary: credentials.email },
             credentials.authPW,
-            options
+            credentials.originalLoginEmail
+              ? {
+                  ...options,
+                  originalLoginEmail: credentials.originalLoginEmail,
+                }
+              : options
           )),
           unwrapBKey: credentials.unwrapBKey,
         };

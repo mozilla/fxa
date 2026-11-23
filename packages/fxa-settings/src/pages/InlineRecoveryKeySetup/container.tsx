@@ -54,7 +54,13 @@ const InlineRecoveryKeySetupContainer = ({
           const recoveryKey = await createRecoveryKeyWithReauth(authClient, {
             uid,
             sessionToken,
-            credentials: { email: emailForAuth, authPW, unwrapBKey },
+            credentials: {
+              email: emailForAuth,
+              authPW,
+              unwrapBKey,
+              // emailForAuth differs from the account email after an errno 120 retry
+              originalLoginEmail: email !== emailForAuth ? email : undefined,
+            },
           });
 
           setFormattedRecoveryKey(formatRecoveryKey(recoveryKey.buffer));
@@ -69,7 +75,7 @@ const InlineRecoveryKeySetupContainer = ({
           };
         }
       },
-    [authClient, navigateForward, ftlMsgResolver]
+    [authClient, navigateForward, ftlMsgResolver, email]
   );
 
   const updateRecoveryHint = useCallback(

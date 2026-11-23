@@ -78,10 +78,32 @@ describe('createRecoveryKeyWithReauth', () => {
       'authPW',
       { keys: true, reason: 'recovery_key' }
     );
+    expect(
+      mockAuthClient.sessionReauthWithAuthPW.mock.calls[0][3]
+    ).not.toHaveProperty('originalLoginEmail');
     expect(mockAuthClient.accountEmails).not.toHaveBeenCalled();
     expect(mockAuthClient.accountKeys).toHaveBeenCalledWith(
       'reauthKeyFetchToken',
       'storedUnwrapBKey'
+    );
+  });
+
+  it('passes originalLoginEmail to the authPW reauth when given', async () => {
+    await createRecoveryKeyWithReauth(mockAuthClient, {
+      uid: MOCK_UID,
+      sessionToken: MOCK_SESSION_TOKEN,
+      credentials: { ...withAuthPW, originalLoginEmail: 'primary@example.com' },
+    });
+
+    expect(mockAuthClient.sessionReauthWithAuthPW).toHaveBeenCalledWith(
+      MOCK_SESSION_TOKEN,
+      { primary: MOCK_EMAIL },
+      'authPW',
+      {
+        keys: true,
+        reason: 'recovery_key',
+        originalLoginEmail: 'primary@example.com',
+      }
     );
   });
 
