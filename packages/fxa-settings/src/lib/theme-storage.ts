@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Storage from './storage';
+import { isNovaTheme } from './nova';
 
 const THEME_KEY = 'theme_preference';
 
@@ -19,7 +20,8 @@ export function getStoredTheme(): ThemePreference {
   } catch {
     // localStorage may be unavailable (disabled, private browsing, etc.)
   }
-  return 'light';
+  // Nova follows the OS until the user picks a theme.
+  return isNovaTheme() ? 'system' : 'light';
 }
 
 export function setStoredTheme(theme: ThemePreference): void {
