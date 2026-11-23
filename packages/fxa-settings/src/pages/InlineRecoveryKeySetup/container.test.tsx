@@ -42,6 +42,7 @@ jest.mock('fxa-react/lib/utils', () => ({
 }));
 
 const mockSensitiveDataClient = createMockSensitiveDataClient();
+const MOCK_SIGNUP_EMAIL = 'signup@example.com';
 
 function mockModelsModule() {
   mockAuthClient.sessionReauthWithAuthPW = jest
@@ -59,7 +60,7 @@ function mockModelsModule() {
     () => mockSensitiveDataClient
   );
   mockSensitiveDataClient.AuthData = {
-    emailForAuth: 'bloop@gmail.com',
+    emailForAuth: MOCK_SIGNUP_EMAIL,
     authPW: MOCK_AUTH_PW,
     unwrapBKey: MOCK_UNWRAP_BKEY,
   };
@@ -132,7 +133,7 @@ describe('InlineRecoveryKeySetupContainer', () => {
     expect(InlineRecoveryKeySetupModule.default).toHaveBeenCalled();
   });
 
-  it('createRecoveryKey calls expected authClient methods', async () => {
+  it('reauths with originalLoginEmail when emailForAuth differs from the account email', async () => {
     render(
       <MemoryRouter>
         <InlineRecoveryKeySetupContainer />
@@ -143,12 +144,36 @@ describe('InlineRecoveryKeySetupContainer', () => {
     await currentProps?.createRecoveryKeyHandler();
     expect(mockAuthClient.sessionReauthWithAuthPW).toHaveBeenCalledWith(
       MOCK_SESSION_TOKEN,
-      { primary: 'bloop@gmail.com' },
+      { primary: MOCK_SIGNUP_EMAIL },
       MOCK_AUTH_PW,
-      { keys: true, reason: 'recovery_key' }
+      {
+        keys: true,
+        reason: 'recovery_key',
+        originalLoginEmail: MOCK_STORED_ACCOUNT.email,
+      }
     );
     expect(mockAuthClient.accountKeys).toHaveBeenCalled();
     expect(mockAuthClient.createRecoveryKey).toHaveBeenCalled();
+  });
+
+  it('createRecoveryKey sends no originalLoginEmail when emailForAuth is the account email', async () => {
+    mockSensitiveDataClient.AuthData = {
+      ...mockSensitiveDataClient.AuthData,
+      emailForAuth: MOCK_STORED_ACCOUNT.email,
+    };
+    render(
+      <MemoryRouter>
+        <InlineRecoveryKeySetupContainer />
+      </MemoryRouter>
+    );
+
+    await currentProps?.createRecoveryKeyHandler();
+    const [, emailInput, , options] = (
+      mockAuthClient.sessionReauthWithAuthPW as jest.Mock
+    ).mock.calls[0];
+    expect(emailInput).toEqual({ primary: MOCK_STORED_ACCOUNT.email });
+    expect(options).toEqual({ keys: true, reason: 'recovery_key' });
+    expect(options).not.toHaveProperty('originalLoginEmail');
   });
 
   it('updateRecoveryHint calls authClient', async () => {
