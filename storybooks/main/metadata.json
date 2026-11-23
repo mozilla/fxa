@@ -1,8 +1,8 @@
 {
-  "commit": "3e5674998355072e290d42250b9bf9fd969993c6",
-  "summary": "Merge pull request #21735 from mozilla/ci/gcs-upload-no-files",
-  "description": "chore(ci): keep junit results on cached lib test runs and don't fail uploads on none",
-  "timestamp": 1795456615000,
+  "commit": "ccebf9445d54f1cf779dff5b02ab851d7671420e",
+  "summary": "Merge pull request #21806 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-4c0e7af1249bf55dc626c25ffe66a24c54d8f85c",
+  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from fbbb11ca5fa3dc40cff425f8168f67d0d27f3e42 to 4f5a8c865e061d45383db4210d49c1b413475198",
+  "timestamp": 1795462430000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
