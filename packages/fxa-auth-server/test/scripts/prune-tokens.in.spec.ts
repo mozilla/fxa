@@ -376,12 +376,13 @@ describe('#integration - scripts/prune-tokens', () => {
       expect(await deviceCount()).toBe(opts.remaining);
       expect(Object.keys(redisTokens).length).toBe(opts.remaining);
 
-      // Expected program output. Note that there are two deletions,
-      // one for the sessionToken and one for the device.
+      // Expected program output. `deletions` counts session tokens, not devices.
       if (opts.totalDeletions > 0) {
         expect(
           new RegExp(
-            'limit sessions complete.*"deletions":' + opts.totalDeletions
+            'limit sessions complete.*"deletions":' +
+              opts.totalDeletions +
+              '(?!\\d)'
           ).test(stderr)
         ).toBe(true);
 
@@ -408,7 +409,7 @@ describe('#integration - scripts/prune-tokens', () => {
         `--maxSessions=10 --maxSessionsBatchSize=1000 --wait=10 `,
         {
           remaining: size - 10,
-          totalDeletions: 10 * 2,
+          totalDeletions: 10,
         }
       );
     });
@@ -416,7 +417,7 @@ describe('#integration - scripts/prune-tokens', () => {
     it('limits with --maxSessionsBatchSize=2', async () => {
       await testScript(`--maxSessions=10 --maxSessionsBatchSize=2 --wait=10`, {
         remaining: size - 10,
-        totalDeletions: 10 * 2,
+        totalDeletions: 10,
       });
     });
 
@@ -425,7 +426,7 @@ describe('#integration - scripts/prune-tokens', () => {
         `--maxSessions=10 --maxSessionsMaxDeletions=2 --maxSessionsBatchSize=2 --wait=10`,
         {
           remaining: size - 2,
-          totalDeletions: 2 * 2,
+          totalDeletions: 2,
         }
       );
     });
