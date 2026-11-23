@@ -1,0 +1,10 @@
+{
+  "commit": "fc157a537b8df4f356f03fc968d25eb370e982c8",
+  "summary": "chore(settings): remove BrandMessaging and unused components",
+  "description": "Because:\n\n* BrandMessaging and four other settings components have no importer\n\nThis commit:\n\n* Deletes BrandMessaging, its FTL strings and brand-banner.css\n* Removes brandMessagingMode from the settings config and server pass-through\n* Deletes ChooseNewsletters, LinkUsed, OAuthClientFeatureFlag and\n  PasswordInfoBalloon\n* Drops the BrandMessaging mentions from the design-tokens README\n\nCloses FXA-15003",
+  "timestamp": 1795469786000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
