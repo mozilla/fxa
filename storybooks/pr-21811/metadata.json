@@ -1,0 +1,10 @@
+{
+  "commit": "735622076d4a76af8b9330d179ddb8a38927c632",
+  "summary": "fix(settings): send originalLoginEmail on inline recovery key reauth",
+  "description": "Because:\n\n* After the errno 120 retry, inline recovery key setup reauthed with the signup email and no originalLoginEmail, so /session/reauth returned errno 142.\n\nThis commit:\n\n* Adds an optional originalLoginEmail to the authPW reauth credentials in recovery-key.ts.\n* Passes the stored account email from InlineRecoveryKeySetup when it differs from emailForAuth.\n* Adds unit tests for both cases.\n\nCloses FXA-15105",
+  "timestamp": 1795466504000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

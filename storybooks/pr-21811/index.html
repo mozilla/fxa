@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit 735622076d4a76af8b9330d179ddb8a38927c632</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit 735622076d4a76af8b9330d179ddb8a38927c632</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>11/23/2026, 8:41:44 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): send originalLoginEmail on inline recovery key reauth</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+
+* After the errno 120 retry, inline recovery key setup reauthed with the signup email and no originalLoginEmail, so /session/reauth returned errno 142.
+
+This commit:
+
+* Adds an optional originalLoginEmail to the authPW reauth credentials in recovery-key.ts.
+* Passes the stored account email from InlineRecoveryKeySetup when it differs from emailForAuth.
+* Adds unit tests for both cases.
+
+Closes FXA-15105</pre></dd>
+  </dl>
+</body>
+</html>
