@@ -52,6 +52,7 @@ app-footer-terms-of-service = 이용 약관
 
 
 app-default-title-2 = { -product-mozilla-accounts }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = 새 창에서 열림
@@ -296,6 +297,7 @@ input-phone-number-country-canada = 캐나다
 reset-pwd-link-damaged-header = 비밀번호 재설정 링크가 손상됨
 signin-link-damaged-header = 확인 링크가 손상됨
 report-signin-link-damaged-header = 링크 손상됨
+report-signin-link-damaged-page-title = 손상된 링크 신고
 reset-pwd-link-damaged-message = 클릭하신 링크에 누락된 문자가 있습니다. 이메일 클라이언트에 의해 깨졌을 수 있습니다. 주소를 주의 깊게 복사한 후 다시 시도하세요.
 
 
@@ -315,6 +317,7 @@ confirmation-link-reused-message = 이 승인 링크는 이미 사용되었고, 
 locale-toggle-select-label = 언어 선택
 locale-toggle-browser-default = 기본 브라우저
 error-bad-request = 잘못된 요청
+error-bad-request-page-title = 잘못된 요청
 
 
 pair-unsupported-hint-heading = 앱에서 페어링 완료하기
@@ -371,6 +374,9 @@ ready-continue = 계속
 sign-in-complete-header = 로그인 확인됨
 sign-up-complete-header = 계정 확인됨
 primary-email-verified-header = 기본 이메일 확인됨
+sign-in-complete-page-title = 로그인 확인됨
+sign-up-complete-page-title = 계정 확인됨
+primary-email-verified-page-title = 기본 이메일 확인됨
 
 
 flow-recovery-key-download-storage-ideas-heading-v2 = 키를 저장할 장소:
@@ -898,6 +904,7 @@ security-set-password = 특정 계정 보안 기능을 사용하고 동기화하
 security-recent-activity-link = 최근 계정 활동 보기
 signout-sync-header = 세션이 만료됨
 signout-sync-session-expired = 죄송합니다. 오류가 발생했습니다. 브라우저 메뉴에서 로그아웃하고 다시 시도하세요.
+signout-sync-page-title = 세션이 만료됨
 
 
 tfa-row-backup-codes-title = 백업 인증 코드
@@ -1136,14 +1143,17 @@ connect-another-device-cad-link = 다른 기기 연결
 connect-another-device-not-now-link = 나중에
 connect-another-device-android-complete-setup-message = Android용 { -brand-firefox }에 로그인하여 설정을 완료하세요.
 connect-another-device-ios-complete-setup-message = iOS용 { -brand-firefox }에 로그인하여 설정을 완료하세요.
+connect-another-device-page-title = 다른 기기 연결
 
 
 cookies-disabled-header = 로컬 스토리지와 쿠키가 필요합니다.
 cookies-disabled-enable-prompt-2 = 브라우저에서 쿠키와 로컬 스토리지를 활성화하여 { -product-mozilla-account }에 접근하세요. 그렇게 하면 세션 간에 사용자를 기억하는 기능 등이 활성화됩니다.
 cookies-disabled-button-try-again = 다시 시도
 cookies-disabled-learn-more = 더 알아보기
+cookies-disabled-page-title = 쿠키와 로컬 저장소가 필요함
 
 
+index-page-title = 로그인 또는 계정 생성
 index-header = 이메일 입력
 index-sync-header = { -product-mozilla-account }로 계속 진행하세요.
 index-sync-subheader = { -brand-firefox }를 사용하는 모든 곳에서 비밀번호, 탭, 북마크를 동기화하세요.
@@ -1178,6 +1188,14 @@ inline-recovery-key-setup-download-header = 계정을 보호하세요.
 inline-recovery-key-setup-download-subheader = 지금 다운로드하고 저장하세요.
 inline-recovery-key-setup-download-info = 이 키를 기억할 수 있는 곳에 저장하세요. 나중에 이 페이지로 돌아올 수 없습니다.
 inline-recovery-key-setup-hint-header = 보안 관련 권장 사항
+inline-recovery-key-setup-create-page-title = 계정 복구 키 생성
+inline-recovery-key-setup-download-page-title = 계정 복구 키 다운로드
+inline-recovery-key-setup-hint-page-title = 복구 키 힌트 추가
+inline-recovery-setup-choice-page-title = 복구 방법 선택
+inline-recovery-setup-download-codes-page-title = 백업 코드를 저장
+inline-recovery-setup-confirm-code-page-title = 백업 코드 확인
+inline-recovery-setup-phone-number-page-title = 복구 전화번호 추가
+inline-recovery-setup-phone-code-page-title = 복구 전화번호 확인
 
 
 inline-totp-setup-cancel-setup-button = 설정 취소
@@ -1197,16 +1215,20 @@ inline-totp-setup-security-code-placeholder = 인증 코드
 inline-totp-setup-code-required-error = 인증 코드 필요함
 tfa-qr-code-alt = 지원되는 애플리케이션에서 2단계 인증을 설정하려면 { $code } 코드를 사용하세요.
 inline-totp-setup-page-title = 2단계 인증
+inline-totp-setup-intro-page-title = 2단계 인증 설정
+inline-totp-setup-enrol-page-title = 인증 앱 연결
 
 
 page-not-found-heading = 페이지를 찾을 수 없음
 page-not-found-description = 요청하신 페이지를 찾을 수 없습니다. 잘못된 모든 링크를 수정할 예정입니다.
 page-not-found-home-button = 홈
+page-not-found-page-title = 페이지를 찾을 수 없음
 
 
 pair-auth-allow-heading-text = 방금 { -brand-firefox }에 로그인하셨나요?
 pair-auth-allow-confirm-button = 네, 기기를 승인합니다.
 pair-auth-allow-refuse-device-link = 본인이 아니라면, <a>비밀번호를 변경하세요</a>.
+pair-auth-allow-page-title = { -brand-firefox } 로그인 승인
 
 
 pair-auth-complete-heading = 기기 연결됨
@@ -1219,6 +1241,7 @@ pair-auth-complete-manage-devices-link = 기기 관리
 pair-auth-complete-send-tab-heading = 탭을 보낼 준비가 되었습니다.
 pair-auth-complete-send-tab-device-connected = { $deviceOS } { $deviceFamily } 기기가 연결되었습니다.
 pair-auth-complete-send-tab-benefits = 열려 있는 탭, 비밀번호, 북마크를 다른 기기에 곧바로 전송할 수 있습니다.
+pair-auth-complete-page-title = 기기 연결됨
 
 
 auth-totp-heading-w-default-service = <span>계정 설정을 계속하려면</span> 인증 코드를 입력하세요.
@@ -1230,11 +1253,13 @@ auth-totp-code-required-error = 인증 코드 필요함
 
 
 pair-wait-for-supp-heading-text = 이제 <span>다른 기기</span>에서 승인이 필요합니다.
+pair-wait-for-supp-page-title = 다른 기기에서 승인
 
 
 pair-failure-header-v2 = 기기 페어링에 실패함
 pair-failure-message-v2 = 설정을 완료할 수 없습니다. 이메일로 로그인하세요.
 pair-failure-try-again-link = 다시 시도
+pair-failure-page-title = 기기 페어링에 실패함
 
 
 pair-sync-header = 스마트폰이나 태블릿에서 { -brand-firefox }를 동기화하세요.
@@ -1268,19 +1293,24 @@ pair-download-description = 휴대폰이나 태블릿의 { -brand-firefox }와 �
 pair-download-step-scan-qr = <b>{ $stepNumber }단계</b>: 모바일 기기의 카메라로 이 QR코드를 스캔하고 { -brand-firefox }를 다운로드하세요:
 pair-download-step-continue-sync = <b>{ $stepNumber }단계</b>: “이어서 동기화”를 선택하여 모바일 기기에서 { -brand-firefox } 사용 경험을 동기화하세요.
 pair-continue-to-sync-button = 이어서 동기화
+pair-choice-page-title = 다른 기기 연결
+pair-download-page-title = 모바일용 { -brand-firefox } 다운로드
 
 
 pair-success-header-2 = 기기 연결됨
 pair-success-message-2 = 페어링에 성공했습니다.
 pair-success-tab-close-message = 이 탭은 { -brand-firefox }가 자동으로 닫을 예정입니다.
+pair-success-page-title = 기기 연결됨
 
 
 pair-supp-allow-heading-text = <span>{ $email }에 대한</span> 페어링 확인
 pair-supp-allow-confirm-button = 페어링 확인
 pair-supp-allow-cancel-link = 취소
+pair-supp-allow-page-title = 페어링 확인
 
 
 pair-wait-for-auth-heading-text = 이제 <span>다른 기기</span>에서 승인이 필요합니다.
+pair-wait-for-auth-page-title = 다른 기기에서 승인
 
 
 pair-unsupported-header = 앱으로 페어링
@@ -1293,21 +1323,28 @@ pair-unsupported-connecting-mobile-instructions-v2 = 컴퓨터에서 { -brand-fi
 pair-unsupported-learn-more-link-v2 = 더 알아보기
 pair-unsupported-desktop-firefox-fallback-header-v2 = 앗! 무엇인가 잘못되었습니다.
 pair-unsupported-desktop-firefox-fallback-message-v2 = 이 탭을 닫고 다시 시도하세요.
+pair-unsupported-desktop-non-firefox-page-title = { -brand-firefox } 필요
+pair-unsupported-system-camera-page-title = 앱으로 페어링
+pair-unsupported-mobile-page-title = 모바일 기기 연결
+pair-unsupported-desktop-firefox-fallback-page-title = 오류가 발생하였습니다
 
 
 pair2-authority-approve-sign-in-heading = 로그인을 승인하시겠습니까?
 pair2-authority-approve-sign-in-confirm-button = 예, 로그인을 승인합니다.
 pair2-authority-approve-sign-in-change-password = 본인이 아닌가요? <changePassword>비밀번호를 변경</changePassword>
+pair2-authority-approve-sign-in-page-title = 로그인 승인
 
 
 pair2-authority-continue-on-mobile-heading = 모바일 기기에서 계속하기
 pair2-authority-continue-on-mobile-description = 스마트폰 또는 태블릿에서 단계를 따르세요.
 pair2-authority-continue-on-mobile-cancel-button = 취소
+pair2-authority-continue-on-mobile-page-title = 모바일 기기에서 계속하기
 
 
 pair2-authority-download-firefox-heading = 동기화를 위해 { -brand-firefox } 열기
 pair2-authority-download-firefox-instruction-v2 = 기기 간 동기화를 설정하려면 이 기기에서 { -brand-firefox }를 열고 <b>firefox.com/pair</b>를 방문하세요.
 pair2-authority-download-firefox-cta = { -brand-firefox } 다운로드
+pair2-authority-download-firefox-page-title = 동기화를 위해 { -brand-firefox } 열기
 
 
 pair2-authority-scan-qr-heading = 스캔하여 모바일 기기 연결
@@ -1315,11 +1352,13 @@ pair2-authority-scan-qr-instruction = 폰이나 태블릿으로 QR 코드를 스
 pair2-authority-scan-qr-code-aria-label = 모바일 기기와 연결하기 위한 QR 코드
 pair2-authority-scan-qr-other-ways-link = 다른 로그인 방법
 pair2-authority-scan-qr-skip-button = 지금은 건너뛰기
+pair2-authority-scan-qr-page-title = 스캔하여 모바일 기기 연결
 
 
 pair2-authority-sync-success-heading-v2 = 기기가 연결됨
 pair2-authority-sync-success-description-v2 = 동기화가 진행 중입니다. 동기화된 데이터가 나타날 때까지 시간이 걸릴 수 있습니다. 계속 브라우징해도 됩니다.
 pair2-authority-sync-success-sync-settings-button-v2 = 동기화 설정 관리
+pair2-authority-sync-success-page-title = 기기 연결됨
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = 그래도 연결하시겠습니까?
@@ -1328,16 +1367,20 @@ pair2-authority-timeout-and-cancel-cancelled-heading = 취소됨
 pair2-authority-timeout-and-cancel-canceled-description = 마음을 바꾸었거나 다른 기기도 연결하고 싶다면 다시 시도하세요.
 pair2-authority-timeout-and-cancel-try-again-button = 다시 시도
 pair2-authority-timeout-and-cancel-sync-settings-button = 동기화 설정
+pair2-authority-timeout-and-cancel-timeout-page-title = 연결 시간 초과
+pair2-authority-timeout-and-cancel-cancelled-page-title = 페어링 취소됨
 
 
 pair2-supplicant-approve-sign-in-heading = 동기화를 위한 마지막 단계
 pair2-supplicant-approve-sign-in-instruction = 컴퓨터에서 로그인을 승인하세요.
 pair2-supplicant-approve-sign-in-cancel-button = 취소
+pair2-supplicant-approve-sign-in-page-title = 동기화를 위한 마지막 단계
 
 
 pair2-supplicant-connect-this-device-heading = 이 기기를 계정에 연결하시겠습니까?
 pair2-supplicant-connect-this-device-connect-button = 연결
 pair2-supplicant-connect-this-device-cancel-button = 취소
+pair2-supplicant-connect-this-device-page-title = 이 기기 연결
 
 
 pair2-supplicant-download-firefox-heading-v2 = 이 기기에서 { -brand-firefox } 열기
@@ -1347,15 +1390,21 @@ pair2-supplicant-download-firefox-opening-button = { -brand-firefox } 실행 중
 pair2-supplicant-download-firefox-download-button = { -brand-firefox } 다운로드
 pair2-supplicant-download-firefox-have-firefox-button = 이미 { -brand-firefox }가 있습니다
 pair2-supplicant-download-firefox-learn-more-link = 더 알아보기
+pair2-supplicant-download-firefox-page-title = 이 기기에서 { -brand-firefox } 열기
+
+
+pair2-supplicant-connect-hint-page-title = 앱에서 페어링 완료하기
 
 
 pair2-supplicant-ready-to-scan-heading = 기기를 연결하려면
 pair2-supplicant-ready-to-scan-instruction = 컴퓨터에서 { -brand-firefox }를 열고, <b>firefox.com/pair</b>로 이동한 뒤, 화면의 지침에 따라 이 모바일 기기를 연결하십시오.
 pair2-supplicant-ready-to-scan-learn-more-link = 더 알아보기
+pair2-supplicant-ready-to-scan-page-title = 스캔 준비 완료
 
 
 pair2-supplicant-sync-success-heading = 기기가 연결되었습니다
 pair2-supplicant-sync-success-description-v2 = 동기화가 진행 중입니다. 동기화된 데이터가 나타날 때까지 시간이 걸릴 수 있습니다. 계속 브라우징해도 됩니다.
+pair2-supplicant-sync-success-page-title = 기기 연결됨
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = 시간이 초과된 것 같습니다
@@ -1364,6 +1413,8 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = 취소됨
 pair2-supplicant-timeout-and-cancel-canceled-description = 언제든 기기에 연결하려면, 컴퓨터에서 <b>firefox.com/pair</b>에 접속하세요.
 pair2-supplicant-timeout-and-cancel-signed-in-heading = 이 기기는 이미 로그인되어 있습니다
 pair2-supplicant-timeout-and-cancel-signed-in-description = 데스크톱 계정에 연결하려면, 이 기기에서 { -brand-firefox }를 로그아웃한 다음 컴퓨터에서 <b>firefox.com/pair</b>를 방문하여 로그인을 완료하세요.
+pair2-supplicant-timeout-and-cancel-timeout-page-title = 연결 시간 초과
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = 페어링 취소됨
 
 
 permissions-heading = { $serviceName } 접근 요청:
@@ -1372,17 +1423,20 @@ permissions-label-display-name = 표시 이름
 permissions-label-avatar = 계정 사진
 permissions-continue-button = 계속
 permissions-cancel-button = 취소
+permissions-page-title = 권한 검토
 
 
 force-password-change-heading = 비밀번호를 변경하세요
 force-password-change-info = { -product-mozilla-account } 계정에서 의심스러운 행동이 감지되었습니다. 계정을 보호하려면 비밀번호를 변경하세요. 이 비밀번호를 사용하여 모든 { -product-mozilla-account } 계정에 다시 로그인 하세요.
 force-password-change-data-info = 동기화 된 방문 기록, 북마크, 로그인 및 기타 개인 데이터는 손실되지 않습니다.
+force-password-change-page-title = 비밀번호 변경
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } 확인됨
 service-welcome-signin-success-banner = 로그인 성공!
 service-welcome-vpn-heading = 다음: VPN 켜기
 service-welcome-vpn-description = 브라우저의 개인 정보 보호를 강화하기 위한 한 단계가 더 있습니다. 열린 패널로 가서 패널을 켜세요.
+service-welcome-vpn-page-title = VPN 켜기
 
 
 set-password-heading-v2 = 동기화를 위한 비밀번호 생성
@@ -1390,6 +1444,7 @@ set-password-info-v2 = 데이터를 암호화합니다. { -brand-google } 또는
 
 
 set-password-passwordless-info = 이 비밀번호는 동기화 된 데이터를 암호화하고 안전하게 유지합니다.
+set-password-page-title = 동기화를 위한 비밀번호 생성
 
 
 third-party-auth-callback-message = 잠시만 기다려 주세요. 승인된 애플리케이션으로 리디렉션되는 중입니다.
@@ -1402,6 +1457,7 @@ account-recovery-confirm-key-input-label =
 account-recovery-confirm-key-hint = 저장소 힌트:
 account-recovery-confirm-key-button-2 = 계속
 account-recovery-lost-recovery-key-link-2 = 계정 복구 키를 찾을 수 없나요?
+account-recovery-confirm-key-page-title = 복구 키로 비밀번호 재설정하기
 
 
 complete-reset-pw-header-v2 = 새 비밀번호 만들기
@@ -1411,11 +1467,13 @@ complete-reset-pw-recovery-key-link = 계정 복구 키 사용
 reset-password-complete-banner-heading = 비밀번호가 재설정되었습니다.
 reset-password-complete-banner-message = 향후 로그인 문제가 생기는 것을 방지하기 위해 { -product-mozilla-account } 계정 설정에서 새로운 계정 복구 키를 생성하는 것을 잊지 마세요.
 complete-reset-password-desktop-relay = 사용자가 로그인한 후 { -brand-firefox }가 이메일 마스크를 사용하도록 다시 요청합니다.
+complete-reset-password-page-title = 새 비밀번호 만들기
 confirm-backup-code-reset-password-input-label = 10자리 코드 입력
 confirm-backup-code-reset-password-confirm-button = 확인
 confirm-backup-code-reset-password-subheader = 백업 인증 코드 입력
 confirm-backup-code-reset-password-instruction = 2단계 인증을 설정할 때 저장한 일회용 코드 중 하나를 입력하세요.
 confirm-backup-code-reset-password-locked-out-link = 접근이 불가능한 상태이신가요?
+confirm-backup-code-reset-password-page-title = 백업 코드로 비밀번호 재설정
 
 
 confirm-reset-password-with-code-heading = 이메일을 확인하세요.
@@ -1433,6 +1491,7 @@ confirm-totp-reset-password-trouble-code = 코드 입력에 문제가 있나요?
 confirm-totp-reset-password-confirm-button = 확인
 confirm-totp-reset-password-input-label-v2 = 6자리 숫자 코드 입력
 confirm-totp-reset-password-use-different-account = 다른 계정 사용
+confirm-totp-reset-password-page-title = 2단계 인증으로 비밀번호 재설정
 
 
 password-reset-flow-heading = 비밀번호 재설정
@@ -1442,10 +1501,12 @@ password-reset-email-input =
     .label = 이메일 입력
 password-reset-submit-button-2 = 계속
 password-reset-data-recovery-warning = 비밀번호를 재설정하면 동기화된 브라우저 데이터를 복구할 수 있는지 여부에 영향을 미칠 수 있습니다. <learnMoreLink>자세히 알아보기</learnMoreLink>
+password-reset-flow-page-title = 비밀번호 재설정
 
 
 reset-password-complete-header = 비밀번호가 재설정되었습니다
 reset-password-confirmed-cta = { $serviceName }로 계속
+reset-password-confirmed-page-title = 비밀번호 재설정 완료
 
 
 password-reset-recovery-method-header = 비밀번호 재설정
@@ -1456,6 +1517,7 @@ password-reset-recovery-method-code = 백업 인증 코드
 password-reset-recovery-method-code-info = 남은 코드 { $numBackupCodes }개
 password-reset-recovery-method-send-code-error-heading = 복구 전화로 코드를 보내는 데 문제가 발생했습니다.
 password-reset-recovery-method-send-code-error-description = 나중에 다시 시도하시거나 백업 인증 코드를 사용해 주세요.
+password-reset-recovery-method-page-title = 복구 방법으로 비밀번호 재설정
 
 
 reset-password-recovery-phone-flow-heading = 비밀번호 재설정
@@ -1471,6 +1533,7 @@ reset-password-recovery-phone-code-verification-error-heading = 코드를 확인
 reset-password-recovery-phone-general-error-description = 나중에 다시 시도해 주세요.
 reset-password-recovery-phone-invalid-code-error-description = 코드가 유효하지 않거나 만료되었습니다.
 reset-password-recovery-phone-invalid-code-error-link = 대신 백업 인증 코드를 사용하시겠습니까?
+reset-password-recovery-phone-page-title = 복구 전화번호로 비밀번호 재설정
 reset-password-with-recovery-key-verified-page-title = 비밀번호 재설정 성공
 reset-password-complete-new-password-saved = 새 비밀번호 저장됨!
 reset-password-complete-recovery-key-created = 새로운 계정 복구 키가 생성되었습니다. 지금 다운로드하고 저장하세요.
@@ -1478,11 +1541,13 @@ reset-password-complete-recovery-key-download-info =
     이 키는 비밀번호를 잊어버렸을 때
     데이터를 복구하는 데 필수입니다. <b>지금 다운로드하고 안전하게 저장하세요.
     나중에 이 페이지에 다시 접근할 수 없습니다.</b>
+reset-password-with-recovery-key-verified-hint-page-title = 복구 키 힌트 추가
 
 
 server-error-heading = 500 오류
 server-error-description = 아, 뭔가가 잘 못 되었습니다. 이 상황을 인지했으며 고치기위해 노력하겠습니다.
 server-error-home-button = 홈
+server-error-page-title = 서버 오류
 
 
 error-label = 오류:
@@ -1490,8 +1555,13 @@ validating-signin = 로그인 확인 중…
 complete-signin-error-header = 인증 오류
 signin-link-expired-header = 인증 링크가 만료됨
 signin-link-expired-message-2 = 클릭한 링크가 만료되었거나 이미 사용되었습니다.
+complete-signin-error-page-title = 로그인 확인 오류
+complete-signin-validating-page-title = 로그인 확인 중
 
 
+signin-password-page-title = 비밀번호 입력
+signin-cached-page-title = 로그인
+signin-alternative-auth-page-title = 로그인 방법 선택
 signin-password-needed-header-2 = <span>{ -product-mozilla-account }</span> 비밀번호를 입력하세요
 signin-button-start-syncing = 동기화 시작
 signin-subheader-without-logo-with-servicename = { $serviceName }로 계속
@@ -1515,11 +1585,13 @@ report-signin-body = 계정에 접속하려는 시도에 대한 이메일을 받
 report-signin-submit-button = 활동내역 보고
 report-signin-support-link = 이런 일이 왜 일어나나요?
 report-signin-error = 죄송합니다. 보고서를 제출하는 중에 문제가 발생했습니다.
+report-signin-page-title = 승인되지 않은 로그인 보고
 signin-bounced-header = 죄송합니다. 계정이 잠겼습니다.
 signin-bounced-message = { $email } 메일로 전송한 인증 메일이 반송되어 사용자의 { -brand-firefox } 데이터를 보호하기 위해 계정을 잠갔습니다.
 signin-bounced-help = 이메일이 올바른 경우 <linkExternal>알려 주시면</linkExternal> 계정 잠금을 해제할 수 있습니다.
 signin-bounced-create-new-account = 더 이상 사용하는 이메일이 아닌가요? 새 계정 만들기
 back = 뒤로
+signin-bounced-page-title = 계정 잠김
 
 
 signin-passkey-fallback-header = 로그인 완료
@@ -1533,6 +1605,7 @@ signin-passkey-fallback-no-prf-description = 이 브라우저나 기기는 패�
 signin-passkey-fallback-unwrap-failed-heading = 패스키로 동기화를 잠금 해제할 수 없음
 signin-passkey-fallback-unwrap-failed-description = 문제가 발생했습니다. 이번에는 비밀번호가 필요합니다.
 signin-passkey-fallback-wrap-unusable-link = 더 알아보기
+signin-passkey-fallback-page-title = 동기화하려면 비밀번호 입력
 
 
 signin-passwordless-code-heading = 인증 코드 입력
@@ -1562,6 +1635,7 @@ signin-recovery-method-code-v2 = 백업 인증 코드
 signin-recovery-method-code-info-v2 = 남은 코드 { $numBackupCodes }개
 signin-recovery-method-send-code-error-heading = 복구 전화로 코드를 보내는 데 문제가 발생했습니다.
 signin-recovery-method-send-code-error-description = 나중에 다시 시도하시거나 백업 인증 코드를 사용해 주세요.
+signin-recovery-method-page-title = 복구 방법으로 로그인
 
 
 signin-recovery-code-heading = 로그인
@@ -1574,6 +1648,7 @@ signin-recovery-code-support-link = 접근이 불가능한 상태이신가요?
 signin-recovery-code-required-error = 백업 인증 코드 필요
 signin-recovery-code-use-phone-failure = 복구 전화로 코드를 보내는 데 문제가 발생했습니다.
 signin-recovery-code-use-phone-failure-description = 다음에 다시 시도해 주세요.
+signin-recovery-code-page-title = 백업 코드로 로그인
 
 
 signin-recovery-phone-flow-heading = 로그인
@@ -1590,6 +1665,7 @@ signin-recovery-phone-general-error-description = 다시 시도해 주십시오.
 signin-recovery-phone-invalid-code-error-description = 코드가 유효하지 않거나 만료되었습니다.
 signin-recovery-phone-invalid-code-error-link = 대신 백업 인증 코드를 사용하시겠습니까?
 signin-recovery-phone-success-message = 성공적으로 로그인되었습니다. 복구 전화번호를 다시 사용하면 제한이 적용될 수 있습니다.
+signin-recovery-phone-page-title = 복구 전화번호로 로그인
 
 
 signin-reported-header = 의견을 보내 주셔서 감사합니다.
@@ -1625,6 +1701,7 @@ signin-totp-code-other-account-link = 다른 계정 사용
 signin-totp-code-recovery-code-link = 코드 입력에 문제가 있으신가요?
 signin-totp-code-required-error = 인증 코드 필요함
 signin-totp-code-desktop-relay = 사용자가 로그인한 후 { -brand-firefox }가 이메일 마스크를 사용하도록 다시 요청합니다.
+signin-totp-code-page-title = 2단계 인증으로 로그인
 
 
 signin-unblock-header = 이 로그인 승인
@@ -1637,8 +1714,10 @@ signin-unblock-code-incorrect-format-2 = 인증 코드에는 문자 및/또는 �
 signin-unblock-resend-code-button = 받은편지함 또는 스팸함에 없나요? 다시 보내기
 signin-unblock-support-link = 이런 일이 왜 일어나나요?
 signin-unblock-desktop-relay = 사용자가 로그인한 후 { -brand-firefox }가 이메일 마스크를 사용하도록 다시 요청합니다.
+signin-unblock-page-title = 이 로그인 승인
 
 
+confirm-signup-code-page-title-2 = 이메일 확인
 confirm-signup-code-heading-2 = <span>{ -product-mozilla-account }</span> 확인 코드를 입력하세요.
 confirm-signup-code-instruction-v2 = 5분 이내에 <email>{ $email }</email> 메일로 전송된 코드를 입력하세요.
 confirm-signup-code-input-label = 6자리 숫자 코드 입력
@@ -1657,6 +1736,7 @@ signup-relay-info = 안전하게 가려진 이메일을 관리하고 { -brand-mo
 signup-sync-info = { -brand-firefox }를 사용하는 모든 곳에서 비밀번호, 북마크 등을 동기화하세요.
 signup-sync-info-with-payment = { -brand-firefox }를 사용하는 모든 곳에서 비밀번호, 결제 방법, 북마크 등을 동기화하세요.
 signup-change-email-link = 이메일 변경
+signup-page-title = 계정 만들기
 
 
 signup-confirmed-sync-header = 동기화 켜짐
@@ -1667,8 +1747,10 @@ signup-confirmed-sync-description-v2 = 비밀번호, 주소, 북마크, 기록 �
 signup-confirmed-sync-add-device-link = 다른 기기 추가
 signup-confirmed-sync-manage-sync-button = 동기화 관리
 signup-confirmed-sync-set-password-success-banner = 동기화 비밀번호 생성됨
+signup-confirmed-sync-page-title = 동기화 켜짐
 
 
 update-firefox-heading = { -brand-firefox } 업데이트 필요
 update-firefox-description = { -product-mozilla-account }가 현재 { -brand-firefox } 버전에서 지원하지 않는 기능을 사용하고 있습니다. 계속하려면 최신 버전의 { -brand-firefox }를 다운로드하여 설치하세요.
 update-firefox-download-button = 최신 다운로드
+update-firefox-page-title = { -brand-firefox } 업데이트 필요

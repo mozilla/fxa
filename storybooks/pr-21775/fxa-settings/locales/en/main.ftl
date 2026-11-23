@@ -572,7 +572,7 @@ dc-learn-more = Learn more
 
 
 dc-subheader-synced-data = Synced data
-dc-synced-data-content = Delete synced data stored on { -brand-mozilla }’s servers. This won’t delete data on your devices or turn off syncing. To manage what syncs on this device, go to <link>Account and sync</link> in { -brand-firefox } Settings.
+dc-synced-data-content = Delete synced data stored on { -brand-mozilla }’s servers. This won’t delete data on your devices or turn off syncing. To manage what syncs on this device, go to <accountSettingsLink>Account and sync</accountSettingsLink> in { -brand-firefox } Settings.
 dc-synced-data-delete-button = Delete synced data
 
 

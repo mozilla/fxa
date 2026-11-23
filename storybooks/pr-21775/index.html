@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 74d81d828f81ba26980d3ac2fbf0a7ba2de5a144</title>
+  <title>Storybooks for commit 4490df38f4911a7759fd6b1d916a1ad127c63c8b</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,13 +23,13 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 74d81d828f81ba26980d3ac2fbf0a7ba2de5a144</h1>
+  <h1>Storybooks for commit 4490df38f4911a7759fd6b1d916a1ad127c63c8b</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/21/2026, 12:15:42 AM UTC</dd>
+    <dd>11/23/2026, 5:46:11 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): add Synced data row and delete Sync data flow</pre></dd>
     <dt>Description</dt>
@@ -41,8 +41,8 @@ This commit:
 - Add a &quot;Synced data&quot; row to Data Collection and Use, shown when a device can sync, that opens the new flow.
 - Add /settings/delete_sync_data: MFA guard, password reauth, then pick devices to sign out, one row per device name as in Connected Services.
 - Gate the row and route on featureFlags.syncDataDeletionEnabled, a new content-server flag (off by default), and on the account having a password.
-- Keep UnitRow CTA labels on one line, and pad row content before the CTA with and without Nova.
-- Map isSyncCapable onto the Settings attached client model; add stories and unit tests for the flow.
+- Size UnitRow CTAs to their label up to 256px before wrapping, and pad row content before the CTA with and without Nova.
+- Share the device icon with Connected Services and map isSyncCapable onto the Settings model.
 
 Relates to FXA-14895</pre></dd>
   </dl>

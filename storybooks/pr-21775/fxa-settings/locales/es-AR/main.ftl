@@ -632,7 +632,7 @@ modal-mfa-protected-cancel-button = Cancelar
 modal-mfa-protected-confirm-button = Confirmar
 modal-mfa-protected-code-expired = ¿Código expirado?
 modal-mfa-protected-resend-code-link = Enviar código nuevo.
-modal-mfa-protected-clock-skew-error = El reloj de su dispositivo no es el correcto. Corrija la fecha y hora de su dispositivo y vuelva a intentarlo.
+modal-mfa-protected-clock-skew-error = El reloj de tu dispositivo está mal. Corregí la fecha y hora de tu dispositivo y probá de nuevo.
 
 
 mvs-verify-your-email-2 = Confirmá tu correo electrónico
@@ -1213,14 +1213,14 @@ inline-recovery-key-setup-download-header = Asegurá tu cuenta
 inline-recovery-key-setup-download-subheader = Descargala y guardala
 inline-recovery-key-setup-download-info = Guardá esta clave en un lugar que podás recordar; no podrás volver a esta página más adelante.
 inline-recovery-key-setup-hint-header = Recomendación de seguridad
-inline-recovery-key-setup-create-page-title = Creá una clave de recuperación de cuenta
+inline-recovery-key-setup-create-page-title = Crear una clave de recuperación de cuenta
 inline-recovery-key-setup-download-page-title = Descargar tu clave de recuperación de cuenta
-inline-recovery-key-setup-hint-page-title = Agregar una pista sobre la clave de recuperación
-inline-recovery-setup-choice-page-title = Elegí un método de recuperación
-inline-recovery-setup-download-codes-page-title = Guardá tus códigos de respaldo
+inline-recovery-key-setup-hint-page-title = Agregar una pista para la clave de recuperación
+inline-recovery-setup-choice-page-title = Elegir un método de recuperación
+inline-recovery-setup-download-codes-page-title = Guardar tus códigos de respaldo
 inline-recovery-setup-confirm-code-page-title = Confirmar un código de respaldo
 inline-recovery-setup-phone-number-page-title = Agregar un teléfono de recuperación
-inline-recovery-setup-phone-code-page-title = Confirmá tu teléfono de recuperación
+inline-recovery-setup-phone-code-page-title = Confirmar tu teléfono de recuperación
 inline-recovery-setup-complete-page-title = Autenticación de dos pasos activada
 
 
@@ -1354,7 +1354,7 @@ pair-unsupported-desktop-firefox-fallback-header-v2 = Algo salió mal.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Cerrá esta pestaña y probá de nuevo.
 pair-unsupported-desktop-non-firefox-page-title = { -brand-firefox } requerido
 pair-unsupported-system-camera-page-title = Conectar usando una aplicación
-pair-unsupported-mobile-page-title = Conectá tu dispositivo móvil
+pair-unsupported-mobile-page-title = Conectar tu dispositivo móvil
 pair-unsupported-desktop-firefox-fallback-page-title = Algo salió mal
 
 
@@ -1668,8 +1668,8 @@ signup-passwordless-code-subheading = Registrarse solo toma un paso cuando usás
 
 
 signin-passwordless-totp-required = La autenticación de dos pasos está habilitada en tu cuenta. Ingresá con tu contraseña.
-signin-passwordless-code-page-title = Iniciar sesión con el código de correo electrónico
-signup-passwordless-code-page-title = Registrate con el código de correo electrónico
+signin-passwordless-code-page-title = Iniciar sesión con un código por correo electrónico
+signup-passwordless-code-page-title = Registrate con un código por correo electrónico
 
 
 signin-recovery-method-header = Iniciar sesión
@@ -1736,7 +1736,7 @@ signin-token-code-resend-code-countdown =
 signin-token-code-required-error = Código de confirmación requerido
 signin-token-code-resend-error = Algo salió mal. No se pudo enviar un nuevo código.
 signin-token-code-instruction-desktop-relay = { -brand-firefox } tratará de volver donde estabas para usar una máscara de correo electrónico después de que iniciés sesión.
-signin-token-code-page-title = Confirmar inicio de sesión con código de correo electrónico
+signin-token-code-page-title = Confirmar inicio de sesión con código por correo electrónico
 
 
 signin-totp-code-header = Iniciar sesión
@@ -1768,7 +1768,7 @@ signin-unblock-desktop-relay = { -brand-firefox } tratará de volver donde estab
 signin-unblock-page-title = Autorizar este ingreso
 
 
-confirm-signup-code-page-title-2 = Confirmá tu correo electrónico
+confirm-signup-code-page-title-2 = Confirmar tu correo electrónico
 confirm-signup-code-heading-2 = Ingresá el código de confirmación <span>para tu { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Ingresá el código de verificación que se envió a <email>{ $email }</email> en un plazo de 5 minutos.
 confirm-signup-code-input-label = Ingresá el código de 6 dígitos
@@ -1791,7 +1791,7 @@ signup-relay-info = Se necesita una contraseña para administrar de forma segura
 signup-sync-info = Sincronizá tus contraseñas, marcadores y más en cualquier lugar donde usés { -brand-firefox }.
 signup-sync-info-with-payment = Sincronizá tus contraseñas, métodos de pago, marcadores y más en cualquier lugar donde usés { -brand-firefox }.
 signup-change-email-link = Cambiar correo electrónico
-signup-page-title = Creá tu cuenta
+signup-page-title = Crear tu cuenta
 
 
 signup-confirmed-sync-header = La sincronización está activada

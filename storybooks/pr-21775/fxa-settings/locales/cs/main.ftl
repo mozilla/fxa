@@ -594,7 +594,7 @@ input-phone-number-country-canada = Kanada
 reset-pwd-link-damaged-header = Odkaz pro obnovení je poškozen
 signin-link-damaged-header = Odkaz pro potvrzení je poškozen
 report-signin-link-damaged-header = Odkaz je poškozen
-report-signin-link-damaged-page-title = Nahlásit poškozený odkaz
+report-signin-link-damaged-page-title = Odkaz pro nahlášení je poškozený
 reset-pwd-link-damaged-message = Adresa odkazu, na který jste klikli, nebyla kompletní, a mohla být poškozena například vaším e-mailovým klientem. Zkopírujte pečlivě celou adresu a zkuste to znovu.
 
 
@@ -927,7 +927,7 @@ modal-mfa-protected-cancel-button = Zrušit
 modal-mfa-protected-confirm-button = Potvrdit
 modal-mfa-protected-code-expired = Platnost kódu vypršela?
 modal-mfa-protected-resend-code-link = Zaslat e-mailem nový kód.
-modal-mfa-protected-clock-skew-error = Hodiny na vašem zařízení nejdou správně. Opravte datum a čas na zařízení a zkuste to znovu.
+modal-mfa-protected-clock-skew-error = Čas na vašem zařízení není nastaven správně. Upravte datum a čas a zkuste to znovu.
 
 
 mvs-verify-your-email-2 = Potvrďte svou e-mailovou adresu
@@ -1459,17 +1459,17 @@ connect-another-device-cad-link = Připojte další zařízení
 connect-another-device-not-now-link = Teď ne
 connect-another-device-android-complete-setup-message = Pro dokončení nastavení se přihlaste k { -brand-firefox(case: "dat") } pro Android
 connect-another-device-ios-complete-setup-message = Pro dokončení nastavení se přihlaste k { -brand-firefox(case: "dat") } pro iOS
-connect-another-device-page-title = Připojit další zařízení
+connect-another-device-page-title = Připojení dalšího zařízení
 
 
 cookies-disabled-header = Je vyžadováno místní úložiště a cookies
 cookies-disabled-enable-prompt-2 = Abyste mohli používat { -product-mozilla-account(capitalization: "lower", case: "acc") }, povolte prosím cookies a local storage. Díky tomu si vás budeme moci zapamatovat mezi jednotlivými relacemi.
 cookies-disabled-button-try-again = Zkusit znovu
 cookies-disabled-learn-more = Zjistit více
-cookies-disabled-page-title = Vyžadovány cookies a local storage
+cookies-disabled-page-title = Jsou vyžadovány cookies a místní úložiště
 
 
-index-page-title = Přihlaste se nebo si vytvořte účet
+index-page-title = Přihlášení nebo vytvoření účtu
 index-header = Zadejte svoji e-mailovou adresu
 index-sync-header = Pokračovat do svého { -product-mozilla-account(capitalization: "lower", case: "gen") }
 index-sync-subheader = Synchronizujte svá hesla, panely a záložky všude, kde používáte { -brand-firefox }.
@@ -1505,12 +1505,12 @@ inline-recovery-key-setup-download-subheader = Stáhněte a uložte jej
 inline-recovery-key-setup-download-info = Uložte si tento klíč na místo, které si budete pamatovat — později se na tuto stránku nebudete moci vrátit.
 inline-recovery-key-setup-hint-header = Bezpečnostní doporučení
 inline-recovery-key-setup-create-page-title = Vytvoření obnovovacího klíče k účtu
-inline-recovery-key-setup-download-page-title = Stáhnout váš obnovovací klíč k účtu
-inline-recovery-key-setup-hint-page-title = Přidat nápovědu k obnovovacímu klíči
-inline-recovery-setup-choice-page-title = Vyberte způsob obnovení
-inline-recovery-setup-download-codes-page-title = Záložní kódy si uložte
-inline-recovery-setup-confirm-code-page-title = Potvrďte záložní kód
-inline-recovery-setup-phone-number-page-title = Přidat telefonní číslo pro obnovení
+inline-recovery-key-setup-download-page-title = Stažení obnovovacího klíče k účtu
+inline-recovery-key-setup-hint-page-title = Přidání nápovědy k obnovovacímu klíči
+inline-recovery-setup-choice-page-title = Výběr způsobu obnovení
+inline-recovery-setup-download-codes-page-title = Uložení záložních kódů
+inline-recovery-setup-confirm-code-page-title = Potvrzení záložních kódů
+inline-recovery-setup-phone-number-page-title = Přidání telefonního čísla pro obnovení
 inline-recovery-setup-phone-code-page-title = Potvrďte své telefonní číslo pro obnovení
 inline-recovery-setup-complete-page-title = Dvoufázové ověřování je zapnuto
 

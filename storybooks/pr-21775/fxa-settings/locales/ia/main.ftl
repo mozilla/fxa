@@ -48,6 +48,7 @@ app-footer-terms-of-service = Terminos de servicio
 
 
 app-default-title-2 = { -product-mozilla-accounts }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = Aperi in un nove fenestra
@@ -304,6 +305,7 @@ input-phone-number-country-canada = Canada
 reset-pwd-link-damaged-header = Ligamine pro reinitialisar contrasigno damnificate
 signin-link-damaged-header = Ligamine de confirmation damnificate
 report-signin-link-damaged-header = Ligamine damnificate
+report-signin-link-damaged-page-title = Reportar ligamine damnificate
 reset-pwd-link-damaged-message = Il manca characteres in le ligamine sur le qual tu ha cliccate. Pote esser que tu programma de e-mail lo ha corrumpite. Copia minutiosemente le adresse, e tenta de novo.
 
 
@@ -323,6 +325,7 @@ confirmation-link-reused-message = Ille ligamine de confirmation ha ja essite us
 locale-toggle-select-label = Eliger le lingua
 locale-toggle-browser-default = Navigator predefinite
 error-bad-request = Mal requesta
+error-bad-request-page-title = Mal requesta
 
 
 pair-unsupported-hint-heading = Fini le accopulamento in le application
@@ -379,6 +382,9 @@ ready-continue = Continuar
 sign-in-complete-header = Apertura de session confirmate
 sign-up-complete-header = Conto confirmate
 primary-email-verified-header = Email primari confirmate
+sign-in-complete-page-title = Accesso confirmate
+sign-up-complete-page-title = Conto confirmate
+primary-email-verified-page-title = Email primari confirmate
 
 
 flow-recovery-key-download-storage-ideas-heading-v2 = Ubi conservar tu claves:
@@ -630,6 +636,7 @@ modal-mfa-protected-cancel-button = Cancellar
 modal-mfa-protected-confirm-button = Confirmar
 modal-mfa-protected-code-expired = Codice expirate?
 modal-mfa-protected-resend-code-link = Inviar per email nove codice.
+modal-mfa-protected-clock-skew-error = Corrige data e hora de tu apparato, pois retenta.
 
 
 mvs-verify-your-email-2 = Confirma tu email
@@ -918,6 +925,7 @@ security-set-password = Defini un contrasigno pro synchronisar e usar certe func
 security-recent-activity-link = Vider activitate de conto recente
 signout-sync-header = Session expirate
 signout-sync-session-expired = Un error ha occurrite. Claude iste session e retenta.
+signout-sync-page-title = Session expirate
 
 
 tfa-row-backup-codes-title = Codices de authentication de reserva
@@ -1165,14 +1173,17 @@ connect-another-device-cad-link = Connecter un altere apparato
 connect-another-device-not-now-link = Non ora
 connect-another-device-android-complete-setup-message = Accede a { -brand-firefox } pro Android pro completar le configuration
 connect-another-device-ios-complete-setup-message = Accede a { -brand-firefox } pro iOS pro completar le configuration
+connect-another-device-page-title = Connecter un altere apparato
 
 
 cookies-disabled-header = Il es necesse activar immagazinage local e cookies
 cookies-disabled-enable-prompt-2 = Activa cookies e immagazinage local in tu navigator pro acceder a tu { -product-mozilla-account }. Si faciente tu activara functionalitates tal como rememorar te inter sessiones.
 cookies-disabled-button-try-again = Retenta
 cookies-disabled-learn-more = Pro saper plus
+cookies-disabled-page-title = Cookies e immagazinage local necessari
 
 
+index-page-title = Acceder o crear un conto
 index-header = Insere tu email
 index-sync-header = Passa a tu { -product-mozilla-account }
 index-sync-subheader = Synchronisa tu contrasignos, schedas, e marcapaginas ubique tu usa { -brand-firefox }.
@@ -1207,6 +1218,15 @@ inline-recovery-key-setup-download-header = Protege tu conto
 inline-recovery-key-setup-download-subheader = Discarga e immagazina lo ora
 inline-recovery-key-setup-download-info = Immagazina iste clave in qualque loco que tu memorara, tu non potera revolver a iste pagina plus tarde.
 inline-recovery-key-setup-hint-header = Recommendation de securitate
+inline-recovery-key-setup-create-page-title = Crear un clave de recuperation del conto
+inline-recovery-key-setup-download-page-title = Discargar tu clave de recuperation del conto
+inline-recovery-key-setup-hint-page-title = Adder un suggestion de clave de recuperation
+inline-recovery-setup-choice-page-title = Eliger un methodo de recuperation
+inline-recovery-setup-download-codes-page-title = Reserva tu codices de salveguarda
+inline-recovery-setup-confirm-code-page-title = Confirmar un codice de salveguarda
+inline-recovery-setup-phone-number-page-title = Adde un numero de telephono de recuperation
+inline-recovery-setup-phone-code-page-title = Confirma tu numero de telephono de recuperation
+inline-recovery-setup-complete-page-title = Authentication a duo passos active
 
 
 inline-totp-setup-cancel-setup-button = Cancellar configuration
@@ -1226,16 +1246,20 @@ inline-totp-setup-security-code-placeholder = Codices de authentication
 inline-totp-setup-code-required-error = Codice de authentication requirite
 tfa-qr-code-alt = Usa le codice { $code } pro configurar le authentication a duo passos in applicationes que lo supporta.
 inline-totp-setup-page-title = Authentication a duo passos
+inline-totp-setup-intro-page-title = Configurar authentication a duo passos
+inline-totp-setup-enrol-page-title = Connecte tu application de authentication
 
 
 page-not-found-heading = Pagina non trovate
 page-not-found-description = Le pagina que tu requireva non es trovate.
 page-not-found-home-button = Initio
+page-not-found-page-title = Pagina non trovate
 
 
 pair-auth-allow-heading-text = Ha tu justo ora aperite session a { -brand-firefox }?
 pair-auth-allow-confirm-button = Si, approbar apparato
 pair-auth-allow-refuse-device-link = Si non era tu, <a>cambia la contrasigno</a>
+pair-auth-allow-page-title = Approbar accesso a { -brand-firefox }
 
 
 pair-auth-complete-heading = Apparato connexe
@@ -1248,6 +1272,8 @@ pair-auth-complete-manage-devices-link = Gerer apparatos
 pair-auth-complete-send-tab-heading = Tu es preste a inviar alcun schedas
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } pro { $deviceOS } es connexe.
 pair-auth-complete-send-tab-benefits = Tu es libere de instantaneemente inviar schedas aperte, contrasignos, marcapaginas inter apparatos.
+pair-auth-complete-page-title = Apparato connexe
+pair-auth-complete-send-tab-page-title = Preste a inviar schedas
 
 
 auth-totp-heading-w-default-service = Insere le codices de authentication <span>pro continuar a configurar le conto</span>
@@ -1256,14 +1282,17 @@ auth-totp-instruction = Aperi tu application de authentication e insere le codic
 auth-totp-input-label = Insere le codice de 6 digitos
 auth-totp-confirm-button = Confirmar
 auth-totp-code-required-error = Codice de authentication requirite
+auth-totp-page-title = Accopular con authentication a duo passos
 
 
 pair-wait-for-supp-heading-text = Approbation necessari ora <span>ab tu altere apparato</span>
+pair-wait-for-supp-page-title = Approbar sur tu altere apparato
 
 
 pair-failure-header-v2 = Accopulamento de apparato fallite
 pair-failure-message-v2 = Le configuration non pote esser completate. Per favor, accede per tu email.
 pair-failure-try-again-link = Retentar
+pair-failure-page-title = Accopulamento de apparato fallite
 
 
 pair-sync-header = Synchronisa { -brand-firefox } sur tu telephono o tabletta
@@ -1297,19 +1326,25 @@ pair-download-description = Pro synchronisar { -brand-firefox } sur tu telephono
 pair-download-step-scan-qr = <b>Passo { $stepNumber } </b>: discarga { -brand-firefox } scandente iste codice QR con le camera de tu apparato mobile:
 pair-download-step-continue-sync = <b>Passo { $stepNumber } </b>: selige "Continuar a synchronisar" pro synchronisar tu experientia con { -brand-firefox } sur tu apparato mobile.
 pair-continue-to-sync-button = Continuar a synchronisar
+pair-choice-page-title = Connecter un altere apparato
+pair-choice-send-tab-page-title = Inviar schedas a un altere apparato
+pair-download-page-title = Discargar { -brand-firefox } pro mobile
 
 
 pair-success-header-2 = Apparato connexe
 pair-success-message-2 = Accopulamento con successo.
 pair-success-tab-close-message = Iste scheda sera claudite automaticamente per { -brand-firefox }.
+pair-success-page-title = Apparato connexe
 
 
 pair-supp-allow-heading-text = Confirmar accopulamento <span>de { $email }</span>
 pair-supp-allow-confirm-button = Confirmar le accopulamento
 pair-supp-allow-cancel-link = Cancellar
+pair-supp-allow-page-title = Confirmar le accopulamento
 
 
 pair-wait-for-auth-heading-text = Approbation necessari ora <span>ab tu altere apparato</span>
+pair-wait-for-auth-page-title = Approbar sur tu altere apparato
 
 
 pair-unsupported-header = Accopulamento per un application
@@ -1322,21 +1357,28 @@ pair-unsupported-connecting-mobile-instructions-v2 = Aperi { -brand-firefox } su
 pair-unsupported-learn-more-link-v2 = Pro saper plus
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oppla! Alco errate eveniva.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Claude iste scheda e reproba.
+pair-unsupported-desktop-non-firefox-page-title = { -brand-firefox } necessari
+pair-unsupported-system-camera-page-title = Accopulamento per un application
+pair-unsupported-mobile-page-title = Connecte tu apparato mobile
+pair-unsupported-desktop-firefox-fallback-page-title = Alco errate eveniva
 
 
 pair2-authority-approve-sign-in-heading = Approbar authentication?
 pair2-authority-approve-sign-in-confirm-button = Si, approbar authentication
 pair2-authority-approve-sign-in-change-password = Non tu? <changePassword>Cambia tu contrasigno</changePassword>
+pair2-authority-approve-sign-in-page-title = Approbar accesso
 
 
 pair2-authority-continue-on-mobile-heading = Continua sur tu apparato mobile
 pair2-authority-continue-on-mobile-description = Seque le passos sur tu telephono o tabletta.
 pair2-authority-continue-on-mobile-cancel-button = Cancellar
+pair2-authority-continue-on-mobile-page-title = Continua sur tu apparato mobile
 
 
 pair2-authority-download-firefox-heading = Aperi { -brand-firefox } pro synchronisar
 pair2-authority-download-firefox-instruction-v2 = Pro configurar synchronisation a transverso apparatos, aperi { -brand-firefox } sur iste apparato e visita <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Discarga { -brand-firefox }
+pair2-authority-download-firefox-page-title = Aperi { -brand-firefox } pro synchronisar
 
 
 pair2-authority-scan-qr-heading = Scande pro connecter tu apparato mobile
@@ -1344,11 +1386,13 @@ pair2-authority-scan-qr-instruction = Scande le codice QR con tu telephono o tab
 pair2-authority-scan-qr-code-aria-label = Codice QR pro connecter tu apparato mobile
 pair2-authority-scan-qr-other-ways-link = Altere manieras pro acceder
 pair2-authority-scan-qr-skip-button = Saltar pro iste momento
+pair2-authority-scan-qr-page-title = Scande pro connecter tu apparato mobile
 
 
 pair2-authority-sync-success-heading-v2 = Tu apparato es connexe
 pair2-authority-sync-success-description-v2 = Le synchronisation es in curso. Il pote passar un poco pro apparer tu datos synchronisate. Senti te libere de continuar a navigar.
 pair2-authority-sync-success-sync-settings-button-v2 = Gerer configurationes del synchronisation
+pair2-authority-sync-success-page-title = Apparato connexe
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Ancora vole tu connecter un apparato?
@@ -1357,16 +1401,20 @@ pair2-authority-timeout-and-cancel-cancelled-heading = Cancellate
 pair2-authority-timeout-and-cancel-canceled-description = Si tu cambia opinion o vole connecter un apparato differente, retenta.
 pair2-authority-timeout-and-cancel-try-again-button = Retentar
 pair2-authority-timeout-and-cancel-sync-settings-button = Configurationes del synchronisation
+pair2-authority-timeout-and-cancel-timeout-page-title = Connexion expirate
+pair2-authority-timeout-and-cancel-cancelled-page-title = Accopulamento cancellate
 
 
 pair2-supplicant-approve-sign-in-heading = Un ultime passo pro synchronisar
 pair2-supplicant-approve-sign-in-instruction = Approba le accesso sur tu computator.
 pair2-supplicant-approve-sign-in-cancel-button = Cancellar
+pair2-supplicant-approve-sign-in-page-title = Un ultime passo pro synchronisar
 
 
 pair2-supplicant-connect-this-device-heading = Connecter iste apparato a tu conto?
 pair2-supplicant-connect-this-device-connect-button = Connecter
 pair2-supplicant-connect-this-device-cancel-button = Cancellar
+pair2-supplicant-connect-this-device-page-title = Connecter iste apparato
 
 
 pair2-supplicant-download-firefox-heading-v2 = Aperir { -brand-firefox } sur iste apparato
@@ -1376,15 +1424,21 @@ pair2-supplicant-download-firefox-opening-button = Aperiente { -brand-firefox }�
 pair2-supplicant-download-firefox-download-button = Discargar { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = Io jam ha { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Pro saper plus
+pair2-supplicant-download-firefox-page-title = Aperir { -brand-firefox } sur iste apparato
+
+
+pair2-supplicant-connect-hint-page-title = Completa le accopulamento in le application
 
 
 pair2-supplicant-ready-to-scan-heading = Connecter un apparato
 pair2-supplicant-ready-to-scan-instruction = Sur tu computator, aperi { -brand-firefox } e va a <b>firefox.com/par</b>, e seque le instructiones sur le schermo pro connecter iste apparato mobile.
 pair2-supplicant-ready-to-scan-learn-more-link = Pro saper plus
+pair2-supplicant-ready-to-scan-page-title = Preste a scander
 
 
 pair2-supplicant-sync-success-heading = Tu apparato es connexe
 pair2-supplicant-sync-success-description-v2 = Le synchronisation es in curso. Il pote passar un poco pro apparer tu datos synchronisate. Senti te libere de continuar a navigar.
+pair2-supplicant-sync-success-page-title = Apparato connexe
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Il pare que nos exiva foras tempore limite.
@@ -1393,6 +1447,9 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancellate
 pair2-supplicant-timeout-and-cancel-canceled-description = Pro connecter un apparato quandocunque, visita <b>firefox.com/par</b> sur tu computator.
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Iste apparato es jam connexe
 pair2-supplicant-timeout-and-cancel-signed-in-description = Pro connecter te a tu conto de scriptorio, claude  connexion de { -brand-firefox } sur iste apparato, pois visita <b>firefox.com/par</b> sur tu computator a completa le accesso.
+pair2-supplicant-timeout-and-cancel-timeout-page-title = Connexion expirate
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = Accopulamento cancellate
+pair2-supplicant-timeout-and-cancel-signed-in-page-title = Apparato jam connexe
 
 
 permissions-heading = { $serviceName } vole acceder a:
@@ -1401,17 +1458,20 @@ permissions-label-display-name = Nomine a monstrar
 permissions-label-avatar = Imagine del conto
 permissions-continue-button = Continuar
 permissions-cancel-button = Cancellar
+permissions-page-title = Revider permissos
 
 
 force-password-change-heading = Cambia tu contrasigno
 force-password-change-info = Nos detegeva comportamento suspecte sur tu { -product-mozilla-account }. Pro proteger tu conto, crea un nove contrasigno. Tu usara iste contrasigno pro re-acceder a tote tu servicios de { -product-mozilla-account }.
 force-password-change-data-info = Chronologia, marcapaginas, accessos e altere datos personal synchronisate non sera perdite.
+force-password-change-page-title = Cambia tu contrasigno
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmate
 service-welcome-signin-success-banner = Authenticate con successo!
 service-welcome-vpn-heading = Successivemente: activa le VPN
 service-welcome-vpn-description = Un altere passo pro augmentar le confidentialitate de tu navigator. Va al pannello aperte e activa lo.
+service-welcome-vpn-page-title = Activar le VPN
 
 
 set-password-heading-v2 = Crear password pro synchronisar
@@ -1419,6 +1479,7 @@ set-password-info-v2 = Isto crypta tu datos. Illo debe esser differente contrasi
 
 
 set-password-passwordless-info = Iste contrasigno crypta tu datos synchronisate e los mantene secur.
+set-password-page-title = Crear un contrasigno pro synchronisar
 
 
 third-party-auth-callback-message = Attende, tu va esser re-dirigite al application autorisate.
@@ -1431,6 +1492,7 @@ account-recovery-confirm-key-input-label =
 account-recovery-confirm-key-hint = Tu indicio de immagazinage es:
 account-recovery-confirm-key-button-2 = Continuar
 account-recovery-lost-recovery-key-link-2 = Non pote tu trovar le clave de recuperation de tu conto?
+account-recovery-confirm-key-page-title = Reinitialisar le contrasigno con le clave de recuperation
 
 
 complete-reset-pw-header-v2 = Crear un nove contrasigno
@@ -1440,11 +1502,13 @@ complete-reset-pw-recovery-key-link = Usar clave de recuperation del conto
 reset-password-complete-banner-heading = Tu contrasigno ha essite reinitialisate.
 reset-password-complete-banner-message = Non oblida de generar un nove clave de recuperation de conto desde tu parametros de { -product-mozilla-account } pro evitar problemas de accesso in futuro.
 complete-reset-password-desktop-relay = { -brand-firefox } tentara inviar te retro pro usar un alias email post que tu accede.
+complete-reset-password-page-title = Crear un nove contrasigno
 confirm-backup-code-reset-password-input-label = Insere le codice de 10 characteres
 confirm-backup-code-reset-password-confirm-button = Confirmar
 confirm-backup-code-reset-password-subheader = Insere codice de authentication de reserva
 confirm-backup-code-reset-password-instruction = Insere un del codices monouso que tu salvava quando tu configurava le authentication a duo passos.
 confirm-backup-code-reset-password-locked-out-link = Es tu blocate?
+confirm-backup-code-reset-password-page-title = Reinitialisar contrasigno con un codice de salveguarda
 
 
 confirm-reset-password-with-code-heading = Controla tu email
@@ -1453,6 +1517,7 @@ confirm-reset-password-code-input-group-label = Insere un codice de confirmation
 confirm-reset-password-otp-submit-button = Continuar
 confirm-reset-password-otp-resend-code-button = Reinviar le codice
 confirm-reset-password-otp-different-account-link = Usa un conto differente
+confirm-reset-password-with-code-page-title = Verifica tu e-mail pro reinitialisar tu contrasigno
 
 
 confirm-totp-reset-password-header = Reinitialisa tu contrasigno
@@ -1462,6 +1527,7 @@ confirm-totp-reset-password-trouble-code = Problemas a inserer le codice?
 confirm-totp-reset-password-confirm-button = Confirmar
 confirm-totp-reset-password-input-label-v2 = Insere le codice de 6 digitos
 confirm-totp-reset-password-use-different-account = Usa un conto differente
+confirm-totp-reset-password-page-title = Reinitialisar contrasigno con authentication a duo passos
 
 
 password-reset-flow-heading = Reinitialisa tu contrasigno
@@ -1471,10 +1537,12 @@ password-reset-email-input =
     .label = Insere tu email
 password-reset-submit-button-2 = Continuar
 password-reset-data-recovery-warning = Remontar tu contrasigno pote interessar si tu pote recuperar datos de navigator synchronisate. <learnMoreLink>Pro saper plus</learnMoreLink>
+password-reset-flow-page-title = Reinitialisa tu contrasigno
 
 
 reset-password-complete-header = Tu contrasigno ha essite remontate
 reset-password-confirmed-cta = Continuar a { $serviceName }
+reset-password-confirmed-page-title = Reinitialisation de contrasigno completate
 
 
 password-reset-recovery-method-header = Reinitialisa tu contrasigno
@@ -1489,6 +1557,7 @@ password-reset-recovery-method-code-info =
     }
 password-reset-recovery-method-send-code-error-heading = Il habeva un problema inviante un codices a tu telephono de recuperation
 password-reset-recovery-method-send-code-error-description = Retenta plus tarde o usa tu codices de authentication de reserva.
+password-reset-recovery-method-page-title = Reinitialisar contrasigno con un methodo de recuperation
 
 
 reset-password-recovery-phone-flow-heading = Reinitialisa tu contrasigno
@@ -1504,15 +1573,18 @@ reset-password-recovery-phone-code-verification-error-heading = Il ha habite un 
 reset-password-recovery-phone-general-error-description = Retenta plus tarde.
 reset-password-recovery-phone-invalid-code-error-description = Le codice non es valide o ha expirate.
 reset-password-recovery-phone-invalid-code-error-link = Usar in vice codice de authentication de salvamento?
+reset-password-recovery-phone-page-title = Reinitialisar contrasigno con numero de telephono de recuperation
 reset-password-with-recovery-key-verified-page-title = Contrasigno remontate con successo
 reset-password-complete-new-password-saved = Nove contrasigno salvate!
 reset-password-complete-recovery-key-created = Un nove clave de recuperation del conto ha essite create. Discarga lo e conserva lo ora.
 reset-password-complete-recovery-key-download-info = Iste clave es essential pro le recuperation de tu datos si tu oblida tu contrasigno. <b>Discarga lo e conserva lo de modo secur ora mesmo, perque tu non potera acceder a iste pagina de novo plus tarde.</b>
+reset-password-with-recovery-key-verified-hint-page-title = Adder un suggestion de clave de recuperation
 
 
 server-error-heading = Error 500
 server-error-description = Guai, qualcosa ha fallite hic. Nos ha recipite notification e va reparar le problema.
 server-error-home-button = Initio
+server-error-page-title = Error de servitor
 
 
 error-label = Error:
@@ -1520,8 +1592,13 @@ validating-signin = Validation del accesso…
 complete-signin-error-header = Error de confirmation
 signin-link-expired-header = Ligamine de confirmation expirate
 signin-link-expired-message-2 = Le ligamine que tu cliccava ha expirate o ha jam essite usate.
+complete-signin-error-page-title = Error de confirmation del accesso
+complete-signin-validating-page-title = Confirmation de accesso
 
 
+signin-password-page-title = Insere tu contrasigno
+signin-cached-page-title = Aperir session
+signin-alternative-auth-page-title = Eliger un methodo de accesso
 signin-password-needed-header-2 = Insere tu contrasigno <span>pro tu { -product-mozilla-account }</span>
 signin-button-start-syncing = Initia a synchronisar
 signin-subheader-without-logo-with-servicename = Continuar a { $serviceName }
@@ -1545,11 +1622,13 @@ report-signin-body = Tu ha recipite un message sur un tentativa de accesso a tu 
 report-signin-submit-button = Reporto de activitate
 report-signin-support-link = Proque occurre isto?
 report-signin-error = Desolate. Il ha habite un problema durante le invio de tu reporto.
+report-signin-page-title = Reportar accesso non autorisate
 signin-bounced-header = Regrettabilemente, tu conto ha essite blocate.
 signin-bounced-message = Le message de confirmation que nos ha inviate a { $email } ha essite retornate e nos ha blocate tu conto a fin de proteger tu datos { -brand-firefox }.
 signin-bounced-help = Si isto es un adresse email valide, <linkExternal>face lo nos saper</linkExternal> e nos pote adjutar te a disblocar tu conto.
 signin-bounced-create-new-account = Non possede tu plus iste adresse de e-mail? Crea un nove conto
 back = Retro
+signin-bounced-page-title = Conto blocate
 
 
 signin-passkey-fallback-header = Completar accesso
@@ -1563,6 +1642,7 @@ signin-passkey-fallback-no-prf-description = Iste navigator o apparato non pote 
 signin-passkey-fallback-unwrap-failed-heading = Tu clave-contrasigno non poteva disblocar le synchronisation
 signin-passkey-fallback-unwrap-failed-description = Alco errate eveniva, assi tu besoniara tu contrasigno iste vice
 signin-passkey-fallback-wrap-unusable-link = Pro saper plus
+signin-passkey-fallback-page-title = Insere tu contrasigno pro synchronisar
 
 
 signin-passwordless-code-heading = Insere le codice de confirmation
@@ -1590,6 +1670,8 @@ signup-passwordless-code-subheading = Le inscription emplea un sol passo quando 
 
 
 signin-passwordless-totp-required = Le authentication a duo passos es activate sur tu conto. Accede con tu contrasigno.
+signin-passwordless-code-page-title = Accesso con invio codice per e-mail
+signup-passwordless-code-page-title = Inscription con invio codice per e-mail
 
 
 signin-recovery-method-header = Aperir session
@@ -1604,6 +1686,7 @@ signin-recovery-method-code-info-v2 =
     }
 signin-recovery-method-send-code-error-heading = Il habeva un problema inviante un codices a tu telephono de recuperation
 signin-recovery-method-send-code-error-description = Retenta plus tarde o usa tu codices de authentication de reserva.
+signin-recovery-method-page-title = Accesso con un methodo de recuperation
 
 
 signin-recovery-code-heading = Aperir session
@@ -1616,6 +1699,7 @@ signin-recovery-code-support-link = Es tu blocate?
 signin-recovery-code-required-error = Codice de authentication de reserva necessari
 signin-recovery-code-use-phone-failure = Il habeva un problema inviante un codices a tu telephono de recuperation
 signin-recovery-code-use-phone-failure-description = Retenta plus tarde.
+signin-recovery-code-page-title = Accesso con un codice de salveguarda
 
 
 signin-recovery-phone-flow-heading = Aperir session
@@ -1632,10 +1716,12 @@ signin-recovery-phone-general-error-description = Retenta plus tarde.
 signin-recovery-phone-invalid-code-error-description = Le codice non es valide o ha expirate.
 signin-recovery-phone-invalid-code-error-link = Usar in vice codice de authentication de salvamento?
 signin-recovery-phone-success-message = Apertura session correcte. Limites pote esser applicate si tu usa tu numero de recuperation ancora.
+signin-recovery-phone-page-title = Accesso con telephono de recuperation
 
 
 signin-reported-header = Gratias pro tu vigilantia
 signin-reported-message = Nostre equipa recipeva tu nota. Iste reportos nos adjuta a luctar contra le intrusos.
+signin-reported-page-title = Accesso reportate
 
 
 signin-token-code-heading-2 = Insere codice de confirmation<span> pro tu { -product-mozilla-account }</span>
@@ -1652,6 +1738,7 @@ signin-token-code-resend-code-countdown =
 signin-token-code-required-error = Il es necesse codice de confirmation
 signin-token-code-resend-error = Alco errate eveniva. Un nove codice non pote esser inviate.
 signin-token-code-instruction-desktop-relay = { -brand-firefox } tentara inviar te retro pro usar un alias email post que tu accede.
+signin-token-code-page-title = Confirmar accesso con invio codice per e-mail
 
 
 signin-totp-code-header = Aperir session
@@ -1667,6 +1754,7 @@ signin-totp-code-other-account-link = Usa un conto differente
 signin-totp-code-recovery-code-link = Problemas a inserer le codice?
 signin-totp-code-required-error = Codice de authentication requirite
 signin-totp-code-desktop-relay = { -brand-firefox } tentara inviar te retro pro usar un alias email post que tu accede.
+signin-totp-code-page-title = Accesso con authentication a duo passos
 
 
 signin-unblock-header = Autorisar iste apertura de session
@@ -1679,8 +1767,10 @@ signin-unblock-code-incorrect-format-2 = Le codice de autorisation solo pote con
 signin-unblock-resend-code-button = Non in le cassa de entrata, ni in le dossier de spam? Reinviar
 signin-unblock-support-link = Perque isto eveni?
 signin-unblock-desktop-relay = { -brand-firefox } tentara inviar te retro pro usar un alias email post que tu accede.
+signin-unblock-page-title = Autorisar iste accesso
 
 
+confirm-signup-code-page-title-2 = Confirma tu email
 confirm-signup-code-heading-2 = Insere codice de confirmation<span> pro tu { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Insere in 5 minutas le codice inviate a <email>{ $email }</email>.
 confirm-signup-code-input-label = Insere le codice de 6 cifras
@@ -1703,6 +1793,7 @@ signup-relay-info = Un contrasigno es necesse pro gerer in modo secur tu alias d
 signup-sync-info = Synchronisa tu contrasignos, marcapaginas e altero ubique tu usa { -brand-firefox }.
 signup-sync-info-with-payment = Synchronisa tu contrasignos, methodos de pagamento, marcapaginas e altero ubique tu usa { -brand-firefox }.
 signup-change-email-link = Cambiar email
+signup-page-title = Crea tu conto
 
 
 signup-confirmed-sync-header = Synchronisation active
@@ -1713,8 +1804,10 @@ signup-confirmed-sync-description-v2 = Tu contrasignos, adresses, marcapaginas, 
 signup-confirmed-sync-add-device-link = Adder un altere apparato
 signup-confirmed-sync-manage-sync-button = Gerer synchronisation
 signup-confirmed-sync-set-password-success-banner = Contrasigno de synchronisation create
+signup-confirmed-sync-page-title = Synchronisation active
 
 
 update-firefox-heading = Actualisation de { -brand-firefox } necessari
 update-firefox-description = Tu { -product-mozilla-account } usa le functionalitates que non es supportate in tu version de { -brand-firefox }. Discarga e installa le ultime version de { -brand-firefox } pro continuar.
 update-firefox-download-button = Discargar ultime version
+update-firefox-page-title = Actualisation de { -brand-firefox } necessari

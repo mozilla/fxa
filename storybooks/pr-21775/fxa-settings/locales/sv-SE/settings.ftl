@@ -369,7 +369,7 @@ signin-link-damaged-header = Bekräftelselänken är trasig
 report-signin-link-damaged-header = Länk skadad
 # Browser tab title for the page shown when the user followed a link to report an unauthorized sign-in, but the link was damaged.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-report-signin-link-damaged-page-title = Rapportera länken skadad
+report-signin-link-damaged-page-title = Rapportera trasig länk
 # The user followed a link received by email, but the link was damaged.
 reset-pwd-link-damaged-message = Länken du klickade på saknade vissa tecken och kan ha förvrängts av ditt e-postprogram. Kopiera adressen noggrant och försök igen.
 
@@ -881,7 +881,7 @@ modal-mfa-protected-code-expired = Har koden upphört?
 # Link to resend a new code to the user's email.
 modal-mfa-protected-resend-code-link = Mejla ny kod.
 # Error shown when the code is correct but the device clock is too far ahead of the server time.
-modal-mfa-protected-clock-skew-error = Enhetens klocka är fel. Korrigera datum och tid på enheten och försök igen.
+modal-mfa-protected-clock-skew-error = Klockan på din enhet går fel. Ställ in rätt datum och tid och försök igen.
 
 ## Modal Verify Session
 
@@ -1711,7 +1711,7 @@ inline-recovery-key-setup-create-page-title = Skapa en kontoåterställningsnyck
 inline-recovery-key-setup-download-page-title = Ladda ner din kontoåterställningsnyckel
 # Browser tab title for the page where the user adds a hint for their account recovery key.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-inline-recovery-key-setup-hint-page-title = Lägg till ett tips för återställningsnyckel
+inline-recovery-key-setup-hint-page-title = Lägg till ledtråd för återställningsnyckel
 # Browser tab title for the page where the user chooses a recovery method during two-step authentication setup.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 inline-recovery-setup-choice-page-title = Välj en återställningsmetod
@@ -1793,7 +1793,7 @@ pair-auth-allow-confirm-button = Ja, godkänn enhet
 pair-auth-allow-refuse-device-link = Om det inte var du, <a>ändra du ditt lösenord</a>
 # Browser tab title for the page where the user approves a { -brand-firefox } sign-in on a new device.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair-auth-allow-page-title = Godkänn inloggning för { -brand-firefox }
+pair-auth-allow-page-title = Godkänn { -brand-firefox } inloggning
 
 ## PairAuthComplete page - part of the device pairing flow
 
@@ -1841,7 +1841,7 @@ auth-totp-confirm-button = Bekräfta
 auth-totp-code-required-error = Autentiseringskod krävs
 # Browser tab title for the page where the user enters a two-step authentication code to continue pairing a device.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-auth-totp-page-title = Para med tvåstegsautentisering
+auth-totp-page-title = Parkoppla med tvåstegsautentisering
 
 ## WaitForSupp page - Part of the devide pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1852,7 +1852,7 @@ auth-totp-page-title = Para med tvåstegsautentisering
 pair-wait-for-supp-heading-text = Godkännande krävs nu <span>från din andra enhet</span>
 # Browser tab title for the page that asks the user to approve device pairing on their other device.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair-wait-for-supp-page-title = Godkänn på den andra enheten
+pair-wait-for-supp-page-title = Godkänn på din andra enhet
 
 ## PairFailure - a view which displays on failure of the device pairing process
 
@@ -1930,7 +1930,7 @@ pair-choice-page-title = Anslut en annan enhet
 pair-choice-send-tab-page-title = Skicka flikar till en annan enhet
 # Browser tab title for the page that explains how to download { -brand-firefox } on a mobile device.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair-download-page-title = Hämta { -brand-firefox } för mobil
+pair-download-page-title = Ladda ned { -brand-firefox } för mobilen
 
 ## PairSuccess - a view which displays  on successful completion of the device pairing process
 
@@ -1992,7 +1992,7 @@ pair-unsupported-desktop-firefox-fallback-message-v2 = Stäng den här fliken oc
 pair-unsupported-desktop-non-firefox-page-title = { -brand-firefox } krävs
 # Browser tab title for the page shown when a mobile user scans the pairing code with the system camera and must pair from within a { -brand-firefox } app instead.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair-unsupported-system-camera-page-title = Parkoppling via en app
+pair-unsupported-system-camera-page-title = Parkoppla via en app
 # Browser tab title for the page that explains how to connect a mobile device by starting from { -brand-firefox } on a computer.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 pair-unsupported-mobile-page-title = Anslut din mobila enhet
@@ -2091,7 +2091,7 @@ pair2-authority-timeout-and-cancel-try-again-button = Försök igen
 pair2-authority-timeout-and-cancel-sync-settings-button = Synkroniseringsinställningar
 # Browser tab title for the page shown on the computer when the device pairing attempt timed out.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair2-authority-timeout-and-cancel-timeout-page-title = Inget svar
+pair2-authority-timeout-and-cancel-timeout-page-title = Anslutningen tog för lång tid
 # Browser tab title for the page shown on the computer when the device pairing attempt was cancelled.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 pair2-authority-timeout-and-cancel-cancelled-page-title = Parkoppling avbruten
@@ -2155,7 +2155,7 @@ pair2-supplicant-download-firefox-page-title = Öppna { -brand-firefox } på den
 
 # Browser tab title for the page shown on the mobile device telling the user to finish pairing in the { -brand-firefox } app.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair2-supplicant-connect-hint-page-title = Avsluta parkoppling i appen
+pair2-supplicant-connect-hint-page-title = Slutför parkopplingen i appen
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2203,7 +2203,7 @@ pair2-supplicant-timeout-and-cancel-signed-in-heading = Den här enheten är red
 pair2-supplicant-timeout-and-cancel-signed-in-description = För att ansluta till din dators konto, logga ut från { -brand-firefox } på den här enheten och besök sedan <b>firefox.com/pair</b> på din dator för att slutföra inloggningen.
 # Browser tab title for the page shown on the mobile device when the device pairing attempt timed out.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair2-supplicant-timeout-and-cancel-timeout-page-title = Inget svar
+pair2-supplicant-timeout-and-cancel-timeout-page-title = Anslutningen tog för lång tid
 # Browser tab title for the page shown on the mobile device when the device pairing attempt was cancelled.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 pair2-supplicant-timeout-and-cancel-cancelled-page-title = Parkoppling avbruten
@@ -2432,7 +2432,7 @@ reset-password-complete-recovery-key-download-info =
     nu, eftersom du inte kommer att kunna komma åt den här sidan igen senare.</b>
 # Browser tab title for the page where the user adds a hint for their new account recovery key.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-reset-password-with-recovery-key-verified-hint-page-title = Lägg till ett tips för återställningsnyckel
+reset-password-with-recovery-key-verified-hint-page-title = Lägg till en ledtråd för återställningsnyckeln
 
 ## ServerError page
 ## Shown when the server fails to handle a request
@@ -2457,7 +2457,7 @@ signin-link-expired-header = Bekräftelselänken har upphört
 signin-link-expired-message-2 = Länken du klickade på har upphört eller har redan använts.
 # Browser tab title for the page shown when something went wrong while confirming a sign-in from an emailed link.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-complete-signin-error-page-title = Bekräftelsefel av inloggning
+complete-signin-error-page-title = Fel vid bekräftelse av inloggning
 # Browser tab title for the page shown while a sign-in is being confirmed from an emailed link.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 complete-signin-validating-page-title = Bekräftar inloggning
@@ -2588,10 +2588,10 @@ signup-passwordless-code-subheading = Registrering går snabbt när du använder
 signin-passwordless-totp-required = Tvåstegsautentisering är aktiverad på ditt konto. Logga in med ditt lösenord.
 # Browser tab title for the page where the user enters the confirmation code emailed to them to sign in to their account.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signin-passwordless-code-page-title = Logga in med e-postkod
+signin-passwordless-code-page-title = Logga in med kod via e-post
 # Browser tab title for the page where the user enters the confirmation code emailed to them to sign up for an account.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signup-passwordless-code-page-title = Registrera dig med e-postkod
+signup-passwordless-code-page-title = Registrera dig med kod via e-post
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
@@ -2711,7 +2711,7 @@ signin-token-code-resend-error = Något gick fel. En ny kod kunde inte skickas.
 signin-token-code-instruction-desktop-relay = { -brand-firefox } försöker skicka dig tillbaka för att använda ett e-postalias efter du loggat in.
 # Browser tab title for the page where the user enters the confirmation code emailed to them to confirm a sign-in.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signin-token-code-page-title = Bekräfta inloggning med e-postkod
+signin-token-code-page-title = Bekräfta inloggning med kod via e-post
 
 ## SigninTOTPCode page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).

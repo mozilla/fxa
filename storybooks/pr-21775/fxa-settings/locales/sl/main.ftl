@@ -451,7 +451,7 @@ confirmation-link-reused-message = Ta potrditvena povezava je bila že uporablje
 locale-toggle-select-label = Izberi jezik
 locale-toggle-browser-default = Privzeti v brskalniku
 error-bad-request = Zahteva z napako
-error-bad-request-page-title = Napačna zahteva
+error-bad-request-page-title = Neveljaven zahtevek
 
 
 pair-unsupported-hint-heading = Dokončajte seznanjanje v aplikaciji
@@ -764,7 +764,7 @@ modal-mfa-protected-cancel-button = Prekliči
 modal-mfa-protected-confirm-button = Potrdi
 modal-mfa-protected-code-expired = Je koda potekla?
 modal-mfa-protected-resend-code-link = Pošlji novo kodo.
-modal-mfa-protected-clock-skew-error = Ura vaše naprave je napačna. Popravite datum in čas naprave ter poskusite znova.
+modal-mfa-protected-clock-skew-error = Ura vaše naprave je napačna. Nastavite datum in uro v napravi ter poskusite znova.
 
 
 mvs-verify-your-email-2 = Potrdite e-poštni naslov
@@ -1304,7 +1304,7 @@ connect-another-device-cad-link = Poveži drugo napravo
 connect-another-device-not-now-link = Ne zdaj
 connect-another-device-android-complete-setup-message = Za dokončanje namestitve se prijavite v { -brand-firefox } za Android
 connect-another-device-ios-complete-setup-message = Za dokončanje namestitve se prijavite v { -brand-firefox } za iOS
-connect-another-device-page-title = Poveži drugo napravo
+connect-another-device-page-title = Povezovanje druge naprave
 
 
 cookies-disabled-header = Lokalna shramba in piškotki so zahtevani
@@ -1539,7 +1539,7 @@ pair2-authority-timeout-and-cancel-cancelled-page-title = Seznanjanje preklicano
 pair2-supplicant-approve-sign-in-heading = Še zadnji korak pred sinhronizacijo
 pair2-supplicant-approve-sign-in-instruction = Odobrite prijavo na računalniku.
 pair2-supplicant-approve-sign-in-cancel-button = Prekliči
-pair2-supplicant-approve-sign-in-page-title = Še zadnji korak pred sinhronizacijo
+pair2-supplicant-approve-sign-in-page-title = Zadnji korak pred sinhronizacijo
 
 
 pair2-supplicant-connect-this-device-heading = Želite to napravo povezati z računom?

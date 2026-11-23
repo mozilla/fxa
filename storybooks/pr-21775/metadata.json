@@ -1,8 +1,8 @@
 {
-  "commit": "74d81d828f81ba26980d3ac2fbf0a7ba2de5a144",
+  "commit": "4490df38f4911a7759fd6b1d916a1ad127c63c8b",
   "summary": "feat(settings): add Synced data row and delete Sync data flow",
-  "description": "Because:\n- Users need to delete their Sync data from Settings once per-engine toggles in Firefox stop deleting server data.\n- Security review SA-1022 requires the MFA guard plus a password check before the delete.\n\nThis commit:\n- Add a \"Synced data\" row to Data Collection and Use, shown when a device can sync, that opens the new flow.\n- Add /settings/delete_sync_data: MFA guard, password reauth, then pick devices to sign out, one row per device name as in Connected Services.\n- Gate the row and route on featureFlags.syncDataDeletionEnabled, a new content-server flag (off by default), and on the account having a password.\n- Keep UnitRow CTA labels on one line, and pad row content before the CTA with and without Nova.\n- Map isSyncCapable onto the Settings attached client model; add stories and unit tests for the flow.\n\nRelates to FXA-14895",
-  "timestamp": 1795220142000,
+  "description": "Because:\n- Users need to delete their Sync data from Settings once per-engine toggles in Firefox stop deleting server data.\n- Security review SA-1022 requires the MFA guard plus a password check before the delete.\n\nThis commit:\n- Add a \"Synced data\" row to Data Collection and Use, shown when a device can sync, that opens the new flow.\n- Add /settings/delete_sync_data: MFA guard, password reauth, then pick devices to sign out, one row per device name as in Connected Services.\n- Gate the row and route on featureFlags.syncDataDeletionEnabled, a new content-server flag (off by default), and on the account having a password.\n- Size UnitRow CTAs to their label up to 256px before wrapping, and pad row content before the CTA with and without Nova.\n- Share the device icon with Connected Services and map isSyncCapable onto the Settings model.\n\nRelates to FXA-14895",
+  "timestamp": 1795455971000,
   "storybooks": [
     "fxa-settings"
   ],

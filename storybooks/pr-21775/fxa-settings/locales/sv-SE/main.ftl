@@ -305,7 +305,7 @@ input-phone-number-country-canada = Kanada
 reset-pwd-link-damaged-header = Länken för att återställa lösenordet fungerar inte
 signin-link-damaged-header = Bekräftelselänken är trasig
 report-signin-link-damaged-header = Länk skadad
-report-signin-link-damaged-page-title = Rapportera länken skadad
+report-signin-link-damaged-page-title = Rapportera trasig länk
 reset-pwd-link-damaged-message = Länken du klickade på saknade vissa tecken och kan ha förvrängts av ditt e-postprogram. Kopiera adressen noggrant och försök igen.
 
 
@@ -634,7 +634,7 @@ modal-mfa-protected-cancel-button = Avbryt
 modal-mfa-protected-confirm-button = Bekräfta
 modal-mfa-protected-code-expired = Har koden upphört?
 modal-mfa-protected-resend-code-link = Mejla ny kod.
-modal-mfa-protected-clock-skew-error = Enhetens klocka är fel. Korrigera datum och tid på enheten och försök igen.
+modal-mfa-protected-clock-skew-error = Klockan på din enhet går fel. Ställ in rätt datum och tid och försök igen.
 
 
 mvs-verify-your-email-2 = Bekräfta din e-postadress
@@ -1216,7 +1216,7 @@ inline-recovery-key-setup-download-info = Förvara den här nyckeln någonstans 
 inline-recovery-key-setup-hint-header = Säkerhetsrekommendation
 inline-recovery-key-setup-create-page-title = Skapa en kontoåterställningsnyckel
 inline-recovery-key-setup-download-page-title = Ladda ner din kontoåterställningsnyckel
-inline-recovery-key-setup-hint-page-title = Lägg till ett tips för återställningsnyckel
+inline-recovery-key-setup-hint-page-title = Lägg till ledtråd för återställningsnyckel
 inline-recovery-setup-choice-page-title = Välj en återställningsmetod
 inline-recovery-setup-download-codes-page-title = Spara dina reservkoder
 inline-recovery-setup-confirm-code-page-title = Bekräfta en reservkod
@@ -1255,7 +1255,7 @@ page-not-found-page-title = Sidan hittades inte
 pair-auth-allow-heading-text = Loggade du precis in på { -brand-firefox }?
 pair-auth-allow-confirm-button = Ja, godkänn enhet
 pair-auth-allow-refuse-device-link = Om det inte var du, <a>ändra du ditt lösenord</a>
-pair-auth-allow-page-title = Godkänn inloggning för { -brand-firefox }
+pair-auth-allow-page-title = Godkänn { -brand-firefox } inloggning
 
 
 pair-auth-complete-heading = Enhet ansluten
@@ -1278,11 +1278,11 @@ auth-totp-instruction = Öppna din autentiseringsapp och ange autentiseringskode
 auth-totp-input-label = Ange 6-siffrig kod
 auth-totp-confirm-button = Bekräfta
 auth-totp-code-required-error = Autentiseringskod krävs
-auth-totp-page-title = Para med tvåstegsautentisering
+auth-totp-page-title = Parkoppla med tvåstegsautentisering
 
 
 pair-wait-for-supp-heading-text = Godkännande krävs nu <span>från din andra enhet</span>
-pair-wait-for-supp-page-title = Godkänn på den andra enheten
+pair-wait-for-supp-page-title = Godkänn på din andra enhet
 
 
 pair-failure-header-v2 = Parkoppling misslyckades
@@ -1324,7 +1324,7 @@ pair-download-step-continue-sync = <b>Steg { $stepNumber }</b>: Välj “Fortsä
 pair-continue-to-sync-button = Fortsätt till synkronisering
 pair-choice-page-title = Anslut en annan enhet
 pair-choice-send-tab-page-title = Skicka flikar till en annan enhet
-pair-download-page-title = Hämta { -brand-firefox } för mobil
+pair-download-page-title = Ladda ned { -brand-firefox } för mobilen
 
 
 pair-success-header-2 = Enhet ansluten
@@ -1354,7 +1354,7 @@ pair-unsupported-learn-more-link-v2 = Läs mer
 pair-unsupported-desktop-firefox-fallback-header-v2 = Hoppsan! Något gick fel.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Stäng den här fliken och försök igen.
 pair-unsupported-desktop-non-firefox-page-title = { -brand-firefox } krävs
-pair-unsupported-system-camera-page-title = Parkoppling via en app
+pair-unsupported-system-camera-page-title = Parkoppla via en app
 pair-unsupported-mobile-page-title = Anslut din mobila enhet
 pair-unsupported-desktop-firefox-fallback-page-title = Något gick fel
 
@@ -1397,7 +1397,7 @@ pair2-authority-timeout-and-cancel-cancelled-heading = Avbruten
 pair2-authority-timeout-and-cancel-canceled-description = Om du ångrar dig eller vill ansluta en annan enhet, försök igen.
 pair2-authority-timeout-and-cancel-try-again-button = Försök igen
 pair2-authority-timeout-and-cancel-sync-settings-button = Synkroniseringsinställningar
-pair2-authority-timeout-and-cancel-timeout-page-title = Inget svar
+pair2-authority-timeout-and-cancel-timeout-page-title = Anslutningen tog för lång tid
 pair2-authority-timeout-and-cancel-cancelled-page-title = Parkoppling avbruten
 
 
@@ -1423,7 +1423,7 @@ pair2-supplicant-download-firefox-learn-more-link = Läs mer
 pair2-supplicant-download-firefox-page-title = Öppna { -brand-firefox } på den här enheten
 
 
-pair2-supplicant-connect-hint-page-title = Avsluta parkoppling i appen
+pair2-supplicant-connect-hint-page-title = Slutför parkopplingen i appen
 
 
 pair2-supplicant-ready-to-scan-heading = För att ansluta en enhet
@@ -1443,7 +1443,7 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Avbruten
 pair2-supplicant-timeout-and-cancel-canceled-description = När du vill ansluta en enhet besöker du <b>firefox.com/pair</b> på din dator.
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Den här enheten är redan inloggad
 pair2-supplicant-timeout-and-cancel-signed-in-description = För att ansluta till din dators konto, logga ut från { -brand-firefox } på den här enheten och besök sedan <b>firefox.com/pair</b> på din dator för att slutföra inloggningen.
-pair2-supplicant-timeout-and-cancel-timeout-page-title = Inget svar
+pair2-supplicant-timeout-and-cancel-timeout-page-title = Anslutningen tog för lång tid
 pair2-supplicant-timeout-and-cancel-cancelled-page-title = Parkoppling avbruten
 pair2-supplicant-timeout-and-cancel-signed-in-page-title = Enheten redan inloggad
 
@@ -1577,7 +1577,7 @@ reset-password-complete-recovery-key-download-info =
     Den här nyckeln är viktig för
     dataåterställning om du glömmer ditt lösenord. <b>Ladda ner och lagra den säkert
     nu, eftersom du inte kommer att kunna komma åt den här sidan igen senare.</b>
-reset-password-with-recovery-key-verified-hint-page-title = Lägg till ett tips för återställningsnyckel
+reset-password-with-recovery-key-verified-hint-page-title = Lägg till en ledtråd för återställningsnyckeln
 
 
 server-error-heading = 500 Fel
@@ -1591,7 +1591,7 @@ validating-signin = Validerar inloggning…
 complete-signin-error-header = Bekräftelsefel
 signin-link-expired-header = Bekräftelselänken har upphört
 signin-link-expired-message-2 = Länken du klickade på har upphört eller har redan använts.
-complete-signin-error-page-title = Bekräftelsefel av inloggning
+complete-signin-error-page-title = Fel vid bekräftelse av inloggning
 complete-signin-validating-page-title = Bekräftar inloggning
 
 
@@ -1669,8 +1669,8 @@ signup-passwordless-code-subheading = Registrering går snabbt när du använder
 
 
 signin-passwordless-totp-required = Tvåstegsautentisering är aktiverad på ditt konto. Logga in med ditt lösenord.
-signin-passwordless-code-page-title = Logga in med e-postkod
-signup-passwordless-code-page-title = Registrera dig med e-postkod
+signin-passwordless-code-page-title = Logga in med kod via e-post
+signup-passwordless-code-page-title = Registrera dig med kod via e-post
 
 
 signin-recovery-method-header = Logga in
@@ -1737,7 +1737,7 @@ signin-token-code-resend-code-countdown =
 signin-token-code-required-error = Bekräftelsekod krävs
 signin-token-code-resend-error = Något gick fel. En ny kod kunde inte skickas.
 signin-token-code-instruction-desktop-relay = { -brand-firefox } försöker skicka dig tillbaka för att använda ett e-postalias efter du loggat in.
-signin-token-code-page-title = Bekräfta inloggning med e-postkod
+signin-token-code-page-title = Bekräfta inloggning med kod via e-post
 
 
 signin-totp-code-header = Logga in
