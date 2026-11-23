@@ -28,7 +28,6 @@ app-footer-terms-of-service = Þjónustuskilmálar
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Opnast í nýjum glugga
@@ -1116,7 +1115,6 @@ signin-unblock-support-link = Hvers vegna er þetta að gerast?
 signin-unblock-desktop-relay = { -brand-firefox } mun reyna að senda þig til baka til að nota tölvupósthulu eftir að þú skráir þig inn.
 
 
-confirm-signup-code-page-title = Settu inn staðfestingarkóða
 confirm-signup-code-heading-2 = Settu inn staðfestingarkóða <span>fyrir { -product-mozilla-account }-reikninginn þinn </span>
 confirm-signup-code-input-label = Settu inn 6-stafa kóða
 confirm-signup-code-confirm-button = Staðfesta

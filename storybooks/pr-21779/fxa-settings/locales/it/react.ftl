@@ -21,9 +21,9 @@ app-footer-terms-of-service = Condizioni di utilizzo del servizio
 app-default-title-2 = { -product-mozilla-accounts(capitalization: "uppercase") }
 # This string is used as the title of the page, displayed in the browser tab.
 # Variables:
-#   $title (String) - the name of the current page
-#                      (for example: "Two-step authentication")
-app-page-title-2 = { $title } | { -product-mozilla-accounts(capitalization: "uppercase") }
+#   $title (String) - the already-localized title of the current page
+#                      (for example: “Two-step authentication”)
+app-page-title-3 = { $title } – { -product-mozilla-accounts(capitalization: "uppercase") }
 
 ## FxA React - Strings shared between multiple FxA products for external link
 

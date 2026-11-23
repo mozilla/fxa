@@ -48,7 +48,6 @@ app-footer-terms-of-service = เงื่อนไขการให้บร�
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = เปิดในหน้าต่างใหม่
@@ -1406,7 +1405,6 @@ signin-unblock-support-link = ทำไมถึงเกิดเหตุก�
 signin-unblock-desktop-relay = { -brand-firefox } จะลองนำคุณกลับไปเพื่อใช้ตัวปกปิดอีเมลหลังจากที่คุณลงชื่อเข้า
 
 
-confirm-signup-code-page-title = ใส่รหัสยืนยัน
 confirm-signup-code-heading-2 = ใส่รหัสยืนยัน<span>สำหรับ{ -product-mozilla-account } ของคุณ</span>
 confirm-signup-code-instruction-v2 = ป้อนรหัสที่ถูกส่งไปยัง <email>{ $email }</email> ภายใน 5 นาที
 confirm-signup-code-input-label = ใส่รหัส 6 หลัก

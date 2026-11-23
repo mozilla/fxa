@@ -56,7 +56,7 @@ app-footer-terms-of-service = תנאי השירות
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = ‏{ $title } | ‏{ -product-mozilla-accounts }
+app-page-title-3 = { $title } - { -product-mozilla-accounts }
 
 
 link-sr-new-window = נפתח בחלון חדש
@@ -301,6 +301,7 @@ input-phone-number-country-canada = קנדה
 reset-pwd-link-damaged-header = קישור לאיפוס ססמה פגום
 signin-link-damaged-header = קישור האימות פגום
 report-signin-link-damaged-header = קישור פגום
+report-signin-link-damaged-page-title = דיווח על קישור פגום
 reset-pwd-link-damaged-message = לקישור שלחצת חסרים תווים, ויתכן שנפגם על־ידי לקוח הדואר האלקטרוני שלך. יש להעתיק את כתובת הקישור בזהירות, ולנסות שוב.
 
 
@@ -320,6 +321,7 @@ confirmation-link-reused-message = נעשה שימוש קודם בקישור ה�
 locale-toggle-select-label = בחירת שפה
 locale-toggle-browser-default = ברירת המחדל של הדפדפן
 error-bad-request = בקשה שגויה
+error-bad-request-page-title = בקשה שגויה
 
 
 pair-unsupported-hint-heading = סיום הצימוד ביישומון
@@ -376,6 +378,9 @@ ready-continue = המשך
 sign-in-complete-header = ההתחברות אומתה
 sign-up-complete-header = החשבון מאומת
 primary-email-verified-header = כתובת הדוא״ל הראשית עברה אימות
+sign-in-complete-page-title = ההתחברות אומתה
+sign-up-complete-page-title = החשבון מאומת
+primary-email-verified-page-title = כתובת הדוא״ל הראשית עברה אימות
 
 
 flow-recovery-key-download-storage-ideas-heading-v2 = מקומות לאחסון המפתח שלך:
@@ -614,6 +619,7 @@ modal-mfa-protected-cancel-button = ביטול
 modal-mfa-protected-confirm-button = אישור
 modal-mfa-protected-code-expired = פג תוקף הקוד?
 modal-mfa-protected-resend-code-link = שליחת קוד חדש בדוא״ל.
+modal-mfa-protected-clock-skew-error = שעון המכשיר שלך שגוי. נא לתקן את התאריך והשעה במכשיר ולנסות שוב.
 
 
 mvs-verify-your-email-2 = אימות כתובת הדוא״ל שלך
@@ -887,6 +893,7 @@ security-action-create = יצירה
 security-recent-activity-link = הצגת פעילות אחרונה בחשבון
 signout-sync-header = פג תוקף ההפעלה
 signout-sync-session-expired = משהו השתמש, עמך הסליחה. נא להתנתק מתפריט הדפדפן ולנסות שוב.
+signout-sync-page-title = פג תוקף ההפעלה
 
 
 tfa-row-backup-codes-not-available = אין קודים זמינים
@@ -1016,7 +1023,7 @@ tfa-row-verify-session-info = עליך לאמת את ההפעלה הנוכחית
 
 terms-privacy-agreement-intro-3 = המשך התהליך מהווה הסכמה ל:
 terms-privacy-agreement-customized-terms = ‏{ $serviceName }: <termsLink>תנאי השירות</termsLink> ו<privacyLink>הצהרת הפרטיות</privacyLink>
-terms-privacy-agreement-mozilla-2 = ‏{ -product-mozilla-accounts(capitalization: "uppercase") }: <mozillaAccountsTos>תנאי השירות</mozillaAccountsTos> ו<mozillaAccountsPrivacy>הצהרת הפרטיות</mozillaAccountsPrivacy>
+terms-privacy-agreement-mozilla-2 = { -product-mozilla-accounts }: <mozillaAccountsTos>תנאי השירות</mozillaAccountsTos> ו<mozillaAccountsPrivacy>הצהרת הפרטיות</mozillaAccountsPrivacy>
 terms-privacy-agreement-default-2 = המשך התהליך מהווה הסכמה ל<mozillaAccountsTos>תנאי השירות</mozillaAccountsTos> ו<mozillaAccountsPrivacy>הצהרת הפרטיות</mozillaAccountsPrivacy>.
 
 
@@ -1116,14 +1123,17 @@ connect-another-device-cad-link = חיבור מכשיר נוסף
 connect-another-device-not-now-link = לא כעת
 connect-another-device-android-complete-setup-message = יש להיכנס ל־{ -brand-firefox } עבור Android כדי להשלים את ההתקנה
 connect-another-device-ios-complete-setup-message = יש להיכנס ל־{ -brand-firefox } עבור iOS כדי להשלים את ההתקנה
+connect-another-device-page-title = חיבור מכשיר נוסף
 
 
 cookies-disabled-header = אחסון מקומי ועוגיות נדרשים
 cookies-disabled-enable-prompt-2 = נא להפעיל עוגיות ואחסון מקומי בדפדפן שלך על מנת לגשת ל{ -product-mozilla-account(case: "the") } שלך. הפעלתם תאפשר, לדוגמה, לזכור אותך בין הפעלות שונות.
 cookies-disabled-button-try-again = לנסות שוב
 cookies-disabled-learn-more = מידע נוסף
+cookies-disabled-page-title = עוגיות ואחסון מקומי נדרשים
 
 
+index-page-title = כניסה או יצירת חשבון
 index-header = נא להכניס את כתובת הדוא״ל שלך
 index-sync-header = המשך אל { -product-mozilla-account(case: "the") } שלך
 index-sync-subheader = סנכרון הססמאות, הלשוניות פתוחות והסימניות שלך בכל מקום בו יש לך את { -brand-firefox }.
@@ -1158,6 +1168,15 @@ inline-recovery-key-setup-download-header = אבטחת החשבון שלך
 inline-recovery-key-setup-download-subheader = להוריד ולאחסן אותו כעת
 inline-recovery-key-setup-download-info = יש לשמור את המפתח הזה במקום שקל לזכור — לא תהיה לך אפשרות לחזור לדף זה מאוחר יותר.
 inline-recovery-key-setup-hint-header = המלצת אבטחה
+inline-recovery-key-setup-create-page-title = יצירת מפתח שחזור חשבון
+inline-recovery-key-setup-download-page-title = הורדת מפתח שחזור החשבון שלך
+inline-recovery-key-setup-hint-page-title = הוספת רמז למפתח השחזור
+inline-recovery-setup-choice-page-title = בחירת אמצעי לשחזור
+inline-recovery-setup-download-codes-page-title = שמירת קודי הגיבוי שלך
+inline-recovery-setup-confirm-code-page-title = אימות קוד גיבוי
+inline-recovery-setup-phone-number-page-title = הוספת טלפון לשחזור
+inline-recovery-setup-phone-code-page-title = אימות מספר השחזור שלך
+inline-recovery-setup-complete-page-title = אימות דו־שלבי מופעל
 
 
 inline-totp-setup-cancel-setup-button = ביטול ההגדרה
@@ -1177,16 +1196,20 @@ inline-totp-setup-security-code-placeholder = קוד אימות
 inline-totp-setup-code-required-error = נדרש קוד אימות
 tfa-qr-code-alt = ניתן להשתמש בקוד { $code } כדי להגדיר אימות דו־שלבי ביישומים נתמכים.
 inline-totp-setup-page-title = אימות דו־שלבי
+inline-totp-setup-intro-page-title = הגדרת אימות דו־שלבי
+inline-totp-setup-enrol-page-title = חיבור ליישומון המאמת שלך
 
 
 page-not-found-heading = הדף לא נמצא
 page-not-found-description = העמוד המבוקש לא נמצא. קיבלנו את המידע הדרוש ונתקן את הקישורים שייתכן שנשברו.
 page-not-found-home-button = בית
+page-not-found-page-title = הדף לא נמצא
 
 
 pair-auth-allow-heading-text = האם זה עתה התחברת ל־{ -brand-firefox }?
 pair-auth-allow-confirm-button = כן, לאשר את המכשיר
 pair-auth-allow-refuse-device-link = אם לא ביצעת פעולה זו, <a>יש לשנות את הססמה שלך</a>
+pair-auth-allow-page-title = אישור כניסה ל־{ -brand-firefox }
 
 
 pair-auth-complete-heading = המכשיר מחובר
@@ -1199,6 +1222,8 @@ pair-auth-complete-manage-devices-link = ניהול מכשירים
 pair-auth-complete-send-tab-heading = ניתן לשלוח כמה לשוניות
 pair-auth-complete-send-tab-device-connected = ‏{ $deviceFamily } עבור { $deviceOS } מחובר.
 pair-auth-complete-send-tab-benefits = באפשרותך לשלוח לשוניות פתוחות, ססמאות וסימניות בין מכשירים, באופן מיידי.
+pair-auth-complete-page-title = המכשיר מחובר
+pair-auth-complete-send-tab-page-title = מוכן לשלוח לשוניות
 
 
 auth-totp-heading-w-default-service = נא להכניס קוד אימות <span>כדי להמשיך להגדרות החשבון</span>
@@ -1207,14 +1232,17 @@ auth-totp-instruction = נא לפתוח את יישומון האימות שלך 
 auth-totp-input-label = נא להכניס קוד בן 6 ספרות
 auth-totp-confirm-button = אישור
 auth-totp-code-required-error = נדרש קוד אימות
+auth-totp-page-title = צימוד עם אימות דו־שלבי
 
 
 pair-wait-for-supp-heading-text = נדרש אישור <span>מהמכשיר האחר שלך</span>
+pair-wait-for-supp-page-title = אישור במכשיר השני שלך
 
 
 pair-failure-header-v2 = צימוד המכשיר נכשל
 pair-failure-message-v2 = לא ניתן היה להשלים את ההגדרה. נא להתחבר עם הדוא״ל שלך.
 pair-failure-try-again-link = ניסיון חוזר
+pair-failure-page-title = צימוד המכשיר נכשל
 
 
 pair-sync-header = סנכרון { -brand-firefox } עם הטלפון או מחשב הלוח שלך
@@ -1248,19 +1276,25 @@ pair-download-description = כדי לסנכרן את { -brand-firefox } בטלפ
 pair-download-step-scan-qr = <b>שלב { $stepNumber }</b>: יש להוריד את { -brand-firefox } על־ידי סריקת קוד QR זה עם המצלמה במכשיר הנייד שלך:
 pair-download-step-continue-sync = <b>שלב { $stepNumber }</b>: יש לבחור באפשרות ״המשך לסנכרון״ כדי לסנכרן את חוויית המשתמש שלך ב־{ -brand-firefox } למכשיר הנייד שלך.
 pair-continue-to-sync-button = המשך לסנכרון
+pair-choice-page-title = חיבור מכשיר נוסף
+pair-choice-send-tab-page-title = שליחת לשוניות למכשיר אחר
+pair-download-page-title = הורדת { -brand-firefox } לנייד
 
 
 pair-success-header-2 = המכשיר מחובר
 pair-success-message-2 = הצימוד בוצע בהצלחה.
 pair-success-tab-close-message = לשונית זו תיסגר באופן אוטומטי על־ידי { -brand-firefox }.
+pair-success-page-title = המכשיר מחובר
 
 
 pair-supp-allow-heading-text = אישור צימוד<span>עבור { $email }</span>
 pair-supp-allow-confirm-button = אישור צימוד
 pair-supp-allow-cancel-link = ביטול
+pair-supp-allow-page-title = אישור צימוד
 
 
 pair-wait-for-auth-heading-text = נדרש אישור <span>מהמכשיר האחר שלך</span>
+pair-wait-for-auth-page-title = אישור במכשיר השני שלך
 
 
 pair-unsupported-header = ביצוע צימוד באמצעות יישומון
@@ -1273,21 +1307,28 @@ pair-unsupported-connecting-mobile-instructions-v2 = יש לפתוח את { -bra
 pair-unsupported-learn-more-link-v2 = מידע נוסף
 pair-unsupported-desktop-firefox-fallback-header-v2 = אופס! משהו השתבש.
 pair-unsupported-desktop-firefox-fallback-message-v2 = נא לסגור לשונית זו ולנסות שוב.
+pair-unsupported-desktop-non-firefox-page-title = נדרש { -brand-firefox }
+pair-unsupported-system-camera-page-title = ביצוע צימוד באמצעות יישומון
+pair-unsupported-mobile-page-title = חיבור המכשיר הנייד שלך
+pair-unsupported-desktop-firefox-fallback-page-title = משהו השתבש
 
 
 pair2-authority-approve-sign-in-heading = לאשר את הכניסה?
 pair2-authority-approve-sign-in-confirm-button = כן, לאשר את הכניסה
 pair2-authority-approve-sign-in-change-password = פעולה זו לא בוצעה על ידך? <changePassword>יש לשנות את הססמה שלך</changePassword>
+pair2-authority-approve-sign-in-page-title = אישור כניסה
 
 
 pair2-authority-continue-on-mobile-heading = המשך במכשיר הנייד שלך
 pair2-authority-continue-on-mobile-description = יש לבצע את השלבים בטלפון או במחשב הלוח שלך.
 pair2-authority-continue-on-mobile-cancel-button = ביטול
+pair2-authority-continue-on-mobile-page-title = המשך במכשיר הנייד שלך
 
 
 pair2-authority-download-firefox-heading = יש לפתוח את { -brand-firefox } כדי לסנכרן
 pair2-authority-download-firefox-instruction-v2 = כדי להגדיר סנכרון בין מכשירים, יש לפתוח את { -brand-firefox } במכשיר זה ולבקר באתר <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = הורדת { -brand-firefox }
+pair2-authority-download-firefox-page-title = יש לפתוח את { -brand-firefox } כדי לסנכרן
 
 
 pair2-authority-scan-qr-heading = יש לסרוק כדי לחבר את המכשיר הנייד שלך
@@ -1295,11 +1336,13 @@ pair2-authority-scan-qr-instruction = יש לסרוק את קוד ה־QR באמ�
 pair2-authority-scan-qr-code-aria-label = קוד QR לחיבור המכשיר הנייד שלך
 pair2-authority-scan-qr-other-ways-link = דרכים נוספות להיכנס
 pair2-authority-scan-qr-skip-button = דילוג לבינתיים
+pair2-authority-scan-qr-page-title = יש לסרוק כדי לחבר את המכשיר הנייד שלך
 
 
 pair2-authority-sync-success-heading-v2 = המכשיר שלך מחובר
 pair2-authority-sync-success-description-v2 = הסנכרון בתהליך. ייתכן שייקח זמן מה עד שהנתונים המסונכרנים שלך יופיעו. לבינתיים אפשר להרגיש חופשי להמשיך לגלוש.
 pair2-authority-sync-success-sync-settings-button-v2 = ניהול הגדרות סנכרון
+pair2-authority-sync-success-page-title = המכשיר מחובר
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = עדיין רוצה לחבר מכשיר?
@@ -1308,16 +1351,20 @@ pair2-authority-timeout-and-cancel-cancelled-heading = בוטל
 pair2-authority-timeout-and-cancel-canceled-description = אם תשנה את דעתך או שתרצה לחבר מכשיר אחר, ניתן לנסות שוב.
 pair2-authority-timeout-and-cancel-try-again-button = ניסיון חוזר
 pair2-authority-timeout-and-cancel-sync-settings-button = הגדרות סנכרון
+pair2-authority-timeout-and-cancel-timeout-page-title = תם הזמן המוקצב לחיבור
+pair2-authority-timeout-and-cancel-cancelled-page-title = הצימוד נכשל
 
 
 pair2-supplicant-approve-sign-in-heading = שלב אחרון לסנכרון
 pair2-supplicant-approve-sign-in-instruction = אישור הכניסה במחשב שלך.
 pair2-supplicant-approve-sign-in-cancel-button = ביטול
+pair2-supplicant-approve-sign-in-page-title = שלב אחרון לסנכרון
 
 
 pair2-supplicant-connect-this-device-heading = לחבר את המכשיר הזה לחשבון שלך?
 pair2-supplicant-connect-this-device-connect-button = חיבור
 pair2-supplicant-connect-this-device-cancel-button = ביטול
+pair2-supplicant-connect-this-device-page-title = חיבור מכשיר זה
 
 
 pair2-supplicant-download-firefox-heading-v2 = יש לפתוח את { -brand-firefox } במכשיר זה
@@ -1327,15 +1374,21 @@ pair2-supplicant-download-firefox-opening-button = בתהליך פתיחת { -br
 pair2-supplicant-download-firefox-download-button = הורדת { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = כבר יש לי את { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = מידע נוסף
+pair2-supplicant-download-firefox-page-title = יש לפתוח את { -brand-firefox } במכשיר זה
+
+
+pair2-supplicant-connect-hint-page-title = סיום הצימוד ביישומון
 
 
 pair2-supplicant-ready-to-scan-heading = כדי לחבר מכשיר
 pair2-supplicant-ready-to-scan-instruction = במחשב שלך, יש לפתוח את { -brand-firefox } ולבקר ב־<b>firefox.com/pair</b>, ולעקוב אחרי ההנחיות שמופיעות על המסך כדי לחבר את המכשיר הנייד הזה.
 pair2-supplicant-ready-to-scan-learn-more-link = מידע נוסף
+pair2-supplicant-ready-to-scan-page-title = מוכן לסריקה
 
 
 pair2-supplicant-sync-success-heading = המכשיר שלך מחובר
 pair2-supplicant-sync-success-description-v2 = הסנכרון בתהליך. ייתכן שייקח זמן מה עד שהנתונים המסונכרנים שלך יופיעו. לבינתיים אפשר להרגיש חופשי להמשיך לגלוש.
+pair2-supplicant-sync-success-page-title = המכשיר מחובר
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = נראה שזמן הפעולה פג
@@ -1344,6 +1397,9 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = בוטל
 pair2-supplicant-timeout-and-cancel-canceled-description = כדי לחבר מכשיר בכל עת, יש לבקר באתר <b>firefox.com/pair</b> במחשב שלך.
 pair2-supplicant-timeout-and-cancel-signed-in-heading = מכשיר זה כבר מחובר לחשבון
 pair2-supplicant-timeout-and-cancel-signed-in-description = כדי להתחבר לחשבון שלך במחשב, יש להתנתק מ־{ -brand-firefox } במכשיר זה, ולאחר מכן לבקר באתר <b>firefox.com/pair</b> במחשב שלך כדי להשלים את ההתחברות.
+pair2-supplicant-timeout-and-cancel-timeout-page-title = תם הזמן המוקצב לחיבור
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = הצימוד נכשל
+pair2-supplicant-timeout-and-cancel-signed-in-page-title = המכשיר כבר מחובר
 
 
 permissions-heading = ‏{ $serviceName } מבקש גישה ל:
@@ -1352,17 +1408,20 @@ permissions-label-display-name = שם תצוגה
 permissions-label-avatar = תמונת חשבון
 permissions-continue-button = המשך
 permissions-cancel-button = ביטול
+permissions-page-title = סקירת הרשאות
 
 
 force-password-change-heading = נא לשנות את הססמה שלך
 force-password-change-info = איתרנו התנהגות חשודה ב{ -product-mozilla-account(case: "the") } שלך. כדי להגן על החשבון שלך, נא ליצור ססמה חדשה. יהיה עליך להשתמש בסיסמה זו כדי להיכנס שוב לכל שירותי { -product-mozilla-account(case: "the") } שלך.
 force-password-change-data-info = ההיסטוריה, הססמאות, הכניסות ושאר הנתונים האישיים שלך לא יאבדו.
+force-password-change-page-title = שינוי הססמה שלך
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(case: "the") } אומת
 service-welcome-signin-success-banner = התחברת בהצלחה!
 service-welcome-vpn-heading = השלב הבא: הפעלת ה־VPN
 service-welcome-vpn-description = עוד צעד אחד בלבד לשיפור פרטיות הדפדפן שלך. יש לעבור לחלונית הפתוחה ולהפעיל אותו.
+service-welcome-vpn-page-title = הפעלת VPN
 
 
 set-password-heading-v2 = יצירת ססמה לסנכרון
@@ -1370,6 +1429,7 @@ set-password-info-v2 = ססמה זו מצפינה את הנתונים שלך. ה
 
 
 set-password-passwordless-info = ססמה זו מצפינה את הנתונים המסונכרנים שלך ומאבטחת אותם.
+set-password-page-title = יצירת ססמה לסנכרון
 
 
 account-recovery-confirm-key-heading = נא להכניס את המפתח לשחזור החשבון שלך
@@ -1379,6 +1439,7 @@ account-recovery-confirm-key-input-label =
 account-recovery-confirm-key-hint = רמז האחסון שלך הוא:
 account-recovery-confirm-key-button-2 = המשך
 account-recovery-lost-recovery-key-link-2 = לא הצלחת למצוא את מפתח שחזור החשבון שלך?
+account-recovery-confirm-key-page-title = איפוס ססמה עם מפתח שחזור
 
 
 complete-reset-pw-header-v2 = יצירת ססמה חדשה
@@ -1388,10 +1449,12 @@ complete-reset-pw-recovery-key-link = שימוש במפתח לשחזור החש�
 reset-password-complete-banner-heading = הססמה שלך אופסה.
 reset-password-complete-banner-message = מומלץ ליצור מפתח שחזור חשבון חדש מהגדרות { -product-mozilla-account(case: "the") } שלך כדי למנוע בעיות התחברות עתידיות.
 complete-reset-password-desktop-relay = ‏{ -brand-firefox } ינסה לשלוח אותך בחזרה להשתמש במסכת דוא״ל לאחר ההתחברות.
+complete-reset-password-page-title = יצירת ססמה חדשה
 confirm-backup-code-reset-password-input-label = נא להזין קוד בן 10 תווים
 confirm-backup-code-reset-password-confirm-button = אישור
 confirm-backup-code-reset-password-instruction = נא להכניס את אחד מהקודים החד־פעמיים ששמרת כשהגדרת את האימות הדו־שלבי.
 confirm-backup-code-reset-password-locked-out-link = ננעלת מחוץ לחשבון?
+confirm-backup-code-reset-password-page-title = איפוס סיסמה באמצעות קוד גיבוי
 
 
 confirm-reset-password-with-code-heading = נא לבדוק את הדוא״ל שלך
@@ -1400,6 +1463,7 @@ confirm-reset-password-code-input-group-label = נא להכניס קוד בן 8 
 confirm-reset-password-otp-submit-button = המשך
 confirm-reset-password-otp-resend-code-button = שליחת הקוד מחדש
 confirm-reset-password-otp-different-account-link = שימוש בחשבון אחר
+confirm-reset-password-with-code-page-title = יש לבדוק את הדוא״ל שלך כדי לאפס את הססמה שלך
 
 
 confirm-totp-reset-password-header = איפוס הססמה שלך
@@ -1409,6 +1473,7 @@ confirm-totp-reset-password-trouble-code = מתקשה בהזנת הקוד?
 confirm-totp-reset-password-confirm-button = אישור
 confirm-totp-reset-password-input-label-v2 = נא להזין קוד בן 6 ספרות
 confirm-totp-reset-password-use-different-account = שימוש בחשבון אחר
+confirm-totp-reset-password-page-title = איפוס ססמה באמצעות אימות דו־שלבי
 
 
 password-reset-flow-heading = איפוס הססמה שלך
@@ -1418,10 +1483,12 @@ password-reset-email-input =
     .label = נא להכניס את כתובת הדוא״ל שלך
 password-reset-submit-button-2 = המשך
 password-reset-data-recovery-warning = איפוס הססמה שלך עשוי להשפיע על האפשרות לשחזר נתוני דפדפן מסונכרנים. <learnMoreLink>מידע נוסף</learnMoreLink>
+password-reset-flow-page-title = איפוס הססמה שלך
 
 
 reset-password-complete-header = הססמה שלך אופסה
 reset-password-confirmed-cta = המשך אל { $serviceName }
+reset-password-confirmed-page-title = איפוס הססמה הושלם
 
 
 password-reset-recovery-method-header = איפוס הססמה שלך
@@ -1434,6 +1501,7 @@ password-reset-recovery-method-code-info =
        *[other] נשארו { $numBackupCodes } קודים
     }
 password-reset-recovery-method-send-code-error-heading = הייתה בעיה בשליחת קוד לטלפון השחזור שלך
+password-reset-recovery-method-page-title = איפוס ססמה באמצעות מפתח שחזור
 
 
 reset-password-recovery-phone-flow-heading = איפוס הססמה שלך
@@ -1448,15 +1516,18 @@ reset-password-recovery-phone-send-code-error-heading = הייתה בעיה בש
 reset-password-recovery-phone-code-verification-error-heading = הייתה בעיה באימות הקוד שלך
 reset-password-recovery-phone-general-error-description = נא לנסות שוב מאוחר יותר.
 reset-password-recovery-phone-invalid-code-error-description = הקוד לא חוקי או שפג תוקפו.
+reset-password-recovery-phone-page-title = איפוס ססמה באמצעות טלפון לשחזור
 reset-password-with-recovery-key-verified-page-title = הססמה אופסה בהצלחה
 reset-password-complete-new-password-saved = הססמה החדשה נשמרה!
 reset-password-complete-recovery-key-created = מפתח חדש לשחזור החשבון נוצר. יש להוריד ולאחסן אותו כעת במקום בטוח.
 reset-password-complete-recovery-key-download-info = מפתח זה חיוני עבור שחזור נתונים אם הססמה שלך תישכח. <b>יש להוריד ולאחסן אותו במקום בטוח כעת, מכיוון שלא יהיה באפשרותך לגשת לדף זה שוב מאוחר יותר.</b>
+reset-password-with-recovery-key-verified-hint-page-title = הוספת רמז למפתח השחזור
 
 
 server-error-heading = שגיאה 500
 server-error-description = שוד ושבר, משהו השתבש. אנו מודעים לבעיה ופועלים לתיקונה.
 server-error-home-button = בית
+server-error-page-title = שגיאת שרת
 
 
 error-label = שגיאה:
@@ -1464,8 +1535,13 @@ validating-signin = בתהליך אימות התחברות…
 complete-signin-error-header = שגיאת אימות
 signin-link-expired-header = פג תוקף קישור האימות
 signin-link-expired-message-2 = פג תוקף הקישור עליו לחצת, או שכבר נעשה בו שימוש.
+complete-signin-error-page-title = שגיאות אישור כניסה
+complete-signin-validating-page-title = אישור התחברות
 
 
+signin-password-page-title = נא להכניס את הססמה שלך
+signin-cached-page-title = כניסה
+signin-alternative-auth-page-title = בחירת שיטת כניסה
 signin-password-needed-header-2 = נא להכניס את הססמה שלך <span>עבור { -product-mozilla-account(case: "the") } שלך</span>
 signin-button-start-syncing = התחלה בסנכרון
 signin-subheader-without-logo-with-servicename = המשך אל { $serviceName }
@@ -1489,11 +1565,13 @@ report-signin-body = קיבלת הודעת דוא״ל על ניסיון התחב
 report-signin-submit-button = דיווח פעילות
 report-signin-support-link = מדוע זה קורה?
 report-signin-error = אירעה שגיאה בשליחת הדיווח, עמך הסליחה.
+report-signin-page-title = דיווח על כניסה בלתי מורשית
 signin-bounced-header = מצטערים. חסמנו את החשבון שלך.
 signin-bounced-message = הודעת האימות ששלחנו לכתובת { $email } חזרה וחסמנו את החשבון שלך כדי להגן על נתוני ה־{ -brand-firefox } שלך.
 signin-bounced-help = אם זוהי כתובת דוא״ל תקנית, <linkExternal>נא ליצור איתנו קשר</linkExternal> ונעזור לשחרר את הנעילה מהחשבון שלך.
 signin-bounced-create-new-account = כתובת דוא״ל זו כבר לא בבעלותך? יצירת חשבון חדש
 back = חזרה
+signin-bounced-page-title = החשבון נעול
 
 
 signin-passkey-fallback-header = סיום הכניסה
@@ -1507,6 +1585,7 @@ signin-passkey-fallback-no-prf-description = דפדפן או מכשיר זה א�
 signin-passkey-fallback-unwrap-failed-heading = מפתח הגישה שלך אינו יכול לשחרר את הנעילה של הסנכרון
 signin-passkey-fallback-unwrap-failed-description = משהו השתבש, אז יהיה לך צורך בססמה שלך הפעם.
 signin-passkey-fallback-wrap-unusable-link = מידע נוסף
+signin-passkey-fallback-page-title = נא להכניס את הססמה שלך כדי לסנכרן
 
 
 signin-passwordless-code-heading = נא להכניס את קוד האימות
@@ -1534,6 +1613,8 @@ signup-passwordless-code-subheading = בעת שימוש בקוד הזה, תהל�
 
 
 signin-passwordless-totp-required = אימות דו־שלבי מופעל בחשבון שלך. נא להתחבר באמצעות הססמה שלך.
+signin-passwordless-code-page-title = כניסה באמצעות קוד מהדוא״ל
+signup-passwordless-code-page-title = הרשמה באמצעות קוד מהדוא״ל
 
 
 signin-recovery-method-header = כניסה
@@ -1546,6 +1627,7 @@ signin-recovery-method-code-info-v2 =
        *[other] נותרו { $numBackupCodes } קודים
     }
 signin-recovery-method-send-code-error-heading = הייתה בעיה בשליחת קוד לטלפון השחזור שלך
+signin-recovery-method-page-title = כניסה באמצעות שיטת שחזור
 
 
 signin-recovery-code-heading = כניסה
@@ -1556,6 +1638,7 @@ signin-recovery-code-phone-link = שימוש בטלפון לשחזור
 signin-recovery-code-support-link = ננעלת מחוץ לחשבון?
 signin-recovery-code-use-phone-failure = הייתה בעיה בשליחת קוד לטלפון השחזור שלך
 signin-recovery-code-use-phone-failure-description = נא לנסות שוב מאוחר יותר.
+signin-recovery-code-page-title = כניסה באמצעות קוד גיבוי
 
 
 signin-recovery-phone-flow-heading = כניסה
@@ -1571,10 +1654,12 @@ signin-recovery-phone-code-verification-error-heading = הייתה בעיה בא
 signin-recovery-phone-general-error-description = נא לנסות שוב מאוחר יותר.
 signin-recovery-phone-invalid-code-error-description = הקוד לא חוקי או שפג תוקפו.
 signin-recovery-phone-success-message = התחברת בהצלחה. עשויות לחול הגבלות אם ייעשה שימוש בטלפון השחזור שלך שוב.
+signin-recovery-phone-page-title = כניסה באמצעות טלפון שחזור
 
 
 signin-reported-header = תודה על הערנות שלך
 signin-reported-message = נשלחה הודעה לצוות שלנו. דיווחים כאלה מסייעים לנו להישמר מתוקפים.
+signin-reported-page-title = דווח על ניסיון כניסה
 
 
 signin-token-code-heading-2 = נא להכניס קוד אימות <span>עבור { -product-mozilla-account(case: "the") } שלך</span>
@@ -1591,6 +1676,7 @@ signin-token-code-resend-code-countdown =
 signin-token-code-required-error = נדרש קוד אימות
 signin-token-code-resend-error = משהו השתבש. לא ניתן היה לשלוח קוד חדש.
 signin-token-code-instruction-desktop-relay = ‏{ -brand-firefox } ינסה לשלוח אותך בחזרה להשתמש במסכת דוא״ל לאחר ההתחברות.
+signin-token-code-page-title = אימות כניסה באמצעות קוד מהדוא״ל
 
 
 signin-totp-code-header = כניסה
@@ -1606,6 +1692,7 @@ signin-totp-code-other-account-link = שימוש בחשבון אחר
 signin-totp-code-recovery-code-link = מתקשה בהזנת הקוד?
 signin-totp-code-required-error = נדרש קוד אימות
 signin-totp-code-desktop-relay = ‏{ -brand-firefox } ינסה לשלוח אותך בחזרה להשתמש במסכת דוא״ל לאחר ההתחברות.
+signin-totp-code-page-title = כניסה באמצעות אימות דו־שלבי
 
 
 signin-unblock-header = אישור התחברות זו
@@ -1618,9 +1705,10 @@ signin-unblock-code-incorrect-format-2 = קוד ההרשאה יכול להכיל
 signin-unblock-resend-code-button = לא בתיקיית הדואר הנכנס או הספאם? שליחה חוזרת
 signin-unblock-support-link = מדוע זה קורה?
 signin-unblock-desktop-relay = ‏{ -brand-firefox } ינסה לשלוח אותך בחזרה להשתמש במסכת דוא״ל לאחר ההתחברות.
+signin-unblock-page-title = אישור כניסה זו
 
 
-confirm-signup-code-page-title = נא להכניס את קוד האימות
+confirm-signup-code-page-title-2 = אימות כתובת הדוא״ל שלך
 confirm-signup-code-heading-2 = נא להכניס קוד אימות <span>עבור { -product-mozilla-account(case: "the") } שלך</span>
 confirm-signup-code-instruction-v2 = נא להכניס את הקוד שנשלח אל <email>{ $email }</email> תוך 5 דקות.
 confirm-signup-code-input-label = נא להזין קוד בן 6 ספרות
@@ -1643,6 +1731,7 @@ signup-relay-info = יש צורך בססמה כדי לנהל בצורה מאוב
 signup-sync-info = סנכרון הססמאות, הסימניות ועוד, בכל מקום בו יש לך את { -brand-firefox }.
 signup-sync-info-with-payment = סנכרון הססמאות, אמצעי התשלום, הסימניות ועוד, בכל מקום בו יש לך את { -brand-firefox }.
 signup-change-email-link = שינוי כתובת דוא״ל
+signup-page-title = יצירת החשבון שלך
 
 
 signup-confirmed-sync-header = הסנכרון מופעל
@@ -1653,6 +1742,7 @@ signup-confirmed-sync-description-v2 = ניתן לסנכרן את הססמאות
 signup-confirmed-sync-add-device-link = הוספת מכשיר נוסף
 signup-confirmed-sync-manage-sync-button = ניהול סנכרון
 signup-confirmed-sync-set-password-success-banner = ססמת הסנכרון נוצרה
+signup-confirmed-sync-page-title = הסנכרון מופעל
 
 
 update-firefox-heading = נדרש עדכון ל־{ -brand-firefox }
@@ -1660,3 +1750,4 @@ update-firefox-description =
     { -product-mozilla-account(case: "the") } שלך עושה שימוש בתכונות שאינן נתמכות בגרסת ה־{ -brand-firefox } שלך. נא
     להוריד ולהתקין את הגרסה האחרונה של { -brand-firefox } כדי להמשיך.
 update-firefox-download-button = הורדת העדכני ביותר
+update-firefox-page-title = נדרש עדכון ל־{ -brand-firefox }

@@ -84,7 +84,7 @@ app-footer-terms-of-service = გამოყენების პირობ�
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = გახსნა ახალ ფანჯარაში
@@ -343,6 +343,7 @@ input-phone-number-country-canada = კანადა
 reset-pwd-link-damaged-header = პაროლის გასანულებელი ბმული დაზიანებულია
 signin-link-damaged-header = დასადასტურებელი ბმული დაზიანებულია
 report-signin-link-damaged-header = ბმული დაზიანებულია
+report-signin-link-damaged-page-title = დაზიანებული ბმულის მოხსენება
 reset-pwd-link-damaged-message = ბმულს, რომელზეც გადახვედით, აკლია სიმბოლოები ან დაზიანდა თქვენი ელფოსტის პროგრამიდან აღებისას. ყურადღებით გადმოიტანეთ მისამართი და კვლავ სცადეთ.
 
 
@@ -362,6 +363,7 @@ confirmation-link-reused-message = დადასტურების ბმ�
 locale-toggle-select-label = ენის არჩევა
 locale-toggle-browser-default = ბრაუზერის ნაგულისხმევი
 error-bad-request = გაუმართავი მოთხოვნა
+error-bad-request-page-title = უმართებულო მოთხოვნა
 
 
 pair-unsupported-hint-heading = მიერთების დასრულება პროგრამაში
@@ -418,6 +420,9 @@ ready-continue = განაგრძეთ
 sign-in-complete-header = შესვლა დადასტურებულია
 sign-up-complete-header = ანგარიში დადასტურებულია
 primary-email-verified-header = მთავარი ელფოსტა დამოწმებულია
+sign-in-complete-page-title = შესვლა დადასტურებულია
+sign-up-complete-page-title = ანგარიში დამოწმებულია
+primary-email-verified-page-title = მთავარი ელფოსტა დამოწმებულია
 
 
 flow-recovery-key-download-storage-ideas-heading-v2 = ადგილები გასაღების შესანახად:
@@ -667,6 +672,7 @@ modal-mfa-protected-cancel-button = გაუქმება
 modal-mfa-protected-confirm-button = თანხმობა
 modal-mfa-protected-code-expired = კოდი ვადაგასულია?
 modal-mfa-protected-resend-code-link = ახალი კოდის გაგზავნა.
+modal-mfa-protected-clock-skew-error = თქვენი მოწყობილობის საათი არეულია. შეასწორეთ მოწყობილობის თარიღი და დრო, შემდეგ კი კვლავ სცადეთ.
 
 
 mvs-verify-your-email-2 = ელფოსტის დადასტურება
@@ -955,6 +961,7 @@ security-set-password = დააყენეთ პაროლი სინქ
 security-recent-activity-link = ბოლო მოქმედებები ანგარიშზე
 signout-sync-header = სეანსი ამოიწურა
 signout-sync-session-expired = სამწუხაროდ, რაღაც ხარვეზია. გთხოვთ გამოხვიდეთ ბრაუზერის მენიუს ანგარიშიდან და სცადოთ ხელახლა.
+signout-sync-page-title = სეანსი ამოიწურა
 
 
 tfa-row-backup-codes-title = შესვლის სამარქაფო კოდები
@@ -1199,14 +1206,17 @@ connect-another-device-cad-link = სხვა მოწყობილობი
 connect-another-device-not-now-link = ახლა არა
 connect-another-device-android-complete-setup-message = შედით { -brand-firefox }-ში Android-ზე გამართვის დასასრულებლად
 connect-another-device-ios-complete-setup-message = შედით { -brand-firefox }-ში iOS-ზე გამართვის დასასრულებლად
+connect-another-device-page-title = სხვა მოწყობილობის დაკავშირება
 
 
 cookies-disabled-header = საჭიროა ადგილობრივი საცავისა და ფუნთუშების გამოყენება
 cookies-disabled-enable-prompt-2 = გთხოვთ ჩართოთ ბრაუზერში ფუნთუშებსა და საცავთან წვდომა { -product-mozilla-account(case: "add") } დასაკავშირებლად. შედეგად ამოქმედდება სხვადასხვა შესაძლებლობა, მათ შორის თქვენი სეანსების დამახსოვრების საშუალება.
 cookies-disabled-button-try-again = ხელახლა ცდა
 cookies-disabled-learn-more = ვრცლად
+cookies-disabled-page-title = ჩართული უნდა იყოს ფუნთუშები და ადგილობრივი საცავი
 
 
+index-page-title = შედით ან შექმენით ანგარიში
 index-header = შეიყვანეთ თქვენი ელფოსტა
 index-sync-header = განაგრძეთ თქვენი { -product-mozilla-account(case: "ins") }
 index-sync-subheader = დაასინქრონეთ სანიშნები, ისტორია და პაროლები ყველგან, სადაც გიყენიათ { -brand-firefox }.
@@ -1241,6 +1251,15 @@ inline-recovery-key-setup-download-header = დაიცავით თქვ�
 inline-recovery-key-setup-download-subheader = ჩამოტვირთეთ და შეინახეთ ახლავე
 inline-recovery-key-setup-download-info = გადაინახეთ ეს გასაღები ადვილად მისაგნებ ადგილას — მოგვიანებით ამ გვერდზე დაბრუნება აღარ შეგეძლებათ.
 inline-recovery-key-setup-hint-header = რჩევები უსაფრთხოებისთვის
+inline-recovery-key-setup-create-page-title = ანგარიშის აღდგენის გასაღების შექმნა
+inline-recovery-key-setup-download-page-title = ჩამოტვირთეთ თქვენი ანგარიშის აღდგენის გასაღები
+inline-recovery-key-setup-hint-page-title = დაამატეთ მინიშნება აღდგენის გასაღებს
+inline-recovery-setup-choice-page-title = აირჩიეთ აღდგენის გზა
+inline-recovery-setup-download-codes-page-title = შეინახეთ სამარქაფო კოდები
+inline-recovery-setup-confirm-code-page-title = დაადასტურეთ სამარქაფო კოდი
+inline-recovery-setup-phone-number-page-title = აღდგენის ტელეფონის დამატება
+inline-recovery-setup-phone-code-page-title = აღდგენის გასაღების დადასტურება
+inline-recovery-setup-complete-page-title = ორბიჯიანი დამოწმება ჩართ.
 
 
 inline-totp-setup-cancel-setup-button = გამართვის გაუქმება
@@ -1260,16 +1279,20 @@ inline-totp-setup-security-code-placeholder = შესვლის დამო
 inline-totp-setup-code-required-error = საჭიროა დამოწმების კოდი
 tfa-qr-code-alt = გამოიყენეთ კოდი { $code } ორბიჯიანი დამოწმების გასამართად მხარდაჭერილ პროგრამებში.
 inline-totp-setup-page-title = ორბიჯიანი დამოწმება
+inline-totp-setup-intro-page-title = ორბიჯიანი დამოწმების გამართვა
+inline-totp-setup-enrol-page-title = დააკავშირეთ თქვენი დამმოწმებელი პროგრამა
 
 
 page-not-found-heading = გვერდი ვერ მოიძებნა
 page-not-found-description = თქვენ მიერ მოთხოვნილი გვერდი, ვერ მოიძებნა. ჩვენ უკვე გვეცნობა ამის შესახებ და ყველა შესაძლო დაზიანებულ ბმულს გავასწორებთ.
 page-not-found-home-button = საწყისი გვერდი
+page-not-found-page-title = გვერდი ვერ მოიძებნა
 
 
 pair-auth-allow-heading-text = ახლახან თქვენ შეხვედით { -brand-firefox }-ში?
 pair-auth-allow-confirm-button = დიახ, დადასტურდეს მოწყობილობა
 pair-auth-allow-refuse-device-link = თუ თქვენ არ ყოფილხართ, <a>შეცვალეთ პაროლი</a>
+pair-auth-allow-page-title = { -brand-firefox } – შესვლის დამოწმება
 
 
 pair-auth-complete-heading = მოწყობილობა დაკავშირებულია
@@ -1282,6 +1305,8 @@ pair-auth-complete-manage-devices-link = მოწყობილობები
 pair-auth-complete-send-tab-heading = ყველფერი მზადაა რამდენიმე ჩანართის გასაგზავნად
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } { $deviceOS }-ზე დაკავშირებულია.
 pair-auth-complete-send-tab-benefits = თავისუფლად შეგიძლიათ მყისიერად გაგზავნოთ გახსნილი ჩანართები, პაროლები და სანიშნები მოწყობილობებს შორის.
+pair-auth-complete-page-title = მოწყობილობა დაკავშირებულია
+pair-auth-complete-send-tab-page-title = მზადაა ჩანართების გასაგზავნად
 
 
 auth-totp-heading-w-default-service = შეიყვანეთ შესვლის კოდი, <span>რომ იხილოთ ანგარიშის პარამეტრები</span>
@@ -1290,14 +1315,17 @@ auth-totp-instruction = გახსენით შესვლის დას
 auth-totp-input-label = შეიყვანეთ 6-ციფრიანი კოდი
 auth-totp-confirm-button = თანხმობა
 auth-totp-code-required-error = შესვლის დამოწმების კოდი აუცილებელია
+auth-totp-page-title = მიერთება ორბიჯიანი დამოწმებით
 
 
 pair-wait-for-supp-heading-text = ახლა საჭიროა დამოწმება <span>თქვენი მეორე მოწყობილობიდან</span>
+pair-wait-for-supp-page-title = დამოწმება სხვა მოწყობილობაზე
 
 
 pair-failure-header-v2 = მოწყობილობის მიერთება ვერ მოხერხდა
 pair-failure-message-v2 = გამართვა ვერ დასრულდა. გთხოვთ შეხვიდეთ ანგარიშზე თქვენი ელფოსტით.
 pair-failure-try-again-link = ხელახლა ცდა
+pair-failure-page-title = მოწყობილობის მიერთება ვერ მოხერხდა
 
 
 pair-sync-header = დაასინქრონეთ { -brand-firefox } მობილურზე ან პლანშეტზე
@@ -1331,19 +1359,25 @@ pair-download-description = { -brand-firefox } რომ დასინქრ�
 pair-download-step-scan-qr = <b>ნაბიჯი { $stepNumber }</b>: ჩამოტვირთეთ { -brand-firefox } ამ QR-კოდის წაკითხვით თქვენი მობილურის კამერით:
 pair-download-step-continue-sync = <b>ნაბიჯი { $stepNumber }</b>: გახსენით { -brand-firefox } და მიუთითეთ „გაგრძელება დასინქრონებისთვის“ თქვენს მობილურ მოწყობილობაზე.
 pair-continue-to-sync-button = განაგრძეთ დასინქრონებისთვის
+pair-choice-page-title = სხვა მოწყობილობის დაკავშირება
+pair-choice-send-tab-page-title = ჩანართების სხვა მოწყობილობაზე გაგზავნა
+pair-download-page-title = ჩამოტვირთეთ { -brand-firefox } მობილურზე
 
 
 pair-success-header-2 = მოწყობილობა დაკავშირებულია
 pair-success-message-2 = მიერთებულია წარმატებით.
 pair-success-tab-close-message = ამ ჩანართს თავისით დახურავს { -brand-firefox }.
+pair-success-page-title = მოწყობილობა დაკავშირებულია
 
 
 pair-supp-allow-heading-text = მიერთების დადასტურება <span>ელფოსტისთვის { $email }</span>
 pair-supp-allow-confirm-button = მიერთების დადასტურება
 pair-supp-allow-cancel-link = გაუქმება
+pair-supp-allow-page-title = მიერთების დადასტურება
 
 
 pair-wait-for-auth-heading-text = ახლა საჭიროა დამოწმება <span>თქვენი მეორე მოწყობილობიდან</span>
+pair-wait-for-auth-page-title = დამოწმება სხვა მოწყობილობაზე
 
 
 pair-unsupported-header = მიერთება აპლიკაციის გამოყენებით
@@ -1356,21 +1390,28 @@ pair-unsupported-connecting-mobile-instructions-v2 = გაუშვით { -br
 pair-unsupported-learn-more-link-v2 = ვრცლად
 pair-unsupported-desktop-firefox-fallback-header-v2 = უჰ, რაღაც ხარვეზი წარმოიქმნა
 pair-unsupported-desktop-firefox-fallback-message-v2 = გთხოვთ დახუროთ ჩანართი და კვლავ სცადოთ.
+pair-unsupported-desktop-non-firefox-page-title = საჭიროა { -brand-firefox }
+pair-unsupported-system-camera-page-title = მიერთება აპლიკაციის გამოყენებით
+pair-unsupported-mobile-page-title = დააკავშირეთ თქვენი მობილური მოწყობილობა
+pair-unsupported-desktop-firefox-fallback-page-title = რაღაც ხარვეზი წარმოიქმნა
 
 
 pair2-authority-approve-sign-in-heading = დამოწმებულია ეს შესვლა?
 pair2-authority-approve-sign-in-confirm-button = დიახ, დამოწმებულია შესვლა
 pair2-authority-approve-sign-in-change-password = თქვენ არ ყოფილხართ? <changePassword>შეცვალეთ პაროლი</changePassword>
+pair2-authority-approve-sign-in-page-title = შესვლის დამოწმება
 
 
 pair2-authority-continue-on-mobile-heading = განაგრძეთ მობილურ მოწყობილობაზე
 pair2-authority-continue-on-mobile-description = მიჰყევით ნაბიჯებს ტელეფონზე ან პლანშეტზე.
 pair2-authority-continue-on-mobile-cancel-button = გაუქმება
+pair2-authority-continue-on-mobile-page-title = განაგრძეთ მობილურ მოწყობილობაზე
 
 
 pair2-authority-download-firefox-heading = გახსენით { -brand-firefox } დასინქრონებისთვის
 pair2-authority-download-firefox-instruction-v2 = მოწყობილობებს შორის სინქრონიზაციისთვის გახსენით { -brand-firefox } ამ მოწყობილობაზე და ინახულეთ გვერდი <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = ჩამოტვირთეთ { -brand-firefox }
+pair2-authority-download-firefox-page-title = გახსენით { -brand-firefox } დასინქრონებისთვის
 
 
 pair2-authority-scan-qr-heading = წააკითხეთ მობილურ მოწყობილობასთან დასაკავშირებლად
@@ -1378,11 +1419,13 @@ pair2-authority-scan-qr-instruction = წააკითხეთ QR-კოდ�
 pair2-authority-scan-qr-code-aria-label = QR-კოდი მობილურ მოწყობილობასთან დასაკავშირებლად
 pair2-authority-scan-qr-other-ways-link = სხვა გზები შესვლისთვის
 pair2-authority-scan-qr-skip-button = ამჟამად გამოტოვება
+pair2-authority-scan-qr-page-title = წააკითხეთ მობილურ მოწყობილობასთან დასაკავშირებლად
 
 
 pair2-authority-sync-success-heading-v2 = მოწყობილობა დაკავშირებულია
 pair2-authority-sync-success-description-v2 = სინქრონიზაცია მიმდინარეობს. დასინქრონებული მონაცემების გამოჩენამ შეიძლება გარკვეულ ხანს გასტანოს. ამასობაში შეგიძლიათ განაგრძოთ გვერდების მონახულება.
 pair2-authority-sync-success-sync-settings-button-v2 = სინქრონიზაციის პარამეტრების მართვა
+pair2-authority-sync-success-page-title = მოწყობილობა დაკავშირებულია
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = კიდევ გსურთ მოწყობილობის დაკავშირება?
@@ -1391,16 +1434,20 @@ pair2-authority-timeout-and-cancel-cancelled-heading = გაუქმებუ�
 pair2-authority-timeout-and-cancel-canceled-description = თუ გადაიფიქრებთ ან გსურთ სხვა მოწყობილობის დაკავშირება, კვლავ სცადეთ.
 pair2-authority-timeout-and-cancel-try-again-button = ხელახლა ცდა
 pair2-authority-timeout-and-cancel-sync-settings-button = სინქრონიზაციის პარამეტრები
+pair2-authority-timeout-and-cancel-timeout-page-title = კავშირის დრო ამოიწურა
+pair2-authority-timeout-and-cancel-cancelled-page-title = მიერთება გაუქმებულია
 
 
 pair2-supplicant-approve-sign-in-heading = ბოლო ნაბიჯი დასინქრონებისთვის
 pair2-supplicant-approve-sign-in-instruction = დაადასტურეთ შესვლა თქვენს კომპიუტერზე.
 pair2-supplicant-approve-sign-in-cancel-button = გაუქმება
+pair2-supplicant-approve-sign-in-page-title = ბოლო ნაბიჯი დასინქრონებისთვის
 
 
 pair2-supplicant-connect-this-device-heading = დაუკავშირდეს ეს მოწყობილობა თქვენს ანგარიშს?
 pair2-supplicant-connect-this-device-connect-button = დაკავშირება
 pair2-supplicant-connect-this-device-cancel-button = გაუქმება
+pair2-supplicant-connect-this-device-page-title = ამ მოწყობილობის დაკავშირება
 
 
 pair2-supplicant-download-firefox-heading-v2 = გახსენით { -brand-firefox } ამ მოწყობილობაზე
@@ -1410,15 +1457,21 @@ pair2-supplicant-download-firefox-opening-button = იხსნება { -bran
 pair2-supplicant-download-firefox-download-button = ჩამოტვირთეთ { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = უკვე მაქვს { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = ვრცლად
+pair2-supplicant-download-firefox-page-title = გახსენით { -brand-firefox } ამ მოწყობილობაზე
+
+
+pair2-supplicant-connect-hint-page-title = მიერთების დასრულება პროგრამაში
 
 
 pair2-supplicant-ready-to-scan-heading = რომ დაკავშირდეს მოწყობილობა
 pair2-supplicant-ready-to-scan-instruction = თქვენს კომპიუტერზე, გახსენით { -brand-firefox }, მოინახულეთ გვერდი <b>firefox.com/pair</b> და მიჰყევით ეკრანზე მითითებებს ამ მობილური მოწყობილობის დასაკავშირებლად.
 pair2-supplicant-ready-to-scan-learn-more-link = ვრცლად
+pair2-supplicant-ready-to-scan-page-title = მზადაა წასაკითხად
 
 
 pair2-supplicant-sync-success-heading = მოწყობილობა დაკავშირებულია
 pair2-supplicant-sync-success-description-v2 = სინქრონიზაცია მიმდინარეობს. დასინქრონებული მონაცემების გამოჩენამ შეიძლება გარკვეულ ხანს გასტანოს. ამასობაში შეგიძლიათ განაგრძოთ გვერდების მონახულება.
+pair2-supplicant-sync-success-page-title = მოწყობილობა დაკავშირებულია
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = როგორც ჩანს, დრო ამოიწურა
@@ -1427,6 +1480,9 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = გაუქმებუ
 pair2-supplicant-timeout-and-cancel-canceled-description = მოწყობილობის დასაკავშირებლად ნებისმიერ დროს, ინახულეთ გვერდი <b>firefox.com/pair</b> თქვენს კომპიუტერში.
 pair2-supplicant-timeout-and-cancel-signed-in-heading = ეს მოწყობილობა უკვე შესულია
 pair2-supplicant-timeout-and-cancel-signed-in-description = თქვენი კომპიუტერის ანგარიშთან დასაკავშირებლად ჯერ არსებული ანგარიშიდან უნდა გამოვიდეს { -brand-firefox } ამ მოწყობილობაზე, შემდეგ კი კომპიუტერიდან უნდა გაიხსნას <b>firefox.com/pair</b> შესვლის დასასრულებლად.
+pair2-supplicant-timeout-and-cancel-timeout-page-title = კავშირის დრო ამოიწურა
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = მიერთება გაუქმებულია
+pair2-supplicant-timeout-and-cancel-signed-in-page-title = მოწყობილობა უკვე შესულია
 
 
 permissions-heading = { $serviceName } ითხოვს წვდომას:
@@ -1435,17 +1491,20 @@ permissions-label-display-name = გამოსაჩენი სახელ�
 permissions-label-avatar = ანგარიშის სურათი
 permissions-continue-button = განაგრძეთ
 permissions-cancel-button = გაუქმება
+permissions-page-title = ნებართვების გადახედვა
 
 
 force-password-change-heading = გთხოვთ, შეცვალოთ თქვენი პაროლი
 force-password-change-info = თქვენს { -product-mozilla-account(case: "loc") } საეჭვო მოქმედება შევნიშნეთ. თქვენი ანგარიშის დასაცავად გთხოვთ, შექმნათ ახალი პაროლი. ამ პაროლით შეძლებთ დაიბრუნოთ თქვენი { -product-mozilla-account(case: "gen") } ყველა მოქმედი მომსახურება.
 force-password-change-data-info = დასინქრონებული ისტორია, სანიშნები, ანგარიშები და სხვა პირადი მონაცემები არ დაიკარგება.
+force-password-change-page-title = შეცვალეთ თქვენი პაროლი
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } დამოწმებულია
 service-welcome-signin-success-banner = შესვლა წარმატებულია!
 service-welcome-vpn-heading = შემდეგ: ჩართეთ VPN
 service-welcome-vpn-description = კიდევ ერთი ნაბიჯი თქვენი ბრაუზერის პირადულობის ასამაღლებლად. გადადით გახსნილ არეში და ჩართეთ.
+service-welcome-vpn-page-title = ჩაირთოს VPN
 
 
 set-password-heading-v2 = პაროლის შექმნა დასინქრონებისთვის
@@ -1453,6 +1512,7 @@ set-password-info-v2 = ამით დაიშიფრება თქვე�
 
 
 set-password-passwordless-info = ეს პაროლი შიფრავს თქვენს დასინქრონებულ მონაცემებს და ინახავს უსაფრთხოდ.
+set-password-page-title = პაროლის შექმნა დასინქრონებისთვის
 
 
 third-party-auth-callback-message = გთხოვთ მოითმინოთ, სანამ გადამისამართდებით დამოწმებულ პროგრამაში.
@@ -1465,6 +1525,7 @@ account-recovery-confirm-key-input-label =
 account-recovery-confirm-key-hint = თქვენი შესანახის მინიშნებაა:
 account-recovery-confirm-key-button-2 = გაგრძელება
 account-recovery-lost-recovery-key-link-2 = ვერ იპოვეთ ანგარიშის აღდგენის გასაღები?
+account-recovery-confirm-key-page-title = პაროლის განულება აღდგენის გასაღებით
 
 
 complete-reset-pw-header-v2 = შექმენით ახალი პაროლი
@@ -1474,11 +1535,13 @@ complete-reset-pw-recovery-key-link = გამოიყენეთ ანგ�
 reset-password-complete-banner-heading = თქვენი პაროლი აღდგა.
 reset-password-complete-banner-message = არ დაგავიწყდეთ ანგარიშის აღდგენის ახალი გასაღებების შედგენა თქვენი { -product-mozilla-account(case: "gen") } პარამეტრებიდან მომავალში შესვლის ხარვეზების ასარიდებლად.
 complete-reset-password-desktop-relay = { -brand-firefox } ეცდება შესვლის შემდგომ უკან დაგაბრუნოთ ელფოსტის ნიღბის გამოსაყენებლად.
+complete-reset-password-page-title = შექმენით ახალი პაროლი
 confirm-backup-code-reset-password-input-label = შეიყვანეთ 10-ნიშნა კოდი
 confirm-backup-code-reset-password-confirm-button = თანხმობა
 confirm-backup-code-reset-password-subheader = შეიყვანეთ შესვლის სამარქაფო კოდი
 confirm-backup-code-reset-password-instruction = შეიყვანეთ რომელიმე ერთჯერადი კოდი, რომელიც შეინახეთ ორბიჯიანი დამოწმების გამართვისას.
 confirm-backup-code-reset-password-locked-out-link = ვერ ახერხებთ შესვლას?
+confirm-backup-code-reset-password-page-title = პაროლის აღდგენა სამარქაფო კოდით
 
 
 confirm-reset-password-with-code-heading = შეამოწმეთ თქვენი ელფოსტა
@@ -1487,6 +1550,7 @@ confirm-reset-password-code-input-group-label = შეიყვანეთ 8-�
 confirm-reset-password-otp-submit-button = გაგრძელება
 confirm-reset-password-otp-resend-code-button = კოდის კვლავ გაგზავნა
 confirm-reset-password-otp-different-account-link = სხვა ანგარიშის გამოყენება
+confirm-reset-password-with-code-page-title = შეამოწმეთ თქვენი ელფოსტა პაროლის გასანულებლად
 
 
 confirm-totp-reset-password-header = პაროლის განულება
@@ -1496,6 +1560,7 @@ confirm-totp-reset-password-trouble-code = ვერ ახერხებთ �
 confirm-totp-reset-password-confirm-button = დასტური
 confirm-totp-reset-password-input-label-v2 = შეიყვანეთ 6-ნიშნა კოდი
 confirm-totp-reset-password-use-different-account = სხვა ანგარიშის გამოყენება
+confirm-totp-reset-password-page-title = პაროლის განულება ორბიჯიანი დამოწმებით
 
 
 password-reset-flow-heading = პაროლის განულება
@@ -1505,10 +1570,12 @@ password-reset-email-input =
     .label = შეიყვანეთ თქვენი ელფოსტა
 password-reset-submit-button-2 = განაგრძეთ
 password-reset-data-recovery-warning = პაროლის განულებამ შესაძლოა იმოქმედოს დასინქრონებული მონაცემების აღდგენის შესაძლებლობაზე. <learnMoreLink>ვრცლად</learnMoreLink>
+password-reset-flow-page-title = პაროლის განულება
 
 
 reset-password-complete-header = თქვენი პაროლი აღდგა.
 reset-password-confirmed-cta = განაგრძეთ და იხილეთ { $serviceName }
+reset-password-confirmed-page-title = პაროლის განულება დასრულდა
 
 
 password-reset-recovery-method-header = პაროლის განულება
@@ -1523,6 +1590,7 @@ password-reset-recovery-method-code-info =
     }
 password-reset-recovery-method-send-code-error-heading = ხარვეზი წარმოიშვა კოდის გამოგზავნისას თქვენს აღდგენის ტელეფონზე
 password-reset-recovery-method-send-code-error-description = გთხოვთ, სცადოთ მოგვიანებით ან გამოიყენოთ დამოწმების სამარქაფო კოდები.
+password-reset-recovery-method-page-title = პაროლის განულება აღდგენის გზით
 
 
 reset-password-recovery-phone-flow-heading = პაროლის განულება
@@ -1538,6 +1606,7 @@ reset-password-recovery-phone-code-verification-error-heading = ხარვე�
 reset-password-recovery-phone-general-error-description = გთხოვთ სცადოთ მოგვიანებით.
 reset-password-recovery-phone-invalid-code-error-description = კოდი უმართებულო ან ვადაგასულია.
 reset-password-recovery-phone-invalid-code-error-link = სანაცვლოდ გამოიყენებთ დამოწმების სამარქაფო კოდებს?
+reset-password-recovery-phone-page-title = პაროლის განულება აღდგენის ტელეფონით
 reset-password-with-recovery-key-verified-page-title = პაროლი აღდგა წარმატებით
 reset-password-complete-new-password-saved = ახალი პაროლი შენახულია!
 reset-password-complete-recovery-key-created = შექმნილია ანგარიშის აღდგენის გასაღები. ჩამოტვირთეთ და შეინახეთ ახლავე
@@ -1545,11 +1614,13 @@ reset-password-complete-recovery-key-download-info =
     ეს გასაღები გადამწყვეტია
     მონაცემთა აღდგენისთვის, თუ დაგავიწყდებათ პაროლი. <b>ჩამოტვირთეთ და შეინახეთ უსაფრთხოდ
     ახლავე, ვინაიდან მოგვიანებით ვეღარ შეძლებთ ამ გვერდთან წვდომას.</b>
+reset-password-with-recovery-key-verified-hint-page-title = დაამატეთ მინიშნება აღდგენის გასაღებს
 
 
 server-error-heading = 500 შეცდომა
 server-error-description = ვწუხვართ, რაღაც ხარვეზი წარმოიშვა. ჩვენ უკვე გვეცნობა ამის შესახებ და დავიწყებთ მუშაობას მის გამოსასწორებლად.
 server-error-home-button = საწყისი გვერდი
+server-error-page-title = სერვერის შეცდომა
 
 
 error-label = შეცდომა:
@@ -1557,8 +1628,13 @@ validating-signin = მიმდინარეობს შესვლის �
 complete-signin-error-header = დადასტურების შეცდომა
 signin-link-expired-header = დასადასტურებელი ბმული ვადაგასულია
 signin-link-expired-message-2 = ბმული, რომელზეც გადახვედით ვადაგასულია ან უკვე გამოყენებულია.
+complete-signin-error-page-title = შესვლის დადასტურების შეცდომა
+complete-signin-validating-page-title = შესვლა მოწმდება
 
 
+signin-password-page-title = მიუთითეთ თქვენი პაროლი
+signin-cached-page-title = შესვლა
+signin-alternative-auth-page-title = შესვლის ხერხის არჩევა
 signin-password-needed-header-2 = შეიყვანეთ პაროლი <span>თქვენი { -product-mozilla-account(case: "ben") }</span>
 signin-button-start-syncing = დასინქ. დაწყება
 signin-subheader-without-logo-with-servicename = გაიხსნება { $serviceName }
@@ -1582,11 +1658,13 @@ report-signin-body = ესაა შეტყობინება თქვე
 report-signin-submit-button = საეჭვო მოქმედების მოხსენება
 report-signin-support-link = რის გამოა ეს?
 report-signin-error = სამწუხაროდ, ხარვეზი წარმოიშვა მოხსენებისას.
+report-signin-page-title = უნებართვო შესვლის მოხსენება
 signin-bounced-header = ვწუხვართ. თქვენი ანგარიში ჩაკეტილია.
 signin-bounced-message = დასადასტურებელი ბმულის { $email } ელფოსტაზე გამოგზავნა ვერ მოხერხდა და თქვენი ანგარიში ჩაიკეტა { -brand-firefox }-მონაცემთა უსაფრთხოებისთვის.
 signin-bounced-help = თუ ელფოსტის მითითებული მისამართი მართებულია, <linkExternal>გვაცნობეთ</linkExternal> და დაგეხმარებით თქვენს ანგარიშთან წვდომის დაბრუნებაში.
 signin-bounced-create-new-account = აღარ ფლობთ ელფოსტის ამ მისამართს? შექმენით ახალი ანგარიში
 back = უკან
+signin-bounced-page-title = ანგარიში ჩაიკეტა
 
 
 signin-passkey-fallback-header = დაასრულეთ შესვლა
@@ -1600,6 +1678,7 @@ signin-passkey-fallback-no-prf-description = ეს ბრაუზერი ა
 signin-passkey-fallback-unwrap-failed-heading = თქვენი საშვი სინქრონიზაციის გახსნას ვერ ახერხებს
 signin-passkey-fallback-unwrap-failed-description = რაღაც ხარვეზი წარმოიქმნა, ასე რომ, ამჯერად პაროლი დაგჭირდებათ.
 signin-passkey-fallback-wrap-unusable-link = ვრცლად
+signin-passkey-fallback-page-title = მიუთითეთ თქვენი პაროლი დასინქრონებისთვის
 
 
 signin-passwordless-code-heading = შეიყვანეთ დადასტურების კოდი
@@ -1627,6 +1706,8 @@ signup-passwordless-code-subheading = ანგარიშის შექმ�
 
 
 signin-passwordless-totp-required = ორბიჯიანი დამოწმება ჩართულია თქვენს ანგარიშზე. გთხოვთ, შეხვიდეთ ანგარიშზე თქვენი პაროლით.
+signin-passwordless-code-page-title = შესვლა ელფოსტის კოდით
+signup-passwordless-code-page-title = შექმნა ელფოსტის კოდით
 
 
 signin-recovery-method-header = შესვლა
@@ -1641,6 +1722,7 @@ signin-recovery-method-code-info-v2 =
     }
 signin-recovery-method-send-code-error-heading = ხარვეზი წარმოიშვა კოდის გამოგზავნისას თქვენს აღდგენის ტელეფონზე
 signin-recovery-method-send-code-error-description = გთხოვთ, სცადოთ მოგვიანებით ან გამოიყენოთ დამოწმების სამარქაფო კოდები.
+signin-recovery-method-page-title = შესვლა აღდგენის გზით
 
 
 signin-recovery-code-heading = შესვლა
@@ -1653,6 +1735,7 @@ signin-recovery-code-support-link = ვერ ახერხებთ შეს
 signin-recovery-code-required-error = შესვლის დამოწმების სამარქაფო კოდი აუცილებელია
 signin-recovery-code-use-phone-failure = ხარვეზი წარმოიშვა კოდის გამოგზავნისას თქვენს აღდგენის ტელეფონზე
 signin-recovery-code-use-phone-failure-description = გთხოვთ სცადოთ მოგვიანებით.
+signin-recovery-code-page-title = შესვლა სამარქაფო კოდით
 
 
 signin-recovery-phone-flow-heading = შესვლა
@@ -1669,10 +1752,12 @@ signin-recovery-phone-general-error-description = გთხოვთ კვლ�
 signin-recovery-phone-invalid-code-error-description = კოდი უმართებულო ან ვადაგასულია.
 signin-recovery-phone-invalid-code-error-link = სანაცვლოდ გამოიყენებთ დამოწმების სამარქაფო კოდებს?
 signin-recovery-phone-success-message = შესვლა წარმატებულია. შეზღუდვები შეიძლება ახლდეს, თუ კვლავ გამოიყენებთ აღდგენის ტელეფონს.
+signin-recovery-phone-page-title = შესვლა აღდგენის ტელეფონით
 
 
 signin-reported-header = გმადლობთ ყურადღებისთვის
 signin-reported-message = ჩვენი გუნდი უკვე გაფრთხილებულია. ამგვარი მოხსენებები გვეხმარება დამრღვევების გამოვლენასა და თავდაცვაში.
+signin-reported-page-title = შესვლის მოხსენება გაგზავნილია
 
 
 signin-token-code-heading-2 = შეიყვანეთ დასტურის კოდი<span> თქვენი { -product-mozilla-account(case: "ben") }</span>
@@ -1689,6 +1774,7 @@ signin-token-code-resend-code-countdown =
 signin-token-code-required-error = საჭიროა დასტურის კოდი
 signin-token-code-resend-error = Რაღაც ხარვეზი წარმოიშვა. ახალი კოდის გაგზავნა ვერ მოხერხდა.
 signin-token-code-instruction-desktop-relay = { -brand-firefox } ეცდება შესვლის შემდგომ უკან დაგაბრუნოთ ელფოსტის ნიღბის გამოსაყენებლად.
+signin-token-code-page-title = შესვლის დადასტურება ელფოსტის კოდით
 
 
 signin-totp-code-header = შესვლა
@@ -1704,6 +1790,7 @@ signin-totp-code-other-account-link = სხვა ანგარიშის �
 signin-totp-code-recovery-code-link = ვერ შეგყავთ კოდი?
 signin-totp-code-required-error = შესვლის დამოწმების კოდი აუცილებელია
 signin-totp-code-desktop-relay = { -brand-firefox } ეცდება შესვლის შემდგომ უკან დაგაბრუნოთ ელფოსტის ნიღბის გამოსაყენებლად.
+signin-totp-code-page-title = შესვლა ორბიჯიანი დამოწმებით
 
 
 signin-unblock-header = ამ შესვლის დამოწმება
@@ -1716,9 +1803,10 @@ signin-unblock-code-incorrect-format-2 = დამოწმების კო�
 signin-unblock-resend-code-button = არ მიგიღიათ და არც ჯართის საქაღალდეშია? გაგზავნეთ ხელახლა
 signin-unblock-support-link = რის გამოა ეს?
 signin-unblock-desktop-relay = { -brand-firefox } ეცდება შესვლის შემდგომ უკან დაგაბრუნოთ ელფოსტის ნიღბის გამოსაყენებლად.
+signin-unblock-page-title = ამ შესვლის დამოწმება
 
 
-confirm-signup-code-page-title = შეიყვანეთ დადასტურების კოდი
+confirm-signup-code-page-title-2 = ელფოსტის დადასტურება
 confirm-signup-code-heading-2 = შეიყვანეთ დასტურის კოდი <span>თქვენი { -product-mozilla-account(case: "ben") }</span>
 confirm-signup-code-instruction-v2 = შეიყვანეთ კოდი, რომელიც მოგივათ ელფოსტაზე <email>{ $email }</email> 5 წუთის განმავლობაში.
 confirm-signup-code-input-label = შეიყვანეთ 6-ციფრიანი კოდი
@@ -1741,6 +1829,7 @@ signup-relay-info = პაროლი საჭიროა შენიღბ�
 signup-sync-info = დაასინქრონეთ თქვენი პაროლები, სანიშნები და სხვა მონაცემები ყველგან, სადაც კი გიყენიათ { -brand-firefox }.
 signup-sync-info-with-payment = დაასინქრონეთ თქვენი პაროლები, გადახდის საშუალებები, სანიშნები და სხვა მონაცემები ყველგან, სადაც კი გიყენიათ { -brand-firefox }.
 signup-change-email-link = ელფოსტის შეცვლა
+signup-page-title = ანგარიშის შექმნა
 
 
 signup-confirmed-sync-header = სინქრონიზაცია ჩართულია
@@ -1751,8 +1840,10 @@ signup-confirmed-sync-description-v2 = თქვენი პაროლებ�
 signup-confirmed-sync-add-device-link = სხვა მოწყობილობის დამატება
 signup-confirmed-sync-manage-sync-button = სინქრონიზაციის მართვა
 signup-confirmed-sync-set-password-success-banner = დასინქრონების პაროლი შეიქმნა
+signup-confirmed-sync-page-title = სინქრონიზაცია ჩართულია
 
 
 update-firefox-heading = { -brand-firefox } საჭიროებს განახლებას
 update-firefox-description = { -product-mozilla-account } იყენებს შესაძლებლობებს, რომლებთანაც შეუთავსებელია თქვენი { -brand-firefox }. გთხოვთ, ჩამოტვირთოთ და დააყენოთ უახლესი { -brand-firefox }, რომ განაგრძოთ.
 update-firefox-download-button = უახლესის ჩამოტვირთვა
+update-firefox-page-title = { -brand-firefox } საჭიროებს განახლებას

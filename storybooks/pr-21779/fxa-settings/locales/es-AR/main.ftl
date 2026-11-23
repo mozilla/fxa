@@ -48,7 +48,7 @@ app-footer-terms-of-service = Términos del servicio
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = Se abre en ventana nueva
@@ -305,6 +305,7 @@ input-phone-number-country-canada = Canadá
 reset-pwd-link-damaged-header = El enlace para restablecer la contraseña está dañado
 signin-link-damaged-header = El enlace de confirmación está dañado
 report-signin-link-damaged-header = Enlace dañado
+report-signin-link-damaged-page-title = Informar enlace dañado
 reset-pwd-link-damaged-message = Al enlace que seleccionaste le faltan caracteres y puede que tu cliente de correo lo haya roto. Copiá la dirección con cuidado y probá de nuevo.
 
 
@@ -324,6 +325,7 @@ confirmation-link-reused-message = Ese enlace de confirmación ya fue utilizado 
 locale-toggle-select-label = Seleccionar idioma
 locale-toggle-browser-default = Predeterminado del navegador
 error-bad-request = Solicitud errónea
+error-bad-request-page-title = Solicitud incorrecta
 
 
 pair-unsupported-hint-heading = Finalizar el emparejamiento en la aplicación
@@ -380,6 +382,9 @@ ready-continue = Continuar
 sign-in-complete-header = Inicio de sesión confirmado
 sign-up-complete-header = Cuenta confirmada
 primary-email-verified-header = Se confirmó el correo electrónico principal
+sign-in-complete-page-title = Registro confirmado
+sign-up-complete-page-title = Cuenta confirmada
+primary-email-verified-page-title = Se confirmó el correo electrónico principal
 
 
 flow-recovery-key-download-storage-ideas-heading-v2 = Lugares para guardar la clave:
@@ -627,6 +632,7 @@ modal-mfa-protected-cancel-button = Cancelar
 modal-mfa-protected-confirm-button = Confirmar
 modal-mfa-protected-code-expired = ¿Código expirado?
 modal-mfa-protected-resend-code-link = Enviar código nuevo.
+modal-mfa-protected-clock-skew-error = El reloj de tu dispositivo está mal. Corregí la fecha y hora de tu dispositivo y probá de nuevo.
 
 
 mvs-verify-your-email-2 = Confirmá tu correo electrónico
@@ -915,6 +921,7 @@ security-set-password = Establecer una contraseña para sincronizar y usar ciert
 security-recent-activity-link = Ver la actividad reciente de la cuenta
 signout-sync-header = Sesión expirada
 signout-sync-session-expired = Algo no funcionó. Cerrá sesión en el menú del navegador y probá de nuevo.
+signout-sync-page-title = Sesión expirada
 
 
 tfa-row-backup-codes-title = Códigos de autenticación de respaldo
@@ -1161,14 +1168,17 @@ connect-another-device-cad-link = Conectar otro dispositivo
 connect-another-device-not-now-link = No ahora
 connect-another-device-android-complete-setup-message = Iniciá sesión en { -brand-firefox } para Android para completar la configuración
 connect-another-device-ios-complete-setup-message = Iniciá sesión en { -brand-firefox } para iOS para completar la configuración
+connect-another-device-page-title = Conectar otro dispositivo
 
 
 cookies-disabled-header = Se requiere almacenamiento local y cookies
 cookies-disabled-enable-prompt-2 = Por favor activá las cookies y el almacenamiento local en tu navegador para acceder a tu { -product-mozilla-account }. Si lo hacés, se activarán funcionalidades como recordarte entre sesiones.
 cookies-disabled-button-try-again = Intentar nuevamente
 cookies-disabled-learn-more = Conocer más
+cookies-disabled-page-title = Se requieren cookies y almacenamiento local
 
 
+index-page-title = Iniciar sesión o crear una cuenta
 index-header = Ingresá tu correo electrónico
 index-sync-header = Continuar a tu { -product-mozilla-account }
 index-sync-subheader = Sincronizá tus contraseñas, pestañas y marcadores en cualquier lado que usés { -brand-firefox }.
@@ -1203,6 +1213,15 @@ inline-recovery-key-setup-download-header = Asegurá tu cuenta
 inline-recovery-key-setup-download-subheader = Descargala y guardala
 inline-recovery-key-setup-download-info = Guardá esta clave en un lugar que podás recordar; no podrás volver a esta página más adelante.
 inline-recovery-key-setup-hint-header = Recomendación de seguridad
+inline-recovery-key-setup-create-page-title = Crear una clave de recuperación de cuenta
+inline-recovery-key-setup-download-page-title = Descargar tu clave de recuperación de cuenta
+inline-recovery-key-setup-hint-page-title = Agregar una pista para la clave de recuperación
+inline-recovery-setup-choice-page-title = Elegir un método de recuperación
+inline-recovery-setup-download-codes-page-title = Guardar tus códigos de respaldo
+inline-recovery-setup-confirm-code-page-title = Confirmar un código de respaldo
+inline-recovery-setup-phone-number-page-title = Agregar un teléfono de recuperación
+inline-recovery-setup-phone-code-page-title = Confirmar tu teléfono de recuperación
+inline-recovery-setup-complete-page-title = Autenticación de dos pasos activada
 
 
 inline-totp-setup-cancel-setup-button = Cancelar configuración
@@ -1222,16 +1241,20 @@ inline-totp-setup-security-code-placeholder = Código de autenticación
 inline-totp-setup-code-required-error = Código de autenticación requerido
 tfa-qr-code-alt = Usá el código { $code } para configurar la autenticación de dos pasos en las aplicaciones soportadas.
 inline-totp-setup-page-title = Autenticación de dos pasos
+inline-totp-setup-intro-page-title = Configurar la autenticación de dos pasos
+inline-totp-setup-enrol-page-title = Conectar tu aplicación de autenticación
 
 
 page-not-found-heading = Página no encontrada
 page-not-found-description = La página solicitada no se encuentra. Hemos sido notificados y corregiremos cualquier enlace que pueda estar roto.
 page-not-found-home-button = Inicio
+page-not-found-page-title = Página no encontrada
 
 
 pair-auth-allow-heading-text = ¿Recién iniciaste sesión en { -brand-firefox }?
 pair-auth-allow-confirm-button = Sí, aprobar dispositivo
 pair-auth-allow-refuse-device-link = Si no fuiste vos, <a>cambiá tu contraseña</a>
+pair-auth-allow-page-title = Aprobar el inicio de sesión de { -brand-firefox }
 
 
 pair-auth-complete-heading = Dispositivo conectado
@@ -1244,6 +1267,8 @@ pair-auth-complete-manage-devices-link = Administrar dispositivos
 pair-auth-complete-send-tab-heading = Estás listo para enviar algunas pestañas
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } para { $deviceOS } está conectado.
 pair-auth-complete-send-tab-benefits = Tenés la libertad de enviar instantáneamente pestañas abiertas, contraseñas y marcadores entre dispositivos.
+pair-auth-complete-page-title = Dispositivo conectado
+pair-auth-complete-send-tab-page-title = Listo para enviar pestañas
 
 
 auth-totp-heading-w-default-service = Ingresá el código de autenticación <span>para continuar con la configuración de la cuenta</span>
@@ -1252,14 +1277,17 @@ auth-totp-instruction = Abrí tu aplicación de autenticación e ingresá el có
 auth-totp-input-label = Ingresá el código de 6 dígitos
 auth-totp-confirm-button = Confirmar
 auth-totp-code-required-error = Código de autenticación requerido
+auth-totp-page-title = Conectar con autenticación de dos pasos
 
 
 pair-wait-for-supp-heading-text = Se requiere aprobación <span>desde el otro dispositivo</span>
+pair-wait-for-supp-page-title = Aprobar en el otro dispositivo
 
 
 pair-failure-header-v2 = Falló el emparejamiento del dispositivo
 pair-failure-message-v2 = No se pudo completar la configuración. Iniciá sesión con tu correo electrónico.
 pair-failure-try-again-link = Probá de nuevo
+pair-failure-page-title = Falló el emparejamiento del dispositivo
 
 
 pair-sync-header = Sincronizar { -brand-firefox } en tu teléfono o tablet
@@ -1293,19 +1321,25 @@ pair-download-description = Para sincronizar { -brand-firefox } en tu teléfono 
 pair-download-step-scan-qr = <b>Paso { $stepNumber }</b>: Descargá { -brand-firefox } escaneando este código QR con la cámara de tu dispositivo móvil:
 pair-download-step-continue-sync = <b>Paso { $stepNumber }</b>: Seleccioná “Continuar para sincronizar” para sincronizar tu experiencia de { -brand-firefox } en tu dispositivo móvil.
 pair-continue-to-sync-button = Continuar para sincronizar
+pair-choice-page-title = Conectar otro dispositivo
+pair-choice-send-tab-page-title = Enviar pestañas a otro dispositivo
+pair-download-page-title = Descargar { -brand-firefox } para dispositivos móviles
 
 
 pair-success-header-2 = Dispositivo conectado
 pair-success-message-2 = Emparejamiento exitoso.
 pair-success-tab-close-message = Esta pestaña será cerrada automáticamente por { -brand-firefox }.
+pair-success-page-title = Dispositivo conectado
 
 
 pair-supp-allow-heading-text = Confirmá el emparejamiento <span>para { $email }</span>
 pair-supp-allow-confirm-button = Confirmar emparejamiento
 pair-supp-allow-cancel-link = Cancelar
+pair-supp-allow-page-title = Confirmar emparejamiento
 
 
 pair-wait-for-auth-heading-text = Se requiere aprobación <span>desde el otro dispositivo</span>
+pair-wait-for-auth-page-title = Aprobar en el otro dispositivo
 
 
 pair-unsupported-header = Conectar usando una aplicación
@@ -1318,21 +1352,28 @@ pair-unsupported-connecting-mobile-instructions-v2 = Abrí { -brand-firefox } en
 pair-unsupported-learn-more-link-v2 = Conocer más
 pair-unsupported-desktop-firefox-fallback-header-v2 = Algo salió mal.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Cerrá esta pestaña y probá de nuevo.
+pair-unsupported-desktop-non-firefox-page-title = { -brand-firefox } requerido
+pair-unsupported-system-camera-page-title = Conectar usando una aplicación
+pair-unsupported-mobile-page-title = Conectar tu dispositivo móvil
+pair-unsupported-desktop-firefox-fallback-page-title = Algo salió mal
 
 
 pair2-authority-approve-sign-in-heading = ¿Aprobar inicio de sesión?
 pair2-authority-approve-sign-in-confirm-button = Sí, aprobar el inicio de sesión
 pair2-authority-approve-sign-in-change-password = ¿No fuiste vos? <changePassword>Cambiá tu contraseña</changePassword>
+pair2-authority-approve-sign-in-page-title = Aprobar inicio de sesión
 
 
 pair2-authority-continue-on-mobile-heading = Continuar en tu dispositivo móvil
 pair2-authority-continue-on-mobile-description = Seguí los pasos en tu teléfono o tablet.
 pair2-authority-continue-on-mobile-cancel-button = Cancelar
+pair2-authority-continue-on-mobile-page-title = Continuar en tu dispositivo móvil
 
 
 pair2-authority-download-firefox-heading = Abrir { -brand-firefox } para sincronizar
 pair2-authority-download-firefox-instruction-v2 = Para configurar la sincronización entre dispositivos, abrí { -brand-firefox } en este dispositivo y visitá <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Descargar { -brand-firefox }
+pair2-authority-download-firefox-page-title = Abrir { -brand-firefox } para sincronizar
 
 
 pair2-authority-scan-qr-heading = Escanear para conectar tu dispositivo móvil
@@ -1340,11 +1381,13 @@ pair2-authority-scan-qr-instruction = Escaneá el código QR con tu teléfono o 
 pair2-authority-scan-qr-code-aria-label = Código QR para conectar tu dispositivo móvil
 pair2-authority-scan-qr-other-ways-link = Otras formas de iniciar sesión
 pair2-authority-scan-qr-skip-button = Saltar por ahora
+pair2-authority-scan-qr-page-title = Escanear para conectar tu dispositivo móvil
 
 
 pair2-authority-sync-success-heading-v2 = Tu dispositivo está conectado
 pair2-authority-sync-success-description-v2 = La sincronización está en curso. Es posible que los datos sincronizados tarden un poco en aparecer. Mientras tanto, podés seguir navegando.
 pair2-authority-sync-success-sync-settings-button-v2 = Administrar configuración de sincronización
+pair2-authority-sync-success-page-title = Dispositivo conectado
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = ¿Todavía querés conectar un dispositivo?
@@ -1353,16 +1396,20 @@ pair2-authority-timeout-and-cancel-cancelled-heading = Cancelado
 pair2-authority-timeout-and-cancel-canceled-description = Si cambiás de opinión o querés conectar un dispositivo diferente, probá de nuevo.
 pair2-authority-timeout-and-cancel-try-again-button = Intentar nuevamente
 pair2-authority-timeout-and-cancel-sync-settings-button = Configuración de Sync
+pair2-authority-timeout-and-cancel-timeout-page-title = La conexión tardó demasiado tiempo
+pair2-authority-timeout-and-cancel-cancelled-page-title = Emparejamiento cancelado
 
 
 pair2-supplicant-approve-sign-in-heading = Un último paso para sincronizar
 pair2-supplicant-approve-sign-in-instruction = Aprobá el inicio de sesión en tu computadora.
 pair2-supplicant-approve-sign-in-cancel-button = Cancelar
+pair2-supplicant-approve-sign-in-page-title = Un último paso para sincronizar
 
 
 pair2-supplicant-connect-this-device-heading = ¿Conectar este dispositivo a tu cuenta?
 pair2-supplicant-connect-this-device-connect-button = Conectar
 pair2-supplicant-connect-this-device-cancel-button = Cancelar
+pair2-supplicant-connect-this-device-page-title = Conectar este dispositivo
 
 
 pair2-supplicant-download-firefox-heading-v2 = Abrir { -brand-firefox } en este dispositivo
@@ -1372,15 +1419,21 @@ pair2-supplicant-download-firefox-opening-button = Abriendo { -brand-firefox }�
 pair2-supplicant-download-firefox-download-button = Descargar { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = Ya tengo { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Conocer más
+pair2-supplicant-download-firefox-page-title = Abrir { -brand-firefox } en este dispositivo
+
+
+pair2-supplicant-connect-hint-page-title = Finalizar el emparejamiento en la aplicación
 
 
 pair2-supplicant-ready-to-scan-heading = Para conectar un dispositivo
 pair2-supplicant-ready-to-scan-instruction = En tu computadora, abrí { -brand-firefox }, andá a <b>firefox.com/pair</b> y seguí las instrucciones en pantalla para conectar este dispositivo móvil.
 pair2-supplicant-ready-to-scan-learn-more-link = Conocer más
+pair2-supplicant-ready-to-scan-page-title = Listo para escanear
 
 
 pair2-supplicant-sync-success-heading = Tu dispositivo está conectado
 pair2-supplicant-sync-success-description-v2 = La sincronización está en curso. Es posible que los datos sincronizados tarden un poco en aparecer. Mientras tanto, podés seguir navegando.
+pair2-supplicant-sync-success-page-title = Dispositivo conectado
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Parece que se agotó el tiempo de espera
@@ -1389,6 +1442,9 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Cancelado
 pair2-supplicant-timeout-and-cancel-canceled-description = Para conectar un dispositivo en cualquier momento, visitá <b>firefox.com/pair</b> en tu computadora.
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Este dispositivo ya inició sesión
 pair2-supplicant-timeout-and-cancel-signed-in-description = Para conectarte a tu cuenta de escritorio, cerrá sesión en { -brand-firefox } en este dispositivo y después visitá <b>firefox.com/pair</b> en tu computadora para completar el inicio de sesión.
+pair2-supplicant-timeout-and-cancel-timeout-page-title = La conexión tardó demasiado tiempo
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = Emparejamiento cancelado
+pair2-supplicant-timeout-and-cancel-signed-in-page-title = El dispositivo ya inició sesión
 
 
 permissions-heading = { $serviceName } quiere acceso a:
@@ -1397,17 +1453,20 @@ permissions-label-display-name = Nombre para mostrar
 permissions-label-avatar = Foto de la cuenta
 permissions-continue-button = Continuar
 permissions-cancel-button = Cancelar
+permissions-page-title = Revisar permisos
 
 
 force-password-change-heading = Cambiá la contraseña
 force-password-change-info = Detectamos un comportamiento sospechoso en tu { -product-mozilla-account }. Para proteger tu cuenta, creá una nueva contraseña. Usarás esta contraseña para volver a iniciar sesión en todos tus servicios de { -product-mozilla-account }.
 force-password-change-data-info = No se van a perder el historial sincronizado, los marcadores, los inicios de sesión y otros datos personales.
+force-password-change-page-title = Cambiá la contraseña
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmada
 service-welcome-signin-success-banner = ¡Inicio de sesión exitoso!
 service-welcome-vpn-heading = Siguiente: Habilitar VPN
 service-welcome-vpn-description = Un paso más para mejorar la privacidad de tu navegador. Ir al panel abierto y activarlo.
+service-welcome-vpn-page-title = Activar VPN
 
 
 set-password-heading-v2 = Crear contraseña para sincronizar
@@ -1415,6 +1474,7 @@ set-password-info-v2 = Esto cifra tus datos. Tiene que ser diferente de la contr
 
 
 set-password-passwordless-info = Esta contraseña cifra tus datos sincronizados y los mantiene seguros.
+set-password-page-title = Crear una contraseña para sincronizar
 
 
 third-party-auth-callback-message = Esperá, estás siendo redireccionado a la aplicación autorizada.
@@ -1427,6 +1487,7 @@ account-recovery-confirm-key-input-label =
 account-recovery-confirm-key-hint = Tu sugerencia de almacenamiento es:
 account-recovery-confirm-key-button-2 = Continuar
 account-recovery-lost-recovery-key-link-2 = ¿No podés encontrar la clave de recuperación de cuenta?
+account-recovery-confirm-key-page-title = Restablecer la contraseña con la clave de recuperación
 
 
 complete-reset-pw-header-v2 = Crear una nueva contraseña
@@ -1436,11 +1497,13 @@ complete-reset-pw-recovery-key-link = Usar la clave de recuperación de la cuent
 reset-password-complete-banner-heading = Se restableció tu contraseña.
 reset-password-complete-banner-message = No olvidés generar una nueva clave de recuperación de cuenta desde la configuración de { -product-mozilla-account } para evitar problemas de inicio de sesión en el futuro.
 complete-reset-password-desktop-relay = { -brand-firefox } tratará de volver donde estabas para usar una máscara de correo electrónico después de que iniciés sesión.
+complete-reset-password-page-title = Crear una nueva contraseña
 confirm-backup-code-reset-password-input-label = Ingresá el código de 10 caracteres
 confirm-backup-code-reset-password-confirm-button = Confirmar
 confirm-backup-code-reset-password-subheader = Ingresar código de autenticación de respaldo
 confirm-backup-code-reset-password-instruction = Ingresá uno de los códigos de un solo uso que guardaste al configurar la autenticación de dos pasos.
 confirm-backup-code-reset-password-locked-out-link = ¿Te dejaron afuera?
+confirm-backup-code-reset-password-page-title = Restablecer la contraseña con un código de respaldo
 
 
 confirm-reset-password-with-code-heading = Revisá tu correo electrónico
@@ -1449,6 +1512,7 @@ confirm-reset-password-code-input-group-label = Ingresá el código de 8 dígito
 confirm-reset-password-otp-submit-button = Continuar
 confirm-reset-password-otp-resend-code-button = Reenviar codigo
 confirm-reset-password-otp-different-account-link = Usar una cuenta diferente
+confirm-reset-password-with-code-page-title = Verificá tu correo electrónico para restablecer tu contraseña
 
 
 confirm-totp-reset-password-header = Restablecé tu contraseña
@@ -1458,6 +1522,7 @@ confirm-totp-reset-password-trouble-code = ¿Problemas para ingresar el código?
 confirm-totp-reset-password-confirm-button = Confirmar
 confirm-totp-reset-password-input-label-v2 = Ingresá el código de 6 dígitos
 confirm-totp-reset-password-use-different-account = Usar una cuenta diferente
+confirm-totp-reset-password-page-title = Restablecer la contraseña con autenticación de dos pasos
 
 
 password-reset-flow-heading = Restablecé tu contraseña
@@ -1467,10 +1532,12 @@ password-reset-email-input =
     .label = Ingresá tu correo electrónico
 password-reset-submit-button-2 = Continuar
 password-reset-data-recovery-warning = Restablecer la contraseña puede afectar la posibilidad de recuperar los datos sincronizados del navegador. <learnMoreLink>Conocer más</learnMoreLink>
+password-reset-flow-page-title = Restablecé tu contraseña
 
 
 reset-password-complete-header = Tu contraseña fue restablecida
 reset-password-confirmed-cta = Continuar a { $serviceName }
+reset-password-confirmed-page-title = Restablecimiento de contraseña completo
 
 
 password-reset-recovery-method-header = Restablecé tu contraseña
@@ -1485,6 +1552,7 @@ password-reset-recovery-method-code-info =
     }
 password-reset-recovery-method-send-code-error-heading = Hubo un problema al enviar un código a tu teléfono de recuperación
 password-reset-recovery-method-send-code-error-description = Volvé a intentarlo más tarde o usá tus códigos de autenticación de respaldo.
+password-reset-recovery-method-page-title = Restablecer la contraseña con un método de recuperación
 
 
 reset-password-recovery-phone-flow-heading = Restablecé tu contraseña
@@ -1500,6 +1568,7 @@ reset-password-recovery-phone-code-verification-error-heading = Hubo un problema
 reset-password-recovery-phone-general-error-description = Probá de nuevo más tarde.
 reset-password-recovery-phone-invalid-code-error-description = El código no es válido o ya venció.
 reset-password-recovery-phone-invalid-code-error-link = ¿Usar códigos de autenticación de respaldo en su lugar?
+reset-password-recovery-phone-page-title = Restablecer la contraseña con el teléfono de recuperación
 reset-password-with-recovery-key-verified-page-title = Contraseña restablecida correctamente
 reset-password-complete-new-password-saved = ¡Nueva contraseña guardada!
 reset-password-complete-recovery-key-created = Se creó una nueva clave de recuperación de cuenta. Descargala y guardala ahora.
@@ -1507,11 +1576,13 @@ reset-password-complete-recovery-key-download-info =
     Esta clave es esencial para la
     recuperación de datos si olvidás tu contraseña. <b>Descargala y guardala de forma segura
     ahora, ya que no podrás volver a acceder a esta página más adelante.</b>
+reset-password-with-recovery-key-verified-hint-page-title = Agregar una pista sobre la clave de recuperación
 
 
 server-error-heading = Error 500
 server-error-description = ¡Ups! Algo resultó mal. Nos llegó la notificación y estamos buscando una solución.
 server-error-home-button = Inicio
+server-error-page-title = Error del servidor
 
 
 error-label = Error:
@@ -1519,8 +1590,13 @@ validating-signin = Validando inicio de sesión…
 complete-signin-error-header = Error de confirmación
 signin-link-expired-header = El enlace de confirmación ha expirado
 signin-link-expired-message-2 = El enlace en el que hiciste clic ha expirado o ya se ha utilizado.
+complete-signin-error-page-title = Error de confirmación de inicio de sesión
+complete-signin-validating-page-title = Confirmando inicio de sesión
 
 
+signin-password-page-title = Ingrese su contraseña
+signin-cached-page-title = Iniciar sesión
+signin-alternative-auth-page-title = Elegir un método de inicio de sesión
 signin-password-needed-header-2 = Ingresá la contraseña <span>para tu { -product-mozilla-account }</span>
 signin-button-start-syncing = Iniciar sincronización
 signin-subheader-without-logo-with-servicename = Continuar a { $serviceName }
@@ -1544,11 +1620,13 @@ report-signin-body = Recibiste un correo electrónico sobre un intento de acceso
 report-signin-submit-button = Informar actividad
 report-signin-support-link = ¿Por qué pasa esto?
 report-signin-error = Disculpá, hubo un problema enviando el informe.
+report-signin-page-title = Informar inicio de sesión no autorizado
 signin-bounced-header = Lo sentimos. Bloqueamos tu cuenta.
 signin-bounced-message = El correo electrónico de confirmación que enviamos a { $email } rebotó y bloqueamos tu cuenta para proteger tus datos de { -brand-firefox }.
 signin-bounced-help = Si esta es una dirección de correo electronico válida, <linkExternal>avisanos</linkExternal> y podemos ayudarte a desbloquear tu cuenta.
 signin-bounced-create-new-account = ¿No tenés más ese correo electrónico? Creá una nueva cuenta
 back = Atrás
+signin-bounced-page-title = Cuenta bloqueada
 
 
 signin-passkey-fallback-header = Finalizar inicio de sesión
@@ -1562,6 +1640,7 @@ signin-passkey-fallback-no-prf-description = Este navegador o dispositivo no pue
 signin-passkey-fallback-unwrap-failed-heading = La clave de acceso no pudo desbloquear la sincronización
 signin-passkey-fallback-unwrap-failed-description = Algo salió mal, así que esta vez vas a necesitar tu contraseña.
 signin-passkey-fallback-wrap-unusable-link = Conocer más
+signin-passkey-fallback-page-title = Ingresá tu contraseña para sincronizar
 
 
 signin-passwordless-code-heading = Ingresá el código de confirmación
@@ -1589,6 +1668,8 @@ signup-passwordless-code-subheading = Registrarse solo toma un paso cuando usás
 
 
 signin-passwordless-totp-required = La autenticación de dos pasos está habilitada en tu cuenta. Ingresá con tu contraseña.
+signin-passwordless-code-page-title = Iniciar sesión con un código por correo electrónico
+signup-passwordless-code-page-title = Registrate con un código por correo electrónico
 
 
 signin-recovery-method-header = Iniciar sesión
@@ -1603,6 +1684,7 @@ signin-recovery-method-code-info-v2 =
     }
 signin-recovery-method-send-code-error-heading = Hubo un problema al enviar un código a tu teléfono de recuperación
 signin-recovery-method-send-code-error-description = Volvé a intentarlo más tarde o usá tus códigos de autenticación de respaldo.
+signin-recovery-method-page-title = Iniciar sesión con un método de recuperación
 
 
 signin-recovery-code-heading = Iniciar sesión
@@ -1615,6 +1697,7 @@ signin-recovery-code-support-link = ¿Estás bloqueado?
 signin-recovery-code-required-error = Código de autenticación de respaldo requerido
 signin-recovery-code-use-phone-failure = Hubo un problema al enviar un código a tu teléfono de recuperación
 signin-recovery-code-use-phone-failure-description = Probá de nuevo más tarde.
+signin-recovery-code-page-title = Iniciar sesión con un código de respaldo
 
 
 signin-recovery-phone-flow-heading = Iniciar sesión
@@ -1631,10 +1714,12 @@ signin-recovery-phone-general-error-description = Probá de nuevo más tarde.
 signin-recovery-phone-invalid-code-error-description = El código no es válido o ya venció.
 signin-recovery-phone-invalid-code-error-link = ¿Usar códigos de autenticación de respaldo en su lugar?
 signin-recovery-phone-success-message = Inicio de sesión exitoso. Se pueden aplicar límites si se usa el teléfono de recuperación de nuevo.
+signin-recovery-phone-page-title = Iniciar sesión con el teléfono de recuperación
 
 
 signin-reported-header = Gracias por la vigilancia
 signin-reported-message = Nuestro equipo fue notificado. Informes como este nos ayudan a defendernos de los intrusos.
+signin-reported-page-title = Inicio informado
 
 
 signin-token-code-heading-2 = Ingresá el código de confirmación <span>para tu { -product-mozilla-account }</span>
@@ -1651,6 +1736,7 @@ signin-token-code-resend-code-countdown =
 signin-token-code-required-error = Código de confirmación requerido
 signin-token-code-resend-error = Algo salió mal. No se pudo enviar un nuevo código.
 signin-token-code-instruction-desktop-relay = { -brand-firefox } tratará de volver donde estabas para usar una máscara de correo electrónico después de que iniciés sesión.
+signin-token-code-page-title = Confirmar inicio de sesión con código por correo electrónico
 
 
 signin-totp-code-header = Iniciar sesión
@@ -1666,6 +1752,7 @@ signin-totp-code-other-account-link = Usar una cuenta diferente
 signin-totp-code-recovery-code-link = ¿Problemas para ingresar el código?
 signin-totp-code-required-error = Código de autenticación requerido
 signin-totp-code-desktop-relay = { -brand-firefox } tratará de volver donde estabas para usar una máscara de correo electrónico después de que iniciés sesión.
+signin-totp-code-page-title = Iniciar sesión con autenticación de dos pasos
 
 
 signin-unblock-header = Autorizar este ingreso
@@ -1678,9 +1765,10 @@ signin-unblock-code-incorrect-format-2 = El código de autorización solo puede 
 signin-unblock-resend-code-button = ¿No está en la bandeja de entrada o correo basura? Reenviar
 signin-unblock-support-link = ¿Por qué pasa esto?
 signin-unblock-desktop-relay = { -brand-firefox } tratará de volver donde estabas para usar una máscara de correo electrónico después de que iniciés sesión.
+signin-unblock-page-title = Autorizar este ingreso
 
 
-confirm-signup-code-page-title = Ingresá el código de confirmación
+confirm-signup-code-page-title-2 = Confirmar tu correo electrónico
 confirm-signup-code-heading-2 = Ingresá el código de confirmación <span>para tu { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Ingresá el código de verificación que se envió a <email>{ $email }</email> en un plazo de 5 minutos.
 confirm-signup-code-input-label = Ingresá el código de 6 dígitos
@@ -1703,6 +1791,7 @@ signup-relay-info = Se necesita una contraseña para administrar de forma segura
 signup-sync-info = Sincronizá tus contraseñas, marcadores y más en cualquier lugar donde usés { -brand-firefox }.
 signup-sync-info-with-payment = Sincronizá tus contraseñas, métodos de pago, marcadores y más en cualquier lugar donde usés { -brand-firefox }.
 signup-change-email-link = Cambiar correo electrónico
+signup-page-title = Crear tu cuenta
 
 
 signup-confirmed-sync-header = La sincronización está activada
@@ -1713,8 +1802,10 @@ signup-confirmed-sync-description-v2 = Tus contraseñas, direcciones, marcadores
 signup-confirmed-sync-add-device-link = Agregar otro dispositivo
 signup-confirmed-sync-manage-sync-button = Administrar sincronización
 signup-confirmed-sync-set-password-success-banner = Contraseña de Sync creada
+signup-confirmed-sync-page-title = La sincronización está activada
 
 
 update-firefox-heading = Se requiere actualizar { -brand-firefox }
 update-firefox-description = Tu { -product-mozilla-account } usa funciones que no son compatibles con tu versión de { -brand-firefox }. Descargá e instalá la última versión de { -brand-firefox } para continuar.
 update-firefox-download-button = Descargar la actualización más reciente
+update-firefox-page-title = Se requiere actualizar { -brand-firefox }

@@ -48,7 +48,7 @@ app-footer-terms-of-service = Wužiwanske wuměnjenja
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = Wočinja w nowym woknje
@@ -311,6 +311,7 @@ input-phone-number-country-canada = Kanada
 reset-pwd-link-damaged-header = Wotkaz k wróćostajenju hesła wobškodźeny
 signin-link-damaged-header = Wobkrućenski wotkaz je wobškodźeny
 report-signin-link-damaged-header = Wotkaz je wobškodźeny
+report-signin-link-damaged-page-title = Wotkaz jako wobškodźeny zdźělić
 reset-pwd-link-damaged-message = Wotkazej, na kotryž sće kliknył, znamješka faluja, a je snano přez waš e-mejlowy program wobškodźeny. Kopěrujće adresu kedźbliwje a spytajće hišće raz.
 
 
@@ -330,6 +331,7 @@ confirmation-link-reused-message = Tutón wobkrućenski wotkaz je so hižo wuži
 locale-toggle-select-label = Rěč wubrać
 locale-toggle-browser-default = Standard wobhladowaka
 error-bad-request = Špatne naprašowanje
+error-bad-request-page-title = Špatne naprašowanje
 
 
 pair-unsupported-hint-heading = Koplowanje w nałoženju dokónčić
@@ -386,6 +388,9 @@ ready-continue = Dale
 sign-in-complete-header = Přizjewjenje je so wobkrućiło
 sign-up-complete-header = Konto je wobkrućene
 primary-email-verified-header = Primarna e-mejlowa adresa je wokrućena
+sign-in-complete-page-title = Přizjewjenje je so wobkrućiło
+sign-up-complete-page-title = Konto je wobkrućene
+primary-email-verified-page-title = Primarna e-mejlowa adresa je wobkrućena
 
 
 flow-recovery-key-download-storage-ideas-heading-v2 = Městna za składowanje wašeho kluča:
@@ -639,6 +644,7 @@ modal-mfa-protected-cancel-button = Přetorhnyć
 modal-mfa-protected-confirm-button = Wobkrućić
 modal-mfa-protected-code-expired = Je kod spadnył?
 modal-mfa-protected-resend-code-link = Nowy kod přez e-mejl pósłać.
+modal-mfa-protected-clock-skew-error = Čas wašeho grata je wopačny.  Korigujće datum a čas swojeho grata a spytajće potom  hišće raz.
 
 
 mvs-verify-your-email-2 = Wobkrućće swoju e-mejlowu adresu
@@ -927,6 +933,7 @@ security-set-password = Nastajće hesło, zo byšće wěste wěstotne funkcije k
 security-recent-activity-link = Najnowšu kontowu aktiwitu pokazać
 signout-sync-header = Posedźenje je spadnyło
 signout-sync-session-expired = Bohužel něšto je so nimokuliło. Prošu wotzjewće so z menija wobhladowaka a spytajće hišće raz.
+signout-sync-page-title = Posedźenje je spadnjene
 
 
 tfa-row-backup-codes-title = Zawěsćenske awtentifikaciske kody
@@ -1177,14 +1184,17 @@ connect-another-device-cad-link = Z druhim gratom zwjazać
 connect-another-device-not-now-link = Nic nětko
 connect-another-device-android-complete-setup-message = Přizjewće so pola { -brand-firefox } za Android, zo byšće zarjadowanje dokónčił
 connect-another-device-ios-complete-setup-message = Přizjewće so pola { -brand-firefox } za iOS, zo byšće zarjadowanje dokónčił
+connect-another-device-page-title = Z druhim gratom zwjazać
 
 
 cookies-disabled-header = Local storage a placki su trěbne
 cookies-disabled-enable-prompt-2 = Prošu zmóžńće placki a lokalny składowak we wašim wobhladowaku, zo byšće přistup k swojemu { -product-mozilla-account(capitalization: "lower", case: "dat") } měł. To funkcije zmóžnja, kaž na přikład spomjatkowanje přez posedźenja.
 cookies-disabled-button-try-again = Hišće raz spytać
 cookies-disabled-learn-more = Dalše informacije
+cookies-disabled-page-title = Placki a lokalny składowak su trěbne
 
 
+index-page-title = Přizjewić abo konto załožić
 index-header = Zapodajće swoju e-mejlowu adresu
 index-sync-header = Dale k swojemu kontu { -product-mozilla-account }
 index-sync-subheader = Synchronizujće swoje hesła, rajtarki a zapołožki wšudźe, hdźež { -brand-firefox } wužiwaće.
@@ -1219,6 +1229,15 @@ inline-recovery-key-setup-download-header = Zawěsćće swoje konto
 inline-recovery-key-setup-download-subheader = Sćehńće a składujće jón nětko
 inline-recovery-key-setup-download-info = Składujće tutón kluč na městnje, na kotrež so dopominaće – njemóžeće so k tutej stronje pozdźišo wróćić.
 inline-recovery-key-setup-hint-header = Wěstotne poručenje
+inline-recovery-key-setup-create-page-title = Kontowy wobnowjenski kluč wutworić
+inline-recovery-key-setup-download-page-title = Sćehńće swój kontowy wobnowjenski kluč
+inline-recovery-key-setup-hint-page-title = Pokaz na wobnowjenski kluč přidać
+inline-recovery-setup-choice-page-title = Wubjerće wobnowjensku metodu
+inline-recovery-setup-download-codes-page-title = Składujće swoje zawěsćenske kody
+inline-recovery-setup-confirm-code-page-title = Zawěsćenski kode wobkrućić
+inline-recovery-setup-phone-number-page-title = Wobnowjenski telefon přidać
+inline-recovery-setup-phone-code-page-title = Waš wobnowjenski telefon wobkrućić
+inline-recovery-setup-complete-page-title = Dwukročelowa awtentifikacija
 
 
 inline-totp-setup-cancel-setup-button = Instalaciju přetorhnyć
@@ -1238,16 +1257,20 @@ inline-totp-setup-security-code-placeholder = Awtentifikaciski kod
 inline-totp-setup-code-required-error = Awtentifikaciski kod trěbny
 tfa-qr-code-alt = Wužiwajće kod { $code }, zo byšće dwukročelowu awtentifikaciju w podpěranych nałoženjach připrawił.
 inline-totp-setup-page-title = Dwukročelowa awtentifikacija
+inline-totp-setup-intro-page-title = Dwukročelowu awtentifikaciju konfigurować
+inline-totp-setup-enrol-page-title = Waše nałoženje awtentifikacije zwjazać
 
 
 page-not-found-heading = Strona njeje so namakała
 page-not-found-description = Strona, kotruž sće požadał, njeje so namakała. Smy powěsć dóstali a porjedźimy skóncowane wotkazy.
 page-not-found-home-button = Startowa strona
+page-not-found-page-title = Strona njeje so namakała
 
 
 pair-auth-allow-heading-text = Sće so runje pola { -brand-firefox } přizjewił?
 pair-auth-allow-confirm-button = Haj, grat schwalić
 pair-auth-allow-refuse-device-link = Jeli njejsće to był wy, <a>změńće swoje hesło</a>
+pair-auth-allow-page-title = Přizjewjenje { -brand-firefox } schwalić
 
 
 pair-auth-complete-heading = Grat je zwjazany
@@ -1260,6 +1283,8 @@ pair-auth-complete-manage-devices-link = Graty rjadować
 pair-auth-complete-send-tab-heading = Sće hotowy, zo byšće někotre rajtarki pósłał
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } za { $deviceOS } je zwjazany.
 pair-auth-complete-send-tab-benefits = Móžeće hnydom wočinjene rajtarki, hesła zapołožki mjez gratami pósłać.
+pair-auth-complete-page-title = Grat je zwjazany
+pair-auth-complete-send-tab-page-title = Hotowy za słanje rajtarkow
 
 
 auth-totp-heading-w-default-service = Zapodajće awtentifikaciski kod, <span>zo byšće z kontowymi nastajenjemi pokročował</span>
@@ -1268,14 +1293,17 @@ auth-totp-instruction = Wočińće swoje awtentifikowanske nałoženje a zapodaj
 auth-totp-input-label = 6-městnowy kod zapodać
 auth-totp-confirm-button = Wobkrućić
 auth-totp-code-required-error = Awtentifikaciski kod trěbny
+auth-totp-page-title = Z dwukročelowej awtentifikaciju koplować
 
 
 pair-wait-for-supp-heading-text = Schwalenje je nětko <span>wot wašeho druheho grata</span> trěbne
+pair-wait-for-supp-page-title = Na wašim druhim graće schwalić
 
 
 pair-failure-header-v2 = Koplowanje gratow njeje so poradźiło
 pair-failure-message-v2 = Instalaciski proces njeda so dokónčić. Prošu přizjewće so ze swojej e-mejlowej adresu.
 pair-failure-try-again-link = Hišće raz spytać
+pair-failure-page-title = Koplowanje gratow njeje so poradźiło
 
 
 pair-sync-header = { -brand-firefox } na swójim šmóratce abo tableće synchronizować
@@ -1309,19 +1337,25 @@ pair-download-description = Zo byšće { -brand-firefox } na swojim telefonje ab
 pair-download-step-scan-qr = <b>Krok { $stepNumber }</b>: Skenujće tutón QR-kod z kameru na swojim mobilnym graće, zo byšće { -brand-firefox } sćahnył:
 pair-download-step-continue-sync = <b>Krok { $stepNumber }</b>: Wubjerće „Dale k synchronizaciji“, zo byšće swoje dožiwjenje { -brand-firefox } na swojim mobilnym graće synchronizował.
 pair-continue-to-sync-button = Dale k synchronizaciji
+pair-choice-page-title = Druhi grat zwjazać
+pair-choice-send-tab-page-title = Rajtarki na druhi grat pósłać
+pair-download-page-title = { -brand-firefox } za mobilne graty sćahnyć
 
 
 pair-success-header-2 = Grat je zwjazany
 pair-success-message-2 = Koplowanje je so poradźiło.
 pair-success-tab-close-message = Tutón rajtark so awtomatisce přez { -brand-firefox } začini.
+pair-success-page-title = Grat je zwjazany
 
 
 pair-supp-allow-heading-text = Wobkrućće koplowanje <span>za { $email }</span>
 pair-supp-allow-confirm-button = Koplowanje wobkrućić
 pair-supp-allow-cancel-link = Přetorhnyć
+pair-supp-allow-page-title = Koplowanje wobkrućić
 
 
 pair-wait-for-auth-heading-text = Schwalenje je nětko <span>wot wašeho druheho grata</span> trěbne
+pair-wait-for-auth-page-title = Na wašim druhim graće schwalić
 
 
 pair-unsupported-header = Z nałoženjom koplować
@@ -1334,21 +1368,28 @@ pair-unsupported-connecting-mobile-instructions-v2 = Wočińće { -brand-firefox
 pair-unsupported-learn-more-link-v2 = Dalše informacije
 pair-unsupported-desktop-firefox-fallback-header-v2 = Hopla! Něšto je so nimokuliło.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Prošu začińće tutón rajtark a spytajće hišće raz.
+pair-unsupported-desktop-non-firefox-page-title = { -brand-firefox } trěbny
+pair-unsupported-system-camera-page-title = Z nałoženjom koplować
+pair-unsupported-mobile-page-title = Waš mobilny grat zwjazać
+pair-unsupported-desktop-firefox-fallback-page-title = Něšto je so nimokuliło
 
 
 pair2-authority-approve-sign-in-heading = Přizjewjenje schwalić?
 pair2-authority-approve-sign-in-confirm-button = Haj, přizjewjenje schwalić
 pair2-authority-approve-sign-in-change-password = To wy njejsće? <changePassword>Změńće swoje hesło</changePassword>
+pair2-authority-approve-sign-in-page-title = Přizjewjenje schwalić
 
 
 pair2-authority-continue-on-mobile-heading = Na swojim mobilnym graće pokročować
 pair2-authority-continue-on-mobile-description = Slědujće krokam na swojim telefonje abo tableće.
 pair2-authority-continue-on-mobile-cancel-button = Přetorhnyć
+pair2-authority-continue-on-mobile-page-title = Na swojim mobilnym graće pokročować
 
 
 pair2-authority-download-firefox-heading = { -brand-firefox } za synchronizaciju wočinić
 pair2-authority-download-firefox-instruction-v2 = Zo byšće synchronizaciju na gratach konfigurował, wočińće { -brand-firefox } na tutym graće a wopytajće <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = { -brand-firefox } scahnyć
+pair2-authority-download-firefox-page-title = { -brand-firefox } za synchronizaciju wočinić
 
 
 pair2-authority-scan-qr-heading = Skenujće, zo byšće ze swojim mobilnym gratom zwjazał
@@ -1356,11 +1397,13 @@ pair2-authority-scan-qr-instruction = Skenujće QR-kod ze swojim telefonom abo t
 pair2-authority-scan-qr-code-aria-label = QR-kod za zwjazowanje z wašim mobilnym gratom
 pair2-authority-scan-qr-other-ways-link = Druhe móžnosće přizjewjenja
 pair2-authority-scan-qr-skip-button = Mjeztym přeskočić
+pair2-authority-scan-qr-page-title = Skenujće, zo byšće ze swojim mobilnym gratom zwjazał
 
 
 pair2-authority-sync-success-heading-v2 = Waš grat je zwjazany
 pair2-authority-sync-success-description-v2 = Synchronizacija je po puću. Móže chwilku trać, doniž so waše synchronizowane daty njejewja. Móžeće woměrnje dale přehladować.
 pair2-authority-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije rjadować
+pair2-authority-sync-success-page-title = Grat je zwjazany
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Chceće hišće grat zwjazać?
@@ -1369,16 +1412,20 @@ pair2-authority-timeout-and-cancel-cancelled-heading = Přetorhnjeny
 pair2-authority-timeout-and-cancel-canceled-description = Jeli swoje měnjenje měnjeće abo chceće druhi grat zwjazać, spytajće hišće raz.
 pair2-authority-timeout-and-cancel-try-again-button = Hišće raz spytać
 pair2-authority-timeout-and-cancel-sync-settings-button = Nastajenja synchronizacije
+pair2-authority-timeout-and-cancel-timeout-page-title = Čas zwiska překročeny
+pair2-authority-timeout-and-cancel-cancelled-page-title = Koplowanje přetorhnjene
 
 
 pair2-supplicant-approve-sign-in-heading = Jedyn posledni krok k synchronizaciji
 pair2-supplicant-approve-sign-in-instruction = Zwolće do přizjewjenja na swojim ličaku.
 pair2-supplicant-approve-sign-in-cancel-button = Přetorhnyć
+pair2-supplicant-approve-sign-in-page-title = Jedyn posledni krok k synchronizaciji
 
 
 pair2-supplicant-connect-this-device-heading = Tutón grat z wašim kontom zwjazać?
 pair2-supplicant-connect-this-device-connect-button = Zwjazać
 pair2-supplicant-connect-this-device-cancel-button = Přetorhnyć
+pair2-supplicant-connect-this-device-page-title = Tutón grat zwjazać
 
 
 pair2-supplicant-download-firefox-heading-v2 = { -brand-firefox } na tutym graće wočinić
@@ -1388,15 +1435,21 @@ pair2-supplicant-download-firefox-opening-button = { -brand-firefox } so wočinj
 pair2-supplicant-download-firefox-download-button = { -brand-firefox } scahnyć
 pair2-supplicant-download-firefox-have-firefox-button = Mam hižo { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Dalše informacije
+pair2-supplicant-download-firefox-page-title = { -brand-firefox } na tutym graće wočinić
+
+
+pair2-supplicant-connect-hint-page-title = Koplowanje w nałoženju dokónčić
 
 
 pair2-supplicant-ready-to-scan-heading = Grat zwjazać
 pair2-supplicant-ready-to-scan-instruction = Wočińće { -brand-firefox } na swojim ličaku a wopytajće <b>firefox.com/pair</b> a slědujće instrukcijam na wobrazowce, zo byšće swój mobilny grat zwjazał.
 pair2-supplicant-ready-to-scan-learn-more-link = Dalše informacije
+pair2-supplicant-ready-to-scan-page-title = Hotowy za skenowanje
 
 
 pair2-supplicant-sync-success-heading = Waš grat je zwjazany
 pair2-supplicant-sync-success-description-v2 = Synchronizacija je po puću. Móže chwilku trać, doniž so waše synchronizowane daty njejewja. Móžeće woměrnje dale přehladować.
+pair2-supplicant-sync-success-page-title = Grat je zwjazany
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zda so, zo smy čas překročili
@@ -1405,6 +1458,9 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Přetorhnjeny
 pair2-supplicant-timeout-and-cancel-canceled-description = Zo byšće grat kóždy čas zwjazał, wopytajće <b>firefox.com/pair</b> na swojim ličaku.
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Grat je hižo přizjewjeny
 pair2-supplicant-timeout-and-cancel-signed-in-description = Zo byšće so ze swojim desktopowym kontom zwjazał, wotzjewće so wot { -brand-firefox } na tutym graće a wopytajće potom <b>firefox.com/pair</b> na swojim ličaku, zo byšće přizjewjenje dokónčił.
+pair2-supplicant-timeout-and-cancel-timeout-page-title = Čas zwiska překročeny
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = Koplowanje přetorhnjene
+pair2-supplicant-timeout-and-cancel-signed-in-page-title = Grat je hižo přizjewjeny
 
 
 permissions-heading = { $serviceName } chce přistup k:
@@ -1413,17 +1469,20 @@ permissions-label-display-name = Pokazowane mjeno
 permissions-label-avatar = Kontowy wobraz
 permissions-continue-button = Dale
 permissions-cancel-button = Přetorhnyć
+permissions-page-title = Prawa přepruwować
 
 
 force-password-change-heading = Změńće prošu swoje hesło
 force-password-change-info = Smy podhladne zadźerženje we wašim konće { -product-mozilla-account } zwěsćili. Zo byšće swoje konto škitał, wutworće prošu nowe hesło. Wužiwajće te hesło, zo byšće so zaso pola słužbow swojeho konta { -product-mozilla-account } přizjewił.
 force-password-change-data-info = Synchronizowana historija, zapołožki, přizjewjenja a druhe wosobinske daty so njezhubja.
+force-password-change-page-title = Změńće swoje hesło
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } wobkrućene
 service-welcome-signin-success-banner = Wuspěšnje přizjewjeny!
 service-welcome-vpn-heading = Přichodny krok: VPN zmóžnić
 service-welcome-vpn-description = Dalši krok, zo by so priwatnosć wašeho wobhladowaka skrućiła. Přeńdźće k wočinjenemu woknu a zmóžńće jón.
+service-welcome-vpn-page-title = VPN zmóžnić
 
 
 set-password-heading-v2 = Wutworće hesło za synchronizaciju
@@ -1431,6 +1490,7 @@ set-password-info-v2 = To waše daty zaklučuje. Dyrbi so wot kontoweho hesła {
 
 
 set-password-passwordless-info = Tute hesło waše synchronizowane daty zaklučuje a wobchowuje je wěsće.
+set-password-page-title = Wutworće hesło za synchronizaciju
 
 
 third-party-auth-callback-message = Prošu čakajće, budźeće so k awtorizowanemu nałoženju dale posrědkować.
@@ -1443,6 +1503,7 @@ account-recovery-confirm-key-input-label =
 account-recovery-confirm-key-hint = Waš składowanski pokaz je:
 account-recovery-confirm-key-button-2 = Dale
 account-recovery-lost-recovery-key-link-2 = Njemóžeće swój kontowy wobnowjenski kluč namakać?
+account-recovery-confirm-key-page-title = Hesło z wobnowjenskim klučom wróćo stajić
 
 
 complete-reset-pw-header-v2 = Nowe hesło wutworić
@@ -1452,11 +1513,13 @@ complete-reset-pw-recovery-key-link = Kontowy wobnowjenski kluč wužiwać
 reset-password-complete-banner-heading = Waše hesło bu wróćo stajene.
 reset-password-complete-banner-message = Njezabywajće nowy kontowy wobnowjenski kluč ze swojich nastajenjow { -product-mozilla-account } generěrować, zo byšće přichodnym přizjewjenskim problemam zadźěwał.
 complete-reset-password-desktop-relay = { -brand-firefox } budźe was wróćo słać, zo byšće po přizjewjenju e-mejlowu masku wužiwał.
+complete-reset-password-page-title = Nowe hesło wutworić
 confirm-backup-code-reset-password-input-label = 10-městnowy kod zapodać
 confirm-backup-code-reset-password-confirm-button = Wobkrućić
 confirm-backup-code-reset-password-subheader = Zapodajće kod za zawěsćensku awtentifikaciju
 confirm-backup-code-reset-password-instruction = Zapodajće jedyn z kodow za jónkróćne wužiwanje, hdyž dwukročelowu awtentifikaciju konfigurujeće.
 confirm-backup-code-reset-password-locked-out-link = Sće wuzamknjeny?
+confirm-backup-code-reset-password-page-title = Hesło ze zawěsćenskim kodom wróćo stajić
 
 
 confirm-reset-password-with-code-heading = Přepruwujće swoju e-mejl
@@ -1465,6 +1528,7 @@ confirm-reset-password-code-input-group-label = Zapodajće 8-městnowy kod za 10
 confirm-reset-password-otp-submit-button = Dale
 confirm-reset-password-otp-resend-code-button = Kod znowa słać
 confirm-reset-password-otp-different-account-link = Wužiwajće druhe konto
+confirm-reset-password-with-code-page-title = Hladajće do swojich mejlkow, zo byšće swoje hesło wróćo stajił
 
 
 confirm-totp-reset-password-header = Stajće swoje hesło wróćo
@@ -1474,6 +1538,7 @@ confirm-totp-reset-password-trouble-code = Maće problemy při zapodawanju koda?
 confirm-totp-reset-password-confirm-button = Wobkrućić
 confirm-totp-reset-password-input-label-v2 = 6-městnowy kod zapodać
 confirm-totp-reset-password-use-different-account = Druhe konto wužiwać
+confirm-totp-reset-password-page-title = Hesło z dwukročelowej awtentifikaciju wróćo stajić
 
 
 password-reset-flow-heading = Stajće swoje hesło wróćo
@@ -1483,10 +1548,12 @@ password-reset-email-input =
     .label = Zapodajće swoju e-mejlowu adresu
 password-reset-submit-button-2 = Dale
 password-reset-data-recovery-warning = Wróćostajenje wašeho hesła móže so na to wuskutkować, hač móžeće synchronizowane daty wobhladowaka wobnowić. <learnMoreLink>Dalše informacije</learnMoreLink>
+password-reset-flow-page-title = Stajće swoje hesło wróćo
 
 
 reset-password-complete-header = Waše hesło je so wróćo stajiło
 reset-password-confirmed-cta = Dale k { $serviceName }
+reset-password-confirmed-page-title = Hesło je so wróćo stajiło
 
 
 password-reset-recovery-method-header = Waše hesło wróćo stajić
@@ -1503,6 +1570,7 @@ password-reset-recovery-method-code-info =
     }
 password-reset-recovery-method-send-code-error-heading = Při słanju koda na waš wobnowjenski telefon je problem nastał
 password-reset-recovery-method-send-code-error-description = Prošu spytajće pozdźišo hišće raz abo wužiwajće swoje awtentifikaciske kody za zawěsćenje.
+password-reset-recovery-method-page-title = Hesło z wobnowjenskej metodu wróćo stajić
 
 
 reset-password-recovery-phone-flow-heading = Stajće swoje hesło wróćo
@@ -1518,6 +1586,7 @@ reset-password-recovery-phone-code-verification-error-heading = Při přepruwowa
 reset-password-recovery-phone-general-error-description = Prošu spytaj pozdźišo hišće raz.
 reset-password-recovery-phone-invalid-code-error-description = Kod je njepłaćiwy abo zestarjeny.
 reset-password-recovery-phone-invalid-code-error-link = Awtentifikaciske kody za zawěsćenje město toho wužiwać?
+reset-password-recovery-phone-page-title = Hesło z wobnowjenskim telefonom wróćo stajić
 reset-password-with-recovery-key-verified-page-title = Hesło je so wuspěšnje wróćo stajiło
 reset-password-complete-new-password-saved = Nowe hesło je so składowało!
 reset-password-complete-recovery-key-created = Nowy kontowy wobnowjenski kluč je so wutworił. Sćehńće a składujće jón nětko.
@@ -1525,11 +1594,13 @@ reset-password-complete-recovery-key-download-info =
     Tutón kluč je bytostny za
     datowe wobnowjenje, jeli swoje hesło zabywaće. <b>Sćehńće a składujće jón nětko wěsće
     dokelž pozdźišo k tutej stronje hižo přistup nimaće.</b>
+reset-password-with-recovery-key-verified-hint-page-title = Pokaz na wobnowjenski kluč přidać
 
 
 server-error-heading = Zmylk 500
 server-error-description = Božo mój, něšto je so nimokuliło. Smy so informowali a damy so do wotstronjenja problema.
 server-error-home-button = Startowa strona
+server-error-page-title = Serwerowy zmylk
 
 
 error-label = Zmylk:
@@ -1537,8 +1608,13 @@ validating-signin = Přizjewjenje so wobkrućuje…
 complete-signin-error-header = Wobkrućenski zmylk
 signin-link-expired-header = Wobkrućenski wotkaz spadnjeny
 signin-link-expired-message-2 = Wotkaz, na kotryž sće kliknył, je spadnjeny abo je so hižo wužiwał.
+complete-signin-error-page-title = Wobkrućenski zmylk přizjewjenja
+complete-signin-validating-page-title = Přizjewjenje so wobkruća
 
 
+signin-password-page-title = Zapodajće swoje hesło
+signin-cached-page-title = Přizjewić
+signin-alternative-auth-page-title = Wubjerće přizjewjensku metodu
 signin-password-needed-header-2 = Zapodajće swoje hesło <span>za swoje { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
 signin-button-start-syncing = Synchronizaciju započeć
 signin-subheader-without-logo-with-servicename = Dale k { $serviceName }
@@ -1562,11 +1638,13 @@ report-signin-body = Sće mejlku wo spytanym přistupu na swoje konto dóstał. 
 report-signin-submit-button = Aktiwitu zdźělić
 report-signin-support-link = Čehodla so to stawa?
 report-signin-error = Bohužel je při słanju wašeje rozprawy problem nastał.
+report-signin-page-title = Njeawtorizowane přizjewjenje zdźělić
 signin-bounced-header = Bohužel je waše konto zawrjene.
 signin-bounced-message = Wobkrućenska e-mejlka, kotruž smy na { $email } pósłali, je so wróćiła a smy waše konto zawrěli, zo bychmy waše daty { -brand-firefox } škitali.
 signin-bounced-help = Jeli to je płaćiwa adresa, <linkExternal>informujće nas</linkExternal> a móžemy pomhać, waše konto wotewrěć.
 signin-bounced-create-new-account = Tuta e-mejlowa hižo wam njesłuša? Załožće konto
 back = Wróćo
+signin-bounced-page-title = Konto je zawrjene
 
 
 signin-passkey-fallback-header = Přizjewjenje dokónčić
@@ -1580,6 +1658,7 @@ signin-passkey-fallback-no-prf-description = Tutón wobhladowak abo grat njemó�
 signin-passkey-fallback-unwrap-failed-heading = Waš hesłowy kluč njemóžeše synchronizaciju wotewrić
 signin-passkey-fallback-unwrap-failed-description = Něšto je so nimokuliło, tohodla trjebaće tónkróć swoje hesło.
 signin-passkey-fallback-wrap-unusable-link = Dalše informacije
+signin-passkey-fallback-page-title = Zapodajće swoje hesło, zo byšće synchronizował
 
 
 signin-passwordless-code-heading = Wobkrućenski kod zapodać
@@ -1611,6 +1690,8 @@ signup-passwordless-code-subheading = Registrowanje jenož jedyn krok traje, hdy
 
 
 signin-passwordless-totp-required = Dwukročelowa awtentifikacija je za waše konto zmóžnjena. Prošu přizjewće so ze swojim hesłom.
+signin-passwordless-code-page-title = Z e-mejlowym kodom přizjewić
+signup-passwordless-code-page-title = Z e-mejlowym kodom registrować
 
 
 signin-recovery-method-header = Přizjewić
@@ -1627,6 +1708,7 @@ signin-recovery-method-code-info-v2 =
     }
 signin-recovery-method-send-code-error-heading = Při słanju koda na waš wobnowjenski telefon je problem nastał
 signin-recovery-method-send-code-error-description = Prošu spytajće pozdźišo hišće raz abo wužiwajće swoje awtentifikaciske kody za zawěsćenje.
+signin-recovery-method-page-title = Z wobnowjenskej metodu přizjewić
 
 
 signin-recovery-code-heading = Přizjewić
@@ -1639,6 +1721,7 @@ signin-recovery-code-support-link = Sće wuzamknjewny?
 signin-recovery-code-required-error = Awtentifikaciski kod za zawěsćenje trěbny
 signin-recovery-code-use-phone-failure = Při słanju koda na waš wobnowjenski telefon je problem nastał
 signin-recovery-code-use-phone-failure-description = Prošu spytaj pozdźišo hišće raz.
+signin-recovery-code-page-title = Ze zawěsćenskim kodom přizjewić
 
 
 signin-recovery-phone-flow-heading = Přizjewić
@@ -1655,10 +1738,12 @@ signin-recovery-phone-general-error-description = Prošu spytaj pozdźišo hiš�
 signin-recovery-phone-invalid-code-error-description = Kod je njepłaćiwy abo zestarjeny.
 signin-recovery-phone-invalid-code-error-link = Awtentifikaciske kody za zawěsćenje město toho wužiwać?
 signin-recovery-phone-success-message = Wuspěšnje přizjewjeny. Su snano wobmjezowanja, jeli waš wobnowjenski telefon znowa wužiwaće.
+signin-recovery-phone-page-title = Z wobnowjenskim telefonom přizjewić
 
 
 signin-reported-header = Dźakujemy so za wašu stražliwosć
 signin-reported-message = Naš team je zdźělenku dóstał. Rozprawy kaž tuta nam pomhaja, zadobywarjow wotwobarać.
+signin-reported-page-title = Přizjewjenje zdźělene
 
 
 signin-token-code-heading-2 = Zapodajće wobkrućenski kod<span>za swoje { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
@@ -1677,6 +1762,7 @@ signin-token-code-resend-code-countdown =
 signin-token-code-required-error = Wobkrućenski kod trěbny
 signin-token-code-resend-error = Něšto je so nimokuliło. Nowy kod njeda so słać.
 signin-token-code-instruction-desktop-relay = { -brand-firefox } budźe was wróćo słać, zo byšće po přizjewjenju e-mejlowu masku wužiwał.
+signin-token-code-page-title = Přizjewjenje z e-mejlowym kodom wobkrućić
 
 
 signin-totp-code-header = Přizjewić
@@ -1692,6 +1778,7 @@ signin-totp-code-other-account-link = Wužiwajće druhe konto
 signin-totp-code-recovery-code-link = Maće problemy při zapodawanju koda?
 signin-totp-code-required-error = Awtentifikaciski kod trěbny
 signin-totp-code-desktop-relay = { -brand-firefox } budźe was wróćo słać, zo byšće po přizjewjenju e-mejlowu masku wužiwał.
+signin-totp-code-page-title = Z dwukročelowej awtentifikaciju přizjewić
 
 
 signin-unblock-header = Tute přizjewjenje awtorizować
@@ -1704,9 +1791,10 @@ signin-unblock-code-incorrect-format-2 = Awtorizaciski kod móže jenož pismiki
 signin-unblock-resend-code-button = Ani w póstowym dochadźe ani w spamowym rjadowaku? Znowa pósłać
 signin-unblock-support-link = Čehodla so to stawa?
 signin-unblock-desktop-relay = { -brand-firefox } budźe was wróćo słać, zo byšće po přizjewjenju e-mejlowu masku wužiwał.
+signin-unblock-page-title = Tute přizjewjenje awtorizować
 
 
-confirm-signup-code-page-title = Wobkrućenski kod zapodać
+confirm-signup-code-page-title-2 = Wašu e-mejlowu adresu wobkrućić
 confirm-signup-code-heading-2 = Zapodajće wobkrućenski kod <span>za swoje { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
 confirm-signup-code-instruction-v2 = Zapodajće kod, kotryž je so za 5 mjeńšin na <email>{ $email }</email> pósłał.
 confirm-signup-code-input-label = 6-městnowy kod zapodać
@@ -1731,6 +1819,7 @@ signup-relay-info = Hesło je trěbna, zo byšće swoje maskowane mejlki wěsće
 signup-sync-info = Synchronizujće swoje hesła, zapołožki a wjace wšudźe, hdźež { -brand-firefox } wužiwaće.
 signup-sync-info-with-payment = Synchronizujće swoje hesła, płaćenske metody, zapołožki a wjace wšudźe, hdźež { -brand-firefox } wužiwaće.
 signup-change-email-link = E-mejlowu adresu změnić
+signup-page-title = Waše konto załožić
 
 
 signup-confirmed-sync-header = Synchronizacija je zmóžnjena
@@ -1741,8 +1830,10 @@ signup-confirmed-sync-description-v2 = Waše hesła, adresy, zapołožki, histor
 signup-confirmed-sync-add-device-link = Dalši grat přidać
 signup-confirmed-sync-manage-sync-button = Synchronizaciju rjadować
 signup-confirmed-sync-set-password-success-banner = Hesło za synchronizaciju wutworjene
+signup-confirmed-sync-page-title = Synchronizacija je zmóžnjena
 
 
 update-firefox-heading = Aktualizacija { -brand-firefox } trěbna
 update-firefox-description = Waše konto { -product-mozilla-account } funkcije wužiwa, kotrež waša wersija { -brand-firefox } njepodpěruje. Prošu sćehńće a instalujće najnowšu wersiju { -brand-firefox }, zo byšće pokročował.
 update-firefox-download-button = Najnowšu wersiju sćahnyć
+update-firefox-page-title = Aktualizacija { -brand-firefox } trěbna
