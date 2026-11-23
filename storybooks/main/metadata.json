@@ -1,8 +1,8 @@
 {
-  "commit": "afbf4cce6cd975bc7b62777f1700f0e624a555d5",
-  "summary": "Merge pull request #21779 from mozilla/fxa-14949",
-  "description": "fix(settings): show passkey already-registered message on macOS",
-  "timestamp": 1795475607000,
+  "commit": "ca737cc57490bc4a90f7626ed8f46f48e9b3920a",
+  "summary": "Merge pull request #21784 from mozilla/fxa-14847",
+  "description": "fix(auth): return errno 237 for passkey wrap creation without reauth",
+  "timestamp": 1795475967000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
