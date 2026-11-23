@@ -636,17 +636,26 @@ export class AccountController {
   @AuditLog()
   @Post('unsubscribe-mailing-lists')
   public async unsubscribeFromMailingLists(@Body('uid') uid: string) {
-    const account = await this.db.account
-      .query()
-      .select('email')
-      .where({ uid: uuidTransformer.to(uid) })
-      .first();
+    const uidBuffer = uuidTransformer.to(uid);
+    const [account, primary] = await Promise.all([
+      this.db.account.query().select('email').where({ uid: uidBuffer }).first(),
+      this.db.emails
+        .query()
+        .select('email')
+        .where({ uid: uidBuffer, isPrimary: true })
+        .first(),
+    ]);
 
     if (!account) {
       return false;
     }
 
-    const token = await this.basketService.getUserToken(account.email);
+    // Basket moves its record on primaryEmailChanged, so try the primary first.
+    const primaryEmail = primary?.email ?? account.email;
+    let token = await this.basketService.getUserToken(primaryEmail);
+    if (!token && primaryEmail !== account.email) {
+      token = await this.basketService.getUserToken(account.email);
+    }
     if (!token) {
       return false;
     }

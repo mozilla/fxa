@@ -99,7 +99,13 @@ describe('AccountController', () => {
   let passkeyResult: unknown;
   let passkeyWrapResult: unknown;
   let securityEvents: { create: jest.Mock };
-  let emailQuery: { where: jest.Mock; update: jest.Mock };
+  let emailQuery: {
+    select: jest.Mock;
+    where: jest.Mock;
+    update: jest.Mock;
+    first: jest.Mock;
+  };
+  let basketService: { getUserToken: jest.Mock; unsubscribeAll: jest.Mock };
 
   const MOCK_UID = 'f9416ce3703e4916a4cd6b1e665a3f1a';
   const MOCK_CREDENTIAL_ID = 'AQIDBAUGBwgJCg';
@@ -161,8 +167,14 @@ describe('AccountController', () => {
     );
     securityEvents = { create: jest.fn().mockResolvedValue({}) };
     emailQuery = {
+      select: jest.fn().mockReturnThis(),
       where: jest.fn().mockReturnThis(),
       update: jest.fn(),
+      first: jest.fn(),
+    };
+    basketService = {
+      getUserToken: jest.fn(),
+      unsubscribeAll: jest.fn().mockResolvedValue(true),
     };
 
     db = createMock<DatabaseService>({
@@ -190,7 +202,7 @@ describe('AccountController', () => {
         },
         stub(CartManager),
         stub(SubscriptionsService),
-        stub(BasketService),
+        { provide: BasketService, useValue: basketService },
         stub(FirestoreService),
         { provide: ProfileClient, useValue: profileClient },
         stub(FidoMdsService),
@@ -695,6 +707,80 @@ describe('AccountController', () => {
     it('returns false when no email matches', async () => {
       emailQuery.update.mockResolvedValue(0);
       expect(await controller.unverifyEmail(NO_ACCOUNT_LOCATOR)).toBe(false);
+    });
+  });
+
+  describe('unsubscribeFromMailingLists', () => {
+    const PRIMARY_EMAIL = 'primary@example.com';
+
+    it('returns false when the account is not found', async () => {
+      expect(await controller.unsubscribeFromMailingLists(MOCK_UID)).toBe(
+        false
+      );
+      expect(basketService.getUserToken).not.toHaveBeenCalled();
+    });
+
+    it('looks up the token once when the primary is the signup email', async () => {
+      givenAccount(mockAccount);
+      emailQuery.first.mockResolvedValue({ email: EMAIL_LOCATOR });
+      basketService.getUserToken.mockResolvedValue('token');
+
+      expect(await controller.unsubscribeFromMailingLists(MOCK_UID)).toBe(true);
+      expect(emailQuery.where).toHaveBeenCalledWith(
+        expect.objectContaining({ isPrimary: true })
+      );
+      expect(basketService.getUserToken.mock.calls).toEqual([[EMAIL_LOCATOR]]);
+      expect(basketService.unsubscribeAll).toHaveBeenCalledWith('token');
+      expect(eventLogging.onEvent).toHaveBeenCalledWith(
+        EventNames.UnsubscribeFromMailingLists
+      );
+    });
+
+    it('uses the signup email when no primary email row exists', async () => {
+      givenAccount(mockAccount);
+      emailQuery.first.mockResolvedValue(undefined);
+      basketService.getUserToken.mockResolvedValue('token');
+
+      expect(await controller.unsubscribeFromMailingLists(MOCK_UID)).toBe(true);
+      expect(basketService.getUserToken.mock.calls).toEqual([[EMAIL_LOCATOR]]);
+    });
+
+    it('looks up the primary email first after a swap', async () => {
+      givenAccount(mockAccount);
+      emailQuery.first.mockResolvedValue({ email: PRIMARY_EMAIL });
+      basketService.getUserToken.mockResolvedValue('token');
+
+      expect(await controller.unsubscribeFromMailingLists(MOCK_UID)).toBe(true);
+      expect(basketService.getUserToken.mock.calls).toEqual([[PRIMARY_EMAIL]]);
+      expect(basketService.unsubscribeAll).toHaveBeenCalledWith('token');
+    });
+
+    it('falls back to the signup email when the primary has no token', async () => {
+      givenAccount(mockAccount);
+      emailQuery.first.mockResolvedValue({ email: PRIMARY_EMAIL });
+      basketService.getUserToken
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce('token');
+
+      expect(await controller.unsubscribeFromMailingLists(MOCK_UID)).toBe(true);
+      expect(basketService.getUserToken.mock.calls).toEqual([
+        [PRIMARY_EMAIL],
+        [EMAIL_LOCATOR],
+      ]);
+      expect(basketService.unsubscribeAll).toHaveBeenCalledWith('token');
+    });
+
+    it('returns false when neither email has a basket record', async () => {
+      givenAccount(mockAccount);
+      emailQuery.first.mockResolvedValue({ email: PRIMARY_EMAIL });
+      basketService.getUserToken.mockResolvedValue(undefined);
+
+      expect(await controller.unsubscribeFromMailingLists(MOCK_UID)).toBe(
+        false
+      );
+      expect(basketService.getUserToken).toHaveBeenCalledTimes(2);
+      expect(basketService.unsubscribeAll).not.toHaveBeenCalled();
+      expect(eventLogging.onEvent).not.toHaveBeenCalled();
     });
   });
 
