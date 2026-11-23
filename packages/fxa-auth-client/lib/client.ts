@@ -480,7 +480,8 @@ export default class AuthClient {
     method: string,
     path: string,
     payload: object | null,
-    extraHeaders: Headers | undefined
+    extraHeaders: Headers | undefined,
+    timeout = this.timeout
   ) {
     if (extraHeaders === undefined) {
       if (this.requireHeaders) {
@@ -538,7 +539,7 @@ export default class AuthClient {
       const response = await fetchOrTimeout(
         this.url(path),
         requestOptions,
-        this.timeout
+        timeout
       );
       const responseText = await response.text();
       let result: any;
@@ -685,7 +686,8 @@ export default class AuthClient {
     path: string,
     jwt: string,
     payload: any,
-    headers?: Headers
+    headers?: Headers,
+    timeout?: number
   ) {
     const authorization = 'Bearer ' + jwt;
     if (!headers) {
@@ -693,7 +695,7 @@ export default class AuthClient {
     } else {
       headers.set('authorization', authorization);
     }
-    return this.request('POST', path, payload, headers);
+    return this.request('POST', path, payload, headers, timeout);
   }
 
   private async jwtDelete(
@@ -3636,6 +3638,23 @@ export default class AuthClient {
       { credentialId, ...encodeWrapEnvelope(envelope) },
       headers
     );
+  }
+
+  /**
+   * Deletes all of the account's Sync data. `deleted` is false when there was
+   * nothing to delete.
+   *
+   * @param jwt - `mfa:sync_data` token for this session. The session must also
+   *   have re-entered its password via `sessionReauth`, or the server answers
+   *   with an invalid MFA token error.
+   */
+  async destroySyncData(
+    jwt: string,
+    headers?: Headers
+  ): Promise<{ deleted: boolean }> {
+    // Outlives the server's 62s wait on the Sync storage service, so its
+    // answer arrives instead of a client-side abort.
+    return this.jwtPost('/account/sync_data/destroy', jwt, {}, headers, 64000);
   }
 
   /**
