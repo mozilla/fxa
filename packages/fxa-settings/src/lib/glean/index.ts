@@ -28,6 +28,7 @@ import * as passkeyEnterPassword from './web/passkeyEnterPassword';
 import * as passkey from './web/passkey';
 import * as alertBar from './web/alertBar';
 import * as banner from './web/banner';
+import * as oauthPermissions from './web/oauthPermissions';
 import { userIdSha256, userId } from './web/account';
 import { oauthClientId, service } from './web/relyingParty';
 import {
@@ -689,6 +690,9 @@ const recordEventMetric = async (
       break;
     case 'dtm_mobile_deeplink_webview_fallback':
       dtmMobile.deeplinkWebviewFallback.record();
+      break;
+    case 'oauth_permissions_view':
+      oauthPermissions.view.record();
       break;
     default: {
       const { recordLazyEventMetric } = await loadLazyEvents();

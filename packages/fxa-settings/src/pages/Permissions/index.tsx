@@ -7,6 +7,8 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../components/AppLayout';
 import Banner from '../../components/Banner';
 import { usePageViewEvent } from '../../lib/metrics';
+import GleanMetrics from '../../lib/glean';
+import { useGleanView } from '../../lib/glean/useGleanView';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { useFtlMsgResolver } from '../../models';
 import { DisplayablePermission } from '../../lib/oauth/permissions';
@@ -52,6 +54,7 @@ const Permissions = ({
   bannerErrorMessage,
 }: PermissionsProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  useGleanView(() => GleanMetrics.oauthPermissions.view());
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedPageTitle = ftlMsgResolver.getMsg(
     'permissions-page-title',

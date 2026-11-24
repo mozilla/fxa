@@ -251,6 +251,10 @@ export const eventsMap = {
     scanQrRedirect: 'cad_firefox_scan_qr_redirect',
   },
 
+  oauthPermissions: {
+    view: 'oauth_permissions_view',
+  },
+
   accountPref: {
     view: 'account_pref_view',
     recoveryKeySubmit: 'account_pref_recovery_key_submit',

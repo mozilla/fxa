@@ -5,6 +5,7 @@
 import { expect, test } from '../../lib/fixtures/standard';
 import { SigninPage } from '../../pages/signin';
 import { RelierPage } from '../../pages/relier';
+import { GleanEventsHelper } from '../../lib/glean';
 
 /** Drives a relying party through email-first signin to the password form. */
 async function signInAtRelier(
@@ -26,10 +27,16 @@ test.describe('severity-2', () => {
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
+      const gleanEventsHelper = new GleanEventsHelper(page);
+      await gleanEventsHelper.start();
 
       await signInAtRelier(untrustedRelier, signin, credentials);
 
       await permissions.waitForPage();
+      await gleanEventsHelper.waitForEvent('oauth_permissions_view');
+      expect(
+        gleanEventsHelper.getEventsByName('oauth_permissions_view')
+      ).toHaveLength(1);
       // 321done requests openid, profile:uid, profile:email and
       // profile:display_name. Only the last two name profile information.
       await expect(permissions.scopeRows).toHaveCount(2);
