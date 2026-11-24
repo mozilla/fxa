@@ -695,6 +695,57 @@ describe('lib/glean', () => {
         sinon.assert.calledWith(setEventReasonStub, 'quux');
       });
 
+      it('submits a ping with the login_signin_bounced_view event name', async () => {
+        GleanMetrics.login.signinBouncedView();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'login_signin_bounced_view');
+      });
+
+      it('submits a ping with the login_signin_bounced_back_click event name', async () => {
+        GleanMetrics.login.signinBouncedBackClick();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_signin_bounced_back_click'
+        );
+      });
+
+      it('submits a ping with the login_signin_bounced_create_account_click event name', async () => {
+        GleanMetrics.login.signinBouncedCreateAccountClick();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_signin_bounced_create_account_click'
+        );
+      });
+
+      it('submits a ping with the login_signin_bounced_support_click event name', async () => {
+        GleanMetrics.login.signinBouncedSupportClick();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_signin_bounced_support_click'
+        );
+      });
+
+      it('submits a ping with the login_report_signin_view event name', async () => {
+        GleanMetrics.login.reportSigninView();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'login_report_signin_view');
+      });
+
+      it('submits a ping with the login_signin_reported_view event name', async () => {
+        GleanMetrics.login.signinReportedView();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'login_signin_reported_view');
+      });
+
       it('submits a ping with the login_recovery_phone_success_view event name', async () => {
         GleanMetrics.login.recoveryPhoneSuccessView();
         await GleanMetrics.isDone();

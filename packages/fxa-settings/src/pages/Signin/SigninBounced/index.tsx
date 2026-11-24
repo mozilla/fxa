@@ -12,6 +12,9 @@ import { useNavigateWithQuery } from '../../../lib/hooks';
 import AppLayout from '../../../components/AppLayout';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import CardHeader from '../../../components/CardHeader';
+import GleanMetrics from '../../../lib/glean';
+import { flushGlean } from '../../../lib/glean/flush';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 
 export type SigninBouncedProps = {
   email?: string;
@@ -29,6 +32,7 @@ const SigninBounced = ({
   onBackButtonClick,
 }: SigninBouncedProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  useGleanView(() => GleanMetrics.login.signinBouncedView());
   const ftlMessageResolver = useFtlMsgResolver();
   const backText = ftlMessageResolver.getMsg('back', 'Back');
   const localizedPageTitle = ftlMessageResolver.getMsg(
@@ -39,6 +43,7 @@ const SigninBounced = ({
 
   const handleNavigationBack = (event: any) => {
     logViewEvent(viewName, 'link.back', REACT_ENTRYPOINT);
+    GleanMetrics.login.signinBouncedBackClick();
     if (onBackButtonClick) {
       onBackButtonClick(event);
     } else {
@@ -54,9 +59,18 @@ const SigninBounced = ({
 
   const createAccountHandler = () => {
     logViewEvent(viewName, 'link.create-account', REACT_ENTRYPOINT);
+    GleanMetrics.login.signinBouncedCreateAccountClick();
     localStorage.removeItem('__fxa_storage.accounts');
     sessionStorage.clear();
     navigateWithQuery('/signup');
+  };
+
+  const supportHandler = () => {
+    logViewEvent(viewName, 'link.support', REACT_ENTRYPOINT);
+    GleanMetrics.login.signinBouncedSupportClick();
+    flushGlean().then(() =>
+      window.location.replace('https://support.mozilla.org/')
+    );
   };
 
   if (!email) {
@@ -84,13 +98,7 @@ const SigninBounced = ({
           id="signin-bounced-help"
           elems={{
             linkExternal: (
-              <button
-                className="link-blue"
-                onClick={() => {
-                  logViewEvent(viewName, 'link.support', REACT_ENTRYPOINT);
-                  window.location.replace('https://support.mozilla.org/');
-                }}
-              >
+              <button className="link-blue" onClick={supportHandler}>
                 let us know
               </button>
             ),
@@ -98,13 +106,7 @@ const SigninBounced = ({
         >
           <p className="text-sm mb-6 text-grey-400 nova:text-deemphasized">
             If this is a valid email address,{' '}
-            <button
-              className="link-blue"
-              onClick={() => {
-                logViewEvent(viewName, 'link.support', REACT_ENTRYPOINT);
-                window.location.replace('https://support.mozilla.org/');
-              }}
-            >
+            <button className="link-blue" onClick={supportHandler}>
               let us know
             </button>{' '}
             and we can help unlock your account.

@@ -108,6 +108,13 @@ export const eventsMap = {
       'login_alternative_auth_passkey_submit_frontend_error',
     alternativeAuthPasskeySubmitSuccess:
       'login_alternative_auth_passkey_submit_success',
+    signinBouncedView: 'login_signin_bounced_view',
+    signinBouncedBackClick: 'login_signin_bounced_back_click',
+    signinBouncedCreateAccountClick:
+      'login_signin_bounced_create_account_click',
+    signinBouncedSupportClick: 'login_signin_bounced_support_click',
+    reportSigninView: 'login_report_signin_view',
+    signinReportedView: 'login_signin_reported_view',
   },
 
   cachedLogin: {

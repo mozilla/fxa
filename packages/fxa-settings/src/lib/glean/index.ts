@@ -293,6 +293,24 @@ const recordEventMetric = async (
     case 'login_backup_choice_view':
       login.backupChoiceView.record();
       break;
+    case 'login_signin_bounced_view':
+      login.signinBouncedView.record();
+      break;
+    case 'login_signin_bounced_back_click':
+      login.signinBouncedBackClick.record();
+      break;
+    case 'login_signin_bounced_create_account_click':
+      login.signinBouncedCreateAccountClick.record();
+      break;
+    case 'login_signin_bounced_support_click':
+      login.signinBouncedSupportClick.record();
+      break;
+    case 'login_report_signin_view':
+      login.reportSigninView.record();
+      break;
+    case 'login_signin_reported_view':
+      login.signinReportedView.record();
+      break;
     case 'login_backup_choice_submit':
       login.backupChoiceSubmit.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',
