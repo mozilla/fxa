@@ -1,8 +1,8 @@
 {
-  "commit": "e432897d9de1717dc725cc0334232b06d3b13a13",
-  "summary": "Merge pull request #21816 from mozilla/fxa-15122",
-  "description": "feat(settings): record a Glean view event on the OAuth Permissions page",
-  "timestamp": 1795548914000,
+  "commit": "3f28529274f6db1ac5a55ab3fb00d8b34c32ad01",
+  "summary": "Merge pull request #21817 from mozilla/fxa-15120",
+  "description": "feat(settings): record ForcePasswordChange view and submit in Glean",
+  "timestamp": 1795548988000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
