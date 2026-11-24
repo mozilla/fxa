@@ -1,8 +1,8 @@
 {
-  "commit": "60f1683e77797a668bf45d604778d0b36bb89328",
-  "summary": "Merge pull request #21814 from mozilla/fxa-15109",
-  "description": "fix(shared): drop browser Sentry events from file:// pages",
-  "timestamp": 1795479637000,
+  "commit": "4e150069373fd13541beb0d39cee57e03653c9dc",
+  "summary": "Merge pull request #21786 from mozilla/fxa-15081",
+  "description": "fix(settings): Support android in 'always request destop' mode during pairing",
+  "timestamp": 1795480980000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
