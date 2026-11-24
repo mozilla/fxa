@@ -2800,6 +2800,43 @@ post_verify_set_password:
           values).
         type: string
 
+force_password_change:
+  view:
+    type: event
+    description: |
+      User viewed the PostVerify/ForcePasswordChange page.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-15120
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  submit:
+    type: event
+    description: |
+      User submitted the PostVerify/ForcePasswordChange form. Recorded before
+      the form checks that the new password differs from the old one.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-15120
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+
 passkey_enter_password:
   view:
     type: event

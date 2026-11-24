@@ -187,6 +187,11 @@ export const eventsMap = {
     success: 'post_verify_set_password_success',
   },
 
+  forcePasswordChange: {
+    view: 'force_password_change_view',
+    submit: 'force_password_change_submit',
+  },
+
   passkey: {
     buttonView: 'passkey_button_view',
     authSuccess: 'passkey_auth_success',

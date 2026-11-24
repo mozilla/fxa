@@ -24,6 +24,7 @@ import * as cachedLogin from './web/cachedLogin';
 import * as passwordReset from './web/passwordReset';
 import * as thirdPartyAuth from './web/thirdPartyAuth';
 import * as postVerifySetPassword from './web/postVerifySetPassword';
+import * as forcePasswordChange from './web/forcePasswordChange';
 import * as passkeyEnterPassword from './web/passkeyEnterPassword';
 import * as passkey from './web/passkey';
 import * as alertBar from './web/alertBar';
@@ -547,6 +548,12 @@ const recordEventMetric = async (
       postVerifySetPassword.success.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
+      break;
+    case 'force_password_change_view':
+      forcePasswordChange.view.record();
+      break;
+    case 'force_password_change_submit':
+      forcePasswordChange.submit.record();
       break;
     case 'passkey_button_view':
       passkey.buttonView.record({
