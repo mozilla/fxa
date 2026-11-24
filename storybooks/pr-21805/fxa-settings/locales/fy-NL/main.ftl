@@ -48,6 +48,7 @@ app-footer-terms-of-service = Tsjinstbetingsten
 
 
 app-default-title-2 = { -product-mozilla-accounts }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = Iepenet yn nij finster
@@ -323,6 +324,7 @@ confirmation-link-reused-message = Dy befêstigingskeppeling is al brûkt en kin
 locale-toggle-select-label = Taal selektearje
 locale-toggle-browser-default = Browserstandert
 error-bad-request = Unjildige oanfraach
+error-bad-request-page-title = Unjildige oanfraach
 
 
 pair-unsupported-hint-heading = Foltôgje it keppeljen yn de app
@@ -379,6 +381,9 @@ ready-continue = Trochgean
 sign-in-complete-header = Oanmelding befêstige
 sign-up-complete-header = Account befêstige
 primary-email-verified-header = Primêr e-mailadres befêstige
+sign-in-complete-page-title = Oanmelding befêstige
+sign-up-complete-page-title = Account befêstige
+primary-email-verified-page-title = Primêr e-mailadres befêstige
 
 
 flow-recovery-key-download-storage-ideas-heading-v2 = Plakken om jo kaai te bewarjen:
@@ -920,6 +925,7 @@ security-set-password = Stel in wachtwurd yn om te syngronisearjen en bepaalde a
 security-recent-activity-link = Resinte accountaktiviteit besjen
 signout-sync-header = Sesje ferrûn
 signout-sync-session-expired = Sorry, der is wat misgien. Meld jo ôf fan it browsermenu út en probearje it opnij.
+signout-sync-page-title = Sesje ferrûn
 
 
 tfa-row-backup-codes-title = Reserve-autentikaasjekoaden
@@ -1166,14 +1172,17 @@ connect-another-device-cad-link = Noch in apparaat keppelje
 connect-another-device-not-now-link = No net
 connect-another-device-android-complete-setup-message = Meld jo oan by { -brand-firefox } foar Android om de ynstallaasje te foltôgjen
 connect-another-device-ios-complete-setup-message = Meld jo oan by { -brand-firefox } foar iOS om de ynstallaasje te foltôgjen
+connect-another-device-page-title = In oar apparaat ferbine
 
 
 cookies-disabled-header = Lokale opslach en cookies binne ferplicht
 cookies-disabled-enable-prompt-2 = Skeakel cookies en lokale opslach yn jo browser yn foar tagong ta { -product-mozilla-account }. Hjirtroch wurde funksjonaliteiten lykas it ûnthâlden fan jo, tusken sesjes ynskeakele.
 cookies-disabled-button-try-again = Opnij probearje
 cookies-disabled-learn-more = Mear ynfo
+cookies-disabled-page-title = Cookies en lokale opslach binne fereaske
 
 
+index-page-title = Oanmelde of in account oanmeitsje
 index-header = Fier jo e-mailadres yn
 index-sync-header = Trochgean nei jo { -product-mozilla-account }
 index-sync-subheader = Syngronisearje jo wachtwurden, ljepblêden en blêdwizers oeral wêr't jo { -brand-firefox } brûke.
@@ -1208,6 +1217,9 @@ inline-recovery-key-setup-download-header = Befeiligje jo account
 inline-recovery-key-setup-download-subheader = No downloade en bewarje
 inline-recovery-key-setup-download-info = Bewarje dizze kaai op in plak dy’t jo ûnthâlde kinne – jo kinne dizze side letter net mear iepenje.
 inline-recovery-key-setup-hint-header = Befeiligingsoanrekommandaasje
+inline-recovery-key-setup-create-page-title = In accountwerstelkaai oanmeitsje
+inline-recovery-key-setup-download-page-title = Jo accountwerstelkaai downloade
+inline-recovery-setup-choice-page-title = Kies in werstelmetoade
 
 
 inline-totp-setup-cancel-setup-button = Konfiguraasje annulearje
@@ -1232,6 +1244,7 @@ inline-totp-setup-page-title = Autentikaasje yn twa stappen
 page-not-found-heading = Side net fûn
 page-not-found-description = De opfrege side is net fûn. Wy binne op de hichte en sille keppelingen dy’t mooglik net wurkje werom bringe.
 page-not-found-home-button = Startside
+page-not-found-page-title = Side net fûn
 
 
 pair-auth-allow-heading-text = Hawwe jo jo krekt oanmeld by { -brand-firefox }?
@@ -1249,6 +1262,7 @@ pair-auth-complete-manage-devices-link = Apparaten beheare
 pair-auth-complete-send-tab-heading = Jo binne klear om inkelde ljepblêden te ferstjoeren
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } foar { $deviceOS } is ferbûn.
 pair-auth-complete-send-tab-benefits = Jo binne frij om iepen ljepblêden, wachtwurden en blêdwizers direkt tusken apparaten te ferstjoeren.
+pair-auth-complete-page-title = Apparaat ferbûn
 
 
 auth-totp-heading-w-default-service = Fier jo autentikaasjekoade yn <span>om troch te gean nei jo accountynstellingen</span>
@@ -1265,6 +1279,7 @@ pair-wait-for-supp-heading-text = Goedkarring <span>fan jo oare apparaat ôf</sp
 pair-failure-header-v2 = Apparaatkeppeling mislearre
 pair-failure-message-v2 = De ynstallaasje koe net foltôge wurde. Meld jo oan mei jo e-mailadres.
 pair-failure-try-again-link = Opnij probearje
+pair-failure-page-title = Apparaatkeppeling mislearre
 
 
 pair-sync-header = { -brand-firefox } syngronisearje op jo telefoan of tablet
@@ -1298,16 +1313,20 @@ pair-download-description = Om { -brand-firefox } op jo telefoan of tablet te sy
 pair-download-step-scan-qr = <b>Stap { $stepNumber }</b>: Download { -brand-firefox } troch dizze QR-koade te scannen mei de kamera op jo mobile apparaat:
 pair-download-step-continue-sync = <b>Stap { $stepNumber }</b>: Selektearje ‘Trochgean om te syngronisearjen’ om jo { -brand-firefox }-ûnderfining op jo mobile apparaat te syngronisearjen.
 pair-continue-to-sync-button = Trochgean om te syngronisearjen
+pair-choice-page-title = In oar apparaat ferbine
+pair-download-page-title = { -brand-firefox } foar mobyl downloade
 
 
 pair-success-header-2 = Apparaat ferbûn
 pair-success-message-2 = Keppeling slagge.
 pair-success-tab-close-message = Dit ljepblêd wurdt automatysk sluten troch { -brand-firefox }.
+pair-success-page-title = Apparaat ferbûn
 
 
 pair-supp-allow-heading-text = Keppeling <span>foar { $email }</span> befêstigje
 pair-supp-allow-confirm-button = Keppeling befêstigje
 pair-supp-allow-cancel-link = Annulearje
+pair-supp-allow-page-title = Keppeling befêstigje
 
 
 pair-wait-for-auth-heading-text = Goedkarring <span>fan jo oare apparaat ôf</span> no fereaske
@@ -1323,6 +1342,7 @@ pair-unsupported-connecting-mobile-instructions-v2 = Iepenje { -brand-firefox } 
 pair-unsupported-learn-more-link-v2 = Mear ynfo
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oepsie, der is wat misgien.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Slút dit ljepblêd en probearje it nochris.
+pair-unsupported-desktop-non-firefox-page-title = { -brand-firefox } fereaske
 
 
 pair2-authority-approve-sign-in-heading = Oanmelden goedkarre?

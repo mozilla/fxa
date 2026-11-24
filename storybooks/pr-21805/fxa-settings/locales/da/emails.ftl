@@ -383,7 +383,6 @@ postVerify-description-2 = Det er nemt! Du skal bare installere { -brand-firefox
 postVerify-sub-description = (Psst… Det betyder også, at du kan få dine bogmærker, adgangskoder og andre { -brand-firefox }-data overalt, hvor du er logget ind).
 postVerify-subject-4 = Velkommen til { -brand-mozilla }!
 postVerify-setup-2 = Forbind en anden enhed:
-postVerify-action-2 = Forbind andre enheder
 postVerifySecondary-subject = Sekundær mailadresse tilføjet
 postVerifySecondary-title = Sekundær mailadresse tilføjet
 # Variables:

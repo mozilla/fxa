@@ -48,6 +48,7 @@ app-footer-terms-of-service = Servicevoorwaarden
 
 
 app-default-title-2 = { -product-mozilla-accounts }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = Opent in nieuw venster
@@ -304,6 +305,7 @@ input-phone-number-country-canada = Canada
 reset-pwd-link-damaged-header = Herinitialisatiekoppeling beschadigd
 signin-link-damaged-header = Bevestigingskoppeling beschadigd
 report-signin-link-damaged-header = Koppeling beschadigd
+report-signin-link-damaged-page-title = Meldingskoppeling beschadigd
 reset-pwd-link-damaged-message = De koppeling waarop u hebt geklikt miste tekens en is mogelijk beschadigd geraakt door uw e-mailclient. Kopieer het adres zorgvuldig en probeer het opnieuw.
 
 
@@ -323,6 +325,7 @@ confirmation-link-reused-message = Die bevestigingskoppeling is al gebruikt, en 
 locale-toggle-select-label = Taal selecteren
 locale-toggle-browser-default = Browserstandaard
 error-bad-request = Ongeldige aanvraag
+error-bad-request-page-title = Ongeldige aanvraag
 
 
 pair-unsupported-hint-heading = Rond het koppelen af in de app
@@ -379,6 +382,9 @@ ready-continue = Doorgaan
 sign-in-complete-header = Aanmelding bevestigd
 sign-up-complete-header = Account bevestigd
 primary-email-verified-header = Primair e-mailadres bevestigd
+sign-in-complete-page-title = Aanmelding bevestigd
+sign-up-complete-page-title = Account bevestigd
+primary-email-verified-page-title = Primair e-mailadres bevestigd
 
 
 flow-recovery-key-download-storage-ideas-heading-v2 = Plaatsen om uw sleutel op te slaan:
@@ -628,6 +634,7 @@ modal-mfa-protected-cancel-button = Annuleren
 modal-mfa-protected-confirm-button = Bevestigen
 modal-mfa-protected-code-expired = Code verlopen?
 modal-mfa-protected-resend-code-link = Nieuwe code versturen per e-mail.
+modal-mfa-protected-clock-skew-error = De klok van uw apparaat staat niet juist. Corrigeer de datum en tijd op uw apparaat en probeer het opnieuw.
 
 
 mvs-verify-your-email-2 = Bevestig uw e-mailadres
@@ -916,6 +923,7 @@ security-set-password = Stel een wachtwoord in om te synchroniseren en bepaalde 
 security-recent-activity-link = Recente accountactiviteit bekijken
 signout-sync-header = Sessie verlopen
 signout-sync-session-expired = Sorry, er is iets misgegaan. Meld u af vanuit het browsermenu en probeer het opnieuw.
+signout-sync-page-title = Sessie verlopen
 
 
 tfa-row-backup-codes-title = Reserve-authenticatiecodes
@@ -1162,14 +1170,17 @@ connect-another-device-cad-link = Een ander apparaat verbinden
 connect-another-device-not-now-link = Niet nu
 connect-another-device-android-complete-setup-message = Meld u aan bij { -brand-firefox } voor Android om de installatie te voltooien
 connect-another-device-ios-complete-setup-message = Meld u aan bij { -brand-firefox } voor iOS om de installatie te voltooien
+connect-another-device-page-title = Een ander apparaat verbinden
 
 
 cookies-disabled-header = Lokale opslag en cookies zijn vereist
 cookies-disabled-enable-prompt-2 = Schakel cookies en lokale opslag in uw browser in voor toegang tot uw { -product-mozilla-account }. Hierdoor worden functionaliteiten zoals het onthouden van u tussen sessies ingeschakeld.
 cookies-disabled-button-try-again = Opnieuw proberen
 cookies-disabled-learn-more = Meer info
+cookies-disabled-page-title = Cookies en lokale opslag zijn vereist
 
 
+index-page-title = Aanmelden of een account aanmaken
 index-header = Voer uw e-mailadres in
 index-sync-header = Doorgaan naar uw { -product-mozilla-account }
 index-sync-subheader = Synchroniseer uw wachtwoorden, tabbladen en bladwijzers overal waar u { -brand-firefox } gebruikt.
@@ -1204,6 +1215,15 @@ inline-recovery-key-setup-download-header = Beveilig uw account
 inline-recovery-key-setup-download-subheader = Nu downloaden en opslaan
 inline-recovery-key-setup-download-info = Bewaar deze sleutel op een plek die u kunt onthouden – u kunt deze pagina later niet meer openen.
 inline-recovery-key-setup-hint-header = Beveiligingsaanbeveling
+inline-recovery-key-setup-create-page-title = Een accountherstelsleutel aanmaken
+inline-recovery-key-setup-download-page-title = Uw accountherstelsleutel downloaden
+inline-recovery-key-setup-hint-page-title = Een herstelsleutelhint toevoegen
+inline-recovery-setup-choice-page-title = Kies een herstelmethode
+inline-recovery-setup-download-codes-page-title = Uw back-upcodes opslaan
+inline-recovery-setup-confirm-code-page-title = Een back-upcode bevestigen
+inline-recovery-setup-phone-number-page-title = Een hersteltelefoonnummer toevoegen
+inline-recovery-setup-phone-code-page-title = Bevestig uw hersteltelefoonnummer
+inline-recovery-setup-complete-page-title = Authenticatie in twee stappen ingeschakeld
 
 
 inline-totp-setup-cancel-setup-button = Configuratie annuleren
@@ -1223,16 +1243,20 @@ inline-totp-setup-security-code-placeholder = Authenticatiecode
 inline-totp-setup-code-required-error = Authenticatiecode vereist
 tfa-qr-code-alt = Gebruik de code { $code } om authenticatie in twee stappen in ondersteunde toepassingen in te schakelen.
 inline-totp-setup-page-title = Authenticatie in twee stappen
+inline-totp-setup-intro-page-title = Authenticatie in twee stappen instellen
+inline-totp-setup-enrol-page-title = Verbind uw authenticator-app
 
 
 page-not-found-heading = Pagina niet gevonden
 page-not-found-description = De opgevraagde pagina is niet gevonden. We zijn op de hoogte en zullen koppelingen die mogelijk niet werken herstellen.
 page-not-found-home-button = Startpagina
+page-not-found-page-title = Pagina niet gevonden
 
 
 pair-auth-allow-heading-text = Hebt u zich zojuist aangemeld bij { -brand-firefox }?
 pair-auth-allow-confirm-button = Ja, apparaat goedkeuren
 pair-auth-allow-refuse-device-link = Als u dit niet was, <a>wijzig dan uw wachtwoord</a>
+pair-auth-allow-page-title = { -brand-firefox }-aanmelding goedkeuren
 
 
 pair-auth-complete-heading = Apparaat verbonden
@@ -1245,6 +1269,8 @@ pair-auth-complete-manage-devices-link = Apparaten beheren
 pair-auth-complete-send-tab-heading = U bent klaar om enkele tabbladen te verzenden
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } voor { $deviceOS } is verbonden.
 pair-auth-complete-send-tab-benefits = U bent vrij om direct open tabbladen, wachtwoorden en bladwijzers tussen apparaten te verzenden.
+pair-auth-complete-page-title = Apparaat verbonden
+pair-auth-complete-send-tab-page-title = Gereed voor het verzenden van tabbladen
 
 
 auth-totp-heading-w-default-service = Voer uw authenticatiecode in <span>om door te gaan naar uw accountinstellingen</span>
@@ -1253,14 +1279,17 @@ auth-totp-instruction = Open uw app voor authenticatie en voer de aangeboden aut
 auth-totp-input-label = Voer 6-cijferige code in
 auth-totp-confirm-button = Bevestigen
 auth-totp-code-required-error = Authenticatiecode vereist
+auth-totp-page-title = Koppelen met authenticatie in twee stappen
 
 
 pair-wait-for-supp-heading-text = Goedkeuring <span>vanaf uw andere apparaat</span> nu vereist
+pair-wait-for-supp-page-title = Bevestig op uw andere apparaat
 
 
 pair-failure-header-v2 = Apparaatkoppeling mislukt
 pair-failure-message-v2 = De installatie kon niet worden voltooid. Meld u aan met uw e-mailadres.
 pair-failure-try-again-link = Opnieuw proberen
+pair-failure-page-title = Apparaatkoppeling mislukt
 
 
 pair-sync-header = { -brand-firefox } synchroniseren op uw telefoon of tablet
@@ -1294,19 +1323,25 @@ pair-download-description = Om { -brand-firefox } op uw telefoon of tablet te sy
 pair-download-step-scan-qr = <b>Stap { $stepNumber }</b>: download { -brand-firefox } door deze QR-code te scannen met de camera op uw mobiele apparaat:
 pair-download-step-continue-sync = <b>Stap { $stepNumber }</b>: selecteer ‘Doorgaan om te synchroniseren’ om uw { -brand-firefox }-ervaring op uw mobiele apparaat te synchroniseren.
 pair-continue-to-sync-button = Doorgaan om te synchroniseren
+pair-choice-page-title = Een ander apparaat verbinden
+pair-choice-send-tab-page-title = Tabbladen naar een ander apparaat verzenden
+pair-download-page-title = { -brand-firefox } voor mobiel downloaden
 
 
 pair-success-header-2 = Apparaat verbonden
 pair-success-message-2 = Koppelen gelukt.
 pair-success-tab-close-message = Dit tabblad wordt automatisch gesloten door { -brand-firefox }.
+pair-success-page-title = Apparaat verbonden
 
 
 pair-supp-allow-heading-text = Koppeling <span>voor { $email }</span> bevestigen
 pair-supp-allow-confirm-button = Koppeling bevestigen
 pair-supp-allow-cancel-link = Annuleren
+pair-supp-allow-page-title = Koppeling bevestigen
 
 
 pair-wait-for-auth-heading-text = Goedkeuring <span>vanaf uw andere apparaat</span> nu vereist
+pair-wait-for-auth-page-title = Goedkeuren op uw andere apparaat
 
 
 pair-unsupported-header = Koppelen via een app
@@ -1319,21 +1354,28 @@ pair-unsupported-connecting-mobile-instructions-v2 = Open { -brand-firefox } op 
 pair-unsupported-learn-more-link-v2 = Meer info
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oeps, er is iets misgegaan.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Sluit dit tabblad en probeer het opnieuw.
+pair-unsupported-desktop-non-firefox-page-title = { -brand-firefox } vereist
+pair-unsupported-system-camera-page-title = Koppelen via een app
+pair-unsupported-mobile-page-title = Mobiel apparaat verbinden
+pair-unsupported-desktop-firefox-fallback-page-title = Er is iets misgegaan
 
 
 pair2-authority-approve-sign-in-heading = Aanmelding goedkeuren?
 pair2-authority-approve-sign-in-confirm-button = Ja, aanmelding goedkeuren
 pair2-authority-approve-sign-in-change-password = Bent u dit niet? <changePassword>Wijzig uw wachtwoord</changePassword>
+pair2-authority-approve-sign-in-page-title = Aanmelding goedkeuren
 
 
 pair2-authority-continue-on-mobile-heading = Doorgaan op uw mobiele apparaat
 pair2-authority-continue-on-mobile-description = Volg de stappen op uw telefoon of tablet.
 pair2-authority-continue-on-mobile-cancel-button = Annuleren
+pair2-authority-continue-on-mobile-page-title = Doorgaan op uw mobiele apparaat
 
 
 pair2-authority-download-firefox-heading = Open { -brand-firefox } om te synchroniseren
 pair2-authority-download-firefox-instruction-v2 = Open { -brand-firefox } op dit apparaat en bezoek <b>firefox.com/pair</b> om synchronisatie tussen apparaten in te stellen.
 pair2-authority-download-firefox-cta = { -brand-firefox } downloaden
+pair2-authority-download-firefox-page-title = Open { -brand-firefox } om te synchroniseren
 
 
 pair2-authority-scan-qr-heading = Scan om uw mobiele apparaat te verbinden
@@ -1341,11 +1383,13 @@ pair2-authority-scan-qr-instruction = Scan de QR-code met uw telefoon of tablet 
 pair2-authority-scan-qr-code-aria-label = QR-code om uw mobiele apparaat te verbinden
 pair2-authority-scan-qr-other-ways-link = Andere manieren om aan te melden
 pair2-authority-scan-qr-skip-button = Voorlopig overslaan
+pair2-authority-scan-qr-page-title = Scan om uw mobiele apparaat te verbinden
 
 
 pair2-authority-sync-success-heading-v2 = Uw apparaat is verbonden
 pair2-authority-sync-success-description-v2 = De synchronisatie is gestart. Het kan even duren voordat uw gesynchroniseerde gegevens verschijnen. U kunt ondertussen gewoon verder surfen.
 pair2-authority-sync-success-sync-settings-button-v2 = Synchronisatie-instellingen beheren
+pair2-authority-sync-success-page-title = Apparaat verbonden
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Wilt u toch een apparaat verbinden?
@@ -1354,16 +1398,20 @@ pair2-authority-timeout-and-cancel-cancelled-heading = Geannuleerd
 pair2-authority-timeout-and-cancel-canceled-description = Als u van gedachten verandert of een ander apparaat wilt verbinden, probeer het dan opnieuw.
 pair2-authority-timeout-and-cancel-try-again-button = Opnieuw proberen
 pair2-authority-timeout-and-cancel-sync-settings-button = Synchronisatie-instellingen
+pair2-authority-timeout-and-cancel-timeout-page-title = Wachttijd voor verbinding verstreken
+pair2-authority-timeout-and-cancel-cancelled-page-title = Koppelen geannuleerd
 
 
 pair2-supplicant-approve-sign-in-heading = Een laatste synchronisatiestap
 pair2-supplicant-approve-sign-in-instruction = Keur de aanmelding op uw computer goed.
 pair2-supplicant-approve-sign-in-cancel-button = Annuleren
+pair2-supplicant-approve-sign-in-page-title = Een laatste synchronisatiestap
 
 
 pair2-supplicant-connect-this-device-heading = Dit apparaat met uw account verbinden?
 pair2-supplicant-connect-this-device-connect-button = Verbinden
 pair2-supplicant-connect-this-device-cancel-button = Annuleren
+pair2-supplicant-connect-this-device-page-title = Dit apparaat verbinden
 
 
 pair2-supplicant-download-firefox-heading-v2 = { -brand-firefox } openen op dit apparaat
@@ -1373,15 +1421,21 @@ pair2-supplicant-download-firefox-opening-button = { -brand-firefox } openen…
 pair2-supplicant-download-firefox-download-button = { -brand-firefox } downloaden
 pair2-supplicant-download-firefox-have-firefox-button = Ik heb { -brand-firefox } al
 pair2-supplicant-download-firefox-learn-more-link = Meer info
+pair2-supplicant-download-firefox-page-title = { -brand-firefox } openen op dit apparaat
+
+
+pair2-supplicant-connect-hint-page-title = Koppelen afronden in de app
 
 
 pair2-supplicant-ready-to-scan-heading = Een apparaat verbinden
 pair2-supplicant-ready-to-scan-instruction = Open { -brand-firefox } op uw computer, bezoek <b>firefox.com/pair</b> en volg de instructies op het scherm om dit mobiele apparaat te verbinden.
 pair2-supplicant-ready-to-scan-learn-more-link = Meer info
+pair2-supplicant-ready-to-scan-page-title = Klaar om te scannen
 
 
 pair2-supplicant-sync-success-heading = Uw apparaat is verbonden
 pair2-supplicant-sync-success-description-v2 = De synchronisatie is gestart. Het kan even duren voordat uw gesynchroniseerde gegevens verschijnen. U kunt ondertussen gewoon verder surfen.
+pair2-supplicant-sync-success-page-title = Apparaat verbonden
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Het lijkt erop dat er een time-out is opgetreden
@@ -1390,6 +1444,9 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Geannuleerd
 pair2-supplicant-timeout-and-cancel-canceled-description = Bezoek <b>firefox.com/pair</b> op uw computer om op elk gewenst moment een apparaat te verbinden.
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Dit apparaat is al aangemeld
 pair2-supplicant-timeout-and-cancel-signed-in-description = Meld u af bij { -brand-firefox } op dit apparaat en ga vervolgens op uw computer naar <b>firefox.com/pair</b> om de aanmelding te voltooien en verbinding te maken met uw desktopaccount.
+pair2-supplicant-timeout-and-cancel-timeout-page-title = Wachttijd voor verbinding verstreken
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = Koppelen geannuleerd
+pair2-supplicant-timeout-and-cancel-signed-in-page-title = Apparaat al aangemeld
 
 
 permissions-heading = { $serviceName } wil toegang tot:
@@ -1398,17 +1455,20 @@ permissions-label-display-name = Weergavenaam
 permissions-label-avatar = Accountafbeelding
 permissions-continue-button = Doorgaan
 permissions-cancel-button = Annuleren
+permissions-page-title = Machtigingen controleren
 
 
 force-password-change-heading = Wijzig uw wachtwoord
 force-password-change-info = We hebben verdacht gedrag op uw { -product-mozilla-account } gedetecteerd. Maak een nieuw wachtwoord aan om uw account te beschermen. Dit wachtwoord gebruikt u om u weer bij al uw { -product-mozilla-account }-services aan te melden.
 force-password-change-data-info = Gesynchroniseerde geschiedenis, bladwijzers, aanmeldingen en andere persoonlijke gegevens gaan niet verloren.
+force-password-change-page-title = Uw wachtwoord wijzigen
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } bevestigd
 service-welcome-signin-success-banner = Met succes aangemeld!
 service-welcome-vpn-heading = Volgende: VPN inschakelen
 service-welcome-vpn-description = Nog één stap om de privacy van uw browser te verbeteren. Ga naar het open paneel en schakel VPN in.
+service-welcome-vpn-page-title = VPN inschakelen
 
 
 set-password-heading-v2 = Maak een wachtwoord aan om te synchroniseren
@@ -1416,6 +1476,7 @@ set-password-info-v2 = Hierdoor worden uw gegevens versleuteld. Het dient anders
 
 
 set-password-passwordless-info = Dit wachtwoord versleutelt uw gesynchroniseerde gegevens en houdt ze veilig.
+set-password-page-title = Een wachtwoord aanmaken om te synchroniseren
 
 
 third-party-auth-callback-message = Even geduld, u wordt doorgestuurd naar de geautoriseerde toepassing.
@@ -1428,6 +1489,7 @@ account-recovery-confirm-key-input-label =
 account-recovery-confirm-key-hint = Uw opslaghint is:
 account-recovery-confirm-key-button-2 = Doorgaan
 account-recovery-lost-recovery-key-link-2 = Kunt u uw accountherstelsleutel niet vinden?
+account-recovery-confirm-key-page-title = Wachtwoord opnieuw instellen met herstelsleutel
 
 
 complete-reset-pw-header-v2 = Nieuw wachtwoord aanmaken
@@ -1437,11 +1499,13 @@ complete-reset-pw-recovery-key-link = Accountherstelsleutel gebruiken
 reset-password-complete-banner-heading = Uw wachtwoord is geherinitialiseerd.
 reset-password-complete-banner-message = Vergeet niet een nieuwe accountherstelsleutel aan te maken vanuit uw { -product-mozilla-account }-instellingen om toekomstige aanmeldingsproblemen te voorkomen.
 complete-reset-password-desktop-relay = { -brand-firefox } probeert u terug te sturen om een e-mailmasker te gebruiken nadat u zich hebt aangemeld.
+complete-reset-password-page-title = Nieuw wachtwoord aanmaken
 confirm-backup-code-reset-password-input-label = Voer code van 10 tekens in
 confirm-backup-code-reset-password-confirm-button = Bevestigen
 confirm-backup-code-reset-password-subheader = Voer reserve-authenticatiecode in
 confirm-backup-code-reset-password-instruction = Voer een van de codes voor eenmalig gebruik in die u hebt opgeslagen bij het instellen van authenticatie in twee stappen.
 confirm-backup-code-reset-password-locked-out-link = Bent u buitengesloten?
+confirm-backup-code-reset-password-page-title = Wachtwoord opnieuw instellen met een reservecode
 
 
 confirm-reset-password-with-code-heading = Controleer uw e-mail
@@ -1450,6 +1514,7 @@ confirm-reset-password-code-input-group-label = Voer binnen 10 minuten een 8-cij
 confirm-reset-password-otp-submit-button = Doorgaan
 confirm-reset-password-otp-resend-code-button = Code nogmaals versturen
 confirm-reset-password-otp-different-account-link = Een andere account gebruiken
+confirm-reset-password-with-code-page-title = Controleer uw e-mail om uw wachtwoord opnieuw in te stellen
 
 
 confirm-totp-reset-password-header = Herinitialiseer uw wachtwoord
@@ -1459,6 +1524,7 @@ confirm-totp-reset-password-trouble-code = Problemen bij het invoeren van de cod
 confirm-totp-reset-password-confirm-button = Bevestigen
 confirm-totp-reset-password-input-label-v2 = Voer 6-cijferige code in
 confirm-totp-reset-password-use-different-account = Een andere account gebruiken
+confirm-totp-reset-password-page-title = Wachtwoord opnieuw instellen met authenticatie in twee stappen
 
 
 password-reset-flow-heading = Uw wachtwoord opnieuw instellen
@@ -1468,10 +1534,12 @@ password-reset-email-input =
     .label = Voer uw e-mailadres in
 password-reset-submit-button-2 = Doorgaan
 password-reset-data-recovery-warning = Het opnieuw instellen van uw wachtwoord kan invloed hebben op of u gesynchroniseerde browsergegevens kunt herstellen. <learnMoreLink>Meer info</learnMoreLink>
+password-reset-flow-page-title = Uw wachtwoord opnieuw instellen
 
 
 reset-password-complete-header = Uw wachtwoord is opnieuw ingesteld
 reset-password-confirmed-cta = Doorgaan naar { $serviceName }
+reset-password-confirmed-page-title = Wachtwoord opnieuw ingesteld
 
 
 password-reset-recovery-method-header = Uw wachtwoord herinitialiseren
@@ -1486,6 +1554,7 @@ password-reset-recovery-method-code-info =
     }
 password-reset-recovery-method-send-code-error-heading = Er is een probleem opgetreden bij het verzenden van een code naar uw hersteltelefoonnummer
 password-reset-recovery-method-send-code-error-description = Probeer het later opnieuw of gebruik uw reserve-authenticatiecodes.
+password-reset-recovery-method-page-title = Wachtwoord opnieuw instellen met een herstelmethode
 
 
 reset-password-recovery-phone-flow-heading = Herinitialiseer uw wachtwoord
@@ -1501,15 +1570,18 @@ reset-password-recovery-phone-code-verification-error-heading = Er is een proble
 reset-password-recovery-phone-general-error-description = Probeer het later opnieuw.
 reset-password-recovery-phone-invalid-code-error-description = De code is ongeldig of verlopen.
 reset-password-recovery-phone-invalid-code-error-link = Reserve-authenticatiecodes in plaats hiervan gebruiken?
+reset-password-recovery-phone-page-title = Wachtwoord opnieuw instellen met hersteltelefoonnummer
 reset-password-with-recovery-key-verified-page-title = Wachtwoord met succes opnieuw ingesteld
 reset-password-complete-new-password-saved = Nieuw wachtwoord opgeslagen!
 reset-password-complete-recovery-key-created = Nieuwe accountherstelsleutel aangemaakt. Download en bewaar deze nu.
 reset-password-complete-recovery-key-download-info = Deze sleutel is essentieel voor gegevensherstel als u uw wachtwoord vergeet. <b>Download en bewaar het nu veilig, omdat u deze pagina later niet meer kunt openen.</b>
+reset-password-with-recovery-key-verified-hint-page-title = Een herstelsleutelhint toevoegen
 
 
 server-error-heading = Fout 500
 server-error-description = O jee, daar ging iets mis. We zijn op de hoogte gebracht en gaan aan een oplossing werken.
 server-error-home-button = Startpagina
+server-error-page-title = Serverfout
 
 
 error-label = Fout:
@@ -1517,8 +1589,13 @@ validating-signin = Aanmelding valideren…
 complete-signin-error-header = Bevestigingsfout
 signin-link-expired-header = Bevestigingskoppeling verlopen
 signin-link-expired-message-2 = De koppeling waarop u hebt geklikt is verlopen of is al gebruikt.
+complete-signin-error-page-title = Fout bij aanmeldingsbevestiging
+complete-signin-validating-page-title = Aanmelding bevestigen
 
 
+signin-password-page-title = Voer uw wachtwoord in
+signin-cached-page-title = Aanmelden
+signin-alternative-auth-page-title = Kies een aanmeldmethode
 signin-password-needed-header-2 = Voer uw wachtwoord in <span>voor uw { -product-mozilla-account }</span>
 signin-button-start-syncing = Beginnen met synchroniseren
 signin-subheader-without-logo-with-servicename = Doorgaan naar { $serviceName }
@@ -1542,11 +1619,13 @@ report-signin-body = U hebt een e-mailbericht ontvangen over een poging om toega
 report-signin-submit-button = Activiteit melden
 report-signin-support-link = Waarom gebeurt dit?
 report-signin-error = Sorry, er was een probleem tijdens het indienen van het rapport.
+report-signin-page-title = Ongeautoriseerde aanmelding melden
 signin-bounced-header = Sorry. We hebben uw account vergrendeld.
 signin-bounced-message = De bevestigingsmail die we naar { $email } hebben verstuurd, is geretourneerd en om uw { -brand-firefox }-gegevens te beschermen, is uw account vergrendeld.
 signin-bounced-help = Als dit een geldig e-mailadres is, <linkExternal>laat dit dan weten</linkExternal> en we helpen uw account te ontgrendelen.
 signin-bounced-create-new-account = Hebt u dat e-mailadres niet meer? Maak een nieuwe account
 back = Terug
+signin-bounced-page-title = Account vergrendeld
 
 
 signin-passkey-fallback-header = Aanmelding voltooien
@@ -1560,6 +1639,7 @@ signin-passkey-fallback-no-prf-description = Deze browser of dit apparaat kan uw
 signin-passkey-fallback-unwrap-failed-heading = Uw wachtwoordsleutel kan synchronisatie niet ontgrendelen
 signin-passkey-fallback-unwrap-failed-description = Er is iets misgegaan, dus deze keer hebt u uw wachtwoord nodig.
 signin-passkey-fallback-wrap-unusable-link = Meer info
+signin-passkey-fallback-page-title = Voer uw wachtwoord in om te synchroniseren
 
 
 signin-passwordless-code-heading = Voer bevestigingscode in
@@ -1587,6 +1667,8 @@ signup-passwordless-code-subheading = Registratie vereist slechts één stap als
 
 
 signin-passwordless-totp-required = Authenticatie in twee stappen is ingeschakeld voor uw account. Meld u aan met uw wachtwoord.
+signin-passwordless-code-page-title = Aanmelden met e-mailcode
+signup-passwordless-code-page-title = Registreren met e-mailcode
 
 
 signin-recovery-method-header = Aanmelden
@@ -1601,6 +1683,7 @@ signin-recovery-method-code-info-v2 =
     }
 signin-recovery-method-send-code-error-heading = Er is een probleem opgetreden bij het verzenden van een code naar uw hersteltelefoonnummer
 signin-recovery-method-send-code-error-description = Probeer het later opnieuw of gebruik uw reserve-authenticatiecodes.
+signin-recovery-method-page-title = Aanmelden met een herstelmethode
 
 
 signin-recovery-code-heading = Aanmelden
@@ -1613,6 +1696,7 @@ signin-recovery-code-support-link = Bent u buitengesloten?
 signin-recovery-code-required-error = Reserve-authenticatiecode vereist
 signin-recovery-code-use-phone-failure = Er is een probleem opgetreden bij het verzenden van een code naar uw hersteltelefoonnummer
 signin-recovery-code-use-phone-failure-description = Probeer het later opnieuw.
+signin-recovery-code-page-title = Aanmelden met een reservecode
 
 
 signin-recovery-phone-flow-heading = Aanmelden
@@ -1629,10 +1713,12 @@ signin-recovery-phone-general-error-description = Probeer het later opnieuw.
 signin-recovery-phone-invalid-code-error-description = De code is ongeldig of verlopen.
 signin-recovery-phone-invalid-code-error-link = Reserve-authenticatiecodes in plaats hiervan gebruiken?
 signin-recovery-phone-success-message = Met succes aangemeld. Er kunnen beperkingen van toepassing zijn als u uw hersteltelefoonnummer opnieuw gebruikt.
+signin-recovery-phone-page-title = Aanmelden met hersteltelefoonnummer
 
 
 signin-reported-header = Bedankt voor uw opmerkzaamheid
 signin-reported-message = Ons team is op de hoogte gebracht. Dit soort meldingen helpen ons om indringers tegen te houden.
+signin-reported-page-title = Aanmelding gerapporteerd
 
 
 signin-token-code-heading-2 = Voer bevestigingscode in <span>voor uw { -product-mozilla-account }</span>
@@ -1649,6 +1735,7 @@ signin-token-code-resend-code-countdown =
 signin-token-code-required-error = Bevestigingscode vereist
 signin-token-code-resend-error = Er is iets misgegaan. Er kon geen nieuwe code worden verzonden.
 signin-token-code-instruction-desktop-relay = { -brand-firefox } probeert u terug te sturen om een e-mailmasker te gebruiken nadat u zich hebt aangemeld.
+signin-token-code-page-title = Aanmelding bevestigen met e-mailcode
 
 
 signin-totp-code-header = Aanmelden
@@ -1664,6 +1751,7 @@ signin-totp-code-other-account-link = Een andere account gebruiken
 signin-totp-code-recovery-code-link = Problemen bij het invoeren van de code?
 signin-totp-code-required-error = Authenticatiecode vereist
 signin-totp-code-desktop-relay = { -brand-firefox } probeert u terug te sturen om een e-mailmasker te gebruiken nadat u zich hebt aangemeld.
+signin-totp-code-page-title = Aanmelden met authenticatie in twee stappen
 
 
 signin-unblock-header = Deze aanmelding autoriseren
@@ -1676,8 +1764,10 @@ signin-unblock-code-incorrect-format-2 = Autorisatiecode mag alleen letters en/o
 signin-unblock-resend-code-button = Niet in Postvak IN of map met spam? Opnieuw verzenden
 signin-unblock-support-link = Waarom gebeurt dit?
 signin-unblock-desktop-relay = { -brand-firefox } probeert u terug te sturen om een e-mailmasker te gebruiken nadat u zich hebt aangemeld.
+signin-unblock-page-title = Deze aanmelding autoriseren
 
 
+confirm-signup-code-page-title-2 = Bevestig uw e-mailadres
 confirm-signup-code-heading-2 = Voer bevestigingscode in <span>voor uw { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Voer binnen 5 minuten de code in die naar <email>{ $email }</email> is verzonden.
 confirm-signup-code-input-label = Voer 6-cijferige code in
@@ -1700,6 +1790,7 @@ signup-relay-info = Er is een wachtwoord nodig om uw gemaskeerde e-mailadressen 
 signup-sync-info = Synchroniseer uw wachtwoorden, bladwijzers en meer, overal waar u { -brand-firefox } gebruikt.
 signup-sync-info-with-payment = Synchroniseer uw wachtwoorden, betalingsmethoden, bladwijzers en meer, overal waar u { -brand-firefox } gebruikt.
 signup-change-email-link = E-mailadres wijzigen
+signup-page-title = Uw account aanmaken
 
 
 signup-confirmed-sync-header = Synchronisatie is ingeschakeld
@@ -1710,8 +1801,10 @@ signup-confirmed-sync-description-v2 = Uw wachtwoorden, adressen, bladwijzers, g
 signup-confirmed-sync-add-device-link = Nog een apparaat toevoegen
 signup-confirmed-sync-manage-sync-button = Synchronisatie beheren
 signup-confirmed-sync-set-password-success-banner = Synchronisatiewachtwoord aangemaakt
+signup-confirmed-sync-page-title = Synchronisatie is ingeschakeld
 
 
 update-firefox-heading = { -brand-firefox } moet worden bijgewerkt
 update-firefox-description = Uw { -product-mozilla-account } maakt gebruik van functies die niet worden ondersteund in uw versie van { -brand-firefox }. Download en installeer de nieuwste versie van { -brand-firefox } om verder te gaan.
 update-firefox-download-button = Nieuwste versie downloaden
+update-firefox-page-title = { -brand-firefox } moet worden bijgewerkt

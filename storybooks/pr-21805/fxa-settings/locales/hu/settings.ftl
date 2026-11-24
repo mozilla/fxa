@@ -885,7 +885,7 @@ modal-mfa-protected-code-expired = A kód lejárt?
 # Link to resend a new code to the user's email.
 modal-mfa-protected-resend-code-link = Új kód elküldése e-mailben.
 # Error shown when the code is correct but the device clock is too far ahead of the server time.
-modal-mfa-protected-clock-skew-error = A készülék órája hibás. Javítsa az eszköz dátumát és idejét, majd próbálja újra.
+modal-mfa-protected-clock-skew-error = Az eszköz órája nincs megfelelően beállítva. Javítsa az eszköz dátumát és idejét, majd próbálja újra.
 
 ## Modal Verify Session
 
@@ -1713,25 +1713,25 @@ inline-recovery-key-setup-hint-header = Biztonsági javaslat
 inline-recovery-key-setup-create-page-title = Fiók-helyreállítási kulcs létrehozása
 # Browser tab title for the page where the user downloads their account recovery key.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-inline-recovery-key-setup-download-page-title = Töltse le a fiók-helyreállítási kulcsot
+inline-recovery-key-setup-download-page-title = Fiók-helyreállítási kulcs letöltése
 # Browser tab title for the page where the user adds a hint for their account recovery key.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-inline-recovery-key-setup-hint-page-title = Helyreállítási kulcs tipp hozzáadása
+inline-recovery-key-setup-hint-page-title = Helyreállítási kulcs tippjének hozzáadása
 # Browser tab title for the page where the user chooses a recovery method during two-step authentication setup.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 inline-recovery-setup-choice-page-title = Válasszon helyreállítási módot
 # Browser tab title for the page where the user saves their backup authentication codes.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-inline-recovery-setup-download-codes-page-title = Mentse el a tartalék kódjait
+inline-recovery-setup-download-codes-page-title = Tartalék kódok mentése
 # Browser tab title for the page where the user confirms one of their backup authentication codes.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-inline-recovery-setup-confirm-code-page-title = Erősítsen meg egy tartalék kódot
+inline-recovery-setup-confirm-code-page-title = Tartalék kód megerősítése
 # Browser tab title for the page where the user enters a phone number to use as a recovery phone.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 inline-recovery-setup-phone-number-page-title = Helyreállítási telefonszám hozzáadása
 # Browser tab title for the page where the user enters the code sent to their recovery phone to confirm it.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-inline-recovery-setup-phone-code-page-title = Erősítse meg a helyreállítási telefonszámát
+inline-recovery-setup-phone-code-page-title = Helyreállítási telefonszám megerősítése
 # Browser tab title for the page confirming that two-step authentication is now on for the account.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 inline-recovery-setup-complete-page-title = Kétlépcsős hitelesítés bekapcsolva
@@ -1772,10 +1772,10 @@ tfa-qr-code-alt = Használja a(z) { $code } kódot a kétlépcsős hitelesítés
 inline-totp-setup-page-title = Kétlépcsős hitelesítés
 # Browser tab title for the first page of two-step authentication setup, which introduces the feature.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-inline-totp-setup-intro-page-title = Állítsa be a kétlépcsős hitelesítést
+inline-totp-setup-intro-page-title = Kétlépcsős hitelesítés beállítása
 # Browser tab title for the page where the user connects an authenticator app to their account during two-step authentication setup.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-inline-totp-setup-enrol-page-title = Csatlakoztassa a hitelesítő alkalmazást
+inline-totp-setup-enrol-page-title = Hitelesítő alkalmazás csatlakoztatása
 
 ## PageNotFound page
 ## Shown when the requested page does not exist
@@ -2000,7 +2000,7 @@ pair-unsupported-desktop-non-firefox-page-title = { -brand-firefox } szükséges
 pair-unsupported-system-camera-page-title = Párosítás egy alkalmazás segítségével
 # Browser tab title for the page that explains how to connect a mobile device by starting from { -brand-firefox } on a computer.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair-unsupported-mobile-page-title = Csatlakoztassa a mobileszközét
+pair-unsupported-mobile-page-title = Mobileszköz csatlakoztatása
 # Browser tab title for the page shown to a desktop { -brand-firefox } user when something went wrong and device pairing cannot continue.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 pair-unsupported-desktop-firefox-fallback-page-title = Hiba történt
@@ -2064,7 +2064,7 @@ pair2-authority-scan-qr-other-ways-link = A bejelentkezés egyéb módjai
 pair2-authority-scan-qr-skip-button = Kihagyás
 # Browser tab title for the page showing a QR code the user scans with their mobile device to connect it.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair2-authority-scan-qr-page-title = Olvassa le a mobileszköze csatlakoztatásához
+pair2-authority-scan-qr-page-title = Leolvasás a mobileszköze csatlakoztatásához
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
@@ -2099,7 +2099,7 @@ pair2-authority-timeout-and-cancel-sync-settings-button = Szinkronizálási beá
 pair2-authority-timeout-and-cancel-timeout-page-title = A kapcsolat időtúllépés miatt megszakadt.
 # Browser tab title for the page shown on the computer when the device pairing attempt was cancelled.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair2-authority-timeout-and-cancel-cancelled-page-title = A párosítás megszakítva
+pair2-authority-timeout-and-cancel-cancelled-page-title = Párosítás megszakítva
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
@@ -2154,13 +2154,13 @@ pair2-supplicant-download-firefox-have-firefox-button = Már van { -brand-firefo
 pair2-supplicant-download-firefox-learn-more-link = További tudnivalók
 # Browser tab title for the page shown on the mobile device asking the user to open { -brand-firefox } on it to continue pairing.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair2-supplicant-download-firefox-page-title = Nyissa meg a { -brand-firefox }ot ezen az eszközön
+pair2-supplicant-download-firefox-page-title = A { -brand-firefox } megnyitása ezen az eszközön
 
 ## PairConnectHint page - Part of the desktop-to-mobile pairing flow
 
 # Browser tab title for the page shown on the mobile device telling the user to finish pairing in the { -brand-firefox } app.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair2-supplicant-connect-hint-page-title = Fejezze be a párosítást az alkalmazásban
+pair2-supplicant-connect-hint-page-title = Párosítás befejezése az alkalmazásban
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2208,10 +2208,10 @@ pair2-supplicant-timeout-and-cancel-signed-in-heading = Ez az eszköz már be va
 pair2-supplicant-timeout-and-cancel-signed-in-description = Az asztali fiókjához való csatlakozáshoz jelentkezzen ki a { -brand-firefox }ból ezen az eszközön, majd keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén a bejelentkezés befejezéséhez.
 # Browser tab title for the page shown on the mobile device when the device pairing attempt timed out.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair2-supplicant-timeout-and-cancel-timeout-page-title = A kapcsolat időtúllépés miatt megszakadt.
+pair2-supplicant-timeout-and-cancel-timeout-page-title = A kapcsolat időtúllépés miatt megszakadt
 # Browser tab title for the page shown on the mobile device when the device pairing attempt was cancelled.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair2-supplicant-timeout-and-cancel-cancelled-page-title = A párosítás megszakítva
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = Párosítás megszakítva
 # Browser tab title for the page shown on the mobile device when it is already signed in to an account and cannot be paired.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 pair2-supplicant-timeout-and-cancel-signed-in-page-title = Az eszköz már be van jelentkezve
@@ -2231,7 +2231,7 @@ permissions-continue-button = Folytatás
 permissions-cancel-button = Mégse
 # Browser tab title for the page where the user reviews the profile information an app or service is asking to access.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-permissions-page-title = Engedélyek értékelése
+permissions-page-title = Engedélyek áttekintése
 
 ## ForcePasswordChange page
 ## Users are sent here when suspicious activity on the account requires a new password before they can continue.
@@ -2241,7 +2241,7 @@ force-password-change-info = Gyanús viselkedést észleltünk a { -product-mozi
 force-password-change-data-info = A szinkronizált előzmények, könyvjelzők, bejelentkezések és egyéb személyes adatok nem vesznek el.
 # Browser tab title for the page where the user must change their password because of suspicious activity on their account.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-force-password-change-page-title = Változtassa meg a jelszavát
+force-password-change-page-title = Jelszó megváltoztatása
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2268,7 +2268,7 @@ set-password-info-v2 = Ez titkosítja az adatait. Különböznie kell a { -brand
 set-password-passwordless-info = Ez a jelszó titkosítja és biztonságban tartja a szinkronizált adatait.
 # Browser tab title for the page where the user creates a password so they can sync.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-set-password-page-title = Hozzon létre egy jelszót a szinkronizáláshoz
+set-password-page-title = Jelszó létrehozása a szinkronizáláshoz
 
 ## ThirdPartyAuthCallback Page
 ## This page is called after a user completes the third party authentication flow from Google or Apple.
@@ -2381,7 +2381,7 @@ reset-password-complete-header = A jelszó vissza lett állítva
 reset-password-confirmed-cta = Tovább erre: { $serviceName }
 # Browser tab title for the page confirming that the user’s password was reset.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-reset-password-confirmed-page-title = A jelszó-visszaállítás kész
+reset-password-confirmed-page-title = Jelszó-visszaállítás kész
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
@@ -2437,7 +2437,7 @@ reset-password-complete-recovery-key-download-info =
     mert később nem fogja tudni újra elérni ezt az oldalt.</b>
 # Browser tab title for the page where the user adds a hint for their new account recovery key.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-reset-password-with-recovery-key-verified-hint-page-title = Helyreállítási kulcs tipp hozzáadása
+reset-password-with-recovery-key-verified-hint-page-title = Helyreállítási kulcs tippjének hozzáadása
 
 ## ServerError page
 ## Shown when the server fails to handle a request
@@ -2462,7 +2462,7 @@ signin-link-expired-header = A megerősítő hivatkozás lejárt
 signin-link-expired-message-2 = A hivatkozás, amelyre kattintott, lejárt, vagy már használták.
 # Browser tab title for the page shown when something went wrong while confirming a sign-in from an emailed link.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-complete-signin-error-page-title = Bejelentkezés megerősítési hiba
+complete-signin-error-page-title = Hiba a bejelentkezés megerősítésekor
 # Browser tab title for the page shown while a sign-in is being confirmed from an emailed link.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 complete-signin-validating-page-title = Bejelentkezés megerősítése
@@ -2526,7 +2526,7 @@ signin-bounced-create-new-account = Már nem az Öné az e-mail-cím? Hozzon lé
 back = Vissza
 # Browser tab title for the page telling the user their account is locked because a confirmation email sent to them was returned.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signin-bounced-page-title = A fiók zárolva
+signin-bounced-page-title = Fiók zárolva
 
 ## SigninPasskeyFallback page
 ## Users who authenticate with a passkey to access Sync must also enter their password.
@@ -2549,7 +2549,7 @@ signin-passkey-fallback-unwrap-failed-description = Valami hiba történt, így 
 signin-passkey-fallback-wrap-unusable-link = További tudnivalók
 # Browser tab title for the page where the user enters their password after using a passkey to sign in, so they can sync.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signin-passkey-fallback-page-title = Adja meg a jelszavát a szinkronizáláshoz
+signin-passkey-fallback-page-title = Jelszó megadása a szinkronizáláshoz
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2593,10 +2593,10 @@ signup-passwordless-code-subheading = A regisztráció csak egy lépésből áll
 signin-passwordless-totp-required = A kétlépcsős hitelesítés engedélyezve van a fiókjában. Jelentkezzen be a jelszavával.
 # Browser tab title for the page where the user enters the confirmation code emailed to them to sign in to their account.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signin-passwordless-code-page-title = Jelentkezzen be e-mail kóddal
+signin-passwordless-code-page-title = Bejelentkezés e-mailben kapott kóddal
 # Browser tab title for the page where the user enters the confirmation code emailed to them to sign up for an account.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signup-passwordless-code-page-title = Regisztráljon e-mail kóddal
+signup-passwordless-code-page-title = Regisztráció e-mailben kapott kóddal
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
@@ -2618,7 +2618,7 @@ signin-recovery-method-send-code-error-heading = Hiba történt a kód helyreál
 signin-recovery-method-send-code-error-description = Próbálja meg később, vagy használja a tartalék hitelesítési kódjait.
 # Browser tab title for the page where the user chooses a recovery method to sign in when they cannot use their authenticator app.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signin-recovery-method-page-title = Jelentkezzen be egy helyreállítási módszerrel
+signin-recovery-method-page-title = Bejelentkezés helyreállítási móddal
 
 ## SigninRecoveryCode page
 ## Users are prompted to enter a backup authentication code
@@ -2647,7 +2647,7 @@ signin-recovery-code-use-phone-failure = Hiba történt a kód helyreállítási
 signin-recovery-code-use-phone-failure-description = Próbálja meg újra később.
 # Browser tab title for the page where the user enters a backup authentication code to sign in.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signin-recovery-code-page-title = Jelentkezzen be egy biztonsági kóddal
+signin-recovery-code-page-title = Bejelentkezés biztonsági kóddal
 
 ## SigninRecoveryPhone page
 
@@ -2674,7 +2674,7 @@ signin-recovery-phone-invalid-code-error-link = Inkább tartalék hitelesítési
 signin-recovery-phone-success-message = Sikeresen bejelentkezett. Korlátozások merülhetnek fel, ha újra használja a helyreállítási telefonszámát.
 # Browser tab title for the page where the user enters a code sent to their recovery phone to sign in.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signin-recovery-phone-page-title = Jelentkezzen be a helyreállítási telefonszámmal
+signin-recovery-phone-page-title = Bejelentkezés helyreállítási telefonszámmal
 
 ## Signin reported page: this page is shown when a user receives an email notifying them of a new account signin, and the user clicks a button indicating that the signin was not them so that we know it was someone trying to break into their account.
 
@@ -2682,7 +2682,7 @@ signin-reported-header = Köszönjük az éberségét
 signin-reported-message = Értesítette csapatunkat. Az ilyen jelentések segítenek kivédeni a behatolókat.
 # Browser tab title for the page confirming the user reported a sign-in attempt that was not them.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signin-reported-page-title = Bejelentkezés bejelentve
+signin-reported-page-title = Bejelentkezés jelentve
 
 ## SigninTokenCode page
 ## Users see this page during the signin process. In this instance, the confirmation code is
@@ -2716,7 +2716,7 @@ signin-token-code-resend-error = Hiba történt. Nem sikerült új kódot külde
 signin-token-code-instruction-desktop-relay = Bejelentkezés után a { -brand-firefox } megpróbálja visszaküldeni Önt az e-mail-maszk használatához.
 # Browser tab title for the page where the user enters the confirmation code emailed to them to confirm a sign-in.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signin-token-code-page-title = Erősítse meg a bejelentkezést e-mail kóddal
+signin-token-code-page-title = Bejelentkezés megerősítése e-mailben kapott kóddal
 
 ## SigninTOTPCode page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -2743,7 +2743,7 @@ signin-totp-code-required-error = Hitelesítési kód szükséges
 signin-totp-code-desktop-relay = Bejelentkezés után a { -brand-firefox } megpróbálja visszaküldeni Önt az e-mail-maszk használatához.
 # Browser tab title for the page where the user enters a two-step authentication code from their authenticator app to sign in.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signin-totp-code-page-title = Jelentkezzen be kétlépcsős hitelesítéssel
+signin-totp-code-page-title = Bejelentkezés kétlépcsős hitelesítéssel
 
 ## Signin Unblock Page
 ## Page shown when signin has been blocked by rate limiting (too many requests)
@@ -2772,7 +2772,7 @@ signin-unblock-page-title = Bejelentkezés engedélyezése
 
 # Browser tab title for the page where the user enters the confirmation code emailed to them to finish signing up.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-confirm-signup-code-page-title-2 = Erősítse meg az e-mail-címét
+confirm-signup-code-page-title-2 = E-mail-cím megerősítése
 # String within the <span> element appears on a separate line
 # If more appropriate in a locale, the string within the <span>, "for your { -product-mozilla-account }"
 # can stand alone as "{ -product-mozilla-account }"
@@ -2812,7 +2812,7 @@ signup-sync-info-with-payment = Szinkronizálja jelszavait, fizetési módjait, 
 signup-change-email-link = E-mail-cím módosítása
 # Browser tab title for the page where the user creates a password to sign up for an account.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signup-page-title = Hozza létre a fiókját
+signup-page-title = Fiók létrehozása
 
 ## SignupConfirmedSync page
 ## Shown to users when they finish confirming their account through Sync
@@ -2828,7 +2828,7 @@ signup-confirmed-sync-manage-sync-button = Szinkronizálás kezelése
 signup-confirmed-sync-set-password-success-banner = Szinkronizálási jelszó létrehozva
 # Browser tab title for the page confirming that sync is turned on after the user confirmed their account.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signup-confirmed-sync-page-title = A szinkronizálás be van kapcsolva
+signup-confirmed-sync-page-title = Szinkronizálás bekapcsolva
 
 ## UpdateFirefox page
 ## Shown when the browser is too old to use a Mozilla account

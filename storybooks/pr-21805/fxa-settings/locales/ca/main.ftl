@@ -142,6 +142,7 @@ device-info-browser-device = { $browserName } en { $deviceName }
 device-info-ip-address = Adreça IP: { $ipAddress }
 
 
+firefox-promo-banner-mobile-cta = Connecta un dispositiu
 firefox-promo-banner-switch-cta = Canvieu al { -brand-firefox }
 
 
@@ -208,6 +209,8 @@ checkmark-icon-aria-label =
     .aria-label = Marca
 checkmark-success-icon-aria-label =
     .aria-label = Correcte
+checkmark-enabled-icon-aria-label =
+    .aria-label = Activat
 close-icon-aria-label =
     .aria-label = Tanca el missatge
 code-icon-aria-label =
@@ -239,20 +242,65 @@ firefox-wordmark-image-aria-label =
 inline-recovery-key-setup-signed-in-firefox-2 = Heu iniciat la sessió al { -brand-firefox }.
 inline-recovery-key-setup-create-header = Protegiu el vostre compte
 inline-recovery-key-setup-create-subheader = Teniu un minut per a protegir les vostres dades?
+inline-recovery-key-setup-later-button = Més tard
 
 
 input-password-hide = Amaga la contrasenya
 input-password-show = Mostra la contrasenya
 
 
+input-phone-number-country-list-aria-label = Trieu el país
+input-phone-number-country-united-states = Estats Units
+input-phone-number-country-canada = Canadà
+
+
+reset-pwd-link-damaged-header = L'enllaç per reiniciar la contrasenya està malmès
+report-signin-link-damaged-header = L'enllaç no funciona
+
+
+link-expired-new-link-button = Rebeu un enllaç nou
+
+
+remember-password-signin-link = Inicia la sessió
+
+
+primary-email-confirmation-link-reused = Ja s’ha confirmat l’adreça electrònica principal
+
+
 locale-toggle-select-label = Trieu una llengua
 locale-toggle-browser-default = Opció per defecte del navegador
 error-bad-request = Sol·licitud incorrecta
+error-bad-request-page-title = Sol·licitud incorrecta
 
 
 pair-unsupported-hint-step-close-page = Tanca aquesta pàgina
 pair-unsupported-hint-step-app-menu = Toca el <b>menú de l'aplicació</b>
 pair-unsupported-hint-learn-more-link = Més informació
+
+
+password-strength-inline-min-length = 8 caràcters com a mínim
+password-strength-inline-not-email = No pot ser la vostra adreça electrònica
+password-strength-inline-not-common = No pot ser una contrasenya d'ús comú
+password-strength-inline-passwords-match = Les contrasenyes coincideixen
+
+
+account-recovery-notification-cta = Crea
+promo-banner-dismiss-button =
+    .aria-label = Descarta el bàner
+
+
+ready-account-ready = Ja teniu el compte a punt.
+ready-continue = Continua
+sign-in-complete-header = S'ha confirmat l'inici de sessió
+sign-up-complete-header = Compte confirmat
+sign-in-complete-page-title = S'ha confirmat l'inici de sessió
+sign-up-complete-page-title = Compte confirmat
+
+
+flow-recovery-key-hint-cta-text = Finalitza
+
+
+password-reset-warning-icon = Avís
 
 
 alert-bar-close-message = Tanca el missatge
@@ -283,6 +331,7 @@ cs-cannot-disconnect = No s'ha trobat el client; no s'ha pogut desconnectar
 cs-logged-out-2 = S'ha tancat la sessió del { $service }
 cs-refresh-button =
     .title = Actualitza els serveis connectats
+cs-connect-device-button = Connecta un dispositiu
 cs-missing-device-help = Hi ha elements duplicats o que falten?
 cs-disconnect-sync-heading = Desconnecta del Sync
 
@@ -312,6 +361,13 @@ drop-down-menu-sign-out = Tanca la sessió
 
 
 flow-container-back = Enrere
+
+
+flow-recovery-key-confirm-pwd-input-label = Introduïu la vostra contrasenya
+
+
+flow-recovery-key-info-cta-text-v3 = Primers passos
+flow-recovery-key-info-cancel-link = Cancel·la
 
 
 flow-setup-2fa-manual-key-instruction = <strong>Pas 1:</strong> Introduïu aquest codi a la vostra aplicació d'autenticació preferida.
@@ -347,10 +403,12 @@ flow-setup-2fa-inline-complete-backup-code-info =
         [one] { $count } codi restant
        *[other] { $count } codis restants
     }
+flow-setup-2fa-prompt-continue-button = Continua
 
 
 flow-setup-phone-confirm-code-heading = Introduïu el codi de verificació
 flow-setup-phone-confirm-code-input-label = Introduïu el codi de 6 dígits
+flow-setup-phone-confirm-code-button = Confirmació
 flow-setup-phone-confirm-code-expired = El codi ha caducat?
 flow-setup-phone-confirm-code-resend-code-button = Torna a enviar el codi
 flow-setup-phone-confirm-code-resend-code-success = S'ha enviat el codi
@@ -417,6 +475,9 @@ page-2fa-change-success = S'ha actualitzat l'autenticació en dos passos
 tfa-backup-codes-page-title = Codis d'autenticació de recuperació
 
 
+page-2fa-setup-title = Autenticació en dos passos
+
+
 avatar-page-title =
     .title = Foto de perfil
 avatar-page-add-photo = Afegeix una foto
@@ -475,7 +536,14 @@ delete-account-header =
     .title = Suprimeix el compte
 delete-account-step-1-2 = Pas 1 de 2
 delete-account-step-2-2 = Pas 2 de 2
+delete-account-product-mozilla-vpn = { -product-mozilla-vpn }
+delete-account-product-mdn-plus = { -product-mdn-plus }
+delete-account-product-mozilla-hubs = { -product-mozilla-hubs }
+delete-account-product-mozilla-monitor = { -product-mozilla-monitor }
+delete-account-product-firefox-relay = { -product-firefox-relay }
 delete-account-acknowledge = Tingueu en compte que, en suprimir el vostre compte:
+delete-account-chk-box-1-v4 =
+    .label = Es cancel·laran totes les subscripcions de pagament
 delete-account-chk-box-2 =
     .label = És possible que perdeu la informació desada i la funcionalitat dels productes de { -brand-mozilla }
 delete-account-chk-box-3 =
@@ -483,6 +551,7 @@ delete-account-chk-box-3 =
 delete-account-chk-box-4 =
     .label = S'esborraran totes les extensions i temes que hàgiu publicat a addons.mozilla.org
 delete-account-continue-button = Continua
+delete-account-delete-button-passwordless = Suprimeix el compte
 delete-account-password-input =
     .label = Introduïu la contrasenya
 delete-account-cancel-button = Cancel·la
@@ -497,6 +566,22 @@ submit-display-name = Desa
 cancel-display-name = Cancel·la
 display-name-update-error-2 = S'ha produït un problema en actualitzar el vostre nom a mostrar
 display-name-success-alert-2 = S'ha actualitzat el nom a mostrar
+
+
+page-passkey-add-cancel = Cancel·la
+
+
+recent-activity-show-more-button = Mostra'n més
+recent-activity-account-create-v2 = S'ha creat el compte
+recent-activity-account-disable-v2 = Compte desactivat
+recent-activity-account-two-factor-added = S’ha habilitat l‘autenticació en dos passos
+recent-activity-account-two-factor-removed = S'ha eliminat l'autenticació en dos passos
+recent-activity-account-recovery-key-removed = S’ha eliminat una clau de recuperació del compte
+recent-activity-account-password-added = S'ha afegit una contrasenya nova
+recent-activity-account-password-changed = S'ha canviat la contrasenya
+
+
+settings-recovery-phone-remove-cancel = Cancel·la
 
 
 add-secondary-email-step-1 = Pas 1 de 2
@@ -521,6 +606,13 @@ verify-secondary-email-verify-button-2 = Confirma
 delete-account-link = Suprimeix el compte
 
 
+product-promo-monitor =
+    .alt = { -product-mozilla-monitor }
+product-promo-vpn =
+    .alt = { -product-mozilla-vpn }
+product-promo-vpn-description = Descobriu una capa addicional de protecció i navegació anònima.
+
+
 profile-heading = Perfil
 profile-picture =
     .header = Imatge
@@ -536,9 +628,16 @@ security-password =
 security-password-created-date = Data de creació: { $date }
 security-not-set = No s'ha definit
 security-action-create = Crea
+signout-sync-page-title = La sessió ha caducat
 
 
+tfa-row-backup-codes-add-cta = Afegeix
+tfa-row-backup-phone-change-cta = Canvia
+tfa-row-backup-phone-add-cta = Afegeix
+passkey-delete-modal-cancel-button = Cancel·la
 passkey-delete-error = S'ha produït un problema en suprimir la clau d'accés. Torneu-ho a provar d'aquí a uns minuts.
+passkey-rename-save-button = Desa
+passkey-rename-cancel-button = Cancel·la
 
 
 switch-turn-off = Desactiva
@@ -554,10 +653,18 @@ row-defaults-action-disable = Desactiva
 row-defaults-status = Cap
 
 
+passkey-row-header = Claus d'accés
+passkey-row-enabled = Activada
+passkey-row-action-create = Crea
+passkey-row-info-link-2 = Més informació
+
+
 rk-enabled = Activada
 rk-not-set = No definida
 rk-action-create = Crea
+rk-action-change-button = Canvia
 rk-action-remove = Elimina
+rk-key-removed-2 = S’ha eliminat una clau de recuperació del compte
 rk-cannot-remove-key = No s'ha pogut eliminar la clau de recuperació del compte.
 rk-content-explain = Restaureu la vostra informació en cas que oblideu la contrasenya.
 
@@ -578,11 +685,13 @@ tfa-row-header = Autenticació en dos passos
 tfa-row-enabled = Activada
 tfa-row-action-add = Afegeix
 tfa-row-action-disable = Desactiva
+tfa-row-action-change = Canvia
 tfa-row-button-refresh =
     .title = Actualitza l'autenticació en dos passos
 tfa-row-cannot-refresh = S'ha produït un error en actualitzar la verificació en dos passos.
 tfa-row-disable-modal-heading = Voleu desactivar l'autenticació en dos passos?
 tfa-row-disable-modal-confirm = Desactiva
+tfa-row-disabled-2 = S'ha inhabilitat l'autenticació en dos passos
 
 
 auth-error-102 = El compte és desconegut
@@ -594,16 +703,257 @@ auth-error-125 = La sol·licitud s'ha blocat per raons de seguretat
 auth-error-138-2 = Sessió no confirmada
 auth-error-139 = L'adreça electrònica secundària ha de ser diferent de l'adreça electrònica del compte
 auth-error-155 = No s'ha trobat el testimoni TOTP
+auth-error-156 = No s'ha trobat el codi d'autenticació de recuperació
+auth-error-159 = La clau de recuperació del compte no és vàlida
+auth-error-202 = La funció no està activada
+auth-error-203 = El sistema no està disponible; torneu-ho a intentar més tard
+auth-error-240 = Aquest compte s'ha desactivat
+auth-error-999 = Error inesperat
+auth-error-1001 = S'ha cancel·lat l'intent d'inici de sessió
+auth-error-1002 = La sessió ha caducat. Inicieu la sessió per continuar.
 auth-error-1008 = La contrasenya nova ha de ser diferent
+auth-error-1010 = Cal una contrasenya vàlida
+auth-error-1011 = Cal una adreça electrònica vàlida
+auth-error-1031 = Heu d'introduir la vostra edat per registrar-vos
+auth-error-1032 = Heu d'introduir una edat vàlida per registrar-vos
+auth-error-1054 = El codi d'autenticació en dos passos no és vàlid
+auth-error-1062 = Redirecció no vàlida
+oauth-error-1000 = Hi ha hagut un problema. Tanqueu aquesta pestanya i torneu-ho a provar.
 
 
+passkey-registration-canceled-link = Més informació
+passkey-registration-error-not-supported-link = Més informació
+passkey-registration-error-could-not-complete-link = Més informació
+
+
+connect-another-device-signin-confirmed-banner = S'ha confirmat l'inici de sessió
+connect-another-device-signin-link = Inicia la sessió
+connect-another-device-cad-link = Connecteu un altre dispositiu
 connect-another-device-not-now-link = Ara no
+connect-another-device-page-title = Connecteu un altre dispositiu
+
+
+cookies-disabled-button-try-again = Torna-ho a provar
+cookies-disabled-learn-more = Més informació
+
+
+index-header = Introduïu la vostra adreça electrònica
+index-cta = Inici de sessió o registre
+index-email-input =
+    .label = Introduïu la vostra adreça electrònica
+index-account-delete-success = El compte s'ha suprimit correctament
 
 
 inline-passwordless-sync-setup-page-title = Voleu ometre la contrasenya la pròxima vegada?
 inline-passwordless-sync-setup-heading = Voleu ometre la contrasenya la pròxima vegada?
+inline-passwordless-sync-setup-not-now-button = Ara no
 inline-passwordless-sync-setup-error-cancelled-description = Confirmeu amb la vostra clau d'accés per a ometre la contrasenya la pròxima vegada.
 inline-passwordless-sync-setup-error-generic-v2 = No hem pogut activar aquesta clau d'accés per a iniciar la sessió i la sincronització. La pròxima vegada haureu d'introduir la contrasenya.
 
 
+inline-recovery-setup-choice-page-title = Trieu un mètode de recuperació
+
+
+inline-totp-setup-cancel-setup-button = Cancel·la la configuració
+inline-totp-setup-continue-button = Continua
+inline-totp-setup-ready-button = Preparat
+inline-totp-setup-security-code-placeholder = Codi d'autenticació
+inline-totp-setup-page-title = Autenticació en dos passos
+
+
+page-not-found-heading = No s'ha trobat la pàgina
+page-not-found-home-button = Inici
+page-not-found-page-title = No s'ha trobat la pàgina
+
+
+pair-auth-complete-manage-devices-link = Gestiona els dispositius
+
+
+auth-totp-confirm-button = Confirmació
+
+
+pair-failure-try-again-link = Torna-ho a provar
+
+
+pair-cad-header-v2 = Connecteu un altre dispositiu
 pair-not-now-button = Ara no
+pair-get-started-button = Primers passos
+pair-qr-code-aria-label = Codi QR
+
+
+pair-choice-continue-button = Continua
+
+
+pair-choice-page-title = Connecteu un altre dispositiu
+
+
+pair-success-message-2 = S'ha aparellat correctament.
+
+
+pair-supp-allow-cancel-link = Cancel·la
+
+
+pair-unsupported-learn-more-link-v2 = Més informació
+pair-unsupported-desktop-firefox-fallback-page-title = Hi ha hagut un problema
+
+
+pair2-authority-continue-on-mobile-cancel-button = Cancel·la
+
+
+pair2-authority-scan-qr-skip-button = Omet per ara
+
+
+pair2-authority-sync-success-sync-settings-button-v2 = Gestiona els paràmetres de sincronització
+
+
+pair2-authority-timeout-and-cancel-try-again-button = Torna-ho a provar
+pair2-authority-timeout-and-cancel-sync-settings-button = Paràmetres de sincronització
+pair2-authority-timeout-and-cancel-timeout-page-title = S'ha esgotat el temps d'espera de la connexió
+
+
+pair2-supplicant-approve-sign-in-cancel-button = Cancel·la
+
+
+pair2-supplicant-connect-this-device-connect-button = Connecta
+pair2-supplicant-connect-this-device-cancel-button = Cancel·la
+
+
+pair2-supplicant-download-firefox-learn-more-link = Més informació
+
+
+pair2-supplicant-ready-to-scan-learn-more-link = Més informació
+pair2-supplicant-ready-to-scan-page-title = Llest per escanejar
+
+
+pair2-supplicant-timeout-and-cancel-timeout-page-title = S'ha esgotat el temps d'espera de la connexió
+
+
+permissions-label-email = Adreça electrònica
+permissions-label-display-name = Nom a mostrar
+permissions-label-avatar = Imatge del compte
+permissions-continue-button = Continua
+permissions-cancel-button = Cancel·la
+
+
+force-password-change-page-title = Canvieu la contrasenya
+
+
+service-welcome-vpn-page-title = Activa la VPN
+
+
+account-recovery-confirm-key-button-2 = Continua
+
+
+complete-reset-password-success-alert = S'ha definit la contrasenya
+complete-reset-password-error-alert = S'ha produït un problema en definir la contrasenya
+reset-password-complete-banner-heading = S'ha reiniciat la vostra contrasenya.
+confirm-backup-code-reset-password-confirm-button = Confirmació
+
+
+confirm-reset-password-with-code-heading = Comproveu el correu electrònic
+confirm-reset-password-otp-submit-button = Continua
+confirm-reset-password-otp-different-account-link = Utilitza un altre compte
+
+
+confirm-totp-reset-password-header = Reinicia la contrasenya
+confirm-totp-reset-password-confirm-button = Confirmació
+confirm-totp-reset-password-use-different-account = Utilitza un altre compte
+
+
+password-reset-flow-heading = Reinicia la contrasenya
+password-reset-forgot-heading = Heu oblidat la contrasenya?
+password-reset-email-input =
+    .label = Introduïu la vostra adreça electrònica
+password-reset-submit-button-2 = Continua
+password-reset-flow-page-title = Reinicia la contrasenya
+
+
+reset-password-complete-header = S'ha reiniciat la vostra contrasenya
+
+
+password-reset-recovery-method-header = Reinicia la contrasenya
+
+
+reset-password-recovery-phone-flow-heading = Reinicia la contrasenya
+reset-password-recovery-phone-heading = Introduïu el codi de recuperació
+reset-password-recovery-phone-code-submit-button = Confirmació
+reset-password-recovery-phone-general-error-description = Torneu-ho a provar més tard.
+
+
+server-error-heading = Error 500
+server-error-home-button = Inici
+
+
+error-label = Error:
+
+
+signin-password-page-title = Introduïu la vostra contrasenya
+signin-cached-page-title = Inicia la sessió
+signin-button-start-syncing = Inicia la sincronització
+signin-button = Inicia la sessió
+signin-header = Inicia la sessió
+signin-use-a-different-account-link = Utilitza un altre compte
+signin-forgot-password-link = Heu oblidat la contrasenya?
+signin-password-button-label = Contrasenya
+signin-account-locked-banner-heading = Reinicia la contrasenya
+
+
+back = Enrere
+
+
+signin-passkey-fallback-password-label = Contrasenya
+signin-passkey-fallback-continue = Continua
+signin-passkey-fallback-forgot-password-link = Heu oblidat la contrasenya?
+signin-passkey-fallback-wrap-unusable-link = Més informació
+
+
+signin-passwordless-code-heading = Introduïu el codi de confirmació
+signin-passwordless-code-confirm-button = Confirmació
+signin-passwordless-code-other-account-link = Utilitza un altre compte
+
+
+signin-recovery-method-header = Inicia la sessió
+
+
+signin-recovery-code-heading = Inicia la sessió
+signin-recovery-code-confirm-button = Confirmació
+signin-recovery-code-use-phone-failure-description = Torneu-ho a provar més tard.
+
+
+signin-recovery-phone-flow-heading = Inicia la sessió
+signin-recovery-phone-heading = Introduïu el codi de recuperació
+signin-recovery-phone-code-submit-button = Confirmació
+signin-recovery-phone-general-error-description = Torneu-ho a provar més tard.
+
+
+signin-token-code-confirm-button = Confirmació
+
+
+signin-totp-code-header = Inicia la sessió
+signin-totp-code-confirm-button = Confirmació
+signin-totp-code-other-account-link = Utilitza un altre compte
+
+
+signin-unblock-code-input = Introdueix un codi d'autorització
+signin-unblock-submit-button = Continua
+signin-unblock-code-required-error = Cal un codi d'autorització
+signin-unblock-resend-code-button = No és a la safata d'entrada o al correu brossa? Torna'l a enviar
+
+
+confirm-signup-code-page-title-2 = Confirmeu l'adreça electrònica
+confirm-signup-code-confirm-button = Confirmació
+confirm-signup-code-sync-button = Inicia la sincronització
+confirm-signup-code-success-alert = El compte s'ha confirmat correctament
+
+
+signup-heading-v2 = Creeu una contrasenya
+signup-page-title = Crea un compte
+
+
+signup-confirmed-sync-header = La sincronització està activada
+signup-confirmed-sync-button = Comença a navegar
+signup-confirmed-sync-add-device-link = Afegeix un altre dispositiu
+signup-confirmed-sync-page-title = La sincronització està activada
+
+
+update-firefox-download-button = Baixa l'última versió
