@@ -1,8 +1,8 @@
 {
-  "commit": "3f28529274f6db1ac5a55ab3fb00d8b34c32ad01",
-  "summary": "Merge pull request #21817 from mozilla/fxa-15120",
-  "description": "feat(settings): record ForcePasswordChange view and submit in Glean",
-  "timestamp": 1795548988000,
+  "commit": "232846d1b776263beada1499357135648f7223bc",
+  "summary": "Merge pull request #21819 from mozilla/fxa-15118",
+  "description": "feat(settings): add Glean events to secondary email add and verify pages",
+  "timestamp": 1795549490000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
