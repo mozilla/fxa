@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Page, expect, test } from '../../lib/fixtures/standard';
+import { signUpAndSwapPrimaryEmail } from '../../lib/primaryEmailSwap';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { SettingsPage } from '../../pages/settings';
@@ -99,6 +100,48 @@ test.describe('severity-1 #smoke', () => {
         new RegExp(`${credentials.email}.*is now your primary email`)
       );
     });
+
+    for (const version of [1, 2] as const) {
+      test(`v${version} account: unblock with an incorrect password after a primary email swap`, async ({
+        target,
+        pages: { page, signin, signinUnblock },
+        testAccountTracker,
+      }) => {
+        const blockedEmail = testAccountTracker.generateBlockedEmail();
+        const { account, client, emailMfaJwt, signupEmail } =
+          await signUpAndSwapPrimaryEmail(
+            target,
+            testAccountTracker,
+            version,
+            blockedEmail
+          );
+
+        try {
+          await page.goto(`${target.contentServerUrl}?stretch=${version}`);
+          await signin.fillOutEmailFirstForm(blockedEmail);
+          await signin.fillOutPasswordForm(
+            testAccountTracker.generatePassword()
+          );
+          await expect(page).toHaveURL(/signin_unblock/);
+          await unblockAccount(blockedEmail, target, signinUnblock);
+
+          await expect(page).toHaveURL(/signin(\?|$)/);
+          // After unblock, sign-in shows the error in a banner, not a tooltip.
+          await expect(page.getByRole('alert')).toHaveText(
+            'Incorrect password'
+          );
+          await expect(page.getByText('Incorrect email case')).toBeHidden();
+        } finally {
+          // Cleanup can't sign in with a blocked address, so restore the signup email.
+          await client.recoveryEmailSetPrimaryEmailWithJwt(
+            emailMfaJwt,
+            signupEmail,
+            target.ciHeader
+          );
+          account.email = signupEmail;
+        }
+      });
+    }
   });
 });
 

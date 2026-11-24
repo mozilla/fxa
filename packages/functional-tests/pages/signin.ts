@@ -54,6 +54,10 @@ export class SigninPage extends PasskeyPage {
     return this.page.getByRole('textbox', { name: 'password' });
   }
 
+  get tooltip() {
+    return this.page.getByTestId('tooltip');
+  }
+
   get signInButton() {
     return this.formSubmitButton;
   }

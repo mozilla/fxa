@@ -40,6 +40,10 @@ export class RecoveryKeyPage extends SettingsLayout {
     return this.page.getByRole('textbox', { name: 'password' });
   }
 
+  get tooltip() {
+    return this.page.getByTestId('tooltip');
+  }
+
   get createKeyButton() {
     return this.page.getByRole('button', {
       name: 'Create account recovery key',

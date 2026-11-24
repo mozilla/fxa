@@ -11,6 +11,7 @@ import { enableTotpOnAccount } from '../../lib/pairing-helpers';
 import { gotoSyncSession } from '../../lib/sync-helpers';
 import { OLDSYNC_SCOPE } from '../../lib/scopes';
 import { EmailType } from '../../lib/email';
+import { signUpAndSwapPrimaryEmail } from '../../lib/primaryEmailSwap';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { SettingsPage } from '../../pages/settings';
@@ -163,6 +164,50 @@ test.describe('severity-1 #smoke', () => {
       await page.getByTestId('continue-button').click();
 
       await expect(page.getByText('Incorrect password')).toBeVisible();
+    });
+
+    test('v1 account: wrong password in the fallback after a primary email swap shows incorrect password', async ({
+      target,
+      syncOAuthBrowserPages: { page, signin, settings, settingsPasskeyAdd },
+      testAccountTracker,
+    }) => {
+      const { account, primaryEmail } = await signUpAndSwapPrimaryEmail(
+        target,
+        testAccountTracker,
+        1
+      );
+      await page.goto(`${target.contentServerUrl}?stretch=1`);
+      await signin.fillOutEmailFirstForm(primaryEmail);
+      await signin.fillOutPasswordForm(account.password);
+      await expect(settings.settingsHeading).toBeVisible();
+      await settingsPasskeyAdd.registerNewPasskey(settings, primaryEmail);
+      await expect(settings.passkey.status).toHaveText('Enabled');
+
+      await settings.signOut();
+      await target.emailClient.clear(primaryEmail);
+
+      await reachPasskeyFallback(
+        target,
+        page,
+        signin,
+        settingsPasskeyAdd,
+        primaryEmail
+      );
+      const passwordInput = page.getByTestId(
+        'signin-passkey-fallback-password-input-field'
+      );
+      await passwordInput.fill(testAccountTracker.generatePassword());
+      await page.getByTestId('continue-button').click();
+
+      await expect(signin.tooltip).toHaveText('Incorrect password');
+      await expect(page.getByText('Incorrect email case')).toBeHidden();
+
+      await passwordInput.fill(account.password);
+      await page.getByTestId('continue-button').click();
+      await signin.checkWebChannelMessageScope(
+        FirefoxCommand.OAuthLogin,
+        OLDSYNC_SCOPE
+      );
     });
 
     test('skips /signin_totp_code through the passkey fallback for a TOTP-enrolled Sync account', async ({

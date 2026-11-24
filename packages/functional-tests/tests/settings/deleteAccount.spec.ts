@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Page, expect, test } from '../../lib/fixtures/standard';
+import { signUpAndSwapPrimaryEmail } from '../../lib/primaryEmailSwap';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { SettingsPage } from '../../pages/settings';
 import { SigninPage } from '../../pages/signin';
@@ -98,6 +99,36 @@ test.describe('severity-1 #smoke', () => {
 
     await expect(deleteAccount.tooltip).toHaveText('Incorrect password');
   });
+
+  for (const version of [1, 2] as const) {
+    test(`v${version} account: delete account with an incorrect password after a primary email swap`, async ({
+      target,
+      pages: { page, deleteAccount, settings, signin },
+      testAccountTracker,
+    }) => {
+      const { account, primaryEmail } = await signUpAndSwapPrimaryEmail(
+        target,
+        testAccountTracker,
+        version
+      );
+      await page.goto(`${target.contentServerUrl}?stretch=${version}`);
+      await signin.fillOutEmailFirstForm(primaryEmail);
+      await signin.fillOutPasswordForm(account.password);
+      await expect(settings.settingsHeading).toBeVisible();
+
+      await settings.deleteAccountButton.click();
+      await deleteAccount.deleteAccount(testAccountTracker.generatePassword());
+
+      await expect(deleteAccount.tooltip).toHaveText('Incorrect password');
+      await expect(page.getByText('Incorrect email case')).toBeHidden();
+
+      await deleteAccount.passwordTextbox.fill(account.password);
+      await deleteAccount.deleteButton.click();
+      await expect(
+        page.getByText('Account deleted successfully')
+      ).toBeVisible();
+    });
+  }
 
   test('passwordless account sees "Delete account" button (not "Continue") and can delete without password step', async ({
     target,

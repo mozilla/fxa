@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Page, expect, test } from '../../lib/fixtures/standard';
+import { signUpAndSwapPrimaryEmail } from '../../lib/primaryEmailSwap';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { SettingsPage } from '../../pages/settings';
 import { SigninPage } from '../../pages/signin';
@@ -30,6 +31,41 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(changePassword.tooltip).toHaveText('Incorrect password');
     });
+
+    for (const version of [1, 2] as const) {
+      test(`v${version} account: change password with an incorrect old password after a primary email swap`, async ({
+        target,
+        pages: { page, changePassword, settings, signin },
+        testAccountTracker,
+      }) => {
+        const { account, primaryEmail } = await signUpAndSwapPrimaryEmail(
+          target,
+          testAccountTracker,
+          version
+        );
+        await page.goto(`${target.contentServerUrl}?stretch=${version}`);
+        await signin.fillOutEmailFirstForm(primaryEmail);
+        await signin.fillOutPasswordForm(account.password);
+        await expect(settings.settingsHeading).toBeVisible();
+
+        await settings.password.changeButton.click();
+        await settings.confirmMfaGuard(primaryEmail);
+        await changePassword.fillOutChangePassword(
+          testAccountTracker.generatePassword(),
+          testAccountTracker.generatePassword()
+        );
+
+        await expect(changePassword.tooltip).toHaveText('Incorrect password');
+        await expect(page.getByText('Incorrect email case')).toBeHidden();
+
+        await settings.goto();
+        await settings.signOut();
+        await page.goto(`${target.contentServerUrl}?stretch=${version}`);
+        await signin.fillOutEmailFirstForm(primaryEmail);
+        await signin.fillOutPasswordForm(account.password);
+        await expect(settings.settingsHeading).toBeVisible();
+      });
+    }
 
     test('change password with a correct password', async ({
       target,
