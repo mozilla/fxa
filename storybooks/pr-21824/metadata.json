@@ -1,8 +1,8 @@
 {
-  "commit": "59027fb7df967ae67f0661a6f46d90ad6a2c9ae2",
+  "commit": "c5fef22fb80513ef468754894f7e4adc98dccf43",
   "summary": "feat(settings): wire the delete Sync data flow",
   "description": "Because:\n\n- The delete Sync data page had its UI but no behavior behind confirm.\n- Signing out of the current device must land on email-first with a\n  success message, like account deletion.\n\nThis commit:\n\n- Add Account.deleteSyncData and run delete, then sign-outs, current\n  device last, with success, delete-failure and sign-out-failure alerts.\n- Redirect to email-first without the query string after signing out\n  this device, and show the success banner there.\n- Disable the confirm button with a spinner while the sequence runs.\n- Add Glean delete_sync_data view/submit/success/error events and tag\n  device sign-outs with reason sync_data_deletion.\n- Add unit tests and a Playwright spec that stubs tokenserver.\n\nCloses #FXA-14947",
-  "timestamp": 1795547209000,
+  "timestamp": 1795550074000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-settings"
