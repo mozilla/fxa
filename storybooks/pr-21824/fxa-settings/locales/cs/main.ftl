@@ -1672,7 +1672,7 @@ pair2-authority-scan-qr-instruction = Naskenujte QR kód svým telefonem nebo ta
 pair2-authority-scan-qr-code-aria-label = QR kód pro připojení vašeho mobilního zařízení
 pair2-authority-scan-qr-other-ways-link = Jiné možnosti přihlášení
 pair2-authority-scan-qr-skip-button = Nyní přeskočit
-pair2-authority-scan-qr-page-title = Naskenujte a připojte své mobilní zařízení
+pair2-authority-scan-qr-page-title = Naskenováním připojte mobilní zařízení
 
 
 pair2-authority-sync-success-heading-v2 = Vaše zařízení je připojeno
@@ -1700,7 +1700,7 @@ pair2-supplicant-approve-sign-in-page-title = Poslední krok k synchronizaci
 pair2-supplicant-connect-this-device-heading = Připojit toto zařízení k vašemu účtu?
 pair2-supplicant-connect-this-device-connect-button = Připojit
 pair2-supplicant-connect-this-device-cancel-button = Zrušit
-pair2-supplicant-connect-this-device-page-title = Připojit toto zařízení
+pair2-supplicant-connect-this-device-page-title = Připojení tohoto zařízení
 
 
 pair2-supplicant-download-firefox-heading-v2 = Otevřít { -brand-firefox } na tomto zařízení
@@ -1713,7 +1713,7 @@ pair2-supplicant-download-firefox-learn-more-link = Zjistit více
 pair2-supplicant-download-firefox-page-title = Otevřít { -brand-firefox } na tomto zařízení
 
 
-pair2-supplicant-connect-hint-page-title = Dokončete párování v aplikaci
+pair2-supplicant-connect-hint-page-title = Dokončení párování v aplikaci
 
 
 pair2-supplicant-ready-to-scan-heading = Pro připojení zařízení
@@ -1735,7 +1735,6 @@ pair2-supplicant-timeout-and-cancel-signed-in-heading = Na tomto zařízení už
 pair2-supplicant-timeout-and-cancel-signed-in-description = Chcete-li se připojit k účtu na počítači, odhlaste se na tomto zařízení z { -brand-firefox(case: "gen") } a poté na počítači přejděte na <b>firefox.com/pair</b> a dokončete přihlášení.
 pair2-supplicant-timeout-and-cancel-timeout-page-title = Čas pro spojení vypršel
 pair2-supplicant-timeout-and-cancel-cancelled-page-title = Párování bylo zrušeno
-pair2-supplicant-timeout-and-cancel-signed-in-page-title = Zařízení je již přihlášeno
 
 
 permissions-heading = Služba { $serviceName } požaduje přístup k:

@@ -2063,7 +2063,7 @@ pair2-authority-scan-qr-other-ways-link = Jiné možnosti přihlášení
 pair2-authority-scan-qr-skip-button = Nyní přeskočit
 # Browser tab title for the page showing a QR code the user scans with their mobile device to connect it.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair2-authority-scan-qr-page-title = Naskenujte a připojte své mobilní zařízení
+pair2-authority-scan-qr-page-title = Naskenováním připojte mobilní zařízení
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
@@ -2129,7 +2129,7 @@ pair2-supplicant-connect-this-device-connect-button = Připojit
 pair2-supplicant-connect-this-device-cancel-button = Zrušit
 # Browser tab title for the page shown on the mobile device where the user confirms connecting it to their account.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair2-supplicant-connect-this-device-page-title = Připojit toto zařízení
+pair2-supplicant-connect-this-device-page-title = Připojení tohoto zařízení
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing reaches a browser that is
@@ -2159,7 +2159,7 @@ pair2-supplicant-download-firefox-page-title = Otevřít { -brand-firefox } na t
 
 # Browser tab title for the page shown on the mobile device telling the user to finish pairing in the { -brand-firefox } app.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair2-supplicant-connect-hint-page-title = Dokončete párování v aplikaci
+pair2-supplicant-connect-hint-page-title = Dokončení párování v aplikaci
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2211,9 +2211,6 @@ pair2-supplicant-timeout-and-cancel-timeout-page-title = Čas pro spojení vypr�
 # Browser tab title for the page shown on the mobile device when the device pairing attempt was cancelled.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 pair2-supplicant-timeout-and-cancel-cancelled-page-title = Párování bylo zrušeno
-# Browser tab title for the page shown on the mobile device when it is already signed in to an account and cannot be paired.
-# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair2-supplicant-timeout-and-cancel-signed-in-page-title = Zařízení je již přihlášeno
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
