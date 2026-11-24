@@ -61,6 +61,38 @@ export const appleUnlinkSubmitConfirm = new EventMetricType<{
 );
 
 /**
+ * A new profile picture was uploaded from the Settings profile picture page.
+ *
+ * Generated from `account_pref.avatar_upload_success`.
+ */
+export const avatarUploadSuccess = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'avatar_upload_success',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * The Settings profile picture page was shown.
+ *
+ * Generated from `account_pref.avatar_view`.
+ */
+export const avatarView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'avatar_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * User clicks on Firefox Browser for Desktop in the bento menu
  *
  * Generated from `account_pref.bento_firefox_desktop`.
@@ -669,6 +701,22 @@ export const secondaryEmailVerifySubmit = new EventMetricType(
   {
     category: 'account_pref',
     name: 'secondary_email_verify_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * The user signed out from the Settings avatar menu.
+ *
+ * Generated from `account_pref.signout_success`.
+ */
+export const signoutSuccess = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'signout_success',
     sendInPings: ['events'],
     lifetime: 'ping',
     disabled: false,

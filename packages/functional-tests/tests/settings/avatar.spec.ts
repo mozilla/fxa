@@ -40,10 +40,26 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.avatarDropDownMenu).toBeHidden();
   });
 
+  test('sign out from the avatar drop-down menu', async ({
+    target,
+    pages: { page, settings, signin },
+    testAccountTracker,
+    gleanEventsHelper,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+    await signInAccount(target, page, settings, signin, credentials);
+
+    await settings.signOut();
+
+    await expect(signin.emailTextbox).toBeVisible();
+    await gleanEventsHelper.waitForEvent('account_pref_signout_success');
+  });
+
   test('upload and remove avatar profile photo', async ({
     target,
     pages: { avatar, page, settings, signin },
     testAccountTracker,
+    gleanEventsHelper,
   }) => {
     const credentials = await testAccountTracker.signUp();
     await signInAccount(target, page, settings, signin, credentials);
@@ -67,6 +83,11 @@ test.describe('severity-1 #smoke', () => {
     await avatar.saveButton.click();
 
     await expect(settings.settingsHeading).toBeVisible();
+    await gleanEventsHelper.waitForEvent('account_pref_avatar_upload_success');
+    gleanEventsHelper.assertEventOrder([
+      'account_pref_avatar_view',
+      'account_pref_avatar_upload_success',
+    ]);
     await expect(settings.avatar.photo).not.toHaveAttribute('src', /avatar/);
     await expect(settings.avatarDropDownMenuPhoto).not.toHaveAttribute(
       'src',
