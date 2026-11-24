@@ -7,6 +7,19 @@ import * as Sentry from '@sentry/nextjs';
 import { SentryConfigOpts } from '../models/SentryConfigOpts';
 import { applyCommonTags } from './tags';
 
+// Locally saved FxA pages (file://) send errors that only clutter Sentry.
+function isFromWebPage(event: Sentry.ErrorEvent) {
+  const url = event.request?.url ?? globalThis.location?.href;
+  if (!url) {
+    return true;
+  }
+  try {
+    return ['http:', 'https:'].includes(new URL(url).protocol);
+  } catch {
+    return false;
+  }
+}
+
 /**
  * function that gets called before data gets sent to error metrics
  *
@@ -17,7 +30,7 @@ import { applyCommonTags } from './tags';
  * @private
  */
 export function beforeSend(opts: SentryConfigOpts, event: Sentry.ErrorEvent) {
-  if (event.tags?.metricsOptedOut) {
+  if (event.tags?.metricsOptedOut || !isFromWebPage(event)) {
     return null;
   }
 

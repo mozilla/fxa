@@ -74,6 +74,40 @@ describe('before send', () => {
     expect(resultData?.level).toEqual('info');
   });
 
+  it.each(['https://accounts.firefox.com/settings', 'http://localhost:3030/'])(
+    'keeps events from %s',
+    (url) => {
+      const data = { type: undefined, request: { url } };
+      expect(beforeSendBrowser(config, data)).toEqual(data);
+    }
+  );
+
+  it.each(['file:///home/user/Firefox%20Accounts.html', 'not a url'])(
+    'drops events from %s',
+    (url) => {
+      expect(
+        beforeSendBrowser(config, { type: undefined, request: { url } })
+      ).toBeNull();
+    }
+  );
+
+  it('falls back to window.location when the event has no request url', () => {
+    const original = Object.getOwnPropertyDescriptor(globalThis, 'location');
+    Object.defineProperty(globalThis, 'location', {
+      value: { href: 'file:///home/user/Firefox%20Accounts.html' },
+      configurable: true,
+    });
+    try {
+      expect(beforeSendBrowser(config, { type: undefined })).toBeNull();
+    } finally {
+      if (original) {
+        Object.defineProperty(globalThis, 'location', original);
+      } else {
+        delete (globalThis as { location?: Location }).location;
+      }
+    }
+  });
+
   it('properly erases sensitive information from url', () => {
     const url = 'https://accounts.firefox.com/complete_reset_password';
     const badQuery =

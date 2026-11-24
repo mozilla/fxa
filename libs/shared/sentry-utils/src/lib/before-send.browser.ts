@@ -13,6 +13,19 @@ export function isSentryEnabled() {
   return sentryEnabled;
 }
 
+// Locally saved FxA pages (file://) send errors that only clutter Sentry.
+function isFromWebPage(event: ErrorEvent) {
+  const url = event.request?.url ?? globalThis.location?.href;
+  if (!url) {
+    return true;
+  }
+  try {
+    return ['http:', 'https:'].includes(new URL(url).protocol);
+  } catch {
+    return false;
+  }
+}
+
 /**
  * function that gets called before data gets sent to error metrics
  *
@@ -27,7 +40,7 @@ export function beforeSendBrowser(
   event: ErrorEvent,
   hint?: EventHint
 ) {
-  if (sentryEnabled === false) {
+  if (sentryEnabled === false || !isFromWebPage(event)) {
     return null;
   }
 
