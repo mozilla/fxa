@@ -5,7 +5,7 @@
 import { faker } from '@faker-js/faker';
 import { DEFAULT_LOCALE } from './constants';
 import { offeringQuery } from './queries/offering/query';
-import { StrapiClient } from './strapi.client';
+import { StrapiClient, StrapiRemoteCacheClient } from './strapi.client';
 import { OfferingQuery } from '../__generated__/graphql';
 import { StrapiQueryError } from './cms.error';
 import { MockStrapiClientConfigProvider } from './strapi.client.config';
@@ -14,7 +14,9 @@ import { Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { relyingPartyQuery } from './queries/relying-party';
-import { CacheClear } from '@type-cacheable/core';
+import { Cacheable, CacheClear } from '@type-cacheable/core';
+import type { CacheClient } from '@type-cacheable/core';
+import { FirestoreAdapter } from '@fxa/shared/db/type-cacheable';
 
 jest.mock('graphql-request', () => ({
   GraphQLClient: function () {
@@ -175,6 +177,43 @@ describe('StrapiClient', () => {
         entrypoint: 'test-entrypoint',
       });
       expect(CacheClear).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('remote cache client', () => {
+    const remoteCacheClientFor = (context: StrapiClient) => {
+      const client = jest.mocked(Cacheable).mock.calls[1][0]?.client;
+      return typeof client === 'function' ? client([], context) : client;
+    };
+
+    it('defaults to the Firestore adapter', () => {
+      expect(remoteCacheClientFor(strapiClient)).toBe(
+        jest.mocked(FirestoreAdapter).mock.results.at(-1)?.value
+      );
+    });
+
+    it('uses the injected StrapiRemoteCacheClient when provided', async () => {
+      const remoteCacheClient: CacheClient = {
+        get: jest.fn(),
+        set: jest.fn(),
+        del: jest.fn(),
+        keys: jest.fn(),
+        delHash: jest.fn(),
+        getClientTTL: jest.fn(),
+      };
+      const module = await Test.createTestingModule({
+        providers: [
+          MockStrapiClientConfigProvider,
+          StrapiClient,
+          MockFirestoreProvider,
+          { provide: Logger, useValue: {} },
+          { provide: StrapiRemoteCacheClient, useValue: remoteCacheClient },
+        ],
+      }).compile();
+
+      expect(remoteCacheClientFor(module.get(StrapiClient))).toBe(
+        remoteCacheClient
+      );
     });
   });
 

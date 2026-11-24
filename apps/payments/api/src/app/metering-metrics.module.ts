@@ -5,6 +5,7 @@
 import { Logger, Module } from '@nestjs/common';
 import { SentryModule } from '@sentry/nestjs/setup';
 
+import { MeteringStrapiCacheClientProvider } from '@fxa/entitlements/metering';
 import { MeteringConfigurationManager, StrapiClient } from '@fxa/shared/cms';
 import { FirestoreProvider } from '@fxa/shared/db/firestore';
 import { StatsDProvider } from '@fxa/shared/metrics/statsd';
@@ -19,6 +20,7 @@ import { MeteringMetricsProviders } from './metering-metrics.providers';
     StatsDProvider,
     FirestoreProvider,
     StrapiClient,
+    MeteringStrapiCacheClientProvider,
     MeteringConfigurationManager,
     ...MeteringMetricsProviders,
   ],
