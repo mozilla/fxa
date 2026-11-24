@@ -246,8 +246,18 @@ describe('useFxAStatus', () => {
       expect(result.current.fxaStatus?.capabilities.pairing).toBe(true);
     });
 
-    it('returns pairingEnabled: false when the pairing capability is absent', async () => {
+    // Absent and false mean different browsers: Firefox for iOS and Android
+    // never send `pairing`, a desktop with pairing turned off sends false.
+    it('leaves pairing undefined when the browser answers without it', async () => {
       mockCapabilities({ engines: [] });
+
+      const result = await renderSettled();
+
+      expect(result.current.fxaStatus?.capabilities.pairing).toBeUndefined();
+    });
+
+    it('returns pairing false when the browser reports it turned off', async () => {
+      mockCapabilities({ engines: [], pairing: false });
 
       const result = await renderSettled();
 

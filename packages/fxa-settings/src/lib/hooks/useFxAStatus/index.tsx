@@ -152,7 +152,12 @@ export function useFxAStatus(
           ...status,
           capabilities: {
             ...capabilities,
-            pairing: !!capabilities.pairing,
+            // Left undefined when the browser answered without it: Firefox
+            // for iOS and Android never send `pairing`, while a desktop with
+            // pairing turned off sends false. detectV2PairingType reads that.
+            pairing: status?.capabilities
+              ? status.capabilities.pairing
+              : DEFAULT_PAIRING_CAPABILITIES.pairing,
             pairingVersion:
               capabilities.pairingVersion ||
               DEFAULT_PAIRING_CAPABILITIES.pairingVersion,

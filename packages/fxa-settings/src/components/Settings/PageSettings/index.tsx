@@ -37,6 +37,7 @@ import {
   isRecoveryKeyPromoDismissed,
   isRecoveryPhonePromoDismissed,
 } from '../../../lib/promo-dismissal';
+import firefox from '../../../lib/channels/firefox';
 import FirefoxPromoBanner, {
   shouldShowFirefoxPromo,
 } from '../../FirefoxPromoBanner';
@@ -58,7 +59,10 @@ export const PageSettings = ({
   // A browser that reports having no Sync key gets no pairing CTA; see
   // canPairFromBrowser. The button also shows for a signed-out browser, since
   // /pair signs in itself; the banner needs the browser session.
-  const browserCanPair = browserHasSyncKey !== false;
+  // Nor does one that answered fxa_status without the pairing capability:
+  // Firefox for Android with "Desktop site" on looks like a desktop here.
+  const browserCanPair =
+    browserHasSyncKey !== false && firefox.canApprovePairing !== false;
   const signedIntoPairableFirefox = isSignedIntoFirefox && browserCanPair;
   const account = useAccount();
   const { uid, recoveryKey, attachedClients, totp, recoveryPhone } = account;

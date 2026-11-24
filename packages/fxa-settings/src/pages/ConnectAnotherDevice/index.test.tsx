@@ -437,6 +437,18 @@ describe('ConnectAnotherDevice', () => {
       expect(mockNavigate).not.toHaveBeenCalled();
     });
 
+    it('leaves a browser without the pairing capability to /pair when the v=2 query param is set', async () => {
+      renderPairingEligible(
+        { pairing: false, pairingVersion: 2 },
+        FXA_PAIRING_V2,
+        `${MOCK_PAIRING_ELIGIBLE_ROUTE}&v=2`
+      );
+
+      await waitFor(() => expect(mockNavigate).toHaveBeenCalledTimes(1));
+      expect(mockNavigate.mock.calls[0][0]).toMatch(/^\/pair\?/);
+      expect(hardNavigate).not.toHaveBeenCalled();
+    });
+
     it('renders the loading spinner while the browser capabilities are unresolved', async () => {
       renderPairingEligible(
         { overrides: { fxaStatus: undefined } },

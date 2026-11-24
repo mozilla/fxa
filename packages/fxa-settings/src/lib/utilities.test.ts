@@ -6,6 +6,7 @@ import {
   buildPairingDownloadUrl,
   constructHrefWithUtm,
   deepMerge,
+  detectV2PairingType,
   formatRecoveryKey,
   formatSecret,
   isBase32Crockford,
@@ -28,6 +29,7 @@ import {
 import { MAC_FIREFOX_UA, WINDOWS_FIREFOX_UA } from './test-utils';
 import { SEND_TAB_ENTRYPOINTS } from '../constants';
 import { Constants } from './constants';
+import { mockUseFxAStatus } from './hooks/useFxAStatus/mocks';
 
 describe('deepMerge', () => {
   it('recursively merges multiple objects', () => {
@@ -326,6 +328,53 @@ describe('isMobileOrTabletDevice', () => {
   ])('returns false for $device', ({ userAgent, platform, maxTouchPoints }) => {
     setNavigator({ userAgent, platform, maxTouchPoints });
     expect(isMobileOrTabletDevice()).toBe(false);
+  });
+});
+
+describe('detectV2PairingType', () => {
+  // What each Firefox answers fxa_status with, as useFxAStatus hands it on: a
+  // missing `pairing` stays missing and a missing `pairingVersion` is 1.
+  const status = (pairing: boolean | 'absent', pairingVersion: number) =>
+    mockUseFxAStatus({ pairingEnabled: pairing, pairingVersion }).fxaStatus;
+
+  it('is a desktop for desktop Firefox, which reports pairing and version 2', () => {
+    expect(detectV2PairingType(status(true, 2))).toBe('desktop');
+  });
+
+  // identity.fxaccounts.pairing.enabled is a desktop pref, and desktop sends
+  // its value either way.
+  it('is a desktop for desktop Firefox with pairing turned off', () => {
+    expect(detectV2PairingType(status(false, 2))).toBe('desktop');
+  });
+
+  // Firefox for iOS and for Android report version 2 and leave `pairing` out.
+  it('is mobile for a Firefox that reports version 2 and no pairing key', () => {
+    expect(detectV2PairingType(status('absent', 2))).toBe('mobile');
+  });
+
+  it.each([
+    { browser: 'desktop Firefox set to pairing version 1', pairing: true },
+    {
+      browser: 'a mobile Firefox from before pairing v2',
+      pairing: 'absent' as const,
+    },
+  ])('is unsupported for $browser', ({ pairing }) => {
+    expect(detectV2PairingType(status(pairing, 1))).toBe('unsupported');
+  });
+
+  it('is unsupported for the defaults that stand in for a browser that never answered', () => {
+    expect(
+      detectV2PairingType(
+        mockUseFxAStatus({
+          pairingEnabled: false,
+          fxaStatusState: 'unanswered',
+        }).fxaStatus
+      )
+    ).toBe('unsupported');
+  });
+
+  it('is unsupported before fxa_status has settled', () => {
+    expect(detectV2PairingType(undefined)).toBe('unsupported');
   });
 });
 
