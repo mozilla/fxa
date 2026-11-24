@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit a7d6c2ce3912bdcbdaf2ea8a76f46c570761f5c5</title>
+  <title>Storybooks for commit a7f4bd12bc7f02c13edb9c39439d4a7498a265f1</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,14 +23,14 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit a7d6c2ce3912bdcbdaf2ea8a76f46c570761f5c5</h1>
+  <h1>Storybooks for commit a7f4bd12bc7f02c13edb9c39439d4a7498a265f1</h1>
   <ul>
     <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
 <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/24/2026, 9:14:04 PM UTC</dd>
+    <dd>11/24/2026, 10:59:12 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): wire the delete Sync data flow</pre></dd>
     <dt>Description</dt>
@@ -39,6 +39,8 @@
 - The delete Sync data page had its UI but no behavior behind confirm.
 - Signing out of the current device must land on email-first with a
   success message, like account deletion.
+- A tokenserver without the delete endpoint answers a bare 404, which
+  read as success and left the data in place.
 
 This commit:
 
@@ -46,10 +48,10 @@ This commit:
   device last, with success, delete-failure and sign-out-failure alerts.
 - Redirect to email-first without the query string after signing out
   this device, and show the success banner there.
-- Disable the confirm button with a spinner while the sequence runs.
-- Add Glean delete_sync_data view/submit/success/error events and tag
-  device sign-outs with reason sync_data_deletion.
-- Add unit tests and a Playwright spec that stubs tokenserver.
+- Add Glean delete_sync_data events and tag device sign-outs with
+  reason sync_data_deletion; add unit tests and a Playwright spec.
+- Treat a 404 without tokenserver&#039;s JSON error body as a backend failure.
+- Run syncstorage-rs 0.25.2 locally with the delete endpoint enabled.
 
 Closes #FXA-14947</pre></dd>
   </dl>

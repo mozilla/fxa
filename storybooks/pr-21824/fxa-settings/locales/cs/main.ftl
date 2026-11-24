@@ -1735,6 +1735,7 @@ pair2-supplicant-timeout-and-cancel-signed-in-heading = Na tomto zařízení už
 pair2-supplicant-timeout-and-cancel-signed-in-description = Chcete-li se připojit k účtu na počítači, odhlaste se na tomto zařízení z { -brand-firefox(case: "gen") } a poté na počítači přejděte na <b>firefox.com/pair</b> a dokončete přihlášení.
 pair2-supplicant-timeout-and-cancel-timeout-page-title = Čas pro spojení vypršel
 pair2-supplicant-timeout-and-cancel-cancelled-page-title = Párování bylo zrušeno
+pair2-supplicant-timeout-and-cancel-signed-in-page-title = Zařízení je již přihlášeno
 
 
 permissions-heading = Služba { $serviceName } požaduje přístup k:
@@ -1743,13 +1744,13 @@ permissions-label-display-name = Zobrazované jméno
 permissions-label-avatar = Profilový obrázek
 permissions-continue-button = Pokračovat
 permissions-cancel-button = Zrušit
-permissions-page-title = Oprávnění ke kontrole
+permissions-page-title = Kontrola oprávnění
 
 
 force-password-change-heading = Změňte si prosím heslo
 force-password-change-info = Na vašem { -product-mozilla-account(case: "gen") } jsme zaznamenali podezřelou aktivitu. Vytvořte si prosím nové heslo, abychom váš účet ochránili. Pomocí tohoto hesla se znovu přihlásíte ke všem službám svého { -product-mozilla-account(case: "gen") }.
 force-password-change-data-info = O synchronizovanou historii, záložky, přihlašovací údaje ani další osobní data nepřijdete.
-force-password-change-page-title = Změňte si své heslo
+force-password-change-page-title = Změna hesla
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } potvrzen
@@ -1764,7 +1765,7 @@ set-password-info-v2 = Tím se vaše data zašifrují. Musí se lišit od hesla 
 
 
 set-password-passwordless-info = Toto heslo slouží k zašifrování vašich synchronizovaných dat a jejich bezpečí.
-set-password-page-title = Vytvořte si pro synchronizaci heslo
+set-password-page-title = Vytvořit heslo pro synchronizaci
 
 
 third-party-auth-callback-message = Čekejte prosím, budete přesměrováni na autorizovanou aplikaci.
@@ -1787,7 +1788,7 @@ complete-reset-pw-recovery-key-link = Použít obnovovací klíč
 reset-password-complete-banner-heading = Vaše heslo bylo obnoveno.
 reset-password-complete-banner-message = Abyste předešli budoucím problémům s přihlášením, nezapomeňte si v nastavení { -product-mozilla-account(capitalization: "lower", case: "gen") } vygenerovat nový obnovovací klíč k účtu.
 complete-reset-password-desktop-relay = { -brand-firefox } se vás pokusí po přihlášení přesměrovat na e-mailovou masku.
-complete-reset-password-page-title = Vytvořte si nové heslo
+complete-reset-password-page-title = Nastavit nové heslo
 confirm-backup-code-reset-password-input-label = Zadejte 10místný kód
 confirm-backup-code-reset-password-confirm-button = Potvrdit
 confirm-backup-code-reset-password-subheader = Zadejte záložní ověřovací kód
@@ -1802,7 +1803,7 @@ confirm-reset-password-code-input-group-label = Zadejte 8místný kód do 10 min
 confirm-reset-password-otp-submit-button = Pokračovat
 confirm-reset-password-otp-resend-code-button = Znovu odeslat kód
 confirm-reset-password-otp-different-account-link = Použít jiný účet
-confirm-reset-password-with-code-page-title = Pro obnovu hesla zkontrolujte svou e-mailovou schránku
+confirm-reset-password-with-code-page-title = Zkontrolujte e-mail a obnovte heslo
 
 
 confirm-totp-reset-password-header = Obnovit heslo
@@ -1822,7 +1823,7 @@ password-reset-email-input =
     .label = Zadejte svoji e-mailovou adresu
 password-reset-submit-button-2 = Pokračovat
 password-reset-data-recovery-warning = Obnovení hesla může ovlivnit možnost obnovy synchronizovaných dat prohlížeče. <learnMoreLink>Další informace</learnMoreLink>
-password-reset-flow-page-title = Obnovit heslo
+password-reset-flow-page-title = Obnova hesla
 
 
 reset-password-complete-header = Vaše heslo bylo obnoveno
@@ -1864,7 +1865,7 @@ reset-password-with-recovery-key-verified-page-title = Heslo bylo úspěšně ob
 reset-password-complete-new-password-saved = Nové heslo uloženo!
 reset-password-complete-recovery-key-created = Nový obnovovací klíč k účtu byl vytvořen. Stáhněte si ho a uložte.
 reset-password-complete-recovery-key-download-info = Tento klíč je nezbytný pro obnovu dat v případě, že zapomenete své heslo. <b>Hned si ho stáhněte a bezpečně uložte, později už k němu nebudete moci přistupovat.</b>
-reset-password-with-recovery-key-verified-hint-page-title = Přidat nápovědu k obnovovacímu klíči
+reset-password-with-recovery-key-verified-hint-page-title = Přidání nápovědy k obnovovacímu klíči
 
 
 server-error-heading = Chyba 500
@@ -1883,8 +1884,8 @@ complete-signin-validating-page-title = Potvrzení přihlášení
 
 
 signin-password-page-title = Zadání hesla
-signin-cached-page-title = Přihlásit se
-signin-alternative-auth-page-title = Vyberte způsob přihlášení
+signin-cached-page-title = Přihlášení
+signin-alternative-auth-page-title = Výběr způsobu přihlášení
 signin-password-needed-header-2 = Zadejte své heslo <span>k účtu { -product-mozilla-account }</span>
 signin-button-start-syncing = Spustit synchronizaci
 signin-subheader-without-logo-with-servicename = Pokračovat do služby { $serviceName }
@@ -1908,7 +1909,7 @@ report-signin-body = Obdrželi jste e-mail o pokusu o přihlášení do vašeho 
 report-signin-submit-button = Nahlásit aktivitu
 report-signin-support-link = Proč se to stalo?
 report-signin-error = Omlouváme se, ale při odesílání hlášení nastal problém.
-report-signin-page-title = Nahlásit neoprávněné přihlášení
+report-signin-page-title = Nahlášení neoprávněného přihlášení
 signin-bounced-header = Omlouváme se, váš účet byl uzamčen.
 signin-bounced-message = Potvrzovací e-mail, který jsme poslali na adresu { $email }, se vrátil zpět. Uzamkli jsme proto váš účet, abychom ochránili vaše data { -brand-firefox(case: "gen") }.
 signin-bounced-help = Pokud se jedná o platnou e-mailovou adresu, <linkExternal>dejte nám vědět</linkExternal> a my vám pomůžeme odemknout váš účet.
@@ -1958,7 +1959,7 @@ signup-passwordless-code-subheading = Při použití tohoto kódu stačí k regi
 
 
 signin-passwordless-totp-required = U vašeho účtu je zapnuto dvoufázové ověřování. Přihlaste se, prosím, pomocí svého hesla.
-signin-passwordless-code-page-title = Přihlaste se pomocí e-mailového kódu
+signin-passwordless-code-page-title = Přihlášení e-mailovým kódem
 signup-passwordless-code-page-title = Zaregistrujte se pomocí e-mailového kódu
 
 

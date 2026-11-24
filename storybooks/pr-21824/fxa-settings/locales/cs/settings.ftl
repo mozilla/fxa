@@ -2211,6 +2211,9 @@ pair2-supplicant-timeout-and-cancel-timeout-page-title = Čas pro spojení vypr�
 # Browser tab title for the page shown on the mobile device when the device pairing attempt was cancelled.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 pair2-supplicant-timeout-and-cancel-cancelled-page-title = Párování bylo zrušeno
+# Browser tab title for the page shown on the mobile device when it is already signed in to an account and cannot be paired.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-timeout-and-cancel-signed-in-page-title = Zařízení je již přihlášeno
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2227,7 +2230,7 @@ permissions-continue-button = Pokračovat
 permissions-cancel-button = Zrušit
 # Browser tab title for the page where the user reviews the profile information an app or service is asking to access.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-permissions-page-title = Oprávnění ke kontrole
+permissions-page-title = Kontrola oprávnění
 
 ## ForcePasswordChange page
 ## Users are sent here when suspicious activity on the account requires a new password before they can continue.
@@ -2237,7 +2240,7 @@ force-password-change-info = Na vašem { -product-mozilla-account(case: "gen") }
 force-password-change-data-info = O synchronizovanou historii, záložky, přihlašovací údaje ani další osobní data nepřijdete.
 # Browser tab title for the page where the user must change their password because of suspicious activity on their account.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-force-password-change-page-title = Změňte si své heslo
+force-password-change-page-title = Změna hesla
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2264,7 +2267,7 @@ set-password-info-v2 = Tím se vaše data zašifrují. Musí se lišit od hesla 
 set-password-passwordless-info = Toto heslo slouží k zašifrování vašich synchronizovaných dat a jejich bezpečí.
 # Browser tab title for the page where the user creates a password so they can sync.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-set-password-page-title = Vytvořte si pro synchronizaci heslo
+set-password-page-title = Vytvořit heslo pro synchronizaci
 
 ## ThirdPartyAuthCallback Page
 ## This page is called after a user completes the third party authentication flow from Google or Apple.
@@ -2311,7 +2314,7 @@ reset-password-complete-banner-message = Abyste předešli budoucím problémům
 complete-reset-password-desktop-relay = { -brand-firefox } se vás pokusí po přihlášení přesměrovat na e-mailovou masku.
 # Browser tab title for the page where the user creates a new password while resetting it.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-complete-reset-password-page-title = Vytvořte si nové heslo
+complete-reset-password-page-title = Nastavit nové heslo
 confirm-backup-code-reset-password-input-label = Zadejte 10místný kód
 confirm-backup-code-reset-password-confirm-button = Potvrdit
 confirm-backup-code-reset-password-subheader = Zadejte záložní ověřovací kód
@@ -2340,7 +2343,7 @@ confirm-reset-password-otp-resend-code-button = Znovu odeslat kód
 confirm-reset-password-otp-different-account-link = Použít jiný účet
 # Browser tab title for the page where the user enters the confirmation code emailed to them to reset their password.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-confirm-reset-password-with-code-page-title = Pro obnovu hesla zkontrolujte svou e-mailovou schránku
+confirm-reset-password-with-code-page-title = Zkontrolujte e-mail a obnovte heslo
 
 ## PasswordResetConfirmTotp Page
 
@@ -2368,7 +2371,7 @@ password-reset-submit-button-2 = Pokračovat
 password-reset-data-recovery-warning = Obnovení hesla může ovlivnit možnost obnovy synchronizovaných dat prohlížeče. <learnMoreLink>Další informace</learnMoreLink>
 # Browser tab title for the page where the user starts a password reset by entering their email.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-password-reset-flow-page-title = Obnovit heslo
+password-reset-flow-page-title = Obnova hesla
 
 ## ResetPasswordConfirmed
 
@@ -2431,7 +2434,7 @@ reset-password-complete-recovery-key-created = Nový obnovovací klíč k účtu
 reset-password-complete-recovery-key-download-info = Tento klíč je nezbytný pro obnovu dat v případě, že zapomenete své heslo. <b>Hned si ho stáhněte a bezpečně uložte, později už k němu nebudete moci přistupovat.</b>
 # Browser tab title for the page where the user adds a hint for their new account recovery key.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-reset-password-with-recovery-key-verified-hint-page-title = Přidat nápovědu k obnovovacímu klíči
+reset-password-with-recovery-key-verified-hint-page-title = Přidání nápovědy k obnovovacímu klíči
 
 ## ServerError page
 ## Shown when the server fails to handle a request
@@ -2468,10 +2471,10 @@ complete-signin-validating-page-title = Potvrzení přihlášení
 signin-password-page-title = Zadání hesla
 # Browser tab title for the sign-in page shown when the user already has a saved session on this device.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signin-cached-page-title = Přihlásit se
+signin-cached-page-title = Přihlášení
 # Browser tab title for the page where the user picks how to sign in when their account has no password.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signin-alternative-auth-page-title = Vyberte způsob přihlášení
+signin-alternative-auth-page-title = Výběr způsobu přihlášení
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Zadejte své heslo <span>k účtu { -product-mozilla-account }</span>
 # Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
@@ -2510,7 +2513,7 @@ report-signin-support-link = Proč se to stalo?
 report-signin-error = Omlouváme se, ale při odesílání hlášení nastal problém.
 # Browser tab title for the page where the user can report a sign-in attempt to their account that they did not make.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-report-signin-page-title = Nahlásit neoprávněné přihlášení
+report-signin-page-title = Nahlášení neoprávněného přihlášení
 signin-bounced-header = Omlouváme se, váš účet byl uzamčen.
 # $email (string) - The user's email.
 signin-bounced-message = Potvrzovací e-mail, který jsme poslali na adresu { $email }, se vrátil zpět. Uzamkli jsme proto váš účet, abychom ochránili vaše data { -brand-firefox(case: "gen") }.
@@ -2589,7 +2592,7 @@ signup-passwordless-code-subheading = Při použití tohoto kódu stačí k regi
 signin-passwordless-totp-required = U vašeho účtu je zapnuto dvoufázové ověřování. Přihlaste se, prosím, pomocí svého hesla.
 # Browser tab title for the page where the user enters the confirmation code emailed to them to sign in to their account.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-signin-passwordless-code-page-title = Přihlaste se pomocí e-mailového kódu
+signin-passwordless-code-page-title = Přihlášení e-mailovým kódem
 # Browser tab title for the page where the user enters the confirmation code emailed to them to sign up for an account.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
 signup-passwordless-code-page-title = Zaregistrujte se pomocí e-mailového kódu
