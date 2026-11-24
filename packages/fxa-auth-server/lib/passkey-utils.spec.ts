@@ -88,16 +88,28 @@ describe('passkey-utils', () => {
   });
 
   describe('isPasskeyPasswordlessSyncEnabled', () => {
+    const PRF_ON = {
+      prfSalt: 'dGVzdC1wcmYtc2FsdA',
+      requestPrfAtAuthentication: 'all',
+    };
     it('should return true when primary and passwordless sync flags are both enabled', () => {
       const config = {
-        passkeys: { enabled: true, passwordlessSyncEnabled: true },
+        passkeys: {
+          enabled: true,
+          passwordlessSyncEnabled: true,
+          ...PRF_ON,
+        },
       };
       expect(isPasskeyPasswordlessSyncEnabled(config)).toBe(true);
     });
 
     it('should throw when primary is enabled but passwordlessSyncEnabled is false', () => {
       const config = {
-        passkeys: { enabled: true, passwordlessSyncEnabled: false },
+        passkeys: {
+          enabled: true,
+          passwordlessSyncEnabled: false,
+          ...PRF_ON,
+        },
       };
       expect(() => isPasskeyPasswordlessSyncEnabled(config)).toThrow(
         'Feature not enabled'
@@ -106,7 +118,11 @@ describe('passkey-utils', () => {
 
     it('should throw when primary is disabled even if passwordlessSyncEnabled is true', () => {
       const config = {
-        passkeys: { enabled: false, passwordlessSyncEnabled: true },
+        passkeys: {
+          enabled: false,
+          passwordlessSyncEnabled: true,
+          ...PRF_ON,
+        },
       };
       expect(() => isPasskeyPasswordlessSyncEnabled(config)).toThrow(
         'Feature not enabled'
@@ -115,9 +131,26 @@ describe('passkey-utils', () => {
 
     it('should throw when config.passkeys.passwordlessSyncEnabled is undefined', () => {
       // Simulate a config predating this flag, e.g. a stale deployed config file.
-      const config = { passkeys: { enabled: true } } as PasskeyFlagsConfig<
-        'enabled' | 'passwordlessSyncEnabled'
+      const config = {
+        passkeys: { enabled: true, ...PRF_ON },
+      } as PasskeyFlagsConfig<
+        | 'enabled'
+        | 'passwordlessSyncEnabled'
+        | 'prfSalt'
+        | 'requestPrfAtAuthentication'
       >;
+      expect(() => isPasskeyPasswordlessSyncEnabled(config)).toThrow(
+        'Feature not enabled'
+      );
+    });
+
+    it.each([
+      ['the salt is empty', { ...PRF_ON, prfSalt: '' }],
+      ['the scope is off', { ...PRF_ON, requestPrfAtAuthentication: 'off' }],
+    ])('should throw when both flags are on but %s', (_case, prf) => {
+      const config = {
+        passkeys: { enabled: true, passwordlessSyncEnabled: true, ...prf },
+      };
       expect(() => isPasskeyPasswordlessSyncEnabled(config)).toThrow(
         'Feature not enabled'
       );

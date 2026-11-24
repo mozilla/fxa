@@ -12,6 +12,10 @@ import { isOAuthNativeIntegration } from '../../models';
 import { resolveServiceOrClientId } from '../../models/integrations/utils';
 import type { PasskeySignInGleanReason } from './webauthn-errors';
 import { PASSKEY_SUPPORT_URL, PASSKEY_TROUBLESHOOT_URL } from './constants';
+import {
+  passwordlessSyncEnabled,
+  type PasskeySigninFlags,
+} from './should-show-passkey-signin';
 
 /**
  * Sign-in surface the user clicked the passkey button on. Drives Glean event
@@ -158,11 +162,11 @@ export function resolvePasskeyService(
  */
 export function shouldRequestWrapMaterial(
   integration: PasskeySignInIntegration,
-  featureFlags: { passkeyPasswordlessSyncEnabled?: boolean } | undefined,
+  featureFlags: PasskeySigninFlags['featureFlags'],
   keysRequired: boolean
 ): boolean {
   return (
-    !!featureFlags?.passkeyPasswordlessSyncEnabled &&
+    passwordlessSyncEnabled({ featureFlags }) &&
     keysRequired &&
     isOAuthNativeIntegration(integration) &&
     integration.isSync()

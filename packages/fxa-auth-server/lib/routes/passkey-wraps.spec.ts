@@ -70,11 +70,21 @@ const asRequest = (r: PartialFuncReturn<AuthRequest>) =>
   r as object as AuthRequest;
 
 const config = {
-  passkeys: { enabled: true, passwordlessSyncEnabled: true },
+  passkeys: {
+    enabled: true,
+    passwordlessSyncEnabled: true,
+    prfSalt: 'dGVzdC1wcmYtc2FsdA',
+    requestPrfAtAuthentication: 'all',
+  },
 } as unknown as ConfigType;
 
 const disabledConfig = {
-  passkeys: { enabled: true, passwordlessSyncEnabled: false },
+  passkeys: {
+    enabled: true,
+    passwordlessSyncEnabled: false,
+    prfSalt: 'dGVzdC1wcmYtc2FsdA',
+    requestPrfAtAuthentication: 'all',
+  },
 } as unknown as ConfigType;
 
 describe('passkey wraps routes', () => {
