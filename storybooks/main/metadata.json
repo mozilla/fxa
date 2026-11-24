@@ -1,8 +1,8 @@
 {
-  "commit": "82cb9ef8e5fd8e33aca00f083fe8a9d63b8dd192",
-  "summary": "Merge pull request #21813 from mozilla/fxa-15107",
-  "description": "test(functional): cover wrong password after a primary email swap",
-  "timestamp": 1795537071000,
+  "commit": "b4a0f6132a89e24eb189402a0d0fcd8e3ca8812b",
+  "summary": "Merge pull request #21812 from mozilla/fxa-15003",
+  "description": "chore(settings): remove BrandMessaging and unused components",
+  "timestamp": 1795537176000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
