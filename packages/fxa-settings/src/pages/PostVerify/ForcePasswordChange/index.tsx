@@ -11,6 +11,8 @@ import FormPasswordWithInlineCriteria from '../../../components/FormPasswordWith
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import {
   logViewEvent,
   logViewEventOnce,
@@ -29,6 +31,7 @@ export const ForcePasswordChange = ({
   changePasswordHandler,
 }: ForcePasswordChangeProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  useGleanView(() => GleanMetrics.forcePasswordChange.view());
 
   const ftlMsgResolver = useFtlMsgResolver();
   const [loading, setLoading] = useState(false);
@@ -49,6 +52,7 @@ export const ForcePasswordChange = ({
   const onSubmit = useCallback(
     async ({ oldPassword, newPassword }: ForcePasswordChangeFormData) => {
       logViewEvent('flow', `${viewName}.submit`, REACT_ENTRYPOINT);
+      GleanMetrics.forcePasswordChange.submit();
       setBannerErrorText('');
 
       if (oldPassword === newPassword) {

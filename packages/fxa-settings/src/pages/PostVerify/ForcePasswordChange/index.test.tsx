@@ -14,11 +14,22 @@ import {
   usePageViewEvent,
 } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import GleanMetrics from '../../../lib/glean';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
   logViewEventOnce: jest.fn(),
   usePageViewEvent: jest.fn(),
+}));
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    forcePasswordChange: {
+      view: jest.fn(),
+      submit: jest.fn(),
+    },
+  },
 }));
 
 const OLD_PASSWORD = 'oldPassword123!';
@@ -63,6 +74,8 @@ describe('ForcePasswordChange page', () => {
       'force-password-change',
       REACT_ENTRYPOINT
     );
+    expect(GleanMetrics.forcePasswordChange.view).toHaveBeenCalledTimes(1);
+    expect(GleanMetrics.forcePasswordChange.submit).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -96,6 +109,7 @@ describe('ForcePasswordChange page', () => {
       'force-password-change.submit',
       REACT_ENTRYPOINT
     );
+    expect(GleanMetrics.forcePasswordChange.submit).toHaveBeenCalledTimes(1);
   });
 
   it('shows an error without submitting when the new password is the old one', async () => {
@@ -108,6 +122,12 @@ describe('ForcePasswordChange page', () => {
       await screen.findByText(AuthUiErrors.PASSWORDS_MUST_BE_DIFFERENT.message)
     ).toBeInTheDocument();
     expect(changePasswordHandler).not.toHaveBeenCalled();
+    expect(logViewEvent).toHaveBeenCalledWith(
+      'flow',
+      'force-password-change.submit',
+      REACT_ENTRYPOINT
+    );
+    expect(GleanMetrics.forcePasswordChange.submit).toHaveBeenCalledTimes(1);
   });
 
   it('shows the handler error in a banner', async () => {

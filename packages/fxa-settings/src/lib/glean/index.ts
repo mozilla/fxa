@@ -24,10 +24,12 @@ import * as cachedLogin from './web/cachedLogin';
 import * as passwordReset from './web/passwordReset';
 import * as thirdPartyAuth from './web/thirdPartyAuth';
 import * as postVerifySetPassword from './web/postVerifySetPassword';
+import * as forcePasswordChange from './web/forcePasswordChange';
 import * as passkeyEnterPassword from './web/passkeyEnterPassword';
 import * as passkey from './web/passkey';
 import * as alertBar from './web/alertBar';
 import * as banner from './web/banner';
+import * as oauthPermissions from './web/oauthPermissions';
 import { userIdSha256, userId } from './web/account';
 import { oauthClientId, service } from './web/relyingParty';
 import {
@@ -548,6 +550,12 @@ const recordEventMetric = async (
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
       break;
+    case 'force_password_change_view':
+      forcePasswordChange.view.record();
+      break;
+    case 'force_password_change_submit':
+      forcePasswordChange.submit.record();
+      break;
     case 'passkey_button_view':
       passkey.buttonView.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',
@@ -689,6 +697,9 @@ const recordEventMetric = async (
       break;
     case 'dtm_mobile_deeplink_webview_fallback':
       dtmMobile.deeplinkWebviewFallback.record();
+      break;
+    case 'oauth_permissions_view':
+      oauthPermissions.view.record();
       break;
     default: {
       const { recordLazyEventMetric } = await loadLazyEvents();

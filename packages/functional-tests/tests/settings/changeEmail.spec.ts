@@ -273,6 +273,48 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(settings.alertBar).toHaveText(/successfully added/);
     });
+
+    test('records Glean events for adding a secondary email', async ({
+      target,
+      pages: { page, secondaryEmail, settings, signin },
+      testAccountTracker,
+      gleanEventsHelper,
+    }) => {
+      const credentials = await testAccountTracker.signUpAndPrimeMfa({
+        scopes: 'email',
+      });
+      await signInAccount(target, page, settings, signin, credentials);
+      const newEmail = testAccountTracker.generateEmail();
+
+      await settings.goto();
+      await settings.secondaryEmail.addButton.click();
+      await gleanEventsHelper.waitForEvent(
+        'account_pref_secondary_email_add_view'
+      );
+      await secondaryEmail.fillOutEmail(newEmail);
+      await gleanEventsHelper.waitForEvent(
+        'account_pref_secondary_email_add_submit'
+      );
+
+      const code: string =
+        await target.emailClient.getVerifySecondaryCode(newEmail);
+      const wrongCode = String((Number(code) + 1) % 1e6).padStart(6, '0');
+      await secondaryEmail.fillOutVerificationCode(wrongCode);
+      await gleanEventsHelper.waitForEvent(
+        'account_pref_secondary_email_verify_error'
+      );
+
+      await secondaryEmail.fillOutVerificationCode(code);
+      await expect(settings.alertBar).toHaveText(/successfully added/);
+      await gleanEventsHelper.waitForEvent(
+        'account_pref_secondary_email_added_success'
+      );
+      expect(
+        gleanEventsHelper.getEventsByName(
+          'account_pref_secondary_email_verify_submit'
+        )
+      ).toHaveLength(2);
+    });
   });
 });
 

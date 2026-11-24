@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { PasskeyConfig } from './passkey.config';
 import {
+  isPrfSigninConfigured,
   PASSKEY_CHALLENGE_REDIS,
   PasskeyChallengeRedisProvider,
   PasskeyConfigProvider,
@@ -194,17 +195,6 @@ describe('PasskeyConfigProvider', () => {
         'property allowedOrigins has failed the following constraints'
       );
     });
-
-    it('rejects a prfSalt that is not base64url', async () => {
-      await expect(() =>
-        buildModule({
-          ...VALID_RAW_CONFIG,
-          prfSalt: 'not base64url!',
-        })
-      ).rejects.toThrow(
-        'property prfSalt has failed the following constraints'
-      );
-    });
   });
 
   describe('requestPrfAtAuthentication normalization', () => {
@@ -232,5 +222,61 @@ describe('PasskeyConfigProvider', () => {
         'warning'
       );
     });
+  });
+
+  describe('prfSalt normalization', () => {
+    beforeEach(() => {
+      mockCaptureMessage.mockClear();
+    });
+
+    it('copies a valid salt through unchanged', async () => {
+      const { config } = await buildModule({
+        ...VALID_RAW_CONFIG,
+        prfSalt: 'dGVzdC1wcmYtc2FsdA',
+      });
+      expect(config!.prfSalt).toBe('dGVzdC1wcmYtc2FsdA');
+      expect(mockCaptureMessage).not.toHaveBeenCalled();
+    });
+
+    it('falls back to "" and reports to Sentry without the salt', async () => {
+      const { config } = await buildModule({
+        ...VALID_RAW_CONFIG,
+        prfSalt: 'not base64url!',
+      });
+      expect(config!.prfSalt).toBe('');
+      expect(mockCaptureMessage).toHaveBeenCalledTimes(1);
+      expect(mockCaptureMessage).toHaveBeenCalledWith(
+        expect.not.stringContaining('not base64url!'),
+        'warning'
+      );
+    });
+  });
+});
+
+describe('isPrfSigninConfigured', () => {
+  const salt = 'dGVzdC1wcmYtc2FsdA';
+
+  it.each(['all', 'keys-required'])(
+    'returns true for a valid salt and %s',
+    (scope) => {
+      expect(
+        isPrfSigninConfigured({
+          prfSalt: salt,
+          requestPrfAtAuthentication: scope,
+        })
+      ).toBe(true);
+    }
+  );
+
+  it.each([
+    ['an empty salt', '', 'all'],
+    ['a malformed salt', 'not base64url!', 'all'],
+    ['scope off', salt, 'off'],
+    ['an empty scope', salt, ''],
+    ['an unknown scope', salt, 'bogus'],
+  ])('returns false for %s', (_case, prfSalt, requestPrfAtAuthentication) => {
+    expect(isPrfSigninConfigured({ prfSalt, requestPrfAtAuthentication })).toBe(
+      false
+    );
   });
 });

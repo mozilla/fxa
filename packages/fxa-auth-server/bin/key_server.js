@@ -63,6 +63,7 @@ const {
 } = require('@fxa/accounts/recovery-phone');
 const {
   buildPasskeyConfig,
+  isPrfSigninConfigured,
   PasskeyService,
   PasskeyManager,
   PasskeyChallengeManager,
@@ -372,6 +373,21 @@ async function run(config) {
   } catch (err) {
     log.error('startup.passkey.configInvalid', { err });
     process.exit(8);
+  }
+  if (
+    passkeyConfig.enabled &&
+    config.passkeys.passwordlessSyncEnabled &&
+    !isPrfSigninConfigured(passkeyConfig)
+  ) {
+    // The wrap routes refuse every call until this is fixed; never log the salt.
+    log.warn('startup.passkey.passwordlessSyncMisconfigured', {
+      hasSalt: !!passkeyConfig.prfSalt,
+      requestPrfAtAuthentication: passkeyConfig.requestPrfAtAuthentication,
+    });
+    Sentry.captureMessage(
+      'Passwordless Sync is on but PRF sign-in is not configured',
+      'warning'
+    );
   }
   const passkeyManager = new PasskeyManager(
     accountDatabase,

@@ -225,7 +225,11 @@ const wrapper = ({ children }: { children: React.ReactNode }) =>
         sensitiveDataClient,
         config: {
           ...getDefault(),
-          featureFlags: { passkeyPasswordlessSyncEnabled },
+          featureFlags: {
+            passkeysEnabled: true,
+            passkeyAuthenticationEnabled: true,
+            passkeyPasswordlessSyncEnabled,
+          },
         },
       } as AppContextValue),
     },

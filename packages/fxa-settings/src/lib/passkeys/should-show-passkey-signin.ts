@@ -30,9 +30,13 @@ export function passkeySigninFeatureEnabled(
 /**
  * Whether a passkey can recover the account's Sync encryption keys, so sign-in
  * can skip the password. Gates every surface that offers that as an option.
+ * Requires passkey sign-in itself, since the server refuses wraps without it.
  */
 export function passwordlessSyncEnabled(config: PasskeySigninFlags): boolean {
-  return !!config.featureFlags?.passkeyPasswordlessSyncEnabled;
+  return (
+    passkeySigninFeatureEnabled(config) &&
+    !!config.featureFlags?.passkeyPasswordlessSyncEnabled
+  );
 }
 
 /**

@@ -187,6 +187,11 @@ export const eventsMap = {
     success: 'post_verify_set_password_success',
   },
 
+  forcePasswordChange: {
+    view: 'force_password_change_view',
+    submit: 'force_password_change_submit',
+  },
+
   passkey: {
     buttonView: 'passkey_button_view',
     authSuccess: 'passkey_auth_success',
@@ -251,6 +256,10 @@ export const eventsMap = {
     scanQrRedirect: 'cad_firefox_scan_qr_redirect',
   },
 
+  oauthPermissions: {
+    view: 'oauth_permissions_view',
+  },
+
   accountPref: {
     view: 'account_pref_view',
     recoveryKeySubmit: 'account_pref_recovery_key_submit',
@@ -289,6 +298,11 @@ export const eventsMap = {
     appleUnlinkSubmitConfirm: 'account_pref_apple_unlink_submit_confirm',
     displayNameSubmit: 'account_pref_display_name_submit',
     secondaryEmailSubmit: 'account_pref_secondary_email_submit',
+    secondaryEmailAddView: 'account_pref_secondary_email_add_view',
+    secondaryEmailAddSubmit: 'account_pref_secondary_email_add_submit',
+    secondaryEmailVerifySubmit: 'account_pref_secondary_email_verify_submit',
+    secondaryEmailAddedSuccess: 'account_pref_secondary_email_added_success',
+    secondaryEmailVerifyError: 'account_pref_secondary_email_verify_error',
     help: 'account_pref_help',
     promoMonitorView: 'account_pref_promo_monitor_view',
     promoMonitorSubmit: 'account_pref_promo_monitor_submit',

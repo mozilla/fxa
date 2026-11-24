@@ -7,10 +7,16 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import Permissions, { PermissionRow, viewName } from '.';
 import { usePageViewEvent } from '../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../constants';
+import GleanMetrics from '../../lib/glean';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
+}));
+
+jest.mock('../../lib/glean', () => ({
+  __esModule: true,
+  default: { oauthPermissions: { view: jest.fn() } },
 }));
 
 const onContinue = jest.fn();
@@ -36,6 +42,11 @@ beforeEach(() => {
 it('emits the page view event', () => {
   renderPermissions();
   expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+});
+
+it('records the Glean view event once', () => {
+  renderPermissions();
+  expect(GleanMetrics.oauthPermissions.view).toHaveBeenCalledTimes(1);
 });
 
 it('names the relying party in the heading', () => {
