@@ -19,6 +19,7 @@ import * as accountBanner from './web/accountBanner';
 import * as deleteAccount from './web/deleteAccount';
 import * as thirdPartyAuth from './web/thirdPartyAuth';
 import * as postVerifySetPassword from './web/postVerifySetPassword';
+import * as forcePasswordChange from './web/forcePasswordChange';
 import * as dtmDesktop from './web/dtmDesktop';
 import * as dtmMobile from './web/dtmMobile';
 import * as pairing from './web/pairing';
@@ -1295,6 +1296,19 @@ describe('lib/glean', () => {
           });
         }
       }
+    });
+
+    describe('forcePasswordChange', () => {
+      it.each([
+        { method: 'view', eventName: 'force_password_change_view' },
+        { method: 'submit', eventName: 'force_password_change_submit' },
+      ] as const)('submits $eventName', async ({ method, eventName }) => {
+        const spy = sandbox.spy(forcePasswordChange[method], 'record');
+        GleanMetrics.forcePasswordChange[method]();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnceWithExactly(setEventNameStub, eventName);
+        sinon.assert.calledOnce(spy);
+      });
     });
 
     describe('accountPref', () => {

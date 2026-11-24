@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../lib/fixtures/standard';
+import { GleanEventsHelper } from '../../lib/glean';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('post verify - force password change', () => {
@@ -20,6 +21,8 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       const credentials = await testAccountTracker.signUpForced();
       const newPassword = testAccountTracker.generatePassword();
+      const gleanEventsHelper = new GleanEventsHelper(page);
+      await gleanEventsHelper.start();
 
       await page.goto(target.contentServerUrl);
       await signin.fillOutEmailFirstForm(credentials.email);
@@ -32,10 +35,12 @@ test.describe('severity-2 #smoke', () => {
 
       //Verify force password change header
       expect(await postVerify.isForcePasswordChangeHeader()).toBe(true);
+      await gleanEventsHelper.waitForEvent('force_password_change_view');
 
       //Fill out change password
       await postVerify.fillOutChangePassword(credentials.password, newPassword);
       await postVerify.submit();
+      await gleanEventsHelper.waitForEvent('force_password_change_submit');
 
       await settings.page.waitForURL(/settings/);
       //Verify logged in on Settings page
