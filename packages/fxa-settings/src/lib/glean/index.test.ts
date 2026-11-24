@@ -21,6 +21,7 @@ import * as thirdPartyAuth from './web/thirdPartyAuth';
 import * as postVerifySetPassword from './web/postVerifySetPassword';
 import * as dtmDesktop from './web/dtmDesktop';
 import * as dtmMobile from './web/dtmMobile';
+import * as pairing from './web/pairing';
 import * as cadFirefox from './web/cadFirefox';
 import * as cadMobilePairUseApp from './web/cadMobilePairUseApp';
 import * as cadRedirectDesktop from './web/cadRedirectDesktop';
@@ -1119,6 +1120,20 @@ describe('lib/glean', () => {
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'dtm_desktop_qr_skip');
+        sinon.assert.calledOnce(spy);
+      });
+    });
+
+    describe('pairing', () => {
+      it('submits a ping with the pairing_password_lock_failure name', async () => {
+        const spy = sandbox.spy(pairing.passwordLockFailure, 'record');
+        GleanMetrics.pairing.passwordLockFailure();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'pairing_password_lock_failure'
+        );
         sinon.assert.calledOnce(spy);
       });
     });

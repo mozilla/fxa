@@ -35,7 +35,8 @@ const STOP_MOCK = 'fxa-test.stop-fxa-status-mock';
 async function mockKeylessBrowserUser(
   page: Page,
   credentials: Credentials,
-  sessionToken: string
+  sessionToken: string,
+  primaryPasswordLocked?: boolean
 ) {
   const signedInUser = {
     uid: credentials.uid,
@@ -43,6 +44,7 @@ async function mockKeylessBrowserUser(
     sessionToken,
     verified: true,
     hasSyncKey: false,
+    primaryPasswordLocked,
   };
   await page.addInitScript(
     ({ fxaStatusCommand, signedInUser, clientId, stopKey }) => {
@@ -136,6 +138,30 @@ test.describe('severity-2 #smoke', () => {
 
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
       await expect(page).toHaveURL(/\/pair(\?|$)/);
+    });
+
+    test('a browser with a locked Primary Password goes to the pairing failure page', async ({
+      target,
+      syncOAuthBrowserPages: { page, settings, signin },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUp();
+      await page.goto(target.contentServerUrl);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(settings.settingsHeading).toBeVisible();
+      const sessionToken = (
+        await settings.getAccountFromLocalStorage(credentials.email)
+      )?.sessionToken as string;
+      expect(sessionToken).toBeTruthy();
+
+      await mockKeylessBrowserUser(page, credentials, sessionToken, true);
+      await page.goto(`${target.contentServerUrl}/pair`);
+
+      await expect(page).toHaveURL(/\/pair\/failure/);
+      await expect(
+        page.getByText('Device pairing failed').first()
+      ).toBeVisible();
     });
 
     test('a signed-in browser without the Sync key signs in with password and 2FA before pairing', async ({

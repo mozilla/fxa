@@ -2,9 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useLocation } from 'react-router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import CardHeader from '../../../components/CardHeader';
 import { usePageViewEvent } from '../../../lib/metrics';
+import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import { HeartsBrokenImage } from '../../../components/images';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import AppLayout from '../../../components/AppLayout';
@@ -21,6 +24,14 @@ const PairFailure = ({ error }: PairFailureProps) => {
     'Device pairing failed'
   );
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  const location = useLocation();
+  const primaryPasswordLocked =
+    (location.state as { primaryPasswordLocked?: boolean } | null)
+      ?.primaryPasswordLocked === true;
+  useGleanView(
+    () => GleanMetrics.pairing.passwordLockFailure(),
+    primaryPasswordLocked
+  );
   return (
     <AppLayout title={localizedPageTitle}>
       {error && <Banner type="error" content={{ localizedHeading: error }} />}

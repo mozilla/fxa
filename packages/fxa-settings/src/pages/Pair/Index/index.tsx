@@ -400,6 +400,20 @@ const Pair = ({
     }
 
     pairingV2Ref.current = pairingV2;
+    const goToLockFailure = () =>
+      navigateWithQuery('/pair/failure', {
+        replace: true,
+        state: { primaryPasswordLocked: true },
+      });
+    // Firefox cannot read the Sync key to send while it is locked, and a
+    // sign-in would not unlock it.
+    if (
+      isFirefoxDesktop &&
+      fxaStatusResult.fxaStatus.signedInUser?.primaryPasswordLocked === true
+    ) {
+      goToLockFailure();
+      return;
+    }
     // The authority channel needs no account, but approving a sign-in does, so
     // a signed-out desktop takes the sign-in bootstrap below first. The token
     // is not checked server-side here: the authority has to mint the OAuth
@@ -441,12 +455,19 @@ const Pair = ({
         let attempt = 0;
         !abortBootstrapRef.current &&
         attempt < MAX_RETRIES &&
+        signedInUser?.primaryPasswordLocked !== true &&
         !canPairFromBrowser(signedInUser);
         attempt++
       ) {
         signedInUser = await askFirefox();
       }
       if (abortBootstrapRef.current) return;
+
+      // A later reply can report the lock that the first fxa_status did not.
+      if (signedInUser?.primaryPasswordLocked === true) {
+        goToLockFailure();
+        return;
+      }
 
       const sessionIsValid =
         canPairFromBrowser(signedInUser) &&

@@ -15,6 +15,7 @@ import * as cadRedirectMobile from './web/cadRedirectMobile';
 import * as deleteAccount from './web/deleteAccount';
 import * as dtmDesktop from './web/dtmDesktop';
 import * as firefoxPromo from './web/firefoxPromo';
+import * as pairing from './web/pairing';
 
 // Settings, CAD and DTM events, split out so sign-in routes do not bundle them.
 export const recordLazyEventMetric = (
@@ -369,6 +370,9 @@ export const recordLazyEventMetric = (
         reason: gleanPingMetrics?.event?.['reason'] || '',
         cause: gleanPingMetrics?.event?.['cause'] || '',
       });
+      break;
+    case 'pairing_password_lock_failure':
+      pairing.passwordLockFailure.record();
       break;
   }
 };
