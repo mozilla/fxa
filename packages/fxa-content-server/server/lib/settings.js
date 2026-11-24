@@ -102,7 +102,6 @@ const settingsConfig = {
   },
   googleAuthConfig: config.get('googleAuthConfig'),
   appleAuthConfig: config.get('appleAuthConfig'),
-  brandMessagingMode: config.get('brandMessagingMode'),
   glean: { ...config.get('glean'), appDisplayVersion: config.get('version') },
   redirectAllowlist: config.get('redirect_check.allow_list'),
   pairing: {

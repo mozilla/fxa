@@ -77,7 +77,6 @@ export interface Config {
     redirectUri: string;
     authorizationEndpoint: string;
   };
-  brandMessagingMode?: string;
   glean: {
     enabled: boolean;
     applicationId: string;
@@ -221,7 +220,6 @@ export function getDefault() {
       redirectUri: '',
       authorizationEndpoint: '',
     },
-    brandMessagingMode: 'prelaunch',
     glean: {
       enabled: false,
       applicationId: 'accounts_frontend_dev',
