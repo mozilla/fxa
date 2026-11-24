@@ -1,8 +1,8 @@
 {
-  "commit": "232846d1b776263beada1499357135648f7223bc",
-  "summary": "Merge pull request #21819 from mozilla/fxa-15118",
-  "description": "feat(settings): add Glean events to secondary email add and verify pages",
-  "timestamp": 1795549490000,
+  "commit": "2d831ddb48368b7d3e4dcb71fb8dfb29e6a7f485",
+  "summary": "Merge pull request #21821 from mozilla/fxa-15121",
+  "description": "feat(settings): record Glean events on signin bounced and report pages",
+  "timestamp": 1795550261000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
