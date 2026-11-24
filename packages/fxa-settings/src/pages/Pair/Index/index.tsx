@@ -39,6 +39,7 @@ import mobileDownloadIcon from './mobile-download.svg';
 import {
   buildPairingDownloadUrl,
   detectDevice,
+  detectV2PairingType,
   Devices,
   isIosSafari,
   isSendTabEntrypoint,
@@ -194,7 +195,13 @@ const Pair = ({
     []
   );
 
-  const device = deviceProp ?? detectDevice();
+  const uaDevice = deviceProp ?? detectDevice();
+  // Firefox for Android with "Desktop site" on sends a desktop user agent; its
+  // fxa_status answer is what says it is a phone.
+  const isDesktopModePhone =
+    uaDevice === Devices.FIREFOX_DESKTOP &&
+    detectV2PairingType(fxaStatusResult.fxaStatus) === 'mobile';
+  const device = isDesktopModePhone ? Devices.FIREFOX_ANDROID : uaDevice;
   const isFirefoxDesktop = device === Devices.FIREFOX_DESKTOP;
   const isFirefoxMobile =
     device === Devices.FIREFOX_IOS || device === Devices.FIREFOX_ANDROID;
@@ -376,6 +383,22 @@ const Pair = ({
       return;
     }
 
+    // Firefox that opened a scanned v2 URL but did not take the v2 flow above
+    // — too old, or its platform not rolled out. It can still pair by scanning
+    // the code from inside the app, which is what the hint says. A desktop
+    // user agent counts too: a scanned QR outranks it, so nothing that arrives
+    // with one starts an authority flow below.
+    if ((isFirefoxMobile || isFirefoxDesktop) && pairingChannelInfo) {
+      navigateWithQuery('/pair/supplicant/connect_hint', undefined, false);
+      return;
+    }
+
+    // No QR to act on, so the phone is pointed at the computer it pairs from.
+    if (isDesktopModePhone) {
+      navigateWithQuery('/pair/supplicant/ready_to_scan', { replace: true });
+      return;
+    }
+
     pairingV2Ref.current = pairingV2;
     // The authority channel needs no account, but approving a sign-in does, so
     // a signed-out desktop takes the sign-in bootstrap below first. The token
@@ -387,14 +410,6 @@ const Pair = ({
       canPairFromBrowser(fxaStatusResult.fxaStatus.signedInUser)
     ) {
       goToScanQr(pairReason);
-      return;
-    }
-
-    // Firefox on a phone that opened a scanned v2 URL but did not take the v2
-    // flow above — too old, or its platform not rolled out. It can still pair
-    // by scanning the code from inside the app, which is what the hint says.
-    if (isFirefoxMobile && pairingChannelInfo) {
-      navigateWithQuery('/pair/supplicant/connect_hint', undefined, false);
       return;
     }
 

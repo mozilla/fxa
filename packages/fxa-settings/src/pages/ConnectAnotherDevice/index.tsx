@@ -249,7 +249,10 @@ const ConnectAnotherDevice = ({
 
         // Escape hatch. Allow the query params to force a v2 pairing flow. Useuful initially for testing, probably
         // won't stick around forever...
-        if (searchParams.get('v') === '2') {
+        if (
+          searchParams.get('v') === '2' &&
+          fxaStatus.fxaStatus?.capabilities?.pairing === true
+        ) {
           goToScanQr(pairReason);
           return;
         }

@@ -435,13 +435,18 @@ export class PairingSupplicantIntegration extends OAuthWebIntegration {
     // fxa status is also missing the value.
     if (!clientId) {
       const deviceType = detectDevice();
-      if (deviceType === Devices.FIREFOX_ANDROID) {
+      // Firefox for Android with "Desktop site" on sends a desktop user agent;
+      // only its fxa_status answer, which lacks `pairing`, says it is a phone.
+      const isDesktopModePhone =
+        deviceType === Devices.FIREFOX_DESKTOP &&
+        firefox.canApprovePairing === false;
+      if (deviceType === Devices.FIREFOX_ANDROID || isDesktopModePhone) {
         clientId = OAuthNativeClients.Fenix;
       }
       if (deviceType === Devices.FIREFOX_IOS) {
         clientId = OAuthNativeClients.FirefoxIOS;
       }
-      if (deviceType === Devices.FIREFOX_DESKTOP) {
+      if (deviceType === Devices.FIREFOX_DESKTOP && !isDesktopModePhone) {
         clientId = OAuthNativeClients.FirefoxDesktop;
       }
     }
