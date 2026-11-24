@@ -1,0 +1,11 @@
+{
+  "commit": "e9bff24df641521efafeecacd82ff5b858bba530",
+  "summary": "feat(settings): add Glean events to the recovery key creation flows",
+  "description": "Because:\n\n* The recovery key creation flows had no Glean funnel.\n\nThis commit:\n\n* Adds the recovery_key Glean category and its generated events\n* Records a view for each step of the Settings and inline flows\n* Records key creation success, and errors with a reason\n* Adds data-glean-id to the flow controls\n* Keeps the reset password hint step silent (no flow passed)\n\nCloses FXA-15116",
+  "timestamp": 1795543758000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

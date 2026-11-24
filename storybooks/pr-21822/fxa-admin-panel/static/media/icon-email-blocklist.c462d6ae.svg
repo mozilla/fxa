@@ -1,0 +1,10 @@
+<svg width="16" height="16" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+  <!-- Envelope -->
+  <path fill="currentColor" d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3zm1 0v.511l5.555 3.7a.75.75 0 0 0 .89 0L14 3.511V3H2zm12 1.789-4.964 3.309a1.75 1.75 0 0 1-2.072 0L2 4.789V13h12V4.789z"/>
+  <!-- White backdrop -->
+  <circle cx="13" cy="13" r="4.5" fill="white"/>
+  <!-- No-entry circle -->
+  <circle cx="13" cy="13" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <!-- Diagonal slash -->
+  <line x1="10.17" y1="10.17" x2="15.83" y2="15.83" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+</svg>
