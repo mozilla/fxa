@@ -4,6 +4,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { adminApi } from '../../lib/api';
+import { useDisableMatching } from '../../hooks/useDisableMatching';
 import BlocklistTable from '../BlocklistTable';
 import type { DomainBlocklistEntry } from 'fxa-admin-server/src/types';
 
@@ -19,7 +20,6 @@ const PageDomainBlocklist = () => {
   const [submitting, setSubmitting] = useState(false);
   const [hasInput, setHasInput] = useState(false);
   const [disableMatches, setDisableMatches] = useState(false);
-  const [disableResult, setDisableResult] = useState<string | null>(null);
   const [syncUrl, setSyncUrl] = useState('');
   const [syncing, setSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<string | null>(null);
@@ -41,19 +41,14 @@ const PageDomainBlocklist = () => {
     loadEntries().finally(() => setLoading(false));
   }, [loadEntries]);
 
-  const disableMatchingAccounts = async (values: string[]) => {
-    setDisableResult(null);
-    try {
-      const { disabled } = await adminApi.disableDomainBlocklistMatches(values);
-      setDisableResult(
-        `Disabled ${disabled} matching ${disabled === 1 ? 'account' : 'accounts'}.`
-      );
-    } catch (e) {
-      setDisableResult(
-        `Error: ${e instanceof Error ? e.message : 'Unknown error'}`
-      );
-    }
-  };
+  const {
+    status: disableResult,
+    running: scanning,
+    disableMatching: disableMatchingAccounts,
+  } = useDisableMatching(
+    (domains) => adminApi.disableDomainBlocklistMatches(domains),
+    () => adminApi.getDomainBlocklistDisableJob()
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +66,7 @@ const PageDomainBlocklist = () => {
       await adminApi.addDomainBlocklistEntries(domains);
       if (textareaRef.current) textareaRef.current.value = '';
       await loadEntries();
-      if (disableMatches) await disableMatchingAccounts(domains);
+      if (disableMatches) void disableMatchingAccounts(domains);
     } catch (e) {
       window.alert(
         `Error: ${e instanceof Error ? e.message : 'Unknown error'}`
@@ -211,7 +206,7 @@ const PageDomainBlocklist = () => {
           type="submit"
           data-testid="domain-blocklist-add-btn"
           className="bg-green-50 border-2 p-1 border-green-300 font-small leading-6 rounded disabled:opacity-40 disabled:cursor-not-allowed"
-          disabled={submitting || !hasInput}
+          disabled={submitting || !hasInput || (disableMatches && scanning)}
         >
           ➕ Add Entries
         </button>
@@ -287,6 +282,7 @@ const PageDomainBlocklist = () => {
           getValue={getDomain}
           onDelete={handleDelete}
           onDisableMatching={(value) => disableMatchingAccounts([value])}
+          scanning={scanning}
         />
       )}
     </>

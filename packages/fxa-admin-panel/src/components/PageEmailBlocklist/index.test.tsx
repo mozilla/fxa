@@ -3,20 +3,29 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { userEvent, UserEvent } from '@testing-library/user-event';
 import PageEmailBlocklist from './index';
 import { adminApi } from '../../lib/api';
+import { POLL_MS } from '../../hooks/useDisableMatching';
 
 jest.mock('../../lib/api', () => ({
   adminApi: {
     getEmailBlocklist: jest.fn(),
     addEmailBlocklistEntries: jest.fn(),
     disableEmailBlocklistMatches: jest.fn(),
+    getEmailBlocklistDisableJob: jest.fn(),
     removeEmailBlocklistEntry: jest.fn(),
     deleteAllEmailBlocklistEntries: jest.fn(),
   },
 }));
+
+const doneJob = (disabled: number) => ({
+  status: 'done',
+  scanned: 1000,
+  total: 1000,
+  disabled,
+});
 
 const mockEntries = [
   { regex: '@evil\\.com$', createdAt: 2000 },
@@ -33,9 +42,15 @@ describe('PageEmailBlocklist', () => {
     confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
     alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => undefined);
     (adminApi.getEmailBlocklist as jest.Mock).mockResolvedValue([]);
+    // The page checks for a running scan on mount.
+    (adminApi.getEmailBlocklistDisableJob as jest.Mock).mockResolvedValue({
+      ...doneJob(0),
+      status: 'idle',
+    });
   });
 
   afterEach(() => {
+    jest.useRealTimers();
     jest.clearAllMocks();
   });
 
@@ -246,9 +261,9 @@ describe('PageEmailBlocklist', () => {
     (adminApi.addEmailBlocklistEntries as jest.Mock).mockResolvedValue({
       ok: true,
     });
-    (adminApi.disableEmailBlocklistMatches as jest.Mock).mockResolvedValue({
-      disabled: 3,
-    });
+    (adminApi.disableEmailBlocklistMatches as jest.Mock).mockResolvedValue(
+      doneJob(3)
+    );
 
     render(<PageEmailBlocklist />);
     await screen.findByText('No entries yet.');
@@ -289,9 +304,9 @@ describe('PageEmailBlocklist', () => {
 
   it('disables the accounts that match a row and shows the count', async () => {
     (adminApi.getEmailBlocklist as jest.Mock).mockResolvedValue(mockEntries);
-    (adminApi.disableEmailBlocklistMatches as jest.Mock).mockResolvedValue({
-      disabled: 1,
-    });
+    (adminApi.disableEmailBlocklistMatches as jest.Mock).mockResolvedValue(
+      doneJob(1)
+    );
 
     render(<PageEmailBlocklist />);
     await user.click(
@@ -323,5 +338,75 @@ describe('PageEmailBlocklist', () => {
     expect(
       screen.getByTestId(`disable-matching-${'@evil\\.com$'}`)
     ).toBeEnabled();
+  });
+
+  it('follows a running scan until it finishes', async () => {
+    (adminApi.getEmailBlocklist as jest.Mock).mockResolvedValue(mockEntries);
+    (adminApi.disableEmailBlocklistMatches as jest.Mock).mockResolvedValue({
+      ...doneJob(1),
+      status: 'running',
+      scanned: 500,
+    });
+    (adminApi.getEmailBlocklistDisableJob as jest.Mock).mockResolvedValue(
+      doneJob(2)
+    );
+
+    render(<PageEmailBlocklist />);
+    const button = await screen.findByTestId(
+      `disable-matching-${mockEntries[0].regex}`
+    );
+    jest.useFakeTimers();
+    user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(button);
+
+    expect(
+      await screen.findByTestId('disable-matching-result')
+    ).toHaveTextContent(
+      'Scanning accounts… 50% done, 1 matching account disabled so far.'
+    );
+
+    await act(async () => {
+      jest.advanceTimersByTime(POLL_MS);
+    });
+
+    await waitFor(() =>
+      expect(screen.getByTestId('disable-matching-result')).toHaveTextContent(
+        'Disabled 2 matching accounts.'
+      )
+    );
+    // The on-mount check, then one poll.
+    expect(adminApi.getEmailBlocklistDisableJob).toHaveBeenCalledTimes(2);
+  });
+
+  it('disables the row buttons and the scanning add while a scan from the add form runs', async () => {
+    (adminApi.getEmailBlocklist as jest.Mock).mockResolvedValue(mockEntries);
+    (adminApi.addEmailBlocklistEntries as jest.Mock).mockResolvedValue({
+      ok: true,
+    });
+    (adminApi.disableEmailBlocklistMatches as jest.Mock).mockResolvedValue({
+      ...doneJob(0),
+      status: 'running',
+    });
+
+    render(<PageEmailBlocklist />);
+    const rowButton = await screen.findByTestId(
+      `disable-matching-${mockEntries[0].regex}`
+    );
+    jest.useFakeTimers();
+    user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.type(screen.getByTestId('blocklist-input'), '@newevil\\.com$');
+    await user.click(
+      screen.getByRole('checkbox', { name: 'Disable matching accounts' })
+    );
+    await user.click(screen.getByTestId('blocklist-add-btn'));
+
+    await waitFor(() => expect(rowButton).toBeDisabled());
+    await user.type(screen.getByTestId('blocklist-input'), '@newevil\\.com$');
+    expect(screen.getByTestId('blocklist-add-btn')).toBeDisabled();
+
+    await user.click(
+      screen.getByRole('checkbox', { name: 'Disable matching accounts' })
+    );
+    expect(screen.getByTestId('blocklist-add-btn')).toBeEnabled();
   });
 });

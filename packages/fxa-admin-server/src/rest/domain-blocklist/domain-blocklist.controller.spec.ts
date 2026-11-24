@@ -10,7 +10,7 @@ import { MozLoggerService } from '@fxa/shared/mozlog';
 import { DomainBlocklist } from '@fxa/shared/db/mysql/legacy/models/auth';
 import { EventLoggingService } from '../../event-logging/event-logging.service';
 import { AuditLogInterceptor } from '../../auth/audit-log.interceptor';
-import { AccountStateService } from '../account/account-state.service';
+import { DisableMatchingJobService } from '../account/disable-matching-job.service';
 import { DomainBlocklistController } from './domain-blocklist.controller';
 
 jest.mock('@fxa/shared/db/mysql/legacy/models/auth', () => ({
@@ -61,13 +61,15 @@ describe('DomainBlocklistController', () => {
   };
   let fetchMock: jest.Mock;
   const realFetch = global.fetch;
-  const EMAILS = ['a@evil.com', 'b@sub.evil.com', 'c@notevil.com'];
-  // Runs the controller's predicate over these primary emails and counts the matches.
-  const accountState = {
-    disableMatching: jest.fn(
-      async (matches: (email: string) => boolean) =>
-        EMAILS.filter(matches).length
-    ),
+  const JOB = {
+    status: 'running',
+    scanned: 0,
+    total: 0,
+    disabled: 0,
+  };
+  const jobs = {
+    start: jest.fn().mockResolvedValue(JOB),
+    get: jest.fn().mockResolvedValue(JOB),
   };
 
   beforeEach(async () => {
@@ -103,7 +105,7 @@ describe('DomainBlocklistController', () => {
         MockMozLoggerService,
         MockConfig,
         MockMetricsFactory,
-        { provide: AccountStateService, useValue: accountState },
+        { provide: DisableMatchingJobService, useValue: jobs },
       ],
     }).compile();
 
@@ -216,29 +218,46 @@ describe('DomainBlocklistController', () => {
   describe('disableMatching', () => {
     const req = {} as Request;
 
-    it('disables accounts whose primary email domain equals a normalized entry', async () => {
+    it('starts a scan for the normalized entries, without repeats', async () => {
       const result = await controller.disableMatching(
-        ['@Evil.com'],
+        ['@Evil.com', 'evil.com', 'spam.net'],
         'admin@example.com',
         req
       );
 
-      expect(result).toEqual({ disabled: 1 });
-      expect(accountState.disableMatching).toHaveBeenCalledWith(
-        expect.any(Function),
-        req
-      );
-      expect(logger.info).toHaveBeenCalledWith(
-        'domainBlocklist.disableMatching',
-        { user: 'admin@example.com', count: 1, disabled: 1 }
+      expect(result).toEqual(JOB);
+      expect(jobs.start).toHaveBeenCalledWith(
+        { domains: ['evil.com', 'spam.net'] },
+        req,
+        {
+          page: 'domain',
+          event: 'domainBlocklist.disableMatching',
+          user: 'admin@example.com',
+          values: ['evil.com', 'spam.net'],
+        }
       );
     });
 
-    it('rejects an invalid domain without disabling accounts', async () => {
+    it('rejects when the scan cannot start', async () => {
+      jobs.start.mockRejectedValueOnce(new Error('scan already running'));
+
+      await expect(
+        controller.disableMatching(['evil.com'], 'admin@example.com', req)
+      ).rejects.toThrow('scan already running');
+    });
+
+    it('rejects an invalid domain without starting a scan', async () => {
       await expect(
         controller.disableMatching(['not a domain'], 'admin@example.com', req)
       ).rejects.toThrow(BadRequestException);
-      expect(accountState.disableMatching).not.toHaveBeenCalled();
+      expect(jobs.start).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('disableMatchingJob', () => {
+    it('returns the domain page scan', async () => {
+      await expect(controller.disableMatchingJob()).resolves.toEqual(JOB);
+      expect(jobs.get).toHaveBeenCalledWith('domain');
     });
   });
 

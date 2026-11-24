@@ -16,6 +16,10 @@ import { NewslettersModule } from '../newsletters/newsletters.module';
 import { SubscriptionModule } from '../subscriptions/subscriptions.module';
 import { AccountController } from './account/account.controller';
 import { AccountStateService } from './account/account-state.service';
+import {
+  DisableMatchingJobService,
+  DisableMatchingRedisProvider,
+} from './account/disable-matching-job.service';
 import { EmailBounceController } from './email-bounce/email-bounce.controller';
 import { RelyingPartyController } from './relying-party/relying-party.controller';
 import { RateLimitingController } from './rate-limiting/rate-limiting.controller';
@@ -51,6 +55,8 @@ import { CartModule } from './cart.module';
   ],
   providers: [
     AccountStateService,
+    DisableMatchingJobService,
+    DisableMatchingRedisProvider,
     RateLimitProvider,
     RateLimitRedisProvider,
     LegacyStatsDProvider,
