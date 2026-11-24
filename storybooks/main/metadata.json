@@ -1,8 +1,8 @@
 {
-  "commit": "ca737cc57490bc4a90f7626ed8f46f48e9b3920a",
-  "summary": "Merge pull request #21784 from mozilla/fxa-14847",
-  "description": "fix(auth): return errno 237 for passkey wrap creation without reauth",
-  "timestamp": 1795475967000,
+  "commit": "60f1683e77797a668bf45d604778d0b36bb89328",
+  "summary": "Merge pull request #21814 from mozilla/fxa-15109",
+  "description": "fix(shared): drop browser Sentry events from file:// pages",
+  "timestamp": 1795479637000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
