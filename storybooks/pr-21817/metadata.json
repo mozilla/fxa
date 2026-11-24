@@ -1,0 +1,11 @@
+{
+  "commit": "041778e7c4a49a353ce5bac9707a852b9871ab21",
+  "summary": "feat(settings): record ForcePasswordChange view and submit in Glean",
+  "description": "Because:\n\n* The ForcePasswordChange page sends no Glean events.\n\nThis commit:\n\n* Adds the force_password_change Glean category with view and submit.\n* Records view on render and submit before the same-password check.\n* Adds unit tests and Glean ping checks to the functional spec.\n\nCloses FXA-15120",
+  "timestamp": 1795542618000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
