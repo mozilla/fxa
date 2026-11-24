@@ -633,6 +633,7 @@ describe('loading spinner states', () => {
 describe('AuthAndAccountSetupRoutes', () => {
   beforeEach(() => {
     (useFxAStatus as jest.Mock).mockReturnValue(mockUseFxAStatus());
+    (GleanMetrics.pageLoad as jest.Mock).mockClear();
   });
 
   afterEach(() => {
@@ -674,6 +675,40 @@ describe('AuthAndAccountSetupRoutes', () => {
     expect(useFxAStatus).toHaveBeenCalledWith(mockIntegration, {
       pathname: '/',
     });
+  });
+
+  it('records one Glean page load with the pathname on first render', async () => {
+    (useIntegration as jest.Mock).mockReturnValue({
+      getServiceName: () => MozServices.Default,
+      isSync: () => false,
+      isDesktopSync: () => false,
+      type: IntegrationType.Web,
+      data: {},
+      isFirefoxClientServiceRelay: () => false,
+      getClientId: () => {},
+      getCmsInfo: () => undefined,
+      getLegalTerms: () => undefined,
+    });
+    (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
+      loading: false,
+    });
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
+      data: { isSignedIn: false },
+    });
+
+    await act(() => {
+      renderWithRouter(
+        <AppContext.Provider
+          value={{ ...mockAppContext(), ...createAppContext() }}
+        >
+          <App flowQueryParams={updatedFlowQueryParams} />
+        </AppContext.Provider>,
+        { route: '/' }
+      );
+    });
+
+    expect(GleanMetrics.pageLoad).toHaveBeenCalledTimes(1);
+    expect(GleanMetrics.pageLoad).toHaveBeenCalledWith('/');
   });
 
   it('reports an unverified browser account without treating it as signed in', async () => {
