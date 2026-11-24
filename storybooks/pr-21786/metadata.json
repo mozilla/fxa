@@ -1,8 +1,8 @@
 {
-  "commit": "2e8bfb38e6bbd981029faa786175f9b356b749c1",
+  "commit": "c2df0a058d0d6d90537fbc8df604afad391a6586",
   "summary": "fix(settings): Support android in 'always request destop' mode during pairing",
   "description": "Because:\n\n- Firefox for Android with \"Desktop site\" on sends a desktop user agent, so it was routed to the authority flow and shown the pairing promo.\n- It has no fxaccounts:pair_oauth_finish, so approving always failed and the phone that scanned its QR landed on the timeout screen seconds after approving.\n\nThis commit:\n\n- Adds detectV2PairingType, which tells a phone from a desktop by its fxa_status answer, and has /pair treat a desktop user agent that answers as a phone as Firefox for Android.\n- Keeps a missing pairing capability undefined in useFxAStatus, so a phone can be told from a desktop with pairing turned off.\n- Sends any Firefox that opens a scanned QR to the supplicant flow or the connect hint, never the authority flow.\n- Opens the scan_qr channel only with the pairing capability; other browsers go to /pair/unsupported and are reported to Sentry.\n- Hides the settings \"Connect a device\" promo and button, and skips the ?v=2 redirect, for a browser without the capability.\n\nCloses FXA-15081",
-  "timestamp": 1795479523000,
+  "timestamp": 1795479981000,
   "storybooks": [
     "fxa-settings"
   ],
