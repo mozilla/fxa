@@ -594,7 +594,7 @@ input-phone-number-country-canada = Kanada
 reset-pwd-link-damaged-header = Odkaz pro obnovení je poškozen
 signin-link-damaged-header = Odkaz pro potvrzení je poškozen
 report-signin-link-damaged-header = Odkaz je poškozen
-report-signin-link-damaged-page-title = Nahlásit poškozený odkaz
+report-signin-link-damaged-page-title = Odkaz pro nahlášení je poškozený
 reset-pwd-link-damaged-message = Adresa odkazu, na který jste klikli, nebyla kompletní, a mohla být poškozena například vaším e-mailovým klientem. Zkopírujte pečlivě celou adresu a zkuste to znovu.
 
 
@@ -927,7 +927,7 @@ modal-mfa-protected-cancel-button = Zrušit
 modal-mfa-protected-confirm-button = Potvrdit
 modal-mfa-protected-code-expired = Platnost kódu vypršela?
 modal-mfa-protected-resend-code-link = Zaslat e-mailem nový kód.
-modal-mfa-protected-clock-skew-error = Hodiny na vašem zařízení nejdou správně. Opravte datum a čas na zařízení a zkuste to znovu.
+modal-mfa-protected-clock-skew-error = Čas na vašem zařízení není nastaven správně. Upravte datum a čas a zkuste to znovu.
 
 
 mvs-verify-your-email-2 = Potvrďte svou e-mailovou adresu
@@ -1459,17 +1459,17 @@ connect-another-device-cad-link = Připojte další zařízení
 connect-another-device-not-now-link = Teď ne
 connect-another-device-android-complete-setup-message = Pro dokončení nastavení se přihlaste k { -brand-firefox(case: "dat") } pro Android
 connect-another-device-ios-complete-setup-message = Pro dokončení nastavení se přihlaste k { -brand-firefox(case: "dat") } pro iOS
-connect-another-device-page-title = Připojit další zařízení
+connect-another-device-page-title = Připojení dalšího zařízení
 
 
 cookies-disabled-header = Je vyžadováno místní úložiště a cookies
 cookies-disabled-enable-prompt-2 = Abyste mohli používat { -product-mozilla-account(capitalization: "lower", case: "acc") }, povolte prosím cookies a local storage. Díky tomu si vás budeme moci zapamatovat mezi jednotlivými relacemi.
 cookies-disabled-button-try-again = Zkusit znovu
 cookies-disabled-learn-more = Zjistit více
-cookies-disabled-page-title = Vyžadovány cookies a local storage
+cookies-disabled-page-title = Jsou vyžadovány cookies a místní úložiště
 
 
-index-page-title = Přihlaste se nebo si vytvořte účet
+index-page-title = Přihlášení nebo vytvoření účtu
 index-header = Zadejte svoji e-mailovou adresu
 index-sync-header = Pokračovat do svého { -product-mozilla-account(capitalization: "lower", case: "gen") }
 index-sync-subheader = Synchronizujte svá hesla, panely a záložky všude, kde používáte { -brand-firefox }.
@@ -1505,13 +1505,13 @@ inline-recovery-key-setup-download-subheader = Stáhněte a uložte jej
 inline-recovery-key-setup-download-info = Uložte si tento klíč na místo, které si budete pamatovat — později se na tuto stránku nebudete moci vrátit.
 inline-recovery-key-setup-hint-header = Bezpečnostní doporučení
 inline-recovery-key-setup-create-page-title = Vytvoření obnovovacího klíče k účtu
-inline-recovery-key-setup-download-page-title = Stáhnout váš obnovovací klíč k účtu
-inline-recovery-key-setup-hint-page-title = Přidat nápovědu k obnovovacímu klíči
-inline-recovery-setup-choice-page-title = Vyberte způsob obnovení
-inline-recovery-setup-download-codes-page-title = Záložní kódy si uložte
-inline-recovery-setup-confirm-code-page-title = Potvrďte záložní kód
-inline-recovery-setup-phone-number-page-title = Přidat telefonní číslo pro obnovení
-inline-recovery-setup-phone-code-page-title = Potvrďte své telefonní číslo pro obnovení
+inline-recovery-key-setup-download-page-title = Stažení obnovovacího klíče k účtu
+inline-recovery-key-setup-hint-page-title = Přidání nápovědy k obnovovacímu klíči
+inline-recovery-setup-choice-page-title = Výběr způsobu obnovení
+inline-recovery-setup-download-codes-page-title = Uložení záložních kódů
+inline-recovery-setup-confirm-code-page-title = Potvrzení záložních kódů
+inline-recovery-setup-phone-number-page-title = Přidání telefonního čísla pro obnovení
+inline-recovery-setup-phone-code-page-title = Potvrzení telefonního čísla pro obnovení
 inline-recovery-setup-complete-page-title = Dvoufázové ověřování je zapnuto
 
 
@@ -1533,19 +1533,19 @@ inline-totp-setup-code-required-error = Je vyžadován ověřovací kód
 tfa-qr-code-alt = Pro nastavení dvoufázového ověřování v podporovaných aplikacích použijte kód { $code }.
 inline-totp-setup-page-title = Dvoufázové ověřování
 inline-totp-setup-intro-page-title = Nastavení dvoufázového ověřování
-inline-totp-setup-enrol-page-title = Připojte svou ověřovací aplikaci
+inline-totp-setup-enrol-page-title = Připojení ověřovací aplikace
 
 
 page-not-found-heading = Stránka nebyla nalezena
 page-not-found-description = Požadovaná stránka nebyla nalezena. Byli jsme o tom informováni a opravíme všechny nefunkční odkazy.
 page-not-found-home-button = Domů
-page-not-found-page-title = Stránka nenalezena
+page-not-found-page-title = Stránka nebyla nalezena
 
 
 pair-auth-allow-heading-text = Přihlásili jste se právě do { -brand-firefox(case: "gen") }?
 pair-auth-allow-confirm-button = Ano, schválit zařízení
 pair-auth-allow-refuse-device-link = Pokud jste to nebyli vy, <a>změňte si heslo</a>
-pair-auth-allow-page-title = Schválit přihlášení aplikace { -brand-firefox }
+pair-auth-allow-page-title = Schválení přihlášení aplikace { -brand-firefox }
 
 
 pair-auth-complete-heading = Zařízení připojeno
@@ -1612,7 +1612,7 @@ pair-download-description = Pro synchronizaci aplikace { -brand-firefox } do sv�
 pair-download-step-scan-qr = <b>Krok { $stepNumber }</b>: Stáhněte si aplikaci { -brand-firefox } naskenováním tohoto QR kódu pomocí fotoaparátu svého mobilního zařízení:
 pair-download-step-continue-sync = <b>Krok { $stepNumber }</b>: Zvolte „Pokračovat“ pro synchronizaci aplikace { -brand-firefox } s vaším mobilním zařízením.
 pair-continue-to-sync-button = Pokračovat se synchronizací
-pair-choice-page-title = Připojit další zařízení
+pair-choice-page-title = Připojení dalšího zařízení
 pair-choice-send-tab-page-title = Posílání panelů do jiného zařízení
 pair-download-page-title = Stáhněte si { -brand-firefox(case: "acc") } pro mobilní zařízení
 
@@ -1626,11 +1626,11 @@ pair-success-page-title = Zařízení připojeno
 pair-supp-allow-heading-text = Potvrdit párování <span>pro { $email }</span>
 pair-supp-allow-confirm-button = Potvrdit párování
 pair-supp-allow-cancel-link = Zrušit
-pair-supp-allow-page-title = Potvrdit párování
+pair-supp-allow-page-title = Potvrzení párování
 
 
 pair-wait-for-auth-heading-text = Je požadováno schválení <span>z vašeho dalšího zařízení</span>
-pair-wait-for-auth-page-title = Schválit na dalším zařízení
+pair-wait-for-auth-page-title = Schválení na dalším zařízení
 
 
 pair-unsupported-header = Spárovat pomocí aplikace
@@ -1643,16 +1643,16 @@ pair-unsupported-connecting-mobile-instructions-v2 = Otevřete { -brand-firefox 
 pair-unsupported-learn-more-link-v2 = Zjistit více
 pair-unsupported-desktop-firefox-fallback-header-v2 = Jejda! Něco se pokazilo.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zavřete prosím tento panel a zkuste to znovu.
-pair-unsupported-desktop-non-firefox-page-title = Vyžadováno { -brand-firefox }
-pair-unsupported-system-camera-page-title = Spárovat pomocí aplikace
-pair-unsupported-mobile-page-title = Připojte své mobilní zařízení
+pair-unsupported-desktop-non-firefox-page-title = Vyžadován { -brand-firefox }
+pair-unsupported-system-camera-page-title = Párování pomocí aplikace
+pair-unsupported-mobile-page-title = Připojení vašeho mobilního zařízení
 pair-unsupported-desktop-firefox-fallback-page-title = Něco se pokazilo
 
 
 pair2-authority-approve-sign-in-heading = Schválit přihlášení?
 pair2-authority-approve-sign-in-confirm-button = Ano, schválit přihlášení
 pair2-authority-approve-sign-in-change-password = Nejste to vy? <changePassword>Změňte si své heslo</changePassword>
-pair2-authority-approve-sign-in-page-title = Schválit přihlášení
+pair2-authority-approve-sign-in-page-title = Potvrzení přihlášení
 
 
 pair2-authority-continue-on-mobile-heading = Pokračujte na svém mobilním zařízení

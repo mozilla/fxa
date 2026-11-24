@@ -84,6 +84,7 @@ app-footer-terms-of-service = Условия использования
 
 
 app-default-title-2 = { -product-mozilla-accounts(case: "nominative_uppercase") }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = Открывается в новом окне
@@ -343,6 +344,7 @@ input-phone-number-country-canada = Канада
 reset-pwd-link-damaged-header = Ссылка для сброса пароля повреждена
 signin-link-damaged-header = Ссылка для подтверждения повреждена
 report-signin-link-damaged-header = Ссылка повреждена
+report-signin-link-damaged-page-title = Сообщить о повреждённой ссылке
 reset-pwd-link-damaged-message = В ссылке, по которой вы щёлкнули, отсутствуют символы, и возможно она была повреждена вашим почтовым клиентом. Внимательно скопируйте адрес и попробуйте ещё раз.
 
 
@@ -362,6 +364,7 @@ confirmation-link-reused-message = Эта ссылка для подтвержд
 locale-toggle-select-label = Выберите язык
 locale-toggle-browser-default = Браузер по умолчанию
 error-bad-request = Неверный запрос
+error-bad-request-page-title = Ошибочный запрос
 
 
 pair-unsupported-hint-heading = Завершите сопряжение в приложении
@@ -418,6 +421,9 @@ ready-continue = Продолжить
 sign-in-complete-header = Вход подтверждён
 sign-up-complete-header = Аккаунт подтверждён
 primary-email-verified-header = Основная электронная почта подтверждена
+sign-in-complete-page-title = Вход подтверждён
+sign-up-complete-page-title = Аккаунт подтверждён
+primary-email-verified-page-title = Основная электронная почта подтверждена
 
 
 flow-recovery-key-download-storage-ideas-heading-v2 = Места для хранения вашего ключа:
@@ -667,6 +673,7 @@ modal-mfa-protected-cancel-button = Отмена
 modal-mfa-protected-confirm-button = Подтвердить
 modal-mfa-protected-code-expired = Срок действия кода истёк?
 modal-mfa-protected-resend-code-link = Отправить новый код по электронной почте.
+modal-mfa-protected-clock-skew-error = Часы вашего устройства установлены неправильно. Исправьте дату и время устройства и попробуйте снова.
 
 
 mvs-verify-your-email-2 = Подтвердите свою электронную почту
@@ -955,6 +962,7 @@ security-set-password = Установите пароль для синхрон�
 security-recent-activity-link = Просмотр последних действий в аккаунте
 signout-sync-header = Время сессии истекло
 signout-sync-session-expired = Извините, что-то пошло не так. Пожалуйста, выйдите из меню браузера и попробуйте ещё раз.
+signout-sync-page-title = Время сессии истекло
 
 
 tfa-row-backup-codes-title = Резервные коды аутентификации
@@ -1201,14 +1209,17 @@ connect-another-device-cad-link = Подключить другое устрой
 connect-another-device-not-now-link = Не сейчас
 connect-another-device-android-complete-setup-message = Войдите в { -brand-firefox } для Android, чтобы завершить настройку
 connect-another-device-ios-complete-setup-message = Войдите в { -brand-firefox } для iOS, чтобы завершить настройку
+connect-another-device-page-title = Подключить другое устройство
 
 
 cookies-disabled-header = Требуется локальное хранилище и куки
 cookies-disabled-enable-prompt-2 = Пожалуйста, включите куки и локальное хранилище в вашем браузере для доступа к { -product-mozilla-account(case: "dative") }. Если вы включите их, браузер сможет запоминать ваши сессии.
 cookies-disabled-button-try-again = Попробовать снова
 cookies-disabled-learn-more = Подробнее
+cookies-disabled-page-title = Требуется куки и локальное хранилище
 
 
+index-page-title = Войдите или создайте аккаунт
 index-header = Введите ваш адрес эл. почты
 index-sync-header = Перейдите в свой { -product-mozilla-account(case: "nominative") }
 index-sync-subheader = Синхронизируйте свои пароли, вкладки и закладки везде, где используете { -brand-firefox }.
@@ -1243,6 +1254,15 @@ inline-recovery-key-setup-download-header = Защитите свой аккау
 inline-recovery-key-setup-download-subheader = Скачать и сохранить его сейчас
 inline-recovery-key-setup-download-info = Храните этот ключ в удобном для вас месте — вы не сможете вернуться на эту страницу позже.
 inline-recovery-key-setup-hint-header = Рекомендация по безопасности
+inline-recovery-key-setup-create-page-title = Создать ключ восстановления аккаунта
+inline-recovery-key-setup-download-page-title = Загрузить ваш ключ восстановления аккаунта
+inline-recovery-key-setup-hint-page-title = Добавить подсказку ключа восстановления
+inline-recovery-setup-choice-page-title = Выберите метод восстановления
+inline-recovery-setup-download-codes-page-title = Сохраните ваши резервные коды
+inline-recovery-setup-confirm-code-page-title = Подтвердите резервный код
+inline-recovery-setup-phone-number-page-title = Добавить телефон для восстановления
+inline-recovery-setup-phone-code-page-title = Подтвердите ваш телефон для восстановления
+inline-recovery-setup-complete-page-title = Двухэтапная аутентификация включена
 
 
 inline-totp-setup-cancel-setup-button = Отменить настройку
@@ -1262,16 +1282,20 @@ inline-totp-setup-security-code-placeholder = Код аутентификаци�
 inline-totp-setup-code-required-error = Требуется код аутентификации
 tfa-qr-code-alt = Используйте код { $code } для настройки двухэтапной аутентификации в поддерживаемых приложениях.
 inline-totp-setup-page-title = Двухэтапная аутентификация
+inline-totp-setup-intro-page-title = Настроить двухэтапную аутентификацию
+inline-totp-setup-enrol-page-title = Подключить ваше приложение для аутентификации
 
 
 page-not-found-heading = Страница не найдена
 page-not-found-description = Запрошенная вами страница не найдена. Мы уведомлены об этом и исправим все ссылки, которые могут быть сломаны.
 page-not-found-home-button = Домой
+page-not-found-page-title = Страница не найдена
 
 
 pair-auth-allow-heading-text = Вы только что вошли в { -brand-firefox }?
 pair-auth-allow-confirm-button = Да, подтвердить устройство
 pair-auth-allow-refuse-device-link = Если это были не вы, <a>смените пароль</a>
+pair-auth-allow-page-title = Подтвердите вход в { -brand-firefox }
 
 
 pair-auth-complete-heading = Устройство подключено
@@ -1284,6 +1308,8 @@ pair-auth-complete-manage-devices-link = Управление устройств
 pair-auth-complete-send-tab-heading = Вы готовы отправить несколько вкладок
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } для { $deviceOS } подключено.
 pair-auth-complete-send-tab-benefits = Вы можете мгновенно обмениваться открытыми вкладками, паролями и закладками между устройствами.
+pair-auth-complete-page-title = Устройство подключено
+pair-auth-complete-send-tab-page-title = Можно отправлять вкладки
 
 
 auth-totp-heading-w-default-service = Введите код аутентификации, <span>для перехода к настройкам аккаунта</span>
@@ -1292,14 +1318,17 @@ auth-totp-instruction = Откройте своё приложение для а
 auth-totp-input-label = Введите код из 6 цифр
 auth-totp-confirm-button = Подтвердить
 auth-totp-code-required-error = Требуется код аутентификации
+auth-totp-page-title = Соединение с двухэтапной аутентификацией
 
 
 pair-wait-for-supp-heading-text = Теперь требуется одобрение <span>на другом устройстве</span>
+pair-wait-for-supp-page-title = Подтвердите на другом устройстве
 
 
 pair-failure-header-v2 = Сопряжение устройств не удалось
 pair-failure-message-v2 = Установка не может быть завершена. Пожалуйста, войдите, используя свой адрес электронной почты.
 pair-failure-try-again-link = Попробовать снова
+pair-failure-page-title = Сопряжение устройств не удалось
 
 
 pair-sync-header = Синхронизация { -brand-firefox } на вашем телефоне или планшете
@@ -1333,19 +1362,25 @@ pair-download-description = Чтобы синхронизировать { -brand
 pair-download-step-scan-qr = <b>Шаг { $stepNumber }</b>: Скачайте { -brand-firefox }, отсканировав этот QR-код камерой своего мобильного устройства:
 pair-download-step-continue-sync = <b>Шаг { $stepNumber }</b>: Выберите «Продолжить для синхронизации», чтобы синхронизировать работу { -brand-firefox } на мобильном устройстве.
 pair-continue-to-sync-button = Продолжить для синхронизации
+pair-choice-page-title = Подключить другое устройство
+pair-choice-send-tab-page-title = Отправить вкладки на другое устройство
+pair-download-page-title = Скачайте { -brand-firefox } для мобильных устройств
 
 
 pair-success-header-2 = Устройство подключено
 pair-success-message-2 = Сопряжение прошло успешно.
 pair-success-tab-close-message = Эта вкладка будет автоматически закрыта { -brand-firefox }.
+pair-success-page-title = Устройство подключено
 
 
 pair-supp-allow-heading-text = Подтвердите сопряжение <span>для { $email }</span>
 pair-supp-allow-confirm-button = Подтвердить сопряжение
 pair-supp-allow-cancel-link = Отмена
+pair-supp-allow-page-title = Подтвердить сопряжение
 
 
 pair-wait-for-auth-heading-text = Теперь требуется подтверждение <span>на другом устройстве</span>
+pair-wait-for-auth-page-title = Подтвердите на другом устройстве
 
 
 pair-unsupported-header = Сопряжение с помощью приложения
@@ -1358,21 +1393,28 @@ pair-unsupported-connecting-mobile-instructions-v2 = Откройте { -brand-f
 pair-unsupported-learn-more-link-v2 = Подробнее
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ой! Что-то пошло не так.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Пожалуйста, закройте эту вкладку и попробуйте ещё раз.
+pair-unsupported-desktop-non-firefox-page-title = Требуется { -brand-firefox }
+pair-unsupported-system-camera-page-title = Сопряжение с помощью приложения
+pair-unsupported-mobile-page-title = Подключите ваше мобильное устройство
+pair-unsupported-desktop-firefox-fallback-page-title = Что-то пошло не так
 
 
 pair2-authority-approve-sign-in-heading = Подтвердить вход?
 pair2-authority-approve-sign-in-confirm-button = Да, подтвердить вход
 pair2-authority-approve-sign-in-change-password = Не вы? <changePassword>Смените свой пароль</changePassword>
+pair2-authority-approve-sign-in-page-title = Подтвердить вход
 
 
 pair2-authority-continue-on-mobile-heading = Продолжите на вашем мобильном устройстве
 pair2-authority-continue-on-mobile-description = Следуйте инструкциям на вашем телефоне или планшете.
 pair2-authority-continue-on-mobile-cancel-button = Отмена
+pair2-authority-continue-on-mobile-page-title = Продолжите на вашем мобильном устройстве
 
 
 pair2-authority-download-firefox-heading = Откройте { -brand-firefox } для синхронизации
 pair2-authority-download-firefox-instruction-v2 = Чтобы настроить синхронизацию между устройствами, откройте { -brand-firefox } на этом устройстве и посетите <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = Скачать { -brand-firefox }
+pair2-authority-download-firefox-page-title = Откройте { -brand-firefox } для синхронизации
 
 
 pair2-authority-scan-qr-heading = Отсканируйте для подключения мобильного устройства
@@ -1380,11 +1422,13 @@ pair2-authority-scan-qr-instruction = Отсканируйте QR-код сво�
 pair2-authority-scan-qr-code-aria-label = QR-код для подключения мобильного устройства
 pair2-authority-scan-qr-other-ways-link = Другие способы входа
 pair2-authority-scan-qr-skip-button = Пока пропустить
+pair2-authority-scan-qr-page-title = Отсканируйте для подключения мобильного устройства
 
 
 pair2-authority-sync-success-heading-v2 = Ваше устройство подключено
 pair2-authority-sync-success-description-v2 = Выполняется синхронизация. Прежде чем ваши синхронизированные данные появятся, может пройти некоторое время. Вы можете продолжать веб-сёрфинг.
 pair2-authority-sync-success-sync-settings-button-v2 = Управление настройками синхронизации
+pair2-authority-sync-success-page-title = Устройство подключено
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Всё ещё хотите подключить устройство?
@@ -1393,16 +1437,20 @@ pair2-authority-timeout-and-cancel-cancelled-heading = Отменено
 pair2-authority-timeout-and-cancel-canceled-description = Если вы передумаете или захотите подключить другое устройство, попробуйте ещё раз.
 pair2-authority-timeout-and-cancel-try-again-button = Попробовать снова
 pair2-authority-timeout-and-cancel-sync-settings-button = Настройки синхронизации
+pair2-authority-timeout-and-cancel-timeout-page-title = Время ожидания соединения истекло
+pair2-authority-timeout-and-cancel-cancelled-page-title = Сопряжение отменено
 
 
 pair2-supplicant-approve-sign-in-heading = Последний шаг до синхронизации
 pair2-supplicant-approve-sign-in-instruction = Подтвердите вход на вашем компьютере.
 pair2-supplicant-approve-sign-in-cancel-button = Отмена
+pair2-supplicant-approve-sign-in-page-title = Последний шаг до синхронизации
 
 
 pair2-supplicant-connect-this-device-heading = Подключить это устройство к вашему аккаунту?
 pair2-supplicant-connect-this-device-connect-button = Подключить
 pair2-supplicant-connect-this-device-cancel-button = Отменить
+pair2-supplicant-connect-this-device-page-title = Подключить это устройство
 
 
 pair2-supplicant-download-firefox-heading-v2 = Открыть { -brand-firefox } на этом устройстве
@@ -1412,15 +1460,21 @@ pair2-supplicant-download-firefox-opening-button = Открытие { -brand-fir
 pair2-supplicant-download-firefox-download-button = Скачать { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = У меня уже есть { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Подробнее
+pair2-supplicant-download-firefox-page-title = Открыть { -brand-firefox } на этом устройстве
+
+
+pair2-supplicant-connect-hint-page-title = Завершите сопряжение в приложении
 
 
 pair2-supplicant-ready-to-scan-heading = Чтобы подключить устройство
 pair2-supplicant-ready-to-scan-instruction = Откройте { -brand-firefox } на своём компьютере, посетите <b>firefox.com/pair</b> и следуйте инструкциям на экране, чтобы подключить мобильное устройство.
 pair2-supplicant-ready-to-scan-learn-more-link = Подробнее
+pair2-supplicant-ready-to-scan-page-title = Готово к сканированию
 
 
 pair2-supplicant-sync-success-heading = Ваше устройство подключено
 pair2-supplicant-sync-success-description-v2 = Выполняется синхронизация. Прежде чем ваши синхронизированные данные появятся, может пройти некоторое время. Вы можете продолжать веб-сёрфинг.
+pair2-supplicant-sync-success-page-title = Устройство подключено
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Похоже, у нас истекло время ожидания
@@ -1429,6 +1483,9 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Отменено
 pair2-supplicant-timeout-and-cancel-canceled-description = Чтобы подключить устройство в любое время, посетите <b>firefox.com/pair</b> на вашем компьютере.
 pair2-supplicant-timeout-and-cancel-signed-in-heading = На этом устройстве уже выполнен вход
 pair2-supplicant-timeout-and-cancel-signed-in-description = Чтобы подключиться к аккаунту, выйдите из { -brand-firefox } на этом устройстве, затем посетите <b>firefox.com/pair</b> на компьютере, чтобы завершить вход.
+pair2-supplicant-timeout-and-cancel-timeout-page-title = Время ожидания соединения истекло
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = Сопряжение отменено
+pair2-supplicant-timeout-and-cancel-signed-in-page-title = На устройстве уже совершён вход
 
 
 permissions-heading = { $serviceName } хочет получить доступ к:
@@ -1437,17 +1494,20 @@ permissions-label-display-name = Отображаемое имя
 permissions-label-avatar = Фото аккаунта
 permissions-continue-button = Продолжить
 permissions-cancel-button = Отмена
+permissions-page-title = Проверка разрешений
 
 
 force-password-change-heading = Пожалуйста, смените пароль
 force-password-change-info = Мы обнаружили подозрительную активность в вашем аккаунте { -product-mozilla-account }.Чтобы защитить его, создайте новый пароль. Вы будете использовать этот пароль для повторного входа во все службы своего аккаунта  { -product-mozilla-account }.
 force-password-change-data-info = Синхронизированная история, закладки, логины и другие персональные данные не будут потеряны.
+force-password-change-page-title = Смените свой пароль
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account(case: "nominative_uppercase") } подтверждён
 service-welcome-signin-success-banner = Вы успешно вошли!
 service-welcome-vpn-heading = Далее: Включить VPN
 service-welcome-vpn-description = Ещё один шаг к повышению приватности вашего браузера. Перейдите на открытую панель и включите его.
+service-welcome-vpn-page-title = Включить VPN
 
 
 set-password-heading-v2 = Создайте пароль для синхронизации
@@ -1455,6 +1515,7 @@ set-password-info-v2 = Это зашифрует ваши данные. Он д�
 
 
 set-password-passwordless-info = Этот пароль шифрует ваши синхронизируемые данные и обеспечивает их безопасность.
+set-password-page-title = Создайте пароль для синхронизации
 
 
 third-party-auth-callback-message = Подождите, вас перенаправят в авторизованное приложение.
@@ -1467,6 +1528,7 @@ account-recovery-confirm-key-input-label =
 account-recovery-confirm-key-hint = Ваша подсказка хранилища:
 account-recovery-confirm-key-button-2 = Продолжить
 account-recovery-lost-recovery-key-link-2 = Не можете найти ключ восстановления своего аккаунта?
+account-recovery-confirm-key-page-title = Сбросить пароль с помощью ключа восстановления
 
 
 complete-reset-pw-header-v2 = Создать новый пароль
@@ -1476,11 +1538,13 @@ complete-reset-pw-recovery-key-link = Использовать ключ восс
 reset-password-complete-banner-heading = Ваш пароль был сброшен.
 reset-password-complete-banner-message = Не забудьте сгенерировать новый ключ восстановления аккаунта в настройках { -product-mozilla-account(case: "genitive") }, чтобы избежать проблем со входом в систему в будущем.
 complete-reset-password-desktop-relay = { -brand-firefox } попытается отправить вас обратно, чтобы вы использовали псевдоним электронной почты после входа.
+complete-reset-password-page-title = Создать новый пароль
 confirm-backup-code-reset-password-input-label = Введите 10-значный код
 confirm-backup-code-reset-password-confirm-button = Подтвердить
 confirm-backup-code-reset-password-subheader = Введите резервный код аутентификации
 confirm-backup-code-reset-password-instruction = Введите один из одноразовых кодов, которые вы сохранили при настройке двухэтапной аутентификации.
 confirm-backup-code-reset-password-locked-out-link = Аккаунт заблокирован?
+confirm-backup-code-reset-password-page-title = Сбросить пароль с помощью резервного кода
 
 
 confirm-reset-password-with-code-heading = Проверьте свою электронную почту
@@ -1489,6 +1553,7 @@ confirm-reset-password-code-input-group-label = Введите 8-значный 
 confirm-reset-password-otp-submit-button = Продолжить
 confirm-reset-password-otp-resend-code-button = Отправить код ещё раз
 confirm-reset-password-otp-different-account-link = Использовать другой аккаунт
+confirm-reset-password-with-code-page-title = Проверьте свою электронную почту, чтобы сбросить пароль
 
 
 confirm-totp-reset-password-header = Сбросить ваш пароль
@@ -1498,6 +1563,7 @@ confirm-totp-reset-password-trouble-code = Проблемы с вводом ко
 confirm-totp-reset-password-confirm-button = Подтвердить
 confirm-totp-reset-password-input-label-v2 = Введите код из 6 цифр
 confirm-totp-reset-password-use-different-account = Использовать другой аккаунт
+confirm-totp-reset-password-page-title = Сбросить пароль с помощью двухэтапной аутентификации
 
 
 password-reset-flow-heading = Сбросить пароль
@@ -1507,10 +1573,12 @@ password-reset-email-input =
     .label = Введите ваш адрес эл. почты
 password-reset-submit-button-2 = Продолжить
 password-reset-data-recovery-warning = Сброс вашего пароля может повлиять на возможность восстановления синхронизированных данных браузера. <learnMoreLink>Подробнее</learnMoreLink>
+password-reset-flow-page-title = Сбросить пароль
 
 
 reset-password-complete-header = Ваш пароль был сброшен
 reset-password-confirmed-cta = Перейти к { $serviceName }
+reset-password-confirmed-page-title = Сброс пароля завершён
 
 
 password-reset-recovery-method-header = Сбросить пароль
@@ -1526,6 +1594,7 @@ password-reset-recovery-method-code-info =
     }
 password-reset-recovery-method-send-code-error-heading = При отправке кода на ваш телефон восстановления возникла проблема
 password-reset-recovery-method-send-code-error-description = Пожалуйста, попробуйте ещё раз позже или используйте ваши резервные коды аутентификации.
+password-reset-recovery-method-page-title = Сбросить пароль с помощью метода восстановления
 
 
 reset-password-recovery-phone-flow-heading = Сбросить пароль
@@ -1541,6 +1610,7 @@ reset-password-recovery-phone-code-verification-error-heading = При пров�
 reset-password-recovery-phone-general-error-description = Подождите некоторое время и попробуйте снова.
 reset-password-recovery-phone-invalid-code-error-description = Код неверен или просрочен.
 reset-password-recovery-phone-invalid-code-error-link = Использовать резервные коды аутентификации?
+reset-password-recovery-phone-page-title = Сбросить пароль с помощью телефона для восстановления
 reset-password-with-recovery-key-verified-page-title = Пароль успешно восстановлен
 reset-password-complete-new-password-saved = Новый пароль сохранён!
 reset-password-complete-recovery-key-created = Новый ключ восстановления аккаунта создан. Скачайте и сохраните его сейчас.
@@ -1548,11 +1618,13 @@ reset-password-complete-recovery-key-download-info =
     Этот ключ необходим для
     восстановления данных, если вы забудете свой пароль. <b>Скачайте и храните в безопасности
     сейчас, так как вы не сможете получить доступ к этой странице позже.</b>
+reset-password-with-recovery-key-verified-hint-page-title = Добавить подсказку ключа восстановления
 
 
 server-error-heading = Ошибка 500
 server-error-description = О боже мой, что-то пошло не так. Мы уведомлены об этом и начнём работу над исправлением.
 server-error-home-button = Главная страница
+server-error-page-title = Ошибка сервера
 
 
 error-label = Ошибка:
@@ -1560,8 +1632,13 @@ validating-signin = Проверка входа…
 complete-signin-error-header = Ошибка подтверждения
 signin-link-expired-header = Срок действия ссылки для подтверждения истёк
 signin-link-expired-message-2 = Срок действия ссылки, на которую вы нажали, истёк или она уже была использована.
+complete-signin-error-page-title = Ошибка подтверждения входа
+complete-signin-validating-page-title = Подтверждение входа
 
 
+signin-password-page-title = Введите пароль
+signin-cached-page-title = Войти
+signin-alternative-auth-page-title = Выберите способ входа
 signin-password-needed-header-2 = Введите свой пароль <span>для вашего { -product-mozilla-account(case: "genitive") }</span>
 signin-button-start-syncing = Начать синхронизацию
 signin-subheader-without-logo-with-servicename = Перейти к { $serviceName }
@@ -1585,11 +1662,13 @@ report-signin-body = Вы получили письмо о попытке дос
 report-signin-submit-button = Сообщить о подозрительной активности
 report-signin-support-link = Почему это происходит?
 report-signin-error = К сожалению, при отправке сообщения возникла проблема.
+report-signin-page-title = Сообщить о несанкционированном входе
 signin-bounced-header = Извините. Мы заблокировали ваш аккаунт.
 signin-bounced-message = Письмо для подтверждения, которое мы отправили на { $email }, было возвращено, и мы заблокировали ваш аккаунт, чтобы защитить ваши данные { -brand-firefox }.
 signin-bounced-help = Если это действительный адрес электронной почты, <linkExternal>сообщите нам об этом</linkExternal>, и мы поможем разблокировать ваш аккаунт.
 signin-bounced-create-new-account = Больше не владеете этой электронной почтой? Создайте новый аккаунт
 back = Назад
+signin-bounced-page-title = Аккаунт заблокирован
 
 
 signin-passkey-fallback-header = Завершить вход
@@ -1603,6 +1682,7 @@ signin-passkey-fallback-no-prf-description = Этот браузер или ус
 signin-passkey-fallback-unwrap-failed-heading = Ваш ключ доступа не может разблокировать синхронизацию
 signin-passkey-fallback-unwrap-failed-description = Что-то пошло не так, поэтому на этот раз вам понадобится пароль.
 signin-passkey-fallback-wrap-unusable-link = Подробнее
+signin-passkey-fallback-page-title = Введите свой пароль для синхронизации
 
 
 signin-passwordless-code-heading = Введите код подтверждения
@@ -1632,6 +1712,8 @@ signup-passwordless-code-subheading = При использовании этог
 
 
 signin-passwordless-totp-required = В вашем аккаунте включена двухэтапная аутентификация. Пожалуйста, войдите, используя ваш пароль.
+signin-passwordless-code-page-title = Войти с кодом электронной почты
+signup-passwordless-code-page-title = Зарегистрироваться с помощью кода эл. почты
 
 
 signin-recovery-method-header = Войти
@@ -1647,6 +1729,7 @@ signin-recovery-method-code-info-v2 =
     }
 signin-recovery-method-send-code-error-heading = При отправке кода на ваш телефон восстановления возникла проблема
 signin-recovery-method-send-code-error-description = Пожалуйста, попробуйте ещё раз позже или используйте ваши резервные коды аутентификации.
+signin-recovery-method-page-title = Войти с помощью метода восстановления
 
 
 signin-recovery-code-heading = Войти
@@ -1659,6 +1742,7 @@ signin-recovery-code-support-link = Аккаунт заблокирован?
 signin-recovery-code-required-error = Требуется резервный код аутентификации
 signin-recovery-code-use-phone-failure = При отправке кода на ваш телефон восстановления возникла проблема
 signin-recovery-code-use-phone-failure-description = Пожалуйста, попробуйте позже.
+signin-recovery-code-page-title = Войти с резервным кодом
 
 
 signin-recovery-phone-flow-heading = Войти
@@ -1675,10 +1759,12 @@ signin-recovery-phone-general-error-description = Пожалуйста, попр
 signin-recovery-phone-invalid-code-error-description = Код неверен или просрочен.
 signin-recovery-phone-invalid-code-error-link = Использовать резервные коды аутентификации?
 signin-recovery-phone-success-message = Вход был успешно выполнен. Если вы используете ваш номер телефона снова, то могут быть наложены ограничения.
+signin-recovery-phone-page-title = Войти с помощью телефона для восстановления
 
 
 signin-reported-header = Спасибо за вашу бдительность
 signin-reported-message = Наша команда оповещена. Ваши сообщения помогают нам бороться со злоумышленниками.
+signin-reported-page-title = О входе сообщено
 
 
 signin-token-code-heading-2 = Введите код подтверждения<span> для вашего { -product-mozilla-account(case: "genitive") }</span>
@@ -1696,6 +1782,7 @@ signin-token-code-resend-code-countdown =
 signin-token-code-required-error = Требуется код подтверждения
 signin-token-code-resend-error = Что-то пошло не так. Не удалось отправить новый код.
 signin-token-code-instruction-desktop-relay = { -brand-firefox } попытается отправить вас обратно, чтобы вы использовали псевдоним электронной почты после входа.
+signin-token-code-page-title = Подтвердите вход с помощью кода электронной почты
 
 
 signin-totp-code-header = Войти
@@ -1711,6 +1798,7 @@ signin-totp-code-other-account-link = Использовать другой ак
 signin-totp-code-recovery-code-link = Проблемы с вводом кода?
 signin-totp-code-required-error = Требуется код аутентификации
 signin-totp-code-desktop-relay = { -brand-firefox } попытается отправить вас обратно, чтобы вы использовали псевдоним электронной почты после входа.
+signin-totp-code-page-title = Войти с помощью двухэтапной аутентификации
 
 
 signin-unblock-header = Разрешить этот вход
@@ -1723,8 +1811,10 @@ signin-unblock-code-incorrect-format-2 = Код авторизации може�
 signin-unblock-resend-code-button = Нет в папке «Входящие» или «Спам»? Отправить снова
 signin-unblock-support-link = Почему это происходит?
 signin-unblock-desktop-relay = { -brand-firefox } попытается отправить вас обратно, чтобы вы использовали псевдоним электронной почты после входа.
+signin-unblock-page-title = Разрешить этот вход
 
 
+confirm-signup-code-page-title-2 = Подтвердите свою электронную почту
 confirm-signup-code-heading-2 = Введите код подтверждения <span>для вашего { -product-mozilla-account(case: "genitive") }</span>
 confirm-signup-code-instruction-v2 = Введите код, отправленный на <email>{ $email }</email>, в течение 5 минут.
 confirm-signup-code-input-label = Введите код из 6 цифр
@@ -1748,6 +1838,7 @@ signup-relay-info = Пароль необходим для безопасног�
 signup-sync-info = Синхронизируйте ваши пароли, закладки и пр., где бы вы ни использовали { -brand-firefox }.
 signup-sync-info-with-payment = Синхронизируйте ваши пароли, способы оплаты, закладки и пр., где бы вы ни использовали { -brand-firefox }.
 signup-change-email-link = Сменить адрес электронной почты
+signup-page-title = Создайте свой аккаунт
 
 
 signup-confirmed-sync-header = Синхронизация включена
@@ -1758,6 +1849,7 @@ signup-confirmed-sync-description-v2 = Ваши пароли, адреса, за
 signup-confirmed-sync-add-device-link = Добавить другое устройство
 signup-confirmed-sync-manage-sync-button = Управление синхронизацией
 signup-confirmed-sync-set-password-success-banner = Пароль синхронизации создан
+signup-confirmed-sync-page-title = Синхронизация включена
 
 
 update-firefox-heading = Требуется обновление { -brand-firefox }
@@ -1766,3 +1858,4 @@ update-firefox-description =
     не поддерживаются в вашей версии { -brand-firefox }. Пожалуйста,
     загрузите и установите последнюю версию { -brand-firefox } для продолжения.
 update-firefox-download-button = Скачать последнюю версию
+update-firefox-page-title = Требуется обновление { -brand-firefox }
