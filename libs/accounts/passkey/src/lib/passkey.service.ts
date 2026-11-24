@@ -136,7 +136,7 @@ export function isWrapStale(createdAt: number, keysChangedAt: number): boolean {
  * Whether a stored wrap already holds exactly this envelope, which makes a
  * repeated POST idempotent rather than a conflict.
  *
- * A plain comparison is fine: every field is a public ciphertext or public key
+ * A plain comparison is fine: every field is a public ciphertext, salt or nonce
  * the caller just supplied, so there is no secret for a timing oracle to reveal.
  */
 function isSameEnvelope(
@@ -144,11 +144,9 @@ function isSameEnvelope(
   envelope: PasskeyWrapEnvelope
 ): boolean {
   return (
-    stored.pkR.equals(envelope.pkR) &&
-    stored.prfWrappedSkR.equals(envelope.prfWrappedSkR) &&
+    stored.kdfSalt.equals(envelope.kdfSalt) &&
     stored.keyWrapIv.equals(envelope.keyWrapIv) &&
-    stored.hpkeEncapsulatedSecret.equals(envelope.hpkeEncapsulatedSecret) &&
-    stored.hpkeSealedKb.equals(envelope.hpkeSealedKb)
+    stored.wrappedKb.equals(envelope.wrappedKb)
   );
 }
 

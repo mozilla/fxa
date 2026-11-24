@@ -83,11 +83,9 @@ describe('PasskeyService', () => {
    * Real v1 widths, so a size regression shows up here too.
    */
   const MOCK_ENVELOPE: PasskeyWrapEnvelope = {
-    pkR: Buffer.alloc(133, 0x01),
-    prfWrappedSkR: Buffer.alloc(82, 0x02),
+    kdfSalt: Buffer.alloc(32, 0x01),
     keyWrapIv: Buffer.alloc(12, 0x03),
-    hpkeEncapsulatedSecret: Buffer.alloc(133, 0x04),
-    hpkeSealedKb: Buffer.alloc(48, 0x05),
+    wrappedKb: Buffer.alloc(48, 0x05),
   };
 
   const storedWrap = (
@@ -1493,13 +1491,7 @@ describe('PasskeyService', () => {
     // Every field is compared, so a difference in any one is a conflict rather
     // than a silent overwrite. These wraps are not stale, so the delete spares
     // them and the duplicate key is what refuses the insert.
-    it.each([
-      'pkR',
-      'prfWrappedSkR',
-      'keyWrapIv',
-      'hpkeEncapsulatedSecret',
-      'hpkeSealedKb',
-    ] as const)(
+    it.each(['kdfSalt', 'keyWrapIv', 'wrappedKb'] as const)(
       'throws passkeyWrapConflict when the stored %s differs',
       async (field) => {
         mockManager.findPasskeyWrap.mockResolvedValue(
@@ -1533,7 +1525,7 @@ describe('PasskeyService', () => {
       mockManager.findPasskeyWrap
         .mockResolvedValueOnce(undefined)
         .mockResolvedValueOnce(
-          storedWrap({ hpkeSealedKb: Buffer.alloc(48, 0xff) })
+          storedWrap({ wrappedKb: Buffer.alloc(48, 0xff) })
         );
 
       await expect(
@@ -1587,7 +1579,7 @@ describe('PasskeyService', () => {
       mockManager.deletePasskeyWrap.mockResolvedValue(true);
       mockManager.findPasskeyWrap.mockResolvedValue(
         storedWrap({
-          hpkeSealedKb: Buffer.alloc(48, 0xff),
+          wrappedKb: Buffer.alloc(48, 0xff),
           createdAt: MOCK_NOW - 5_000,
         })
       );
@@ -1619,7 +1611,7 @@ describe('PasskeyService', () => {
 
     it('refuses to replace a differing wrap when keysChangedAt is not a number', async () => {
       mockManager.findPasskeyWrap.mockResolvedValue(
-        storedWrap({ hpkeSealedKb: Buffer.alloc(48, 0xff) })
+        storedWrap({ wrappedKb: Buffer.alloc(48, 0xff) })
       );
 
       await expect(
@@ -1635,7 +1627,7 @@ describe('PasskeyService', () => {
     });
 
     it('throws passkeyWrapConflict when a live wrap survives the delete', async () => {
-      const live = storedWrap({ hpkeSealedKb: Buffer.alloc(48, 0xff) });
+      const live = storedWrap({ wrappedKb: Buffer.alloc(48, 0xff) });
       // The delete spares a wrap that is not stale, so the insert below hits
       // the primary key and that duplicate is the conflict.
       mockManager.deletePasskeyWrap.mockResolvedValue(false);
@@ -1662,7 +1654,7 @@ describe('PasskeyService', () => {
       mockManager.deletePasskeyWrap.mockResolvedValue(false);
       mockManager.createPasskeyWrap.mockResolvedValue(undefined);
       mockManager.findPasskeyWrap.mockResolvedValue(
-        storedWrap({ hpkeSealedKb: Buffer.alloc(48, 0xff) })
+        storedWrap({ wrappedKb: Buffer.alloc(48, 0xff) })
       );
 
       await expect(
@@ -1684,7 +1676,7 @@ describe('PasskeyService', () => {
       mockManager.createPasskeyWrap.mockRejectedValue({ code: 'ER_DUP_ENTRY' });
       mockManager.findPasskeyWrap
         .mockResolvedValueOnce(
-          storedWrap({ hpkeSealedKb: Buffer.alloc(48, 0xff) })
+          storedWrap({ wrappedKb: Buffer.alloc(48, 0xff) })
         )
         .mockResolvedValueOnce(storedWrap());
 

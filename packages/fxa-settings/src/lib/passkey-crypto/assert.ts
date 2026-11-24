@@ -9,7 +9,7 @@
  *
  * `name` is the envelope field name, so the message names the column an
  * operator would look at. Internal — deliberately not re-exported from
- * `index.ts`, like `suite.ts`.
+ * `index.ts`.
  */
 export function assertByteLength(
   name: string,
@@ -32,4 +32,17 @@ export function assertByteLength(
 
 export function isZeroed(bytes: Uint8Array): boolean {
   return bytes.every((byte) => byte === 0);
+}
+
+/**
+ * Joins byte arrays in order into a fresh array in this realm.
+ */
+export function concat(...parts: Uint8Array[]): Uint8Array {
+  const out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0));
+  let offset = 0;
+  for (const part of parts) {
+    out.set(part, offset);
+    offset += part.length;
+  }
+  return out;
 }

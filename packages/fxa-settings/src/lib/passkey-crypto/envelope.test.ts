@@ -9,13 +9,10 @@ import {
   createWrapEnvelope,
   openWrapEnvelope,
 } from './envelope';
-import { sealKb } from './hpke';
 
 const UID = '0011223344556677889900aabbccddee';
 const CREDENTIAL_ID = 'cGFzc2tleS1jcmVkZW50aWFsLWlk';
 const OTHER_CREDENTIAL_ID = 'b3RoZXItY3JlZGVudGlhbA';
-// Held as hex, not as arrays: this module zeroes buffers, so an assertion that
-// compares a result against a shared input would pass on two zeroed arrays.
 const KB_HEX =
   '0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20';
 const PRF_OUT_HEX =
@@ -130,7 +127,7 @@ describe('buildEnvelopeContext', () => {
     });
 
     // The wrap column is VARBINARY(1023) and the route validator caps the
-    // encoded form at 1364 characters, so anything longer seals an envelope the
+    // encoded form at 1364 characters, so anything longer wraps an envelope the
     // server refuses to store. Fail before doing the crypto.
     it('accepts a credentialId at the 1023-byte ceiling', () => {
       expect(context({ credentialId: 'A'.repeat(CEILING_CHARS) })).toHaveLength(
@@ -151,34 +148,28 @@ describe('createWrapEnvelope', () => {
     const envelope = await create();
 
     expect({
-      pkR: envelope.pkR.length,
-      prfWrappedSkR: envelope.prfWrappedSkR.length,
+      kdfSalt: envelope.kdfSalt.length,
       keyWrapIv: envelope.keyWrapIv.length,
-      hpkeEncapsulatedSecret: envelope.hpkeEncapsulatedSecret.length,
-      hpkeSealedKb: envelope.hpkeSealedKb.length,
-    }).toEqual({
-      pkR: V1_SIZES.pkR,
-      prfWrappedSkR: V1_SIZES.prfWrappedSkR,
-      keyWrapIv: V1_SIZES.keyWrapIv,
-      hpkeEncapsulatedSecret: V1_SIZES.hpkeEncapsulatedSecret,
-      hpkeSealedKb: V1_SIZES.hpkeSealedKb,
-    });
+      wrappedKb: envelope.wrappedKb.length,
+    }).toEqual(V1_SIZES);
   });
 
-  it('returns the envelope fields and nothing else, so skR cannot escape', async () => {
+  it('returns the envelope fields and nothing else', async () => {
     expect(Object.keys(await create()).sort()).toEqual([
-      'hpkeEncapsulatedSecret',
-      'hpkeSealedKb',
+      'kdfSalt',
       'keyWrapIv',
-      'pkR',
-      'prfWrappedSkR',
+      'wrappedKb',
     ]);
   });
 
-  it('generates a fresh recipient keypair per call', async () => {
+  it('produces a different envelope per call for the same inputs', async () => {
     const [first, second] = await Promise.all([create(), create()]);
 
-    expect(hex(first.pkR)).not.toBe(hex(second.pkR));
+    expect({
+      kdfSalt: hex(first.kdfSalt) === hex(second.kdfSalt),
+      keyWrapIv: hex(first.keyWrapIv) === hex(second.keyWrapIv),
+      wrappedKb: hex(first.wrappedKb) === hex(second.wrappedKb),
+    }).toEqual({ kdfSalt: false, keyWrapIv: false, wrappedKb: false });
   });
 
   it('leaves the caller kB and prfOut untouched', async () => {
@@ -276,13 +267,7 @@ describe('openWrapEnvelope', () => {
     ).rejects.toThrow('envelope must be an object');
   });
 
-  it.each([
-    'pkR',
-    'prfWrappedSkR',
-    'keyWrapIv',
-    'hpkeEncapsulatedSecret',
-    'hpkeSealedKb',
-  ] as const)(
+  it.each(['kdfSalt', 'keyWrapIv', 'wrappedKb'] as const)(
     'names %s when it is missing from the envelope',
     async (field) => {
       const envelope = { ...(await create()) } as Partial<PasskeyWrapEnvelope>;
@@ -313,25 +298,25 @@ describe('openWrapEnvelope', () => {
         [Symbol.toStringTag]: 'Uint8Array',
       }),
     ],
-  ])('rejects hpkeSealedKb given as %s', async (_label, corrupt) => {
+  ])('rejects wrappedKb given as %s', async (_label, corrupt) => {
     const envelope = await create();
 
     await expect(
       openWrapEnvelope({
         envelope: {
           ...envelope,
-          hpkeSealedKb: corrupt(envelope.hpkeSealedKb),
+          wrappedKb: corrupt(envelope.wrappedKb),
         } as unknown as PasskeyWrapEnvelope,
         prfOut: bytes(PRF_OUT_HEX),
         uid: UID,
         credentialId: CREDENTIAL_ID,
       })
-    ).rejects.toThrow('hpkeSealedKb must be a Uint8Array');
+    ).rejects.toThrow('wrappedKb must be a Uint8Array');
   });
 
-  it('names hpkeSealedKb when it is stored at the wrong width', async () => {
+  it('names wrappedKb when it is stored at the wrong width', async () => {
     const envelope = await create();
-    envelope.hpkeSealedKb = envelope.hpkeSealedKb.subarray(0, 47);
+    envelope.wrappedKb = envelope.wrappedKb.subarray(0, 47);
 
     await expect(
       openWrapEnvelope({
@@ -340,7 +325,7 @@ describe('openWrapEnvelope', () => {
         uid: UID,
         credentialId: CREDENTIAL_ID,
       })
-    ).rejects.toThrow('hpkeSealedKb must be 48 bytes, got 47');
+    ).rejects.toThrow('wrappedKb must be 48 bytes, got 47');
   });
 
   it('surfaces the decryption failure for a wrong prfOut', async () => {
@@ -360,7 +345,7 @@ describe('openWrapEnvelope', () => {
   });
 
   // A Node Buffer is a Uint8Array from another realm under jsdom, the case that
-  // clears a brand check and then trips `hpke`'s own `instanceof` guard.
+  // clears a brand check and then has to be copied before Web Crypto sees it.
   it('accepts fields from another realm by copying them into this one', async () => {
     const envelope = await create();
     const foreign = Object.fromEntries(
@@ -380,10 +365,9 @@ describe('openWrapEnvelope', () => {
     expect(hex(kB)).toBe(KB_HEX);
   });
 
-  // Corrupted in place at the correct width, so normalizeEnvelope passes. The
-  // HPKE fields are bound into the skR wrap's aad, so the failure comes from
-  // the AES layer and HPKE never runs: the same tag check a wrong prfOut fails.
-  it.each(['hpkeSealedKb', 'hpkeEncapsulatedSecret'] as const)(
+  // Corrupted in place at the correct width, so normalizeEnvelope passes and
+  // the failure is the same tag check a wrong prfOut fails.
+  it.each(['kdfSalt', 'keyWrapIv', 'wrappedKb'] as const)(
     'surfaces the decryption failure for a corrupted %s',
     async (field) => {
       const envelope = await create();
@@ -401,26 +385,20 @@ describe('openWrapEnvelope', () => {
     }
   );
 
-  // The position of anyone holding the stored row but not prfOut: pkR is in
-  // the clear, so a kB of their choosing can be sealed to it. The skR wrap
-  // must refuse to open against the substituted fields rather than hand the
-  // genuine skR to HPKE, which would open them to the chosen kB.
-  it('rejects a kB resealed to the stored pkR by a holder of the row', async () => {
+  // A ciphertext produced under any other prfOut fails, because the key is
+  // derived from prfOut.
+  it('rejects a wrappedKb produced under a different prfOut', async () => {
     const envelope = await create();
-    const resealed = await sealKb(
-      new Uint8Array(32).fill(0x42),
-      envelope.pkR,
-      context(),
-      new Uint8Array(0)
-    );
+    const forged = await createWrapEnvelope({
+      kB: new Uint8Array(32).fill(0x42),
+      prfOut: new Uint8Array(32).fill(0x99),
+      uid: UID,
+      credentialId: CREDENTIAL_ID,
+    });
 
     await expect(
       openWrapEnvelope({
-        envelope: {
-          ...envelope,
-          hpkeEncapsulatedSecret: resealed.encapsulatedSecret,
-          hpkeSealedKb: resealed.ciphertext,
-        },
+        envelope: { ...envelope, wrappedKb: forged.wrappedKb },
         prfOut: bytes(PRF_OUT_HEX),
         uid: UID,
         credentialId: CREDENTIAL_ID,

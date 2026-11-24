@@ -8,27 +8,18 @@
  * envelope and the same PRF output.
  *
  * FROZEN FORMAT CONTRACT. The context construction below is as un-migratable as
- * the sizes in `constants.ts`: an envelope sealed under one context opens under
+ * the sizes in `constants.ts`: an envelope wrapped under one context opens under
  * no other. This module owns it rather than accepting it from the caller — a
  * caller that assembled it slightly differently at wrap and unwrap time would
  * produce envelopes nothing can open, and the failure looks identical to a
  * wrong PRF output.
- *
- * `skR` never leaves the client, and never leaves this module: the caller sees
- * only the wrapped form.
  */
 
 import type { PasskeyWrapEnvelope } from 'fxa-auth-client/browser';
-import { concat } from 'hpke';
 import { base64urlToBytes } from '../base64url';
-import { assertByteLength } from './assert';
+import { assertByteLength, concat } from './assert';
 import { CREDENTIAL_ID_MAX_BYTES, UID_BYTES, V1_SIZES } from './constants';
-import { openKb, sealKb, type SealedKb } from './hpke';
-import {
-  generateRecipientKeyPair,
-  unwrapRecipientPrivateKey,
-  wrapRecipientPrivateKey,
-} from './key-wrap';
+import { unwrapKb, wrapKb } from './key-wrap';
 
 /**
  * The account and credential an envelope belongs to.
@@ -41,24 +32,14 @@ export type EnvelopeContext = {
 };
 
 /**
- * Everything the envelope authenticates travels in the HPKE `info`, so the
- * `aad` slot is unused.
- *
- * FROZEN FORMAT CONTRACT.
- */
-const HPKE_AAD = new Uint8Array(0);
-
-/**
  * Every envelope field and the width it must have. A `satisfies` over
  * `Record<keyof PasskeyWrapEnvelope, …>` rather than a list, so adding a field
  * to the envelope fails to compile here instead of silently going unvalidated.
  */
 const ENVELOPE_WIDTHS = {
-  pkR: V1_SIZES.pkR,
-  prfWrappedSkR: V1_SIZES.prfWrappedSkR,
+  kdfSalt: V1_SIZES.kdfSalt,
   keyWrapIv: V1_SIZES.keyWrapIv,
-  hpkeEncapsulatedSecret: V1_SIZES.hpkeEncapsulatedSecret,
-  hpkeSealedKb: V1_SIZES.hpkeSealedKb,
+  wrappedKb: V1_SIZES.wrappedKb,
 } satisfies Record<keyof PasskeyWrapEnvelope, number>;
 
 /**
@@ -117,7 +98,6 @@ function normalizeEnvelope(envelope: unknown): PasskeyWrapEnvelope {
     ) {
       throw new Error(`${field} must be a Uint8Array`);
     }
-    // Copied into this realm so `hpke`'s own `instanceof` guard passes too.
     const bytes = new Uint8Array(value as Uint8Array);
     assertByteLength(field, bytes, width);
     normalized[field] = bytes;
@@ -127,8 +107,7 @@ function normalizeEnvelope(envelope: unknown): PasskeyWrapEnvelope {
 }
 
 /**
- * Builds the context bound into a v1 envelope, as the HPKE `info` and the first
- * part of the `skR` wrap's `aad` — see `buildKeyWrapAad`.
+ * Builds the context bound into a v1 envelope as the AES-GCM `aad`.
  *
  * FROZEN FORMAT CONTRACT. Framing is length-prefixed rather than delimited.
  * That is insurance, not a fix for a live ambiguity: `uid` is a fixed 16 bytes,
@@ -157,34 +136,9 @@ export function buildEnvelopeContext({
 }
 
 /**
- * Builds the `aad` for the `skR` wrap: the credential context, then the HPKE
- * fields the unwrapped key will be used against, length-framed like the
- * context so the parts cannot shift into one another.
- *
- * FROZEN FORMAT CONTRACT. This is what stops a holder of the stored row from
- * choosing the `kB` it opens to. `pkR` is stored in the clear and HPKE
- * `mode_base` authenticates nothing a PRF holder can check, so anyone with the
- * row could `Seal` their own `kB` to `pkR` and the genuine `skR` would open
- * it. Binding `pkR`, `enc` and `ct` here means a substituted field fails the
- * AES-GCM tag over `skR` before HPKE ever runs.
- */
-function buildKeyWrapAad(
-  context: Uint8Array,
-  pkR: Uint8Array,
-  sealed: SealedKb
-): Uint8Array {
-  return concat(
-    context,
-    frame(pkR, sealed.encapsulatedSecret, sealed.ciphertext)
-  );
-}
-
-/**
  * Wraps `kB` for one passkey, returning the envelope to store.
  *
- * `kB` and `prfOut` belong to the caller and are left untouched. The recipient
- * private key never leaves in plaintext: the wrapped form is the only copy
- * returned, and the buffers here are zeroed on success and on failure.
+ * `kB` and `prfOut` belong to the caller and are left untouched.
  */
 export async function createWrapEnvelope({
   kB,
@@ -196,34 +150,17 @@ export async function createWrapEnvelope({
   prfOut: Uint8Array;
 }): Promise<PasskeyWrapEnvelope> {
   const context = buildEnvelopeContext({ uid, credentialId });
-  const { publicKey, privateKeyRaw } = await generateRecipientKeyPair();
-
-  try {
-    const sealed = await sealKb(kB, publicKey, context, HPKE_AAD);
-    const { wrapped, iv } = await wrapRecipientPrivateKey(
-      privateKeyRaw,
-      prfOut,
-      buildKeyWrapAad(context, publicKey, sealed)
-    );
-
-    return {
-      pkR: publicKey,
-      prfWrappedSkR: wrapped,
-      keyWrapIv: iv,
-      hpkeEncapsulatedSecret: sealed.encapsulatedSecret,
-      hpkeSealedKb: sealed.ciphertext,
-    };
-  } finally {
-    privateKeyRaw.fill(0);
-  }
+  const { kdfSalt, keyWrapIv, wrappedKb } = await wrapKb(kB, prfOut, context);
+  return { kdfSalt, keyWrapIv, wrappedKb };
 }
 
 /**
  * Recovers `kB` from a stored envelope.
  *
  * Failures surface as the underlying decryption error, unwrapped. A wrong
- * `prfOut` and a mismatched `uid` or `credentialId` are indistinguishable —
- * they all fail the same AEAD tag check — so this cannot report which.
+ * `prfOut`, a tampered field and a mismatched `uid` or `credentialId` are
+ * indistinguishable — they all fail the same AEAD tag check — so this cannot
+ * report which.
  */
 export async function openWrapEnvelope({
   envelope,
@@ -234,29 +171,7 @@ export async function openWrapEnvelope({
   envelope: PasskeyWrapEnvelope;
   prfOut: Uint8Array;
 }): Promise<Uint8Array> {
-  const {
-    pkR,
-    prfWrappedSkR,
-    keyWrapIv,
-    hpkeEncapsulatedSecret,
-    hpkeSealedKb,
-  } = normalizeEnvelope(envelope);
+  const fields = normalizeEnvelope(envelope);
   const context = buildEnvelopeContext({ uid, credentialId });
-  const sealed = {
-    encapsulatedSecret: hpkeEncapsulatedSecret,
-    ciphertext: hpkeSealedKb,
-  };
-
-  const skRRaw = await unwrapRecipientPrivateKey(
-    prfWrappedSkR,
-    keyWrapIv,
-    prfOut,
-    buildKeyWrapAad(context, pkR, sealed)
-  );
-
-  try {
-    return await openKb(sealed, pkR, skRRaw, context, HPKE_AAD);
-  } finally {
-    skRRaw.fill(0);
-  }
+  return unwrapKb(fields, prfOut, context);
 }

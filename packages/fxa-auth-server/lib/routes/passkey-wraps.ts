@@ -125,14 +125,9 @@ export class PasskeyWrapsHandler {
         uid,
         credentialId,
         {
-          pkR: Buffer.from(payload.pkR, 'base64url'),
-          prfWrappedSkR: Buffer.from(payload.prfWrappedSkR, 'base64url'),
+          kdfSalt: Buffer.from(payload.kdfSalt, 'base64url'),
           keyWrapIv: Buffer.from(payload.keyWrapIv, 'base64url'),
-          hpkeEncapsulatedSecret: Buffer.from(
-            payload.hpkeEncapsulatedSecret,
-            'base64url'
-          ),
-          hpkeSealedKb: Buffer.from(payload.hpkeSealedKb, 'base64url'),
+          wrappedKb: Buffer.from(payload.wrappedKb, 'base64url'),
         },
         Date.now(),
         account.keysChangedAt
@@ -166,9 +161,9 @@ export class PasskeyWrapsHandler {
   /**
    * Handles `GET /passkey/wraps/{credentialId}`.
    *
-   * Returns the envelope for one credential so the client can unseal `kB`
-   * without a password. The server cannot read it: the sealed key and the
-   * PRF-wrapped private key are opaque here.
+   * Returns the envelope for one credential so the client can unwrap `kB`
+   * without a password. The server cannot read it: the key is derived from
+   * the PRF output, which never leaves the client.
    *
    * Bound to the asserted credential as the write is. A wrap should only ever
    * be fetched to complete a sign-in with that same credential.

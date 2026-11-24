@@ -46,11 +46,9 @@ const field = (bytes: number, fill: number) =>
   Buffer.alloc(bytes, fill).toString('base64url');
 
 const envelope = (fill = 0x11) => ({
-  pkR: field(V1_WIDTHS.pkR, 0x04),
-  prfWrappedSkR: field(V1_WIDTHS.prfWrappedSkR, fill),
+  kdfSalt: field(V1_WIDTHS.kdfSalt, fill),
   keyWrapIv: field(V1_WIDTHS.keyWrapIv, fill),
-  hpkeEncapsulatedSecret: field(V1_WIDTHS.hpkeEncapsulatedSecret, 0x04),
-  hpkeSealedKb: field(V1_WIDTHS.hpkeSealedKb, fill),
+  wrappedKb: field(V1_WIDTHS.wrappedKb, fill),
 });
 
 beforeAll(async () => {
@@ -232,9 +230,7 @@ describe('#integration - remote passkey wrap storage', () => {
       client.uid,
       credentialId
     );
-    expect(stored?.hpkeSealedKb).toEqual(
-      Buffer.alloc(V1_WIDTHS.hpkeSealedKb, 0x11)
-    );
+    expect(stored?.wrappedKb).toEqual(Buffer.alloc(V1_WIDTHS.wrappedKb, 0x11));
 
     const events = await client.securityEvents();
     expect(events.map((e: { name: string }) => e.name)).toContain(
@@ -268,9 +264,7 @@ describe('#integration - remote passkey wrap storage', () => {
       client.uid,
       credentialId
     );
-    expect(stored?.hpkeSealedKb).toEqual(
-      Buffer.alloc(V1_WIDTHS.hpkeSealedKb, 0x11)
-    );
+    expect(stored?.wrappedKb).toEqual(Buffer.alloc(V1_WIDTHS.wrappedKb, 0x11));
   });
 
   it('replaces a wrap that predates the current kB, recording it as invalidated', async () => {

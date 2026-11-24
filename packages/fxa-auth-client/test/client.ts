@@ -182,19 +182,15 @@ describe('lib/client', () => {
 
     // Distinct fills, so a field swapped for another is visible.
     const envelope = {
-      pkR: new Uint8Array(133).fill(0x04),
-      prfWrappedSkR: new Uint8Array(82).fill(0x11),
+      kdfSalt: new Uint8Array(32).fill(0x11),
       keyWrapIv: new Uint8Array(12).fill(0x22),
-      hpkeEncapsulatedSecret: new Uint8Array(133).fill(0x33),
-      hpkeSealedKb: new Uint8Array(48).fill(0x44),
+      wrappedKb: new Uint8Array(48).fill(0x44),
     };
 
     const wireEnvelope = {
-      pkR: Buffer.alloc(133, 0x04).toString('base64url'),
-      prfWrappedSkR: Buffer.alloc(82, 0x11).toString('base64url'),
+      kdfSalt: Buffer.alloc(32, 0x11).toString('base64url'),
       keyWrapIv: Buffer.alloc(12, 0x22).toString('base64url'),
-      hpkeEncapsulatedSecret: Buffer.alloc(133, 0x33).toString('base64url'),
-      hpkeSealedKb: Buffer.alloc(48, 0x44).toString('base64url'),
+      wrappedKb: Buffer.alloc(48, 0x44).toString('base64url'),
     };
 
     before(() => {

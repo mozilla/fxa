@@ -285,13 +285,7 @@ export type PasskeyAuthenticationResult = {
  * Field list for the wrap envelope, shared by the encode and decode paths so
  * they cannot drift.
  */
-const WRAP_ENVELOPE_FIELDS = [
-  'pkR',
-  'prfWrappedSkR',
-  'keyWrapIv',
-  'hpkeEncapsulatedSecret',
-  'hpkeSealedKb',
-] as const;
+const WRAP_ENVELOPE_FIELDS = ['kdfSalt', 'keyWrapIv', 'wrappedKb'] as const;
 
 /**
  * Envelope bytes, as the `passkey-crypto` module produces and consumes them.

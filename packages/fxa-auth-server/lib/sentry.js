@@ -19,8 +19,7 @@ const REDACTED_KEY_FRAGMENTS = [
   'kb',
   'key',
   'tokenid',
-  // WebAuthn PRF output (`clientExtensionResults.prf.results`) and the wrap
-  // envelope fields `prfWrappedSkR` / `hpkeEncapsulatedSecret`.
+  // WebAuthn PRF output (`clientExtensionResults.prf.results`).
   'prf',
   'secret',
 ];

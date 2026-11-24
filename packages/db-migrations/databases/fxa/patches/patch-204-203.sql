@@ -1,0 +1,17 @@
+-- SET NAMES utf8mb4 COLLATE utf8mb4_bin;
+--
+-- CALL assertPatchLevel('204');
+--
+-- ALTER TABLE passkeyWraps
+--   DROP COLUMN kdfSalt,
+--   DROP COLUMN wrappedKb,
+--   ADD COLUMN pkR BINARY(133) NOT NULL AFTER credentialId,
+--   ADD COLUMN prfWrappedSkR BINARY(82) NOT NULL AFTER pkR,
+--   ADD COLUMN hpkeEncapsulatedSecret BINARY(133) NOT NULL AFTER keyWrapIv,
+--   ADD COLUMN hpkeSealedKb BINARY(48) NOT NULL AFTER hpkeEncapsulatedSecret,
+--   ALGORITHM = INPLACE, LOCK = NONE;
+--
+-- -- Rows written in the one-layer format cannot be read by the HPKE client.
+-- DELETE FROM passkeyWraps;
+--
+-- UPDATE dbMetadata SET value = '203' WHERE name = 'schema-patch-level';

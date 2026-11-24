@@ -92,7 +92,7 @@ export async function createPasskeyWrap(
   let recovered: Uint8Array | undefined;
   try {
     envelope = await createWrapEnvelope({ kB, prfOut, uid, credentialId });
-    // A divergent EC export (see `key-wrap.ts`) seals envelopes that never open.
+    // A platform crypto difference can produce an envelope that never opens.
     recovered = await openWrapEnvelope({ envelope, prfOut, uid, credentialId });
     if (!bytesEqual(recovered, kB)) {
       throw new Error('recovered kB did not match');
