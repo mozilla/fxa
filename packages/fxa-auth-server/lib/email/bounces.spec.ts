@@ -688,4 +688,206 @@ describe('bounce messages', () => {
     );
     stub.mockRestore();
   });
+
+  // Shapes follow the AWS SES notification-contents documentation.
+  describe('SES notification shapes', () => {
+    const DIAGNOSTIC_CODE = 'smtp; 550 5.1.1 user unknown';
+    const mail = {
+      headers: [{ name: 'X-Template-Name', value: 'verifyEmail' }],
+    };
+
+    function sesBounce(
+      bounce: Record<string, unknown>,
+      recipient: Record<string, unknown> = {}
+    ) {
+      return mockMessage({
+        notificationType: 'Bounce',
+        bounce: {
+          feedbackId: 'feedback-id',
+          timestamp: '2026-01-01T00:00:00.000Z',
+          bouncedRecipients: [
+            {
+              emailAddress: 'test@example.com',
+              action: 'failed',
+              status: '5.1.1',
+              diagnosticCode: DIAGNOSTIC_CODE,
+              ...recipient,
+            },
+          ],
+          ...bounce,
+        },
+        mail,
+      });
+    }
+
+    function sesComplaint(complaint: Record<string, unknown>) {
+      return mockMessage({
+        notificationType: 'Complaint',
+        complaint: {
+          feedbackId: 'feedback-id',
+          timestamp: '2026-01-01T00:00:00.000Z',
+          complainedRecipients: [{ emailAddress: 'test@example.com' }],
+          ...complaint,
+        },
+        mail,
+      });
+    }
+
+    it.each([
+      { bounceType: 'Undetermined', bounceSubType: 'Undetermined' },
+      { bounceType: 'Permanent', bounceSubType: 'General' },
+      { bounceType: 'Permanent', bounceSubType: 'NoEmail' },
+      { bounceType: 'Permanent', bounceSubType: 'Suppressed' },
+      { bounceType: 'Permanent', bounceSubType: 'OnAccountSuppressionList' },
+      { bounceType: 'Transient', bounceSubType: 'General' },
+      { bounceType: 'Transient', bounceSubType: 'MailboxFull' },
+      { bounceType: 'Transient', bounceSubType: 'MessageTooLarge' },
+      { bounceType: 'Transient', bounceSubType: 'ContentRejected' },
+      { bounceType: 'Transient', bounceSubType: 'AttachmentRejected' },
+    ])(
+      'records a $bounceType/$bounceSubType bounce and deletes the message',
+      async ({ bounceType, bounceSubType }) => {
+        const msg = sesBounce({ bounceType, bounceSubType });
+        await mockedBounces(log, mockDB).handleBounce(msg);
+        expect(mockDB.createEmailBounce).toHaveBeenCalledWith({
+          email: 'test@example.com',
+          templateName: 'verifyEmail',
+          bounceType,
+          bounceSubType,
+          diagnosticCode: DIAGNOSTIC_CODE,
+        });
+        expect(msg.del).toHaveBeenCalledTimes(1);
+      }
+    );
+
+    it.each(['abuse', 'auth-failure', 'fraud', 'not-spam', 'other', 'virus'])(
+      'records a complaint with feedback type %s and deletes the message',
+      async (complaintFeedbackType) => {
+        const msg = sesComplaint({
+          userAgent: 'ExampleCorp Feedback Loop (V0.01)',
+          complaintFeedbackType,
+        });
+        await mockedBounces(log, mockDB).handleBounce(msg);
+        expect(mockDB.createEmailBounce).toHaveBeenCalledWith({
+          email: 'test@example.com',
+          templateName: 'verifyEmail',
+          bounceType: 'Complaint',
+          bounceSubType: complaintFeedbackType,
+        });
+        expect(msg.del).toHaveBeenCalledTimes(1);
+      }
+    );
+
+    it('records a complaint with no feedback type without a bounceSubType', async () => {
+      const msg = sesComplaint({});
+      await mockedBounces(log, mockDB).handleBounce(msg);
+      const bounce = mockDB.createEmailBounce.mock.calls[0][0];
+      expect(bounce.bounceType).toBe('Complaint');
+      expect(bounce).not.toHaveProperty('bounceSubType');
+      expect(msg.del).toHaveBeenCalledTimes(1);
+    });
+
+    it('passes an unknown bounceType and subType through unchanged for the model to map', async () => {
+      const msg = sesBounce({
+        bounceType: 'SomethingNew',
+        bounceSubType: 'AlsoNew',
+      });
+      await mockedBounces(log, mockDB).handleBounce(msg);
+      expect(mockDB.createEmailBounce).toHaveBeenCalledWith(
+        expect.objectContaining({
+          bounceType: 'SomethingNew',
+          bounceSubType: 'AlsoNew',
+        })
+      );
+      expect(msg.del).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+      { name: 'missing', recipient: { diagnosticCode: undefined } },
+      { name: 'empty', recipient: { diagnosticCode: '' } },
+    ])(
+      'records a bounce when the diagnosticCode is $name',
+      async ({ recipient }) => {
+        const msg = sesBounce(
+          { bounceType: 'Permanent', bounceSubType: 'General' },
+          recipient
+        );
+        await mockedBounces(log, mockDB).handleBounce(msg);
+        expect(mockDB.createEmailBounce.mock.calls[0][0].diagnosticCode).toBe(
+          recipient.diagnosticCode
+        );
+        expect(msg.del).toHaveBeenCalledTimes(1);
+      }
+    );
+
+    it('passes a diagnosticCode longer than 255 characters through untruncated', async () => {
+      const longCode = `smtp; 550 ${'x'.repeat(300)}`;
+      const msg = sesBounce(
+        { bounceType: 'Permanent', bounceSubType: 'General' },
+        { diagnosticCode: longCode }
+      );
+      await mockedBounces(log, mockDB).handleBounce(msg);
+      expect(mockDB.createEmailBounce.mock.calls[0][0].diagnosticCode).toBe(
+        longCode
+      );
+      expect(msg.del).toHaveBeenCalledTimes(1);
+    });
+
+    it('records a bounce without templateName when mail.headers is missing', async () => {
+      const msg = sesBounce({
+        bounceType: 'Permanent',
+        bounceSubType: 'General',
+      });
+      msg.mail = {};
+      msg.headers = undefined;
+      await mockedBounces(log, mockDB).handleBounce(msg);
+      expect(mockDB.createEmailBounce).toHaveBeenCalledTimes(1);
+      expect(mockDB.createEmailBounce.mock.calls[0][0]).not.toHaveProperty(
+        'templateName'
+      );
+      expect(msg.del).toHaveBeenCalledTimes(1);
+    });
+
+    it('records each bounced recipient with its own diagnosticCode', async () => {
+      const msg = sesBounce({
+        bounceType: 'Permanent',
+        bounceSubType: 'General',
+        bouncedRecipients: [
+          { emailAddress: 'test@example.com', diagnosticCode: 'smtp; 550 a' },
+          { emailAddress: 'other@example.com', diagnosticCode: 'smtp; 550 b' },
+        ],
+      });
+      await mockedBounces(log, mockDB).handleBounce(msg);
+      expect(mockDB.createEmailBounce).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          email: 'test@example.com',
+          diagnosticCode: 'smtp; 550 a',
+        })
+      );
+      expect(mockDB.createEmailBounce).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          email: 'other@example.com',
+          diagnosticCode: 'smtp; 550 b',
+        })
+      );
+      expect(msg.del).toHaveBeenCalledTimes(1);
+    });
+
+    it('logs a databaseError and still deletes the message when createEmailBounce rejects', async () => {
+      const err = new Error('db unavailable');
+      mockDB.createEmailBounce = jest.fn(() => Promise.reject(err));
+      const msg = sesBounce({
+        bounceType: 'Permanent',
+        bounceSubType: 'General',
+      });
+      await mockedBounces(log, mockDB).handleBounce(msg);
+      expect(log.error).toHaveBeenCalledWith('databaseError', {
+        email: 'test@example.com',
+        err,
+      });
+      expect(msg.del).toHaveBeenCalledTimes(1);
+    });
+  });
 });
