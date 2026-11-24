@@ -41,6 +41,8 @@ location-state-country = { $stateCode }, { $country } (estimated)
 #  $country (stateCode) - User's country
 location-country = { $country } (estimated)
 cadReminderFirst-action = Sincronitza un altre dispositiu
+cadReminderFirst-action-plaintext = { cadReminderFirst-action }:
+cadReminderSecond-action = Sincronitza un altre dispositiu
 codes-create-plaintext = { lowRecoveryCodes-action-2 }:
 # Variables:
 # $clientName (String) - A client the user hasn't signed into before (e.g. Firefox, Sync)
@@ -49,31 +51,57 @@ newDeviceLogin-subject = Inici de sessió nou al { $clientName }
 # person who performed the action that triggered the email.
 newDeviceLogin-change-password-plain = No recordeu haver-ho fet? Canvieu la contrasenya:
 newDeviceLogin-action = Gestiona el compte
+passwordChangeRequired-title-2 = Reinicia la contrasenya
+passwordChangeRequired-action = Reinicia la contrasenya
 passwordChangeRequired-action-plaintext = { passwordChangeRequired-action }:
 passwordChanged-subject = S'ha actualitzat la contrasenya
 passwordChanged-title = La contrasenya s’ha canviat correctament
+password-forgot-otp-title = Heu oblidat la contrasenya?
+passwordReset-subject-2 = S'ha reiniciat la vostra contrasenya
+passwordReset-title-2 = S'ha reiniciat la vostra contrasenya
+passwordResetAccountRecovery-subject-2 = S'ha reiniciat la vostra contrasenya
+passwordResetAccountRecovery-title-3 = S'ha reiniciat la vostra contrasenya
+passwordResetAccountRecovery-action-4 = Gestiona el compte
+passwordResetRecoveryPhone-action = Gestiona el compte
+passwordResetWithRecoveryKeyPrompt-subject = S'ha reiniciat la vostra contrasenya
+passwordResetWithRecoveryKeyPrompt-title = S'ha reiniciat la vostra contrasenya
 postAddAccountRecovery-action = Gestiona el compte
+postAddLinkedAccount-action = Gestiona el compte
 # Links out to a support article about passkeys and { -brand-firefox } sync
 postAddPasskey-learn-more = Més informació
+postAddPasskey-action = Gestiona el compte
+postAddRecoveryPhone-action = Gestiona el compte
 postAddTwoStepAuthentication-action = Gestiona el compte
+postChangeAccountRecovery-action = Gestiona el compte
 postChangePrimary-title = Adreça electrònica principal nova
 postChangePrimary-action = Gestiona el compte
+postChangeTwoStepAuthentication-action = Gestiona el compte
 postConsumeRecoveryCode-action = Gestiona el compte
 postNewRecoveryCodes-action = Gestiona el compte
 postRemoveAccountRecovery-action = Gestiona el compte
+postRemovePasskey-action = Gestiona el compte
 postRemoveSecondary-subject = S’ha eliminat l‘adreça electrònica secundària
 postRemoveSecondary-title = S’ha eliminat l‘adreça electrònica secundària
 postRemoveSecondary-action = Gestiona el compte
 postRemoveTwoStepAuthentication-action = Gestiona el compte
+postSigninRecoveryCode-action = Gestiona el compte
+postSigninRecoveryPhone-action = Gestiona el compte
+postVerify-action-2 = Connecteu un altre dispositiu
 postVerifySecondary-subject = S’ha afegit l‘adreça electrònica secundària
 postVerifySecondary-title = S’ha afegit l‘adreça electrònica secundària
 postVerifySecondary-action = Gestiona el compte
 recovery-subject = Reinicia la contrasenya
+recovery-title-2 = Heu oblidat la contrasenya?
 recovery-action = Crea una nova contrasenya
 unblockCode-title = Esteu iniciant la sessió?
 unblockCode-prompt = Si és així, aquest és el codi d’autorització que necessiteu:
 unblockCode-report-plaintext = Si no és així, ajudeu-nos a rebutjar intrusos i envieu un informe.
+confirm-account-plaintext = { confirm-account }:
+confirm-email-plaintext-2 = { confirm-email-2 }:
 verifyLogin-action = Confirmeu l’inici de la sessió
+# After the colon is a description of the device used to sign in to the service
+verifyLoginCode-safe = Ajudeu-nos a protegir el vostre compte aprovant l'inici de sessió a:
 verifyLoginCode-expiry-notice = Caduca d’aquí a 5 minuts.
 verifyPrimary-description = S’ha sol·licitat un canvi de compte des del següent dispositiu:
+verifyPrimary-action-plaintext-2 = { verifyPrimary-action-2 }:
 verifyShortCode-expiry-notice = Caduca d’aquí a 5 minuts.

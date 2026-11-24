@@ -1,8 +1,8 @@
 {
-  "commit": "5fdfb78801656ba9da99bae786e6c86f832e2c89",
+  "commit": "f2ebd726c84ae7edab5a03a6f5778b3a7b978eaf",
   "summary": "feat(settings): record change and create password events in Glean",
   "description": "Because:\n\n* The change and create password pages sent only legacy metrics events.\n\nThis commit:\n\n* Adds seven account_pref Glean events and their generated wiring.\n* Records each event beside the legacy call that it mirrors.\n* Adds an optional onFirstFocus prop to FormPassword.\n* Adds unit tests and functional ping checks.\n\nCloses FXA-15117",
-  "timestamp": 1795542669000,
+  "timestamp": 1795544033000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-settings"
