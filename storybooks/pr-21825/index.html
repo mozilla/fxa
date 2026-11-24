@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 52a270f85cf3c0ad8ad97421ae562f8d9bc5bb44</title>
+  <title>Storybooks for commit 409672c34f7df18c77bccde499bee00f42fe33d5</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,28 +23,30 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 52a270f85cf3c0ad8ad97421ae562f8d9bc5bb44</h1>
+  <h1>Storybooks for commit 409672c34f7df18c77bccde499bee00f42fe33d5</h1>
   <ul>
-    <li><a href="./fxa-settings/">fxa-settings</a></li>
+    <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
+<li><a href="./fxa-react/">fxa-react</a></li>
+<li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/24/2026, 9:44:49 PM UTC</dd>
+    <dd>11/24/2026, 10:22:48 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(settings): animate the Nova auth-flow illustrations</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
 - The legacy illustrations carry motion (beating hearts, spinning sync
-  icon, fading code) and the flat Nova set shipped static.
+  icon, code filling in) and the flat Nova set shipped static.
 
 This commit:
 
-- Adds Tailwind `animate-*` classes inside six Nova SVGs, reusing the
-  legacy keyframes; hearts beat, checks pop in, sync arrows spin, and
-  the email-code pill, code and arrow fade in staggered.
-- Splits the tablet and phone hearts in add-devices out of their
-  home-button paths so only the hearts move.
+- Adds Nova keyframes and rules to fxa-react&#039;s animations.css, scoped to
+  `[data-theme=&#039;nova&#039;]`; hearts beat, checks pop in, sync arrows spin,
+  and the email-code pill, digits and arrow badge appear in sequence.
+- Gives each moving shape in six Nova SVGs a `nova-*` hook class, and
+  splits the hearts and asterisks that Figma exported as one path.
 - Adds `Nova &gt; …` stories that pin the Nova toggle on for each animated
   illustration.
 - Documents the approach in the design-tokens README.

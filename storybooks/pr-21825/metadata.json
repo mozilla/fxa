@@ -1,9 +1,11 @@
 {
-  "commit": "52a270f85cf3c0ad8ad97421ae562f8d9bc5bb44",
+  "commit": "409672c34f7df18c77bccde499bee00f42fe33d5",
   "summary": "feat(settings): animate the Nova auth-flow illustrations",
-  "description": "Because:\n\n- The legacy illustrations carry motion (beating hearts, spinning sync\n  icon, fading code) and the flat Nova set shipped static.\n\nThis commit:\n\n- Adds Tailwind `animate-*` classes inside six Nova SVGs, reusing the\n  legacy keyframes; hearts beat, checks pop in, sync arrows spin, and\n  the email-code pill, code and arrow fade in staggered.\n- Splits the tablet and phone hearts in add-devices out of their\n  home-button paths so only the hearts move.\n- Adds `Nova > …` stories that pin the Nova toggle on for each animated\n  illustration.\n- Documents the approach in the design-tokens README.\n\nCloses #FXA-15002",
-  "timestamp": 1795556689000,
+  "description": "Because:\n\n- The legacy illustrations carry motion (beating hearts, spinning sync\n  icon, code filling in) and the flat Nova set shipped static.\n\nThis commit:\n\n- Adds Nova keyframes and rules to fxa-react's animations.css, scoped to\n  `[data-theme='nova']`; hearts beat, checks pop in, sync arrows spin,\n  and the email-code pill, digits and arrow badge appear in sequence.\n- Gives each moving shape in six Nova SVGs a `nova-*` hook class, and\n  splits the hearts and asterisks that Figma exported as one path.\n- Adds `Nova > …` stories that pin the Nova toggle on for each animated\n  illustration.\n- Documents the approach in the design-tokens README.\n\nCloses #FXA-15002",
+  "timestamp": 1795558968000,
   "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
     "fxa-settings"
   ],
   "deployDir": "deploy/"
