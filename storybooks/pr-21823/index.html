@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 1dd872b2de1b64bbd5ac9a918649a8440cf19148</title>
+  <title>Storybooks for commit 7ea4a31dd2483e9f070a5725359a1aceff4028d6</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 1dd872b2de1b64bbd5ac9a918649a8440cf19148</h1>
+  <h1>Storybooks for commit 7ea4a31dd2483e9f070a5725359a1aceff4028d6</h1>
   <ul>
     <li><a href="./email-renderer/">email-renderer</a></li>
 <li><a href="./fxa-admin-panel/">fxa-admin-panel</a></li>
@@ -32,18 +32,16 @@
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/24/2026, 9:01:11 PM UTC</dd>
+    <dd>11/24/2026, 9:40:39 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>feat(passkeys): wrap kB in one AES-GCM layer, dropping HPKE</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
 - The HPKE layer&#039;s only distinct capability, re-sealing kB for a passkey
-  that is not present, was already disabled by the skR AAD binding because
-  it is indistinguishable from a database writer substituting kB.
-- What remained was a quantum-vulnerable public key in every row, a
-  third-party curve implementation, and the P-521 platform bugs that end
-  in an unwanted password fallback.
+  that is not present, was already disabled by the skR AAD binding.
+- What remained was a third-party curve implementation and the P-521
+  platform bugs that end in an unwanted password fallback.
 - No production row exists and the wrap routes are flag-off in prod, so
   this is the last point the format can change without a v2.
 
