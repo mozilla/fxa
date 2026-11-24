@@ -51,7 +51,7 @@ export const ModalButton = ({
       className={classNames(
         'cta-base-common transition-standard',
         className || 'cta-neutral cta-base-p',
-        'w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0'
+        'w-full @mobileLandscape/unitRow:w-max @mobileLandscape/unitRow:max-w-64 @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0'
       )}
       data-testid={formatDataTestId('unit-row-modal-button')}
       ref={modalTriggerElement}
@@ -182,7 +182,7 @@ export const UnitRow = ({
       </div>
       <div className="flex flex-col w-full @container/unitRow">
         <div className="w-full @mobileLandscape/unitRow:flex">
-          <div className="unit-row-content nova:pe-4">
+          <div className="unit-row-content pe-4">
             {avatar ? (
               <Avatar
                 className="mx-auto @mobileLandscape/unitRow:mx-0 w-32 @mobileLandscape/unitRow:w-16 text-center"
@@ -228,7 +228,7 @@ export const UnitRow = ({
                   ctaText &&
                   (disabled ? (
                     <button
-                      className="cta-neutral cta-base-common cta-base-p transition-standard me-1 w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0 nova:py-2 nova:@mobileLandscape/unitRow:py-1"
+                      className="cta-neutral cta-base-common cta-base-p transition-standard me-1 w-full @mobileLandscape/unitRow:w-max @mobileLandscape/unitRow:max-w-64 @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0 nova:py-2 nova:@mobileLandscape/unitRow:py-1"
                       data-testid={formatDataTestId('unit-row-disabled')}
                       title={disabledReason}
                       disabled={disabled}
@@ -245,7 +245,7 @@ export const UnitRow = ({
                       {/* Priority 1: Route link */}
                       {route && (
                         <Link
-                          className="cta-neutral cta-base-common cta-base-p transition-standard me-1 w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0 nova:py-2 nova:@mobileLandscape/unitRow:py-1"
+                          className="cta-neutral cta-base-common cta-base-p transition-standard me-1 w-full @mobileLandscape/unitRow:w-max @mobileLandscape/unitRow:max-w-64 @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0 nova:py-2 nova:@mobileLandscape/unitRow:py-1"
                           data-testid={formatDataTestId('unit-row-route')}
                           to={`${route}${location.search}`}
                           onClick={ctaOnClickAction}

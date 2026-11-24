@@ -5,7 +5,7 @@
 import { Account } from '../../../models/Account';
 
 import { PageSettings } from '.';
-import { Config } from '../../../lib/config';
+import { Config, getDefault } from '../../../lib/config';
 
 import { MemoryRouter } from 'react-router';
 import { mockAppContext, mockSession } from '../../../models/mocks';
@@ -74,9 +74,19 @@ export const PartiallyFilledOut = storyWithContext(
   'partially filled out'
 );
 
+const defaultConfig = getDefault();
+
+// The "Synced data" row's "Account and sync" link is active when viewed in Firefox Desktop.
 export const CompletelyFilledOut = storyWithContext(
   completelyFilledOutAccount,
-  'completely filled out'
+  'completely filled out',
+  {
+    ...defaultConfig,
+    featureFlags: {
+      ...defaultConfig.featureFlags,
+      syncDataDeletionEnabled: true,
+    },
+  }
 );
 
 export const PartiallyFilledOutWithKeyPromo = storyWithContext(
