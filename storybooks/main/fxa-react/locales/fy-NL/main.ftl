@@ -48,6 +48,7 @@ app-footer-terms-of-service = Tsjinstbetingsten
 
 
 app-default-title-2 = { -product-mozilla-accounts }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = Iepenet yn nij finster

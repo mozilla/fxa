@@ -48,7 +48,7 @@ app-footer-terms-of-service = Användarvillkor
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = Öppnas i nytt fönster

@@ -1,8 +1,8 @@
 {
-  "commit": "634a74926ad0f78e7830ca9ea78a258b7919a13c",
-  "summary": "Merge pull request #21815 from mozilla/fxa-15110",
-  "description": "feat(settings): send a locked-primary-password authority to pair failure",
-  "timestamp": 1795481518000,
+  "commit": "bdaf91e4a269328042ed45bf8b7a2d98e8cc5e0f",
+  "summary": "Merge pull request #21775 from mozilla/FXA-14895-v2",
+  "description": "feat(settings): add Synced data row and delete Sync data flow",
+  "timestamp": 1795528122000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
