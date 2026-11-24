@@ -1,0 +1,11 @@
+{
+  "commit": "8ef43f586e7ace4554b764d569f0e4478bfd2f83",
+  "summary": "feat(settings): record Glean events on signin bounced and report pages",
+  "description": "Because:\n\n* The signin bounced and report signin pages sent no Glean events.\n\nThis commit:\n\n* Adds six login Glean events and records each beside its legacy event.\n* Flushes Glean before the signin bounced support redirect.\n* Adds a functional spec that checks the three view pings.\n\nCloses FXA-15121",
+  "timestamp": 1795542717000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
