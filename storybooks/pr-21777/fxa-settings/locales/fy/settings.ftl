@@ -283,8 +283,6 @@ signin-recovery-code-image-description =
     .aria-label = Dokumint dat ferburgen tekst befettet.
 signin-totp-code-image-label =
     .aria-label = In apparaat mei in ferburgen 6-siferige koade.
-confirm-signup-aria-label =
-    .aria-label = In slúf mei in keppeling
 # Used for an image of a key on a shield surrounded by 5 other icons representing information that can be recovered with the account recovery key.
 # Other icons and their meaning: Gear (settings), star (favorites), clock (history), magnifying glass (search) and lock (passwords).
 security-shield-aria-label =
@@ -2509,8 +2507,6 @@ signin-unblock-desktop-relay = { -brand-firefox } probearret jo werom te stjoere
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
 
-# Page title show in browser title bar or page tab
-confirm-signup-code-page-title = Fier befêstigingskoade yn
 # String within the <span> element appears on a separate line
 # If more appropriate in a locale, the string within the <span>, "for your { -product-mozilla-account }"
 # can stand alone as "{ -product-mozilla-account }"

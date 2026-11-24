@@ -48,7 +48,7 @@ app-footer-terms-of-service = Uvjeti usluge
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = Otvara se u novom prozoru
@@ -275,6 +275,7 @@ input-phone-number-country-canada = Kanada
 reset-pwd-link-damaged-header = Poveznica za resetiranje lozinke je oštećena
 signin-link-damaged-header = Poveznica potvrde je oštećena
 report-signin-link-damaged-header = Poveznica je oštećena
+report-signin-link-damaged-page-title = Prijavi oštećenu poveznicu
 reset-pwd-link-damaged-message = Poveznici na koju si kliknuo/la nedostaju neki znakovi ili ju je tvoj klijent e-pošte pokvario. Kopiraj poveznicu i pokušaj ponovo.
 
 
@@ -293,6 +294,7 @@ confirmation-link-reused-message = Ta poveznica za potvrdu već je korištena i 
 locale-toggle-select-label = Odaberi jezik
 locale-toggle-browser-default = Zadana postavka preglednika
 error-bad-request = Neispravan zahtjev
+error-bad-request-page-title = Loš zahtjev
 
 
 password-info-balloon-why-password-info = Ovu lozinku trebaš za pristup svim šifriranim podacima koje kod nas spremaš.
@@ -323,6 +325,9 @@ ready-continue = Nastavi
 sign-in-complete-header = Prijava je potvrđena
 sign-up-complete-header = Račun potvrđen
 primary-email-verified-header = Primarna e-mail adresa potvrđena
+sign-in-complete-page-title = Prijava je potvrđena
+sign-up-complete-page-title = Račun je potvrđen
+primary-email-verified-page-title = Primarna e-mail adresa je potvrđena
 
 
 flow-recovery-key-download-storage-ideas-heading-v2 = Mjesta za spremanje tvog ključa:
@@ -500,6 +505,9 @@ nav-linked-accounts = { la-heading }
 modal-close-title = Zatvori
 modal-cancel-button = Odustani
 modal-default-confirm-button = Potvrdi
+
+
+modal-mfa-protected-clock-skew-error = Sat na tvom uređaju je pogrešan. Ispravi datum i vrijeme na uređaju, zatim pokušaj ponovo.
 
 
 mvs-verify-your-email-2 = Potvrdi svoju e-mail adresu
@@ -695,6 +703,7 @@ security-set-password = Postavi lozinku za sinkronizaciju i korištenje određen
 security-recent-activity-link = Pogledaj nedavnu aktivnost računa
 signout-sync-header = Sesija je istekla
 signout-sync-session-expired = Oprosti, nešto nije u redu. Odjavi se u izborniku preglednika i pokušaj ponovo.
+signout-sync-page-title = Sesija je istekla
 
 
 tfa-row-backup-codes-not-available = Nema dostupnih kodova
@@ -817,12 +826,15 @@ connect-another-device-cad-link = Poveži jedan drugi uređaj
 connect-another-device-not-now-link = Ne sada
 connect-another-device-android-complete-setup-message = Prijavi se na { -brand-firefox } za Android za dovršavanje postavljanja
 connect-another-device-ios-complete-setup-message = Prijavi se na { -brand-firefox } za iOS za dovršavanje postavljanja
+connect-another-device-page-title = Poveži jedan drugi uređaj
 
 
 cookies-disabled-button-try-again = Pokušaj ponovo
 cookies-disabled-learn-more = Saznaj više
+cookies-disabled-page-title = Potrebni su kolačići i lokalna memorija
 
 
+index-page-title = Prijavi se ili stvori račun
 index-header = Upiši svoju e-mail adresu
 index-subheader-with-servicename = Nastavi na { $serviceName }
 index-subheader-default = Nastavi na postavke računa
@@ -833,6 +845,15 @@ index-email-input =
 
 inline-recovery-key-setup-download-header = Zaštiti svoj račun
 inline-recovery-key-setup-download-subheader = Preuzmi i spremi sada
+inline-recovery-key-setup-create-page-title = Stvori ključ za obnavljanje računa
+inline-recovery-key-setup-download-page-title = Preuzmi tvoj ključ za obnavljanje računa
+inline-recovery-key-setup-hint-page-title = Dodaj savjet za ključ za obnavljanje
+inline-recovery-setup-choice-page-title = Odaberi način obnavljanja
+inline-recovery-setup-download-codes-page-title = Spremi svoje rezervne kodove
+inline-recovery-setup-confirm-code-page-title = Potvrdite rezervni kod
+inline-recovery-setup-phone-number-page-title = Dodajte telefonski broj za obnavljanje
+inline-recovery-setup-phone-code-page-title = Potvrdi tvoj telefonski broj za obnavljanje
+inline-recovery-setup-complete-page-title = Dvofaktorska autentifikacija je uključena
 
 
 inline-totp-setup-cancel-setup-button = Prekini postavljanje
@@ -840,10 +861,16 @@ inline-totp-setup-continue-button = Nastavi
 inline-totp-setup-ready-button = Spremno
 inline-totp-setup-security-code-placeholder = Kod za autentifikaciju
 inline-totp-setup-code-required-error = Potreban je kod autentifikacije
+inline-totp-setup-intro-page-title = Postavi dvofaktorsku autentifikaciju
+inline-totp-setup-enrol-page-title = Poveži tvoju aplikaciju za autentifikaciju
+
+
+page-not-found-page-title = Stranica nije pronađena
 
 
 pair-auth-allow-confirm-button = Da, odobri uređaj
 pair-auth-allow-refuse-device-link = Ako to nisi bio/la ti, <a>promijeni lozinku</a>
+pair-auth-allow-page-title = Odobri { -brand-firefox } prijavu
 
 
 pair-auth-complete-heading = Uređaj je povezan
@@ -852,8 +879,19 @@ pair-auth-complete-see-tabs-button = Pogledaj kartice od sinkroniziranih uređaj
 pair-auth-complete-manage-devices-link = Upravljaj uređajima
 
 
+pair-auth-complete-page-title = Uređaj je povezan
+pair-auth-complete-send-tab-page-title = Spremno za slanje kartica
+
+
 auth-totp-input-label = Upiši šesteroznamenkasti kod
 auth-totp-confirm-button = Potvrdi
+auth-totp-page-title = Upari s dvofaktorskom autentifikacijom
+
+
+pair-wait-for-supp-page-title = Odobri na tvom drugom uređaju
+
+
+pair-failure-page-title = Uparivanje uređaja nije uspjelo
 
 
 pair-sync-header = Sinkroniziraj { -brand-firefox } na svom telefonu ili tabletu
@@ -865,22 +903,95 @@ pair-get-started-button = Započni
 pair-qr-code-aria-label = QR kod
 
 
+pair-choice-page-title = Poveži jedan drugi uređaj
+pair-choice-send-tab-page-title = Pošalji kartice na jedan drugi uređaj
+pair-download-page-title = Preuzmi { -brand-firefox } za mobilne uređaje
+
+
 pair-success-header-2 = Uređaj je povezan
+pair-success-page-title = Uređaj je povezan
 
 
 pair-supp-allow-cancel-link = Odustani
+pair-supp-allow-page-title = Potvrdi uparivanje
+
+
+pair-wait-for-auth-page-title = Odobri na tvom drugom uređaju
+
+
+pair-unsupported-desktop-non-firefox-page-title = Potreban je { -brand-firefox }
+pair-unsupported-system-camera-page-title = Upari pomoću aplikacije
+pair-unsupported-mobile-page-title = Poveži svoj mobilni uređaj
+pair-unsupported-desktop-firefox-fallback-page-title = Dogodila se neka greška
+
+
+pair2-authority-approve-sign-in-page-title = Odobri prijavu
+
+
+pair2-authority-continue-on-mobile-page-title = Nastavi na svom mobilnom uređaju
+
+
+pair2-authority-download-firefox-page-title = Otvori { -brand-firefox } za sinkronizaciju
+
+
+pair2-authority-scan-qr-page-title = Pretraži za povezivanje tvog mobilnog uređaja
+
+
+pair2-authority-sync-success-page-title = Uređaj je povezan
+
+
+pair2-authority-timeout-and-cancel-timeout-page-title = Vrijeme veze je isteklo
+pair2-authority-timeout-and-cancel-cancelled-page-title = Uparivanje je prekinuto
+
+
+pair2-supplicant-approve-sign-in-page-title = Još jedan korak za sinkronizaciju
+
+
+pair2-supplicant-connect-this-device-page-title = Poveži ovaj uređaj
+
+
+pair2-supplicant-download-firefox-page-title = Otvori { -brand-firefox } na ovom uređaju
+
+
+pair2-supplicant-connect-hint-page-title = Završi uparivanje u aplikaciji
+
+
+pair2-supplicant-ready-to-scan-page-title = Spremno za pretraživanje
+
+
+pair2-supplicant-sync-success-page-title = Uređaj je povezan
+
+
+pair2-supplicant-timeout-and-cancel-timeout-page-title = Vrijeme veze je isteklo
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = Uparivanje je prekinuto
+pair2-supplicant-timeout-and-cancel-signed-in-page-title = Uređaj je već prijavljen
+
+
+permissions-page-title = Pregledaj dozvole
+
+
+force-password-change-page-title = Promijeni svoju lozinku
+
+
+service-welcome-vpn-page-title = Uključi VPN
+
+
+set-password-page-title = Stvori lozinku za sinkronizaciju
 
 
 third-party-auth-callback-message = Pričekaj, preusmjeravamo te na ovlaštenu aplikaciju.
 
 
 account-recovery-confirm-key-button-2 = Nastavi
+account-recovery-confirm-key-page-title = Resetiraj lozinku pomoću ključa za obnavljanje
 
 
 complete-reset-pw-header-v2 = Stvori novu lozinku
 complete-reset-password-success-alert = Lozinka je postavljena
 complete-reset-password-error-alert = Žao nam je. Došlo je do greške prilikom postavljanja tvoje lozinke
 reset-password-complete-banner-heading = Tvoja je lozinka resetirana.
+complete-reset-password-page-title = Stvori novu lozinku
+confirm-backup-code-reset-password-page-title = Resetiraj lozinku pomoću rezervnog koda
 
 
 confirm-reset-password-with-code-heading = Provjeri tvoju e-mail adresu
@@ -889,32 +1000,49 @@ confirm-reset-password-code-input-group-label = Upiši 8-znamenkasti kod u roku 
 confirm-reset-password-otp-submit-button = Nastavi
 confirm-reset-password-otp-resend-code-button = Ponovo pošalji kod
 confirm-reset-password-otp-different-account-link = Koristi jedan drugi račun
+confirm-reset-password-with-code-page-title = Provjeri e-poštu za resetiranje lozinke
 
 
 confirm-totp-reset-password-header = Resetiraj tvoju lozinku
 confirm-totp-reset-password-confirm-button = Potvrdi
 confirm-totp-reset-password-input-label-v2 = Upiši šesteroznamenkasti kod
 confirm-totp-reset-password-use-different-account = Koristi jedan drugi račun
+confirm-totp-reset-password-page-title = Resetiraj lozinku s dvofaktorskom autentifikacijom
 
 
 password-reset-flow-heading = Resetiraj tvoju lozinku
 password-reset-email-input =
     .label = Upiši tvoju e-mail adresu
 password-reset-submit-button-2 = Nastavi
+password-reset-flow-page-title = Resetiraj lozinku
 
 
 reset-password-complete-header = Tvoja je lozinka resetirana
+reset-password-confirmed-page-title = Resetiranje lozinke je završeno
 
 
+password-reset-recovery-method-page-title = Resetiraj lozinku s jednim načinom obnavljanja
+
+
+reset-password-recovery-phone-page-title = Resetiraj lozinku s telefonskim brojem za obnavljanje
 reset-password-with-recovery-key-verified-page-title = Resetiranje lozinke je uspjelo
 reset-password-complete-new-password-saved = Nova lozinka je spremljena!
+reset-password-with-recovery-key-verified-hint-page-title = Dodaj savjet za ključ za obnavljanje
+
+
+server-error-page-title = Greška servera
 
 
 error-label = Greška:
 complete-signin-error-header = Greška potvrde
 signin-link-expired-header = Poveznica potvrde je oštećena
+complete-signin-error-page-title = Greška u potvrdi prijave
+complete-signin-validating-page-title = Potvrđivanje prijave
 
 
+signin-password-page-title = Upiši lozinku
+signin-cached-page-title = Prijavi se
+signin-alternative-auth-page-title = Odaberi način prijave
 signin-password-needed-header-2 = Upiši svoju lozinku <span>za tvoj { -product-mozilla-account }</span>
 signin-subheader-without-logo-with-servicename = Nastavi na { $serviceName }
 signin-subheader-without-logo-default = Nastavi na postavke računa
@@ -928,16 +1056,27 @@ signin-password-button-label = Lozinka
 report-signin-header = Prijaviti neautoriziranu prijavu?
 report-signin-submit-button = Prijavi aktivnost
 report-signin-support-link = Zašto se ovo događa?
+report-signin-page-title = Prijavi neovlaštenu prijavu
 signin-bounced-message = Potvrdni e-mail koji smo poslali na { $email } je vraćen i zaključali smo tvoj račun, kako bismo zaštitili tvoje { -brand-firefox } podatke.
 back = Natrag
+signin-bounced-page-title = Račun je zaključan
+
+
+signin-passkey-fallback-page-title = Unesi lozinku za sinkronizaciju
+
+
+signin-passwordless-code-page-title = Prijavi se s kodom e-pošte
+signup-passwordless-code-page-title = Registriraj se s kodom e-pošte
 
 
 signin-recovery-method-header = Prijavi se
+signin-recovery-method-page-title = Prijavi se s načinom obnavljanja
 
 
 signin-recovery-code-heading = Prijavi se
 signin-recovery-code-confirm-button = Potvrdi
 signin-recovery-code-use-phone-failure-description = Pokušaj ponovo kasnije.
+signin-recovery-code-page-title = Prijavi se s rezervnim kodom
 
 
 signin-recovery-phone-flow-heading = Prijavi se
@@ -948,6 +1087,10 @@ signin-recovery-phone-resend-success = Kod je poslan
 signin-recovery-phone-send-code-error-heading = Došlo je do greške prilikom slanja koda
 signin-recovery-phone-code-verification-error-heading = Došlo je do greške prilikom provjere tvog koda
 signin-recovery-phone-general-error-description = Pokušaj ponovo kasnije.
+signin-recovery-phone-page-title = Prijavi se s telefonskim brojem za obnavljanje
+
+
+signin-reported-page-title = Prijava je prijavljena
 
 
 signin-token-code-heading-2 = Upiši potvrdni kod<span> za tvoj { -product-mozilla-account }</span>
@@ -956,6 +1099,7 @@ signin-token-code-confirm-button = Potvrdi
 signin-token-code-code-expired = Kod je istekao?
 signin-token-code-resend-code-link = Pošalji e-mailom novi kod.
 signin-token-code-required-error = Potreban je potvrdni kod
+signin-token-code-page-title = Potvrdi prijavu s kodom e-pošte
 
 
 signin-totp-code-header = Prijavi se
@@ -965,6 +1109,7 @@ signin-totp-code-other-account-link = Koristi jedan drugi račun
 signin-totp-code-recovery-code-link = Problem s unosom koda?
 signin-totp-code-required-error = Potreban je kod autentifikacije
 signin-totp-code-desktop-relay = { -brand-firefox } će te pokušati vratiti na karticu kako bi koristio/la masku e-mail adrese nakon što se prijaviš.
+signin-totp-code-page-title = Prijavi se s dvofaktorskom autentifikacijom
 
 
 signin-unblock-header = Autoriziraj ovu prijavu
@@ -977,9 +1122,10 @@ signin-unblock-code-incorrect-format-2 = Kod za autorizaciju smije sadržati sam
 signin-unblock-resend-code-button = Nije u sandučiću dolazne pošte niti u sandučiću neželjenih e-mailova? Pošalji ponovo
 signin-unblock-support-link = Zašto se ovo događa?
 signin-unblock-desktop-relay = { -brand-firefox } će te pokušati vratiti na karticu kako bi koristio/la masku e-mail adrese nakon što se prijaviš.
+signin-unblock-page-title = Autoriziraj ovu prijavu
 
 
-confirm-signup-code-page-title = Upiši potvrdni kod
+confirm-signup-code-page-title-2 = Potvrdi tvoju e-mail adresu
 confirm-signup-code-heading-2 = Upiši potvrdni kod<span> za tvoj { -product-mozilla-account }</span>
 confirm-signup-code-input-label = Upiši šesteroznamenkasti kod
 confirm-signup-code-confirm-button = Potvrdi
@@ -992,3 +1138,10 @@ confirm-signup-code-desktop-relay = { -brand-firefox } će te pokušati vratiti 
 
 signup-relay-info = Za sigurno upravljanje tvojim maskiranim e-mail adresama i pristup sigurnosnim { -brand-mozilla } alatima je potrebna lozinka.
 signup-change-email-link = Promijeni e-mail adresu
+signup-page-title = Stvori tvoj račun
+
+
+signup-confirmed-sync-page-title = Sinkronizacija je uključena
+
+
+update-firefox-page-title = { -brand-firefox } se mora aktualizirati

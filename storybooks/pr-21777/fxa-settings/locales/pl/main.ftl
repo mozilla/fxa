@@ -200,7 +200,7 @@ app-footer-terms-of-service = Regulamin usługi
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = Otwiera w nowym oknie
@@ -492,6 +492,9 @@ ready-continue = Kontynuuj
 sign-in-complete-header = Potwierdzono logowanie
 sign-up-complete-header = Potwierdzono konto
 primary-email-verified-header = Potwierdzono główny adres e-mail
+sign-in-complete-page-title = Potwierdzono logowanie
+sign-up-complete-page-title = Potwierdzono konto
+primary-email-verified-page-title = Potwierdzono główny adres e-mail
 
 
 flow-recovery-key-download-storage-ideas-heading-v2 = Miejsca, w których można zachować klucz:
@@ -985,6 +988,7 @@ security-set-password = Ustaw hasło, aby synchronizować i korzystać z czę�
 security-recent-activity-link = Ostatnie działania na koncie
 signout-sync-header = Sesja wygasła
 signout-sync-session-expired = Coś się nie powiodło. Proszę wylogować się z menu przeglądarki i spróbować ponownie.
+signout-sync-page-title = Sesja wygasła
 
 
 tfa-row-backup-codes-title = Zapasowe kody uwierzytelniania
@@ -1167,6 +1171,7 @@ connect-another-device-cad-link = Połącz inne urządzenie
 connect-another-device-not-now-link = Nie teraz
 connect-another-device-android-complete-setup-message = Zaloguj się do { -brand-firefox(case: "gen") } na Androida, aby dokończyć konfigurację
 connect-another-device-ios-complete-setup-message = Zaloguj się do { -brand-firefox(case: "gen") } na iOS, aby dokończyć konfigurację
+connect-another-device-page-title = Połącz inne urządzenie
 
 
 cookies-disabled-header = Obsługa lokalnego przechowywania danych i ciasteczek jest wymagana
@@ -1221,6 +1226,9 @@ tfa-qr-code-alt = Użyj kodu { $code }, aby skonfigurować uwierzytelnianie dwue
 inline-totp-setup-page-title = Uwierzytelnianie dwuetapowe
 
 
+page-not-found-page-title = Nie odnaleziono strony
+
+
 pair-auth-allow-heading-text = Czy właśnie zalogowano się do { -brand-firefox(case: "gen") }?
 pair-auth-allow-confirm-button = Tak, zatwierdź urządzenie
 pair-auth-allow-refuse-device-link = Jeśli to nie Ty, <a>zmień hasło</a>
@@ -1231,6 +1239,9 @@ pair-auth-complete-now-syncing-device-text = { $deviceFamily } w systemie { $de
 pair-auth-complete-sync-benefits-text = Masz teraz dostęp do otwartych kart, haseł i zakładek na wszystkich urządzeniach.
 pair-auth-complete-see-tabs-button = Wyświetl karty z synchronizowanych urządzeń
 pair-auth-complete-manage-devices-link = Zarządzaj urządzeniami
+
+
+pair-auth-complete-page-title = Połączono urządzenie
 
 
 auth-totp-heading-w-default-service = Wpisz kod uwierzytelniania, <span>aby przejść do ustawień konta</span>
@@ -1285,11 +1296,13 @@ pair-continue-to-sync-button = Przejdź do synchronizacji
 pair-success-header-2 = Połączono urządzenie
 pair-success-message-2 = Pomyślnie powiązano.
 pair-success-tab-close-message = Ta karta zostanie automatycznie zamknięta przez { -brand-firefox(case: "acc") }.
+pair-success-page-title = Połączono urządzenie
 
 
 pair-supp-allow-heading-text = Potwierdź powiązanie <span>dla adresu { $email }</span>
 pair-supp-allow-confirm-button = Potwierdź powiązanie
 pair-supp-allow-cancel-link = Anuluj
+pair-supp-allow-page-title = Potwierdź powiązanie
 
 
 pair-wait-for-auth-heading-text = Teraz wymagane jest zatwierdzenie <span>z innego używanego urządzenia</span>
@@ -1305,6 +1318,9 @@ pair-unsupported-connecting-mobile-instructions-v2 = Włącz { -brand-firefox(ca
 pair-unsupported-learn-more-link-v2 = Więcej informacji
 pair-unsupported-desktop-firefox-fallback-header-v2 = Ups! Coś poszło nie tak.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Proszę zamknąć tę kartę i spróbować ponownie.
+pair-unsupported-system-camera-page-title = Powiąż za pomocą aplikacji
+pair-unsupported-mobile-page-title = Połącz z telefonem
+pair-unsupported-desktop-firefox-fallback-page-title = Coś się nie powiodło
 
 
 pair2-authority-approve-sign-in-heading = Czy zatwierdzić logowanie?
@@ -1321,8 +1337,12 @@ pair2-authority-download-firefox-heading = Otwórz { -brand-firefox(case: "acc")
 pair2-authority-download-firefox-cta = Pobierz przeglądarkę { -brand-firefox }
 
 
+pair2-authority-sync-success-page-title = Połączono urządzenie
+
+
 pair2-authority-timeout-and-cancel-try-again-button = Spróbuj ponownie
 pair2-authority-timeout-and-cancel-sync-settings-button = Ustawienia synchronizacji
+pair2-authority-timeout-and-cancel-timeout-page-title = Upłynął limit czasu połączenia
 
 
 pair2-supplicant-connect-this-device-heading = Czy połączyć to urządzenie z Twoim kontem?
@@ -1335,6 +1355,20 @@ pair2-supplicant-download-firefox-description-v2 = Pobierz { -brand-firefox(case
 pair2-supplicant-download-firefox-download-button = Pobierz { -brand-firefox(case: "acc") }
 pair2-supplicant-download-firefox-have-firefox-button = Mam już { -brand-firefox(case: "acc") }
 pair2-supplicant-download-firefox-learn-more-link = Więcej informacji
+pair2-supplicant-download-firefox-page-title = Uruchom { -brand-firefox(case: "acc") } na tym urządzeniu
+
+
+pair2-supplicant-connect-hint-page-title = Dokończ powiązanie w aplikacji
+
+
+pair2-supplicant-ready-to-scan-page-title = Gotowy do skanowania
+
+
+pair2-supplicant-sync-success-page-title = Połączono urządzenie
+
+
+pair2-supplicant-timeout-and-cancel-timeout-page-title = Upłynął limit czasu połączenia
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = Anulowano powiązanie
 
 
 permissions-heading = { $serviceName } prosi o dostęp do:
@@ -1354,6 +1388,7 @@ service-welcome-signup-success-banner = Potwierdzono { -product-mozilla-account(
 service-welcome-signin-success-banner = Pomyślnie zalogowano
 service-welcome-vpn-heading = Teraz: Włącz VPN
 service-welcome-vpn-description = Kolejny krok do zwiększenia prywatności w przeglądarce. Przejdź do otwartego panelu i włącz tę opcję.
+service-welcome-vpn-page-title = Włącz VPN
 
 
 set-password-heading-v2 = Utwórz hasło, aby synchronizować
@@ -1382,6 +1417,7 @@ complete-reset-pw-recovery-key-link = Użyj klucza odzyskiwania konta
 reset-password-complete-banner-heading = Zmieniono hasło.
 reset-password-complete-banner-message = Nie zapomnij utworzyć nowego klucza odzyskiwania konta w ustawieniach { -product-mozilla-account(capitalization: "lower", case: "gen") }, aby zapobiec przyszłym problemom z logowaniem.
 complete-reset-password-desktop-relay = { -brand-firefox } po zalogowaniu spróbuje odesłać Cię do użycia maski dla adresu e-mail.
+complete-reset-password-page-title = Utwórz nowe hasło
 confirm-backup-code-reset-password-input-label = Wpisz 10-znakowy kod
 confirm-backup-code-reset-password-confirm-button = Potwierdź
 confirm-backup-code-reset-password-subheader = Wpisz zapasowy kod uwierzytelniania
@@ -1404,6 +1440,7 @@ confirm-totp-reset-password-trouble-code = Masz problem z wpisywaniem kodu?
 confirm-totp-reset-password-confirm-button = Potwierdź
 confirm-totp-reset-password-input-label-v2 = Wpisz sześciocyfrowy kod
 confirm-totp-reset-password-use-different-account = Użyj innego konta
+confirm-totp-reset-password-page-title = Zmień hasło za pomocą uwierzytelniania dwuetapowego
 
 
 password-reset-flow-heading = Zmień hasło
@@ -1416,6 +1453,7 @@ password-reset-data-recovery-warning = Resetowanie hasła może wpłynąć na mo
 
 reset-password-complete-header = Zmieniono hasło
 reset-password-confirmed-cta = Przejdź do usługi { $serviceName }
+reset-password-confirmed-page-title = Zakończono zmianę hasła
 
 
 password-reset-recovery-method-header = Zmień hasło
@@ -1431,6 +1469,7 @@ password-reset-recovery-method-code-info =
     }
 password-reset-recovery-method-send-code-error-heading = Wystąpił problem podczas wysyłania kodu do telefonu odzyskiwania
 password-reset-recovery-method-send-code-error-description = Proszę spróbować ponownie później lub użyć zapasowych kodów uwierzytelniania.
+password-reset-recovery-method-page-title = Zmień hasło za pomocą metody odzyskiwania
 
 
 reset-password-recovery-phone-flow-heading = Zmień hasło
@@ -1446,6 +1485,7 @@ reset-password-recovery-phone-code-verification-error-heading = Wystąpił probl
 reset-password-recovery-phone-general-error-description = Proszę spróbować ponownie później.
 reset-password-recovery-phone-invalid-code-error-description = Kod jest nieprawidłowy lub wygasł.
 reset-password-recovery-phone-invalid-code-error-link = Czy zamiast tego użyć zapasowych kodów uwierzytelniania?
+reset-password-recovery-phone-page-title = Zmień hasło za pomocą telefonu odzyskiwania
 reset-password-with-recovery-key-verified-page-title = Pomyślnie zmieniono hasło
 reset-password-complete-new-password-saved = Zachowano nowe hasło
 reset-password-complete-recovery-key-created = Utworzono nowy klucz odzyskiwania konta. Teraz pobierz go i zachowaj.
@@ -1455,6 +1495,9 @@ reset-password-complete-recovery-key-download-info =
     nie będziesz mieć dostępu do tej strony.</b>
 
 
+server-error-page-title = Błąd serwera
+
+
 error-label = Błąd:
 validating-signin = Weryfikowanie logowania…
 complete-signin-error-header = Błąd potwierdzenia
@@ -1462,6 +1505,8 @@ signin-link-expired-header = Odnośnik potwierdzenia wygasł
 signin-link-expired-message-2 = Kliknięty odnośnik wygasł lub został już wykorzystany.
 
 
+signin-password-page-title = Wpisz hasło
+signin-cached-page-title = Zaloguj się
 signin-password-needed-header-2 = Wpisz hasło <span>do { -product-mozilla-account(capitalization: "lower", case: "gen") }</span>
 signin-button-start-syncing = Zacznij synchronizować
 signin-subheader-without-logo-with-servicename = Przejdź do usługi { $serviceName }
@@ -1591,7 +1636,7 @@ signin-unblock-support-link = Dlaczego to się stało?
 signin-unblock-desktop-relay = { -brand-firefox } po zalogowaniu spróbuje odesłać Cię do użycia maski dla adresu e-mail.
 
 
-confirm-signup-code-page-title = Wpisz kod potwierdzenia
+confirm-signup-code-page-title-2 = Potwierdź adres e-mail
 confirm-signup-code-heading-2 = Wpisz kod potwierdzenia <span>do { -product-mozilla-account(capitalization: "lower", case: "gen") }</span>
 confirm-signup-code-instruction-v2 = Wpisz kod potwierdzenia wysłany na adres <email>{ $email }</email> w ciągu 5 minut.
 confirm-signup-code-input-label = Wpisz sześciocyfrowy kod

@@ -355,6 +355,9 @@ signin-link-damaged-header = 확인 링크가 손상됨
 # The user followed a link to report an invalid signin attempt that was received by email
 # but the link was damaged (for example mistyped or broken by the email client).
 report-signin-link-damaged-header = 링크 손상됨
+# Browser tab title for the page shown when the user followed a link to report an unauthorized sign-in, but the link was damaged.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+report-signin-link-damaged-page-title = 손상된 링크 신고
 # The user followed a link received by email, but the link was damaged.
 reset-pwd-link-damaged-message = 클릭하신 링크에 누락된 문자가 있습니다. 이메일 클라이언트에 의해 깨졌을 수 있습니다. 주소를 주의 깊게 복사한 후 다시 시도하세요.
 
@@ -386,6 +389,9 @@ locale-toggle-select-label = 언어 선택
 locale-toggle-browser-default = 기본 브라우저
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = 잘못된 요청
+# Browser tab title for the page shown when the URL or network request is malformed, e.g. a required query parameter is invalid.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+error-bad-request-page-title = 잘못된 요청
 
 ## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when they open the pairing link
@@ -473,6 +479,15 @@ ready-continue = 계속
 sign-in-complete-header = 로그인 확인됨
 sign-up-complete-header = 계정 확인됨
 primary-email-verified-header = 기본 이메일 확인됨
+# Browser tab title for the page confirming the user’s sign-in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+sign-in-complete-page-title = 로그인 확인됨
+# Browser tab title for the page confirming the user’s new account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+sign-up-complete-page-title = 계정 확인됨
+# Browser tab title for the page confirming the user’s primary email address.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+primary-email-verified-page-title = 기본 이메일 확인됨
 
 ## Users see this view when they are generating a new account recovery key
 ## This screen displays the generated key and allows users to download or copy the key
@@ -1212,6 +1227,9 @@ security-set-password = 특정 계정 보안 기능을 사용하고 동기화하
 security-recent-activity-link = 최근 계정 활동 보기
 signout-sync-header = 세션이 만료됨
 signout-sync-session-expired = 죄송합니다. 오류가 발생했습니다. 브라우저 메뉴에서 로그아웃하고 다시 시도하세요.
+# Browser tab title for the page telling the user their session expired and they need to sign out from the browser menu.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signout-sync-page-title = 세션이 만료됨
 
 ## SubRow component
 
@@ -1585,6 +1603,9 @@ connect-another-device-not-now-link = 나중에
 connect-another-device-android-complete-setup-message = Android용 { -brand-firefox }에 로그인하여 설정을 완료하세요.
 # This is a message for Firefox iOS users, prompting them to complete the process of connecting another device by signing into Firefox for iOS
 connect-another-device-ios-complete-setup-message = iOS용 { -brand-firefox }에 로그인하여 설정을 완료하세요.
+# Browser tab title for the page that invites the user to connect another device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+connect-another-device-page-title = 다른 기기 연결
 
 ## Cookies disabled page
 ## Users will see this page if they have local storage or cookies disabled.
@@ -1595,9 +1616,15 @@ cookies-disabled-enable-prompt-2 = 브라우저에서 쿠키와 로컬 스토리
 cookies-disabled-button-try-again = 다시 시도
 # An external link going to: https://support.mozilla.org/kb/cookies-information-websites-store-on-your-computer
 cookies-disabled-learn-more = 더 알아보기
+# Browser tab title for the page shown when cookies or local storage are disabled in the browser.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+cookies-disabled-page-title = 쿠키와 로컬 저장소가 필요함
 
 ## Index / home page
 
+# Browser tab title for the page where the user enters their email to sign in or create an account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+index-page-title = 로그인 또는 계정 생성
 index-header = 이메일 입력
 index-sync-header = { -product-mozilla-account }로 계속 진행하세요.
 index-sync-subheader = { -brand-firefox }를 사용하는 모든 곳에서 비밀번호, 탭, 북마크를 동기화하세요.
@@ -1645,6 +1672,30 @@ inline-recovery-key-setup-download-header = 계정을 보호하세요.
 inline-recovery-key-setup-download-subheader = 지금 다운로드하고 저장하세요.
 inline-recovery-key-setup-download-info = 이 키를 기억할 수 있는 곳에 저장하세요. 나중에 이 페이지로 돌아올 수 없습니다.
 inline-recovery-key-setup-hint-header = 보안 관련 권장 사항
+# Browser tab title for the page where the user creates an account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-key-setup-create-page-title = 계정 복구 키 생성
+# Browser tab title for the page where the user downloads their account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-key-setup-download-page-title = 계정 복구 키 다운로드
+# Browser tab title for the page where the user adds a hint for their account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-key-setup-hint-page-title = 복구 키 힌트 추가
+# Browser tab title for the page where the user chooses a recovery method during two-step authentication setup.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-choice-page-title = 복구 방법 선택
+# Browser tab title for the page where the user saves their backup authentication codes.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-download-codes-page-title = 백업 코드를 저장
+# Browser tab title for the page where the user confirms one of their backup authentication codes.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-confirm-code-page-title = 백업 코드 확인
+# Browser tab title for the page where the user enters a phone number to use as a recovery phone.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-phone-number-page-title = 복구 전화번호 추가
+# Browser tab title for the page where the user enters the code sent to their recovery phone to confirm it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-phone-code-page-title = 복구 전화번호 확인
 
 ## InlineTotpSetup page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -1680,6 +1731,12 @@ inline-totp-setup-security-code-placeholder = 인증 코드
 inline-totp-setup-code-required-error = 인증 코드 필요함
 tfa-qr-code-alt = 지원되는 애플리케이션에서 2단계 인증을 설정하려면 { $code } 코드를 사용하세요.
 inline-totp-setup-page-title = 2단계 인증
+# Browser tab title for the first page of two-step authentication setup, which introduces the feature.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-totp-setup-intro-page-title = 2단계 인증 설정
+# Browser tab title for the page where the user connects an authenticator app to their account during two-step authentication setup.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-totp-setup-enrol-page-title = 인증 앱 연결
 
 ## PageNotFound page
 ## Shown when the requested page does not exist
@@ -1687,6 +1744,9 @@ inline-totp-setup-page-title = 2단계 인증
 page-not-found-heading = 페이지를 찾을 수 없음
 page-not-found-description = 요청하신 페이지를 찾을 수 없습니다. 잘못된 모든 링크를 수정할 예정입니다.
 page-not-found-home-button = 홈
+# Browser tab title for the page shown when the requested page does not exist.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+page-not-found-page-title = 페이지를 찾을 수 없음
 
 ## AuthAllow page - Part of the device pairing flow
 
@@ -1697,6 +1757,9 @@ pair-auth-allow-confirm-button = 네, 기기를 승인합니다.
 # "If this wasn't you" means "If it wasn't you that just signed in to Firefox"
 # The text with the <link> tags links to a `reset password` page
 pair-auth-allow-refuse-device-link = 본인이 아니라면, <a>비밀번호를 변경하세요</a>.
+# Browser tab title for the page where the user approves a { -brand-firefox } sign-in on a new device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-auth-allow-page-title = { -brand-firefox } 로그인 승인
 
 ## PairAuthComplete page - part of the device pairing flow
 
@@ -1718,6 +1781,9 @@ pair-auth-complete-send-tab-heading = 탭을 보낼 준비가 되었습니다.
 # Variable { $deviceOS } is an operating system short name, for example "iOS", "Android"
 pair-auth-complete-send-tab-device-connected = { $deviceOS } { $deviceFamily } 기기가 연결되었습니다.
 pair-auth-complete-send-tab-benefits = 열려 있는 탭, 비밀번호, 북마크를 다른 기기에 곧바로 전송할 수 있습니다.
+# Browser tab title for the page shown when a device has been connected after pairing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-auth-complete-page-title = 기기 연결됨
 
 ## AuthTotp page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -1744,6 +1810,9 @@ auth-totp-code-required-error = 인증 코드 필요함
 # The "other device" is non-specific and could be a desktop computer, laptop, tablet, mobile phone, etc.
 # Strings within the <span> elements appear as a subheading.
 pair-wait-for-supp-heading-text = 이제 <span>다른 기기</span>에서 승인이 필요합니다.
+# Browser tab title for the page that asks the user to approve device pairing on their other device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-wait-for-supp-page-title = 다른 기기에서 승인
 
 ## PairFailure - a view which displays on failure of the device pairing process
 
@@ -1751,6 +1820,9 @@ pair-wait-for-supp-heading-text = 이제 <span>다른 기기</span>에서 승인
 pair-failure-header-v2 = 기기 페어링에 실패함
 pair-failure-message-v2 = 설정을 완료할 수 없습니다. 이메일로 로그인하세요.
 pair-failure-try-again-link = 다시 시도
+# Browser tab title for the page shown when device pairing fails.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-failure-page-title = 기기 페어링에 실패함
 
 ## Pair index page
 
@@ -1810,12 +1882,21 @@ pair-download-step-scan-qr = <b>{ $stepNumber }단계</b>: 모바일 기기의 �
 pair-download-step-continue-sync = <b>{ $stepNumber }단계</b>: “이어서 동기화”를 선택하여 모바일 기기에서 { -brand-firefox } 사용 경험을 동기화하세요.
 # Button on the download screen that opens about:preferences for pairing
 pair-continue-to-sync-button = 이어서 동기화
+# Browser tab title for the page where the user chooses how to connect another device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-choice-page-title = 다른 기기 연결
+# Browser tab title for the page that explains how to download { -brand-firefox } on a mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-download-page-title = 모바일용 { -brand-firefox } 다운로드
 
 ## PairSuccess - a view which displays  on successful completion of the device pairing process
 
 pair-success-header-2 = 기기 연결됨
 pair-success-message-2 = 페어링에 성공했습니다.
 pair-success-tab-close-message = 이 탭은 { -brand-firefox }가 자동으로 닫을 예정입니다.
+# Browser tab title for the page shown when a device has been paired successfully.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-success-page-title = 기기 연결됨
 
 ## SuppAllow page - Part of the device pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1826,6 +1907,9 @@ pair-success-tab-close-message = 이 탭은 { -brand-firefox }가 자동으로 �
 pair-supp-allow-heading-text = <span>{ $email }에 대한</span> 페어링 확인
 pair-supp-allow-confirm-button = 페어링 확인
 pair-supp-allow-cancel-link = 취소
+# Browser tab title for the page where the user confirms pairing a device with their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-supp-allow-page-title = 페어링 확인
 
 ## WaitForAuth page - Part of the devide pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1834,6 +1918,9 @@ pair-supp-allow-cancel-link = 취소
 # The "other device" is non-specific and could be a desktop computer, laptop, tablet, mobile phone, etc.
 # Strings within the <span> elements appear as a subheading.
 pair-wait-for-auth-heading-text = 이제 <span>다른 기기</span>에서 승인이 필요합니다.
+# Browser tab title for the page that asks the user to approve device pairing on their other device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-wait-for-auth-page-title = 다른 기기에서 승인
 
 ## PairUnsupported - a view which is shown when the user tries to scan the pairing QR code any way other than through a Firefox app
 
@@ -1857,6 +1944,18 @@ pair-unsupported-learn-more-link-v2 = 더 알아보기
 # Matches the legacy Backbone "Oops! Something went wrong." message.
 pair-unsupported-desktop-firefox-fallback-header-v2 = 앗! 무엇인가 잘못되었습니다.
 pair-unsupported-desktop-firefox-fallback-message-v2 = 이 탭을 닫고 다시 시도하세요.
+# Browser tab title for the page shown to a desktop user who is not using { -brand-firefox } and must switch browsers to pair a device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-desktop-non-firefox-page-title = { -brand-firefox } 필요
+# Browser tab title for the page shown when a mobile user scans the pairing code with the system camera and must pair from within a { -brand-firefox } app instead.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-system-camera-page-title = 앱으로 페어링
+# Browser tab title for the page that explains how to connect a mobile device by starting from { -brand-firefox } on a computer.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-mobile-page-title = 모바일 기기 연결
+# Browser tab title for the page shown to a desktop { -brand-firefox } user when something went wrong and device pairing cannot continue.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-desktop-firefox-fallback-page-title = 오류가 발생하였습니다
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer, which is already signed in, after their
@@ -1871,6 +1970,9 @@ pair2-authority-approve-sign-in-confirm-button = 예, 로그인을 승인합니�
 # "Not you?" asks whether someone other than the user started this sign-in.
 # The text inside <changePassword> links to the page for changing the password.
 pair2-authority-approve-sign-in-change-password = 본인이 아닌가요? <changePassword>비밀번호를 변경</changePassword>
+# Browser tab title for the page where the user approves a sign-in requested from their mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-approve-sign-in-page-title = 로그인 승인
 
 ## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer after scanning the pairing QR code with
@@ -1881,6 +1983,9 @@ pair2-authority-continue-on-mobile-heading = 모바일 기기에서 계속하기
 pair2-authority-continue-on-mobile-description = 스마트폰 또는 태블릿에서 단계를 따르세요.
 # Dismisses the pairing attempt
 pair2-authority-continue-on-mobile-cancel-button = 취소
+# Browser tab title for the page telling the user to continue connecting their device on their mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-continue-on-mobile-page-title = 모바일 기기에서 계속하기
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when Firefox is needed to continue pairing.
@@ -1892,6 +1997,9 @@ pair2-authority-download-firefox-heading = 동기화를 위해 { -brand-firefox 
 pair2-authority-download-firefox-instruction-v2 = 기기 간 동기화를 설정하려면 이 기기에서 { -brand-firefox }를 열고 <b>firefox.com/pair</b>를 방문하세요.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = { -brand-firefox } 다운로드
+# Browser tab title for the page telling the user to open { -brand-firefox } on this device to start syncing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-download-firefox-page-title = 동기화를 위해 { -brand-firefox } 열기
 
 ## ScanQR page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer. It shows a QR code that they scan with
@@ -1906,6 +2014,9 @@ pair2-authority-scan-qr-code-aria-label = 모바일 기기와 연결하기 위�
 pair2-authority-scan-qr-other-ways-link = 다른 로그인 방법
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = 지금은 건너뛰기
+# Browser tab title for the page showing a QR code the user scans with their mobile device to connect it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-scan-qr-page-title = 스캔하여 모바일 기기 연결
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
@@ -1916,6 +2027,9 @@ pair2-authority-sync-success-heading-v2 = 기기가 연결됨
 pair2-authority-sync-success-description-v2 = 동기화가 진행 중입니다. 동기화된 데이터가 나타날 때까지 시간이 걸릴 수 있습니다. 계속 브라우징해도 됩니다.
 # Opens the browser settings that control what is synced
 pair2-authority-sync-success-sync-settings-button-v2 = 동기화 설정 관리
+# Browser tab title for the page shown when a mobile device has been connected and syncing has started.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-sync-success-page-title = 기기 연결됨
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1932,6 +2046,12 @@ pair2-authority-timeout-and-cancel-canceled-description = 마음을 바꾸었거
 pair2-authority-timeout-and-cancel-try-again-button = 다시 시도
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = 동기화 설정
+# Browser tab title for the page shown on the computer when the device pairing attempt timed out.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-timeout-and-cancel-timeout-page-title = 연결 시간 초과
+# Browser tab title for the page shown on the computer when the device pairing attempt was cancelled.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-timeout-and-cancel-cancelled-page-title = 페어링 취소됨
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
@@ -1943,6 +2063,9 @@ pair2-supplicant-approve-sign-in-heading = 동기화를 위한 마지막 단계
 pair2-supplicant-approve-sign-in-instruction = 컴퓨터에서 로그인을 승인하세요.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = 취소
+# Browser tab title for the page shown on the mobile device while the user approves the sign-in on their computer. "sync" is a verb, referring to syncing data between the user’s devices.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-approve-sign-in-page-title = 동기화를 위한 마지막 단계
 
 ## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
@@ -1957,6 +2080,9 @@ pair2-supplicant-connect-this-device-heading = 이 기기를 계정에 연결하
 pair2-supplicant-connect-this-device-connect-button = 연결
 # Dismisses the pairing attempt
 pair2-supplicant-connect-this-device-cancel-button = 취소
+# Browser tab title for the page shown on the mobile device where the user confirms connecting it to their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-connect-this-device-page-title = 이 기기 연결
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing reaches a browser that is
@@ -1978,6 +2104,15 @@ pair2-supplicant-download-firefox-download-button = { -brand-firefox } 다운로
 pair2-supplicant-download-firefox-have-firefox-button = 이미 { -brand-firefox }가 있습니다
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = 더 알아보기
+# Browser tab title for the page shown on the mobile device asking the user to open { -brand-firefox } on it to continue pairing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-download-firefox-page-title = 이 기기에서 { -brand-firefox } 열기
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+
+# Browser tab title for the page shown on the mobile device telling the user to finish pairing in the { -brand-firefox } app.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-connect-hint-page-title = 앱에서 페어링 완료하기
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -1990,6 +2125,9 @@ pair2-supplicant-ready-to-scan-heading = 기기를 연결하려면
 pair2-supplicant-ready-to-scan-instruction = 컴퓨터에서 { -brand-firefox }를 열고, <b>firefox.com/pair</b>로 이동한 뒤, 화면의 지침에 따라 이 모바일 기기를 연결하십시오.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = 더 알아보기
+# Browser tab title for the page shown on the mobile device before pairing starts, telling the user to open firefox.com/pair on their computer.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-ready-to-scan-page-title = 스캔 준비 완료
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device once pairing has completed: the device
@@ -1998,6 +2136,9 @@ pair2-supplicant-ready-to-scan-learn-more-link = 더 알아보기
 pair2-supplicant-sync-success-heading = 기기가 연결되었습니다
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = 동기화가 진행 중입니다. 동기화된 데이터가 나타날 때까지 시간이 걸릴 수 있습니다. 계속 브라우징해도 됩니다.
+# Browser tab title for the page shown on the mobile device when it has been connected and syncing has started.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-sync-success-page-title = 기기 연결됨
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2017,6 +2158,12 @@ pair2-supplicant-timeout-and-cancel-canceled-description = 언제든 기기에 �
 pair2-supplicant-timeout-and-cancel-signed-in-heading = 이 기기는 이미 로그인되어 있습니다
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-signed-in-description = 데스크톱 계정에 연결하려면, 이 기기에서 { -brand-firefox }를 로그아웃한 다음 컴퓨터에서 <b>firefox.com/pair</b>를 방문하여 로그인을 완료하세요.
+# Browser tab title for the page shown on the mobile device when the device pairing attempt timed out.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-timeout-and-cancel-timeout-page-title = 연결 시간 초과
+# Browser tab title for the page shown on the mobile device when the device pairing attempt was cancelled.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = 페어링 취소됨
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2031,6 +2178,9 @@ permissions-label-display-name = 표시 이름
 permissions-label-avatar = 계정 사진
 permissions-continue-button = 계속
 permissions-cancel-button = 취소
+# Browser tab title for the page where the user reviews the profile information an app or service is asking to access.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+permissions-page-title = 권한 검토
 
 ## ForcePasswordChange page
 ## Users are sent here when suspicious activity on the account requires a new password before they can continue.
@@ -2038,6 +2188,9 @@ permissions-cancel-button = 취소
 force-password-change-heading = 비밀번호를 변경하세요
 force-password-change-info = { -product-mozilla-account } 계정에서 의심스러운 행동이 감지되었습니다. 계정을 보호하려면 비밀번호를 변경하세요. 이 비밀번호를 사용하여 모든 { -product-mozilla-account } 계정에 다시 로그인 하세요.
 force-password-change-data-info = 동기화 된 방문 기록, 북마크, 로그인 및 기타 개인 데이터는 손실되지 않습니다.
+# Browser tab title for the page where the user must change their password because of suspicious activity on their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+force-password-change-page-title = 비밀번호 변경
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2047,6 +2200,9 @@ service-welcome-signin-success-banner = 로그인 성공!
 # In this context, "VPN" is a VPN service built into the Firefox browser, and generally isn't localized differently than "VPN"
 service-welcome-vpn-heading = 다음: VPN 켜기
 service-welcome-vpn-description = 브라우저의 개인 정보 보호를 강화하기 위한 한 단계가 더 있습니다. 열린 패널로 가서 패널을 켜세요.
+# Browser tab title for the page telling the user to turn on VPN as their next step after signing up or signing in. "VPN" is a VPN service built into the Firefox browser.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+service-welcome-vpn-page-title = VPN 켜기
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
@@ -2059,6 +2215,9 @@ set-password-info-v2 = 데이터를 암호화합니다. { -brand-google } 또는
 ## Users who signed in via passwordless OTP and need to create a password for Sync
 
 set-password-passwordless-info = 이 비밀번호는 동기화 된 데이터를 암호화하고 안전하게 유지합니다.
+# Browser tab title for the page where the user creates a password so they can sync.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+set-password-page-title = 동기화를 위한 비밀번호 생성
 
 ## ThirdPartyAuthCallback Page
 ## This page is called after a user completes the third party authentication flow from Google or Apple.
@@ -2079,6 +2238,9 @@ account-recovery-confirm-key-hint = 저장소 힌트:
 account-recovery-confirm-key-button-2 = 계속
 # Link that leads to the password reset page (without recovery code)
 account-recovery-lost-recovery-key-link-2 = 계정 복구 키를 찾을 수 없나요?
+# Browser tab title for the page where the user enters their account recovery key to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+account-recovery-confirm-key-page-title = 복구 키로 비밀번호 재설정하기
 
 ## CompleteResetPassword component
 ## User followed a password reset link and is now prompted to create a new password
@@ -2100,12 +2262,18 @@ reset-password-complete-banner-message = 향후 로그인 문제가 생기는 �
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = 사용자가 로그인한 후 { -brand-firefox }가 이메일 마스크를 사용하도록 다시 요청합니다.
+# Browser tab title for the page where the user creates a new password while resetting it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+complete-reset-password-page-title = 새 비밀번호 만들기
 confirm-backup-code-reset-password-input-label = 10자리 코드 입력
 confirm-backup-code-reset-password-confirm-button = 확인
 confirm-backup-code-reset-password-subheader = 백업 인증 코드 입력
 confirm-backup-code-reset-password-instruction = 2단계 인증을 설정할 때 저장한 일회용 코드 중 하나를 입력하세요.
 # Link out to support article: https://support.mozilla.org/kb/what-if-im-locked-out-two-step-authentication
 confirm-backup-code-reset-password-locked-out-link = 접근이 불가능한 상태이신가요?
+# Browser tab title for the page where the user enters a backup authentication code to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-backup-code-reset-password-page-title = 백업 코드로 비밀번호 재설정
 
 ## Confirm Reset Password With Code
 
@@ -2133,6 +2301,9 @@ confirm-totp-reset-password-trouble-code = 코드 입력에 문제가 있나요?
 confirm-totp-reset-password-confirm-button = 확인
 confirm-totp-reset-password-input-label-v2 = 6자리 숫자 코드 입력
 confirm-totp-reset-password-use-different-account = 다른 계정 사용
+# Browser tab title for the page where the user enters a two-step authentication code to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-totp-reset-password-page-title = 2단계 인증으로 비밀번호 재설정
 
 ## ResetPassword start page
 
@@ -2145,12 +2316,18 @@ password-reset-email-input =
 password-reset-submit-button-2 = 계속
 # Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
 password-reset-data-recovery-warning = 비밀번호를 재설정하면 동기화된 브라우저 데이터를 복구할 수 있는지 여부에 영향을 미칠 수 있습니다. <learnMoreLink>자세히 알아보기</learnMoreLink>
+# Browser tab title for the page where the user starts a password reset by entering their email.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+password-reset-flow-page-title = 비밀번호 재설정
 
 ## ResetPasswordConfirmed
 
 reset-password-complete-header = 비밀번호가 재설정되었습니다
 # $serviceName is a product name such as Monitor, Relay
 reset-password-confirmed-cta = { $serviceName }로 계속
+# Browser tab title for the page confirming that the user’s password was reset.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+reset-password-confirmed-page-title = 비밀번호 재설정 완료
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
@@ -2166,6 +2343,9 @@ password-reset-recovery-method-code-info = 남은 코드 { $numBackupCodes }개
 # Shown when a backend service fails and a code cannot be sent to the user's recovery phone.
 password-reset-recovery-method-send-code-error-heading = 복구 전화로 코드를 보내는 데 문제가 발생했습니다.
 password-reset-recovery-method-send-code-error-description = 나중에 다시 시도하시거나 백업 인증 코드를 사용해 주세요.
+# Browser tab title for the page where the user chooses a recovery method to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+password-reset-recovery-method-page-title = 복구 방법으로 비밀번호 재설정
 
 ## ResetPasswordRecoveryPhone page
 
@@ -2187,6 +2367,9 @@ reset-password-recovery-phone-code-verification-error-heading = 코드를 확인
 reset-password-recovery-phone-general-error-description = 나중에 다시 시도해 주세요.
 reset-password-recovery-phone-invalid-code-error-description = 코드가 유효하지 않거나 만료되었습니다.
 reset-password-recovery-phone-invalid-code-error-link = 대신 백업 인증 코드를 사용하시겠습니까?
+# Browser tab title for the page where the user enters a code sent to their recovery phone to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+reset-password-recovery-phone-page-title = 복구 전화번호로 비밀번호 재설정
 reset-password-with-recovery-key-verified-page-title = 비밀번호 재설정 성공
 reset-password-complete-new-password-saved = 새 비밀번호 저장됨!
 reset-password-complete-recovery-key-created = 새로운 계정 복구 키가 생성되었습니다. 지금 다운로드하고 저장하세요.
@@ -2194,6 +2377,9 @@ reset-password-complete-recovery-key-download-info =
     이 키는 비밀번호를 잊어버렸을 때
     데이터를 복구하는 데 필수입니다. <b>지금 다운로드하고 안전하게 저장하세요.
     나중에 이 페이지에 다시 접근할 수 없습니다.</b>
+# Browser tab title for the page where the user adds a hint for their new account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+reset-password-with-recovery-key-verified-hint-page-title = 복구 키 힌트 추가
 
 ## ServerError page
 ## Shown when the server fails to handle a request
@@ -2201,6 +2387,9 @@ reset-password-complete-recovery-key-download-info =
 server-error-heading = 500 오류
 server-error-description = 아, 뭔가가 잘 못 되었습니다. 이 상황을 인지했으며 고치기위해 노력하겠습니다.
 server-error-home-button = 홈
+# Browser tab title for the page shown when the server fails to handle a request.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+server-error-page-title = 서버 오류
 
 ## CompleteSignin component
 
@@ -2213,9 +2402,24 @@ complete-signin-error-header = 인증 오류
 # The user followed a signin confirmation link, but that link is expired and no longer valid
 signin-link-expired-header = 인증 링크가 만료됨
 signin-link-expired-message-2 = 클릭한 링크가 만료되었거나 이미 사용되었습니다.
+# Browser tab title for the page shown when something went wrong while confirming a sign-in from an emailed link.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+complete-signin-error-page-title = 로그인 확인 오류
+# Browser tab title for the page shown while a sign-in is being confirmed from an emailed link.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+complete-signin-validating-page-title = 로그인 확인 중
 
 ## Signin page
 
+# Browser tab title for the page where the user enters their password to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-password-page-title = 비밀번호 입력
+# Browser tab title for the sign-in page shown when the user already has a saved session on this device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-cached-page-title = 로그인
+# Browser tab title for the page where the user picks how to sign in when their account has no password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-alternative-auth-page-title = 로그인 방법 선택
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = <span>{ -product-mozilla-account }</span> 비밀번호를 입력하세요
 # Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
@@ -2252,6 +2456,9 @@ report-signin-body = 계정에 접속하려는 시도에 대한 이메일을 받
 report-signin-submit-button = 활동내역 보고
 report-signin-support-link = 이런 일이 왜 일어나나요?
 report-signin-error = 죄송합니다. 보고서를 제출하는 중에 문제가 발생했습니다.
+# Browser tab title for the page where the user can report a sign-in attempt to their account that they did not make.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+report-signin-page-title = 승인되지 않은 로그인 보고
 signin-bounced-header = 죄송합니다. 계정이 잠겼습니다.
 # $email (string) - The user's email.
 signin-bounced-message = { $email } 메일로 전송한 인증 메일이 반송되어 사용자의 { -brand-firefox } 데이터를 보호하기 위해 계정을 잠갔습니다.
@@ -2259,6 +2466,9 @@ signin-bounced-message = { $email } 메일로 전송한 인증 메일이 반송�
 signin-bounced-help = 이메일이 올바른 경우 <linkExternal>알려 주시면</linkExternal> 계정 잠금을 해제할 수 있습니다.
 signin-bounced-create-new-account = 더 이상 사용하는 이메일이 아닌가요? 새 계정 만들기
 back = 뒤로
+# Browser tab title for the page telling the user their account is locked because a confirmation email sent to them was returned.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-bounced-page-title = 계정 잠김
 
 ## SigninPasskeyFallback page
 ## Users who authenticate with a passkey to access Sync must also enter their password.
@@ -2279,6 +2489,9 @@ signin-passkey-fallback-unwrap-failed-heading = 패스키로 동기화를 잠금
 signin-passkey-fallback-unwrap-failed-description = 문제가 발생했습니다. 이번에는 비밀번호가 필요합니다.
 # Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
 signin-passkey-fallback-wrap-unusable-link = 더 알아보기
+# Browser tab title for the page where the user enters their password after using a passkey to sign in, so they can sync.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-passkey-fallback-page-title = 동기화하려면 비밀번호 입력
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2327,6 +2540,9 @@ signin-recovery-method-code-info-v2 = 남은 코드 { $numBackupCodes }개
 # Shown when a backend service fails and a code cannot be sent to the user's recovery phone.
 signin-recovery-method-send-code-error-heading = 복구 전화로 코드를 보내는 데 문제가 발생했습니다.
 signin-recovery-method-send-code-error-description = 나중에 다시 시도하시거나 백업 인증 코드를 사용해 주세요.
+# Browser tab title for the page where the user chooses a recovery method to sign in when they cannot use their authenticator app.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-recovery-method-page-title = 복구 방법으로 로그인
 
 ## SigninRecoveryCode page
 ## Users are prompted to enter a backup authentication code
@@ -2353,6 +2569,9 @@ signin-recovery-code-required-error = 백업 인증 코드 필요
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-recovery-code-use-phone-failure = 복구 전화로 코드를 보내는 데 문제가 발생했습니다.
 signin-recovery-code-use-phone-failure-description = 다음에 다시 시도해 주세요.
+# Browser tab title for the page where the user enters a backup authentication code to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-recovery-code-page-title = 백업 코드로 로그인
 
 ## SigninRecoveryPhone page
 
@@ -2377,6 +2596,9 @@ signin-recovery-phone-invalid-code-error-link = 대신 백업 인증 코드를 �
 # "Limits" refers to potential restrictions on how often a recovery phone number can be used for signing in within a given time period.
 # If limits are reached, users may have to use an alternate two-step authentication method or wait until the restriction period is over.
 signin-recovery-phone-success-message = 성공적으로 로그인되었습니다. 복구 전화번호를 다시 사용하면 제한이 적용될 수 있습니다.
+# Browser tab title for the page where the user enters a code sent to their recovery phone to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-recovery-phone-page-title = 복구 전화번호로 로그인
 
 ## Signin reported page: this page is shown when a user receives an email notifying them of a new account signin, and the user clicks a button indicating that the signin was not them so that we know it was someone trying to break into their account.
 
@@ -2437,6 +2659,9 @@ signin-totp-code-required-error = 인증 코드 필요함
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-totp-code-desktop-relay = 사용자가 로그인한 후 { -brand-firefox }가 이메일 마스크를 사용하도록 다시 요청합니다.
+# Browser tab title for the page where the user enters a two-step authentication code from their authenticator app to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-totp-code-page-title = 2단계 인증으로 로그인
 
 ## Signin Unblock Page
 ## Page shown when signin has been blocked by rate limiting (too many requests)
@@ -2456,12 +2681,16 @@ signin-unblock-support-link = 이런 일이 왜 일어나나요?
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-unblock-desktop-relay = 사용자가 로그인한 후 { -brand-firefox }가 이메일 마스크를 사용하도록 다시 요청합니다.
+# Browser tab title for the page where the user enters the authorization code emailed to them to approve a blocked sign-in attempt.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-unblock-page-title = 이 로그인 승인
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
 
-# Page title show in browser title bar or page tab
-confirm-signup-code-page-title = 확인 코드를 입력하세요.
+# Browser tab title for the page where the user enters the confirmation code emailed to them to finish signing up.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-signup-code-page-title-2 = 이메일 확인
 # String within the <span> element appears on a separate line
 # If more appropriate in a locale, the string within the <span>, "for your { -product-mozilla-account }"
 # can stand alone as "{ -product-mozilla-account }"
@@ -2495,6 +2724,9 @@ signup-sync-info = { -brand-firefox }를 사용하는 모든 곳에서 비밀번
 signup-sync-info-with-payment = { -brand-firefox }를 사용하는 모든 곳에서 비밀번호, 결제 방법, 북마크 등을 동기화하세요.
 # Clicking on this link returns the user to the beginning of the flow so they can enter a new email address
 signup-change-email-link = 이메일 변경
+# Browser tab title for the page where the user creates a password to sign up for an account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signup-page-title = 계정 만들기
 
 ## SignupConfirmedSync page
 ## Shown to users when they finish confirming their account through Sync
@@ -2508,6 +2740,9 @@ signup-confirmed-sync-description-v2 = 비밀번호, 주소, 북마크, 기록 �
 signup-confirmed-sync-add-device-link = 다른 기기 추가
 signup-confirmed-sync-manage-sync-button = 동기화 관리
 signup-confirmed-sync-set-password-success-banner = 동기화 비밀번호 생성됨
+# Browser tab title for the page confirming that sync is turned on after the user confirmed their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signup-confirmed-sync-page-title = 동기화 켜짐
 
 ## UpdateFirefox page
 ## Shown when the browser is too old to use a Mozilla account
@@ -2515,3 +2750,6 @@ signup-confirmed-sync-set-password-success-banner = 동기화 비밀번호 생�
 update-firefox-heading = { -brand-firefox } 업데이트 필요
 update-firefox-description = { -product-mozilla-account }가 현재 { -brand-firefox } 버전에서 지원하지 않는 기능을 사용하고 있습니다. 계속하려면 최신 버전의 { -brand-firefox }를 다운로드하여 설치하세요.
 update-firefox-download-button = 최신 다운로드
+# Browser tab title for the page shown when the browser is too old to use a Mozilla account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+update-firefox-page-title = { -brand-firefox } 업데이트 필요

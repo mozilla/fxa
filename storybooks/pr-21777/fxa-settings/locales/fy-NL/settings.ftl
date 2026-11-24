@@ -398,6 +398,9 @@ locale-toggle-select-label = Taal selektearje
 locale-toggle-browser-default = Browserstandert
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Unjildige oanfraach
+# Browser tab title for the page shown when the URL or network request is malformed, e.g. a required query parameter is invalid.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+error-bad-request-page-title = Unjildige oanfraach
 
 ## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when they open the pairing link
@@ -485,6 +488,15 @@ ready-continue = Trochgean
 sign-in-complete-header = Oanmelding befêstige
 sign-up-complete-header = Account befêstige
 primary-email-verified-header = Primêr e-mailadres befêstige
+# Browser tab title for the page confirming the user’s sign-in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+sign-in-complete-page-title = Oanmelding befêstige
+# Browser tab title for the page confirming the user’s new account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+sign-up-complete-page-title = Account befêstige
+# Browser tab title for the page confirming the user’s primary email address.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+primary-email-verified-page-title = Primêr e-mailadres befêstige
 
 ## Users see this view when they are generating a new account recovery key
 ## This screen displays the generated key and allows users to download or copy the key
@@ -1238,6 +1250,9 @@ security-set-password = Stel in wachtwurd yn om te syngronisearjen en bepaalde a
 security-recent-activity-link = Resinte accountaktiviteit besjen
 signout-sync-header = Sesje ferrûn
 signout-sync-session-expired = Sorry, der is wat misgien. Meld jo ôf fan it browsermenu út en probearje it opnij.
+# Browser tab title for the page telling the user their session expired and they need to sign out from the browser menu.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signout-sync-page-title = Sesje ferrûn
 
 ## SubRow component
 
@@ -1619,6 +1634,9 @@ connect-another-device-not-now-link = No net
 connect-another-device-android-complete-setup-message = Meld jo oan by { -brand-firefox } foar Android om de ynstallaasje te foltôgjen
 # This is a message for Firefox iOS users, prompting them to complete the process of connecting another device by signing into Firefox for iOS
 connect-another-device-ios-complete-setup-message = Meld jo oan by { -brand-firefox } foar iOS om de ynstallaasje te foltôgjen
+# Browser tab title for the page that invites the user to connect another device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+connect-another-device-page-title = In oar apparaat ferbine
 
 ## Cookies disabled page
 ## Users will see this page if they have local storage or cookies disabled.
@@ -1629,9 +1647,15 @@ cookies-disabled-enable-prompt-2 = Skeakel cookies en lokale opslach yn jo brows
 cookies-disabled-button-try-again = Opnij probearje
 # An external link going to: https://support.mozilla.org/kb/cookies-information-websites-store-on-your-computer
 cookies-disabled-learn-more = Mear ynfo
+# Browser tab title for the page shown when cookies or local storage are disabled in the browser.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+cookies-disabled-page-title = Cookies en lokale opslach binne fereaske
 
 ## Index / home page
 
+# Browser tab title for the page where the user enters their email to sign in or create an account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+index-page-title = Oanmelde of in account oanmeitsje
 index-header = Fier jo e-mailadres yn
 index-sync-header = Trochgean nei jo { -product-mozilla-account }
 index-sync-subheader = Syngronisearje jo wachtwurden, ljepblêden en blêdwizers oeral wêr't jo { -brand-firefox } brûke.
@@ -1679,6 +1703,15 @@ inline-recovery-key-setup-download-header = Befeiligje jo account
 inline-recovery-key-setup-download-subheader = No downloade en bewarje
 inline-recovery-key-setup-download-info = Bewarje dizze kaai op in plak dy’t jo ûnthâlde kinne – jo kinne dizze side letter net mear iepenje.
 inline-recovery-key-setup-hint-header = Befeiligingsoanrekommandaasje
+# Browser tab title for the page where the user creates an account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-key-setup-create-page-title = In accountwerstelkaai oanmeitsje
+# Browser tab title for the page where the user downloads their account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-key-setup-download-page-title = Jo accountwerstelkaai downloade
+# Browser tab title for the page where the user chooses a recovery method during two-step authentication setup.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-choice-page-title = Kies in werstelmetoade
 
 ## InlineTotpSetup page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -1721,6 +1754,9 @@ inline-totp-setup-page-title = Autentikaasje yn twa stappen
 page-not-found-heading = Side net fûn
 page-not-found-description = De opfrege side is net fûn. Wy binne op de hichte en sille keppelingen dy’t mooglik net wurkje werom bringe.
 page-not-found-home-button = Startside
+# Browser tab title for the page shown when the requested page does not exist.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+page-not-found-page-title = Side net fûn
 
 ## AuthAllow page - Part of the device pairing flow
 
@@ -1752,6 +1788,9 @@ pair-auth-complete-send-tab-heading = Jo binne klear om inkelde ljepblêden te f
 # Variable { $deviceOS } is an operating system short name, for example "iOS", "Android"
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } foar { $deviceOS } is ferbûn.
 pair-auth-complete-send-tab-benefits = Jo binne frij om iepen ljepblêden, wachtwurden en blêdwizers direkt tusken apparaten te ferstjoeren.
+# Browser tab title for the page shown when a device has been connected after pairing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-auth-complete-page-title = Apparaat ferbûn
 
 ## AuthTotp page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -1785,6 +1824,9 @@ pair-wait-for-supp-heading-text = Goedkarring <span>fan jo oare apparaat ôf</sp
 pair-failure-header-v2 = Apparaatkeppeling mislearre
 pair-failure-message-v2 = De ynstallaasje koe net foltôge wurde. Meld jo oan mei jo e-mailadres.
 pair-failure-try-again-link = Opnij probearje
+# Browser tab title for the page shown when device pairing fails.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-failure-page-title = Apparaatkeppeling mislearre
 
 ## Pair index page
 
@@ -1844,12 +1886,21 @@ pair-download-step-scan-qr = <b>Stap { $stepNumber }</b>: Download { -brand-fire
 pair-download-step-continue-sync = <b>Stap { $stepNumber }</b>: Selektearje ‘Trochgean om te syngronisearjen’ om jo { -brand-firefox }-ûnderfining op jo mobile apparaat te syngronisearjen.
 # Button on the download screen that opens about:preferences for pairing
 pair-continue-to-sync-button = Trochgean om te syngronisearjen
+# Browser tab title for the page where the user chooses how to connect another device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-choice-page-title = In oar apparaat ferbine
+# Browser tab title for the page that explains how to download { -brand-firefox } on a mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-download-page-title = { -brand-firefox } foar mobyl downloade
 
 ## PairSuccess - a view which displays  on successful completion of the device pairing process
 
 pair-success-header-2 = Apparaat ferbûn
 pair-success-message-2 = Keppeling slagge.
 pair-success-tab-close-message = Dit ljepblêd wurdt automatysk sluten troch { -brand-firefox }.
+# Browser tab title for the page shown when a device has been paired successfully.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-success-page-title = Apparaat ferbûn
 
 ## SuppAllow page - Part of the device pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1860,6 +1911,9 @@ pair-success-tab-close-message = Dit ljepblêd wurdt automatysk sluten troch { -
 pair-supp-allow-heading-text = Keppeling <span>foar { $email }</span> befêstigje
 pair-supp-allow-confirm-button = Keppeling befêstigje
 pair-supp-allow-cancel-link = Annulearje
+# Browser tab title for the page where the user confirms pairing a device with their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-supp-allow-page-title = Keppeling befêstigje
 
 ## WaitForAuth page - Part of the devide pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1891,6 +1945,9 @@ pair-unsupported-learn-more-link-v2 = Mear ynfo
 # Matches the legacy Backbone "Oops! Something went wrong." message.
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oepsie, der is wat misgien.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Slút dit ljepblêd en probearje it nochris.
+# Browser tab title for the page shown to a desktop user who is not using { -brand-firefox } and must switch browsers to pair a device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-desktop-non-firefox-page-title = { -brand-firefox } fereaske
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer, which is already signed in, after their
@@ -2507,8 +2564,6 @@ signin-unblock-desktop-relay = { -brand-firefox } probearret jo werom te stjoere
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
 
-# Page title show in browser title bar or page tab
-confirm-signup-code-page-title = Fier befêstigingskoade yn
 # String within the <span> element appears on a separate line
 # If more appropriate in a locale, the string within the <span>, "for your { -product-mozilla-account }"
 # can stand alone as "{ -product-mozilla-account }"

@@ -48,7 +48,7 @@ app-footer-terms-of-service = Wužywańske wuměnjenja
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = Wócynja w nowem woknje
@@ -311,6 +311,7 @@ input-phone-number-country-canada = Kanada
 reset-pwd-link-damaged-header = Wótkaz k slědkstajanjeju gronidła wobškóźony
 signin-link-damaged-header = Wobkšuśeński wótkaz jo wobškóźony
 report-signin-link-damaged-header = Wótkaz jo wobškóźony
+report-signin-link-damaged-page-title = Wótkaz ako wobškóźony k wěsći daś
 reset-pwd-link-damaged-message = Wótkazoju, na kótaryž sćo kliknuł, znamuška feluju, a jo snaź pśez waš e-mailowy program wobškóźony. Kopěrujśo adresu kradosćiwje a wopytajśo hyšći raz.
 
 
@@ -330,6 +331,7 @@ confirmation-link-reused-message = Toś ten wobkšuśeński wótkaz jo se južo 
 locale-toggle-select-label = Rěc wubraś
 locale-toggle-browser-default = Standard wobglědowaka
 error-bad-request = Špatne napšašowanje
+error-bad-request-page-title = Špatne napšašowanje
 
 
 pair-unsupported-hint-heading = Koplowanje w nałoženju dokóńcyś
@@ -386,6 +388,9 @@ ready-continue = Dalej
 sign-in-complete-header = Pśizjawjenje jo se wobkšuśiło
 sign-up-complete-header = Konto jo wobkšuśone
 primary-email-verified-header = Primarna e-mailowa adresa jo wokšuśona
+sign-in-complete-page-title = Pśizjawjenje jo se wobkšuśiło
+sign-up-complete-page-title = Konto jo wobkšuśone
+primary-email-verified-page-title = Primarna e-mailowa adresa jo wobkšuśona
 
 
 flow-recovery-key-download-storage-ideas-heading-v2 = Městna za składowanje wašogo kluca:
@@ -639,6 +644,7 @@ modal-mfa-protected-cancel-button = Pśetergnuś
 modal-mfa-protected-confirm-button = Wobkšuśiś
 modal-mfa-protected-code-expired = Kod jo spadnuł?
 modal-mfa-protected-resend-code-link = Nowy kod pśez e-mail pósłaś.
+modal-mfa-protected-clock-skew-error = Cas wašogo rěda jo wopacny.  Korigěrujśo datum a cas swójogo rěda a wopytajśo pón hyšći raz.
 
 
 mvs-verify-your-email-2 = Wašu e-mailowu adresu wobkšuśiś
@@ -927,6 +933,7 @@ security-set-password = Nastajśo gronidło, aby wěste wěstotne funkcije konta
 security-recent-activity-link = Nejnowšu kontowu aktiwitu pokazaś
 signout-sync-header = Pósejźenje jo spadnuło
 signout-sync-session-expired = Bóžko něco njejo se raźiło. Pšosym wótzjawśo se z menija wobglědowaka a wopytajśo hyšći raz.
+signout-sync-page-title = Pósejźenje jo spadnuło
 
 
 tfa-row-backup-codes-title = Kody za zawěsćeńsku awtentifikaciju
@@ -1177,14 +1184,17 @@ connect-another-device-cad-link = Z drugim rědom zwězaś
 connect-another-device-not-now-link = Nic něnto
 connect-another-device-android-complete-setup-message = Pśizjawśo se pla { -brand-firefox } za Android, aby zarědowanje dokóńcył
 connect-another-device-ios-complete-setup-message = Pśizjawśo se pla { -brand-firefox } za iOS, aby zarědowanje dokóńcył
+connect-another-device-page-title = Drugi rěd zwězaś
 
 
 cookies-disabled-header = Local storage a cookieje su trjebne
 cookies-disabled-enable-prompt-2 = Pšosym zmóžniśo cookieje a lokalny składowak we wašom wobglědowaku, aby pśistup ku { -product-mozilla-account(capitalization: "lower", case: "dat") } měł. To funkcije zmóžnja, ako na pśikład markowanje pśez pósejźenja.
 cookies-disabled-button-try-again = Hyšći raz wopytaś
 cookies-disabled-learn-more = Dalšne informacije
+cookies-disabled-page-title = Cookieje a lokalny składowak su trjebne
 
 
+index-page-title = Pśizjawiś abo konto załožyś
 index-header = Zapódajśo swóju e-mailowu adresu
 index-sync-header = Dalej k swójomu kontoju { -product-mozilla-account }
 index-sync-subheader = Synchronizěrujśo swóje gronidła, rejtariki a cytańske znamjenja wšuźi, źož { -brand-firefox } wužywaśo.
@@ -1219,6 +1229,15 @@ inline-recovery-key-setup-download-header = Zawěsććo swójo konto
 inline-recovery-key-setup-download-subheader = Ześěgniśo a składujśo jen něnto
 inline-recovery-key-setup-download-info = Składujśo toś ten kluc na městnje, na kótarež se dopominaśo – njamóžośo se k toś tomu bokoju pózdźej wrośiś.
 inline-recovery-key-setup-hint-header = Wěstotne pórucenje
+inline-recovery-key-setup-create-page-title = Kontowy wótnowjeński kluc napóraś
+inline-recovery-key-setup-download-page-title = Ześěgniśo swój kontowy wótnowjeński kluc
+inline-recovery-key-setup-hint-page-title = Pokaz na wótnowjeński kluc pśidaś
+inline-recovery-setup-choice-page-title = Wubjeŕśo wótnowjeńsku metodu
+inline-recovery-setup-download-codes-page-title = Składujśo swóje zawěsćeńske kody
+inline-recovery-setup-confirm-code-page-title = Zawěsćeński kode wobkšuśiś
+inline-recovery-setup-phone-number-page-title = Wótnowjeński telefon pśidaś
+inline-recovery-setup-phone-code-page-title = Waš wótnowjeński telefon wobkšuśiś
+inline-recovery-setup-complete-page-title = Dwójokšacowa awtentifikacija
 
 
 inline-totp-setup-cancel-setup-button = Instalaciju pśetergnuś
@@ -1238,16 +1257,20 @@ inline-totp-setup-security-code-placeholder = Awtentificěrowański kod
 inline-totp-setup-code-required-error = Awtentifikaciski kod trjebny
 tfa-qr-code-alt = Wužywajśo kod { $code }, aby zarědował dwukšacowu awtentifikaciju w pódpěranych nałoženjach.
 inline-totp-setup-page-title = Dwójokšacowa awtentifikacija
+inline-totp-setup-intro-page-title = Dwójokšacowu awtentifikaciju konfigurěrowaś
+inline-totp-setup-enrol-page-title = Wašo nałoženje awtentifikacije zwězaś
 
 
 page-not-found-heading = Bok njejo se namakał
 page-not-found-description = Bok, kótaryž sćo pominał, njejo se namakał. Smy powěsć dostali a pórěźamy njepłaśiwe wótkaze.
 page-not-found-home-button = Startowy bok
+page-not-found-page-title = Bok njejo se namakał
 
 
 pair-auth-allow-heading-text = Sćo se rowno pśizjawił pla { -brand-firefox }?
 pair-auth-allow-confirm-button = Jo, rěd pśizwóliś
 pair-auth-allow-refuse-device-link = Jolic njejsćo to był wy, <a>změńśo swójo gronidło</a>
+pair-auth-allow-page-title = Pśizjawjenje { -brand-firefox } pśizwóliś
 
 
 pair-auth-complete-heading = Rěd jo zwězany
@@ -1260,6 +1283,8 @@ pair-auth-complete-manage-devices-link = Rědy zastojaś
 pair-auth-complete-send-tab-heading = Sćo gótowy, aby někotare rejtariki pósłał
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } za { $deviceOS } jo zwězany.
 pair-auth-complete-send-tab-benefits = Móžośo ned wócynjone rejtariki, gronidła a cytańske znamjenja mjazy rědami pósłaś.
+pair-auth-complete-page-title = Rěd jo zwězany
+pair-auth-complete-send-tab-page-title = Gótowy za słanje rejtarikow
 
 
 auth-totp-heading-w-default-service = Zapódajśo awtentifikaciski kod, <span>aby z kontowymi nastajenjami pókšacował</span>
@@ -1268,14 +1293,17 @@ auth-totp-instruction = Wócyńśo swójo awtentificěrowańske nałoženje a za
 auth-totp-input-label = 6-městnowy kod zapódaś
 auth-totp-confirm-button = Wobkšuśiś
 auth-totp-code-required-error = Awtentifikaciski kod trjebny
+auth-totp-page-title = Z dwójokšacoweju awtentifikaciju koplowaś
 
 
 pair-wait-for-supp-heading-text = Pśizwólenje jo něnto <span>wót wašogo drugego rěda</span> trjebne
+pair-wait-for-supp-page-title = Na wašom drugem rěźe pśizwóliś
 
 
 pair-failure-header-v2 = Koplowanje rědow njejo se raźiło
 pair-failure-message-v2 = Instalaciski proces njedajo se dokóńcyś. Pšosym pśizjawśo se ze swójeju e-mailoweju adresu.
 pair-failure-try-again-link = Hyšći raz wopytaś
+pair-failure-page-title = Koplowanje rědow njejo se raźiło
 
 
 pair-sync-header = Synchronizěrujśo { -brand-firefox } na swójom telefonje abo tableśe
@@ -1309,19 +1337,25 @@ pair-download-description = Aby { -brand-firefox } na swójom telefonje abo tabl
 pair-download-step-scan-qr = <b>Kšac { $stepNumber }</b>: Scannujśo toś ten QR-kod z kameru na swójom mobilnem rěźe, aby { -brand-firefox } ześěgnuł:
 pair-download-step-continue-sync = <b>Kšac { $stepNumber }</b>: Wubjeŕśo „Dalej k synchronizaciji“, aby swóje dožywjenje { -brand-firefox } na swójom mobilnem rěźe synchronizěrował.
 pair-continue-to-sync-button = Dalej k synchronizaciji
+pair-choice-page-title = Drugi rěd zwězaś
+pair-choice-send-tab-page-title = Rejtariki na drugi rěd pósłaś
+pair-download-page-title = { -brand-firefox } za mobilne rědy ześěgnuś
 
 
 pair-success-header-2 = Rěd jo zwězany
 pair-success-message-2 = Koplowanje jo se raźiło.
 pair-success-tab-close-message = Toś ten rejtarik se awtomatiski pśez { -brand-firefox } zacynijo.
+pair-success-page-title = Rěd jo zwězany
 
 
 pair-supp-allow-heading-text = Wobkšuśćo koplowanje <span>za { $email }</span>
 pair-supp-allow-confirm-button = Koplowanje wobkšuśiś
 pair-supp-allow-cancel-link = Pśetergnuś
+pair-supp-allow-page-title = Koplowanje wobkšuśiś
 
 
 pair-wait-for-auth-heading-text = Pśizwólenje jo něnto <span>wót wašogo drugego rěda</span> trjebne
+pair-wait-for-auth-page-title = Na wašom drugem rěźe pśizwóliś
 
 
 pair-unsupported-header = Z nałoženim koplowaś
@@ -1334,21 +1368,28 @@ pair-unsupported-connecting-mobile-instructions-v2 = Wócyńśo { -brand-firefox
 pair-unsupported-learn-more-link-v2 = Dalšne informacije
 pair-unsupported-desktop-firefox-fallback-header-v2 = Hopla! Něco njejo se raźiło.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Pšosym zacyńśo toś ten rejtarik a wopytajśo hyšći raz.
+pair-unsupported-desktop-non-firefox-page-title = { -brand-firefox } trjebny
+pair-unsupported-system-camera-page-title = Z nałoženim koplowaś
+pair-unsupported-mobile-page-title = Waš mobilny rěd zwězaś
+pair-unsupported-desktop-firefox-fallback-page-title = Něco njejo se raźiło
 
 
 pair2-authority-approve-sign-in-heading = Pśizjawjenje pśizwóliś?
 pair2-authority-approve-sign-in-confirm-button = Jo, pśizjawjenje pśizwóliś
 pair2-authority-approve-sign-in-change-password = To njejsćo wy? <changePassword>Změńśo swójo gronidło</changePassword>
+pair2-authority-approve-sign-in-page-title = Pśizjawjenje pśizwóliś
 
 
 pair2-authority-continue-on-mobile-heading = Na swójom mobilnem rěźe pókšacowaś
 pair2-authority-continue-on-mobile-description = Slědujśo kšacam na swójom telefonje abo tableśe.
 pair2-authority-continue-on-mobile-cancel-button = Pśetergnuś
+pair2-authority-continue-on-mobile-page-title = Na swójom mobilnem rěźe pókšacowaś
 
 
 pair2-authority-download-firefox-heading = { -brand-firefox } za synchronizaciju wócyniś
 pair2-authority-download-firefox-instruction-v2 = Aby synchronizaciju na rědach konfigurěrował, wócyńśo { -brand-firefox } na toś tom rěźe a woglědajśo se k <b>firefox.com/pair</b>.
 pair2-authority-download-firefox-cta = { -brand-firefox } ześěgnuś
+pair2-authority-download-firefox-page-title = { -brand-firefox } za synchronizaciju wócyniś
 
 
 pair2-authority-scan-qr-heading = Za zwězowanje ze swójom rědom scannowaś
@@ -1356,11 +1397,13 @@ pair2-authority-scan-qr-instruction = Scannujśo QR-kod ze swójom telefonom abo
 pair2-authority-scan-qr-code-aria-label = QR-kod za zwězowanje z wašym mobilnym rědom
 pair2-authority-scan-qr-other-ways-link = Druge móžnosći pśizjawjenja
 pair2-authority-scan-qr-skip-button = Tuchylu pśeskócyś
+pair2-authority-scan-qr-page-title = Za zwězowanje ze swójom rědom scannowaś
 
 
 pair2-authority-sync-success-heading-v2 = Waš rěd jo zwězany
 pair2-authority-sync-success-description-v2 = Synchronizacija jo pó droze. Móžo chylku traś, daniž se waše synchronizěrowane daty njezjawiju. Móžośo ga dalej pśeglědowaś.
 pair2-authority-sync-success-sync-settings-button-v2 = Nastajenja synchronizacije zastojaś
+pair2-authority-sync-success-page-title = Rěd jo zwězany
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Cośo hyšći rěd zwězaś?
@@ -1369,16 +1412,20 @@ pair2-authority-timeout-and-cancel-cancelled-heading = Anulěrowany
 pair2-authority-timeout-and-cancel-canceled-description = Jolic swójo měnjenje změnjaśo abo cośo drugi rěd zwězaś, wopytajśo hyšći raz.
 pair2-authority-timeout-and-cancel-try-again-button = Hyšći raz wopytaś
 pair2-authority-timeout-and-cancel-sync-settings-button = Nastajenja synchronizacije
+pair2-authority-timeout-and-cancel-timeout-page-title = Cas zwiska pśekšocony
+pair2-authority-timeout-and-cancel-cancelled-page-title = Koplowanje pśetergnjone
 
 
 pair2-supplicant-approve-sign-in-heading = Jaden slědny kšac k synchronizaciji
 pair2-supplicant-approve-sign-in-instruction = Zwólśo do pśizjawjenja na swójom licadle.
 pair2-supplicant-approve-sign-in-cancel-button = Pśetergnuś
+pair2-supplicant-approve-sign-in-page-title = Jaden slědny kšac k synchronizaciji
 
 
 pair2-supplicant-connect-this-device-heading = Toś ten rěd z wašym kontom zwězaś?
 pair2-supplicant-connect-this-device-connect-button = Zwězaś
 pair2-supplicant-connect-this-device-cancel-button = Pśetergnuś
+pair2-supplicant-connect-this-device-page-title = Toś ten rěd zwězaś
 
 
 pair2-supplicant-download-firefox-heading-v2 = Na toś tom rěźe { -brand-firefox } wócyniś
@@ -1388,15 +1435,21 @@ pair2-supplicant-download-firefox-opening-button = { -brand-firefox } se wócynj
 pair2-supplicant-download-firefox-download-button = { -brand-firefox } ześěgnuś
 pair2-supplicant-download-firefox-have-firefox-button = Mam južo { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Dalšne informacije
+pair2-supplicant-download-firefox-page-title = Na toś tom rěźe { -brand-firefox } wócyniś
+
+
+pair2-supplicant-connect-hint-page-title = Koplowanje w nałoženju dokóńcyś
 
 
 pair2-supplicant-ready-to-scan-heading = Rěd zwězaś
 pair2-supplicant-ready-to-scan-instruction = Wócyńśo { -brand-firefox } na swójom licadle a woglědajśo se k <b>firefox.com/pair</b> a slědujśo instrukcijam na wobrazowce, aby swój mobilny rěd zwězał.
 pair2-supplicant-ready-to-scan-learn-more-link = Dalšne informacije
+pair2-supplicant-ready-to-scan-page-title = Gótowy za scannowanje
 
 
 pair2-supplicant-sync-success-heading = Waš rěd jo zwězany
 pair2-supplicant-sync-success-description-v2 = Synchronizacija jo pó droze. Móžo chylku traś, daniž se waše synchronizěrowane daty njezjawiju. Móžośo ga dalej pśeglědowaś.
+pair2-supplicant-sync-success-page-title = Rěd jo zwězany
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Zda se, až smy cas pśekšocyli
@@ -1405,6 +1458,9 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Anulěrowany
 pair2-supplicant-timeout-and-cancel-canceled-description = Aby rěd kuždy cas zwězał, woglědujśo se k <b>firefox.com/pair</b> na swójom licadle.
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Rěd jo južo pśizjawjony
 pair2-supplicant-timeout-and-cancel-signed-in-description = Aby se ze swójim desktopowym kontom zwězał, wótzjawśo se wót { -brand-firefox } na toś tom rěźe a woglědajśo se pón k <b>firefox.com/pair</b> na swójom licadle, aby pśizjawjenje dokóńcył.
+pair2-supplicant-timeout-and-cancel-timeout-page-title = Cas zwiska pśekšocony
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = Koplowanje pśetergnjone
+pair2-supplicant-timeout-and-cancel-signed-in-page-title = Rěd jo južo pśizjawjony
 
 
 permissions-heading = { $serviceName } co pśistup k:
@@ -1413,17 +1469,20 @@ permissions-label-display-name = Zwobraznjeńske mě
 permissions-label-avatar = Kontowy wobraz
 permissions-continue-button = Dalej
 permissions-cancel-button = Pśetergnuś
+permissions-page-title = Pšawa pśeglědowaś
 
 
 force-password-change-heading = Změńśo pšosym swójo gronidło
 force-password-change-info = Smy zwěsćili suspektne zaźaržanje we wašom konśe { -product-mozilla-account }. Aby swójo konto šćitał, napórajśo pšosym nowe gronidło. Wužywajśo to gronidło, aby se zasej pla słužbow swójogo konta { -product-mozilla-account } pśizjawił.
 force-password-change-data-info = Synchronizěrowana historija, cytańske znamjenja, pśizjawjenja a druge wósobinske daty se njezgubiju.
+force-password-change-page-title = Změńśo swójo gronidło
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } wobkšuśone
 service-welcome-signin-success-banner = Wuspěšnje pśizjawjony!
 service-welcome-vpn-heading = Pśiducy kšac: VPN zmóžniś
 service-welcome-vpn-description = Dalšny kšac, aby se priwatnosć wašogo wobglědowaka skšuśiła. Pśejźćo k wócynjonemu woknu a zmóžniśo jen.
+service-welcome-vpn-page-title = VPN zmóžniś
 
 
 set-password-heading-v2 = Napórajśo gronidło za synchronizaciju
@@ -1431,6 +1490,7 @@ set-password-info-v2 = To waše daty koděrujo. Musy se wót kontowego gronidła
 
 
 set-password-passwordless-info = Toś to gronidło waše synchronizěrowane daty koděrujo a wobchowajo je wěsće.
+set-password-page-title = Napórajśo gronidło za synchronizaciju
 
 
 third-party-auth-callback-message = Pšosym cakajśo, buźośo se k awtorizěrowanemu nałoženjeju dalej pósrědnjaś.
@@ -1443,6 +1503,7 @@ account-recovery-confirm-key-input-label =
 account-recovery-confirm-key-hint = Waš składowański pokaz jo:
 account-recovery-confirm-key-button-2 = Dalej
 account-recovery-lost-recovery-key-link-2 = Njamóžośo swój kontowy wótnowjeński kluc namakaś?
+account-recovery-confirm-key-page-title = Gronidło z wótnowjeńskim klucom slědk stajiś
 
 
 complete-reset-pw-header-v2 = Nowe gronidło napóraś
@@ -1452,11 +1513,13 @@ complete-reset-pw-recovery-key-link = Kontowy wótnowjeński kluc wužywaś
 reset-password-complete-banner-heading = Wašo gronidło jo se slědk stajiło.
 reset-password-complete-banner-message = Njezabywajśo nowy kontowy wótnowjeński kluc ze swójich nastajenjow { -product-mozilla-account } generěrowaś, aby pśiducym pśizjawjeńskim problemam zajźował.
 complete-reset-password-desktop-relay = { -brand-firefox } buźo was slědk słaś, aby pó pśizjawjenju e-mailowu masku wužywał.
+complete-reset-password-page-title = Nowe gronidło napóraś
 confirm-backup-code-reset-password-input-label = 10-městnowy kod zapódaś
 confirm-backup-code-reset-password-confirm-button = Wobkšuśiś
 confirm-backup-code-reset-password-subheader = Zapódajśo kod za zawěsćeńsku awtentifikaciju
 confirm-backup-code-reset-password-instruction = Zapódajśo jaden z kodow za jadnorazowe wužywanje, gaž dwójokšacowu awtentifikaciju konfigurěrujośo.
 confirm-backup-code-reset-password-locked-out-link = Sćo se wuzamknuł?
+confirm-backup-code-reset-password-page-title = Gronidło ze zawěsćeńskim kodom slědk stajiś
 
 
 confirm-reset-password-with-code-heading = Pséglědajśo swóju e-mail
@@ -1465,6 +1528,7 @@ confirm-reset-password-code-input-group-label = Zapódajśo 8-městnowy kod za 1
 confirm-reset-password-otp-submit-button = Dalej
 confirm-reset-password-otp-resend-code-button = Kod znowego słaś
 confirm-reset-password-otp-different-account-link = Wužywajśo druge konto
+confirm-reset-password-with-code-page-title = Glědajśo do swójich mejlkow, aby swójo gronidło slědk stajił
 
 
 confirm-totp-reset-password-header = Stajśo swójo gronidło slědk
@@ -1474,6 +1538,7 @@ confirm-totp-reset-password-trouble-code = Maśo problemy pśi zapódawanju koda
 confirm-totp-reset-password-confirm-button = Wobkšuśiś
 confirm-totp-reset-password-input-label-v2 = 6-městnowy kod zapódaś
 confirm-totp-reset-password-use-different-account = Druge konto wužywaś
+confirm-totp-reset-password-page-title = Gronidło z dwójokšacoweju awtentifikaciju slědk stajiś
 
 
 password-reset-flow-heading = Stajśo swójo gronidło slědk
@@ -1483,10 +1548,12 @@ password-reset-email-input =
     .label = Zapódajśo swóju e-mailowu adresu
 password-reset-submit-button-2 = Dalej
 password-reset-data-recovery-warning = Slědkstajenje wašogo gronidła móžo se na to wustatkowaś, lěc móžośo synchronizěrowane daty wobglědowaka wótnowiś. <learnMoreLink>Dalšne informacije</learnMoreLink>
+password-reset-flow-page-title = Stajśo swójo gronidło slědk
 
 
 reset-password-complete-header = Wašo gronidło jo se slědk stajiło
 reset-password-confirmed-cta = Dalej k { $serviceName }
+reset-password-confirmed-page-title = Gronidło jo se slědk stajiło
 
 
 password-reset-recovery-method-header = Stajśo swójo gronidło slědk
@@ -1503,6 +1570,7 @@ password-reset-recovery-method-code-info =
     }
 password-reset-recovery-method-send-code-error-heading = Pśi słanju koda na waš wótnowjeński telefon jo problem nastał
 password-reset-recovery-method-send-code-error-description = Pšosym wopytajśo pózdźej hyšći raz abo wužywajśo swóje awtentifikaciske kody za zawěsćenje.
+password-reset-recovery-method-page-title = Gronidło z wótnowjeńskeju metodu slědk stajiś
 
 
 reset-password-recovery-phone-flow-heading = Stajśo swójo gronidło slědk
@@ -1518,6 +1586,7 @@ reset-password-recovery-phone-code-verification-error-heading = Pśi pśeglědow
 reset-password-recovery-phone-general-error-description = Wopytajśo pšosym pózdźej hyšći raz.
 reset-password-recovery-phone-invalid-code-error-description = Kod jo njepłaśiwy abo zestarjety.
 reset-password-recovery-phone-invalid-code-error-link = Awtentifikaciske kody za zawěsćenje město togo wužywaś?
+reset-password-recovery-phone-page-title = Gronidło z wótnowjeńskim telefonom slědk stajiś
 reset-password-with-recovery-key-verified-page-title = Gronidło jo se wuspěšnje slědk stajiło
 reset-password-complete-new-password-saved = Nowe gronidło jo se składło!
 reset-password-complete-recovery-key-created = Nowy kontowy wótnowjeński kluc jo se napórał. Ześěgniśo a składujśo jen něnto.
@@ -1525,11 +1594,13 @@ reset-password-complete-recovery-key-download-info =
     Toś ten kluc jo bytostny za
     datowe wótnowjenje, jolic swójo gronidło zabywaśo. <b>Ześěgniśo a składujśo jen něnto wěsće
     dokulaž pózdźej k toś tomu bokoju wěcej pśistup njamaśo.</b>
+reset-password-with-recovery-key-verified-hint-page-title = Pokaz na wótnowjeński kluc pśidaś
 
 
 server-error-heading = Zmólka 500
 server-error-description = Mój Bog, něco jo kśiwje šło. Smy se informěrowali a dajomy se do wótwónoźowanja problema.
 server-error-home-button = Startowy bok
+server-error-page-title = Serwerowa zmólka
 
 
 error-label = Zmólka:
@@ -1537,8 +1608,13 @@ validating-signin = Pśizjawjenje se wobkšuśijo…
 complete-signin-error-header = Wobkšuśeńska zmólka
 signin-link-expired-header = Wobkšuśeński wótkaz jo pśepadnuł
 signin-link-expired-message-2 = Wótkaz, na kótaryž sćo kliknuł, jo spadnjony abo jo se južo wužywał.
+complete-signin-error-page-title = Wobkšuśeńska zmólka pśizjawjenja
+complete-signin-validating-page-title = Pśizjawjenje se wobkšuśujo
 
 
+signin-password-page-title = Zapódajśo swójo gronidło
+signin-cached-page-title = Pśizjawiś
+signin-alternative-auth-page-title = Wubjeŕśo pśizjawjeńsku metodu
 signin-password-needed-header-2 = Zapódajśo swójo gronidło <span>za swójo { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
 signin-button-start-syncing = Synchronizaciju zachopiś
 signin-subheader-without-logo-with-servicename = Dalej k { $serviceName }
@@ -1562,11 +1638,13 @@ report-signin-body = Sćo mejlku wó wopytanem pśistupu na swójo konto dostał
 report-signin-submit-button = Aktiwitu k wěsći daś
 report-signin-support-link = Cogodla se to stawa?
 report-signin-error = Pśi slanju wašeje rozpšawy jo bóžko nastał problem.
+report-signin-page-title = Njeawtorizěrowane pśizjawjenje k wěsći daś
 signin-bounced-header = Bóžko jo wašo konto zastajone.
 signin-bounced-message = Wobkśuśeńska mejlka, kótaruž smy na { $email } pósłali, jo se wrośiła a smy wašo konto zastajili, aby my waše daty { -brand-firefox } šćitali.
 signin-bounced-help = Jolic to jo płaśiwa adresa, <linkExternal>informěrujśo nas</linkExternal> a móžomy pomagaś, wašo konto wótwóriś.
 signin-bounced-create-new-account = Toś ta e-mailowa wěcej wam njesłuša? Załožćo konto
 back = Slědk
+signin-bounced-page-title = Konto jo zastajone
 
 
 signin-passkey-fallback-header = Pśizjawjenje dokóńcyś
@@ -1580,6 +1658,7 @@ signin-passkey-fallback-no-prf-description = Toś ten wobglědowak abo rěd njam
 signin-passkey-fallback-unwrap-failed-heading = Waš gronidłowy kluc njejo mógł synchronizaciju wótwóriś
 signin-passkey-fallback-unwrap-failed-description = Něco njejo se raźiło, togodla trjebaśo tenraz swójo gronidło.
 signin-passkey-fallback-wrap-unusable-link = Dalšne informacije
+signin-passkey-fallback-page-title = Zapódajśo swójo gronidło, aby synchronizěrował
 
 
 signin-passwordless-code-heading = Wobkšuśeński kod zapódaś
@@ -1611,6 +1690,8 @@ signup-passwordless-code-subheading = Registrěrowanje jano jaden kšac trajo, g
 
 
 signin-passwordless-totp-required = Dwójokšacowa awtentifikacija jo za wašo konto zmóžnjona. Pšosym pśizjawśo se ze swójim gronidłom.
+signin-passwordless-code-page-title = Z e-mejlowym kodom pśizjawiś
+signup-passwordless-code-page-title = Z e-mejlowym kodom registrěrowaś
 
 
 signin-recovery-method-header = Pśizjawiś
@@ -1627,6 +1708,7 @@ signin-recovery-method-code-info-v2 =
     }
 signin-recovery-method-send-code-error-heading = Pśi słanju koda na waš wótnowjeński telefon jo problem nastał
 signin-recovery-method-send-code-error-description = Pšosym wopytajśo pózdźej hyšći raz abo wužywajśo swóje awtentifikaciske kody za zawěsćenje.
+signin-recovery-method-page-title = Z wótnowjeńskeju metodu pśizjawiś
 
 
 signin-recovery-code-heading = Pśizjawiś
@@ -1639,6 +1721,7 @@ signin-recovery-code-support-link = Sćo se wuzamknuł?
 signin-recovery-code-required-error = Awtentifikaciski kod za zawěsćenje trjebny
 signin-recovery-code-use-phone-failure = Pśi słanju koda na waš wótnowjeński telefon jo problem nastał
 signin-recovery-code-use-phone-failure-description = Wopytajśo pšosym pózdźej hyšći raz.
+signin-recovery-code-page-title = Ze zawěsćeńskim kodom pśizjawiś
 
 
 signin-recovery-phone-flow-heading = Pśizjawiś
@@ -1655,10 +1738,12 @@ signin-recovery-phone-general-error-description = Wopytajśo pšosym pózdźej h
 signin-recovery-phone-invalid-code-error-description = Kod jo njepłaśiwy abo zestarjety.
 signin-recovery-phone-invalid-code-error-link = Awtentifikaciske kody za zawěsćenje město togo wužywaś?
 signin-recovery-phone-success-message = Wuspěšnje pśizjawjeny. Dajo snaź wobgranicowanja, jolic waš wótnowjeński telefon znowego wužywaśo.
+signin-recovery-phone-page-title = Z wótnowjeńskim telefonom pśizjawiś
 
 
 signin-reported-header = Źěkujomy se za wašu stražniwosć
 signin-reported-message = Naš team jo powěźeńku dostał. Rozpšawy ako toś ta nam pomagaju, zadobywarje wótwoboraś.
+signin-reported-page-title = Pśizjawjenje jo se k wěsći dało
 
 
 signin-token-code-heading-2 = Zapódajśo wobkšuśeński kod <span>za swójo  { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
@@ -1677,6 +1762,7 @@ signin-token-code-resend-code-countdown =
 signin-token-code-required-error = Wobkšuśeński kod trjebny
 signin-token-code-resend-error = Něco njejo se raźiło. Nowy code njedajo se słaś.
 signin-token-code-instruction-desktop-relay = { -brand-firefox } buźo was slědk słaś, aby pó pśizjawjenju e-mailowu masku wužywał.
+signin-token-code-page-title = Pśizjawjenje z e-mejlowym kodom wobkšuśiś
 
 
 signin-totp-code-header = Pśizjawiś
@@ -1692,6 +1778,7 @@ signin-totp-code-other-account-link = Wužywajśo druge konto
 signin-totp-code-recovery-code-link = Maśo problemy pśi zapódawanju koda?
 signin-totp-code-required-error = Awtentifikaciski kod trjebny
 signin-totp-code-desktop-relay = { -brand-firefox } buźo was slědk słaś, aby pó pśizjawjenju e-mailowu masku wužywał.
+signin-totp-code-page-title = Z dwójokšacoweju awtentifikaciju pśizjawiś
 
 
 signin-unblock-header = Toś to pśizjawjenje awtorizěrowaś
@@ -1704,9 +1791,10 @@ signin-unblock-code-incorrect-format-2 = Awtorizaciski kod móžo jano pismiki a
 signin-unblock-resend-code-button = Ani w postowem dochaźe ani w spamowem zarědniku? Znowego pósłaś
 signin-unblock-support-link = Cogodla se to stawa?
 signin-unblock-desktop-relay = { -brand-firefox } buźo was slědk słaś, aby pó pśizjawjenju e-mailowu masku wužywał.
+signin-unblock-page-title = Toś to pśizjawjenje awtorizěrowaś
 
 
-confirm-signup-code-page-title = Wobkšuśeński kod zapódaś
+confirm-signup-code-page-title-2 = Wašu e-mailowu adresu wobkšuśiś
 confirm-signup-code-heading-2 = Zapódajśo wobkšuśeński kod <span>za swójo { -product-mozilla-account(capitalization: "lower", case: "acc") }</span>
 confirm-signup-code-instruction-v2 = Zapódajśo kod, kótaryž jo se pósłał za 5 minutow na <email>{ $email }</email>.
 confirm-signup-code-input-label = 6-městnowy kod zapódaś
@@ -1731,6 +1819,7 @@ signup-relay-info = Gronidło jo trjebna, aby swóje maskěrowane mejlki wěsće
 signup-sync-info = Synchronizěrujśo swóje gronidła, cytańske znamjenja a wěcej wšuźi, źož { -brand-firefox } wužywaśo.
 signup-sync-info-with-payment = Synchronizěrujśo swóje gronidła, płaśeńske metody, cytańske znamjenja a wěcej wšuźi, źož { -brand-firefox } wužywaśo.
 signup-change-email-link = E-mailowu adresu změniś
+signup-page-title = Wašo konto załožyś
 
 
 signup-confirmed-sync-header = Synchronizacija jo zmóžnjona
@@ -1741,8 +1830,10 @@ signup-confirmed-sync-description-v2 = Waše gronidła, adrese, cytańske znamje
 signup-confirmed-sync-add-device-link = Drugi rěd pśidaś
 signup-confirmed-sync-manage-sync-button = Synchronizaciju zastojaś
 signup-confirmed-sync-set-password-success-banner = Gronidło za synchronizaciju napórane
+signup-confirmed-sync-page-title = Synchronizacija jo zmóžnjona
 
 
 update-firefox-heading = Aktualizacija { -brand-firefox } trjebna
 update-firefox-description = Wašo konto { -product-mozilla-account } funkcije wužywa, kótarež waša wersija { -brand-firefox } njepódpěra. Pšosym ześěgniśo a instalěrujśo nejnowšu wersiju { -brand-firefox }, aby pókšacował.
 update-firefox-download-button = Nejnowšu wersiju ześěgnuś
+update-firefox-page-title = Aktualizacija { -brand-firefox } trjebna

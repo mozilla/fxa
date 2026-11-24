@@ -379,6 +379,9 @@ signin-link-damaged-header = Mae'r ddolen cadarnhad wedi'i difrodi
 # The user followed a link to report an invalid signin attempt that was received by email
 # but the link was damaged (for example mistyped or broken by the email client).
 report-signin-link-damaged-header = Mae'r ddolen wedi ei difrodi
+# Browser tab title for the page shown when the user followed a link to report an unauthorized sign-in, but the link was damaged.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+report-signin-link-damaged-page-title = Dolen adrodd wedi'i difrodi
 # The user followed a link received by email, but the link was damaged.
 reset-pwd-link-damaged-message = Mae nodau ar goll yn y ddolen rydych newydd ei chlicio ac efallai wedi ei dorri gan eich rhaglen e-bost. Copïwch y cyfeiriad yn ofalus a cheisiwch eto.
 
@@ -410,6 +413,9 @@ locale-toggle-select-label = Dewiswch iaith
 locale-toggle-browser-default = Rhagosodiad y porwr
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Cais Gwael
+# Browser tab title for the page shown when the URL or network request is malformed, e.g. a required query parameter is invalid.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+error-bad-request-page-title = Cais gwael
 
 ## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when they open the pairing link
@@ -497,6 +503,15 @@ ready-continue = Parhau
 sign-in-complete-header = Mewngofnodi wedi ei gadarnhau
 sign-up-complete-header = Cyfrif wedi'i gadarnhau
 primary-email-verified-header = Prif e-bost wedi'i gadarnhau
+# Browser tab title for the page confirming the user’s sign-in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+sign-in-complete-page-title = Mewngofnodi wedi ei gadarnhau
+# Browser tab title for the page confirming the user’s new account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+sign-up-complete-page-title = Cyfrif wedi'i gadarnhau
+# Browser tab title for the page confirming the user’s primary email address.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+primary-email-verified-page-title = Prif e-bost wedi'i gadarnhau
 
 ## Users see this view when they are generating a new account recovery key
 ## This screen displays the generated key and allows users to download or copy the key
@@ -883,6 +898,8 @@ modal-mfa-protected-confirm-button = Cadarnhau
 modal-mfa-protected-code-expired = Cod wedi dod i ben?
 # Link to resend a new code to the user's email.
 modal-mfa-protected-resend-code-link = E-bostiwch cod newydd.
+# Error shown when the code is correct but the device clock is too far ahead of the server time.
+modal-mfa-protected-clock-skew-error = Mae cloc eich dyfais yn anghywir. Cywirwch ddyddiad ac amser eich dyfais, yna ceisiwch eto.
 
 ## Modal Verify Session
 
@@ -1252,6 +1269,9 @@ security-set-password = Gosodwch gyfrinair i gydweddu a defnyddio rhai nodweddio
 security-recent-activity-link = Gweld gweithgaredd diweddar cyfrif
 signout-sync-header = Sesiwn wedi Dod i Ben
 signout-sync-session-expired = Ymddiheuriadau, aeth rhywbeth o'i le. Allgofnodwch o ddewislen y porwr a cheisiwch eto.
+# Browser tab title for the page telling the user their session expired and they need to sign out from the browser menu.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signout-sync-page-title = Sesiwn wedi dod i ben
 
 ## SubRow component
 
@@ -1637,6 +1657,9 @@ connect-another-device-not-now-link = Nid nawr
 connect-another-device-android-complete-setup-message = Mewngofnodwch i { -brand-firefox } Android i orffen y gosod
 # This is a message for Firefox iOS users, prompting them to complete the process of connecting another device by signing into Firefox for iOS
 connect-another-device-ios-complete-setup-message = Mewngofnodwch i { -brand-firefox } iOS i orffen y gosod
+# Browser tab title for the page that invites the user to connect another device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+connect-another-device-page-title = Cysylltu dyfais arall
 
 ## Cookies disabled page
 ## Users will see this page if they have local storage or cookies disabled.
@@ -1647,9 +1670,15 @@ cookies-disabled-enable-prompt-2 = Galluogwch cwcis a storfa leol yn eich porwr 
 cookies-disabled-button-try-again = Ceisiwch eto
 # An external link going to: https://support.mozilla.org/kb/cookies-information-websites-store-on-your-computer
 cookies-disabled-learn-more = Dysgu rhagor
+# Browser tab title for the page shown when cookies or local storage are disabled in the browser.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+cookies-disabled-page-title = Mae angen cwcis a storfa leol
 
 ## Index / home page
 
+# Browser tab title for the page where the user enters their email to sign in or create an account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+index-page-title = Mewngofnodi neu greu cyfrif
 index-header = Rhowch eich e-bost
 index-sync-header = Ymlaen i'ch { -product-mozilla-account }
 index-sync-subheader = Cydweddwch eich cyfrineiriau, tabiau a nodau tudalen ym mhob man rydych yn defnyddio { -brand-firefox }.
@@ -1697,6 +1726,33 @@ inline-recovery-key-setup-download-header = Diogelwch eich cyfrif
 inline-recovery-key-setup-download-subheader = Llwythwch ef i lawr a'i gadw
 inline-recovery-key-setup-download-info = Cadwch yr allwedd hon yn rhywle y byddwch chi'n ei gofio - fyddwch chi ddim yn gallu dychwelyd i'r dudalen hon yn nes ymlaen.
 inline-recovery-key-setup-hint-header = Argymhelliad diogelwch
+# Browser tab title for the page where the user creates an account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-key-setup-create-page-title = Creu allwedd adfer cyfrif
+# Browser tab title for the page where the user downloads their account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-key-setup-download-page-title = Llwythwch eich allwedd adfer i lawr
+# Browser tab title for the page where the user adds a hint for their account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-key-setup-hint-page-title = Ychwanegu awgrym allwedd adfer
+# Browser tab title for the page where the user chooses a recovery method during two-step authentication setup.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-choice-page-title = Dewiswch ddull adfer
+# Browser tab title for the page where the user saves their backup authentication codes.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-download-codes-page-title = Cadw eich codau wrth gefn
+# Browser tab title for the page where the user confirms one of their backup authentication codes.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-confirm-code-page-title = Cadarnhau'r cod wrth gefn
+# Browser tab title for the page where the user enters a phone number to use as a recovery phone.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-phone-number-page-title = Ychwanegu ffôn adfer
+# Browser tab title for the page where the user enters the code sent to their recovery phone to confirm it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-phone-code-page-title = Cadarnhau'r ffôn adfer
+# Browser tab title for the page confirming that two-step authentication is now on for the account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-complete-page-title = Dilysiad dau gam ymlaen
 
 ## InlineTotpSetup page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -1732,6 +1788,12 @@ inline-totp-setup-security-code-placeholder = Cod dilysu
 inline-totp-setup-code-required-error = Mae angen cod dilysu
 tfa-qr-code-alt = Defnyddiwch y cod { $code } i osod dilysiad dau gam mewn rhaglenni sy'n ei gefnogi.
 inline-totp-setup-page-title = Dilysu dau gam
+# Browser tab title for the first page of two-step authentication setup, which introduces the feature.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-totp-setup-intro-page-title = Gosod dilysu dau gam
+# Browser tab title for the page where the user connects an authenticator app to their account during two-step authentication setup.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-totp-setup-enrol-page-title = Cysylltwch eich ap dilysu
 
 ## PageNotFound page
 ## Shown when the requested page does not exist
@@ -1739,6 +1801,9 @@ inline-totp-setup-page-title = Dilysu dau gam
 page-not-found-heading = Heb ganfod y dudalen
 page-not-found-description = Dyw'r dudalen rydych wedi gofyn amdani heb ei chanfod. Rydym wedi cael ein hysbysu a byddwn yn trwsio unrhyw ddolenni sydd efallai wedi'u torri.
 page-not-found-home-button = Cartref
+# Browser tab title for the page shown when the requested page does not exist.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+page-not-found-page-title = Heb ganfod y dudalen
 
 ## AuthAllow page - Part of the device pairing flow
 
@@ -1749,6 +1814,9 @@ pair-auth-allow-confirm-button = Iawn, yn cymeradwyo'r ddyfais
 # "If this wasn't you" means "If it wasn't you that just signed in to Firefox"
 # The text with the <link> tags links to a `reset password` page
 pair-auth-allow-refuse-device-link = Os nad chi oedd hwn, <a>newidiwch eich cyfrinair</a>
+# Browser tab title for the page where the user approves a { -brand-firefox } sign-in on a new device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-auth-allow-page-title = Cymeradwyo mewngofnodi i { -brand-firefox }
 
 ## PairAuthComplete page - part of the device pairing flow
 
@@ -1770,6 +1838,12 @@ pair-auth-complete-send-tab-heading = Rydych chi'n barod i anfon rhai tabiau
 # Variable { $deviceOS } is an operating system short name, for example "iOS", "Android"
 pair-auth-complete-send-tab-device-connected = Mae { $deviceFamily } at gyfer { $deviceOS } wedi'i gysylltu.
 pair-auth-complete-send-tab-benefits = Mae croeso i chi anfon tabiau agored, cyfrineiriau a nodau tudalen rhwng dyfeisiau ar unwaith.
+# Browser tab title for the page shown when a device has been connected after pairing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-auth-complete-page-title = Dyfais wedi'i gysylltu
+# Browser tab title for the page shown when a device has been connected after pairing started from a send tab button.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-auth-complete-send-tab-page-title = Yn barod i anfon tabiau
 
 ## AuthTotp page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -1788,6 +1862,9 @@ auth-totp-input-label = Rhowch y cod 6 digid
 auth-totp-confirm-button = Cadarnhau
 # Error displayed in a tooltip when the form is submitted without a code
 auth-totp-code-required-error = Mae angen cod dilysu
+# Browser tab title for the page where the user enters a two-step authentication code to continue pairing a device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+auth-totp-page-title = Paru gyda dilysu dau gam
 
 ## WaitForSupp page - Part of the devide pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1796,6 +1873,9 @@ auth-totp-code-required-error = Mae angen cod dilysu
 # The "other device" is non-specific and could be a desktop computer, laptop, tablet, mobile phone, etc.
 # Strings within the <span> elements appear as a subheading.
 pair-wait-for-supp-heading-text = Mae angen cymeradwyaeth nawr <span>o'ch dyfais arall</span>
+# Browser tab title for the page that asks the user to approve device pairing on their other device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-wait-for-supp-page-title = Cymeradwyo ar eich dyfais arall
 
 ## PairFailure - a view which displays on failure of the device pairing process
 
@@ -1803,6 +1883,9 @@ pair-wait-for-supp-heading-text = Mae angen cymeradwyaeth nawr <span>o'ch dyfais
 pair-failure-header-v2 = Methodd paru dyfeisiau
 pair-failure-message-v2 = Doedd dim modd cwblhau'r gosod. Mewngofnodwch gyda'ch e-bost.
 pair-failure-try-again-link = Ceisiwch eto
+# Browser tab title for the page shown when device pairing fails.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-failure-page-title = Methodd y paru dyfais
 
 ## Pair index page
 
@@ -1862,12 +1945,24 @@ pair-download-step-scan-qr = <b>Cam { $stepNumber }</b>: Llwythwch { -brand-fire
 pair-download-step-continue-sync = <b>Cam { $stepNumber }</b>: Dewiswch "Parhau i gydweddu" i gydweddu eich profiad o { -brand-firefox } ar eich dyfais symudol.
 # Button on the download screen that opens about:preferences for pairing
 pair-continue-to-sync-button = Parhau i gydweddu
+# Browser tab title for the page where the user chooses how to connect another device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-choice-page-title = Cysylltu dyfais arall
+# Browser tab title for the page where the user chooses how to set up another device to send tabs to.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-choice-send-tab-page-title = Anfon tabiau i ddyfais arall
+# Browser tab title for the page that explains how to download { -brand-firefox } on a mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-download-page-title = Llwythwch { -brand-firefox } i lawr ar gyfer symudol
 
 ## PairSuccess - a view which displays  on successful completion of the device pairing process
 
 pair-success-header-2 = Dyfais wedi'i gysylltu
 pair-success-message-2 = Roedd y paru'n llwyddiant.
 pair-success-tab-close-message = Bydd y tab hwn yn cael ei gau'n awtomatig gan { -brand-firefox }.
+# Browser tab title for the page shown when a device has been paired successfully.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-success-page-title = Dyfais wedi'i gysylltu
 
 ## SuppAllow page - Part of the device pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1878,6 +1973,9 @@ pair-success-tab-close-message = Bydd y tab hwn yn cael ei gau'n awtomatig gan {
 pair-supp-allow-heading-text = Cadarnhau paru <span>{ $email }</span>
 pair-supp-allow-confirm-button = Cadarnhau paru
 pair-supp-allow-cancel-link = Diddymu
+# Browser tab title for the page where the user confirms pairing a device with their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-supp-allow-page-title = Cadarnhau paru
 
 ## WaitForAuth page - Part of the devide pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1886,6 +1984,9 @@ pair-supp-allow-cancel-link = Diddymu
 # The "other device" is non-specific and could be a desktop computer, laptop, tablet, mobile phone, etc.
 # Strings within the <span> elements appear as a subheading.
 pair-wait-for-auth-heading-text = Mae angen cymeradwyaeth nawr <span>o'ch dyfais arall</span>
+# Browser tab title for the page that asks the user to approve device pairing on their other device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-wait-for-auth-page-title = Cymeradwyo ar eich dyfais arall
 
 ## PairUnsupported - a view which is shown when the user tries to scan the pairing QR code any way other than through a Firefox app
 
@@ -1909,6 +2010,18 @@ pair-unsupported-learn-more-link-v2 = Dysgu rhagor
 # Matches the legacy Backbone "Oops! Something went wrong." message.
 pair-unsupported-desktop-firefox-fallback-header-v2 = Wps! Aeth rhywbeth o'i le.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Caewch y tab hwn a cheisiwch eto.
+# Browser tab title for the page shown to a desktop user who is not using { -brand-firefox } and must switch browsers to pair a device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-desktop-non-firefox-page-title = Mae angen { -brand-firefox }
+# Browser tab title for the page shown when a mobile user scans the pairing code with the system camera and must pair from within a { -brand-firefox } app instead.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-system-camera-page-title = Paru gan ddefnyddio ap
+# Browser tab title for the page that explains how to connect a mobile device by starting from { -brand-firefox } on a computer.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-mobile-page-title = Cysylltu eich dyfais symudol
+# Browser tab title for the page shown to a desktop { -brand-firefox } user when something went wrong and device pairing cannot continue.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-desktop-firefox-fallback-page-title = Aeth rhywbeth o'i le
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer, which is already signed in, after their
@@ -1923,6 +2036,9 @@ pair2-authority-approve-sign-in-confirm-button = Iawn, cymeradwyo'r mewngofnodi
 # "Not you?" asks whether someone other than the user started this sign-in.
 # The text inside <changePassword> links to the page for changing the password.
 pair2-authority-approve-sign-in-change-password = Nid chi? <changePassword>Newidiwch eich cyfrinair</changePassword>
+# Browser tab title for the page where the user approves a sign-in requested from their mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-approve-sign-in-page-title = Cymeradwyo mewngofnodi
 
 ## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer after scanning the pairing QR code with
@@ -1933,6 +2049,9 @@ pair2-authority-continue-on-mobile-heading = Parhewch ar eich dyfais symudol
 pair2-authority-continue-on-mobile-description = Dilynwch y camau ar eich ffôn neu dabled.
 # Dismisses the pairing attempt
 pair2-authority-continue-on-mobile-cancel-button = Diddymu
+# Browser tab title for the page telling the user to continue connecting their device on their mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-continue-on-mobile-page-title = Parhewch ar eich dyfais symudol
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when Firefox is needed to continue pairing.
@@ -1944,6 +2063,9 @@ pair2-authority-download-firefox-heading = Agor { -brand-firefox } i gydweddu
 pair2-authority-download-firefox-instruction-v2 = I osod cydweddu ar draws dyfeisiau, agorwch { -brand-firefox } ar y ddyfais hon ac ewch i <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Llwytho { -brand-firefox } i lawr
+# Browser tab title for the page telling the user to open { -brand-firefox } on this device to start syncing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-download-firefox-page-title = Agor { -brand-firefox } i gydweddu
 
 ## ScanQR page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer. It shows a QR code that they scan with
@@ -1958,6 +2080,9 @@ pair2-authority-scan-qr-code-aria-label = Cod QR i gysylltu eich dyfais symudol
 pair2-authority-scan-qr-other-ways-link = Ffyrdd eraill o fewngofnodi
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Hepgor am nawr
+# Browser tab title for the page showing a QR code the user scans with their mobile device to connect it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-scan-qr-page-title = Sganiwch i gysylltu eich dyfais symudol
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
@@ -1968,6 +2093,9 @@ pair2-authority-sync-success-heading-v2 = Mae eich dyfais wedi'i gysylltu
 pair2-authority-sync-success-description-v2 = Wrthi'n cydweddu. Gall gymryd peth amser i'ch data wedi'i gydweddu ymddangos. Mae croeso i chi barhau i bori.
 # Opens the browser settings that control what is synced
 pair2-authority-sync-success-sync-settings-button-v2 = Rheoli gosodiadau cydweddu
+# Browser tab title for the page shown when a mobile device has been connected and syncing has started.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-sync-success-page-title = Dyfais wedi'i gysylltu
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1984,6 +2112,12 @@ pair2-authority-timeout-and-cancel-canceled-description = Os ydych chi'n newid e
 pair2-authority-timeout-and-cancel-try-again-button = Ceisiwch eto
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Gosodiadau cydweddu
+# Browser tab title for the page shown on the computer when the device pairing attempt timed out.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-timeout-and-cancel-timeout-page-title = Cysylltiad wedi dod i ben
+# Browser tab title for the page shown on the computer when the device pairing attempt was cancelled.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-timeout-and-cancel-cancelled-page-title = Canslo paru
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
@@ -1995,6 +2129,9 @@ pair2-supplicant-approve-sign-in-heading = Un cam olaf i gydweddu
 pair2-supplicant-approve-sign-in-instruction = Cymeradwyo'r mewngofnodi ar eich cyfrifiadur.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Diddymu
+# Browser tab title for the page shown on the mobile device while the user approves the sign-in on their computer. "sync" is a verb, referring to syncing data between the user’s devices.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-approve-sign-in-page-title = Un cam olaf i gydweddu
 
 ## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
@@ -2009,6 +2146,9 @@ pair2-supplicant-connect-this-device-heading = Cysylltu'r ddyfais hon â'ch cyfr
 pair2-supplicant-connect-this-device-connect-button = Cysylltu
 # Dismisses the pairing attempt
 pair2-supplicant-connect-this-device-cancel-button = Diddymu
+# Browser tab title for the page shown on the mobile device where the user confirms connecting it to their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-connect-this-device-page-title = Cysylltwch y ddyfais hon
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing reaches a browser that is
@@ -2030,6 +2170,15 @@ pair2-supplicant-download-firefox-download-button = Llwytho { -brand-firefox } i
 pair2-supplicant-download-firefox-have-firefox-button = Mae gen i { -brand-firefox } yn barod
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = Dysgu rhagor
+# Browser tab title for the page shown on the mobile device asking the user to open { -brand-firefox } on it to continue pairing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-download-firefox-page-title = Agor { -brand-firefox } ar y ddyfais hon
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+
+# Browser tab title for the page shown on the mobile device telling the user to finish pairing in the { -brand-firefox } app.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-connect-hint-page-title = Gorffen paru yn yr ap
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2042,6 +2191,9 @@ pair2-supplicant-ready-to-scan-heading = I gysylltu dyfais
 pair2-supplicant-ready-to-scan-instruction = Ar eich cyfrifiadur, agorwch { -brand-firefox } ac ewch i <b>firefox.com/pair</b>, a dilynwch y cyfarwyddiadau ar y sgrin i gysylltu'r ddyfais symudol hon.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = Dysgu rhagor
+# Browser tab title for the page shown on the mobile device before pairing starts, telling the user to open firefox.com/pair on their computer.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-ready-to-scan-page-title = Yn barod i sganio
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device once pairing has completed: the device
@@ -2050,6 +2202,9 @@ pair2-supplicant-ready-to-scan-learn-more-link = Dysgu rhagor
 pair2-supplicant-sync-success-heading = Mae eich dyfais wedi'i gysylltu
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = Wrthi'n cydweddu. Gall gymryd peth amser i'ch data wedi'i gydweddu ymddangos. Mae croeso i chi barhau i bori.
+# Browser tab title for the page shown on the mobile device when it has been connected and syncing has started.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-sync-success-page-title = Dyfais wedi'i gysylltu
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2069,6 +2224,15 @@ pair2-supplicant-timeout-and-cancel-canceled-description = I gysylltu dyfais unr
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Mae'r ddyfais hon eisoes wedi mewngofnodi
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-signed-in-description = I gysylltu â'ch cyfrif bwrdd gwaith, allgofnodwch o { -brand-firefox } ar y ddyfais hon, yna ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur i gwblhau mewngofnodi.
+# Browser tab title for the page shown on the mobile device when the device pairing attempt timed out.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-timeout-and-cancel-timeout-page-title = Cysylltiad wedi dod i ben
+# Browser tab title for the page shown on the mobile device when the device pairing attempt was cancelled.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = Canslo paru
+# Browser tab title for the page shown on the mobile device when it is already signed in to an account and cannot be paired.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-timeout-and-cancel-signed-in-page-title = Dyfais wedi mewngofnodi yn barod
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2083,6 +2247,9 @@ permissions-label-display-name = Enw dangos
 permissions-label-avatar = Disgrifiad o'r cyfrif
 permissions-continue-button = Parhau
 permissions-cancel-button = Diddymu
+# Browser tab title for the page where the user reviews the profile information an app or service is asking to access.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+permissions-page-title = Adolygu caniatadau
 
 ## ForcePasswordChange page
 ## Users are sent here when suspicious activity on the account requires a new password before they can continue.
@@ -2090,6 +2257,9 @@ permissions-cancel-button = Diddymu
 force-password-change-heading = Newidiwch eich cyfrinair
 force-password-change-info = Rydym wedi canfod ymddygiad amheus ar eich cyfrif { -product-mozilla-account }. I ddiogelu eich cyfrif, crëwch gyfrinair newydd. Byddwch yn defnyddio'r cyfrinair hwn i fewngofnodi eto i'ch holl wasanaethau { -product-mozilla-account }.
 force-password-change-data-info = Bydd hanes, nodau tudalen, mewngofnodi a data personol eraill sydd heb eu cydweddu'n cael eu colli.
+# Browser tab title for the page where the user must change their password because of suspicious activity on their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+force-password-change-page-title = Newidiwch eich cyfrinair
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2099,6 +2269,9 @@ service-welcome-signin-success-banner = Wedi mewngofnodi'n llwyddiannus!
 # In this context, "VPN" is a VPN service built into the Firefox browser, and generally isn't localized differently than "VPN"
 service-welcome-vpn-heading = Nesaf: Troi VPN ymlaen
 service-welcome-vpn-description = Un cam arall i hybu preifatrwydd eich porwr. Ewch i'r panel sydd ar agor a'i droi ymlaen.
+# Browser tab title for the page telling the user to turn on VPN as their next step after signing up or signing in. "VPN" is a VPN service built into the Firefox browser.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+service-welcome-vpn-page-title = Troi VPN ymlaen
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
@@ -2111,6 +2284,9 @@ set-password-info-v2 = Mae hyn yn amgryptio eich data. Mae angen iddo fod yn wah
 ## Users who signed in via passwordless OTP and need to create a password for Sync
 
 set-password-passwordless-info = Mae'r cyfrinair hwn yn amgryptio'ch data wedi'i gydweddu ac yn ei gadw'n ddiogel.
+# Browser tab title for the page where the user creates a password so they can sync.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+set-password-page-title = Creu cyfrinair i gysoni
 
 ## ThirdPartyAuthCallback Page
 ## This page is called after a user completes the third party authentication flow from Google or Apple.
@@ -2131,6 +2307,9 @@ account-recovery-confirm-key-hint = Eich awgrym cadw yw:
 account-recovery-confirm-key-button-2 = Parhau
 # Link that leads to the password reset page (without recovery code)
 account-recovery-lost-recovery-key-link-2 = Methu â dod o hyd i allwedd adfer eich cyfrif?
+# Browser tab title for the page where the user enters their account recovery key to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+account-recovery-confirm-key-page-title = Ailosod cyfrinair gydag allwedd adfer
 
 ## CompleteResetPassword component
 ## User followed a password reset link and is now prompted to create a new password
@@ -2152,12 +2331,18 @@ reset-password-complete-banner-message = Peidiwch ag anghofio cynhyrchu allwedd 
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = Bydd { -brand-firefox } yn ceisio eich anfon yn ôl i ddefnyddio e-bost arallenw ar ôl i chi fewngofnodi.
+# Browser tab title for the page where the user creates a new password while resetting it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+complete-reset-password-page-title = Creu cyfrinair newydd
 confirm-backup-code-reset-password-input-label = Rhowch y cod 10 nod
 confirm-backup-code-reset-password-confirm-button = Cadarnhau
 confirm-backup-code-reset-password-subheader = Rhowch y cod dilysu wrth gefn
 confirm-backup-code-reset-password-instruction = Rhowch un o'r codau untro y gwnaethoch chi eu cadw pan wnaethoch chi osod dilysiad dau gam.
 # Link out to support article: https://support.mozilla.org/kb/what-if-im-locked-out-two-step-authentication
 confirm-backup-code-reset-password-locked-out-link = Ydych chi wedi'ch cloi allan?
+# Browser tab title for the page where the user enters a backup authentication code to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-backup-code-reset-password-page-title = Ailosod cyfrinair gyda chod wrth gefn
 
 ## Confirm Reset Password With Code
 
@@ -2175,6 +2360,9 @@ confirm-reset-password-otp-submit-button = Parhau
 confirm-reset-password-otp-resend-code-button = Ail-anfon y cod
 # Link to cancel the password reset and sign in with a different account
 confirm-reset-password-otp-different-account-link = Defnyddiwch gyfrif gwahanol
+# Browser tab title for the page where the user enters the confirmation code emailed to them to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-reset-password-with-code-page-title = Gwiriwch eich e-bost i ailosod eich cyfrinair
 
 ## PasswordResetConfirmTotp Page
 
@@ -2185,6 +2373,9 @@ confirm-totp-reset-password-trouble-code = Trafferth cyflwyno'r cod?
 confirm-totp-reset-password-confirm-button = Cadarnhau
 confirm-totp-reset-password-input-label-v2 = Rhowch y cod 6 digid
 confirm-totp-reset-password-use-different-account = Defnyddiwch gyfrif gwahanol
+# Browser tab title for the page where the user enters a two-step authentication code to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-totp-reset-password-page-title = Ailosod cyfrinair gyda dilysiad dau gam
 
 ## ResetPassword start page
 
@@ -2197,12 +2388,18 @@ password-reset-email-input =
 password-reset-submit-button-2 = Parhau
 # Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
 password-reset-data-recovery-warning = Gall ailosod eich cyfrinair effeithio ar p'un eich bod yn gallu adennill data porwr wedi'i gydweddu. <learnMoreLink>Dysgu rhagor</learnMoreLink>
+# Browser tab title for the page where the user starts a password reset by entering their email.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+password-reset-flow-page-title = Ailosod eich cyfrinair
 
 ## ResetPasswordConfirmed
 
 reset-password-complete-header = Mae eich cyfrinair wedi ei ailosod
 # $serviceName is a product name such as Monitor, Relay
 reset-password-confirmed-cta = Parhau i { $serviceName }
+# Browser tab title for the page confirming that the user’s password was reset.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+reset-password-confirmed-page-title = Ailosod cyfrinair wedi'i gwblhau
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
@@ -2226,6 +2423,9 @@ password-reset-recovery-method-code-info =
 # Shown when a backend service fails and a code cannot be sent to the user's recovery phone.
 password-reset-recovery-method-send-code-error-heading = Bu anhawster wrth anfon cod i'ch ffôn adfer
 password-reset-recovery-method-send-code-error-description = Ceisiwch eto yn nes ymlaen neu defnyddio eich codau dilysu wrth gefn.
+# Browser tab title for the page where the user chooses a recovery method to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+password-reset-recovery-method-page-title = Ailosod cyfrinair gyda dull adfer
 
 ## ResetPasswordRecoveryPhone page
 
@@ -2247,10 +2447,16 @@ reset-password-recovery-phone-code-verification-error-heading = Bu anhawster wrt
 reset-password-recovery-phone-general-error-description = Ceisiwch eto'n ddiweddarach.
 reset-password-recovery-phone-invalid-code-error-description = Mae'r cod yn annilys neu wedi dod i ben.
 reset-password-recovery-phone-invalid-code-error-link = Defnyddio codau dilysu wrth gefn yn lle hynny?
+# Browser tab title for the page where the user enters a code sent to their recovery phone to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+reset-password-recovery-phone-page-title = Ailosod cyfrinair gyda ffôn adfer
 reset-password-with-recovery-key-verified-page-title = Mae'r cyfrinair wedi ei ailosod yn llwyddiannus
 reset-password-complete-new-password-saved = Cyfrinair newydd wedi'i gadw!
 reset-password-complete-recovery-key-created = Mae allwedd adfer cyfrif newydd wedi'i chreu. Llwythwch hi i lawr a'i chadw nawr.
 reset-password-complete-recovery-key-download-info = Mae'r allwedd hon yn hanfodol ar gyfer adfer data os byddwch yn anghofio eich cyfrinair. <b>Llwythwch hi i lawr a'i chadw'n ddiogel nawr, gan na fydd modd i chi allu cyrchu'r dudalen hon eto yn nes ymlaen.</b>
+# Browser tab title for the page where the user adds a hint for their new account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+reset-password-with-recovery-key-verified-hint-page-title = Ychwanegu awgrym allwedd adfer
 
 ## ServerError page
 ## Shown when the server fails to handle a request
@@ -2258,6 +2464,9 @@ reset-password-complete-recovery-key-download-info = Mae'r allwedd hon yn hanfod
 server-error-heading = Gwall 500
 server-error-description = O diar, aeth rhywbeth o'i le yno. Rydym wedi cael ein hysbysu a byddwn yn dechrau gweithio ar ei drwsio.
 server-error-home-button = Cartref
+# Browser tab title for the page shown when the server fails to handle a request.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+server-error-page-title = Gwall gweinydd
 
 ## CompleteSignin component
 
@@ -2270,9 +2479,24 @@ complete-signin-error-header = Gwall cadarnhau
 # The user followed a signin confirmation link, but that link is expired and no longer valid
 signin-link-expired-header = Mae'r ddolen dilysu wedi dod i ben
 signin-link-expired-message-2 = Mae'r ddolen a gliciwyd gennych wedi dod i ben neu eisoes wedi'i defnyddio.
+# Browser tab title for the page shown when something went wrong while confirming a sign-in from an emailed link.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+complete-signin-error-page-title = Gwall cadarnhau mewngofnodi
+# Browser tab title for the page shown while a sign-in is being confirmed from an emailed link.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+complete-signin-validating-page-title = Cadarnhau mewngofnodi
 
 ## Signin page
 
+# Browser tab title for the page where the user enters their password to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-password-page-title = Rhowch eich cyfrinair
+# Browser tab title for the sign-in page shown when the user already has a saved session on this device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-cached-page-title = Mewngofnodi
+# Browser tab title for the page where the user picks how to sign in when their account has no password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-alternative-auth-page-title = Dewiswch ddull mewngofnodi
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Rhowch eich cyfrinair <span>ar gyfer eich cyfrif { -product-mozilla-account }</span>
 # Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
@@ -2309,6 +2533,9 @@ report-signin-body = Rydych wedi derbyn e-bost am ymgais i gael mynediad at eich
 report-signin-submit-button = Adroddiad gweithgaredd
 report-signin-support-link = Pam mae hyn yn digwydd?
 report-signin-error = Ymddiheuriadau, bu anhawster wrth gyflwyno'r adroddiad.
+# Browser tab title for the page where the user can report a sign-in attempt to their account that they did not make.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+report-signin-page-title = Rhoi gwybod am fewngofnodi anawdurdodedig
 signin-bounced-header = Ymddiheuriadau. Rydym wedi cloi eich  cyfrif.
 # $email (string) - The user's email.
 signin-bounced-message = Cafodd yr e-bost cadarnhau roeddem wedi ei anfon i { $email } ei ddychwelyd ac rydym wedi cloi eich cyfrif er mwyn diogelu eich data { -brand-firefox }.
@@ -2316,6 +2543,9 @@ signin-bounced-message = Cafodd yr e-bost cadarnhau roeddem wedi ei anfon i { $e
 signin-bounced-help = Os yw hwn yn gyfrif e-bost dilys, <linkExternal>gadewch i ni wybod</linkExternal> a byddwn yn gallu helpu i ddatgloi eich cyfrif.
 signin-bounced-create-new-account = Ddim yn berchen ar yr e-bost hwn? Crëwch gyfrif newydd
 back = Nôl
+# Browser tab title for the page telling the user their account is locked because a confirmation email sent to them was returned.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-bounced-page-title = Cyfrif wedi'i gloi
 
 ## SigninPasskeyFallback page
 ## Users who authenticate with a passkey to access Sync must also enter their password.
@@ -2336,6 +2566,9 @@ signin-passkey-fallback-unwrap-failed-heading = Doedd dim modd i'ch cyfrinallwed
 signin-passkey-fallback-unwrap-failed-description = Aeth rhywbeth o'i le, felly bydd angen eich cyfrinair y tro yma.
 # Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
 signin-passkey-fallback-wrap-unusable-link = Dysgu rhagor
+# Browser tab title for the page where the user enters their password after using a passkey to sign in, so they can sync.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-passkey-fallback-page-title = Rhowch eich cyfrinair i gydweddu
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2385,6 +2618,12 @@ signup-passwordless-code-subheading = Dim ond un cam y mae cofrestru'n ei gymryd
 # Shown when a user with 2FA enabled tries to use passwordless flow
 # They are redirected to password signin instead
 signin-passwordless-totp-required = Mae dilysu dau gam wedi'i alluogi ar eich cyfrif. Mewngofnodwch gyda'ch cyfrinair.
+# Browser tab title for the page where the user enters the confirmation code emailed to them to sign in to their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-passwordless-code-page-title = Mewngofnodwch gyda chod e-bost
+# Browser tab title for the page where the user enters the confirmation code emailed to them to sign up for an account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signup-passwordless-code-page-title = Cofrestrwch gyda chod e-bost
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
@@ -2408,6 +2647,9 @@ signin-recovery-method-code-info-v2 =
 # Shown when a backend service fails and a code cannot be sent to the user's recovery phone.
 signin-recovery-method-send-code-error-heading = Bu problem wrth anfon cod i'ch ffôn adfer
 signin-recovery-method-send-code-error-description = Ceisiwch eto yn nes ymlaen neu defnyddiwch eich codau dilysu wrth gefn.
+# Browser tab title for the page where the user chooses a recovery method to sign in when they cannot use their authenticator app.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-recovery-method-page-title = Mewngofnodi gyda dull adfer
 
 ## SigninRecoveryCode page
 ## Users are prompted to enter a backup authentication code
@@ -2434,6 +2676,9 @@ signin-recovery-code-required-error = Mae angen cod dilysu wrth gefn
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-recovery-code-use-phone-failure = Bu problem wrth anfon cod i'ch ffôn adfer
 signin-recovery-code-use-phone-failure-description = Ceisiwch eto'n ddiweddarach.
+# Browser tab title for the page where the user enters a backup authentication code to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-recovery-code-page-title = Mewngofnodi gyda chod wrth gefn
 
 ## SigninRecoveryPhone page
 
@@ -2458,11 +2703,17 @@ signin-recovery-phone-invalid-code-error-link = Defnyddio codau dilysu wrth gefn
 # "Limits" refers to potential restrictions on how often a recovery phone number can be used for signing in within a given time period.
 # If limits are reached, users may have to use an alternate two-step authentication method or wait until the restriction period is over.
 signin-recovery-phone-success-message = Wedi mewngofnodi yn llwyddiannus. Gall terfynau fod yn berthnasol os byddwch yn defnyddio'ch ffôn adfer eto.
+# Browser tab title for the page where the user enters a code sent to their recovery phone to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-recovery-phone-page-title = Mewngofnod gyda ffôn adfer
 
 ## Signin reported page: this page is shown when a user receives an email notifying them of a new account signin, and the user clicks a button indicating that the signin was not them so that we know it was someone trying to break into their account.
 
 signin-reported-header = Diolch am eich gwyliadwriaeth
 signin-reported-message = Mae ein tîm wedi eu hysbysu. Mae adroddiadau fel hyn y ein cynorthwyo i gadw ymyrraeth allanol draw.
+# Browser tab title for the page confirming the user reported a sign-in attempt that was not them.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-reported-page-title = Adroddwyd am fewngofnodi
 
 ## SigninTokenCode page
 ## Users see this page during the signin process. In this instance, the confirmation code is
@@ -2498,6 +2749,9 @@ signin-token-code-resend-error = Aeth rhywbeth o'i le. Nid oedd modd anfon cod n
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-token-code-instruction-desktop-relay = Bydd { -brand-firefox } yn ceisio eich anfon yn ôl i ddefnyddio e-bost arallenw ar ôl i chi fewngofnodi.
+# Browser tab title for the page where the user enters the confirmation code emailed to them to confirm a sign-in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-token-code-page-title = Cadarnhau mewngofnodi gyda chod e-bost
 
 ## SigninTOTPCode page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -2522,6 +2776,9 @@ signin-totp-code-required-error = Mae angen cod dilysu
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-totp-code-desktop-relay = Bydd { -brand-firefox } yn ceisio eich anfon yn ôl i ddefnyddio e-bost arallenw ar ôl i chi fewngofnodi.
+# Browser tab title for the page where the user enters a two-step authentication code from their authenticator app to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-totp-code-page-title = Mewngofnodi gyda dilysiad dau gam
 
 ## Signin Unblock Page
 ## Page shown when signin has been blocked by rate limiting (too many requests)
@@ -2541,12 +2798,16 @@ signin-unblock-support-link = Pam mae hyn yn digwydd?
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-unblock-desktop-relay = Bydd { -brand-firefox } yn ceisio eich anfon yn ôl i ddefnyddio e-bost arallenw ar ôl i chi fewngofnodi.
+# Browser tab title for the page where the user enters the authorization code emailed to them to approve a blocked sign-in attempt.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-unblock-page-title = Awdurdodi'r mewngofnod hwn
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
 
-# Page title show in browser title bar or page tab
-confirm-signup-code-page-title = Rhowch y cod dilysu
+# Browser tab title for the page where the user enters the confirmation code emailed to them to finish signing up.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-signup-code-page-title-2 = Cadarnhau eich e-bost
 # String within the <span> element appears on a separate line
 # If more appropriate in a locale, the string within the <span>, "for your { -product-mozilla-account }"
 # can stand alone as "{ -product-mozilla-account }"
@@ -2588,6 +2849,9 @@ signup-sync-info = Cydweddwch eich cyfrineiriau a nodau tudalen a rhagor ym mhob
 signup-sync-info-with-payment = Cydweddwch eich cyfrineiriau, dulliau talu a nodau tudalen, a rhagor ym mhob man rydych yn defnyddio { -brand-firefox }.
 # Clicking on this link returns the user to the beginning of the flow so they can enter a new email address
 signup-change-email-link = Newid e-bost
+# Browser tab title for the page where the user creates a password to sign up for an account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signup-page-title = Creu eich cyfrif
 
 ## SignupConfirmedSync page
 ## Shown to users when they finish confirming their account through Sync
@@ -2601,6 +2865,9 @@ signup-confirmed-sync-description-v2 = Gall eich cyfrineiriau, cyfeiriadau, noda
 signup-confirmed-sync-add-device-link = Ychwanegu dyfais arall
 signup-confirmed-sync-manage-sync-button = Rheoli cydweddu
 signup-confirmed-sync-set-password-success-banner = Cyfrinair cydweddu wedi'i greu
+# Browser tab title for the page confirming that sync is turned on after the user confirmed their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signup-confirmed-sync-page-title = Mae cydweddu wedi'i droi ymlaen
 
 ## UpdateFirefox page
 ## Shown when the browser is too old to use a Mozilla account
@@ -2608,3 +2875,6 @@ signup-confirmed-sync-set-password-success-banner = Cyfrinair cydweddu wedi'i gr
 update-firefox-heading = Mae angen diweddaru { -brand-firefox }
 update-firefox-description = Mae eich cyfrif { -product-mozilla-account } yn defnyddio nodweddion sydd ddim yn cael eu cefnogi yn eich fersiwn chi o { -brand-firefox }. Llwythwch i lawr a gosodwch y fersiwn diweddaraf o { -brand-firefox } i barhau.
 update-firefox-download-button = Llwytho'r diweddariad diweddaraf i lawr
+# Browser tab title for the page shown when the browser is too old to use a Mozilla account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+update-firefox-page-title = Mae angen diweddaru { -brand-firefox }

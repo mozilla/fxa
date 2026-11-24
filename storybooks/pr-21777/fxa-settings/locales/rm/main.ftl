@@ -28,7 +28,6 @@ app-footer-terms-of-service = Cundiziuns d'utilisaziun
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = S'avra en ina nova fanestra
@@ -1073,7 +1072,6 @@ signin-unblock-support-link = Pertge capita quai?
 signin-unblock-desktop-relay = { -brand-firefox } vegn ad empruvar da ta renviar danovamain a la pagina per utilisar in alias dad e-mail suenter l’annunzia.
 
 
-confirm-signup-code-page-title = Endatescha il code da conferma
 confirm-signup-code-heading-2 = Endatescha il code da conferma <span>per tes { -product-mozilla-account }</span>
 confirm-signup-code-input-label = Endatescha il code da 6 cifras
 confirm-signup-code-confirm-button = Confermar

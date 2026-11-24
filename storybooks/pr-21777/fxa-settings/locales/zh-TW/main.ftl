@@ -48,7 +48,7 @@ app-footer-terms-of-service = 服務條款
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = 會用新視窗開啟
@@ -293,6 +293,7 @@ input-phone-number-country-canada = 加拿大
 reset-pwd-link-damaged-header = 重設密碼鏈結已毀損
 signin-link-damaged-header = 驗證鏈結無效
 report-signin-link-damaged-header = 鏈結毀損
+report-signin-link-damaged-page-title = 回報鏈結毀損
 reset-pwd-link-damaged-message = 您點擊的鏈結可能缺少了一些字元，或您的收信軟體修改了郵件內容。請確認您複製了完整的網址，再次開啟確認鏈結。
 
 
@@ -312,6 +313,7 @@ confirmation-link-reused-message = 該確認鏈結只能使用一次，已經被
 locale-toggle-select-label = 選擇語言
 locale-toggle-browser-default = 瀏覽器預設值
 error-bad-request = 請求錯誤
+error-bad-request-page-title = 請求錯誤
 
 
 pair-unsupported-hint-heading = 到 App 中完成配對
@@ -368,6 +370,9 @@ ready-continue = 繼續
 sign-in-complete-header = 登入完成
 sign-up-complete-header = 帳號已確認
 primary-email-verified-header = 已驗證主要電子郵件地址
+sign-in-complete-page-title = 已確認登入
+sign-up-complete-page-title = 已確認帳號
+primary-email-verified-page-title = 已驗證主要電子郵件地址
 
 
 flow-recovery-key-download-storage-ideas-heading-v2 = 金鑰存放位置：
@@ -605,6 +610,7 @@ modal-mfa-protected-cancel-button = 取消
 modal-mfa-protected-confirm-button = 確認
 modal-mfa-protected-code-expired = 驗證碼失效？
 modal-mfa-protected-resend-code-link = 重寄新驗證碼。
+modal-mfa-protected-clock-skew-error = 您的裝置時間不正確。請調整裝置的日期與時間，然後再試一次。
 
 
 mvs-verify-your-email-2 = 確認電子郵件信箱
@@ -893,6 +899,7 @@ security-set-password = 設定密碼，方可使用同步功能與其他帳號�
 security-recent-activity-link = 檢視近期帳號活動
 signout-sync-header = 登入階段已過期
 signout-sync-session-expired = 抱歉，有些東西不對勁，請從瀏覽器選單登出後再試一次。
+signout-sync-page-title = 登入階段已過期
 
 
 tfa-row-backup-codes-title = 備用驗證碼
@@ -1121,14 +1128,17 @@ connect-another-device-cad-link = 連結其他裝置
 connect-another-device-not-now-link = 現在不要
 connect-another-device-android-complete-setup-message = 登入 { -brand-firefox } for Android 完成設定
 connect-another-device-ios-complete-setup-message = 登入 { -brand-firefox } for iOS 完成設定
+connect-another-device-page-title = 連結其他裝置
 
 
 cookies-disabled-header = 必須開啟本機儲存空間與 Cookie 功能
 cookies-disabled-enable-prompt-2 = 請開啟瀏覽器的 Cookie 與本機儲存空間功能，才能使用 { -product-mozilla-account }。這麼做可讓帳號系統在每次使用時記住您的登入狀態。
 cookies-disabled-button-try-again = 重試
 cookies-disabled-learn-more = 了解更多
+cookies-disabled-page-title = 必須開啟 Cookie 與本機儲存空間功能
 
 
+index-page-title = 登入或註冊帳號
 index-header = 輸入您的電子郵件地址
 index-sync-header = 繼續前往您的 { -product-mozilla-account }
 index-sync-subheader = 在使用 { -brand-firefox } 的所有地方同步您的密碼、分頁、書籤。
@@ -1163,6 +1173,15 @@ inline-recovery-key-setup-download-header = 讓您的帳號更安全
 inline-recovery-key-setup-download-subheader = 立即下載保存
 inline-recovery-key-setup-download-info = 未來無法再回到這個頁面，請務必將這把金鑰保存在之後還找得到的地方。
 inline-recovery-key-setup-hint-header = 安全性建議
+inline-recovery-key-setup-create-page-title = 產生帳號救援金鑰
+inline-recovery-key-setup-download-page-title = 下載您的帳號救援金鑰
+inline-recovery-key-setup-hint-page-title = 新增救援金鑰提示
+inline-recovery-setup-choice-page-title = 選擇救援方式
+inline-recovery-setup-download-codes-page-title = 儲存您的備用驗證碼
+inline-recovery-setup-confirm-code-page-title = 確認備用驗證碼
+inline-recovery-setup-phone-number-page-title = 新增救援電話號碼
+inline-recovery-setup-phone-code-page-title = 確認您的救援電話號碼
+inline-recovery-setup-complete-page-title = 已開啟兩階段驗證
 
 
 inline-totp-setup-cancel-setup-button = 取消設定
@@ -1182,16 +1201,20 @@ inline-totp-setup-security-code-placeholder = 驗證碼
 inline-totp-setup-code-required-error = 需要輸入驗證碼
 tfa-qr-code-alt = 使用代碼 { $code } 在支援的應用程式中設定兩階段驗證。
 inline-totp-setup-page-title = 兩階段驗證
+inline-totp-setup-intro-page-title = 設定兩階段驗證
+inline-totp-setup-enrol-page-title = 連結您的驗證程式
 
 
 page-not-found-heading = 找不到頁面
 page-not-found-description = 找不到您想開啟的頁面。我們已經通知開發團隊來檢查網頁。
 page-not-found-home-button = 首頁
+page-not-found-page-title = 找不到頁面
 
 
 pair-auth-allow-heading-text = 您剛登入 { -brand-firefox } 嗎？
 pair-auth-allow-confirm-button = 是我，確認此裝置
 pair-auth-allow-refuse-device-link = 如果您沒有登入，<a>請立即更改密碼</a>
+pair-auth-allow-page-title = 核准 { -brand-firefox } 登入
 
 
 pair-auth-complete-heading = 裝置已連線
@@ -1204,6 +1227,8 @@ pair-auth-complete-manage-devices-link = 管理裝置
 pair-auth-complete-send-tab-heading = 已經準備就緒，可以傳送分頁
 pair-auth-complete-send-tab-device-connected = 已連結 { $deviceOS } 上的 { $deviceFamily }。
 pair-auth-complete-send-tab-benefits = 您可在不同裝置間，自由且即時地傳送開啟分頁、密碼與書籤。
+pair-auth-complete-page-title = 裝置已連線
+pair-auth-complete-send-tab-page-title = 已可傳送分頁
 
 
 auth-totp-heading-w-default-service = 輸入驗證碼<span>即可繼續前往帳號設定</span>
@@ -1212,14 +1237,17 @@ auth-totp-instruction = 請開啟您的兩階段驗證程式，並輸入其提�
 auth-totp-input-label = 請輸入六位數的驗證碼
 auth-totp-confirm-button = 確認
 auth-totp-code-required-error = 需要輸入驗證碼
+auth-totp-page-title = 與兩階段驗證程式配對
 
 
 pair-wait-for-supp-heading-text = 請到另一台裝置進行確認
+pair-wait-for-supp-page-title = 到您的另一台裝置上核准
 
 
 pair-failure-header-v2 = 裝置配對失敗
 pair-failure-message-v2 = 無法完成設定，請使用您的信箱登入。
 pair-failure-try-again-link = 重試
+pair-failure-page-title = 裝置配對失敗
 
 
 pair-sync-header = 與手機或平板電腦上的 { -brand-firefox } 同步
@@ -1253,19 +1281,25 @@ pair-download-description = 若要與您的手機或平板電腦同步 { -brand-
 pair-download-step-scan-qr = <b>第 { $stepNumber } 步</b>：使用行動裝置上的攝影機掃描下列 QR Code，下載 { -brand-firefox }：
 pair-download-step-continue-sync = <b>第 { $stepNumber } 步</b>：選擇「繼續同步」後，即可在您的行動裝置上同步 { -brand-firefox } 使用體驗。
 pair-continue-to-sync-button = 繼續同步
+pair-choice-page-title = 連結另一部裝置
+pair-choice-send-tab-page-title = 將分頁傳送至其他裝置
+pair-download-page-title = 下載 { -brand-firefox } 行動版
 
 
 pair-success-header-2 = 裝置已連線
 pair-success-message-2 = 配對成功。
 pair-success-tab-close-message = { -brand-firefox } 會自動關閉此分頁。
+pair-success-page-title = 裝置已連線
 
 
 pair-supp-allow-heading-text = 確認配對 <span>{ $email }</span>
 pair-supp-allow-confirm-button = 確認配對
 pair-supp-allow-cancel-link = 取消
+pair-supp-allow-page-title = 確認配對
 
 
 pair-wait-for-auth-heading-text = 請到另一台裝置進行確認
+pair-wait-for-auth-page-title = 到您的另一台裝置上核准
 
 
 pair-unsupported-header = 使用應用程式配對
@@ -1278,21 +1312,28 @@ pair-unsupported-connecting-mobile-instructions-v2 = 於您的電腦使用 { -br
 pair-unsupported-learn-more-link-v2 = 更多資訊
 pair-unsupported-desktop-firefox-fallback-header-v2 = 喔喔，有些東西不對勁！
 pair-unsupported-desktop-firefox-fallback-message-v2 = 請關閉這個分頁然後再試一次。
+pair-unsupported-desktop-non-firefox-page-title = 必須使用 { -brand-firefox }
+pair-unsupported-system-camera-page-title = 使用應用程式配對
+pair-unsupported-mobile-page-title = 連結您的行動裝置
+pair-unsupported-desktop-firefox-fallback-page-title = 有些東西不對勁
 
 
 pair2-authority-approve-sign-in-heading = 要允許登入嗎？
 pair2-authority-approve-sign-in-confirm-button = 好，允許登入
 pair2-authority-approve-sign-in-change-password = 不是您操作的？<changePassword>請更改密碼</changePassword>
+pair2-authority-approve-sign-in-page-title = 核准登入
 
 
 pair2-authority-continue-on-mobile-heading = 到您的行動裝置繼續
 pair2-authority-continue-on-mobile-description = 請到手機或平板電腦上進行下列操作。
 pair2-authority-continue-on-mobile-cancel-button = 取消
+pair2-authority-continue-on-mobile-page-title = 到您的行動裝置繼續
 
 
 pair2-authority-download-firefox-heading = 開啟 { -brand-firefox } 即可同步
 pair2-authority-download-firefox-instruction-v2 = 若要與其他裝置同步，請在此裝置開啟 { -brand-firefox }，然後造訪 <b>firefox.com/pair</b>。
 pair2-authority-download-firefox-cta = 下載 { -brand-firefox }
+pair2-authority-download-firefox-page-title = 開啟 { -brand-firefox } 即可同步
 
 
 pair2-authority-scan-qr-heading = 掃描後即可連結您的行動裝置
@@ -1300,11 +1341,13 @@ pair2-authority-scan-qr-instruction = 使用您的手機或平板電腦掃描 QR
 pair2-authority-scan-qr-code-aria-label = 連結您行動裝置的 QR Code
 pair2-authority-scan-qr-other-ways-link = 其他登入方式
 pair2-authority-scan-qr-skip-button = 先略過
+pair2-authority-scan-qr-page-title = 掃描後即可連結您的行動裝置
 
 
 pair2-authority-sync-success-heading-v2 = 已連結您的裝置
 pair2-authority-sync-success-description-v2 = 正在同步中。可能需要一些時間才會顯示同步過來的資料，請繼續上網。
 pair2-authority-sync-success-sync-settings-button-v2 = 管理同步設定
+pair2-authority-sync-success-page-title = 裝置已連線
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = 還想要連結其他裝置嗎？
@@ -1313,16 +1356,20 @@ pair2-authority-timeout-and-cancel-cancelled-heading = 已取消
 pair2-authority-timeout-and-cancel-canceled-description = 若您改變心意，或想要連結另一台裝置，請重試。
 pair2-authority-timeout-and-cancel-try-again-button = 重試
 pair2-authority-timeout-and-cancel-sync-settings-button = 同步設定
+pair2-authority-timeout-and-cancel-timeout-page-title = 連線逾時
+pair2-authority-timeout-and-cancel-cancelled-page-title = 已取消配對
 
 
 pair2-supplicant-approve-sign-in-heading = 完成最後一步即可開始同步
 pair2-supplicant-approve-sign-in-instruction = 請到您的電腦上確認登入。
 pair2-supplicant-approve-sign-in-cancel-button = 取消
+pair2-supplicant-approve-sign-in-page-title = 完成最後一步即可開始同步
 
 
 pair2-supplicant-connect-this-device-heading = 要將此裝置連結到您的帳號嗎？
 pair2-supplicant-connect-this-device-connect-button = 連線
 pair2-supplicant-connect-this-device-cancel-button = 取消
+pair2-supplicant-connect-this-device-page-title = 連結此裝置
 
 
 pair2-supplicant-download-firefox-heading-v2 = 到此裝置開啟 { -brand-firefox }
@@ -1332,15 +1379,21 @@ pair2-supplicant-download-firefox-opening-button = 正在開啟 { -brand-firefox
 pair2-supplicant-download-firefox-download-button = 下載 { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = 我已經安裝 { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = 更多資訊
+pair2-supplicant-download-firefox-page-title = 到此裝置開啟 { -brand-firefox }
+
+
+pair2-supplicant-connect-hint-page-title = 到 App 中完成配對
 
 
 pair2-supplicant-ready-to-scan-heading = 連結裝置
 pair2-supplicant-ready-to-scan-instruction = 於您的電腦使用 { -brand-firefox }，造訪 <b>firefox.com/pair</b>，然後依照畫面上的指示連結您的行動裝置。
 pair2-supplicant-ready-to-scan-learn-more-link = 更多資訊
+pair2-supplicant-ready-to-scan-page-title = 準備好了，開始掃描！
 
 
 pair2-supplicant-sync-success-heading = 已連結您的裝置
 pair2-supplicant-sync-success-description-v2 = 正在同步中。可能需要一些時間才會顯示同步過來的資料，請繼續上網。
+pair2-supplicant-sync-success-page-title = 裝置已連線
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = 看來超出時間限制了。
@@ -1349,6 +1402,9 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = 已取消
 pair2-supplicant-timeout-and-cancel-canceled-description = 歡迎隨時在您的電腦開啟 <b>firefox.com/pair</b> 連結其他裝置。
 pair2-supplicant-timeout-and-cancel-signed-in-heading = 此裝置已經登入
 pair2-supplicant-timeout-and-cancel-signed-in-description = 若要連結您的桌面版帳號，請先在此裝置登出 { -brand-firefox }，再使用電腦開啟 <b>firefox.com/pair</b> 完成登入。
+pair2-supplicant-timeout-and-cancel-timeout-page-title = 連線逾時
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = 已取消配對
+pair2-supplicant-timeout-and-cancel-signed-in-page-title = 裝置已登入
 
 
 permissions-heading = { $serviceName } 想要存取：
@@ -1357,17 +1413,20 @@ permissions-label-display-name = 顯示名稱
 permissions-label-avatar = 帳號圖片
 permissions-continue-button = 繼續
 permissions-cancel-button = 取消
+permissions-page-title = 確認權限
 
 
 force-password-change-heading = 請更改密碼
 force-password-change-info = 我們偵測到您的 { -product-mozilla-account }有可疑活動。為了保護您的帳號，請更改密碼。之後必須使用這組密碼重新登入所有 { -product-mozilla-account }相關服務。
 force-password-change-data-info = 不會失去同步的瀏覽紀錄、書籤、登入資訊與其他個人資料。
+force-password-change-page-title = 更改密碼
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } 已確認
 service-welcome-signin-success-banner = 登入成功！
 service-welcome-vpn-heading = 下一步：開啟 VPN
 service-welcome-vpn-description = 讓您瀏覽器的隱私保護再進一步。請到開啟的面板中打開此功能。
+service-welcome-vpn-page-title = 開啟 VPN
 
 
 set-password-heading-v2 = 設定同步密碼
@@ -1375,6 +1434,7 @@ set-password-info-v2 = 將會加密您的資料，必須與您的 { -brand-googl
 
 
 set-password-passwordless-info = 此密碼用於加密同步資料，確保資料安全。
+set-password-page-title = 設定同步密碼
 
 
 third-party-auth-callback-message = 請稍後，將帶您前往要登入的應用程式。
@@ -1387,6 +1447,7 @@ account-recovery-confirm-key-input-label =
 account-recovery-confirm-key-hint = 您當時設定的保存提示是：
 account-recovery-confirm-key-button-2 = 繼續
 account-recovery-lost-recovery-key-link-2 = 找不到您的帳號救援金鑰嗎？
+account-recovery-confirm-key-page-title = 使用救援金鑰重設密碼
 
 
 complete-reset-pw-header-v2 = 建立新密碼
@@ -1396,11 +1457,13 @@ complete-reset-pw-recovery-key-link = 使用帳號救援金鑰
 reset-password-complete-banner-heading = 您的密碼已重設成功。
 reset-password-complete-banner-message = 別忘記到 { -product-mozilla-account } 設定中產生一把新的帳號救援金鑰，避免未來遇到登入問題。
 complete-reset-password-desktop-relay = 登入後，{ -brand-firefox } 將嘗試使用您的轉寄信箱帶您回到原網站。
+complete-reset-password-page-title = 設定新密碼
 confirm-backup-code-reset-password-input-label = 請輸入 10 字元長的驗證碼
 confirm-backup-code-reset-password-confirm-button = 確認
 confirm-backup-code-reset-password-subheader = 請輸入備用驗證碼
 confirm-backup-code-reset-password-instruction = 請輸入設定兩階段驗證時保存的任一組備用驗證碼。
 confirm-backup-code-reset-password-locked-out-link = 被鎖住了嗎？
+confirm-backup-code-reset-password-page-title = 使用備用驗證碼重設密碼
 
 
 confirm-reset-password-with-code-heading = 請收信確認
@@ -1409,6 +1472,7 @@ confirm-reset-password-code-input-group-label = 請在 10 分鐘內輸入 8 位�
 confirm-reset-password-otp-submit-button = 繼續
 confirm-reset-password-otp-resend-code-button = 重寄確認碼
 confirm-reset-password-otp-different-account-link = 使用另一個帳號
+confirm-reset-password-with-code-page-title = 請收信來重設密碼
 
 
 confirm-totp-reset-password-header = 重設您的密碼
@@ -1418,6 +1482,7 @@ confirm-totp-reset-password-trouble-code = 輸入代碼時遇到問題嗎？
 confirm-totp-reset-password-confirm-button = 確認
 confirm-totp-reset-password-input-label-v2 = 請輸入六位數的驗證碼
 confirm-totp-reset-password-use-different-account = 使用另一個帳號
+confirm-totp-reset-password-page-title = 使用兩階段驗證重設密碼
 
 
 password-reset-flow-heading = 重設您的密碼
@@ -1427,10 +1492,12 @@ password-reset-email-input =
     .label = 請輸入您的電子郵件地址
 password-reset-submit-button-2 = 繼續
 password-reset-data-recovery-warning = 重設密碼可能會影響您能否復原已同步的瀏覽器資料。<learnMoreLink>更多資訊</learnMoreLink>
+password-reset-flow-page-title = 重設您的密碼
 
 
 reset-password-complete-header = 已重設您的密碼
 reset-password-confirmed-cta = 繼續前往 { $serviceName }
+reset-password-confirmed-page-title = 密碼重設完成
 
 
 password-reset-recovery-method-header = 重設您的密碼
@@ -1441,6 +1508,7 @@ password-reset-recovery-method-code = 備用驗證碼
 password-reset-recovery-method-code-info = 剩餘 { $numBackupCodes } 組備用驗證碼
 password-reset-recovery-method-send-code-error-heading = 傳送代碼到您的救援電話號碼時遇到問題
 password-reset-recovery-method-send-code-error-description = 請稍後再試，或使用您的備用驗證碼。
+password-reset-recovery-method-page-title = 透過帳號救援方式重設密碼
 
 
 reset-password-recovery-phone-flow-heading = 重設您的密碼
@@ -1456,15 +1524,18 @@ reset-password-recovery-phone-code-verification-error-heading = 確認您輸入�
 reset-password-recovery-phone-general-error-description = 請稍候再試。
 reset-password-recovery-phone-invalid-code-error-description = 此救援碼無效，或已失效。
 reset-password-recovery-phone-invalid-code-error-link = 要改用備用驗證碼嗎？
+reset-password-recovery-phone-page-title = 透過救援電話號碼重設密碼
 reset-password-with-recovery-key-verified-page-title = 密碼重設成功
 reset-password-complete-new-password-saved = 已儲存新密碼！
 reset-password-complete-recovery-key-created = 已建立新的帳號救援金鑰，請立即下載並儲存。
 reset-password-complete-recovery-key-download-info = 萬一您忘記密碼時，必須使用這把金鑰才可以救回資料。<b>本頁面之後不會再顯示，請立即下載金鑰，並儲存在安全的地方。</b>
+reset-password-with-recovery-key-verified-hint-page-title = 新增救援金鑰提示
 
 
 server-error-heading = 500 錯誤
 server-error-description = 抱歉，有些東西怪怪的，我們已經通知相關人員，將會修復此問題。
 server-error-home-button = 首頁
+server-error-page-title = 伺服器錯誤
 
 
 error-label = 錯誤：
@@ -1472,8 +1543,13 @@ validating-signin = 正在驗證登入…
 complete-signin-error-header = 確認過程發生錯誤
 signin-link-expired-header = 驗證鏈結已失效
 signin-link-expired-message-2 = 您點擊的鏈結已失效，或已經被使用過。
+complete-signin-error-page-title = 登入確認錯誤
+complete-signin-validating-page-title = 正在確認登入
 
 
+signin-password-page-title = 請輸入您的密碼
+signin-cached-page-title = 登入
+signin-alternative-auth-page-title = 選擇登入方式
 signin-password-needed-header-2 = 請輸入您的密碼 <span>{ -product-mozilla-account }</span>
 signin-button-start-syncing = 開始同步
 signin-subheader-without-logo-with-servicename = 繼續前往 { $serviceName }
@@ -1497,11 +1573,13 @@ report-signin-body = 您將會收到嘗試登入帳號的相關資訊的電子�
 report-signin-submit-button = 回報可疑行為
 report-signin-support-link = 為什麼會發生？
 report-signin-error = 很抱歉，送出報告時發生問題。
+report-signin-page-title = 回報未經授權的登入
 signin-bounced-header = 抱歉，我們鎖定了您的帳號。
 signin-bounced-message = 先前寄到 { $email } 的確認信被退回。為了保護您 { -brand-firefox } 的資料，已暫時鎖定您的帳號。
 signin-bounced-help = 若這是有效的電子郵件地址，<linkExternal>請讓我們知道</linkExternal>，我們將協助您解鎖帳號。
 signin-bounced-create-new-account = 那個信箱已經停用了嗎？請註冊新帳號
 back = 返回
+signin-bounced-page-title = 帳號已鎖定
 
 
 signin-passkey-fallback-header = 完成登入
@@ -1515,6 +1593,7 @@ signin-passkey-fallback-no-prf-description = 此瀏覽器或裝置無法使用�
 signin-passkey-fallback-unwrap-failed-heading = 無法使用您的 Passkey 來解鎖 Sync
 signin-passkey-fallback-unwrap-failed-description = 某些東西怪怪的，這次需要輸入密碼。
 signin-passkey-fallback-wrap-unusable-link = 更多資訊
+signin-passkey-fallback-page-title = 請輸入您的密碼以進行同步
 
 
 signin-passwordless-code-heading = 請輸入確認碼
@@ -1534,6 +1613,8 @@ signup-passwordless-code-subheading = 使用這組代碼，只需要簡單一步
 
 
 signin-passwordless-totp-required = 您的帳號已開啟兩階段驗證，請使用密碼登入。
+signin-passwordless-code-page-title = 使用電子郵件接收代碼登入
+signup-passwordless-code-page-title = 使用電子郵件接收代碼註冊
 
 
 signin-recovery-method-header = 登入
@@ -1544,6 +1625,7 @@ signin-recovery-method-code-v2 = 備用驗證碼
 signin-recovery-method-code-info-v2 = 剩餘 { $numBackupCodes } 組備用驗證碼
 signin-recovery-method-send-code-error-heading = 傳送代碼到您的救援電話號碼時遇到問題
 signin-recovery-method-send-code-error-description = 請稍後再試，或使用您的備用驗證碼。
+signin-recovery-method-page-title = 使用救援方式登入
 
 
 signin-recovery-code-heading = 登入
@@ -1556,6 +1638,7 @@ signin-recovery-code-support-link = 被鎖住了嗎？
 signin-recovery-code-required-error = 需要使用備用驗證碼
 signin-recovery-code-use-phone-failure = 傳送代碼到您的救援電話號碼時遇到問題
 signin-recovery-code-use-phone-failure-description = 請稍候再試。
+signin-recovery-code-page-title = 使用備用驗證碼登入
 
 
 signin-recovery-phone-flow-heading = 登入
@@ -1572,10 +1655,12 @@ signin-recovery-phone-general-error-description = 請稍候再試。
 signin-recovery-phone-invalid-code-error-description = 此驗證碼無效，或已失效。
 signin-recovery-phone-invalid-code-error-link = 要改用備用驗證碼嗎？
 signin-recovery-phone-success-message = 成功登入。若您再次使用救援電話號碼登入，可能會遇到帳號限制。
+signin-recovery-phone-page-title = 使用救援電話號碼登入
 
 
 signin-reported-header = 感謝您提高警覺
 signin-reported-message = 已通知我們的營運團隊。像這樣的回報可以幫助我們阻擋入侵者。
+signin-reported-page-title = 已回報可疑登入
 
 
 signin-token-code-heading-2 = 請輸入您的確認碼 <span>{ -product-mozilla-account }</span>
@@ -1588,6 +1673,7 @@ signin-token-code-resend-code-countdown = { $seconds } 秒後可寄送新驗證�
 signin-token-code-required-error = 請輸入確認碼
 signin-token-code-resend-error = 有些東西怪怪的，無法寄出新的確認碼。
 signin-token-code-instruction-desktop-relay = 登入後，{ -brand-firefox } 將嘗試使用您的轉寄信箱帶您回到原網站。
+signin-token-code-page-title = 使用電子郵件接收代碼確認登入
 
 
 signin-totp-code-header = 登入
@@ -1603,6 +1689,7 @@ signin-totp-code-other-account-link = 使用另一個帳號
 signin-totp-code-recovery-code-link = 輸入代碼時遇到問題嗎？
 signin-totp-code-required-error = 需要輸入驗證碼
 signin-totp-code-desktop-relay = 登入後，{ -brand-firefox } 將嘗試使用您的轉寄信箱帶您回到原網站。
+signin-totp-code-page-title = 透過兩階段驗證登入
 
 
 signin-unblock-header = 授權此登入
@@ -1615,9 +1702,10 @@ signin-unblock-code-incorrect-format-2 = 授權碼僅可包含字母或數字
 signin-unblock-resend-code-button = 沒在收件匣或垃圾信件匣中找到嗎？點此重送
 signin-unblock-support-link = 為什麼會發生？
 signin-unblock-desktop-relay = 登入後，{ -brand-firefox } 將嘗試使用您的轉寄信箱帶您回到原網站。
+signin-unblock-page-title = 核准此次登入
 
 
-confirm-signup-code-page-title = 請輸入確認碼
+confirm-signup-code-page-title-2 = 確認您的電子郵件地址
 confirm-signup-code-heading-2 = 請輸入您的確認碼 <span>{ -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = 請在 5 分鐘內輸入寄送到 <email>{ $email }</email> 的代碼。
 confirm-signup-code-input-label = 請輸入六位數的驗證碼
@@ -1636,6 +1724,7 @@ signup-relay-info = 需要設定密碼，才能安全地管理轉寄信箱，並
 signup-sync-info = 在使用 { -brand-firefox } 的所有地方同步您的密碼、書籤與更多資料。
 signup-sync-info-with-payment = 在使用 { -brand-firefox } 的所有地方同步您的密碼、付款方式、書籤與更多資料。
 signup-change-email-link = 更改電子郵件地址
+signup-page-title = 註冊帳號
 
 
 signup-confirmed-sync-header = 已開啟同步
@@ -1646,8 +1735,10 @@ signup-confirmed-sync-description-v2 = 隨時隨地使用 { -brand-firefox } 都
 signup-confirmed-sync-add-device-link = 新增另一台裝置
 signup-confirmed-sync-manage-sync-button = 管理同步
 signup-confirmed-sync-set-password-success-banner = 已設定同步密碼
+signup-confirmed-sync-page-title = 已開啟同步
 
 
 update-firefox-heading = 需要更新 { -brand-firefox }
 update-firefox-description = { -product-mozilla-account }需要用到您目前版本的 { -brand-firefox } 仍不支援的功能，請下載安裝最新版 { -brand-firefox } 再繼續。
 update-firefox-download-button = 下載最新版本
+update-firefox-page-title = 需要更新 { -brand-firefox }

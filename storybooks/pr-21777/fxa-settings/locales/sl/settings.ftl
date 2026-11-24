@@ -373,6 +373,9 @@ signin-link-damaged-header = Potrditvena povezava je poškodovana
 # The user followed a link to report an invalid signin attempt that was received by email
 # but the link was damaged (for example mistyped or broken by the email client).
 report-signin-link-damaged-header = Povezava poškodovana
+# Browser tab title for the page shown when the user followed a link to report an unauthorized sign-in, but the link was damaged.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+report-signin-link-damaged-page-title = Povezava za prijavo je poškodovana
 # The user followed a link received by email, but the link was damaged.
 reset-pwd-link-damaged-message = Povezavi, ki ste jo kliknili, so manjkali nekateri znaki. Morda jo je pokvaril vaš poštni odjemalec. Bodite previdni pri kopiranju in poskusite znova.
 
@@ -404,6 +407,9 @@ locale-toggle-select-label = Izberi jezik
 locale-toggle-browser-default = Privzeti v brskalniku
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Zahteva z napako
+# Browser tab title for the page shown when the URL or network request is malformed, e.g. a required query parameter is invalid.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+error-bad-request-page-title = Neveljaven zahtevek
 
 ## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when they open the pairing link
@@ -491,6 +497,15 @@ ready-continue = Nadaljuj
 sign-in-complete-header = Prijava potrjena
 sign-up-complete-header = Račun potrjen
 primary-email-verified-header = Glavni e-poštni naslov potrjen
+# Browser tab title for the page confirming the user’s sign-in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+sign-in-complete-page-title = Prijava potrjena
+# Browser tab title for the page confirming the user’s new account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+sign-up-complete-page-title = Račun potrjen
+# Browser tab title for the page confirming the user’s primary email address.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+primary-email-verified-page-title = Glavni e-poštni naslov potrjen
 
 ## Users see this view when they are generating a new account recovery key
 ## This screen displays the generated key and allows users to download or copy the key
@@ -875,6 +890,8 @@ modal-mfa-protected-confirm-button = Potrdi
 modal-mfa-protected-code-expired = Je koda potekla?
 # Link to resend a new code to the user's email.
 modal-mfa-protected-resend-code-link = Pošlji novo kodo.
+# Error shown when the code is correct but the device clock is too far ahead of the server time.
+modal-mfa-protected-clock-skew-error = Ura vaše naprave je napačna. Nastavite datum in uro v napravi ter poskusite znova.
 
 ## Modal Verify Session
 
@@ -1244,6 +1261,9 @@ security-set-password = Nastavite geslo za sinhronizacijo in uporabo nekaterih v
 security-recent-activity-link = Oglejte si nedavno dejavnost v računu
 signout-sync-header = Seja je potekla
 signout-sync-session-expired = Oprostite, prišlo je do napake. V meniju brskalnika se odjavite in poskusite znova.
+# Browser tab title for the page telling the user their session expired and they need to sign out from the browser menu.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signout-sync-page-title = Seja je potekla
 
 ## SubRow component
 
@@ -1629,6 +1649,9 @@ connect-another-device-not-now-link = Ne zdaj
 connect-another-device-android-complete-setup-message = Za dokončanje namestitve se prijavite v { -brand-firefox } za Android
 # This is a message for Firefox iOS users, prompting them to complete the process of connecting another device by signing into Firefox for iOS
 connect-another-device-ios-complete-setup-message = Za dokončanje namestitve se prijavite v { -brand-firefox } za iOS
+# Browser tab title for the page that invites the user to connect another device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+connect-another-device-page-title = Povezovanje druge naprave
 
 ## Cookies disabled page
 ## Users will see this page if they have local storage or cookies disabled.
@@ -1639,9 +1662,15 @@ cookies-disabled-enable-prompt-2 = Za dostop do { -product-mozilla-account(sklon
 cookies-disabled-button-try-again = Poskusi znova
 # An external link going to: https://support.mozilla.org/kb/cookies-information-websites-store-on-your-computer
 cookies-disabled-learn-more = Več o tem
+# Browser tab title for the page shown when cookies or local storage are disabled in the browser.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+cookies-disabled-page-title = Zahtevani so piškotki in lokalna shramba
 
 ## Index / home page
 
+# Browser tab title for the page where the user enters their email to sign in or create an account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+index-page-title = Prijavite se ali ustvarite račun
 index-header = Vnesite e-poštni naslov
 index-sync-header = Nadaljujte v { -product-mozilla-account(sklon: "tozilnik") }
 index-sync-subheader = Sinhronizirajte gesla, zavihke in zaznamke na vseh mestih, kjer uporabljate { -brand-firefox(sklon: "tozilnik") }.
@@ -1689,6 +1718,33 @@ inline-recovery-key-setup-download-header = Zavarujte svoj račun
 inline-recovery-key-setup-download-subheader = Prenesite in shranite ga zdaj
 inline-recovery-key-setup-download-info = Shranite ta ključ na mesto, ki si ga boste zapomnili – pozneje se na to stran ne boste mogli vrniti.
 inline-recovery-key-setup-hint-header = Varnostno priporočilo
+# Browser tab title for the page where the user creates an account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-key-setup-create-page-title = Ustvarite ključ za obnovitev računa
+# Browser tab title for the page where the user downloads their account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-key-setup-download-page-title = Prenesite ključ za obnovitev računa
+# Browser tab title for the page where the user adds a hint for their account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-key-setup-hint-page-title = Dodaj namig za obnovitveni ključ
+# Browser tab title for the page where the user chooses a recovery method during two-step authentication setup.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-choice-page-title = Izberite način obnovitve
+# Browser tab title for the page where the user saves their backup authentication codes.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-download-codes-page-title = Shranite rezervne kode
+# Browser tab title for the page where the user confirms one of their backup authentication codes.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-confirm-code-page-title = Potrdite rezervno kodo
+# Browser tab title for the page where the user enters a phone number to use as a recovery phone.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-phone-number-page-title = Dodaj telefonsko številko za obnovitev
+# Browser tab title for the page where the user enters the code sent to their recovery phone to confirm it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-phone-code-page-title = Potrdite telefonsko številko za obnovitev
+# Browser tab title for the page confirming that two-step authentication is now on for the account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-complete-page-title = Overitev v dveh korakih vklopljena
 
 ## InlineTotpSetup page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -1724,6 +1780,12 @@ inline-totp-setup-security-code-placeholder = Overitvena koda
 inline-totp-setup-code-required-error = Zahtevana je overitvena koda
 tfa-qr-code-alt = S pomočjo kode { $code } nastavite dvostopenjsko overjanje v podprtih aplikacijah.
 inline-totp-setup-page-title = Overitev v dveh korakih
+# Browser tab title for the first page of two-step authentication setup, which introduces the feature.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-totp-setup-intro-page-title = Nastavite overjanje v dveh korakih
+# Browser tab title for the page where the user connects an authenticator app to their account during two-step authentication setup.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-totp-setup-enrol-page-title = Povežite svojo aplikacijo za overitev
 
 ## PageNotFound page
 ## Shown when the requested page does not exist
@@ -1731,6 +1793,9 @@ inline-totp-setup-page-title = Overitev v dveh korakih
 page-not-found-heading = Strani ni mogoče najti
 page-not-found-description = Zahtevane strani ni mogoče najti. Obveščeni smo bili in bomo odpravili morebitne nedelujoče povezave.
 page-not-found-home-button = Domov
+# Browser tab title for the page shown when the requested page does not exist.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+page-not-found-page-title = Strani ni mogoče najti
 
 ## AuthAllow page - Part of the device pairing flow
 
@@ -1741,6 +1806,9 @@ pair-auth-allow-confirm-button = Da, odobri napravo
 # "If this wasn't you" means "If it wasn't you that just signed in to Firefox"
 # The text with the <link> tags links to a `reset password` page
 pair-auth-allow-refuse-device-link = Če to niste bili vi, <a>spremenite geslo</a>
+# Browser tab title for the page where the user approves a { -brand-firefox } sign-in on a new device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-auth-allow-page-title = Odobri prijavo v { -brand-firefox }
 
 ## PairAuthComplete page - part of the device pairing flow
 
@@ -1762,6 +1830,12 @@ pair-auth-complete-send-tab-heading = Pripravljeni ste na pošiljanje zavihkov
 # Variable { $deviceOS } is an operating system short name, for example "iOS", "Android"
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } za { $deviceOS } je povezan.
 pair-auth-complete-send-tab-benefits = Takoj lahko začnete pošiljati odprte zavihke, gesla in zaznamke med napravami.
+# Browser tab title for the page shown when a device has been connected after pairing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-auth-complete-page-title = Naprava povezana
+# Browser tab title for the page shown when a device has been connected after pairing started from a send tab button.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-auth-complete-send-tab-page-title = Zavihki pripravljeni za pošiljanje
 
 ## AuthTotp page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -1780,6 +1854,9 @@ auth-totp-input-label = Vnesite 6-mestno kodo
 auth-totp-confirm-button = Potrdi
 # Error displayed in a tooltip when the form is submitted without a code
 auth-totp-code-required-error = Zahtevana je overitvena koda
+# Browser tab title for the page where the user enters a two-step authentication code to continue pairing a device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+auth-totp-page-title = Združi z overjanjem v dveh korakih
 
 ## WaitForSupp page - Part of the devide pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1788,6 +1865,9 @@ auth-totp-code-required-error = Zahtevana je overitvena koda
 # The "other device" is non-specific and could be a desktop computer, laptop, tablet, mobile phone, etc.
 # Strings within the <span> elements appear as a subheading.
 pair-wait-for-supp-heading-text = Zdaj je zahtevana odobritev <span>z vaše druge naprave</span>
+# Browser tab title for the page that asks the user to approve device pairing on their other device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-wait-for-supp-page-title = Odobri v drugi napravi
 
 ## PairFailure - a view which displays on failure of the device pairing process
 
@@ -1795,6 +1875,9 @@ pair-wait-for-supp-heading-text = Zdaj je zahtevana odobritev <span>z vaše drug
 pair-failure-header-v2 = Seznanitev naprav ni uspela
 pair-failure-message-v2 = Namestitve ni bilo mogoče dokončati. Prijavite se s svojim e-poštnim naslovom.
 pair-failure-try-again-link = Poskusi znova
+# Browser tab title for the page shown when device pairing fails.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-failure-page-title = Seznanitev naprav ni uspela
 
 ## Pair index page
 
@@ -1854,12 +1937,24 @@ pair-download-step-scan-qr = <b>{ $stepNumber }. korak</b>: Prenesite { -brand-f
 pair-download-step-continue-sync = <b>{ $stepNumber }. korak</b>: Izberite "Nadaljuj na sinhronizacijo" za sinhronizacijo { -brand-firefox(sklon: "rodilnik") } z mobilno napravo.
 # Button on the download screen that opens about:preferences for pairing
 pair-continue-to-sync-button = Nadaljuj na sinhronizacijo
+# Browser tab title for the page where the user chooses how to connect another device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-choice-page-title = Poveži drugo napravo
+# Browser tab title for the page where the user chooses how to set up another device to send tabs to.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-choice-send-tab-page-title = Pošljite zavihke v drugo napravo
+# Browser tab title for the page that explains how to download { -brand-firefox } on a mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-download-page-title = Prenesite { -brand-firefox } za mobilne naprave
 
 ## PairSuccess - a view which displays  on successful completion of the device pairing process
 
 pair-success-header-2 = Naprava povezana
 pair-success-message-2 = Seznanjanje uspešno.
 pair-success-tab-close-message = Ta zavihek bo { -brand-firefox } samodejno zaprl.
+# Browser tab title for the page shown when a device has been paired successfully.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-success-page-title = Naprava povezana
 
 ## SuppAllow page - Part of the device pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1870,6 +1965,9 @@ pair-success-tab-close-message = Ta zavihek bo { -brand-firefox } samodejno zapr
 pair-supp-allow-heading-text = Potrdi seznanitev <span>za { $email }</span>
 pair-supp-allow-confirm-button = Potrdi seznanitev
 pair-supp-allow-cancel-link = Prekliči
+# Browser tab title for the page where the user confirms pairing a device with their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-supp-allow-page-title = Potrdi seznanitev
 
 ## WaitForAuth page - Part of the devide pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1878,6 +1976,9 @@ pair-supp-allow-cancel-link = Prekliči
 # The "other device" is non-specific and could be a desktop computer, laptop, tablet, mobile phone, etc.
 # Strings within the <span> elements appear as a subheading.
 pair-wait-for-auth-heading-text = Zdaj je zahtevana odobritev <span>z vaše druge naprave</span>
+# Browser tab title for the page that asks the user to approve device pairing on their other device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-wait-for-auth-page-title = Odobri v drugi napravi
 
 ## PairUnsupported - a view which is shown when the user tries to scan the pairing QR code any way other than through a Firefox app
 
@@ -1901,6 +2002,18 @@ pair-unsupported-learn-more-link-v2 = Več o tem
 # Matches the legacy Backbone "Oops! Something went wrong." message.
 pair-unsupported-desktop-firefox-fallback-header-v2 = Opla! Prišlo je do napake.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zaprite ta zavihek in poskusite znova.
+# Browser tab title for the page shown to a desktop user who is not using { -brand-firefox } and must switch browsers to pair a device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-desktop-non-firefox-page-title = Zahtevan je { -brand-firefox }
+# Browser tab title for the page shown when a mobile user scans the pairing code with the system camera and must pair from within a { -brand-firefox } app instead.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-system-camera-page-title = Seznani s pomočjo aplikacije
+# Browser tab title for the page that explains how to connect a mobile device by starting from { -brand-firefox } on a computer.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-mobile-page-title = Povežite mobilno napravo
+# Browser tab title for the page shown to a desktop { -brand-firefox } user when something went wrong and device pairing cannot continue.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-desktop-firefox-fallback-page-title = Prišlo je do napake
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer, which is already signed in, after their
@@ -1915,6 +2028,9 @@ pair2-authority-approve-sign-in-confirm-button = Da, odobri prijavo
 # "Not you?" asks whether someone other than the user started this sign-in.
 # The text inside <changePassword> links to the page for changing the password.
 pair2-authority-approve-sign-in-change-password = Niste bili vi? <changePassword>Spremenite geslo</changePassword>
+# Browser tab title for the page where the user approves a sign-in requested from their mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-approve-sign-in-page-title = Odobri prijavo
 
 ## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer after scanning the pairing QR code with
@@ -1925,6 +2041,9 @@ pair2-authority-continue-on-mobile-heading = Nadaljujte na mobilni napravi
 pair2-authority-continue-on-mobile-description = Sledite navodilom na telefonu ali tablici.
 # Dismisses the pairing attempt
 pair2-authority-continue-on-mobile-cancel-button = Prekliči
+# Browser tab title for the page telling the user to continue connecting their device on their mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-continue-on-mobile-page-title = Nadaljujte na mobilni napravi
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when Firefox is needed to continue pairing.
@@ -1936,6 +2055,9 @@ pair2-authority-download-firefox-heading = Odprite { -brand-firefox } za sinhron
 pair2-authority-download-firefox-instruction-v2 = Če želite nastaviti sinhronizacijo med napravami, v tej napravi odprite { -brand-firefox } in obiščite <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Prenesi { -brand-firefox(sklon: "tozilnik") }
+# Browser tab title for the page telling the user to open { -brand-firefox } on this device to start syncing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-download-firefox-page-title = Odprite { -brand-firefox } za sinhronizacijo
 
 ## ScanQR page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer. It shows a QR code that they scan with
@@ -1950,6 +2072,9 @@ pair2-authority-scan-qr-code-aria-label = Koda QR za povezavo mobilne naprave
 pair2-authority-scan-qr-other-ways-link = Drugi načini prijave
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Preskoči za zdaj
+# Browser tab title for the page showing a QR code the user scans with their mobile device to connect it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-scan-qr-page-title = Skenirajte za povezavo mobilne naprave
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
@@ -1960,6 +2085,9 @@ pair2-authority-sync-success-heading-v2 = Vaša naprava je povezana
 pair2-authority-sync-success-description-v2 = Sinhronizacija je v teku. Lahko traja nekaj časa, preden se vaši sinhronizirani podatki pojavijo. Lahko nadaljujte z brskanjem.
 # Opens the browser settings that control what is synced
 pair2-authority-sync-success-sync-settings-button-v2 = Nastavitve sinhronizacije
+# Browser tab title for the page shown when a mobile device has been connected and syncing has started.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-sync-success-page-title = Naprava povezana
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1976,6 +2104,12 @@ pair2-authority-timeout-and-cancel-canceled-description = Če si premislite ali 
 pair2-authority-timeout-and-cancel-try-again-button = Poskusi znova
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Nastavitve sinhronizacije
+# Browser tab title for the page shown on the computer when the device pairing attempt timed out.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-timeout-and-cancel-timeout-page-title = Povezava je potekla
+# Browser tab title for the page shown on the computer when the device pairing attempt was cancelled.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-timeout-and-cancel-cancelled-page-title = Seznanjanje preklicano
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
@@ -1987,6 +2121,9 @@ pair2-supplicant-approve-sign-in-heading = Še zadnji korak pred sinhronizacijo
 pair2-supplicant-approve-sign-in-instruction = Odobrite prijavo na računalniku.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Prekliči
+# Browser tab title for the page shown on the mobile device while the user approves the sign-in on their computer. "sync" is a verb, referring to syncing data between the user’s devices.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-approve-sign-in-page-title = Zadnji korak pred sinhronizacijo
 
 ## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
@@ -2001,6 +2138,9 @@ pair2-supplicant-connect-this-device-heading = Želite to napravo povezati z ra�
 pair2-supplicant-connect-this-device-connect-button = Poveži
 # Dismisses the pairing attempt
 pair2-supplicant-connect-this-device-cancel-button = Prekliči
+# Browser tab title for the page shown on the mobile device where the user confirms connecting it to their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-connect-this-device-page-title = Poveži to napravo
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing reaches a browser that is
@@ -2022,6 +2162,15 @@ pair2-supplicant-download-firefox-download-button = Prenesi { -brand-firefox(skl
 pair2-supplicant-download-firefox-have-firefox-button = { -brand-firefox } že imam
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = Več o tem
+# Browser tab title for the page shown on the mobile device asking the user to open { -brand-firefox } on it to continue pairing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-download-firefox-page-title = Odprite { -brand-firefox } v tej napravi
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+
+# Browser tab title for the page shown on the mobile device telling the user to finish pairing in the { -brand-firefox } app.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-connect-hint-page-title = Dokončajte seznanjanje v aplikaciji
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2034,6 +2183,9 @@ pair2-supplicant-ready-to-scan-heading = Da povežete napravo
 pair2-supplicant-ready-to-scan-instruction = Na računalniku odprite { -brand-firefox(sklon: "tozilnik") }, obiščite <b>firefox.com/pair</b> in po navodilih na zaslonu povežite mobilno napravo.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = Več o tem
+# Browser tab title for the page shown on the mobile device before pairing starts, telling the user to open firefox.com/pair on their computer.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-ready-to-scan-page-title = Pripravljeno za skeniranje
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device once pairing has completed: the device
@@ -2042,6 +2194,9 @@ pair2-supplicant-ready-to-scan-learn-more-link = Več o tem
 pair2-supplicant-sync-success-heading = Vaša naprava je povezana
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = Sinhronizacija je v teku. Lahko traja nekaj časa, preden se vaši sinhronizirani podatki pojavijo. Lahko nadaljujte z brskanjem.
+# Browser tab title for the page shown on the mobile device when it has been connected and syncing has started.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-sync-success-page-title = Naprava povezana
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2061,6 +2216,15 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Napravo lahko kadarko
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Ta naprava je že prijavljena
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-signed-in-description = Za povezavo z namiznim računom se odjavite iz { -brand-firefox } v tej napravi in nato v računalniku obiščite <b>firefox.com/pair</b> za dokončanje prijave.
+# Browser tab title for the page shown on the mobile device when the device pairing attempt timed out.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-timeout-and-cancel-timeout-page-title = Povezava je potekla
+# Browser tab title for the page shown on the mobile device when the device pairing attempt was cancelled.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = Seznanjanje preklicano
+# Browser tab title for the page shown on the mobile device when it is already signed in to an account and cannot be paired.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-timeout-and-cancel-signed-in-page-title = Naprava je že prijavljena
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2075,6 +2239,9 @@ permissions-label-display-name = Prikazno ime
 permissions-label-avatar = Slika računa
 permissions-continue-button = Nadaljuj
 permissions-cancel-button = Prekliči
+# Browser tab title for the page where the user reviews the profile information an app or service is asking to access.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+permissions-page-title = Preglejte dovoljenja
 
 ## ForcePasswordChange page
 ## Users are sent here when suspicious activity on the account requires a new password before they can continue.
@@ -2082,6 +2249,9 @@ permissions-cancel-button = Prekliči
 force-password-change-heading = Spremenite svoje geslo
 force-password-change-info = Na vaši napravi { -product-mozilla-account } smo zaznali sumljivo vedenje. Za zaščito svojega računa ustvarite novo geslo. To geslo boste uporabili za ponovno prijavo v vse svoje storitve { -product-mozilla-account }.
 force-password-change-data-info = Sinhronizirana zgodovina, zaznamki, prijave in drugi osebni podatki ne bodo izgubljeni.
+# Browser tab title for the page where the user must change their password because of suspicious activity on their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+force-password-change-page-title = Spremenite svoje geslo
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2091,6 +2261,9 @@ service-welcome-signin-success-banner = Prijava uspešna!
 # In this context, "VPN" is a VPN service built into the Firefox browser, and generally isn't localized differently than "VPN"
 service-welcome-vpn-heading = Naslednje: Vklopite VPN
 service-welcome-vpn-description = Še koraki več za večjo zasebnost brskalnika. Pojdite na odprto ploščo in jo omogočite.
+# Browser tab title for the page telling the user to turn on VPN as their next step after signing up or signing in. "VPN" is a VPN service built into the Firefox browser.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+service-welcome-vpn-page-title = Vklopi VPN
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
@@ -2103,6 +2276,9 @@ set-password-info-v2 = S tem se vaši podatki šifrirajo. Geslo mora biti druga�
 ## Users who signed in via passwordless OTP and need to create a password for Sync
 
 set-password-passwordless-info = To geslo šifrira vaše sinhronizirane podatke in jih zagotavlja varno.
+# Browser tab title for the page where the user creates a password so they can sync.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+set-password-page-title = Ustvarite geslo za sinhronizacijo
 
 ## ThirdPartyAuthCallback Page
 ## This page is called after a user completes the third party authentication flow from Google or Apple.
@@ -2123,6 +2299,9 @@ account-recovery-confirm-key-hint = Vaš namig za shranjevanje je:
 account-recovery-confirm-key-button-2 = Nadaljuj
 # Link that leads to the password reset page (without recovery code)
 account-recovery-lost-recovery-key-link-2 = Ne najdete ključa za obnovitev računa?
+# Browser tab title for the page where the user enters their account recovery key to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+account-recovery-confirm-key-page-title = Ponastavi geslo z obnovitvenim ključem
 
 ## CompleteResetPassword component
 ## User followed a password reset link and is now prompted to create a new password
@@ -2144,12 +2323,18 @@ reset-password-complete-banner-message = Ne pozabite v nastavitvah { -product-mo
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = Po prijavi vas bo { -brand-firefox } poskusil poslati nazaj na uporabo e-poštne maske.
+# Browser tab title for the page where the user creates a new password while resetting it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+complete-reset-password-page-title = Ustvarite novo geslo
 confirm-backup-code-reset-password-input-label = Vnesite 10-mestno kodo
 confirm-backup-code-reset-password-confirm-button = Potrdi
 confirm-backup-code-reset-password-subheader = Vnesite rezervno overitveno kodo
 confirm-backup-code-reset-password-instruction = Vnesite eno izmed enkratnih kod, ki ste jih shranili ob nastavitvi overjanja v dveh korakih.
 # Link out to support article: https://support.mozilla.org/kb/what-if-im-locked-out-two-step-authentication
 confirm-backup-code-reset-password-locked-out-link = Se ne morete prijaviti?
+# Browser tab title for the page where the user enters a backup authentication code to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-backup-code-reset-password-page-title = Ponastavi geslo z rezervno kodo
 
 ## Confirm Reset Password With Code
 
@@ -2167,6 +2352,9 @@ confirm-reset-password-otp-submit-button = Nadaljuj
 confirm-reset-password-otp-resend-code-button = Znova pošlji kodo
 # Link to cancel the password reset and sign in with a different account
 confirm-reset-password-otp-different-account-link = Uporabi drug račun
+# Browser tab title for the page where the user enters the confirmation code emailed to them to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-reset-password-with-code-page-title = Preverite e-pošto za ponastavitev gesla
 
 ## PasswordResetConfirmTotp Page
 
@@ -2177,6 +2365,9 @@ confirm-totp-reset-password-trouble-code = Imate težave pri vnosu kode?
 confirm-totp-reset-password-confirm-button = Potrdi
 confirm-totp-reset-password-input-label-v2 = Vnesite 6-mestno kodo
 confirm-totp-reset-password-use-different-account = Uporabi drug račun
+# Browser tab title for the page where the user enters a two-step authentication code to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-totp-reset-password-page-title = Ponastavi geslo z overjanjem v dveh korakih
 
 ## ResetPassword start page
 
@@ -2189,12 +2380,18 @@ password-reset-email-input =
 password-reset-submit-button-2 = Nadaljuj
 # Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
 password-reset-data-recovery-warning = Ponastavitev gesla lahko vpliva na to, ali je mogoče obnoviti sinhronizirane podatke brskalnika. <learnMoreLink>Več o tem</learnMoreLink>
+# Browser tab title for the page where the user starts a password reset by entering their email.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+password-reset-flow-page-title = Ponastavite geslo
 
 ## ResetPasswordConfirmed
 
 reset-password-complete-header = Vaše geslo je bilo ponastavljeno
 # $serviceName is a product name such as Monitor, Relay
 reset-password-confirmed-cta = Nadaljuj na { $serviceName }
+# Browser tab title for the page confirming that the user’s password was reset.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+reset-password-confirmed-page-title = Ponastavitev gesla končana
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
@@ -2216,6 +2413,9 @@ password-reset-recovery-method-code-info =
 # Shown when a backend service fails and a code cannot be sent to the user's recovery phone.
 password-reset-recovery-method-send-code-error-heading = Pri pošiljanju kode na telefonsko številko za obnovitev je prišlo do težave
 password-reset-recovery-method-send-code-error-description = Poskusite znova pozneje ali uporabite rezervne overitvene kode.
+# Browser tab title for the page where the user chooses a recovery method to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+password-reset-recovery-method-page-title = Ponastavi geslo z obnovitveno metodo
 
 ## ResetPasswordRecoveryPhone page
 
@@ -2237,6 +2437,9 @@ reset-password-recovery-phone-code-verification-error-heading = Pri preverjanju 
 reset-password-recovery-phone-general-error-description = Poskusite znova kasneje.
 reset-password-recovery-phone-invalid-code-error-description = Koda je neveljavna ali ji je potekla veljavnost.
 reset-password-recovery-phone-invalid-code-error-link = Želite namesto tega uporabiti rezervne overitvene kode?
+# Browser tab title for the page where the user enters a code sent to their recovery phone to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+reset-password-recovery-phone-page-title = Ponastavite geslo s telefonsko številko za obnovitev
 reset-password-with-recovery-key-verified-page-title = Ponastavitev gesla je uspela
 reset-password-complete-new-password-saved = Novo geslo shranjeno!
 reset-password-complete-recovery-key-created = Nov obnovitveni ključ za račun je ustvarjen. Prenesite in shranite ga zdaj.
@@ -2244,6 +2447,9 @@ reset-password-complete-recovery-key-download-info =
     Ta ključ je potreben za
     obnovitev podatkov, če pozabite geslo. <b>Prenesite ga in ga varno shranite
      zdaj, saj se pozneje ne boste več mogli vrniti na to stran.</b>
+# Browser tab title for the page where the user adds a hint for their new account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+reset-password-with-recovery-key-verified-hint-page-title = Dodaj namig za obnovitveni ključ
 
 ## ServerError page
 ## Shown when the server fails to handle a request
@@ -2251,6 +2457,9 @@ reset-password-complete-recovery-key-download-info =
 server-error-heading = Napaka 500
 server-error-description = Joj, nekaj je šlo narobe. Prejeli smo obvestilo in se lotimo popravka.
 server-error-home-button = Domov
+# Browser tab title for the page shown when the server fails to handle a request.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+server-error-page-title = Napaka strežnika
 
 ## CompleteSignin component
 
@@ -2263,9 +2472,24 @@ complete-signin-error-header = Napaka pri potrjevanju
 # The user followed a signin confirmation link, but that link is expired and no longer valid
 signin-link-expired-header = Potrditvena povezava je potekla
 signin-link-expired-message-2 = Povezavi, ki ste jo kliknili, je potekla veljavnost ali pa je bila že uporabljena.
+# Browser tab title for the page shown when something went wrong while confirming a sign-in from an emailed link.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+complete-signin-error-page-title = Napaka pri potrditvi prijave
+# Browser tab title for the page shown while a sign-in is being confirmed from an emailed link.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+complete-signin-validating-page-title = Potrjevanje prijave
 
 ## Signin page
 
+# Browser tab title for the page where the user enters their password to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-password-page-title = Vnesite svoje geslo
+# Browser tab title for the sign-in page shown when the user already has a saved session on this device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-cached-page-title = Prijava
+# Browser tab title for the page where the user picks how to sign in when their account has no password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-alternative-auth-page-title = Izberite način prijave
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Vnesite geslo <span>za { -product-mozilla-account }</span>
 # Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
@@ -2302,6 +2526,9 @@ report-signin-body = Prejeli ste sporočilo o poskusu dostopa do vašega računa
 report-signin-submit-button = Prijavi sumljivo dejavnost
 report-signin-support-link = Zakaj se to dogaja?
 report-signin-error = Pri pošiljanju poročila je prišlo do napake.
+# Browser tab title for the page where the user can report a sign-in attempt to their account that they did not make.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+report-signin-page-title = Prijavi nepooblaščeno prijavo
 signin-bounced-header = Oprostite. Zaklenili smo vaš račun.
 # $email (string) - The user's email.
 signin-bounced-message = Potrditveno sporočilo, ki smo ga poslali na { $email }, je bilo vrnjeno, vaš račun pa smo zaradi zaščite vaših podatkov v { -brand-firefox(sklon: "mestnik") } zaklenili.
@@ -2309,6 +2536,9 @@ signin-bounced-message = Potrditveno sporočilo, ki smo ga poslali na { $email }
 signin-bounced-help = Če je to veljaven e-poštni naslov, <linkExternal>nam to sporočite</linkExternal> in pomagali vam bomo odkleniti vaš račun.
 signin-bounced-create-new-account = Ne uporabljate več tega naslova? Ustvarite nov račun
 back = Nazaj
+# Browser tab title for the page telling the user their account is locked because a confirmation email sent to them was returned.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-bounced-page-title = Račun zaklenjen
 
 ## SigninPasskeyFallback page
 ## Users who authenticate with a passkey to access Sync must also enter their password.
@@ -2329,6 +2559,9 @@ signin-passkey-fallback-unwrap-failed-heading = Vašega gesla ni bilo mogoče od
 signin-passkey-fallback-unwrap-failed-description = Nekaj je šlo narobe, zato boste tokrat potrebovali geslo.
 # Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
 signin-passkey-fallback-wrap-unusable-link = Več o tem
+# Browser tab title for the page where the user enters their password after using a passkey to sign in, so they can sync.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-passkey-fallback-page-title = Vnesite geslo za sinhronizacijo
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2374,6 +2607,12 @@ signup-passwordless-code-subheading = Če uporabite to kodo, boste opravili samo
 # Shown when a user with 2FA enabled tries to use passwordless flow
 # They are redirected to password signin instead
 signin-passwordless-totp-required = Overitev v dveh korakih je v vašem računu omogočena. Prijavite se s svojim geslom.
+# Browser tab title for the page where the user enters the confirmation code emailed to them to sign in to their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-passwordless-code-page-title = Prijava z e-poštno kodo
+# Browser tab title for the page where the user enters the confirmation code emailed to them to sign up for an account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signup-passwordless-code-page-title = Prijavite se z e-poštno kodo
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
@@ -2395,6 +2634,9 @@ signin-recovery-method-code-info-v2 =
 # Shown when a backend service fails and a code cannot be sent to the user's recovery phone.
 signin-recovery-method-send-code-error-heading = Pri pošiljanju kode na telefonsko številko za obnovitev je prišlo do težave
 signin-recovery-method-send-code-error-description = Poskusite znova pozneje ali uporabite rezervne overitvene kode.
+# Browser tab title for the page where the user chooses a recovery method to sign in when they cannot use their authenticator app.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-recovery-method-page-title = Prijava z obnovitvenim načinom
 
 ## SigninRecoveryCode page
 ## Users are prompted to enter a backup authentication code
@@ -2421,6 +2663,9 @@ signin-recovery-code-required-error = Zahtevana je rezervna overitvena koda
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-recovery-code-use-phone-failure = Pri pošiljanju kode na telefonsko številko za obnovitev je prišlo do težave
 signin-recovery-code-use-phone-failure-description = Poskusite znova kasneje.
+# Browser tab title for the page where the user enters a backup authentication code to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-recovery-code-page-title = Prijavite se z rezervno kodo
 
 ## SigninRecoveryPhone page
 
@@ -2445,11 +2690,17 @@ signin-recovery-phone-invalid-code-error-link = Želite namesto tega uporabiti r
 # "Limits" refers to potential restrictions on how often a recovery phone number can be used for signing in within a given time period.
 # If limits are reached, users may have to use an alternate two-step authentication method or wait until the restriction period is over.
 signin-recovery-phone-success-message = Prijava uspešna. Če ponovno uporabite telefonsko številko za obnovitev, lahko veljajo omejitve.
+# Browser tab title for the page where the user enters a code sent to their recovery phone to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-recovery-phone-page-title = Prijavite se s telefonsko številko za obnovitev
 
 ## Signin reported page: this page is shown when a user receives an email notifying them of a new account signin, and the user clicks a button indicating that the signin was not them so that we know it was someone trying to break into their account.
 
 signin-reported-header = Hvala za vašo pozornost
 signin-reported-message = Naša ekipa je bila obveščena. Takšna poročila nam pomagajo odgnati vsiljivce.
+# Browser tab title for the page confirming the user reported a sign-in attempt that was not them.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-reported-page-title = Prijava sporočena
 
 ## SigninTokenCode page
 ## Users see this page during the signin process. In this instance, the confirmation code is
@@ -2483,6 +2734,9 @@ signin-token-code-resend-error = Prišlo je do napake. Nove kode ni bilo mogoče
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-token-code-instruction-desktop-relay = Po prijavi vas bo { -brand-firefox } poskusil poslati nazaj na uporabo e-poštne maske.
+# Browser tab title for the page where the user enters the confirmation code emailed to them to confirm a sign-in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-token-code-page-title = Potrdite prijavo z e-poštno kodo
 
 ## SigninTOTPCode page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -2507,6 +2761,9 @@ signin-totp-code-required-error = Zahtevana je overitvena koda
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-totp-code-desktop-relay = Po prijavi vas bo { -brand-firefox } poskusil poslati nazaj na uporabo e-poštne maske.
+# Browser tab title for the page where the user enters a two-step authentication code from their authenticator app to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-totp-code-page-title = Prijava s overjanjem v dveh korakih
 
 ## Signin Unblock Page
 ## Page shown when signin has been blocked by rate limiting (too many requests)
@@ -2526,12 +2783,16 @@ signin-unblock-support-link = Zakaj se to dogaja?
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-unblock-desktop-relay = Po prijavi vas bo { -brand-firefox } poskusil poslati nazaj na uporabo e-poštne maske.
+# Browser tab title for the page where the user enters the authorization code emailed to them to approve a blocked sign-in attempt.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-unblock-page-title = Overi to prijavo
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
 
-# Page title show in browser title bar or page tab
-confirm-signup-code-page-title = Vnesite potrditveno kodo
+# Browser tab title for the page where the user enters the confirmation code emailed to them to finish signing up.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-signup-code-page-title-2 = Potrdite e-poštni naslov
 # String within the <span> element appears on a separate line
 # If more appropriate in a locale, the string within the <span>, "for your { -product-mozilla-account }"
 # can stand alone as "{ -product-mozilla-account }"
@@ -2571,6 +2832,9 @@ signup-sync-info = Sinhronizirajte gesla, zaznamke in ostale podatke povsod, kje
 signup-sync-info-with-payment = Sinhronizirajte gesla, plačilna sredstva, zaznamke in ostale podatke povsod, kjer uporabljate { -brand-firefox(sklon: "tozilnik") }.
 # Clicking on this link returns the user to the beginning of the flow so they can enter a new email address
 signup-change-email-link = Spremeni e-pošto
+# Browser tab title for the page where the user creates a password to sign up for an account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signup-page-title = Ustvarite račun
 
 ## SignupConfirmedSync page
 ## Shown to users when they finish confirming their account through Sync
@@ -2584,6 +2848,9 @@ signup-confirmed-sync-description-v2 = Vaša gesla, naslovi, zaznamki, zgodovina
 signup-confirmed-sync-add-device-link = Dodaj drugo napravo
 signup-confirmed-sync-manage-sync-button = Upravljanje sinhronizacije
 signup-confirmed-sync-set-password-success-banner = Geslo za sinhronizacijo ustvarjeno
+# Browser tab title for the page confirming that sync is turned on after the user confirmed their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signup-confirmed-sync-page-title = Sinhronizacija je vključena
 
 ## UpdateFirefox page
 ## Shown when the browser is too old to use a Mozilla account
@@ -2591,3 +2858,6 @@ signup-confirmed-sync-set-password-success-banner = Geslo za sinhronizacijo ustv
 update-firefox-heading = Potrebna je posodobitev za { -brand-firefox }
 update-firefox-description = Vaš { -product-mozilla-account } uporablja funkcije, ki niso podprte v vaši različici { -brand-firefox }a. Za nadaljevanje prenesite in namestite najnovejšo različico { -brand-firefox }.
 update-firefox-download-button = Prenesi najnovejšo različico
+# Browser tab title for the page shown when the browser is too old to use a Mozilla account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+update-firefox-page-title = Potrebna je posodobitev za { -brand-firefox }

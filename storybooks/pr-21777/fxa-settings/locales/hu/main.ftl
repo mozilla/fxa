@@ -85,7 +85,7 @@ app-footer-terms-of-service = A szolgáltatás feltételei
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = Új ablakban nyílik meg
@@ -342,6 +342,7 @@ input-phone-number-country-canada = Kanada
 reset-pwd-link-damaged-header = A jelszó-visszaállítási hivatkozás sérült
 signin-link-damaged-header = A megerősítő hivatkozás sérült
 report-signin-link-damaged-header = Sérült hivatkozás
+report-signin-link-damaged-page-title = Sérült bejelentési hivatkozás
 reset-pwd-link-damaged-message = A hivatkozásból karakterek hiányoztak, ezt az e-mail kliense ronthatta el. Másolja be a címet körültekintően, és próbálja újra.
 
 
@@ -361,6 +362,7 @@ confirmation-link-reused-message = A megerősítési hivatkozás már volt haszn
 locale-toggle-select-label = Válasszon nyelvet
 locale-toggle-browser-default = Böngésző alapértelmezése
 error-bad-request = Hibás kérés
+error-bad-request-page-title = Hibás kérés
 
 
 pair-unsupported-hint-heading = Fejezze be a párosítást az alkalmazásban
@@ -417,6 +419,9 @@ ready-continue = Folytatás
 sign-in-complete-header = Bejelentkezés megerősítve
 sign-up-complete-header = Fiók megerősítve
 primary-email-verified-header = Elsődleges e-mail-cím megerősítve
+sign-in-complete-page-title = Bejelentkezés megerősítve
+sign-up-complete-page-title = Fiók megerősítve
+primary-email-verified-page-title = Elsődleges e-mail-cím megerősítve
 
 
 flow-recovery-key-download-storage-ideas-heading-v2 = Kulcstároló helyek:
@@ -670,6 +675,7 @@ modal-mfa-protected-cancel-button = Mégse
 modal-mfa-protected-confirm-button = Megerősítés
 modal-mfa-protected-code-expired = A kód lejárt?
 modal-mfa-protected-resend-code-link = Új kód elküldése e-mailben.
+modal-mfa-protected-clock-skew-error = Az eszköz órája nincs megfelelően beállítva. Javítsa az eszköz dátumát és idejét, majd próbálja újra.
 
 
 mvs-verify-your-email-2 = Erősítse meg az e-mail-címét
@@ -958,6 +964,7 @@ security-set-password = Állítson be jelszót a szinkronizáláshoz és bizonyo
 security-recent-activity-link = Legutóbbi fióktevékenységek megtekintése
 signout-sync-header = A munkamenet lejárt
 signout-sync-session-expired = Elnézést, hiba történt. Jelentkezzen ki a böngésző menüjéből, és próbálja újra.
+signout-sync-page-title = A munkamenet lejárt
 
 
 tfa-row-backup-codes-title = Tartalék hitelesítési kódok
@@ -1204,14 +1211,17 @@ connect-another-device-cad-link = Másik eszköz csatlakoztatása
 connect-another-device-not-now-link = Most nem
 connect-another-device-android-complete-setup-message = Jelentkezzen be a { -brand-firefox } for Androidba a beállítás befejezéséhez
 connect-another-device-ios-complete-setup-message = Jelentkezzen be a { -brand-firefox } for iOS-be a beállítás befejezéséhez
+connect-another-device-page-title = Másik eszköz csatlakoztatása
 
 
 cookies-disabled-header = Helyi tároló és sütik szükségesek
 cookies-disabled-enable-prompt-2 = Kérjük, engedélyezze a sütiket és a helyi tárolást a böngészőjében, hogy elérje a { -product-mozilla-account }ját. Ezzel lehetővé válik olyan funkciók, mint az adatok megjegyzése a munkamenetek között.
 cookies-disabled-button-try-again = Újrapróbálkozás
 cookies-disabled-learn-more = További tudnivalók
+cookies-disabled-page-title = Sütik és helyi tárhely szükséges
 
 
+index-page-title = Jelentkezzen be vagy hozzon létre egy fiókot
 index-header = Adja meg az e-mail-címét
 index-sync-header = Tovább a { -product-mozilla-account }jához
 index-sync-subheader = Szinkronizálja jelszavait, lapjait és könyvjelzőit mindenütt, ahol { -brand-firefox(case: "accusative") } használ.
@@ -1246,6 +1256,15 @@ inline-recovery-key-setup-download-header = Biztosítsa fiókját
 inline-recovery-key-setup-download-subheader = Töltse le és tegye el most
 inline-recovery-key-setup-download-info = Tárolja Olyan helyen ezt a kulcsot, amelyre emlékezni fog – később nem fog tudni visszatérni erre az oldalra.
 inline-recovery-key-setup-hint-header = Biztonsági javaslat
+inline-recovery-key-setup-create-page-title = Fiók-helyreállítási kulcs létrehozása
+inline-recovery-key-setup-download-page-title = Fiók-helyreállítási kulcs letöltése
+inline-recovery-key-setup-hint-page-title = Helyreállítási kulcs tippjének hozzáadása
+inline-recovery-setup-choice-page-title = Válasszon helyreállítási módot
+inline-recovery-setup-download-codes-page-title = Tartalék kódok mentése
+inline-recovery-setup-confirm-code-page-title = Tartalék kód megerősítése
+inline-recovery-setup-phone-number-page-title = Helyreállítási telefonszám hozzáadása
+inline-recovery-setup-phone-code-page-title = Helyreállítási telefonszám megerősítése
+inline-recovery-setup-complete-page-title = Kétlépcsős hitelesítés bekapcsolva
 
 
 inline-totp-setup-cancel-setup-button = Beállítás megszakítása
@@ -1265,16 +1284,20 @@ inline-totp-setup-security-code-placeholder = Hitelesítési kód
 inline-totp-setup-code-required-error = Hitelesítési kód szükséges
 tfa-qr-code-alt = Használja a(z) { $code } kódot a kétlépcsős hitelesítés beállításához a támogatott alkalmazásokban.
 inline-totp-setup-page-title = Kétlépcsős hitelesítés
+inline-totp-setup-intro-page-title = Kétlépcsős hitelesítés beállítása
+inline-totp-setup-enrol-page-title = Hitelesítő alkalmazás csatlakoztatása
 
 
 page-not-found-heading = Az oldal nem található
 page-not-found-description = A kért oldal nem található. Értesítést kaptunk, és kijavítunk minden, esetleg hibás hivatkozást.
 page-not-found-home-button = Kezdőlap
+page-not-found-page-title = Az oldal nem található
 
 
 pair-auth-allow-heading-text = Most jelentkezett be a { -brand-firefox }ba?
 pair-auth-allow-confirm-button = Igen, jóváhagyom az eszközt
 pair-auth-allow-refuse-device-link = Ha nem Ön volt az, <a>változtassa meg jelszavát</a>
+pair-auth-allow-page-title = { -brand-firefox } bejelentkezés jóváhagyása
 
 
 pair-auth-complete-heading = Eszköz csatlakoztatva
@@ -1287,6 +1310,8 @@ pair-auth-complete-manage-devices-link = Eszközök kezelése
 pair-auth-complete-send-tab-heading = Készen áll néhány lap küldésére
 pair-auth-complete-send-tab-device-connected = A { $deviceFamily } for { $deviceOS } kapcsolódik.
 pair-auth-complete-send-tab-benefits = A megnyitott lapokat, jelszavakat és könyvjelzőket azonnal átküldheti az eszközök között.
+pair-auth-complete-page-title = Eszköz csatlakoztatva
+pair-auth-complete-send-tab-page-title = Készen áll a lapok küldésére
 
 
 auth-totp-heading-w-default-service = Adja meg a hitelesítési kódot <span>a fiókbeállításokhoz való továbblépéshez</span>
@@ -1295,14 +1320,17 @@ auth-totp-instruction = Nyissa meg a hitelesítő alkalmazását, és adja meg a
 auth-totp-input-label = Adja meg a 6 számjegyű kódot
 auth-totp-confirm-button = Megerősítés
 auth-totp-code-required-error = Hitelesítési kód szükséges
+auth-totp-page-title = Párosítás kétlépcsős hitelesítéssel
 
 
 pair-wait-for-supp-heading-text = Most jóváhagyás szükséges <span>a másik eszközéről</span>
+pair-wait-for-supp-page-title = Jóváhagyás a másik eszközén
 
 
 pair-failure-header-v2 = Nem sikerült az eszközpárosítás
 pair-failure-message-v2 = A telepítés nem fejezhető be. Jelentkezzen be az e-mail-címével.
 pair-failure-try-again-link = Újrapróbálkozás
+pair-failure-page-title = Nem sikerült az eszközpárosítás
 
 
 pair-sync-header = Szinkronizálja a { -brand-firefox(case: "accusative") } a telefonján vagy táblagépén
@@ -1336,19 +1364,25 @@ pair-download-description = A { -brand-firefox } telefonján vagy táblagépén 
 pair-download-step-scan-qr = <b>{ $stepNumber }. lépés</b>: Töltse le a { -brand-firefox }ot úgy, hogy leolvassa ezt a QR-kódot a mobileszköze kamerájával:
 pair-download-step-continue-sync = <b>{ $stepNumber }. lépés</b>: Válassza a „Tovább a szinkronizáláshoz” lehetőséget, hogy szinkronizálja a { -brand-firefox }-élményét a mobileszközén.
 pair-continue-to-sync-button = Tovább a szinkronizáláshoz
+pair-choice-page-title = Másik eszköz csatlakoztatása
+pair-choice-send-tab-page-title = Lapok küldése másik eszközre
+pair-download-page-title = { -brand-firefox } letöltése mobilra
 
 
 pair-success-header-2 = Eszköz csatlakoztatva
 pair-success-message-2 = A párosítás sikeres volt.
 pair-success-tab-close-message = A { -brand-firefox } automatikusan bezárja ezt a lapot.
+pair-success-page-title = Eszköz csatlakoztatva
 
 
 pair-supp-allow-heading-text = Párosítás megerősítése<span> a következővel: { $email }</span>
 pair-supp-allow-confirm-button = Párosítás megerősítése
 pair-supp-allow-cancel-link = Mégse
+pair-supp-allow-page-title = Párosítás megerősítése
 
 
 pair-wait-for-auth-heading-text = Most jóváhagyás szükséges <span>a másik eszközéről</span>
+pair-wait-for-auth-page-title = Jóváhagyás a másik eszközén
 
 
 pair-unsupported-header = Párosítás egy alkalmazás segítségével
@@ -1361,21 +1395,28 @@ pair-unsupported-connecting-mobile-instructions-v2 = Nyissa meg a { -brand-firef
 pair-unsupported-learn-more-link-v2 = További tudnivalók
 pair-unsupported-desktop-firefox-fallback-header-v2 = Hoppá, hiba történt.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Zárja be ezt a lapot, és próbálja újra.
+pair-unsupported-desktop-non-firefox-page-title = { -brand-firefox } szükséges
+pair-unsupported-system-camera-page-title = Párosítás egy alkalmazás segítségével
+pair-unsupported-mobile-page-title = Mobileszköz csatlakoztatása
+pair-unsupported-desktop-firefox-fallback-page-title = Hiba történt
 
 
 pair2-authority-approve-sign-in-heading = Jóváhagyja a bejelentkezést?
 pair2-authority-approve-sign-in-confirm-button = Igen, a bejelentkezés jóváhagyása
 pair2-authority-approve-sign-in-change-password = Nem Ön az? <changePassword>Változtassa meg a jelszavát</changePassword>
+pair2-authority-approve-sign-in-page-title = Bejelentkezés jóváhagyása
 
 
 pair2-authority-continue-on-mobile-heading = Folytatás a mobileszközén
 pair2-authority-continue-on-mobile-description = Kövesse a lépéseket a telefonján vagy táblagépén.
 pair2-authority-continue-on-mobile-cancel-button = Mégse
+pair2-authority-continue-on-mobile-page-title = Folytatás a mobileszközén
 
 
 pair2-authority-download-firefox-heading = A { -brand-firefox } megnyitása a szinkronizáláshoz
 pair2-authority-download-firefox-instruction-v2 = Az eszközök közti szinkronizálás beállításához nyissa meg a { -brand-firefox } böngészőt ezen az eszközön, és keresse fel a <b>firefox.com/pair</b> oldalt.
 pair2-authority-download-firefox-cta = A { -brand-firefox } letöltése
+pair2-authority-download-firefox-page-title = A { -brand-firefox } megnyitása a szinkronizáláshoz
 
 
 pair2-authority-scan-qr-heading = Olvassa le a mobileszköze csatlakoztatásához
@@ -1383,11 +1424,13 @@ pair2-authority-scan-qr-instruction = Olvassa le a QR-kódot telefonjával vagy 
 pair2-authority-scan-qr-code-aria-label = QR-kód a mobileszköz csatlakoztatásához
 pair2-authority-scan-qr-other-ways-link = A bejelentkezés egyéb módjai
 pair2-authority-scan-qr-skip-button = Kihagyás
+pair2-authority-scan-qr-page-title = Leolvasás a mobileszköze csatlakoztatásához
 
 
 pair2-authority-sync-success-heading-v2 = Az eszköze csatlakoztatva van
 pair2-authority-sync-success-description-v2 = A szinkronizálás folyamatban. Eltarthat egy ideig, amíg megjelennek a szinkronizált adatok. Nyugodtan böngésszen.
 pair2-authority-sync-success-sync-settings-button-v2 = Szinkronizálási beállítások kezelése
+pair2-authority-sync-success-page-title = Eszköz csatlakoztatva
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Még mindig csatlakoztatni szeretne egy eszközt?
@@ -1396,16 +1439,20 @@ pair2-authority-timeout-and-cancel-cancelled-heading = Megszakítva
 pair2-authority-timeout-and-cancel-canceled-description = Ha meggondolja magát, vagy egy másik eszközt szeretne csatlakoztatni, próbálja újra.
 pair2-authority-timeout-and-cancel-try-again-button = Újrapróbálkozás
 pair2-authority-timeout-and-cancel-sync-settings-button = Szinkronizálási beállítások
+pair2-authority-timeout-and-cancel-timeout-page-title = A kapcsolat időtúllépés miatt megszakadt.
+pair2-authority-timeout-and-cancel-cancelled-page-title = Párosítás megszakítva
 
 
 pair2-supplicant-approve-sign-in-heading = Még egy utolsó lépés a szinkronizáláshoz
 pair2-supplicant-approve-sign-in-instruction = Hagyja jóvá a bejelentkezést a számítógépén.
 pair2-supplicant-approve-sign-in-cancel-button = Mégse
+pair2-supplicant-approve-sign-in-page-title = Még egy utolsó lépés a szinkronizáláshoz
 
 
 pair2-supplicant-connect-this-device-heading = Összekapcsolja ezt az eszközt a fiókjával?
 pair2-supplicant-connect-this-device-connect-button = Kapcsolódás
 pair2-supplicant-connect-this-device-cancel-button = Mégse
+pair2-supplicant-connect-this-device-page-title = Eszköz csatlakoztatása
 
 
 pair2-supplicant-download-firefox-heading-v2 = Nyissa meg a { -brand-firefox }ot ezen az eszközön
@@ -1415,15 +1462,21 @@ pair2-supplicant-download-firefox-opening-button = A { -brand-firefox } megnyit�
 pair2-supplicant-download-firefox-download-button = A { -brand-firefox } letöltése
 pair2-supplicant-download-firefox-have-firefox-button = Már van { -brand-firefox }om
 pair2-supplicant-download-firefox-learn-more-link = További tudnivalók
+pair2-supplicant-download-firefox-page-title = A { -brand-firefox } megnyitása ezen az eszközön
+
+
+pair2-supplicant-connect-hint-page-title = Párosítás befejezése az alkalmazásban
 
 
 pair2-supplicant-ready-to-scan-heading = Eszköz csatlakoztatása
 pair2-supplicant-ready-to-scan-instruction = Nyissa meg a { -brand-firefox }ot a számítógépén, lépjen a <b>firefox.com/pair</b> oldalra, és kövesse a képernyőn megjelenő utasításokat a mobileszköze csatlakoztatásához.
 pair2-supplicant-ready-to-scan-learn-more-link = További tudnivalók
+pair2-supplicant-ready-to-scan-page-title = Leolvasásra kész
 
 
 pair2-supplicant-sync-success-heading = Az eszköze csatlakoztatva van
 pair2-supplicant-sync-success-description-v2 = A szinkronizálás folyamatban. Eltarthat egy ideig, amíg megjelennek a szinkronizált adatok. Nyugodtan böngésszen.
+pair2-supplicant-sync-success-page-title = Eszköz csatlakoztatva
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Úgy tűnik, túlléptük az időkorlátot
@@ -1432,6 +1485,9 @@ pair2-supplicant-timeout-and-cancel-cancelled-heading = Megszakítva
 pair2-supplicant-timeout-and-cancel-canceled-description = Eszköz csatlakoztatásához keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén.
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Ez az eszköz már be van jelentkezve
 pair2-supplicant-timeout-and-cancel-signed-in-description = Az asztali fiókjához való csatlakozáshoz jelentkezzen ki a { -brand-firefox }ból ezen az eszközön, majd keresse fel a <b>firefox.com/pair</b> oldalt a számítógépén a bejelentkezés befejezéséhez.
+pair2-supplicant-timeout-and-cancel-timeout-page-title = A kapcsolat időtúllépés miatt megszakadt
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = Párosítás megszakítva
+pair2-supplicant-timeout-and-cancel-signed-in-page-title = Az eszköz már be van jelentkezve
 
 
 permissions-heading = A(z) { $serviceName } hozzáférést kér a következőhöz:
@@ -1440,17 +1496,20 @@ permissions-label-display-name = Megjelenítendő név
 permissions-label-avatar = Fiók képe
 permissions-continue-button = Folytatás
 permissions-cancel-button = Mégse
+permissions-page-title = Engedélyek áttekintése
 
 
 force-password-change-heading = Változtassa meg a jelszavát
 force-password-change-info = Gyanús viselkedést észleltünk a { -product-mozilla-account }jánál. Fiókja védelme érdekében hozzon létre egy új jelszót. Ezzel a jelszóval újra bejelentkezhet a { -product-mozilla-account }ja összes szolgáltatásába.
 force-password-change-data-info = A szinkronizált előzmények, könyvjelzők, bejelentkezések és egyéb személyes adatok nem vesznek el.
+force-password-change-page-title = Jelszó megváltoztatása
 
 
 service-welcome-signup-success-banner = A { -product-mozilla-account } megerősítve
 service-welcome-signin-success-banner = Sikeresen bejelentkezett!
 service-welcome-vpn-heading = Következő: A VPN bekapcsolása
 service-welcome-vpn-description = Még egy lépés a böngészője adatvédelmének megerősítéséhez. Ugorjon a nyitott panelre, és kapcsolja be.
+service-welcome-vpn-page-title = VPN bekapcsolása
 
 
 set-password-heading-v2 = Jelszó létrehozása a szinkronizáláshoz
@@ -1458,6 +1517,7 @@ set-password-info-v2 = Ez titkosítja az adatait. Különböznie kell a { -brand
 
 
 set-password-passwordless-info = Ez a jelszó titkosítja és biztonságban tartja a szinkronizált adatait.
+set-password-page-title = Jelszó létrehozása a szinkronizáláshoz
 
 
 third-party-auth-callback-message = Kis türelmet, át lesz irányítva az engedélyezett alkalmazáshoz.
@@ -1470,6 +1530,7 @@ account-recovery-confirm-key-input-label =
 account-recovery-confirm-key-hint = A tárolási emlékeztető:
 account-recovery-confirm-key-button-2 = Folytatás
 account-recovery-lost-recovery-key-link-2 = Nem találja a fiók-helyreállítási kulcsát?
+account-recovery-confirm-key-page-title = Jelszó visszaállítása helyreállítási kulccsal
 
 
 complete-reset-pw-header-v2 = Új jelszó létrehozása
@@ -1479,11 +1540,13 @@ complete-reset-pw-recovery-key-link = Fiók-helyreállítási kulcs használata
 reset-password-complete-banner-heading = A mesterjelszó törölve
 reset-password-complete-banner-message = Ne felejtsen el egy új fiók-helyreállítási kulcsot előállítani a { -product-mozilla-account } beállításaiban, hogy megakadályozza a jövőbeli bejelentkezési problémákat.
 complete-reset-password-desktop-relay = Bejelentkezés után a { -brand-firefox } megpróbálja visszaküldeni Önt az e-mail-maszk használatához.
+complete-reset-password-page-title = Új jelszó létrehozása
 confirm-backup-code-reset-password-input-label = Adja meg a 10 karakteres kódot
 confirm-backup-code-reset-password-confirm-button = Megerősítés
 confirm-backup-code-reset-password-subheader = Adjon meg egy tartalék hitelesítési kódot
 confirm-backup-code-reset-password-instruction = Adja meg a kétlépcsős hitelesítés beállításakor mentett egyszer használatos kódok egyikét.
 confirm-backup-code-reset-password-locked-out-link = Kizárta magát?
+confirm-backup-code-reset-password-page-title = Jelszó visszaállítása egy tartalék kóddal
 
 
 confirm-reset-password-with-code-heading = Ellenőrizze a leveleit
@@ -1492,6 +1555,7 @@ confirm-reset-password-code-input-group-label = Adja meg a 8 számjegyű kódot 
 confirm-reset-password-otp-submit-button = Folytatás
 confirm-reset-password-otp-resend-code-button = Kód újraküldése
 confirm-reset-password-otp-different-account-link = Másik fiók használata
+confirm-reset-password-with-code-page-title = Ellenőrizze az e-mailjeit, hogy visszaállítsa a jelszavát
 
 
 confirm-totp-reset-password-header = Jelszó visszaállítása
@@ -1501,6 +1565,7 @@ confirm-totp-reset-password-trouble-code = Nem tudja beírni a kódot?
 confirm-totp-reset-password-confirm-button = Megerősítés
 confirm-totp-reset-password-input-label-v2 = Adja meg a 6 számjegyű kódot
 confirm-totp-reset-password-use-different-account = Másik fiók használata
+confirm-totp-reset-password-page-title = Jelszó visszaállítása kétlépcsős hitelesítéssel
 
 
 password-reset-flow-heading = Jelszó visszaállítása
@@ -1510,10 +1575,12 @@ password-reset-email-input =
     .label = Adja meg az e-mail-címét
 password-reset-submit-button-2 = Folytatás
 password-reset-data-recovery-warning = A jelszó visszaállítása befolyásolhatja, hogy visszaállíthatja-e a szinkronizált böngészőadatokat. <learnMoreLink>További tudnivalók</learnMoreLink>
+password-reset-flow-page-title = Jelszó visszaállítása
 
 
 reset-password-complete-header = A jelszó vissza lett állítva
 reset-password-confirmed-cta = Tovább erre: { $serviceName }
+reset-password-confirmed-page-title = Jelszó-visszaállítás kész
 
 
 password-reset-recovery-method-header = Jelszó visszaállítása
@@ -1528,6 +1595,7 @@ password-reset-recovery-method-code-info =
     }
 password-reset-recovery-method-send-code-error-heading = Hiba történt a kód helyreállítási telefonra küldésekor
 password-reset-recovery-method-send-code-error-description = Próbálja meg később, vagy használja a tartalék hitelesítési kódjait.
+password-reset-recovery-method-page-title = Jelszó visszaállítása helyreállítási módszerrel
 
 
 reset-password-recovery-phone-flow-heading = Jelszó visszaállítása
@@ -1543,6 +1611,7 @@ reset-password-recovery-phone-code-verification-error-heading = Hiba történt a
 reset-password-recovery-phone-general-error-description = Próbálja meg újra később.
 reset-password-recovery-phone-invalid-code-error-description = A kód érvénytelen vagy lejárt.
 reset-password-recovery-phone-invalid-code-error-link = Inkább tartalék hitelesítési kódokat használ?
+reset-password-recovery-phone-page-title = Jelszó visszaállítása a helyreállítási telefonszámmal
 reset-password-with-recovery-key-verified-page-title = Jelszó sikeresen visszaállítva
 reset-password-complete-new-password-saved = Új jelszó elmentve!
 reset-password-complete-recovery-key-created = Új fiók-helyreállítási kulcs létrehozva. Töltse le és tárolja most.
@@ -1550,11 +1619,13 @@ reset-password-complete-recovery-key-download-info =
     Ez a kulcs elengedhetetlen az adat-helyreállításhoz,
     ha elfelejti a jelszavát. <b>Töltse le és tárolja biztonságosan most,
     mert később nem fogja tudni újra elérni ezt az oldalt.</b>
+reset-password-with-recovery-key-verified-hint-page-title = Helyreállítási kulcs tippjének hozzáadása
 
 
 server-error-heading = 500-as hiba
 server-error-description = Ó jaj, valami hiba történt. Értesítést kaptunk, és elkezdünk a javításon dolgozni.
 server-error-home-button = Kezdőlap
+server-error-page-title = Kiszolgálóhiba
 
 
 error-label = Hiba:
@@ -1562,8 +1633,13 @@ validating-signin = Bejelentkezés ellenőrzése…
 complete-signin-error-header = Megerősítési hiba
 signin-link-expired-header = A megerősítő hivatkozás lejárt
 signin-link-expired-message-2 = A hivatkozás, amelyre kattintott, lejárt, vagy már használták.
+complete-signin-error-page-title = Hiba a bejelentkezés megerősítésekor
+complete-signin-validating-page-title = Bejelentkezés megerősítése
 
 
+signin-password-page-title = Írja be a jelszavát
+signin-cached-page-title = Bejelentkezés
+signin-alternative-auth-page-title = Válasszon bejelentkezési módot
 signin-password-needed-header-2 = Adja meg a <span>{ -product-mozilla-account }</span> jelszavát
 signin-button-start-syncing = Szinkronizálás indítása
 signin-subheader-without-logo-with-servicename = Tovább erre: { $serviceName }
@@ -1587,11 +1663,13 @@ report-signin-body = Levelet kapott arról, hogy megpróbáltak hozzáférni a f
 report-signin-submit-button = Tevékenység jelentése
 report-signin-support-link = Miért történik ez?
 report-signin-error = Elnézést, hiba történt a jelentés beküldésekor.
+report-signin-page-title = Jogosulatlan bejelentkezés jelentése
 signin-bounced-header = Sajnáljuk. A fiókját zároltuk.
 signin-bounced-message = A megerősítő e-mail elküldésre került ide: { $email }, de az visszatért, így zároltuk a fiókját, hogy megvédjük a { -brand-firefox(case: "inessive") } tárolt adatait.
 signin-bounced-help = Ha ez egy érvényes e-mail-cím, <linkExternal>tudassa velünk</linkExternal>, és segítünk feloldani a fiókját.
 signin-bounced-create-new-account = Már nem az Öné az e-mail-cím? Hozzon létre új fiókot
 back = Vissza
+signin-bounced-page-title = Fiók zárolva
 
 
 signin-passkey-fallback-header = Bejelentkezés befejezése
@@ -1605,6 +1683,7 @@ signin-passkey-fallback-no-prf-description = Ez a böngésző vagy eszköz nem h
 signin-passkey-fallback-unwrap-failed-heading = A jelkulcs nem tudta feloldani a szinkronizálást
 signin-passkey-fallback-unwrap-failed-description = Valami hiba történt, így most szüksége lesz a jelszavára.
 signin-passkey-fallback-wrap-unusable-link = További tudnivalók
+signin-passkey-fallback-page-title = Jelszó megadása a szinkronizáláshoz
 
 
 signin-passwordless-code-heading = Adja meg a megerősítő kódot
@@ -1632,6 +1711,8 @@ signup-passwordless-code-subheading = A regisztráció csak egy lépésből áll
 
 
 signin-passwordless-totp-required = A kétlépcsős hitelesítés engedélyezve van a fiókjában. Jelentkezzen be a jelszavával.
+signin-passwordless-code-page-title = Bejelentkezés e-mailben kapott kóddal
+signup-passwordless-code-page-title = Regisztráció e-mailben kapott kóddal
 
 
 signin-recovery-method-header = Bejelentkezés
@@ -1646,6 +1727,7 @@ signin-recovery-method-code-info-v2 =
     }
 signin-recovery-method-send-code-error-heading = Hiba történt a kód helyreállítási telefonra küldésekor
 signin-recovery-method-send-code-error-description = Próbálja meg később, vagy használja a tartalék hitelesítési kódjait.
+signin-recovery-method-page-title = Bejelentkezés helyreállítási móddal
 
 
 signin-recovery-code-heading = Bejelentkezés
@@ -1658,6 +1740,7 @@ signin-recovery-code-support-link = Kizárta magát?
 signin-recovery-code-required-error = Tartalék hitelesítési kód szükséges
 signin-recovery-code-use-phone-failure = Hiba történt a kód helyreállítási telefonra küldésekor
 signin-recovery-code-use-phone-failure-description = Próbálja meg újra később.
+signin-recovery-code-page-title = Bejelentkezés biztonsági kóddal
 
 
 signin-recovery-phone-flow-heading = Bejelentkezés
@@ -1674,10 +1757,12 @@ signin-recovery-phone-general-error-description = Próbálja meg újra később.
 signin-recovery-phone-invalid-code-error-description = A kód érvénytelen vagy lejárt.
 signin-recovery-phone-invalid-code-error-link = Inkább tartalék hitelesítési kódokat használ?
 signin-recovery-phone-success-message = Sikeresen bejelentkezett. Korlátozások merülhetnek fel, ha újra használja a helyreállítási telefonszámát.
+signin-recovery-phone-page-title = Bejelentkezés helyreállítási telefonszámmal
 
 
 signin-reported-header = Köszönjük az éberségét
 signin-reported-message = Értesítette csapatunkat. Az ilyen jelentések segítenek kivédeni a behatolókat.
+signin-reported-page-title = Bejelentkezés jelentve
 
 
 signin-token-code-heading-2 = Adja meg a megerősítő kódot<span> a { -product-mozilla-account }</span> számára
@@ -1694,6 +1779,7 @@ signin-token-code-resend-code-countdown =
 signin-token-code-required-error = Megerősítési kód szükséges
 signin-token-code-resend-error = Hiba történt. Nem sikerült új kódot küldeni.
 signin-token-code-instruction-desktop-relay = Bejelentkezés után a { -brand-firefox } megpróbálja visszaküldeni Önt az e-mail-maszk használatához.
+signin-token-code-page-title = Bejelentkezés megerősítése e-mailben kapott kóddal
 
 
 signin-totp-code-header = Bejelentkezés
@@ -1709,6 +1795,7 @@ signin-totp-code-other-account-link = Másik fiók használata
 signin-totp-code-recovery-code-link = Nem tudja beírni a kódot?
 signin-totp-code-required-error = Hitelesítési kód szükséges
 signin-totp-code-desktop-relay = Bejelentkezés után a { -brand-firefox } megpróbálja visszaküldeni Önt az e-mail-maszk használatához.
+signin-totp-code-page-title = Bejelentkezés kétlépcsős hitelesítéssel
 
 
 signin-unblock-header = Bejelentkezés engedélyezése
@@ -1721,9 +1808,10 @@ signin-unblock-code-incorrect-format-2 = Az engedélyezési kód csak betűket �
 signin-unblock-resend-code-button = Nincs a beérkezett vagy a levélszemét mappában? Újraküldés
 signin-unblock-support-link = Miért történik ez?
 signin-unblock-desktop-relay = Bejelentkezés után a { -brand-firefox } megpróbálja visszaküldeni Önt az e-mail-maszk használatához.
+signin-unblock-page-title = Bejelentkezés engedélyezése
 
 
-confirm-signup-code-page-title = Adja meg a megerősítő kódot
+confirm-signup-code-page-title-2 = E-mail-cím megerősítése
 confirm-signup-code-heading-2 = Adja meg a megerősítő kódot <span>a { -product-mozilla-account }</span> számára
 confirm-signup-code-instruction-v2 = Adja meg 5 percen belül a(z) <email>{ $email }</email> címre küldött kódot.
 confirm-signup-code-input-label = Adja meg a 6 számjegyű kódot
@@ -1746,6 +1834,7 @@ signup-relay-info = Egy jelszóra van szükség a maszkolt e-mailek biztonságos
 signup-sync-info = Szinkronizálja jelszavait, könyvjelzőit és egyebeket mindenhol, ahol a { -brand-firefox }ot használja.
 signup-sync-info-with-payment = Szinkronizálja jelszavait, fizetési módjait, könyvjelzőit és egyebeket mindenhol, ahol a { -brand-firefox }ot használja.
 signup-change-email-link = E-mail-cím módosítása
+signup-page-title = Fiók létrehozása
 
 
 signup-confirmed-sync-header = A szinkronizálás be van kapcsolva
@@ -1756,8 +1845,10 @@ signup-confirmed-sync-description-v2 = Jelszavai, címei, könyvjelzői, előzm�
 signup-confirmed-sync-add-device-link = További eszköz hozzáadása
 signup-confirmed-sync-manage-sync-button = Szinkronizálás kezelése
 signup-confirmed-sync-set-password-success-banner = Szinkronizálási jelszó létrehozva
+signup-confirmed-sync-page-title = Szinkronizálás bekapcsolva
 
 
 update-firefox-heading = { -brand-firefox } frissítés szükséges
 update-firefox-description = A { -product-mozilla-account } olyan funkciókat használ, amelyek nem támogatottak a { -brand-firefox }-verziójában. A folytatáshoz töltse le és telepítse a { -brand-firefox } legfrissebb verzióját.
 update-firefox-download-button = Legfrissebb letöltése
+update-firefox-page-title = { -brand-firefox } frissítés szükséges

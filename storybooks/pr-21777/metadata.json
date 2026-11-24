@@ -1,8 +1,8 @@
 {
-  "commit": "a0280cee3cdbbe3d279f110ec679a78edd0b7f3c",
+  "commit": "62c6f8c53cd686e7e5be4986182e513e40b72add",
   "summary": "fix(settings): discard stale cached session on Sync sign-in",
-  "description": "Because:\n\n- After a browser-menu sign-out, Sync sign-in kept a dead cached session token.\n- Later requests failed with errno 110 and the tab kept spinning.\n\nThis commit:\n\n- Validates the cached session token for Sync too, and discards it when invalid.\n- Replaces the Sync Jest test with valid and invalid Sync cases.\n- Adds a functional test for a stale session on Sync sign-in.\n\nCloses FXA-14966",
-  "timestamp": 1795113272000,
+  "description": "Because:\n\n- After a browser-menu sign-out, Sync sign-in kept a dead cached session token.\n- Later requests failed with errno 110 and the tab kept spinning.\n\nThis commit:\n\n- Validates the cached session token for Sync too, and discards it when invalid.\n- Keeps a token that another tab stored while validation was pending.\n- Replaces the Sync Jest test with valid and invalid Sync cases.\n- Adds a functional test for a stale session on Sync sign-in.\n\nCloses #FXA-14966",
+  "timestamp": 1795547293000,
   "storybooks": [
     "fxa-settings"
   ],

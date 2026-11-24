@@ -41,7 +41,6 @@ app-footer-terms-of-service = Tiwtilin n useqdec
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Yettalday deg usfaylu amaynut
@@ -752,7 +751,6 @@ signin-unblock-submit-button = Kemmel
 signin-unblock-support-link = Acuɣeṛ i d-iḍerru waya?
 
 
-confirm-signup-code-page-title = Sekcem tangalt n usentem
 confirm-signup-code-input-label = Sekcem tangalt s 6-izwilen
 confirm-signup-code-confirm-button = Sentem
 confirm-signup-code-code-expired = Tangalt temmut?

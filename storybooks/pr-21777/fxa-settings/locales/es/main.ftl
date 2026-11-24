@@ -48,7 +48,6 @@ app-footer-terms-of-service = Términos del servicio
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Se abre en una ventana nueva
@@ -217,8 +216,6 @@ signin-recovery-code-image-description =
     .aria-label = Documento que contiene texto oculto.
 signin-totp-code-image-label =
     .aria-label = Un dispositivo con un código oculto de 6 dígitos.
-confirm-signup-aria-label =
-    .aria-label = Un sobre que contiene un enlace
 security-shield-aria-label =
     .aria-label = Ilustración para representar una clave de recuperación de cuenta.
 recovery-key-image-aria-label =
@@ -1260,7 +1257,6 @@ signin-unblock-support-link = ¿Por qué sucede esto?
 signin-unblock-desktop-relay = { -brand-firefox } intentará enviarte nuevamente donde estabas para que uses una máscara de correo electrónico después de iniciar sesión.
 
 
-confirm-signup-code-page-title = Introduce el código de confirmación
 confirm-signup-code-heading-2 = Introduce el código de confirmación <span>para tu { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Introduce en un plazo de 5 minutos el código de verificación que se envió a <email>{ $email }</email>.
 confirm-signup-code-input-label = Introduce el código de 6 dígitos

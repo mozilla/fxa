@@ -994,8 +994,6 @@ signin-unblock-support-link = Acuɣeṛ i d-iḍerru waya?
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
 
-# Page title show in browser title bar or page tab
-confirm-signup-code-page-title = Sekcem tangalt n usentem
 confirm-signup-code-input-label = Sekcem tangalt s 6-izwilen
 # Form button to confirm if the confirmation code entered by the user is valid
 confirm-signup-code-confirm-button = Sentem

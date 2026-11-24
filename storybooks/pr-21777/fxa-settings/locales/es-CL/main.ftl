@@ -48,7 +48,6 @@ app-footer-terms-of-service = Términos del servicio
 
 
 app-default-title-2 = { -product-mozilla-accounts }
-app-page-title-2 = { $title } | { -product-mozilla-accounts }
 
 
 link-sr-new-window = Abre en una nueva ventana
@@ -1678,7 +1677,6 @@ signin-unblock-support-link = ¿Por qué sucede esto?
 signin-unblock-desktop-relay = { -brand-firefox } intentará regresarte a la pestaña de origen para que hagas uso de una máscara de correo electrónico después de conectarte.
 
 
-confirm-signup-code-page-title = Ingresar código de confirmación
 confirm-signup-code-heading-2 = Ingresa el código de confirmación <span>para tu { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Ingresa el código que fue enviado a <email>{ $email }</email> dentro de los próximos 5 minutos.
 confirm-signup-code-input-label = Ingresa el código de 6 dígitos

@@ -283,8 +283,6 @@ signin-recovery-code-image-description =
     .aria-label = Documento que contém texto oculto.
 signin-totp-code-image-label =
     .aria-label = Um dispositivo com um código oculto de 6 dígitos.
-confirm-signup-aria-label =
-    .aria-label = Um envelope contendo uma ligação
 # Used for an image of a key on a shield surrounded by 5 other icons representing information that can be recovered with the account recovery key.
 # Other icons and their meaning: Gear (settings), star (favorites), clock (history), magnifying glass (search) and lock (passwords).
 security-shield-aria-label =
@@ -369,6 +367,9 @@ signin-link-damaged-header = Ligação de confirmação danificada
 # The user followed a link to report an invalid signin attempt that was received by email
 # but the link was damaged (for example mistyped or broken by the email client).
 report-signin-link-damaged-header = Ligação danificada
+# Browser tab title for the page shown when the user followed a link to report an unauthorized sign-in, but the link was damaged.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+report-signin-link-damaged-page-title = Reportar ligação danificada
 # The user followed a link received by email, but the link was damaged.
 reset-pwd-link-damaged-message = A ligação que clicou tem carateres em falta e pode ter sido corrompida pelo seu cliente de e-mail. Copie cuidadosamente o endereço e tente novamente.
 
@@ -400,6 +401,9 @@ locale-toggle-select-label = Selecionar idioma
 locale-toggle-browser-default = Predefinição do navegador
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Pedido inválido
+# Browser tab title for the page shown when the URL or network request is malformed, e.g. a required query parameter is invalid.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+error-bad-request-page-title = Pedido inválido
 
 ## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when they open the pairing link
@@ -487,6 +491,15 @@ ready-continue = Continuar
 sign-in-complete-header = Início de sessão confirmado
 sign-up-complete-header = Conta confirmada
 primary-email-verified-header = E-mail primário confirmado
+# Browser tab title for the page confirming the user’s sign-in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+sign-in-complete-page-title = Início de sessão confirmado
+# Browser tab title for the page confirming the user’s new account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+sign-up-complete-page-title = Conta confirmada
+# Browser tab title for the page confirming the user’s primary email address.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+primary-email-verified-page-title = E-mail primário confirmado
 
 ## Users see this view when they are generating a new account recovery key
 ## This screen displays the generated key and allows users to download or copy the key
@@ -865,6 +878,8 @@ modal-mfa-protected-confirm-button = Confirmar
 modal-mfa-protected-code-expired = Código expirado?
 # Link to resend a new code to the user's email.
 modal-mfa-protected-resend-code-link = Enviar novo código por e-mail.
+# Error shown when the code is correct but the device clock is too far ahead of the server time.
+modal-mfa-protected-clock-skew-error = O relógio do seu dispositivo está errado. Corrija a data e hora do seu dispositivo, e depois tente novamente.
 
 ## Modal Verify Session
 
@@ -1234,6 +1249,9 @@ security-set-password = Defina uma palavra-passe para sincronizar e usar determi
 security-recent-activity-link = Ver a atividade recente da conta
 signout-sync-header = Sessão expirada
 signout-sync-session-expired = Desculpe, algo correu mal. Por favor, termine a sessão no menu do navegador e tente novamente.
+# Browser tab title for the page telling the user their session expired and they need to sign out from the browser menu.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signout-sync-page-title = A sessão expirou
 
 ## SubRow component
 
@@ -1613,6 +1631,9 @@ connect-another-device-not-now-link = Agora não
 connect-another-device-android-complete-setup-message = Inicie a sessão no { -brand-firefox } para Android para concluir a configuração
 # This is a message for Firefox iOS users, prompting them to complete the process of connecting another device by signing into Firefox for iOS
 connect-another-device-ios-complete-setup-message = Inicie sessão no { -brand-firefox } para iOS para concluir a configuração
+# Browser tab title for the page that invites the user to connect another device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+connect-another-device-page-title = Ligar outro dispositivo
 
 ## Cookies disabled page
 ## Users will see this page if they have local storage or cookies disabled.
@@ -1623,9 +1644,15 @@ cookies-disabled-enable-prompt-2 = Por favor, ative os cookies e armazenamento l
 cookies-disabled-button-try-again = Tentar novamente
 # An external link going to: https://support.mozilla.org/kb/cookies-information-websites-store-on-your-computer
 cookies-disabled-learn-more = Saber mais
+# Browser tab title for the page shown when cookies or local storage are disabled in the browser.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+cookies-disabled-page-title = Cookies e armazenamento local requeridos
 
 ## Index / home page
 
+# Browser tab title for the page where the user enters their email to sign in or create an account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+index-page-title = Iniciar sessão ou criar uma conta
 index-header = Introduza o seu email
 index-sync-header = Continuar para a sua { -product-mozilla-account }
 index-sync-subheader = Sincronize as suas palavras-passe, separadores, marcadores e muito mais, em qualquer sítio que utilize o { -brand-firefox }.
@@ -1673,6 +1700,33 @@ inline-recovery-key-setup-download-header = Proteja a sua conta
 inline-recovery-key-setup-download-subheader = Transferir e guardar agora
 inline-recovery-key-setup-download-info = Guarde esta chave num sítio onde se lembre — não irá conseguir regressar a esta página mais tarde.
 inline-recovery-key-setup-hint-header = Recomendação de segurança
+# Browser tab title for the page where the user creates an account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-key-setup-create-page-title = Criar uma chave de recuperação da conta
+# Browser tab title for the page where the user downloads their account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-key-setup-download-page-title = Transferir a sua chave de recuperação da conta
+# Browser tab title for the page where the user adds a hint for their account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-key-setup-hint-page-title = Adicionar uma dica da chave de recuperação
+# Browser tab title for the page where the user chooses a recovery method during two-step authentication setup.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-choice-page-title = Escolha um método de recuperação
+# Browser tab title for the page where the user saves their backup authentication codes.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-download-codes-page-title = Guarde os seus códigos de segurança
+# Browser tab title for the page where the user confirms one of their backup authentication codes.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-confirm-code-page-title = Confirmar um código de segurança
+# Browser tab title for the page where the user enters a phone number to use as a recovery phone.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-phone-number-page-title = Adicionar um telefone de recuperação
+# Browser tab title for the page where the user enters the code sent to their recovery phone to confirm it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-phone-code-page-title = Confirmar o seu telefone de recuperação
+# Browser tab title for the page confirming that two-step authentication is now on for the account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-complete-page-title = Autenticação de dois passos ativada
 
 ## InlineTotpSetup page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -1710,6 +1764,12 @@ tfa-qr-code-alt =
     Utilize o código { $code } para configurar a autenticação de dois fatores nas 
     aplicações suportadas.
 inline-totp-setup-page-title = Autenticação de dois passos
+# Browser tab title for the first page of two-step authentication setup, which introduces the feature.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-totp-setup-intro-page-title = Configurar autenticação de dois passos
+# Browser tab title for the page where the user connects an authenticator app to their account during two-step authentication setup.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-totp-setup-enrol-page-title = Ligar a sua aplicação de autenticação
 
 ## PageNotFound page
 ## Shown when the requested page does not exist
@@ -1717,6 +1777,9 @@ inline-totp-setup-page-title = Autenticação de dois passos
 page-not-found-heading = Página não encontrada
 page-not-found-description = A página que solicitou não foi encontrada. Fomos notificados e iremos corrigir todas as ligações que possam estar quebradas.
 page-not-found-home-button = Início
+# Browser tab title for the page shown when the requested page does not exist.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+page-not-found-page-title = Página não encontrada
 
 ## AuthAllow page - Part of the device pairing flow
 
@@ -1727,6 +1790,9 @@ pair-auth-allow-confirm-button = Sim, aprovar dispositivo
 # "If this wasn't you" means "If it wasn't you that just signed in to Firefox"
 # The text with the <link> tags links to a `reset password` page
 pair-auth-allow-refuse-device-link = Se não foi você, <a>altere a sua palavra-passe</a>
+# Browser tab title for the page where the user approves a { -brand-firefox } sign-in on a new device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-auth-allow-page-title = Aprovar início de sessão no { -brand-firefox }
 
 ## PairAuthComplete page - part of the device pairing flow
 
@@ -1748,6 +1814,12 @@ pair-auth-complete-send-tab-heading = Está pronto para enviar alguns separadore
 # Variable { $deviceOS } is an operating system short name, for example "iOS", "Android"
 pair-auth-complete-send-tab-device-connected = O { $deviceFamily } para { $deviceOS } está ligado.
 pair-auth-complete-send-tab-benefits = Sinta-se livre para enviar instantaneamente separadores abertos, palavras-passe, e marcadores entre dispositivos.
+# Browser tab title for the page shown when a device has been connected after pairing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-auth-complete-page-title = Dispositivo ligado
+# Browser tab title for the page shown when a device has been connected after pairing started from a send tab button.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-auth-complete-send-tab-page-title = Pronto para enviar separadores
 
 ## AuthTotp page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -1766,6 +1838,9 @@ auth-totp-input-label = Inserir código de 6 dígitos
 auth-totp-confirm-button = Confirmar
 # Error displayed in a tooltip when the form is submitted without a code
 auth-totp-code-required-error = Código de autenticação obrigatório
+# Browser tab title for the page where the user enters a two-step authentication code to continue pairing a device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+auth-totp-page-title = Emparelhar com autenticação de dois passos
 
 ## WaitForSupp page - Part of the devide pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1774,6 +1849,9 @@ auth-totp-code-required-error = Código de autenticação obrigatório
 # The "other device" is non-specific and could be a desktop computer, laptop, tablet, mobile phone, etc.
 # Strings within the <span> elements appear as a subheading.
 pair-wait-for-supp-heading-text = A aprovação agora é obrigatória <span>do seu outro dispositivo</span>
+# Browser tab title for the page that asks the user to approve device pairing on their other device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-wait-for-supp-page-title = Aprove no seu outro dispositivo
 
 ## PairFailure - a view which displays on failure of the device pairing process
 
@@ -1781,6 +1859,9 @@ pair-wait-for-supp-heading-text = A aprovação agora é obrigatória <span>do s
 pair-failure-header-v2 = O emparelhamento do dispositivo falhou
 pair-failure-message-v2 = Não foi possível concluir a configuração. Por favor inicie sessão com o seu e-mail.
 pair-failure-try-again-link = Tentar novamente
+# Browser tab title for the page shown when device pairing fails.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-failure-page-title = O emparelhamento do dispositivo falhou
 
 ## Pair index page
 
@@ -1840,12 +1921,24 @@ pair-download-step-scan-qr = <b>Passo { $stepNumber }</b>: Transfira o { -brand-
 pair-download-step-continue-sync = <b>Passo { $stepNumber }</b>: Selecione “Continuar para sincronizar” para sincronizar a sua experiência { -brand-firefox } no seu dispositivo móvel.
 # Button on the download screen that opens about:preferences for pairing
 pair-continue-to-sync-button = Continuar para sincronizar
+# Browser tab title for the page where the user chooses how to connect another device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-choice-page-title = Ligar outro dispositivo
+# Browser tab title for the page where the user chooses how to set up another device to send tabs to.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-choice-send-tab-page-title = Enviar separadores para outro dispositivo
+# Browser tab title for the page that explains how to download { -brand-firefox } on a mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-download-page-title = Transferir o { -brand-firefox } para telemóvel
 
 ## PairSuccess - a view which displays  on successful completion of the device pairing process
 
 pair-success-header-2 = Dispositivo ligado
 pair-success-message-2 = O emparelhamento foi bem-sucedido.
 pair-success-tab-close-message = Este separador será fechado automaticamente pelo { -brand-firefox }.
+# Browser tab title for the page shown when a device has been paired successfully.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-success-page-title = Dispositivo ligado
 
 ## SuppAllow page - Part of the device pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1856,6 +1949,9 @@ pair-success-tab-close-message = Este separador será fechado automaticamente pe
 pair-supp-allow-heading-text = Confirme o emparelhamento <span>para { $email }</span>
 pair-supp-allow-confirm-button = Confirmar emparelhamento
 pair-supp-allow-cancel-link = Cancelar
+# Browser tab title for the page where the user confirms pairing a device with their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-supp-allow-page-title = Confirmar emparelhamento
 
 ## WaitForAuth page - Part of the devide pairing flow
 ## Users see this page when they have started to pair a second (or more) device to their account
@@ -1864,6 +1960,9 @@ pair-supp-allow-cancel-link = Cancelar
 # The "other device" is non-specific and could be a desktop computer, laptop, tablet, mobile phone, etc.
 # Strings within the <span> elements appear as a subheading.
 pair-wait-for-auth-heading-text = A aprovação agora é necessária <span>do seu outro dispositivo</span>
+# Browser tab title for the page that asks the user to approve device pairing on their other device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-wait-for-auth-page-title = Aprove no seu outro dispositivo
 
 ## PairUnsupported - a view which is shown when the user tries to scan the pairing QR code any way other than through a Firefox app
 
@@ -1887,6 +1986,18 @@ pair-unsupported-learn-more-link-v2 = Saber mais
 # Matches the legacy Backbone "Oops! Something went wrong." message.
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Algo correu mal.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Por favor feche este separador e tente novamente.
+# Browser tab title for the page shown to a desktop user who is not using { -brand-firefox } and must switch browsers to pair a device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-desktop-non-firefox-page-title = { -brand-firefox } requerido
+# Browser tab title for the page shown when a mobile user scans the pairing code with the system camera and must pair from within a { -brand-firefox } app instead.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-system-camera-page-title = Emparelhar usando uma aplicação
+# Browser tab title for the page that explains how to connect a mobile device by starting from { -brand-firefox } on a computer.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-mobile-page-title = Ligue o seu dispositivo móvel
+# Browser tab title for the page shown to a desktop { -brand-firefox } user when something went wrong and device pairing cannot continue.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-desktop-firefox-fallback-page-title = Algo correu mal
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer, which is already signed in, after their
@@ -1901,6 +2012,9 @@ pair2-authority-approve-sign-in-confirm-button = Sim, aprovar início de sessão
 # "Not you?" asks whether someone other than the user started this sign-in.
 # The text inside <changePassword> links to the page for changing the password.
 pair2-authority-approve-sign-in-change-password = Não é você? <changePassword>Altere a sua palavra-passe</changePassword>
+# Browser tab title for the page where the user approves a sign-in requested from their mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-approve-sign-in-page-title = Aprovar início de sessão
 
 ## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer after scanning the pairing QR code with
@@ -1911,6 +2025,9 @@ pair2-authority-continue-on-mobile-heading = Continue no seu dispositivo móvel
 pair2-authority-continue-on-mobile-description = Siga os passos no seu telefone ou tablet.
 # Dismisses the pairing attempt
 pair2-authority-continue-on-mobile-cancel-button = Cancelar
+# Browser tab title for the page telling the user to continue connecting their device on their mobile device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-continue-on-mobile-page-title = Continue no seu dispositivo móvel
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when Firefox is needed to continue pairing.
@@ -1922,6 +2039,9 @@ pair2-authority-download-firefox-heading = Abrir o { -brand-firefox } para sincr
 pair2-authority-download-firefox-instruction-v2 = Para configurar a sincronização entre dispositivos, abra o { -brand-firefox } neste dispositivo e visite <b>firefox.com/pair</b>.
 # Links out to the Firefox download page
 pair2-authority-download-firefox-cta = Transferir { -brand-firefox }
+# Browser tab title for the page telling the user to open { -brand-firefox } on this device to start syncing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-download-firefox-page-title = Abrir o { -brand-firefox } para sincronizar
 
 ## ScanQR page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer. It shows a QR code that they scan with
@@ -1936,6 +2056,9 @@ pair2-authority-scan-qr-code-aria-label = Código QR para ligar o seu dispositiv
 pair2-authority-scan-qr-other-ways-link = Outras formas de iniciar sessão
 # Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
 pair2-authority-scan-qr-skip-button = Saltar por agora
+# Browser tab title for the page showing a QR code the user scans with their mobile device to connect it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-scan-qr-page-title = Digitalize para ligar o seu dispositivo móvel
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer once the mobile device has been paired.
@@ -1946,6 +2069,9 @@ pair2-authority-sync-success-heading-v2 = O seu dispositivo está ligado
 pair2-authority-sync-success-description-v2 = A sincronização está em curso. Pode demorar algum tempo para os seus dados sincronizados aparecerem. Sinta-se à vontade para continuar a navegar.
 # Opens the browser settings that control what is synced
 pair2-authority-sync-success-sync-settings-button-v2 = Gerir definições de sincronização
+# Browser tab title for the page shown when a mobile device has been connected and syncing has started.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-sync-success-page-title = Dispositivo ligado
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their computer when pairing stopped without succeeding,
@@ -1962,6 +2088,12 @@ pair2-authority-timeout-and-cancel-canceled-description = Se mudar de ideias ou 
 pair2-authority-timeout-and-cancel-try-again-button = Tentar novamente
 # Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
 pair2-authority-timeout-and-cancel-sync-settings-button = Definições de sincronização
+# Browser tab title for the page shown on the computer when the device pairing attempt timed out.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-timeout-and-cancel-timeout-page-title = A ligação expirou
+# Browser tab title for the page shown on the computer when the device pairing attempt was cancelled.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-timeout-and-cancel-cancelled-page-title = Emparelhamento cancelado
 
 ## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
@@ -1973,6 +2105,9 @@ pair2-supplicant-approve-sign-in-heading = Um último passo para sincronizar
 pair2-supplicant-approve-sign-in-instruction = Aprove o início de sessão no seu computador.
 # Dismisses the pairing attempt
 pair2-supplicant-approve-sign-in-cancel-button = Cancelar
+# Browser tab title for the page shown on the mobile device while the user approves the sign-in on their computer. "sync" is a verb, referring to syncing data between the user’s devices.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-approve-sign-in-page-title = Um último passo para sincronizar
 
 ## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device after scanning the pairing QR code
@@ -1987,6 +2122,9 @@ pair2-supplicant-connect-this-device-heading = Ligar este dispositivo à sua con
 pair2-supplicant-connect-this-device-connect-button = Ligar
 # Dismisses the pairing attempt
 pair2-supplicant-connect-this-device-cancel-button = Cancelar
+# Browser tab title for the page shown on the mobile device where the user confirms connecting it to their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-connect-this-device-page-title = Ligar este dispositivo
 
 ## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing reaches a browser that is
@@ -2008,6 +2146,15 @@ pair2-supplicant-download-firefox-download-button = Transferir o { -brand-firefo
 pair2-supplicant-download-firefox-have-firefox-button = Eu já tenho o { -brand-firefox }
 # Opens a page explaining what sync does
 pair2-supplicant-download-firefox-learn-more-link = Saber mais
+# Browser tab title for the page shown on the mobile device asking the user to open { -brand-firefox } on it to continue pairing.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-download-firefox-page-title = Abrir o { -brand-firefox } neste dispositivo
+
+## PairConnectHint page - Part of the desktop-to-mobile pairing flow
+
+# Browser tab title for the page shown on the mobile device telling the user to finish pairing in the { -brand-firefox } app.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-connect-hint-page-title = Concluir emparelhamento na aplicação
 
 ## ReadyToScan page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device before pairing starts. It tells them
@@ -2020,6 +2167,9 @@ pair2-supplicant-ready-to-scan-heading = Para ligar um dispositivo
 pair2-supplicant-ready-to-scan-instruction = No seu computador, abra o { -brand-firefox } e aceda a <b>firefox.com/pair</b>, e siga as instruções no ecrã para ligar este dispositivo móvel.
 # Opens a Mozilla support article about setting up sync
 pair2-supplicant-ready-to-scan-learn-more-link = Saber mais
+# Browser tab title for the page shown on the mobile device before pairing starts, telling the user to open firefox.com/pair on their computer.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-ready-to-scan-page-title = Pronto para digitalizar
 
 ## SyncSuccess page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device once pairing has completed: the device
@@ -2028,6 +2178,9 @@ pair2-supplicant-ready-to-scan-learn-more-link = Saber mais
 pair2-supplicant-sync-success-heading = O seu dispositivo está ligado
 # "Syncing" here means copying data between the user's devices
 pair2-supplicant-sync-success-description-v2 = A sincronização está em curso. Pode demorar algum tempo para os seus dados sincronizados aparecerem. Sinta-se à vontade para continuar a navegar.
+# Browser tab title for the page shown on the mobile device when it has been connected and syncing has started.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-sync-success-page-title = Dispositivo ligado
 
 ## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when pairing ends without connecting,
@@ -2047,6 +2200,15 @@ pair2-supplicant-timeout-and-cancel-canceled-description = Para ligar um disposi
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Este dispositivo já tem sessão iniciada
 # "firefox.com/pair" is a URL and should not be translated
 pair2-supplicant-timeout-and-cancel-signed-in-description = Para ligar à sua conta de computador, termine sessão no { -brand-firefox } neste dispositivo e visite <b>firefox.com/pair</b> no seu computador para concluir o início de sessão.
+# Browser tab title for the page shown on the mobile device when the device pairing attempt timed out.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-timeout-and-cancel-timeout-page-title = A ligação expirou
+# Browser tab title for the page shown on the mobile device when the device pairing attempt was cancelled.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = Emparelhamento cancelado
+# Browser tab title for the page shown on the mobile device when it is already signed in to an account and cannot be paired.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-timeout-and-cancel-signed-in-page-title = Dispositivo já autenticado
 
 ## Permissions page
 ## Users see this page during sign-in or sign-up when a relying party is not a
@@ -2061,6 +2223,9 @@ permissions-label-display-name = Nome de apresentação
 permissions-label-avatar = Imagem da conta
 permissions-continue-button = Continuar
 permissions-cancel-button = Cancelar
+# Browser tab title for the page where the user reviews the profile information an app or service is asking to access.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+permissions-page-title = Rever permissões
 
 ## ForcePasswordChange page
 ## Users are sent here when suspicious activity on the account requires a new password before they can continue.
@@ -2068,6 +2233,9 @@ permissions-cancel-button = Cancelar
 force-password-change-heading = Por favor altere a sua palavra-passe
 force-password-change-info = Detetámos um comportamento suspeito na sua { -product-mozilla-account }. Para proteger a sua conta, por favor crie uma nova palavra-passe. Irá utilizar esta palavra-passe para iniciar sessão novamente em todos os seus serviços da { -product-mozilla-account }.
 force-password-change-data-info = O histórico, marcadores, credenciais, e outros dados pessoais sincronizados não serão perdidos.
+# Browser tab title for the page where the user must change their password because of suspicious activity on their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+force-password-change-page-title = Alterar a sua palavra-passe
 
 ## ServiceWelcome page
 ## Shown to users after signup/signin for services like VPN
@@ -2077,6 +2245,9 @@ service-welcome-signin-success-banner = Sessão iniciada com sucesso!
 # In this context, "VPN" is a VPN service built into the Firefox browser, and generally isn't localized differently than "VPN"
 service-welcome-vpn-heading = Seguinte: Ligar a VPN
 service-welcome-vpn-description = Mais um passo para melhorar a privacidade do seu navegador. Aceda ao painel aberto e ative-a.
+# Browser tab title for the page telling the user to turn on VPN as their next step after signing up or signing in. "VPN" is a VPN service built into the Firefox browser.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+service-welcome-vpn-page-title = Ativar VPN
 
 ## SetPassword page
 ## Third party auth users that do not have a password set yet are prompted for a
@@ -2089,6 +2260,9 @@ set-password-info-v2 = Isto encripta os seus dados. Tem de ser diferente da pala
 ## Users who signed in via passwordless OTP and need to create a password for Sync
 
 set-password-passwordless-info = Esta palavra-passe encripta os seus dados sincronizados mantém-os seguros.
+# Browser tab title for the page where the user creates a password so they can sync.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+set-password-page-title = Criar uma palavra-passe para sincronizar
 
 ## ThirdPartyAuthCallback Page
 ## This page is called after a user completes the third party authentication flow from Google or Apple.
@@ -2109,6 +2283,9 @@ account-recovery-confirm-key-hint = A sua dica de armazenamento é:
 account-recovery-confirm-key-button-2 = Continuar
 # Link that leads to the password reset page (without recovery code)
 account-recovery-lost-recovery-key-link-2 = Não consegue encontrar a sua chave de recuperação da conta?
+# Browser tab title for the page where the user enters their account recovery key to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+account-recovery-confirm-key-page-title = Repor palavra-passe com chave de recuperação
 
 ## CompleteResetPassword component
 ## User followed a password reset link and is now prompted to create a new password
@@ -2130,12 +2307,18 @@ reset-password-complete-banner-message = Não se esqueça de gerar uma nova chav
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 complete-reset-password-desktop-relay = O { -brand-firefox } vai tentar redirecionar para a utilização de uma máscara de e-mail após o seu início de sessão.
+# Browser tab title for the page where the user creates a new password while resetting it.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+complete-reset-password-page-title = Criar uma nova palavra-passe
 confirm-backup-code-reset-password-input-label = Inserir código de 10 caracteres
 confirm-backup-code-reset-password-confirm-button = Confirmar
 confirm-backup-code-reset-password-subheader = Insira o código de autenticação de recuperação
 confirm-backup-code-reset-password-instruction = Insira um dos códigos de utilização única que guardou ao configurar a autenticação de dois passos.
 # Link out to support article: https://support.mozilla.org/kb/what-if-im-locked-out-two-step-authentication
 confirm-backup-code-reset-password-locked-out-link = Está bloqueado?
+# Browser tab title for the page where the user enters a backup authentication code to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-backup-code-reset-password-page-title = Repor palavra-passe com um código de recuperação
 
 ## Confirm Reset Password With Code
 
@@ -2153,6 +2336,9 @@ confirm-reset-password-otp-submit-button = Continuar
 confirm-reset-password-otp-resend-code-button = Reenviar código
 # Link to cancel the password reset and sign in with a different account
 confirm-reset-password-otp-different-account-link = Utilizar uma conta diferente
+# Browser tab title for the page where the user enters the confirmation code emailed to them to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-reset-password-with-code-page-title = Consulte o seu email para repor a sua palavra-passe
 
 ## PasswordResetConfirmTotp Page
 
@@ -2163,6 +2349,9 @@ confirm-totp-reset-password-trouble-code = Problemas ao introduzir o código?
 confirm-totp-reset-password-confirm-button = Confirmar
 confirm-totp-reset-password-input-label-v2 = Inserir código de 6 dígitos
 confirm-totp-reset-password-use-different-account = Utilizar uma conta diferente
+# Browser tab title for the page where the user enters a two-step authentication code to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-totp-reset-password-page-title = Redefinir palavra-passe com autenticação de dois passos
 
 ## ResetPassword start page
 
@@ -2175,12 +2364,18 @@ password-reset-email-input =
 password-reset-submit-button-2 = Continuar
 # Small print below the Continue button. <learnMoreLink> links to a support article about password resets.
 password-reset-data-recovery-warning = A reposição da sua palavra-passe pode afetar se consegue recuperar os dados sincronizados do navegador. <learnMoreLink>Saber mais</learnMoreLink>
+# Browser tab title for the page where the user starts a password reset by entering their email.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+password-reset-flow-page-title = Repor a sua palavra-passe
 
 ## ResetPasswordConfirmed
 
 reset-password-complete-header = A sua palavra-passe foi reposta
 # $serviceName is a product name such as Monitor, Relay
 reset-password-confirmed-cta = Continuar para { $serviceName }
+# Browser tab title for the page confirming that the user’s password was reset.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+reset-password-confirmed-page-title = Reposição de palavra-passe concluída
 
 ## Reset password recovery method page
 ## This page is shown to users when they are having trouble resetting their
@@ -2200,6 +2395,9 @@ password-reset-recovery-method-code-info =
 # Shown when a backend service fails and a code cannot be sent to the user's recovery phone.
 password-reset-recovery-method-send-code-error-heading = Ocorreu um problema ao enviar um código para o seu telefone de recuperação
 password-reset-recovery-method-send-code-error-description = Por favor tente novamente mais tarde ou utilize os seus códigos de autenticação de recuperação.
+# Browser tab title for the page where the user chooses a recovery method to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+password-reset-recovery-method-page-title = Repor palavra-passe com um método de recuperação
 
 ## ResetPasswordRecoveryPhone page
 
@@ -2221,10 +2419,16 @@ reset-password-recovery-phone-code-verification-error-heading = Ocorreu um probl
 reset-password-recovery-phone-general-error-description = Por favor tente mais tarde.
 reset-password-recovery-phone-invalid-code-error-description = O código é inválido ou expirou.
 reset-password-recovery-phone-invalid-code-error-link = Em vez disso, usar códigos de autenticação de recuperação?
+# Browser tab title for the page where the user enters a code sent to their recovery phone to reset their password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+reset-password-recovery-phone-page-title = Repor palavra-passe com telefone de recuperação
 reset-password-with-recovery-key-verified-page-title = Palavra-passe redefinida com sucesso
 reset-password-complete-new-password-saved = Nova palavra-passe guardada!
 reset-password-complete-recovery-key-created = Nova chave de recuperação da conta criada. Transferir e guardar agora.
 reset-password-complete-recovery-key-download-info = Esta chave é essencial para a recuperação dos dados, caso se esqueça da sua palavra-passe. <b>Faça a transferência e guarde a mesma em segurança agora, pois não poderá aceder novamente a esta página mais tarde.</b>
+# Browser tab title for the page where the user adds a hint for their new account recovery key.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+reset-password-with-recovery-key-verified-hint-page-title = Adicionar uma dica da chave de recuperação
 
 ## ServerError page
 ## Shown when the server fails to handle a request
@@ -2232,6 +2436,9 @@ reset-password-complete-recovery-key-download-info = Esta chave é essencial par
 server-error-heading = Erro 500
 server-error-description = Oh não, algo correu mal aqui. Nós fomos notificados e iremos trabalhar numa correção.
 server-error-home-button = Início
+# Browser tab title for the page shown when the server fails to handle a request.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+server-error-page-title = Erro do servidor
 
 ## CompleteSignin component
 
@@ -2244,9 +2451,24 @@ complete-signin-error-header = Erro de confirmação
 # The user followed a signin confirmation link, but that link is expired and no longer valid
 signin-link-expired-header = A ligação de confirmação expirou
 signin-link-expired-message-2 = A ligação que clicou expirou ou já foi utilizada.
+# Browser tab title for the page shown when something went wrong while confirming a sign-in from an emailed link.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+complete-signin-error-page-title = Erro de confirmação de início de sessão
+# Browser tab title for the page shown while a sign-in is being confirmed from an emailed link.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+complete-signin-validating-page-title = A confirmar início de sessão
 
 ## Signin page
 
+# Browser tab title for the page where the user enters their password to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-password-page-title = Introduza a sua palavra-passe
+# Browser tab title for the sign-in page shown when the user already has a saved session on this device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-cached-page-title = Iniciar sessão
+# Browser tab title for the page where the user picks how to sign in when their account has no password.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-alternative-auth-page-title = Escolha um método de início de sessão
 # Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Insira a sua palavra-passe <span>para a sua { -product-mozilla-account }</span>
 # Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
@@ -2283,6 +2505,9 @@ report-signin-body = Recebeu um e-mail sobre de uma tentativa de acesso à sua c
 report-signin-submit-button = Denunciar atividade
 report-signin-support-link = Porque é que isto está a acontecer?
 report-signin-error = Pedimos desculpa, mas ocorreu um problema ao submeter o relatório.
+# Browser tab title for the page where the user can report a sign-in attempt to their account that they did not make.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+report-signin-page-title = Reportar início de sessão não autorizado
 signin-bounced-header = Desculpe. Nós bloqueámos a sua conta.
 # $email (string) - The user's email.
 signin-bounced-message = O e-mail de confirmação que enviámos para { $email } foi devolvido e bloqueámos a sua conta para proteger os seus dados do { -brand-firefox }.
@@ -2290,6 +2515,9 @@ signin-bounced-message = O e-mail de confirmação que enviámos para { $email }
 signin-bounced-help = Se este é um endereço de e-mail válido, <linkExternal>informe-nos</linkExternal> e podemos ajudar a desbloquear a sua conta.
 signin-bounced-create-new-account = Já não tem este e-mail? Crie uma nova conta
 back = Voltar
+# Browser tab title for the page telling the user their account is locked because a confirmation email sent to them was returned.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-bounced-page-title = Conta bloqueada
 
 ## SigninPasskeyFallback page
 ## Users who authenticate with a passkey to access Sync must also enter their password.
@@ -2310,6 +2538,9 @@ signin-passkey-fallback-unwrap-failed-heading = A sua chave-passe não conseguiu
 signin-passkey-fallback-unwrap-failed-description = Algo correu mal, por isso desta vez irá precisar da sua palavra-passe.
 # Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
 signin-passkey-fallback-wrap-unusable-link = Saber mais
+# Browser tab title for the page where the user enters their password after using a passkey to sign in, so they can sync.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-passkey-fallback-page-title = Introduza a sua palavra-passe para sincronizar
 
 ## SigninPasswordlessCode page
 ## Users are prompted to enter a code sent to their email for passwordless authentication.
@@ -2351,6 +2582,12 @@ signup-passwordless-code-subheading = Quando usa este código basta um único pa
 # Shown when a user with 2FA enabled tries to use passwordless flow
 # They are redirected to password signin instead
 signin-passwordless-totp-required = A autenticação de dois passos está ativada na sua conta. Por favor inicie sessão com a sua palavra-passe.
+# Browser tab title for the page where the user enters the confirmation code emailed to them to sign in to their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-passwordless-code-page-title = Iniciar sessão com o código de email
+# Browser tab title for the page where the user enters the confirmation code emailed to them to sign up for an account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signup-passwordless-code-page-title = Registar com código de email
 
 ## Signin recovery method page
 ## This page is shown to users when they are having trouble signing in with
@@ -2370,6 +2607,9 @@ signin-recovery-method-code-info-v2 =
 # Shown when a backend service fails and a code cannot be sent to the user's recovery phone.
 signin-recovery-method-send-code-error-heading = Ocorreu um problema ao enviar um código para o seu telefone de recuperação
 signin-recovery-method-send-code-error-description = Por favor, tente mais tarde ou utilize os seus códigos de autenticação de recuperação.
+# Browser tab title for the page where the user chooses a recovery method to sign in when they cannot use their authenticator app.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-recovery-method-page-title = Iniciar sessão com um método de recuperação
 
 ## SigninRecoveryCode page
 ## Users are prompted to enter a backup authentication code
@@ -2396,6 +2636,9 @@ signin-recovery-code-required-error = É necessário o código de recuperação 
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-recovery-code-use-phone-failure = Ocorreu um problema ao enviar um código para o seu telefone de recuperação
 signin-recovery-code-use-phone-failure-description = Por favor, tente novamente mais tarde.
+# Browser tab title for the page where the user enters a backup authentication code to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-recovery-code-page-title = Iniciar sessão com um código de segurança
 
 ## SigninRecoveryPhone page
 
@@ -2420,11 +2663,17 @@ signin-recovery-phone-invalid-code-error-link = Em vez disso, utilizar códigos 
 # "Limits" refers to potential restrictions on how often a recovery phone number can be used for signing in within a given time period.
 # If limits are reached, users may have to use an alternate two-step authentication method or wait until the restriction period is over.
 signin-recovery-phone-success-message = Sessão iniciada com sucesso. Podem ser aplicados limites se utilizar novamente o seu telefone de recuperação.
+# Browser tab title for the page where the user enters a code sent to their recovery phone to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-recovery-phone-page-title = Iniciar sessão com telefone de recuperação
 
 ## Signin reported page: this page is shown when a user receives an email notifying them of a new account signin, and the user clicks a button indicating that the signin was not them so that we know it was someone trying to break into their account.
 
 signin-reported-header = Obrigado pela sua vigilância
 signin-reported-message = A nossa equipa foi notificada. As denúncias como esta ajudam-nos a afastar os intrusos.
+# Browser tab title for the page confirming the user reported a sign-in attempt that was not them.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-reported-page-title = Início de sessão reportado
 
 ## SigninTokenCode page
 ## Users see this page during the signin process. In this instance, the confirmation code is
@@ -2456,6 +2705,9 @@ signin-token-code-resend-error = Algo correu mal. Não foi possível enviar um n
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-token-code-instruction-desktop-relay = O { -brand-firefox } vai tentar redirecionar para a utilização de uma máscara de e-mail após o seu início de sessão.
+# Browser tab title for the page where the user enters the confirmation code emailed to them to confirm a sign-in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-token-code-page-title = Confirmar início de sessão com código de e-mail
 
 ## SigninTOTPCode page
 ## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
@@ -2480,6 +2732,9 @@ signin-totp-code-required-error = É necessário o código de autenticação
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-totp-code-desktop-relay = O { -brand-firefox } vai tentar redirecionar para a utilização de uma máscara de e-mail após o seu início de sessão.
+# Browser tab title for the page where the user enters a two-step authentication code from their authenticator app to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-totp-code-page-title = Iniciar sessão com autenticação de dois passos
 
 ## Signin Unblock Page
 ## Page shown when signin has been blocked by rate limiting (too many requests)
@@ -2499,12 +2754,16 @@ signin-unblock-support-link = Porque é que isto está a acontecer?
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-unblock-desktop-relay = O { -brand-firefox } vai tentar redirecionar para a utilização de uma máscara de e-mail após o seu início de sessão.
+# Browser tab title for the page where the user enters the authorization code emailed to them to approve a blocked sign-in attempt.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-unblock-page-title = Autorizar este início de sessão
 
 ## ConfirmSignupCode page
 ## Users see this page after they have initiated account sign up,
 
-# Page title show in browser title bar or page tab
-confirm-signup-code-page-title = Inserir código de confirmação
+# Browser tab title for the page where the user enters the confirmation code emailed to them to finish signing up.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-signup-code-page-title-2 = Confirmar o seu e-mail
 # String within the <span> element appears on a separate line
 # If more appropriate in a locale, the string within the <span>, "for your { -product-mozilla-account }"
 # can stand alone as "{ -product-mozilla-account }"
@@ -2542,6 +2801,9 @@ signup-sync-info = Sincronize as suas palavras-passe, marcadores, e muito mais o
 signup-sync-info-with-payment = Sincronize as suas palavras-passe, métodos de pagamento, marcadores, e muito mais onde quer que use o { -brand-firefox }.
 # Clicking on this link returns the user to the beginning of the flow so they can enter a new email address
 signup-change-email-link = Alterar e-mail
+# Browser tab title for the page where the user creates a password to sign up for an account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signup-page-title = Criar a sua conta
 
 ## SignupConfirmedSync page
 ## Shown to users when they finish confirming their account through Sync
@@ -2555,6 +2817,9 @@ signup-confirmed-sync-description-v2 = As suas palavras-passe, endereços, marca
 signup-confirmed-sync-add-device-link = Adicionar outro dispositivo
 signup-confirmed-sync-manage-sync-button = Gerir sincronização
 signup-confirmed-sync-set-password-success-banner = Palavra-passe de sincronização criada
+# Browser tab title for the page confirming that sync is turned on after the user confirmed their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signup-confirmed-sync-page-title = A sincronização está ativada
 
 ## UpdateFirefox page
 ## Shown when the browser is too old to use a Mozilla account
@@ -2562,3 +2827,6 @@ signup-confirmed-sync-set-password-success-banner = Palavra-passe de sincroniza�
 update-firefox-heading = Atualização do { -brand-firefox } requerida
 update-firefox-description = A sua conta { -product-mozilla-account } faz uso de funcionalidades que não são suportadas na sua versão do { -brand-firefox }. Por favor transfira e instale a última versão do { -brand-firefox } para continuar.
 update-firefox-download-button = Transferir a mais recente
+# Browser tab title for the page shown when the browser is too old to use a Mozilla account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+update-firefox-page-title = Atualização do { -brand-firefox } requerida

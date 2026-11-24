@@ -54,8 +54,17 @@ payment-plan-next-invoice = Propera factura: { $nextInvoiceDateOnly }
 ## $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 ## $invoiceDateOnly (String) - The date of the next invoice, e.g. August 28, 2025
 
+subscription-charges-subtotal = <b>Subtotal</b>
 # $invoiceSubtotal (String) - The amount, before discount, of the subscription invoice, including currency, e.g. $10.00
 subscriptionFirstInvoiceDiscount-content-subtotal = Subtotal: { $invoiceSubtotal }
+
+## $invoiceDiscountAmount (String) - The amount of the discount of the subscription invoice, including currency, e.g. $2.00
+## $discountDuration - The duration of the discount in number of months, e.g. "3" if the discount is 3-months
+
+subscription-charges-discount = Descompte
+subscription-charges-total = <b>Total</b>
+# $invoiceTotal (String) - The total amount of the subscription invoice, including currency, e.g. $10.00
+subscription-charges-total-plaintext = Total: { $invoiceTotal }
 
 ##
 
@@ -68,3 +77,7 @@ subscriptionSupportContact = Gràcies per subscriure-us al { $productName }. Si 
 downloadSubscription-link-action-2 = Primers passos
 fraudulentAccountDeletion-subject-2 = S'ha suprimit el vostre { -product-mozilla-account }
 fraudulentAccountDeletion-title = S'ha suprimit el vostre compte
+freeTrialEndingReminder-content-charge-discount-2 = Descompte
+freeTrialEndingReminder-content-charge-tax-2 = IVA
+subscriptionAccountReminderFirst-action-plaintext = { subscriptionAccountReminderFirst-action }:
+subscriptionAccountReminderSecond-action-plaintext = { subscriptionAccountReminderSecond-action }:
