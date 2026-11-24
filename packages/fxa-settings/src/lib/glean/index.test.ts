@@ -871,6 +871,15 @@ describe('lib/glean', () => {
       });
     });
 
+    describe('oauthPermissions', () => {
+      it('submits a ping with the oauth_permissions_view event name', async () => {
+        GleanMetrics.oauthPermissions.view();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'oauth_permissions_view');
+      });
+    });
+
     describe('passkeyEnterPassword', () => {
       it('submits a ping with the passkey_enter_password_view event name and a reason', async () => {
         GleanMetrics.passkeyEnterPassword.view({

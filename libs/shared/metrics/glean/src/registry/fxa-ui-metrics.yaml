@@ -3217,6 +3217,25 @@ passkey:
           E.g. 'signin_cancelled'.
         type: string
 
+oauth_permissions:
+  view:
+    type: event
+    description: |
+      View of the OAuth Permissions page, where the user reviews the profile
+      information an untrusted relying party asks for.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-15122
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+
 account_pref:
   view:
     type: event
