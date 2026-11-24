@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { act, fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { Account, AppContext } from '../../../models';
@@ -18,6 +18,7 @@ import {
   ZoomOutBtn,
 } from './buttons';
 import { usePageViewEvent } from '../../../lib/metrics';
+import GleanMetrics from '../../../lib/glean';
 
 jest.mock('fxa-settings/src/lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -25,9 +26,49 @@ jest.mock('fxa-settings/src/lib/metrics', () => ({
   settingsViewName: 'quuz',
 }));
 
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    accountPref: { avatarView: jest.fn(), avatarUploadSuccess: jest.fn() },
+  },
+}));
+
+// jsdom loads no image, so the real cropper never reports a crop area.
+jest.mock('react-easy-crop', () => ({
+  __esModule: true,
+  default: function MockCropper({
+    image,
+    onCropComplete,
+  }: {
+    image?: string;
+    onCropComplete: Function;
+  }) {
+    const React = jest.requireActual('react');
+    React.useEffect(() => {
+      const area = { x: 0, y: 0, width: 1, height: 1 };
+      onCropComplete(area, area);
+    }, [image, onCropComplete]);
+    return null;
+  },
+}));
+
+// jsdom's FileReader can outlast waitFor's timeout under load.
+jest.mock('../../../lib/file-utils', () => ({
+  onFileChange: (_evt: unknown, onSuccess: Function) =>
+    onSuccess('data:image/png;base64,aW1hZ2U='),
+}));
+
+jest.mock('../../../lib/canvas-utils', () => ({
+  getCroppedImg: jest.fn().mockResolvedValue(new Blob(['image'])),
+}));
+
 const account = {
   avatar: { url: null, id: null },
 } as unknown as Account;
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 it('PageAvatar | renders', async () => {
   renderWithRouter(
@@ -46,6 +87,42 @@ it('PageAvatar | emits a metrics event on render', async () => {
     </AppContext.Provider>
   );
   expect(usePageViewEvent).toHaveBeenCalledWith('settings.avatar.change');
+  expect(GleanMetrics.accountPref.avatarView).toHaveBeenCalledTimes(1);
+});
+
+async function uploadAndSave(uploadAvatar: jest.Mock) {
+  const user = userEvent.setup();
+  renderWithRouter(
+    <AppContext.Provider
+      value={mockAppContext({
+        account: { ...account, uploadAvatar } as unknown as Account,
+      })}
+    >
+      <PageAvatar />
+    </AppContext.Provider>
+  );
+  await user.upload(
+    screen.getByTestId('avatar-image-upload-input'),
+    new File(['image'], 'avatar.png', { type: 'image/png' })
+  );
+  const saveButton = screen.getByTestId('save-button');
+  await waitFor(() => expect(saveButton).toBeEnabled());
+  await user.click(saveButton);
+  await waitFor(() => expect(uploadAvatar).toHaveBeenCalledTimes(1));
+}
+
+it('PageAddAvatar | records avatar_upload_success after the upload succeeds', async () => {
+  await uploadAndSave(jest.fn().mockResolvedValue(undefined));
+  await waitFor(() =>
+    expect(GleanMetrics.accountPref.avatarUploadSuccess).toHaveBeenCalledTimes(
+      1
+    )
+  );
+});
+
+it('PageAddAvatar | records no avatar_upload_success when the upload fails', async () => {
+  await uploadAndSave(jest.fn().mockRejectedValue(new Error('upload failed')));
+  expect(GleanMetrics.accountPref.avatarUploadSuccess).not.toHaveBeenCalled();
 });
 
 it('PageAddAvatar | render add, take buttons on initial load', async () => {
@@ -200,7 +277,6 @@ it('PageAddAvatar | reflects zoom changes from the slider and the zoom buttons',
     new File(['image'], 'avatar.png', { type: 'image/png' })
   );
 
-  // FileReader resolves asynchronously, so wait for the edit view to appear.
   const slider = await screen.findByRole('slider', { name: 'zoom-slider' });
   expect(slider).toHaveValue('1');
 

@@ -22,6 +22,8 @@ import {
   settingsViewName,
   usePageViewEvent,
 } from '../../../lib/metrics';
+import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 
 import Avatar from '../Avatar';
 import FlowContainer from '../FlowContainer';
@@ -49,6 +51,7 @@ const zoomSliderClass = [
 
 export const PageAddAvatar = () => {
   usePageViewEvent('settings.avatar.change');
+  useGleanView(() => GleanMetrics.accountPref.avatarView());
   const navigateWithQuery = useNavigateWithQuery();
   const account = useAccount();
   const { l10n } = useLocalization();
@@ -85,6 +88,7 @@ export const PageAddAvatar = () => {
       try {
         await account.uploadAvatar(file);
         logViewEvent(settingsViewName, 'avatar.crop.submit.change');
+        GleanMetrics.accountPref.avatarUploadSuccess();
         navigateWithQuery(SETTINGS_PATH + '#profile-picture', {
           replace: true,
         });

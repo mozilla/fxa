@@ -16,11 +16,22 @@ import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import firefox from '../../../lib/channels/firefox';
 import { PLACEHOLDER_IMAGE_URL } from '../../../pages/mocks';
 import { JwtTokenCache, MfaOtpRequestCache } from '../../../lib/cache';
+import GleanMetrics from '../../../lib/glean';
+import { flushGlean } from '../../../lib/glean/flush';
 
 jest.mock('../../../models/AlertBarInfo');
 jest.mock('fxa-settings/src/lib/metrics', () => ({
   logViewEvent: jest.fn(),
   settingsViewName: 'quuz',
+}));
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: { accountPref: { signoutSuccess: jest.fn() } },
+}));
+
+jest.mock('../../../lib/glean/flush', () => ({
+  flushGlean: jest.fn(),
 }));
 
 jest.mock('../../../lib/cache', () => ({
@@ -164,6 +175,40 @@ describe('DropDownAvatarMenu', () => {
       );
     });
 
+    it('records signout_success and waits for the Glean flush before it redirects', async () => {
+      //@ts-ignore
+      delete window.location;
+      window.location = {
+        origin: 'https://accounts.example.com',
+        assign: jest.fn(),
+      } as unknown as Location;
+      let resolveFlush = () => {};
+      (flushGlean as jest.Mock).mockReturnValue(
+        new Promise<void>((resolve) => (resolveFlush = resolve))
+      );
+
+      renderWithLocalizationProvider(
+        <AppContext.Provider
+          value={mockAppContext({ account, session: mockSession() })}
+        >
+          <DropDownAvatarMenu />
+        </AppContext.Provider>
+      );
+
+      fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('avatar-menu-sign-out'));
+      });
+      expect(GleanMetrics.accountPref.signoutSuccess).toHaveBeenCalledTimes(1);
+      expect(flushGlean).toHaveBeenCalledTimes(1);
+      expect(window.location.assign).not.toHaveBeenCalled();
+
+      await act(async () => resolveFlush());
+      expect(window.location.assign).toHaveBeenCalledWith(
+        'https://accounts.example.com'
+      );
+    });
+
     it('displays an error in the AlertBar', async () => {
       const context = mockAppContext({
         account,
@@ -183,6 +228,8 @@ describe('DropDownAvatarMenu', () => {
         fireEvent.click(screen.getByTestId('avatar-menu-sign-out'));
       });
       expect(settingsContext.alertBarInfo?.error).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.accountPref.signoutSuccess).not.toHaveBeenCalled();
+      expect(flushGlean).not.toHaveBeenCalled();
     });
   });
 

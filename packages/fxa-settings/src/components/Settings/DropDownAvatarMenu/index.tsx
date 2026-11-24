@@ -14,6 +14,8 @@ import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import { useEscKeydownEffect } from '../../../lib/hooks';
 import { ReactComponent as SignOut } from './sign-out.svg';
 import { logViewEvent, settingsViewName } from '../../../lib/metrics';
+import GleanMetrics from '../../../lib/glean';
+import { flushGlean } from '../../../lib/glean/flush';
 import { Localized, useLocalization } from '@fluent/react';
 import firefox from '../../../lib/channels/firefox';
 import { Constants } from '../../../lib/constants';
@@ -69,6 +71,7 @@ export const DropDownAvatarMenu = () => {
         firefox.fxaLogout({ uid });
 
         logViewEvent(settingsViewName, 'signout.success');
+        GleanMetrics.accountPref.signoutSuccess();
 
         // Clear JWTs associated with the current session and clear any
         // record of cached OTP requests.
@@ -84,6 +87,8 @@ export const DropDownAvatarMenu = () => {
         JwtTokenCache.clearTokens(session.token);
         MfaOtpRequestCache.clear(session.token);
 
+        // The navigation unloads the page, which drops queued Glean pings.
+        await flushGlean();
         window.location.assign(window.location.origin);
       } catch (e) {
         alertBar.error(

@@ -170,6 +170,15 @@ export const recordLazyEventMetric = (
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
       break;
+    case 'account_pref_avatar_view':
+      accountPref.avatarView.record();
+      break;
+    case 'account_pref_avatar_upload_success':
+      accountPref.avatarUploadSuccess.record();
+      break;
+    case 'account_pref_signout_success':
+      accountPref.signoutSuccess.record();
+      break;
     case 'account_pref_google_play_submit':
       accountPref.googlePlaySubmit.record();
       break;
