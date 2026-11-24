@@ -129,6 +129,7 @@ device-info-ip-address = Adreça IP: { $ipAddress }
 ## Shown at the top of settings to promote installing Firefox on mobile (when
 ## the user is on Firefox) or switching to Firefox (on other browsers).
 
+firefox-promo-banner-mobile-cta = Connecta un dispositiu
 firefox-promo-banner-switch-cta = Canvieu al { -brand-firefox }
 
 ## FormPasswordInlineCriteria
@@ -218,6 +219,9 @@ checkmark-icon-aria-label =
 # Used to  indicate a check mark for a successful state/action
 checkmark-success-icon-aria-label =
     .aria-label = Correcte
+# Used to indicate a check mark for an enabled state/option
+checkmark-enabled-icon-aria-label =
+    .aria-label = Activat
 # Used on X icon to dismiss a message such as an alert or banner
 close-icon-aria-label =
     .aria-label = Tanca el missatge
@@ -263,6 +267,7 @@ inline-recovery-key-setup-signed-in-firefox-2 = Heu iniciat la sessió al { -bra
 inline-recovery-key-setup-create-header = Protegiu el vostre compte
 # This is a subheader asking users to create an account recovery key, indicating it will only take a moment to complete.
 inline-recovery-key-setup-create-subheader = Teniu un minut per a protegir les vostres dades?
+inline-recovery-key-setup-later-button = Més tard
 
 ## Input Password
 
@@ -271,12 +276,46 @@ input-password-hide = Amaga la contrasenya
 # Tooltip displayed on a password input visibility toggle. Expresses the toggle action, where clicking on the toggle will show the password.
 input-password-show = Mostra la contrasenya
 
+## Phone number component
+
+# This is an aria-label available to screen readers for a selection list that includes country flags, country name and country code
+input-phone-number-country-list-aria-label = Trieu el país
+input-phone-number-country-united-states = Estats Units
+input-phone-number-country-canada = Canadà
+
+## LinkDamaged component
+
+# The user followed a password reset link that was received by email
+# but the link is damaged (for example mistyped or broken by the email client)
+reset-pwd-link-damaged-header = L'enllaç per reiniciar la contrasenya està malmès
+# The user followed a link to report an invalid signin attempt that was received by email
+# but the link was damaged (for example mistyped or broken by the email client).
+report-signin-link-damaged-header = L'enllaç no funciona
+
+## LinkExpired component
+
+# Button to request a new link if the previous link that was emailed to the user is expired
+link-expired-new-link-button = Rebeu un enllaç nou
+
+## LinkRememberPassword component
+
+# link navigates to the sign in page
+remember-password-signin-link = Inicia la sessió
+
+## LinkUsed component
+
+# The user followed a primary email confirmation link, but that link is has been used and is no longer valid
+primary-email-confirmation-link-reused = Ja s’ha confirmat l’adreça electrònica principal
+
 ## Locale Toggle Component
 
 locale-toggle-select-label = Trieu una llengua
 locale-toggle-browser-default = Opció per defecte del navegador
 # Users will see this heading when the URL or network request is malformed, e.g. a query parameter is required and is invalid
 error-bad-request = Sol·licitud incorrecta
+# Browser tab title for the page shown when the URL or network request is malformed, e.g. a required query parameter is invalid.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+error-bad-request-page-title = Sol·licitud incorrecta
 
 ## PairUnsupportedHint - Part of the desktop-to-mobile pairing flow
 ## Users see this on their mobile device when they open the pairing link
@@ -288,6 +327,48 @@ pair-unsupported-hint-step-close-page = Tanca aquesta pàgina
 pair-unsupported-hint-step-app-menu = Toca el <b>menú de l'aplicació</b>
 # Opens a Mozilla support article about connecting a device without a QR code
 pair-unsupported-hint-learn-more-link = Més informació
+
+## PasswordStrengthInline component
+## These strings are conditions that need to be met to qualify as a strong password
+
+password-strength-inline-min-length = 8 caràcters com a mínim
+password-strength-inline-not-email = No pot ser la vostra adreça electrònica
+password-strength-inline-not-common = No pot ser una contrasenya d'ús comú
+password-strength-inline-passwords-match = Les contrasenyes coincideixen
+
+## Notification Promo Banner component
+
+account-recovery-notification-cta = Crea
+promo-banner-dismiss-button =
+    .aria-label = Descarta el bàner
+
+## Ready component
+
+# Message shown when the account is ready but the user is not signed in
+ready-account-ready = Ja teniu el compte a punt.
+ready-continue = Continua
+sign-in-complete-header = S'ha confirmat l'inici de sessió
+sign-up-complete-header = Compte confirmat
+# Browser tab title for the page confirming the user’s sign-in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+sign-in-complete-page-title = S'ha confirmat l'inici de sessió
+# Browser tab title for the page confirming the user’s new account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+sign-up-complete-page-title = Compte confirmat
+
+## RecoveryKeySetupHint
+## This is the final step in the account recovery key creation flow after a Sync signin or in account settings
+## Prompts the user to save an (optional) storage hint about the location of their account recovery key.
+
+# The text of the "submit" button. Clicking on this button will save the hint (if provided) and exit the account recovery key creation flow.
+# "Finish" refers to "Finish the account recovery key creation process"
+flow-recovery-key-hint-cta-text = Finalitza
+
+## ResetPasswordWarning component
+## Warning shown to users resetting their password without an account recovery key,
+## surfacing options to keep their browser data
+
+password-reset-warning-icon = Avís
 
 ## Alert Bar
 
@@ -327,6 +408,9 @@ cs-cannot-disconnect = No s'ha trobat el client; no s'ha pogut desconnectar
 cs-logged-out-2 = S'ha tancat la sessió del { $service }
 cs-refresh-button =
     .title = Actualitza els serveis connectats
+# Button under the "Connected services" header that starts the flow to pair
+# another device to the user's account.
+cs-connect-device-button = Connecta un dispositiu
 # Link text to a support page on missing or duplicate devices
 cs-missing-device-help = Hi ha elements duplicats o que falten?
 cs-disconnect-sync-heading = Desconnecta del Sync
@@ -368,6 +452,19 @@ drop-down-menu-sign-out = Tanca la sessió
 ## Flow Container
 
 flow-container-back = Enrere
+
+## FlowRecoveryKeyConfirmPwd - Second view in the PageRecoveryKeyCreate flow
+## Users see this view when they are generating a new account recovery key
+## This screen asks the user to confirm their password before generating a new key
+
+flow-recovery-key-confirm-pwd-input-label = Introduïu la vostra contrasenya
+
+## FlowRecoveryKeyInfo - First view in the PageRecoveryKeyCreate flow
+
+# The text of the "submit" button to start creating (or changing) an account recovery key
+flow-recovery-key-info-cta-text-v3 = Primers passos
+# Link to cancel account recovery key change and return to settings
+flow-recovery-key-info-cancel-link = Cancel·la
 
 ## FlowSetup2faApp
 
@@ -415,6 +512,7 @@ flow-setup-2fa-inline-complete-backup-code-info =
         [one] { $count } codi restant
        *[other] { $count } codis restants
     }
+flow-setup-2fa-prompt-continue-button = Continua
 
 ## FlowSetupPhoneConfirmCode
 
@@ -422,6 +520,7 @@ flow-setup-2fa-inline-complete-backup-code-info =
 # and complete setup
 flow-setup-phone-confirm-code-heading = Introduïu el codi de verificació
 flow-setup-phone-confirm-code-input-label = Introduïu el codi de 6 dígits
+flow-setup-phone-confirm-code-button = Confirmació
 # button to resend a code by text message to the user's phone
 # followed by a button to resend a code
 flow-setup-phone-confirm-code-expired = El codi ha caducat?
@@ -508,6 +607,10 @@ page-2fa-change-success = S'ha actualitzat l'autenticació en dos passos
 # Page title
 tfa-backup-codes-page-title = Codis d'autenticació de recuperació
 
+## Page2faSetup
+
+page-2fa-setup-title = Autenticació en dos passos
+
 ## Avatar change page
 
 avatar-page-title =
@@ -572,7 +675,14 @@ delete-account-header =
     .title = Suprimeix el compte
 delete-account-step-1-2 = Pas 1 de 2
 delete-account-step-2-2 = Pas 2 de 2
+delete-account-product-mozilla-vpn = { -product-mozilla-vpn }
+delete-account-product-mdn-plus = { -product-mdn-plus }
+delete-account-product-mozilla-hubs = { -product-mozilla-hubs }
+delete-account-product-mozilla-monitor = { -product-mozilla-monitor }
+delete-account-product-firefox-relay = { -product-firefox-relay }
 delete-account-acknowledge = Tingueu en compte que, en suprimir el vostre compte:
+delete-account-chk-box-1-v4 =
+    .label = Es cancel·laran totes les subscripcions de pagament
 delete-account-chk-box-2 =
     .label = És possible que perdeu la informació desada i la funcionalitat dels productes de { -brand-mozilla }
 delete-account-chk-box-3 =
@@ -580,6 +690,7 @@ delete-account-chk-box-3 =
 delete-account-chk-box-4 =
     .label = S'esborraran totes les extensions i temes que hàgiu publicat a addons.mozilla.org
 delete-account-continue-button = Continua
+delete-account-delete-button-passwordless = Suprimeix el compte
 delete-account-password-input =
     .label = Introduïu la contrasenya
 delete-account-cancel-button = Cancel·la
@@ -595,6 +706,29 @@ submit-display-name = Desa
 cancel-display-name = Cancel·la
 display-name-update-error-2 = S'ha produït un problema en actualitzar el vostre nom a mostrar
 display-name-success-alert-2 = S'ha actualitzat el nom a mostrar
+
+## PagePasskeyAdd - Loading page shown during passkey creation
+
+page-passkey-add-cancel = Cancel·la
+
+## Recent account activity
+## All strings except title indicate an event that occurred from the user's account
+## These are displayed as a list with the date when the event occured
+
+# Clicking this button reveals the older account activity that is hidden at first.
+recent-activity-show-more-button = Mostra'n més
+recent-activity-account-create-v2 = S'ha creat el compte
+recent-activity-account-disable-v2 = Compte desactivat
+recent-activity-account-two-factor-added = S’ha habilitat l‘autenticació en dos passos
+recent-activity-account-two-factor-removed = S'ha eliminat l'autenticació en dos passos
+recent-activity-account-recovery-key-removed = S’ha eliminat una clau de recuperació del compte
+recent-activity-account-password-added = S'ha afegit una contrasenya nova
+recent-activity-account-password-changed = S'ha canviat la contrasenya
+
+## PageRecoveryPhoneRemove
+## Users reach this page from account settings when they want to remove a backup phone number.
+
+settings-recovery-phone-remove-cancel = Cancel·la
 
 ## Add secondary email page
 
@@ -622,6 +756,14 @@ verify-secondary-email-verify-button-2 = Confirma
 # Link to delete account on main Settings page
 delete-account-link = Suprimeix el compte
 
+## Product promotion
+
+product-promo-monitor =
+    .alt = { -product-mozilla-monitor }
+product-promo-vpn =
+    .alt = { -product-mozilla-vpn }
+product-promo-vpn-description = Descobriu una capa addicional de protecció i navegació anònima.
+
 ## Profile section
 
 profile-heading = Perfil
@@ -643,10 +785,23 @@ security-password =
 security-password-created-date = Data de creació: { $date }
 security-not-set = No s'ha definit
 security-action-create = Crea
+# Browser tab title for the page telling the user their session expired and they need to sign out from the browser menu.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signout-sync-page-title = La sessió ha caducat
 
 ## SubRow component
 
+# Shown to users who have no backup authentication codes
+# Button to add backup authentication codes when none are configured
+tfa-row-backup-codes-add-cta = Afegeix
+# button to change the configured recovery phone
+tfa-row-backup-phone-change-cta = Canvia
+# button to add/configure a recovery phone
+tfa-row-backup-phone-add-cta = Afegeix
+passkey-delete-modal-cancel-button = Cancel·la
 passkey-delete-error = S'ha produït un problema en suprimir la clau d'accés. Torneu-ho a provar d'aquí a uns minuts.
+passkey-rename-save-button = Desa
+passkey-rename-cancel-button = Cancel·la
 
 ## Switch component
 
@@ -666,12 +821,23 @@ row-defaults-action-change = Canvia
 row-defaults-action-disable = Desactiva
 row-defaults-status = Cap
 
+## UnitRowPasskey
+
+passkey-row-header = Claus d'accés
+passkey-row-enabled = Activada
+passkey-row-action-create = Crea
+# External link to a support article about passkeys.
+passkey-row-info-link-2 = Més informació
+
 ## Account recovery key sub-section on main Settings page
 
 rk-enabled = Activada
 rk-not-set = No definida
 rk-action-create = Crea
+# Button to delete the existing account recovery key and create a new one
+rk-action-change-button = Canvia
 rk-action-remove = Elimina
+rk-key-removed-2 = S’ha eliminat una clau de recuperació del compte
 rk-cannot-remove-key = No s'ha pogut eliminar la clau de recuperació del compte.
 rk-content-explain = Restaureu la vostra informació en cas que oblideu la contrasenya.
 
@@ -698,11 +864,14 @@ tfa-row-header = Autenticació en dos passos
 tfa-row-enabled = Activada
 tfa-row-action-add = Afegeix
 tfa-row-action-disable = Desactiva
+tfa-row-action-change = Canvia
 tfa-row-button-refresh =
     .title = Actualitza l'autenticació en dos passos
 tfa-row-cannot-refresh = S'ha produït un error en actualitzar la verificació en dos passos.
 tfa-row-disable-modal-heading = Voleu desactivar l'autenticació en dos passos?
 tfa-row-disable-modal-confirm = Desactiva
+# Shown in an alert bar after two-step authentication is disabled
+tfa-row-disabled-2 = S'ha inhabilitat l'autenticació en dos passos
 
 ## Auth-server based errors that originate from backend service
 
@@ -722,24 +891,458 @@ auth-error-125 = La sol·licitud s'ha blocat per raons de seguretat
 auth-error-138-2 = Sessió no confirmada
 auth-error-139 = L'adreça electrònica secundària ha de ser diferent de l'adreça electrònica del compte
 auth-error-155 = No s'ha trobat el testimoni TOTP
+# Error shown when the user submits an invalid backup authentication code
+auth-error-156 = No s'ha trobat el codi d'autenticació de recuperació
+auth-error-159 = La clau de recuperació del compte no és vàlida
+auth-error-202 = La funció no està activada
+auth-error-203 = El sistema no està disponible; torneu-ho a intentar més tard
+auth-error-240 = Aquest compte s'ha desactivat
+auth-error-999 = Error inesperat
+auth-error-1001 = S'ha cancel·lat l'intent d'inici de sessió
+auth-error-1002 = La sessió ha caducat. Inicieu la sessió per continuar.
 auth-error-1008 = La contrasenya nova ha de ser diferent
+auth-error-1010 = Cal una contrasenya vàlida
+auth-error-1011 = Cal una adreça electrònica vàlida
+auth-error-1031 = Heu d'introduir la vostra edat per registrar-vos
+auth-error-1032 = Heu d'introduir una edat vàlida per registrar-vos
+auth-error-1054 = El codi d'autenticació en dos passos no és vàlid
+auth-error-1062 = Redirecció no vàlida
+oauth-error-1000 = Hi ha hagut un problema. Tanqueu aquesta pestanya i torneu-ho a provar.
+
+## Passkey error messages
+## Surfaced when a WebAuthn ceremony (registration or sign-in) fails.
+
+# Link label appended after passkey-registration-canceled-v2, opens a SUMO support article.
+passkey-registration-canceled-link = Més informació
+# Link label appended after passkey-registration-error-not-supported-v2, opens a SUMO support article.
+passkey-registration-error-not-supported-link = Més informació
+# Link label appended after passkey-registration-error-could-not-complete, opens a SUMO support article.
+passkey-registration-error-could-not-complete-link = Més informació
 
 ## Connect Another Device page
 
+# A "success" message visible to users who verified via sign-in
+connect-another-device-signin-confirmed-banner = S'ha confirmat l'inici de sessió
+# A link for the user to sign in to the current Firefox browser, preceded by a message prompting the user to sign in so as to complete the device sync setup
+connect-another-device-signin-link = Inicia la sessió
+# This link leads the user back to the `/pair` page so as to connect another device
+connect-another-device-cad-link = Connecteu un altre dispositiu
 # This link cancels the process of connecting another device, and takes the user back to Account Settings
 connect-another-device-not-now-link = Ara no
+# Browser tab title for the page that invites the user to connect another device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+connect-another-device-page-title = Connecteu un altre dispositiu
+
+## Cookies disabled page
+## Users will see this page if they have local storage or cookies disabled.
+
+# A button users may click to check if cookies and local storage are enabled and be directed to the previous page if so.
+cookies-disabled-button-try-again = Torna-ho a provar
+# An external link going to: https://support.mozilla.org/kb/cookies-information-websites-store-on-your-computer
+cookies-disabled-learn-more = Més informació
+
+## Index / home page
+
+index-header = Introduïu la vostra adreça electrònica
+index-cta = Inici de sessió o registre
+index-email-input =
+    .label = Introduïu la vostra adreça electrònica
+# When users delete their Mozilla account inside account Settings, they are redirected to this page with a success message
+index-account-delete-success = El compte s'ha suprimit correctament
 
 ## Page offering to store a passkey so that later Firefox Sync sign-ins skip the password.
 
 # Browser tab title.
 inline-passwordless-sync-setup-page-title = Voleu ometre la contrasenya la pròxima vegada?
 inline-passwordless-sync-setup-heading = Voleu ometre la contrasenya la pròxima vegada?
+inline-passwordless-sync-setup-not-now-button = Ara no
 inline-passwordless-sync-setup-error-cancelled-description = Confirmeu amb la vostra clau d'accés per a ometre la contrasenya la pròxima vegada.
 # Error shown in the Settings alert bar when storing the passkey failed for password-free sign-in for sync. The user will be able to sign-in with the passkey but still need to enter their password to sync.
 # "sync sign-in" refers to a sign-in with the additional ability to sync data without entering a password.
 inline-passwordless-sync-setup-error-generic-v2 = No hem pogut activar aquesta clau d'accés per a iniciar la sessió i la sincronització. La pròxima vegada haureu d'introduir la contrasenya.
 
+## InlineRecoveryKeySetup page component
+
+# Browser tab title for the page where the user chooses a recovery method during two-step authentication setup.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+inline-recovery-setup-choice-page-title = Trieu un mètode de recuperació
+
+## InlineTotpSetup page
+## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
+
+inline-totp-setup-cancel-setup-button = Cancel·la la configuració
+inline-totp-setup-continue-button = Continua
+inline-totp-setup-ready-button = Preparat
+# The "authentication code" here refers to the code provided by an authentication app.
+inline-totp-setup-security-code-placeholder = Codi d'autenticació
+inline-totp-setup-page-title = Autenticació en dos passos
+
+## PageNotFound page
+## Shown when the requested page does not exist
+
+page-not-found-heading = No s'ha trobat la pàgina
+page-not-found-home-button = Inici
+# Browser tab title for the page shown when the requested page does not exist.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+page-not-found-page-title = No s'ha trobat la pàgina
+
+## PairAuthComplete page - part of the device pairing flow
+
+pair-auth-complete-manage-devices-link = Gestiona els dispositius
+
+## AuthTotp page
+## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
+## Users that have set up two-factor authentication land on this page during device pairing.
+
+# Form button to confirm if the authentication code entered by the user is valid
+auth-totp-confirm-button = Confirmació
+
+## PairFailure - a view which displays on failure of the device pairing process
+
+pair-failure-try-again-link = Torna-ho a provar
+
 ## Pair index page
 
+pair-cad-header-v2 = Connecteu un altre dispositiu
 # This allows the user to exit the sync/pair flow, and redirects them back to Settings
 pair-not-now-button = Ara no
+# This initiates the pairing process, usually by directing the user to the `about:preferences` page in Firefox
+pair-get-started-button = Primers passos
+# This is the aria label on the QR code image
+pair-qr-code-aria-label = Codi QR
+
+## Choice screen — "Do you have Firefox for mobile?"
+
+# Continue button on choice screen (disabled until a radio option is selected)
+pair-choice-continue-button = Continua
+
+## Download screen — shown after selecting "I don’t have Firefox for mobile"
+
+# Browser tab title for the page where the user chooses how to connect another device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-choice-page-title = Connecteu un altre dispositiu
+
+## PairSuccess - a view which displays  on successful completion of the device pairing process
+
+pair-success-message-2 = S'ha aparellat correctament.
+
+## SuppAllow page - Part of the device pairing flow
+## Users see this page when they have started to pair a second (or more) device to their account
+## The pairing must be confirmed from both devices to succeed
+
+pair-supp-allow-cancel-link = Cancel·la
+
+## PairUnsupported - a view which is shown when the user tries to scan the pairing QR code any way other than through a Firefox app
+
+# v2: "Learn more" link below the mobile instructions; links to a Mozilla support article.
+pair-unsupported-learn-more-link-v2 = Més informació
+# Browser tab title for the page shown to a desktop { -brand-firefox } user when something went wrong and device pairing cannot continue.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair-unsupported-desktop-firefox-fallback-page-title = Hi ha hagut un problema
+
+## ContinueOnMobile page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer after scanning the pairing QR code with
+## their phone. It confirms the flow has moved to the mobile device and waits
+## for the remaining steps to be completed there.
+
+# Dismisses the pairing attempt
+pair2-authority-continue-on-mobile-cancel-button = Cancel·la
+
+## ScanQR page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer. It shows a QR code that they scan with
+## their phone or tablet to connect the two devices and start syncing.
+
+# Button shown below the QR code card. Leaves the pairing flow and takes the user to their account settings.
+pair2-authority-scan-qr-skip-button = Omet per ara
+
+## SyncSuccess page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer once the mobile device has been paired.
+## It confirms that sync is on and links to sync settings.
+
+# Opens the browser settings that control what is synced
+pair2-authority-sync-success-sync-settings-button-v2 = Gestiona els paràmetres de sincronització
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their computer when pairing stopped without succeeding,
+## either because it timed out or because it was canceled. Both cases offer to
+## start pairing over again.
+
+# Restarts the pairing flow
+pair2-authority-timeout-and-cancel-try-again-button = Torna-ho a provar
+# Takes the user to their Sync settings. "Sync" names the Firefox feature here, not the action.
+pair2-authority-timeout-and-cancel-sync-settings-button = Paràmetres de sincronització
+# Browser tab title for the page shown on the computer when the device pairing attempt timed out.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-authority-timeout-and-cancel-timeout-page-title = S'ha esgotat el temps d'espera de la connexió
+
+## ApproveSignIn page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It waits for them to approve the sign-in on the
+## computer, and shows that computer's details so they can verify the request.
+
+# Dismisses the pairing attempt
+pair2-supplicant-approve-sign-in-cancel-button = Cancel·la
+
+## ConnectThisDevice page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device after scanning the pairing QR code
+## shown on their computer. It asks them to confirm connecting the mobile
+## device to their account, and shows that computer's details so they can
+## verify the request.
+
+# Confirms the pairing attempt
+pair2-supplicant-connect-this-device-connect-button = Connecta
+# Dismisses the pairing attempt
+pair2-supplicant-connect-this-device-cancel-button = Cancel·la
+
+## DownloadFirefox page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing reaches a browser that is
+## not Firefox. It offers to open the Firefox app to finish pairing, and to
+## install it first when the user does not have it yet.
+
+# Opens a page explaining what sync does
+pair2-supplicant-download-firefox-learn-more-link = Més informació
+
+## ReadyToScan page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device before pairing starts. It tells them
+## to open firefox.com/pair on their computer, which is where the QR code they
+## scan with the mobile device comes from.
+
+# Opens a Mozilla support article about setting up sync
+pair2-supplicant-ready-to-scan-learn-more-link = Més informació
+# Browser tab title for the page shown on the mobile device before pairing starts, telling the user to open firefox.com/pair on their computer.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-ready-to-scan-page-title = Llest per escanejar
+
+## TimeoutAndCancel page - Part of the desktop-to-mobile pairing flow
+## Users see this on their mobile device when pairing ends without connecting,
+## because the attempt timed out, was canceled, or the device is already signed
+## in to an account. All states are informational and offer no on-screen action,
+## so the copy points the user back to their computer to start again.
+
+# Browser tab title for the page shown on the mobile device when the device pairing attempt timed out.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+pair2-supplicant-timeout-and-cancel-timeout-page-title = S'ha esgotat el temps d'espera de la connexió
+
+## Permissions page
+## Users see this page during sign-in or sign-up when a relying party is not a
+## trusted Mozilla application, or when it asks for consent explicitly.
+## The page informs the user which profile information the relying party can
+## read. It does not offer a choice.
+
+permissions-label-email = Adreça electrònica
+permissions-label-display-name = Nom a mostrar
+permissions-label-avatar = Imatge del compte
+permissions-continue-button = Continua
+permissions-cancel-button = Cancel·la
+
+## ForcePasswordChange page
+## Users are sent here when suspicious activity on the account requires a new password before they can continue.
+
+# Browser tab title for the page where the user must change their password because of suspicious activity on their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+force-password-change-page-title = Canvieu la contrasenya
+
+## ServiceWelcome page
+## Shown to users after signup/signin for services like VPN
+
+# Browser tab title for the page telling the user to turn on VPN as their next step after signing up or signing in. "VPN" is a VPN service built into the Firefox browser.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+service-welcome-vpn-page-title = Activa la VPN
+
+## AccountRecoveryConfirmKey page
+
+# Clicking this button checks if the recovery key provided by the user is correct and associated with their account
+account-recovery-confirm-key-button-2 = Continua
+
+## CompleteResetPassword component
+## User followed a password reset link and is now prompted to create a new password
+
+# A new password was successfully set for the user's account
+# Displayed in an alert bar
+complete-reset-password-success-alert = S'ha definit la contrasenya
+# An error occurred while attempting to set a new password (password reset flow)
+# Displayed in an alert bar
+complete-reset-password-error-alert = S'ha produït un problema en definir la contrasenya
+# A message informing the user that the password reset was successful and reminding them to create another recovery key
+# Displayed on the sign in page
+reset-password-complete-banner-heading = S'ha reiniciat la vostra contrasenya.
+confirm-backup-code-reset-password-confirm-button = Confirmació
+
+## Confirm Reset Password With Code
+
+confirm-reset-password-with-code-heading = Comproveu el correu electrònic
+# Clicking the button submits and verifies the code
+# If succesful, continues to the next step of the password reset
+confirm-reset-password-otp-submit-button = Continua
+# Link to cancel the password reset and sign in with a different account
+confirm-reset-password-otp-different-account-link = Utilitza un altre compte
+
+## PasswordResetConfirmTotp Page
+
+confirm-totp-reset-password-header = Reinicia la contrasenya
+confirm-totp-reset-password-confirm-button = Confirmació
+confirm-totp-reset-password-use-different-account = Utilitza un altre compte
+
+## ResetPassword start page
+
+password-reset-flow-heading = Reinicia la contrasenya
+password-reset-forgot-heading = Heu oblidat la contrasenya?
+password-reset-email-input =
+    .label = Introduïu la vostra adreça electrònica
+password-reset-submit-button-2 = Continua
+# Browser tab title for the page where the user starts a password reset by entering their email.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+password-reset-flow-page-title = Reinicia la contrasenya
+
+## ResetPasswordConfirmed
+
+reset-password-complete-header = S'ha reiniciat la vostra contrasenya
+
+## Reset password recovery method page
+## This page is shown to users when they are having trouble resetting their
+
+password-reset-recovery-method-header = Reinicia la contrasenya
+
+## ResetPasswordRecoveryPhone page
+
+reset-password-recovery-phone-flow-heading = Reinicia la contrasenya
+# A recovery code in context of this page is a one time code sent to the user's phone
+reset-password-recovery-phone-heading = Introduïu el codi de recuperació
+reset-password-recovery-phone-code-submit-button = Confirmació
+# Follows the error message (e.g, "There was a problem sending a code")
+reset-password-recovery-phone-general-error-description = Torneu-ho a provar més tard.
+
+## ServerError page
+## Shown when the server fails to handle a request
+
+server-error-heading = Error 500
+server-error-home-button = Inici
+
+## CompleteSignin component
+
+# This is a label that precedes any error which could arise from trying to validate the user's signin
+error-label = Error:
+
+## Signin page
+
+# Browser tab title for the page where the user enters their password to sign in.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-password-page-title = Introduïu la vostra contrasenya
+# Browser tab title for the sign-in page shown when the user already has a saved session on this device.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signin-cached-page-title = Inicia la sessió
+# Submit button label when the sign-in turns Sync on (user was sent here to set up Sync, e.g. from pairing)
+signin-button-start-syncing = Inicia la sincronització
+signin-button = Inicia la sessió
+signin-header = Inicia la sessió
+signin-use-a-different-account-link = Utilitza un altre compte
+signin-forgot-password-link = Heu oblidat la contrasenya?
+signin-password-button-label = Contrasenya
+signin-account-locked-banner-heading = Reinicia la contrasenya
+
+## ReportSignin Page
+## When users receive an "Is this you signing in?" email with an unblock code,
+## they can click "report it to us" if they did not attempt to sign in.
+## This will be the page shown to users to block the sign in and report it.
+
+back = Enrere
+
+## SigninPasskeyFallback page
+## Users who authenticate with a passkey to access Sync must also enter their password.
+
+signin-passkey-fallback-password-label = Contrasenya
+signin-passkey-fallback-continue = Continua
+signin-passkey-fallback-forgot-password-link = Heu oblidat la contrasenya?
+# Link in a banner explaining why a passkey couldn’t be used to sign in to sync. Opens a support article about troubleshooting passkeys.
+signin-passkey-fallback-wrap-unusable-link = Més informació
+
+## SigninPasswordlessCode page
+## Users are prompted to enter a code sent to their email for passwordless authentication.
+
+signin-passwordless-code-heading = Introduïu el codi de confirmació
+signin-passwordless-code-confirm-button = Confirmació
+signin-passwordless-code-other-account-link = Utilitza un altre compte
+
+## Signin recovery method page
+## This page is shown to users when they are having trouble signing in with
+## their password, and they previously had set up an account recovery method.
+
+signin-recovery-method-header = Inicia la sessió
+
+## SigninRecoveryCode page
+## Users are prompted to enter a backup authentication code
+## (provided to the user when they first set up two-step authentication)
+## when they are unable to sign in with two-step authentication (e.g., Authy, Duo, etc.)
+
+signin-recovery-code-heading = Inicia la sessió
+# Form button to confirm if the backup authentication code entered by the user is valid
+signin-recovery-code-confirm-button = Confirmació
+signin-recovery-code-use-phone-failure-description = Torneu-ho a provar més tard.
+
+## SigninRecoveryPhone page
+
+signin-recovery-phone-flow-heading = Inicia la sessió
+# A recovery code in context of this page is a one time code sent to the user's phone
+signin-recovery-phone-heading = Introduïu el codi de recuperació
+signin-recovery-phone-code-submit-button = Confirmació
+# Follows the error message (e.g, "There was a problem sending a code")
+signin-recovery-phone-general-error-description = Torneu-ho a provar més tard.
+
+## SigninTokenCode page
+## Users see this page during the signin process. In this instance, the confirmation code is
+## a 6-digit code that is sent to the user's email address.
+
+# Form button to confirm if the confirmation code entered by the user is valid
+signin-token-code-confirm-button = Confirmació
+
+## SigninTOTPCode page
+## TOTP (time-based one-time password) is a form of two-factor authentication (2FA).
+## Users that have set up two-factor authentication land on this page during sign-in.
+
+signin-totp-code-header = Inicia la sessió
+# Form button to confirm if the authentication code entered by the user is valid
+signin-totp-code-confirm-button = Confirmació
+signin-totp-code-other-account-link = Utilitza un altre compte
+
+## Signin Unblock Page
+## Page shown when signin has been blocked by rate limiting (too many requests)
+
+signin-unblock-code-input = Introdueix un codi d'autorització
+signin-unblock-submit-button = Continua
+# Shown when the user attempts to submit the form without including a code
+signin-unblock-code-required-error = Cal un codi d'autorització
+signin-unblock-resend-code-button = No és a la safata d'entrada o al correu brossa? Torna'l a enviar
+
+## ConfirmSignupCode page
+## Users see this page after they have initiated account sign up,
+
+# Browser tab title for the page where the user enters the confirmation code emailed to them to finish signing up.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+confirm-signup-code-page-title-2 = Confirmeu l'adreça electrònica
+# Form button to confirm if the confirmation code entered by the user is valid
+confirm-signup-code-confirm-button = Confirmació
+confirm-signup-code-sync-button = Inicia la sincronització
+confirm-signup-code-success-alert = El compte s'ha confirmat correctament
+
+## Account Signup page
+## This is the second page of the sign up flow, users have already entered their email
+
+signup-heading-v2 = Creeu una contrasenya
+# Browser tab title for the page where the user creates a password to sign up for an account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signup-page-title = Crea un compte
+
+## SignupConfirmedSync page
+## Shown to users when they finish confirming their account through Sync
+
+signup-confirmed-sync-header = La sincronització està activada
+signup-confirmed-sync-button = Comença a navegar
+signup-confirmed-sync-add-device-link = Afegeix un altre dispositiu
+# Browser tab title for the page confirming that sync is turned on after the user confirmed their account.
+# Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
+signup-confirmed-sync-page-title = La sincronització està activada
+
+## UpdateFirefox page
+## Shown when the browser is too old to use a Mozilla account
+
+update-firefox-download-button = Baixa l'última versió
