@@ -1,8 +1,8 @@
 {
-  "commit": "c6c33550f49fd083dff930d59a97c8488a410a38",
+  "commit": "80a1863478971be08ba836014ab6a7476f97c362",
   "summary": "feat(settings): add Synced data row and delete Sync data flow",
-  "description": "Because:\n- Users need to delete their Sync data from Settings once per-engine toggles in Firefox stop deleting server data.\n- Security review SA-1022 requires the MFA guard plus a password check before the delete.\n- Final copy is pending, so the new strings stay out of .ftl files until it lands.\n\nThis commit:\n- Add a \"Synced data\" row to Data Collection and Use, shown when an attached client is Sync-capable, that opens the new flow.\n- Add /settings/delete_sync_data: MFA guard, password reauth, then pick devices to sign out, grouped and iconed as in Connected Services.\n- Gate the row and route on featureFlags.syncDataDeletionEnabled, a new content-server flag (off by default), and on the account having a password.\n- Size UnitRow CTAs to their label up to 256px before wrapping, and pad row content before the CTA with and without Nova.\n- Use 16px FlowContainer padding on phones under Nova, matching Settings.\n\nRelates to FXA-14895",
-  "timestamp": 1795475185000,
+  "description": "Because:\n- Users need to delete their Sync data from Settings once per-engine toggles in Firefox stop deleting server data.\n- Security review SA-1022 requires the MFA guard plus a password check before the delete.\n- Final copy is pending, so the new strings stay out of .ftl files until it lands.\n\nThis commit:\n- Add a \"Synced data\" row to Data Collection and Use, shown when an attached client is Sync-capable, that opens the new flow.\n- Add /settings/delete_sync_data: MFA guard, password reauth, then pick devices to sign out, grouped and iconed as in Connected Services, whose grouping no longer breaks on names like \"constructor\".\n- Gate the row and route on featureFlags.syncDataDeletionEnabled, a new content-server flag (off by default), and on the account having a password.\n- Size UnitRow CTAs to their label up to 256px before wrapping, and pad row content before the CTA with and without Nova.\n- Use 16px FlowContainer padding on phones under Nova, matching Settings.\n\nRelates to FXA-14895",
+  "timestamp": 1795484171000,
   "storybooks": [
     "fxa-settings"
   ],
