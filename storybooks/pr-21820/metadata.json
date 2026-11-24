@@ -1,8 +1,8 @@
 {
-  "commit": "b0900daf9654091dfc997d8058d315dbf2ef6d4b",
-  "summary": "feat(settings): record avatar page and avatar-menu sign-out in Glean",
-  "description": "Because:\n\n* The Settings avatar page, avatar upload and avatar-menu sign-out had no Glean events.\n* The sign-out navigation can drop queued Glean pings.\n\nThis commit:\n\n* Adds account_pref avatar_view, avatar_upload_success and signout_success.\n* Records each event beside its legacy event; legacy calls are unchanged.\n* Awaits flushGlean() before the sign-out navigation.\n* Adds unit tests and Glean assertions to the avatar functional spec.\n\nCloses FXA-15119",
-  "timestamp": 1795543896000,
+  "commit": "3d35b1652c929eff2b2315dcd0891fb91ac8a737",
+  "summary": "Merge main into fxa-15119",
+  "description": "",
+  "timestamp": 1795550169000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-settings"

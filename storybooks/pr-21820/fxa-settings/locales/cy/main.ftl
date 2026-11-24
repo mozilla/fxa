@@ -1241,10 +1241,10 @@ inline-recovery-key-setup-create-page-title = Creu allwedd adfer cyfrif
 inline-recovery-key-setup-download-page-title = Llwythwch eich allwedd adfer i lawr
 inline-recovery-key-setup-hint-page-title = Ychwanegu awgrym allwedd adfer
 inline-recovery-setup-choice-page-title = Dewiswch ddull adfer
-inline-recovery-setup-download-codes-page-title = Arbedwch eich codau wrth gefn
-inline-recovery-setup-confirm-code-page-title = Cadarnhewch god wrth gefn
+inline-recovery-setup-download-codes-page-title = Cadw eich codau wrth gefn
+inline-recovery-setup-confirm-code-page-title = Cadarnhau'r cod wrth gefn
 inline-recovery-setup-phone-number-page-title = Ychwanegu ffôn adfer
-inline-recovery-setup-phone-code-page-title = Cadarnhewch eich ffôn adfer
+inline-recovery-setup-phone-code-page-title = Cadarnhau'r ffôn adfer
 inline-recovery-setup-complete-page-title = Dilysiad dau gam ymlaen
 
 
@@ -1266,7 +1266,7 @@ inline-totp-setup-code-required-error = Mae angen cod dilysu
 tfa-qr-code-alt = Defnyddiwch y cod { $code } i osod dilysiad dau gam mewn rhaglenni sy'n ei gefnogi.
 inline-totp-setup-page-title = Dilysu dau gam
 inline-totp-setup-intro-page-title = Gosod dilysu dau gam
-inline-totp-setup-enrol-page-title = Cysylltwch eich app dilysu
+inline-totp-setup-enrol-page-title = Cysylltu eich ap dilysu
 
 
 page-not-found-heading = Heb ganfod y dudalen
@@ -1278,7 +1278,7 @@ page-not-found-page-title = Heb ganfod y dudalen
 pair-auth-allow-heading-text = Ydych chi newydd fewngofnodi i { -brand-firefox }?
 pair-auth-allow-confirm-button = Iawn, yn cymeradwyo'r ddyfais
 pair-auth-allow-refuse-device-link = Os nad chi oedd hwn, <a>newidiwch eich cyfrinair</a>
-pair-auth-allow-page-title = Cymeradwyo mewngofnodi { -brand-firefox }
+pair-auth-allow-page-title = Cymeradwyo mewngofnodi i { -brand-firefox }
 
 
 pair-auth-complete-heading = Dyfais wedi'i gysylltu
@@ -1301,7 +1301,7 @@ auth-totp-instruction = Agorwch eich ap dilysu a rhowch y cod dilysu y mae'n ei 
 auth-totp-input-label = Rhowch y cod 6 digid
 auth-totp-confirm-button = Cadarnhau
 auth-totp-code-required-error = Mae angen cod dilysu
-auth-totp-page-title = Pâr gyda dilysu dau gam
+auth-totp-page-title = Paru gyda dilysu dau gam
 
 
 pair-wait-for-supp-heading-text = Mae angen cymeradwyaeth nawr <span>o'ch dyfais arall</span>
@@ -1311,7 +1311,7 @@ pair-wait-for-supp-page-title = Cymeradwyo ar eich dyfais arall
 pair-failure-header-v2 = Methodd paru dyfeisiau
 pair-failure-message-v2 = Doedd dim modd cwblhau'r gosod. Mewngofnodwch gyda'ch e-bost.
 pair-failure-try-again-link = Ceisiwch eto
-pair-failure-page-title = Methodd paru dyfais
+pair-failure-page-title = Methodd y paru dyfais
 
 
 pair-sync-header = Cydweddwch { -brand-firefox } ar eich ffôn neu dabled
@@ -1347,7 +1347,7 @@ pair-download-step-continue-sync = <b>Cam { $stepNumber }</b>: Dewiswch "Parhau 
 pair-continue-to-sync-button = Parhau i gydweddu
 pair-choice-page-title = Cysylltu dyfais arall
 pair-choice-send-tab-page-title = Anfon tabiau i ddyfais arall
-pair-download-page-title = Llwythwch { -brand-firefox } i lawr ar gyfer ffôn symudol
+pair-download-page-title = Llwythwch { -brand-firefox } i lawr ar gyfer symudol
 
 
 pair-success-header-2 = Dyfais wedi'i gysylltu
@@ -1391,7 +1391,7 @@ pair2-authority-approve-sign-in-page-title = Cymeradwyo mewngofnodi
 pair2-authority-continue-on-mobile-heading = Parhewch ar eich dyfais symudol
 pair2-authority-continue-on-mobile-description = Dilynwch y camau ar eich ffôn neu dabled.
 pair2-authority-continue-on-mobile-cancel-button = Diddymu
-pair2-authority-continue-on-mobile-page-title = Parhewch ar eich dyfais symudol
+pair2-authority-continue-on-mobile-page-title = Parhau ar eich dyfais symudol
 
 
 pair2-authority-download-firefox-heading = Agor { -brand-firefox } i gydweddu
@@ -1405,7 +1405,7 @@ pair2-authority-scan-qr-instruction = Sganiwch y cod QR gyda'ch ffôn neu dabled
 pair2-authority-scan-qr-code-aria-label = Cod QR i gysylltu eich dyfais symudol
 pair2-authority-scan-qr-other-ways-link = Ffyrdd eraill o fewngofnodi
 pair2-authority-scan-qr-skip-button = Hepgor am nawr
-pair2-authority-scan-qr-page-title = Sganiwch i gysylltu eich dyfais symudol
+pair2-authority-scan-qr-page-title = Sganio i gysylltu eich dyfais symudol
 
 
 pair2-authority-sync-success-heading-v2 = Mae eich dyfais wedi'i gysylltu
@@ -1421,7 +1421,7 @@ pair2-authority-timeout-and-cancel-canceled-description = Os ydych chi'n newid e
 pair2-authority-timeout-and-cancel-try-again-button = Ceisiwch eto
 pair2-authority-timeout-and-cancel-sync-settings-button = Gosodiadau cydweddu
 pair2-authority-timeout-and-cancel-timeout-page-title = Cysylltiad wedi dod i ben
-pair2-authority-timeout-and-cancel-cancelled-page-title = Canslo paru
+pair2-authority-timeout-and-cancel-cancelled-page-title = Peidio paru
 
 
 pair2-supplicant-approve-sign-in-heading = Un cam olaf i gydweddu
@@ -1433,7 +1433,7 @@ pair2-supplicant-approve-sign-in-page-title = Un cam olaf i gydweddu
 pair2-supplicant-connect-this-device-heading = Cysylltu'r ddyfais hon â'ch cyfrif?
 pair2-supplicant-connect-this-device-connect-button = Cysylltu
 pair2-supplicant-connect-this-device-cancel-button = Diddymu
-pair2-supplicant-connect-this-device-page-title = Cysylltwch y ddyfais hon
+pair2-supplicant-connect-this-device-page-title = Cysylltu'r ddyfais hon
 
 
 pair2-supplicant-download-firefox-heading-v2 = Agor { -brand-firefox } ar y ddyfais hon
@@ -1467,7 +1467,7 @@ pair2-supplicant-timeout-and-cancel-canceled-description = I gysylltu dyfais unr
 pair2-supplicant-timeout-and-cancel-signed-in-heading = Mae'r ddyfais hon eisoes wedi mewngofnodi
 pair2-supplicant-timeout-and-cancel-signed-in-description = I gysylltu â'ch cyfrif bwrdd gwaith, allgofnodwch o { -brand-firefox } ar y ddyfais hon, yna ewch i <b>firefox.com/pair</b> ar eich cyfrifiadur i gwblhau mewngofnodi.
 pair2-supplicant-timeout-and-cancel-timeout-page-title = Cysylltiad wedi dod i ben
-pair2-supplicant-timeout-and-cancel-cancelled-page-title = Canslo paru
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = Peidio paru
 pair2-supplicant-timeout-and-cancel-signed-in-page-title = Dyfais wedi mewngofnodi yn barod
 
 
@@ -1477,20 +1477,20 @@ permissions-label-display-name = Enw dangos
 permissions-label-avatar = Disgrifiad o'r cyfrif
 permissions-continue-button = Parhau
 permissions-cancel-button = Diddymu
-permissions-page-title = Adolygu caniatadau
+permissions-page-title = Adolygu'r caniatâd
 
 
 force-password-change-heading = Newidiwch eich cyfrinair
 force-password-change-info = Rydym wedi canfod ymddygiad amheus ar eich cyfrif { -product-mozilla-account }. I ddiogelu eich cyfrif, crëwch gyfrinair newydd. Byddwch yn defnyddio'r cyfrinair hwn i fewngofnodi eto i'ch holl wasanaethau { -product-mozilla-account }.
 force-password-change-data-info = Bydd hanes, nodau tudalen, mewngofnodi a data personol eraill sydd heb eu cydweddu'n cael eu colli.
-force-password-change-page-title = Newidiwch eich cyfrinair
+force-password-change-page-title = Newid eich cyfrinair
 
 
 service-welcome-signup-success-banner = Cyfrif { -product-mozilla-account } wedi'i gadarnhau
 service-welcome-signin-success-banner = Wedi mewngofnodi'n llwyddiannus!
 service-welcome-vpn-heading = Nesaf: Troi VPN ymlaen
 service-welcome-vpn-description = Un cam arall i hybu preifatrwydd eich porwr. Ewch i'r panel sydd ar agor a'i droi ymlaen.
-service-welcome-vpn-page-title = Troi VPN ymlaen
+service-welcome-vpn-page-title = Troi'r VPN ymlaen
 
 
 set-password-heading-v2 = Creu cyfrinair i gydweddu
@@ -1498,7 +1498,7 @@ set-password-info-v2 = Mae hyn yn amgryptio eich data. Mae angen iddo fod yn wah
 
 
 set-password-passwordless-info = Mae'r cyfrinair hwn yn amgryptio'ch data wedi'i gydweddu ac yn ei gadw'n ddiogel.
-set-password-page-title = Creu cyfrinair i gysoni
+set-password-page-title = Creu cyfrinair i gydweddu
 
 
 third-party-auth-callback-message = Arhoswch, rydych chi'n cael eich ailgyfeirio i'r rhaglen awdurdodedig.
@@ -1536,7 +1536,7 @@ confirm-reset-password-code-input-group-label = Rhowch god 8 digid o fewn 10 mun
 confirm-reset-password-otp-submit-button = Parhau
 confirm-reset-password-otp-resend-code-button = Ail-anfon y cod
 confirm-reset-password-otp-different-account-link = Defnyddiwch gyfrif gwahanol
-confirm-reset-password-with-code-page-title = Gwiriwch eich e-bost i ailosod eich cyfrinair
+confirm-reset-password-with-code-page-title = Gwirio'ch e-bost i ailosod eich cyfrinair
 
 
 confirm-totp-reset-password-header = Ailosod eich cyfrinair
@@ -1619,9 +1619,9 @@ complete-signin-error-page-title = Gwall cadarnhau mewngofnodi
 complete-signin-validating-page-title = Cadarnhau mewngofnodi
 
 
-signin-password-page-title = Rhowch eich cyfrinair
+signin-password-page-title = Rhoi eich cyfrinair
 signin-cached-page-title = Mewngofnodi
-signin-alternative-auth-page-title = Dewiswch ddull mewngofnodi
+signin-alternative-auth-page-title = Dewis dull mewngofnodi
 signin-password-needed-header-2 = Rhowch eich cyfrinair <span>ar gyfer eich cyfrif { -product-mozilla-account }</span>
 signin-button-start-syncing = Cychwyn cydweddu
 signin-subheader-without-logo-with-servicename = Parhau i { $serviceName }
@@ -1665,7 +1665,7 @@ signin-passkey-fallback-no-prf-description = Does dim modd i'r porwr neu'r ddyfa
 signin-passkey-fallback-unwrap-failed-heading = Doedd dim modd i'ch cyfrinallwedd ddatgloi cydweddu
 signin-passkey-fallback-unwrap-failed-description = Aeth rhywbeth o'i le, felly bydd angen eich cyfrinair y tro yma.
 signin-passkey-fallback-wrap-unusable-link = Dysgu rhagor
-signin-passkey-fallback-page-title = Rhowch eich cyfrinair i gydweddu
+signin-passkey-fallback-page-title = Rhoi eich cyfrinair i gydweddu
 
 
 signin-passwordless-code-heading = Rhowch y cod dilysu
@@ -1701,8 +1701,8 @@ signup-passwordless-code-subheading = Dim ond un cam y mae cofrestru'n ei gymryd
 
 
 signin-passwordless-totp-required = Mae dilysu dau gam wedi'i alluogi ar eich cyfrif. Mewngofnodwch gyda'ch cyfrinair.
-signin-passwordless-code-page-title = Mewngofnodwch gyda chod e-bost
-signup-passwordless-code-page-title = Cofrestrwch gyda chod e-bost
+signin-passwordless-code-page-title = Mewngofnodi gyda chod e-bost
+signup-passwordless-code-page-title = Cofrestru gyda chod e-bost
 
 
 signin-recovery-method-header = Mewngofnodi
@@ -1721,7 +1721,7 @@ signin-recovery-method-code-info-v2 =
     }
 signin-recovery-method-send-code-error-heading = Bu problem wrth anfon cod i'ch ffôn adfer
 signin-recovery-method-send-code-error-description = Ceisiwch eto yn nes ymlaen neu defnyddiwch eich codau dilysu wrth gefn.
-signin-recovery-method-page-title = Mewngofnodwch gyda dull adfer
+signin-recovery-method-page-title = Mewngofnodi gyda dull adfer
 
 
 signin-recovery-code-heading = Mewngofnodi
@@ -1734,7 +1734,7 @@ signin-recovery-code-support-link = Ydych chi wedi'ch cloi allan?
 signin-recovery-code-required-error = Mae angen cod dilysu wrth gefn
 signin-recovery-code-use-phone-failure = Bu problem wrth anfon cod i'ch ffôn adfer
 signin-recovery-code-use-phone-failure-description = Ceisiwch eto'n ddiweddarach.
-signin-recovery-code-page-title = Mewngofnodwch gyda chod wrth gefn
+signin-recovery-code-page-title = Mewngofnodi gyda chod wrth gefn
 
 
 signin-recovery-phone-flow-heading = Mewngofnodi
@@ -1751,7 +1751,7 @@ signin-recovery-phone-general-error-description = Ceisiwch eto'n ddiweddarach.
 signin-recovery-phone-invalid-code-error-description = Mae'r cod yn annilys neu wedi dod i ben.
 signin-recovery-phone-invalid-code-error-link = Defnyddio codau dilysu wrth gefn yn lle hynny?
 signin-recovery-phone-success-message = Wedi mewngofnodi yn llwyddiannus. Gall terfynau fod yn berthnasol os byddwch yn defnyddio'ch ffôn adfer eto.
-signin-recovery-phone-page-title = Mewngofnodwch gyda ffôn adfer
+signin-recovery-phone-page-title = Mewngofnodi gyda ffôn adfer
 
 
 signin-reported-header = Diolch am eich gwyliadwriaeth
@@ -1793,7 +1793,7 @@ signin-totp-code-other-account-link = Defnyddiwch gyfrif gwahanol
 signin-totp-code-recovery-code-link = Trafferth cyflwyno cod?
 signin-totp-code-required-error = Mae angen cod dilysu
 signin-totp-code-desktop-relay = Bydd { -brand-firefox } yn ceisio eich anfon yn ôl i ddefnyddio e-bost arallenw ar ôl i chi fewngofnodi.
-signin-totp-code-page-title = Mewngofnodwch gyda dilysiad dau gam
+signin-totp-code-page-title = Mewngofnodi gyda dilysiad dau gam
 
 
 signin-unblock-header = Awdurdodi'r mewngofnod hwn
@@ -1809,7 +1809,7 @@ signin-unblock-desktop-relay = Bydd { -brand-firefox } yn ceisio eich anfon yn �
 signin-unblock-page-title = Awdurdodi'r mewngofnod hwn
 
 
-confirm-signup-code-page-title-2 = Cadarnhewch eich e-bost
+confirm-signup-code-page-title-2 = Cadarnhau eich e-bost
 confirm-signup-code-heading-2 = Rhowch god cadarnhau <span>ar gyfer eich cyfrif { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Rhowch y cod anfonwyd at <email>{ $email }</email> o fewn 5 munud.
 confirm-signup-code-input-label = Rhowch y cod 6 digid
