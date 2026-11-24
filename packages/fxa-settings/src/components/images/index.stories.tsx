@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Meta } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 
 import {
   EmailCodeImage,
@@ -101,6 +101,43 @@ export const MobileDevicePairing = () => <MobileDevicePairingImage />;
 export const QrPhoneFrame = () => <QrPhoneFrameImage />;
 
 export const ConfettiFallingFullPage = () => <FallingConfettiImage />;
+
+// The Nova illustrations that animate, with the Nova toggle pinned on so the
+// motion is reviewable without the toolbar. Flag-off art is in the stories above.
+// `name` must be a literal on each export: Storybook's indexer reads it
+// statically and ignores names built inside a helper.
+const novaOn = { globals: { nova: 'on' } };
+
+export const NovaHeartsVerified: StoryObj = {
+  ...novaOn,
+  name: 'Nova > Hearts Verified (hearts beat)',
+  render: () => <HeartsVerifiedImage />,
+};
+export const NovaKey: StoryObj = {
+  ...novaOn,
+  name: 'Nova > Key (heart beats)',
+  render: () => <RecoveryKeyImage />,
+};
+export const NovaKeyConfirm: StoryObj = {
+  ...novaOn,
+  name: 'Nova > Key Confirm (check draws in)',
+  render: () => <RecoveryKeyImage variant="confirm" />,
+};
+export const NovaPasswordSuccess: StoryObj = {
+  ...novaOn,
+  name: 'Nova > Password Success (code, then check)',
+  render: () => <PasswordSuccessImage />,
+};
+export const NovaSyncClouds: StoryObj = {
+  ...novaOn,
+  name: 'Nova > Sync Clouds (arrows spin)',
+  render: () => <SyncCloudsImage />,
+};
+export const NovaEmailCode: StoryObj = {
+  ...novaOn,
+  name: 'Nova > Email Code (badge, pill, then code)',
+  render: () => <EmailCodeImage />,
+};
 
 const smartWindowTheme: IllustrationsTheme = {
   primary: '#7543e3',
