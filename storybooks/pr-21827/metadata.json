@@ -1,0 +1,10 @@
+{
+  "commit": "c3f293bff067dcb1bf189f34ac02e46d6b94626c",
+  "summary": "perf(cms): cache strapi lookups in redis instead of firestore",
+  "description": "Because:\n\n- Strapi lookups that miss the in-memory cache fall through to Firestore, and Redis answers faster\n\nThis commit:\n\n- Makes StrapiClient's remote cache tier injectable, with Firestore as the default\n- Provides a metering Redis client for it in payments-api and its metering jobs\n\nCloses #ENT-109",
+  "timestamp": 1795560195000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
