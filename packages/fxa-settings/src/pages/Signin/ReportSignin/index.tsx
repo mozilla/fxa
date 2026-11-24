@@ -7,6 +7,8 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 
 import { REACT_ENTRYPOINT } from '../../../constants';
 import CardHeader from '../../../components/CardHeader';
+import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import AppLayout from '../../../components/AppLayout';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { ReportSigninProps } from './interfaces';
@@ -20,6 +22,7 @@ export const ReportSignin = ({
   submitReport,
 }: ReportSigninProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  useGleanView(() => GleanMetrics.login.reportSigninView());
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedPageTitle = ftlMsgResolver.getMsg(
     'report-signin-page-title',

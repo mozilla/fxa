@@ -9,12 +9,22 @@ import { FluentBundle } from '@fluent/bundle';
 import SigninReported, { viewName } from '.';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import GleanMetrics from '../../../lib/glean';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
 }));
 
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: { login: { signinReportedView: jest.fn() } },
+}));
+
 describe('SigninReported', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   let bundle: FluentBundle;
   beforeAll(async () => {
     bundle = await getFtlBundle('settings');
@@ -34,5 +44,6 @@ describe('SigninReported', () => {
   it('emits the expected metrics on render', () => {
     renderWithLocalizationProvider(<SigninReported />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+    expect(GleanMetrics.login.signinReportedView).toHaveBeenCalledTimes(1);
   });
 });

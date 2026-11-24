@@ -7,14 +7,24 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import ReportSignin, { viewName } from '.';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import GleanMetrics from '../../../lib/glean';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
 }));
 
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: { login: { reportSigninView: jest.fn() } },
+}));
+
 const submitReport = jest.fn();
 
 describe('ReportSignin', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('renders Ready component as expected', () => {
     renderWithLocalizationProvider(<ReportSignin {...{ submitReport }} />);
 
@@ -34,5 +44,6 @@ describe('ReportSignin', () => {
   it('emits the expected metrics on render', () => {
     renderWithLocalizationProvider(<ReportSignin {...{ submitReport }} />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+    expect(GleanMetrics.login.reportSigninView).toHaveBeenCalledTimes(1);
   });
 });

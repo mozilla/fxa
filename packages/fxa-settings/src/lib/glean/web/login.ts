@@ -576,6 +576,105 @@ export const recoveryPhoneSuccessView = new EventMetricType(
 );
 
 /**
+ * User viewed the page to report an unauthorized sign-in, opened from the
+ * sign-in unblock email.
+ *
+ * Generated from `login.report_signin_view`.
+ */
+export const reportSigninView = new EventMetricType(
+  {
+    category: 'login',
+    name: 'report_signin_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User clicked Back on the signin bounced page.
+ *
+ * Generated from `login.signin_bounced_back_click`.
+ */
+export const signinBouncedBackClick = new EventMetricType(
+  {
+    category: 'login',
+    name: 'signin_bounced_back_click',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User clicked Create account on the signin bounced page.
+ *
+ * Generated from `login.signin_bounced_create_account_click`.
+ */
+export const signinBouncedCreateAccountClick = new EventMetricType(
+  {
+    category: 'login',
+    name: 'signin_bounced_create_account_click',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User clicked the support link on the signin bounced page.
+ *
+ * Generated from `login.signin_bounced_support_click`.
+ */
+export const signinBouncedSupportClick = new EventMetricType(
+  {
+    category: 'login',
+    name: 'signin_bounced_support_click',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User viewed the page that says their account is locked because the
+ * confirmation email bounced.
+ *
+ * Generated from `login.signin_bounced_view`.
+ */
+export const signinBouncedView = new EventMetricType(
+  {
+    category: 'login',
+    name: 'signin_bounced_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * User viewed the confirmation page after they reported an unauthorized
+ * sign-in.
+ *
+ * Generated from `login.signin_reported_view`.
+ */
+export const signinReportedView = new EventMetricType(
+  {
+    category: 'login',
+    name: 'signin_reported_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Login Submission Attempt
  * An event that indicates a user attempted to login by clicking "Sign in" on
  * the login page'
