@@ -293,7 +293,7 @@ describe('createPasskeyWrap', () => {
     });
 
     it('does not step up when the session needs a password reauth', async () => {
-      const err = serverError(ERRNO.PASSKEY_WRAP_REAUTH_REQUIRED);
+      const err = serverError(ERRNO.PASSWORD_REAUTH_REQUIRED);
       createPasskeyWrapApiMock.mockRejectedValue(err);
 
       const outcome = await createPasskeyWrap(authClient(), args());

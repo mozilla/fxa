@@ -12,6 +12,9 @@ import { withNova } from '../../../lib/nova';
 import DeviceIcon from '../ConnectedServices/DeviceIcon';
 import FlowContainer from '../FlowContainer';
 import ProgressBar from '../ProgressBar';
+import LoadingSpinner, {
+  SpinnerType,
+} from 'fxa-react/components/LoadingSpinner';
 
 /** A device name and every attached client with that name. */
 export type SyncDevice = Pick<
@@ -27,6 +30,8 @@ export type FlowDeleteSyncDataDevicesProps = {
   onCancel: () => void;
   /** `signOutClients` is empty unless the user checked devices. */
   onConfirm: (signOutClients: AttachedClient[]) => void;
+  /** Disables the buttons while the delete and sign-outs run. */
+  isLoading?: boolean;
 };
 
 const DeviceName = ({
@@ -68,6 +73,7 @@ export const FlowDeleteSyncDataDevices = ({
   navigateBackward,
   onCancel,
   onConfirm,
+  isLoading = false,
 }: FlowDeleteSyncDataDevicesProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const showDevicesLabel = ftlMsgResolver.getMsg(
@@ -108,6 +114,7 @@ export const FlowDeleteSyncDataDevices = ({
         className="w-full flex flex-col gap-4"
         onSubmit={(e) => {
           e.preventDefault();
+          if (isLoading) return;
           onConfirm(
             devices
               .filter((d) => selected.has(deviceKey(d)))
@@ -137,9 +144,12 @@ export const FlowDeleteSyncDataDevices = ({
                 type="checkbox"
                 className={checkboxClassName}
                 checked={allSelected}
+                disabled={isLoading}
                 onChange={toggleAll}
                 aria-labelledby="delete-sync-data-sign-out-all-label"
-                aria-describedby="delete-sync-data-sign-out-all-note"
+                aria-describedby={
+                  allSelected ? undefined : 'delete-sync-data-sign-out-all-note'
+                }
                 data-testid="delete-sync-data-sign-out-all"
               />
               <span className="flex flex-col">
@@ -148,14 +158,16 @@ export const FlowDeleteSyncDataDevices = ({
                     Sign out of Firefox
                   </span>
                 </FtlMsg>
-                <FtlMsg id="delete-sync-data-sign-out-all-note">
-                  <span
-                    id="delete-sync-data-sign-out-all-note"
-                    className={warningTextClassName}
-                  >
-                    Syncing will resume wherever you’re signed in.
-                  </span>
-                </FtlMsg>
+                {!allSelected && (
+                  <FtlMsg id="delete-sync-data-sign-out-all-note">
+                    <span
+                      id="delete-sync-data-sign-out-all-note"
+                      className={warningTextClassName}
+                    >
+                      Syncing will resume wherever you’re signed in.
+                    </span>
+                  </FtlMsg>
+                )}
               </span>
             </label>
             <button
@@ -201,6 +213,7 @@ export const FlowDeleteSyncDataDevices = ({
                         type="checkbox"
                         className={checkboxClassName}
                         checked={checked}
+                        disabled={isLoading}
                         onChange={() => toggleDevice(device)}
                         aria-labelledby={nameId}
                         aria-describedby={badgeId}
@@ -268,25 +281,39 @@ export const FlowDeleteSyncDataDevices = ({
               type="button"
               className="cta-neutral cta-base-p"
               onClick={onCancel}
+              disabled={isLoading}
+              data-glean-id="delete_sync_data_cancel"
             >
               Cancel
             </button>
           </FtlMsg>
-          <FtlMsg
-            id={
-              selected.size > 0
-                ? 'delete-sync-data-delete-and-sign-out'
-                : 'delete-sync-data-delete'
-            }
+          <button
+            type="submit"
+            className="cta-caution cta-base-p inline-flex items-center justify-center gap-2"
+            disabled={isLoading}
+            aria-busy={isLoading}
+            data-glean-id="delete_sync_data_submit"
+            data-glean-type={`sign_out_${selected.size}`}
+            data-testid="delete-sync-data-confirm"
           >
-            <button
-              type="submit"
-              className="cta-caution cta-base-p"
-              data-testid="delete-sync-data-confirm"
+            <FtlMsg
+              id={
+                selected.size > 0
+                  ? 'delete-sync-data-delete-and-sign-out'
+                  : 'delete-sync-data-delete'
+              }
             >
-              {selected.size > 0 ? 'Delete and sign out' : 'Delete'}
-            </button>
-          </FtlMsg>
+              <span>
+                {selected.size > 0 ? 'Delete and sign out' : 'Delete'}
+              </span>
+            </FtlMsg>
+            {isLoading && (
+              <LoadingSpinner
+                imageClassName="w-4 h-4 animate-spin"
+                spinnerType={SpinnerType.White}
+              />
+            )}
+          </button>
         </div>
       </form>
     </FlowContainer>

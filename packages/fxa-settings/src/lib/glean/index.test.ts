@@ -285,6 +285,7 @@ describe('lib/glean', () => {
           'accountBanner',
           'firefoxPromo',
           'deleteAccount',
+          'deleteSyncData',
           'dtmDesktop',
           'dtmMobile',
         ] as const
@@ -2071,6 +2072,17 @@ describe('lib/glean', () => {
           'account_banner_add_recovery_phone_view'
         );
         sinon.assert.calledOnce(spy);
+      });
+    });
+
+    describe('deleteSyncData', () => {
+      it('submits the error reason', async () => {
+        GleanMetrics.deleteSyncData.error({
+          event: { reason: 'sign_out_failed' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledWith(setEventNameStub, 'delete_sync_data_error');
+        sinon.assert.calledWith(setEventReasonStub, 'sign_out_failed');
       });
     });
 

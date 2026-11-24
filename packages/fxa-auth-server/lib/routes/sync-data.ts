@@ -60,7 +60,7 @@ export class SyncDataHandler {
    * sign out of syncing devices; only the stored data is gone.
    *
    * Requires an `mfa:sync_data` token on a session that has re-entered its
-   * password via /session/reauth (Security review SA-1022).
+   * password via /session/reauth (Security review SA-1022); otherwise errno 237.
    *
    * @returns `{ deleted: boolean }` — false when the user had no Sync data to
    *   delete (never synced, or no storage node assigned).
@@ -77,9 +77,7 @@ export class SyncDataHandler {
     );
 
     if (!hasPasswordReauth(session)) {
-      // No dedicated "password reauth required" error exists yet; passkey
-      // wraps reuses this one for the same check. Adding one is FXA-14847.
-      throw AppError.invalidMfaToken();
+      throw AppError.passwordReauthRequired();
     }
 
     let deleted: boolean;
@@ -167,12 +165,23 @@ export class SyncDataHandler {
       }
       return deleted;
     }
-    // Unread bodies hold the connection until garbage collection.
-    await res.body?.cancel();
-    // No tokenserver record: the account never synced or has been retired.
+    // Tokenserver answers 404 with its JSON error body when the account never
+    // synced or has been retired. A bare 404 is actix's: the endpoint is
+    // missing or disabled, and nothing was deleted.
     if (res.status === 404) {
+      let body: unknown;
+      try {
+        body = await res.json();
+      } catch {
+        throw failure('http_404');
+      }
+      if ((body as { status?: unknown } | null)?.status !== 'error') {
+        throw failure('http_404');
+      }
       return false;
     }
+    // Unread bodies hold the connection until garbage collection.
+    await res.body?.cancel();
     throw failure(`http_${res.status}`);
   }
 

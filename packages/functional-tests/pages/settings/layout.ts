@@ -26,6 +26,11 @@ export abstract class SettingsLayout extends BaseLayout {
     return this.page.getByRole('alert');
   }
 
+  /** The alert's panel; its class carries the type: success, error, info or warning. */
+  get alertBarPanel() {
+    return this.alertBar.getByTestId('alert-bar-inner');
+  }
+
   get alertBarDismissButton() {
     return this.page
       .getByRole('alert')

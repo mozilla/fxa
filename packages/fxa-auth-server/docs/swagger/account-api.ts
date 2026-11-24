@@ -269,7 +269,8 @@ const ACCOUNT_SYNC_DATA_DESTROY_POST = {
         401: {
           description: swaggerText`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
-            - \`errno: 223\` - Invalid MFA token, including a session that has not verified its password
+            - \`errno: 223\` - Invalid MFA token
+            - \`errno: 237\` - The session has not re-entered its password
           `,
         },
         500: {

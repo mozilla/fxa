@@ -268,7 +268,7 @@ describe('passkey wraps routes', () => {
         run(validPayload(), { cid: CREDENTIAL_ID, reauthed: false })
       ).rejects.toMatchObject({
         output: { statusCode: 401 },
-        errno: ERRNO.PASSKEY_WRAP_REAUTH_REQUIRED,
+        errno: ERRNO.PASSWORD_REAUTH_REQUIRED,
       });
       expect(service.storePasskeyWrap).not.toHaveBeenCalled();
       expect(recordSecurityEvent).toHaveBeenCalledWith(

@@ -13,6 +13,7 @@ import * as cadMobilePairUseApp from './web/cadMobilePairUseApp';
 import * as cadRedirectDesktop from './web/cadRedirectDesktop';
 import * as cadRedirectMobile from './web/cadRedirectMobile';
 import * as deleteAccount from './web/deleteAccount';
+import * as deleteSyncData from './web/deleteSyncData';
 import * as dtmDesktop from './web/dtmDesktop';
 import * as firefoxPromo from './web/firefoxPromo';
 import * as pairing from './web/pairing';
@@ -305,6 +306,20 @@ export const recordLazyEventMetric = (
       break;
     case 'delete_account_password_submit':
       deleteAccount.passwordSubmit.record();
+      break;
+    case 'delete_sync_data_password_view':
+      deleteSyncData.passwordView.record();
+      break;
+    case 'delete_sync_data_devices_view':
+      deleteSyncData.devicesView.record();
+      break;
+    case 'delete_sync_data_success':
+      deleteSyncData.success.record();
+      break;
+    case 'delete_sync_data_error':
+      deleteSyncData.error.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'account_pref_promo_monitor_view':
       accountPref.promoMonitorView.record({

@@ -570,8 +570,8 @@ describe('AppErrors', () => {
       });
     });
 
-    it('creates passkeyWrapReauthRequired', () => {
-      const result = AppError.passkeyWrapReauthRequired();
+    it('creates passwordReauthRequired', () => {
+      const result = AppError.passwordReauthRequired();
       expect(result).toBeInstanceOf(AppError);
       expect(result).toMatchObject({
         errno: 237,

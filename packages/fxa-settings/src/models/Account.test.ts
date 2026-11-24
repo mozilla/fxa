@@ -196,6 +196,34 @@ describe('Account', () => {
     });
   });
 
+  describe('deleteSyncData', () => {
+    let account: Account;
+    let authClient: jest.Mocked<Pick<AuthClient, 'destroySyncData'>>;
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      authClient = {
+        destroySyncData: jest.fn().mockResolvedValue({ deleted: true }),
+      } as unknown as jest.Mocked<Pick<AuthClient, 'destroySyncData'>>;
+      (sessionToken as jest.Mock).mockReturnValue('tok');
+      (JwtTokenCache.hasToken as jest.Mock).mockReturnValue(true);
+      (JwtTokenCache.getToken as jest.Mock).mockReturnValue('sync-jwt');
+      account = new Account(authClient as unknown as AuthClient);
+    });
+
+    it('destroys Sync data with the cached sync_data token', async () => {
+      await account.deleteSyncData();
+      expect(JwtTokenCache.getToken).toHaveBeenCalledWith('tok', 'sync_data');
+      expect(authClient.destroySyncData).toHaveBeenCalledWith('sync-jwt');
+    });
+
+    it('fails before calling the server when no token is cached', async () => {
+      (JwtTokenCache.hasToken as jest.Mock).mockReturnValue(false);
+      await expect(account.deleteSyncData()).rejects.toThrow();
+      expect(authClient.destroySyncData).not.toHaveBeenCalled();
+    });
+  });
+
   describe('renamePasskey', () => {
     let account: Account;
     let authClient: jest.Mocked<
