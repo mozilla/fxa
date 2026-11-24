@@ -1,8 +1,8 @@
 {
-  "commit": "2d831ddb48368b7d3e4dcb71fb8dfb29e6a7f485",
-  "summary": "Merge pull request #21821 from mozilla/fxa-15121",
-  "description": "feat(settings): record Glean events on signin bounced and report pages",
-  "timestamp": 1795550261000,
+  "commit": "e457491e6d7c5a8f51386a32823023980939bd93",
+  "summary": "Merge pull request #21820 from mozilla/fxa-15119",
+  "description": "feat(settings): record avatar page and avatar-menu sign-out in Glean",
+  "timestamp": 1795551685000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
