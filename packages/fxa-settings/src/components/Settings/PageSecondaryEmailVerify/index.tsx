@@ -10,6 +10,7 @@ import { useLocation } from 'react-router';
 import { useNavigateWithQuery } from '../../../lib/hooks';
 import { SETTINGS_PATH } from '../../../constants';
 import { logViewEvent } from '../../../lib/metrics';
+import GleanMetrics from '../../../lib/glean';
 import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 import InputText from '../../InputText';
 import FlowContainer from '../FlowContainer';
@@ -79,6 +80,7 @@ export const PageSecondaryEmailVerify = () => {
       try {
         await account.verifySecondaryEmail(email, code);
         logViewEvent('verify-secondary-email.verification', 'success');
+        GleanMetrics.accountPref.secondaryEmailAddedSuccess();
         alertSuccessAndGoHome(email);
       } catch (e) {
         const errorHandled = handleMfaError(e);
@@ -87,6 +89,7 @@ export const PageSecondaryEmailVerify = () => {
         }
         setErrorText(getLocalizedErrorMessage(ftlMsgResolver, e));
         logViewEvent('verify-secondary-email.verification', 'fail');
+        GleanMetrics.accountPref.secondaryEmailVerifyError();
       }
     },
     [
@@ -147,6 +150,7 @@ export const PageSecondaryEmailVerify = () => {
           onSubmit={handleSubmit(({ verificationCode }) => {
             verifySecondaryEmail(email, verificationCode);
             logViewEvent('verify-secondary-email.verification', 'clicked');
+            GleanMetrics.accountPref.secondaryEmailVerifySubmit();
           })}
         >
           {showResendSuccessBanner && <ResendCodeSuccessBanner />}

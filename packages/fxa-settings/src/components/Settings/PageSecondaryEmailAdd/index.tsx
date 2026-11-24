@@ -18,9 +18,12 @@ import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { MfaReason } from '../../../lib/types';
 import { useFtlMsgResolver } from '../../../models/hooks';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 
 export const PageSecondaryEmailAdd = () => {
   usePageViewEvent('settings.emails');
+  useGleanView(() => GleanMetrics.accountPref.secondaryEmailAddView());
   const handleMfaError = useMfaErrorHandler();
   const [saveBtnDisabled, setSaveBtnDisabled] = useState(true);
   const [errorText, setErrorText] = useState<string>();
@@ -112,6 +115,7 @@ export const PageSecondaryEmailAdd = () => {
               setIsSubmitting(true);
               createSecondaryEmail(email!);
               logViewEvent('settings.emails', 'submit');
+              GleanMetrics.accountPref.secondaryEmailAddSubmit();
             }
           }}
         >

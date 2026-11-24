@@ -579,6 +579,54 @@ export const recoveryKeySubmit = new EventMetricType(
 );
 
 /**
+ * Submit of the form on the Settings page to add a secondary email
+ *
+ * Generated from `account_pref.secondary_email_add_submit`.
+ */
+export const secondaryEmailAddSubmit = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'secondary_email_add_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * View of the Settings page to add a secondary email
+ *
+ * Generated from `account_pref.secondary_email_add_view`.
+ */
+export const secondaryEmailAddView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'secondary_email_add_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * Secondary email verified successfully on the Settings page
+ *
+ * Generated from `account_pref.secondary_email_added_success`.
+ */
+export const secondaryEmailAddedSuccess = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'secondary_email_added_success',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Click on "Add" button on account settings page to add secondary email
  *
  * Generated from `account_pref.secondary_email_submit`.
@@ -587,6 +635,40 @@ export const secondaryEmailSubmit = new EventMetricType(
   {
     category: 'account_pref',
     name: 'secondary_email_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * Error on submit of the confirmation code on the Settings page to verify a
+ * secondary email
+ *
+ * Generated from `account_pref.secondary_email_verify_error`.
+ */
+export const secondaryEmailVerifyError = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'secondary_email_verify_error',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * Submit of the confirmation code on the Settings page to verify a secondary
+ * email
+ *
+ * Generated from `account_pref.secondary_email_verify_submit`.
+ */
+export const secondaryEmailVerifySubmit = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'secondary_email_verify_submit',
     sendInPings: ['events'],
     lifetime: 'ping',
     disabled: false,

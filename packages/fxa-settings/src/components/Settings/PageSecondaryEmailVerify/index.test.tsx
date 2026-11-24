@@ -18,6 +18,21 @@ import { MfaContext } from '../../../lib/hooks';
 import { JwtTokenCache } from '../../../lib/cache';
 import AuthClient from 'fxa-auth-client/lib/client';
 import userEvent, { UserEvent } from '@testing-library/user-event';
+import GleanMetrics from '../../../lib/glean';
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    accountPref: {
+      secondaryEmailVerifySubmit: jest.fn(),
+      secondaryEmailAddedSuccess: jest.fn(),
+      secondaryEmailVerifyError: jest.fn(),
+      mfaGuardView: jest.fn(),
+      mfaGuardSubmitSuccess: jest.fn(),
+    },
+    banner: { view: jest.fn() },
+  },
+}));
 
 const mockLocationState = { email: 'johndope@example.com' };
 const mockRoute = { pathname: '/', state: mockLocationState };
@@ -43,6 +58,10 @@ window.console.error = jest.fn();
 
 afterAll(() => {
   (window.console.error as jest.Mock).mockReset();
+});
+
+afterEach(() => {
+  jest.clearAllMocks();
 });
 
 describe('PageSecondaryEmailVerify', () => {
@@ -181,6 +200,15 @@ describe('PageSecondaryEmailVerify', () => {
         AuthUiErrors.INVALID_VERIFICATION_CODE.message
       );
     });
+    expect(
+      GleanMetrics.accountPref.secondaryEmailVerifySubmit
+    ).toHaveBeenCalledTimes(1);
+    expect(
+      GleanMetrics.accountPref.secondaryEmailVerifyError
+    ).toHaveBeenCalledTimes(1);
+    expect(
+      GleanMetrics.accountPref.secondaryEmailAddedSuccess
+    ).not.toHaveBeenCalled();
   });
 
   it('navigates to settings and shows a message on success', async () => {
@@ -217,6 +245,15 @@ describe('PageSecondaryEmailVerify', () => {
     expect(alertBarInfo.success).toHaveBeenCalledWith(
       'johndope@example.com successfully added'
     );
+    expect(
+      GleanMetrics.accountPref.secondaryEmailVerifySubmit
+    ).toHaveBeenCalledTimes(1);
+    expect(
+      GleanMetrics.accountPref.secondaryEmailAddedSuccess
+    ).toHaveBeenCalledTimes(1);
+    expect(
+      GleanMetrics.accountPref.secondaryEmailVerifyError
+    ).not.toHaveBeenCalled();
   });
 
   describe('MfaGuard', () => {
@@ -321,6 +358,9 @@ describe('PageSecondaryEmailVerify', () => {
       expect(
         await screen.findByText('Enter confirmation code')
       ).toBeInTheDocument();
+      expect(
+        GleanMetrics.accountPref.secondaryEmailVerifyError
+      ).not.toHaveBeenCalled();
     });
 
     it('renders MFA guard if the JWT is invalid on resend code request', async () => {
