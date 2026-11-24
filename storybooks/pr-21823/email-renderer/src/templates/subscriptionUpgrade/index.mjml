@@ -1,0 +1,46 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<%- include ('/partials/icon/index.mjml') %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="subscriptionUpgrade-title">Thank you for upgrading!</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionUpgrade-upgrade-info-2" data-l10n-args="<%= JSON.stringify({productName}) %>">You have successfully upgraded to <%- productName %>.</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <% if (locals.paymentProratedInCents < 0) { %>
+        <span data-l10n-id="subscriptionUpgrade-content-charge-credit" data-l10n-args="<%= JSON.stringify({paymentProrated}) %>">You have received an account credit in the amount of <%- paymentProrated %>.</span>
+      <% } else if (locals.paymentProratedInCents > 0) { %>
+        <span data-l10n-id="subscriptionUpgrade-content-charge-prorated-1" data-l10n-args="<%= JSON.stringify({invoiceAmountDue, productPaymentCycleOld}) %>">You have been charged a one-time fee of <%- invoiceAmountDue %> to reflect your subscription’s higher price for the remainder of this billing period (<%- productPaymentCycleOld %>).</span>
+      <% } %>
+      <span data-l10n-id="subscriptionUpgrade-content-next-bill-change">
+        Starting with your next bill, the price of your subscription will change.
+      </span>
+      <span data-l10n-id="<%= previousRate.l10nId %>"
+        data-l10n-args="<%= previousRate.l10nArgs %>">
+          <%= previousRate.message %>
+      </span>
+      <span data-l10n-id="<%= newRate.l10nId %>"
+          data-l10n-args="<%= newRate.l10nArgs %>">
+        <%= newRate.message %>
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionUpgrade-existing">If any of your existing subscriptions overlap with this upgrade, we’ll handle them and send you a separate email with the details. If your new plan includes products that require installation, we’ll send you a separate email with setup instructions.</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionUpgrade-auto-renew">Your subscription will automatically renew each billing period unless you choose to cancel.</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include ('/partials/subscriptionSupport/index.mjml') %>

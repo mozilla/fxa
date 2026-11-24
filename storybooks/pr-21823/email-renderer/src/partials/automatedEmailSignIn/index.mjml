@@ -1,0 +1,16 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-footer-automatedEmail">
+      <span data-l10n-id="automated-email-sign-in">
+        This is an automated email; if you did not authorize this action, then please
+        <a class="link-blue" href="<%- securitySettingsLink %>" data-l10n-name="securitySettingsLink">review your account security settings</a>.
+        For more information, please visit
+        <a class="link-blue" href="<%- reviewActivitySupportUrl %>" data-l10n-name="supportLink">Mozilla Support</a>.
+      </span>
+    </mj-text>
+  </mj-column>
+</mj-section>

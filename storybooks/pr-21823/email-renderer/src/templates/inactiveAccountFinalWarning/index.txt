@@ -1,0 +1,12 @@
+inactiveAccountFinalWarning-title = "Your Mozilla account and data will be deleted"
+
+inactiveAccountFinalWarning-account-description = "Your Mozilla account is used to access free privacy and browsing products like Firefox sync, Mozilla Monitor, Firefox Relay, and MDN."
+
+inactiveAccountFinalWarning-impact = "On <%- deletionDate %>, your account and your personal data will be permanently deleted unless you sign in."
+
+inactiveAccountFinalWarning-action-plaintext = "Sign in to keep your account:"
+<%- link %>
+
+<%- include('/partials/accountDeletionInfoBlock/index.txt') %>
+
+<%- include('/partials/automatedEmailInactiveAccount/index.txt') %>

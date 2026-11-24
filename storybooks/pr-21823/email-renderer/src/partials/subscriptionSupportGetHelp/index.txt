@@ -1,0 +1,5 @@
+subscription-support-get-help = "Get help with your subscription"
+
+subscription-support-manage-your-subscription-plaintext = "Manage your subscription:" <%- manageSubscriptionUrl %>
+
+subscription-support-contact-support-plaintext = "Contact support:" <%- subscriptionSupportUrl %>
