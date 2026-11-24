@@ -1,8 +1,8 @@
 {
-  "commit": "4e150069373fd13541beb0d39cee57e03653c9dc",
-  "summary": "Merge pull request #21786 from mozilla/fxa-15081",
-  "description": "fix(settings): Support android in 'always request destop' mode during pairing",
-  "timestamp": 1795480980000,
+  "commit": "634a74926ad0f78e7830ca9ea78a258b7919a13c",
+  "summary": "Merge pull request #21815 from mozilla/fxa-15110",
+  "description": "feat(settings): send a locked-primary-password authority to pair failure",
+  "timestamp": 1795481518000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
