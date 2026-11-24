@@ -1334,6 +1334,75 @@ describe('lib/glean', () => {
         sinon.assert.calledOnce(spy);
       });
 
+      it('submits a ping with the account_pref_secondary_email_add_view event name', async () => {
+        const spy = sandbox.spy(accountPref.secondaryEmailAddView, 'record');
+        GleanMetrics.accountPref.secondaryEmailAddView();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_secondary_email_add_view'
+        );
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the account_pref_secondary_email_add_submit event name', async () => {
+        const spy = sandbox.spy(accountPref.secondaryEmailAddSubmit, 'record');
+        GleanMetrics.accountPref.secondaryEmailAddSubmit();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_secondary_email_add_submit'
+        );
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the account_pref_secondary_email_verify_submit event name', async () => {
+        const spy = sandbox.spy(
+          accountPref.secondaryEmailVerifySubmit,
+          'record'
+        );
+        GleanMetrics.accountPref.secondaryEmailVerifySubmit();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_secondary_email_verify_submit'
+        );
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the account_pref_secondary_email_added_success event name', async () => {
+        const spy = sandbox.spy(
+          accountPref.secondaryEmailAddedSuccess,
+          'record'
+        );
+        GleanMetrics.accountPref.secondaryEmailAddedSuccess();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_secondary_email_added_success'
+        );
+        sinon.assert.calledOnce(spy);
+      });
+
+      it('submits a ping with the account_pref_secondary_email_verify_error event name', async () => {
+        const spy = sandbox.spy(
+          accountPref.secondaryEmailVerifyError,
+          'record'
+        );
+        GleanMetrics.accountPref.secondaryEmailVerifyError();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_pref_secondary_email_verify_error'
+        );
+        sinon.assert.calledOnce(spy);
+      });
+
       it('submits a ping with the account_pref_two_step_auth_submit event name', async () => {
         const spy = sandbox.spy(accountPref.twoStepAuthSubmit, 'record');
         GleanMetrics.accountPref.twoStepAuthSubmit();

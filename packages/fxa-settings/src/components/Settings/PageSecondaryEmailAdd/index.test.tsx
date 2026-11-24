@@ -13,6 +13,19 @@ import userEvent, { UserEvent } from '@testing-library/user-event';
 import AuthClient from 'fxa-auth-client/lib/client';
 import { JwtTokenCache } from '../../../lib/cache';
 import { MfaContext } from '../../../lib/hooks';
+import GleanMetrics from '../../../lib/glean';
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    accountPref: {
+      secondaryEmailAddView: jest.fn(),
+      secondaryEmailAddSubmit: jest.fn(),
+      mfaGuardView: jest.fn(),
+      mfaGuardSubmitSuccess: jest.fn(),
+    },
+  },
+}));
 
 window.console.error = jest.fn();
 
@@ -39,6 +52,7 @@ afterAll(() => {
 
 afterEach(() => {
   resetOnce();
+  jest.clearAllMocks();
 });
 
 describe('PageSecondaryEmailAdd', () => {
@@ -244,6 +258,16 @@ describe('PageSecondaryEmailAdd', () => {
       await createSecondaryEmail();
       expect(logViewEventSpy).toHaveBeenCalledWith('settings.emails', 'submit');
       expect(usePageViewEventSpy).toHaveBeenCalledWith('settings.emails');
+    });
+
+    it('records Glean view once and submit once on Save', async () => {
+      await createSecondaryEmail();
+      expect(
+        GleanMetrics.accountPref.secondaryEmailAddView
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        GleanMetrics.accountPref.secondaryEmailAddSubmit
+      ).toHaveBeenCalledTimes(1);
     });
   });
 

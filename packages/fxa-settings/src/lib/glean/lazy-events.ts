@@ -182,6 +182,21 @@ export const recordLazyEventMetric = (
     case 'account_pref_secondary_email_submit':
       accountPref.secondaryEmailSubmit.record();
       break;
+    case 'account_pref_secondary_email_add_view':
+      accountPref.secondaryEmailAddView.record();
+      break;
+    case 'account_pref_secondary_email_add_submit':
+      accountPref.secondaryEmailAddSubmit.record();
+      break;
+    case 'account_pref_secondary_email_verify_submit':
+      accountPref.secondaryEmailVerifySubmit.record();
+      break;
+    case 'account_pref_secondary_email_added_success':
+      accountPref.secondaryEmailAddedSuccess.record();
+      break;
+    case 'account_pref_secondary_email_verify_error':
+      accountPref.secondaryEmailVerifyError.record();
+      break;
     case 'account_pref_help':
       accountPref.help.record();
       break;
