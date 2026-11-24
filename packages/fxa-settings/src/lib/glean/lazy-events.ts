@@ -145,6 +145,36 @@ export const recordLazyEventMetric = (
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
       break;
+    case 'account_pref_change_password_view':
+      accountPref.changePasswordView.record();
+      break;
+    case 'account_pref_change_password_success':
+      accountPref.changePasswordSuccess.record();
+      break;
+    case 'account_pref_change_password_engage':
+      accountPref.changePasswordEngage.record();
+      break;
+    case 'account_pref_change_password_form_submit':
+      accountPref.changePasswordFormSubmit.record();
+      break;
+    case 'account_pref_change_password_error':
+      accountPref.changePasswordError.record();
+      break;
+    case 'account_pref_create_password_view':
+      accountPref.createPasswordView.record();
+      break;
+    case 'account_pref_create_password_engage':
+      accountPref.createPasswordEngage.record();
+      break;
+    case 'account_pref_create_password_submit':
+      accountPref.createPasswordSubmit.record();
+      break;
+    case 'account_pref_create_password_success':
+      accountPref.createPasswordSuccess.record();
+      break;
+    case 'account_pref_create_password_error':
+      accountPref.createPasswordError.record();
+      break;
     case 'account_pref_google_unlink_submit':
       accountPref.googleUnlinkSubmit.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',

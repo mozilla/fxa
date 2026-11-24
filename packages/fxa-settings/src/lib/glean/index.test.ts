@@ -1563,6 +1563,32 @@ describe('lib/glean', () => {
         sinon.assert.calledWith(spy, { reason: 'create' });
       });
 
+      it.each([
+        ['changePasswordView', 'account_pref_change_password_view'],
+        ['changePasswordSuccess', 'account_pref_change_password_success'],
+        ['changePasswordEngage', 'account_pref_change_password_engage'],
+        [
+          'changePasswordFormSubmit',
+          'account_pref_change_password_form_submit',
+        ],
+        ['changePasswordError', 'account_pref_change_password_error'],
+        ['createPasswordView', 'account_pref_create_password_view'],
+        ['createPasswordEngage', 'account_pref_create_password_engage'],
+        ['createPasswordSubmit', 'account_pref_create_password_submit'],
+        ['createPasswordSuccess', 'account_pref_create_password_success'],
+        ['createPasswordError', 'account_pref_create_password_error'],
+      ] as const)(
+        'submits a ping with the %s event name',
+        async (method, eventName) => {
+          const spy = sandbox.spy(accountPref[method], 'record');
+          GleanMetrics.accountPref[method]();
+          await GleanMetrics.isDone();
+          sinon.assert.calledOnce(setEventNameStub);
+          sinon.assert.calledWith(setEventNameStub, eventName);
+          sinon.assert.calledOnce(spy);
+        }
+      );
+
       it('submits a ping with the account_pref_device_signout event name', async () => {
         GleanMetrics.accountPref.deviceSignout({
           event: { reason: 'something' },

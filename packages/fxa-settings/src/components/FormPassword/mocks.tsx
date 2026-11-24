@@ -6,7 +6,15 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import FormPassword from '.';
 
-export const Subject = ({ includeCurrentPw = true }) => {
+export const Subject = ({
+  includeCurrentPw = true,
+  onFocusMetricsEvent,
+  onFirstFocus,
+}: {
+  includeCurrentPw?: boolean;
+  onFocusMetricsEvent?: string;
+  onFirstFocus?: () => void;
+}) => {
   type FormData = {
     oldPassword?: string;
     newPassword: string;
@@ -48,6 +56,7 @@ export const Subject = ({ includeCurrentPw = true }) => {
         newPasswordErrorText,
         setNewPasswordErrorText,
       }}
+      {...{ onFocusMetricsEvent, onFirstFocus }}
       onSubmit={handleSubmit(onFormSubmit)}
       primaryEmail="test@example.com"
       loading={false}

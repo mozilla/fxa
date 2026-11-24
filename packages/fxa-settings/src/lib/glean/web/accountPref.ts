@@ -191,6 +191,54 @@ export const bentoVpn = new EventMetricType(
 );
 
 /**
+ * First focus on the new or confirm password field of the change password page in account settings
+ *
+ * Generated from `account_pref.change_password_engage`.
+ */
+export const changePasswordEngage = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'change_password_engage',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * Change password failed on the change password page in account settings
+ *
+ * Generated from `account_pref.change_password_error`.
+ */
+export const changePasswordError = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'change_password_error',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * Submit of the change password form in account settings (change_password_submit is the Security row button)
+ *
+ * Generated from `account_pref.change_password_form_submit`.
+ */
+export const changePasswordFormSubmit = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'change_password_form_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Click on "Change" or "Create" on account settings page to change or create a
  * password for the account
  *
@@ -207,6 +255,118 @@ export const changePasswordSubmit = new EventMetricType<{
     disabled: false,
   },
   ['reason']
+);
+
+/**
+ * Password changed successfully from the change password page in account settings
+ *
+ * Generated from `account_pref.change_password_success`.
+ */
+export const changePasswordSuccess = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'change_password_success',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * View of the change password page in account settings
+ *
+ * Generated from `account_pref.change_password_view`.
+ */
+export const changePasswordView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'change_password_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * First focus on a password field of the create password page in account settings
+ *
+ * Generated from `account_pref.create_password_engage`.
+ */
+export const createPasswordEngage = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'create_password_engage',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * Create password failed on the create password page in account settings
+ *
+ * Generated from `account_pref.create_password_error`.
+ */
+export const createPasswordError = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'create_password_error',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * Submit of the create password form in account settings
+ *
+ * Generated from `account_pref.create_password_submit`.
+ */
+export const createPasswordSubmit = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'create_password_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * Password created successfully from the create password page in account settings
+ *
+ * Generated from `account_pref.create_password_success`.
+ */
+export const createPasswordSuccess = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'create_password_success',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
+ * View of the create password page in account settings
+ *
+ * Generated from `account_pref.create_password_view`.
+ */
+export const createPasswordView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'create_password_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
 );
 
 /**

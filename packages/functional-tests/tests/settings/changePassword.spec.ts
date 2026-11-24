@@ -14,6 +14,7 @@ test.describe('severity-1 #smoke', () => {
       target,
       pages: { page, changePassword, settings, signin },
       testAccountTracker,
+      gleanEventsHelper,
     }) => {
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
@@ -30,6 +31,9 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await expect(changePassword.tooltip).toHaveText('Incorrect password');
+      await gleanEventsHelper.waitForEvent(
+        'account_pref_change_password_error'
+      );
     });
 
     for (const version of [1, 2] as const) {
@@ -94,6 +98,11 @@ test.describe('severity-1 #smoke', () => {
         'account_pref_change_password_submit'
       );
       expect(submitPing.extras.reason).toBe('change');
+      for (const event of ['view', 'engage', 'form_submit', 'success']) {
+        await gleanEventsHelper.waitForEvent(
+          `account_pref_change_password_${event}`
+        );
+      }
 
       // Sign out and login with new password
       await settings.signOut();
@@ -162,6 +171,42 @@ test.describe('severity-1 #smoke', () => {
       await changePassword.forgotPasswordLink.click();
 
       await expect(resetPassword.resetPasswordHeading).toBeVisible();
+    });
+
+    test('create password for a passwordless account', async ({
+      target,
+      pages: { page, changePassword, settings, signin, signinPasswordlessCode },
+      testAccountTracker,
+      gleanEventsHelper,
+    }, { project }) => {
+      test.skip(
+        project.name !== 'local',
+        'The passwordlessEnabled config flag is off on stage and production.'
+      );
+      const { email, password } = await testAccountTracker.signUpPasswordless();
+      await signin.clearCache();
+      await page.goto(target.contentServerUrl);
+      await signin.fillOutEmailFirstForm(email);
+      await page.waitForURL(/signin_passwordless_code/);
+      const code = await target.emailClient.getPasswordlessSigninCode(email);
+      await signinPasswordlessCode.fillOutCodeForm(code);
+      await expect(settings.settingsHeading).toBeVisible();
+
+      await settings.password.changeButton.click();
+      await settings.confirmMfaGuard(email);
+      await expect(
+        page.getByRole('heading', { name: 'Create password' })
+      ).toBeVisible();
+      await changePassword.newPasswordTextbox.fill(password);
+      await changePassword.confirmPasswordTextbox.fill(password);
+      await changePassword.saveButton.click();
+
+      await expect(settings.alertBar).toHaveText('Password set');
+      for (const event of ['view', 'engage', 'submit', 'success']) {
+        await gleanEventsHelper.waitForEvent(
+          `account_pref_create_password_${event}`
+        );
+      }
     });
   });
 });

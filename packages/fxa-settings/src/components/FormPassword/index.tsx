@@ -53,6 +53,7 @@ type FormPasswordProps = {
     React.SetStateAction<string | undefined>
   >;
   onFocusMetricsEvent?: string;
+  onFirstFocus?: () => void;
   loading: boolean;
 };
 
@@ -86,6 +87,7 @@ export const FormPassword = ({
   currentPasswordErrorText,
   setCurrentPasswordErrorText,
   onFocusMetricsEvent,
+  onFirstFocus,
   loading,
 }: FormPasswordProps) => {
   // Eagerly read formState properties so react-hook-form's Proxy subscribes
@@ -102,8 +104,11 @@ export const FormPassword = ({
   const [hasFocused, setHasFocused] = useState(false);
 
   const onFocus = () => {
-    if (!hasFocused && onFocusMetricsEvent) {
-      logViewEvent(settingsViewName, onFocusMetricsEvent);
+    if (!hasFocused) {
+      if (onFocusMetricsEvent) {
+        logViewEvent(settingsViewName, onFocusMetricsEvent);
+      }
+      onFirstFocus?.();
       setHasFocused(true);
     }
   };
@@ -204,7 +209,9 @@ export const FormPassword = ({
             label="Enter new password"
             className="mb-2"
             errorText={newPasswordErrorText}
-            onFocusCb={onFocusMetricsEvent ? onFocus : undefined}
+            onFocusCb={
+              onFocusMetricsEvent || onFirstFocus ? onFocus : undefined
+            }
             onChange={() => {
               if (newPasswordErrorText) {
                 setNewPasswordErrorText(undefined);
@@ -237,7 +244,9 @@ export const FormPassword = ({
           <InputPassword
             label="Confirm new password"
             onChange={() => trigger(['newPassword', 'confirmPassword'])}
-            onFocusCb={onFocusMetricsEvent ? onFocus : undefined}
+            onFocusCb={
+              onFocusMetricsEvent || onFirstFocus ? onFocus : undefined
+            }
             registration={register('confirmPassword', {
               required: true,
               validate: (value: string) => value === getValues().newPassword,
