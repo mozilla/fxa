@@ -1,8 +1,8 @@
 {
-  "commit": "bdaf91e4a269328042ed45bf8b7a2d98e8cc5e0f",
-  "summary": "Merge pull request #21775 from mozilla/FXA-14895-v2",
-  "description": "feat(settings): add Synced data row and delete Sync data flow",
-  "timestamp": 1795528122000,
+  "commit": "82cb9ef8e5fd8e33aca00f083fe8a9d63b8dd192",
+  "summary": "Merge pull request #21813 from mozilla/fxa-15107",
+  "description": "test(functional): cover wrong password after a primary email swap",
+  "timestamp": 1795537071000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",

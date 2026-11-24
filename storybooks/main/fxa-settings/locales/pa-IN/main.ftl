@@ -51,6 +51,7 @@ app-footer-terms-of-service = ਸੇਵਾ ਦੀਆਂ ਸ਼ਰਤਾਂ
 
 
 app-default-title-2 = { -product-mozilla-accounts }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = ਨਵੀਂ ਵਿੰਡੋ ਵਿੱਚ ਖੋਲ੍ਹੋ
@@ -295,6 +296,7 @@ input-phone-number-country-canada = ਕੈਨੇਡਾ
 reset-pwd-link-damaged-header = ਪਾਸਵਰਡ ਮੁੜ-ਸੈੱਟ ਲਿੰਕ ਖ਼ਰਾਬ ਹੋ ਗਿਆ
 signin-link-damaged-header = ਤਸਦੀਕੀ ਲਿੰਕ ਖਰਾਬ ਸੀ
 report-signin-link-damaged-header = ਨੁਕਸਾਨਿਆ ਲਿੰਕ
+report-signin-link-damaged-page-title = ਖ਼ਰਾਬ ਹੋਏ ਲਿੰਕ ਦੀ ਇਤਲਾਹ ਦਿਓ
 reset-pwd-link-damaged-message = ਤੁਹਾਡੇ ਵਲੋਂ ਕਲਿਕ ਕੀਤੇ ਗਏ ਲਿੰਕ ਵਿੱਚ ਅੱਖਰ ਗੁੰਮ ਹਨ ਅਤੇ ਤੁਹਾਡੇ ਈਮੇਲ ਕਲਾਇਟ ਵਲੋਂ ਖ਼ਰਾਬ ਕੀਤੇ ਗਏ ਹੋ ਸਕਦੇ ਹਨ। ਸਿਰਨਾਵਾਂ ਲਿੰਕ ਨੂੰ ਧਿਆਨ ਨਾਲ ਕਾਪੀ ਕਰੋ ਅਤੇ ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।
 
 
@@ -313,6 +315,7 @@ confirmation-link-reused-message = ਇਹ ਪੁਸ਼ਟੀ ਲਿੰਕ ਪਹ
 locale-toggle-select-label = ਭਾਸ਼ਾ ਨੂੰ ਚੁਣੋ
 locale-toggle-browser-default = ਬਰਾਊਜ਼ਰ ਮੂਲ
 error-bad-request = ਖ਼ਰਾਬ ਬੇਨਤੀ
+error-bad-request-page-title = ਖ਼ਰਾਬ ਬੇਨਤੀ
 
 
 pair-unsupported-hint-heading = ਐਪ ਵਿੱਚ ਪੇਅਰ ਕਰਨ ਨੂੰ ਪੂਰਾ ਕਰੋ
@@ -352,6 +355,9 @@ ready-continue = ਜਾਰੀ ਰੱਖੋ
 sign-in-complete-header = ਸਾਈਨ ਇਨ ਦੀ ਪੁਸ਼ਟੀ
 sign-up-complete-header = ਖਾਤਾ ਤਸਦੀਕ ਕੀਤਾ
 primary-email-verified-header = ਮੁੱਢਲੇ ਈਮੇਲ ਦੀ ਤਸਦੀਕ ਕੀਤੀ
+sign-in-complete-page-title = ਸਾਈਨ ਇਨ ਦੀ ਤਸਦੀਕ
+sign-up-complete-page-title = ਖਾਤਾ ਤਸਦੀਕ ਕੀਤਾ
+primary-email-verified-page-title = ਮੁੱਢਲੇ ਈਮੇਲ ਦੀ ਤਸਦੀਕ ਕੀਤੀ
 
 
 flow-recovery-key-download-storage-ideas-heading-v2 = ਤੁਹਾਡੀ ਕੁੰਜੀ ਨੂੰ ਸੰਭਾਲਣ ਲਈ ਥਾਵਾਂ:
@@ -559,6 +565,7 @@ modal-mfa-protected-cancel-button = ਰੱਦ ਕਰੋ
 modal-mfa-protected-confirm-button = ਤਸਦੀਕ
 modal-mfa-protected-code-expired = ਕੋਡ ਦੀ ਮਿਆਦ ਪੁੱਗੀ?
 modal-mfa-protected-resend-code-link = ਨਵਾਂ ਕੋਡ ਈਮੇਲ ਕਰੋ।
+modal-mfa-protected-clock-skew-error = ਤੁਹਾਡੇ ਡਿਵਾਈਸ ਦੀ ਘੜੀ ਗਲਤ ਹੈ। ਆਪਣੇ ਡਿਵਾਈਸ ਦੀ ਤਾਰੀਖ ਅਤੇ ਸਮਾਂ ਠੀਕ ਕਰਕੇ ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।
 
 
 mvs-verify-your-email-2 = ਆਪਣੇ ਈਮੇਲ ਦੀ ਤਸਦੀਕ ਕਰੋ
@@ -799,6 +806,7 @@ security-set-password = ਸਿੰਕ ਕਰਨ ਤੇ ਕੁਝ ਖਾਤਾ ਸ
 security-recent-activity-link = ਸੱਜਰੀ ਖਾਤਾ ਸਰਗਰਮੀ ਵੇਖੋ
 signout-sync-header = ਸ਼ੈਸ਼ਨ ਦੀ ਮਿਆਦ ਪੁੱਗੀ
 signout-sync-session-expired = ਅਫਸੋਸ, ਕੁਝ ਗਲਤ ਵਾਪਰਿਆ। ਬਰਾਊਜ਼ਰ ਮੇਨੂ ਤੋਂ ਸਾਈਨ ਆਉਟ ਕਰਕੇ ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।
+signout-sync-page-title = ਸ਼ੈਸ਼ਨ ਦੀ ਮਿਆਦ ਪੁੱਗੀ
 
 
 tfa-row-backup-codes-title = ਬੈਕਅੱਪ ਪਰਮਾਣੀਕਰਨ ਕੋਡ
@@ -964,14 +972,17 @@ connect-another-device-cad-link = ਹੋਰ ਡਿਵਾਈਸ ਨਾਲ ਕਨ�
 connect-another-device-not-now-link = ਹੁਣੇ ਨਹੀਂ
 connect-another-device-android-complete-setup-message = ਸੈੱਟਅੱਪ ਨੂੰ ਪੂਰਾ ਕਰਨ ਲਈ ਐਂਡਰਾਇਡ ਲਈ { -brand-firefox } ਉੱਤੇ ਸਾਈਨ ਇਨ ਕਰੋ
 connect-another-device-ios-complete-setup-message = ਸੈੱਟਅੱਪ ਨੂੰ ਪੂਰਾ ਕਰਨ ਲਈ iOS ਲਈ { -brand-firefox } ਉੱਤੇ ਸਾਈਨ ਇਨ ਕਰੋ
+connect-another-device-page-title = ਹੋਰ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰੋ
 
 
 cookies-disabled-header = ਲੋਕਲ ਸਟੋਰੇਜ਼ ਅਤੇ ਕੂਕੀਜ਼ ਚਾਹੀਦੇ ਹਨ
 cookies-disabled-enable-prompt-2 = ਤੁਹਾਡੇ { -product-mozilla-account } ਤੱਕ ਪਹੁੰਚ ਕਰਨ ਲਈ ਆਪਣੇ ਬਰਾਊਜ਼ਰ ਵਿੱਚ ਕੁਕੀਜ਼ ਅਤੇ ਲੋਕਲ ਸਟੋਰੇਜ ਸਮਰੱਥ ਕਰੋ। ਅਜਿਹਾ ਕਰਨਾ ਕਾਰਜ-ਸਮਰੱਥਾ ਨੂੰ ਸਮਰੱਥ ਬਣਾ ਦੇਵੇਗਾ ਜਿਵੇਂ ਕਿ ਸੈਸ਼ਨਾਂ ਵਿੱਚ ਤੁਹਾਨੂੰ ਯਾਦ ਰੱਖਣਾ।
 cookies-disabled-button-try-again = ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ
 cookies-disabled-learn-more = ਹੋਰ ਜਾਣੋ
+cookies-disabled-page-title = ਕੁਕੀਜ਼ ਅਤੇ ਲੋਕਲ ਸਟੋਰੇਜ ਲੋੜੀਂਦੀ ਹੈ
 
 
+index-page-title = ਖਾਤੇ ਵਿੱਚ ਸਾਈਨ ਇਨ ਕਰੋ ਜਾਂ ਬਣਾਓ
 index-header = ਆਪਣਾ ਈਮੇਲ ਦਿਓ
 index-sync-header = ਆਪਣੇ { -product-mozilla-account } ਨਾਲ ਜਾਰੀ ਰੱਖੋ
 index-sync-subheader = ਜਿੱਥੇ ਵੀ ਤੁਸੀਂ { -brand-firefox } ਵਰਤੋਂ, ਆਪਣੇ ਪਾਸਵਰਡ, ਟੈਬਾਂ ਤੇ ਬੁੱਕਮਾਰਕਾਂ ਨੂੰ ਸਿੰਕ ਕਰੋ।
@@ -997,6 +1008,15 @@ inline-recovery-key-setup-recovery-created = ਖਾਤਾ ਰਿਕਵਰੀ ਕ
 inline-recovery-key-setup-download-header = ਆਪਣੇ ਖਾਤੇ ਨੂੰ ਸੁਰੱਖਿਅਤ ਕਰੋ
 inline-recovery-key-setup-download-subheader = ਇਸ ਨੂੰ ਹੁਣੇ ਡਾਊਨਲੋਡ ਕਰਕੇ ਸੰਭਾਲੋ
 inline-recovery-key-setup-hint-header = ਸੁਰੱਖਿਆ ਸਿਫਾਰਸ਼
+inline-recovery-key-setup-create-page-title = ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ ਬਣਾਓ
+inline-recovery-key-setup-download-page-title = ਆਪਣੇ ਖਾਤੇ ਲਈ ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ ਡਾਊਨਲੋਡ ਕਰੋ
+inline-recovery-key-setup-hint-page-title = ਇੱਕ ਰਿਕਵਰੀ ਕੁੰਜੀ ਸੰਕੇਤ ਨੂੰ ਜੋੜੋ
+inline-recovery-setup-choice-page-title = ਕਿਸੇ ਰਿਕਵਰੀ ਢੰਗ ਨੂੰ ਚੁਣੋ
+inline-recovery-setup-download-codes-page-title = ਆਪਣੇ ਬੈਕਅੱਪ ਕੋਡਾਂ ਨੂੰ ਸੰਭਾਲੋ
+inline-recovery-setup-confirm-code-page-title = ਇੱਕ ਬੈਕਅੱਪ ਕੋਡ ਦੀ ਤਸਦੀਕ ਕਰੋ
+inline-recovery-setup-phone-number-page-title = ਰਿਕਵਰੀ ਫ਼ੋਨ ਜੋੜੋ
+inline-recovery-setup-phone-code-page-title = ਆਪਣੇ ਰਿਕਵਰੀ ਫ਼ੋਨ ਦੀ ਤਸਦੀਕ ਕਰੋ
+inline-recovery-setup-complete-page-title = ਦੋ-ਪੜ੍ਹਾਵੀ ਪਰਮਾਣੀਕਰਨ ਚਾਲੂ ਹੈ
 
 
 inline-totp-setup-cancel-setup-button = ਸੈੱਟ ਅੱਪ ਰੱਦ ਕਰੋ
@@ -1014,15 +1034,19 @@ inline-totp-setup-security-code-placeholder = ਪਰਮਾਣੀਕਰਨ ਕੋ
 inline-totp-setup-code-required-error = ਪਰਮਾਣੀਕਰਨ ਕੋਡ ਚਾਹੀਦਾ ਹੈ
 tfa-qr-code-alt = ਸਹਾਇਕ ਐਪਲੀਕੇਸ਼ਨਾਂ ਵਿੱਚ ਦੋ-ਪੜਾਵੀਂ ਪਰਮਾਣਿਕਤਾ ਨੂੰ ਸੈੱਟਅੱਪ ਕਰਨ ਲਈ { $code } ਕੋਡ ਦੀ ਵਰਤੋਂ ਕਰੋ।
 inline-totp-setup-page-title = ਦੋ-ਪੜ੍ਹਾਵੀਂ ਪਰਮਾਣੀਕਰਨ
+inline-totp-setup-intro-page-title = ਦੋ-ਪੜਾਵੀ ਪਰਮਾਣੀਕਰਨ ਨੂੰ ਸੈਟ ਅੱਪ ਕਰੋ
+inline-totp-setup-enrol-page-title = ਆਪਣੀ ਪਰਮਾਣੀਕਰਨ ਐਪ ਨਾਲ ਕਨੈਕਟ ਕਰੋ
 
 
 page-not-found-heading = ਸਫਾ ਨਹੀ ਲੱਭਾ
 page-not-found-home-button = ਮੁੱਖ ਸਫ਼ਾ
+page-not-found-page-title = ਸਫ਼ਾ ਨਹੀ ਲੱਭਿਆ
 
 
 pair-auth-allow-heading-text = ਕੀ ਤੁਸੀਂ ਹੁਣੇ ਹੀ { -brand-firefox } ਵਿੱਚ ਸਾਈਨ ਇਨ ਕੀਤਾ ਸੀ?
 pair-auth-allow-confirm-button = ਹਾਂ, ਡਿਵਾਈਸ ਮਨਜ਼ੂਰ ਹੈ
 pair-auth-allow-refuse-device-link = ਜੇ ਇਹ ਤੁਸੀਂ ਨਹੀਂ ਸੀ ਤਾਂ <a>ਆਪਣਾ ਪਾਸਵਰਡ ਬਦਲੋ</a>
+pair-auth-allow-page-title = { -brand-firefox } ਸਾਈਨ-ਇਨ ਨੂੰ ਮਨਜ਼ੂਰ ਕਰੋ
 
 
 pair-auth-complete-heading = ਡਿਵਾਈਸ ਕਨੈਕਟ ਹੈ
@@ -1032,18 +1056,25 @@ pair-auth-complete-see-tabs-button = ਸਿੰਕ ਕੀਤੇ ਡਿਵਾਈ�
 pair-auth-complete-manage-devices-link = ਡਿਵਾਈਸਾਂ ਦਾ ਬੰਦੋਬਸਤ ਕਰੋ
 
 
+pair-auth-complete-page-title = ਡਿਵਾਈਸ ਕਨੈਕਟ ਹੈ
+pair-auth-complete-send-tab-page-title = ਟੈਬਾਂ ਭੇਜਣ ਲਈ ਤਿਆਰ ਹੈ
+
+
 auth-totp-heading-w-default-service = <span>ਖਾਤਾ ਸੈਟਿੰਗਾਂ ਨਾਲ ਜਾਰੀ ਰੱਖਣ</span> ਲਈ ਪਰਮਾਣੀਕਰਨ ਕੋਡ ਦਿਓ
 auth-totp-heading-w-custom-service = <span>{ $serviceName } ਨਾਲ ਜਾਰੀ ਰੱਖਣ</span> ਲਈ ਪਰਮਾਣੀਕਰਨ ਕੋਡ ਦਿਓ
 auth-totp-instruction = ਆਪਣੀ ਪਰਮਾਣੀਕਰਨ ਐਪ ਖੋਲ੍ਹੋ ਅਤੇ ਉਸ ਵਲੋਂ ਦਿੱਤਾ ਪਰਮਾਣੀਕਰਨ ਕੋਡ ਦਿਓ।
 auth-totp-input-label = 6-ਅੰਕ ਦਾ ਕੋਡ ਦਿਓ
 auth-totp-confirm-button = ਤਸਦੀਕ
 auth-totp-code-required-error = ਪਰਮਾਣੀਕਰਨ ਕੋਡ ਚਾਹੀਦਾ ਹੈ
+auth-totp-page-title = ਦੋ-ਪੜ੍ਹਾਵੀ ਪਰਮਾਣੀਕਰਨ ਨਾਲ ਪੇਅਰ ਕਰੋ
 
 
 pair-wait-for-supp-heading-text = ਹੁਣ <span>ਤੁਹਾਡੇ ਹੋਰ ਡਿਵਾਈਸ</span> ਤੋਂ ਮਨਜ਼ੂਰ ਚਾਹੀਦੀ ਹੈ
+pair-wait-for-supp-page-title = ਆਪਣੇ ਹੋਰ ਡਿਵਾਈਸ ਤੋਂ ਮਨਜ਼ੂਰ ਕਰੋ
 
 
 pair-failure-try-again-link = ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ
+pair-failure-page-title = ਡਿਵਾਈਸ ਪੇਅਰ ਕਰਨਾ ਅਸਫ਼ਲ ਹੈ
 
 
 pair-sync-header = ਆਪਣੇ ਫ਼ੋ ਜਾਂ ਟੇਬਲੇਟ ਉੱਤੇ { -brand-firefox } ਸਿੰਕ ਕਰੋ
@@ -1061,18 +1092,24 @@ pair-choice-continue-button = ਜਾਰੀ ਰੱਖੋ
 
 
 pair-continue-to-sync-button = ਸਿੰਕ ਲਈ ਜਾਰੀ ਰੱਖੋ
+pair-choice-page-title = ਹੋਰ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰੋ
+pair-choice-send-tab-page-title = ਟੈਬਾਂ ਨੂੰ ਹੋਰ ਡਿਵਾਈਸ ਉੱਤੇ ਭੇਜੋ
+pair-download-page-title = ਮੋਬਾਈਲ ਲਈ { -brand-firefox } ਨੂੰ ਡਾਊਨਲੋਡ ਕਰੋ
 
 
 pair-success-header-2 = ਡਿਵਾਈਸ ਕਨੈਕਟ ਹੈ
 pair-success-message-2 = ਪੇਅਰ ਕਰਨਾ ਕਾਮਯਾਬ ਹੈ।
+pair-success-page-title = ਡਿਵਾਈਸ ਕਨੈਕਟ ਹੈ
 
 
 pair-supp-allow-heading-text = <span>{ $email } ਲਈ</span> ਪੇਅਰ ਕਰਨ ਨੂੰ ਤਸਦੀਕ ਕਰੋ
 pair-supp-allow-confirm-button = ਪੇਅਰ ਕਰਨ ਦੀ ਤਸਦੀਕ ਕਰੋ
 pair-supp-allow-cancel-link = ਰੱਦ ਕਰੋ
+pair-supp-allow-page-title = ਪੇਅਰ ਕਰਨ ਦੀ ਤਸਦੀਕ ਕਰੋ
 
 
 pair-wait-for-auth-heading-text = ਹੁਣ <span>ਤੁਹਾਡੇ ਹੋਰ ਡਿਵਾਈਸ</span> ਤੋਂ ਮਨਜ਼ੂਰ ਚਾਹੀਦੀ ਹੈ
+pair-wait-for-auth-page-title = ਆਪਣੇ ਹੋਰ ਡਿਵਾਈਸ ਤੋਂ ਮਨਜ਼ੂਰ ਕਰੋ
 
 
 pair-unsupported-header = ਐਪ ਵਰਤ ਕੇ ਪੇਅਰ ਕਰੋ
@@ -1080,20 +1117,27 @@ pair-unsupported-message = ਕੀ ਤੁਸੀਂ ਸਿਸਟਮ ਕੈਮਰ�
 pair-unsupported-learn-more-link-v2 = ਹੋਰ ਜਾਣੋ
 pair-unsupported-desktop-firefox-fallback-header-v2 = ਓਹ ਹੋ! ਕੁਝ ਗ਼ਲਤ ਵਾਪਰਿਆ ਹੈ।
 pair-unsupported-desktop-firefox-fallback-message-v2 = ਇਹ ਟੈਬ ਨੂੰ ਬੰਦ ਕਰਕੇ ਮੁੜ ਕੋਸ਼ਿਸ਼ ਕਰੋ।
+pair-unsupported-desktop-non-firefox-page-title = { -brand-firefox } ਚਾਹੀਦਾ ਹੈ
+pair-unsupported-system-camera-page-title = ਐਪ ਵਰਤ ਕੇ ਪੇਅਰ ਕਰੋ
+pair-unsupported-mobile-page-title = ਆਪਣੇ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰੋ
+pair-unsupported-desktop-firefox-fallback-page-title = ਕੁਝ ਗਲਤ ਵਾਪਰਿਆ
 
 
 pair2-authority-approve-sign-in-heading = ਸਾਈਨ ਇਨ ਨੂੰ ਮਨਜ਼ੂਰ ਕਰਨਾ ਹੈ?
 pair2-authority-approve-sign-in-confirm-button = ਹਾਂ, ਸਾਈਨ ਇਨ ਮਨਜ਼ੂਰ ਹੈ
 pair2-authority-approve-sign-in-change-password = ਤੁਸੀਂ ਨਹੀ ਸੀ?<changePassword>ਆਪਣੇ ਪਾਸਵਰਡ ਨੂੰ ਬਦਲੋ</changePassword>
+pair2-authority-approve-sign-in-page-title = ਸਾਈਨ ਇਨ ਨੂੰ ਮਨਜ਼ੂਰ ਕਰੋ
 
 
 pair2-authority-continue-on-mobile-heading = ਆਪਣੇ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨਾਲ ਜਾਰੀ ਰੱਖੋ
 pair2-authority-continue-on-mobile-description = ਆਪਣੇ ਫ਼ੋਨ ਜਾਂ ਟੈਬਲੇਟ ਉੱਤੇ ਅਗਲੇਰੀ ਕਾਰਵਾਈ ਜਾਰੀ ਰੱਖੋ।
 pair2-authority-continue-on-mobile-cancel-button = ਰੱਦ ਕਰੋ
+pair2-authority-continue-on-mobile-page-title = ਆਪਣੇ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨਾਲ ਜਾਰੀ ਰੱਖੋ
 
 
 pair2-authority-download-firefox-heading = ਸਿੰਕ ਲਈ { -brand-firefox } ਨੂੰ ਖੋਲ੍ਹੋ
 pair2-authority-download-firefox-cta = { -brand-firefox } ਨੂੰ ਡਾਊਨਲੋਡ ਕਰੋ
+pair2-authority-download-firefox-page-title = ਸਿੰਕ ਲਈ { -brand-firefox } ਨੂੰ ਖੋਲ੍ਹੋ
 
 
 pair2-authority-scan-qr-heading = ਆਪਣੇ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰਨ ਲਈ ਸਕੈਨ ਕਰੋ
@@ -1101,10 +1145,12 @@ pair2-authority-scan-qr-instruction = ਆਪਣੇ { -brand-firefox } ਬੁੱ�
 pair2-authority-scan-qr-code-aria-label = ਤੁਹਾਡੇ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰਨ ਲਈ QR ਕੋਡ
 pair2-authority-scan-qr-other-ways-link = ਸਾਈਨ ਇਨ ਕਰਨ ਦੇ ਹੋਰ ਢੰਗ
 pair2-authority-scan-qr-skip-button = ਹੁਣ ਲਈ ਛੱਡੋ
+pair2-authority-scan-qr-page-title = ਆਪਣੇ ਮੋਬਾਈਲ ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰਨ ਲਈ ਸਕੈਨ ਕਰੋ
 
 
 pair2-authority-sync-success-heading-v2 = ਤੁਹਾਡਾ ਡਿਵਾਈਸ ਕਨੈਕਟ ਹੈ
 pair2-authority-sync-success-sync-settings-button-v2 = ਸਿੰਕ ਸੈਟਿੰਗਾਂ ਦਾ ਇੰਤਜ਼ਾਮ ਕਰੋ
+pair2-authority-sync-success-page-title = ਡਿਵਾਈਸ ਕਨੈਕਟ ਹੈ
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = ਹਾਲੇ ਵੀ ਕਿਸੇ ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ?
@@ -1113,16 +1159,20 @@ pair2-authority-timeout-and-cancel-cancelled-heading = ਰੱਦ ਕੀਤਾ
 pair2-authority-timeout-and-cancel-canceled-description = ਜੇ ਤੁਸੀਂ ਆਪਣਾ ਮਨ ਬਦਲਿਆ ਜਾਂ ਵੱਖਰੇ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰਨਾ ਹੋਇਆ ਤਾਂ ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰਿਓ।
 pair2-authority-timeout-and-cancel-try-again-button = ਫੇਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ
 pair2-authority-timeout-and-cancel-sync-settings-button = ਸਿੰਕ ਸੈਟਿੰਗਾਂ
+pair2-authority-timeout-and-cancel-timeout-page-title = ਕਨੈਕਸ਼ਨ ਲਈ ਸਮਾਂ ਸਮਾਪਤ
+pair2-authority-timeout-and-cancel-cancelled-page-title = ਪੇਅਰ ਕਰਨਾ ਰੱਦ ਕੀਤਾ
 
 
 pair2-supplicant-approve-sign-in-heading = ਸਿੰਕ ਕਰਨ ਲਈ ਆਖਰੀ ਪੜਾਅ
 pair2-supplicant-approve-sign-in-instruction = ਆਪਣੇ ਕੰਪਿਊਟਰ ਤੋਂ ਸਾਈਨ-ਇਨ ਨੂੰ ਮਨਜ਼ੂਰੀ ਦਿਓ।
 pair2-supplicant-approve-sign-in-cancel-button = ਰੱਦ ਕਰੋ
+pair2-supplicant-approve-sign-in-page-title = ਸਿੰਕ ਕਰਨ ਲਈ ਆਖਰੀ ਪੜਾਅ
 
 
 pair2-supplicant-connect-this-device-heading = ਕੀ ਇਡ ਡਿਵਾਈਸ ਨੂੰ ਤੁਹਾਡੇ ਖਾਤੇ ਨਾਲ ਕਨੈਕਟ ਕਰਨਾ ਹੈ?
 pair2-supplicant-connect-this-device-connect-button = ਕਨੈਕਟ ਕਰੋ
 pair2-supplicant-connect-this-device-cancel-button = ਰੱਦ ਕਰੋ
+pair2-supplicant-connect-this-device-page-title = ਇਸ ਡਿਵਾਈਸ ਨੂੰ ਕਨੈਕਟ ਕਰੋ
 
 
 pair2-supplicant-download-firefox-heading-v2 = ਇਸ ਡਿਵਾਈਸ ਲਈ { -brand-firefox } ਨੰ ਖੋਲ੍ਹੋ
@@ -1131,16 +1181,25 @@ pair2-supplicant-download-firefox-opening-button = …{ -brand-firefox } ਨੂ�
 pair2-supplicant-download-firefox-download-button = { -brand-firefox } ਨੂੰ ਡਾਊਨਲੋਡ ਕਰੋ
 pair2-supplicant-download-firefox-have-firefox-button = ਮੇਰੇ ਕੋਲ ਪਹਿਲਾਂ ਹੀ { -brand-firefox } ਹੈ
 pair2-supplicant-download-firefox-learn-more-link = ਹੋਰ ਜਾਣੋ
+pair2-supplicant-download-firefox-page-title = ਇਸ ਡਿਵਾਈਸ ਲਈ { -brand-firefox } ਨੰ ਖੋਲ੍ਹੋ
+
+
+pair2-supplicant-connect-hint-page-title = ਐਪ ਵਿੱਚ ਪੇਅਰ ਕਰਨ ਨੂੰ ਪੂਰਾ ਕਰੋ
 
 
 pair2-supplicant-ready-to-scan-heading = ਕਿਸੇ ਡਿਵਾਈਸ ਨਾਲ ਕਨੈਕਟ ਕਰੋ
 pair2-supplicant-ready-to-scan-learn-more-link = ਹੋਰ ਜਾਣੋ
+pair2-supplicant-ready-to-scan-page-title = ਸਕੈਨ ਕਰਨ ਲਈ ਤਿਆਰ
 
 
 pair2-supplicant-sync-success-heading = ਤੁਹਾਡਾ ਡਿਵਾਈਸ ਕਨੈਕਟ ਹੈ
+pair2-supplicant-sync-success-page-title = ਡਿਵਾਈਸ ਕਨੈਕਟ ਹੈ
 
 
 pair2-supplicant-timeout-and-cancel-cancelled-heading = ਰੱਦ ਕੀਤਾ
+pair2-supplicant-timeout-and-cancel-timeout-page-title = ਕਨੈਕਸ਼ਨ ਲਈ ਸਮਾਂ ਸਮਾਪਤ
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = ਪੇਅਰ ਕਰਨਾ ਰੱਦ ਕੀਤਾ
+pair2-supplicant-timeout-and-cancel-signed-in-page-title = ਡਿਵਾਈਸ ਪਹਿਲਾਂ ਹੀ ਸਾਈਨ-ਇਨ ਹੈ
 
 
 permissions-label-email = ਈਮੇਲ ਸਿਰਨਾਵਾਂ
@@ -1148,17 +1207,23 @@ permissions-label-display-name = ਦਿਖਾਉਣ ਵਾਲਾ ਨਾਂ
 permissions-label-avatar = ਖਾਤੇ ਦੀ ਤਸਵੀਰ
 permissions-continue-button = ਜਾਰੀ ਰੱਖੋ
 permissions-cancel-button = ਰੱਦ ਕਰੋ
+permissions-page-title = ਇਜਾਜ਼ਤਾਂ ਦੀ ਪੜਤਾਲ
 
 
 force-password-change-heading = ਆਪਣੇ ਪਾਸਵਰਡ ਨੂੰ ਬਦਲੋ
+force-password-change-page-title = ਆਪਣੇ ਪਾਸਵਰਡ ਨੂੰ ਬਦਲੋ
 
 
 service-welcome-signup-success-banner = { -product-mozilla-account } ਤਸਦੀਕ ਕੀਤਾ
 service-welcome-signin-success-banner = ਕਾਮਯਾਬੀ ਨਾਲ ਸਾਈਨ ਇਨ ਕੀਤਾ!
 service-welcome-vpn-heading = ਅੱਗੇ: VPN ਨੂੰ ਚਾਲੂ ਕਰੋ
+service-welcome-vpn-page-title = VPN ਚਾਲੂ ਕਰੋ
 
 
 set-password-heading-v2 = ਸਿੰਕ ਕਰਨ ਲਈ ਪਾਸਵਰਡ ਬਣਾਓ
+
+
+set-password-page-title = ਸਿੰਕ ਕਰਨ ਲਈ ਪਾਸਵਰਡ ਬਣਾਓ
 
 
 third-party-auth-callback-message = ਕਿਰਪਾ ਕਰਕੇ ਉਡੀਕੋ, ਤੁਹਾਨੂੰ ਪਰਮਾਣ ਕੀਤੀ ਐਪਲੀਕੇਸ਼ਨ ਲਈ ਭੇਜਿਆ ਜਾਵੇਗਾ।
@@ -1170,6 +1235,7 @@ account-recovery-confirm-key-input-label =
 account-recovery-confirm-key-hint = ਤੁਹਾਡਾ ਸਟੋਰੇਜ਼ ਇਸ਼ਾਰਾ ਹੈ:
 account-recovery-confirm-key-button-2 = ਜਾਰੀ ਰੱਖੋ
 account-recovery-lost-recovery-key-link-2 = ਤੁਹਾਡੀ ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ ਨਹੀਂ ਲੱਭੀ?
+account-recovery-confirm-key-page-title = ਰਿਕਵਰੀ ਕੁੰਜੀ ਨਾਲ ਪਾਸਵਰਡ ਮੁੜ-ਸੈੱਟ ਕਰੋ
 
 
 complete-reset-pw-header-v2 = ਨਵਾਂ ਪਾਸਵਰਡ ਬਣਾਓ
@@ -1177,10 +1243,12 @@ complete-reset-password-success-alert = ਪਾਸਵਰਡ ਸੈਟ ਕਰੋ
 complete-reset-password-error-alert = ਅਫ਼ਸੋਸ, ਤੁਹਾਡੇ ਪਾਸਵਰਡ ਸੈਟ ਕਰਨ ਦੌਰਾਨ ਸਮੱਸਿਆ ਆਈ ਸੀ
 complete-reset-pw-recovery-key-link = ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ ਨੂੰ ਵਰਤੋਂ
 reset-password-complete-banner-heading = ਤੁਹਾਡੇ ਪਾਸਵਰਡ ਨੂੰ ਮੁੜ ਸੈੱਟ ਕੀਤਾ ਗਿਆ ਹੈ।
+complete-reset-password-page-title = ਨਵਾਂ ਪਾਸਵਰਡ ਬਣਾਓ
 confirm-backup-code-reset-password-input-label = 10-ਅੰਕ ਦਾ ਕੋਡ ਦਿਓ
 confirm-backup-code-reset-password-confirm-button = ਤਸਦੀਕ
 confirm-backup-code-reset-password-subheader = ਬੈਕਅੱਪ ਪਰਮਾਣੀਕਰਨ ਕੋਡ ਦਿਓ
 confirm-backup-code-reset-password-locked-out-link = ਕੀ ਤੁਸੀਂ ਲਾਕ-ਆਉਟ ਹੋ ਚੁੱਕੇ ਹੋ?
+confirm-backup-code-reset-password-page-title = ਬੈਕਅੱਪ ਕੋਡ ਨਾਲ ਪਾਸਵਰਡ ਨੂੰ ਮੁੜ-ਸੈੱਟ ਕਰੋ
 
 
 confirm-reset-password-with-code-heading = ਆਪਣੀ ਈਮੇਲ ਦੀ ਜਾਂਚ ਕਰੋ
@@ -1189,6 +1257,7 @@ confirm-reset-password-code-input-group-label = 10 ਮਿੰਟਾਂ ਦੇ ਵ
 confirm-reset-password-otp-submit-button = ਜਾਰੀ ਰੱਖੋ
 confirm-reset-password-otp-resend-code-button = ਕੋਡ ਫੇਰ ਭੇਜੋ
 confirm-reset-password-otp-different-account-link = ਵੱਖਰੇ ਖਾਤੇ ਨੂੰ ਵਰਤੋਂ
+confirm-reset-password-with-code-page-title = ਆਪਣੇ ਪਾਸਵਰਡ ਨੂੰ ਮੁੜ-ਸੈੱਟ ਕਰਨ ਲਈ ਆਪਣੀ ਈਮੇਲ ਦੀ ਜਾਂਚ ਕਰੋ
 
 
 confirm-totp-reset-password-header = ਆਪਣਾ ਪਾਸਵਰਡ ਮੁੜ-ਸੈੱਟ ਕਰੋ
@@ -1198,16 +1267,19 @@ confirm-totp-reset-password-trouble-code = ਕੋਡ ਦਰਜ ਕਰਨ ਲਈ 
 confirm-totp-reset-password-confirm-button = ਤਸਦੀਕ
 confirm-totp-reset-password-input-label-v2 = 6-ਅੰਕ ਦਾ ਕੋਡ ਦਿਓ
 confirm-totp-reset-password-use-different-account = ਵੱਖਰੇ ਖਾਤੇ ਨੂੰ ਵਰਤੋਂ
+confirm-totp-reset-password-page-title = ਦੋ-ਪੜ੍ਹਾਵੀ ਪਰਮਾਣੀਕਰਨ ਨਾਲ ਪਾਸਵਰਡ ਨੂੰ ਮੁੜ-ਸੈੱਟ ਕਰੋ
 
 
 password-reset-flow-heading = ਆਪਣਾ ਪਾਸਵਰਡ ਬਦਲੋ
 password-reset-email-input =
     .label = ਆਪਣਾ ਈਮੇਲ ਦਿਓ
 password-reset-submit-button-2 = ਜਾਰੀ ਰੱਖੋ
+password-reset-flow-page-title = ਆਪਣੇ ਪਾਸਵਰਡ ਨੂੰ ਮੁੜ-ਸੈੱਟ ਕਰੋ
 
 
 reset-password-complete-header = ਤੁਹਾਡੇ ਪਾਸਵਰਡ ਨੂੰ ਮੁੜ ਸੈੱਟ ਕੀਤਾ ਗਿਆ ਹੈ
 reset-password-confirmed-cta = { $serviceName } ਨਾਲ ਜਾਰੀ ਰੱਖੋ
+reset-password-confirmed-page-title = ਪਾਸਵਰਡ ਮੁੜ-ਸੈੱਟ ਕਰਨਾ ਪੂਰਾ ਹੋਇਆ
 
 
 password-reset-recovery-method-header = ਆਪਣੇ ਪਾਸਵਰਡ ਨੂੰ ਮੁੜ-ਸੈੱਟ ਕਰੋ
@@ -1215,6 +1287,7 @@ password-reset-recovery-method-subheader = ਕਿਸੇ ਰਿਕਵਰੀ ਢ�
 password-reset-recovery-method-details = ਆਓ ਇਹ ਪੱਕਾ ਕਰੀਏ ਇਹ ਤੁਸੀਂ ਹੀ ਹੋ, ਜੋ ਆਪਣੇ ਰਿਕਵਰੀ ਢੰਗ ਵਰਤ ਰਹੇ ਹੋ।
 password-reset-recovery-method-phone = ਰਿਕਵਰੀ ਫ਼ੋਨ
 password-reset-recovery-method-code = ਬੈਕਅੱਪ ਪਰਮਾਣੀਕਰਨ ਕੋਡ
+password-reset-recovery-method-page-title = ਰਿਕਵਰੀ ਢੰਗ ਨਾਲ ਪਾਸਵਰਡ ਮੁੜ-ਸੈੱਟ ਕਰੋ
 
 
 reset-password-recovery-phone-flow-heading = ਆਪਣੇ ਪਾਸਵਰਡ ਨੂੰ ਮੁੜ-ਸੈੱਟ ਕਰੋ
@@ -1228,9 +1301,14 @@ reset-password-recovery-phone-send-code-error-heading = ਕੋਡ ਭੇਜਣ �
 reset-password-recovery-phone-code-verification-error-heading = ਤੁਹਾਡੇ ਕੋਡ ਨੂੰ ਤਸਦੀਕ ਕਰਨ ਦੌਰਾਨ ਸਮੱਸਿਆ ਆਈ ਸੀ
 reset-password-recovery-phone-general-error-description = ਬਾਅਦ ਵਿੱਚ ਕੋਸ਼ਿਸ ਕਰੋ ਜੀ।
 reset-password-recovery-phone-invalid-code-error-description = ਕੋਡ ਗਲਤ ਹੈ ਜਾਂ ਮਿਆਦ ਪੁੱਗੀ ਹੈ।
+reset-password-recovery-phone-page-title = ਰਿਕਵਰੀ ਫ਼ੋਨ ਨਾਲ ਪਾਸਵਰਡ ਨੂੰ ਮੁੜ-ਸੈੱਟ ਕਰੋ
 reset-password-with-recovery-key-verified-page-title = ਪਾਸਵਰਡ ਮੁੜ-ਸੈਟ ਕਰਨਾ ਕਾਮਯਾਬੀ ਰਿਹਾ
 reset-password-complete-new-password-saved = ਨਵਾਂ ਪਾਸਵਰਡ ਸੰਭਾਲਿਆ!
 reset-password-complete-recovery-key-created = ਨਵੀਂ ਖਾਤਾ ਰਿਕਵਰੀ ਕੁੰਜੀ ਬਣਾਈ ਗਈ। ਇਸ ਨੂੰ ਹੁਣੇ ਡਾਊਨਲੋਡ ਕਰਕੇ ਸੰਭਾਲੋ।
+reset-password-with-recovery-key-verified-hint-page-title = ਇੱਕ ਰਿਕਵਰੀ ਕੁੰਜੀ ਸੰਕੇਤ ਨੂੰ ਜੋੜੋ
+
+
+server-error-page-title = ਸਰਵਰ ਗਲਤੀ
 
 
 error-label = ਗਲਤੀ:
@@ -1238,8 +1316,13 @@ validating-signin = …ਸਾਈਨ-ਇਨ ਨੂੰ ਪਰਮਾਣਿਤ ਕ�
 complete-signin-error-header = ਤਸਦੀਕ ਲਈ ਗਲਤੀ
 signin-link-expired-header = ਤਸਦੀਕੀ ਲਿੰਕ ਦੀ ਮਿਆਦ ਪੁੱਗੀ
 signin-link-expired-message-2 = ਤੁਹਾਡੇ ਵਲੋਂ ਕਲਿੱਕ ਕੀਤੇ ਲਿੰਕ ਦੀ ਮਿਆਦ ਪੁੱਗ ਗਈ ਸੀ ਜਾਂ ਪਹਿਲਾਂ ਹੀ ਵਰਤਿਆ ਜਾ ਚੁੱਕਾ ਹੈ।
+complete-signin-error-page-title = ਸਾਈਨ-ਇਨ ਤਸਦੀਕ ਗਲਤੀ
+complete-signin-validating-page-title = ਸਾਈਨ ਇਨ ਨੂੰ ਤਸਦੀਕ ਕਰੋ
 
 
+signin-password-page-title = ਆਪਣਾ ਪਾਸਵਰਡ ਭਰੋ
+signin-cached-page-title = ਸਾਈਨ ਇਨ
+signin-alternative-auth-page-title = ਸਾਈਨ-ਇਨ ਦੇ ਢੰਗ ਨੂੰ ਚੁਣੋ
 signin-password-needed-header-2 = <span>ਆਪਣੇ { -product-mozilla-account }</span> ਲਈ ਆਪਣਾ ਪਾਸਵਰਡ ਦਿਓ
 signin-subheader-without-logo-with-servicename = { $serviceName } ਨਾਲ ਜਾਰੀ ਰੱਖੋ
 signin-subheader-without-logo-default = ਖਾਤਾ ਸੈਟਿੰਗਾਂ ਨਾਲ ਜਾਰੀ ਰੱਖੋ
@@ -1260,14 +1343,17 @@ report-signin-body = ਤੁਹਾਨੂੰ ਆਪਣੇ ਖਾਤੇ ਦੀ ਪ�
 report-signin-submit-button = ਸਰਗਰਮੀ ਦੀ ਜਾਣਕਾਰੀ ਦਿਓ
 report-signin-support-link = ਇਹ ਕਿਓ ਵਾਪਰਿਆ ਹੈ?
 report-signin-error = ਅਫ਼ਸੋਸ, ਰਿਪੋਰਟ ਭੇਜਣ ਦੌਰਾਨ ਸਮੱਸਿਆ ਸੀ।
+report-signin-page-title = ਅਣ-ਅਧਿਕਾਰਤ ਸਾਈਨ-ਇਨ ਬਾਰੇ ਇਤਲਾਹ ਦਿਓ
 signin-bounced-header = ਅਫ਼ਸੋਸ। ਅਸੀਂ ਤੁਹਾਡੇ ਖਾਤੇ ਨੂੰ ਜ਼ਬਤ ਕੀਤਾ ਹੈ।
 signin-bounced-message = ਸਾਡੇ ਵਲੋਂ { $email } ਨੂੰ ਭੇਜੀ ਤਸਦੀਕੀ ਈਮੇਲ ਬੇਰੰਗ ਪਰਤ ਆਈ ਅਤੇ ਤੁਹਾਡੇ { -brand-firefox } ਖਾਤੇ ਨੂੰ ਸੁਰੱਖਿਅਤ ਕਰਨ ਲਈ ਅਸੀਂ ਤੁਹਾਡੇ ਖਾਤੇ ਨੂੰ ਜ਼ਬਤ ਕਰ ਲਿਆ ਹੈ।
 signin-bounced-help = ਜੇ ਇਹ ਵਾਜਬ ਈਮੇਲ ਸਿਰਨਾਵਾਂ ਹੈ ਤਾਂ <linkExternal>ਸਾਨੂੰ ਦੱਸੋ</linkExternal> ਅਤੇ ਅਸੀਂ ਤੁਹਾਡੇ ਖਾਤੇ ਨੂੰ ਬਹਾਲ ਕਰਨ ਲਈ ਮਦਦ ਕਰ ਸਕਦੇ ਹਾਂ।
 signin-bounced-create-new-account = ਉਹ ਈਮੇਲ ਹੁਣ ਤੁਹਾਡਾ ਨਹੀਂ ਹੈ? ਨਵਾਂ ਖਾਤਾ ਬਣਾਓ
 back = ਪਿੱਛੇ
+signin-bounced-page-title = ਖਾਤਾ ਲਾਕ ਹੈ
 
 
 signin-passkey-fallback-wrap-unusable-link = ਹੋਰ ਜਾਣੋ
+signin-passkey-fallback-page-title = ਸਿੰਕ ਕਰਨ ਲਈ ਆਪਣਾ ਪਾਸਵਰਡ ਦਿਓ
 
 
 signin-passwordless-code-heading = ਤਸਦੀਕੀ ਕੋਡ ਦਿਓ
@@ -1285,6 +1371,10 @@ signin-passwordless-code-resend-error = ਕੁਝ ਗਲਤ ਵਾਪਰਿਆ �
 signin-passwordless-code-other-account-link = ਵੱਖਰੇ ਖਾਤੇ ਨੂੰ ਵਰਤੋਂ
 
 
+signin-passwordless-code-page-title = ਈਮੇਲ ਕੋਡ ਨਾਲ ਸਾਈਨ ਇਨ ਕਰੋ
+signup-passwordless-code-page-title = ਈਮੇਲ ਕੋਡ ਨਾਲ ਸਾਈਨ ਅੱਪ ਕਰੋ
+
+
 signin-recovery-method-header = ਸਾਈਨ ਇਨ
 signin-recovery-method-subheader = ਰਿਕਵਰੀ ਢੰਗ ਚੁਣੋ
 signin-recovery-method-details = ਆਓ ਇਹ ਪੱਕਾ ਕਰੀਏ ਇਹ ਤੁਸੀਂ ਹੀ ਹੋ, ਜੋ ਆਪਣੇ ਰਿਕਵਰੀ ਢੰਗ ਵਰਤ ਰਹੇ ਹੋ।
@@ -1295,6 +1385,7 @@ signin-recovery-method-code-info-v2 =
         [one] { $numBackupCodes } ਕੋਡ ਬਾਕੀ ਹੈ
        *[other] { $numBackupCodes } ਕੋਡ ਬਾਕੀ ਹਨ
     }
+signin-recovery-method-page-title = ਰਿਕਵਰੀ ਢੰਗ ਨਾਲ ਸਾਈਨ ਇਨ ਕਰੋ
 
 
 signin-recovery-code-heading = ਸਾਈਨ ਇਨ
@@ -1305,6 +1396,7 @@ signin-recovery-code-phone-link = ਰਿਕਵਰੀ ਫ਼ੋਨ ਨੂੰ ਵ�
 signin-recovery-code-support-link = ਕੀ ਤੁਸੀਂ ਲਾਕ-ਆਉਟ ਹੋ ਚੁੱਕੇ ਹੋ?
 signin-recovery-code-required-error = ਬੈਕਅੱਪ ਪਰਮਾਣੀਕਰਨ ਕੋਡ ਚਾਹੀਦਾ ਹੈ
 signin-recovery-code-use-phone-failure-description = ਬਾਅਦ ਵਿੱਚ ਕੋਸ਼ਿਸ ਕਰੋ ਜੀ।
+signin-recovery-code-page-title = ਬੈਕਅੱਪ ਕੋਡ ਨਾਲ ਸਾਈਨ ਇਨ ਕਰੋ
 
 
 signin-recovery-phone-flow-heading = ਸਾਈਨ ਇਨ
@@ -1319,10 +1411,12 @@ signin-recovery-phone-code-verification-error-heading = ਤੁਹਾਡੇ ਕ�
 signin-recovery-phone-general-error-description = ਬਾਅਦ ਵਿੱਚ ਕੋਸ਼ਿਸ ਕਰੋ ਜੀ।
 signin-recovery-phone-invalid-code-error-description = ਕੋਡ ਗਲਤ ਹੈ ਜਾਂ ਮਿਆਦ ਪੁੱਗੀ ਹੈ।
 signin-recovery-phone-invalid-code-error-link = ਇਸ ਦੀ ਬਜਾਏ ਬੈਕਅੱਪ ਪਰਮਾਣੀਕਰਨ ਕੋਡ ਨੂੰ ਵਰਤਣਾ ਹੈ?
+signin-recovery-phone-page-title = ਰਿਕਵਰੀ ਫ਼ੋਨ ਨਾਲ ਸਾਈਨ ਇਨ ਕਰੋ
 
 
 signin-reported-header = ਤੁਹਾਡੀ ਸਾਵਧਾਨੀ ਲਈ ਤੁਹਾਡਾ ਧੰਨਵਾਦ ਹੈ
 signin-reported-message = ਸਾਡੀ ਟੀਮ ਨੂੰ ਜਾਣਕਾਰੀ ਦਿੱਤੀ ਜਾ ਚੁੱਕੀ ਹੈ। ਇਸ ਵਰਗੀਆਂ ਰਿਪੋਰਟਾਂ ਸਾਨੂੰ ਘੁਸਪੈਠੀਆਂ ਤੋਂ ਬਚਾਉਣ ਲਈ ਮਦਦ ਕਰਦੀਆਂ ਹਨ।
+signin-reported-page-title = ਸਾਈਨ-ਇਨ ਬਾਰੇ ਇਤਲਾਹ ਦਿਓ
 
 
 signin-token-code-heading-2 = <span>ਆਪਣੇ { -product-mozilla-account }</span> ਲਈ ਤਸਦੀਕੀਕਰਨ ਕੋਡ ਦਿਓ
@@ -1337,6 +1431,7 @@ signin-token-code-resend-code-countdown =
     }
 signin-token-code-required-error = ਤਸਦੀਕੀ ਕੋਡ ਚਾਹੀਦਾ ਹੈ
 signin-token-code-resend-error = ਕੁਝ ਗਲਤ ਵਾਪਰਿਆ ਹੈ। ਨਵਾਂ ਕੋਡ ਭੇਜਿਆ ਨਹੀਂ ਜਾ ਸਕਿਆ।
+signin-token-code-page-title = ਈਮੇਲ ਕੋਡ ਨਾਲ ਸਾਈਨ ਇਨ ਦੀ ਤਸਦੀਕ ਕਰੋ
 
 
 signin-totp-code-header = ਸਾਈਨ ਇਨ
@@ -1348,6 +1443,7 @@ signin-totp-code-confirm-button = ਤਸਦੀਕ
 signin-totp-code-other-account-link = ਵੱਖਰੇ ਖਾਤੇ ਨੂੰ ਵਰਤੋਂ
 signin-totp-code-recovery-code-link = ਕੋਡ ਦਰਜ ਕਰਨ ਲਈ ਸਮੱਸਿਆ ਹੈ?
 signin-totp-code-required-error = ਪਰਮਾਣੀਕਰਨ ਕੋਡ ਚਾਹੀਦਾ ਹੈ
+signin-totp-code-page-title = ਦੋ-ਪੜ੍ਹਾਵੀ ਪਰਮਾਣੀਕਰਨ ਨਾਲ ਸਾਈਨ ਇਨ ਕਰੋ
 
 
 signin-unblock-header = ਇਸ ਸਾਇਨ ਇਨ ਨੂੰ ਪਰਮਾਣਿਤ ਕਰੋ
@@ -1359,8 +1455,10 @@ signin-unblock-code-incorrect-length = ਪਰਮਾਣੀਕਰਨ ਕੋਡ 8 �
 signin-unblock-code-incorrect-format-2 = ਪਰਮਾਣੀਕਰਨ ਕੋਡ ਵਿੱਚ ਸਿਰਫ਼ ਅੱਖਰ ਅਤੇ/ਜਾਂ ਅੰਕ ਹੀ ਹੋ ਸਕਦੇ ਹਨ
 signin-unblock-resend-code-button = ਇਨਬਾਕਸ ਜਾਂ ਸਪੈਮ ਫੋਲਡਰ ਵਿੱਚ ਨਹੀਂ? ਮੁੜ ਭੇਜੋ
 signin-unblock-support-link = ਇਹ ਕਿਓ ਵਾਪਰਿਆ ਹੈ?
+signin-unblock-page-title = ਇਸ ਸਾਇਨ ਇਨ ਨੂੰ ਪਰਮਾਣਿਤ ਕਰੋ
 
 
+confirm-signup-code-page-title-2 = ਆਪਣਾ ਈਮੇਲ ਤਸਦੀਕ ਕਰੋ
 confirm-signup-code-heading-2 = <span>ਆਪਣੇ { -product-mozilla-account }</span> ਲਈ ਤਸਦੀਕੀਕਰਨ ਕੋਡ ਦਿਓ
 confirm-signup-code-input-label = 6-ਅੰਕ ਦਾ ਕੋਡ ਦਿਓ
 confirm-signup-code-confirm-button = ਤਸਦੀਕ
@@ -1373,6 +1471,7 @@ confirm-signup-code-is-required-error = ਤਸਦੀਕੀਕਰਨ ਕੋਡ �
 
 signup-heading-v2 = ਪਾਸਵਰਡ ਬਣਾਓ
 signup-change-email-link = ਈਮੇਲ ਬਦਲੋ
+signup-page-title = ਆਪਣਾ ਖਾਤਾ ਬਣਾਓ
 
 
 signup-confirmed-sync-header = ਸਿੰਕ ਕਰਨਾ ਚਾਲੂ ਹੈ
@@ -1381,7 +1480,9 @@ signup-confirmed-sync-button = ਬਰਾਊਜ਼ ਕਰਨਾ ਸ਼ੁਰੂ ਕਰ�
 signup-confirmed-sync-add-device-link = ਹੋਰ ਡਿਵਾਈਸ ਨੂੰ ਜੋੜੋ
 signup-confirmed-sync-manage-sync-button = ਸਿੰਕ ਦਾ ਇੰਤਜ਼ਾਮ
 signup-confirmed-sync-set-password-success-banner = ਸਿੰਕ ਕਰਨ ਵਾਲਾ ਪਾਸਵਰਡ ਬਣਾਇਆ
+signup-confirmed-sync-page-title = ਸਿੰਕ ਕਰਨਾ ਚਾਲੂ ਹੈ
 
 
 update-firefox-heading = { -brand-firefox } ਨੂੰ ਅੱਪਡੇਟ ਕਰਨ ਦੀ ਲੋੜ ਹੈ
 update-firefox-download-button = ਨਵਾਂ ਡਾਊਨਲੋਡ ਕਰੋ
+update-firefox-page-title = { -brand-firefox } ਨੂੰ ਅੱਪਡੇਟ ਕਰਨ ਦੀ ਲੋੜ ਹੈ
