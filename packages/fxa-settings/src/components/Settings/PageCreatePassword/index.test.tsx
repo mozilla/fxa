@@ -23,11 +23,29 @@ import { SETTINGS_PATH } from '../../../constants';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import { LinkedAccountProviderIds } from '../../../lib/types';
 import { MfaContext } from '../../../lib/hooks';
+import GleanMetrics from '../../../lib/glean';
+import { clearMfaAndJwtCacheOnInvalidJwt } from '../../../lib/mfa-guard-utils';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
   settingsViewName: 'quuz',
+}));
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    accountPref: {
+      createPasswordView: jest.fn(),
+      createPasswordEngage: jest.fn(),
+      createPasswordSubmit: jest.fn(),
+      createPasswordSuccess: jest.fn(),
+      createPasswordError: jest.fn(),
+    },
+  },
+}));
+jest.mock('../../../lib/mfa-guard-utils', () => ({
+  ...jest.requireActual('../../../lib/mfa-guard-utils'),
+  clearMfaAndJwtCacheOnInvalidJwt: jest.fn(() => false),
 }));
 const mockNavigate = jest.fn();
 jest.mock('react-router', () => ({
@@ -191,6 +209,53 @@ describe('PageCreatePassword', () => {
       settingsViewName,
       'create-password.fail'
     );
+  });
+
+  describe('glean metrics', () => {
+    it('records the view event once on render', async () => {
+      await render();
+      expect(GleanMetrics.accountPref.createPasswordView).toHaveBeenCalledTimes(
+        1
+      );
+    });
+
+    it('records engage, submit and success once on success', async () => {
+      await createPasswordWithJwt();
+      expect(
+        GleanMetrics.accountPref.createPasswordEngage
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        GleanMetrics.accountPref.createPasswordSubmit
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        GleanMetrics.accountPref.createPasswordSuccess
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        GleanMetrics.accountPref.createPasswordError
+      ).not.toHaveBeenCalled();
+    });
+
+    it('records the error event once on failure', async () => {
+      await createPasswordWithJwt(accountWithCreateErr);
+      expect(
+        GleanMetrics.accountPref.createPasswordSubmit
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        GleanMetrics.accountPref.createPasswordError
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        GleanMetrics.accountPref.createPasswordSuccess
+      ).not.toHaveBeenCalled();
+    });
+
+    it('does not record the error event when the MFA handler takes the error', async () => {
+      (clearMfaAndJwtCacheOnInvalidJwt as jest.Mock).mockReturnValueOnce(true);
+      await createPasswordWithJwt(accountWithCreateErr);
+      expect(clearMfaAndJwtCacheOnInvalidJwt).toHaveBeenCalledTimes(1);
+      expect(
+        GleanMetrics.accountPref.createPasswordError
+      ).not.toHaveBeenCalled();
+    });
   });
 
   it('displays alert bar error on fail without redirecting', async () => {

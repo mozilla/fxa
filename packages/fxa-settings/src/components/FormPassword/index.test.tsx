@@ -4,6 +4,7 @@
 
 import { typeByTestIdFn } from '../../lib/test-utils';
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Subject } from './mocks';
 
@@ -93,5 +94,34 @@ describe('without current password field', () => {
     expect(screen.getByTestId('save-password-button')).toBeEnabled();
     await inputNewPassword('testotest0');
     expect(screen.getByTestId('save-password-button')).toBeDisabled();
+  });
+});
+
+describe('onFirstFocus', () => {
+  it('is called once, on the first focus only', async () => {
+    const user = userEvent.setup();
+    const onFirstFocus = jest.fn();
+    renderWithLocalizationProvider(
+      <Subject
+        includeCurrentPw={false}
+        onFocusMetricsEvent="create-password.engage"
+        onFirstFocus={onFirstFocus}
+      />
+    );
+    await user.click(screen.getByLabelText('Enter new password'));
+    await user.click(screen.getByLabelText('Confirm new password'));
+    await user.click(screen.getByLabelText('Enter new password'));
+    expect(onFirstFocus).toHaveBeenCalledTimes(1);
+  });
+
+  it('is called without onFocusMetricsEvent', async () => {
+    const user = userEvent.setup();
+    const onFirstFocus = jest.fn();
+    renderWithLocalizationProvider(
+      <Subject includeCurrentPw={false} onFirstFocus={onFirstFocus} />
+    );
+    await user.click(screen.getByLabelText('Enter new password'));
+    await user.click(screen.getByLabelText('Confirm new password'));
+    expect(onFirstFocus).toHaveBeenCalledTimes(1);
   });
 });

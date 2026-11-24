@@ -26,12 +26,25 @@ import {
   inputVerifyPassword,
 } from '../../FormPassword/index.test';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import GleanMetrics from '../../../lib/glean';
 
 jest.mock('../../../models/AlertBarInfo');
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
   settingsViewName: 'quuz',
+}));
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    accountPref: {
+      changePasswordView: jest.fn(),
+      changePasswordSuccess: jest.fn(),
+      changePasswordEngage: jest.fn(),
+      changePasswordFormSubmit: jest.fn(),
+      changePasswordError: jest.fn(),
+    },
+  },
 }));
 const mockNavigate = jest.fn();
 jest.mock('react-router', () => ({
@@ -211,6 +224,85 @@ describe('PageChangePassword', () => {
     );
     expect(settingsContext.alertBarInfo?.error).toHaveBeenCalledWith(
       'Unexpected error'
+    );
+  });
+
+  describe('glean metrics', () => {
+    it('records the view event once on render', async () => {
+      await render();
+      expect(GleanMetrics.accountPref.changePasswordView).toHaveBeenCalledTimes(
+        1
+      );
+    });
+
+    it('records engage, submit and success once on success', async () => {
+      await render();
+      await changePassword();
+      expect(
+        GleanMetrics.accountPref.changePasswordEngage
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        GleanMetrics.accountPref.changePasswordFormSubmit
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        GleanMetrics.accountPref.changePasswordSuccess
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        GleanMetrics.accountPref.changePasswordError
+      ).not.toHaveBeenCalled();
+    });
+
+    it('does not record success when old and new password are the same', async () => {
+      await render();
+      await inputCurrentPassword('testotesto');
+      await inputNewPassword('testotesto');
+      await inputVerifyPassword('testotesto');
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('save-password-button'));
+      });
+      expect(screen.getByTestId('tooltip')).toBeInTheDocument();
+      expect(
+        GleanMetrics.accountPref.changePasswordFormSubmit
+      ).not.toHaveBeenCalled();
+      expect(
+        GleanMetrics.accountPref.changePasswordSuccess
+      ).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      {
+        name: 'an MFA error',
+        error: AuthUiErrors.INVALID_MFA_TOKEN,
+        errorEvents: 0,
+      },
+      {
+        name: 'an incorrect password',
+        error: AuthUiErrors.INCORRECT_PASSWORD,
+        errorEvents: 1,
+      },
+      { name: 'an unknown error', error: { error: 'bloop' }, errorEvents: 1 },
+    ])(
+      'records $errorEvents error events and no success on $name',
+      async ({ error, errorEvents }) => {
+        const mockAccount = {
+          primaryEmail: {
+            email: 'test@example.com',
+          },
+          changePassword: jest.fn().mockRejectedValue(error),
+        } as unknown as Account;
+        await render(mockAccount);
+        await changePassword();
+        expect(mockAccount.changePassword).toHaveBeenCalled();
+        expect(
+          GleanMetrics.accountPref.changePasswordFormSubmit
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          GleanMetrics.accountPref.changePasswordError
+        ).toHaveBeenCalledTimes(errorEvents);
+        expect(
+          GleanMetrics.accountPref.changePasswordSuccess
+        ).not.toHaveBeenCalled();
+      }
     );
   });
 

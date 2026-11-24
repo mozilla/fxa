@@ -13,6 +13,8 @@ import {
   settingsViewName,
   usePageViewEvent,
 } from '../../../lib/metrics';
+import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 import FlowContainer from '../FlowContainer';
 import FormPassword from '../../FormPassword';
@@ -37,6 +39,7 @@ export const MfaPageCreatePassword = () => {
 export const PageCreatePassword = () => {
   const handleMfaError = useMfaErrorHandler();
   usePageViewEvent('settings.create-password');
+  useGleanView(() => GleanMetrics.accountPref.createPasswordView());
 
   const { handleSubmit, register, getValues, formState, trigger } =
     useForm<FormData>({
@@ -85,9 +88,11 @@ export const PageCreatePassword = () => {
     async ({ newPassword }: FormData) => {
       try {
         logViewEvent(settingsViewName, 'create-password.submit');
+        GleanMetrics.accountPref.createPasswordSubmit();
         passwordCreated.current = true;
         await account.createPasswordWithJwt(newPassword);
         logViewEvent(settingsViewName, 'create-password.success');
+        GleanMetrics.accountPref.createPasswordSuccess();
         alertSuccessAndGoHome();
       } catch (e) {
         passwordCreated.current = false;
@@ -96,6 +101,7 @@ export const PageCreatePassword = () => {
           return;
         }
         logViewEvent(settingsViewName, 'create-password.fail');
+        GleanMetrics.accountPref.createPasswordError();
         alertBar.error(
           ftlMsgResolver.getMsg(
             'pw-create-error-2',
@@ -121,6 +127,7 @@ export const PageCreatePassword = () => {
             setNewPasswordErrorText,
           }}
           onFocusMetricsEvent="create-password.engage"
+          onFirstFocus={() => GleanMetrics.accountPref.createPasswordEngage()}
           onSubmit={handleSubmit(onFormSubmit)}
           primaryEmail={account.primaryEmail.email}
           loading={account.loading}

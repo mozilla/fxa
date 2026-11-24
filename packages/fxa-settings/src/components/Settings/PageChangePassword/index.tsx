@@ -14,6 +14,8 @@ import {
   settingsViewName,
   usePageViewEvent,
 } from '../../../lib/metrics';
+import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 import FlowContainer from '../FlowContainer';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
@@ -36,6 +38,7 @@ type FormData = {
 // eslint-disable-next-line no-empty-pattern
 export const PageChangePassword = () => {
   usePageViewEvent('settings.change-password');
+  useGleanView(() => GleanMetrics.accountPref.changePasswordView());
   const { handleSubmit, register, getValues, setValue, formState, trigger } =
     useForm<FormData>({
       mode: 'onTouched',
@@ -82,14 +85,17 @@ export const PageChangePassword = () => {
         return;
       }
       try {
+        GleanMetrics.accountPref.changePasswordFormSubmit();
         await account.changePassword(oldPassword, newPassword);
         logViewEvent(settingsViewName, 'change-password.success');
+        GleanMetrics.accountPref.changePasswordSuccess();
         alertSuccessAndGoHome();
       } catch (e) {
         const errorHandled = handleMfaError(e);
         if (errorHandled) {
           return;
         }
+        GleanMetrics.accountPref.changePasswordError();
         const localizedError = getLocalizedErrorMessage(ftlMsgResolver, e);
         if (isIncorrectPassword(e.errno)) {
           setCurrentPasswordErrorText(localizedError);
@@ -125,6 +131,7 @@ export const PageChangePassword = () => {
             newPasswordErrorText,
             setNewPasswordErrorText,
           }}
+          onFirstFocus={() => GleanMetrics.accountPref.changePasswordEngage()}
           onSubmit={handleSubmit(onFormSubmit)}
           primaryEmail={account.primaryEmail.email}
           loading={account.loading}
