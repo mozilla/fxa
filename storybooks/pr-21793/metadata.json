@@ -1,8 +1,8 @@
 {
-  "commit": "3cfe006fde3e344fadf61d0f34cc1df815313101",
+  "commit": "3f28fdfe78bb0a21d8c3224eca8f1940309c79a2",
   "summary": "fix(admin): run disable matching accounts as a background job",
-  "description": "Because:\n* Scanning every account inside the request outlasts the 30s gateway\n  timeout, so the blocklist pages got a 504 and lost the count.\n\nThis commit:\n* Runs the scan in the admin server after the request returns, one at a\n  time, with its status and resume point in Redis.\n* Walks emails in id ranges and filters domains in SQL.\n* Skips and counts accounts that fail to disable.\n* Adds a status route per blocklist, which the panel polls for progress.\n* Logs the start, result and failure of each scan with the admin and job id.\n\nCloses #FXA-15088",
-  "timestamp": 1795196133000,
+  "description": "Because:\n\n- \"Disable matching accounts\" scanned every account inside the request, so\n  it hit the 30s gateway timeout and returned a 504.\n\nThis commit:\n\n- Runs the scan as a background job, one at a time, with one Redis lock\n  for both blocklist pages and a status key for each page.\n- Scans `emails` in id ranges, filters domains in SQL, and stops at the\n  first error.\n- Refreshes the owner-checked lock on each progress save, and stops the\n  scan when the refresh fails.\n- Has the panel follow a running scan on load, poll its status, and ignore\n  a second start.\n\nCloses: FXA-15088",
+  "timestamp": 1795547589000,
   "storybooks": [
     "fxa-admin-panel"
   ],
