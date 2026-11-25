@@ -14,7 +14,6 @@ import {
   useAuthClient,
   useFtlMsgResolver,
   useConfig,
-  useSession,
   useSensitiveDataClient,
   isOAuthIntegration,
   isOAuthNativeIntegrationSync,
@@ -155,7 +154,6 @@ const SigninContainer = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: LocationState;
   };
-  const session = useSession();
   const sensitiveDataClient = useSensitiveDataClient();
 
   const { queryParamModel, validationError } = useValidatedQueryParams(
@@ -342,15 +340,10 @@ const SigninContainer = ({
 
   const { avatarData, avatarLoading } = useSigninAvatar(sessionToken);
 
-  // For Firefox non-Sync flows, validate the cached session token before rendering.
-  // This is because if users "sign out" from the browser menu, FxA doesn't know
-  // about it (and can't, because even with a web channel message, FxA would need
-  // to be pulled up in a tab) and Fx non-Sync flows will see cached sign-in.
-  // This provides those users with slightly less friction since they'd see an error
-  // message and then be asked to enter their password. If the session token is
-  // invalid, we discard it so the user sees the password field right away.
+  // A browser-menu sign-out leaves a dead token in local storage that FxA can't
+  // know about, so discard it before Firefox flows try to use it.
   const needsSessionValidation =
-    integration.isFirefoxNonSync() && !!sessionToken;
+    (integration.isSync() || integration.isFirefoxNonSync()) && !!sessionToken;
   const [sessionValidationComplete, setSessionValidationComplete] = useState(
     !needsSessionValidation
   );
@@ -367,13 +360,21 @@ const SigninContainer = ({
     }
 
     (async () => {
-      const isValid = await session.isValid(sessionToken!);
-      if (!isValid) {
-        discardSessionToken();
+      try {
+        await authClient.sessionStatus(sessionToken!);
+      } catch (error) {
+        // Keep the token for other errors; cachedSignIn handles them.
+        const isDeadToken =
+          error?.errno === AuthUiErrors.INVALID_TOKEN.errno ||
+          error?.errno === AuthUiErrors.UNKNOWN_ACCOUNT.errno;
+        // Another tab may have stored a new token while the check was in flight.
+        if (isDeadToken && currentAccount()?.sessionToken === sessionToken) {
+          discardSessionToken();
+        }
       }
       setSessionValidationComplete(true);
     })();
-  }, [needsSessionValidation, session, sessionToken]);
+  }, [needsSessionValidation, authClient, sessionToken]);
 
   const beginSigninHandler: BeginSigninHandler = useCallback(
     async (email: string, password: string) => {

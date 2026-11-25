@@ -233,7 +233,6 @@ const mockSensitiveDataClient = createMockSensitiveDataClient();
 
 const mockSession = {
   isSessionVerified: jest.fn().mockResolvedValue(true),
-  isValid: jest.fn().mockResolvedValue(true),
   sendVerificationCode: jest.fn().mockResolvedValue(undefined),
   verified: false,
   token: MOCK_SESSION_TOKEN,
@@ -313,7 +312,6 @@ function mockModelsModule() {
   }));
   (ModelsModule.useSession as jest.Mock).mockImplementation(() => mockSession);
   mockSession.isSessionVerified = jest.fn().mockResolvedValue(true);
-  mockSession.isValid = jest.fn().mockResolvedValue(true);
   mockSession.sendVerificationCode = jest.fn().mockResolvedValue(undefined);
 }
 
@@ -1613,52 +1611,44 @@ describe('signin container', () => {
     });
   });
 
-  describe('Firefox non-Sync session validation', () => {
+  describe('cached session validation', () => {
+    let storedAccount: { sessionToken?: string; [key: string]: any };
+
     beforeEach(() => {
       mockFirefoxNonSyncIntegration();
-    });
-
-    it('calls session.isValid and renders signin when session is valid', async () => {
-      const storedAccount = {
+      storedAccount = {
         ...MOCK_STORED_ACCOUNT,
         email: MOCK_QUERY_PARAM_EMAIL,
         sessionToken: MOCK_SESSION_TOKEN,
       };
       mockCurrentAccount(storedAccount);
-      mockUseValidateModule();
-      mockSession.isValid = jest.fn().mockResolvedValue(true);
-
-      render();
-
-      await waitFor(() => {
-        expect(mockSession.isValid).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
-      });
-      await waitFor(() => {
-        expect(currentSigninProps).toBeDefined();
-        expect(currentSigninProps?.sessionToken).toBe(MOCK_SESSION_TOKEN);
-      });
-      expect(CacheModule.discardSessionToken).not.toHaveBeenCalled();
-    });
-
-    it('calls session.isValid and discards token when session is invalid', async () => {
-      const storedAccount: { sessionToken?: string; [key: string]: any } = {
-        ...MOCK_STORED_ACCOUNT,
-        email: MOCK_QUERY_PARAM_EMAIL,
-        sessionToken: MOCK_SESSION_TOKEN,
-      };
-      mockCurrentAccount(storedAccount);
-      // Make the spy actually clear the token so re-render picks it up
+      // Make the spy clear the token so the re-render picks it up
       jest.spyOn(CacheModule, 'discardSessionToken').mockImplementation(() => {
         storedAccount.sessionToken = undefined;
       });
       mockUseValidateModule();
-      mockSession.isValid = jest.fn().mockResolvedValue(false);
+    });
 
-      render();
+    function mockSyncIntegration() {
+      mockOAuthNativeIntegration();
+      storedAccount.email = MOCK_ROUTER_STATE_EMAIL;
+      mockLocationState = MOCK_LOCATION_STATE_CAN_LINK_ACCOUNT_OK;
+      (ensureCanLinkAcountOrRedirect as jest.Mock).mockResolvedValue(true);
+    }
 
+    async function expectTokenKept() {
       await waitFor(() => {
-        expect(mockSession.isValid).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
+        expect(mockAuthClient.sessionStatus).toHaveBeenCalledWith(
+          MOCK_SESSION_TOKEN
+        );
       });
+      await waitFor(() => {
+        expect(currentSigninProps?.sessionToken).toBe(MOCK_SESSION_TOKEN);
+      });
+      expect(CacheModule.discardSessionToken).not.toHaveBeenCalled();
+    }
+
+    async function expectTokenDiscarded() {
       await waitFor(() => {
         expect(CacheModule.discardSessionToken).toHaveBeenCalled();
       });
@@ -1666,42 +1656,80 @@ describe('signin container', () => {
         expect(currentSigninProps).toBeDefined();
         expect(currentSigninProps?.sessionToken).toBeUndefined();
       });
+    }
+
+    it.each(['verified', 'unverified'])(
+      'keeps the token when the session is %s',
+      async (state) => {
+        mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({ state });
+        render();
+        await expectTokenKept();
+      }
+    );
+
+    it.each([
+      ['invalid token (110)', AuthUiErrors.INVALID_TOKEN],
+      ['unknown account (102)', AuthUiErrors.UNKNOWN_ACCOUNT],
+    ])('discards the token on %s', async (_, error) => {
+      mockAuthClient.sessionStatus = jest.fn().mockRejectedValue(error);
+      render();
+      await expectTokenDiscarded();
     });
 
-    it('does not call session.isValid for Sync integration', async () => {
-      mockOAuthNativeIntegration();
-      mockCurrentAccount({
-        ...MOCK_STORED_ACCOUNT,
-        email: MOCK_QUERY_PARAM_EMAIL,
-        sessionToken: MOCK_SESSION_TOKEN,
-      });
-      mockUseValidateModule();
-      mockLocationState = MOCK_LOCATION_STATE_CAN_LINK_ACCOUNT_OK;
-      (ensureCanLinkAcountOrRedirect as jest.Mock).mockResolvedValue(true);
-
+    it.each([
+      ['a network error', new TypeError('Failed to fetch')],
+      ['a 5xx error', AuthUiErrors.BACKEND_SERVICE_FAILURE],
+      ['another errno', AuthUiErrors.UNVERIFIED_SESSION],
+    ])('keeps the token on %s', async (_, error) => {
+      mockAuthClient.sessionStatus = jest.fn().mockRejectedValue(error);
       render();
+      await expectTokenKept();
+    });
 
+    it('keeps the token for Sync integration when the session is valid', async () => {
+      mockSyncIntegration();
+      mockAuthClient.sessionStatus = jest
+        .fn()
+        .mockResolvedValue({ state: 'verified' });
+      render();
+      await expectTokenKept();
+    });
+
+    it('discards the token for Sync integration on invalid token (110)', async () => {
+      mockSyncIntegration();
+      mockAuthClient.sessionStatus = jest
+        .fn()
+        .mockRejectedValue(AuthUiErrors.INVALID_TOKEN);
+      render();
+      await expectTokenDiscarded();
+    });
+
+    it('keeps a token another tab stored while sessionStatus was pending', async () => {
+      mockSyncIntegration();
+      mockAuthClient.sessionStatus = jest.fn().mockImplementation(async () => {
+        storedAccount.sessionToken = 'replacement-session-token';
+        throw AuthUiErrors.INVALID_TOKEN;
+      });
+      render();
+      await waitFor(() => {
+        expect(mockAuthClient.sessionStatus).toHaveBeenCalledWith(
+          MOCK_SESSION_TOKEN
+        );
+      });
       await waitFor(() => {
         expect(currentSigninProps).toBeDefined();
       });
-      expect(mockSession.isValid).not.toHaveBeenCalled();
+      expect(CacheModule.discardSessionToken).not.toHaveBeenCalled();
     });
 
-    it('does not call session.isValid for OAuth web integration', async () => {
+    it('does not call sessionStatus for OAuth web integration', async () => {
       mockOAuthWebIntegration();
-      mockCurrentAccount({
-        ...MOCK_STORED_ACCOUNT,
-        email: MOCK_QUERY_PARAM_EMAIL,
-        sessionToken: MOCK_SESSION_TOKEN,
-      });
-      mockUseValidateModule();
-
+      mockAuthClient.sessionStatus = jest.fn();
       render();
-
       await waitFor(() => {
         expect(currentSigninProps).toBeDefined();
       });
-      expect(mockSession.isValid).not.toHaveBeenCalled();
+      expect(mockAuthClient.sessionStatus).not.toHaveBeenCalled();
     });
   });
 
