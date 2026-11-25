@@ -38,7 +38,7 @@ export function useClickOutsideEffect<T>(onClickOutside: Function) {
     const onBodyMouseDown = (ev: MouseEvent) => {
       if (
         insideEl.current instanceof HTMLElement &&
-        ev.target instanceof HTMLElement &&
+        ev.target instanceof Node &&
         !insideEl.current.contains(ev.target)
       ) {
         onClickOutside();

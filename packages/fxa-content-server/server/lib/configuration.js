@@ -166,6 +166,12 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'FEATURE_FLAGS_SHOW_LOCALE_TOGGLE',
     },
+    unifiedFooter: {
+      default: false,
+      doc: 'Enables the unified footer in fxa-settings',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_UNIFIED_FOOTER',
+    },
     paymentsNextSubscriptionManagement: {
       default: false,
       doc: 'Enables Paid Subscriptions link in Account Settings to redirect to payments next',

@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen, waitFor } from '@testing-library/react';
-import { renderWithRouter } from '../../../models/mocks';
+import { screen, waitFor, within } from '@testing-library/react';
+import { mockAppContext, renderWithRouter } from '../../../models/mocks';
+import { getDefault } from '../../../lib/config';
 import { SETTINGS_PATH } from '../../../constants';
 import SettingsLayout from '.';
 
@@ -25,5 +26,30 @@ it('renders the app with children', async () => {
   expect(screen.getByTestId('main')).toBeInTheDocument();
   expect(screen.getByTestId('main')).toContainElement(
     screen.getByTestId('test-child')
+  );
+});
+
+it('renders the unified footer with the Help link when the flag is on', () => {
+  const config = getDefault();
+  renderWithRouter(
+    <SettingsLayout>
+      <p>Hello, world!</p>
+    </SettingsLayout>,
+    {},
+    mockAppContext({
+      config: {
+        ...config,
+        featureFlags: { ...config.featureFlags, unifiedFooter: true },
+      },
+    })
+  );
+
+  expect(
+    within(screen.getByRole('contentinfo')).getByRole('link', {
+      name: /Help/,
+    })
+  ).toHaveAttribute(
+    'href',
+    'https://support.mozilla.org/products/mozilla-account'
   );
 });

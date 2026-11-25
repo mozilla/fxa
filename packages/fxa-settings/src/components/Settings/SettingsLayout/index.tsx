@@ -6,6 +6,7 @@ import React from 'react';
 import HeaderLockup from '../HeaderLockup';
 import ContentSkip from '../ContentSkip';
 import Footer from 'fxa-react/components/Footer';
+import UnifiedFooter from '../../Footer';
 import { AlertBar } from '../AlertBar';
 import { useConfig } from '../../../models/hooks';
 import { LocaleToggle } from '../../LocaleToggle';
@@ -32,12 +33,16 @@ export const SettingsLayout = ({ children }: SettingsLayoutProps) => {
           {children}
         </main>
       </div>
-      <Footer
-        showLocaleToggle={config.featureFlags?.showLocaleToggle}
-        localeToggleComponent={LocaleToggle}
-        showDarkModeToggle={config.darkMode?.enabled}
-        darkModeToggleComponent={DarkModeToggle}
-      />
+      {config.featureFlags?.unifiedFooter ? (
+        <UnifiedFooter />
+      ) : (
+        <Footer
+          showLocaleToggle={config.featureFlags?.showLocaleToggle}
+          localeToggleComponent={LocaleToggle}
+          showDarkModeToggle={config.darkMode?.enabled}
+          darkModeToggleComponent={DarkModeToggle}
+        />
+      )}
       <div id="body-bottom" className="block mobileLandscape:hidden" />
     </div>
   );

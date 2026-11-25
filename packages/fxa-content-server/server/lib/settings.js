@@ -131,6 +131,7 @@ const settingsConfig = {
       'featureFlags.recoveryCodeSetupOnSyncSignIn'
     ),
     showLocaleToggle: config.get('featureFlags.showLocaleToggle'),
+    unifiedFooter: config.get('featureFlags.unifiedFooter'),
     paymentsNextSubscriptionManagement: config.get(
       'featureFlags.paymentsNextSubscriptionManagement'
     ),

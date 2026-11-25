@@ -126,6 +126,7 @@ export interface Config {
     keyStretchV2?: boolean;
     recoveryCodeSetupOnSyncSignIn?: boolean;
     showLocaleToggle?: boolean;
+    unifiedFooter?: boolean;
     paymentsNextSubscriptionManagement?: boolean;
     passkeysEnabled?: boolean;
     passkeyRegistrationEnabled?: boolean;
@@ -249,6 +250,7 @@ export function getDefault() {
     featureFlags: {
       recoveryCodeSetupOnSyncSignIn: false,
       showLocaleToggle: false,
+      unifiedFooter: false,
       paymentsNextSubscriptionManagement: false,
       passwordlessEnabled: false,
       novaDesignSystem: false,
