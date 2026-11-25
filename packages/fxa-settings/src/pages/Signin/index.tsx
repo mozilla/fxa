@@ -50,6 +50,7 @@ const Signin = ({
   sendUnblockEmailHandler,
   hasPassword,
   hasPasskey,
+  canLinkAccountUid,
   avatarData,
   avatarLoading,
   localizedErrorFromLocationState,
@@ -254,6 +255,7 @@ const Signin = ({
                     // TODO: in FXA-9177, consider persisting hasLinkedAccount and hasPassword to localStorage
                     hasPassword,
                     hasLinkedAccount,
+                    canLinkAccountUid,
                   },
                 });
                 break;
@@ -310,6 +312,7 @@ const Signin = ({
       ftlMsgResolver,
       hasLinkedAccount,
       hasPassword,
+      canLinkAccountUid,
       navigate,
       navigateWithQuery,
       sendUnblockEmailHandler,

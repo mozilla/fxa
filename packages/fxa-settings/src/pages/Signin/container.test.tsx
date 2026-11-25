@@ -934,6 +934,64 @@ describe('signin container', () => {
             })
           );
         });
+
+        it('does not call ensureCanLinkAcountOrRedirect when email-first approved the same UID', async () => {
+          mockLocationState = {
+            ...MOCK_LOCATION_STATE_COMPLETE,
+            canLinkAccountUid: MOCK_UID,
+          };
+          const useFxAStatusResult = mockUseFxAStatus({
+            supportsCanLinkAccountUid: true,
+          });
+
+          render({ useFxAStatusResult });
+
+          await waitFor(async () => {
+            const handlerResult = await currentSigninProps?.beginSigninHandler(
+              MOCK_EMAIL,
+              MOCK_PASSWORD
+            );
+            expect(handlerResult?.data?.signIn?.uid).toBe(MOCK_UID);
+          });
+          expect(ensureCanLinkAcountOrRedirect).not.toHaveBeenCalled();
+        });
+
+        it('calls ensureCanLinkAcountOrRedirect with the real UID when email-first approved a different UID', async () => {
+          mockLocationState = {
+            ...MOCK_LOCATION_STATE_COMPLETE,
+            canLinkAccountUid: 'stale-uid',
+          };
+          const useFxAStatusResult = mockUseFxAStatus({
+            supportsCanLinkAccountUid: true,
+          });
+
+          render({ useFxAStatusResult });
+
+          await waitFor(async () => {
+            const handlerResult = await currentSigninProps?.beginSigninHandler(
+              MOCK_EMAIL,
+              MOCK_PASSWORD
+            );
+            expect(handlerResult?.data?.signIn?.uid).toBe(MOCK_UID);
+          });
+          expect(ensureCanLinkAcountOrRedirect).toHaveBeenCalledTimes(1);
+          expect(ensureCanLinkAcountOrRedirect).toHaveBeenCalledWith(
+            expect.objectContaining({ email: MOCK_EMAIL, uid: MOCK_UID })
+          );
+        });
+
+        it('passes the approved UID to Signin', async () => {
+          mockLocationState = {
+            ...MOCK_LOCATION_STATE_COMPLETE,
+            canLinkAccountUid: MOCK_UID,
+          };
+
+          render();
+
+          await waitFor(() => {
+            expect(currentSigninProps?.canLinkAccountUid).toBe(MOCK_UID);
+          });
+        });
       });
     });
 

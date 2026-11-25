@@ -64,7 +64,8 @@ export const SigninUnblockContainer = ({
   // flow dictates we definitely have it.
   const { plainTextPassword: password } = sensitiveDataClient.Password! || {};
 
-  const { email, hasLinkedAccount, hasPassword } = location.state || {};
+  const { email, hasLinkedAccount, hasPassword, canLinkAccountUid } =
+    location.state || {};
 
   const wantsTwoStepAuthentication = integration.wantsTwoStepAuthentication();
 
@@ -151,7 +152,8 @@ export const SigninUnblockContainer = ({
 
         if (
           isOAuthNativeIntegration(integration) &&
-          useFxAStatusResult.supportsCanLinkAccountUid
+          useFxAStatusResult.supportsCanLinkAccountUid &&
+          response.uid !== canLinkAccountUid
         ) {
           const ok = await ensureCanLinkAcountOrRedirect({
             email,
