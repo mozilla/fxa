@@ -8,6 +8,7 @@ export * from './lib/client/components/ActionButton';
 export * from './lib/client/components/AlertBar';
 export * from './lib/client/components/AlreadyCanceling';
 export * from './lib/client/components/Banner';
+export * from './lib/client/components/AuthOptionButton';
 export * from './lib/client/components/BaseButton';
 export * from './lib/client/components/Breadcrumbs';
 export * from './lib/client/components/CancelSubscription';
