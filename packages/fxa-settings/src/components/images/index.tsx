@@ -271,7 +271,7 @@ export const SyncCloudsImage = ({ className, ariaHidden }: ImageProps) => (
 
 export const FallingConfettiImage = ({ ariaHidden }: ImageProps) => (
   <PreparedImage
-    className="h-screen w-screen absolute top-0 left-0 pointer-events-none"
+    className="h-screen w-screen absolute top-0 left-0 z-10 pointer-events-none"
     ariaLabel="Animated falling confetti"
     ariaLabelFtlId="confetti-falling-image-aria-label"
     Image={FallingConfetti}
