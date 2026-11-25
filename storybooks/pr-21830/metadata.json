@@ -1,0 +1,11 @@
+{
+  "commit": "21f2d679014af6c9e8abd4a61820e3f3aece945f",
+  "summary": "fix(settings): label the Sync device toggle by its next action",
+  "description": "Because:\n\n- The device list toggle always announced \"Show devices\", even while the\n  list was expanded.\n- The auth-client doc for destroySyncData named the wrong error for a\n  session that has not re-entered its password.\n\nThis commit:\n\n- Switches the toggle's aria-label and title to \"Hide devices\" while expanded.\n- Documents errno 237 as the missing-reauth response.\n- Covers both toggle labels in the component test.\n\nRelates to FXA-14947",
+  "timestamp": 1795629688000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
