@@ -31,7 +31,10 @@ export class ResumableWebSocket extends EventTarget {
   private readonly url: URL;
   private channelId?: string;
   private token?: string;
-  private queue: string[] = [];
+  // Everything handed to send(), in order. A pairing is under a dozen messages.
+  private outbox: string[] = [];
+  // How many of them were written to a socket, delivered or not.
+  private written = 0;
   private resumeDeadline = 0;
   private retryTimer?: ReturnType<typeof setTimeout>;
   private selfClosed = false;
@@ -69,11 +72,12 @@ export class ResumableWebSocket extends EventTarget {
   }
 
   send(data: string): void {
+    this.outbox.push(data);
     if (this.resuming || this.socket.readyState !== OPEN) {
-      this.queue.push(data);
       return;
     }
     this.socket.send(data);
+    this.written = this.outbox.length;
   }
 
   close(): void {
@@ -86,6 +90,7 @@ export class ResumableWebSocket extends EventTarget {
 
   private attach(socket: WebSocket, resumed: boolean): WebSocket {
     let greeted = false;
+    let received: unknown;
     socket.addEventListener('open', () => {
       if (!resumed) this.dispatchEvent(new Event('open'));
     });
@@ -93,14 +98,15 @@ export class ResumableWebSocket extends EventTarget {
       if (!greeted) {
         greeted = true;
         try {
-          const { channelid, resume } = JSON.parse(event.data);
+          const { channelid, resume, received: count } = JSON.parse(event.data);
+          received = count;
           if (typeof channelid === 'string') this.channelId = channelid;
           if (typeof resume === 'string') this.token = resume;
         } catch {
           // Not a greeting; pass it through below.
         }
         if (resumed) {
-          this.onResumed();
+          this.onResumed(received);
           return;
         }
       }
@@ -161,11 +167,19 @@ export class ResumableWebSocket extends EventTarget {
     if (previous.readyState !== CLOSED) previous.close();
   }
 
-  private onResumed(): void {
+  /**
+   * A write to a socket that had already died is lost without an error, so the
+   * server says how many messages reached it and the rest go out again. A
+   * server that does not say gets only what was never written.
+   */
+  private onResumed(received: unknown): void {
     this.stopResuming();
-    const queued = this.queue;
-    this.queue = [];
-    queued.forEach((data) => this.socket.send(data));
+    const from =
+      typeof received === 'number'
+        ? Math.min(received, this.written)
+        : this.written;
+    this.outbox.slice(from).forEach((data) => this.socket.send(data));
+    this.written = this.outbox.length;
     this.dispatchEvent(
       new CustomEvent('resumed', { detail: { attempts: this.attempts } })
     );
