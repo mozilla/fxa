@@ -1,0 +1,12 @@
+{
+  "commit": "52dbf64f7fc52a97b20c939549617d84a951e4de",
+  "summary": "fix(settings): Nova dark-mode and mobile visual fixes",
+  "description": "Because:\n\n* Review of the Nova design system turned up small dark-mode and mobile issues\n\nThis commit:\n\n* Adds Acorn ghost-button hover/active fills to the modal close button\n* Fixes copy-button contrast and the near-white focus fill in dark mode\n* Insets the InputText focus ring over its border, as moz-input-text does\n* Fixes confetti stacking, footer logo in dark mode and Google icon centring\n* Stacks a settings row's two CTAs on mobile\n\nCloses #FXA-15126",
+  "timestamp": 1795633864000,
+  "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}
