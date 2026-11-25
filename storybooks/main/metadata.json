@@ -1,8 +1,8 @@
 {
-  "commit": "6c7cc648ccc13b46e8ac23201d57d63af00b18cb",
-  "summary": "Merge pull request #21824 from mozilla/FXA-14947",
-  "description": "feat(settings): wire the delete Sync data flow",
-  "timestamp": 1795625865000,
+  "commit": "2c77923ee1e68a2efe0c9ee4d028f89b1409bbe7",
+  "summary": "Merge pull request #21830 from mozilla/sync-data-delete-copilot-nits",
+  "description": "fix(settings): label the Sync device toggle by its next action",
+  "timestamp": 1795631169000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
