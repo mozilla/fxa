@@ -36,17 +36,6 @@ apps.push({
 });
 
 apps.push({
-  name: 'payments-metering-sweep',
-  script: 'nx run payments-api:metering-sweep-loop',
-  max_restarts: '1',
-  min_uptime: '2m',
-  env: {
-    PATH,
-  },
-  filter_env: ['npm_'],
-});
-
-apps.push({
   name: 'payments-metering-metrics',
   script: 'nx run payments-api:metering-metrics-loop',
   max_restarts: '1',
