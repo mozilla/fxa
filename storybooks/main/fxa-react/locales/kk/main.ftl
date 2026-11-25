@@ -48,6 +48,7 @@ app-footer-terms-of-service = Қолдану шарттары
 
 
 app-default-title-2 = { -product-mozilla-accounts }
+app-page-title-3 = { $title } – { -product-mozilla-accounts }
 
 
 link-sr-new-window = Жаңа терезеде ашылады
