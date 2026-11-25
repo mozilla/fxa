@@ -1,9 +1,11 @@
 {
-  "commit": "4093788506656e253c0bf8154a056c20cfa9ec60",
+  "commit": "0fb0e21408cd47a88d96fb017e0e8cdff3f09de6",
   "summary": "feat(settings): add unified footer behind the unifiedFooter flag",
   "description": "Because:\n\n* FxA settings has three different footers on its pages.\n* One footer for all pages must ship behind a flag first.\n\nThis commit:\n\n* Adds the unifiedFooter feature flag, off by default\n* Adds a Footer with links and a language and theme panel\n* Uses it in SettingsLayout and AppLayout when the flag is on\n* Adds the sun, night-mode and device-desktop nova icons\n\nCloses FXA-15123",
-  "timestamp": 1795558754000,
+  "timestamp": 1795634578000,
   "storybooks": [
+    "fxa-admin-panel",
+    "fxa-react",
     "fxa-settings"
   ],
   "deployDir": "deploy/"

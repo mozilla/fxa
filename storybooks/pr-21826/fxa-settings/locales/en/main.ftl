@@ -153,6 +153,8 @@ firefox-promo-banner-switch-cta = Switch to { -brand-firefox }
 footer-nav-label = Footer
 footer-help-link = Help
 footer-preferences-button = Language and theme
+footer-preferences-button-language = Language
+footer-preferences-button-theme = Theme
 footer-theme-legend = Theme
 
 
