@@ -1341,7 +1341,7 @@ pair-supp-allow-page-title = Koppeling bevestigen
 
 
 pair-wait-for-auth-heading-text = Goedkeuring <span>vanaf uw andere apparaat</span> nu vereist
-pair-wait-for-auth-page-title = Goedkeuren op uw andere apparaat
+pair-wait-for-auth-page-title = Bevestig op uw andere apparaat
 
 
 pair-unsupported-header = Koppelen via een app

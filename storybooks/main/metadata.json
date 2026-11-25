@@ -1,8 +1,8 @@
 {
-  "commit": "77444c6165aa54e7cf744a9e8f91aafa88d67e8d",
-  "summary": "Merge pull request #21818 from mozilla/fxa-15117",
-  "description": "feat(settings): record change and create password events in Glean",
-  "timestamp": 1795552465000,
+  "commit": "bcd0202f51b8f6c335c2d600a402e52f176f30fd",
+  "summary": "Merge pull request #21829 from mozilla/dependabot/github_actions/mozilla/probe-scraper/dot-github/workflows/glean.yaml-7e11200a08d36ad966fe92c467f4c3737dec61a1",
+  "description": "chore(deps): bump mozilla/probe-scraper/.github/workflows/glean.yaml from 4f5a8c865e061d45383db4210d49c1b413475198 to 7e11200a08d36ad966fe92c467f4c3737dec61a1",
+  "timestamp": 1795618255000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
