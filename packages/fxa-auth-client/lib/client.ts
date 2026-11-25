@@ -3646,7 +3646,7 @@ export default class AuthClient {
    *
    * @param jwt - `mfa:sync_data` token for this session. The session must also
    *   have re-entered its password via `sessionReauth`, or the server answers
-   *   with an invalid MFA token error.
+   *   with errno 237 (password reauth required).
    */
   async destroySyncData(
     jwt: string,

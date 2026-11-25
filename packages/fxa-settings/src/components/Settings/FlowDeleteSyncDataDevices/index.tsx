@@ -76,11 +76,10 @@ export const FlowDeleteSyncDataDevices = ({
   isLoading = false,
 }: FlowDeleteSyncDataDevicesProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
-  const showDevicesLabel = ftlMsgResolver.getMsg(
-    'delete-sync-data-show-devices',
-    'Show devices'
-  );
   const [expanded, setExpanded] = useState(true);
+  const toggleDevicesLabel = expanded
+    ? ftlMsgResolver.getMsg('delete-sync-data-hide-devices', 'Hide devices')
+    : ftlMsgResolver.getMsg('delete-sync-data-show-devices', 'Show devices');
   // Rows are keyed by name, which getSyncDevices makes unique.
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const selectAllRef = useRef<HTMLInputElement>(null);
@@ -175,8 +174,8 @@ export const FlowDeleteSyncDataDevices = ({
               className="p-2 -me-2 rounded focus-visible-default"
               aria-expanded={expanded}
               aria-controls="delete-sync-data-device-list"
-              aria-label={showDevicesLabel}
-              title={showDevicesLabel}
+              aria-label={toggleDevicesLabel}
+              title={toggleDevicesLabel}
               onClick={() => setExpanded(!expanded)}
               data-testid="delete-sync-data-expand"
             >
