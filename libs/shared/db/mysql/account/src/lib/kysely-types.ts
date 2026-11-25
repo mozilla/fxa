@@ -262,18 +262,16 @@ export interface Passkeys {
 }
 
 /**
- * Per-passkey envelope holding the PRF-wrapped recovery keypair and the
- * HPKE-sealed kB. Widths are fixed by the v1 ciphersuite; see the client-side
- * `passkey-crypto` module, which produces these values.
+ * Per-passkey envelope holding kB wrapped under the passkey's PRF output.
+ * Widths are fixed by the v1 format; see the client-side `passkey-crypto`
+ * module, which produces these values.
  */
 export interface PasskeyWraps {
   uid: Buffer;
   credentialId: Buffer;
-  pkR: Buffer;
-  prfWrappedSkR: Buffer;
+  kdfSalt: Buffer;
   keyWrapIv: Buffer;
-  hpkeEncapsulatedSecret: Buffer;
-  hpkeSealedKb: Buffer;
+  wrappedKb: Buffer;
   createdAt: number;
 }
 

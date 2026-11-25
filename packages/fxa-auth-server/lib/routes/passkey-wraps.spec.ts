@@ -30,11 +30,9 @@ const field = (bytes: number, fill: number) =>
   Buffer.alloc(bytes, fill).toString('base64url');
 
 const validEnvelope = () => ({
-  pkR: field(V1_WIDTHS.pkR, 0x04),
-  prfWrappedSkR: field(V1_WIDTHS.prfWrappedSkR, 0x11),
+  kdfSalt: field(V1_WIDTHS.kdfSalt, 0x11),
   keyWrapIv: field(V1_WIDTHS.keyWrapIv, 0x22),
-  hpkeEncapsulatedSecret: field(V1_WIDTHS.hpkeEncapsulatedSecret, 0x33),
-  hpkeSealedKb: field(V1_WIDTHS.hpkeSealedKb, 0x44),
+  wrappedKb: field(V1_WIDTHS.wrappedKb, 0x44),
 });
 
 const validPayload = (overrides: Record<string, unknown> = {}) => ({
@@ -55,11 +53,9 @@ const SESSION_CREATED_AT = KEYS_CHANGED_AT + 5_000;
 const storedWrap = (overrides: Record<string, unknown> = {}) => ({
   uid: Buffer.from(UID, 'hex'),
   credentialId: Buffer.from(CREDENTIAL_ID, 'base64url'),
-  pkR: Buffer.alloc(V1_WIDTHS.pkR, 0x04),
-  prfWrappedSkR: Buffer.alloc(V1_WIDTHS.prfWrappedSkR, 0x11),
+  kdfSalt: Buffer.alloc(V1_WIDTHS.kdfSalt, 0x11),
   keyWrapIv: Buffer.alloc(V1_WIDTHS.keyWrapIv, 0x22),
-  hpkeEncapsulatedSecret: Buffer.alloc(V1_WIDTHS.hpkeEncapsulatedSecret, 0x33),
-  hpkeSealedKb: Buffer.alloc(V1_WIDTHS.hpkeSealedKb, 0x44),
+  wrappedKb: Buffer.alloc(V1_WIDTHS.wrappedKb, 0x44),
   createdAt: WRAP_CREATED_AT,
   ...overrides,
 });
@@ -168,14 +164,9 @@ describe('passkey wraps routes', () => {
         UID,
         CREDENTIAL_ID,
         {
-          pkR: Buffer.alloc(V1_WIDTHS.pkR, 0x04),
-          prfWrappedSkR: Buffer.alloc(V1_WIDTHS.prfWrappedSkR, 0x11),
+          kdfSalt: Buffer.alloc(V1_WIDTHS.kdfSalt, 0x11),
           keyWrapIv: Buffer.alloc(V1_WIDTHS.keyWrapIv, 0x22),
-          hpkeEncapsulatedSecret: Buffer.alloc(
-            V1_WIDTHS.hpkeEncapsulatedSecret,
-            0x33
-          ),
-          hpkeSealedKb: Buffer.alloc(V1_WIDTHS.hpkeSealedKb, 0x44),
+          wrappedKb: Buffer.alloc(V1_WIDTHS.wrappedKb, 0x44),
         },
         expect.any(Number),
         KEYS_CHANGED_AT
@@ -403,18 +394,11 @@ describe('passkey wraps routes', () => {
 
     it('returns the envelope base64url-encoded, with its createdAt', async () => {
       await expect(runGet()).resolves.toEqual({
-        pkR: Buffer.alloc(V1_WIDTHS.pkR, 0x04).toString('base64url'),
-        prfWrappedSkR: Buffer.alloc(V1_WIDTHS.prfWrappedSkR, 0x11).toString(
-          'base64url'
-        ),
+        kdfSalt: Buffer.alloc(V1_WIDTHS.kdfSalt, 0x11).toString('base64url'),
         keyWrapIv: Buffer.alloc(V1_WIDTHS.keyWrapIv, 0x22).toString(
           'base64url'
         ),
-        hpkeEncapsulatedSecret: Buffer.alloc(
-          V1_WIDTHS.hpkeEncapsulatedSecret,
-          0x33
-        ).toString('base64url'),
-        hpkeSealedKb: Buffer.alloc(V1_WIDTHS.hpkeSealedKb, 0x44).toString(
+        wrappedKb: Buffer.alloc(V1_WIDTHS.wrappedKb, 0x44).toString(
           'base64url'
         ),
         createdAt: WRAP_CREATED_AT,

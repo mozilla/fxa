@@ -748,11 +748,9 @@ describe('#integration - remote db', () => {
         account.uid,
         {
           credentialId,
-          pkR: wrap.pkR,
-          prfWrappedSkR: wrap.prfWrappedSkR,
+          kdfSalt: wrap.kdfSalt,
           keyWrapIv: wrap.keyWrapIv,
-          hpkeEncapsulatedSecret: wrap.hpkeEncapsulatedSecret,
-          hpkeSealedKb: wrap.hpkeSealedKb,
+          wrappedKb: wrap.wrappedKb,
         },
         Date.now()
       );

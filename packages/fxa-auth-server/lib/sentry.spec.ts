@@ -125,8 +125,8 @@ describe('Sentry', () => {
         },
       })
     ).toEqual({ response: { clientExtensionResults: { prf: '[Filtered]' } } });
-    expect(filterExtras({ hpkeEncapsulatedSecret: 'AAAA' })).toEqual({
-      hpkeEncapsulatedSecret: '[Filtered]',
+    expect(filterExtras({ wrappedKb: 'AAAA' })).toEqual({
+      wrappedKb: '[Filtered]',
     });
   });
 

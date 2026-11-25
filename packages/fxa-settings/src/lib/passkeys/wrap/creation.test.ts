@@ -318,8 +318,8 @@ describe('createPasskeyWrap', () => {
 
   describe('platform crypto', () => {
     it('refuses to store an envelope this platform cannot reopen', async () => {
-      // Only opening exercises the skR unwrap and HPKE decap.
-      mockOpenWrapEnvelope.mockRejectedValue(new Error('decap failed'));
+      // Only opening exercises the key derivation and AES-GCM unwrap.
+      mockOpenWrapEnvelope.mockRejectedValue(new Error('unwrap failed'));
 
       const outcome = await createPasskeyWrap(authClient(), args());
 
@@ -485,11 +485,9 @@ describe('createPasskeyWrap', () => {
 
 describe('retryPasskeyWrapStore', () => {
   const envelope: PasskeyWrapEnvelope = {
-    pkR: Uint8Array.of(1),
-    prfWrappedSkR: Uint8Array.of(2),
+    kdfSalt: Uint8Array.of(1),
     keyWrapIv: Uint8Array.of(3),
-    hpkeEncapsulatedSecret: Uint8Array.of(4),
-    hpkeSealedKb: Uint8Array.of(5),
+    wrappedKb: Uint8Array.of(5),
   };
   const retry = () =>
     retryPasskeyWrapStore(

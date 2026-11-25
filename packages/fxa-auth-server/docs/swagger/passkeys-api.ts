@@ -248,10 +248,10 @@ const PASSKEYS_API_DOCS = {
         🔒 Authenticated with MFA JWT (scope: mfa:passkey:wraps)
 
         Stores the wrap envelope for one passkey. The envelope is produced entirely
-        on the client: \`kB\` is sealed with HPKE to a per-wrap recipient key, whose
-        private half is encrypted under a key derived from the credential's WebAuthn
-        PRF output. The server stores all five fields uninterpreted and never sees
-        \`kB\`, the private key, or the PRF output.
+        on the client: \`kB\` is encrypted with AES-256-GCM under a key derived from
+        the credential's WebAuthn PRF output and the per-wrap \`kdfSalt\`. The server
+        stores the three fields uninterpreted and never sees \`kB\`, the derived
+        key, or the PRF output.
 
         The token must be bound to \`credentialId\`, as every token from
         \`/passkey/authentication/finish\` and \`/passkey/verification/finish\` is.
@@ -263,11 +263,9 @@ const PASSKEYS_API_DOCS = {
 
         **Request body:**
         - \`credentialId\` (string, required) — base64url credential ID
-        - \`pkR\` (string, required) — base64url, 133 bytes
-        - \`prfWrappedSkR\` (string, required) — base64url, 82 bytes
+        - \`kdfSalt\` (string, required) — base64url, 32 bytes
         - \`keyWrapIv\` (string, required) — base64url, 12 bytes
-        - \`hpkeEncapsulatedSecret\` (string, required) — base64url, 133 bytes
-        - \`hpkeSealedKb\` (string, required) — base64url, 48 bytes
+        - \`wrappedKb\` (string, required) — base64url, 48 bytes
 
         **Response:** \`{ created: boolean }\` — false when an identical wrap was
         already stored. A different wrap that predates the account's
@@ -295,8 +293,7 @@ const PASSKEYS_API_DOCS = {
         Returns the wrap envelope for one passkey, as stored. Unsealing happens
         entirely on the client and needs the credential's WebAuthn PRF output, so
         the envelope is inert to anyone who cannot complete an assertion with that
-        credential. The server never sees \`kB\`, the recipient private key, or the
-        PRF output.
+        credential. The server never sees \`kB\` or the PRF output.
 
         The token must be bound to \`credentialId\`, as it is for the write. A wrap
         is only ever fetched to complete a sign-in with that same credential.
@@ -308,9 +305,8 @@ const PASSKEYS_API_DOCS = {
         **Path parameters:**
         - \`credentialId\` (string, required) — base64url credential ID
 
-        **Response:** the five base64url envelope fields (\`pkR\`,
-        \`prfWrappedSkR\`, \`keyWrapIv\`, \`hpkeEncapsulatedSecret\`,
-        \`hpkeSealedKb\`) plus \`createdAt\`.
+        **Response:** the three base64url envelope fields (\`kdfSalt\`,
+        \`keyWrapIv\`, \`wrappedKb\`) plus \`createdAt\`.
 
         **Errors:**
         - \`401\` errno 223 — the token is invalid, or is not bound to \`credentialId\`

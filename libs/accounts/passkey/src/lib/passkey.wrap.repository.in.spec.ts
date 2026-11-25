@@ -75,11 +75,9 @@ describe('PasskeyWrapRepository (Integration)', () => {
     const wrap = PasskeyWrapFactory();
     return {
       credentialId,
-      pkR: wrap.pkR,
-      prfWrappedSkR: wrap.prfWrappedSkR,
+      kdfSalt: wrap.kdfSalt,
       keyWrapIv: wrap.keyWrapIv,
-      hpkeEncapsulatedSecret: wrap.hpkeEncapsulatedSecret,
-      hpkeSealedKb: wrap.hpkeSealedKb,
+      wrappedKb: wrap.wrappedKb,
     };
   }
 
@@ -94,24 +92,18 @@ describe('PasskeyWrapRepository (Integration)', () => {
       const stored = await findPasskeyWrap(db, uid, credentialId);
 
       expect(stored).toBeDefined();
-      expect(stored?.pkR.equals(data.pkR)).toBe(true);
-      expect(stored?.prfWrappedSkR.equals(data.prfWrappedSkR)).toBe(true);
+      expect(stored?.kdfSalt.equals(data.kdfSalt)).toBe(true);
       expect(stored?.keyWrapIv.equals(data.keyWrapIv)).toBe(true);
-      expect(
-        stored?.hpkeEncapsulatedSecret.equals(data.hpkeEncapsulatedSecret)
-      ).toBe(true);
-      expect(stored?.hpkeSealedKb.equals(data.hpkeSealedKb)).toBe(true);
+      expect(stored?.wrappedKb.equals(data.wrappedKb)).toBe(true);
     });
 
     // A width assertion on a read is vacuous — BINARY(n) always returns n bytes.
     // What matters is that a short value is refused before MySQL right-pads it
     // into something that can never be opened.
     it.each([
-      ['pkR', 132],
-      ['prfWrappedSkR', 81],
+      ['kdfSalt', 31],
       ['keyWrapIv', 11],
-      ['hpkeEncapsulatedSecret', 132],
-      ['hpkeSealedKb', 47],
+      ['wrappedKb', 47],
     ])(
       'refuses a short %s rather than letting MySQL pad it',
       async (field, short) => {

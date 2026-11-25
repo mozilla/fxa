@@ -60,8 +60,8 @@ export async function recoverPasswordlessKb({
   }
   let unwrapped: UnwrapPasskeyKbResult;
   try {
-    // Loaded on demand: the wrap module pulls in the HPKE suite, which would
-    // otherwise ship in the chunk every sign-in loads.
+    // Loaded on demand so the wrap module stays out of the chunk every
+    // sign-in loads.
     const { unwrapPasskeyKb } = await import('./consumption');
     unwrapped = await unwrapPasskeyKb(authClient, {
       mfaToken,

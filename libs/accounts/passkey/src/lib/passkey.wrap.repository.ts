@@ -7,8 +7,8 @@
  * functional repository pattern as `passkey.repository.ts`.
  *
  * The envelope is opaque here. Every field is a fixed-width binary from the
- * client's `passkey-crypto` module, stored and returned uninterpreted. `kB` and
- * `skR` never reach this process.
+ * client's `passkey-crypto` module, stored and returned uninterpreted. `kB`
+ * and `prfOut` never reach this process.
  */
 
 import { uuidTransformer } from '@fxa/shared/db/mysql/core';
@@ -20,7 +20,7 @@ import type {
 import { base64urlToBuffer } from './passkey.repository';
 
 /**
- * Widths the v1 ciphersuite produces, matching the BINARY columns.
+ * Widths the v1 format produces, matching the BINARY columns.
  *
  * Checked here because MySQL right-pads a short BINARY value instead of
  * rejecting it, which corrupts the envelope permanently. Routes validate
@@ -28,11 +28,9 @@ import { base64urlToBuffer } from './passkey.repository';
  * still refuse the write.
  */
 export const V1_WIDTHS = {
-  pkR: 133,
-  prfWrappedSkR: 82,
+  kdfSalt: 32,
   keyWrapIv: 12,
-  hpkeEncapsulatedSecret: 133,
-  hpkeSealedKb: 48,
+  wrappedKb: 48,
 } as const;
 
 /**
@@ -52,13 +50,7 @@ function assertWidth(name: keyof typeof V1_WIDTHS, value: Buffer): void {
 /**
  * The binary fields a caller supplies when storing a wrap.
  */
-export type PasskeyWrapEnvelope = {
-  pkR: Buffer;
-  prfWrappedSkR: Buffer;
-  keyWrapIv: Buffer;
-  hpkeEncapsulatedSecret: Buffer;
-  hpkeSealedKb: Buffer;
-};
+export type PasskeyWrapEnvelope = Record<keyof typeof V1_WIDTHS, Buffer>;
 
 /**
  * The envelope as it travels over HTTP: the same fields, base64url-encoded.
@@ -131,19 +123,15 @@ export async function insertPasskeyWrap(
   data: NewPasskeyWrapData,
   createdAt: number
 ): Promise<void> {
-  assertWidth('pkR', data.pkR);
-  assertWidth('prfWrappedSkR', data.prfWrappedSkR);
-  assertWidth('keyWrapIv', data.keyWrapIv);
-  assertWidth('hpkeEncapsulatedSecret', data.hpkeEncapsulatedSecret);
-  assertWidth('hpkeSealedKb', data.hpkeSealedKb);
+  for (const name of Object.keys(V1_WIDTHS) as Array<keyof typeof V1_WIDTHS>) {
+    assertWidth(name, data[name]);
+  }
 
   const newWrap: NewPasskeyWrap = {
     credentialId: base64urlToBuffer(data.credentialId),
-    pkR: data.pkR,
-    prfWrappedSkR: data.prfWrappedSkR,
+    kdfSalt: data.kdfSalt,
     keyWrapIv: data.keyWrapIv,
-    hpkeEncapsulatedSecret: data.hpkeEncapsulatedSecret,
-    hpkeSealedKb: data.hpkeSealedKb,
+    wrappedKb: data.wrappedKb,
     createdAt,
     uid: uuidTransformer.to(uid),
   };

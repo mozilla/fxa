@@ -7,32 +7,49 @@
  *
  * FROZEN FORMAT CONTRACT. Every value here is baked into stored envelopes;
  * changing one locks users out of their sync data and requires a new envelope
- * version — see FXA-14155. The sizes will also be validated server-side and in
- * the `passkeyWraps` schema, so all three must move together.
+ * version — see `docs/adr/0053-passkey-wrap-format-stability.md`. The sizes
+ * are also validated server-side and in the `passkeyWraps` schema, so all
+ * three must move together.
+ */
+
+/**
+ * ASCII only, so `charCodeAt` is exact.
+ */
+const ascii = (text: string) => Uint8Array.from(text, (c) => c.charCodeAt(0));
+
+/**
+ * HKDF `info` for deriving the AES-GCM key from `prfOut`.
  *
- * The ciphersuite lives in `suite.ts`, and each layer's domain-separation label
- * sits with the layer that applies it. `hpke.test.ts` pins the suite's registry
- * ids.
+ * FROZEN FORMAT CONTRACT. `prfOut` is not used as the AES key directly: it is
+ * a credential-scoped secret with no domain separation of its own, so any
+ * second use of the same PRF salt would share a key with this wrap. Deriving
+ * costs one HKDF call and scopes the key to this purpose. Distinct from
+ * `KEY_WRAP_AAD_LABEL` so the derived key and the AAD can never collide.
  */
+export const KEY_WRAP_KDF_INFO = ascii('fxa-passkey-kb-wrap-key-v1');
 
 /**
- * HPKE mode 0, `mode_base` (tech spec §2.2.2): no PSK, no sender auth.
+ * Domain-separation label, prefixed to the AES-GCM `aad` in `key-wrap.ts`.
+ *
+ * FROZEN FORMAT CONTRACT. Not re-exported from `index.ts`, so a caller cannot
+ * prefix it a second time.
  */
-export const HPKE_MODE_BASE = 0;
+export const KEY_WRAP_AAD_LABEL = ascii('fxa-passkey-kb-wrap-aad-v1');
 
 /**
- * Curve for the per-wrap recipient keypair.
+ * Hash for the HKDF that derives the wrap key from `prfOut`.
  */
-export const RECIPIENT_CURVE = 'P-521';
+export const KEY_WRAP_KDF_HASH = 'SHA-512';
 
 /**
- * Web Crypto algorithm name for the recipient keypair.
+ * HKDF salt length in bytes. Fresh per wrap, so the AES key differs on every
+ * wrap even though `prfOut` is the same for a credential's lifetime.
  */
-export const RECIPIENT_ALGORITHM = 'ECDH';
+export const KDF_SALT_BYTES = 32;
 
 /**
  * AES-GCM nonce length in bytes. Never reuse a nonce under this key — see
- * `wrapRecipientPrivateKey`.
+ * `wrapKb`.
  */
 export const KEY_WRAP_IV_BYTES = 12;
 
@@ -40,15 +57,9 @@ export const KEY_WRAP_IV_BYTES = 12;
  * Length of the WebAuthn PRF output. `prfOut` must be exactly this long.
  *
  * It is HKDF input keying material, not the AES key itself — see
- * `derivePrfKey`.
+ * `deriveWrapKey`.
  */
 export const PRF_OUT_BYTES = 32;
-
-/**
- * Hash for the HKDF that derives the `skR` wrap key from `prfOut`. Matches the
- * HPKE suite's KDF so there is one hash in the design, not two.
- */
-export const KEY_WRAP_KDF_HASH = 'SHA-512';
 
 /**
  * Length of a decoded `uid`. Matches `accounts.uid BINARY(16)`.
@@ -56,47 +67,26 @@ export const KEY_WRAP_KDF_HASH = 'SHA-512';
 export const UID_BYTES = 16;
 
 /**
- * Length of `kB`. Any other length seals to the wrong width.
+ * Length of `kB`. Any other length wraps to the wrong width.
  */
 export const KB_BYTES = 32;
 
 /**
  * Largest decoded `credentialId` the wrap can be stored against. The WebAuthn
  * L2 ceiling, matching `passkeys.credentialId VARBINARY(1023)` and the route
- * validator. Anything longer seals an envelope the server will not accept.
+ * validator. Anything longer wraps an envelope the server will not accept.
  */
 export const CREDENTIAL_ID_MAX_BYTES = 1023;
 
 /**
- * Byte lengths for the v1 ciphersuite. Tests assert these, so a library or
- * platform change fails here rather than writing envelopes the server rejects.
+ * Byte lengths of the v1 envelope fields. Tests assert these, so a platform
+ * change fails here rather than writing envelopes the server rejects.
  */
 export const V1_SIZES = {
-  /**
-   * Uncompressed P-521 point: 0x04 || x(66) || y(66).
-   */
-  pkR: 133,
-  /**
-   * RFC 9180 `Nsk`: the private-key scalar, big-endian.
-   *
-   * Not a PKCS#8 export. PKCS#8 is 241 bytes only because Web Crypto emits an
-   * OPTIONAL public-key field that no spec requires; an implementation that
-   * omitted it would be zero-padded into the fixed-width column and never open
-   * again. Note the library's serialiser does not pad — it decodes the JWK `d`
-   * as-is — so `generateRecipientKeyPair` fixes the width itself.
-   */
-  skRRaw: 66,
-  /**
-   * AES-256-GCM(raw skR scalar) + 16-byte tag.
-   */
-  prfWrappedSkR: 82,
+  kdfSalt: KDF_SALT_BYTES,
   keyWrapIv: KEY_WRAP_IV_BYTES,
-  /**
-   * RFC 9180 `Nenc`: an uncompressed point.
-   */
-  hpkeEncapsulatedSecret: 133,
   /**
    * 32-byte kB + 16-byte tag.
    */
-  hpkeSealedKb: 48,
+  wrappedKb: KB_BYTES + 16,
 } as const;

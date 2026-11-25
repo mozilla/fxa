@@ -324,11 +324,9 @@ describe('InlinePasswordlessSyncSetupContainer', () => {
 
   describe('dismissed confirmation prompt', () => {
     const envelope = {
-      pkR: Uint8Array.of(1),
-      prfWrappedSkR: Uint8Array.of(2),
+      kdfSalt: Uint8Array.of(1),
       keyWrapIv: Uint8Array.of(3),
-      hpkeEncapsulatedSecret: Uint8Array.of(4),
-      hpkeSealedKb: Uint8Array.of(5),
+      wrappedKb: Uint8Array.of(5),
     };
     const dismiss = () =>
       mockCreateWrap.mockResolvedValue({
@@ -540,7 +538,7 @@ describe('InlinePasswordlessSyncSetupContainer', () => {
       expect(glean.upgradePromptFrontendError).not.toHaveBeenCalled();
     });
 
-    const envelope = { pkR: Uint8Array.of(1) };
+    const envelope = { kdfSalt: Uint8Array.of(1) };
     it.each<[string, string, () => void]>([
       [
         'signin_cancelled',

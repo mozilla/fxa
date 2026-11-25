@@ -228,12 +228,9 @@ export const PasskeyWrapFactory = (
   // Even length: getHexBuffer counts hex characters, and an odd count is
   // silently truncated by Buffer.from.
   credentialId: getHexBuffer(faker.number.int({ min: 16, max: 64 }) * 2),
-  // 0x04 || x || y, the uncompressed point tag the client writes.
-  pkR: getHexBuffer(264, '04'),
-  prfWrappedSkR: getHexBuffer(164),
+  kdfSalt: getHexBuffer(64),
   keyWrapIv: getHexBuffer(24),
-  hpkeEncapsulatedSecret: getHexBuffer(264, '04'),
-  hpkeSealedKb: getHexBuffer(96),
+  wrappedKb: getHexBuffer(96),
   createdAt: faker.date.recent().getTime(),
   ...override,
 });

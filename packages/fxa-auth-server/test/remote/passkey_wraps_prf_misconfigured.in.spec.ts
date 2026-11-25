@@ -119,11 +119,9 @@ describe('#integration - passkey wraps with a malformed PRF salt', () => {
         mfaToken,
         {
           credentialId,
-          pkR: field(V1_WIDTHS.pkR),
-          prfWrappedSkR: field(V1_WIDTHS.prfWrappedSkR),
+          kdfSalt: field(V1_WIDTHS.kdfSalt),
           keyWrapIv: field(V1_WIDTHS.keyWrapIv),
-          hpkeEncapsulatedSecret: field(V1_WIDTHS.hpkeEncapsulatedSecret),
-          hpkeSealedKb: field(V1_WIDTHS.hpkeSealedKb),
+          wrappedKb: field(V1_WIDTHS.wrappedKb),
         }
       )
     ).rejects.toMatchObject({ code: 403, errno: ERRNO.FEATURE_NOT_ENABLED });
