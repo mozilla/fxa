@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Storybooks for commit 155e3852111c5fc7a9decda32485d76989596688</title>
+  <title>Storybooks for commit cf2975e94789fa48d452a6642265630f76cb7bba</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,34 +23,37 @@
   </style>
 </head>
 <body>
-  <h1>Storybooks for commit 155e3852111c5fc7a9decda32485d76989596688</h1>
+  <h1>Storybooks for commit cf2975e94789fa48d452a6642265630f76cb7bba</h1>
   <ul>
     <li><a href="./fxa-settings/">fxa-settings</a></li>
   </ul>
   <dl>
     <dt>Date</dt>
-    <dd>11/23/2026, 10:19:59 PM UTC</dd>
+    <dd>11/25/2026, 7:30:26 PM UTC</dd>
     <dt>Summary</dt>
     <dd><pre>docs(adr): freeze the passkey wrap format at v1</pre></dd>
     <dt>Description</dt>
     <dd><pre>Because:
 
-- The wrap envelope is a compatibility contract the server cannot migrate;
-  a format change after production writes sends every passkey user back to
-  their password with no explanation.
-- The policy and the reasoning were spread across five tickets with no
-  single record.
+- The passkey wrap envelope is a compatibility contract the server
+  cannot migrate; a format change after production writes sends every
+  passkey user back to their password.
+- The policy and its reasoning were spread across five tickets.
+- The format became one AES-GCM layer in #21823, and the ADR has to
+  record that decision rather than the two-layer design it replaced.
 
 This commit:
 
-- Adds ADR 0053: the freeze, the rejected options, what counts as a format
-  change, what holds it in place, and the shape of a v2 (table per version).
+- Adds ADR 0053: the freeze, four options, what counts as a format
+  change, what holds it in place, and the shape of a v2.
+- Records the move from HPKE to one layer and why, with the freeze dated
+  from that fixture regeneration.
 - Moves the per-value design rationale into the passkey-crypto README.
-- Corrects doc comments: P-521 leading-zero frequency, hpke import surface.
-- Adds CODEOWNERS entries for the crypto module, the passkey lib, and the
-  passkeyWraps migrations.
+- Corrects doc comments in the module.
+- Adds CODEOWNERS entries for passkey-crypto, libs/accounts/passkey and
+  the passkeyWraps migrations.
 
-Closes FXA-14155</pre></dd>
+Closes: FXA-14155</pre></dd>
   </dl>
 </body>
 </html>

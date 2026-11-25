@@ -79,24 +79,6 @@ resend-link-success-banner-heading = A new link was sent to your email.
 resend-success-banner-description = Add { $accountsEmail } to your contacts to ensure a smooth delivery.
 
 
-brand-banner-dismiss-button-2 =
-  .aria-label = Close banner
-
-brand-prelaunch-title = { -product-firefox-accounts } will be renamed { -product-mozilla-accounts } on Nov 1
-
-brand-prelaunch-subtitle = You’ll still sign in with the same username and password, and there are no other changes to the products that you use.
-
-brand-postlaunch-title = We’ve renamed { -product-firefox-accounts } to { -product-mozilla-accounts }. You’ll still sign in with the same username and password, and there are no other changes to the products that you use.
-
-brand-learn-more = Learn more
-
-brand-close-banner =
-  .alt = Close Banner
-
-brand-m-logo =
-  .alt = { -brand-mozilla } m logo
-
-
 button-back-aria-label = Back
 button-back-title = Back
 
@@ -110,15 +92,6 @@ button-passkey-signin = Sign in with passkey
 
 button-passkey-signin-loading = Securely signing in…
 
-
-
-choose-newsletters-prompt-2 = Get more from { -brand-mozilla }:
-choose-newsletters-option-latest-news =
-  .label = Get our latest news and product updates
-choose-newsletters-option-test-pilot =
-  .label = Early access to test new products
-choose-newsletters-option-reclaim-the-internet =
-  .label = Action alerts to reclaim the internet
 
 
 dark-mode-toggle-light = Light
@@ -303,8 +276,6 @@ signin-recovery-code-image-description =
   .aria-label = Document that contains hidden text.
 signin-totp-code-image-label =
   .aria-label = A device with a hidden 6-digit code.
-confirm-signup-aria-label =
-  .aria-label = An envelope containing a link
 security-shield-aria-label =
   .aria-label = Illustration to represent an account recovery key.
 recovery-key-image-aria-label =
@@ -364,6 +335,8 @@ signin-link-damaged-header = Confirmation link damaged
 
 report-signin-link-damaged-header = Link damaged
 
+report-signin-link-damaged-page-title = Report link damaged
+
 reset-pwd-link-damaged-message = The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.
 
 
@@ -375,17 +348,12 @@ remember-password-passkey-text = Have a passkey or remember your password?
 remember-password-signin-link = Sign in
 
 
-primary-email-confirmation-link-reused = Primary email already confirmed
-
-signin-confirmation-link-reused = Sign-in already confirmed
-
-confirmation-link-reused-message = That confirmation link was already used, and can only be used once.
-
-
 locale-toggle-select-label = Select language
 locale-toggle-browser-default = Browser default
 
 error-bad-request = Bad Request
+
+error-bad-request-page-title = Bad request
 
 
 pair-unsupported-hint-heading = Finish pairing in the app
@@ -393,10 +361,6 @@ pair-unsupported-hint-step-close-page = Close this page
 pair-unsupported-hint-step-app-menu = Tap the <b>app menu</b>
 pair-unsupported-hint-step-sign-in = <b>Sign in</b>, then scan the code
 pair-unsupported-hint-learn-more-link = Learn more
-
-
-password-info-balloon-why-password-info = You need this password to access any encrypted data you store with us.
-password-info-balloon-reset-risk-info = A reset means potentially losing data like passwords and bookmarks.
 
 
 password-strength-long-instruction = Pick a strong password you haven’t used on other sites. Ensure it meets the security requirements:
@@ -442,6 +406,12 @@ ready-continue = Continue
 sign-in-complete-header = Sign-in confirmed
 sign-up-complete-header = Account confirmed
 primary-email-verified-header = Primary email confirmed
+
+sign-in-complete-page-title = Sign-in confirmed
+
+sign-up-complete-page-title = Account confirmed
+
+primary-email-verified-page-title = Primary email confirmed
 
 flow-recovery-key-download-storage-ideas-heading-v2 = Places to store your key:
 flow-recovery-key-download-storage-ideas-folder-v2 = Folder on secure device
@@ -737,6 +707,7 @@ modal-mfa-protected-confirm-button = Confirm
 
 modal-mfa-protected-code-expired = Code expired?
 modal-mfa-protected-resend-code-link = Email new code.
+modal-mfa-protected-clock-skew-error = Your device clock is wrong. Correct your device date and time, then try again.
 
 
 
@@ -1068,6 +1039,8 @@ security-recent-activity-link = View recent account activity
 signout-sync-header = Session Expired
 signout-sync-session-expired = Sorry, something went wrong. Please sign out from the browser menu and try again.
 
+signout-sync-page-title = Session expired
+
 
 tfa-row-backup-codes-title = Backup authentication codes
 tfa-row-backup-codes-not-available = No codes available
@@ -1342,12 +1315,18 @@ connect-another-device-not-now-link = Not now
 connect-another-device-android-complete-setup-message = Sign in to { -brand-firefox } for Android to complete setup
 connect-another-device-ios-complete-setup-message = Sign in to { -brand-firefox } for iOS to complete setup
 
+connect-another-device-page-title = Connect another device
+
 
 cookies-disabled-header = Local storage and cookies are required
 cookies-disabled-enable-prompt-2 = Please enable cookies and local storage in your browser to access your { -product-mozilla-account }. Doing so will enable functionality such as remembering you between sessions.
 cookies-disabled-button-try-again = Try again
 cookies-disabled-learn-more = Learn more
 
+cookies-disabled-page-title = Cookies and local storage required
+
+
+index-page-title = Sign in or create an account
 
 index-header = Enter your email
 index-sync-header = Continue to your { -product-mozilla-account }
@@ -1384,6 +1363,24 @@ inline-recovery-key-setup-download-subheader = Download and store it now
 inline-recovery-key-setup-download-info = Store this key somewhere you’ll remember — you won’t be able to get back to this page later.
 inline-recovery-key-setup-hint-header = Security recommendation
 
+inline-recovery-key-setup-create-page-title = Create an account recovery key
+
+inline-recovery-key-setup-download-page-title = Download your account recovery key
+
+inline-recovery-key-setup-hint-page-title = Add a recovery key hint
+
+inline-recovery-setup-choice-page-title = Choose a recovery method
+
+inline-recovery-setup-download-codes-page-title = Save your backup codes
+
+inline-recovery-setup-confirm-code-page-title = Confirm a backup code
+
+inline-recovery-setup-phone-number-page-title = Add a recovery phone
+
+inline-recovery-setup-phone-code-page-title = Confirm your recovery phone
+
+inline-recovery-setup-complete-page-title = Two-step authentication on
+
 
 inline-totp-setup-cancel-setup-button = Cancel setup
 inline-totp-setup-continue-button = Continue
@@ -1416,15 +1413,23 @@ tfa-qr-code-alt = Use the code { $code } to set up two-step authentication in su
 
 inline-totp-setup-page-title = Two-step authentication
 
+inline-totp-setup-intro-page-title = Set up two-step authentication
+
+inline-totp-setup-enrol-page-title = Connect your authenticator app
+
 
 page-not-found-heading = Page not found
 page-not-found-description = The page you requested is not found. We’ve been notified and will fix any links that may be broken.
 page-not-found-home-button = Home
 
+page-not-found-page-title = Page not found
+
 
 pair-auth-allow-heading-text = Did you just sign in to { -brand-firefox }?
 pair-auth-allow-confirm-button = Yes, approve device
 pair-auth-allow-refuse-device-link = If this wasn’t you, <a>change your password</a>
+
+pair-auth-allow-page-title = Approve { -brand-firefox } sign-in
 
 
 pair-auth-complete-heading = Device connected
@@ -1438,6 +1443,10 @@ pair-auth-complete-send-tab-heading = You’re ready to send some tabs
 pair-auth-complete-send-tab-device-connected = { $deviceFamily } for { $deviceOS } is connected.
 pair-auth-complete-send-tab-benefits = You’re free to instantly send open tabs, passwords, and bookmarks between devices.
 
+pair-auth-complete-page-title = Device connected
+
+pair-auth-complete-send-tab-page-title = Ready to send tabs
+
 
 auth-totp-heading-w-default-service = Enter authentication code <span>to continue to account settings</span>
 auth-totp-heading-w-custom-service = Enter authentication code <span>to continue to { $serviceName }</span>
@@ -1446,13 +1455,19 @@ auth-totp-input-label = Enter 6-digit code
 auth-totp-confirm-button = Confirm
 auth-totp-code-required-error = Authentication code required
 
+auth-totp-page-title = Pair with two-step authentication
+
 
 pair-wait-for-supp-heading-text = Approval now required <span>from your other device</span>
+
+pair-wait-for-supp-page-title = Approve on your other device
 
 
 pair-failure-header-v2 = Device pairing failed
 pair-failure-message-v2 = The setup couldn’t be completed. Please sign in with your email.
 pair-failure-try-again-link = Try again
+
+pair-failure-page-title = Device pairing failed
 
 
 pair-sync-header = Sync { -brand-firefox } on your phone or tablet
@@ -1487,18 +1502,30 @@ pair-download-step-scan-qr = <b>Step { $stepNumber }</b>: Download { -brand-fire
 pair-download-step-continue-sync = <b>Step { $stepNumber }</b>: Select “Continue to sync” to sync your { -brand-firefox } experience on your mobile device.
 pair-continue-to-sync-button = Continue to sync
 
+pair-choice-page-title = Connect another device
+
+pair-choice-send-tab-page-title = Send tabs to another device
+
+pair-download-page-title = Download { -brand-firefox } for mobile
+
 
 pair-success-header-2 = Device connected
 pair-success-message-2 = Pairing was successful.
 pair-success-tab-close-message = This tab will be closed automatically by { -brand-firefox }.
+
+pair-success-page-title = Device connected
 
 
 pair-supp-allow-heading-text = Confirm pairing <span>for { $email }</span>
 pair-supp-allow-confirm-button = Confirm pairing
 pair-supp-allow-cancel-link = Cancel
 
+pair-supp-allow-page-title = Confirm pairing
+
 
 pair-wait-for-auth-heading-text = Approval now required <span>from your other device</span>
+
+pair-wait-for-auth-page-title = Approve on your other device
 
 
 pair-unsupported-header = Pair using an app
@@ -1519,21 +1546,35 @@ pair-unsupported-learn-more-link-v2 = Learn more
 pair-unsupported-desktop-firefox-fallback-header-v2 = Oops! Something went wrong.
 pair-unsupported-desktop-firefox-fallback-message-v2 = Please close this tab and try again.
 
+pair-unsupported-desktop-non-firefox-page-title = { -brand-firefox } required
+
+pair-unsupported-system-camera-page-title = Pair using an app
+
+pair-unsupported-mobile-page-title = Connect your mobile device
+
+pair-unsupported-desktop-firefox-fallback-page-title = Something went wrong
+
 
 pair2-authority-approve-sign-in-heading = Approve sign-in?
 pair2-authority-approve-sign-in-confirm-button = Yes, approve sign-in
 pair2-authority-approve-sign-in-change-password = Not you? <changePassword>Change your password</changePassword>
+
+pair2-authority-approve-sign-in-page-title = Approve sign-in
 
 
 pair2-authority-continue-on-mobile-heading = Continue on your mobile device
 pair2-authority-continue-on-mobile-description = Follow the steps on your phone or tablet.
 pair2-authority-continue-on-mobile-cancel-button = Cancel
 
+pair2-authority-continue-on-mobile-page-title = Continue on your mobile device
+
 
 pair2-authority-download-firefox-heading = Open { -brand-firefox } to sync
 pair2-authority-download-firefox-instruction-v2 = To set up syncing across devices, open { -brand-firefox } on this device and visit <b>firefox.com/pair</b>.
 
 pair2-authority-download-firefox-cta = Download { -brand-firefox }
+
+pair2-authority-download-firefox-page-title = Open { -brand-firefox } to sync
 
 
 pair2-authority-scan-qr-heading = Scan to connect your mobile device
@@ -1542,10 +1583,14 @@ pair2-authority-scan-qr-code-aria-label = QR code to connect your mobile device
 pair2-authority-scan-qr-other-ways-link = Other ways to sign in
 pair2-authority-scan-qr-skip-button = Skip for now
 
+pair2-authority-scan-qr-page-title = Scan to connect your mobile device
+
 
 pair2-authority-sync-success-heading-v2 = Your device is connected
 pair2-authority-sync-success-description-v2 = Syncing is underway. It may take a while for your synced data to appear. Feel free to keep browsing.
 pair2-authority-sync-success-sync-settings-button-v2 = Manage sync settings
+
+pair2-authority-sync-success-page-title = Device connected
 
 
 pair2-authority-timeout-and-cancel-timeout-heading = Still want to connect a device?
@@ -1555,15 +1600,23 @@ pair2-authority-timeout-and-cancel-canceled-description = If you change your min
 pair2-authority-timeout-and-cancel-try-again-button = Try again
 pair2-authority-timeout-and-cancel-sync-settings-button = Sync settings
 
+pair2-authority-timeout-and-cancel-timeout-page-title = Connection timed out
+
+pair2-authority-timeout-and-cancel-cancelled-page-title = Pairing cancelled
+
 
 pair2-supplicant-approve-sign-in-heading = One last step to sync
 pair2-supplicant-approve-sign-in-instruction = Approve the sign-in on your computer.
 pair2-supplicant-approve-sign-in-cancel-button = Cancel
 
+pair2-supplicant-approve-sign-in-page-title = One last step to sync
+
 
 pair2-supplicant-connect-this-device-heading = Connect this device to your account?
 pair2-supplicant-connect-this-device-connect-button = Connect
 pair2-supplicant-connect-this-device-cancel-button = Cancel
+
+pair2-supplicant-connect-this-device-page-title = Connect this device
 
 
 pair2-supplicant-download-firefox-heading-v2 = Open { -brand-firefox } on this device
@@ -1574,14 +1627,23 @@ pair2-supplicant-download-firefox-download-button = Download { -brand-firefox }
 pair2-supplicant-download-firefox-have-firefox-button = I already have { -brand-firefox }
 pair2-supplicant-download-firefox-learn-more-link = Learn more
 
+pair2-supplicant-download-firefox-page-title = Open { -brand-firefox } on this device
+
+
+pair2-supplicant-connect-hint-page-title = Finish pairing in the app
+
 
 pair2-supplicant-ready-to-scan-heading = To connect a device
 pair2-supplicant-ready-to-scan-instruction = On your computer, open { -brand-firefox } and go to <b>firefox.com/pair</b>, and follow on screen instructions to connect this mobile device.
 pair2-supplicant-ready-to-scan-learn-more-link = Learn more
 
+pair2-supplicant-ready-to-scan-page-title = Ready to scan
+
 
 pair2-supplicant-sync-success-heading = Your device is connected
 pair2-supplicant-sync-success-description-v2 = Syncing is underway. It may take a while for your synced data to appear. Feel free to keep browsing.
+
+pair2-supplicant-sync-success-page-title = Device connected
 
 
 pair2-supplicant-timeout-and-cancel-timeout-heading = Looks like we timed out
@@ -1591,6 +1653,12 @@ pair2-supplicant-timeout-and-cancel-canceled-description = To connect a device a
 pair2-supplicant-timeout-and-cancel-signed-in-heading = This device is already signed in
 pair2-supplicant-timeout-and-cancel-signed-in-description = To connect to your desktop account, sign out of { -brand-firefox } on this device, then visit <b>firefox.com/pair</b> on your computer to complete sign in.
 
+pair2-supplicant-timeout-and-cancel-timeout-page-title = Connection timed out
+
+pair2-supplicant-timeout-and-cancel-cancelled-page-title = Pairing cancelled
+
+pair2-supplicant-timeout-and-cancel-signed-in-page-title = Device already signed in
+
 
 permissions-heading = { $serviceName } wants access to:
 permissions-label-email = Email address
@@ -1599,21 +1667,29 @@ permissions-label-avatar = Account picture
 permissions-continue-button = Continue
 permissions-cancel-button = Cancel
 
+permissions-page-title = Review permissions
+
 
 force-password-change-heading = Please change your password
 force-password-change-info = We detected suspicious behavior on your { -product-mozilla-account }. To protect your account, please create a new password. You’ll use this password to sign back in to all of your { -product-mozilla-account } services.
 force-password-change-data-info = Synced history, bookmarks, logins, and other personal data will not be lost.
+
+force-password-change-page-title = Change your password
 
 service-welcome-signup-success-banner = { -product-mozilla-account } confirmed
 service-welcome-signin-success-banner = Signed in successfully!
 service-welcome-vpn-heading = Next: Turn on VPN
 service-welcome-vpn-description = One more step to boost your browser’s privacy. Go to the open panel and turn it on.
 
+service-welcome-vpn-page-title = Turn on VPN
+
 
 set-password-heading-v2 = Create password to sync
 set-password-info-v2 = This encrypts your data. It needs to be different from your { -brand-google } or { -brand-apple } account password.
 
 set-password-passwordless-info = This password encrypts your synced data and keeps it secure.
+
+set-password-page-title = Create a password to sync
 
 
 third-party-auth-callback-message = Please wait, you are being redirected to the authorized application.
@@ -1629,6 +1705,8 @@ account-recovery-confirm-key-hint = Your storage hint is:
 account-recovery-confirm-key-button-2 = Continue
 account-recovery-lost-recovery-key-link-2 = Can’t find your account recovery key?
 
+account-recovery-confirm-key-page-title = Reset password with recovery key
+
 
 complete-reset-pw-header-v2 = Create a new password
 complete-reset-password-success-alert = Password set
@@ -1640,12 +1718,16 @@ reset-password-complete-banner-heading = Your password has been reset.
 reset-password-complete-banner-message = Don’t forget to generate a new account recovery key from your { -product-mozilla-account } settings to prevent future sign-in issues.
 complete-reset-password-desktop-relay = { -brand-firefox } will try sending you back to use an email mask after you sign in.
 
+complete-reset-password-page-title = Create a new password
+
 
 confirm-backup-code-reset-password-input-label = Enter 10-character code
 confirm-backup-code-reset-password-confirm-button = Confirm
 confirm-backup-code-reset-password-subheader = Enter backup authentication code
 confirm-backup-code-reset-password-instruction = Enter one of the one-time-use codes you saved when you set up two-step authentication.
 confirm-backup-code-reset-password-locked-out-link = Are you locked out?
+
+confirm-backup-code-reset-password-page-title = Reset password with a backup code
 
 
 confirm-reset-password-with-code-heading = Check your email
@@ -1660,6 +1742,8 @@ confirm-reset-password-otp-resend-code-button = Resend code
 
 confirm-reset-password-otp-different-account-link = Use a different account
 
+confirm-reset-password-with-code-page-title = Check your email to reset your password
+
 
 confirm-totp-reset-password-header = Reset your password
 confirm-totp-reset-password-subheader-v2 = Enter two-step authentication code
@@ -1668,6 +1752,8 @@ confirm-totp-reset-password-trouble-code = Trouble entering code?
 confirm-totp-reset-password-confirm-button = Confirm
 confirm-totp-reset-password-input-label-v2 = Enter 6-digit code
 confirm-totp-reset-password-use-different-account = Use a different account
+
+confirm-totp-reset-password-page-title = Reset password with two-step authentication
 
 
 password-reset-flow-heading = Reset your password
@@ -1683,9 +1769,13 @@ password-reset-submit-button-2 = Continue
 
 password-reset-data-recovery-warning = Resetting your password may affect whether you can recover synced browser data. <learnMoreLink>Learn more</learnMoreLink>
 
+password-reset-flow-page-title = Reset your password
+
 
 reset-password-complete-header = Your password has been reset
 reset-password-confirmed-cta = Continue to { $serviceName }
+
+reset-password-confirmed-page-title = Password reset complete
 
 
 password-reset-recovery-method-header = Reset your password
@@ -1700,6 +1790,8 @@ password-reset-recovery-method-code-info =
   }
 password-reset-recovery-method-send-code-error-heading = There was a problem sending a code to your recovery phone
 password-reset-recovery-method-send-code-error-description = Please try again later or use your backup authentication codes.
+
+password-reset-recovery-method-page-title = Reset password with a recovery method
 
 
 reset-password-recovery-phone-flow-heading = Reset your password
@@ -1726,6 +1818,8 @@ reset-password-recovery-phone-general-error-description = Please try again later
 reset-password-recovery-phone-invalid-code-error-description = The code is invalid or expired.
 reset-password-recovery-phone-invalid-code-error-link = Use backup authentication codes instead?
 
+reset-password-recovery-phone-page-title = Reset password with recovery phone
+
 reset-password-with-recovery-key-verified-page-title = Password reset successful
 reset-password-complete-new-password-saved = New password saved!
 reset-password-complete-recovery-key-created = New account recovery key created. Download and store it now.
@@ -1733,10 +1827,14 @@ reset-password-complete-recovery-key-download-info = This key is essential for
   data recovery if you forget your password. <b>Download and store it securely
   now, as you won’t be able to access this page again later.</b>
 
+reset-password-with-recovery-key-verified-hint-page-title = Add a recovery key hint
+
 
 server-error-heading = 500 Error
 server-error-description = Oh dear, something went wrong there. We’ve been notified and will get working on a fix.
 server-error-home-button = Home
+
+server-error-page-title = Server error
 
 
 error-label = Error:
@@ -1745,6 +1843,16 @@ complete-signin-error-header = Confirmation error
 signin-link-expired-header = Confirmation link expired
 signin-link-expired-message-2 = The link you clicked has expired or has already been used.
 
+complete-signin-error-page-title = Sign-in confirmation error
+
+complete-signin-validating-page-title = Confirming sign-in
+
+
+signin-password-page-title = Enter your password
+
+signin-cached-page-title = Sign in
+
+signin-alternative-auth-page-title = Choose a sign-in method
 
 signin-password-needed-header-2 = Enter your password <span>for your { -product-mozilla-account }</span>
 signin-button-start-syncing = Start syncing
@@ -1776,11 +1884,15 @@ report-signin-submit-button = Report activity
 report-signin-support-link = Why is this happening?
 report-signin-error = Sorry, there was a problem submitting the report.
 
+report-signin-page-title = Report unauthorized sign-in
+
 signin-bounced-header = Sorry. We’ve locked your account.
 signin-bounced-message = The confirmation email we sent to { $email } was returned and we’ve locked your account to protect your { -brand-firefox } data.
 signin-bounced-help = If this is a valid email address, <linkExternal>let us know</linkExternal> and we can help unlock your account.
 signin-bounced-create-new-account = No longer own that email? Create a new account
 back = Back
+
+signin-bounced-page-title = Account locked
 
 
 signin-passkey-fallback-header = Finish sign in
@@ -1795,6 +1907,8 @@ signin-passkey-fallback-no-prf-description = This browser or device can’t use 
 signin-passkey-fallback-unwrap-failed-heading = Your passkey couldn’t unlock sync
 signin-passkey-fallback-unwrap-failed-description = Something went wrong, so you’ll need your password this time.
 signin-passkey-fallback-wrap-unusable-link = Learn more
+
+signin-passkey-fallback-page-title = Enter your password to sync
 
 
 
@@ -1832,6 +1946,10 @@ signup-passwordless-code-subheading = Sign-up only takes a single step when you 
 
 signin-passwordless-totp-required = Two-step authentication is enabled on your account. Please sign in with your password.
 
+signin-passwordless-code-page-title = Sign in with email code
+
+signup-passwordless-code-page-title = Sign up with email code
+
 
 signin-recovery-method-header = Sign in
 signin-recovery-method-subheader = Choose a recovery method
@@ -1846,6 +1964,8 @@ signin-recovery-method-code-info-v2 =
 signin-recovery-method-send-code-error-heading = There was a problem sending a code to your recovery phone
 signin-recovery-method-send-code-error-description = Please try again later or use your backup authentication codes.
 
+signin-recovery-method-page-title = Sign in with a recovery method
+
 
 signin-recovery-code-heading = Sign in
 signin-recovery-code-sub-heading = Enter backup authentication code
@@ -1857,6 +1977,8 @@ signin-recovery-code-support-link = Are you locked out?
 signin-recovery-code-required-error = Backup authentication code required
 signin-recovery-code-use-phone-failure = There was a problem sending a code to your recovery phone
 signin-recovery-code-use-phone-failure-description = Please try again later.
+
+signin-recovery-code-page-title = Sign in with a backup code
 
 
 signin-recovery-phone-flow-heading = Sign in
@@ -1885,9 +2007,13 @@ signin-recovery-phone-invalid-code-error-link = Use backup authentication codes 
 
 signin-recovery-phone-success-message = Signed in successfully. Limits may apply if you use your recovery phone again.
 
+signin-recovery-phone-page-title = Sign in with recovery phone
+
 
 signin-reported-header = Thank you for your vigilance
 signin-reported-message = Our team has been notified. Reports like this help us fend off intruders.
+
+signin-reported-page-title = Sign-in reported
 
 
 signin-token-code-heading-2 = Enter confirmation code<span> for your { -product-mozilla-account }</span>
@@ -1904,6 +2030,8 @@ signin-token-code-resend-code-countdown =
 signin-token-code-required-error = Confirmation code required
 signin-token-code-resend-error = Something went wrong. A new code could not be sent.
 signin-token-code-instruction-desktop-relay = { -brand-firefox } will try sending you back to use an email mask after you sign in.
+
+signin-token-code-page-title = Confirm sign-in with email code
 
 
 signin-totp-code-header = Sign in
@@ -1922,6 +2050,8 @@ signin-totp-code-recovery-code-link = Trouble entering code?
 signin-totp-code-required-error = Authentication code required
 signin-totp-code-desktop-relay = { -brand-firefox } will try sending you back to use an email mask after you sign in.
 
+signin-totp-code-page-title = Sign in with two-step authentication
+
 
 signin-unblock-header = Authorize this sign-in
 signin-unblock-body = Check your email for the authorization code sent to { $email }.
@@ -1934,8 +2064,10 @@ signin-unblock-resend-code-button = Not in inbox or spam folder? Resend
 signin-unblock-support-link = Why is this happening?
 signin-unblock-desktop-relay = { -brand-firefox } will try sending you back to use an email mask after you sign in.
 
+signin-unblock-page-title = Authorize this sign-in
 
-confirm-signup-code-page-title = Enter confirmation code
+
+confirm-signup-code-page-title-2 = Confirm your email
 
 confirm-signup-code-heading-2 = Enter confirmation code <span>for your { -product-mozilla-account }</span>
 confirm-signup-code-instruction-v2 = Enter the code that was sent to <email>{ $email }</email> within 5 minutes.
@@ -1960,6 +2092,8 @@ signup-sync-info = Sync your passwords, bookmarks, and more everywhere you use {
 signup-sync-info-with-payment = Sync your passwords, payment methods, bookmarks, and more everywhere you use { -brand-firefox }.
 signup-change-email-link = Change email
 
+signup-page-title = Create your account
+
 signup-confirmed-sync-header = Sync is turned on
 signup-confirmed-sync-success-banner = { -product-mozilla-account } confirmed
 signup-confirmed-sync-button = Start browsing
@@ -1969,7 +2103,11 @@ signup-confirmed-sync-add-device-link = Add another device
 signup-confirmed-sync-manage-sync-button = Manage sync
 signup-confirmed-sync-set-password-success-banner = Sync password created
 
+signup-confirmed-sync-page-title = Sync is turned on
+
 
 update-firefox-heading = { -brand-firefox } update required
 update-firefox-description = Your { -product-mozilla-account } makes use of features that are not supported in your version of { -brand-firefox }. Please download and install the latest version of { -brand-firefox } to continue.
 update-firefox-download-button = Download latest
+
+update-firefox-page-title = { -brand-firefox } update required

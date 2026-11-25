@@ -1,8 +1,8 @@
 {
-  "commit": "155e3852111c5fc7a9decda32485d76989596688",
+  "commit": "cf2975e94789fa48d452a6642265630f76cb7bba",
   "summary": "docs(adr): freeze the passkey wrap format at v1",
-  "description": "Because:\n\n- The wrap envelope is a compatibility contract the server cannot migrate;\n  a format change after production writes sends every passkey user back to\n  their password with no explanation.\n- The policy and the reasoning were spread across five tickets with no\n  single record.\n\nThis commit:\n\n- Adds ADR 0053: the freeze, the rejected options, what counts as a format\n  change, what holds it in place, and the shape of a v2 (table per version).\n- Moves the per-value design rationale into the passkey-crypto README.\n- Corrects doc comments: P-521 leading-zero frequency, hpke import surface.\n- Adds CODEOWNERS entries for the crypto module, the passkey lib, and the\n  passkeyWraps migrations.\n\nCloses FXA-14155",
-  "timestamp": 1795472399000,
+  "description": "Because:\n\n- The passkey wrap envelope is a compatibility contract the server\n  cannot migrate; a format change after production writes sends every\n  passkey user back to their password.\n- The policy and its reasoning were spread across five tickets.\n- The format became one AES-GCM layer in #21823, and the ADR has to\n  record that decision rather than the two-layer design it replaced.\n\nThis commit:\n\n- Adds ADR 0053: the freeze, four options, what counts as a format\n  change, what holds it in place, and the shape of a v2.\n- Records the move from HPKE to one layer and why, with the freeze dated\n  from that fixture regeneration.\n- Moves the per-value design rationale into the passkey-crypto README.\n- Corrects doc comments in the module.\n- Adds CODEOWNERS entries for passkey-crypto, libs/accounts/passkey and\n  the passkeyWraps migrations.\n\nCloses: FXA-14155",
+  "timestamp": 1795635026000,
   "storybooks": [
     "fxa-settings"
   ],
