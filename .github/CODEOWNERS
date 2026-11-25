@@ -9,3 +9,12 @@
 **/package.json
 **/yarn.lock
 **/package-lock.json
+
+# Passkey wrap format. Frozen wire contract: a change here can lock users out
+# of Sync with no recovery path. See docs/adr/0053-passkey-wrap-format-stability.md
+# Add any future patch that alters passkeyWraps to this list.
+/packages/fxa-settings/src/lib/passkey-crypto/ @mozilla/fxa-devs
+/libs/accounts/passkey/ @mozilla/fxa-devs
+/packages/db-migrations/databases/fxa/patches/patch-194-195.sql @mozilla/fxa-devs
+/packages/db-migrations/databases/fxa/patches/patch-196-197.sql @mozilla/fxa-devs
+/packages/db-migrations/databases/fxa/patches/patch-197-198.sql @mozilla/fxa-devs

@@ -16,7 +16,7 @@
  */
 
 /**
- * HPKE mode 0, `mode_base` (tech spec §2.2.2): no PSK, no sender auth.
+ * HPKE mode 0, `mode_base`: no PSK, no sender auth.
  */
 export const HPKE_MODE_BASE = 0;
 
