@@ -14,12 +14,16 @@ import classNames from 'classnames';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import Banner from '../Banner';
 import CmsButtonWithFallback from '../CmsButtonWithFallback';
+import GleanMetrics from '../../lib/glean';
+import { useGleanView } from '../../lib/glean/useGleanView';
+import { RecoveryKeyFlow } from '../../lib/recovery-key';
 
 export type RecoveryKeySetupHintProps = {
   updateRecoveryKeyHint: (hint: string) => Promise<void>;
   navigateForward: () => void;
   viewName: string;
   cmsInfo?: RelierCmsInfo;
+  flow: RecoveryKeyFlow;
 };
 
 type FormData = { hint: string };
@@ -31,6 +35,7 @@ export const RecoveryKeySetupHint = ({
   navigateForward,
   viewName,
   cmsInfo,
+  flow,
 }: RecoveryKeySetupHintProps) => {
   const [localizedErrorMessage, setLocalizedErrorMessage] = useState<string>();
   const [hintError, setHintError] = useState<string>();
@@ -47,6 +52,8 @@ export const RecoveryKeySetupHint = ({
   useEffect(() => {
     logViewEvent(`flow.${viewName}`, 'create-hint.view');
   }, [viewName]);
+
+  useGleanView(() => GleanMetrics.recoveryKey.hintView({ event: { flow } }));
 
   const checkForHintError = (hint: string) => {
     if (hint.length > MAX_HINT_LENGTH) {
@@ -159,6 +166,7 @@ export const RecoveryKeySetupHint = ({
             className="cta-primary cta-xl w-full mt-4 mb-4"
             type="submit"
             disabled={isSubmitDisabled}
+            data-glean-id="recovery_key_hint_submit"
             buttonColor={cmsInfo?.shared.buttonColor}
           >
             Finish

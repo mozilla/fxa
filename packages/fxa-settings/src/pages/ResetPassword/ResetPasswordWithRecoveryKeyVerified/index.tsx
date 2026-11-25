@@ -94,6 +94,7 @@ const ResetPasswordWithRecoveryKeyVerified = ({
                   );
                 }),
               viewName,
+              flow: 'reset',
             }}
           />
         </div>

@@ -13,6 +13,9 @@ import { logViewEvent } from '../../lib/metrics';
 import DataBlockInline from '../DataBlockInline';
 import ButtonDownloadRecoveryKey from '../ButtonDownloadRecoveryKey';
 import { RelierCmsInfo } from '../../models';
+import GleanMetrics from '../../lib/glean';
+import { useGleanView } from '../../lib/glean/useGleanView';
+import { RecoveryKeyFlow } from '../../lib/recovery-key';
 
 export interface RecoveryKeySetupDownloadProps {
   navigateForward: () => void;
@@ -20,6 +23,7 @@ export interface RecoveryKeySetupDownloadProps {
   viewName: string;
   email: string;
   cmsInfo?: RelierCmsInfo;
+  flow: RecoveryKeyFlow;
 }
 
 export const InlineRecoveryKeySetupDownload = ({
@@ -28,7 +32,12 @@ export const InlineRecoveryKeySetupDownload = ({
   navigateForward,
   viewName,
   cmsInfo,
+  flow,
 }: RecoveryKeySetupDownloadProps) => {
+  useGleanView(() =>
+    GleanMetrics.recoveryKey.downloadView({ event: { flow } })
+  );
+
   return (
     <>
       <div className="rounded p-2 text-sm border-2 border-grey-100 nova:border nova:border-deemphasized nova:rounded-xl">
@@ -79,6 +88,7 @@ export const InlineRecoveryKeySetupDownload = ({
       <FtlMsg id="flow-recovery-key-download-next-link-v2">
         <button
           className="text-sm link-blue text-center mt-6 mx-auto"
+          data-glean-id="recovery_key_download_skip"
           onClick={() => {
             logViewEvent(`flow.${viewName}`, 'recovery-key.skip-download');
             navigateForward();

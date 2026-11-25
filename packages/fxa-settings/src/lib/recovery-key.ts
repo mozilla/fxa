@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import AuthClient, { generateRecoveryKey } from 'fxa-auth-client/browser';
+import { AuthUiErrors } from './auth-errors/auth-errors';
+import { isIncorrectPassword } from './error-utils';
 
 type RecoveryKeyAuthClient = Pick<
   AuthClient,
@@ -104,4 +106,14 @@ async function reauthForKeys(
     throw new Error('Reauth returned no keyFetchToken or unwrapBKey');
   }
   return { keyFetchToken, unwrapBKey };
+}
+
+export type RecoveryKeyFlow = 'settings' | 'inline' | 'reset';
+
+/** Maps a key creation error to the `reason` extra of the recovery_key.error Glean event. */
+export function getRecoveryKeyErrorReason(error: { errno?: number }) {
+  if (isIncorrectPassword(error.errno)) return 'incorrect_password';
+  if (error.errno === AuthUiErrors.THROTTLED.errno) return 'throttled';
+  if (error.errno === AuthUiErrors.INVALID_TOKEN.errno) return 'invalid_token';
+  return 'unexpected';
 }

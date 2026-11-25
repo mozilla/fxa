@@ -9,8 +9,18 @@ import {
   MOCK_CMS_INFO,
   MOCK_RECOVERY_KEY_WITH_SPACES,
 } from '../../pages/mocks';
+import GleanMetrics from '../../lib/glean';
+
+jest.mock('../../lib/glean', () => ({
+  __esModule: true,
+  default: { recoveryKey: { downloadView: jest.fn() } },
+}));
 
 describe('RecoveryKeySetupDownload', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('renders as expected', async () => {
     renderWithLocalizationProvider(<Subject />);
 
@@ -43,5 +53,18 @@ describe('RecoveryKeySetupDownload', () => {
       name: 'Download and continue',
     });
     expect(cmsButton).toMatchSnapshot();
+  });
+
+  describe('Glean events', () => {
+    it('records the download view once with the flow', () => {
+      renderWithLocalizationProvider(<Subject flow="inline" />);
+      expect(GleanMetrics.recoveryKey.downloadView).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.recoveryKey.downloadView).toHaveBeenCalledWith({
+        event: { flow: 'inline' },
+      });
+      expect(
+        screen.getByRole('button', { name: 'Continue without downloading' })
+      ).toHaveAttribute('data-glean-id', 'recovery_key_download_skip');
+    });
   });
 });

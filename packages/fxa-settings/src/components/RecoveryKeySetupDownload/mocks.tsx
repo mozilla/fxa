@@ -15,6 +15,7 @@ export const Subject = (props: Partial<RecoveryKeySetupDownloadProps>) => {
         email={MOCK_ACCOUNT.primaryEmail.email}
         navigateForward={() => Promise.resolve()}
         viewName="viewName"
+        flow="settings"
         {...props}
       />
     </AppLayout>

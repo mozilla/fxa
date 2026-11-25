@@ -55,6 +55,7 @@ export const FlowRecoveryKeyDownload = ({
         </FtlMsg>
         <RecoveryKeySetupDownload
           {...{ recoveryKeyValue, email, navigateForward, viewName }}
+          flow="settings"
         />
       </div>
     </FlowContainer>

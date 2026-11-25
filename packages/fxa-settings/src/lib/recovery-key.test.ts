@@ -6,7 +6,10 @@ import {
   decryptRecoveryKeyData,
   getRecoveryKeyIdByUid,
 } from 'fxa-auth-client/lib/recoveryKey';
-import { createRecoveryKeyWithReauth } from './recovery-key';
+import {
+  createRecoveryKeyWithReauth,
+  getRecoveryKeyErrorReason,
+} from './recovery-key';
 import { AuthUiErrors } from './auth-errors/auth-errors';
 import { MOCK_EMAIL, MOCK_UID } from '../pages/mocks';
 
@@ -185,5 +188,18 @@ describe('createRecoveryKeyWithReauth', () => {
     ).rejects.toThrow('Reauth returned no keyFetchToken or unwrapBKey');
     expect(mockAuthClient.accountKeys).not.toHaveBeenCalled();
     expect(mockAuthClient.createRecoveryKey).not.toHaveBeenCalled();
+  });
+});
+
+describe('getRecoveryKeyErrorReason', () => {
+  it.each([
+    [AuthUiErrors.INCORRECT_PASSWORD, 'incorrect_password'],
+    [AuthUiErrors.INCORRECT_EMAIL_CASE, 'incorrect_password'],
+    [AuthUiErrors.THROTTLED, 'throttled'],
+    [AuthUiErrors.INVALID_TOKEN, 'invalid_token'],
+    [AuthUiErrors.UNEXPECTED_ERROR, 'unexpected'],
+    [{}, 'unexpected'],
+  ])('maps %o to %s', (error, reason) => {
+    expect(getRecoveryKeyErrorReason(error)).toBe(reason);
   });
 });

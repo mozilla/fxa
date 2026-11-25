@@ -29,6 +29,7 @@ export const stringEventExtraPropertyNames = [
   'browser_family',
   'firefox_version',
   'cause',
+  'flow',
 ] as const;
 
 export type PropertyNameStringT = typeof stringEventPropertyNames;
@@ -436,5 +437,14 @@ export const eventsMap = {
 
   pairing: {
     passwordLockFailure: 'pairing_password_lock_failure',
+  },
+
+  recoveryKey: {
+    infoView: 'recovery_key_info_view',
+    passwordView: 'recovery_key_password_view',
+    downloadView: 'recovery_key_download_view',
+    hintView: 'recovery_key_hint_view',
+    success: 'recovery_key_success',
+    error: 'recovery_key_error',
   },
 } as const;

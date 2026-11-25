@@ -17,6 +17,7 @@ import * as deleteSyncData from './web/deleteSyncData';
 import * as dtmDesktop from './web/dtmDesktop';
 import * as firefoxPromo from './web/firefoxPromo';
 import * as pairing from './web/pairing';
+import * as recoveryKey from './web/recoveryKey';
 
 // Settings, CAD and DTM events, split out so sign-in routes do not bundle them.
 export const recordLazyEventMetric = (
@@ -442,6 +443,33 @@ export const recordLazyEventMetric = (
       break;
     case 'pairing_password_lock_failure':
       pairing.passwordLockFailure.record();
+      break;
+    case 'recovery_key_info_view':
+      recoveryKey.infoView.record();
+      break;
+    case 'recovery_key_password_view':
+      recoveryKey.passwordView.record();
+      break;
+    case 'recovery_key_download_view':
+      recoveryKey.downloadView.record({
+        flow: gleanPingMetrics?.event?.['flow'] || '',
+      });
+      break;
+    case 'recovery_key_hint_view':
+      recoveryKey.hintView.record({
+        flow: gleanPingMetrics?.event?.['flow'] || '',
+      });
+      break;
+    case 'recovery_key_success':
+      recoveryKey.success.record({
+        flow: gleanPingMetrics?.event?.['flow'] || '',
+      });
+      break;
+    case 'recovery_key_error':
+      recoveryKey.error.record({
+        flow: gleanPingMetrics?.event?.['flow'] || '',
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
   }
 };

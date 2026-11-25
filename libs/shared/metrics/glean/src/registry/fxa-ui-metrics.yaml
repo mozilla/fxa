@@ -5379,3 +5379,144 @@ banner:
           The base Glean ID the caller gave for the banner, such as
           'passkey_signin_trouble'.
         type: string
+
+recovery_key:
+  info_view:
+    type: event
+    description: |
+      User viewed step 1 (info) of the Settings account recovery key
+      creation flow, to create a new key or to change the current key.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-15116
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  password_view:
+    type: event
+    description: |
+      User viewed step 2 (confirm password) of the Settings account
+      recovery key creation flow.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-15116
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  download_view:
+    type: event
+    description: |
+      User viewed the step that shows the new account recovery key, with
+      the options to copy or download it.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-15116
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      flow:
+        description: |
+          The flow that shows the step: 'settings' for the Settings account
+          recovery key page, or 'inline' for the setup shown after sign-in.
+        type: string
+  hint_view:
+    type: event
+    description: |
+      User viewed the step to add a storage hint for the new account
+      recovery key.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-15116
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      flow:
+        description: |
+          The flow that shows the step: 'settings' for the Settings account
+          recovery key page, 'inline' for the setup shown after sign-in, or
+          'reset' for the hint step after a password reset with an account
+          recovery key.
+        type: string
+  success:
+    type: event
+    description: |
+      An account recovery key was created for the account. The download
+      step follows.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-15116
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      flow:
+        description: |
+          The flow that shows the step: 'settings' for the Settings account
+          recovery key page, or 'inline' for the setup shown after sign-in.
+        type: string
+  error:
+    type: event
+    description: |
+      Account recovery key creation failed and an error was shown to the
+      user.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-15116
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      flow:
+        description: |
+          The flow that shows the step: 'settings' for the Settings account
+          recovery key page, or 'inline' for the setup shown after sign-in.
+        type: string
+      reason:
+        description: |
+          Categorized error: 'incorrect_password', 'throttled',
+          'invalid_token', or 'unexpected' for any other error.
+        type: string

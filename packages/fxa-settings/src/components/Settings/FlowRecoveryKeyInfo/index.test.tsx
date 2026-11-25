@@ -7,6 +7,7 @@ import { logViewEvent } from '../../../lib/metrics';
 import FlowRecoveryKeyInfo from './';
 import { renderWithRouter } from '../../../models/mocks';
 import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
+import GleanMetrics from '../../../lib/glean';
 
 const navigateForward = jest.fn();
 const navigateBackward = jest.fn();
@@ -17,6 +18,11 @@ const viewName = 'settings.account-recovery';
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
+}));
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: { recoveryKey: { infoView: jest.fn() } },
 }));
 
 const renderFlowPage = (action: RecoveryKeyAction) => {
@@ -83,6 +89,29 @@ describe('FlowRecoveryKeyInfo for key creation', () => {
     expect(logViewEvent).toHaveBeenCalledWith(
       `flow.${viewName}`,
       'create-key.cancel'
+    );
+  });
+});
+
+describe('FlowRecoveryKeyInfo Glean events', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('records the info view once', () => {
+    renderFlowPage(RecoveryKeyAction.Create);
+    expect(GleanMetrics.recoveryKey.infoView).toHaveBeenCalledTimes(1);
+  });
+
+  it('sets data-glean-id on the start and cancel controls', () => {
+    renderFlowPage(RecoveryKeyAction.Change);
+    expect(screen.getByRole('button', { name: 'Get started' })).toHaveAttribute(
+      'data-glean-id',
+      'recovery_key_info_start'
+    );
+    expect(screen.getByRole('link', { name: 'Cancel' })).toHaveAttribute(
+      'data-glean-id',
+      'recovery_key_info_cancel'
     );
   });
 });
