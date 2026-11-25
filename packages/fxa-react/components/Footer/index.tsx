@@ -38,7 +38,7 @@ export const Footer = ({
             null,
             'Mozilla logo'
           )}
-          className="transition-standard w-18 h-auto opacity-75 hover:opacity-100"
+          className="transition-standard w-18 h-auto opacity-75 hover:opacity-100 dark:invert"
         />
       </LinkExternal>
       <div className="w-full mobileLandscape:w-auto flex items-center mt-3 mobileLandscape:mt-0 mobileLandscape:ml-10">

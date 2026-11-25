@@ -86,7 +86,7 @@ export const Modal = ({
                 data-testid="modal-dismiss"
                 onClick={(event) => onDismiss()}
                 title={ftlMsgResolver.getMsg('modal-close-title', 'Close')}
-                className="rounded focus-visible-default"
+                className="rounded focus-visible-default nova:rounded-full nova:transition-colors nova:hover:bg-button-hover nova:active:bg-button-active"
               >
                 <CloseIcon className="w-4 h-4 m-3 fill-current" />
               </button>

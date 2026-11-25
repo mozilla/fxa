@@ -3,7 +3,7 @@
 exports[`InputText renders as expected 1`] = `
 <div>
   <label
-    class="flex text-start rounded transition-all duration-100 ease-in-out border relative outline-none border-grey-200 dark:border-grey-600 bg-box nova:rounded-xl nova:shadow-none nova:border-interactive"
+    class="flex text-start rounded transition-all duration-100 ease-in-out border relative outline-none border-grey-200 dark:border-grey-600 bg-box nova:rounded-xl nova:shadow-none nova:outline-offset-[var(--focus-outline-inset)] nova:border-interactive"
     data-testid="input-container"
   >
     <span

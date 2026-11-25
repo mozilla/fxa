@@ -172,7 +172,7 @@ export const InputText = ({
         disabled
           ? 'border-grey-100 bg-grey-10 dark:border-grey-700 dark:bg-grey-800'
           : 'bg-box',
-        'nova:rounded-xl nova:shadow-none',
+        'nova:rounded-xl nova:shadow-none nova:outline-offset-[var(--focus-outline-inset)]',
         disabled
           ? 'nova:bg-transparent nova:border-input-disabled nova:opacity-input-disabled'
           : hasErrors || errorText

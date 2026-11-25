@@ -161,6 +161,8 @@ export const UnitRow = ({
   ctaText = ctaText || (headerValue ? localizedCtaChange : localizedCtaAdd);
 
   const location = useLocation();
+  const hasSecondaryCta =
+    !disabled && !!(secondaryCtaRoute || revealSecondaryModal);
 
   function formatDataTestId(id: string) {
     return prefixDataTestId ? `${prefixDataTestId}-${id}` : id;
@@ -222,7 +224,15 @@ export const UnitRow = ({
             revealSecondaryModal ||
             disabled) && (
             <div className="unit-row-actions @mobileLandscape/unitRow:flex-1 @mobileLandscape/unitRow:flex @mobileLandscape/unitRow:justify-end ">
-              <div className="flex items-center h-8 nova:h-auto nova:min-h-8 gap-2 mt-4 @mobileLandscape/unitRow:mt-0 ">
+              <div
+                className={classNames(
+                  'flex items-center nova:h-auto nova:min-h-8 gap-2 mt-4 @mobileLandscape/unitRow:mt-0',
+                  // Below mobileLandscape both CTAs are full width, so stack them.
+                  hasSecondaryCta
+                    ? 'flex-wrap @mobileLandscape/unitRow:flex-nowrap @mobileLandscape/unitRow:h-8'
+                    : 'h-8'
+                )}
+              >
                 {/* Primary Action */}
                 {!hideCtaText &&
                   ctaText &&
