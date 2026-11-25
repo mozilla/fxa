@@ -1,8 +1,8 @@
 {
-  "commit": "48ce04785ebadf57d85e836643ec721616ffda5e",
-  "summary": "Merge pull request #21831 from mozilla/nova-edits-pt1",
-  "description": "fix(settings): Nova dark-mode and mobile visual fixes",
-  "timestamp": 1795646689000,
+  "commit": "cfdafdcff62dcfb8170b9c3da42a56227cf3252a",
+  "summary": "Merge pull request #21777 from mozilla/fxa-14966",
+  "description": "fix(settings): discard stale cached session on Sync sign-in",
+  "timestamp": 1795646627000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
