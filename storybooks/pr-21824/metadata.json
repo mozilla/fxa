@@ -1,8 +1,8 @@
 {
-  "commit": "a7f4bd12bc7f02c13edb9c39439d4a7498a265f1",
+  "commit": "d9f9fc9309144bd3ab434545735adf0b93ece3b9",
   "summary": "feat(settings): wire the delete Sync data flow",
-  "description": "Because:\n\n- The delete Sync data page had its UI but no behavior behind confirm.\n- Signing out of the current device must land on email-first with a\n  success message, like account deletion.\n- A tokenserver without the delete endpoint answers a bare 404, which\n  read as success and left the data in place.\n\nThis commit:\n\n- Add Account.deleteSyncData and run delete, then sign-outs, current\n  device last, with success, delete-failure and sign-out-failure alerts.\n- Redirect to email-first without the query string after signing out\n  this device, and show the success banner there.\n- Add Glean delete_sync_data events and tag device sign-outs with\n  reason sync_data_deletion; add unit tests and a Playwright spec.\n- Treat a 404 without tokenserver's JSON error body as a backend failure.\n- Run syncstorage-rs 0.25.2 locally with the delete endpoint enabled.\n\nCloses #FXA-14947",
-  "timestamp": 1795561152000,
+  "description": "Because:\n\n- The delete Sync data page had its UI but no behavior behind confirm.\n- Signing out of the current device must land on email-first with a\n  success message, like account deletion.\n- A tokenserver without the delete endpoint answers a bare 404, which\n  read as success and left the data in place.\n\nThis commit:\n\n- Add Account.deleteSyncData and run delete, then sign-outs, current\n  device last, with success, delete-failure and sign-out-failure alerts.\n- Redirect to email-first without the query string after signing out\n  this device, and show the success banner there.\n- Add Glean delete_sync_data events and tag device sign-outs with\n  reason sync_data_deletion; add unit tests and a Playwright spec.\n- Treat a 404 without tokenserver's JSON error body as a backend\n  failure; refuse sessions without password reauth with errno 237, now\n  the shared passwordReauthRequired error.\n- Run syncstorage-rs 0.25.2 locally with the delete endpoint enabled.\n\nCloses #FXA-14947",
+  "timestamp": 1795621402000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-settings"

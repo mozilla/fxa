@@ -79,24 +79,6 @@ resend-link-success-banner-heading = A new link was sent to your email.
 resend-success-banner-description = Add { $accountsEmail } to your contacts to ensure a smooth delivery.
 
 
-brand-banner-dismiss-button-2 =
-  .aria-label = Close banner
-
-brand-prelaunch-title = { -product-firefox-accounts } will be renamed { -product-mozilla-accounts } on Nov 1
-
-brand-prelaunch-subtitle = You’ll still sign in with the same username and password, and there are no other changes to the products that you use.
-
-brand-postlaunch-title = We’ve renamed { -product-firefox-accounts } to { -product-mozilla-accounts }. You’ll still sign in with the same username and password, and there are no other changes to the products that you use.
-
-brand-learn-more = Learn more
-
-brand-close-banner =
-  .alt = Close Banner
-
-brand-m-logo =
-  .alt = { -brand-mozilla } m logo
-
-
 button-back-aria-label = Back
 button-back-title = Back
 
@@ -110,15 +92,6 @@ button-passkey-signin = Sign in with passkey
 
 button-passkey-signin-loading = Securely signing in…
 
-
-
-choose-newsletters-prompt-2 = Get more from { -brand-mozilla }:
-choose-newsletters-option-latest-news =
-  .label = Get our latest news and product updates
-choose-newsletters-option-test-pilot =
-  .label = Early access to test new products
-choose-newsletters-option-reclaim-the-internet =
-  .label = Action alerts to reclaim the internet
 
 
 dark-mode-toggle-light = Light
@@ -375,13 +348,6 @@ remember-password-passkey-text = Have a passkey or remember your password?
 remember-password-signin-link = Sign in
 
 
-primary-email-confirmation-link-reused = Primary email already confirmed
-
-signin-confirmation-link-reused = Sign-in already confirmed
-
-confirmation-link-reused-message = That confirmation link was already used, and can only be used once.
-
-
 locale-toggle-select-label = Select language
 locale-toggle-browser-default = Browser default
 
@@ -395,10 +361,6 @@ pair-unsupported-hint-step-close-page = Close this page
 pair-unsupported-hint-step-app-menu = Tap the <b>app menu</b>
 pair-unsupported-hint-step-sign-in = <b>Sign in</b>, then scan the code
 pair-unsupported-hint-learn-more-link = Learn more
-
-
-password-info-balloon-why-password-info = You need this password to access any encrypted data you store with us.
-password-info-balloon-reset-risk-info = A reset means potentially losing data like passwords and bookmarks.
 
 
 password-strength-long-instruction = Pick a strong password you haven’t used on other sites. Ensure it meets the security requirements:

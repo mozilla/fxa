@@ -10,35 +10,6 @@ resend-link-success-banner-heading = A new link was sent to your email.
 # $accountsEmail is the Mozilla accounts sender email address (e.g. accounts@firefox.com)
 resend-success-banner-description = Add { $accountsEmail } to your contacts to ensure a smooth delivery.
 
-## Brand Messaging component
-## Used to show in product messaging about upcoming brand changes
-
-# This aria-label applies to the dismiss/close button of the banner
-# This text is for screen-readers
-brand-banner-dismiss-button-2 =
-  .aria-label = Close banner
-
-# This message is displayed as the title element in the banner, prior to actually launching the new brand
-brand-prelaunch-title = { -product-firefox-accounts } will be renamed { -product-mozilla-accounts } on Nov 1
-
-# This message is displayed as sub title element in the banner, giving a it more context about the brand changes.
-brand-prelaunch-subtitle = You’ll still sign in with the same username and password, and there are no other changes to the products that you use.
-
-# This message is displayed as title element in the banner, after the brand changes take affect letting the user know that
-# no action is required on their part
-brand-postlaunch-title = We’ve renamed { -product-firefox-accounts } to { -product-mozilla-accounts }. You’ll still sign in with the same username and password, and there are no other changes to the products that you use.
-
-# This is an extra link element, that directs users to a page where they can learn more about the branding changes.
-brand-learn-more = Learn more
-
-# Alt text for close banner image
-brand-close-banner =
-  .alt = Close Banner
-
-# Alt text for 'm' logo in banner header
-brand-m-logo =
-  .alt = { -brand-mozilla } m logo
-
 ## ButtonBack component
 ## Allows users to click a back arrow to navigate to the previous page
 
@@ -68,22 +39,6 @@ button-passkey-signin = Sign in with passkey
 button-passkey-signin-loading = Securely signing in…
 
 ##
-
-## ChooseNewsletters component
-## Checklist of newsletters that the user can choose to sign up to
-
-# Prompt above a checklist of newsletters
-choose-newsletters-prompt-2 = Get more from { -brand-mozilla }:
-# Newsletter checklist item
-choose-newsletters-option-latest-news =
-  .label = Get our latest news and product updates
-# Newsletter checklist item
-choose-newsletters-option-test-pilot =
-  .label = Early access to test new products
-# Newsletter checklist item. This for a Mozilla Foundation newsletters,
-# "Action alerts" can be interpreted as "Calls to action"
-choose-newsletters-option-reclaim-the-internet =
-  .label = Action alerts to reclaim the internet
 
 ## Dark mode toggle
 
@@ -439,16 +394,6 @@ remember-password-passkey-text = Have a passkey or remember your password?
 # link navigates to the sign in page
 remember-password-signin-link = Sign in
 
-## LinkUsed component
-
-# The user followed a primary email confirmation link, but that link is has been used and is no longer valid
-primary-email-confirmation-link-reused = Primary email already confirmed
-
-# The user followed a sign-in confirmation link, but that link has been used and is no longer valid
-signin-confirmation-link-reused = Sign-in already confirmed
-
-confirmation-link-reused-message = That confirmation link was already used, and can only be used once.
-
 ## Locale Toggle Component
 
 locale-toggle-select-label = Select language
@@ -474,12 +419,6 @@ pair-unsupported-hint-step-app-menu = Tap the <b>app menu</b>
 pair-unsupported-hint-step-sign-in = <b>Sign in</b>, then scan the code
 # Opens a Mozilla support article about connecting a device without a QR code
 pair-unsupported-hint-learn-more-link = Learn more
-
-## PasswordInfoBalloon
-## Balloon displayed next to password input field
-
-password-info-balloon-why-password-info = You need this password to access any encrypted data you store with us.
-password-info-balloon-reset-risk-info = A reset means potentially losing data like passwords and bookmarks.
 
 ## PasswordStrengthInline component
 ## These strings are conditions that need to be met to qualify as a strong password
