@@ -132,13 +132,33 @@ describe('UnitRowPasskey', () => {
     });
   });
 
+  it('renders each passkey as a list item', async () => {
+    renderUnitRowPasskey();
+    const items = within(await screen.findByRole('list')).getAllByRole(
+      'listitem'
+    );
+    expect(items).toHaveLength(2);
+    expect(
+      within(items[0]).getByTestId('passkey-sub-row-passkey-1')
+    ).toBeInTheDocument();
+    expect(
+      within(items[1]).getByTestId('passkey-sub-row-passkey-2')
+    ).toBeInTheDocument();
+  });
+
+  it('renders no list when there are no passkeys', async () => {
+    mockAccount.passkeys = [];
+    renderUnitRowPasskey();
+    await screen.findByText('Not set');
+    expect(screen.queryByRole('list')).not.toBeInTheDocument();
+  });
+
   it('shows create link when WebAuthn is supported', async () => {
     renderUnitRowPasskey();
     await waitFor(() => {
-      expect(screen.getByRole('link', { name: 'Create' })).toHaveAttribute(
-        'href',
-        '/settings/passkeys/add'
-      );
+      expect(
+        screen.getByRole('link', { name: 'Create passkey' })
+      ).toHaveAttribute('href', '/settings/passkeys/add');
     });
   });
 
@@ -147,11 +167,11 @@ describe('UnitRowPasskey', () => {
     renderUnitRowPasskey();
     await waitFor(() => {
       expect(
-        screen.getByRole('button', { name: 'Create' })
+        screen.getByRole('button', { name: 'Create passkey' })
       ).toBeInTheDocument();
     });
     expect(
-      screen.queryByRole('link', { name: 'Create' })
+      screen.queryByRole('link', { name: 'Create passkey' })
     ).not.toBeInTheDocument();
     expect(alertErrorSpy).not.toHaveBeenCalled();
   });
@@ -159,7 +179,9 @@ describe('UnitRowPasskey', () => {
   it('pushes an unsupported-passkey alert when the user clicks Create and WebAuthn is not supported', async () => {
     isWebAuthnSupported.mockReturnValue(false);
     renderUnitRowPasskey();
-    const createButton = await screen.findByRole('button', { name: 'Create' });
+    const createButton = await screen.findByRole('button', {
+      name: 'Create passkey',
+    });
     fireEvent.click(createButton);
     expect(alertErrorSpy).toHaveBeenCalledTimes(1);
     const [alertContent, , gleanId] = alertErrorSpy.mock.calls[0];
@@ -193,7 +215,7 @@ describe('UnitRowPasskey', () => {
     isWebAuthnSupported.mockReturnValue(false);
     renderUnitRowPasskey();
     expect(
-      await screen.findByRole('button', { name: 'Create' })
+      await screen.findByRole('button', { name: 'Create passkey' })
     ).toHaveAttribute(
       'data-glean-id',
       'account_pref_passkey_create_unsupported'
@@ -202,10 +224,9 @@ describe('UnitRowPasskey', () => {
 
   it('tags the Create link as submit when WebAuthn is supported', async () => {
     renderUnitRowPasskey();
-    expect(await screen.findByRole('link', { name: 'Create' })).toHaveAttribute(
-      'data-glean-id',
-      'account_pref_passkey_create_submit'
-    );
+    expect(
+      await screen.findByRole('link', { name: 'Create passkey' })
+    ).toHaveAttribute('data-glean-id', 'account_pref_passkey_create_submit');
   });
 
   it('shows warning banner and disabled Create button when at max passkeys', async () => {
@@ -227,6 +248,34 @@ describe('UnitRowPasskey', () => {
         screen.getByText(/You’ve used all 10 passkeys/)
       ).toBeInTheDocument();
     });
-    expect(screen.getByRole('button', { name: 'Create' })).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: 'Create passkey' })
+    ).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('describes the disabled Create button by the max-passkeys banner', async () => {
+    mockAccount.passkeys = Array.from({ length: 10 }, (_, i) => ({
+      ...mockPasskeys[0],
+      credentialId: `passkey-${i}`,
+    }));
+    renderUnitRowPasskey();
+    expect(
+      await screen.findByRole('button', { name: 'Create passkey' })
+    ).toHaveAccessibleDescription(
+      'You’ve used all 10 passkeys. Delete a passkey to create a new one.'
+    );
+  });
+
+  it('keeps the max-passkeys banner outside the passkey list', async () => {
+    mockAccount.passkeys = Array.from({ length: 10 }, (_, i) => ({
+      ...mockPasskeys[0],
+      credentialId: `passkey-${i}`,
+    }));
+    renderUnitRowPasskey();
+    const list = await screen.findByRole('list');
+    expect(
+      within(list).queryByText(/You’ve used all 10 passkeys/)
+    ).not.toBeInTheDocument();
+    expect(screen.getByText(/You’ve used all 10 passkeys/)).toBeInTheDocument();
   });
 });

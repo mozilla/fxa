@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useRef } from 'react';
+import React, { useId, useRef } from 'react';
 import Avatar from '../Avatar';
 import { Account } from '../../../models/Account';
 import classNames from 'classnames';
@@ -21,6 +21,10 @@ type ModalButtonProps = {
   alertBarRevealed?: boolean;
   prefixDataTestId?: string;
   gleanDataAttrs?: GleanClickEventDataAttrs;
+  labelProps?: Pick<
+    React.HTMLAttributes<HTMLButtonElement>,
+    'id' | 'aria-label' | 'aria-labelledby'
+  >;
 };
 
 export const ModalButton = ({
@@ -31,6 +35,7 @@ export const ModalButton = ({
   alertBarRevealed,
   prefixDataTestId = '',
   gleanDataAttrs,
+  labelProps,
 }: ModalButtonProps) => {
   const modalTriggerElement = useRef<HTMLButtonElement>(null);
   // If the UnitRow children contains an AlertBar that is revealed,
@@ -54,6 +59,7 @@ export const ModalButton = ({
         'w-full @mobileLandscape/unitRow:w-max @mobileLandscape/unitRow:max-w-64 @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0'
       )}
       data-testid={formatDataTestId('unit-row-modal-button')}
+      {...labelProps}
       ref={modalTriggerElement}
       onClick={(e) => {
         // Prevent the click that opens the modal from immediately
@@ -85,6 +91,7 @@ export type UnitRowProps = {
   hideHeaderValue?: boolean;
   defaultHeaderValueText?: string;
   ctaText?: string;
+  ctaAriaLabel?: string;
   ctaGleanDataAttrs?: GleanClickEventDataAttrs;
   secondaryCtaText?: string;
   secondaryCtaRoute?: string;
@@ -104,6 +111,7 @@ export type UnitRowProps = {
   prefixDataTestId?: string;
   disabled?: boolean;
   disabledReason?: string;
+  disabledDescribedBy?: string;
   ctaOnClickAction?: () => void;
   statusIcon?: 'checkmark' | 'alert';
   subRows?: React.ReactNode;
@@ -122,6 +130,7 @@ export const UnitRow = ({
   headerValueClassName,
   defaultHeaderValueText,
   ctaText,
+  ctaAriaLabel,
   ctaGleanDataAttrs,
   secondaryCtaText,
   secondaryCtaRoute,
@@ -136,6 +145,7 @@ export const UnitRow = ({
   prefixDataTestId = '',
   disabled = false,
   disabledReason = '',
+  disabledDescribedBy,
   ctaOnClickAction,
   statusIcon,
   subRows,
@@ -161,6 +171,19 @@ export const UnitRow = ({
   ctaText = ctaText || (headerValue ? localizedCtaChange : localizedCtaAdd);
 
   const location = useLocation();
+  const generatedId = useId();
+  const headingId = headerId || `${generatedId}-heading`;
+  const statusId = `${generatedId}-status`;
+  const showsStatus = !avatar && !hideHeaderValue;
+  // Names each CTA "<CTA text> <row heading>", e.g. "Change Password".
+  const labelByHeading = (ctaId: string) => ({
+    id: ctaId,
+    'aria-labelledby': `${ctaId} ${headingId}`,
+  });
+  const primaryCtaLabel = ctaAriaLabel
+    ? { 'aria-label': ctaAriaLabel }
+    : labelByHeading(`${generatedId}-cta`);
+  const secondaryCtaLabel = labelByHeading(`${generatedId}-secondary-cta`);
 
   function formatDataTestId(id: string) {
     return prefixDataTestId ? `${prefixDataTestId}-${id}` : id;
@@ -172,7 +195,10 @@ export const UnitRow = ({
         <span className="flex justify-between items-center">
           <h3
             data-testid={formatDataTestId('unit-row-header')}
-            id={headerId}
+            id={headingId}
+            aria-labelledby={
+              showsStatus ? `${headingId} ${statusId}` : undefined
+            }
             className="scroll-mt-32 break-word"
           >
             {header}
@@ -195,15 +221,18 @@ export const UnitRow = ({
                     <CheckmarkGreenIcon
                       className="scale-125 nova:scale-100 nova:self-center"
                       mode="enabled"
+                      ariaHidden
                     />
                   )}
                   {statusIcon && statusIcon === 'alert' && (
                     <AlertFullIcon
                       className="scale-125 nova:scale-100 nova:self-center"
                       mode="attention"
+                      ariaHidden
                     />
                   )}
                   <p
+                    id={statusId}
                     className={classNames('font-bold', headerValueClassName)}
                     data-testid={formatDataTestId('unit-row-header-value')}
                   >
@@ -230,13 +259,10 @@ export const UnitRow = ({
                     <button
                       className="cta-neutral cta-base-common cta-base-p transition-standard me-1 w-full @mobileLandscape/unitRow:w-max @mobileLandscape/unitRow:max-w-64 @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0 nova:py-2 nova:@mobileLandscape/unitRow:py-1"
                       data-testid={formatDataTestId('unit-row-disabled')}
+                      {...primaryCtaLabel}
+                      aria-describedby={disabledDescribedBy}
                       title={disabledReason}
-                      disabled={disabled}
-                      {...(ctaGleanDataAttrs && {
-                        'data-glean-id': ctaGleanDataAttrs.id,
-                        'data-glean-type': ctaGleanDataAttrs.type,
-                        'data-glean-label': ctaGleanDataAttrs.label,
-                      })}
+                      aria-disabled="true"
                     >
                       {ctaText}
                     </button>
@@ -248,6 +274,7 @@ export const UnitRow = ({
                           className="cta-neutral cta-base-common cta-base-p transition-standard me-1 w-full @mobileLandscape/unitRow:w-max @mobileLandscape/unitRow:max-w-64 @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0 nova:py-2 nova:@mobileLandscape/unitRow:py-1"
                           data-testid={formatDataTestId('unit-row-route')}
                           to={`${route}${location.search}`}
+                          {...primaryCtaLabel}
                           onClick={ctaOnClickAction}
                           {...(ctaGleanDataAttrs && {
                             'data-glean-id': ctaGleanDataAttrs.id,
@@ -269,6 +296,7 @@ export const UnitRow = ({
                             prefixDataTestId,
                           }}
                           gleanDataAttrs={ctaGleanDataAttrs}
+                          labelProps={primaryCtaLabel}
                         />
                       )}
                     </>
@@ -284,6 +312,7 @@ export const UnitRow = ({
                           'unit-row-secondary-route'
                         )}
                         to={`${secondaryCtaRoute}${location.search}`}
+                        {...secondaryCtaLabel}
                         {...(secondaryButtonGleanDataAttrs && {
                           'data-glean-id': secondaryButtonGleanDataAttrs.id,
                           'data-glean-type': secondaryButtonGleanDataAttrs.type,
@@ -303,6 +332,7 @@ export const UnitRow = ({
                         alertBarRevealed={alertBarRevealed}
                         prefixDataTestId={secondaryButtonTestId}
                         gleanDataAttrs={secondaryButtonGleanDataAttrs}
+                        labelProps={secondaryCtaLabel}
                       />
                     )}
                   </>

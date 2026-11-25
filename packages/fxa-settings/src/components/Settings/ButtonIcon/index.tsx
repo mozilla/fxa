@@ -15,6 +15,7 @@ const RefreshIcon = withNova(RefreshIconLegacy, ArrowClockwise);
 
 type ButtonIconProps = {
   title: string;
+  ariaLabel?: string;
   icon: [
     FunctionComponent<SVGProps<SVGSVGElement & { title?: string }>>,
     number,
@@ -29,6 +30,7 @@ type ButtonIconProps = {
 
 export const ButtonIcon = ({
   title,
+  ariaLabel,
   icon,
   classNames,
   disabled,
@@ -47,6 +49,7 @@ export const ButtonIcon = ({
         'data-glean-label': gleanDataAttrs?.label,
         'data-glean-type': gleanDataAttrs?.type,
       }}
+      aria-label={ariaLabel}
       {...{ title, onClick, disabled }}
     >
       <Icon
@@ -60,6 +63,7 @@ export const ButtonIcon = ({
 };
 
 export const ButtonIconTrash = ({
+  ariaLabel,
   classNames,
   disabled,
   gleanDataAttrs,
@@ -70,7 +74,7 @@ export const ButtonIconTrash = ({
   <ButtonIcon
     classNames={`text-grey-500 dark:text-grey-200 nova:text-deemphasized ${classNames}`}
     icon={[TrashIcon, 16, 22]}
-    {...{ disabled, gleanDataAttrs, onClick, testId, title }}
+    {...{ ariaLabel, disabled, gleanDataAttrs, onClick, testId, title }}
   />
 );
 

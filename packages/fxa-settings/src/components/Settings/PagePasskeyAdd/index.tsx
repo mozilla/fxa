@@ -356,7 +356,9 @@ export const PagePasskeyAdd = () => {
     >
       <LoadingSpinner className="flex justify-center mb-6" />
       <FtlMsg id="page-passkey-add-creating-heading">
-        <h2 className="text-xl font-heading mb-2">Creating passkey…</h2>
+        <h2 id="page-passkey-add-heading" className="text-xl font-heading mb-2">
+          Creating passkey…
+        </h2>
       </FtlMsg>
       <FtlMsg id="page-passkey-add-follow-prompts">
         <p className="text-deemphasized mb-6">
@@ -366,6 +368,7 @@ export const PagePasskeyAdd = () => {
       <FtlMsg id="page-passkey-add-cancel">
         <button
           onClick={handleCancel}
+          aria-describedby="page-passkey-add-heading"
           className="link-blue text-sm"
           data-testid="passkey-add-cancel"
           data-glean-id="account_pref_passkey_create_cancel"

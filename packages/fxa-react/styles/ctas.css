@@ -30,7 +30,8 @@
     @apply dark:bg-grey-600;
   }
 
-  .cta-neutral:disabled {
+  .cta-neutral:disabled,
+  .cta-neutral[aria-disabled='true'] {
     @apply bg-white text-grey-300 border-grey-200 cursor-not-allowed;
     @apply dark:bg-grey-700 dark:text-grey-500 dark:border-grey-600;
   }
@@ -85,7 +86,7 @@
   }
 
   @media (hover: hover) {
-    .cta-neutral:hover:not(:disabled):not(:active) {
+    .cta-neutral:hover:not(:disabled):not(:active):not([aria-disabled='true']) {
       @apply border-grey-200 bg-grey-100 text-grey-400;
       @apply dark:border-grey-500 dark:bg-grey-600 dark:text-grey-200;
     }
@@ -252,7 +253,8 @@
     outline-offset: var(--focus-outline-offset);
   }
 
-  [data-theme='nova'] .cta-neutral:disabled {
+  [data-theme='nova'] .cta-neutral:disabled,
+  [data-theme='nova'] .cta-neutral[aria-disabled='true'] {
     background-color: var(--button-background-color-disabled);
     border-color: var(--button-border-color-disabled);
     color: var(--button-text-color-disabled);
@@ -332,7 +334,10 @@
   }
 
   @media (hover: hover) {
-    [data-theme='nova'] .cta-neutral:hover:not(:disabled):not(:active) {
+    [data-theme='nova']
+      .cta-neutral:hover:not(:disabled):not(:active):not(
+        [aria-disabled='true']
+      ) {
       background-color: var(--button-background-color-hover);
       border-color: var(--button-border-color-hover);
       color: var(--button-text-color-hover);

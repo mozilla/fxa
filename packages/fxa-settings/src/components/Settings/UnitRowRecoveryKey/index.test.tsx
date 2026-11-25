@@ -80,11 +80,11 @@ const renderWithContext = (
 describe('UnitRowRecoveryKey', () => {
   it('renders as expected when account recovery key is set', () => {
     renderWithContext(accountHasRecoveryKey);
-    screen.getByRole('heading', { name: 'Account recovery key' });
+    screen.getByRole('heading', { name: 'Account recovery key Enabled' });
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value').textContent
     ).toContain('Enabled');
-    screen.getByRole('link', { name: 'Change' });
+    screen.getByRole('link', { name: 'Change Account recovery key' });
     const deleteButtons = screen.getAllByRole('button');
     deleteButtons.forEach((button) => {
       expect(button).toHaveAttribute('title', 'Delete account recovery key');
@@ -97,28 +97,32 @@ describe('UnitRowRecoveryKey', () => {
 
   it('renders as expected when account recovery key is not set', () => {
     renderWithContext(accountWithoutRecoveryKey);
-    screen.getByRole('heading', { name: 'Account recovery key' });
+    screen.getByRole('heading', { name: 'Account recovery key Not set' });
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value').textContent
     ).toContain('Not set');
-    const createRKLink = screen.getByRole('link', { name: 'Create' });
+    const createRKLink = screen.getByRole('link', {
+      name: 'Create Account recovery key',
+    });
     expect(createRKLink).toHaveAttribute('href', '/settings/account_recovery');
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
   it('disables key creation when account has no password', () => {
     renderWithContext(accountWithoutPassword);
-    screen.getByRole('heading', { name: 'Account recovery key' });
+    screen.getByRole('heading', { name: 'Account recovery key Not set' });
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value').textContent
     ).toContain('Not set');
     const createRKButton = screen.getByTestId('recovery-key-unit-row-disabled');
-    expect(createRKButton).toBeDisabled();
+    expect(createRKButton).toHaveAttribute('aria-disabled', 'true');
     expect(createRKButton).toHaveAttribute(
       'title',
       'Set a password to sync and use certain account security features.'
     );
-    const deleteButtons = screen.getAllByRole('button');
+    const deleteButtons = screen
+      .getAllByRole('button')
+      .filter((button) => button !== createRKButton);
     deleteButtons.forEach((button) => {
       expect(button).toBeDisabled();
     });
