@@ -1,8 +1,8 @@
 {
-  "commit": "7d937e9c6a85d0ab9ca808e511cf3a8bc440bfb5",
+  "commit": "53a093247695f604ea9447d4b6c596b00f39c3a8",
   "summary": "feat(settings): animate the Nova auth-flow illustrations",
   "description": "Because:\n\n- The legacy illustrations carry motion (beating hearts, spinning sync\n  icon, code filling in) and the flat Nova set shipped static.\n\nThis commit:\n\n- Adds Nova keyframes and rules to fxa-react's animations.css, scoped to\n  `[data-theme='nova']`; hearts beat, checks draw in, sync arrows spin,\n  and the email-code pill, digits and arrow badge appear in sequence.\n- Gives each moving shape in six Nova SVGs a `nova-*` hook class, and\n  splits the hearts and asterisks that Figma exported as one path.\n- Adds `Nova > …` stories that pin the Nova toggle on for each animated\n  illustration.\n- Documents the approach in the design-tokens README.\n\nCloses #FXA-15002",
-  "timestamp": 1795560590000,
+  "timestamp": 1795623984000,
   "storybooks": [
     "fxa-admin-panel",
     "fxa-react",

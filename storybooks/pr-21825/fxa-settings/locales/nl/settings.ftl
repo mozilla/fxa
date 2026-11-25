@@ -1964,7 +1964,7 @@ pair-supp-allow-page-title = Koppeling bevestigen
 pair-wait-for-auth-heading-text = Goedkeuring <span>vanaf uw andere apparaat</span> nu vereist
 # Browser tab title for the page that asks the user to approve device pairing on their other device.
 # Shown in the browser tab, followed by “– Mozilla accounts”. Keep it short, since tabs cut off long titles.
-pair-wait-for-auth-page-title = Goedkeuren op uw andere apparaat
+pair-wait-for-auth-page-title = Bevestig op uw andere apparaat
 
 ## PairUnsupported - a view which is shown when the user tries to scan the pairing QR code any way other than through a Firefox app
 
