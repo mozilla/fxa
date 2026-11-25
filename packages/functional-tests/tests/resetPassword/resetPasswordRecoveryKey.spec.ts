@@ -15,6 +15,7 @@ test.describe('severity-1 #smoke', () => {
       page,
       pages: { recoveryKey, resetPassword, settings, signin },
       testAccountTracker,
+      gleanEventsHelper,
     }) => {
       const credentials = await testAccountTracker.signUp();
       const newPassword = testAccountTracker.generatePassword();
@@ -80,6 +81,13 @@ test.describe('severity-1 #smoke', () => {
       expect(filename.length).toBeGreaterThan(0);
 
       await expect(resetPassword.recoveryKeyHintHeading).toBeVisible();
+      await expect
+        .poll(() =>
+          gleanEventsHelper
+            .getEventsByName('recovery_key_hint_view')
+            .map((ping) => ping.extras.flow)
+        )
+        .toContain('reset');
       await resetPassword.recoveryKeyHintTextbox.fill('area 51');
       await resetPassword.recoveryKeyFinishButton.click();
 

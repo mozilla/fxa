@@ -12,6 +12,8 @@ import { logViewEvent } from '../../../lib/metrics';
 import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
 import { Link } from 'react-router';
 import { SETTINGS_PATH } from '../../../constants';
+import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 
 export type FlowRecoveryKeyInfoProps = {
   action?: RecoveryKeyAction;
@@ -30,6 +32,8 @@ export const FlowRecoveryKeyInfo = ({
   navigateBackward,
   viewName,
 }: FlowRecoveryKeyInfoProps) => {
+  useGleanView(() => GleanMetrics.recoveryKey.infoView());
+
   useEffect(() => {
     action === RecoveryKeyAction.Create
       ? logViewEvent(`flow.${viewName}`, 'create-key.info')
@@ -87,6 +91,7 @@ export const FlowRecoveryKeyInfo = ({
         <button
           className="cta-primary cta-xl mt-4"
           type="button"
+          data-glean-id="recovery_key_info_start"
           onClick={() => {
             action === RecoveryKeyAction.Create &&
               logViewEvent(`flow.${viewName}`, 'create-key.start');
@@ -104,6 +109,7 @@ export const FlowRecoveryKeyInfo = ({
           <Link
             className="link-blue text-sm mx-auto mt-4"
             to={SETTINGS_PATH}
+            data-glean-id="recovery_key_info_cancel"
             onClick={() =>
               logViewEvent(`flow.${viewName}`, 'change-key.cancel')
             }

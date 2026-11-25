@@ -49,6 +49,7 @@ test.describe('severity-1 #smoke', () => {
       target,
       pages: { page, recoveryKey, settings, signin },
       testAccountTracker,
+      gleanEventsHelper,
     }) => {
       const credentials = await signInAccount(
         target,
@@ -96,6 +97,23 @@ test.describe('severity-1 #smoke', () => {
         // Delete the downloaded file
         await fs.promises.unlink(filename);
       }
+
+      await expect(recoveryKey.hintHeading).toBeVisible();
+      for (const name of [
+        'recovery_key_success',
+        'recovery_key_download_view',
+        'recovery_key_hint_view',
+      ]) {
+        const ping = await gleanEventsHelper.waitForEvent(name);
+        expect(ping.extras.flow).toBe('settings');
+      }
+      gleanEventsHelper.assertEventOrder([
+        'recovery_key_info_view',
+        'recovery_key_password_view',
+        'recovery_key_success',
+        'recovery_key_download_view',
+        'recovery_key_hint_view',
+      ]);
     });
 
     test('revoke recovery key', async ({

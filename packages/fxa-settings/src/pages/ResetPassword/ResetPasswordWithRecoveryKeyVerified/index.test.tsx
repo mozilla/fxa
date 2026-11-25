@@ -37,6 +37,7 @@ jest.mock('../../../lib/glean', () => ({
     passwordReset: {
       recoveryKeyResetSuccessView: jest.fn(),
     },
+    recoveryKey: { hintView: jest.fn() },
   },
 }));
 
@@ -102,6 +103,14 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
         'generate-new-key',
         REACT_ENTRYPOINT
       );
+    });
+  });
+
+  it('records the hint view once with the reset flow', () => {
+    render(<ResetPasswordWithRecoveryKeyVerified {...defaultProps} showHint />);
+    expect(GleanMetrics.recoveryKey.hintView).toHaveBeenCalledTimes(1);
+    expect(GleanMetrics.recoveryKey.hintView).toHaveBeenCalledWith({
+      event: { flow: 'reset' },
     });
   });
 

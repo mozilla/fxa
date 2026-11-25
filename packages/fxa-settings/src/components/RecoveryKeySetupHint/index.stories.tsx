@@ -20,6 +20,7 @@ const storyWithProps = (
     <AppLayout>
       <RecoveryKeySetupHint
         viewName="whatever"
+        flow="settings"
         navigateForward={() => Promise.resolve()}
         updateRecoveryKeyHint={
           updateRecoveryKeyHint || (() => Promise.resolve())

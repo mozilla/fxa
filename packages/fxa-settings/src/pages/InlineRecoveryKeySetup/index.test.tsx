@@ -7,6 +7,12 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { Subject } from './mocks';
 import { Constants } from '../../lib/constants';
 import * as ReactUtils from '../../../../fxa-react/lib/utils';
+import GleanMetrics from '../../lib/glean';
+
+jest.mock('../../lib/glean', () => ({
+  __esModule: true,
+  default: { recoveryKey: { downloadView: jest.fn(), hintView: jest.fn() } },
+}));
 
 const mockNavigateWithQuery = jest.fn();
 jest.mock('../../lib/hooks/useNavigateWithQuery', () => ({
@@ -60,6 +66,9 @@ describe('InlineRecoveryKeySetup', () => {
     screen.getByRole('heading', {
       name: 'Places to store your key:',
     });
+    expect(GleanMetrics.recoveryKey.downloadView).toHaveBeenCalledWith({
+      event: { flow: 'inline' },
+    });
   });
   it('renders as expected, step 3', () => {
     renderWithLocalizationProvider(<Subject currentStep={3} />);
@@ -69,6 +78,9 @@ describe('InlineRecoveryKeySetup', () => {
     // Renders RecoveryKeySetupHint
     screen.getByRole('heading', {
       name: 'Add a hint to help find your key',
+    });
+    expect(GleanMetrics.recoveryKey.hintView).toHaveBeenCalledWith({
+      event: { flow: 'inline' },
     });
   });
 

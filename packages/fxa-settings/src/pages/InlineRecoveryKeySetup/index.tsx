@@ -63,6 +63,7 @@ export const InlineRecoveryKeySetup = ({
             </FtlMsg>
             <RecoveryKeySetupHint
               {...{ viewName, cmsInfo }}
+              flow="inline"
               navigateForward={() => {
                 navigateWithQuery('/pair');
               }}
@@ -102,6 +103,7 @@ export const InlineRecoveryKeySetup = ({
               <RecoveryKeySetupDownload
                 recoveryKeyValue={formattedRecoveryKey}
                 {...{ email, navigateForward, viewName, cmsInfo }}
+                flow="inline"
               />
             </div>
           </>
