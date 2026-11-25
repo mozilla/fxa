@@ -369,6 +369,15 @@ Icons whose legacy SVG baked in a color take a `nova:text-icon-*` class: AlertFu
 PasswordStrengthInline and FormPassword (`text-icon-success`, `text-icon-critical`) and ResetPasswordWarning
 (`text-icon-warning`).
 
+Animated illustrations keep a `nova-*` class on each shape that moves (`nova-heart`,
+`nova-check`, `nova-code-1`, …; svgo merges adjacent paths with identical attributes, so
+repeated shapes need distinct classes); the keyframes and timing live in `fxa-react/styles/animations.css`
+under `[data-theme='nova']`, next to the Nova reduced-motion reset that stops them. Hearts beat
+(AddDevices, RecoveryKeyHeart), checks draw in (CodeSuccess, RecoveryKeyCheck), the sync arrows
+spin, and the EmailCode pill, code and arrow badge fade in one after another. Where a Figma export
+drew several moving shapes as one path (the asterisks, two of the hearts) the path is split so each
+can move on its own; a re-export drops the classes and splits, so re-apply them from git history.
+
 | File                                                                | acorn-icons source                                                                                                                  | Replaces                                                                                                                                      |
 | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | `add.min.svg`                                                       | `icons/desktop/16/add-16.svg`                                                                                                       | PageAvatar add photo                                                                                                                          |

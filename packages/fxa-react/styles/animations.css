@@ -36,3 +36,213 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+/* Nova illustrations (fxa-settings `components/images/nova`). The SVGs carry
+ * only a `nova-*` class on each shape that moves; the motion lives here and
+ * mirrors the legacy illustration each one replaces. Transforms pivot on the
+ * shape, not the viewport. */
+@keyframes nova-beat {
+  0%,
+  60%,
+  90%,
+  100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(0.8);
+  }
+  80% {
+    transform: scale(0.9);
+  }
+}
+
+@keyframes nova-spin-pause {
+  0% {
+    transform: rotate(0deg);
+  }
+  20%,
+  50% {
+    transform: rotate(360deg);
+  }
+  70%,
+  100% {
+    transform: rotate(720deg);
+  }
+}
+
+@keyframes nova-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes nova-bounce {
+  0% {
+    transform: scale(0.7);
+  }
+  80% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes nova-pop {
+  0%,
+  40% {
+    transform: scale(0);
+  }
+  60%,
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes nova-fade-in {
+  from {
+    fill-opacity: 0;
+  }
+  to {
+    fill-opacity: 1;
+  }
+}
+
+/* A filled check revealed left to right, standing in for a drawn stroke. */
+@keyframes nova-draw {
+  0%,
+  50% {
+    clip-path: inset(0 100% 0 0);
+  }
+  60%,
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Password success loops: digits appear one by one, the check draws, all fade. */
+@keyframes nova-code-loop-1 {
+  0%,
+  10%,
+  100% {
+    fill-opacity: 0;
+  }
+  20%,
+  80% {
+    fill-opacity: 1;
+  }
+}
+
+@keyframes nova-code-loop-2 {
+  0%,
+  20%,
+  100% {
+    fill-opacity: 0;
+  }
+  30%,
+  80% {
+    fill-opacity: 1;
+  }
+}
+
+@keyframes nova-code-loop-3 {
+  0%,
+  30%,
+  100% {
+    fill-opacity: 0;
+  }
+  40%,
+  80% {
+    fill-opacity: 1;
+  }
+}
+
+@keyframes nova-draw-loop {
+  0%,
+  50% {
+    clip-path: inset(0 100% 0 0);
+    fill-opacity: 1;
+  }
+  60%,
+  80% {
+    clip-path: inset(0 0 0 0);
+    fill-opacity: 1;
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    fill-opacity: 0;
+  }
+}
+
+[data-theme='nova']
+  :is(
+    .nova-heart,
+    .nova-sync-arrows,
+    .nova-badge,
+    .nova-badge-arrow,
+    .nova-check-circle
+  ) {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+[data-theme='nova'] .nova-heart {
+  animation: nova-beat 1.5s infinite;
+}
+
+[data-theme='nova'] .nova-sync-arrows {
+  animation: nova-spin-pause 4s ease-in-out forwards;
+}
+
+/* Recovery key confirmed: the circle pops in, then the check draws. */
+[data-theme='nova'] .nova-check-circle {
+  animation: nova-pop 2s ease-out both;
+}
+
+[data-theme='nova'] .nova-check {
+  animation: nova-draw 3s ease-in both;
+}
+
+/* Password success (the check precedes the digits in the SVG). */
+[data-theme='nova'] .nova-check:has(~ .nova-code-1) {
+  animation: nova-draw-loop 5s ease-in infinite;
+}
+
+[data-theme='nova'] .nova-check ~ .nova-code-1 {
+  animation: nova-code-loop-1 5s ease-in-out infinite;
+}
+
+[data-theme='nova'] .nova-check ~ .nova-code-2 {
+  animation: nova-code-loop-2 5s ease-in-out infinite;
+}
+
+[data-theme='nova'] .nova-check ~ .nova-code-3 {
+  animation: nova-code-loop-3 5s ease-in-out infinite;
+}
+
+/* Email code: the arrow badge lands first, then the pill, then the digits. */
+[data-theme='nova'] .nova-badge {
+  animation:
+    nova-fade-in 400ms ease-out both,
+    nova-bounce 1s ease-out both;
+}
+
+[data-theme='nova'] .nova-badge-arrow {
+  animation: nova-rotate 1s ease-out both;
+}
+
+[data-theme='nova'] .nova-pill {
+  animation: nova-fade-in 400ms ease-out 900ms both;
+}
+
+[data-theme='nova'] .nova-pill ~ .nova-code-1 {
+  animation: nova-fade-in 400ms ease-out 1400ms both;
+}
+
+[data-theme='nova'] .nova-pill ~ .nova-code-2 {
+  animation: nova-fade-in 400ms ease-out 1600ms both;
+}
+
+[data-theme='nova'] .nova-pill ~ .nova-code-3 {
+  animation: nova-fade-in 400ms ease-out 1800ms both;
+}
