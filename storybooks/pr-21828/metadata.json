@@ -1,0 +1,10 @@
+{
+  "commit": "c4c4a8ef17b6924766094d41b8d045c289e3054c",
+  "summary": "fix(shared-db): look up blocked domains by key, not a table scan",
+  "description": "Because:\n\n* Signup read the whole domainBlocklist table on each cache refresh\n\nThis commit:\n\n* Looks up the email domain on the unique key of domainBlocklist\n* Caches each domain's result, hit or miss, for 60 seconds\n* Adds a domainBlocklist fixture and an integration spec\n\nCloses FXA-15124",
+  "timestamp": 1795567150000,
+  "storybooks": [
+    "fxa-admin-panel"
+  ],
+  "deployDir": "deploy/"
+}
