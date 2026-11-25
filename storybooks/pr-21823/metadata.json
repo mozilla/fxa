@@ -1,8 +1,8 @@
 {
-  "commit": "cd5473d28f6d85c869d76aa0fc09fe9a2cf5cdb3",
+  "commit": "0f5cda9cc6adce5db4145e7abd309d59f2224304",
   "summary": "feat(passkeys): wrap kB in one AES-GCM layer, dropping HPKE",
   "description": "Because:\n\n- The HPKE layer's only distinct capability, re-sealing kB for a passkey\n  that is not present, was already disabled by the skR AAD binding.\n- What remained was a third-party curve implementation and the P-521\n  platform bugs that end in an unwanted password fallback.\n- No production row exists and the wrap routes are flag-off in prod, so\n  this is the last point the format can change without a v2.\n\nThis commit:\n\n- Replaces the two-layer envelope with HKDF-SHA512(prfOut, kdfSalt) and\n  AES-256-GCM over kB; stored fields are kdfSalt, keyWrapIv, wrappedKb.\n- Removes hpke.ts, suite.ts, the RFC 9180 vectors and the hpke dependency.\n- Regenerates the golden fixture outside the module and re-pins its hash.\n- Patch 203-204 drops the HPKE columns and adds kdfSalt and wrappedKb\n  after clearing the table; not expand/contract, see the PR.\n- Updates the auth-client, auth-server validator, repository, schema\n  mirrors, Sentry filter, swagger docs and the module README.\n\nCloses: FXA-15127",
-  "timestamp": 1795636216000,
+  "timestamp": 1795637016000,
   "storybooks": [
     "email-renderer",
     "fxa-admin-panel",
