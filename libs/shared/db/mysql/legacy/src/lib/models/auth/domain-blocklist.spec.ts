@@ -4,19 +4,19 @@
 
 import { DomainBlocklist } from './domain-blocklist';
 
-const sampleEntries = [
-  { domain: 'evil.com', createdAt: 2000 },
-  { domain: 'spam.net', createdAt: 1000 },
-];
+const TTL_MS = 60 * 1000;
+const blocked = new Set(['evil.com', 'spam.net']);
 
 describe('DomainBlocklist', () => {
-  let findAllSpy: jest.SpyInstance;
+  let findByDomainSpy: jest.SpyInstance;
 
   beforeEach(() => {
     DomainBlocklist.invalidateCache();
-    findAllSpy = jest
-      .spyOn(DomainBlocklist, 'findAll')
-      .mockResolvedValue(sampleEntries);
+    findByDomainSpy = jest
+      .spyOn(DomainBlocklist, 'findByDomain')
+      .mockImplementation(async (domain) =>
+        blocked.has(domain) ? domain : null
+      );
   });
 
   afterEach(() => {
@@ -27,6 +27,7 @@ describe('DomainBlocklist', () => {
     it('returns the matching domain for a known entry', async () => {
       const result = await DomainBlocklist.findMatchingDomain('user@evil.com');
       expect(result).toBe('evil.com');
+      expect(findByDomainSpy).toHaveBeenCalledWith('evil.com');
     });
 
     it('returns null when the domain is not in the list', async () => {
@@ -35,67 +36,73 @@ describe('DomainBlocklist', () => {
     });
 
     it('returns null for an email with no @ character', async () => {
-      findAllSpy.mockResolvedValue([]);
       const result = await DomainBlocklist.findMatchingDomain('notanemail');
       expect(result).toBeNull();
+      expect(findByDomainSpy).not.toHaveBeenCalled();
+    });
+
+    it('normalizes the email domain to lowercase before the lookup', async () => {
+      const result = await DomainBlocklist.findMatchingDomain('user@EVIL.COM');
+      expect(result).toBe('evil.com');
+      expect(findByDomainSpy).toHaveBeenCalledWith('evil.com');
+    });
+
+    it('never reads the whole table', async () => {
+      const findAllSpy = jest.spyOn(DomainBlocklist, 'findAll');
+      await DomainBlocklist.findMatchingDomain('user@evil.com');
       expect(findAllSpy).not.toHaveBeenCalled();
     });
 
-    it('normalizes the email domain to lowercase before matching', async () => {
-      const result = await DomainBlocklist.findMatchingDomain('user@EVIL.COM');
-      expect(result).toBe('evil.com');
-    });
+    it('caches hits and misses per domain', async () => {
+      await DomainBlocklist.findMatchingDomain('a@evil.com');
+      await DomainBlocklist.findMatchingDomain('b@evil.com');
+      await DomainBlocklist.findMatchingDomain('a@safe.com');
+      await DomainBlocklist.findMatchingDomain('b@safe.com');
 
-    it('caches results and only calls findAll once across multiple lookups', async () => {
-      await DomainBlocklist.findMatchingDomain('user@evil.com');
-      await DomainBlocklist.findMatchingDomain('user@spam.net');
-      await DomainBlocklist.findMatchingDomain('user@safe.com');
-
-      expect(findAllSpy).toHaveBeenCalledTimes(1);
+      expect(findByDomainSpy).toHaveBeenCalledTimes(2);
+      expect(findByDomainSpy).toHaveBeenNthCalledWith(1, 'evil.com');
+      expect(findByDomainSpy).toHaveBeenNthCalledWith(2, 'safe.com');
     });
 
     it('re-fetches after invalidateCache is called', async () => {
-      const updatedEntries = [{ domain: 'new.com', createdAt: 3000 }];
-      findAllSpy
-        .mockResolvedValueOnce(sampleEntries)
-        .mockResolvedValueOnce(updatedEntries);
+      findByDomainSpy
+        .mockResolvedValueOnce('evil.com')
+        .mockResolvedValueOnce(null);
 
-      const first = await DomainBlocklist.findMatchingDomain('user@evil.com');
-      expect(first).toBe('evil.com');
-
+      expect(await DomainBlocklist.findMatchingDomain('user@evil.com')).toBe(
+        'evil.com'
+      );
       DomainBlocklist.invalidateCache();
-
-      const second = await DomainBlocklist.findMatchingDomain('user@evil.com');
-      expect(second).toBeNull();
-
-      expect(findAllSpy).toHaveBeenCalledTimes(2);
+      expect(
+        await DomainBlocklist.findMatchingDomain('user@evil.com')
+      ).toBeNull();
+      expect(findByDomainSpy).toHaveBeenCalledTimes(2);
     });
 
-    it('re-fetches after the cache TTL expires', async () => {
+    it('uses the cache until the TTL ends, then re-fetches', async () => {
       const now = 1_000_000;
-      const TTL_MS = 5 * 60 * 1000;
-      const dateSpy = jest
-        .spyOn(Date, 'now')
-        .mockReturnValueOnce(now) // set cacheExpiresAt = now + TTL
-        .mockReturnValueOnce(now + TTL_MS + 1) // cache-check on second call (expired)
-        .mockReturnValueOnce(now + TTL_MS + 1); // set cacheExpiresAt after second fetch
-
-      await DomainBlocklist.findMatchingDomain('user@evil.com');
+      const dateSpy = jest.spyOn(Date, 'now').mockReturnValue(now);
       await DomainBlocklist.findMatchingDomain('user@evil.com');
 
-      expect(findAllSpy).toHaveBeenCalledTimes(2);
-      dateSpy.mockRestore();
+      dateSpy.mockReturnValue(now + TTL_MS);
+      await DomainBlocklist.findMatchingDomain('user@evil.com');
+      expect(findByDomainSpy).toHaveBeenCalledTimes(1);
+
+      dateSpy.mockReturnValue(now + TTL_MS + 1);
+      await DomainBlocklist.findMatchingDomain('user@evil.com');
+      expect(findByDomainSpy).toHaveBeenCalledTimes(2);
     });
-  });
 
-  describe('invalidateCache', () => {
-    it('causes the next findMatchingDomain call to re-fetch', async () => {
-      await DomainBlocklist.findMatchingDomain('user@evil.com');
-      expect(findAllSpy).toHaveBeenCalledTimes(1);
+    it('clears the cache when it reaches 10,000 domains', async () => {
+      for (let i = 0; i < 10_000; i++) {
+        await DomainBlocklist.findMatchingDomain(`user@d${i}.example`);
+      }
+      await DomainBlocklist.findMatchingDomain('user@d1.example');
+      expect(findByDomainSpy).toHaveBeenCalledTimes(10_000);
 
-      DomainBlocklist.invalidateCache();
-      await DomainBlocklist.findMatchingDomain('user@evil.com');
-      expect(findAllSpy).toHaveBeenCalledTimes(2);
+      await DomainBlocklist.findMatchingDomain('user@overflow.example');
+      await DomainBlocklist.findMatchingDomain('user@d1.example');
+      expect(findByDomainSpy).toHaveBeenCalledTimes(10_002);
     });
   });
 });

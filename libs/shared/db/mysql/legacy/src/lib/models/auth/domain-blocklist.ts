@@ -4,10 +4,11 @@
 
 import { BaseAuthModel } from './base-auth';
 
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL_MS = 60 * 1000;
+const CACHE_MAX_ENTRIES = 10_000;
 
-let cachedEntries: { domain: string; createdAt: number }[] | null = null;
-let cacheExpiresAt = 0;
+// Misses are cached too, so repeat signups from one domain do not hit MySQL.
+const cache = new Map<string, { blocked: string | null; expiresAt: number }>();
 
 export class DomainBlocklist extends BaseAuthModel {
   public static tableName = 'domainBlocklist';
@@ -20,6 +21,14 @@ export class DomainBlocklist extends BaseAuthModel {
       .select('domain', 'createdAt')
       .orderBy('createdAt', 'desc')
       .orderBy('domain', 'asc');
+  }
+
+  static async findByDomain(domain: string): Promise<string | null> {
+    const row = await DomainBlocklist.knex()(DomainBlocklist.tableName)
+      .select('domain')
+      .where({ domain })
+      .first();
+    return row?.domain ?? null;
   }
 
   /** Inserts domains; silently skips duplicates via onConflict().ignore(). */
@@ -46,27 +55,26 @@ export class DomainBlocklist extends BaseAuthModel {
   }
 
   static invalidateCache(): void {
-    cachedEntries = null;
-    cacheExpiresAt = 0;
+    cache.clear();
   }
 
   /**
    * Returns the blocked domain if the email's domain is in the blocklist, or null.
-   * Results are cached in-process for up to 5 minutes to avoid a full-table read
-   * on every account registration. Writes invalidate the cache immediately.
-   * Note: auth-server and admin-server are separate processes, so a write via
-   * the admin panel may take up to 5 minutes to be reflected here.
+   * Each domain's result is cached in-process for CACHE_TTL_MS. Writes clear the
+   * cache, but auth-server and admin-server are separate processes, so an admin
+   * write can take up to CACHE_TTL_MS to show here.
    */
   static async findMatchingDomain(email: string): Promise<string | null> {
     const domain = email.split('@')[1]?.toLowerCase();
     if (!domain) return null;
 
-    if (!cachedEntries || Date.now() > cacheExpiresAt) {
-      cachedEntries = await DomainBlocklist.findAll();
-      cacheExpiresAt = Date.now() + CACHE_TTL_MS;
-    }
+    const now = Date.now();
+    const cached = cache.get(domain);
+    if (cached && now <= cached.expiresAt) return cached.blocked;
 
-    const match = cachedEntries.find((entry) => entry.domain === domain);
-    return match?.domain ?? null;
+    const blocked = await DomainBlocklist.findByDomain(domain);
+    if (cache.size >= CACHE_MAX_ENTRIES) cache.clear();
+    cache.set(domain, { blocked, expiresAt: now + CACHE_TTL_MS });
+    return blocked;
   }
 }
