@@ -333,6 +333,62 @@ describe('IndexContainer', () => {
     });
   });
 
+  it('does not auto-submit a stored account on the synced data deleted page', async () => {
+    mockLocationState = { deleteSyncDataSuccess: true };
+    jest.spyOn(cache, 'currentAccount').mockReturnValue(undefined);
+    jest.spyOn(cache, 'lastStoredAccount').mockReturnValue({
+      uid: 'stored123',
+      email: 'stored@example.com',
+      lastLogin: 1_700_000_000_000,
+    });
+    mockUseValidatedQueryParams.mockReturnValue({
+      queryParamModel: {},
+      validationError: null,
+    });
+    const accountStatusByEmail = jest.fn();
+    mockUseAuthClient.mockReturnValue({ accountStatusByEmail });
+
+    renderWithLocalizationProvider(
+      <MemoryRouter>
+        <IndexContainer
+          {...{
+            integration,
+            serviceName: MozServices.Default,
+            useFxAStatusResult: mockUseFxAStatusResult,
+          }}
+        />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(currentIndexProps?.successBannerMessage).toBe(
+        'Deleting synced data from Mozilla’s servers. This may take some time.'
+      );
+    });
+    expect(accountStatusByEmail).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  it('shows the synced data deleted banner', async () => {
+    mockLocationState = { deleteSyncDataSuccess: true };
+    renderWithLocalizationProvider(
+      <MemoryRouter>
+        <IndexContainer
+          {...{
+            integration,
+            serviceName: MozServices.Default,
+            useFxAStatusResult: mockUseFxAStatusResult,
+          }}
+        />
+      </MemoryRouter>
+    );
+    await waitFor(() => {
+      expect(currentIndexProps?.successBannerMessage).toBe(
+        'Deleting synced data from Mozilla’s servers. This may take some time.'
+      );
+    });
+  });
+
   it('replaces the account deleted banner with a submit error banner', async () => {
     mockLocationState = { deleteAccountSuccess: true };
     mockUseAuthClient.mockReturnValue({

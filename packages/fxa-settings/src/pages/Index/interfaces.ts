@@ -46,6 +46,7 @@ export interface IndexContainerProps {
 export interface LocationState {
   prefillEmail?: string;
   deleteAccountSuccess?: boolean;
+  deleteSyncDataSuccess?: boolean;
   hasBounced?: boolean;
   localizedErrorFromLocationState?: string;
 }

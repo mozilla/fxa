@@ -116,7 +116,7 @@ export class PasskeyWrapsHandler {
 
     if (!hasPasswordReauth(session)) {
       await this.recordEvent(request, 'account.passkey.wrap_creation_failure');
-      throw AppError.passkeyWrapReauthRequired();
+      throw AppError.passwordReauthRequired();
     }
 
     let result: Awaited<ReturnType<PasskeyService['storePasskeyWrap']>>;

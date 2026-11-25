@@ -1779,11 +1779,11 @@ export class AppError extends Error {
     });
   }
 
-  static passkeyWrapReauthRequired() {
+  static passwordReauthRequired() {
     return new AppError({
       code: 401,
       error: 'Unauthorized',
-      errno: ERRNO.PASSKEY_WRAP_REAUTH_REQUIRED,
+      errno: ERRNO.PASSWORD_REAUTH_REQUIRED,
       message: 'Password reauthentication required',
     });
   }

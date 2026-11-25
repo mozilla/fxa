@@ -95,6 +95,10 @@ export class SettingsPage extends SettingsLayout {
     return this.page.getByTestId('settings-delete-account');
   }
 
+  get deleteSyncDataButton() {
+    return this.page.getByTestId('synced-data-unit-row-route');
+  }
+
   async disconnectSync(creds: { uid: string }) {
     await this.goto();
     const services = await this.connectedServices.services();

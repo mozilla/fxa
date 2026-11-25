@@ -136,7 +136,7 @@ describe('sync data routes', () => {
 
   it('requires the session to have verified the password', async () => {
     await expect(run({ reauthed: false })).rejects.toMatchObject({
-      errno: ERRNO.INVALID_MFA_TOKEN,
+      errno: ERRNO.PASSWORD_REAUTH_REQUIRED,
     });
     expect(customs.checkAuthenticated).toHaveBeenCalledTimes(1);
     expect(fetchMock).not.toHaveBeenCalled();
@@ -189,10 +189,34 @@ describe('sync data routes', () => {
   });
 
   it('treats an unknown tokenserver user as nothing to delete', async () => {
-    fetchMock.mockResolvedValue(tokenserverResponse(404));
+    fetchMock.mockResolvedValue(
+      tokenserverResponse(404, { status: 'error', errors: [] })
+    );
 
     await expect(run()).resolves.toEqual({ deleted: false });
     expect(recordSecurityEvent).not.toHaveBeenCalled();
+    expect(statsd.increment).toHaveBeenCalledWith('sync_data.destroy', [
+      'result:nothing_to_delete',
+    ]);
+  });
+
+  it('fails on a 404 without the tokenserver error body', async () => {
+    fetchMock.mockResolvedValue({
+      ok: false,
+      status: 404,
+      body: { cancel: async () => {} },
+      json: async () => {
+        throw new SyntaxError('Unexpected end of JSON input');
+      },
+    } as unknown as Response);
+
+    await expect(run()).rejects.toMatchObject({
+      errno: ERRNO.BACKEND_SERVICE_FAILURE,
+    });
+    expect(statsd.increment).toHaveBeenCalledWith('sync_data.destroy', [
+      'result:failed',
+      'reason:http_404',
+    ]);
   });
 
   it('treats any status other than 200 and 404 as a failure', async () => {

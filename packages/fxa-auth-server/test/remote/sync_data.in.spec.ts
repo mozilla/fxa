@@ -145,7 +145,7 @@ describe('#integration - remote sync data deletion', () => {
     const token = await mintMfaToken('sync_data');
 
     await expect(destroySyncData(token)).rejects.toMatchObject({
-      errno: ERRNO.INVALID_MFA_TOKEN,
+      errno: ERRNO.PASSWORD_REAUTH_REQUIRED,
     });
     expect(tokenserverCalls).toHaveLength(0);
   });

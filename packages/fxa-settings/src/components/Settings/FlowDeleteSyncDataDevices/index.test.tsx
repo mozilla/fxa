@@ -9,12 +9,12 @@ import { renderWithRouter } from '../../../models/mocks';
 import { FlowDeleteSyncDataDevices } from '.';
 import { MOCK_SYNC_CLIENTS, MOCK_SYNC_DEVICES } from '../DataCollection/mocks';
 
-const renderStep = (devices = MOCK_SYNC_DEVICES) => {
+const renderStep = (devices = MOCK_SYNC_DEVICES, isLoading = false) => {
   const onConfirm = jest.fn();
   const onCancel = jest.fn();
   renderWithRouter(
     <FlowDeleteSyncDataDevices
-      {...{ devices }}
+      {...{ devices, isLoading }}
       localizedBackButtonTitle="Back to settings"
       localizedPageTitle="Delete synced data"
       navigateBackward={jest.fn()}
@@ -25,6 +25,20 @@ const renderStep = (devices = MOCK_SYNC_DEVICES) => {
 };
 
 describe('FlowDeleteSyncDataDevices', () => {
+  it('disables the confirm button while loading', async () => {
+    const { onConfirm, user } = renderStep(MOCK_SYNC_DEVICES, true);
+    // The spinner's "Loading…" label joins the button name while it runs.
+    const button = screen.getByRole('button', { name: /^Delete/ });
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
+    for (const box of screen.getAllByRole('checkbox')) {
+      expect(box).toBeDisabled();
+    }
+    await user.click(button);
+    expect(onConfirm).not.toHaveBeenCalled();
+  });
+
   it('describes the sign-out checkbox with the resume-syncing note', () => {
     renderStep();
     expect(
@@ -32,6 +46,25 @@ describe('FlowDeleteSyncDataDevices', () => {
     ).toHaveAccessibleDescription(
       'Syncing will resume wherever you’re signed in.'
     );
+  });
+
+  it('hides the resume-syncing note once every device is checked', async () => {
+    const { user } = renderStep();
+    const signOutAll = screen.getByRole('checkbox', {
+      name: 'Sign out of Firefox',
+    });
+
+    await user.click(signOutAll);
+
+    expect(
+      screen.queryByText('Syncing will resume wherever you’re signed in.')
+    ).not.toBeInTheDocument();
+    expect(signOutAll).not.toHaveAttribute('aria-describedby');
+
+    await user.click(screen.getByRole('checkbox', { name: 'Work laptop' }));
+    expect(
+      screen.getByText('Syncing will resume wherever you’re signed in.')
+    ).toBeVisible();
   });
 
   it('shows the device list expanded', () => {

@@ -6,11 +6,19 @@ import React from 'react';
 import { Meta, StoryObj } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
+import { MfaContext } from '../../../lib/hooks';
 import { PageDeleteSyncData } from '.';
-import { AppContext } from '../../../models';
-import { mockAppContext } from '../../../models/mocks';
+import { Account, AppContext, AttachedClient } from '../../../models';
+import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 import { MOCK_SYNC_DEVICES } from '../DataCollection/mocks';
 import { mockDeleteSyncDataAuthClient } from '../FlowDeleteSyncDataConfirmPwd/mocks';
+
+const account = {
+  ...MOCK_ACCOUNT,
+  deleteSyncData: async () => action('deleteSyncData')(),
+  disconnectClient: async (client: AttachedClient) =>
+    action('disconnectClient')(client),
+} as unknown as Account;
 
 export default {
   title: 'Pages/Settings/DeleteSyncData',
@@ -25,12 +33,14 @@ export const Default: Story = {
   name: 'Confirm password, then devices (any password continues)',
   render: () => (
     <AppContext.Provider
-      value={mockAppContext({ authClient: mockDeleteSyncDataAuthClient() })}
+      value={mockAppContext({
+        account,
+        authClient: mockDeleteSyncDataAuthClient(),
+      })}
     >
-      <PageDeleteSyncData
-        syncCapableDevices={MOCK_SYNC_DEVICES}
-        onConfirm={action('onConfirm')}
-      />
+      <MfaContext.Provider value="sync_data">
+        <PageDeleteSyncData syncCapableDevices={MOCK_SYNC_DEVICES} />
+      </MfaContext.Provider>
     </AppContext.Provider>
   ),
 };

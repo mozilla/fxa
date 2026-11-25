@@ -12,6 +12,7 @@ import { ConnectAnotherDevicePage } from './connectAnotherDevice';
 import { CookiesDisabledPage } from './cookiesDisabled';
 import { ChangePasswordPage } from './settings/changePassword';
 import { DeleteAccountPage } from './settings/deleteAccount';
+import { DeleteSyncDataPage } from './settings/deleteSyncData';
 import { DisplayNamePage } from './settings/displayName';
 import { FourOhFourPage } from './fourOhFour';
 import { FxDesktopV3ForceAuthPage } from './forceAuth/fxDesktopV3';
@@ -53,6 +54,7 @@ export function create(page: Page, target: BaseTarget) {
     connectAnotherDevice: new ConnectAnotherDevicePage(page, target),
     cookiesDisabled: new CookiesDisabledPage(page, target),
     deleteAccount: new DeleteAccountPage(page, target),
+    deleteSyncData: new DeleteSyncDataPage(page, target),
     displayName: new DisplayNamePage(page, target),
     forceAuth: new ForceAuthPage(page, target),
     fourOhFour: new FourOhFourPage(page, target),

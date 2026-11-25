@@ -802,6 +802,16 @@ export class Account implements AccountData {
     updateExtendedAccountState({ attachedClients: updatedClients });
   }
 
+  /**
+   * Deletes the account's Sync data from the Sync storage service. Resolves
+   * with nothing once the server has deleted the data or had nothing to
+   * delete; only a thrown error is a failure.
+   */
+  async deleteSyncData() {
+    const jwt = this.getCachedJwtByScope('sync_data');
+    await this.authClient.destroySyncData(jwt);
+  }
+
   async verifyAccountThirdParty(
     code: string,
     provider: AUTH_PROVIDER = AUTH_PROVIDER.GOOGLE,

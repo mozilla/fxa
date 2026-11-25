@@ -373,6 +373,13 @@ export const eventsMap = {
     passwordSubmit: 'delete_account_password_submit',
   },
 
+  deleteSyncData: {
+    passwordView: 'delete_sync_data_password_view',
+    devicesView: 'delete_sync_data_devices_view',
+    success: 'delete_sync_data_success',
+    error: 'delete_sync_data_error',
+  },
+
   passwordlessReg: {
     view: 'reg_otp_view',
     engage: 'reg_otp_engage',

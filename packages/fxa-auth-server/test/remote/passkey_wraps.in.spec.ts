@@ -345,7 +345,7 @@ describe('#integration - remote passkey wrap storage', () => {
       storeWrap({ credentialId, ...envelope() }, token)
     ).rejects.toMatchObject({
       code: 401,
-      errno: ERRNO.PASSKEY_WRAP_REAUTH_REQUIRED,
+      errno: ERRNO.PASSWORD_REAUTH_REQUIRED,
     });
   });
 

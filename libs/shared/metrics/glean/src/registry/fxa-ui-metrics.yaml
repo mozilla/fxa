@@ -4058,7 +4058,10 @@ account_pref:
       - interaction
     extra_keys:
       reason:
-        description: The reason to disconnect the device/service
+        description: |
+          The reason to disconnect the device/service: the Connected Services
+          survey choice or 'no-reason', or 'sync_data_deletion' when signed
+          out from the delete Sync data flow
         type: string
   avatar_view:
     type: event
@@ -4965,6 +4968,83 @@ delete_account:
     expires: never
     data_sensitivity:
       - interaction
+
+delete_sync_data:
+  password_view:
+    type: event
+    description: |
+      View of the password step of the Sync data deletion flow in Settings,
+      after the MFA guard. The automatic page load event fires on the guard.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14947
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  devices_view:
+    type: event
+    description: |
+      View of the device step of the Sync data deletion flow in Settings
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14947
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  success:
+    type: event
+    description: |
+      The Sync data deletion request succeeded
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14947
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  error:
+    type: event
+    description: |
+      The Sync data deletion flow failed for any reason after confirm
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-14947
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          'delete_failed' when the deletion request failed, 'sign_out_failed'
+          when data was deleted but a device could not be signed out
+        type: string
 
 error:
   view:

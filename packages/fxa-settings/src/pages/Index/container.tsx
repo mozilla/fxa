@@ -112,8 +112,12 @@ const IndexContainer = ({
     }
   }, [validationError, integration]);
 
-  const { prefillEmail, deleteAccountSuccess, hasBounced } =
-    location.state || {};
+  const {
+    prefillEmail,
+    deleteAccountSuccess,
+    deleteSyncDataSuccess,
+    hasBounced,
+  } = location.state || {};
 
   // sessionToken is dropped unless verified===true; the browser's flag can be
   // stale (no follow-up fxaLogin after SyncOAuth token-code), so we re-prompt.
@@ -433,7 +437,10 @@ const IndexContainer = ({
 
   // If we just came from another Mozilla accounts page with a prefill email in location state,
   // ignore suggested email. Prefill email is used for clicks on "Use different account" or "Change email".
-  const shouldTrySuggestedEmail = suggestedEmail && !prefillEmail;
+  // After signing out of the current device the success banner is the point
+  // of this page, so a remaining stored account must not be auto-submitted.
+  const shouldTrySuggestedEmail =
+    suggestedEmail && !prefillEmail && !deleteSyncDataSuccess;
 
   useEffect(() => {
     // Pairing authority flow: each protocol version has its own first screen.
@@ -514,6 +521,15 @@ const IndexContainer = ({
       );
     }
   }, [ftlMsgResolver, deleteAccountSuccess]);
+
+  useEffect(() => {
+    if (deleteSyncDataSuccess) {
+      // TODO FXA-15112: final copy and .ftl string.
+      setSuccessBannerMessage(
+        'Deleting synced data from Mozilla’s servers. This may take some time.'
+      );
+    }
+  }, [deleteSyncDataSuccess]);
 
   const initialPrefill = prefillEmail || suggestedEmail;
   const isMobile = isMobileDevice();
