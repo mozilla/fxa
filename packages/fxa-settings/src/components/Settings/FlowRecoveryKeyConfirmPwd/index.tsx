@@ -22,9 +22,14 @@ import {
 import { formatRecoveryKey } from '../../../lib/utilities';
 import Banner from '../../Banner';
 import { useMfaErrorHandler } from '../../../lib/hooks';
-import { createRecoveryKeyWithReauth } from '../../../lib/recovery-key';
+import {
+  createRecoveryKeyWithReauth,
+  getRecoveryKeyErrorReason,
+} from '../../../lib/recovery-key';
 import { sessionToken } from '../../../lib/cache';
 import { updateExtendedAccountState } from '../../../lib/account-storage';
+import GleanMetrics from '../../../lib/glean';
+import { useGleanView } from '../../../lib/glean/useGleanView';
 
 type FormData = {
   password: string;
@@ -57,6 +62,8 @@ export const FlowRecoveryKeyConfirmPwd = ({
     useState<string>();
   const [isLoading, setIsLoading] = useState(false);
   const [actionType, setActionType] = useState<RecoveryKeyAction>();
+
+  useGleanView(() => GleanMetrics.recoveryKey.passwordView());
 
   useEffect(() => {
     if (account.recoveryKey.exists === true) {
@@ -101,6 +108,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
       });
       setFormattedRecoveryKey(formatRecoveryKey(recoveryKey.buffer));
       logViewEvent(`flow.${viewName}`, 'confirm-password.success');
+      GleanMetrics.recoveryKey.success({ event: { flow: 'settings' } });
       navigateForward();
     } catch (err) {
       const errorHandled = handleMfaError(err);
@@ -123,6 +131,9 @@ export const FlowRecoveryKeyConfirmPwd = ({
         setLocalizedErrorBannerMessage(localizedErrorMessage);
       }
       logViewEvent(`flow.${viewName}`, 'confirm-password.fail');
+      GleanMetrics.recoveryKey.error({
+        event: { flow: 'settings', reason: getRecoveryKeyErrorReason(err) },
+      });
       setIsLoading(false);
     }
   }, [
@@ -191,6 +202,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
                 className="cta-primary cta-xl w-full mt-4"
                 type="submit"
                 disabled={isLoading || !isDirty}
+                data-glean-id="recovery_key_password_submit"
               >
                 Create account recovery key
               </button>
@@ -202,6 +214,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
                 className="cta-primary cta-xl w-full mt-4"
                 type="submit"
                 disabled={isLoading || !isDirty}
+                data-glean-id="recovery_key_password_submit"
               >
                 Create new account recovery key
               </button>
@@ -213,6 +226,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
             <Link
               className="link-blue text-sm mx-auto"
               to={SETTINGS_PATH}
+              data-glean-id="recovery_key_password_cancel"
               onClick={() => {
                 logViewEvent(`flow.${viewName}`, 'change-key.cancel');
               }}

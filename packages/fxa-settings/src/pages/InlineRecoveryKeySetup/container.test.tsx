@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import InlineRecoveryKeySetupContainer from './container';
 import * as InlineRecoveryKeySetupModule from '.';
 import * as ModelsModule from '../../models';
@@ -20,6 +20,15 @@ import { InlineRecoveryKeySetupProps } from './interfaces';
 import { MOCK_EMAIL } from '../InlineTotpSetup/mocks';
 import { MemoryRouter } from 'react-router';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import GleanMetrics from '../../lib/glean';
+
+// A plain function, so jest.resetAllMocks in beforeEach keeps its value
+jest.mock('base32-encode', () => () => '00000000000000000000000000000000');
+
+jest.mock('../../lib/glean', () => ({
+  __esModule: true,
+  default: { recoveryKey: { success: jest.fn(), error: jest.fn() } },
+}));
 
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
@@ -141,7 +150,9 @@ describe('InlineRecoveryKeySetupContainer', () => {
     );
 
     expect(currentProps).toBeDefined();
-    await currentProps?.createRecoveryKeyHandler();
+    await act(async () => {
+      await currentProps?.createRecoveryKeyHandler();
+    });
     expect(mockAuthClient.sessionReauthWithAuthPW).toHaveBeenCalledWith(
       MOCK_SESSION_TOKEN,
       { primary: MOCK_SIGNUP_EMAIL },
@@ -167,13 +178,52 @@ describe('InlineRecoveryKeySetupContainer', () => {
       </MemoryRouter>
     );
 
-    await currentProps?.createRecoveryKeyHandler();
+    await act(async () => {
+      await currentProps?.createRecoveryKeyHandler();
+    });
     const [, emailInput, , options] = (
       mockAuthClient.sessionReauthWithAuthPW as jest.Mock
     ).mock.calls[0];
     expect(emailInput).toEqual({ primary: MOCK_STORED_ACCOUNT.email });
     expect(options).toEqual({ keys: true, reason: 'recovery_key' });
     expect(options).not.toHaveProperty('originalLoginEmail');
+  });
+
+  it('records success with the inline flow after the key is created', async () => {
+    render(
+      <MemoryRouter>
+        <InlineRecoveryKeySetupContainer />
+      </MemoryRouter>
+    );
+
+    await act(async () => {
+      await currentProps?.createRecoveryKeyHandler();
+    });
+    expect(GleanMetrics.recoveryKey.success).toHaveBeenCalledTimes(1);
+    expect(GleanMetrics.recoveryKey.success).toHaveBeenCalledWith({
+      event: { flow: 'inline' },
+    });
+    expect(GleanMetrics.recoveryKey.error).not.toHaveBeenCalled();
+  });
+
+  it('records an error with the inline flow and a reason when creation fails', async () => {
+    mockAuthClient.sessionReauthWithAuthPW = jest
+      .fn()
+      .mockRejectedValue(AuthUiErrors.THROTTLED);
+    render(
+      <MemoryRouter>
+        <InlineRecoveryKeySetupContainer />
+      </MemoryRouter>
+    );
+
+    await act(async () => {
+      await currentProps?.createRecoveryKeyHandler();
+    });
+    expect(GleanMetrics.recoveryKey.error).toHaveBeenCalledTimes(1);
+    expect(GleanMetrics.recoveryKey.error).toHaveBeenCalledWith({
+      event: { flow: 'inline', reason: 'throttled' },
+    });
+    expect(GleanMetrics.recoveryKey.success).not.toHaveBeenCalled();
   });
 
   it('updateRecoveryHint calls authClient', async () => {

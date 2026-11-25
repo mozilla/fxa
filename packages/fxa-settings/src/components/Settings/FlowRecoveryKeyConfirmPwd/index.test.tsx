@@ -24,6 +24,7 @@ import {
   AuthUiError,
   AuthUiErrors,
 } from '../../../lib/auth-errors/auth-errors';
+import GleanMetrics from '../../../lib/glean';
 
 const localizedBackButtonTitle = 'Back to settings';
 const localizedPageTitle = 'Account Recovery Key';
@@ -34,6 +35,17 @@ const viewName = 'settings.account-recovery';
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
+}));
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    recoveryKey: {
+      passwordView: jest.fn(),
+      success: jest.fn(),
+      error: jest.fn(),
+    },
+  },
 }));
 
 jest.mock('base32-encode', () =>
@@ -124,6 +136,62 @@ describe('FlowRecoveryKeyConfirmPwd', () => {
   afterEach(() => {
     jest.clearAllMocks();
     updateSpy.mockRestore();
+  });
+
+  describe('Glean events', () => {
+    it('records the password view once and tags the submit button', () => {
+      renderFlowPage(accountWithoutKey);
+      expect(GleanMetrics.recoveryKey.passwordView).toHaveBeenCalledTimes(1);
+      expect(
+        screen.getByRole('button', { name: 'Create account recovery key' })
+      ).toHaveAttribute('data-glean-id', 'recovery_key_password_submit');
+    });
+
+    it('tags the cancel link when the key is changed', async () => {
+      renderFlowPage(accountWithKey);
+      expect(
+        await screen.findByRole('link', { name: 'Cancel' })
+      ).toHaveAttribute('data-glean-id', 'recovery_key_password_cancel');
+    });
+
+    it('records success with the settings flow after the key is created', async () => {
+      renderFlowPage(accountWithoutKey);
+      await submitPassword('Create account recovery key');
+
+      await waitFor(() => expect(navigateForward).toHaveBeenCalled());
+      expect(GleanMetrics.recoveryKey.success).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.recoveryKey.success).toHaveBeenCalledWith({
+        event: { flow: 'settings' },
+      });
+      expect(GleanMetrics.recoveryKey.error).not.toHaveBeenCalled();
+    });
+
+    it('records an error with a categorized reason when creation fails', async () => {
+      mockReauthError(AuthUiErrors.THROTTLED);
+      renderFlowPage(accountWithoutKey);
+      await submitPassword('Create account recovery key');
+
+      await waitFor(() =>
+        expect(GleanMetrics.recoveryKey.error).toHaveBeenCalledTimes(1)
+      );
+      expect(GleanMetrics.recoveryKey.error).toHaveBeenCalledWith({
+        event: { flow: 'settings', reason: 'throttled' },
+      });
+      expect(GleanMetrics.recoveryKey.success).not.toHaveBeenCalled();
+    });
+
+    it('records no error when the MFA guard handles the error', async () => {
+      mockAuthClient.createRecoveryKeyWithJwt.mockRejectedValue(
+        AuthUiErrors.INVALID_MFA_TOKEN
+      );
+      renderFlowPage(accountWithoutKey);
+      await submitPassword('Create account recovery key');
+
+      await waitFor(() =>
+        expect(mockAuthClient.createRecoveryKeyWithJwt).toHaveBeenCalled()
+      );
+      expect(GleanMetrics.recoveryKey.error).not.toHaveBeenCalled();
+    });
   });
 
   describe('with no key enabled', () => {

@@ -11,7 +11,11 @@ import {
 } from '../../models';
 import InlineRecoveryKeySetup from '.';
 import { currentAccount } from '../../lib/cache';
-import { createRecoveryKeyWithReauth } from '../../lib/recovery-key';
+import {
+  createRecoveryKeyWithReauth,
+  getRecoveryKeyErrorReason,
+} from '../../lib/recovery-key';
+import GleanMetrics from '../../lib/glean';
 import { CreateRecoveryKeyHandler } from './interfaces';
 import { useNavigateWithQuery } from '../../lib/hooks';
 import { formatRecoveryKey } from '../../lib/utilities';
@@ -64,9 +68,13 @@ const InlineRecoveryKeySetupContainer = ({
           });
 
           setFormattedRecoveryKey(formatRecoveryKey(recoveryKey.buffer));
+          GleanMetrics.recoveryKey.success({ event: { flow: 'inline' } });
           navigateForward();
           return { data: { recoveryKey } };
         } catch (error) {
+          GleanMetrics.recoveryKey.error({
+            event: { flow: 'inline', reason: getRecoveryKeyErrorReason(error) },
+          });
           return {
             localizedErrorMessage: ftlMsgResolver.getMsg(
               'inline-recovery-key-setup-create-error',

@@ -9,6 +9,7 @@ import { viewName } from '../Settings/PageRecoveryKeyCreate';
 import { renderWithRouter } from '../../models/mocks';
 import { AuthUiErrorNos } from '../../lib/auth-errors/auth-errors';
 import userEvent from '@testing-library/user-event';
+import GleanMetrics from '../../lib/glean';
 
 const unexpectedError: any = AuthUiErrorNos[999];
 
@@ -24,6 +25,11 @@ jest.mock('../../lib/metrics', () => ({
 
 jest.mock('../../models/AlertBarInfo');
 
+jest.mock('../../lib/glean', () => ({
+  __esModule: true,
+  default: { recoveryKey: { hintView: jest.fn() } },
+}));
+
 const renderWithContext = (updateRecoveryKeyHint: jest.Mock) => {
   renderWithRouter(
     <RecoveryKeySetupHint
@@ -31,6 +37,7 @@ const renderWithContext = (updateRecoveryKeyHint: jest.Mock) => {
         updateRecoveryKeyHint,
         navigateForward,
         viewName,
+        flow: 'settings',
       }}
     />
   );
@@ -147,5 +154,17 @@ describe('RecoveryKeySetupHint', () => {
       );
       expect(navigateForward).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it('records the hint view once with the flow and tags the finish button', () => {
+    renderWithContext(updateHintWithSuccess);
+    expect(GleanMetrics.recoveryKey.hintView).toHaveBeenCalledTimes(1);
+    expect(GleanMetrics.recoveryKey.hintView).toHaveBeenCalledWith({
+      event: { flow: 'settings' },
+    });
+    expect(screen.getByRole('button', { name: 'Finish' })).toHaveAttribute(
+      'data-glean-id',
+      'recovery_key_hint_submit'
+    );
   });
 });

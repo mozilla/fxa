@@ -22,6 +22,7 @@ import * as postVerifySetPassword from './web/postVerifySetPassword';
 import * as dtmDesktop from './web/dtmDesktop';
 import * as dtmMobile from './web/dtmMobile';
 import * as pairing from './web/pairing';
+import * as recoveryKey from './web/recoveryKey';
 import * as cadFirefox from './web/cadFirefox';
 import * as cadMobilePairUseApp from './web/cadMobilePairUseApp';
 import * as cadRedirectDesktop from './web/cadRedirectDesktop';
@@ -286,6 +287,7 @@ describe('lib/glean', () => {
           'deleteAccount',
           'dtmDesktop',
           'dtmMobile',
+          'recoveryKey',
         ] as const
       ).flatMap((namespace) =>
         Object.entries(eventsMap[namespace]).map(([key, name]) => ({
@@ -1934,6 +1936,20 @@ describe('lib/glean', () => {
           'delete_account_password_submit'
         );
         sinon.assert.calledOnce(spy);
+      });
+    });
+
+    describe('recoveryKey', () => {
+      it('records the error event with its flow and reason', async () => {
+        const spy = sandbox.spy(recoveryKey.error, 'record');
+        GleanMetrics.recoveryKey.error({
+          event: { flow: 'settings', reason: 'incorrect_password' },
+        });
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnceWithExactly(spy, {
+          flow: 'settings',
+          reason: 'incorrect_password',
+        });
       });
     });
 

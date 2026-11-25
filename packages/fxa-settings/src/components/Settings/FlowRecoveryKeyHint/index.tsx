@@ -66,6 +66,7 @@ export const FlowRecoveryKeyHint = ({
           {...{ updateRecoveryKeyHint }}
           navigateForward={navigateForwardAndAlertSuccess}
           {...{ viewName }}
+          flow="settings"
         />
       </div>
     </FlowContainer>
