@@ -67,12 +67,16 @@ describe('FlowDeleteSyncDataDevices', () => {
     ).toBeVisible();
   });
 
-  it('shows the device list expanded', () => {
-    renderStep();
+  it('shows the device list expanded and labels the toggle for collapsing', async () => {
+    const { user } = renderStep();
+    const toggle = screen.getByRole('button', { name: 'Hide devices' });
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    screen.getByRole('checkbox', { name: 'Work laptop' });
+
+    await user.click(toggle);
     expect(
       screen.getByRole('button', { name: 'Show devices' })
-    ).toHaveAttribute('aria-expanded', 'true');
-    screen.getByRole('checkbox', { name: 'Work laptop' });
+    ).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('starts with no devices selected and deletes without signing out', async () => {
