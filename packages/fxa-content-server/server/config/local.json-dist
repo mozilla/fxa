@@ -64,6 +64,7 @@
   "featureFlags": {
     "recoveryCodeSetupOnSyncSignIn": true,
     "showLocaleToggle": true,
+    "unifiedFooter": true,
     "paymentsNextSubscriptionManagement": true,
     "passkeysEnabled": true,
     "passkeyRegistrationEnabled": true,

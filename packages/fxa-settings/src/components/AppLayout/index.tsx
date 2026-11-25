@@ -11,6 +11,7 @@ import classNames from 'classnames';
 import { RelierCmsInfo } from '../../models/integrations';
 import { LocaleToggle } from '../LocaleToggle';
 import { DarkModeToggle } from '../DarkModeToggle';
+import UnifiedFooter from '../Footer';
 import { useConfig } from '../../models/hooks';
 import { CardLoadingSpinner } from '../CardLoadingSpinner';
 
@@ -94,6 +95,7 @@ export const AppLayout = ({
 
   const showLocaleToggle = config.featureFlags?.showLocaleToggle;
   const showDarkModeToggle = config.darkMode?.enabled;
+  const unifiedFooter = config.featureFlags?.unifiedFooter;
 
   // The mobile pairing screens carry their own Firefox lockup instead of the
   // Mozilla logo header, and their loading states match.
@@ -200,20 +202,23 @@ export const AppLayout = ({
                 )}
               </section>
             </main>
-            {showFooter && (showLocaleToggle || showDarkModeToggle) && (
-              <footer className="w-full py-2 px-4 mobileLandscape:mx-8 mobileLandscape:pb-4 flex text-grey-400 dark:text-grey-300 nova:text-deemphasized">
-                {showLocaleToggle && (
-                  <div className="w-full mobileLandscape:w-auto flex items-center mobileLandscape:ms-10">
-                    <LocaleToggle />
-                  </div>
-                )}
-                {showDarkModeToggle && (
-                  <div className="w-full mobileLandscape:w-auto flex items-center mobileLandscape:ms-10">
-                    <DarkModeToggle />
-                  </div>
-                )}
-              </footer>
-            )}
+            {unifiedFooter && showFooter && <UnifiedFooter />}
+            {!unifiedFooter &&
+              showFooter &&
+              (showLocaleToggle || showDarkModeToggle) && (
+                <footer className="w-full py-2 px-4 mobileLandscape:mx-8 mobileLandscape:pb-4 flex text-grey-400 dark:text-grey-300 nova:text-deemphasized">
+                  {showLocaleToggle && (
+                    <div className="w-full mobileLandscape:w-auto flex items-center mobileLandscape:ms-10">
+                      <LocaleToggle />
+                    </div>
+                  )}
+                  {showDarkModeToggle && (
+                    <div className="w-full mobileLandscape:w-auto flex items-center mobileLandscape:ms-10">
+                      <DarkModeToggle />
+                    </div>
+                  )}
+                </footer>
+              )}
           </>
         ) : (
           <div className="flex flex-col desktop:flex-row w-full flex-1">
@@ -250,7 +255,10 @@ export const AppLayout = ({
                   </section>
                 )}
               </main>
-              {showFooter && (
+              {unifiedFooter && showFooter && (
+                <UnifiedFooter className="desktop:bg-transparent" />
+              )}
+              {!unifiedFooter && showFooter && (
                 <footer className="w-full py-2 px-6 tablet:px-10 flex text-grey-400 dark:text-grey-300 nova:text-deemphasized">
                   {showLocaleToggle && (
                     <div className="w-full mobileLandscape:w-auto flex items-center">

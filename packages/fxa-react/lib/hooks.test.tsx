@@ -51,6 +51,7 @@ describe('useClickOutsideEffect', () => {
     return (
       <div>
         <div data-testid="outside">Outside</div>
+        <svg data-testid="outside-svg" />
         <div data-testid="inside" ref={dialogInsideRef}>
           Inside
         </div>
@@ -63,6 +64,13 @@ describe('useClickOutsideEffect', () => {
     const { getByTestId } = render(<Subject onDismiss={onDismiss} />);
     const outside = getByTestId('outside');
     fireEvent.mouseDown(outside);
+    expect(onDismiss).toBeCalled();
+  });
+
+  it('triggers onDismiss on a mousedown on an SVG outside', () => {
+    const onDismiss = jest.fn();
+    const { getByTestId } = render(<Subject onDismiss={onDismiss} />);
+    fireEvent.mouseDown(getByTestId('outside-svg'));
     expect(onDismiss).toBeCalled();
   });
 

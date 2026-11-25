@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import AppLayout from '.';
 import {
@@ -462,6 +462,107 @@ describe('<AppLayout />', () => {
       );
 
       expect(screen.getByRole('contentinfo')).toBeInTheDocument();
+    });
+
+    it.each(['/pair', '/pair/unsupported', '/pair/supplicant/ready_to_scan'])(
+      'leaves out the footer on %s',
+      (path) => {
+        window.history.replaceState({}, '', path);
+        renderWithLocalizationProvider(
+          <AppLayout title="Page title">
+            <p>Hello, world!</p>
+          </AppLayout>
+        );
+
+        expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument();
+      }
+    );
+
+    it('leaves out the footer in the split layout on a pairing page', () => {
+      window.history.replaceState({}, '', '/pair/authority/scan_qr');
+      renderWithLocalizationProvider(
+        <AppLayout title="Page title" splitLayout>
+          <p>Hello, world!</p>
+        </AppLayout>
+      );
+
+      expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('unified footer', () => {
+    beforeEach(() => {
+      const { useConfig } = require('../../models/hooks');
+      useConfig.mockReturnValue({ featureFlags: { unifiedFooter: true } });
+      window.history.replaceState({}, '', '/signin');
+    });
+
+    afterEach(() => {
+      const { useConfig } = require('../../models/hooks');
+      useConfig.mockReturnValue({ featureFlags: { showLocaleToggle: false } });
+      window.history.replaceState({}, '', '/');
+    });
+
+    it('renders the footer links in the default layout with both toggle flags off', () => {
+      renderWithLocalizationProvider(
+        <AppLayout title="Page title">
+          <p>Hello, world!</p>
+        </AppLayout>
+      );
+
+      const footer = screen.getByRole('contentinfo');
+      expect(footer).toHaveAttribute('data-testid', 'footer');
+      const nav = within(footer).getByRole('navigation', { name: 'Footer' });
+      expect(
+        within(nav)
+          .getAllByRole('link')
+          .map((link) => link.getAttribute('href'))
+      ).toEqual([
+        'https://www.mozilla.org/privacy/websites/',
+        'https://www.mozilla.org/about/legal/terms/services/',
+        'https://support.mozilla.org/products/mozilla-account',
+      ]);
+    });
+
+    it('renders the footer in the split layout', () => {
+      renderWithLocalizationProvider(
+        <AppLayout title="Page title" splitLayout>
+          <p>Hello, world!</p>
+        </AppLayout>
+      );
+
+      expect(screen.getByRole('contentinfo')).toHaveAttribute(
+        'data-testid',
+        'footer'
+      );
+    });
+
+    it('renders the footer while loading', () => {
+      renderWithLocalizationProvider(<AppLayout loading />);
+
+      expect(screen.getByRole('contentinfo')).toBeInTheDocument();
+    });
+
+    it('renders the footer over a CMS background', () => {
+      renderWithLocalizationProvider(
+        <AppLayout title="Page title" cmsInfo={MOCK_CMS_INFO_VALID_LINEAR_BG}>
+          <p>Hello, world!</p>
+        </AppLayout>
+      );
+
+      expect(screen.getByRole('contentinfo')).toBeInTheDocument();
+    });
+
+    it('keeps the Mozilla logo in the footer when the CMS sets a header logo', () => {
+      renderWithLocalizationProvider(
+        <AppLayout title="Page title" cmsInfo={MOCK_CMS_INFO_HEADER_LOGO}>
+          <p>Hello, world!</p>
+        </AppLayout>
+      );
+
+      expect(
+        within(screen.getByRole('contentinfo')).getByAltText('Mozilla logo')
+      ).toBeInTheDocument();
     });
 
     it.each(['/pair', '/pair/unsupported', '/pair/supplicant/ready_to_scan'])(
