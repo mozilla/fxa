@@ -766,7 +766,6 @@ export const GleanMetrics: Pick<
           appDisplayVersion: config.appDisplayVersion,
           channel: config.appChannel,
           serverEndpoint: config.serverEndpoint,
-          enableAutoPageLoadEvents: true,
           enableAutoElementClickEvents: true,
         });
         Glean.setLogPings(config.logPings);
