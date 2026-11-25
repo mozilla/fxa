@@ -4,6 +4,8 @@
 
 import {
   CHANNEL_CLOSED_CODE,
+  KEEPALIVE,
+  KEEPALIVE_TIMEOUT_MS,
   RESUME_RETRY_MS,
   RESUME_WINDOW_MS,
   ResumableWebSocket,
@@ -81,7 +83,9 @@ describe('ResumableWebSocket', () => {
 
   it('asks the channel server for resume on the first connect', () => {
     const { first } = connect();
-    expect(first.url).toBe('wss://channel.example.com/v1/ws/abc?resume=1');
+    expect(first.url).toBe(
+      'wss://channel.example.com/v1/ws/abc?resume=1&keepalive=1'
+    );
   });
 
   it('passes the greeting and messages through', () => {
@@ -96,7 +100,7 @@ describe('ResumableWebSocket', () => {
     socket.send('queued');
 
     const second = FakeSocket.instances[1];
-    expect(second.url).toBe('wss://channel.example.com/v1/ws/abc');
+    expect(second.url).toBe('wss://channel.example.com/v1/ws/abc?keepalive=1');
     expect(second.protocols).toEqual([`resume.${'f'.repeat(32)}`]);
     expect(socket.readyState).toBe(1);
 
@@ -139,6 +143,68 @@ describe('ResumableWebSocket', () => {
     );
 
     expect(second.sent).toEqual([]);
+  });
+
+  // A dead connection the phone never hears about: no close event ever fires,
+  // so the missing keepalives are the only sign.
+  describe('a socket that goes silent without closing', () => {
+    function silent() {
+      const connection = connect();
+      connection.first.receive(KEEPALIVE);
+      jest.advanceTimersByTime(KEEPALIVE_TIMEOUT_MS);
+      return connection;
+    }
+
+    it('keeps keepalives away from the pairing channel', () => {
+      const { first, received } = connect();
+      first.receive(KEEPALIVE);
+      expect(received).toEqual([GREETING]);
+    });
+
+    it('tries a resume and leaves the silent socket open', () => {
+      const { first } = silent();
+      expect(FakeSocket.instances).toHaveLength(2);
+      expect(first.readyState).not.toBe(3);
+    });
+
+    it('stays on the same socket while keepalives arrive', () => {
+      const { first } = connect();
+      first.receive(KEEPALIVE);
+      jest.advanceTimersByTime(KEEPALIVE_TIMEOUT_MS - 1);
+      first.receive(KEEPALIVE);
+      jest.advanceTimersByTime(KEEPALIVE_TIMEOUT_MS - 1);
+      expect(FakeSocket.instances).toHaveLength(1);
+    });
+
+    it('does not try a resume against a server that sends no keepalives', () => {
+      connect();
+      jest.advanceTimersByTime(KEEPALIVE_TIMEOUT_MS * 2);
+      expect(FakeSocket.instances).toHaveLength(1);
+    });
+
+    it('closes the silent socket once the resume goes through', () => {
+      const { first, closed } = silent();
+      const second = FakeSocket.instances[1];
+      second.open();
+      second.receive(GREETING);
+      expect(first.readyState).toBe(3);
+      expect(closed).not.toHaveBeenCalled();
+    });
+
+    // A close frame on a connection that was only slow would give up this
+    // client's place in the channel, so the resume attempt is what goes.
+    it('drops the resume attempt and keeps the socket when it speaks again', () => {
+      const { socket, first, received, closed } = silent();
+      socket.send('held');
+
+      first.receive('{"message":"late"}');
+
+      expect(FakeSocket.instances[1].readyState).toBe(3);
+      expect(first.readyState).not.toBe(3);
+      expect(received).toEqual([GREETING, '{"message":"late"}']);
+      expect(first.sent).toEqual(['held']);
+      expect(closed).not.toHaveBeenCalled();
+    });
   });
 
   it('resumes the next drop with the token the server rotated to', () => {
@@ -264,6 +330,13 @@ describe('ResumableWebSocket', () => {
       visibility = 'visible';
       document.dispatchEvent(new Event('visibilitychange'));
     }
+
+    it('does not take silence in a hidden page for a dead socket', () => {
+      const { first } = connect();
+      first.receive(KEEPALIVE);
+      jest.advanceTimersByTime(KEEPALIVE_TIMEOUT_MS * 2);
+      expect(FakeSocket.instances).toHaveLength(1);
+    });
 
     it('retries at once between resume attempts', () => {
       const { first } = connect();

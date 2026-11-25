@@ -16,6 +16,10 @@ export const RESUME_RETRY_MS = 2_000;
 export const RESUME_PROTOCOL_PREFIX = 'resume.';
 // The channel server closes with this code when it ends a channel on purpose.
 export const CHANNEL_CLOSED_CODE = 4000;
+// The channel server sends this every 5 s to a client that asks for it.
+export const KEEPALIVE = '{"keepalive":true}';
+// Three missed keepalives. The server gives up on a silent client at 15 s too.
+export const KEEPALIVE_TIMEOUT_MS = 15_000;
 
 export type CloseReason =
   | 'server_closed'
@@ -41,6 +45,14 @@ export class ResumableWebSocket extends EventTarget {
   private done = false;
   private attempts = 0;
   private _closeReason?: CloseReason;
+  private keepaliveSeen = false;
+  private watchdog?: ReturnType<typeof setTimeout>;
+  /**
+   * A socket that went silent without closing, kept open while a resume is
+   * tried. It is not closed until the resume succeeds: a close frame on a
+   * connection that was only slow would end this client's place for good.
+   */
+  private suspect?: WebSocket;
 
   constructor(
     url: string,
@@ -51,6 +63,7 @@ export class ResumableWebSocket extends EventTarget {
     // Asks the channel server to hold this client after a drop. Older servers ignore it.
     const first = new URL(url);
     first.searchParams.set('resume', '1');
+    first.searchParams.set('keepalive', '1');
     this.socket = this.attach(new Native(first.href), false);
   }
 
@@ -95,6 +108,13 @@ export class ResumableWebSocket extends EventTarget {
       if (!resumed) this.dispatchEvent(new Event('open'));
     });
     socket.addEventListener('message', (event: MessageEvent) => {
+      if (socket === this.suspect) this.recover();
+      if (socket === this.socket) this.armWatchdog();
+      if (event.data === KEEPALIVE) {
+        this.keepaliveSeen = true;
+        this.armWatchdog();
+        return;
+      }
       if (!greeted) {
         greeted = true;
         try {
@@ -119,6 +139,7 @@ export class ResumableWebSocket extends EventTarget {
   }
 
   private onClose(socket: WebSocket, code: number): void {
+    if (socket === this.suspect) this.suspect = undefined;
     if (socket !== this.socket || this.done) return;
     if (this.selfClosed) {
       this.finish('self_closed');
@@ -133,13 +154,47 @@ export class ResumableWebSocket extends EventTarget {
       return;
     }
     if (!this.resuming) {
-      this.resumeDeadline = Date.now() + RESUME_WINDOW_MS;
-      this.attempts = 0;
-      document.addEventListener('visibilitychange', this.onVisible);
-      this.tryResume();
+      this.startResuming();
       return;
     }
     this.retryTimer = setTimeout(() => this.tryResume(), RESUME_RETRY_MS);
+  }
+
+  private startResuming(): void {
+    this.resumeDeadline = Date.now() + RESUME_WINDOW_MS;
+    this.attempts = 0;
+    document.addEventListener('visibilitychange', this.onVisible);
+    this.tryResume();
+  }
+
+  private armWatchdog(): void {
+    clearTimeout(this.watchdog);
+    if (!this.keepaliveSeen || this.done) return;
+    this.watchdog = setTimeout(() => this.onSilent(), KEEPALIVE_TIMEOUT_MS);
+  }
+
+  /** No traffic for three keepalives: the connection is dead but never closed. */
+  private onSilent(): void {
+    if (this.done || this.resuming || !this.token || !this.channelId) return;
+    // Timers and message delivery are throttled in a hidden page, so silence
+    // there says nothing about the connection.
+    if (document.visibilityState !== 'visible') {
+      this.armWatchdog();
+      return;
+    }
+    this.suspect = this.socket;
+    this.startResuming();
+  }
+
+  /** The suspect socket spoke before a resume went through, so it was only slow. */
+  private recover(): void {
+    const attempt = this.socket;
+    this.socket = this.suspect as WebSocket;
+    this.suspect = undefined;
+    this.stopResuming();
+    if (attempt.readyState !== CLOSED) attempt.close();
+    this.outbox.slice(this.written).forEach((data) => this.socket.send(data));
+    this.written = this.outbox.length;
   }
 
   // The browser may refuse network while hidden; retry as soon as it is back.
@@ -157,14 +212,16 @@ export class ResumableWebSocket extends EventTarget {
       return;
     }
     this.attempts++;
-    const url = new URL(`/v1/ws/${this.channelId}`, this.url);
+    const url = new URL(`/v1/ws/${this.channelId}?keepalive=1`, this.url);
     const previous = this.socket;
     // The token goes in the subprotocol, not the URL, which proxies tend to log.
     this.socket = this.attach(
       new this.Native(url.href, [`${RESUME_PROTOCOL_PREFIX}${this.token}`]),
       true
     );
-    if (previous.readyState !== CLOSED) previous.close();
+    if (previous !== this.suspect && previous.readyState !== CLOSED) {
+      previous.close();
+    }
   }
 
   /**
@@ -174,6 +231,8 @@ export class ResumableWebSocket extends EventTarget {
    */
   private onResumed(received: unknown): void {
     this.stopResuming();
+    this.dropSuspect();
+    this.armWatchdog();
     const from =
       typeof received === 'number'
         ? Math.min(received, this.written)
@@ -191,8 +250,16 @@ export class ResumableWebSocket extends EventTarget {
     document.removeEventListener('visibilitychange', this.onVisible);
   }
 
+  private dropSuspect(): void {
+    const suspect = this.suspect;
+    this.suspect = undefined;
+    if (suspect && suspect.readyState !== CLOSED) suspect.close();
+  }
+
   private finish(reason: CloseReason): void {
     this.stopResuming();
+    this.dropSuspect();
+    clearTimeout(this.watchdog);
     this.done = true;
     this._closeReason = reason;
     this.dispatchEvent(new Event('close'));
