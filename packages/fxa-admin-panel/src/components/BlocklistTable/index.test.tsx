@@ -162,6 +162,27 @@ describe('BlocklistTable', () => {
     expect(onDisableMatching).toHaveBeenCalledTimes(1);
   });
 
+  it('disables the row buttons while a scan started elsewhere is running', () => {
+    render(
+      <BlocklistTable
+        entries={makeEntries(2)}
+        label="Domain"
+        getValue={getDomain}
+        onDelete={jest.fn()}
+        onDisableMatching={jest.fn()}
+        scanning
+      />
+    );
+
+    const buttons = screen.getAllByRole('button', {
+      name: /disable matching accounts/i,
+    });
+    expect(buttons.map((b) => (b as HTMLButtonElement).disabled)).toEqual([
+      true,
+      true,
+    ]);
+  });
+
   it('disables every row button while one request is pending', async () => {
     let settle = () => {};
     const onDisableMatching = jest.fn(

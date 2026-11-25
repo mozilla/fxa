@@ -20,15 +20,15 @@ import { AuthHeaderGuard } from '../../auth/auth-header.guard';
 import { AuditLog } from '../../auth/audit-log.decorator';
 import { Features } from '../../auth/user-group-header.decorator';
 import { CurrentUser } from '../../auth/auth-header.decorator';
-import type { EmailBlocklistEntry } from '../../types';
-import { AccountStateService } from '../account/account-state.service';
+import type { DisableMatchingJob, EmailBlocklistEntry } from '../../types';
+import { DisableMatchingJobService } from '../account/disable-matching-job.service';
 
 @UseGuards(AuthHeaderGuard)
 @Controller('/api/email-blocklist')
 export class EmailBlocklistController {
   constructor(
     private log: MozLoggerService,
-    private accountState: AccountStateService
+    private jobs: DisableMatchingJobService
   ) {}
 
   @Get()
@@ -90,7 +90,7 @@ export class EmailBlocklistController {
     @Body('regexes') regexes: string[],
     @CurrentUser() user: string,
     @Req() req: Request
-  ): Promise<{ disabled: number }> {
+  ): Promise<DisableMatchingJob> {
     if (!Array.isArray(regexes)) {
       throw new BadRequestException('regexes must be an array');
     }
@@ -101,22 +101,29 @@ export class EmailBlocklistController {
       }
     }
     // Stored entries only, so request input never becomes a RegExp.
-    const patterns = (await EmailBlocklist.findAll())
-      .filter((entry) => requested.has(entry.regex))
-      .map((entry) => new RegExp(entry.regex));
-    if (patterns.length === 0) {
-      return { disabled: 0 };
+    const entries = (await EmailBlocklist.findAll())
+      .map((entry) => entry.regex)
+      .filter((regex) => requested.has(regex));
+    if (entries.length === 0) {
+      return { status: 'done', scanned: 0, total: 0, disabled: 0 };
     }
-    const disabled = await this.accountState.disableMatching(
-      (email) => patterns.some((p) => p.test(email)),
-      req
+    const patterns = entries.map((regex) => new RegExp(regex));
+    return this.jobs.start(
+      { test: (email) => patterns.some((p) => p.test(email)) },
+      req,
+      {
+        page: 'email',
+        event: 'emailBlocklist.disableMatching',
+        user,
+        values: entries,
+      }
     );
-    this.log.info('emailBlocklist.disableMatching', {
-      user,
-      count: patterns.length,
-      disabled,
-    });
-    return { disabled };
+  }
+
+  @Get('disable-matching')
+  @Features(AdminPanelFeature.EmailBlocklist)
+  public async disableMatchingJob(): Promise<DisableMatchingJob> {
+    return this.jobs.get('email');
   }
 
   @Delete()

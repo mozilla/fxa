@@ -21,10 +21,11 @@ import { AuditLog } from '../../auth/audit-log.decorator';
 import { Features } from '../../auth/user-group-header.decorator';
 import { CurrentUser } from '../../auth/auth-header.decorator';
 import type {
+  DisableMatchingJob,
   DomainBlocklistEntry,
   DomainBlocklistSyncResult,
 } from '../../types';
-import { AccountStateService } from '../account/account-state.service';
+import { DisableMatchingJobService } from '../account/disable-matching-job.service';
 
 // RFC 1035 hostname label pattern — used to validate each domain entry
 const DOMAIN_RE =
@@ -104,7 +105,7 @@ function delay(ms: number): Promise<void> {
 export class DomainBlocklistController {
   constructor(
     private log: MozLoggerService,
-    private accountState: AccountStateService
+    private jobs: DisableMatchingJobService
   ) {}
 
   @Get()
@@ -133,18 +134,20 @@ export class DomainBlocklistController {
     @Body('domains') domains: string[],
     @CurrentUser() user: string,
     @Req() req: Request
-  ): Promise<{ disabled: number }> {
-    const entries = new Set(parseDomains(domains));
-    const disabled = await this.accountState.disableMatching(
-      (email) => entries.has(email.slice(email.lastIndexOf('@') + 1)),
-      req
-    );
-    this.log.info('domainBlocklist.disableMatching', {
+  ): Promise<DisableMatchingJob> {
+    const entries = [...new Set(parseDomains(domains))];
+    return this.jobs.start({ domains: entries }, req, {
+      page: 'domain',
+      event: 'domainBlocklist.disableMatching',
       user,
-      count: entries.size,
-      disabled,
+      values: entries,
     });
-    return { disabled };
+  }
+
+  @Get('disable-matching')
+  @Features(AdminPanelFeature.DomainBlocklist)
+  public async disableMatchingJob(): Promise<DisableMatchingJob> {
+    return this.jobs.get('domain');
   }
 
   /**
