@@ -30,6 +30,14 @@ describe('OAuthQueryParams checks', function () {
     expect(result.isValid).toBeTruthy();
   });
 
+  it('accepts a login_hint with a dot before the @', () => {
+    expect(
+      validate(
+        'client_id=123abc&scope=profile&login_hint=first.last.%40gmail.com'
+      ).isValid
+    ).toBeTruthy();
+  });
+
   it('checks max age pass', () => {
     expect(
       validate('client_id=123abc&scope=profile&max_age=-1').isValid
@@ -41,7 +49,8 @@ describe('OAuthQueryParams checks', function () {
 
   it('checks login_hint', () => {
     expect(
-      validate('client_id=123abc&scope=profile&login_hint=example@mozilla.com').isValid
+      validate('client_id=123abc&scope=profile&login_hint=example@mozilla.com')
+        .isValid
     ).toBeTruthy();
     expect(
       validate('client_id=123abc&scope=profile&login_hint=').isValid

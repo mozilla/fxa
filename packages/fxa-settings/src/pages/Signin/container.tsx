@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useLocation } from 'react-router';
+import { isEmail } from 'class-validator';
 import {
   useNavigateWithQuery,
   UseFxAStatusResult,
@@ -277,6 +278,10 @@ const SigninContainer = ({
               service: integration.getService(),
             });
             if (!exists) {
+              if (!isEmail(email)) {
+                navigateWithQuery('/', { state: { prefillEmail: email } });
+                return;
+              }
               // For new accounts, passwordless requires the feature flag + server support
               // The forcePasswordless query param will be respected if it's provided
               const passwordlessEnabled =

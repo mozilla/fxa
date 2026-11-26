@@ -32,6 +32,7 @@ import { GenericData, ModelValidationErrors } from '../../lib/model-data';
 import { mockUseFxAStatus } from '../../lib/hooks/useFxAStatus/mocks';
 import { firefox } from '../../lib/channels/firefox';
 import * as storageUtils from '../../lib/storage-utils';
+import { OAuthWebIntegration } from '../../models/integrations/oauth-web-integration';
 
 let mockLocationState = {};
 let mockNavigate = jest.fn();
@@ -124,6 +125,9 @@ function mockIndexModule() {
     return <div>email-first mock</div>;
   });
 }
+
+const LEGACY_VALID_EMAIL = 'first.last.@gmail.com';
+const FAILS_BOTH_RULES_EMAIL = 'first last@gmail.com';
 
 describe('IndexContainer', () => {
   let mockUseValidatedQueryParams: jest.Mock;
@@ -624,6 +628,55 @@ describe('IndexContainer', () => {
       });
     });
 
+    describe('OAuth web login_hint that only passes the legacy email rule', () => {
+      afterEach(() => {
+        window.history.replaceState({}, '', '/');
+      });
+
+      it('auto-submits an existing account to /oauth/signin', async () => {
+        const { useValidatedQueryParams: actualHook } = jest.requireActual(
+          '../../lib/hooks/useValidate'
+        );
+        mockUseValidatedQueryParams.mockImplementation(actualHook);
+        window.history.replaceState(
+          {},
+          '',
+          `/?login_hint=${encodeURIComponent(LEGACY_VALID_EMAIL)}`
+        );
+        integration = new OAuthWebIntegration(
+          new GenericData({
+            client_id: '3c49430b43dfba77',
+            scope: 'profile',
+            login_hint: LEGACY_VALID_EMAIL,
+          }),
+          new GenericData({}),
+          {
+            scopedKeysEnabled: true,
+            scopedKeysValidation: {},
+            isPromptNoneEnabled: true,
+            isPromptNoneEnabledClientIds: [],
+          }
+        );
+        expect(integration.type).toEqual(IntegrationType.OAuthWeb);
+
+        renderIndex();
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledTimes(1);
+        });
+        const [calledUrl, options] = mockNavigate.mock.calls[0];
+        expect(calledUrl).toMatch(/^\/oauth\/signin/);
+        expect(options).toEqual({
+          state: {
+            email: LEGACY_VALID_EMAIL,
+            hasLinkedAccount: false,
+            hasPassword: true,
+            canLinkAccountOk: undefined,
+          },
+        });
+      });
+    });
+
     it('should render Index with emailSuggestionError when provided email fails email validation', async () => {
       // No prefillEmail so query param email is used
       mockLocationState = {};
@@ -1096,7 +1149,96 @@ describe('IndexContainer', () => {
       });
     });
 
+    describe('legacy-valid email', () => {
+      let accountStatusByEmail: jest.Mock;
+
+      async function submitLegacyValidEmail(exists: boolean) {
+        accountStatusByEmail = jest.fn().mockResolvedValue({
+          exists,
+          hasLinkedAccount: false,
+          hasPassword: exists,
+        });
+        mockUseAuthClient.mockReturnValue({ accountStatusByEmail });
+
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(LEGACY_VALID_EMAIL);
+        });
+      }
+
+      it('sends an existing account to /signin', async () => {
+        await submitLegacyValidEmail(true);
+
+        expect(accountStatusByEmail).toHaveBeenCalledTimes(1);
+        expect(accountStatusByEmail.mock.calls[0][0]).toBe(LEGACY_VALID_EMAIL);
+        expect(mockNavigate).toHaveBeenCalledTimes(1);
+        const [calledUrl, options] = mockNavigate.mock.calls[0];
+        expect(calledUrl).toMatch(/\/signin$/);
+        expect(options).toEqual({
+          state: {
+            email: LEGACY_VALID_EMAIL,
+            hasLinkedAccount: false,
+            hasPassword: true,
+          },
+        });
+      });
+
+      it('shows the email-required tooltip and does not go to /signup when no account exists', async () => {
+        await submitLegacyValidEmail(false);
+
+        expect(mockNavigate).not.toHaveBeenCalled();
+        expect(currentIndexProps?.tooltipErrorMessage).toEqual(
+          AuthUiErrors.EMAIL_REQUIRED.message
+        );
+      });
+    });
+
     describe('errors', () => {
+      it('does not look up an email that fails the legacy rule', async () => {
+        const accountStatusByEmail = jest.fn().mockResolvedValue({
+          exists: true,
+          hasLinkedAccount: false,
+          hasPassword: true,
+        });
+        mockUseAuthClient.mockReturnValue({ accountStatusByEmail });
+        renderWithLocalizationProvider(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+        await act(async () => {
+          await currentIndexProps?.processEmailSubmission(
+            FAILS_BOTH_RULES_EMAIL
+          );
+        });
+
+        expect(accountStatusByEmail).not.toHaveBeenCalled();
+        expect(mockNavigate).not.toHaveBeenCalled();
+        expect(currentIndexProps?.tooltipErrorMessage).toEqual(
+          AuthUiErrors.EMAIL_REQUIRED.message
+        );
+      });
+
       it('when called with an invalid email', async () => {
         mockUseAuthClient.mockReturnValue({
           accountStatusByEmail: jest.fn().mockResolvedValue({

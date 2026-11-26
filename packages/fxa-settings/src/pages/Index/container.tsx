@@ -9,6 +9,7 @@ import { useLocation } from 'react-router';
 import { isEmail } from 'class-validator';
 
 import { isEmailMask } from '@fxa/shared/email';
+import { isSigninEmail } from '../../lib/validation';
 
 import { firefox } from '../../lib/channels/firefox';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
@@ -313,7 +314,7 @@ const IndexContainer = ({
       let accountExists;
       let canLinkAccountOk: boolean | undefined = undefined;
       try {
-        if (!isEmail(email)) {
+        if (!isSigninEmail(email)) {
           throw AuthUiErrors.EMAIL_REQUIRED;
         }
 
@@ -332,6 +333,9 @@ const IndexContainer = ({
         accountExists = exists;
 
         if (!exists) {
+          if (!isEmail(email)) {
+            throw AuthUiErrors.EMAIL_REQUIRED;
+          }
           if (isEmailMask(email)) {
             throw AuthUiErrors.EMAIL_MASK_NEW_ACCOUNT;
             // "@firefox" or "@firefox.com" email addresses are not valid
@@ -405,7 +409,7 @@ const IndexContainer = ({
         // network error), accountExists is undefined and we can't attribute
         // the failure to login vs registration. Skip the event in that case
         // rather than recording a misleading reason.
-        if (isEmail(email) && typeof accountExists === 'boolean') {
+        if (isSigninEmail(email) && typeof accountExists === 'boolean') {
           GleanMetrics.emailFirst.submitFail({
             event: {
               reason: `${accountExists ? 'login' : 'registration'}${
