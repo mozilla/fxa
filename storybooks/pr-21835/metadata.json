@@ -1,0 +1,10 @@
+{
+  "commit": "ce6934da36440e0b03323f72031c298876d8eecb",
+  "summary": "fix(settings): let existing accounts with local-part-dot emails sign in",
+  "description": "Because:\n* Sign-in rejected existing accounts whose email fails isEmail only on\n  local-part dots (e.g. first.last.@gmail.com), locking those users out\n\nThis commit:\n* Adds isSigninEmail: isEmail, or isEmailValid plus isEmail without local-part dots\n* Uses it in the email-first gate, SigninQueryParams and IsEmailOrEmpty\n* Keeps strict isEmail for new accounts on email-first and Signin\n* Adds validator, query-param model and container tests\n\nCloses #FXA-15134",
+  "timestamp": 1795734225000,
+  "storybooks": [
+    "fxa-settings"
+  ],
+  "deployDir": "deploy/"
+}

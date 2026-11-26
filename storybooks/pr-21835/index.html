@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Storybooks for commit ce6934da36440e0b03323f72031c298876d8eecb</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.6;
+    }
+    h1 { font-size: 1.5rem; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.75rem 0; }
+    a { color: #0969da; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    dl { margin-top: 2rem; }
+    dt { font-weight: 600; margin-top: 1rem; color: #333; }
+    dd { margin: 0.25rem 0 0 0; color: #666; }
+    pre { margin: 0; white-space: pre-wrap; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Storybooks for commit ce6934da36440e0b03323f72031c298876d8eecb</h1>
+  <ul>
+    <li><a href="./fxa-settings/">fxa-settings</a></li>
+  </ul>
+  <dl>
+    <dt>Date</dt>
+    <dd>11/26/2026, 11:03:45 PM UTC</dd>
+    <dt>Summary</dt>
+    <dd><pre>fix(settings): let existing accounts with local-part-dot emails sign in</pre></dd>
+    <dt>Description</dt>
+    <dd><pre>Because:
+* Sign-in rejected existing accounts whose email fails isEmail only on
+  local-part dots (e.g. first.last.@gmail.com), locking those users out
+
+This commit:
+* Adds isSigninEmail: isEmail, or isEmailValid plus isEmail without local-part dots
+* Uses it in the email-first gate, SigninQueryParams and IsEmailOrEmpty
+* Keeps strict isEmail for new accounts on email-first and Signin
+* Adds validator, query-param model and container tests
+
+Closes #FXA-15134</pre></dd>
+  </dl>
+</body>
+</html>
