@@ -57,6 +57,10 @@ describe('PasskeyService', () => {
   const MOCK_CREDENTIAL_ID = MOCK_CREDENTIAL_ID_BUFFER.toString('base64url');
   const MOCK_PUBLIC_KEY = Buffer.alloc(64, 0xcc);
   const MOCK_AAGUID_ZEROS = '00000000-0000-0000-0000-000000000000';
+  const MOCK_DEFAULT_NAMES = {
+    passkey: 'test-passkey-name',
+    securityKey: 'test-security-key-name',
+  };
 
   // PasskeyRecord shape: uid is Buffer (DB-row); credentialId is base64url
   // string; aaguid is hyphenated-UUID string.
@@ -370,7 +374,8 @@ describe('PasskeyService', () => {
         service.createPasskeyFromRegistrationResponse(
           MOCK_UID,
           mockResponse,
-          MOCK_CHALLENGE
+          MOCK_CHALLENGE,
+          MOCK_DEFAULT_NAMES
         )
       ).rejects.toMatchObject({
         errno: 229,
@@ -388,7 +393,8 @@ describe('PasskeyService', () => {
         service.createPasskeyFromRegistrationResponse(
           MOCK_UID,
           mockResponse,
-          MOCK_CHALLENGE
+          MOCK_CHALLENGE,
+          MOCK_DEFAULT_NAMES
         )
       ).rejects.toMatchObject({
         errno: 228,
@@ -405,7 +411,8 @@ describe('PasskeyService', () => {
         service.createPasskeyFromRegistrationResponse(
           MOCK_UID,
           mockResponse,
-          MOCK_CHALLENGE
+          MOCK_CHALLENGE,
+          MOCK_DEFAULT_NAMES
         )
       ).rejects.toMatchObject({
         errno: 228,
@@ -421,7 +428,8 @@ describe('PasskeyService', () => {
         service.createPasskeyFromRegistrationResponse(
           MOCK_UID,
           mockResponse,
-          MOCK_CHALLENGE
+          MOCK_CHALLENGE,
+          MOCK_DEFAULT_NAMES
         )
       ).rejects.toThrow();
       expect(mockCaptureException).toHaveBeenCalledWith(err);
@@ -439,7 +447,8 @@ describe('PasskeyService', () => {
         service.createPasskeyFromRegistrationResponse(
           MOCK_UID,
           mockResponse,
-          MOCK_CHALLENGE
+          MOCK_CHALLENGE,
+          MOCK_DEFAULT_NAMES
         )
       ).rejects.toMatchObject(AppError.passkeyUserVerificationRequired());
     });
@@ -452,7 +461,8 @@ describe('PasskeyService', () => {
         service.createPasskeyFromRegistrationResponse(
           MOCK_UID,
           mockResponse,
-          MOCK_CHALLENGE
+          MOCK_CHALLENGE,
+          MOCK_DEFAULT_NAMES
         )
       ).rejects.toThrow();
       expect(mockCaptureException).not.toHaveBeenCalled();
@@ -466,7 +476,8 @@ describe('PasskeyService', () => {
       await service.createPasskeyFromRegistrationResponse(
         MOCK_UID,
         mockResponse,
-        MOCK_CHALLENGE
+        MOCK_CHALLENGE,
+        MOCK_DEFAULT_NAMES
       );
       expect(
         mockChallengeManager.consumeRegistrationChallenge
@@ -477,7 +488,8 @@ describe('PasskeyService', () => {
       await service.createPasskeyFromRegistrationResponse(
         MOCK_UID,
         mockResponse,
-        MOCK_CHALLENGE
+        MOCK_CHALLENGE,
+        MOCK_DEFAULT_NAMES
       );
 
       expect(mockManager.registerPasskey).toHaveBeenCalledWith(
@@ -494,11 +506,12 @@ describe('PasskeyService', () => {
       const result = await service.createPasskeyFromRegistrationResponse(
         MOCK_UID,
         mockResponse,
-        MOCK_CHALLENGE
+        MOCK_CHALLENGE,
+        MOCK_DEFAULT_NAMES
       );
       expect(result).toEqual(
         expect.objectContaining({
-          name: expect.any(String),
+          name: MOCK_DEFAULT_NAMES.passkey,
           credentialId: MOCK_CREDENTIAL_ID,
           publicKey: MOCK_PUBLIC_KEY,
           signCount: 0,
@@ -529,7 +542,8 @@ describe('PasskeyService', () => {
         service.createPasskeyFromRegistrationResponse(
           MOCK_UID,
           mockResponse,
-          MOCK_CHALLENGE
+          MOCK_CHALLENGE,
+          MOCK_DEFAULT_NAMES
         )
       ).rejects.toThrow(AppError.passkeyAlreadyRegistered());
     });
@@ -543,100 +557,106 @@ describe('PasskeyService', () => {
         service.createPasskeyFromRegistrationResponse(
           MOCK_UID,
           mockResponse,
-          MOCK_CHALLENGE
+          MOCK_CHALLENGE,
+          MOCK_DEFAULT_NAMES
         )
       ).rejects.toMatchObject(AppError.passkeyLimitReached(1));
     });
 
     describe('passkey name generation (via createPasskeyFromRegistrationResponse)', () => {
       async function getRegisteredPasskeyName(
-        transports: string[],
-        aaguid: string = MOCK_AAGUID_ZEROS
+        transports: string[]
       ): Promise<string> {
         mockVerifyWebauthnRegistrationResponse.mockResolvedValue({
           verified: true,
-          data: { ...mockVerifiedData, transports, aaguid },
+          data: { ...mockVerifiedData, transports },
         });
         await service.createPasskeyFromRegistrationResponse(
           MOCK_UID,
           mockResponse,
-          MOCK_CHALLENGE
+          MOCK_CHALLENGE,
+          MOCK_DEFAULT_NAMES
         );
         const [, data] = mockManager.registerPasskey.mock.calls[0];
         return data.name;
       }
 
-      it('returns "Platform Passkey" for transport ["internal"]', async () => {
-        expect(await getRegisteredPasskeyName(['internal'])).toBe(
-          'Platform Passkey'
-        );
-      });
-
-      it('returns "Security Key" for transport ["usb"]', async () => {
-        expect(await getRegisteredPasskeyName(['usb'])).toBe('Security Key');
-      });
-
-      it('returns "NFC Security Key" for transport ["nfc"]', async () => {
-        expect(await getRegisteredPasskeyName(['nfc'])).toBe(
-          'NFC Security Key'
-        );
-      });
+      it.each([
+        { transports: ['usb'] },
+        { transports: ['nfc'] },
+        { transports: ['usb', 'nfc'] },
+        { transports: ['ble', 'smart-card'] },
+      ])(
+        'uses the security key name for roaming transports $transports',
+        async ({ transports }) => {
+          expect(await getRegisteredPasskeyName(transports)).toBe(
+            'test-security-key-name'
+          );
+        }
+      );
 
       it.each([
-        { transports: ['hybrid'], label: 'hybrid' },
-        { transports: ['usb', 'nfc'], label: 'mixed/multiple transports' },
-        { transports: [] as string[], label: 'empty transports array' },
-        { transports: ['ble'], label: 'unknown single transport' },
-      ])('returns "Passkey" for $label', async ({ transports }) => {
-        expect(await getRegisteredPasskeyName(transports)).toBe('Passkey');
-      });
+        { transports: ['internal'] },
+        { transports: ['hybrid'] },
+        { transports: ['internal', 'hybrid'] },
+        { transports: ['hybrid', 'usb'] },
+        { transports: [] as string[] },
+        { transports: ['cable'] },
+      ])(
+        'uses the passkey name for transports $transports',
+        async ({ transports }) => {
+          expect(await getRegisteredPasskeyName(transports)).toBe(
+            'test-passkey-name'
+          );
+        }
+      );
 
       it('appends " 2" when a passkey with the same base name already exists', async () => {
         mockManager.listPasskeysForUser.mockResolvedValue([
-          passkeyRecord({ name: 'Platform Passkey' }),
+          passkeyRecord({ name: 'test-passkey-name' }),
         ]);
         expect(await getRegisteredPasskeyName(['internal'])).toBe(
-          'Platform Passkey 2'
+          'test-passkey-name 2'
         );
       });
 
       it('appends " 3" when base name and " 2" both exist', async () => {
         mockManager.listPasskeysForUser.mockResolvedValue([
-          passkeyRecord({ name: 'Platform Passkey' }),
-          passkeyRecord({ name: 'Platform Passkey 2' }),
+          passkeyRecord({ name: 'test-passkey-name' }),
+          passkeyRecord({ name: 'test-passkey-name 2' }),
         ]);
         expect(await getRegisteredPasskeyName(['internal'])).toBe(
-          'Platform Passkey 3'
+          'test-passkey-name 3'
         );
       });
 
       it('does not enumerate when existing passkeys have a different base name', async () => {
         mockManager.listPasskeysForUser.mockResolvedValue([
-          passkeyRecord({ name: 'Security Key' }),
-          passkeyRecord({ name: 'Security Key 2' }),
+          passkeyRecord({ name: 'test-security-key-name' }),
+          passkeyRecord({ name: 'test-security-key-name 2' }),
         ]);
         expect(await getRegisteredPasskeyName(['internal'])).toBe(
-          'Platform Passkey'
+          'test-passkey-name'
         );
       });
 
       it('increments past the highest suffix, never reuses a gap left by a rename', async () => {
         mockManager.listPasskeysForUser.mockResolvedValue([
-          passkeyRecord({ name: 'Platform Passkey' }),
-          passkeyRecord({ name: 'Platform Passkey 3' }),
+          passkeyRecord({ name: 'test-passkey-name' }),
+          passkeyRecord({ name: 'test-passkey-name 3' }),
         ]);
         expect(await getRegisteredPasskeyName(['internal'])).toBe(
-          'Platform Passkey 4'
+          'test-passkey-name 4'
         );
       });
 
       it('ignores user-renamed passkeys when computing the next suffix', async () => {
         mockManager.listPasskeysForUser.mockResolvedValue([
-          passkeyRecord({ name: 'Platform Passkey' }),
+          passkeyRecord({ name: 'test-passkey-name' }),
           passkeyRecord({ name: 'My Yubikey' }),
         ]);
         expect(await getRegisteredPasskeyName(['internal'])).toBe(
-          'Platform Passkey 2'
+          'test-passkey-name 2'
         );
       });
     });
