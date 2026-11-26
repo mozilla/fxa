@@ -10,6 +10,22 @@ import {
 } from './data';
 
 describe('models/integrations/data', () => {
+  describe('IntegrationData.loginHint', () => {
+    it('accepts a login_hint with a dot before the @', () => {
+      const model = new IntegrationData(
+        new GenericData({ login_hint: 'first.last.@gmail.com' })
+      );
+      expect(() => model.validate()).not.toThrow();
+    });
+
+    it('rejects a login_hint that is not an email', () => {
+      const model = new IntegrationData(
+        new GenericData({ login_hint: 'first last@gmail.com' })
+      );
+      expect(() => model.validate()).toThrow(ModelValidationErrors);
+    });
+  });
+
   describe('IntegrationData.action allowlist', () => {
     it.each(INTEGRATION_ACTIONS)(
       'accepts the allowlisted action "%s"',

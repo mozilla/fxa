@@ -2,7 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ModelDataStore, GenericData } from '../../lib/model-data';
+import {
+  ModelDataStore,
+  GenericData,
+  ModelValidationErrors,
+} from '../../lib/model-data';
 import {
   OAuthWebIntegration,
   normalizeError,
@@ -38,6 +42,39 @@ describe('models/integrations/oauth-relier', function () {
 
   it('exists', () => {
     expect(model).toBeDefined();
+  });
+
+  describe('login_hint with a dot before the @', () => {
+    const CLIENT_ID = '3c49430b43dfba77';
+
+    function getIntegration(loginHint: string) {
+      return new OAuthWebIntegration(
+        new GenericData({
+          client_id: CLIENT_ID,
+          scope: 'profile',
+          login_hint: loginHint,
+        }),
+        new GenericData({ scope: 'profile' }),
+        {
+          scopedKeysEnabled: true,
+          scopedKeysValidation: {},
+          isPromptNoneEnabled: true,
+          isPromptNoneEnabledClientIds: [],
+        }
+      );
+    }
+
+    it('does not throw when reading an unrelated property', () => {
+      expect(getIntegration('first.last.@gmail.com').getClientId()).toBe(
+        CLIENT_ID
+      );
+    });
+
+    it('throws when reading a property if the login_hint is not an email', () => {
+      expect(() =>
+        getIntegration('first last@gmail.com').getClientId()
+      ).toThrow(ModelValidationErrors);
+    });
   });
 
   describe('wantsLogin', () => {

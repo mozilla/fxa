@@ -23,6 +23,14 @@ describe('SigninQueryParams checks', function () {
     expect(validate('email=').isValid).toBeTruthy();
   });
 
+  it('accepts an email with a dot before the @', () => {
+    expect(validate('email=first.last.%40gmail.com').isValid).toBeTruthy();
+  });
+
+  it('accepts a loginHint with a dot before the @', () => {
+    expect(validate('login_hint=first.last.%40gmail.com').isValid).toBeTruthy();
+  });
+
   it('checks loginHint', () => {
     expect(validate('login_hint=test+test@gmail.com').isValid).toBeFalsy();
     expect(validate('login_hint=test%2Btest%40gmail.com').isValid).toBeTruthy(); // supports uri encoding

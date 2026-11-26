@@ -22,6 +22,15 @@ describe('SigninQueryParams checks', function () {
     expect(validate('email=test%2Btest-gmail.com').isValid).toBeFalsy(); // missing @
   });
 
+  it('accepts an email with a dot before the @', () => {
+    expect(validate('email=first.last.%40gmail.com').isValid).toBeTruthy();
+  });
+
+  it('rejects an email that fails the legacy rule', () => {
+    expect(validate('email=first%20last%40gmail.com').isValid).toBeFalsy();
+    expect(validate('email=user%40localhost').isValid).toBeFalsy();
+  });
+
   it('checks redirect uri', () => {
     expect(
       validate('redirect_to=https://localhost:3030/app?foo=bar').isValid

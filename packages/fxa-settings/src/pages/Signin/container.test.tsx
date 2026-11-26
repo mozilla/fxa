@@ -80,6 +80,9 @@ jest.mock('../../lib/oauth/hooks', () => ({
   useFinishOAuthFlowHandler: jest.fn(),
 }));
 
+const actualUseValidatedQueryParams = UseValidateModule.useValidatedQueryParams;
+const LEGACY_VALID_EMAIL = 'first.last.@gmail.com';
+
 let integration: Integration;
 
 function mockSyncDesktopV3Integration() {
@@ -1876,6 +1879,73 @@ describe('signin container', () => {
         true,
         false
       );
+    });
+  });
+
+  describe('email that only passes the legacy rule', () => {
+    function validateQueryParamsFromUrl(url: string) {
+      window.history.replaceState({}, '', url);
+      jest
+        .spyOn(UseValidateModule, 'useValidatedQueryParams')
+        .mockImplementation(actualUseValidatedQueryParams);
+    }
+
+    afterEach(() => {
+      window.history.replaceState({}, '', '/');
+    });
+
+    it('signs in an existing account from the email query param', async () => {
+      validateQueryParamsFromUrl(
+        `/signin?email=${encodeURIComponent(LEGACY_VALID_EMAIL)}`
+      );
+
+      render();
+
+      await waitFor(() => {
+        expect(currentSigninProps?.email).toBe(LEGACY_VALID_EMAIL);
+      });
+      expect(mockAuthClient.accountStatusByEmail).toHaveBeenCalledWith(
+        LEGACY_VALID_EMAIL,
+        { thirdPartyAuthStatus: true, service: MozServices.Default }
+      );
+    });
+
+    it('signs in an existing account for an OAuth web RP that sends it as login_hint', async () => {
+      mockOAuthWebIntegration();
+      validateQueryParamsFromUrl(
+        `/oauth/signin?client_id=${MOCK_CLIENT_ID}&scope=profile&login_hint=${encodeURIComponent(
+          LEGACY_VALID_EMAIL
+        )}`
+      );
+      mockLocationState = {
+        email: LEGACY_VALID_EMAIL,
+        hasLinkedAccount: false,
+        hasPassword: true,
+      };
+
+      render();
+
+      await waitFor(() => {
+        expect(currentSigninProps?.email).toBe(LEGACY_VALID_EMAIL);
+      });
+    });
+
+    it('sends the email back to email-first instead of /signup when no account exists', async () => {
+      mockAuthClient.accountStatusByEmail = jest
+        .fn()
+        .mockResolvedValue({ exists: false });
+      validateQueryParamsFromUrl(
+        `/signin?email=${encodeURIComponent(LEGACY_VALID_EMAIL)}`
+      );
+
+      render();
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith(
+          expect.stringMatching(/^\/(\?|$)/),
+          { state: { prefillEmail: LEGACY_VALID_EMAIL } }
+        );
+      });
     });
   });
 });

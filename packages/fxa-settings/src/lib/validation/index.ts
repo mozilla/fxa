@@ -9,6 +9,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
+import { isEmailValid } from '@fxa/shared/email';
 
 /**
  * This validator attempts to be backwards compatible with a pre-existing rule in
@@ -58,10 +59,35 @@ export class IsEmailOrEmpty implements ValidatorConstraintInterface {
     if (value === '' || value === undefined) {
       return true;
     }
-    return isEmail(value, { require_tld: false });
+    return (
+      isEmail(value, { require_tld: false }) ||
+      (typeof value === 'string' && isSigninEmail(value))
+    );
   }
 
   defaultMessage(args: ValidationArguments) {
     return `${args.property} must be a valid email, empty string, or undefined`;
   }
+}
+
+@ValidatorConstraint({ name: 'isSigninEmail', async: false })
+export class IsSigninEmail implements ValidatorConstraintInterface {
+  validate(value: any) {
+    return typeof value === 'string' && isSigninEmail(value);
+  }
+
+  defaultMessage(args: ValidationArguments) {
+    return `${args.property} must be a valid email`;
+  }
+}
+
+/**
+ * Accepts what class-validator `isEmail` accepts, plus addresses that fail it
+ * only on local-part dots and pass the older `isEmailValid` rule. Existing
+ * accounts can have these addresses; new accounts must still pass `isEmail`.
+ */
+export function isSigninEmail(email: string) {
+  const at = email.lastIndexOf('@');
+  const undotted = email.slice(0, at).replace(/\./g, '') + email.slice(at);
+  return isEmail(email) || (isEmailValid(email) && isEmail(undotted));
 }

@@ -4,7 +4,6 @@
 
 import {
   IsBoolean,
-  IsEmail,
   IsOptional,
   IsString,
   MinLength,
@@ -17,14 +16,14 @@ import {
   KeyTransforms as T,
   ModelDataProvider,
 } from '../../../lib/model-data';
-import { IsFxaRedirectToUrl } from '../../../lib/validation';
+import { IsFxaRedirectToUrl, IsSigninEmail } from '../../../lib/validation';
 
 /**
  *  Note: class-validator logic was ported from Vat rules in content-server.
  */
 export class SigninQueryParams extends ModelDataProvider {
   @IsOptional()
-  @IsEmail()
+  @Validate(IsSigninEmail, {})
   @bind()
   email: string = '';
 
