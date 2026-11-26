@@ -480,7 +480,10 @@ describe('passkeys routes', () => {
       ).toHaveBeenCalledTimes(1);
       expect(
         mockPasskeyService.createPasskeyFromRegistrationResponse
-      ).toHaveBeenCalledWith(UID, payload.response, payload.challenge);
+      ).toHaveBeenCalledWith(UID, payload.response, payload.challenge, {
+        passkey: 'Passkey',
+        securityKey: 'Security key',
+      });
     });
 
     it('records a success security event on successful registration', async () => {

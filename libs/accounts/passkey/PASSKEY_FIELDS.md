@@ -153,30 +153,18 @@ This document provides detailed information about the passkey data model and fie
 - **Note**: FxA-specific field for UX, not part of WebAuthn spec
 - **Important**: Must always be provided during registration (auto-generated or user-provided)
 - **Examples**:
-  - "Touch ID" (auto-generated from platform)
-  - "YubiKey 5" (auto-generated from AAGUID)
+  - "Passkey", "Security key 2" (auto-generated)
   - "iPhone 15" (user-customized)
-  - "Work Security Key" (user-customized)
 
-**Recommended Pattern - Auto-generate on Registration:**
+**Auto-generated names:**
 
-Generate a descriptive default name using available metadata:
+The auth-server localizes two default names for the request locale and passes them to `PasskeyService`, which picks one from the transports array:
 
-1. **Use AAGUID** → Query [FIDO Metadata Service](https://fidoalliance.org/metadata/) for authenticator description
-   - AAGUID `2fc0579f-8113-47ea-b116-bb5a8db9202a` → "YubiKey 5 Series"
-   - AAGUID `08987058-cadc-4b81-b6e1-30de50dcbe96` → "Windows Hello"
+- Includes `internal` or `hybrid` → "Passkey" (iCloud Keychain, Google Password Manager, Windows Hello)
+- Otherwise includes `usb`, `nfc`, `ble` or `smart-card` → "Security key" (YubiKey and similar)
+- Empty or unknown → "Passkey"
 
-2. **Use Transport** as fallback:
-   - `["internal"]` → "Touch ID" or "Face ID" (if platform known)
-   - `["internal","hybrid"]` → "iCloud Keychain"
-   - `["usb"]` → "USB Security Key"
-   - `["nfc"]` → "NFC Security Key"
-   - `["ble"]` → "Bluetooth Security Key"
-
-3. **Combine with Device Info** (from User-Agent):
-   - "MacBook Touch ID"
-   - "iPhone Face ID"
-   - "YubiKey 5 (Work Laptop)"
+A duplicate gets a numeric suffix past the highest existing one ("Passkey 2", "Passkey 3"). AAGUID is not used for naming.
 
 **Database Requirement:**
 
@@ -184,13 +172,7 @@ Generate a descriptive default name using available metadata:
 - Implementation **MUST** always provide a name during registration
 - Never attempt to insert a passkey without a name (will fail DB constraint)
 
-**Best Practices:**
-
-- Auto-generate descriptive names using the strategy above
-- Allow users to rename credentials after registration
-- Include date/device info for multiple credentials of same type
-- Example: "Touch ID (MacBook Pro, Jan 2025)"
-- Minimum fallback: Use "Passkey" if all metadata lookups fail
+Users can rename passkeys in Settings after registration.
 
 ### createdAt
 

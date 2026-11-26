@@ -4,7 +4,7 @@
 
 import * as isA from 'joi';
 import { Container } from 'typedi';
-import { PasskeyService } from '@fxa/accounts/passkey';
+import { PasskeyDefaultNames, PasskeyService } from '@fxa/accounts/passkey';
 import { MOBILE_OAUTH_NATIVE_CLIENT_IDS } from '@fxa/accounts/oauth';
 import {
   AuthClientInfoService,
@@ -34,6 +34,8 @@ import { FxaMailer } from '../senders/fxa-mailer';
 import { FxaMailerFormat } from '../senders/fxa-mailer-format';
 import { OAuthClientInfoServiceName } from '../senders/oauth_client_info';
 import { reportSentryError } from '../sentry';
+import Localizer from '../l10n';
+import NodeRendererBindings from '../senders/renderer/bindings-node';
 
 // Without these, malformed base64url values throw inside SimpleWebAuthn /
 // `base64urlToBuffer` and Hapi surfaces a 500. Route-boundary validation
@@ -155,6 +157,8 @@ export const PASSKEY_WRAPS_SCOPE = 'passkey:wraps';
  * - Recording security audit events
  */
 export class PasskeyHandler {
+  private readonly localizer = new Localizer(new NodeRendererBindings());
+
   constructor(
     private readonly service: PasskeyService,
     private readonly db: DB,
@@ -237,7 +241,8 @@ export class PasskeyHandler {
       const passkey = await this.service.createPasskeyFromRegistrationResponse(
         uid,
         response,
-        challenge
+        challenge,
+        await this.getDefaultPasskeyNames(request)
       );
 
       await recordSecurityEvent('account.passkey.registration_success', {
@@ -293,6 +298,19 @@ export class PasskeyHandler {
 
       throw err;
     }
+  }
+
+  private async getDefaultPasskeyNames(
+    request: AuthRequest
+  ): Promise<PasskeyDefaultNames> {
+    const strings = await this.localizer.localizeStrings(request.app.locale, [
+      { id: 'passkey-default-name', message: 'Passkey' },
+      { id: 'passkey-default-name-security-key', message: 'Security key' },
+    ]);
+    return {
+      passkey: strings['passkey-default-name'],
+      securityKey: strings['passkey-default-name-security-key'],
+    };
   }
 
   /**

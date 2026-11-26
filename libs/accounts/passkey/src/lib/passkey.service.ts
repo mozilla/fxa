@@ -65,6 +65,11 @@ export interface PasskeyVerificationResult extends AuthenticationResult {
   scope: string;
 }
 
+export interface PasskeyDefaultNames {
+  passkey: string;
+  securityKey: string;
+}
+
 /**
  * Whether two base64url credential IDs name the same credential. The browser
  * may return a different but equivalent encoding of the bytes we stored.
@@ -220,6 +225,7 @@ export class PasskeyService {
    * @param uid - User ID as a hex string
    * @param response - Raw registration response from the browser
    * @param challenge - Challenge that was issued for this registration
+   * @param defaultNames - Localized base names for the new passkey
    * @returns The newly created passkey record as stored in the database.
    * @throws {AppError} passkeyChallengeNotFound if the challenge has expired,
    *   was already consumed, or never existed.
@@ -229,7 +235,8 @@ export class PasskeyService {
   async createPasskeyFromRegistrationResponse(
     uid: string,
     response: RegistrationResponseJSON,
-    challenge: string
+    challenge: string,
+    defaultNames: PasskeyDefaultNames
   ): Promise<NewPasskeyData> {
     const storedChallenge =
       await this.challengeManager.consumeRegistrationChallenge(challenge, uid);
@@ -272,11 +279,13 @@ export class PasskeyService {
       throw AppError.passkeyRegistrationFailed();
     }
 
-    const { transports, aaguid } = result.data;
-
     const existingPasskeys = await this.passkeyManager.listPasskeysForUser(uid);
 
-    const name = this.generatePasskeyName(aaguid, transports, existingPasskeys);
+    const name = this.generatePasskeyName(
+      result.data.transports,
+      existingPasskeys,
+      defaultNames
+    );
 
     const passkeyData: NewPasskeyData = {
       name,
@@ -424,43 +433,27 @@ export class PasskeyService {
    * (e.g., "Passkey", "Passkey 2", "Passkey 3").
    */
   private generatePasskeyName(
-    aaguid: string,
     transports: string[],
-    existingPasskeys: PasskeyRecord[]
+    existingPasskeys: PasskeyRecord[],
+    defaultNames: PasskeyDefaultNames
   ): string {
-    const baseName = this.getBasePasskeyName(aaguid, transports);
+    const baseName = this.getBasePasskeyName(transports, defaultNames);
     return this.deduplicatePasskeyName(baseName, existingPasskeys);
   }
 
-  /**
-   * Determine the base passkey name from authenticator metadata.
-   *
-   * Strategy:
-   * 1. Non-zero AAGUID: TODO — FIDO MDS lookup (return device name if found)
-   * 2. Transport-based fallback
-   * 3. Generic fallback: "Passkey"
-   */
-  private getBasePasskeyName(aaguid: string, transports: string[]): string {
-    const allZeros = aaguid === '00000000-0000-0000-0000-000000000000';
-
-    if (!allZeros) {
-      // TODO: FIDO MDS lookup — return device name if found
-    }
-
-    if (transports.length === 1) {
-      switch (transports[0]) {
-        case 'internal':
-          return 'Platform Passkey';
-        case 'usb':
-          return 'Security Key';
-        case 'nfc':
-          return 'NFC Security Key';
-        case 'hybrid':
-          return 'Passkey';
-      }
-    }
-
-    return 'Passkey';
+  private getBasePasskeyName(
+    transports: string[],
+    defaultNames: PasskeyDefaultNames
+  ): string {
+    const isPlatformOrPhone = transports.some(
+      (t) => t === 'internal' || t === 'hybrid'
+    );
+    const isRoaming = transports.some((t) =>
+      ['usb', 'nfc', 'ble', 'smart-card'].includes(t)
+    );
+    return !isPlatformOrPhone && isRoaming
+      ? defaultNames.securityKey
+      : defaultNames.passkey;
   }
 
   private deduplicatePasskeyName(
