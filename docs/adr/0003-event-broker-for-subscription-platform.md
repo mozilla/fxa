@@ -1,5 +1,6 @@
 # Event Broker for Subscription Platform
 
+- Status: accepted
 - Deciders: Ben Bangert, Phil Booth, Ryan Kelly, Shane Tomlinson
 - Date: 2019-05-14
 

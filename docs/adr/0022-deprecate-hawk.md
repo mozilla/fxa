@@ -2,7 +2,7 @@
 
 - Deciders: Danny Coates, Ryan Kelly, Les Orchard, Ben Bangert
 - Date: 2020-05-27
-- Status: Partially Implemented (2026-04-23) — client-side Bearer migration
+- Status: accepted (partially implemented as of 2026-04-23) — client-side Bearer migration
   complete; server-side Hawk support retained indefinitely for non-monorepo
   clients (Firefox Desktop, iOS, Android, Sync).
 

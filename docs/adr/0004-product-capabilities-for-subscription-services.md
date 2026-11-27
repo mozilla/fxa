@@ -1,5 +1,6 @@
 # Product Capabilities for Subscription Services
 
+* Status: accepted
 * Deciders: Ben Bangert, Ian Bicking, Ryan Kelly, Les Orchard, Shane Tomlinson
 * Date: 2019-06-04
 

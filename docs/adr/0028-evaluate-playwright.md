@@ -1,5 +1,7 @@
 # Evaluate Playwright for our functional tests
 
+- Status: accepted
+
 ## Context and Problem Statement
 
 Our functional test suite currently has a 7% success rate when run against our stage environment after a deployment and a 44% success rate when run in CI for pull requests. These low rates are more from flaky tests and a finicky testing stack than legitimate bugs in the code being tested.

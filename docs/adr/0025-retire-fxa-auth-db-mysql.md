@@ -1,5 +1,6 @@
 # Retire the fxa-auth-db-mysql service
 
+- Status: accepted
 - Deciders: Danny Coates
 - Date: 2021-03-16
 

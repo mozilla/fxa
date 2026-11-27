@@ -1,5 +1,6 @@
 # Redis Lua Scripts
 
+- Status: accepted
 - Deciders: dannycoates, shane-tomlinson, vbudhram, 6a68, bbangert, chenba
 - Date: 2020-01-07
 
