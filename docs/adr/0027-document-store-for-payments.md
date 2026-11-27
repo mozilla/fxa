@@ -1,5 +1,6 @@
 # Store Payment Data in Firestore
 
+- Status: accepted
 - Deciders: Ben Bangert, Barry Chen, Bianca Danforth, Danny Coates, Les Orchard
 - Date: 2021-07-22
 

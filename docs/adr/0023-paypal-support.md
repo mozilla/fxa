@@ -1,5 +1,6 @@
 # Add PayPal as a supported payment option
 
+- Status: accepted
 - Deciders: Ben Bangert, Barry Chen, Tyler Duzan, Bianca Danforth, Se Yeon Kim, Wennie Leung
 - Date: 2020-11-11
 
